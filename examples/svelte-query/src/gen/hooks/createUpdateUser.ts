@@ -34,12 +34,13 @@ export async function updateUser(
  * @summary Update user
  * {@link /user/:username}
  */
-export function createUpdateUser(
+export function createUpdateUser<TContext>(
   options: {
     mutation?: CreateMutationOptions<
       UpdateUserMutationResponse,
       ResponseErrorConfig<Error>,
-      { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }
+      { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+      TContext
     >
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client }
   } = {},
@@ -50,7 +51,8 @@ export function createUpdateUser(
   return createMutation<
     UpdateUserMutationResponse,
     ResponseErrorConfig<Error>,
-    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }
+    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    TContext
   >({
     mutationFn: async ({ username, data }) => {
       return updateUser(username, data, config)

@@ -18,12 +18,13 @@ export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
  * @summary uploads an image
  * {@link /pet/:petId/uploadImage}
  */
-export function useUploadFile(
+export function useUploadFile<TContext>(
   options: {
     mutation?: UseMutationOptions<
       ResponseConfig<UploadFileMutationResponse>,
       ResponseErrorConfig<Error>,
-      { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
+      { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+      TContext
     >
     client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client }
   } = {},
@@ -34,7 +35,8 @@ export function useUploadFile(
   return useMutation<
     ResponseConfig<UploadFileMutationResponse>,
     ResponseErrorConfig<Error>,
-    { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
+    { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+    TContext
   >({
     mutationFn: async ({ petId, data, params }) => {
       return uploadFile({ petId, data, params }, config)

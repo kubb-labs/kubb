@@ -37,12 +37,13 @@ export async function updatePetWithForm(
  * @summary Updates a pet in the store with form data
  * {@link /pet/:petId}
  */
-export function useUpdatePetWithForm(
+export function useUpdatePetWithForm<TContext>(
   options: {
     mutation?: MutationObserverOptions<
       UpdatePetWithFormMutationResponse,
       ResponseErrorConfig<UpdatePetWithForm405>,
-      { petId: MaybeRef<UpdatePetWithFormPathParams['petId']>; params?: MaybeRef<UpdatePetWithFormQueryParams> }
+      { petId: MaybeRef<UpdatePetWithFormPathParams['petId']>; params?: MaybeRef<UpdatePetWithFormQueryParams> },
+      TContext
     >
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
@@ -53,7 +54,8 @@ export function useUpdatePetWithForm(
   return useMutation<
     UpdatePetWithFormMutationResponse,
     ResponseErrorConfig<UpdatePetWithForm405>,
-    { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams }
+    { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
+    TContext
   >({
     mutationFn: async ({ petId, params }) => {
       return updatePetWithForm({ petId, params }, config)

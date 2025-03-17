@@ -29,12 +29,13 @@ export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], con
  * @summary Delete purchase order by ID
  * {@link /store/order/:orderId}
  */
-export function createDeleteOrder(
+export function createDeleteOrder<TContext>(
   options: {
     mutation?: CreateMutationOptions<
       DeleteOrderMutationResponse,
       ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
-      { orderId: DeleteOrderPathParams['orderId'] }
+      { orderId: DeleteOrderPathParams['orderId'] },
+      TContext
     >
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
@@ -42,7 +43,12 @@ export function createDeleteOrder(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
 
-  return createMutation<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, { orderId: DeleteOrderPathParams['orderId'] }>({
+  return createMutation<
+    DeleteOrderMutationResponse,
+    ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
+    { orderId: DeleteOrderPathParams['orderId'] },
+    TContext
+  >({
     mutationFn: async ({ orderId }) => {
       return deleteOrder(orderId, config)
     },

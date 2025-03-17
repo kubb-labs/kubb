@@ -34,12 +34,13 @@ export async function updateUserHook(
  * @summary Update user
  * {@link /user/:username}
  */
-export function useUpdateUserHook(
+export function useUpdateUserHook<TContext>(
   options: {
     mutation?: UseMutationOptions<
       UpdateUserMutationResponse,
       ResponseErrorConfig<Error>,
-      { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }
+      { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+      TContext
     >
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client }
   } = {},
@@ -47,7 +48,12 @@ export function useUpdateUserHook(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
 
-  return useMutation<UpdateUserMutationResponse, ResponseErrorConfig<Error>, { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }>({
+  return useMutation<
+    UpdateUserMutationResponse,
+    ResponseErrorConfig<Error>,
+    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    TContext
+  >({
     mutationFn: async ({ username, data }) => {
       return updateUserHook({ username }, data, config)
     },
