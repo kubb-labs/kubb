@@ -1,4 +1,4 @@
-import { camelCase } from '../transformers/casing.ts'
+import { camelCase, isValidVarName } from '../transformers'
 
 export type URLObject = {
   url: string
@@ -11,11 +11,17 @@ type ObjectOptions = {
   stringify?: boolean
 }
 
+type Options = {
+  casing?: 'camelcase'
+}
+
 export class URLPath {
   path: string
+  #options: Options
 
-  constructor(path: string) {
+  constructor(path: string, options: Options = {}) {
     this.path = path
+    this.#options = options
 
     return this
   }
@@ -57,7 +63,7 @@ export class URLPath {
 
   toObject({ type = 'path', replacer, stringify }: ObjectOptions = {}): URLObject | string {
     const object = {
-      url: type === 'path' ? this.toURLPath() : this.toTemplateString(replacer),
+      url: type === 'path' ? this.toURLPath() : this.toTemplateString({ replacer }),
       params: this.getParams(),
     }
 
@@ -82,21 +88,26 @@ export class URLPath {
    * @example /account/monetary-accountID => `/account/${monetaryAccountId}`
    * @example /account/userID => `/account/${userId}`
    */
-  toTemplateString(replacer?: (pathParam: string) => string): string {
+  toTemplateString({ prefix = '', replacer }: { prefix?: string; replacer?: (pathParam: string) => string } = {}): string {
     const regex = /{(\w|-)*}/g
     const found = this.path.match(regex)
     let newPath = this.path.replaceAll('{', '${')
 
     if (found) {
-      newPath = found.reduce((prev, curr) => {
-        const pathParam = replacer ? replacer(camelCase(curr)) : camelCase(curr)
-        const replacement = `\${${pathParam}}`
+      newPath = found.reduce((prev, path) => {
+        const pathWithoutBrackets = path.replaceAll('{', '').replaceAll('}', '')
 
-        return prev.replace(curr, replacement)
+        let param = isValidVarName(pathWithoutBrackets) ? pathWithoutBrackets : camelCase(pathWithoutBrackets)
+
+        if (this.#options.casing === 'camelcase') {
+          param = camelCase(param)
+        }
+
+        return prev.replace(path, `\${${replacer ? replacer(param) : param}}`)
       }, this.path)
     }
 
-    return `\`${newPath}\``
+    return `\`${prefix}${newPath}\``
   }
 
   getParams(replacer?: (pathParam: string) => string): Record<string, string> | undefined {
@@ -111,9 +122,15 @@ export class URLPath {
     found.forEach((item) => {
       item = item.replaceAll('{', '').replaceAll('}', '')
 
-      const pathParam = replacer ? replacer(camelCase(item)) : camelCase(item)
+      let param = isValidVarName(item) ? item : camelCase(item)
 
-      params[pathParam] = pathParam
+      if (this.#options.casing === 'camelcase') {
+        param = camelCase(param)
+      }
+
+      const key = replacer ? replacer(param) : param
+
+      params[key] = key
     }, this.path)
 
     return params

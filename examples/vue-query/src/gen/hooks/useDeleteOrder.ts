@@ -1,6 +1,6 @@
-import client from '@kubb/plugin-client/client'
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
+import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
@@ -12,20 +12,18 @@ export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
-async function deleteOrder(
-  {
-    orderId,
-  }: {
-    orderId: DeleteOrderPathParams['orderId']
-  },
-  config: Partial<RequestConfig> = {},
+export async function deleteOrder(
+  { orderId }: { orderId: DeleteOrderPathParams['orderId'] },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
-  const res = await client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, unknown>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }
@@ -33,28 +31,27 @@ async function deleteOrder(
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
- * @link /store/order/:orderId
+ * {@link /store/order/:orderId}
  */
-export function useDeleteOrder(
+export function useDeleteOrder<TContext>(
   options: {
     mutation?: MutationObserverOptions<
       DeleteOrderMutationResponse,
-      DeleteOrder400 | DeleteOrder404,
-      {
-        orderId: MaybeRef<DeleteOrderPathParams['orderId']>
-      }
+      ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
+      { orderId: MaybeRef<DeleteOrderPathParams['orderId']> },
+      TContext
     >
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
+
   return useMutation<
     DeleteOrderMutationResponse,
-    DeleteOrder400 | DeleteOrder404,
-    {
-      orderId: DeleteOrderPathParams['orderId']
-    }
+    ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
+    { orderId: DeleteOrderPathParams['orderId'] },
+    TContext
   >({
     mutationFn: async ({ orderId }) => {
       return deleteOrder({ orderId }, config)

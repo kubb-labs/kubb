@@ -18,19 +18,19 @@ Kubb plugin for Vite, webpack, esbuild, Rollup, Nuxt, Astro and Rspack.
 ::: code-group
 
 ```shell [bun]
-bun add unplugin-kubb @kubb/core
+bun add -d unplugin-kubb @kubb/core
 ```
 
 ```shell [pnpm]
-pnpm add unplugin-kubb @kubb/core
+pnpm add -D unplugin-kubb @kubb/core
 ```
 
 ```shell [npm]
-npm install unplugin-kubb @kubb/core
+npm install --save-dev unplugin-kubb @kubb/core
 ```
 
 ```shell [yarn]
-yarn add unplugin-kubb @kubb/core
+yarn add -D unplugin-kubb @kubb/core
 ```
 
 :::

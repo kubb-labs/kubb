@@ -14,6 +14,7 @@ type Props = {
   clientName: string
   queryKeyName: string
   typeSchemas: OperationSchemas
+  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
@@ -23,18 +24,19 @@ type Props = {
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
   if (paramsType === 'object') {
     return FunctionParams.factory({
       data: {
         mode: 'object',
         children: {
-          ...getPathParams(typeSchemas.pathParams, { typed: true }),
+          ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           data: typeSchemas.request?.name
             ? {
                 type: typeSchemas.request?.name,
@@ -56,7 +58,9 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
         },
       },
       config: {
-        type: typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>',
+        type: typeSchemas.request?.name
+          ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
+          : 'Partial<RequestConfig> & { client?: typeof client }',
         default: '{}',
       },
     })
@@ -66,7 +70,7 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true }),
+          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           optional: isOptional(typeSchemas.pathParams?.schema),
         }
       : undefined,
@@ -89,7 +93,9 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
         }
       : undefined,
     config: {
-      type: typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>',
+      type: typeSchemas.request?.name
+        ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
+        : 'Partial<RequestConfig> & { client?: typeof client }',
       default: '{}',
     },
   })
@@ -101,14 +107,19 @@ export function InfiniteQueryOptions({
   initialPageParam,
   cursorParam,
   typeSchemas,
+  paramsCasing,
   paramsType,
   dataReturnType,
   pathParamsType,
   queryParam,
   queryKeyName,
 }: Props): ReactNode {
-  const params = getParams({ paramsType, pathParamsType, typeSchemas })
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+
+  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
+    paramsCasing,
     typeSchemas,
     paramsType,
     pathParamsType,
@@ -116,6 +127,7 @@ export function InfiniteQueryOptions({
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,
     typeSchemas,
+    paramsCasing,
   })
 
   const queryOptions = [
@@ -146,13 +158,13 @@ export function InfiniteQueryOptions({
 
   const enabledText = enabled ? `enabled: !!(${enabled}),` : ''
 
-  return (
-    <File.Source name={name} isExportable isIndexable>
-      <Function name={name} export params={params.toConstructor()}>
-        {infiniteOverrideParams &&
-          `
+  if (infiniteOverrideParams) {
+    return (
+      <File.Source name={name} isExportable isIndexable>
+        <Function name={name} export params={params.toConstructor()}>
+          {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return infiniteQueryOptions({
+      return infiniteQueryOptions<${TData}, ${TError}, ${TData}, typeof queryKey, number>({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal, pageParam }) => {
@@ -163,17 +175,24 @@ export function InfiniteQueryOptions({
        ${queryOptions.join(',\n')}
       })
 `}
-        {!infiniteOverrideParams &&
-          `
+        </Function>
+      </File.Source>
+    )
+  }
+
+  return (
+    <File.Source name={name} isExportable isIndexable>
+      <Function name={name} export params={params.toConstructor()}>
+        {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return infiniteQueryOptions({
-       ${enabledText},
+      return infiniteQueryOptions<${TData}, ${TError}, ${TData}, typeof queryKey>({
+       ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {
           config.signal = signal
           return ${clientName}(${clientParams.toCall()})
        },
-       ${queryOptions.join('\n')}
+       ${queryOptions.join(',\n')}
       })
 `}
       </Function>

@@ -66,7 +66,11 @@ export type Address = {
   /**
    * @type string | undefined
    */
-  street?: string
+  streetName?: string
+  /**
+   * @type string | undefined
+   */
+  streetNumber?: string
   /**
    * @type string | undefined
    */
@@ -179,7 +183,7 @@ export type Pet =
       /**
        * @type array | undefined
        */
-      tags?: Tag[]
+      readonly tags?: Tag[]
       /**
        * @description pet status in the store
        * @type string | undefined
@@ -210,7 +214,7 @@ export type Pet =
       /**
        * @type array | undefined
        */
-      tags?: Tag[]
+      readonly tags?: Tag[]
       /**
        * @description pet status in the store
        * @type string | undefined
@@ -252,10 +256,23 @@ export type Dog = {
   bark?: string
 }
 
+export type FullAddress = Address & {
+  /**
+   * @type string
+   */
+  streetNumber: string
+} & {
+  /**
+   * @type string
+   */
+  streetName: string
+}
+
 export const addPetRequestStatusEnum = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
+  'in store': 'in store',
 } as const
 
 export type AddPetRequestStatusEnum = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
@@ -339,7 +356,7 @@ export type UpdatePet405 = any
 /**
  * @description Update an existent pet in the store
  */
-export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type'>
+export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type' | 'tags'>
 
 export type UpdatePetMutationResponse = UpdatePet200
 
@@ -533,15 +550,28 @@ export type DeletePetHeaderParams = {
   api_key?: string
 }
 
+export const deletePet200Enum = {
+  TYPE1: 'TYPE1',
+  TYPE2: 'TYPE2',
+  TYPE3: 'TYPE3',
+} as const
+
+export type DeletePet200Enum = (typeof deletePet200Enum)[keyof typeof deletePet200Enum]
+
+/**
+ * @description items
+ */
+export type DeletePet200 = DeletePet200Enum[]
+
 /**
  * @description Invalid pet value
  */
 export type DeletePet400 = any
 
-export type DeletePetMutationResponse = any
+export type DeletePetMutationResponse = DeletePet200
 
 export type DeletePetMutation = {
-  Response: any
+  Response: DeletePet200
   PathParams: DeletePetPathParams
   HeaderParams: DeletePetHeaderParams
   Errors: DeletePet400

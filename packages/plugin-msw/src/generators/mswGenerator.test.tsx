@@ -1,9 +1,9 @@
-import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas/parser'
+import { parse } from '@kubb/oas'
 import { OperationGenerator } from '@kubb/plugin-oas'
 import type { PluginMsw } from '../types.ts'
 import { mswGenerator } from './mswGenerator.tsx'
@@ -63,6 +63,8 @@ describe('mswGenerator operation', async () => {
         path: '.',
       },
       parser: 'data',
+      baseURL: undefined,
+      group: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginMsw>

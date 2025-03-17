@@ -1,17 +1,23 @@
-import client from '../client.ts'
-import type { RequestConfig } from '../client.ts'
+import client from '@kubb/plugin-client/clients/fetch'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from './models.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+
+export function getUploadFileUrl(petId: UploadFilePathParams['petId']) {
+  return `/pet/${petId}/uploadImage` as const
+}
 
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage
+ * {@link /pet/:petId/uploadImage}
  */
 export async function uploadFile(
   petId: UploadFilePathParams['petId'],
   data: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client } = {},
 ) {
+  const { client: request = client, ...requestConfig } = config
+
   const formData = new FormData()
   if (data) {
     Object.keys(data).forEach((key) => {
@@ -21,13 +27,13 @@ export async function uploadFile(
       }
     })
   }
-  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
+  const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
-    url: `/pet/${petId}/uploadImage`,
+    url: getUploadFileUrl(petId).toString(),
     params,
     data: formData,
-    headers: { 'Content-Type': 'multipart/form-data', ...config.headers },
-    ...config,
+    ...requestConfig,
+    headers: { 'Content-Type': 'multipart/form-data', ...requestConfig.headers },
   })
   return res.data
 }

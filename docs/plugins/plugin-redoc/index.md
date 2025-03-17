@@ -14,19 +14,19 @@ With the Redoc plugin you can create beautiful documentation.
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-redoc
+bun add -d @kubb/plugin-redoc
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-redoc
+pnpm add -D @kubb/plugin-redoc
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-redoc
+npm install --save-dev @kubb/plugin-redoc
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-redoc
+yarn add -D @kubb/plugin-redoc
 ```
 :::
 

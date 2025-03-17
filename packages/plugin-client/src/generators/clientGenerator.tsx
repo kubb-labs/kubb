@@ -1,9 +1,11 @@
 import { createReactGenerator } from '@kubb/plugin-oas'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
 import { Client } from '../components/Client'
+import { Url } from '../components/Url.tsx'
 import type { PluginClient } from '../types'
 
 export const clientGenerator = createReactGenerator<PluginClient>({
@@ -14,10 +16,16 @@ export const clientGenerator = createReactGenerator<PluginClient>({
         options: { output },
       },
     } = useApp<PluginClient>()
+    const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 
     const client = {
       name: getName(operation, { type: 'function' }),
+      file: getFile(operation),
+    }
+
+    const url = {
+      name: getName(operation, { type: 'function', suffix: 'url', prefix: 'get' }),
       file: getFile(operation),
     }
 
@@ -32,10 +40,18 @@ export const clientGenerator = createReactGenerator<PluginClient>({
     }
 
     return (
-      <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta} banner={output?.banner} footer={output?.footer}>
+      <File
+        baseName={client.file.baseName}
+        path={client.file.path}
+        meta={client.file.meta}
+        banner={getBanner({ oas, output })}
+        footer={getFooter({ oas, output })}
+      >
         <File.Import name={'client'} path={options.importPath} />
-        <File.Import name={['RequestConfig']} path={options.importPath} isTypeOnly />
-        {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={client.file.path} path={zod.file.path} />}
+        <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
+        {options.parser === 'zod' && (
+          <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={client.file.path} path={zod.file.path} />
+        )}
         <File.Import
           name={[
             type.schemas.request?.name,
@@ -50,11 +66,23 @@ export const clientGenerator = createReactGenerator<PluginClient>({
           isTypeOnly
         />
 
+        <Url
+          name={url.name}
+          baseURL={options.baseURL}
+          pathParamsType={options.pathParamsType}
+          paramsCasing={options.paramsCasing}
+          paramsType={options.paramsType}
+          typeSchemas={type.schemas}
+          operation={operation}
+        />
+
         <Client
           name={client.name}
+          urlName={url.name}
           baseURL={options.baseURL}
           dataReturnType={options.dataReturnType}
           pathParamsType={options.pathParamsType}
+          paramsCasing={options.paramsCasing}
           paramsType={options.paramsType}
           typeSchemas={type.schemas}
           operation={operation}

@@ -1,5 +1,463 @@
 # @kubb/plugin-faker
 
+## 3.6.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.2
+  - @kubb/fs@3.6.2
+  - @kubb/oas@3.6.2
+  - @kubb/plugin-oas@3.6.2
+  - @kubb/plugin-ts@3.6.2
+  - @kubb/react@3.6.2
+
+## 3.6.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.1
+  - @kubb/fs@3.6.1
+  - @kubb/oas@3.6.1
+  - @kubb/plugin-oas@3.6.1
+  - @kubb/plugin-ts@3.6.1
+  - @kubb/react@3.6.1
+
+## 3.6.0
+
+### Patch Changes
+
+- Updated dependencies [[`e48aa64`](https://github.com/kubb-labs/kubb/commit/e48aa6483c023ac988f71a6642a797b09f67d177)]:
+  - @kubb/oas@3.6.0
+  - @kubb/plugin-oas@3.6.0
+  - @kubb/plugin-ts@3.6.0
+  - @kubb/core@3.6.0
+  - @kubb/fs@3.6.0
+  - @kubb/react@3.6.0
+
+## 3.5.13
+
+### Patch Changes
+
+- Updated dependencies [[`09ed7ba`](https://github.com/kubb-labs/kubb/commit/09ed7ba9d585dabca249a0cddd18c8a0dce6f5e1)]:
+  - @kubb/plugin-ts@3.5.13
+  - @kubb/oas@3.5.13
+  - @kubb/core@3.5.13
+  - @kubb/react@3.5.13
+  - @kubb/plugin-oas@3.5.13
+  - @kubb/fs@3.5.13
+
+## 3.5.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.12
+  - @kubb/fs@3.5.12
+  - @kubb/oas@3.5.12
+  - @kubb/plugin-oas@3.5.12
+  - @kubb/plugin-ts@3.5.12
+  - @kubb/react@3.5.12
+
+## 3.5.11
+
+### Patch Changes
+
+- [#1557](https://github.com/kubb-labs/kubb/pull/1557) [`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5) Thanks [@nicholaschiang](https://github.com/nicholaschiang)! - Including and excluding tags now matches any tag, instead of just the first one.
+
+- Updated dependencies [[`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5)]:
+  - @kubb/core@3.5.11
+  - @kubb/fs@3.5.11
+  - @kubb/oas@3.5.11
+  - @kubb/plugin-oas@3.5.11
+  - @kubb/plugin-ts@3.5.11
+  - @kubb/react@3.5.11
+
+## 3.5.10
+
+### Patch Changes
+
+- [#1552](https://github.com/kubb-labs/kubb/pull/1552) [`2d9d869`](https://github.com/kubb-labs/kubb/commit/2d9d8695f697013387c44c0fd2c5468575777e4e) Thanks [@Ericlm](https://github.com/Ericlm)! - updating return-type to be non-partial of entering type
+
+- Updated dependencies []:
+  - @kubb/core@3.5.10
+  - @kubb/fs@3.5.10
+  - @kubb/oas@3.5.10
+  - @kubb/plugin-oas@3.5.10
+  - @kubb/plugin-ts@3.5.10
+  - @kubb/react@3.5.10
+
+## 3.5.9
+
+### Patch Changes
+
+- [`622b15f`](https://github.com/kubb-labs/kubb/commit/622b15fa8217e4269f242f70424beb6736ff840f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - returnType for faker functions
+
+- [`622b15f`](https://github.com/kubb-labs/kubb/commit/622b15fa8217e4269f242f70424beb6736ff840f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - only use min/max when both are set in the oas
+
+- Updated dependencies []:
+  - @kubb/core@3.5.9
+  - @kubb/fs@3.5.9
+  - @kubb/oas@3.5.9
+  - @kubb/plugin-oas@3.5.9
+  - @kubb/plugin-ts@3.5.9
+  - @kubb/react@3.5.9
+
+## 3.5.8
+
+### Patch Changes
+
+- [`24d9e13`](https://github.com/kubb-labs/kubb/commit/24d9e131e360dcb31e16f8978f0c0cc226002288) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support custom `contentType` per plugin
+
+- Updated dependencies [[`24d9e13`](https://github.com/kubb-labs/kubb/commit/24d9e131e360dcb31e16f8978f0c0cc226002288)]:
+  - @kubb/plugin-oas@3.5.8
+  - @kubb/plugin-ts@3.5.8
+  - @kubb/core@3.5.8
+  - @kubb/fs@3.5.8
+  - @kubb/oas@3.5.8
+  - @kubb/react@3.5.8
+
+## 3.5.7
+
+### Patch Changes
+
+- Updated dependencies [[`3dec170`](https://github.com/kubb-labs/kubb/commit/3dec170dc38013bbcff625eff9de0a75da05f80e)]:
+  - @kubb/react@3.5.7
+  - @kubb/core@3.5.7
+  - @kubb/fs@3.5.7
+  - @kubb/oas@3.5.7
+  - @kubb/plugin-oas@3.5.7
+  - @kubb/plugin-ts@3.5.7
+
+## 3.5.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.6
+  - @kubb/fs@3.5.6
+  - @kubb/oas@3.5.6
+  - @kubb/plugin-oas@3.5.6
+  - @kubb/plugin-ts@3.5.6
+  - @kubb/react@3.5.6
+
+## 3.5.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.5
+  - @kubb/fs@3.5.5
+  - @kubb/oas@3.5.5
+  - @kubb/plugin-oas@3.5.5
+  - @kubb/plugin-ts@3.5.5
+  - @kubb/react@3.5.5
+
+## 3.5.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.4
+  - @kubb/fs@3.5.4
+  - @kubb/oas@3.5.4
+  - @kubb/plugin-oas@3.5.4
+  - @kubb/plugin-ts@3.5.4
+  - @kubb/react@3.5.4
+
+## 3.5.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.3
+  - @kubb/fs@3.5.3
+  - @kubb/oas@3.5.3
+  - @kubb/plugin-oas@3.5.3
+  - @kubb/plugin-ts@3.5.3
+  - @kubb/react@3.5.3
+
+## 3.5.2
+
+### Patch Changes
+
+- [`41fb25f`](https://github.com/kubb-labs/kubb/commit/41fb25f4d4484018e5ae386772755078e6962d40) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `faker.number.float` with default min `Number.MIN_VALUE` and max set to `Number.MAX_VALUE`.
+
+- Updated dependencies [[`f5bae0d`](https://github.com/kubb-labs/kubb/commit/f5bae0db77f50fc11c504ab81bd077883346fd7e)]:
+  - @kubb/plugin-oas@3.5.2
+  - @kubb/plugin-ts@3.5.2
+  - @kubb/core@3.5.2
+  - @kubb/fs@3.5.2
+  - @kubb/oas@3.5.2
+  - @kubb/react@3.5.2
+
+## 3.5.1
+
+### Patch Changes
+
+- Updated dependencies [[`967efeb`](https://github.com/kubb-labs/kubb/commit/967efeb16ced9eac0d2b1fb493b39d9b25afbafa), [`cd539c4`](https://github.com/kubb-labs/kubb/commit/cd539c403d8de72502ab49d51a63a58a76a5c2a2)]:
+  - @kubb/core@3.5.1
+  - @kubb/plugin-oas@3.5.1
+  - @kubb/plugin-ts@3.5.1
+  - @kubb/react@3.5.1
+  - @kubb/fs@3.5.1
+  - @kubb/oas@3.5.1
+
+## 3.5.0
+
+### Minor Changes
+
+- [#1510](https://github.com/kubb-labs/kubb/pull/1510) [`d2b9643`](https://github.com/kubb-labs/kubb/commit/d2b96434da7b168f085d774f839c4ae32ab93977) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support banner with context for Oas
+
+### Patch Changes
+
+- Updated dependencies [[`d2b9643`](https://github.com/kubb-labs/kubb/commit/d2b96434da7b168f085d774f839c4ae32ab93977)]:
+  - @kubb/plugin-oas@3.5.0
+  - @kubb/plugin-ts@3.5.0
+  - @kubb/core@3.5.0
+  - @kubb/react@3.5.0
+  - @kubb/fs@3.5.0
+  - @kubb/oas@3.5.0
+
+## 3.4.5
+
+### Patch Changes
+
+- Updated dependencies [[`b678aba`](https://github.com/kubb-labs/kubb/commit/b678abae84d0e0e17af1eaa818c47e15341cf67b)]:
+  - @kubb/core@3.4.5
+  - @kubb/plugin-oas@3.4.5
+  - @kubb/plugin-ts@3.4.5
+  - @kubb/react@3.4.5
+  - @kubb/fs@3.4.5
+  - @kubb/oas@3.4.5
+
+## 3.4.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.4
+  - @kubb/fs@3.4.4
+  - @kubb/oas@3.4.4
+  - @kubb/plugin-oas@3.4.4
+  - @kubb/plugin-ts@3.4.4
+  - @kubb/react@3.4.4
+
+## 3.4.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.3
+  - @kubb/fs@3.4.3
+  - @kubb/oas@3.4.3
+  - @kubb/plugin-oas@3.4.3
+  - @kubb/plugin-ts@3.4.3
+  - @kubb/react@3.4.3
+
+## 3.4.2
+
+### Patch Changes
+
+- [`c98130b`](https://github.com/kubb-labs/kubb/commit/c98130b1d79c9f38b214785f9950ee34376d18c5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - correct use of grouping for path and tags
+
+- Updated dependencies [[`c98130b`](https://github.com/kubb-labs/kubb/commit/c98130b1d79c9f38b214785f9950ee34376d18c5), [`5febbe5`](https://github.com/kubb-labs/kubb/commit/5febbe5e6cd6e03b43ad2ef5da35ba25a7eb7559)]:
+  - @kubb/plugin-oas@3.4.2
+  - @kubb/plugin-ts@3.4.2
+  - @kubb/core@3.4.2
+  - @kubb/react@3.4.2
+  - @kubb/fs@3.4.2
+  - @kubb/oas@3.4.2
+
+## 3.4.1
+
+### Patch Changes
+
+- [`e10b59a`](https://github.com/kubb-labs/kubb/commit/e10b59aff004f03f45404b97f4480a3b5fc59d13) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - min and max was not applied to the faker functions
+
+- Updated dependencies []:
+  - @kubb/core@3.4.1
+  - @kubb/fs@3.4.1
+  - @kubb/oas@3.4.1
+  - @kubb/plugin-oas@3.4.1
+  - @kubb/plugin-ts@3.4.1
+  - @kubb/react@3.4.1
+
+## 3.4.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.0
+  - @kubb/fs@3.4.0
+  - @kubb/oas@3.4.0
+  - @kubb/plugin-oas@3.4.0
+  - @kubb/plugin-ts@3.4.0
+  - @kubb/react@3.4.0
+
+## 3.3.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.3.5
+  - @kubb/fs@3.3.5
+  - @kubb/oas@3.3.5
+  - @kubb/plugin-oas@3.3.5
+  - @kubb/plugin-ts@3.3.5
+  - @kubb/react@3.3.5
+
+## 3.3.4
+
+### Patch Changes
+
+- Updated dependencies [[`d8ffbfd`](https://github.com/kubb-labs/kubb/commit/d8ffbfdef7edf5ae7b4d3fd57e0a9388757d6c63)]:
+  - @kubb/plugin-ts@3.3.4
+  - @kubb/core@3.3.4
+  - @kubb/fs@3.3.4
+  - @kubb/oas@3.3.4
+  - @kubb/plugin-oas@3.3.4
+  - @kubb/react@3.3.4
+
+## 3.3.3
+
+### Patch Changes
+
+- Updated dependencies [[`17011c8`](https://github.com/kubb-labs/kubb/commit/17011c80c60fd79c5b00b4f260fde27acb93f97f)]:
+  - @kubb/react@3.3.3
+  - @kubb/plugin-oas@3.3.3
+  - @kubb/plugin-ts@3.3.3
+  - @kubb/core@3.3.3
+  - @kubb/fs@3.3.3
+  - @kubb/oas@3.3.3
+
+## 3.3.2
+
+### Patch Changes
+
+- Updated dependencies [[`fd3831e`](https://github.com/kubb-labs/kubb/commit/fd3831e090c0356280a3c17e9e1878e843705e60)]:
+  - @kubb/react@3.3.2
+  - @kubb/plugin-oas@3.3.2
+  - @kubb/plugin-ts@3.3.2
+  - @kubb/core@3.3.2
+  - @kubb/fs@3.3.2
+  - @kubb/oas@3.3.2
+
+## 3.3.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.3.1
+  - @kubb/fs@3.3.1
+  - @kubb/oas@3.3.1
+  - @kubb/plugin-oas@3.3.1
+  - @kubb/plugin-ts@3.3.1
+  - @kubb/react@3.3.1
+
+## 3.3.0
+
+### Patch Changes
+
+- Updated dependencies [[`ed08de3`](https://github.com/kubb-labs/kubb/commit/ed08de333ffc4a6de61707b3a0c2c9d647cd16fd)]:
+  - @kubb/plugin-ts@3.3.0
+  - @kubb/core@3.3.0
+  - @kubb/fs@3.3.0
+  - @kubb/oas@3.3.0
+  - @kubb/plugin-oas@3.3.0
+  - @kubb/react@3.3.0
+
+## 3.2.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.2.0
+  - @kubb/fs@3.2.0
+  - @kubb/oas@3.2.0
+  - @kubb/plugin-oas@3.2.0
+  - @kubb/plugin-ts@3.2.0
+  - @kubb/react@3.2.0
+
+## 3.1.0
+
+### Minor Changes
+
+- [#1441](https://github.com/kubb-labs/kubb/pull/1441) [`55cbb62`](https://github.com/kubb-labs/kubb/commit/55cbb62d9d7a4e08886dfb91b52e275254c2c4b1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Group API clients by path structure
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.1.0
+  - @kubb/fs@3.1.0
+  - @kubb/oas@3.1.0
+  - @kubb/plugin-oas@3.1.0
+  - @kubb/plugin-ts@3.1.0
+  - @kubb/react@3.1.0
+
+## 3.0.14
+
+### Patch Changes
+
+- Updated dependencies [[`c94ebdc`](https://github.com/kubb-labs/kubb/commit/c94ebdc08587eea345ae17e545168e4497999f4e)]:
+  - @kubb/plugin-oas@3.0.14
+  - @kubb/plugin-ts@3.0.14
+  - @kubb/core@3.0.14
+  - @kubb/fs@3.0.14
+  - @kubb/oas@3.0.14
+  - @kubb/react@3.0.14
+
+## 3.0.13
+
+### Patch Changes
+
+- Updated dependencies [[`d2a69a3`](https://github.com/kubb-labs/kubb/commit/d2a69a3b11c02d2836081202c07954f8e49aef83)]:
+  - @kubb/plugin-oas@3.0.13
+  - @kubb/core@3.0.13
+  - @kubb/oas@3.0.13
+  - @kubb/fs@3.0.13
+  - @kubb/plugin-ts@3.0.13
+  - @kubb/react@3.0.13
+
+## 3.0.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.12
+  - @kubb/fs@3.0.12
+  - @kubb/oas@3.0.12
+  - @kubb/plugin-oas@3.0.12
+  - @kubb/plugin-ts@3.0.12
+  - @kubb/react@3.0.12
+
+## 3.0.11
+
+### Patch Changes
+
+- Updated dependencies [[`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2), [`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2), [`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2)]:
+  - @kubb/core@3.0.11
+  - @kubb/plugin-oas@3.0.11
+  - @kubb/plugin-ts@3.0.11
+  - @kubb/react@3.0.11
+  - @kubb/fs@3.0.11
+  - @kubb/oas@3.0.11
+
+## 3.0.10
+
+### Patch Changes
+
+- [`ad977aa`](https://github.com/kubb-labs/kubb/commit/ad977aaec348c877405e780b6ea89bbbfbd282b7) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `data` should have a higher priority than faker defaults generation
+
+- Updated dependencies []:
+  - @kubb/core@3.0.10
+  - @kubb/fs@3.0.10
+  - @kubb/oas@3.0.10
+  - @kubb/plugin-oas@3.0.10
+  - @kubb/plugin-ts@3.0.10
+  - @kubb/react@3.0.10
+
 ## 3.0.9
 
 ### Patch Changes

@@ -1,3 +1,5 @@
-import { z } from "zod";
+import { z } from 'zod'
 
- export const example = z.object({ "nestedExamples": z.lazy(() => example).optional() });
+export const example = z.object({
+  nestedExamples: z.lazy(() => example).optional(),
+})

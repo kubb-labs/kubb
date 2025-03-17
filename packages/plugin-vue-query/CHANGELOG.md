@@ -1,5 +1,501 @@
 # @kubb/plugin-vue-query
 
+## 3.6.2
+
+### Patch Changes
+
+- Updated dependencies [[`3069971`](https://github.com/kubb-labs/kubb/commit/3069971677df4c07da161e94eececf697e4f39d6)]:
+  - @kubb/plugin-zod@3.6.2
+  - @kubb/core@3.6.2
+  - @kubb/fs@3.6.2
+  - @kubb/oas@3.6.2
+  - @kubb/plugin-oas@3.6.2
+  - @kubb/plugin-ts@3.6.2
+  - @kubb/react@3.6.2
+
+## 3.6.1
+
+### Patch Changes
+
+- [#1582](https://github.com/kubb-labs/kubb/pull/1582) [`55170e1`](https://github.com/kubb-labs/kubb/commit/55170e1a2774331166516e0b969a70915883eea3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - validating the request using zod before making the HTTP call
+
+- Updated dependencies []:
+  - @kubb/core@3.6.1
+  - @kubb/fs@3.6.1
+  - @kubb/oas@3.6.1
+  - @kubb/plugin-oas@3.6.1
+  - @kubb/plugin-ts@3.6.1
+  - @kubb/plugin-zod@3.6.1
+  - @kubb/react@3.6.1
+
+## 3.6.0
+
+### Patch Changes
+
+- Updated dependencies [[`a528a46`](https://github.com/kubb-labs/kubb/commit/a528a460dfaecba6b24f9411826942f1cb813e8b), [`e48aa64`](https://github.com/kubb-labs/kubb/commit/e48aa6483c023ac988f71a6642a797b09f67d177)]:
+  - @kubb/plugin-zod@3.6.0
+  - @kubb/oas@3.6.0
+  - @kubb/plugin-oas@3.6.0
+  - @kubb/plugin-ts@3.6.0
+  - @kubb/core@3.6.0
+  - @kubb/fs@3.6.0
+  - @kubb/react@3.6.0
+
+## 3.5.13
+
+### Patch Changes
+
+- Updated dependencies [[`09ed7ba`](https://github.com/kubb-labs/kubb/commit/09ed7ba9d585dabca249a0cddd18c8a0dce6f5e1)]:
+  - @kubb/plugin-ts@3.5.13
+  - @kubb/oas@3.5.13
+  - @kubb/core@3.5.13
+  - @kubb/plugin-zod@3.5.13
+  - @kubb/react@3.5.13
+  - @kubb/plugin-oas@3.5.13
+  - @kubb/fs@3.5.13
+
+## 3.5.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.12
+  - @kubb/fs@3.5.12
+  - @kubb/oas@3.5.12
+  - @kubb/plugin-oas@3.5.12
+  - @kubb/plugin-ts@3.5.12
+  - @kubb/plugin-zod@3.5.12
+  - @kubb/react@3.5.12
+
+## 3.5.11
+
+### Patch Changes
+
+- [#1557](https://github.com/kubb-labs/kubb/pull/1557) [`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5) Thanks [@nicholaschiang](https://github.com/nicholaschiang)! - Including and excluding tags now matches any tag, instead of just the first one.
+
+- Updated dependencies [[`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5)]:
+  - @kubb/core@3.5.11
+  - @kubb/fs@3.5.11
+  - @kubb/oas@3.5.11
+  - @kubb/plugin-oas@3.5.11
+  - @kubb/plugin-ts@3.5.11
+  - @kubb/plugin-zod@3.5.11
+  - @kubb/react@3.5.11
+
+## 3.5.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.10
+  - @kubb/fs@3.5.10
+  - @kubb/oas@3.5.10
+  - @kubb/plugin-oas@3.5.10
+  - @kubb/plugin-ts@3.5.10
+  - @kubb/plugin-zod@3.5.10
+  - @kubb/react@3.5.10
+
+## 3.5.9
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.9
+  - @kubb/fs@3.5.9
+  - @kubb/oas@3.5.9
+  - @kubb/plugin-oas@3.5.9
+  - @kubb/plugin-ts@3.5.9
+  - @kubb/plugin-zod@3.5.9
+  - @kubb/react@3.5.9
+
+## 3.5.8
+
+### Patch Changes
+
+- [`24d9e13`](https://github.com/kubb-labs/kubb/commit/24d9e131e360dcb31e16f8978f0c0cc226002288) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support custom `contentType` per plugin
+
+- Updated dependencies [[`24d9e13`](https://github.com/kubb-labs/kubb/commit/24d9e131e360dcb31e16f8978f0c0cc226002288)]:
+  - @kubb/plugin-oas@3.5.8
+  - @kubb/plugin-zod@3.5.8
+  - @kubb/plugin-ts@3.5.8
+  - @kubb/core@3.5.8
+  - @kubb/fs@3.5.8
+  - @kubb/oas@3.5.8
+  - @kubb/react@3.5.8
+
+## 3.5.7
+
+### Patch Changes
+
+- Updated dependencies [[`3dec170`](https://github.com/kubb-labs/kubb/commit/3dec170dc38013bbcff625eff9de0a75da05f80e)]:
+  - @kubb/react@3.5.7
+  - @kubb/core@3.5.7
+  - @kubb/fs@3.5.7
+  - @kubb/oas@3.5.7
+  - @kubb/plugin-oas@3.5.7
+  - @kubb/plugin-ts@3.5.7
+  - @kubb/plugin-zod@3.5.7
+
+## 3.5.6
+
+### Patch Changes
+
+- [`76322c1`](https://github.com/kubb-labs/kubb/commit/76322c11d64e2be7d1b9d3dbf351f1f7cb322f48) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support custom client in options
+
+- Updated dependencies []:
+  - @kubb/core@3.5.6
+  - @kubb/fs@3.5.6
+  - @kubb/oas@3.5.6
+  - @kubb/plugin-oas@3.5.6
+  - @kubb/plugin-ts@3.5.6
+  - @kubb/plugin-zod@3.5.6
+  - @kubb/react@3.5.6
+
+## 3.5.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.5
+  - @kubb/fs@3.5.5
+  - @kubb/oas@3.5.5
+  - @kubb/plugin-oas@3.5.5
+  - @kubb/plugin-ts@3.5.5
+  - @kubb/plugin-zod@3.5.5
+  - @kubb/react@3.5.5
+
+## 3.5.4
+
+### Patch Changes
+
+- Updated dependencies [[`ce201f0`](https://github.com/kubb-labs/kubb/commit/ce201f0e4cac2236ba10dc020c29741ea62b28a5)]:
+  - @kubb/plugin-zod@3.5.4
+  - @kubb/core@3.5.4
+  - @kubb/fs@3.5.4
+  - @kubb/oas@3.5.4
+  - @kubb/plugin-oas@3.5.4
+  - @kubb/plugin-ts@3.5.4
+  - @kubb/react@3.5.4
+
+## 3.5.3
+
+### Patch Changes
+
+- [#1530](https://github.com/kubb-labs/kubb/pull/1530) [`babf1d5`](https://github.com/kubb-labs/kubb/commit/babf1d5a3feccdde43a3e28778f1f475f231dc9d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - allow exporting custom client fetch function in react-query
+
+- Updated dependencies []:
+  - @kubb/core@3.5.3
+  - @kubb/fs@3.5.3
+  - @kubb/oas@3.5.3
+  - @kubb/plugin-oas@3.5.3
+  - @kubb/plugin-ts@3.5.3
+  - @kubb/plugin-zod@3.5.3
+  - @kubb/react@3.5.3
+
+## 3.5.2
+
+### Patch Changes
+
+- Updated dependencies [[`f5bae0d`](https://github.com/kubb-labs/kubb/commit/f5bae0db77f50fc11c504ab81bd077883346fd7e)]:
+  - @kubb/plugin-oas@3.5.2
+  - @kubb/plugin-ts@3.5.2
+  - @kubb/plugin-zod@3.5.2
+  - @kubb/core@3.5.2
+  - @kubb/fs@3.5.2
+  - @kubb/oas@3.5.2
+  - @kubb/react@3.5.2
+
+## 3.5.1
+
+### Patch Changes
+
+- Updated dependencies [[`967efeb`](https://github.com/kubb-labs/kubb/commit/967efeb16ced9eac0d2b1fb493b39d9b25afbafa), [`cd539c4`](https://github.com/kubb-labs/kubb/commit/cd539c403d8de72502ab49d51a63a58a76a5c2a2)]:
+  - @kubb/core@3.5.1
+  - @kubb/plugin-oas@3.5.1
+  - @kubb/plugin-ts@3.5.1
+  - @kubb/plugin-zod@3.5.1
+  - @kubb/react@3.5.1
+  - @kubb/fs@3.5.1
+  - @kubb/oas@3.5.1
+
+## 3.5.0
+
+### Minor Changes
+
+- [#1510](https://github.com/kubb-labs/kubb/pull/1510) [`d2b9643`](https://github.com/kubb-labs/kubb/commit/d2b96434da7b168f085d774f839c4ae32ab93977) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support banner with context for Oas
+
+### Patch Changes
+
+- Updated dependencies [[`d2b9643`](https://github.com/kubb-labs/kubb/commit/d2b96434da7b168f085d774f839c4ae32ab93977)]:
+  - @kubb/plugin-oas@3.5.0
+  - @kubb/plugin-zod@3.5.0
+  - @kubb/plugin-ts@3.5.0
+  - @kubb/core@3.5.0
+  - @kubb/react@3.5.0
+  - @kubb/fs@3.5.0
+  - @kubb/oas@3.5.0
+
+## 3.4.5
+
+### Patch Changes
+
+- Updated dependencies [[`b678aba`](https://github.com/kubb-labs/kubb/commit/b678abae84d0e0e17af1eaa818c47e15341cf67b)]:
+  - @kubb/core@3.4.5
+  - @kubb/plugin-oas@3.4.5
+  - @kubb/plugin-ts@3.4.5
+  - @kubb/plugin-zod@3.4.5
+  - @kubb/react@3.4.5
+  - @kubb/fs@3.4.5
+  - @kubb/oas@3.4.5
+
+## 3.4.4
+
+### Patch Changes
+
+- Updated dependencies [[`4f571fa`](https://github.com/kubb-labs/kubb/commit/4f571fa94b1dc39dbffd4c27496585843e2bbb7f)]:
+  - @kubb/plugin-zod@3.4.4
+  - @kubb/core@3.4.4
+  - @kubb/fs@3.4.4
+  - @kubb/oas@3.4.4
+  - @kubb/plugin-oas@3.4.4
+  - @kubb/plugin-ts@3.4.4
+  - @kubb/react@3.4.4
+
+## 3.4.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.3
+  - @kubb/fs@3.4.3
+  - @kubb/oas@3.4.3
+  - @kubb/plugin-oas@3.4.3
+  - @kubb/plugin-ts@3.4.3
+  - @kubb/plugin-zod@3.4.3
+  - @kubb/react@3.4.3
+
+## 3.4.2
+
+### Patch Changes
+
+- [`c98130b`](https://github.com/kubb-labs/kubb/commit/c98130b1d79c9f38b214785f9950ee34376d18c5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - correct use of grouping for path and tags
+
+- Updated dependencies [[`c98130b`](https://github.com/kubb-labs/kubb/commit/c98130b1d79c9f38b214785f9950ee34376d18c5), [`5febbe5`](https://github.com/kubb-labs/kubb/commit/5febbe5e6cd6e03b43ad2ef5da35ba25a7eb7559)]:
+  - @kubb/plugin-oas@3.4.2
+  - @kubb/plugin-zod@3.4.2
+  - @kubb/plugin-ts@3.4.2
+  - @kubb/core@3.4.2
+  - @kubb/react@3.4.2
+  - @kubb/fs@3.4.2
+  - @kubb/oas@3.4.2
+
+## 3.4.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.1
+  - @kubb/fs@3.4.1
+  - @kubb/oas@3.4.1
+  - @kubb/plugin-oas@3.4.1
+  - @kubb/plugin-ts@3.4.1
+  - @kubb/plugin-zod@3.4.1
+  - @kubb/react@3.4.1
+
+## 3.4.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.0
+  - @kubb/fs@3.4.0
+  - @kubb/oas@3.4.0
+  - @kubb/plugin-oas@3.4.0
+  - @kubb/plugin-ts@3.4.0
+  - @kubb/plugin-zod@3.4.0
+  - @kubb/react@3.4.0
+
+## 3.3.5
+
+### Patch Changes
+
+- [#1489](https://github.com/kubb-labs/kubb/pull/1489) [`fba76b6`](https://github.com/kubb-labs/kubb/commit/fba76b6e8cea2956bb11506b874e461d433493c0) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - queryOptions with custom Error type
+
+- Updated dependencies []:
+  - @kubb/core@3.3.5
+  - @kubb/fs@3.3.5
+  - @kubb/oas@3.3.5
+  - @kubb/plugin-oas@3.3.5
+  - @kubb/plugin-ts@3.3.5
+  - @kubb/plugin-zod@3.3.5
+  - @kubb/react@3.3.5
+
+## 3.3.4
+
+### Patch Changes
+
+- Updated dependencies [[`d8ffbfd`](https://github.com/kubb-labs/kubb/commit/d8ffbfdef7edf5ae7b4d3fd57e0a9388757d6c63)]:
+  - @kubb/plugin-ts@3.3.4
+  - @kubb/plugin-zod@3.3.4
+  - @kubb/core@3.3.4
+  - @kubb/fs@3.3.4
+  - @kubb/oas@3.3.4
+  - @kubb/plugin-oas@3.3.4
+  - @kubb/react@3.3.4
+
+## 3.3.3
+
+### Patch Changes
+
+- Updated dependencies [[`17011c8`](https://github.com/kubb-labs/kubb/commit/17011c80c60fd79c5b00b4f260fde27acb93f97f)]:
+  - @kubb/react@3.3.3
+  - @kubb/plugin-oas@3.3.3
+  - @kubb/plugin-ts@3.3.3
+  - @kubb/plugin-zod@3.3.3
+  - @kubb/core@3.3.3
+  - @kubb/fs@3.3.3
+  - @kubb/oas@3.3.3
+
+## 3.3.2
+
+### Patch Changes
+
+- Updated dependencies [[`fd3831e`](https://github.com/kubb-labs/kubb/commit/fd3831e090c0356280a3c17e9e1878e843705e60)]:
+  - @kubb/react@3.3.2
+  - @kubb/plugin-oas@3.3.2
+  - @kubb/plugin-ts@3.3.2
+  - @kubb/plugin-zod@3.3.2
+  - @kubb/core@3.3.2
+  - @kubb/fs@3.3.2
+  - @kubb/oas@3.3.2
+
+## 3.3.1
+
+### Patch Changes
+
+- Updated dependencies [[`9399093`](https://github.com/kubb-labs/kubb/commit/939909354c4413a4ac7ba9b68963e31230992006)]:
+  - @kubb/plugin-zod@3.3.1
+  - @kubb/core@3.3.1
+  - @kubb/fs@3.3.1
+  - @kubb/oas@3.3.1
+  - @kubb/plugin-oas@3.3.1
+  - @kubb/plugin-ts@3.3.1
+  - @kubb/react@3.3.1
+
+## 3.3.0
+
+### Patch Changes
+
+- Updated dependencies [[`ed08de3`](https://github.com/kubb-labs/kubb/commit/ed08de333ffc4a6de61707b3a0c2c9d647cd16fd), [`7de9eeb`](https://github.com/kubb-labs/kubb/commit/7de9eeb59a69a9cff6377ce3c7887d5641300749)]:
+  - @kubb/plugin-ts@3.3.0
+  - @kubb/plugin-zod@3.3.0
+  - @kubb/core@3.3.0
+  - @kubb/fs@3.3.0
+  - @kubb/oas@3.3.0
+  - @kubb/plugin-oas@3.3.0
+  - @kubb/react@3.3.0
+
+## 3.2.0
+
+### Minor Changes
+
+- [#1444](https://github.com/kubb-labs/kubb/pull/1444) [`d9c16d0`](https://github.com/kubb-labs/kubb/commit/d9c16d0086bf6f1e3590de01912f9b7d3ef430f8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `paramsCasing` to define casing for params
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.2.0
+  - @kubb/fs@3.2.0
+  - @kubb/oas@3.2.0
+  - @kubb/plugin-oas@3.2.0
+  - @kubb/plugin-ts@3.2.0
+  - @kubb/plugin-zod@3.2.0
+  - @kubb/react@3.2.0
+
+## 3.1.0
+
+### Minor Changes
+
+- [#1441](https://github.com/kubb-labs/kubb/pull/1441) [`55cbb62`](https://github.com/kubb-labs/kubb/commit/55cbb62d9d7a4e08886dfb91b52e275254c2c4b1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Group API clients by path structure
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.1.0
+  - @kubb/fs@3.1.0
+  - @kubb/oas@3.1.0
+  - @kubb/plugin-oas@3.1.0
+  - @kubb/plugin-ts@3.1.0
+  - @kubb/plugin-zod@3.1.0
+  - @kubb/react@3.1.0
+
+## 3.0.14
+
+### Patch Changes
+
+- Updated dependencies [[`c94ebdc`](https://github.com/kubb-labs/kubb/commit/c94ebdc08587eea345ae17e545168e4497999f4e)]:
+  - @kubb/plugin-oas@3.0.14
+  - @kubb/plugin-ts@3.0.14
+  - @kubb/plugin-zod@3.0.14
+  - @kubb/core@3.0.14
+  - @kubb/fs@3.0.14
+  - @kubb/oas@3.0.14
+  - @kubb/react@3.0.14
+
+## 3.0.13
+
+### Patch Changes
+
+- [`d2a69a3`](https://github.com/kubb-labs/kubb/commit/d2a69a3b11c02d2836081202c07954f8e49aef83) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - upgrade packges
+
+- Updated dependencies [[`d2a69a3`](https://github.com/kubb-labs/kubb/commit/d2a69a3b11c02d2836081202c07954f8e49aef83)]:
+  - @kubb/plugin-oas@3.0.13
+  - @kubb/core@3.0.13
+  - @kubb/oas@3.0.13
+  - @kubb/fs@3.0.13
+  - @kubb/plugin-ts@3.0.13
+  - @kubb/plugin-zod@3.0.13
+  - @kubb/react@3.0.13
+
+## 3.0.12
+
+### Patch Changes
+
+- Updated dependencies [[`9f6de42`](https://github.com/kubb-labs/kubb/commit/9f6de4201b503f060a8c856be26918f8e07a84a6)]:
+  - @kubb/plugin-zod@3.0.12
+  - @kubb/core@3.0.12
+  - @kubb/fs@3.0.12
+  - @kubb/oas@3.0.12
+  - @kubb/plugin-oas@3.0.12
+  - @kubb/plugin-ts@3.0.12
+  - @kubb/react@3.0.12
+
+## 3.0.11
+
+### Patch Changes
+
+- Updated dependencies [[`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2), [`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2), [`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2)]:
+  - @kubb/core@3.0.11
+  - @kubb/plugin-oas@3.0.11
+  - @kubb/plugin-ts@3.0.11
+  - @kubb/plugin-zod@3.0.11
+  - @kubb/react@3.0.11
+  - @kubb/fs@3.0.11
+  - @kubb/oas@3.0.11
+
+## 3.0.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.10
+  - @kubb/fs@3.0.10
+  - @kubb/oas@3.0.10
+  - @kubb/plugin-oas@3.0.10
+  - @kubb/plugin-ts@3.0.10
+  - @kubb/plugin-zod@3.0.10
+  - @kubb/react@3.0.10
+
 ## 3.0.9
 
 ### Patch Changes

@@ -3,7 +3,7 @@ import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas/parser'
+import { parse } from '@kubb/oas'
 import { OperationGenerator } from '@kubb/plugin-oas'
 import { QueryKey } from '../components'
 import type { PluginSolidQuery } from '../types.ts'
@@ -72,7 +72,7 @@ describe('queryGenerator operation', async () => {
       options: {
         client: {
           dataReturnType: 'full',
-          importPath: '@kubb/plugin-client/client',
+          importPath: '@kubb/plugin-client/clients/axios',
         },
       },
     },
@@ -112,10 +112,11 @@ describe('queryGenerator operation', async () => {
     const options: PluginSolidQuery['resolvedOptions'] = {
       client: {
         dataReturnType: 'data',
-        importPath: '@kubb/plugin-client/client',
+        importPath: '@kubb/plugin-client/clients/axios',
       },
       parser: 'zod',
       paramsType: 'inline',
+      paramsCasing: undefined,
       pathParamsType: 'inline',
       queryKey: QueryKey.getTransformer,
       query: {
@@ -125,6 +126,7 @@ describe('queryGenerator operation', async () => {
       output: {
         path: '.',
       },
+      group: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginSolidQuery>

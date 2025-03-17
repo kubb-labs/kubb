@@ -16,7 +16,7 @@
     "clean": "npx rimraf ./dist",
     "format": "prettier --write **/*.{ts,tsx}",
     "generate": "kubb generate",
-    "generate:debug": "node --inspect ../packages/cli/bin/kubb.js",
+    "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
@@ -32,27 +32,27 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@tanstack/react-query": "^5.60.5",
-    "@tanstack/solid-query": "^5.60.5",
-    "@tanstack/svelte-query": "^5.60.5",
-    "@tanstack/vue-query": "^5.60.5",
-    "axios": "^1.7.7",
-    "msw": "^2.6.5",
-    "react": "^18.3.1",
-    "solid-js": "^1.9.3",
+    "@tanstack/react-query": "^5.68.0",
+    "@tanstack/solid-query": "^5.68.0",
+    "@tanstack/svelte-query": "^5.68.0",
+    "@tanstack/vue-query": "^5.68.0",
+    "axios": "^1.8.3",
+    "msw": "^2.7.3",
+    "react": "catalog:",
+    "solid-js": "^1.9.5",
     "svelte": "^3.59.2",
-    "swr": "^2.2.5",
-    "tsup": "^8.3.5",
+    "swr": "^2.3.3",
+    "tsup": "catalog:",
     "vue": "^3.5.13",
-    "zod": "^3.23.8"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "tsup": "^8.3.5",
-    "typescript": "^5.6.3"
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
-  "packageManager": "pnpm@9.4.0",
+  "packageManager": "pnpm@9.15.5",
   "engines": {
     "node": ">=20",
     "pnpm": ">=8.3.0"

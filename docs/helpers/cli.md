@@ -16,19 +16,19 @@ Upon startup, Kubb displays the progress of the plugin execution, the file writi
 
 ::: code-group
 ```shell [bun]
-bun add @kubb/cli
+bun add -d @kubb/cli
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/cli
+pnpm add -D @kubb/cli
 ```
 
 ```shell [npm]
-npm install @kubb/cli
+npm install --save-dev @kubb/cli
 ```
 
 ```shell [yarn]
-yarn add @kubb/cli
+yarn add -D @kubb/cli
 ```
 :::
 

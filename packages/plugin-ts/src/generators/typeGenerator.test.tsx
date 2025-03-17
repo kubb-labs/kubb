@@ -1,9 +1,9 @@
-import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas/parser'
+import { parse } from '@kubb/oas'
 import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import ts, { factory } from 'typescript'
@@ -60,6 +60,14 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
+      name: 'PetsInterface',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pets',
+      options: {
+        syntaxType: 'interface',
+      },
+    },
+    {
       name: 'PetsStoreRef',
       input: '../../mocks/petStoreRef.yaml',
       path: 'Pets',
@@ -73,6 +81,24 @@ describe('typeGenerator schema', async () => {
       path: 'Cat',
       options: {
         enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'FooBase',
+      input: '../../mocks/discriminator.yaml',
+      path: 'FooBase',
+      options: {
+        enumType: 'literal',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'FooNumber',
+      input: '../../mocks/discriminator.yaml',
+      path: 'FooNumber',
+      options: {
+        enumType: 'literal',
         optionalType: 'questionToken',
       },
     },
@@ -195,12 +221,17 @@ describe('typeGenerator schema', async () => {
     },
     {
       name: 'EnumArray',
-      input: '../../mocks/enums_2.0.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enum.Array',
       options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
+        enumType: 'literal',
       },
+    },
+    {
+      name: 'EnumArray_2.0',
+      input: '../../mocks/enums_2.0.yaml',
+      path: 'enum.Array',
+      options: {},
     },
     {
       name: 'EnumNames',
@@ -348,9 +379,11 @@ describe('typeGenerator schema', async () => {
       optionalType: 'questionToken',
       override: [],
       mapper: {},
+      syntaxType: 'type',
       output: {
         path: '.',
       },
+      group: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
@@ -418,6 +451,15 @@ describe('typeGenerator operation', async () => {
       },
     },
     {
+      name: 'createPet with unknownType void',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        unknownType: 'void',
+      },
+    },
+    {
       name: 'deletePet',
       input: '../../mocks/petStore.yaml',
       path: '/pets/{petId}',
@@ -444,11 +486,13 @@ describe('typeGenerator operation', async () => {
       transformers: {},
       oasType: false,
       unknownType: 'any',
+      syntaxType: 'type',
       override: [],
       mapper: {},
       output: {
         path: '.',
       },
+      group: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>

@@ -8,9 +8,9 @@ import { EventEmitter } from './utils/EventEmitter.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
 
 import type * as KubbFile from '@kubb/fs/types'
-import type { PossiblePromise } from '@kubb/types'
 import type { Logger } from './logger.ts'
 import type { PluginCore } from './plugin.ts'
+import { trim } from './transformers/trim.ts'
 import type {
   Config,
   GetPluginFactoryOptions,
@@ -163,7 +163,7 @@ export class PluginManager {
       const names = this.hookForPluginSync({
         pluginKey: params.pluginKey,
         hookName: 'resolveName',
-        parameters: [params.name, params.type],
+        parameters: [trim(params.name), params.type],
         message: `Resolving name '${params.name}' and type '${params.type}'`,
       })
 
@@ -183,7 +183,7 @@ export class PluginManager {
 
     const name = this.hookFirstSync({
       hookName: 'resolveName',
-      parameters: [params.name, params.type],
+      parameters: [trim(params.name), params.type],
       message: `Resolving name '${params.name}' and type '${params.type}'`,
     }).result
 
@@ -447,7 +447,18 @@ export class PluginManager {
       })
   }
 
-  getPluginsByKey(hookName: keyof PluginLifecycle, pluginKey: Plugin['key']): Plugin[] {
+  getPluginByKey(pluginKey: Plugin['key']): Plugin | undefined {
+    const plugins = [...this.plugins]
+    const [searchPluginName] = pluginKey
+
+    return plugins.find((item) => {
+      const [name] = item.key
+
+      return name === searchPluginName
+    })
+  }
+
+  getPluginsByKey(hookName: keyof PluginWithLifeCycle, pluginKey: Plugin['key']): Plugin[] {
     const plugins = [...this.plugins]
     const [searchPluginName, searchIdentifier] = pluginKey
 

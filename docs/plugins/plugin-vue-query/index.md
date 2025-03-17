@@ -15,19 +15,19 @@ Create hooks based on an operation.
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-vue-query
+bun add -d @kubb/plugin-vue-query
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-vue-query
+pnpm add -D @kubb/plugin-vue-query
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-vue-query
+npm install --save-dev @kubb/plugin-vue-query
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-vue-query
+yarn add -D @kubb/plugin-vue-query
 ```
 
 :::
@@ -70,7 +70,7 @@ Add a banner text in the beginning of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
 #### output.footer
@@ -78,8 +78,11 @@ Add a footer text at the end of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
+
+### contentType
+<!--@include: ../core/contentType.md-->
 
 ### group
 <!--@include: ../core/group.md-->
@@ -112,11 +115,14 @@ Return the name of a group based on the group name, this will be used for the fi
 #### client.dataReturnType
 <!--@include: ../plugin-client/dataReturnType.md-->
 
-### client.baseURL
+#### client.baseURL
 <!--@include: ../plugin-client/baseURL.md-->
 
 ### paramsType
 <!--@include: ../plugin-client/paramsType.md-->
+
+### paramsCasing
+<!--@include: ../plugin-client/paramsCasing.md-->
 
 ### pathParamsType
 <!--@include: ../plugin-client/pathParamsType.md-->
@@ -200,8 +206,7 @@ When using a string you need to use `JSON.stringify`.
 ### query
 
 Override some useQuery behaviours. <br/>
-To disable queries pass `false`.
-
+To disable the creation of hooks pass `false`, this will result in only creating `queryOptions`.
 
 |           |         |
 |----------:|:--------|

@@ -1,5 +1,5 @@
 import client from '../../../../axios-client.ts'
-import type { RequestConfig } from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -7,30 +7,27 @@ import type {
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
 
+export function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
+  return `https://petstore3.swagger.io/api/v3/pet/${petId}/uploadImage` as const
+}
+
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage
+ * {@link /pet/:petId/uploadImage}
  */
 export async function uploadFile(
-  {
-    petId,
-    data,
-    params,
-  }: {
-    petId: UploadFilePathParams['petId']
-    data?: UploadFileMutationRequest
-    params?: UploadFileQueryParams
-  },
-  config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
+  { petId, data, params }: { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
-    url: `/pet/${petId}/uploadImage`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
+    url: getUploadFileUrl({ petId }).toString(),
     params,
     data,
-    headers: { 'Content-Type': 'application/octet-stream', ...config.headers },
-    ...config,
+    ...requestConfig,
+    headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
   })
   return res
 }

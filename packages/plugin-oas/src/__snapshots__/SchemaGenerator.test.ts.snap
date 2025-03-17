@@ -1,5 +1,92 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`SchemaGenerator core > 'FullAddress' 1`] = `
+[
+  {
+    "args": [
+      {
+        "args": {
+          "isImportable": true,
+          "name": "address",
+          "path": "address.ts",
+        },
+        "keyword": "ref",
+      },
+      {
+        "args": {
+          "additionalProperties": [],
+          "properties": {
+            "streetName": [
+              {
+                "keyword": "string",
+              },
+              {
+                "args": {
+                  "format": undefined,
+                  "type": "string",
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "streetName",
+                "keyword": "name",
+              },
+            ],
+          },
+        },
+        "keyword": "object",
+      },
+      {
+        "args": {
+          "format": undefined,
+          "type": "object",
+        },
+        "keyword": "schema",
+      },
+      {
+        "args": {
+          "additionalProperties": [],
+          "properties": {
+            "streetNumber": [
+              {
+                "keyword": "string",
+              },
+              {
+                "args": {
+                  "format": undefined,
+                  "type": "string",
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "streetNumber",
+                "keyword": "name",
+              },
+            ],
+          },
+        },
+        "keyword": "object",
+      },
+      {
+        "args": {
+          "format": undefined,
+          "type": "object",
+        },
+        "keyword": "schema",
+      },
+    ],
+    "keyword": "and",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": undefined,
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
 exports[`SchemaGenerator core > 'Owner' 1`] = `
 [
   {
@@ -252,6 +339,7 @@ exports[`SchemaGenerator core > 'Pets' 1`] = `
       ],
       "max": undefined,
       "min": undefined,
+      "unique": false,
     },
     "keyword": "array",
   },
@@ -261,6 +349,9 @@ exports[`SchemaGenerator core > 'Pets' 1`] = `
       "type": "array",
     },
     "keyword": "schema",
+  },
+  {
+    "keyword": "readOnly",
   },
 ]
 `;

@@ -1,7 +1,7 @@
-import { faker } from '@faker-js/faker'
 import type { AddPet405, AddPetMutationResponse } from '../../models/ts/petController/AddPet.ts'
 import { createAddPetRequestFaker } from '../createAddPetRequestFaker.ts'
 import { createPetFaker } from '../createPetFaker.ts'
+import { faker } from '@faker-js/faker'
 
 /**
  * @description Successful operation
@@ -13,7 +13,7 @@ export function createAddPet200Faker() {
 /**
  * @description Pet not found
  */
-export function createAddPet405Faker(data?: Partial<AddPet405>) {
+export function createAddPet405Faker(data?: Partial<AddPet405>): AddPet405 {
   return {
     ...{ code: faker.number.int(), message: faker.string.alpha() },
     ...(data || {}),
@@ -27,6 +27,6 @@ export function createAddPetMutationRequestFaker() {
   return createAddPetRequestFaker()
 }
 
-export function createAddPetMutationResponseFaker(data?: Partial<AddPetMutationResponse>) {
+export function createAddPetMutationResponseFaker(data?: Partial<AddPetMutationResponse>): AddPetMutationResponse {
   return data || faker.helpers.arrayElement<any>([createAddPet200Faker()])
 }

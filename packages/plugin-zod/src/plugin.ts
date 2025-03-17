@@ -31,6 +31,8 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     coercion = false,
     inferred = false,
     generators = [zodGenerator, operations ? operationsGenerator : undefined].filter(Boolean),
+    wrapOutput = undefined,
+    contentType,
   } = options
 
   return {
@@ -49,17 +51,13 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       coercion,
       operations,
       inferred,
+      group,
+      wrapOutput,
     },
     pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
-
-      if (options?.tag && group?.type === 'tag') {
-        const groupName: Group['name'] = group?.name ? group.name : (ctx) => `${ctx.group}Controller`
-
-        return path.resolve(root, output.path, groupName({ group: camelCase(options.tag) }), baseName)
-      }
 
       if (mode === 'single') {
         /**
@@ -67,6 +65,26 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
         return path.resolve(root, output.path)
+      }
+
+      if (group && (options?.group?.path || options?.group?.tag)) {
+        const groupName: Group['name'] = group?.name
+          ? group.name
+          : (ctx) => {
+              if (group?.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Controller`
+            }
+
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)
@@ -98,7 +116,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         include: undefined,
         override,
         mode,
@@ -112,7 +130,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

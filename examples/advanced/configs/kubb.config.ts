@@ -26,10 +26,15 @@ export default defineConfig(() => {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
     },
     plugins: [
-      pluginOas({ validate: true }),
+      pluginOas({
+        validate: true,
+      }),
       pluginOas({
         output: {
           path: 'schemas2',
+        },
+        group: {
+          type: 'tag',
         },
         validate: false,
       }),
@@ -43,7 +48,7 @@ export default defineConfig(() => {
         },
         enumType: 'asConst',
         enumSuffix: 'enum',
-        dateType: 'date',
+        dateType: 'string',
         override: [
           {
             type: 'operationId',
@@ -83,10 +88,10 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         client: {
           dataReturnType: 'full',
-          importPath: '../../../../tanstack-query-client.ts',
+          importPath: '../../../../axios-client.ts',
         },
         query: {
-          importPath: '../../../../tanstack-query-hook.ts',
+          importPath: '../../../../tanstack-query-hook',
         },
         infinite: false,
         suspense: false,
@@ -105,12 +110,12 @@ export default defineConfig(() => {
         ],
         group: { type: 'tag' },
         client: {
-          importPath: '../../../../swr-client.ts',
-          dataReturnType: 'data',
+          importPath: '../../../../axios-client.ts',
+          dataReturnType: 'full',
           baseURL: 'https://petstore3.swagger.io/api/v3',
         },
         paramsType: 'object',
-        parser: 'zod',
+        pathParamsType: 'object',
         transformers: {
           name(name, type) {
             return `${name}SWR`
@@ -148,6 +153,7 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         dateType: 'stringOffset',
         inferred: true,
+        typed: true,
         operations: false,
       }),
       pluginFaker({
@@ -161,7 +167,6 @@ export default defineConfig(() => {
           },
         ],
         group: { type: 'tag' },
-        dateType: 'date',
         mapper: {
           status: `faker.helpers.arrayElement(['working', 'idle']) as any`,
         },

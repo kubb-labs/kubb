@@ -1,5 +1,387 @@
 # @kubb/swagger
 
+## 3.6.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.2
+  - @kubb/fs@3.6.2
+  - @kubb/oas@3.6.2
+  - @kubb/react@3.6.2
+
+## 3.6.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.1
+  - @kubb/fs@3.6.1
+  - @kubb/oas@3.6.1
+  - @kubb/react@3.6.1
+
+## 3.6.0
+
+### Patch Changes
+
+- Updated dependencies [[`e48aa64`](https://github.com/kubb-labs/kubb/commit/e48aa6483c023ac988f71a6642a797b09f67d177)]:
+  - @kubb/oas@3.6.0
+  - @kubb/core@3.6.0
+  - @kubb/fs@3.6.0
+  - @kubb/react@3.6.0
+
+## 3.5.13
+
+### Patch Changes
+
+- Updated dependencies [[`09ed7ba`](https://github.com/kubb-labs/kubb/commit/09ed7ba9d585dabca249a0cddd18c8a0dce6f5e1)]:
+  - @kubb/oas@3.5.13
+  - @kubb/core@3.5.13
+  - @kubb/react@3.5.13
+  - @kubb/fs@3.5.13
+
+## 3.5.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.12
+  - @kubb/fs@3.5.12
+  - @kubb/oas@3.5.12
+  - @kubb/react@3.5.12
+
+## 3.5.11
+
+### Patch Changes
+
+- [#1557](https://github.com/kubb-labs/kubb/pull/1557) [`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5) Thanks [@nicholaschiang](https://github.com/nicholaschiang)! - Including and excluding tags now matches any tag, instead of just the first one.
+
+- Updated dependencies [[`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5)]:
+  - @kubb/core@3.5.11
+  - @kubb/fs@3.5.11
+  - @kubb/oas@3.5.11
+  - @kubb/react@3.5.11
+
+## 3.5.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.10
+  - @kubb/fs@3.5.10
+  - @kubb/oas@3.5.10
+  - @kubb/react@3.5.10
+
+## 3.5.9
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.9
+  - @kubb/fs@3.5.9
+  - @kubb/oas@3.5.9
+  - @kubb/react@3.5.9
+
+## 3.5.8
+
+### Patch Changes
+
+- [`24d9e13`](https://github.com/kubb-labs/kubb/commit/24d9e131e360dcb31e16f8978f0c0cc226002288) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support custom `contentType` per plugin
+
+- Updated dependencies []:
+  - @kubb/core@3.5.8
+  - @kubb/fs@3.5.8
+  - @kubb/oas@3.5.8
+  - @kubb/react@3.5.8
+
+## 3.5.7
+
+### Patch Changes
+
+- Updated dependencies [[`3dec170`](https://github.com/kubb-labs/kubb/commit/3dec170dc38013bbcff625eff9de0a75da05f80e)]:
+  - @kubb/react@3.5.7
+  - @kubb/core@3.5.7
+  - @kubb/fs@3.5.7
+  - @kubb/oas@3.5.7
+
+## 3.5.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.6
+  - @kubb/fs@3.5.6
+  - @kubb/oas@3.5.6
+  - @kubb/react@3.5.6
+
+## 3.5.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.5
+  - @kubb/fs@3.5.5
+  - @kubb/oas@3.5.5
+  - @kubb/react@3.5.5
+
+## 3.5.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.4
+  - @kubb/fs@3.5.4
+  - @kubb/oas@3.5.4
+  - @kubb/react@3.5.4
+
+## 3.5.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.3
+  - @kubb/fs@3.5.3
+  - @kubb/oas@3.5.3
+  - @kubb/react@3.5.3
+
+## 3.5.2
+
+### Patch Changes
+
+- [`f5bae0d`](https://github.com/kubb-labs/kubb/commit/f5bae0db77f50fc11c504ab81bd077883346fd7e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove duplicated keys when using `allOf` and applying required on fields
+
+- Updated dependencies []:
+  - @kubb/core@3.5.2
+  - @kubb/fs@3.5.2
+  - @kubb/oas@3.5.2
+  - @kubb/react@3.5.2
+
+## 3.5.1
+
+### Patch Changes
+
+- [`cd539c4`](https://github.com/kubb-labs/kubb/commit/cd539c403d8de72502ab49d51a63a58a76a5c2a2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - allow `grouping`
+
+- Updated dependencies [[`967efeb`](https://github.com/kubb-labs/kubb/commit/967efeb16ced9eac0d2b1fb493b39d9b25afbafa)]:
+  - @kubb/core@3.5.1
+  - @kubb/react@3.5.1
+  - @kubb/fs@3.5.1
+  - @kubb/oas@3.5.1
+
+## 3.5.0
+
+### Minor Changes
+
+- [#1510](https://github.com/kubb-labs/kubb/pull/1510) [`d2b9643`](https://github.com/kubb-labs/kubb/commit/d2b96434da7b168f085d774f839c4ae32ab93977) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support banner with context for Oas
+
+### Patch Changes
+
+- Updated dependencies [[`d2b9643`](https://github.com/kubb-labs/kubb/commit/d2b96434da7b168f085d774f839c4ae32ab93977)]:
+  - @kubb/core@3.5.0
+  - @kubb/react@3.5.0
+  - @kubb/fs@3.5.0
+  - @kubb/oas@3.5.0
+
+## 3.4.5
+
+### Patch Changes
+
+- Updated dependencies [[`b678aba`](https://github.com/kubb-labs/kubb/commit/b678abae84d0e0e17af1eaa818c47e15341cf67b)]:
+  - @kubb/core@3.4.5
+  - @kubb/react@3.4.5
+  - @kubb/fs@3.4.5
+  - @kubb/oas@3.4.5
+
+## 3.4.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.4
+  - @kubb/fs@3.4.4
+  - @kubb/oas@3.4.4
+  - @kubb/react@3.4.4
+
+## 3.4.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.3
+  - @kubb/fs@3.4.3
+  - @kubb/oas@3.4.3
+  - @kubb/react@3.4.3
+
+## 3.4.2
+
+### Patch Changes
+
+- [`c98130b`](https://github.com/kubb-labs/kubb/commit/c98130b1d79c9f38b214785f9950ee34376d18c5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - correct use of grouping for path and tags
+
+- [`5febbe5`](https://github.com/kubb-labs/kubb/commit/5febbe5e6cd6e03b43ad2ef5da35ba25a7eb7559) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove duplicated keys when set in required
+
+- Updated dependencies [[`c98130b`](https://github.com/kubb-labs/kubb/commit/c98130b1d79c9f38b214785f9950ee34376d18c5)]:
+  - @kubb/core@3.4.2
+  - @kubb/react@3.4.2
+  - @kubb/fs@3.4.2
+  - @kubb/oas@3.4.2
+
+## 3.4.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.1
+  - @kubb/fs@3.4.1
+  - @kubb/oas@3.4.1
+  - @kubb/react@3.4.1
+
+## 3.4.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.0
+  - @kubb/fs@3.4.0
+  - @kubb/oas@3.4.0
+  - @kubb/react@3.4.0
+
+## 3.3.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.3.5
+  - @kubb/fs@3.3.5
+  - @kubb/oas@3.3.5
+  - @kubb/react@3.3.5
+
+## 3.3.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.3.4
+  - @kubb/fs@3.3.4
+  - @kubb/oas@3.3.4
+  - @kubb/react@3.3.4
+
+## 3.3.3
+
+### Patch Changes
+
+- Updated dependencies [[`17011c8`](https://github.com/kubb-labs/kubb/commit/17011c80c60fd79c5b00b4f260fde27acb93f97f)]:
+  - @kubb/react@3.3.3
+  - @kubb/core@3.3.3
+  - @kubb/fs@3.3.3
+  - @kubb/oas@3.3.3
+
+## 3.3.2
+
+### Patch Changes
+
+- Updated dependencies [[`fd3831e`](https://github.com/kubb-labs/kubb/commit/fd3831e090c0356280a3c17e9e1878e843705e60)]:
+  - @kubb/react@3.3.2
+  - @kubb/core@3.3.2
+  - @kubb/fs@3.3.2
+  - @kubb/oas@3.3.2
+
+## 3.3.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.3.1
+  - @kubb/fs@3.3.1
+  - @kubb/oas@3.3.1
+  - @kubb/react@3.3.1
+
+## 3.3.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.3.0
+  - @kubb/fs@3.3.0
+  - @kubb/oas@3.3.0
+  - @kubb/react@3.3.0
+
+## 3.2.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.2.0
+  - @kubb/fs@3.2.0
+  - @kubb/oas@3.2.0
+  - @kubb/react@3.2.0
+
+## 3.1.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.1.0
+  - @kubb/fs@3.1.0
+  - @kubb/oas@3.1.0
+  - @kubb/react@3.1.0
+
+## 3.0.14
+
+### Patch Changes
+
+- [`c94ebdc`](https://github.com/kubb-labs/kubb/commit/c94ebdc08587eea345ae17e545168e4497999f4e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Applying required on fields inherited using allOf
+
+- Updated dependencies []:
+  - @kubb/core@3.0.14
+  - @kubb/fs@3.0.14
+  - @kubb/oas@3.0.14
+  - @kubb/react@3.0.14
+
+## 3.0.13
+
+### Patch Changes
+
+- [`d2a69a3`](https://github.com/kubb-labs/kubb/commit/d2a69a3b11c02d2836081202c07954f8e49aef83) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - upgrade packges
+
+- Updated dependencies [[`d2a69a3`](https://github.com/kubb-labs/kubb/commit/d2a69a3b11c02d2836081202c07954f8e49aef83)]:
+  - @kubb/core@3.0.13
+  - @kubb/oas@3.0.13
+  - @kubb/fs@3.0.13
+  - @kubb/react@3.0.13
+
+## 3.0.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.12
+  - @kubb/fs@3.0.12
+  - @kubb/oas@3.0.12
+  - @kubb/react@3.0.12
+
+## 3.0.11
+
+### Patch Changes
+
+- [#1424](https://github.com/kubb-labs/kubb/pull/1424) [`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct use of Jsdocs syntax for links
+
+- Updated dependencies [[`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2), [`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2)]:
+  - @kubb/core@3.0.11
+  - @kubb/react@3.0.11
+  - @kubb/fs@3.0.11
+  - @kubb/oas@3.0.11
+
+## 3.0.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.10
+  - @kubb/fs@3.0.10
+  - @kubb/oas@3.0.10
+  - @kubb/react@3.0.10
+
 ## 3.0.9
 
 ### Patch Changes

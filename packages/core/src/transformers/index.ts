@@ -1,7 +1,7 @@
 import { orderBy } from 'natural-orderby'
 import { merge } from 'remeda'
 
-import { camelCase, pascalCase, pathCase } from './casing.ts'
+import { camelCase, pascalCase } from './casing.ts'
 import { combineCodes } from './combineCodes.ts'
 import { createJSDocBlockText } from './createJSDocBlockText.ts'
 import { escape, jsStringEscape } from './escape.ts'
@@ -10,10 +10,10 @@ import { nameSorter } from './nameSorter.ts'
 import { searchAndReplace } from './searchAndReplace.ts'
 import { stringify, stringifyObject } from './stringify.ts'
 import { toRegExp, toRegExpString } from './toRegExp.ts'
-import { transformReservedWord } from './transformReservedWord.ts'
+import { isValidVarName, transformReservedWord } from './transformReservedWord.ts'
 import { trim, trimQuotes } from './trim.ts'
 
-export { camelCase, pascalCase, pathCase } from './casing.ts'
+export { camelCase, pascalCase } from './casing.ts'
 export { combineCodes } from './combineCodes.ts'
 export { createJSDocBlockText } from './createJSDocBlockText.ts'
 export { escape, jsStringEscape } from './escape.ts'
@@ -22,7 +22,7 @@ export { nameSorter } from './nameSorter.ts'
 export { searchAndReplace } from './searchAndReplace.ts'
 export { stringify, stringifyObject } from './stringify.ts'
 export { toRegExp, toRegExpString } from './toRegExp.ts'
-export { transformReservedWord } from './transformReservedWord.ts'
+export { transformReservedWord, isValidVarName } from './transformReservedWord.ts'
 export { trim, trimQuotes } from './trim.ts'
 export { merge } from 'remeda'
 export { orderBy } from 'natural-orderby'
@@ -33,6 +33,7 @@ export default {
   jsStringEscape,
   createIndent,
   transformReservedWord,
+  isValidVarName,
   nameSorter,
   searchAndReplace,
   stringify,
@@ -48,5 +49,4 @@ export default {
   merge,
   camelCase,
   pascalCase,
-  pathCase,
 } as const

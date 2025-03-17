@@ -127,26 +127,39 @@ export type {
   UpdateUserMutation,
 } from './models/ts/userController/UpdateUser.js'
 export { operations } from './clients/axios/operations.js'
-export { addPet } from './clients/axios/petService/addPet.js'
-export { deletePet } from './clients/axios/petService/deletePet.js'
-export { findPetsByStatus } from './clients/axios/petService/findPetsByStatus.js'
-export { findPetsByTags } from './clients/axios/petService/findPetsByTags.js'
-export { getPetById } from './clients/axios/petService/getPetById.js'
+export { getAddPetUrl, addPet } from './clients/axios/petService/addPet.js'
+export { getDeletePetUrl, deletePet } from './clients/axios/petService/deletePet.js'
+export { getFindPetsByStatusUrl, findPetsByStatus } from './clients/axios/petService/findPetsByStatus.js'
+export { getFindPetsByTagsUrl, findPetsByTags } from './clients/axios/petService/findPetsByTags.js'
+export { getGetPetByIdUrl, getPetById } from './clients/axios/petService/getPetById.js'
 export { petService } from './clients/axios/petService/petService.js'
-export { updatePet } from './clients/axios/petService/updatePet.js'
-export { updatePetWithForm } from './clients/axios/petService/updatePetWithForm.js'
-export { uploadFile } from './clients/axios/petService/uploadFile.js'
-export { createUser } from './clients/axios/userService/createUser.js'
-export { createUsersWithListInput } from './clients/axios/userService/createUsersWithListInput.js'
-export { deleteUser } from './clients/axios/userService/deleteUser.js'
-export { getUserByName } from './clients/axios/userService/getUserByName.js'
-export { loginUser } from './clients/axios/userService/loginUser.js'
-export { logoutUser } from './clients/axios/userService/logoutUser.js'
-export { updateUser } from './clients/axios/userService/updateUser.js'
+export { getUpdatePetUrl, updatePet } from './clients/axios/petService/updatePet.js'
+export { getUpdatePetWithFormUrl, updatePetWithForm } from './clients/axios/petService/updatePetWithForm.js'
+export { getUploadFileUrl, uploadFile } from './clients/axios/petService/uploadFile.js'
+export { getCreateUserUrl, createUser } from './clients/axios/userService/createUser.js'
+export { getCreateUsersWithListInputUrl, createUsersWithListInput } from './clients/axios/userService/createUsersWithListInput.js'
+export { getDeleteUserUrl, deleteUser } from './clients/axios/userService/deleteUser.js'
+export { getGetUserByNameUrl, getUserByName } from './clients/axios/userService/getUserByName.js'
+export { getLoginUserUrl, loginUser } from './clients/axios/userService/loginUser.js'
+export { getLogoutUserUrl, logoutUser } from './clients/axios/userService/logoutUser.js'
+export { getUpdateUserUrl, updateUser } from './clients/axios/userService/updateUser.js'
 export { userService } from './clients/axios/userService/userService.js'
+export { getUploadFileUrlXML, uploadFileXML } from './clients/axios/xml/uploadFile.js'
 export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.js'
 export { orderStatusEnum, orderHttpStatusEnum } from './models/ts/Order.js'
 export { petStatusEnum } from './models/ts/Pet.js'
 export { findPetsByStatusQueryParamsStatusEnum } from './models/ts/petController/FindPetsByStatus.js'
-export { getInventoryController, placeOrderController, placeOrderPatchController, getOrderByIdController, deleteOrderController } from './tag.js'
+export {
+  getGetInventoryUrlController,
+  getInventoryController,
+  getPlaceOrderUrlController,
+  placeOrderController,
+  getPlaceOrderPatchUrlController,
+  placeOrderPatchController,
+  getGetOrderByIdUrlController,
+  getOrderByIdController,
+  getDeleteOrderUrlController,
+  deleteOrderController,
+  storeController,
+} from './tag.js'
 export { getInventory, placeOrder, placeOrderPatch, getOrderById, deleteOrder } from './tagObject.js'

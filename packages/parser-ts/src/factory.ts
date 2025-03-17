@@ -1,5 +1,5 @@
 import { isNumber } from 'remeda'
-import ts from 'typescript'
+import ts, { SyntaxKind } from 'typescript'
 
 const { factory } = ts
 
@@ -10,6 +10,10 @@ export const modifiers = {
   export: factory.createModifier(ts.SyntaxKind.ExportKeyword),
   const: factory.createModifier(ts.SyntaxKind.ConstKeyword),
   static: factory.createModifier(ts.SyntaxKind.StaticKeyword),
+} as const
+
+export const syntaxKind = {
+  union: SyntaxKind.UnionType as 192,
 } as const
 
 function isValidIdentifier(str: string): boolean {
@@ -248,6 +252,60 @@ export function createTypeAliasDeclaration({
   return factory.createTypeAliasDeclaration(modifiers, name, typeParameters, type)
 }
 
+export function createInterfaceDeclaration({
+  modifiers,
+  name,
+  typeParameters,
+  members,
+}: {
+  modifiers?: Array<ts.Modifier>
+  name: string | ts.Identifier
+  typeParameters?: Array<ts.TypeParameterDeclaration>
+  members: Array<ts.TypeElement>
+}) {
+  return factory.createInterfaceDeclaration(modifiers, name, typeParameters, undefined, members)
+}
+
+export function createTypeDeclaration({
+  syntax,
+  isExportable,
+  comments,
+  name,
+  type,
+}: {
+  syntax: 'type' | 'interface'
+  comments: Array<string | undefined>
+  isExportable?: boolean
+  name: string | ts.Identifier
+  type: ts.TypeNode
+}) {
+  if (syntax === 'interface' && 'members' in type) {
+    const node = createInterfaceDeclaration({
+      members: type.members as Array<ts.TypeElement>,
+      modifiers: isExportable ? [modifiers.export] : [],
+      name,
+      typeParameters: undefined,
+    })
+
+    return appendJSDocToNode({
+      node,
+      comments,
+    })
+  }
+
+  const node = createTypeAliasDeclaration({
+    type,
+    modifiers: isExportable ? [modifiers.export] : [],
+    name,
+    typeParameters: undefined,
+  })
+
+  return appendJSDocToNode({
+    node,
+    comments,
+  })
+}
+
 export function createNamespaceDeclaration({
   statements,
   name,
@@ -418,10 +476,12 @@ export function createEnumDeclaration({
         enums
           .map(([key, value]) => {
             let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
+            const isExactNumber = Number.parseInt(value.toString()) === value
 
-            if (isNumber(Number.parseInt(value.toString()))) {
+            if (isExactNumber && isNumber(Number.parseInt(value.toString()))) {
               initializer = factory.createNumericLiteral(value as number)
             }
+
             if (typeof value === 'boolean') {
               initializer = value ? factory.createTrue() : factory.createFalse()
             }
@@ -457,7 +517,7 @@ export function createEnumDeclaration({
               factory.createObjectLiteralExpression(
                 enums
                   .map(([key, value]) => {
-                    let initializer: ts.Expression = factory.createStringLiteral(`${value?.toString()}`)
+                    let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
 
                     if (isNumber(value)) {
                       // Error: Negative numbers should be created in combination with createPrefixUnaryExpression factory.
@@ -531,6 +591,7 @@ export function createOmitDeclaration({
 export const keywordTypeNodes = {
   any: factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
   unknown: factory.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword),
+  void: factory.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword),
   number: factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
   integer: factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
   object: factory.createKeywordTypeNode(ts.SyntaxKind.ObjectKeyword),

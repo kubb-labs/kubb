@@ -19,25 +19,28 @@ type Props = {
   mutationKeyTypeName: string
   typeSchemas: OperationSchemas
   operation: Operation
+  paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
   typeSchemas: OperationSchemas
   mutationKeyTypeName: string
 }
 // TODO add same logic as being done for react-query mutations
-function getParams({ pathParamsType, dataReturnType, typeSchemas, mutationKeyTypeName }: GetParamsProps) {
+function getParams({ pathParamsType, paramsCasing, dataReturnType, typeSchemas, mutationKeyTypeName }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   return FunctionParams.factory({
     pathParams: {
       mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-      children: getPathParams(typeSchemas.pathParams, { typed: true }),
+      children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
     },
     params: typeSchemas.queryParams?.name
       ? {
@@ -54,8 +57,8 @@ function getParams({ pathParamsType, dataReturnType, typeSchemas, mutationKeyTyp
     options: {
       type: `
 {
-  mutation?: Parameters<typeof useSWRMutation<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', mutationKeyTypeName, typeSchemas.request?.name].join(', ')}>>[2],
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
+  mutation?: Parameters<typeof useSWRMutation<${[TData, TError, mutationKeyTypeName, typeSchemas.request?.name].join(', ')}>>[2],
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
   shouldFetch?: boolean,
 }
 `,
@@ -70,15 +73,18 @@ export function Mutation({
   mutationKeyName,
   mutationKeyTypeName,
   paramsType,
+  paramsCasing,
   pathParamsType,
   dataReturnType,
   typeSchemas,
   operation,
 }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+
   const generics = [
     TData,
-    typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error',
+    TError,
     `${mutationKeyTypeName} | null`,
     typeSchemas.request?.name, //arg: data
   ].filter(Boolean)
@@ -89,6 +95,7 @@ export function Mutation({
   })
 
   const params = getParams({
+    paramsCasing,
     pathParamsType,
     dataReturnType,
     typeSchemas,
@@ -96,6 +103,7 @@ export function Mutation({
   })
 
   const clientParams = Client.getParams({
+    paramsCasing,
     paramsType,
     typeSchemas,
     pathParamsType,

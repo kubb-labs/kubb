@@ -1,6 +1,6 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
-import type { HttpMethod, Operation } from '@kubb/oas'
+import type { HttpMethod, Oas, Operation, contentType } from '@kubb/oas'
 import type { PluginClient } from '@kubb/plugin-client'
 import type { Exclude, Generator, Include, OperationSchemas, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { PluginReactQuery } from '@kubb/plugin-react-query'
@@ -8,6 +8,7 @@ import type { PluginReactQuery } from '@kubb/plugin-react-query'
 type TransformerProps = {
   operation: Operation
   schemas: OperationSchemas
+  casing: 'camelcase' | undefined
 }
 
 export type Transformer = (props: TransformerProps) => unknown[]
@@ -76,7 +77,12 @@ export type Options = {
    * Specify the export location for the files and define the behavior of the output
    * @default { path: 'hooks', barrelType: 'named' }
    */
-  output?: Output
+  output?: Output<Oas>
+  /**
+   * Define which contentType should be used.
+   * By default, the first JSON valid mediaType will be used
+   */
+  contentType?: contentType
   /**
    * Group the @tanstack/query hooks based on the provided name.
    */
@@ -95,6 +101,11 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
+  /**
+   * How to style your params, by default no casing is applied
+   * - 'camelcase' will use camelcase for the params names
+   */
+  paramsCasing?: 'camelcase'
   /**
    * How to pass your params
    * - 'object' will return the params and pathParams as an object.
@@ -141,9 +152,11 @@ export type Options = {
 }
 
 type ResolvedOptions = {
-  output: Output
+  output: Output<Oas>
+  group: Options['group']
   client: Required<Omit<NonNullable<PluginReactQuery['options']['client']>, 'baseURL'>> & { baseURL?: string }
   parser: Required<NonNullable<Options['parser']>>
+  paramsCasing: Options['paramsCasing']
   paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   /**

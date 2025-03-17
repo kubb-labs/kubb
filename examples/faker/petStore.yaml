@@ -740,6 +740,19 @@ components:
           type: string
       xml:
         name: tag
+    Item:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 25
+        price:
+          type: number
+          minimum: 5
+      required:
+        - name
+        - price
     Pet:
       required:
         - name

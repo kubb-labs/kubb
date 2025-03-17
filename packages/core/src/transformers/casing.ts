@@ -1,4 +1,4 @@
-import { camelCase as changeCamelCase, pascalCase as changePascalCase, pathCase as changePathCase } from 'change-case'
+import _camelcase from 'camelcase'
 
 type Options = {
   /**
@@ -15,10 +15,7 @@ export function camelCase(text: string, { isFile, prefix = '', suffix = '' }: Op
     return splitArray.map((item, i) => (i === splitArray.length - 1 ? camelCase(item, { prefix, suffix }) : camelCase(item))).join('/')
   }
 
-  return changeCamelCase(`${prefix} ${text} ${suffix}`, {
-    delimiter: '',
-    mergeAmbiguousCharacters: true,
-  })
+  return _camelcase(`${prefix} ${text} ${suffix}`, { pascalCase: false, preserveConsecutiveUppercase: true }).replace(/[^a-zA-Z0-9]/g, '')
 }
 
 export function pascalCase(text: string, { isFile, prefix = '', suffix = '' }: Options = {}): string {
@@ -27,17 +24,5 @@ export function pascalCase(text: string, { isFile, prefix = '', suffix = '' }: O
     return splitArray.map((item, i) => (i === splitArray.length - 1 ? pascalCase(item, { prefix, suffix }) : camelCase(item))).join('/')
   }
 
-  return changePascalCase(`${prefix} ${text} ${suffix}`, {
-    delimiter: '',
-    mergeAmbiguousCharacters: true,
-  })
-}
-
-export function pathCase(text: string, { isFile, prefix = '', suffix = '' }: Options = {}): string {
-  if (isFile) {
-    const splitArray = text.split('.')
-    return splitArray.map((item, i) => (i === splitArray.length - 1 ? pathCase(item, { prefix, suffix }) : camelCase(item))).join('/')
-  }
-
-  return changePathCase(`${prefix} ${text} ${suffix}`, { delimiter: '' })
+  return _camelcase(`${prefix} ${text} ${suffix}`, { pascalCase: true, preserveConsecutiveUppercase: true }).replace(/[^a-zA-Z0-9]/g, '')
 }

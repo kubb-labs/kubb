@@ -1,4 +1,6 @@
-export { createRoot, createRoot as createRootServer } from './createRoot.ts'
+import './globals.ts'
+
+export { createRoot } from './createRoot.ts'
 export { File } from './components/File.tsx'
 export { Function } from './components/Function.tsx'
 export { Text } from './components/Text.tsx'
@@ -10,4 +12,4 @@ export { useApp } from './hooks/useApp.ts'
 export { useLifecycle } from './hooks/useLifecycle.tsx'
 export { createFunctionParams, FunctionParams } from './utils/getFunctionParams.ts'
 
-export { createContext, useContext } from 'react'
+export { createContext, createElement, useContext } from 'react'

@@ -2,7 +2,7 @@ import type { Oas, OasTypes, contentType } from '@kubb/oas'
 
 type Mode = 'schemas' | 'responses' | 'requestBodies'
 
-export type GetSchemasProps = {
+type GetSchemasProps = {
   oas: Oas
   contentType?: contentType
   includes?: Mode[]

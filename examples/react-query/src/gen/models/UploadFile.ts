@@ -1,3 +1,4 @@
+// version: 1.0.11
 import type { ApiResponse } from './ApiResponse.ts'
 
 export type UploadFilePathParams = {

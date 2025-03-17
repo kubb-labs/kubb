@@ -1,6 +1,5 @@
 import { defineCommand, showUsage } from 'citty'
 import type { ArgsDef, ParsedArgs } from 'citty'
-import { execa } from 'execa'
 import c from 'tinyrainbow'
 
 import { getConfig } from '../utils/getConfig.ts'

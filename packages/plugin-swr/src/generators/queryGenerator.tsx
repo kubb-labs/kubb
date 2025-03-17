@@ -1,7 +1,8 @@
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
@@ -17,7 +18,9 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
       plugin: {
         options: { output },
       },
+      pluginManager,
     } = useApp<PluginSwr>()
+    const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 
     const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
@@ -32,8 +35,17 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
       file: getFile(operation, { prefix: 'use' }),
     }
 
+    const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
     const client = {
-      name: getName(operation, { type: 'function' }),
+      name: hasClientPlugin
+        ? getName(operation, {
+            type: 'function',
+            pluginKey: [pluginClientName],
+          })
+        : getName(operation, {
+            type: 'function',
+          }),
+      file: getFile(operation, { pluginKey: [pluginClientName] }),
     }
 
     const queryOptions = {
@@ -60,11 +72,19 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
     }
 
     return (
-      <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta} banner={output?.banner} footer={output?.footer}>
-        {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-
+      <File
+        baseName={query.file.baseName}
+        path={query.file.path}
+        meta={query.file.meta}
+        banner={getBanner({ oas, output })}
+        footer={getFooter({ oas, output })}
+      >
+        {options.parser === 'zod' && (
+          <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={query.file.path} path={zod.file.path} />
+        )}
         <File.Import name={'client'} path={options.client.importPath} />
-        <File.Import name={['RequestConfig']} path={options.client.importPath} isTypeOnly />
+        {!!hasClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
+        <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
 
         <File.Import
@@ -86,26 +106,29 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
           operation={operation}
           pathParamsType={options.pathParamsType}
           typeSchemas={type.schemas}
+          paramsCasing={options.paramsCasing}
           transformer={options.queryKey}
         />
-        <Client
-          name={client.name}
-          isExportable={false}
-          isIndexable={false}
-          baseURL={options.client.baseURL}
-          operation={operation}
-          typeSchemas={type.schemas}
-          zodSchemas={zod.schemas}
-          dataReturnType={options.client.dataReturnType}
-          paramsType={options.paramsType}
-          pathParamsType={options.pathParamsType}
-          parser={options.parser}
-        />
+        {!hasClientPlugin && (
+          <Client
+            name={client.name}
+            baseURL={options.client.baseURL}
+            operation={operation}
+            typeSchemas={type.schemas}
+            zodSchemas={zod.schemas}
+            dataReturnType={options.client.dataReturnType}
+            paramsCasing={options.paramsCasing}
+            paramsType={options.paramsType}
+            pathParamsType={options.pathParamsType}
+            parser={options.parser}
+          />
+        )}
         <QueryOptions
           name={queryOptions.name}
           clientName={client.name}
           typeSchemas={type.schemas}
           paramsType={options.paramsType}
+          paramsCasing={options.paramsCasing}
           pathParamsType={options.pathParamsType}
         />
         {options.query && (
@@ -121,6 +144,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
               operation={operation}
               dataReturnType={options.client.dataReturnType}
               queryKeyName={queryKey.name}
+              paramsCasing={options.paramsCasing}
               queryKeyTypeName={queryKey.typeName}
             />
           </>

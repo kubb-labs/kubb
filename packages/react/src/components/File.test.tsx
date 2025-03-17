@@ -148,9 +148,7 @@ describe('<File/>', () => {
         <>
           ignore
           <File baseName="test.ts" path="path">
-            <File.Source>
-              test<div>sdfs</div>
-            </File.Source>
+            <File.Source>test</File.Source>
           </File>
         </>
       )
@@ -177,6 +175,51 @@ describe('<File/>', () => {
               "isTypeOnly": undefined,
               "name": undefined,
               "value": "test",
+            },
+          ],
+        },
+      ]
+    `)
+  })
+
+  test('render File with source and React element', () => {
+    const Component = () => {
+      return (
+        <>
+          ignore
+          <File baseName="test.ts" path="path">
+            <File.Source>
+              {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+              <div className="className" aria-disabled={false} aria-valuemax={3} onClick={(e) => console.log(e)}>
+                sdfs
+              </div>
+            </File.Source>
+          </File>
+        </>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.output).toMatchInlineSnapshot(`"<div className="className" aria-disabled={false} aria-valuemax={3} onClick={(e) => console.log(e)}>sdfs</div>"`)
+    expect(root.files).toMatchInlineSnapshot(`
+      [
+        {
+          "banner": undefined,
+          "baseName": "test.ts",
+          "exports": [],
+          "footer": undefined,
+          "imports": [],
+          "meta": {},
+          "override": undefined,
+          "path": "path",
+          "sources": [
+            {
+              "isExportable": undefined,
+              "isIndexable": undefined,
+              "isTypeOnly": undefined,
+              "name": undefined,
+              "value": "<div className="className" aria-disabled={false} aria-valuemax={3} onClick={(e) => console.log(e)}>sdfs</div>",
             },
           ],
         },

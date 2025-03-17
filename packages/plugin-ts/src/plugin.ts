@@ -23,10 +23,12 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     dateType = 'string',
     unknownType = 'any',
     optionalType = 'questionToken',
+    syntaxType = 'type',
     transformers = {},
     oasType = false,
     mapper = {},
     generators = [typeGenerator, oasType === 'infer' ? oasGenerator : undefined].filter(Boolean),
+    contentType,
   } = options
 
   return {
@@ -42,6 +44,8 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       // keep the used enumnames between SchemaGenerator and OperationGenerator per plugin(pluginKey)
       usedEnumNames: {},
       unknownType,
+      syntaxType,
+      group,
       override,
       mapper,
     },
@@ -50,18 +54,32 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
 
-      if (options?.tag && group?.type === 'tag') {
-        const groupName: Group['name'] = group?.name ? group.name : (ctx) => `${ctx.group}Controller`
-
-        return path.resolve(root, output.path, groupName({ group: camelCase(options.tag) }), baseName)
-      }
-
       if (mode === 'single') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
         return path.resolve(root, output.path)
+      }
+
+      if (group && (options?.group?.path || options?.group?.tag)) {
+        const groupName: Group['name'] = group?.name
+          ? group.name
+          : (ctx) => {
+              if (group?.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Controller`
+            }
+
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)
@@ -86,7 +104,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         include: undefined,
         override,
         mode,
@@ -100,7 +118,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

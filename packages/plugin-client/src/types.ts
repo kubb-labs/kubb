@@ -1,5 +1,6 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
+import type { Oas, contentType } from '@kubb/oas'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
 export type Options = {
@@ -7,7 +8,12 @@ export type Options = {
    * Specify the export location for the files and define the behavior of the output
    * @default { path: 'clients', barrelType: 'named' }
    */
-  output?: Output
+  output?: Output<Oas>
+  /**
+   * Define which contentType should be used.
+   * By default, the first JSON valid mediaType will be used
+   */
+  contentType?: contentType
   /**
    * Group the clients based on the provided name.
    */
@@ -33,7 +39,7 @@ export type Options = {
    * Path to the client import path that will be used to do the API calls.
    * It will be used as `import client from '${client.importPath}'`.
    * It allows both relative and absolute path but be aware that we will not change the path.
-   * @default '@kubb/plugin-client/client'
+   * @default '@kubb/plugin-client/clients/axios'
    */
   importPath?: string
   /**
@@ -47,6 +53,11 @@ export type Options = {
    * @default 'data'
    */
   dataReturnType?: 'data' | 'full'
+  /**
+   * How to style your params, by default no casing is applied
+   * - 'camelcase' will use camelcase for the params names
+   */
+  paramsCasing?: 'camelcase'
   /**
    * How to pass your params
    * - 'object' will return the params and pathParams as an object.
@@ -63,10 +74,17 @@ export type Options = {
   pathParamsType?: 'object' | 'inline'
   /**
    * Which parser can be used before returning the data
-   * - 'zod'  will use `@kubb/plugin-zod` to parse the data.
+   * - 'zod' will use `@kubb/plugin-zod` to parse the data.
    * @default 'client'
    */
   parser?: 'client' | 'zod'
+  /**
+   * Which client should be used to do the HTTP calls
+   * - 'axios' will use `@kubb/plugin-client/clients/axios` to fetch data.
+   * - 'fetch' will use `@kubb/plugin-client/clients/fetch` to fetch data.
+   * @default 'axios'
+   */
+  client?: 'axios' | 'fetch'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -80,7 +98,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
-  output: Output
+  output: Output<Oas>
   group?: Options['group']
   baseURL: string | undefined
   parser: NonNullable<Options['parser']>
@@ -88,6 +106,7 @@ type ResolvedOptions = {
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   paramsType: NonNullable<Options['paramsType']>
+  paramsCasing: Options['paramsCasing']
 }
 
 export type PluginClient = PluginFactoryOptions<'plugin-client', Options, ResolvedOptions, never, ResolvePathOptions>

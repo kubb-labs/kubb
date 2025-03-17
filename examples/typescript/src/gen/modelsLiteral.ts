@@ -54,7 +54,11 @@ export type Address = {
   /**
    * @type string | undefined
    */
-  street?: string
+  streetName?: string
+  /**
+   * @type string | undefined
+   */
+  streetNumber?: string
   /**
    * @type string | undefined
    */
@@ -156,7 +160,7 @@ export type Pet =
       /**
        * @type array | undefined
        */
-      tags?: Tag[]
+      readonly tags?: Tag[]
       /**
        * @description pet status in the store
        * @type string | undefined
@@ -187,7 +191,7 @@ export type Pet =
       /**
        * @type array | undefined
        */
-      tags?: Tag[]
+      readonly tags?: Tag[]
       /**
        * @description pet status in the store
        * @type string | undefined
@@ -221,7 +225,19 @@ export type Dog = {
   bark?: string
 }
 
-export type AddPetRequestStatusEnum = 'available' | 'pending' | 'sold'
+export type FullAddress = Address & {
+  /**
+   * @type string
+   */
+  streetNumber: string
+} & {
+  /**
+   * @type string
+   */
+  streetName: string
+}
+
+export type AddPetRequestStatusEnum = 'available' | 'pending' | 'sold' | 'in store'
 
 export type AddPetRequest = {
   /**
@@ -302,7 +318,7 @@ export type UpdatePet405 = any
 /**
  * @description Update an existent pet in the store
  */
-export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type'>
+export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type' | 'tags'>
 
 export type UpdatePetMutationResponse = UpdatePet200
 
@@ -490,15 +506,22 @@ export type DeletePetHeaderParams = {
   api_key?: string
 }
 
+export type DeletePet200Enum = 'TYPE1' | 'TYPE2' | 'TYPE3'
+
+/**
+ * @description items
+ */
+export type DeletePet200 = DeletePet200Enum[]
+
 /**
  * @description Invalid pet value
  */
 export type DeletePet400 = any
 
-export type DeletePetMutationResponse = any
+export type DeletePetMutationResponse = DeletePet200
 
 export type DeletePetMutation = {
-  Response: any
+  Response: DeletePet200
   PathParams: DeletePetPathParams
   HeaderParams: DeletePetHeaderParams
   Errors: DeletePet400

@@ -1,4 +1,3 @@
-import { mockParams } from '../../mocks/mockParams.ts'
 import { createRoot } from '../createRoot.ts'
 import { Function } from './Function.tsx'
 
@@ -7,6 +6,20 @@ describe('<Function/>', () => {
     const Component = () => {
       return (
         <Function name="getData" export async>
+          return 2;
+        </Function>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.output).toMatchSnapshot()
+  })
+
+  test('render default Function', async () => {
+    const Component = () => {
+      return (
+        <Function name="getData" export async default>
           return 2;
         </Function>
       )
@@ -35,6 +48,20 @@ describe('<Function/>', () => {
     const Component = () => {
       return (
         <Function.Arrow name="getData" export async>
+          return 2;
+        </Function.Arrow>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.output).toMatchSnapshot()
+  })
+
+  test('render default ArrowFunction', async () => {
+    const Component = () => {
+      return (
+        <Function.Arrow name="getData" export async default>
           return 2;
         </Function.Arrow>
       )

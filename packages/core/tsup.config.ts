@@ -12,7 +12,7 @@ export default defineConfig([
       logger: 'src/logger.ts',
       mocks: 'mocks/index.ts',
     },
-    noExternal: [/p-queue/, /find-up/, /natural-orderby/, /change-case/, /tinyrainbow/],
+    noExternal: [/p-queue/, /find-up/, /natural-orderby/, /camelcase/, /tinyrainbow/],
   },
   {
     ...optionsESM,

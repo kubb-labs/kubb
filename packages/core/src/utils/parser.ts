@@ -93,7 +93,7 @@ const typeScriptParser = createFileParser({
 
         return module.factory.createImportDeclaration({
           name: item.name,
-          path: options.extname && hasExtname ? `${trimExtName(importPath)}${options.extname}` : trimExtName(importPath),
+          path: options.extname && hasExtname ? `${trimExtName(importPath)}${options.extname}` : item.root ? trimExtName(importPath) : importPath,
           isTypeOnly: item.isTypeOnly,
         })
       })
@@ -122,7 +122,7 @@ const tsxParser = createFileParser({
   async format(source) {
     const module = await import('@kubb/parser-ts')
     //4 = tsx
-    return module.format(source, { scriptKind: 4 })
+    return module.format(source)
   },
   async print(file, options = { extname: '.tsx' }) {
     return typeScriptParser.print(file, options)

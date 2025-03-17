@@ -1,6 +1,6 @@
 import { isParameterObject } from '@kubb/oas'
 
-import { camelCase } from '@kubb/core/transformers'
+import { camelCase, isValidVarName } from '@kubb/core/transformers'
 import type { FunctionParamsAST } from '@kubb/core/utils'
 import type { OasTypes } from '@kubb/oas'
 import type { Params } from '@kubb/react/types'
@@ -41,12 +41,19 @@ export function getPathParams(
   operationSchema: OperationSchema | undefined,
   options: {
     typed?: boolean
+    casing?: 'camelcase'
     override?: (data: FunctionParamsAST) => FunctionParamsAST
   } = {},
 ) {
   return getASTParams(operationSchema, options).reduce((acc, curr) => {
     if (curr.name && curr.enabled) {
-      acc[camelCase(curr.name)] = {
+      let name = isValidVarName(curr.name) ? curr.name : camelCase(curr.name)
+
+      if (options.casing === 'camelcase') {
+        name = camelCase(name)
+      }
+
+      acc[name] = {
         default: curr.default,
         type: curr.type,
         optional: !curr.required,

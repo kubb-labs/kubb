@@ -1,4 +1,11 @@
-import { toRegExp } from './toRegExp.ts'
+import { toRegExp, toRegExpString } from './toRegExp.ts'
+
+describe('toRegExpString', () => {
+  test('advanced regex', () => {
+    expect(toRegExpString('^.+/.+$', null)).toBe(String.raw`/^.+\/.+$/`)
+    expect(toRegExpString('^.+/.+$')).toBe("new RegExp('^.+/.+$')")
+  })
+})
 
 describe('toRegExp', () => {
   test('String.raw', () => {

@@ -32,6 +32,8 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
     mutationKey = MutationKey.getTransformer,
     queryKey = QueryKey.getTransformer,
     generators = [queryGenerator, mutationGenerator].filter(Boolean),
+    paramsCasing,
+    contentType,
   } = options
 
   return {
@@ -39,7 +41,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
     options: {
       output,
       client: {
-        importPath: '@kubb/plugin-client/client',
+        importPath: '@kubb/plugin-client/clients/axios',
         dataReturnType: 'data',
         ...client,
       },
@@ -61,17 +63,13 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
       parser,
       paramsType,
       pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
+      paramsCasing,
+      group,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
-
-      if (options?.tag && group?.type === 'tag') {
-        const groupName: Group['name'] = group?.name ? group.name : (ctx) => `${ctx.group}Controller`
-
-        return path.resolve(root, output.path, groupName({ group: camelCase(options.tag) }), baseName)
-      }
 
       if (mode === 'single') {
         /**
@@ -79,6 +77,26 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
         return path.resolve(root, output.path)
+      }
+
+      if (group && (options?.group?.path || options?.group?.tag)) {
+        const groupName: Group['name'] = group?.name
+          ? group.name
+          : (ctx) => {
+              if (group?.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Controller`
+            }
+
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)
@@ -117,7 +135,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

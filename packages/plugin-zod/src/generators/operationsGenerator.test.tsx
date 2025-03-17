@@ -1,9 +1,9 @@
-import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas/parser'
+import { parse } from '@kubb/oas'
 import { OperationGenerator } from '@kubb/plugin-oas'
 import type { PluginZod } from '../types.ts'
 import { operationsGenerator } from './operationsGenerator.tsx'
@@ -42,6 +42,8 @@ describe('operationsGenerator operations', async () => {
       output: {
         path: '.',
       },
+      group: undefined,
+      wrapOutput: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>

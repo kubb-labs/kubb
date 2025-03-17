@@ -13,19 +13,19 @@ With the TypeScript plugin you can create [TypeScript](https://www.typescriptlan
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-ts
+bun add -d @kubb/plugin-ts
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-ts
+pnpm add -D @kubb/plugin-ts
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-ts
+npm install --save-dev @kubb/plugin-ts
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-ts
+yarn add -D @kubb/plugin-ts
 ```
 :::
 
@@ -67,7 +67,7 @@ Add a banner text in the beginning of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
 #### output.footer
@@ -75,9 +75,11 @@ Add a footer text at the end of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
+### contentType
+<!--@include: ../core/contentType.md-->
 
 ### group
 <!--@include: ../core/group.md-->
@@ -180,15 +182,41 @@ type Pet = {
 ```
 :::
 
+### syntaxType
+
+Switch between type or interface for creating TypeScript types.
+See [Type vs Interface: Which Should You Use](https://www.totaltypescript.com/type-vs-interface-which-should-you-use).
+
+|           |                         |
+|----------:|:------------------------|
+|     Type: | `'type' \| 'interface'` |
+| Required: | `false`                 |
+|  Default: | `'type'`                |
+
+::: code-group
+
+```typescript ['type']
+type Pet = {
+  name: string
+}
+```
+
+```typescript ['interface']
+interface Pet {
+  name: string
+}
+```
+:::
+
 ### unknownType
 
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
-|           |                      |
-|----------:|:---------------------|
-|     Type: | `'any' \| 'unknown'` |
-| Required: | `false`              |
-|  Default: | `'any'`              |
+|           |                               |
+|----------:|:------------------------------|
+|     Type: | `'any' \| 'unknown' \| 'void'` |
+| Required: | `false`                       |
+|  Default: | `'any'`                       |
 
 ::: code-group
 

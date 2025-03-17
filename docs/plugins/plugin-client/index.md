@@ -15,19 +15,19 @@ By default, we are using [Axios](https://axios-http.com/docs/intro) but you can 
 
 ::: code-group
 ```shell [bun]
-bun add @kubb/plugin-client
+bun add -d @kubb/plugin-client
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-client
+pnpm add -D @kubb/plugin-client
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-client
+npm install --save-dev @kubb/plugin-client
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-client
+yarn add -D @kubb/plugin-client
 ```
 :::
 
@@ -69,7 +69,7 @@ Add a banner text in the beginning of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
 #### output.footer
@@ -77,8 +77,11 @@ Add a footer text at the end of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
+
+### contentType
+<!--@include: ../core/contentType.md-->
 
 ### group
 <!--@include: ../core/group.md-->
@@ -121,11 +124,17 @@ Create `operations.ts` file with all operations grouped by methods.
 ### paramsType
 <!--@include: ../plugin-client/paramsType.md-->
 
+### paramsCasing
+<!--@include: ../plugin-client/paramsCasing.md-->
+
 ### pathParamsType
 <!--@include: ../plugin-client/pathParamsType.md-->
 
 ### parser
 <!--@include: ../plugin-client/parser.md-->
+
+### client
+<!--@include: ../plugin-client/client.md-->
 
 ### baseURL
 <!--@include: ../plugin-client/baseURL.md-->
@@ -207,6 +216,7 @@ export default defineConfig({
       ],
       pathParamsType: "object",
       dataReturnType: 'full',
+      client: 'axios'
     }),
   ],
 })

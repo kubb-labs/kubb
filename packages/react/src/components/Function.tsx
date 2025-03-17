@@ -2,13 +2,18 @@ import { createJSDocBlockText } from '@kubb/core/transformers'
 
 import { Text } from './Text.tsx'
 
-import type { JSDoc, KubbNode } from '../types.ts'
+import type { JSDoc, Key, KubbNode } from '../types.ts'
 
 type Props = {
+  key?: Key
   /**
    * Name of the function.
    */
   name: string
+  /**
+   * Add default when export is being used
+   */
+  default?: boolean
   /**
    * Parameters/options/props that need to be used.
    */
@@ -38,7 +43,7 @@ type Props = {
   children?: KubbNode
 }
 
-export function Function({ name, export: canExport, async, generics, params, returnType, JSDoc, children }: Props): KubbNode {
+export function Function({ name, default: isDefault, export: canExport, async, generics, params, returnType, JSDoc, children }: Props) {
   return (
     <>
       {JSDoc?.comments && (
@@ -50,6 +55,12 @@ export function Function({ name, export: canExport, async, generics, params, ret
       {canExport && (
         <Text>
           export
+          <Text.Space />
+        </Text>
+      )}
+      {isDefault && (
+        <Text>
+          default
           <Text.Space />
         </Text>
       )}
@@ -94,7 +105,7 @@ type ArrowFunctionProps = Props & {
   singleLine?: boolean
 }
 
-function ArrowFunction({ name, export: canExport, async, generics, params, returnType, JSDoc, singleLine, children }: ArrowFunctionProps): KubbNode {
+function ArrowFunction({ name, default: isDefault, export: canExport, async, generics, params, returnType, JSDoc, singleLine, children }: ArrowFunctionProps) {
   return (
     <>
       {JSDoc?.comments && (
@@ -106,6 +117,12 @@ function ArrowFunction({ name, export: canExport, async, generics, params, retur
       {canExport && (
         <Text>
           export
+          <Text.Space />
+        </Text>
+      )}
+      {isDefault && (
+        <Text>
+          default
           <Text.Space />
         </Text>
       )}

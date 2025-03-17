@@ -1,5 +1,337 @@
 # @kubb/react
 
+## 3.6.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.2
+  - @kubb/fs@3.6.2
+  - @kubb/parser-ts@3.6.2
+
+## 3.6.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.1
+  - @kubb/fs@3.6.1
+  - @kubb/parser-ts@3.6.1
+
+## 3.6.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.0
+  - @kubb/fs@3.6.0
+  - @kubb/parser-ts@3.6.0
+
+## 3.5.13
+
+### Patch Changes
+
+- Updated dependencies [[`09ed7ba`](https://github.com/kubb-labs/kubb/commit/09ed7ba9d585dabca249a0cddd18c8a0dce6f5e1)]:
+  - @kubb/parser-ts@3.5.13
+  - @kubb/core@3.5.13
+  - @kubb/fs@3.5.13
+
+## 3.5.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.12
+  - @kubb/fs@3.5.12
+  - @kubb/parser-ts@3.5.12
+
+## 3.5.11
+
+### Patch Changes
+
+- [#1557](https://github.com/kubb-labs/kubb/pull/1557) [`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5) Thanks [@nicholaschiang](https://github.com/nicholaschiang)! - Including and excluding tags now matches any tag, instead of just the first one.
+
+- Updated dependencies [[`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5)]:
+  - @kubb/core@3.5.11
+  - @kubb/fs@3.5.11
+  - @kubb/parser-ts@3.5.11
+
+## 3.5.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.10
+  - @kubb/fs@3.5.10
+  - @kubb/parser-ts@3.5.10
+
+## 3.5.9
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.9
+  - @kubb/fs@3.5.9
+  - @kubb/parser-ts@3.5.9
+
+## 3.5.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.8
+  - @kubb/fs@3.5.8
+  - @kubb/parser-ts@3.5.8
+
+## 3.5.7
+
+### Patch Changes
+
+- [`3dec170`](https://github.com/kubb-labs/kubb/commit/3dec170dc38013bbcff625eff9de0a75da05f80e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - bun does not follow the same node_modules structure, include React inside of `@kubb/react`
+
+- Updated dependencies []:
+  - @kubb/core@3.5.7
+  - @kubb/fs@3.5.7
+  - @kubb/parser-ts@3.5.7
+
+## 3.5.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.6
+  - @kubb/fs@3.5.6
+  - @kubb/parser-ts@3.5.6
+
+## 3.5.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.5
+  - @kubb/fs@3.5.5
+  - @kubb/parser-ts@3.5.5
+
+## 3.5.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.4
+  - @kubb/fs@3.5.4
+  - @kubb/parser-ts@3.5.4
+
+## 3.5.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.3
+  - @kubb/fs@3.5.3
+  - @kubb/parser-ts@3.5.3
+
+## 3.5.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.2
+  - @kubb/fs@3.5.2
+  - @kubb/parser-ts@3.5.2
+
+## 3.5.1
+
+### Patch Changes
+
+- Updated dependencies [[`967efeb`](https://github.com/kubb-labs/kubb/commit/967efeb16ced9eac0d2b1fb493b39d9b25afbafa)]:
+  - @kubb/core@3.5.1
+  - @kubb/fs@3.5.1
+  - @kubb/parser-ts@3.5.1
+
+## 3.5.0
+
+### Patch Changes
+
+- Updated dependencies [[`d2b9643`](https://github.com/kubb-labs/kubb/commit/d2b96434da7b168f085d774f839c4ae32ab93977)]:
+  - @kubb/core@3.5.0
+  - @kubb/fs@3.5.0
+  - @kubb/parser-ts@3.5.0
+
+## 3.4.5
+
+### Patch Changes
+
+- Updated dependencies [[`b678aba`](https://github.com/kubb-labs/kubb/commit/b678abae84d0e0e17af1eaa818c47e15341cf67b)]:
+  - @kubb/core@3.4.5
+  - @kubb/fs@3.4.5
+  - @kubb/parser-ts@3.4.5
+
+## 3.4.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.4
+  - @kubb/fs@3.4.4
+  - @kubb/parser-ts@3.4.4
+
+## 3.4.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.3
+  - @kubb/fs@3.4.3
+  - @kubb/parser-ts@3.4.3
+
+## 3.4.2
+
+### Patch Changes
+
+- Updated dependencies [[`c98130b`](https://github.com/kubb-labs/kubb/commit/c98130b1d79c9f38b214785f9950ee34376d18c5)]:
+  - @kubb/core@3.4.2
+  - @kubb/fs@3.4.2
+  - @kubb/parser-ts@3.4.2
+
+## 3.4.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.1
+  - @kubb/fs@3.4.1
+  - @kubb/parser-ts@3.4.1
+
+## 3.4.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.4.0
+  - @kubb/fs@3.4.0
+  - @kubb/parser-ts@3.4.0
+
+## 3.3.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.3.5
+  - @kubb/fs@3.3.5
+  - @kubb/parser-ts@3.3.5
+
+## 3.3.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.3.4
+  - @kubb/fs@3.3.4
+  - @kubb/parser-ts@3.3.4
+
+## 3.3.3
+
+### Patch Changes
+
+- [`17011c8`](https://github.com/kubb-labs/kubb/commit/17011c80c60fd79c5b00b4f260fde27acb93f97f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of `@kubb/react` as importSource for jsx(React 17, React 18, React 19 could be used next to Kubb)
+
+- Updated dependencies []:
+  - @kubb/core@3.3.3
+  - @kubb/fs@3.3.3
+  - @kubb/parser-ts@3.3.3
+
+## 3.3.2
+
+### Patch Changes
+
+- [`fd3831e`](https://github.com/kubb-labs/kubb/commit/fd3831e090c0356280a3c17e9e1878e843705e60) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support `div` and other basic elements to be returned by `@kubb/react`
+
+- Updated dependencies []:
+  - @kubb/core@3.3.2
+  - @kubb/fs@3.3.2
+  - @kubb/parser-ts@3.3.2
+
+## 3.3.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.3.1
+  - @kubb/fs@3.3.1
+  - @kubb/parser-ts@3.3.1
+
+## 3.3.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.3.0
+  - @kubb/fs@3.3.0
+  - @kubb/parser-ts@3.3.0
+
+## 3.2.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.2.0
+  - @kubb/fs@3.2.0
+  - @kubb/parser-ts@3.2.0
+
+## 3.1.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.1.0
+  - @kubb/fs@3.1.0
+  - @kubb/parser-ts@3.1.0
+
+## 3.0.14
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.14
+  - @kubb/fs@3.0.14
+  - @kubb/parser-ts@3.0.14
+
+## 3.0.13
+
+### Patch Changes
+
+- Updated dependencies [[`d2a69a3`](https://github.com/kubb-labs/kubb/commit/d2a69a3b11c02d2836081202c07954f8e49aef83)]:
+  - @kubb/parser-ts@3.0.13
+  - @kubb/core@3.0.13
+  - @kubb/fs@3.0.13
+
+## 3.0.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.12
+  - @kubb/fs@3.0.12
+  - @kubb/parser-ts@3.0.12
+
+## 3.0.11
+
+### Patch Changes
+
+- Updated dependencies [[`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2), [`b53eb44`](https://github.com/kubb-labs/kubb/commit/b53eb443db252b797089bb3ebcd92d7da12fc9e2)]:
+  - @kubb/core@3.0.11
+  - @kubb/fs@3.0.11
+  - @kubb/parser-ts@3.0.11
+
+## 3.0.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.0.10
+  - @kubb/fs@3.0.10
+  - @kubb/parser-ts@3.0.10
+
 ## 3.0.9
 
 ### Patch Changes

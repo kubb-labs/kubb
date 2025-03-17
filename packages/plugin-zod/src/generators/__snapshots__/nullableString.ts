@@ -1,3 +1,3 @@
-import { z } from "zod";
+import { z } from 'zod'
 
- export const nullableString = z.string().nullable();
+export const nullableString = z.string().nullable()

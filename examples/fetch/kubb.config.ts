@@ -31,7 +31,7 @@ export default defineConfig(() => {
         output: {
           path: '.',
         },
-        importPath: '../client.ts',
+        client: 'fetch',
       }),
     ],
   }

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-zod",
-  "version": "3.0.9",
+  "version": "3.6.2",
   "description": "Generator plugin-zod",
   "keywords": [
     "typescript",
@@ -35,6 +35,11 @@
       "require": "./dist/components.cjs",
       "default": "./dist/components.cjs"
     },
+    "./utils": {
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs",
+      "default": "./dist/utils.cjs"
+    },
     "./package.json": "./package.json",
     "./*": "./*"
   },
@@ -48,6 +53,9 @@
       ],
       "generators": [
         "./dist/generators.d.ts"
+      ],
+      "utils": [
+        "./dist/utils.d.ts"
       ]
     }
   },
@@ -78,9 +86,12 @@
     "@kubb/react": "workspace:*"
   },
   "devDependencies": {
+    "@asteasolutions/zod-to-openapi": "^7.3.0",
+    "@hono/zod-openapi": "^0.18.4",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "tsup": "^8.3.5"
+    "tsup": "catalog:",
+    "zod": "~3.24.2"
   },
   "peerDependencies": {
     "@kubb/react": "^3.0.0"

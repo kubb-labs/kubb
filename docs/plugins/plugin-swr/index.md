@@ -14,19 +14,19 @@ With the SWR plugin you can create [SWR hooks](https://swr.vercel.app/) based on
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-swr
+bun add -d @kubb/plugin-swr
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-swr
+pnpm add -D @kubb/plugin-swr
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-swr
+npm install --save-dev @kubb/plugin-swr
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-swr
+yarn add -D @kubb/plugin-swr
 ```
 
 :::
@@ -69,7 +69,7 @@ Add a banner text in the beginning of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
 #### output.footer
@@ -77,8 +77,11 @@ Add a footer text at the end of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
+
+### contentType
+<!--@include: ../core/contentType.md-->
 
 ### group
 <!--@include: ../core/group.md-->
@@ -111,11 +114,14 @@ Return the name of a group based on the group name, this will be used for the fi
 #### client.dataReturnType
 <!--@include: ../plugin-client/dataReturnType.md-->
 
-### client.baseURL
+#### client.baseURL
 <!--@include: ../plugin-client/baseURL.md-->
 
 ### paramsType
 <!--@include: ../plugin-client/paramsType.md-->
+
+### paramsCasing
+<!--@include: ../plugin-client/paramsCasing.md-->
 
 ### pathParamsType
 <!--@include: ../plugin-client/pathParamsType.md-->

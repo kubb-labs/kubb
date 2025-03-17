@@ -1,5 +1,35 @@
 # unplugin-kubb
 
+## 2.0.2
+
+### Patch Changes
+
+- [#1557](https://github.com/kubb-labs/kubb/pull/1557) [`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5) Thanks [@nicholaschiang](https://github.com/nicholaschiang)! - Including and excluding tags now matches any tag, instead of just the first one.
+
+## 2.0.1
+
+### Patch Changes
+
+- [`24d9e13`](https://github.com/kubb-labs/kubb/commit/24d9e131e360dcb31e16f8978f0c0cc226002288) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support custom `contentType` per plugin
+
+## 2.0.0
+
+### Major Changes
+
+- [`c0563e3`](https://github.com/kubb-labs/kubb/commit/c0563e37cee434579546bd1293e8f1eb2be802cd) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for Vite 6 and drop support for webpack 4
+
+## 1.0.6
+
+### Patch Changes
+
+- [`d2a69a3`](https://github.com/kubb-labs/kubb/commit/d2a69a3b11c02d2836081202c07954f8e49aef83) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - upgrade packges
+
+## 1.0.5
+
+### Patch Changes
+
+- [`feabcd1`](https://github.com/kubb-labs/kubb/commit/feabcd1168529408ba9d098ed8f75210303607a0) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Sync with Kubb core
+
 ## 1.0.4
 
 ### Patch Changes

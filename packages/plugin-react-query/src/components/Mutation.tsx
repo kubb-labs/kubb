@@ -20,20 +20,22 @@ type Props = {
   typeSchemas: OperationSchemas
   operation: Operation
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
+  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const mutationParams = FunctionParams.factory({
-    ...getPathParams(typeSchemas.pathParams, { typed: true }),
+    ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
@@ -54,16 +56,15 @@ function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
       : undefined,
   })
   const TRequest = mutationParams.toConstructor({ valueAsType: true })
-  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', TRequest ? `{${TRequest}}` : undefined]
-    .filter(Boolean)
-    .join(', ')
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const generics = [TData, TError, TRequest ? `{${TRequest}}` : 'undefined', 'TContext'].join(', ')
 
   return FunctionParams.factory({
     options: {
       type: `
 {
   mutation?: UseMutationOptions<${generics}>,
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
 }
 `,
       default: '{}',
@@ -71,26 +72,38 @@ function getParams({ dataReturnType, typeSchemas }: GetParamsProps) {
   })
 }
 
-export function Mutation({ name, clientName, paramsType, pathParamsType, dataReturnType, typeSchemas, operation, mutationKeyName }: Props): ReactNode {
+export function Mutation({
+  name,
+  clientName,
+  paramsCasing,
+  paramsType,
+  pathParamsType,
+  dataReturnType,
+  typeSchemas,
+  operation,
+  mutationKeyName,
+}: Props): ReactNode {
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,
     typeSchemas,
   })
 
   const params = getParams({
+    paramsCasing,
     pathParamsType,
     dataReturnType,
     typeSchemas,
   })
 
   const clientParams = Client.getParams({
+    paramsCasing,
     paramsType,
     typeSchemas,
     pathParamsType,
   })
 
   const mutationParams = FunctionParams.factory({
-    ...getPathParams(typeSchemas.pathParams, { typed: true }),
+    ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
@@ -131,9 +144,8 @@ export function Mutation({ name, clientName, paramsType, pathParamsType, dataRet
 
   const TRequest = mutationParams.toConstructor({ valueAsType: true })
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', TRequest ? `{${TRequest}}` : undefined]
-    .filter(Boolean)
-    .join(', ')
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const generics = [TData, TError, TRequest ? `{${TRequest}}` : 'undefined', 'TContext'].join(', ')
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -144,6 +156,7 @@ export function Mutation({ name, clientName, paramsType, pathParamsType, dataRet
         JSDoc={{
           comments: getComments(operation),
         }}
+        generics={['TContext']}
       >
         {`
         const { mutation: mutationOptions, client: config = {} } = options ?? {}

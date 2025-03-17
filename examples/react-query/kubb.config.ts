@@ -22,6 +22,9 @@ export const config = {
     pluginTs({
       output: {
         path: 'models',
+        banner(oas) {
+          return `// version: ${oas.api.info.version}`
+        },
       },
     }),
     pluginReactQuery({
@@ -35,6 +38,9 @@ export const config = {
       },
       output: {
         path: './hooks',
+      },
+      group: {
+        type: 'path',
       },
       queryKey(props) {
         const keys = QueryKey.getTransformer(props)
@@ -50,7 +56,7 @@ export const config = {
           options: {
             client: {
               dataReturnType: 'full',
-              importPath: '@kubb/plugin-client/client',
+              importPath: '@kubb/plugin-client/clients/axios',
             },
             infinite: {
               queryParam: 'pageSize',

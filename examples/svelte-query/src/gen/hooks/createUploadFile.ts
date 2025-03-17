@@ -1,6 +1,6 @@
-import client from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
@@ -10,53 +10,50 @@ export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
 
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage
+ * {@link /pet/:petId/uploadImage}
  */
-async function uploadFile(
+export async function uploadFile(
   petId: UploadFilePathParams['petId'],
   data?: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileMutationRequest>> = {},
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const res = await client<UploadFileMutationResponse, Error, UploadFileMutationRequest>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     params,
     data,
-    headers: { 'Content-Type': 'application/octet-stream', ...config.headers },
-    ...config,
+    ...requestConfig,
+    headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
   })
   return res.data
 }
 
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage
+ * {@link /pet/:petId/uploadImage}
  */
-export function createUploadFile(
+export function createUploadFile<TContext>(
   options: {
     mutation?: CreateMutationOptions<
       UploadFileMutationResponse,
-      Error,
-      {
-        petId: UploadFilePathParams['petId']
-        data?: UploadFileMutationRequest
-        params?: UploadFileQueryParams
-      }
+      ResponseErrorConfig<Error>,
+      { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+      TContext
     >
-    client?: Partial<RequestConfig<UploadFileMutationRequest>>
+    client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? uploadFileMutationKey()
+
   return createMutation<
     UploadFileMutationResponse,
-    Error,
-    {
-      petId: UploadFilePathParams['petId']
-      data?: UploadFileMutationRequest
-      params?: UploadFileQueryParams
-    }
+    ResponseErrorConfig<Error>,
+    { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+    TContext
   >({
     mutationFn: async ({ petId, data, params }) => {
       return uploadFile(petId, data, params, config)

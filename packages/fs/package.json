@@ -1,6 +1,6 @@
 {
   "name": "@kubb/fs",
-  "version": "3.0.9",
+  "version": "3.6.2",
   "description": "FileSystem helpers",
   "keywords": [
     "typescript",
@@ -57,14 +57,14 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "fs-extra": "^11.2.0",
+    "fs-extra": "^11.3.0",
     "js-runtime": "^0.0.8"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@types/fs-extra": "^11.0.4",
-    "tsup": "^8.3.5"
+    "tsup": "catalog:"
   },
   "engines": {
     "node": ">=20"

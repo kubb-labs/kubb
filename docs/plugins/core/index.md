@@ -13,19 +13,19 @@ The core contains the building blocks for all plugins.
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/core
+bun add -d @kubb/core
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/core
+pnpm add -D @kubb/core
 ```
 
 ```shell [npm]
-npm install @kubb/core
+npm install --save-dev @kubb/core
 ```
 
 ```shell [yarn]
-yarn add @kubb/core
+yarn add -D @kubb/core
 ```
 
 :::

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-msw",
-  "version": "3.0.9",
+  "version": "3.6.2",
   "description": "Generator swagger",
   "keywords": [
     "typescript",
@@ -96,10 +96,10 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.12",
-    "react": "^18.3.1",
-    "tsup": "^8.3.5",
-    "typescript": "^5.6.3"
+    "@types/react": "catalog:",
+    "react": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "@kubb/react": "^3.0.0"

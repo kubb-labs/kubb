@@ -13,7 +13,7 @@ import type { Logger } from './logger.ts'
  * ...
  * })
  */
-export type UserConfig = Omit<Config, 'root' | 'plugins'> & {
+export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'> & {
   /**
    * The project root directory, which can be either an absolute path or a path relative to the location of your `kubb.config.ts` file.
    * @default process.cwd()
@@ -80,7 +80,7 @@ export type Config<TInput = Input> = {
      * Override the extension to the generated imports and exports, by default each plugin will add an extension
      * @default { '.ts': '.ts'}
      */
-    extension?: Record<KubbFile.Extname, KubbFile.Extname>
+    extension?: Record<KubbFile.Extname, KubbFile.Extname | ''>
     /**
      * Specify how `index.ts` files should be created. You can also disable the generation of barrel files here. While each plugin has its own `barrelType` option, this setting controls the creation of the root barrel file, such as` src/gen/index.ts`.
      * @default 'named'
@@ -291,7 +291,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
 /**
  * Specify the export location for the files and define the behavior of the output
  */
-export type Output = {
+export type Output<TOptions> = {
   /**
    * Path to the output folder or file that will contain the generated code
    */
@@ -304,11 +304,11 @@ export type Output = {
   /**
    * Add a banner text in the beginning of every file
    */
-  banner?: string
+  banner?: string | ((options: TOptions) => string)
   /**
    * Add a footer text in the beginning of every file
    */
-  footer?: string
+  footer?: string | ((options: TOptions) => string)
 }
 
 type GroupContext = {
@@ -319,7 +319,7 @@ export type Group = {
   /**
    * Define a type where to group the files on
    */
-  type: 'tag'
+  type: 'tag' | 'path'
   /**
    * Return the name of a group based on the group name, this will be used for the file and name generation
    */

@@ -12,21 +12,24 @@ type Props = {
   typeName: string
   typeSchemas: OperationSchemas
   operation: Operation
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   transformer: Transformer | undefined
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
+function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps) {
   return FunctionParams.factory({
     pathParams: {
       mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
       children: getPathParams(typeSchemas.pathParams, {
         typed: true,
+        casing: paramsCasing,
         override(item) {
           return {
             ...item,
@@ -50,8 +53,8 @@ function getParams({ pathParamsType, typeSchemas }: GetParamsProps) {
   })
 }
 
-const getTransformer: Transformer = ({ operation, schemas }) => {
-  const path = new URLPath(operation.path)
+const getTransformer: Transformer = ({ operation, schemas, casing }) => {
+  const path = new URLPath(operation.path, { casing })
   const keys = [
     path.toObject({
       type: 'path',
@@ -64,11 +67,12 @@ const getTransformer: Transformer = ({ operation, schemas }) => {
   return keys
 }
 
-export function QueryKey({ name, typeSchemas, pathParamsType, operation, typeName, transformer = getTransformer }: Props): ReactNode {
-  const params = getParams({ pathParamsType, typeSchemas })
+export function QueryKey({ name, typeSchemas, paramsCasing, pathParamsType, operation, typeName, transformer = getTransformer }: Props): ReactNode {
+  const params = getParams({ pathParamsType, typeSchemas, paramsCasing })
   const keys = transformer({
     operation,
     schemas: typeSchemas,
+    casing: paramsCasing,
   })
 
   return (

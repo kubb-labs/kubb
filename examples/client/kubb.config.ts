@@ -60,6 +60,30 @@ export default defineConfig(() => {
       }),
       pluginClient({
         output: {
+          path: './clients/axios/xml',
+          barrelType: 'propagate',
+          banner: '/* eslint-disable no-alert, no-console */',
+        },
+        contentType: 'application/xml',
+        include: [
+          {
+            type: 'operationId',
+            pattern: 'uploadFile',
+          },
+        ],
+        transformers: {
+          name(name, type) {
+            if (type === 'function') {
+              return `${name}XML`
+            }
+
+            return name
+          },
+        },
+        pathParamsType: 'object',
+      }),
+      pluginClient({
+        output: {
           path: './tagObject.ts',
         },
         generators: [clientStaticGenerator],
@@ -69,6 +93,12 @@ export default defineConfig(() => {
             pattern: 'store',
           },
         ],
+        group: {
+          type: 'tag',
+          name({ group }) {
+            return `${group}Controller`
+          },
+        },
         dataReturnType: 'full',
         pathParamsType: 'object',
       }),
@@ -111,6 +141,12 @@ export default defineConfig(() => {
             pattern: 'store',
           },
         ],
+        group: {
+          type: 'tag',
+          name({ group }) {
+            return `${group}Controller`
+          },
+        },
         transformers: {
           name(name, type) {
             if (type === 'function') {

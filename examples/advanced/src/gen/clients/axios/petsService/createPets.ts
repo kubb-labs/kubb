@@ -1,5 +1,5 @@
 import client from '../../../../axios-client.ts'
-import type { RequestConfig } from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
@@ -8,9 +8,13 @@ import type {
   CreatePetsHeaderParams,
 } from '../../../models/ts/petsController/CreatePets.ts'
 
+export function getCreatePetsUrl({ uuid }: { uuid: CreatePetsPathParams['uuid'] }) {
+  return `https://petstore3.swagger.io/api/v3/pets/${uuid}` as const
+}
+
 /**
  * @summary Create a pet
- * @link /pets/:uuid
+ * {@link /pets/:uuid}
  */
 export async function createPets(
   {
@@ -18,22 +22,18 @@ export async function createPets(
     data,
     headers,
     params,
-  }: {
-    uuid: CreatePetsPathParams['uuid']
-    data: CreatePetsMutationRequest
-    headers: CreatePetsHeaderParams
-    params?: CreatePetsQueryParams
-  },
-  config: Partial<RequestConfig<CreatePetsMutationRequest>> = {},
+  }: { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
+  config: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const res = await client<CreatePetsMutationResponse, Error, CreatePetsMutationRequest>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
-    url: `/pets/${uuid}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
+    url: getCreatePetsUrl({ uuid }).toString(),
     params,
     data,
-    headers: { ...headers, ...config.headers },
-    ...config,
+    ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

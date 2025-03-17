@@ -15,6 +15,7 @@
     "build": "tsup",
     "clean": "npx rimraf ./dist",
     "generate": "kubb generate",
+    "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
     "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
@@ -25,13 +26,14 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "axios": "^1.7.7",
-    "tsup": "^8.3.5"
+    "axios": "^1.8.3",
+    "tsup": "^8.4.0"
   },
   "devDependencies": {
-    "typescript": "^5.6.3"
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2"
   },
-  "packageManager": "pnpm@9.4.0",
+  "packageManager": "pnpm@9.15.5",
   "engines": {
     "node": ">=20",
     "pnpm": ">=8.15.0"

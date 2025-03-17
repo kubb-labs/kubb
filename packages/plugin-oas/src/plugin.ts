@@ -1,11 +1,11 @@
-import { FileManager, createPlugin } from '@kubb/core'
+import { FileManager, type Group, createPlugin } from '@kubb/core'
 
-import { getSchemas } from './utils/getSchemas.ts'
 import { parseFromConfig } from './utils/parseFromConfig.ts'
 
 import path from 'node:path'
 import type { Config } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
+import { camelCase } from '@kubb/core/transformers'
 import type { Oas } from '@kubb/oas'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
@@ -19,6 +19,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     output = {
       path: 'schemas',
     },
+    group,
     validate = true,
     generators = [jsonGenerator],
     serverIndex,
@@ -57,10 +58,6 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
         getOas() {
           return getOas({ config, logger })
         },
-        async getSchemas({ includes } = {}) {
-          const oas = await this.getOas()
-          return getSchemas({ oas, contentType, includes })
-        },
         async getBaseURL() {
           const oasInstance = await this.getOas()
           if (serverIndex) {
@@ -69,7 +66,6 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
 
           return undefined
         },
-        contentType,
       }
     },
     resolvePath(baseName, pathMode, options) {
@@ -82,6 +78,26 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
         return path.resolve(root, output.path)
+      }
+
+      if (group && (options?.group?.path || options?.group?.tag)) {
+        const groupName: Group['name'] = group?.name
+          ? group.name
+          : (ctx) => {
+              if (group?.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Controller`
+            }
+
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)

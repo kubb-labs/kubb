@@ -30,6 +30,7 @@
     "tags": {
       "type": "array",
       "xml": { "wrapped": true },
+      "readOnly": true,
       "items": {
         "type": "object",
         "properties": { "id": { "type": "integer", "format": "int64" }, "name": { "type": "string" } },

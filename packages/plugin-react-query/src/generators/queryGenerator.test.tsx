@@ -3,7 +3,7 @@ import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas/parser'
+import { parse } from '@kubb/oas'
 import { OperationGenerator } from '@kubb/plugin-oas'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
@@ -72,14 +72,14 @@ describe('queryGenerator operation', async () => {
       options: {
         client: {
           dataReturnType: 'full',
-          importPath: '@kubb/plugin-client/client',
+          importPath: '@kubb/plugin-client/clients/axios',
         },
       },
     },
     {
       name: 'postAsQuery',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
+      path: '/pet/{pet_id}',
       method: 'post',
       options: {
         query: {
@@ -98,6 +98,15 @@ describe('queryGenerator operation', async () => {
         pathParamsType: 'object',
       },
     },
+    {
+      name: 'getPetIdCamelCase',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{pet_id}',
+      method: 'get',
+      options: {
+        paramsCasing: 'camelcase',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -112,9 +121,10 @@ describe('queryGenerator operation', async () => {
     const options: PluginReactQuery['resolvedOptions'] = {
       client: {
         dataReturnType: 'data',
-        importPath: '@kubb/plugin-client/client',
+        importPath: '@kubb/plugin-client/clients/axios',
       },
       parser: 'zod',
+      paramsCasing: undefined,
       paramsType: 'inline',
       pathParamsType: 'inline',
       queryKey: QueryKey.getTransformer,
@@ -132,6 +142,7 @@ describe('queryGenerator operation', async () => {
       output: {
         path: '.',
       },
+      group: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginReactQuery>

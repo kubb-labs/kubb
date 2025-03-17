@@ -1,6 +1,6 @@
-import client from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
 import { queryOptions, createQuery } from '@tanstack/svelte-query'
 
@@ -10,16 +10,18 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
-async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
-  const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({ method: 'GET', url: '/user/login', params, ...config })
+export async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...requestConfig })
   return res.data
 }
 
-export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Partial<RequestConfig> = {}) {
+export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
   const queryKey = loginUserQueryKey(params)
-  return queryOptions({
+  return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -30,24 +32,25 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
 export function createLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginUserQueryResponse, TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUserQueryParams,
   options: {
-    query?: Partial<CreateBaseQueryOptions<LoginUserQueryResponse, LoginUser400, TData, TQueryData, TQueryKey>>
-    client?: Partial<RequestConfig>
+    query?: Partial<CreateBaseQueryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, TData, TQueryData, TQueryKey>>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
+
   const query = createQuery({
     ...(loginUserQueryOptions(params, config) as unknown as CreateBaseQueryOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as CreateQueryResult<TData, LoginUser400> & {
-    queryKey: TQueryKey
-  }
+  }) as CreateQueryResult<TData, ResponseErrorConfig<LoginUser400>> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

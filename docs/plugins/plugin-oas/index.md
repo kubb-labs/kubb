@@ -12,19 +12,19 @@ outline: deep
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-oas
+bun add -d @kubb/plugin-oas
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-oas
+pnpm add -D @kubb/plugin-oas
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-oas
+npm install --save-dev @kubb/plugin-oas
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-oas
+yarn add -D @kubb/plugin-oas
 ```
 :::
 
@@ -63,18 +63,42 @@ Define what needs to be exported, here you can also disable the export of barrel
 #### output.banner
 Add a banner text in the beginning of every file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string` |
-| Required: | `false`                               |
+|           |                                  |
+|----------:|:---------------------------------|
+|     Type: | `string \| (oas: Oas) => string` |
+| Required: | `false`                          |
 
 #### output.footer
 Add a footer text at the end of every file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string` |
-| Required: | `false`                               |
+|           |         |
+|----------:|:--------|
+|     Type: | `string \| (oas: Oas) => string`        |
+| Required: | `false` |
+
+
+### group
+<!--@include: ../core/group.md-->
+
+#### group.type
+Define a type where to group the files on.
+
+|           |         |
+|----------:|:--------|
+|     Type: | `'tag'` |
+| Required: | `true`  |
+
+<!--@include: ../core/groupTypes.md-->
+
+#### group.name
+
+Return the name of a group based on the group name, this will be used for the file and name generation.
+
+|           |                                     |
+|----------:|:------------------------------------|
+|     Type: | `(context: GroupContext) => string` |
+| Required: | `false`                             |
+|  Default: | `(ctx) => '${ctx.group}Controller'`  |
 
 ### validate
 
@@ -131,15 +155,7 @@ const plugin = pluginOas({ serverIndex: 1 })
 :::
 
 ### contentType
-
-Define which contentType should be used.
-By default, this is set based on the contentType being found.
-
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `'application/json' \| (string & {})` |
-| Required: | `false`                               |
-
+<!--@include: ../core/contentType.md-->
 
 ### oasClass <img src="/icons/experimental.svg"/>
 Override some behaviour of the Oas class instance, see `@kubb/oas`.

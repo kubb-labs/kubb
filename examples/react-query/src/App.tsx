@@ -1,14 +1,11 @@
 import { QueryClient, QueryClientProvider, useQueries } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState } from 'react'
-import { findPetsByStatusQueryOptionsHook, useFindPetsByStatusHook } from './gen/hooks/useFindPetsByStatusHook.ts'
-import { useFindPetsByTagsInfiniteHook } from './gen/hooks/useFindPetsByTagsInfiniteHook.ts'
-import { useUpdatePetWithFormHook } from './gen/hooks/useUpdatePetWithFormHook.ts'
-import type { FindPetsByStatusQueryParamsStatusEnum } from './gen/models/FindPetsByStatus.ts'
+import { findPetsByStatusQueryOptionsHook, useFindPetsByStatusHook, useFindPetsByTagsInfiniteHook, useUpdatePetWithFormHook } from './gen/hooks/index.ts'
+import type { FindPetsByStatusQueryParamsStatusEnum } from './gen/models'
 
 const queryClient = new QueryClient()
 
-function Pets(): JSX.Element {
+function Pets() {
   const [status, setStatus] = useState<FindPetsByStatusQueryParamsStatusEnum>('available')
   const { data: pets, queryKey } = useFindPetsByStatusHook({ status }, { query: { enabled: true } })
   const { data } = useUpdatePetWithFormHook(2)
@@ -108,11 +105,10 @@ function Pets(): JSX.Element {
   )
 }
 
-export function App(): JSX.Element {
+export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Pets />
-      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   )
 }

@@ -1,6 +1,6 @@
-import client from '@kubb/plugin-client/client'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { queryOptions, useQuery } from '@tanstack/vue-query'
@@ -13,30 +13,26 @@ export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKe
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
+ * {@link /pet/findByStatus}
  */
-async function findPetsByStatus(
-  {
+export async function findPetsByStatus({ params }: { params?: FindPetsByStatusQueryParams }, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
+    method: 'GET',
+    url: '/pet/findByStatus',
     params,
-  }: {
-    params?: FindPetsByStatusQueryParams
-  },
-  config: Partial<RequestConfig> = {},
-) {
-  const res = await client<FindPetsByStatusQueryResponse, FindPetsByStatus400, unknown>({ method: 'GET', url: '/pet/findByStatus', params, ...config })
+    ...requestConfig,
+  })
   return res.data
 }
 
 export function findPetsByStatusQueryOptions(
-  {
-    params,
-  }: {
-    params?: MaybeRef<FindPetsByStatusQueryParams>
-  },
-  config: Partial<RequestConfig> = {},
+  { params }: { params?: MaybeRef<FindPetsByStatusQueryParams> },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
   const queryKey = findPetsByStatusQueryKey(params)
-  return queryOptions({
+  return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -48,32 +44,29 @@ export function findPetsByStatusQueryOptions(
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
+ * {@link /pet/findByStatus}
  */
 export function useFindPetsByStatus<
   TData = FindPetsByStatusQueryResponse,
   TQueryData = FindPetsByStatusQueryResponse,
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
 >(
-  {
-    params,
-  }: {
-    params?: MaybeRef<FindPetsByStatusQueryParams>
-  },
+  { params }: { params?: MaybeRef<FindPetsByStatusQueryParams> },
   options: {
-    query?: Partial<QueryObserverOptions<FindPetsByStatusQueryResponse, FindPetsByStatus400, TData, TQueryData, TQueryKey>>
-    client?: Partial<RequestConfig>
+    query?: Partial<QueryObserverOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, TData, TQueryData, TQueryKey>>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { query: queryOptions, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
+
   const query = useQuery({
     ...(findPetsByStatusQueryOptions({ params }, config) as unknown as QueryObserverOptions),
     queryKey: queryKey as QueryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryReturnType<TData, FindPetsByStatus400> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryReturnType<TData, ResponseErrorConfig<FindPetsByStatus400>> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

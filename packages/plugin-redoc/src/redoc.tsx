@@ -3,8 +3,8 @@ import path from 'node:path'
 import type { OasTypes } from '@kubb/oas'
 import pkg from 'handlebars'
 import { renderToString } from 'react-dom/server'
-import { ServerStyleSheet } from 'styled-components'
 import redoc from 'redoc'
+import { ServerStyleSheet } from 'styled-components'
 
 type BuildDocsOptions = {
   title?: string
@@ -40,7 +40,9 @@ export async function getPageHTML(api: OasTypes.OASDocument, { title, disableGoo
     error(...args)
   }
 
-  const html = renderToString(sheet.collectStyles(<Redoc store={store} />))
+  const App = Redoc as any
+
+  const html = renderToString(sheet.collectStyles(<App {...{ store }} />))
   const state = await store.toJS()
   const css = sheet.getStyleTags()
 

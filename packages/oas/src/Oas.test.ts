@@ -7,7 +7,7 @@ import { petStore } from '../mocks/petStore.ts'
 
 import { Oas } from './Oas.ts'
 import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './infer/index.ts'
-import { parse } from './parser/index.ts'
+import { parse } from './utils.ts'
 
 describe('swagger Infer', () => {
   const oas = new Oas({ oas: petStore })

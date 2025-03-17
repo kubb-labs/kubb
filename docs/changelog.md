@@ -4,6 +4,243 @@ title: Changelog
 
 # Changelog
 
+
+## 3.6.3
+- [`plugin-oas`](/plugins/plugin-oas): extra checks for empty values for properties of a discriminator type
+- [`plugin-react-query`](/plugins/plugin-react-query/): allow override of mutation context with TypeScript generic
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): allow override of mutation context with TypeScript generic
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): allow override of mutation context with TypeScript generic
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): allow override of mutation context with TypeScript generic
+-
+## 3.6.2
+- [`plugin-zod`](/plugins/plugin-zod): handling circular dependency properly when using `ToZod` helper
+
+## 3.6.1
+- [`plugin-react-query`](/plugins/plugin-react-query/): validating the request using zod before making the HTTP call
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): validating the request using zod before making the HTTP call
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): validating the request using zod before making the HTTP call
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): validating the request using zod before making the HTTP call
+- [`plugin-swr`](/plugins/plugin-swr/): validating the request using zod before making the HTTP call
+- [`plugin-client`](/plugins/plugin-client): validating the request using zod before making the HTTP call
+
+## 3.6.0
+- [`plugin-zod`](/plugins/plugin-zod): Adds wrapOutput option to allow for further customizing the generated zod schemas, this makes it possible to use `OpenAPI` on top of your Zod schema.
+```typescript
+import { z } from '@hono/zod-openapi'
+
+export const showPetByIdError = z
+  .lazy(() => error)
+  .openapi({
+    examples: [
+      { sample: { summary: 'A sample error', value: { code: 1, message: 'A sample error message' } } },
+      { other_example: { summary: 'Another sample error', value: { code: 2, message: 'A totally specific message' } } },
+    ],
+  })
+```
+- [`plugin-oas`](/plugins/plugin-oas): discriminator mapping with literal types
+``` typescript
+export type FooBase = {
+  /**
+   * @type string
+   */
+-  $type: string;
++  $type: "type-string" | "type-number";
+};
+```
+``` typescript
+-export type FooNumber = FooBase {
++export type FooNumber = FooBase & {
++  /**
++   * @type string
++   */
++  $type: "type-number";
++
+  /**
+   * @type number
+   */
+  value: number;
+};
+```
+
+## 3.5.13
+- [`plugin-oas`](/plugins/plugin-oas): enum with whitespaces
+
+## 3.5.12
+- [`core`](/plugins/core): internal packages update
+
+## 3.5.11
+- [`core`](/plugins/core): internal packages update
+
+## 3.5.10
+- [`plugin-faker`](/plugins/plugin-faker/): returnType for faker functions
+
+## 3.5.9
+- [`plugin-faker`](/plugins/plugin-faker/): returnType for faker functions
+- [`plugin-faker`](/plugins/plugin-faker/): only use min/max when both are set in the oas
+- [`plugin-client`](/plugins/plugin-client): correct use of baseURL for fetch client
+- [`plugin-msw`](/plugins/plugin-msw): support for `baseURL` without wildcards
+
+## 3.5.8
+- [`plugin-react-query`](/plugins/plugin-react-query/): support custom `contentType` per plugin
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support custom `contentType` per plugin
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): support custom `contentType` per plugin
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): support custom `contentType` per plugin
+- [`plugin-swr`](/plugins/plugin-swr/): support custom `contentType` per plugin
+- [`plugin-client`](/plugins/plugin-client): support custom `contentType` per plugin
+
+## 3.5.7
+- [`react`](/helpers/react/): Bun does not follow the same node_modules structure, to resolve this we need to include the React bundle inside of `@kubb/react`. This will increase the size with 4MB.
+
+## 3.5.6
+- [`plugin-react-query`](/plugins/plugin-react-query/): support custom client in options
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support custom client in options
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): support custom client in options
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): support custom client in options
+- [`plugin-swr`](/plugins/plugin-swr/): support custom client in options
+
+## 3.5.5
+- [`plugin-client`](/plugins/plugin-client): support custom client in options
+- [`plugin-faker`](/plugins/plugin-zod): `faker.number.string` with default min `Number.MIN_VALUE` and max set to `Number.MAX_VALUE`
+
+## 3.5.4
+- [`plugin-zod`](/plugins/plugin-zod): Support uniqueItems in Zod
+
+## 3.5.3
+- [`plugin-client`](/plugins/plugin-client): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
+- [`plugin-react-query`](/plugins/plugin-react-query/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
+- [`plugin-swr`](/plugins/plugin-swr/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
+
+
+## 3.5.2
+- [`plugin-faker`](/plugins/plugin-faker): `faker.number.float` with default min `Number.MIN_VALUE` and max set to `Number.MAX_VALUE`.
+- [`plugin-oas`](/plugins/plugin-oas): remove duplicated keys when using `allOf` and applying required on fields
+
+## 3.5.1
+- [`core`](/plugins/core): build of `@kubb/core` with correct types
+- [`plugin-oas`](/plugins/plugin-oas): allow `grouping`
+
+## 3.5.0
+- [`core`](/plugins/core): support banner with context for Oas
+```typescript
+pluginTs({
+  output: {
+    path: 'models',
+    banner(oas) {
+      return `// version: ${oas.api.info.version}`
+    },
+  },
+}),
+```
+
+## 3.4.6
+- [`core`](/plugins/core): ignore acronyms when doing casing switch to pascal or camelcase
+
+## 3.4.5
+- [`plugin-client`](/plugins/plugin-client): if client receives no body (no content) then it throws JSON parsing error
+- [`plugin-zod`](/plugins/plugin-zod): use of `as ToZod` instead of `satisfies ToZod`
+
+## 3.4.4
+- [`plugin-client`](/plugins/plugin-client): url in text format instead of using URL
+
+## 3.4.3
+- [`plugin-oas`](/plugins/plugin-oas): correct use of grouping for path and tags
+
+## 3.4.2
+- [`plugin-oas`](/plugins/plugin-oas): remove duplicated keys when set in required
+
+## 3.4.1
+- [`plugin-faker`](/plugins/plugin-faker): min and max was not applied to the faker functions
+
+## 3.4.0
+- [`plugin-client`](/plugins/plugin-client): decouple URI (with params) from fetching
+- [`plugin-client`](/plugins/plugin-client): add header in response object
+- [`plugin-client`](/plugins/plugin-client): use of URL and SearchParams to support queryParams for fetch
+
+## 3.3.5
+- [`plugin-react-query`](/plugins/plugin-react-query/): queryOptions with custom Error type
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): queryOptions with custom Error type
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): queryOptions with custom Error type
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): queryOptions with custom Error type
+- [`react`](/helpers/react/): importPath without extensions
+
+
+## 3.3.4
+- [`plugin-ts`](/plugins/plugin-ts): minLength, maxLength, pattern as part of the jsdocs
+- [`plugin-client`](/plugins/plugin-client): baseURL could be undefined, do not throw error if that is the case
+
+## 3.3.3
+- [`react`](/helpers/react/): Use of `@kubb/react` as importSource for jsx(React 17, React 18, React 19 could be used next to Kubb)
+- [`cli`](/helpers/cli/): Use of `@kubb/react` as importSource for jsx(React 17, React 18, React 19 could be used next to Kubb)
+
+## 3.3.2
+- [`react`](/helpers/react/): Support `div` and other basic elements to be returned by `@kubb/react`
+
+## 3.3.1
+- [`plugin-zod`](/plugins/plugin-zod): Use of `tozod` util to create schema based on a type
+
+## 3.3.0
+- [`plugin-client`](/plugins/plugin-client): `client` to use `fetch` or `axios` as HTTP client
+- [`plugin-zod`](/plugins/plugin-zod): Use Regular expression literal instead of RegExp-contructor
+- [`plugin-ts`](/plugins/plugin-ts): Switch between the use of type or interface when creating types
+
+## 3.2.0
+- [`plugin-msw`](/plugins/plugin-msw): `paramsCasing` to define casing for params
+- [`plugin-react-query`](/plugins/plugin-react-query/): `paramsCasing` to define casing for params
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): `paramsCasing` to define casing for params
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): `paramsCasing` to define casing for params
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): `paramsCasing` to define casing for params
+- [`plugin-client`](/plugins/plugin-client): `paramsCasing` to define casing for params
+
+## 3.1.0
+- [`plugin-react-query`](/plugins/plugin-react-query/): Group API clients by path structure
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Group API clients by path structure
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Group API clients by path structure
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): Group API clients by path structure
+- [`plugin-msw`](/plugins/plugin-msw): Group API clients by path structure
+```typescript
+group: {
+  type: 'path',
+  name: ({ group }) => {
+    const firstSegment = group.split('/')[1];
+    return firstSegment;
+  }
+}
+```
+```typescript
+findPetsByStatusHandler((info) => {
+  const { params } = info
+  if (params.someKey) {
+    return new Response(
+      JSON.stringify({ error: 'some error response' }),
+      { status: 400 }
+    );
+  }
+  return new Response(
+    JSON.stringify({ newData: 'new data' }),
+    { status: 200 }
+  );
+})
+
+```
+
+## 3.0.14
+- [`core`](/plugins/core): Upgrade packages
+
+## 3.0.13
+- [`core`](/plugins/core): Upgrade packages
+- [`plugin-oas`](/plugins/plugin-oas): Applying required on fields inherited using allOf
+
+## 3.0.12
+- [`plugin-zod`](/plugins/plugin-zod): 2xx as part of `operations.ts`
+
+## 3.0.11
+- [`core`](/plugins/core): Disabling output file extension
+- [`plugin-oas`](/plugins/plugin-oas): Correct use of Jsdocs syntax for links
+- [`core`](/plugins/core): Respect casing of parameters
+
 ## 3.0.10
 - [`plugin-faker`](/plugins/plugin-faker): `data` should have a higher priority than faker defaults generation
 

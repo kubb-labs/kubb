@@ -36,7 +36,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
 
 export type SchemaGeneratorOptions = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
-  unknownType: 'any' | 'unknown'
+  unknownType: 'any' | 'unknown' | 'void'
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   enumSuffix?: string
   usedEnumNames?: Record<string, number>
@@ -259,6 +259,9 @@ export class SchemaGenerator<
 
     if (options.unknownType === 'any') {
       return schemaKeywords.any
+    }
+    if (options.unknownType === 'void') {
+      return schemaKeywords.void
     }
 
     return schemaKeywords.unknown
@@ -491,17 +494,13 @@ export class SchemaGenerator<
       if (schemaWithoutOneOf.properties) {
         const propertySchemas = this.parse({ schema: schemaWithoutOneOf, name, parentName })
 
-        return [
-          {
-            ...union,
-            args: union.args.map((arg) => {
-              return {
-                keyword: schemaKeywords.and,
-                args: [arg, ...propertySchemas],
-              }
-            }),
-          },
-          ...baseItems,
+        union.args = [
+          ...union.args.map((arg) => {
+            return {
+              keyword: schemaKeywords.and,
+              args: [arg, ...propertySchemas],
+            }
+          }),
         ]
       }
 
@@ -557,20 +556,56 @@ export class SchemaGenerator<
           }),
       }
 
+      if (schemaWithoutAllOf.required) {
+        // TODO use of Required ts helper instead
+        const schemas = schema.allOf
+          .map((item) => {
+            if (isReference(item)) {
+              return this.context.oas.get(item.$ref) as SchemaObject
+            }
+          })
+          .filter(Boolean)
+
+        const items = schemaWithoutAllOf.required
+          .filter((key) => {
+            // filter out keys that are already part of the properties(reduce duplicated keys(https://github.com/kubb-labs/kubb/issues/1492)
+            if (schemaWithoutAllOf.properties) {
+              return !Object.keys(schemaWithoutAllOf.properties).includes(key)
+            }
+
+            // schema should include required fields when necessary https://github.com/kubb-labs/kubb/issues/1522
+            return true
+          })
+          .map((key) => {
+            const schema = schemas.find((item) => item.properties && Object.keys(item.properties).find((propertyKey) => propertyKey === key))
+
+            if (schema?.properties?.[key]) {
+              return {
+                ...schema,
+                properties: {
+                  [key]: schema.properties[key],
+                },
+                required: [key],
+              }
+            }
+          })
+          .filter(Boolean)
+
+        and.args = [...(and.args || []), ...items.flatMap((item) => this.parse({ schema: item as SchemaObject, name, parentName }))]
+      }
+
       if (schemaWithoutAllOf.properties) {
-        return [
-          {
-            ...and,
-            args: [...(and.args || []), ...this.parse({ schema: schemaWithoutAllOf, name, parentName })],
-          },
-          ...baseItems,
-        ]
+        and.args = [...(and.args || []), ...this.parse({ schema: schemaWithoutAllOf, name, parentName })]
       }
 
       return [and, ...baseItems]
     }
 
     if (schema.enum) {
+      if (options.enumSuffix === '') {
+        throw new Error('EnumSuffix set to an empty string does not work')
+      }
+
       const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.#getUsedEnumNames({ schema, name }))
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,
@@ -829,6 +864,7 @@ export class SchemaGenerator<
       const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
       const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
       const items = this.parse({ schema: 'items' in schema ? (schema.items as SchemaObject) : [], name, parentName })
+      const unique = !!schema.uniqueItems
 
       return [
         {
@@ -837,6 +873,7 @@ export class SchemaGenerator<
             items,
             min,
             max,
+            unique,
           },
         },
         ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
@@ -931,7 +968,7 @@ export class SchemaGenerator<
   /**
    * Schema
    */
-  async schema(name: string, object: SchemaObject, options: TOptions): SchemaMethodResult<TFileMeta> {
+  async schema(_name: string, _object: SchemaObject, _options: TOptions): SchemaMethodResult<TFileMeta> {
     return []
   }
 }

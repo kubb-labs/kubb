@@ -32,19 +32,19 @@ You can install Kubb via [bun](https://bun.sh/), [pnpm](https://pnpm.io/), [npm]
 
 ::: code-group
 ```shell [bun]
-bun add @kubb/cli @kubb/core
+bun add -d @kubb/cli @kubb/core
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/cli @kubb/core
+pnpm add -D @kubb/cli @kubb/core
 ```
 
 ```shell [npm]
-npm install @kubb/cli @kubb/core
+npm install --save-dev @kubb/cli @kubb/core
 ```
 
 ```shell [yarn]
-yarn add @kubb/cli @kubb/core
+yarn add -D @kubb/cli @kubb/core
 ```
 :::
 
@@ -102,6 +102,8 @@ When the cli is not an option, you could use the `@kubb/core` package to trigger
 ```typescript [index.ts]
 import { write } from '@kubb/fs'
 import { build, getSource } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginClient } from '@kubb/plugin-client'
 
 const { error, files, pluginManager } = await build({
   config: {
@@ -112,6 +114,10 @@ const { error, files, pluginManager } = await build({
     output: {
       path: './gen',
     },
+    plugins: [
+      pluginOas(),
+      pluginClient(),
+    ]
   },
 })
 

@@ -1,33 +1,68 @@
-import { addPetMutationRequestSchema, addPet405Schema, addPetMutationResponseSchema } from './addPetSchema.gen.ts'
+import { addPetMutationRequestSchema, addPet200Schema, addPet405Schema, addPetMutationResponseSchema } from './addPetSchema.gen.ts'
 import {
   createPetsMutationRequestSchema,
+  createPets201Schema,
   createPetsMutationResponseSchema,
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
   createPetsHeaderParamsSchema,
 } from './createPetsSchema.gen.ts'
 import { createUserMutationRequestSchema, createUserMutationResponseSchema } from './createUserSchema.gen.ts'
-import { createUsersWithListInputMutationRequestSchema, createUsersWithListInputMutationResponseSchema } from './createUsersWithListInputSchema.gen.ts'
+import {
+  createUsersWithListInputMutationRequestSchema,
+  createUsersWithListInput200Schema,
+  createUsersWithListInputMutationResponseSchema,
+} from './createUsersWithListInputSchema.gen.ts'
 import { deleteOrder400Schema, deleteOrder404Schema, deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema } from './deleteOrderSchema.gen.ts'
 import { deletePet400Schema, deletePetMutationResponseSchema, deletePetPathParamsSchema, deletePetHeaderParamsSchema } from './deletePetSchema.gen.ts'
 import { deleteUser400Schema, deleteUser404Schema, deleteUserMutationResponseSchema, deleteUserPathParamsSchema } from './deleteUserSchema.gen.ts'
-import { findPetsByStatus400Schema, findPetsByStatusQueryResponseSchema, findPetsByStatusQueryParamsSchema } from './findPetsByStatusSchema.gen.ts'
 import {
+  findPetsByStatus200Schema,
+  findPetsByStatus400Schema,
+  findPetsByStatusQueryResponseSchema,
+  findPetsByStatusQueryParamsSchema,
+} from './findPetsByStatusSchema.gen.ts'
+import {
+  findPetsByTags200Schema,
   findPetsByTags400Schema,
   findPetsByTagsQueryResponseSchema,
   findPetsByTagsQueryParamsSchema,
   findPetsByTagsHeaderParamsSchema,
 } from './findPetsByTagsSchema.gen.ts'
-import { getInventoryQueryResponseSchema } from './getInventorySchema.gen.ts'
-import { getOrderById400Schema, getOrderById404Schema, getOrderByIdQueryResponseSchema, getOrderByIdPathParamsSchema } from './getOrderByIdSchema.gen.ts'
-import { getPetById400Schema, getPetById404Schema, getPetByIdQueryResponseSchema, getPetByIdPathParamsSchema } from './getPetByIdSchema.gen.ts'
-import { getUserByName400Schema, getUserByName404Schema, getUserByNameQueryResponseSchema, getUserByNamePathParamsSchema } from './getUserByNameSchema.gen.ts'
-import { loginUser400Schema, loginUserQueryResponseSchema, loginUserQueryParamsSchema } from './loginUserSchema.gen.ts'
+import { getInventory200Schema, getInventoryQueryResponseSchema } from './getInventorySchema.gen.ts'
+import {
+  getOrderById200Schema,
+  getOrderById400Schema,
+  getOrderById404Schema,
+  getOrderByIdQueryResponseSchema,
+  getOrderByIdPathParamsSchema,
+} from './getOrderByIdSchema.gen.ts'
+import {
+  getPetById200Schema,
+  getPetById400Schema,
+  getPetById404Schema,
+  getPetByIdQueryResponseSchema,
+  getPetByIdPathParamsSchema,
+} from './getPetByIdSchema.gen.ts'
+import {
+  getUserByName200Schema,
+  getUserByName400Schema,
+  getUserByName404Schema,
+  getUserByNameQueryResponseSchema,
+  getUserByNamePathParamsSchema,
+} from './getUserByNameSchema.gen.ts'
+import { loginUser200Schema, loginUser400Schema, loginUserQueryResponseSchema, loginUserQueryParamsSchema } from './loginUserSchema.gen.ts'
 import { logoutUserQueryResponseSchema } from './logoutUserSchema.gen.ts'
-import { placeOrderPatchMutationRequestSchema, placeOrderPatch405Schema, placeOrderPatchMutationResponseSchema } from './placeOrderPatchSchema.gen.ts'
-import { placeOrderMutationRequestSchema, placeOrder405Schema, placeOrderMutationResponseSchema } from './placeOrderSchema.gen.ts'
+import {
+  placeOrderPatchMutationRequestSchema,
+  placeOrderPatch200Schema,
+  placeOrderPatch405Schema,
+  placeOrderPatchMutationResponseSchema,
+} from './placeOrderPatchSchema.gen.ts'
+import { placeOrderMutationRequestSchema, placeOrder200Schema, placeOrder405Schema, placeOrderMutationResponseSchema } from './placeOrderSchema.gen.ts'
 import {
   updatePetMutationRequestSchema,
+  updatePet200Schema,
   updatePet400Schema,
   updatePet404Schema,
   updatePet405Schema,
@@ -42,6 +77,7 @@ import {
 import { updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './updateUserSchema.gen.ts'
 import {
   uploadFileMutationRequestSchema,
+  uploadFile200Schema,
   uploadFileMutationResponseSchema,
   uploadFilePathParamsSchema,
   uploadFileQueryParamsSchema,
@@ -56,6 +92,7 @@ export const operations = {
       header: createPetsHeaderParamsSchema,
     },
     responses: {
+      201: createPets201Schema,
       default: createPetsMutationResponseSchema,
     },
     errors: {},
@@ -68,6 +105,7 @@ export const operations = {
       header: undefined,
     },
     responses: {
+      200: updatePet200Schema,
       400: updatePet400Schema,
       404: updatePet404Schema,
       405: updatePet405Schema,
@@ -87,6 +125,7 @@ export const operations = {
       header: undefined,
     },
     responses: {
+      200: addPet200Schema,
       405: addPet405Schema,
       default: addPetMutationResponseSchema,
     },
@@ -102,6 +141,7 @@ export const operations = {
       header: undefined,
     },
     responses: {
+      200: findPetsByStatus200Schema,
       400: findPetsByStatus400Schema,
       default: findPetsByStatusQueryResponseSchema,
     },
@@ -117,6 +157,7 @@ export const operations = {
       header: findPetsByTagsHeaderParamsSchema,
     },
     responses: {
+      200: findPetsByTags200Schema,
       400: findPetsByTags400Schema,
       default: findPetsByTagsQueryResponseSchema,
     },
@@ -132,6 +173,7 @@ export const operations = {
       header: undefined,
     },
     responses: {
+      200: getPetById200Schema,
       400: getPetById400Schema,
       404: getPetById404Schema,
       default: getPetByIdQueryResponseSchema,
@@ -179,6 +221,7 @@ export const operations = {
       header: undefined,
     },
     responses: {
+      200: uploadFile200Schema,
       default: uploadFileMutationResponseSchema,
     },
     errors: {},
@@ -191,6 +234,7 @@ export const operations = {
       header: undefined,
     },
     responses: {
+      200: getInventory200Schema,
       default: getInventoryQueryResponseSchema,
     },
     errors: {},
@@ -203,6 +247,7 @@ export const operations = {
       header: undefined,
     },
     responses: {
+      200: placeOrder200Schema,
       405: placeOrder405Schema,
       default: placeOrderMutationResponseSchema,
     },
@@ -218,6 +263,7 @@ export const operations = {
       header: undefined,
     },
     responses: {
+      200: placeOrderPatch200Schema,
       405: placeOrderPatch405Schema,
       default: placeOrderPatchMutationResponseSchema,
     },
@@ -233,6 +279,7 @@ export const operations = {
       header: undefined,
     },
     responses: {
+      200: getOrderById200Schema,
       400: getOrderById400Schema,
       404: getOrderById404Schema,
       default: getOrderByIdQueryResponseSchema,
@@ -279,6 +326,7 @@ export const operations = {
       header: undefined,
     },
     responses: {
+      200: createUsersWithListInput200Schema,
       default: createUsersWithListInputMutationResponseSchema,
     },
     errors: {},
@@ -291,6 +339,7 @@ export const operations = {
       header: undefined,
     },
     responses: {
+      200: loginUser200Schema,
       400: loginUser400Schema,
       default: loginUserQueryResponseSchema,
     },
@@ -318,6 +367,7 @@ export const operations = {
       header: undefined,
     },
     responses: {
+      200: getUserByName200Schema,
       400: getUserByName400Schema,
       404: getUserByName404Schema,
       default: getUserByNameQueryResponseSchema,

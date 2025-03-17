@@ -2,9 +2,10 @@ import { createJSDocBlockText } from '@kubb/core/transformers'
 
 import { Text } from './Text.tsx'
 
-import type { JSDoc, KubbNode } from '../types.ts'
+import type { JSDoc, Key, KubbNode } from '../types.ts'
 
 type Props = {
+  key?: Key
   /**
    * Name of the type, this needs to start with a capital letter.
    */
@@ -20,7 +21,7 @@ type Props = {
   children?: KubbNode
 }
 
-export function Type({ name, export: canExport, JSDoc, children }: Props): KubbNode {
+export function Type({ name, export: canExport, JSDoc, children }: Props) {
   if (name.charAt(0).toUpperCase() !== name.charAt(0)) {
     throw new Error('Name should start with a capital letter(see TypeScript types)')
   }

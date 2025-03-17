@@ -9,7 +9,7 @@ export type {
 } from './FindPetsByStatus.ts'
 export type {
   FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParamsXExampleEnum,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnum,
   FindPetsByTagsHeaderParams,
   FindPetsByTags200,
   FindPetsByTags400,
@@ -42,4 +42,4 @@ export type {
   UploadFileMutationResponse,
   UploadFileMutation,
 } from './UploadFile.ts'
-export { findPetsByTagsHeaderParamsXExampleEnum } from './FindPetsByTags.ts'
+export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './FindPetsByTags.ts'

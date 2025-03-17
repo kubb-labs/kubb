@@ -18,20 +18,23 @@ type Props = {
   queryKeyTypeName: string
   typeSchemas: OperationSchemas
   operation: Operation
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   if (paramsType === 'object') {
     return FunctionParams.factory({
@@ -40,6 +43,7 @@ function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas }: 
         children: {
           ...getPathParams(typeSchemas.pathParams, {
             typed: true,
+            casing: paramsCasing,
             override(item) {
               return {
                 ...item,
@@ -70,8 +74,8 @@ function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas }: 
       options: {
         type: `
 {
-  query?: Partial<InfiniteQueryObserverOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'}
+  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
 }
 `,
         default: '{}',
@@ -85,6 +89,7 @@ function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas }: 
       optional: isOptional(typeSchemas.pathParams?.schema),
       children: getPathParams(typeSchemas.pathParams, {
         typed: true,
+        casing: paramsCasing,
         override(item) {
           return {
             ...item,
@@ -114,8 +119,8 @@ function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas }: 
     options: {
       type: `
 {
-  query?: Partial<InfiniteQueryObserverOptions<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'}
+  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
 }
 `,
       default: '{}',
@@ -130,24 +135,29 @@ export function InfiniteQuery({
   queryKeyName,
   paramsType,
   pathParamsType,
+  paramsCasing,
   dataReturnType,
   typeSchemas,
   operation,
 }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const returnType = `UseInfiniteQueryReturnType<${['TData', typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'].join(', ')}> & { queryKey: TQueryKey }`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const returnType = `UseInfiniteQueryReturnType<${['TData', TError].join(', ')}> & { queryKey: TQueryKey }`
   const generics = [`TData = InfiniteData<${TData}>`, `TQueryData = ${TData}`, `TQueryKey extends QueryKey = ${queryKeyTypeName}`]
 
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,
     typeSchemas,
+    paramsCasing,
   })
   const queryOptionsParams = QueryOptions.getParams({
     paramsType,
     pathParamsType,
     typeSchemas,
+    paramsCasing,
   })
   const params = getParams({
+    paramsCasing,
     paramsType,
     pathParamsType,
     dataReturnType,

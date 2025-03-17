@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-client",
-  "version": "3.0.9",
+  "version": "3.6.2",
   "description": "Generator plugin-client",
   "keywords": [
     "typescript",
@@ -36,15 +36,15 @@
       "require": "./dist/components.cjs",
       "default": "./dist/components.cjs"
     },
-    "./client": {
-      "import": "./dist/client.js",
-      "require": "./dist/client.cjs",
-      "default": "./dist/client.cjs"
+    "./clients/axios": {
+      "import": "./dist/clients/axios.js",
+      "require": "./dist/clients/axios.cjs",
+      "default": "./dist/clients/axios.cjs"
     },
-    "./ts-client": {
-      "import": "./client.ts",
-      "require": "./client.ts",
-      "default": "./client.ts"
+    "./clients/fetch": {
+      "import": "./dist/clients/fetch.js",
+      "require": "./dist/clients/fetch.cjs",
+      "default": "./dist/clients/fetch.cjs"
     },
     "./package.json": "./package.json",
     "./*": "./*"
@@ -59,11 +59,18 @@
       ],
       "generators": [
         "./dist/generators.d.ts"
+      ],
+      "clients/axios": [
+        "./dist/clients/axios.d.ts"
+      ],
+      "clients/fetch": [
+        "./dist/clients/fetch.d.ts"
       ]
     }
   },
   "files": [
     "src",
+    "clients",
     "dist",
     "client.ts",
     "*.d.ts",
@@ -94,9 +101,9 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "axios": "^1.7.7",
-    "tsup": "^8.3.5",
-    "typescript": "^5.6.3"
+    "axios": "^1.8.3",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "@kubb/react": "^3.0.0",

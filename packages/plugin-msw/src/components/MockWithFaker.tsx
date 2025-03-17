@@ -10,14 +10,17 @@ type Props = {
   name: string
   typeName: string
   fakerName: string
+  baseURL: string | undefined
   url: string
   method: HttpMethod
 }
 
-export function MockWithFaker({ name, fakerName, typeName, url, method }: Props): ReactNode {
+export function MockWithFaker({ baseURL = '', name, fakerName, typeName, url, method }: Props): ReactNode {
   const params = FunctionParams.factory({
     data: {
-      type: typeName,
+      type: `${typeName} | ((
+        info: Parameters<Parameters<typeof http.${method}>[1]>[0],
+      ) => Response)`,
       optional: true,
     },
   })
@@ -25,8 +28,10 @@ export function MockWithFaker({ name, fakerName, typeName, url, method }: Props)
   return (
     <File.Source name={name} isIndexable isExportable>
       <Function name={name} export params={params.toConstructor()}>
-        {`return http.${method}('*${url}', function handler(info) {
-    return new Response(JSON.stringify(${fakerName}(data)), {
+        {`return http.${method}('${baseURL}${url}', function handler(info) {
+    if(typeof data === 'function') return data(info)
+
+    return new Response(JSON.stringify(data || ${fakerName}(data)), {
       headers: {
         'Content-Type': 'application/json',
       },

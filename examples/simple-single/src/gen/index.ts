@@ -1,3 +1,3 @@
-export * from './hooks.ts'
-export * from './models.ts'
-export * from './zod.ts'
+export * from './hooks'
+export * from './models'
+export * from './zod'

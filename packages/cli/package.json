@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "3.0.9",
+  "version": "3.6.2",
   "description": "Generator cli",
   "keywords": [
     "typescript",
@@ -51,16 +51,16 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "chokidar": "^4.0.1",
+    "chokidar": "^4.0.3",
     "citty": "^0.1.6",
     "cli-progress": "^3.12.0",
-    "consola": "^3.2.3",
+    "consola": "^3.4.1",
     "cosmiconfig": "^9.0.0",
-    "execa": "^9.5.1",
-    "jiti": "^2.4.0",
+    "execa": "^9.5.2",
+    "jiti": "^2.4.2",
     "latest-version": "^9.0.0",
-    "p-queue": "^8.0.1",
-    "semver": "^7.6.3",
+    "p-queue": "^8.1.0",
+    "semver": "^7.7.1",
     "string-argv": "^0.3.2",
     "tinyrainbow": "^1.2.0"
   },
@@ -69,11 +69,11 @@
     "@kubb/config-tsup": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@types/cli-progress": "^3.11.6",
-    "@types/node": "^20.17.6",
+    "@types/node": "^20.17.24",
     "@types/semver": "^7.5.8",
     "source-map-support": "^0.5.21",
-    "tsup": "^8.3.5",
-    "typescript": "^5.6.3"
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
   "engines": {
     "node": ">=20"

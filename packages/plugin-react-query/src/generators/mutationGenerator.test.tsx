@@ -3,7 +3,7 @@ import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas/parser'
+import { parse } from '@kubb/oas'
 import { OperationGenerator } from '@kubb/plugin-oas'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
@@ -26,7 +26,7 @@ describe('mutationGenerator operation', async () => {
     {
       name: 'clientPostImportPath',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
+      path: '/pet/{pet_id}',
       method: 'post',
       options: {
         client: {
@@ -38,14 +38,14 @@ describe('mutationGenerator operation', async () => {
     {
       name: 'updatePetById',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
+      path: '/pet/{pet_id}',
       method: 'post',
       options: {},
     },
     {
       name: 'updatePetByIdPathParamsObject',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
+      path: '/pet/{pet_id}',
       method: 'post',
       options: {
         pathParamsType: 'object',
@@ -54,14 +54,14 @@ describe('mutationGenerator operation', async () => {
     {
       name: 'deletePet',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
+      path: '/pet/{pet_id}',
       method: 'delete',
       options: {},
     },
     {
       name: 'deletePetObject',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
+      path: '/pet/{pet_id}',
       method: 'get',
       options: {
         paramsType: 'object',
@@ -82,10 +82,11 @@ describe('mutationGenerator operation', async () => {
     const options: PluginReactQuery['resolvedOptions'] = {
       client: {
         dataReturnType: 'data',
-        importPath: '@kubb/plugin-client/client',
+        importPath: '@kubb/plugin-client/clients/axios',
       },
       parser: 'zod',
       paramsType: 'inline',
+      paramsCasing: undefined,
       pathParamsType: 'inline',
       queryKey: QueryKey.getTransformer,
       mutationKey: MutationKey.getTransformer,
@@ -102,6 +103,7 @@ describe('mutationGenerator operation', async () => {
       output: {
         path: '.',
       },
+      group: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginReactQuery>

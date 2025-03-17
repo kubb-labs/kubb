@@ -1,4 +1,5 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Oas, contentType } from '@kubb/oas'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 
@@ -7,7 +8,12 @@ export type Options = {
    * Specify the export location for the files and define the behavior of the output
    * @default { path: 'types', barrelType: 'named' }
    */
-  output?: Output
+  output?: Output<Oas>
+  /**
+   * Define which contentType should be used.
+   * By default, the first JSON valid mediaType will be used
+   */
+  contentType?: contentType
   /**
    * Group the clients based on the provided name.
    */
@@ -31,6 +37,11 @@ export type Options = {
    */
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   /**
+   * Switch between type or interface for creating TypeScript types
+   * @default 'type'
+   */
+  syntaxType?: 'type' | 'interface'
+  /**
    * Set a suffix for the generated enums.
    * @default 'enum'
    */
@@ -44,7 +55,7 @@ export type Options = {
    * Which type to use when the Swagger/OpenAPI file is not providing more information.
    * @default 'any'
    */
-  unknownType?: 'any' | 'unknown'
+  unknownType?: 'any' | 'unknown' | 'void'
   /**
    * Choose what to use as mode for an optional value.
    * @examples 'questionToken': type?: string
@@ -81,7 +92,8 @@ export type Options = {
 }
 
 type ResolvedOptions = {
-  output: Output
+  output: Output<Oas>
+  group: Options['group']
   override: NonNullable<Options['override']>
   enumType: NonNullable<Options['enumType']>
   enumSuffix: NonNullable<Options['enumSuffix']>
@@ -90,6 +102,7 @@ type ResolvedOptions = {
   optionalType: NonNullable<Options['optionalType']>
   transformers: NonNullable<Options['transformers']>
   oasType: NonNullable<Options['oasType']>
+  syntaxType: NonNullable<Options['syntaxType']>
   usedEnumNames: Record<string, number>
   mapper: Record<string, any>
 }

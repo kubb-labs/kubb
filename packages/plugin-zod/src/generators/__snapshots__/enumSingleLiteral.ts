@@ -1,3 +1,3 @@
-import { z } from "zod";
+import { z } from 'zod'
 
- export const enumSingleLiteral = z.literal(0);
+export const enumSingleLiteral = z.literal(0)

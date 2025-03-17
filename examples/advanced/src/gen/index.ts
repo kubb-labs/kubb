@@ -55,7 +55,7 @@ export type {
 } from './models/ts/petController/FindPetsByStatus.ts'
 export type {
   FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParamsXExampleEnum,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnum,
   FindPetsByTagsHeaderParams,
   FindPetsByTags200,
   FindPetsByTags400,
@@ -99,7 +99,7 @@ export type { PetNotFound } from './models/ts/PetNotFound.ts'
 export type {
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsHeaderParamsXExampleEnum,
+  CreatePetsHeaderParamsXEXAMPLEEnum,
   CreatePetsHeaderParams,
   CreatePets201,
   CreatePetsError,
@@ -270,24 +270,24 @@ export type {
 } from './zod/userController/updateUserSchema.ts'
 export type { UserSchema } from './zod/userSchema.ts'
 export { operations } from './clients/axios/operations.ts'
-export { addPet } from './clients/axios/petService/addPet.ts'
-export { deletePet } from './clients/axios/petService/deletePet.ts'
-export { findPetsByStatus } from './clients/axios/petService/findPetsByStatus.ts'
-export { findPetsByTags } from './clients/axios/petService/findPetsByTags.ts'
-export { getPetById } from './clients/axios/petService/getPetById.ts'
+export { getAddPetUrl, addPet } from './clients/axios/petService/addPet.ts'
+export { getDeletePetUrl, deletePet } from './clients/axios/petService/deletePet.ts'
+export { getFindPetsByStatusUrl, findPetsByStatus } from './clients/axios/petService/findPetsByStatus.ts'
+export { getFindPetsByTagsUrl, findPetsByTags } from './clients/axios/petService/findPetsByTags.ts'
+export { getGetPetByIdUrl, getPetById } from './clients/axios/petService/getPetById.ts'
 export { petService } from './clients/axios/petService/petService.ts'
-export { updatePet } from './clients/axios/petService/updatePet.ts'
-export { updatePetWithForm } from './clients/axios/petService/updatePetWithForm.ts'
-export { uploadFile } from './clients/axios/petService/uploadFile.ts'
-export { createPets } from './clients/axios/petsService/createPets.ts'
+export { getUpdatePetUrl, updatePet } from './clients/axios/petService/updatePet.ts'
+export { getUpdatePetWithFormUrl, updatePetWithForm } from './clients/axios/petService/updatePetWithForm.ts'
+export { getUploadFileUrl, uploadFile } from './clients/axios/petService/uploadFile.ts'
+export { getCreatePetsUrl, createPets } from './clients/axios/petsService/createPets.ts'
 export { petsService } from './clients/axios/petsService/petsService.ts'
-export { createUser } from './clients/axios/userService/createUser.ts'
-export { createUsersWithListInput } from './clients/axios/userService/createUsersWithListInput.ts'
-export { deleteUser } from './clients/axios/userService/deleteUser.ts'
-export { getUserByName } from './clients/axios/userService/getUserByName.ts'
-export { loginUser } from './clients/axios/userService/loginUser.ts'
-export { logoutUser } from './clients/axios/userService/logoutUser.ts'
-export { updateUser } from './clients/axios/userService/updateUser.ts'
+export { getCreateUserUrl, createUser } from './clients/axios/userService/createUser.ts'
+export { getCreateUsersWithListInputUrl, createUsersWithListInput } from './clients/axios/userService/createUsersWithListInput.ts'
+export { getDeleteUserUrl, deleteUser } from './clients/axios/userService/deleteUser.ts'
+export { getGetUserByNameUrl, getUserByName } from './clients/axios/userService/getUserByName.ts'
+export { getLoginUserUrl, loginUser } from './clients/axios/userService/loginUser.ts'
+export { getLogoutUserUrl, logoutUser } from './clients/axios/userService/logoutUser.ts'
+export { getUpdateUserUrl, updateUser } from './clients/axios/userService/updateUser.ts'
 export { userService } from './clients/axios/userService/userService.ts'
 export { addPetMutationKey, useAddPet } from './clients/hooks/petController/useAddPet.ts'
 export { deletePetMutationKey, useDeletePet } from './clients/hooks/petController/useDeletePet.ts'
@@ -440,8 +440,8 @@ export {
 export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.ts'
 export { orderOrderTypeEnum, orderStatusEnum, orderHttpStatusEnum } from './models/ts/Order.ts'
 export { petStatusEnum } from './models/ts/Pet.ts'
-export { findPetsByTagsHeaderParamsXExampleEnum } from './models/ts/petController/FindPetsByTags.ts'
-export { createPetsHeaderParamsXExampleEnum } from './models/ts/petsController/CreatePets.ts'
+export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './models/ts/petController/FindPetsByTags.ts'
+export { createPetsHeaderParamsXEXAMPLEEnum } from './models/ts/petsController/CreatePets.ts'
 export { handlers } from './msw/handlers.ts'
 export { addPetHandler } from './msw/petController/addPetHandler.ts'
 export { deletePetHandler } from './msw/petController/deletePetHandler.ts'

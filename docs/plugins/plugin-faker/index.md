@@ -14,19 +14,19 @@ With the Faker plugin, you can use [Faker](https://fakerjs.dev/) to create mocks
 ::: code-group
 
 ```shell [bun]
-bun add @kubb/plugin-faker
+bun add -d @kubb/plugin-faker
 ```
 
 ```shell [pnpm]
-pnpm add @kubb/plugin-faker
+pnpm add -D @kubb/plugin-faker
 ```
 
 ```shell [npm]
-npm install @kubb/plugin-faker
+npm install --save-dev @kubb/plugin-faker
 ```
 
 ```shell [yarn]
-yarn add @kubb/plugin-faker
+yarn add -D @kubb/plugin-faker
 ```
 
 :::
@@ -69,7 +69,7 @@ Add a banner text in the beginning of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
 #### output.footer
@@ -77,8 +77,11 @@ Add a footer text at the end of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
+
+### contentType
+<!--@include: ../core/contentType.md-->
 
 ### group
 <!--@include: ../core/group.md-->
@@ -177,11 +180,11 @@ moment(faker.date.anytime()).format("HH:mm:ss")
 ### unknownType
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
-|           |                      |
-|----------:|:---------------------|
-|     Type: | `'any' \| 'unknown'` |
-| Required: | `false`              |
-|  Default: | `'any'`              |
+|           |                               |
+|----------:|:------------------------------|
+|     Type: | `'any' \| 'unknown' \| 'void'` |
+| Required: | `false`                       |
+|  Default: | `'any'`                       |
 
 
 ### regexGenerator

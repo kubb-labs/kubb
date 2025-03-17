@@ -28,7 +28,7 @@ type OasContextProps = {
 
 const OasContext = createContext<OasContextProps>({})
 
-export function Oas({ oas, children, operations, generator }: Props): KubbNode {
+export function Oas({ oas, children, operations, generator }: Props) {
   return <OasContext.Provider value={{ oas, generator, operations }}>{children}</OasContext.Provider>
 }
 

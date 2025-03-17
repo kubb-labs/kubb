@@ -6,7 +6,6 @@ import type { ReactNode } from 'react'
 import { isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import type { PluginReactQuery } from '@kubb/plugin-react-query'
 import type { PluginVueQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 
@@ -15,17 +14,20 @@ type Props = {
   clientName: string
   queryKeyName: string
   typeSchemas: OperationSchemas
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
+  dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
   if (paramsType === 'object') {
     return FunctionParams.factory({
       data: {
@@ -33,6 +35,7 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
         children: {
           ...getPathParams(typeSchemas.pathParams, {
             typed: true,
+            casing: paramsCasing,
             override(item) {
               return {
                 ...item,
@@ -61,7 +64,9 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
         },
       },
       config: {
-        type: typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>',
+        type: typeSchemas.request?.name
+          ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
+          : 'Partial<RequestConfig> & { client?: typeof client }',
         default: '{}',
       },
     })
@@ -73,6 +78,7 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
       optional: isOptional(typeSchemas.pathParams?.schema),
       children: getPathParams(typeSchemas.pathParams, {
         typed: true,
+        casing: paramsCasing,
         override(item) {
           return {
             ...item,
@@ -100,22 +106,29 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
         }
       : undefined,
     config: {
-      type: typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>',
+      type: typeSchemas.request?.name
+        ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
+        : 'Partial<RequestConfig> & { client?: typeof client }',
       default: '{}',
     },
   })
 }
 
-export function QueryOptions({ name, clientName, typeSchemas, paramsType, pathParamsType, queryKeyName }: Props): ReactNode {
-  const params = getParams({ paramsType, pathParamsType, typeSchemas })
+export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, paramsCasing, paramsType, pathParamsType, queryKeyName }: Props): ReactNode {
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+
+  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
     paramsType,
+    paramsCasing,
     typeSchemas,
     pathParamsType,
   })
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,
     typeSchemas,
+    paramsCasing,
   })
 
   const enabled = Object.entries(queryKeyParams.flatParams)
@@ -130,7 +143,7 @@ export function QueryOptions({ name, clientName, typeSchemas, paramsType, pathPa
       <Function name={name} export params={params.toConstructor()}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return queryOptions({
+      return queryOptions<${TData}, ${TError}, ${TData}, typeof queryKey>({
       ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {

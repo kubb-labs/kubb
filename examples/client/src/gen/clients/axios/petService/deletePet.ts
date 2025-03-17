@@ -1,27 +1,29 @@
 /* eslint-disable no-alert, no-console */
-import client from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.js'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+
+export function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
+  return `/pet/${petId}` as const
+}
 
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
 export async function deletePet(
-  {
-    petId,
-  }: {
-    petId: DeletePetPathParams['petId']
-  },
+  { petId }: { petId: DeletePetPathParams['petId'] },
   headers?: DeletePetHeaderParams,
-  config: Partial<RequestConfig> = {},
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
-  const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
-    url: `/pet/${petId}`,
-    headers: { ...headers, ...config.headers },
-    ...config,
+    url: getDeletePetUrl({ petId }).toString(),
+    ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

@@ -1,50 +1,21 @@
-import client from '../../../../swr-client.ts'
+import type client from '../../../../axios-client.ts'
 import useSWR from 'swr'
-import type { RequestConfig } from '../../../../swr-client.ts'
+import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusPathParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
-import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
+import { findPetsByStatus } from '../../axios/petService/findPetsByStatus.ts'
 
-export const findPetsByStatusQueryKeySWR = ({
-  stepId,
-}: {
-  stepId: FindPetsByStatusPathParams['step_id']
-}) => [{ url: '/pet/findByStatus/:step_id', params: { stepId: stepId } }] as const
+export const findPetsByStatusQueryKeySWR = ({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }) =>
+  [{ url: '/pet/findByStatus/:step_id', params: { step_id: step_id } }] as const
 
 export type FindPetsByStatusQueryKeySWR = ReturnType<typeof findPetsByStatusQueryKeySWR>
 
-/**
- * @description Multiple status values can be provided with comma separated strings
- * @summary Finds Pets by status
- * @link /pet/findByStatus/:step_id
- */
-async function findPetsByStatusSWR(
-  {
-    stepId,
-  }: {
-    stepId: FindPetsByStatusPathParams['step_id']
-  },
-  config: Partial<RequestConfig> = {},
-) {
-  const res = await client<FindPetsByStatusQueryResponse, FindPetsByStatus400, unknown>({
-    method: 'GET',
-    url: `/pet/findByStatus/${stepId}`,
-    baseURL: 'https://petstore3.swagger.io/api/v3',
-    ...config,
-  })
-  return findPetsByStatusQueryResponseSchema.parse(res.data)
-}
-
 export function findPetsByStatusQueryOptionsSWR(
-  {
-    stepId,
-  }: {
-    stepId: FindPetsByStatusPathParams['step_id']
-  },
-  config: Partial<RequestConfig> = {},
+  { step_id }: { step_id: FindPetsByStatusPathParams['step_id'] },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
   return {
     fetcher: async () => {
-      return findPetsByStatusSWR({ stepId }, config)
+      return findPetsByStatus({ step_id }, config)
     },
   }
 }
@@ -52,24 +23,27 @@ export function findPetsByStatusQueryOptionsSWR(
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus/:step_id
+ * {@link /pet/findByStatus/:step_id}
  */
 export function useFindPetsByStatusSWR(
-  {
-    stepId,
-  }: {
-    stepId: FindPetsByStatusPathParams['step_id']
-  },
+  { step_id }: { step_id: FindPetsByStatusPathParams['step_id'] },
   options: {
-    query?: Parameters<typeof useSWR<FindPetsByStatusQueryResponse, FindPetsByStatus400, FindPetsByStatusQueryKeySWR | null, any>>[2]
-    client?: Partial<RequestConfig>
+    query?: Parameters<
+      typeof useSWR<ResponseConfig<FindPetsByStatusQueryResponse>, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryKeySWR | null, any>
+    >[2]
+    client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const queryKey = findPetsByStatusQueryKeySWR({ stepId })
-  return useSWR<FindPetsByStatusQueryResponse, FindPetsByStatus400, FindPetsByStatusQueryKeySWR | null>(shouldFetch ? queryKey : null, {
-    ...findPetsByStatusQueryOptionsSWR({ stepId }, config),
-    ...queryOptions,
-  })
+
+  const queryKey = findPetsByStatusQueryKeySWR({ step_id })
+
+  return useSWR<ResponseConfig<FindPetsByStatusQueryResponse>, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryKeySWR | null>(
+    shouldFetch ? queryKey : null,
+    {
+      ...findPetsByStatusQueryOptionsSWR({ step_id }, config),
+      ...queryOptions,
+    },
+  )
 }

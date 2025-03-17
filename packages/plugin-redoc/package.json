@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-redoc",
-  "version": "3.0.9",
+  "version": "3.6.2",
   "description": "Beautiful docs with Redoc",
   "keywords": [
     "typescript",
@@ -56,19 +56,19 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "handlebars": "^4.7.8",
-    "mobx": "^6.13.5",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "redoc": "^2.2.0",
-    "styled-components": "^6.1.13"
+    "mobx": "^6.13.6",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "redoc": "^2.4.0",
+    "styled-components": "^6.1.15"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "tsup": "^8.3.5",
-    "typescript": "^5.6.3"
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "@kubb/react": "^3.0.0"

@@ -27,9 +27,12 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     paramsType = 'inline',
     operations = false,
     baseURL,
+    paramsCasing,
     generators = [clientGenerator, group ? groupedClientGenerator : undefined, operations ? operationsGenerator : undefined].filter(Boolean),
-    importPath = '@kubb/plugin-client/client',
     parser = 'client',
+    client = 'axios',
+    importPath = client === 'fetch' ? '@kubb/plugin-client/clients/fetch' : '@kubb/plugin-client/clients/axios',
+    contentType,
   } = options
 
   return {
@@ -41,6 +44,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       dataReturnType,
       importPath,
       paramsType,
+      paramsCasing,
       pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
       baseURL,
     },
@@ -49,18 +53,32 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
 
-      if (options?.tag && group?.type === 'tag') {
-        const groupName: Group['name'] = group?.name ? group.name : (ctx) => `${ctx.group}Controller`
-
-        return path.resolve(root, output.path, groupName({ group: camelCase(options.tag) }), baseName)
-      }
-
       if (mode === 'single') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
         return path.resolve(root, output.path)
+      }
+
+      if (group && (options?.group?.path || options?.group?.tag)) {
+        const groupName: Group['name'] = group?.name
+          ? group.name
+          : (ctx) => {
+              if (group?.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Controller`
+            }
+
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)
@@ -93,7 +111,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
           oas,
           pluginManager: this.pluginManager,
           plugin: this.plugin,
-          contentType: swaggerPlugin.context.contentType,
+          contentType,
           exclude,
           include,
           override,

@@ -1,6 +1,6 @@
-import client from '@kubb/plugin-client/client'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
@@ -12,23 +12,19 @@ export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
-async function deletePet(
-  {
-    petId,
-    headers,
-  }: {
-    petId: DeletePetPathParams['petId']
-    headers?: DeletePetHeaderParams
-  },
-  config: Partial<RequestConfig> = {},
+export async function deletePet(
+  { petId, headers }: { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
-  const res = await client<DeletePetMutationResponse, DeletePet400, unknown>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}`,
-    headers: { ...headers, ...config.headers },
-    ...config,
+    ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }
@@ -36,30 +32,27 @@ async function deletePet(
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId
+ * {@link /pet/:petId}
  */
-export function useDeletePet(
+export function useDeletePet<TContext>(
   options: {
     mutation?: MutationObserverOptions<
       DeletePetMutationResponse,
-      DeletePet400,
-      {
-        petId: MaybeRef<DeletePetPathParams['petId']>
-        headers?: MaybeRef<DeletePetHeaderParams>
-      }
+      ResponseErrorConfig<DeletePet400>,
+      { petId: MaybeRef<DeletePetPathParams['petId']>; headers?: MaybeRef<DeletePetHeaderParams> },
+      TContext
     >
-    client?: Partial<RequestConfig>
+    client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
+
   return useMutation<
     DeletePetMutationResponse,
-    DeletePet400,
-    {
-      petId: DeletePetPathParams['petId']
-      headers?: DeletePetHeaderParams
-    }
+    ResponseErrorConfig<DeletePet400>,
+    { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
+    TContext
   >({
     mutationFn: async ({ petId, headers }) => {
       return deletePet({ petId, headers }, config)

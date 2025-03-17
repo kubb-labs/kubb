@@ -1,25 +1,23 @@
 import client from '../../../../axios-client.ts'
-import type { RequestConfig } from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
+
+export function getLoginUserUrl() {
+  return 'https://petstore3.swagger.io/api/v3/user/login' as const
+}
 
 /**
  * @summary Logs user into the system
- * @link /user/login
+ * {@link /user/login}
  */
-export async function loginUser(
-  {
-    params,
-  }: {
-    params?: LoginUserQueryParams
-  },
-  config: Partial<RequestConfig> = {},
-) {
-  const res = await client<LoginUserQueryResponse, LoginUser400, unknown>({
+export async function loginUser({ params }: { params?: LoginUserQueryParams }, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
     method: 'GET',
-    url: '/user/login',
-    baseURL: 'https://petstore3.swagger.io/api/v3',
+    url: getLoginUserUrl().toString(),
     params,
-    ...config,
+    ...requestConfig,
   })
   return res
 }

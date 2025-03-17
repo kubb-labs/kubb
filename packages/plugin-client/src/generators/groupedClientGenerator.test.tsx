@@ -3,7 +3,7 @@ import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas/parser'
+import { parse } from '@kubb/oas'
 import { OperationGenerator } from '@kubb/plugin-oas'
 import type { PluginClient } from '../types.ts'
 import { groupedClientGenerator } from './groupedClientGenerator.tsx'
@@ -31,13 +31,15 @@ describe('groupedClientsGenerators operations', async () => {
     const options: PluginClient['resolvedOptions'] = {
       dataReturnType: 'data',
       paramsType: 'inline',
+      paramsCasing: undefined,
       pathParamsType: 'inline',
-      importPath: '@kubb/plugin-client/client',
+      importPath: '@kubb/plugin-client/clients/axios',
       baseURL: '',
       parser: 'client',
       output: {
         path: '.',
       },
+      group: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>

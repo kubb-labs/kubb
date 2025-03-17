@@ -1,12 +1,17 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { SchemaObject } from '@kubb/oas'
+import type { Oas, SchemaObject, contentType } from '@kubb/oas'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
 
 export type Options = {
   /**
    * @default 'zod'
    */
-  output?: Output
+  output?: Output<Oas>
+  /**
+   * Define which contentType should be used.
+   * By default, the first JSON valid mediaType will be used
+   */
+  contentType?: contentType
   /**
    * Group the Zod schemas based on the provided name.
    */
@@ -42,7 +47,7 @@ export type Options = {
    * Which type to use when the Swagger/OpenAPI file is not providing more information
    * @default 'any'
    */
-  unknownType?: 'any' | 'unknown'
+  unknownType?: 'any' | 'unknown' | 'void'
   /**
    * Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
    */
@@ -84,13 +89,22 @@ export type Options = {
     ) => Schema[] | undefined
   }
   /**
+   * Callback function to wrap the output of the generated zod schema
+   *
+   * This is useful for edge case scenarios where you might leverage something like `z.object({ ... }).openapi({ example: { some: "complex-example" }})`
+   * or `extendApi(z.object({ ... }), { example: { some: "complex-example", ...otherOpenApiProperties }})`
+   * while going from openapi -> zod -> openapi
+   */
+  wrapOutput?: (arg: { output: string; schema: SchemaObject }) => string | undefined
+  /**
    * Define some generators next to the zod generators
    */
   generators?: Array<Generator<PluginZod>>
 }
 
 type ResolvedOptions = {
-  output: Output
+  output: Output<Oas>
+  group: Options['group']
   override: NonNullable<Options['override']>
   transformers: NonNullable<Options['transformers']>
   dateType: NonNullable<Options['dateType']>
@@ -101,6 +115,7 @@ type ResolvedOptions = {
   importPath: NonNullable<Options['importPath']>
   coercion: NonNullable<Options['coercion']>
   operations: NonNullable<Options['operations']>
+  wrapOutput: Options['wrapOutput']
 }
 
 export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions>

@@ -14,7 +14,7 @@ type OperationContextProps = {
 
 const OperationContext = createContext<OperationContextProps>({})
 
-export function Operation({ operation, children }: Props): KubbNode {
+export function Operation({ operation, children }: Props) {
   return <OperationContext.Provider value={{ operation }}>{children}</OperationContext.Provider>
 }
 

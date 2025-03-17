@@ -27,6 +27,8 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "noErrorTruncation": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "baseUrl": ".",
     "types": ["vitest/globals", "bun-types"]
   },

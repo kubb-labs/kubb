@@ -1,4 +1,3 @@
-import { URLPath } from '@kubb/core/utils'
 import { File, Function, FunctionParams } from '@kubb/react'
 
 import { type Operation, isOptional } from '@kubb/oas'
@@ -18,6 +17,7 @@ type Props = {
   queryKeyName: string
   queryKeyTypeName: string
   typeSchemas: OperationSchemas
+  paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
@@ -25,6 +25,7 @@ type Props = {
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   paramsType: PluginSwr['resolvedOptions']['paramsType']
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
@@ -32,15 +33,16 @@ type GetParamsProps = {
   typeSchemas: OperationSchemas
 }
 
-function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas, queryKeyTypeName }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, typeSchemas, queryKeyTypeName }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   if (paramsType === 'object') {
     return FunctionParams.factory({
       data: {
         mode: 'object',
         children: {
-          ...getPathParams(typeSchemas.pathParams, { typed: true }),
+          ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           data: typeSchemas.request?.name
             ? {
                 type: typeSchemas.request?.name,
@@ -64,8 +66,8 @@ function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas, qu
       options: {
         type: `
 {
-  query?: Parameters<typeof useSWR<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `${queryKeyTypeName} | null`].join(', ')}, any>>[2],
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
+  query?: Parameters<typeof useSWR<${[TData, TError, `${queryKeyTypeName} | null`].join(', ')}, any>>[2],
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
   shouldFetch?: boolean,
 }
 `,
@@ -78,7 +80,7 @@ function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas, qu
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true }),
+          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           optional: isOptional(typeSchemas.pathParams?.schema),
         }
       : undefined,
@@ -103,8 +105,8 @@ function getParams({ paramsType, pathParamsType, dataReturnType, typeSchemas, qu
     options: {
       type: `
 {
-  query?: Parameters<typeof useSWR<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `${queryKeyTypeName} | null`].join(', ')}, any>>[2],
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
+  query?: Parameters<typeof useSWR<${[TData, TError, `${queryKeyTypeName} | null`].join(', ')}, any>>[2],
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
   shouldFetch?: boolean,
 }
 `,
@@ -122,16 +124,20 @@ export function Query({
   operation,
   dataReturnType,
   paramsType,
+  paramsCasing,
   pathParamsType,
 }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `${queryKeyTypeName} | null`]
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const generics = [TData, TError, `${queryKeyTypeName} | null`]
 
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,
     typeSchemas,
+    paramsCasing,
   })
   const params = getParams({
+    paramsCasing,
     paramsType,
     pathParamsType,
     dataReturnType,
@@ -140,6 +146,7 @@ export function Query({
   })
 
   const queryOptionsParams = QueryOptions.getParams({
+    paramsCasing,
     paramsType,
     pathParamsType,
     typeSchemas,

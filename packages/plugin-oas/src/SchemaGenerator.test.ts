@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import { mockedPluginManager } from '@kubb/core/mocks'
-import { parse } from '@kubb/oas/parser'
+import { parse } from '@kubb/oas'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from './SchemaGenerator.ts'
 
 describe('SchemaGenerator core', async () => {
@@ -10,6 +10,16 @@ describe('SchemaGenerator core', async () => {
       name: 'Pet',
       input: '../mocks/petStore.yaml',
       path: 'Pet',
+      options: {
+        dateType: 'date',
+        transformers: {},
+        unknownType: 'unknown',
+      },
+    },
+    {
+      name: 'FullAddress',
+      input: '../mocks/petStore.yaml',
+      path: 'FullAddress',
       options: {
         dateType: 'date',
         transformers: {},

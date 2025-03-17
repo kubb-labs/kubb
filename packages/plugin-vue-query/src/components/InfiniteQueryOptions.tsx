@@ -14,6 +14,7 @@ type Props = {
   clientName: string
   queryKeyName: string
   typeSchemas: OperationSchemas
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
@@ -23,12 +24,13 @@ type Props = {
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
   if (paramsType === 'object') {
     return FunctionParams.factory({
       data: {
@@ -36,6 +38,7 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
         children: {
           ...getPathParams(typeSchemas.pathParams, {
             typed: true,
+            casing: paramsCasing,
             override(item) {
               return {
                 ...item,
@@ -64,7 +67,9 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
         },
       },
       config: {
-        type: typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>',
+        type: typeSchemas.request?.name
+          ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
+          : 'Partial<RequestConfig> & { client?: typeof client }',
         default: '{}',
       },
     })
@@ -76,6 +81,7 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
       optional: isOptional(typeSchemas.pathParams?.schema),
       children: getPathParams(typeSchemas.pathParams, {
         typed: true,
+        casing: paramsCasing,
         override(item) {
           return {
             ...item,
@@ -103,7 +109,9 @@ function getParams({ paramsType, pathParamsType, typeSchemas }: GetParamsProps) 
         }
       : undefined,
     config: {
-      type: typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>',
+      type: typeSchemas.request?.name
+        ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
+        : 'Partial<RequestConfig> & { client?: typeof client }',
       default: '{}',
     },
   })
@@ -116,18 +124,24 @@ export function InfiniteQueryOptions({
   cursorParam,
   typeSchemas,
   paramsType,
+  paramsCasing,
   dataReturnType,
   pathParamsType,
   queryParam,
   queryKeyName,
 }: Props): ReactNode {
-  const params = getParams({ paramsType, pathParamsType, typeSchemas })
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+
+  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
     paramsType,
+    paramsCasing,
     typeSchemas,
     pathParamsType,
   })
   const queryKeyParams = QueryKey.getParams({
+    paramsCasing,
     pathParamsType,
     typeSchemas,
   })
@@ -165,7 +179,7 @@ export function InfiniteQueryOptions({
       <Function name={name} export params={params.toConstructor()}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return infiniteQueryOptions({
+      return infiniteQueryOptions<${TData}, ${TError}, ${TData}, typeof queryKey, number>({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal, pageParam }) => {

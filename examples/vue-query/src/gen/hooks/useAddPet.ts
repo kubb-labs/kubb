@@ -1,6 +1,6 @@
-import client from '@kubb/plugin-client/client'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
-import type { RequestConfig } from '@kubb/plugin-client/client'
+import client from '@kubb/plugin-client/clients/axios'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
@@ -12,46 +12,38 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet
+ * {@link /pet}
  */
-async function addPet(
-  {
-    data,
-  }: {
-    data: AddPetMutationRequest
-  },
-  config: Partial<RequestConfig<AddPetMutationRequest>> = {},
+export async function addPet(
+  { data }: { data: AddPetMutationRequest },
+  config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const res = await client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>({ method: 'POST', url: '/pet', data, ...config })
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
+    method: 'POST',
+    url: '/pet',
+    data,
+    ...requestConfig,
+  })
   return res.data
 }
 
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet
+ * {@link /pet}
  */
-export function useAddPet(
+export function useAddPet<TContext>(
   options: {
-    mutation?: MutationObserverOptions<
-      AddPetMutationResponse,
-      AddPet405,
-      {
-        data: MaybeRef<AddPetMutationRequest>
-      }
-    >
-    client?: Partial<RequestConfig<AddPetMutationRequest>>
+    mutation?: MutationObserverOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: MaybeRef<AddPetMutationRequest> }, TContext>
+    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
-  return useMutation<
-    AddPetMutationResponse,
-    AddPet405,
-    {
-      data: AddPetMutationRequest
-    }
-  >({
+
+  return useMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
       return addPet({ data }, config)
     },

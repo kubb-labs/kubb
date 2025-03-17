@@ -3,6 +3,7 @@ import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 
 import type { File } from '../components/File.tsx'
+import { nodeNames } from '../dom.ts'
 import type { DOMElement } from '../types.ts'
 
 export function squashTextNodes(node: DOMElement): string {
@@ -59,6 +60,18 @@ export function squashTextNodes(node: DOMElement): string {
 
       if (childNode.nodeName === 'br') {
         nodeText = '\n'
+      }
+
+      // no kubb element or br
+      if (![...nodeNames, 'br'].includes(childNode.nodeName)) {
+        const attributes = Object.entries(childNode.attributes).reduce((acc, [key, value]) => {
+          if (typeof value === 'string') {
+            return `${acc} ${key}="${value}"`
+          }
+
+          return `${acc} ${key}={${value}}`
+        }, '')
+        nodeText = `<${childNode.nodeName}${attributes}>${squashTextNodes(childNode)}</${childNode.nodeName}>`
       }
     }
 

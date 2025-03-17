@@ -202,7 +202,10 @@ export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(
   const parser = await getFileParser(file.extname)
   const source = await parser.print(file, { logger, extname })
 
-  return parser.format(source)
+  return parser.format(source).catch((err) => {
+    console.warn(err)
+    return source
+  })
 }
 
 function mergeFile<TMeta extends FileMetaBase = FileMetaBase>(a: KubbFile.File<TMeta>, b: KubbFile.File<TMeta>): KubbFile.File<TMeta> {
@@ -369,7 +372,7 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
 type WriteFilesProps = {
   root: Config['root']
   files: Array<KubbFile.ResolvedFile>
-  extension?: Config['output']['extension']
+  extension?: Record<KubbFile.Extname, KubbFile.Extname | ''>
   logger?: Logger
   dryRun?: boolean
 }
@@ -398,7 +401,7 @@ export async function processFiles({ dryRun, root, extension, logger, files }: W
     const promises = orderedFiles.map(async (file) => {
       await queue.add(async () => {
         const message = file ? `Writing ${relative(root, file.path)}` : ''
-        const extname = extension?.[file.extname]
+        const extname = extension?.[file.extname] || undefined
 
         const source = await getSource(file, { logger, extname })
 

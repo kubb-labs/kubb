@@ -3,7 +3,7 @@ import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas/parser'
+import { parse } from '@kubb/oas'
 import { OperationGenerator } from '@kubb/plugin-oas'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginSwr } from '../types.ts'
@@ -56,7 +56,7 @@ describe('queryGenerator operation', async () => {
       options: {
         client: {
           dataReturnType: 'full',
-          importPath: '@kubb/plugin-client/client',
+          importPath: '@kubb/plugin-client/clients/axios',
         },
       },
     },
@@ -96,8 +96,9 @@ describe('queryGenerator operation', async () => {
     const options: PluginSwr['resolvedOptions'] = {
       client: {
         dataReturnType: 'data',
-        importPath: '@kubb/plugin-client/client',
+        importPath: '@kubb/plugin-client/clients/axios',
       },
+      paramsCasing: undefined,
       queryKey: QueryKey.getTransformer,
       mutationKey: MutationKey.getTransformer,
       query: {
@@ -114,6 +115,7 @@ describe('queryGenerator operation', async () => {
       output: {
         path: '.',
       },
+      group: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginSwr>

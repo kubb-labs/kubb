@@ -9,12 +9,26 @@ import { type Schema, schemaKeywords } from '../SchemaMapper'
 type FileMeta = FileMetaBase & {
   pluginKey: Plugin['key']
   name: string
-  tag?: string
+  group?: {
+    tag?: string
+    path?: string
+  }
 }
 
 type UseSchemaManagerResult = {
   getName: (name: string, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
-  getFile: (name: string, params?: { pluginKey?: Plugin['key']; mode?: Mode; extname?: KubbFile.Extname; tag?: string }) => KubbFile.File<FileMeta>
+  getFile: (
+    name: string,
+    params?: {
+      pluginKey?: Plugin['key']
+      mode?: Mode
+      extname?: KubbFile.Extname
+      group?: {
+        tag?: string
+        path?: string
+      }
+    },
+  ) => KubbFile.File<FileMeta>
   getImports: (tree: Array<Schema>) => Array<KubbFile.Import>
 }
 
@@ -31,15 +45,15 @@ export function useSchemaManager(): UseSchemaManagerResult {
       type,
     })
   }
-  //TODO replace tag with group
-  const getFile: UseSchemaManagerResult['getFile'] = (name, { mode = 'split', pluginKey = plugin.key, extname = '.ts', tag } = {}) => {
+
+  const getFile: UseSchemaManagerResult['getFile'] = (name, { mode = 'split', pluginKey = plugin.key, extname = '.ts', group } = {}) => {
     const resolvedName = mode === 'single' ? '' : getName(name, { type: 'file', pluginKey })
 
     const file = pluginManager.getFile({
       name: resolvedName,
       extname,
       pluginKey,
-      options: { type: 'file', pluginKey, tag },
+      options: { type: 'file', pluginKey, group },
     })
 
     return {
@@ -56,7 +70,7 @@ export function useSchemaManager(): UseSchemaManagerResult {
     const refs = SchemaGenerator.deepSearch(tree, schemaKeywords.ref)
 
     return refs
-      ?.map((item, i) => {
+      ?.map((item) => {
         if (!item.args.path || !item.args.isImportable) {
           return undefined
         }
