@@ -1,6 +1,6 @@
 {
   "name": "@kubb/react",
-  "version": "3.6.1",
+  "version": "3.6.2",
   "description": "Generator react",
   "keywords": [
     "typescript",
@@ -99,7 +99,7 @@
     "@types/react": "catalog:react18",
     "@types/react-reconciler": "catalog:react18",
     "@types/signal-exit": "^3.0.4",
-    "@types/ws": "^8.5.14",
+    "@types/ws": "^8.18.0",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },

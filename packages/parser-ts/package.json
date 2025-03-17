@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser-ts",
-  "version": "3.6.1",
+  "version": "3.6.2",
   "description": "TypeScript parser",
   "keywords": [
     "typescript",
@@ -59,8 +59,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "prettier": "^3.5.2",
-    "remeda": "^2.21.0",
+    "prettier": "^3.5.3",
+    "remeda": "catalog:",
     "typescript": "catalog:"
   },
   "devDependencies": {

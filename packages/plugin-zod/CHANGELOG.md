@@ -1,5 +1,20 @@
 # @kubb/plugin-zod
 
+## 3.6.2
+
+### Patch Changes
+
+- [`3069971`](https://github.com/kubb-labs/kubb/commit/3069971677df4c07da161e94eececf697e4f39d6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - handling circular dependency properly when using `ToZod` helper
+
+- Updated dependencies []:
+  - @kubb/core@3.6.2
+  - @kubb/fs@3.6.2
+  - @kubb/oas@3.6.2
+  - @kubb/parser-ts@3.6.2
+  - @kubb/plugin-oas@3.6.2
+  - @kubb/plugin-ts@3.6.2
+  - @kubb/react@3.6.2
+
 ## 3.6.1
 
 ### Patch Changes

@@ -26,4 +26,5 @@ catalog:
   react-dom: ^18.3.1
   react-reconciler: 0.29.2
   tsup: ^8.4.0
-  typescript: ^5.7.3
+  typescript: ^5.8.2
+  remeda: ^2.21.2

@@ -34,12 +34,13 @@ export async function updatePet(
  * @summary Update an existing pet
  * {@link /pet}
  */
-export function useUpdatePet(
+export function useUpdatePet<TContext>(
   options: {
     mutation?: MutationObserverOptions<
       UpdatePetMutationResponse,
       ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
-      { data: MaybeRef<UpdatePetMutationRequest> }
+      { data: MaybeRef<UpdatePetMutationRequest> },
+      TContext
     >
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client }
   } = {},
@@ -47,7 +48,7 @@ export function useUpdatePet(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
 
-  return useMutation<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, { data: UpdatePetMutationRequest }>({
+  return useMutation<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, { data: UpdatePetMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
       return updatePet({ data }, config)
     },

@@ -4,6 +4,17 @@ title: Changelog
 
 # Changelog
 
+
+## 3.6.3
+- [`plugin-oas`](/plugins/plugin-oas): extra checks for empty values for properties of a discriminator type
+- [`plugin-react-query`](/plugins/plugin-react-query/): allow override of mutation context with TypeScript generic
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): allow override of mutation context with TypeScript generic
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): allow override of mutation context with TypeScript generic
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): allow override of mutation context with TypeScript generic
+-
+## 3.6.2
+- [`plugin-zod`](/plugins/plugin-zod): handling circular dependency properly when using `ToZod` helper
+
 ## 3.6.1
 - [`plugin-react-query`](/plugins/plugin-react-query/): validating the request using zod before making the HTTP call
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): validating the request using zod before making the HTTP call
