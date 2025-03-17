@@ -1,5 +1,19 @@
 # @kubb/plugin-swr
 
+## 3.6.3
+
+### Patch Changes
+
+- Updated dependencies [[`5309e5f`](https://github.com/kubb-labs/kubb/commit/5309e5fca3003c13c47d58ed610134da23038e9a)]:
+  - @kubb/plugin-client@3.6.3
+  - @kubb/core@3.6.3
+  - @kubb/fs@3.6.3
+  - @kubb/oas@3.6.3
+  - @kubb/plugin-oas@3.6.3
+  - @kubb/plugin-ts@3.6.3
+  - @kubb/plugin-zod@3.6.3
+  - @kubb/react@3.6.3
+
 ## 3.6.2
 
 ### Patch Changes
