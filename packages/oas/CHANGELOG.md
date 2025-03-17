@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 3.6.4
+
+### Patch Changes
+
+- [#1587](https://github.com/kubb-labs/kubb/pull/1587) [`114716a`](https://github.com/kubb-labs/kubb/commit/114716ae2a4e93f8e41f8c7c03cd6b5d71620cec) Thanks [@heyBett](https://github.com/heyBett)! - It is possible for discriminated unions to have no properties. This change checks whether the current childSchema has "properties" before continuing execution.
+
 ## 3.6.3
 
 ## 3.6.2
