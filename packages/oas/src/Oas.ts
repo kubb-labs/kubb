@@ -65,7 +65,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     const schemas = (this.api.components?.schemas || {}) as Record<string, OasTypes.SchemaObject>
 
     Object.entries(schemas).forEach(([_key, schemaObject]) => {
-      if ('discriminator' in schemaObject) {
+      if ('discriminator' in schemaObject && typeof schemaObject.discriminator !== 'string') {
         const { mapping = {}, propertyName } = (schemaObject.discriminator || {}) as OpenAPIV3.DiscriminatorObject
 
         if (!schemaObject.properties?.[propertyName]) {
