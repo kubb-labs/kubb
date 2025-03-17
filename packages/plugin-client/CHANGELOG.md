@@ -1,5 +1,22 @@
 # @kubb/plugin-client
 
+## 3.6.3
+
+### Patch Changes
+
+- [#1596](https://github.com/kubb-labs/kubb/pull/1596) [`7e33eb5`](https://github.com/kubb-labs/kubb/commit/7e33eb5c48249796b7410341830781a53b7ffb70) Thanks [@VasekProchazka](https://github.com/VasekProchazka)! - Adding setConfig to fetch client
+
+- [#1595](https://github.com/kubb-labs/kubb/pull/1595) [`5309e5f`](https://github.com/kubb-labs/kubb/commit/5309e5fca3003c13c47d58ed610134da23038e9a) Thanks [@VasekProchazka](https://github.com/VasekProchazka)! - Adding credentials to fetch client
+
+- Updated dependencies []:
+  - @kubb/core@3.6.3
+  - @kubb/fs@3.6.3
+  - @kubb/oas@3.6.3
+  - @kubb/plugin-oas@3.6.3
+  - @kubb/plugin-ts@3.6.3
+  - @kubb/plugin-zod@3.6.3
+  - @kubb/react@3.6.3
+
 ## 3.6.2
 
 ### Patch Changes
