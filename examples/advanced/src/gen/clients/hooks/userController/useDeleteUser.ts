@@ -14,12 +14,13 @@ export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
  * @summary Delete user
  * {@link /user/:username}
  */
-export function useDeleteUser(
+export function useDeleteUser<TContext>(
   options: {
     mutation?: UseMutationOptions<
       ResponseConfig<DeleteUserMutationResponse>,
       ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
-      { username: DeleteUserPathParams['username'] }
+      { username: DeleteUserPathParams['username'] },
+      TContext
     >
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
@@ -30,7 +31,8 @@ export function useDeleteUser(
   return useMutation<
     ResponseConfig<DeleteUserMutationResponse>,
     ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
-    { username: DeleteUserPathParams['username'] }
+    { username: DeleteUserPathParams['username'] },
+    TContext
   >({
     mutationFn: async ({ username }) => {
       return deleteUser({ username }, config)

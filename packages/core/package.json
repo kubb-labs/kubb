@@ -104,7 +104,7 @@
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
-    "consola": "^3.4.0",
+    "consola": "^3.4.1",
     "prettier": "^3.5.3",
     "tinyrainbow": "^1.2.0",
     "tsup": "catalog:",

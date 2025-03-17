@@ -1,7 +1,7 @@
 /**
  * RequestCredentials
  */
-export type RequestCredentials = "omit" | "same-origin" | "include"
+export type RequestCredentials = 'omit' | 'same-origin' | 'include'
 
 /**
  * Subset of FetchRequestConfig
@@ -63,7 +63,6 @@ export const client = async <TData, _TError = unknown, TVariables = unknown>(par
     body: JSON.stringify(config.data),
     signal: config.signal,
     headers: config.headers,
-    credentials: config.credentials,
   })
 
   const data = [204, 205, 304].includes(response.status) || !response.body ? {} : await response.json()

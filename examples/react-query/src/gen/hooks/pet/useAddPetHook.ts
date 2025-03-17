@@ -18,7 +18,7 @@ export async function addPetHook(data: AddPetMutationRequest, config: Partial<Re
 
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
-    url: `/pet`,
+    url: '/pet',
     data,
     ...requestConfig,
   })
@@ -30,16 +30,16 @@ export async function addPetHook(data: AddPetMutationRequest, config: Partial<Re
  * @summary Add a new pet to the store
  * {@link /pet}
  */
-export function useAddPetHook(
+export function useAddPetHook<TContext>(
   options: {
-    mutation?: UseMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }>
+    mutation?: UseMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>
     client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
 
-  return useMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }>({
+  return useMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
       return addPetHook(data, config)
     },

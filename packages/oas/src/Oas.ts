@@ -65,10 +65,10 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     const schemas = (this.api.components?.schemas || {}) as Record<string, OasTypes.SchemaObject>
 
     Object.entries(schemas).forEach(([_key, schemaObject]) => {
-      if ('discriminator' in schemaObject) {
+      if ('discriminator' in schemaObject && typeof schemaObject.discriminator !== 'string') {
         const { mapping = {}, propertyName } = (schemaObject.discriminator || {}) as OpenAPIV3.DiscriminatorObject
 
-        if (!schemaObject.properties) {
+        if (!schemaObject.properties?.[propertyName]) {
           schemaObject.properties = {}
         }
 
@@ -80,10 +80,14 @@ export class Oas<const TOAS = unknown> extends BaseOas {
         Object.entries(mapping).forEach(([mappingKey, mappingValue]) => {
           if (mappingValue) {
             const childSchema = this.get(mappingValue)
-            const property = childSchema.properties?.[propertyName] as SchemaObject
+            if (!childSchema.properties) {
+              childSchema.properties = {}
+            }
+
+            const property = childSchema.properties[propertyName] as SchemaObject
 
             childSchema.properties[propertyName] = {
-              ...childSchema.properties[propertyName],
+              ...(childSchema.properties ? childSchema.properties[propertyName] : {}),
               enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
             }
 

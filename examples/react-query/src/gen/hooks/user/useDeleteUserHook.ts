@@ -32,12 +32,13 @@ export async function deleteUserHook(
  * @summary Delete user
  * {@link /user/:username}
  */
-export function useDeleteUserHook(
+export function useDeleteUserHook<TContext>(
   options: {
     mutation?: UseMutationOptions<
       DeleteUserMutationResponse,
       ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
-      { username: DeleteUserPathParams['username'] }
+      { username: DeleteUserPathParams['username'] },
+      TContext
     >
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
@@ -45,7 +46,7 @@ export function useDeleteUserHook(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
 
-  return useMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, { username: DeleteUserPathParams['username'] }>({
+  return useMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, { username: DeleteUserPathParams['username'] }, TContext>({
     mutationFn: async ({ username }) => {
       return deleteUserHook({ username }, config)
     },
