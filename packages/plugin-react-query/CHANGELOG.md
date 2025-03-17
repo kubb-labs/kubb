@@ -1,5 +1,20 @@
 # @kubb/plugin-react-query
 
+## 3.6.3
+
+### Patch Changes
+
+- [#1598](https://github.com/kubb-labs/kubb/pull/1598) [`3f1412d`](https://github.com/kubb-labs/kubb/commit/3f1412df21e6268ab1f701c9b77d6e31270a2abd) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - allow override of mutation context with TypeScript generic
+
+- Updated dependencies []:
+  - @kubb/core@3.6.3
+  - @kubb/fs@3.6.3
+  - @kubb/oas@3.6.3
+  - @kubb/plugin-oas@3.6.3
+  - @kubb/plugin-ts@3.6.3
+  - @kubb/plugin-zod@3.6.3
+  - @kubb/react@3.6.3
+
 ## 3.6.2
 
 ### Patch Changes
