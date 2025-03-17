@@ -5,6 +5,9 @@ title: Changelog
 # Changelog
 
 
+## 3.6.3
+- [`plugin-oas`](/plugins/plugin-oas): extra checks for empty values for properties of a discriminator type
+-
 ## 3.6.2
 - [`plugin-zod`](/plugins/plugin-zod): handling circular dependency properly when using `ToZod` helper
 

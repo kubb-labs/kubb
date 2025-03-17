@@ -80,16 +80,22 @@ export class Oas<const TOAS = unknown> extends BaseOas {
         Object.entries(mapping).forEach(([mappingKey, mappingValue]) => {
           if (mappingValue) {
             const childSchema = this.get(mappingValue)
-            const property = childSchema.properties?.[propertyName] as SchemaObject
-
-            childSchema.properties[propertyName] = {
-              ...childSchema.properties[propertyName],
-              enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
+            if (!childSchema.properties) {
+              childSchema.properties = {}
             }
 
-            childSchema.required = [...(childSchema.required ?? []), propertyName]
+            const property = childSchema.properties[propertyName] as SchemaObject
 
-            this.set(mappingValue, childSchema)
+            if (property) {
+              childSchema.properties[propertyName] = {
+                ...(childSchema.properties ? childSchema.properties[propertyName] : {}),
+                enum: [...(property.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
+              }
+
+              childSchema.required = [...(childSchema.required ?? []), propertyName]
+
+              this.set(mappingValue, childSchema)
+            }
           }
         })
       }

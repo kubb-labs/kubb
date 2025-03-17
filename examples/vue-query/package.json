@@ -29,17 +29,17 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-vue-query": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@tanstack/vue-query": "^5.67.2",
-    "axios": "^1.8.2",
+    "@tanstack/vue-query": "^5.68.0",
+    "axios": "^1.8.3",
     "unplugin-kubb": "workspace:*",
     "vue": "^3.5.13"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.1",
+    "@vitejs/plugin-vue": "^5.2.3",
     "msw": "^1.3.5",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",
-    "vite": "^6.2.1"
+    "vite": "^6.2.2"
   },
   "packageManager": "pnpm@9.15.5",
   "engines": {

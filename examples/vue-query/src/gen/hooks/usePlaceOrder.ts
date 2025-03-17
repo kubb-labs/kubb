@@ -22,7 +22,7 @@ export async function placeOrder(
 
   const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
-    url: `/store/order`,
+    url: '/store/order',
     data,
     ...requestConfig,
   })
