@@ -32,7 +32,7 @@ let _config: Partial<RequestConfig> = {}
 
 export const getConfig = () => _config
 
-export const setConfig = (config: RequestConfig) => {
+export const setConfig = (config: Partial<RequestConfig>) => {
   _config = config
   return getConfig()
 }
