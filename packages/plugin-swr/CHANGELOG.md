@@ -1,5 +1,21 @@
 # @kubb/plugin-swr
 
+## 3.6.5
+
+### Patch Changes
+
+- [`58b36f3`](https://github.com/kubb-labs/kubb/commit/58b36f3a82a3fa9178c1dafc5a15a9585de45802) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - TVariables set to void as default
+
+- Updated dependencies [[`da3fd6b`](https://github.com/kubb-labs/kubb/commit/da3fd6bd18a380adb653bfc7aa456431f9fabb8f), [`27739c3`](https://github.com/kubb-labs/kubb/commit/27739c350cd9406cb86fbe58e308ccd628e5635c)]:
+  - @kubb/plugin-client@3.6.5
+  - @kubb/plugin-zod@3.6.5
+  - @kubb/core@3.6.5
+  - @kubb/fs@3.6.5
+  - @kubb/oas@3.6.5
+  - @kubb/plugin-oas@3.6.5
+  - @kubb/plugin-ts@3.6.5
+  - @kubb/react@3.6.5
+
 ## 3.6.4
 
 ### Patch Changes
