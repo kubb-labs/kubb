@@ -45,12 +45,10 @@ features:
     link: /plugins/plugin-react-query
     linkText: Learn more
   - icon:
-      dark: ./feature/swr-dark.svg
-      light: ./feature/swr-light.svg
-      height: 24
-    title: SWR
-    details: Creates React Hooks for <a href="https://swr.vercel.app/">SWR</a>.
-    link: /plugins/plugin-swr
+        src: ./feature/cypress.svg
+    title: Cypress <span class="new">new in 3.7.0</span>
+    details: Make type-safe Cypress requests with <b>cy.request</b>.
+    link: /plugins/plugin-cypress
     linkText: Learn more
   - icon:
       src: ./feature/axios.svg
@@ -76,6 +74,14 @@ features:
     title: Faker
     details: Use of <a href="https://fakerjs.dev/">Faker.js</a> to create mocked data.
     link: /plugins/plugin-faker
+    linkText: Learn more
+  - icon:
+      dark: ./feature/swr-dark.svg
+      light: ./feature/swr-light.svg
+      height: 24
+    title: SWR
+    details: Creates React Hooks for <a href="https://swr.vercel.app/">SWR</a>.
+    link: /plugins/plugin-swr
     linkText: Learn more
   - icon:
       src: ./feature/json.svg
