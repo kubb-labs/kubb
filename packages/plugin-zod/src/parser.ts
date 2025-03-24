@@ -155,6 +155,7 @@ export function sort(items?: Schema[]): Schema[] {
     schemaKeywords.password,
     schemaKeywords.matches,
     schemaKeywords.uuid,
+    schemaKeywords.null,
     schemaKeywords.min,
     schemaKeywords.max,
     schemaKeywords.default,
@@ -162,7 +163,6 @@ export function sort(items?: Schema[]): Schema[] {
     schemaKeywords.optional,
     schemaKeywords.nullable,
     schemaKeywords.nullish,
-    schemaKeywords.null,
   ]
 
   if (!items) {

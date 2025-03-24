@@ -28,8 +28,8 @@ export async function uploadFile(
   if (data) {
     Object.keys(data).forEach((key) => {
       const value = data[key as keyof typeof data]
-      if (typeof key === 'string' && (typeof value === 'string' || value instanceof Blob)) {
-        formData.append(key, value)
+      if (typeof key === 'string' && (typeof value === 'string' || (value as Blob) instanceof Blob)) {
+        formData.append(key, value as unknown as string)
       }
     })
   }

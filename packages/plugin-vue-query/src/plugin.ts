@@ -26,7 +26,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
     infinite,
     transformers = {},
     paramsType = 'inline',
-    pathParamsType = 'inline',
+    pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
     mutation = {},
     query = {},
     paramsCasing,
@@ -43,7 +43,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
       client: {
         importPath: '@kubb/plugin-client/clients/axios',
         dataReturnType: 'data',
-        pathParamsType: 'inline',
+        pathParamsType,
         ...options.client,
       },
       infinite: infinite
@@ -70,7 +70,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
         ...mutation,
       },
       paramsType,
-      pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
+      pathParamsType,
       parser,
       paramsCasing,
       group,

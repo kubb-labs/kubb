@@ -17,6 +17,7 @@
     "allowImportingTsExtensions": true,
     "alwaysStrict": true,
     "strict": false,
+    "types": ["cypress", "node"],
     "paths": {
       "@kubb/cli": ["../packages/cli/src/index.ts"],
       "@kubb/config-biome": ["../packages/config/config-biome/src/index.ts"],

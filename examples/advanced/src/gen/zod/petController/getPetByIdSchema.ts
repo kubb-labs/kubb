@@ -12,7 +12,7 @@ export type GetPetByIdPathParamsSchema = GetPetByIdPathParams
 /**
  * @description successful operation
  */
-export const getPetById200Schema = z.lazy(() => petSchema).and(z.object({ name: z.never() })) as unknown as ToZod<GetPetById200>
+export const getPetById200Schema = z.lazy(() => petSchema).schema.omit({ name: true }) as unknown as ToZod<GetPetById200>
 
 export type GetPetById200Schema = GetPetById200
 

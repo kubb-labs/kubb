@@ -15,7 +15,7 @@ export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
  * {@link /store/order}
  */
 export async function placeOrder(
-  { data }: { data?: PlaceOrderMutationRequest },
+  data?: PlaceOrderMutationRequest,
   config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof client } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
@@ -45,7 +45,7 @@ export function usePlaceOrder<TContext>(
 
   return useMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
-      return placeOrder({ data }, config)
+      return placeOrder(data, config)
     },
     mutationKey,
     ...mutationOptions,

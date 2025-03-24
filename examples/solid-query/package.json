@@ -28,7 +28,7 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/solid-query": "5.62.7",
-    "axios": "^1.8.3",
+    "axios": "^1.8.4",
     "solid-js": "^1.9.5",
     "tsup": "^8.4.0"
   },

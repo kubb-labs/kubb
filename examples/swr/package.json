@@ -27,7 +27,7 @@
     "@kubb/plugin-swr": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "axios": "^1.8.3",
+    "axios": "^1.8.4",
     "react": "^18.3.1",
     "swr": "^2.3.3",
     "tsup": "^8.4.0"

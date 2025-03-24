@@ -1,5 +1,57 @@
 # @kubb/plugin-msw
 
+## 3.7.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.7.0
+  - @kubb/fs@3.7.0
+  - @kubb/oas@3.7.0
+  - @kubb/plugin-faker@3.7.0
+  - @kubb/plugin-oas@3.7.0
+  - @kubb/plugin-ts@3.7.0
+  - @kubb/react@3.7.0
+
+## 3.6.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.5
+  - @kubb/fs@3.6.5
+  - @kubb/oas@3.6.5
+  - @kubb/plugin-faker@3.6.5
+  - @kubb/plugin-oas@3.6.5
+  - @kubb/plugin-ts@3.6.5
+  - @kubb/react@3.6.5
+
+## 3.6.4
+
+### Patch Changes
+
+- Updated dependencies [[`114716a`](https://github.com/kubb-labs/kubb/commit/114716ae2a4e93f8e41f8c7c03cd6b5d71620cec)]:
+  - @kubb/oas@3.6.4
+  - @kubb/plugin-faker@3.6.4
+  - @kubb/plugin-oas@3.6.4
+  - @kubb/plugin-ts@3.6.4
+  - @kubb/core@3.6.4
+  - @kubb/fs@3.6.4
+  - @kubb/react@3.6.4
+
+## 3.6.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.3
+  - @kubb/fs@3.6.3
+  - @kubb/oas@3.6.3
+  - @kubb/plugin-faker@3.6.3
+  - @kubb/plugin-oas@3.6.3
+  - @kubb/plugin-ts@3.6.3
+  - @kubb/react@3.6.3
+
 ## 3.6.2
 
 ### Patch Changes

@@ -1,5 +1,41 @@
 # @kubb/core
 
+## 3.7.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.7.0
+  - @kubb/parser-ts@3.7.0
+  - @kubb/types@3.7.0
+
+## 3.6.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.6.5
+  - @kubb/parser-ts@3.6.5
+  - @kubb/types@3.6.5
+
+## 3.6.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.6.4
+  - @kubb/parser-ts@3.6.4
+  - @kubb/types@3.6.4
+
+## 3.6.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.6.3
+  - @kubb/parser-ts@3.6.3
+  - @kubb/types@3.6.3
+
 ## 3.6.2
 
 ### Patch Changes
