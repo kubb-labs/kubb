@@ -81,7 +81,9 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
         banner={getBanner({ oas, output })}
         footer={getFooter({ oas, output })}
       >
-        {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
+        {options.parser === 'zod' && (
+          <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={query.file.path} path={zod.file.path} />
+        )}
         <File.Import name={'client'} path={options.client.importPath} />
         {hasClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
@@ -148,22 +150,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
               dataReturnType={options.client.dataReturnType}
               queryKeyName={queryKey.name}
               queryKeyTypeName={queryKey.typeName}
-            >
-              <Client
-                name={client.name}
-                baseURL={options.client.baseURL}
-                operation={operation}
-                typeSchemas={type.schemas}
-                zodSchemas={zod.schemas}
-                dataReturnType={options.client.dataReturnType}
-                paramsType={options.paramsType}
-                paramsCasing={options.paramsCasing}
-                pathParamsType={options.pathParamsType}
-                parser={options.parser}
-                isExportable={false}
-                isIndexable={false}
-              />
-            </Query>
+            />
           </>
         )}
       </File>

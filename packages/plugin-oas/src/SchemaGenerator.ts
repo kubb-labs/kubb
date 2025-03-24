@@ -36,7 +36,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
 
 export type SchemaGeneratorOptions = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
-  unknownType: 'any' | 'unknown'
+  unknownType: 'any' | 'unknown' | 'void'
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   enumSuffix?: string
   usedEnumNames?: Record<string, number>
@@ -259,6 +259,9 @@ export class SchemaGenerator<
 
     if (options.unknownType === 'any') {
       return schemaKeywords.any
+    }
+    if (options.unknownType === 'void') {
+      return schemaKeywords.void
     }
 
     return schemaKeywords.unknown
@@ -599,6 +602,10 @@ export class SchemaGenerator<
     }
 
     if (schema.enum) {
+      if (options.enumSuffix === '') {
+        throw new Error('EnumSuffix set to an empty string does not work')
+      }
+
       const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.#getUsedEnumNames({ schema, name }))
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,

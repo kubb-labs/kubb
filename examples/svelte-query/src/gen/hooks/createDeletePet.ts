@@ -23,8 +23,8 @@ export async function deletePet(
   const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: `/pet/${pet_id}`,
-    headers: { ...headers, ...requestConfig.headers },
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }
@@ -34,12 +34,13 @@ export async function deletePet(
  * @summary Deletes a pet
  * {@link /pet/:pet_id}
  */
-export function createDeletePet(
+export function createDeletePet<TContext>(
   options: {
     mutation?: CreateMutationOptions<
       DeletePetMutationResponse,
       ResponseErrorConfig<DeletePet400>,
-      { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams }
+      { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },
+      TContext
     >
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
@@ -50,7 +51,8 @@ export function createDeletePet(
   return createMutation<
     DeletePetMutationResponse,
     ResponseErrorConfig<DeletePet400>,
-    { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams }
+    { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },
+    TContext
   >({
     mutationFn: async ({ pet_id, headers }) => {
       return deletePet(pet_id, headers, config)

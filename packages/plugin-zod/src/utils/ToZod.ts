@@ -44,8 +44,9 @@ export type ToZod<T> = {
   date: z.ZodDate
 
   object: z.ZodObject<
+    // @ts-expect-error cannot convert without Extract but Extract removes the type
     {
-      [k in keyof T]: Extract<T[k], z.ZodType>
+      [K in keyof T]: T[K]
     },
     'passthrough',
     z.ZodTypeAny,

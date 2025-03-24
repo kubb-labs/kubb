@@ -1,5 +1,154 @@
 # @kubb/plugin-solid-query
 
+## 3.6.4
+
+### Patch Changes
+
+- Updated dependencies [[`114716a`](https://github.com/kubb-labs/kubb/commit/114716ae2a4e93f8e41f8c7c03cd6b5d71620cec)]:
+  - @kubb/oas@3.6.4
+  - @kubb/plugin-oas@3.6.4
+  - @kubb/plugin-ts@3.6.4
+  - @kubb/plugin-zod@3.6.4
+  - @kubb/core@3.6.4
+  - @kubb/fs@3.6.4
+  - @kubb/react@3.6.4
+
+## 3.6.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.3
+  - @kubb/fs@3.6.3
+  - @kubb/oas@3.6.3
+  - @kubb/plugin-oas@3.6.3
+  - @kubb/plugin-ts@3.6.3
+  - @kubb/plugin-zod@3.6.3
+  - @kubb/react@3.6.3
+
+## 3.6.2
+
+### Patch Changes
+
+- Updated dependencies [[`3069971`](https://github.com/kubb-labs/kubb/commit/3069971677df4c07da161e94eececf697e4f39d6)]:
+  - @kubb/plugin-zod@3.6.2
+  - @kubb/core@3.6.2
+  - @kubb/fs@3.6.2
+  - @kubb/oas@3.6.2
+  - @kubb/plugin-oas@3.6.2
+  - @kubb/plugin-ts@3.6.2
+  - @kubb/react@3.6.2
+
+## 3.6.1
+
+### Patch Changes
+
+- [#1582](https://github.com/kubb-labs/kubb/pull/1582) [`55170e1`](https://github.com/kubb-labs/kubb/commit/55170e1a2774331166516e0b969a70915883eea3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - validating the request using zod before making the HTTP call
+
+- Updated dependencies []:
+  - @kubb/core@3.6.1
+  - @kubb/fs@3.6.1
+  - @kubb/oas@3.6.1
+  - @kubb/plugin-oas@3.6.1
+  - @kubb/plugin-ts@3.6.1
+  - @kubb/plugin-zod@3.6.1
+  - @kubb/react@3.6.1
+
+## 3.6.0
+
+### Patch Changes
+
+- Updated dependencies [[`a528a46`](https://github.com/kubb-labs/kubb/commit/a528a460dfaecba6b24f9411826942f1cb813e8b), [`e48aa64`](https://github.com/kubb-labs/kubb/commit/e48aa6483c023ac988f71a6642a797b09f67d177)]:
+  - @kubb/plugin-zod@3.6.0
+  - @kubb/oas@3.6.0
+  - @kubb/plugin-oas@3.6.0
+  - @kubb/plugin-ts@3.6.0
+  - @kubb/core@3.6.0
+  - @kubb/fs@3.6.0
+  - @kubb/react@3.6.0
+
+## 3.5.13
+
+### Patch Changes
+
+- Updated dependencies [[`09ed7ba`](https://github.com/kubb-labs/kubb/commit/09ed7ba9d585dabca249a0cddd18c8a0dce6f5e1)]:
+  - @kubb/plugin-ts@3.5.13
+  - @kubb/oas@3.5.13
+  - @kubb/core@3.5.13
+  - @kubb/plugin-zod@3.5.13
+  - @kubb/react@3.5.13
+  - @kubb/plugin-oas@3.5.13
+  - @kubb/fs@3.5.13
+
+## 3.5.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.12
+  - @kubb/fs@3.5.12
+  - @kubb/oas@3.5.12
+  - @kubb/plugin-oas@3.5.12
+  - @kubb/plugin-ts@3.5.12
+  - @kubb/plugin-zod@3.5.12
+  - @kubb/react@3.5.12
+
+## 3.5.11
+
+### Patch Changes
+
+- [#1557](https://github.com/kubb-labs/kubb/pull/1557) [`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5) Thanks [@nicholaschiang](https://github.com/nicholaschiang)! - Including and excluding tags now matches any tag, instead of just the first one.
+
+- Updated dependencies [[`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5)]:
+  - @kubb/core@3.5.11
+  - @kubb/fs@3.5.11
+  - @kubb/oas@3.5.11
+  - @kubb/plugin-oas@3.5.11
+  - @kubb/plugin-ts@3.5.11
+  - @kubb/plugin-zod@3.5.11
+  - @kubb/react@3.5.11
+
+## 3.5.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.10
+  - @kubb/fs@3.5.10
+  - @kubb/oas@3.5.10
+  - @kubb/plugin-oas@3.5.10
+  - @kubb/plugin-ts@3.5.10
+  - @kubb/plugin-zod@3.5.10
+  - @kubb/react@3.5.10
+
+## 3.5.9
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.9
+  - @kubb/fs@3.5.9
+  - @kubb/oas@3.5.9
+  - @kubb/plugin-oas@3.5.9
+  - @kubb/plugin-ts@3.5.9
+  - @kubb/plugin-zod@3.5.9
+  - @kubb/react@3.5.9
+
+## 3.5.8
+
+### Patch Changes
+
+- [`24d9e13`](https://github.com/kubb-labs/kubb/commit/24d9e131e360dcb31e16f8978f0c0cc226002288) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support custom `contentType` per plugin
+
+- Updated dependencies [[`24d9e13`](https://github.com/kubb-labs/kubb/commit/24d9e131e360dcb31e16f8978f0c0cc226002288)]:
+  - @kubb/plugin-oas@3.5.8
+  - @kubb/plugin-zod@3.5.8
+  - @kubb/plugin-ts@3.5.8
+  - @kubb/core@3.5.8
+  - @kubb/fs@3.5.8
+  - @kubb/oas@3.5.8
+  - @kubb/react@3.5.8
+
 ## 3.5.7
 
 ### Patch Changes

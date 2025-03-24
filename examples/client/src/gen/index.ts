@@ -144,6 +144,7 @@ export { getLoginUserUrl, loginUser } from './clients/axios/userService/loginUse
 export { getLogoutUserUrl, logoutUser } from './clients/axios/userService/logoutUser.js'
 export { getUpdateUserUrl, updateUser } from './clients/axios/userService/updateUser.js'
 export { userService } from './clients/axios/userService/userService.js'
+export { getUploadFileUrlXML, uploadFileXML } from './clients/axios/xml/uploadFile.js'
 export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.js'
 export { orderStatusEnum, orderHttpStatusEnum } from './models/ts/Order.js'
 export { petStatusEnum } from './models/ts/Pet.js'

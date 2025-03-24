@@ -47,7 +47,7 @@ export type Options = {
    * Which type to use when the Swagger/OpenAPI file is not providing more information
    * @default 'any'
    */
-  unknownType?: 'any' | 'unknown'
+  unknownType?: 'any' | 'unknown' | 'void'
   /**
    * Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
    */
@@ -89,6 +89,14 @@ export type Options = {
     ) => Schema[] | undefined
   }
   /**
+   * Callback function to wrap the output of the generated zod schema
+   *
+   * This is useful for edge case scenarios where you might leverage something like `z.object({ ... }).openapi({ example: { some: "complex-example" }})`
+   * or `extendApi(z.object({ ... }), { example: { some: "complex-example", ...otherOpenApiProperties }})`
+   * while going from openapi -> zod -> openapi
+   */
+  wrapOutput?: (arg: { output: string; schema: SchemaObject }) => string | undefined
+  /**
    * Define some generators next to the zod generators
    */
   generators?: Array<Generator<PluginZod>>
@@ -107,6 +115,7 @@ type ResolvedOptions = {
   importPath: NonNullable<Options['importPath']>
   coercion: NonNullable<Options['coercion']>
   operations: NonNullable<Options['operations']>
+  wrapOutput: Options['wrapOutput']
 }
 
 export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions>

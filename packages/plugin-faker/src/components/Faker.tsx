@@ -71,6 +71,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
         name={name}
         JSDoc={{ comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean) }}
         params={canOverride ? params.toConstructor() : undefined}
+        returnType={canOverride ? typeName : undefined}
       >
         {seed ? `faker.seed(${JSON.stringify(seed)})` : undefined}
         <br />

@@ -19,12 +19,13 @@ export type CreatePetsMutationKey = ReturnType<typeof createPetsMutationKey>
  * @summary Create a pet
  * {@link /pets/:uuid}
  */
-export function useCreatePets(
+export function useCreatePets<TContext>(
   options: {
     mutation?: UseMutationOptions<
       ResponseConfig<CreatePetsMutationResponse>,
       ResponseErrorConfig<Error>,
-      { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams }
+      { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
+      TContext
     >
     client?: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof client }
   } = {},
@@ -35,7 +36,8 @@ export function useCreatePets(
   return useMutation<
     ResponseConfig<CreatePetsMutationResponse>,
     ResponseErrorConfig<Error>,
-    { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams }
+    { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
+    TContext
   >({
     mutationFn: async ({ uuid, data, headers, params }) => {
       return createPets({ uuid, data, headers, params }, config)

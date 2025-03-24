@@ -7,17 +7,10 @@ import type { Options } from './types.ts'
 const fakerKeywordMapper = {
   any: () => 'undefined',
   unknown: () => 'unknown',
+  void: () => 'void',
   number: (min?: number, max?: number) => {
     if (max !== undefined && min !== undefined) {
       return `faker.number.float({ min: ${min}, max: ${max} })`
-    }
-
-    if (min !== undefined) {
-      return `faker.number.float({ min: ${min}, max: Number.MAX_VALUE })`
-    }
-
-    if (max !== undefined) {
-      return `faker.number.float({ min: Number.MIN_VALUE, max: ${max} })`
     }
 
     return 'faker.number.float()'
@@ -40,14 +33,6 @@ const fakerKeywordMapper = {
   string: (min?: number, max?: number) => {
     if (max !== undefined && min !== undefined) {
       return `faker.string.alpha({ length: { min: ${min}, max: ${max} } })`
-    }
-
-    if (min !== undefined) {
-      return `faker.string.alpha({ length: { min: ${min}, max: Number.MAX_VALUE } })`
-    }
-
-    if (max !== undefined) {
-      return `faker.string.alpha({ length: { min: Number.MIN_VALUE, max: ${max} } })`
     }
 
     return 'faker.string.alpha()'

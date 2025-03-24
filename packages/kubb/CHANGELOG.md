@@ -1,5 +1,95 @@
 # kubb
 
+## 3.0.47
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@3.6.4
+  - @kubb/core@3.6.4
+
+## 3.0.46
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@3.6.3
+  - @kubb/core@3.6.3
+
+## 3.0.45
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@3.6.2
+  - @kubb/core@3.6.2
+
+## 3.0.44
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@3.6.1
+  - @kubb/core@3.6.1
+
+## 3.0.43
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@3.6.0
+  - @kubb/core@3.6.0
+
+## 3.0.42
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.5.13
+  - @kubb/cli@3.5.13
+
+## 3.0.41
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@3.5.12
+  - @kubb/core@3.5.12
+
+## 3.0.40
+
+### Patch Changes
+
+- [#1557](https://github.com/kubb-labs/kubb/pull/1557) [`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5) Thanks [@nicholaschiang](https://github.com/nicholaschiang)! - Including and excluding tags now matches any tag, instead of just the first one.
+
+- Updated dependencies [[`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5)]:
+  - @kubb/cli@3.5.11
+  - @kubb/core@3.5.11
+
+## 3.0.39
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@3.5.10
+  - @kubb/core@3.5.10
+
+## 3.0.38
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@3.5.9
+  - @kubb/core@3.5.9
+
+## 3.0.37
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@3.5.8
+  - @kubb/core@3.5.8
+
 ## 3.0.36
 
 ### Patch Changes

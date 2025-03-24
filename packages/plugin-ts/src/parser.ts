@@ -8,6 +8,7 @@ import type ts from 'typescript'
 export const typeKeywordMapper = {
   any: () => factory.keywordTypeNodes.any,
   unknown: () => factory.keywordTypeNodes.unknown,
+  void: () => factory.keywordTypeNodes.void,
   number: () => factory.keywordTypeNodes.number,
   integer: () => factory.keywordTypeNodes.number,
   object: (nodes?: ts.TypeElement[]) => {

@@ -1,5 +1,43 @@
 # @kubb/oas
 
+## 3.6.4
+
+### Patch Changes
+
+- [#1587](https://github.com/kubb-labs/kubb/pull/1587) [`114716a`](https://github.com/kubb-labs/kubb/commit/114716ae2a4e93f8e41f8c7c03cd6b5d71620cec) Thanks [@heyBett](https://github.com/heyBett)! - It is possible for discriminated unions to have no properties. This change checks whether the current childSchema has "properties" before continuing execution.
+
+## 3.6.3
+
+## 3.6.2
+
+## 3.6.1
+
+## 3.6.0
+
+### Patch Changes
+
+- [#1572](https://github.com/kubb-labs/kubb/pull/1572) [`e48aa64`](https://github.com/kubb-labs/kubb/commit/e48aa6483c023ac988f71a6642a797b09f67d177) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - discriminator mapping with literal types
+
+## 3.5.13
+
+### Patch Changes
+
+- [#1567](https://github.com/kubb-labs/kubb/pull/1567) [`09ed7ba`](https://github.com/kubb-labs/kubb/commit/09ed7ba9d585dabca249a0cddd18c8a0dce6f5e1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - enum with whitespaces
+
+## 3.5.12
+
+## 3.5.11
+
+### Patch Changes
+
+- [#1557](https://github.com/kubb-labs/kubb/pull/1557) [`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5) Thanks [@nicholaschiang](https://github.com/nicholaschiang)! - Including and excluding tags now matches any tag, instead of just the first one.
+
+## 3.5.10
+
+## 3.5.9
+
+## 3.5.8
+
 ## 3.5.7
 
 ## 3.5.6

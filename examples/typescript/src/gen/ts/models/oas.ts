@@ -409,6 +409,20 @@ export const oas = {
           },
         ],
         responses: {
+          '200': {
+            description: 'items',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                    enum: ['TYPE1', 'TYPE2', 'TYPE3'],
+                  },
+                },
+              },
+            },
+          },
           '400': {
             description: 'Invalid pet value',
           },
@@ -1254,7 +1268,7 @@ export const oas = {
           status: {
             type: 'string',
             description: 'pet status in the store',
-            enum: ['available', 'pending', 'sold'],
+            enum: ['available', 'pending', 'sold', 'in store'],
           },
         },
         xml: {

@@ -15,7 +15,8 @@ export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
  * {@link /pet/:petId}
  */
 export async function deletePet(
-  { petId, headers }: { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
+  { petId }: { petId: DeletePetPathParams['petId'] },
+  headers?: DeletePetHeaderParams,
   config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
@@ -23,8 +24,8 @@ export async function deletePet(
   const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}`,
-    headers: { ...headers, ...requestConfig.headers },
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }
@@ -34,12 +35,13 @@ export async function deletePet(
  * @summary Deletes a pet
  * {@link /pet/:petId}
  */
-export function useDeletePet(
+export function useDeletePet<TContext>(
   options: {
     mutation?: MutationObserverOptions<
       DeletePetMutationResponse,
       ResponseErrorConfig<DeletePet400>,
-      { petId: MaybeRef<DeletePetPathParams['petId']>; headers?: MaybeRef<DeletePetHeaderParams> }
+      { petId: MaybeRef<DeletePetPathParams['petId']>; headers?: MaybeRef<DeletePetHeaderParams> },
+      TContext
     >
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
@@ -47,9 +49,14 @@ export function useDeletePet(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
 
-  return useMutation<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }>({
+  return useMutation<
+    DeletePetMutationResponse,
+    ResponseErrorConfig<DeletePet400>,
+    { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
+    TContext
+  >({
     mutationFn: async ({ petId, headers }) => {
-      return deletePet({ petId, headers }, config)
+      return deletePet({ petId }, headers, config)
     },
     mutationKey,
     ...mutationOptions,

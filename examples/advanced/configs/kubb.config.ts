@@ -167,7 +167,6 @@ export default defineConfig(() => {
           },
         ],
         group: { type: 'tag' },
-        dateType: 'date',
         mapper: {
           status: `faker.helpers.arrayElement(['working', 'idle']) as any`,
         },

@@ -4,6 +4,88 @@ title: Changelog
 
 # Changelog
 
+## 3.6.4
+- [`plugin-react-query`](/plugins/plugin-react-query/): `TVariables` set to `void` as default
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): `TVariables` set to `void` as default
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): `TVariables` set to `void` as default
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): `TVariables` set to `void` as default
+- [`plugin-zod`](/plugins/plugin-zod): zod omit instead of `z.never`
+
+## 3.6.3
+- [`plugin-oas`](/plugins/plugin-oas): extra checks for empty values for properties of a discriminator type
+- [`plugin-react-query`](/plugins/plugin-react-query/): allow override of mutation context with TypeScript generic
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): allow override of mutation context with TypeScript generic
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): allow override of mutation context with TypeScript generic
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): allow override of mutation context with TypeScript generic
+-
+## 3.6.2
+- [`plugin-zod`](/plugins/plugin-zod): handling circular dependency properly when using `ToZod` helper
+
+## 3.6.1
+- [`plugin-react-query`](/plugins/plugin-react-query/): validating the request using zod before making the HTTP call
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): validating the request using zod before making the HTTP call
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): validating the request using zod before making the HTTP call
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): validating the request using zod before making the HTTP call
+- [`plugin-swr`](/plugins/plugin-swr/): validating the request using zod before making the HTTP call
+- [`plugin-client`](/plugins/plugin-client): validating the request using zod before making the HTTP call
+
+## 3.6.0
+- [`plugin-zod`](/plugins/plugin-zod): Adds wrapOutput option to allow for further customizing the generated zod schemas, this makes it possible to use `OpenAPI` on top of your Zod schema.
+```typescript
+import { z } from '@hono/zod-openapi'
+
+export const showPetByIdError = z
+  .lazy(() => error)
+  .openapi({
+    examples: [
+      { sample: { summary: 'A sample error', value: { code: 1, message: 'A sample error message' } } },
+      { other_example: { summary: 'Another sample error', value: { code: 2, message: 'A totally specific message' } } },
+    ],
+  })
+```
+- [`plugin-oas`](/plugins/plugin-oas): discriminator mapping with literal types
+``` typescript
+export type FooBase = {
+  /**
+   * @type string
+   */
+-  $type: string;
++  $type: "type-string" | "type-number";
+};
+```
+``` typescript
+-export type FooNumber = FooBase {
++export type FooNumber = FooBase & {
++  /**
++   * @type string
++   */
++  $type: "type-number";
++
+  /**
+   * @type number
+   */
+  value: number;
+};
+```
+
+## 3.5.13
+- [`plugin-oas`](/plugins/plugin-oas): enum with whitespaces
+
+## 3.5.12
+- [`core`](/plugins/core): internal packages update
+
+## 3.5.11
+- [`core`](/plugins/core): internal packages update
+
+## 3.5.10
+- [`plugin-faker`](/plugins/plugin-faker/): returnType for faker functions
+
+## 3.5.9
+- [`plugin-faker`](/plugins/plugin-faker/): returnType for faker functions
+- [`plugin-faker`](/plugins/plugin-faker/): only use min/max when both are set in the oas
+- [`plugin-client`](/plugins/plugin-client): correct use of baseURL for fetch client
+- [`plugin-msw`](/plugins/plugin-msw): support for `baseURL` without wildcards
+
 ## 3.5.8
 - [`plugin-react-query`](/plugins/plugin-react-query/): support custom `contentType` per plugin
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support custom `contentType` per plugin

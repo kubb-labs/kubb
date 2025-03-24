@@ -25,8 +25,8 @@ export async function uploadFile(
     url: `/pet/${petId}/uploadImage`,
     params,
     data,
-    headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
     ...requestConfig,
+    headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
   })
   return res.data
 }
@@ -35,12 +35,13 @@ export async function uploadFile(
  * @summary uploads an image
  * {@link /pet/:petId/uploadImage}
  */
-export function createUploadFile(
+export function createUploadFile<TContext>(
   options: {
     mutation?: CreateMutationOptions<
       UploadFileMutationResponse,
       ResponseErrorConfig<Error>,
-      { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
+      { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+      TContext
     >
     client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client }
   } = {},
@@ -51,7 +52,8 @@ export function createUploadFile(
   return createMutation<
     UploadFileMutationResponse,
     ResponseErrorConfig<Error>,
-    { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
+    { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+    TContext
   >({
     mutationFn: async ({ petId, data, params }) => {
       return uploadFile(petId, data, params, config)

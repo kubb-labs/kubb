@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-client",
-  "version": "3.5.7",
+  "version": "3.6.4",
   "description": "Generator plugin-client",
   "keywords": [
     "typescript",
@@ -101,7 +101,7 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "axios": "^1.7.9",
+    "axios": "^1.8.4",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },

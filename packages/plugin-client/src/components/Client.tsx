@@ -157,17 +157,18 @@ export function Client({
         params: typeSchemas.queryParams?.name ? {} : undefined,
         data: typeSchemas.request?.name
           ? {
-              value: isFormData ? 'formData' : undefined,
-            }
-          : undefined,
-        headers: headers.length
-          ? {
-              value: headers.length ? `{ ${headers.join(', ')}, ...requestConfig.headers }` : undefined,
+              value:
+                parser === 'zod' && zodSchemas ? `${zodSchemas.request?.name}.parse(${isFormData ? 'formData' : 'data'})` : isFormData ? 'formData' : undefined,
             }
           : undefined,
         requestConfig: {
           mode: 'inlineSpread',
         },
+        headers: headers.length
+          ? {
+              value: headers.length ? `{ ${headers.join(', ')}, ...requestConfig.headers }` : undefined,
+            }
+          : undefined,
       },
     },
   })
@@ -178,7 +179,7 @@ export function Client({
    if(data) {
     Object.keys(data).forEach((key) => {
       const value = data[key as keyof typeof data];
-      if (typeof key === "string" && (typeof value === "string" || value instanceof Blob)) {
+      if (typeof key === "string" && (typeof value === "string" || (value as Blob) instanceof Blob)) {
         formData.append(key, value);
       }
     })

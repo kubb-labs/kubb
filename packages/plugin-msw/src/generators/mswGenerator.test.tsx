@@ -63,6 +63,7 @@ describe('mswGenerator operation', async () => {
         path: '.',
       },
       parser: 'data',
+      baseURL: undefined,
       group: undefined,
       ...props.options,
     }

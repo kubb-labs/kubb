@@ -28,9 +28,9 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/svelte-query": "5.62.7",
-    "axios": "^1.7.9",
+    "axios": "^1.8.4",
     "svelte": "^3.59.2",
-    "tsup": "^8.3.6"
+    "tsup": "^8.4.0"
   },
   "devDependencies": {
     "typescript": "catalog:"

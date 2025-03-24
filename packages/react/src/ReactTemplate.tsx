@@ -62,16 +62,16 @@ export class ReactTemplate {
     const originalError = console.error
     //@ts-ignore
     console.error = (data: string | Error) => {
-      if (typeof data === 'string') {
-        if (data.match(/React will try to recreat/gi)) {
-          return
-        }
-        if (data.match(/Each child in a list should have a unique/gi)) {
-          return
-        }
-        if (data.match(/The above error occurred in the <KubbErrorBoundary/gi)) {
-          return
-        }
+      const message = typeof data === 'string' ? data : data?.message
+
+      if (message.match(/React will try to recreat/gi)) {
+        return
+      }
+      if (message.match(/Each child in a list should have a unique/gi)) {
+        return
+      }
+      if (message.match(/The above error occurred in the <KubbErrorBoundary/gi)) {
+        return
       }
 
       originalError(data)

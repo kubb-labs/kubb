@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker'
 /**
  * @description successful operation
  */
-export function createGetInventory200(data?: Partial<GetInventory200>) {
+export function createGetInventory200(data?: Partial<GetInventory200>): GetInventory200 {
   faker.seed([220])
   return {
     ...{},
@@ -12,7 +12,7 @@ export function createGetInventory200(data?: Partial<GetInventory200>) {
   }
 }
 
-export function createGetInventoryQueryResponse(data?: Partial<GetInventoryQueryResponse>) {
+export function createGetInventoryQueryResponse(data?: Partial<GetInventoryQueryResponse>): GetInventoryQueryResponse {
   faker.seed([220])
   return data || faker.helpers.arrayElement<any>([createGetInventory200()])
 }

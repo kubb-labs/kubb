@@ -22,7 +22,7 @@ export async function uploadFile(
   if (data) {
     Object.keys(data).forEach((key) => {
       const value = data[key as keyof typeof data]
-      if (typeof key === 'string' && (typeof value === 'string' || value instanceof Blob)) {
+      if (typeof key === 'string' && (typeof value === 'string' || (value as Blob) instanceof Blob)) {
         formData.append(key, value)
       }
     })
@@ -32,8 +32,8 @@ export async function uploadFile(
     url: getUploadFileUrl(petId).toString(),
     params,
     data: formData,
-    headers: { 'Content-Type': 'multipart/form-data', ...requestConfig.headers },
     ...requestConfig,
+    headers: { 'Content-Type': 'multipart/form-data', ...requestConfig.headers },
   })
   return res.data
 }

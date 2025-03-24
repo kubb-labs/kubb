@@ -260,6 +260,7 @@ export enum AddPetRequestStatusEnum {
   available = 'available',
   pending = 'pending',
   sold = 'sold',
+  'in store' = 'in store',
 }
 
 export type AddPetRequest = {
@@ -533,15 +534,26 @@ export type DeletePetHeaderParams = {
   api_key?: string
 }
 
+export enum DeletePet200Enum {
+  TYPE1 = 'TYPE1',
+  TYPE2 = 'TYPE2',
+  TYPE3 = 'TYPE3',
+}
+
+/**
+ * @description items
+ */
+export type DeletePet200 = DeletePet200Enum[]
+
 /**
  * @description Invalid pet value
  */
 export type DeletePet400 = any
 
-export type DeletePetMutationResponse = any
+export type DeletePetMutationResponse = DeletePet200
 
 export type DeletePetMutation = {
-  Response: any
+  Response: DeletePet200
   PathParams: DeletePetPathParams
   HeaderParams: DeletePetHeaderParams
   Errors: DeletePet400

@@ -9,6 +9,11 @@ export type CreatePets201 = error & {
 }
 
 /**
+ * @description Accepted response
+ */
+export type CreatePets202 = unknown
+
+/**
  * @description unexpected error
  */
 export type CreatePetsError = error
@@ -24,10 +29,10 @@ export type CreatePetsMutationRequest = {
   tag: string
 }
 
-export type CreatePetsMutationResponse = createPets201
+export type CreatePetsMutationResponse = createPets201 | createPets202
 
 export type createPetsMutation = {
-  Response: createPets201
+  Response: createPets201 | createPets202
   Request: createPetsMutationRequest
   Errors: any
 }

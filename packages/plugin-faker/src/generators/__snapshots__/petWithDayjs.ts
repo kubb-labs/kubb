@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { faker } from '@faker-js/faker'
 
-export function pet(data?: Partial<Pet>) {
+export function pet(data?: Partial<Pet>): Pet {
   return {
     ...{
       id: faker.number.int(),

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-redoc",
-  "version": "3.5.7",
+  "version": "3.6.4",
   "description": "Beautiful docs with Redoc",
   "keywords": [
     "typescript",
@@ -56,11 +56,11 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "handlebars": "^4.7.8",
-    "mobx": "^6.13.6",
+    "mobx": "^6.13.7",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "redoc": "^2.3.0",
-    "styled-components": "^6.1.15"
+    "redoc": "^2.4.0",
+    "styled-components": "^6.1.16"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

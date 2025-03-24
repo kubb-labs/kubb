@@ -1,6 +1,6 @@
 {
   "name": "@kubb/react",
-  "version": "3.5.7",
+  "version": "3.6.4",
   "description": "Generator react",
   "keywords": [
     "typescript",
@@ -91,7 +91,7 @@
     "react-devtools-core": "^5.3.2",
     "react-reconciler": "catalog:react18",
     "signal-exit": "^4.1.0",
-    "ws": "^8.18.0"
+    "ws": "^8.18.1"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
@@ -99,7 +99,7 @@
     "@types/react": "catalog:react18",
     "@types/react-reconciler": "catalog:react18",
     "@types/signal-exit": "^3.0.4",
-    "@types/ws": "^8.5.14",
+    "@types/ws": "^8.18.0",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },
