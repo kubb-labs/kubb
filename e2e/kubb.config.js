@@ -96,6 +96,7 @@ const baseConfig = {
     pluginCypress({
       output: {
         path: './clients/cypress',
+        barrelType: false,
       },
       group: {
         type: 'tag',
