@@ -40,7 +40,7 @@
     "msw": "^2.7.3",
     "react": "catalog:",
     "solid-js": "^1.9.5",
-    "svelte": "^3.59.2",
+    "svelte": "^4.2.19",
     "swr": "^2.3.3",
     "tsup": "catalog:",
     "vue": "^3.5.13",
