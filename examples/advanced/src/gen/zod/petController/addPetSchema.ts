@@ -7,7 +7,7 @@ import { z } from 'zod'
 /**
  * @description Successful operation
  */
-export const addPet200Schema = z.lazy(() => petSchema).and(z.object({ name: z.never() })) as unknown as ToZod<AddPet200>
+export const addPet200Schema = z.lazy(() => petSchema).schema.omit({ name: true }) as unknown as ToZod<AddPet200>
 
 export type AddPet200Schema = AddPet200
 

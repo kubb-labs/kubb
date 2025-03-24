@@ -37,9 +37,13 @@ export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, co
     .filter(Boolean)
     .join('')
 
-  const suffix = output.endsWith('.nullable()') ? '.unwrap().and' : '.and'
+  let suffix = output.endsWith('.nullable()') ? '.unwrap()' : ''
+
+  if (output.startsWith('z.lazy')) {
+    suffix = `${suffix}.schema`
+  }
   const baseSchemaOutput =
-    [output, keysToOmit?.length ? `${suffix}(z.object({ ${keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))` : undefined].filter(Boolean).join('') ||
+    [output, keysToOmit?.length ? `${suffix}.omit({ ${keysToOmit.map((key) => `${key}: true`).join(',')} })` : undefined].filter(Boolean).join('') ||
     'z.undefined()'
   const wrappedSchemaOutput = wrapOutput ? wrapOutput({ output: baseSchemaOutput, schema: rawSchema }) || baseSchemaOutput : baseSchemaOutput
   const finalOutput = typeName ? `${wrappedSchemaOutput} as unknown as ToZod<${typeName}>` : wrappedSchemaOutput

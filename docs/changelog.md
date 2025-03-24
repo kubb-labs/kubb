@@ -9,6 +9,7 @@ title: Changelog
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): `TVariables` set to `void` as default
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): `TVariables` set to `void` as default
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): `TVariables` set to `void` as default
+- [`plugin-zod`](/plugins/plugin-zod): zod omit instead of `z.never`
 
 ## 3.6.3
 - [`plugin-oas`](/plugins/plugin-oas): extra checks for empty values for properties of a discriminator type
