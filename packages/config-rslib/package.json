@@ -1,6 +1,6 @@
 {
-  "name": "@kubb/config-tsup",
-  "version": "3.6.4",
+  "name": "@kubb/config-rslib",
+  "version": "3.5.7",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -23,13 +23,13 @@
     "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "rslib build",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --apply-unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsup --watch",
+    "start": "rslib build --watch",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
@@ -37,11 +37,11 @@
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "@types/node": "^20.17.27",
-    "tsup": "catalog:"
+    "@types/node": "^20.17.17",
+    "@rslib/core": "catalog:"
   },
   "peerDependencies": {
-    "tsup": "^8.1.0"
+    "@rslib/core": "^0.4.0"
   },
   "engines": {
     "node": ">=20"

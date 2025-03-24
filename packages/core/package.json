@@ -76,6 +76,7 @@
   ],
   "scripts": {
     "build": "tsup",
+    "build:beta": "rslib build",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --apply-unsafe .",

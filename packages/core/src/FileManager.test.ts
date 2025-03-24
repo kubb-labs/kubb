@@ -1,7 +1,7 @@
 import path from 'node:path'
 
-import { format } from '../mocks/format.ts'
 import { FileManager, combineExports, combineImports, combineSources, getSource } from './FileManager.ts'
+import { format } from './mocks/format.ts'
 
 import type * as KubbFile from '@kubb/fs/types'
 import { createFile } from './utils'
