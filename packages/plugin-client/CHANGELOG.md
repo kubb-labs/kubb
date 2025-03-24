@@ -1,5 +1,20 @@
 # @kubb/plugin-client
 
+## 3.6.5
+
+### Patch Changes
+
+- [#1604](https://github.com/kubb-labs/kubb/pull/1604) [`da3fd6b`](https://github.com/kubb-labs/kubb/commit/da3fd6bd18a380adb653bfc7aa456431f9fabb8f) Thanks [@VasekProchazka](https://github.com/VasekProchazka)! - Making setConfig method types non required with Partial
+
+- Updated dependencies [[`27739c3`](https://github.com/kubb-labs/kubb/commit/27739c350cd9406cb86fbe58e308ccd628e5635c)]:
+  - @kubb/plugin-zod@3.6.5
+  - @kubb/core@3.6.5
+  - @kubb/fs@3.6.5
+  - @kubb/oas@3.6.5
+  - @kubb/plugin-oas@3.6.5
+  - @kubb/plugin-ts@3.6.5
+  - @kubb/react@3.6.5
+
 ## 3.6.4
 
 ### Patch Changes
