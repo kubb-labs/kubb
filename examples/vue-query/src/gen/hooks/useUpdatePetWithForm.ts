@@ -19,7 +19,8 @@ export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMu
  * {@link /pet/:petId}
  */
 export async function updatePetWithForm(
-  { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
+  { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
+  params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
@@ -58,7 +59,7 @@ export function useUpdatePetWithForm<TContext>(
     TContext
   >({
     mutationFn: async ({ petId, params }) => {
-      return updatePetWithForm({ petId, params }, config)
+      return updatePetWithForm({ petId }, params, config)
     },
     mutationKey,
     ...mutationOptions,

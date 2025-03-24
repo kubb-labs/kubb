@@ -15,7 +15,8 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
  * {@link /user/:username}
  */
 export async function updateUser(
-  { username, data }: { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+  { username }: { username: UpdateUserPathParams['username'] },
+  data?: UpdateUserMutationRequest,
   config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
@@ -55,7 +56,7 @@ export function useUpdateUser<TContext>(
     TContext
   >({
     mutationFn: async ({ username, data }) => {
-      return updateUser({ username, data }, config)
+      return updateUser({ username }, data, config)
     },
     mutationKey,
     ...mutationOptions,

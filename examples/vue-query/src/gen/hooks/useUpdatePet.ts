@@ -14,10 +14,7 @@ export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
  * @summary Update an existing pet
  * {@link /pet}
  */
-export async function updatePet(
-  { data }: { data: UpdatePetMutationRequest },
-  config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client } = {},
-) {
+export async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client } = {}) {
   const { client: request = client, ...requestConfig } = config
 
   const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
@@ -50,7 +47,7 @@ export function useUpdatePet<TContext>(
 
   return useMutation<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, { data: UpdatePetMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
-      return updatePet({ data }, config)
+      return updatePet(data, config)
     },
     mutationKey,
     ...mutationOptions,

@@ -15,7 +15,7 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  * {@link /user}
  */
 export async function createUser(
-  { data }: { data?: CreateUserMutationRequest },
+  data?: CreateUserMutationRequest,
   config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
@@ -45,7 +45,7 @@ export function useCreateUser<TContext>(
 
   return useMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
-      return createUser({ data }, config)
+      return createUser(data, config)
     },
     mutationKey,
     ...mutationOptions,

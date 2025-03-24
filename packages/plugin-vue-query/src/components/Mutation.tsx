@@ -72,7 +72,7 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
     options: {
       type: `
 {
-  mutation?: MutationObserverOptions<${[TData, TError, TRequest ? `{${TRequest}}` : 'undefined', 'TContext'].join(', ')}>,
+  mutation?: MutationObserverOptions<${[TData, TError, TRequest ? `{${TRequest}}` : 'void', 'TContext'].join(', ')}>,
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
 }
 `,
@@ -154,7 +154,7 @@ export function Mutation({
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
-  const generics = [TData, TError, TRequest ? `{${TRequest}}` : 'undefined', 'TContext'].join(', ')
+  const generics = [TData, TError, TRequest ? `{${TRequest}}` : 'void', 'TContext'].join(', ')
 
   return (
     <File.Source name={name} isExportable isIndexable>

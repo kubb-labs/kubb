@@ -1,7 +1,7 @@
 import { isNumber } from 'remeda'
-import ts, { SyntaxKind } from 'typescript'
+import ts from 'typescript'
 
-const { factory } = ts
+const { SyntaxKind, factory } = ts
 
 // https://ts-ast-viewer.com/
 

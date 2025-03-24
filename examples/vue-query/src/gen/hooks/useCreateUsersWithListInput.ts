@@ -15,7 +15,7 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
  * {@link /user/createWithList}
  */
 export async function createUsersWithListInput(
-  { data }: { data?: CreateUsersWithListInputMutationRequest },
+  data?: CreateUsersWithListInputMutationRequest,
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
@@ -50,7 +50,7 @@ export function useCreateUsersWithListInput<TContext>(
 
   return useMutation<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
-      return createUsersWithListInput({ data }, config)
+      return createUsersWithListInput(data, config)
     },
     mutationKey,
     ...mutationOptions,
