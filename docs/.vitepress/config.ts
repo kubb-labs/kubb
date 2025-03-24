@@ -180,6 +180,10 @@ const mainSidebar = [
         ],
       },
       {
+        text: '@kubb/plugin-cypress <span class="new">new in 3.7.0</span>',
+        link: '/plugins/plugin-cypress/',
+      },
+      {
         text: '@kubb/plugin-client',
         link: '/plugins/plugin-client/',
         collapsed: true,
@@ -223,10 +227,6 @@ const mainSidebar = [
       {
         text: '@kubb/plugin-redoc',
         link: '/plugins/plugin-redoc/',
-      },
-      {
-        text: '@kubb/plugin-cypress',
-        link: '/plugins/plugin-cypress/',
       },
     ],
   },
@@ -306,6 +306,10 @@ const examplesSidebar = [
     link: '/examples/fetch',
   },
   {
+    text: 'Cypress <span class="new">new in 3.7.0</span>',
+    link: '/examples/cypress',
+  },
+  {
     text: 'Advanced',
     link: '/examples/advanced',
   },
@@ -375,6 +379,10 @@ const documentationMenu = [
       {
         text: '@kubb/plugin-oas',
         link: '/plugins/plugin-oas/',
+      },
+      {
+        text: '@kubb/plugin-cypress',
+        link: '/plugins/plugin-cypress/',
       },
       {
         text: '@kubb/plugin-client',
@@ -508,6 +516,7 @@ export default defineConfig({
               '@kubb/core/transformers': ['../packages/core/src/transformers/index.ts'],
               '@kubb/fs': ['../packages/fs/src/index.ts'],
               '@kubb/fs/types': ['../packages/fs/src/types.ts'],
+              '@kubb/plugin-cypress': ['../packages/plugin-cypress/src/index.ts'],
               '@kubb/plugin-oas': ['../packages/plugin-oas/src/index.ts'],
               '@kubb/plugin-oas/hooks': ['../packages/plugin-oas/src/hooks/index.ts'],
               '@kubb/plugin-client': ['../packages/plugin-client/src/index.ts'],

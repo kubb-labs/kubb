@@ -3,28 +3,25 @@ import path from 'node:path'
 import { FileManager, type Group, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
-
-import { pluginFakerName } from '@kubb/plugin-faker'
 import { pluginTsName } from '@kubb/plugin-ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
-import { handlersGenerator, cypressGenerator } from './generators'
+import { cypressGenerator } from './generators'
 import type { PluginCypress } from './types.ts'
 
 export const pluginCypressName = 'plugin-cypress' satisfies PluginCypress['name']
 
 export const pluginCypress = createPlugin<PluginCypress>((options) => {
   const {
-    output = { path: 'handlers', barrelType: 'named' },
+    output = { path: 'cypress', barrelType: 'named' },
     group,
+    dataReturnType = 'data',
     exclude = [],
     include,
     override = [],
     transformers = {},
-    handlers = false,
-    parser = 'data',
-    generators = [cypressGenerator, handlers ? handlersGenerator : undefined].filter(Boolean),
+    generators = [cypressGenerator].filter(Boolean),
     contentType,
     baseURL,
   } = options
@@ -33,11 +30,11 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     name: pluginCypressName,
     options: {
       output,
-      parser,
+      dataReturnType,
       group,
       baseURL,
     },
-    pre: [pluginOasName, pluginTsName, parser === 'faker' ? pluginFakerName : undefined].filter(Boolean),
+    pre: [pluginOasName, pluginTsName].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
@@ -57,7 +54,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
               if (group?.type === 'path') {
                 return `${ctx.group.split('/')[1]}`
               }
-              return `${camelCase(ctx.group)}Controller`
+              return `${camelCase(ctx.group)}Requests`
             }
 
         return path.resolve(
@@ -74,7 +71,6 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     },
     resolveName(name, type) {
       const resolvedName = camelCase(name, {
-        suffix: type ? 'handler' : undefined,
         isFile: type === 'file',
       })
 

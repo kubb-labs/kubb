@@ -1,13 +1,13 @@
 {
   "name": "@kubb/plugin-cypress",
   "version": "3.6.0",
-  "description": "Generator swagger",
+  "description": "Generator cypress",
   "keywords": [
     "typescript",
     "plugins",
     "kubb",
     "codegen",
-    "swagger",
+    "cypress",
     "openapi"
   ],
   "repository": {
@@ -88,7 +88,6 @@
     "@kubb/core": "workspace:*",
     "@kubb/fs": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@kubb/plugin-faker": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/react": "workspace:*"

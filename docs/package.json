@@ -32,6 +32,7 @@
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
+    "@kubb/plugin-cypress": "workspace:*",
     "@kubb/plugin-faker": "workspace:*",
     "@kubb/plugin-msw": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",

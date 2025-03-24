@@ -1,5 +1,3 @@
-import type DeletePetsPetidMutationResponse from 'deletePet.ts'
-
-export function deletePetsPetid(data?: DeletePetsPetidMutationResponse): Chainable<DeletePetsPetidMutationResponse> {
-  return cy.request('delete', '/pets/:petId', data || undefined)
+export function deletePetsPetid(): Cypress.Chainable<DeletePetsPetidMutationResponse> {
+  return cy.request('delete', '/pets/:petId', undefined).then((res: Cypress.Response<DeletePetsPetidMutationResponse>) => res.body)
 }

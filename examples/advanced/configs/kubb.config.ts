@@ -3,6 +3,7 @@
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
+import { pluginCypress } from '@kubb/plugin-cypress'
 import { pluginMsw } from '@kubb/plugin-msw'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
@@ -175,6 +176,13 @@ export default defineConfig(() => {
             return `${name}Faker`
           },
         },
+      }),
+      pluginCypress({
+        output: {
+          path: 'cypress',
+          barrelType: false,
+        },
+        group: { type: 'tag' },
       }),
       pluginMsw({
         output: {

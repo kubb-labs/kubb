@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.7.0
+- [`plugin-cypress`](/plugins/plugin-cypress): support for `cy.request` with new plugin `@kubb/plugin-cypress`
+
 ## 3.6.4
 - [`plugin-react-query`](/plugins/plugin-react-query/): `TVariables` set to `void` as default
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): `TVariables` set to `void` as default

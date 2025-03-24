@@ -6,7 +6,7 @@ import type { Exclude, Include, Override, ResolvePathOptions, Generator } from '
 export type Options = {
   /**
    * Specify the export location for the files and define the behavior of the output
-   * @default { path: 'mocks', barrelType: 'named' }
+   * @default { path: 'cypress', barrelType: 'named' }
    */
   output?: Output<Oas>
   /**
@@ -14,6 +14,13 @@ export type Options = {
    * By default, the first JSON valid mediaType will be used
    */
   contentType?: contentType
+  /**
+   * ReturnType that will be used when calling cy.request.
+   * - 'data' will return ResponseConfig[data].
+   * - 'full' will return ResponseConfig.
+   * @default 'data'
+   */
+  dataReturnType?: 'data' | 'full'
   baseURL?: string
   /**
    * Group the Cypress requests based on the provided name.
@@ -38,18 +45,6 @@ export type Options = {
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
   /**
-   * Create `handlers.ts` file with all handlers grouped by methods.
-   * @default false
-   */
-  handlers?: boolean
-  /**
-   * Which parser should be used before returning the data to the `Response` of Cypress.
-   *  - `'faker'` will use `@kubb/plugin-faker` to generate the data for the response
-   *  - `'data'` will use your custom data to generate the data for the response
-   * @default 'data'
-   */
-  parser?: 'data' | 'faker'
-  /**
    * Define some generators next to the Cypress generators.
    */
   generators?: Array<Generator<PluginCypress>>
@@ -58,8 +53,8 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
-  parser: NonNullable<Options['parser']>
   baseURL: Options['baseURL'] | undefined
+  dataReturnType: NonNullable<Options['dataReturnType']>
 }
 
 export type PluginCypress = PluginFactoryOptions<'plugin-cypress', Options, ResolvedOptions, never, ResolvePathOptions>

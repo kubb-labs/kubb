@@ -47,7 +47,7 @@ Path to the output folder or file that will contain the generated code.
 |----------:|:----------|
 |     Type: | `string`  |
 | Required: | `true`    |
-|  Default: | `'mocks'` |
+|  Default: | `'cypress'` |
 
 #### output.barrelType
 
@@ -80,15 +80,6 @@ Add a footer text at the end of every file.
 |     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
-### handlers
-Create `handlers.ts` file with all handlers grouped by methods.
-
-|           |           |
-|----------:|:----------|
-|     Type: | `boolean` |
-| Required: | `false`   |
-|  Default: | `false`   |
-
 ### contentType
 <!--@include: ../core/contentType.md-->
 
@@ -116,19 +107,7 @@ Return the name of a group based on the group name, this will be used for the fi
 |----------:|:------------------------------------|
 |     Type: | `(context: GroupContext) => string` |
 | Required: | `false`                             |
-|  Default: | `(ctx) => '${ctx.group}Controller'`  |
-
-### parser
-Which parser should be used before returning the data to the `Response` of MSW.
-
-|           |                     |
-|----------:|:--------------------|
-|     Type: | `'data' \| 'faker'` |
-| Required: | `false`             |
-|  Default: | `'data'`            |
-
-- `'faker'` will use `@kubb/plugin-faker` to generate the data for the response.
-- `'data'` will use your custom data to generate the data for the response.
+|  Default: | `(ctx) => '${ctx.group}Requests'`   |
 
 ### include
 <!--@include: ../core/include.md-->
@@ -190,13 +169,12 @@ export default defineConfig({
       },
       group: {
         type: 'tag',
-        name: ({ group }) => `${group}Service`,
+        name: ({ group }) => `${group}Requests`,
       },
-      handlers: true
     }),
   ],
 })
 ```
 ## Links
 
-- [MSW](https://mswjs.io/)
+- [Cypress](https://docs.cypress.io/)

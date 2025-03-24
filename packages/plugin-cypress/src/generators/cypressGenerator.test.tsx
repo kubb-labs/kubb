@@ -25,15 +25,6 @@ describe('cypressGenerator operation', async () => {
       options: {},
     },
     {
-      name: 'getPetsFaker',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'get',
-      options: {
-        parser: 'faker',
-      },
-    },
-    {
       name: 'createPet',
       input: '../../mocks/petStore.yaml',
       path: '/pets',
@@ -62,9 +53,9 @@ describe('cypressGenerator operation', async () => {
       output: {
         path: '.',
       },
-      parser: 'data',
       baseURL: undefined,
       group: undefined,
+      dataReturnType: 'data',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginCypress>
