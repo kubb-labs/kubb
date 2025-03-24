@@ -6,4 +6,4 @@
 "@kubb/plugin-vue-query": patch
 ---
 
-`TVariables` set to `void` as default
+TVariables set to void as default
