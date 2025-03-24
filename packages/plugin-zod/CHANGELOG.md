@@ -1,5 +1,20 @@
 # @kubb/plugin-zod
 
+## 3.6.5
+
+### Patch Changes
+
+- [`27739c3`](https://github.com/kubb-labs/kubb/commit/27739c350cd9406cb86fbe58e308ccd628e5635c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - zod omit instead of z.never
+
+- Updated dependencies []:
+  - @kubb/core@3.6.5
+  - @kubb/fs@3.6.5
+  - @kubb/oas@3.6.5
+  - @kubb/parser-ts@3.6.5
+  - @kubb/plugin-oas@3.6.5
+  - @kubb/plugin-ts@3.6.5
+  - @kubb/react@3.6.5
+
 ## 3.6.4
 
 ### Patch Changes
