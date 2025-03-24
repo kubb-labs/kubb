@@ -14,12 +14,13 @@ export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
  * @summary Deletes a pet
  * {@link /pet/:petId}
  */
-export function useDeletePet(
+export function useDeletePet<TContext>(
   options: {
     mutation?: UseMutationOptions<
       ResponseConfig<DeletePetMutationResponse>,
       ResponseErrorConfig<DeletePet400>,
-      { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }
+      { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
+      TContext
     >
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
@@ -30,7 +31,8 @@ export function useDeletePet(
   return useMutation<
     ResponseConfig<DeletePetMutationResponse>,
     ResponseErrorConfig<DeletePet400>,
-    { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }
+    { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
+    TContext
   >({
     mutationFn: async ({ petId, headers }) => {
       return deletePet({ petId, headers }, config)

@@ -55,29 +55,22 @@
     "@changesets/cli": "^2.28.1",
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
-    "@types/node": "^20.17.19",
-    "@vitest/coverage-v8": "^3.0.7",
-    "@vitest/ui": "^3.0.7",
-    "bun-types": "^1.2.4",
+    "@types/node": "^20.17.27",
+    "@vitest/coverage-v8": "^3.0.9",
+    "@vitest/ui": "^3.0.9",
+    "bun-types": "^1.2.5",
     "rimraf": "^6.0.1",
+    "taze": "^19.0.2",
     "ts-node": "^10.9.2",
     "turbo": "^2.4.4",
     "typescript": "catalog:",
-    "vite-tsconfig-paths": "5.1.0",
-    "vitest": "^3.0.7"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.9"
   },
   "packageManager": "pnpm@10.4.1",
   "engines": {
     "node": ">=20",
     "pnpm": ">=8.15.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "@changesets/assemble-release-plan": "6.0.0"
-    },
-    "patchedDependencies": {
-      "@changesets/assemble-release-plan@6.0.0": "patches/@changesets__assemble-release-plan@6.0.0.patch"
-    }
   },
   "namespace": "@kubb"
 }

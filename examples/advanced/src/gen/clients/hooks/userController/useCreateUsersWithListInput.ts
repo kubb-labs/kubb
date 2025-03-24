@@ -17,12 +17,13 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
  * @summary Creates list of users with given input array
  * {@link /user/createWithList}
  */
-export function useCreateUsersWithListInput(
+export function useCreateUsersWithListInput<TContext>(
   options: {
     mutation?: UseMutationOptions<
       ResponseConfig<CreateUsersWithListInputMutationResponse>,
       ResponseErrorConfig<Error>,
-      { data?: CreateUsersWithListInputMutationRequest }
+      { data?: CreateUsersWithListInputMutationRequest },
+      TContext
     >
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client }
   } = {},
@@ -30,7 +31,12 @@ export function useCreateUsersWithListInput(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
 
-  return useMutation<ResponseConfig<CreateUsersWithListInputMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }>({
+  return useMutation<
+    ResponseConfig<CreateUsersWithListInputMutationResponse>,
+    ResponseErrorConfig<Error>,
+    { data?: CreateUsersWithListInputMutationRequest },
+    TContext
+  >({
     mutationFn: async ({ data }) => {
       return createUsersWithListInput({ data }, config)
     },

@@ -29,21 +29,21 @@
     "@kubb/plugin-react-query": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@tanstack/react-query": "^5.66.9",
-    "@tanstack/react-query-devtools": "^5.66.9",
-    "axios": "^1.8.1",
+    "@tanstack/react-query": "^5.69.0",
+    "@tanstack/react-query-devtools": "^5.69.0",
+    "axios": "^1.8.4",
     "react": "^18.3.1",
     "react-dom": "^19.0.0",
     "unplugin-kubb": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "^18.3.18",
+    "@types/react": "^18.3.20",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
     "msw": "^1.3.5",
     "tsup": "^8.4.0",
-    "typescript": "^5.7.3",
-    "vite": "^6.2.0"
+    "typescript": "^5.8.2",
+    "vite": "^6.2.3"
   },
   "packageManager": "pnpm@9.15.5",
   "engines": {

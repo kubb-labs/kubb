@@ -14,23 +14,20 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
  * @summary Logs user into the system
  * {@link /user/login}
  */
-export async function loginUser({ params }: { params?: LoginUserQueryParams }, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+export async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
   const { client: request = client, ...requestConfig } = config
 
   const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...requestConfig })
   return res.data
 }
 
-export function loginUserQueryOptions(
-  { params }: { params?: MaybeRef<LoginUserQueryParams> },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
-) {
+export function loginUserQueryOptions(params?: MaybeRef<LoginUserQueryParams>, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
   const queryKey = loginUserQueryKey(params)
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return loginUser(unref({ params: unref(params) }), unref(config))
+      return loginUser(unref(params), unref(config))
     },
   })
 }
@@ -40,7 +37,7 @@ export function loginUserQueryOptions(
  * {@link /user/login}
  */
 export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginUserQueryResponse, TQueryKey extends QueryKey = LoginUserQueryKey>(
-  { params }: { params?: MaybeRef<LoginUserQueryParams> },
+  params?: MaybeRef<LoginUserQueryParams>,
   options: {
     query?: Partial<QueryObserverOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, TData, TQueryData, TQueryKey>>
     client?: Partial<RequestConfig> & { client?: typeof client }
@@ -50,7 +47,7 @@ export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginU
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
 
   const query = useQuery({
-    ...(loginUserQueryOptions({ params }, config) as unknown as QueryObserverOptions),
+    ...(loginUserQueryOptions(params, config) as unknown as QueryObserverOptions),
     queryKey: queryKey as QueryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, ResponseErrorConfig<LoginUser400>> & { queryKey: TQueryKey }

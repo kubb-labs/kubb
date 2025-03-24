@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-oas",
-  "version": "3.6.1",
+  "version": "3.6.4",
   "description": "Generator swagger",
   "keywords": [
     "typescript",
@@ -90,7 +90,7 @@
     "@kubb/oas": "workspace:*",
     "@kubb/react": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
-    "remeda": "^2.21.0"
+    "remeda": "catalog:"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

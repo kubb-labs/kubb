@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "3.6.1",
+  "version": "3.6.4",
   "description": "Generator core",
   "keywords": [
     "typescript",
@@ -94,7 +94,7 @@
     "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",
     "p-queue": "^8.1.0",
-    "remeda": "^2.21.0",
+    "remeda": "catalog:",
     "seedrandom": "^3.0.5",
     "semver": "^7.7.1"
   },
@@ -104,8 +104,8 @@
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
-    "consola": "^3.4.0",
-    "prettier": "^3.5.2",
+    "consola": "^3.4.2",
+    "prettier": "^3.5.3",
     "tinyrainbow": "^1.2.0",
     "tsup": "catalog:",
     "typescript": "catalog:"

@@ -95,12 +95,13 @@ export async function updatePet(data: UpdatePetMutationRequest, config: Partial<
  * @summary Update an existing pet
  * {@link /pet}
  */
-export function useUpdatePet(
+export function useUpdatePet<TContext>(
   options: {
     mutation?: UseMutationOptions<
       UpdatePetMutationResponse,
       ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
-      { data: UpdatePetMutationRequest }
+      { data: UpdatePetMutationRequest },
+      TContext
     >
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client }
   } = {},
@@ -108,7 +109,7 @@ export function useUpdatePet(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
 
-  return useMutation<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, { data: UpdatePetMutationRequest }>({
+  return useMutation<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, { data: UpdatePetMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
       return updatePet(data, config)
     },
@@ -143,16 +144,16 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
  * @summary Add a new pet to the store
  * {@link /pet}
  */
-export function useAddPet(
+export function useAddPet<TContext>(
   options: {
-    mutation?: UseMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }>
+    mutation?: UseMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>
     client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
 
-  return useMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }>({
+  return useMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
       return addPet(data, config)
     },
@@ -557,12 +558,13 @@ export async function updatePetWithForm(
  * @summary Updates a pet in the store with form data
  * {@link /pet/:petId}
  */
-export function useUpdatePetWithForm(
+export function useUpdatePetWithForm<TContext>(
   options: {
     mutation?: UseMutationOptions<
       UpdatePetWithFormMutationResponse,
       ResponseErrorConfig<UpdatePetWithForm405>,
-      { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams }
+      { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
+      TContext
     >
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
@@ -573,7 +575,8 @@ export function useUpdatePetWithForm(
   return useMutation<
     UpdatePetWithFormMutationResponse,
     ResponseErrorConfig<UpdatePetWithForm405>,
-    { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams }
+    { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
+    TContext
   >({
     mutationFn: async ({ petId, params }) => {
       return updatePetWithForm(petId, params, config)
@@ -613,12 +616,13 @@ export async function deletePet(
  * @summary Deletes a pet
  * {@link /pet/:petId}
  */
-export function useDeletePet(
+export function useDeletePet<TContext>(
   options: {
     mutation?: UseMutationOptions<
       DeletePetMutationResponse,
       ResponseErrorConfig<DeletePet400>,
-      { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }
+      { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
+      TContext
     >
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
@@ -626,7 +630,12 @@ export function useDeletePet(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
 
-  return useMutation<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }>({
+  return useMutation<
+    DeletePetMutationResponse,
+    ResponseErrorConfig<DeletePet400>,
+    { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
+    TContext
+  >({
     mutationFn: async ({ petId, headers }) => {
       return deletePet(petId, headers, config)
     },
@@ -666,12 +675,13 @@ export async function uploadFile(
  * @summary uploads an image
  * {@link /pet/:petId/uploadImage}
  */
-export function useUploadFile(
+export function useUploadFile<TContext>(
   options: {
     mutation?: UseMutationOptions<
       UploadFileMutationResponse,
       ResponseErrorConfig<Error>,
-      { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
+      { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+      TContext
     >
     client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client }
   } = {},
@@ -682,7 +692,8 @@ export function useUploadFile(
   return useMutation<
     UploadFileMutationResponse,
     ResponseErrorConfig<Error>,
-    { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
+    { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+    TContext
   >({
     mutationFn: async ({ petId, data, params }) => {
       return uploadFile(petId, data, params, config)
@@ -829,16 +840,16 @@ export async function placeOrder(
  * @summary Place an order for a pet
  * {@link /store/order}
  */
-export function usePlaceOrder(
+export function usePlaceOrder<TContext>(
   options: {
-    mutation?: UseMutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }>
+    mutation?: UseMutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>
     client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderMutationKey()
 
-  return useMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }>({
+  return useMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
       return placeOrder(data, config)
     },
@@ -876,16 +887,16 @@ export async function placeOrderPatch(
  * @summary Place an order for a pet with patch
  * {@link /store/order}
  */
-export function usePlaceOrderPatch(
+export function usePlaceOrderPatch<TContext>(
   options: {
-    mutation?: UseMutationOptions<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }>
+    mutation?: UseMutationOptions<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>
     client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderPatchMutationKey()
 
-  return useMutation<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }>({
+  return useMutation<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
       return placeOrderPatch(data, config)
     },
@@ -1040,12 +1051,13 @@ export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], con
  * @summary Delete purchase order by ID
  * {@link /store/order/:orderId}
  */
-export function useDeleteOrder(
+export function useDeleteOrder<TContext>(
   options: {
     mutation?: UseMutationOptions<
       DeleteOrderMutationResponse,
       ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
-      { orderId: DeleteOrderPathParams['orderId'] }
+      { orderId: DeleteOrderPathParams['orderId'] },
+      TContext
     >
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
@@ -1053,7 +1065,12 @@ export function useDeleteOrder(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
 
-  return useMutation<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, { orderId: DeleteOrderPathParams['orderId'] }>({
+  return useMutation<
+    DeleteOrderMutationResponse,
+    ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
+    { orderId: DeleteOrderPathParams['orderId'] },
+    TContext
+  >({
     mutationFn: async ({ orderId }) => {
       return deleteOrder(orderId, config)
     },
@@ -1091,16 +1108,16 @@ export async function createUser(
  * @summary Create user
  * {@link /user}
  */
-export function useCreateUser(
+export function useCreateUser<TContext>(
   options: {
-    mutation?: UseMutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }>
+    mutation?: UseMutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>
     client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
 
-  return useMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }>({
+  return useMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
       return createUser(data, config)
     },
@@ -1138,16 +1155,21 @@ export async function createUsersWithListInput(
  * @summary Creates list of users with given input array
  * {@link /user/createWithList}
  */
-export function useCreateUsersWithListInput(
+export function useCreateUsersWithListInput<TContext>(
   options: {
-    mutation?: UseMutationOptions<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }>
+    mutation?: UseMutationOptions<
+      CreateUsersWithListInputMutationResponse,
+      ResponseErrorConfig<Error>,
+      { data?: CreateUsersWithListInputMutationRequest },
+      TContext
+    >
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
 
-  return useMutation<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }>({
+  return useMutation<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
       return createUsersWithListInput(data, config)
     },
@@ -1520,12 +1542,13 @@ export async function updateUser(
  * @summary Update user
  * {@link /user/:username}
  */
-export function useUpdateUser(
+export function useUpdateUser<TContext>(
   options: {
     mutation?: UseMutationOptions<
       UpdateUserMutationResponse,
       ResponseErrorConfig<Error>,
-      { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }
+      { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+      TContext
     >
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client }
   } = {},
@@ -1533,7 +1556,12 @@ export function useUpdateUser(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
 
-  return useMutation<UpdateUserMutationResponse, ResponseErrorConfig<Error>, { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }>({
+  return useMutation<
+    UpdateUserMutationResponse,
+    ResponseErrorConfig<Error>,
+    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    TContext
+  >({
     mutationFn: async ({ username, data }) => {
       return updateUser(username, data, config)
     },
@@ -1567,12 +1595,13 @@ export async function deleteUser(username: DeleteUserPathParams['username'], con
  * @summary Delete user
  * {@link /user/:username}
  */
-export function useDeleteUser(
+export function useDeleteUser<TContext>(
   options: {
     mutation?: UseMutationOptions<
       DeleteUserMutationResponse,
       ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
-      { username: DeleteUserPathParams['username'] }
+      { username: DeleteUserPathParams['username'] },
+      TContext
     >
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
@@ -1580,7 +1609,7 @@ export function useDeleteUser(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
 
-  return useMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, { username: DeleteUserPathParams['username'] }>({
+  return useMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, { username: DeleteUserPathParams['username'] }, TContext>({
     mutationFn: async ({ username }) => {
       return deleteUser(username, config)
     },

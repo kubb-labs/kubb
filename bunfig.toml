@@ -1,2 +1,0 @@
-;[test]
-preload = ['./configs/setup.ts']

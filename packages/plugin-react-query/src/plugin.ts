@@ -28,7 +28,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     infinite = false,
     transformers = {},
     paramsType = 'inline',
-    pathParamsType = 'inline',
+    pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
     generators = [queryGenerator, suspenseQueryGenerator, infiniteQueryGenerator, mutationGenerator].filter(Boolean),
     mutation = {},
     query = {},
@@ -45,6 +45,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       client: {
         importPath: '@kubb/plugin-client/clients/axios',
         dataReturnType: 'data',
+        pathParamsType,
         ...options.client,
       },
       infinite: infinite
@@ -72,7 +73,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         ...mutation,
       },
       paramsType,
-      pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
+      pathParamsType,
       parser,
       paramsCasing,
       group,

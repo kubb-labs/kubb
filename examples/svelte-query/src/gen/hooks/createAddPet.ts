@@ -30,16 +30,16 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
  * @summary Add a new pet to the store
  * {@link /pet}
  */
-export function createAddPet(
+export function createAddPet<TContext>(
   options: {
-    mutation?: CreateMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }>
+    mutation?: CreateMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>
     client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
 
-  return createMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }>({
+  return createMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
       return addPet(data, config)
     },

@@ -33,16 +33,16 @@ export async function placeOrderPatchHook(
  * @summary Place an order for a pet with patch
  * {@link /store/order}
  */
-export function usePlaceOrderPatchHook(
+export function usePlaceOrderPatchHook<TContext>(
   options: {
-    mutation?: UseMutationOptions<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }>
+    mutation?: UseMutationOptions<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>
     client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderPatchMutationKey()
 
-  return useMutation<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }>({
+  return useMutation<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>({
     mutationFn: async ({ data }) => {
       return placeOrderPatchHook(data, config)
     },

@@ -15,7 +15,8 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
  * {@link /user/:username}
  */
 export async function updateUser(
-  { username, data }: { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+  { username }: { username: UpdateUserPathParams['username'] },
+  data?: UpdateUserMutationRequest,
   config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
@@ -34,12 +35,13 @@ export async function updateUser(
  * @summary Update user
  * {@link /user/:username}
  */
-export function useUpdateUser(
+export function useUpdateUser<TContext>(
   options: {
     mutation?: MutationObserverOptions<
       UpdateUserMutationResponse,
       ResponseErrorConfig<Error>,
-      { username: MaybeRef<UpdateUserPathParams['username']>; data?: MaybeRef<UpdateUserMutationRequest> }
+      { username: MaybeRef<UpdateUserPathParams['username']>; data?: MaybeRef<UpdateUserMutationRequest> },
+      TContext
     >
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client }
   } = {},
@@ -47,9 +49,14 @@ export function useUpdateUser(
   const { mutation: mutationOptions, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
 
-  return useMutation<UpdateUserMutationResponse, ResponseErrorConfig<Error>, { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }>({
+  return useMutation<
+    UpdateUserMutationResponse,
+    ResponseErrorConfig<Error>,
+    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    TContext
+  >({
     mutationFn: async ({ username, data }) => {
-      return updateUser({ username, data }, config)
+      return updateUser({ username }, data, config)
     },
     mutationKey,
     ...mutationOptions,
