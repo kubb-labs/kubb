@@ -37,11 +37,20 @@ export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, co
     .filter(Boolean)
     .join('')
 
-  let suffix = output.endsWith('.nullable()') ? '.unwrap()' : ''
+  let suffix = ''
 
-  if (output.startsWith('z.lazy')) {
-    suffix = `${suffix}.schema`
+  if (output.endsWith('.nullable()')) {
+    if (output.startsWith('z.lazy')) {
+      suffix = '.unwrap().schema.unwrap()'
+    } else {
+      suffix = '.unwrap()'
+    }
+  } else {
+    if (output.startsWith('z.lazy')) {
+      suffix = '.schema'
+    }
   }
+
   const baseSchemaOutput =
     [output, keysToOmit?.length ? `${suffix}.omit({ ${keysToOmit.map((key) => `${key}: true`).join(',')} })` : undefined].filter(Boolean).join('') ||
     'z.undefined()'
