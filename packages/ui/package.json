@@ -1,18 +1,17 @@
 {
-  "name": "@kubb/cli",
+  "name": "@kubb/ui",
   "version": "3.7.0",
-  "description": "Generator cli",
+  "description": "Kubb ui",
   "keywords": [
     "typescript",
     "plugins",
     "kubb",
-    "codegen",
-    "cli"
+    "ui"
   ],
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-labs/kubb.git",
-    "directory": "packages/cli"
+    "directory": "packages/ui"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
@@ -23,18 +22,19 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
-    }
+    },
+    "./package.json": "./package.json",
+    "./*": "./*"
   },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
-  "bin": {
-    "kubb": "bin/kubb.cjs"
+  "typesVersions": {
+    "*": {}
   },
   "files": [
     "src",
     "dist",
-    "bin",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
@@ -51,34 +51,22 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/ui": "workspace:*",
-    "chokidar": "^4.0.3",
-    "citty": "^0.1.6",
-    "cli-progress": "^3.12.0",
-    "consola": "^3.4.2",
-    "cosmiconfig": "^9.0.0",
-    "execa": "^9.5.2",
-    "jiti": "^2.4.2",
-    "latest-version": "^9.0.0",
-    "p-queue": "^8.1.0",
-    "semver": "^7.7.1",
-    "string-argv": "^0.3.2"
+    "@hono/node-server": "^1.14.0",
+    "@hono/zod-openapi": "^0.19.2",
+    "hono": "^4.7.5",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
-    "@types/cli-progress": "^3.11.6",
-    "@types/node": "^20.17.27",
-    "@types/semver": "^7.5.8",
-    "source-map-support": "^0.5.21",
+    "consola": "^3.4.2",
+    "prettier": "^3.5.3",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },
   "engines": {
     "node": ">=20"
   },
-  "preferGlobal": true,
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"

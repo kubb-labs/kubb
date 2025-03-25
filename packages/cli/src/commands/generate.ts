@@ -1,6 +1,6 @@
 import { defineCommand, showUsage } from 'citty'
 import type { ArgsDef, ParsedArgs } from 'citty'
-import c from 'tinyrainbow'
+import { colors } from 'consola/utils'
 
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
@@ -41,6 +41,12 @@ const args = {
     alias: 'd',
     default: false,
   },
+  ui: {
+    type: 'boolean',
+    description: 'Open ui',
+    alias: 'u',
+    default: false,
+  },
   help: {
     type: 'boolean',
     description: 'Show help',
@@ -78,7 +84,7 @@ const command = defineCommand({
     logger.emit('start', 'Loading config')
 
     const result = await getCosmiConfig('kubb', args.config)
-    logger.emit('success', `Config loaded(${c.dim(path.relative(process.cwd(), result.filepath))})`)
+    logger.emit('success', `Config loaded(${colors.dim(path.relative(process.cwd(), result.filepath))})`)
 
     const config = await getConfig(result, args)
 
@@ -90,7 +96,7 @@ const command = defineCommand({
       if (isInputPath(config)) {
         return startWatcher([input || config.input.path], async (paths) => {
           await generate({ config, args, input })
-          logger.emit('start', c.yellow(c.bold(`Watching for changes in ${paths.join(' and ')}`)))
+          logger.emit('start', colors.yellow(colors.bold(`Watching for changes in ${paths.join(' and ')}`)))
         })
       }
     }

@@ -1,13 +1,14 @@
 import { LogMapper } from '@kubb/core/logger'
 
-import c from 'tinyrainbow'
+import { colors } from 'consola/utils'
 
-import { type Config, safeBuild } from '@kubb/core'
+import { type Config, safeBuild, setup } from '@kubb/core'
 import { executeHooks } from './utils/executeHooks.ts'
 import { getErrorCauses } from './utils/getErrorCauses.ts'
 import { getSummary } from './utils/getSummary.ts'
 
 import { createLogger } from '@kubb/core/logger'
+import { startServer } from '@kubb/ui'
 import { Presets, SingleBar } from 'cli-progress'
 import type { Args } from './commands/generate.ts'
 
@@ -19,16 +20,16 @@ type GenerateProps = {
 
 export async function generate({ input, config, args }: GenerateProps): Promise<void> {
   const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
+  const ui = args.ui || false
   const logger = createLogger({
     logLevel,
     name: config.name,
   })
+  const progressCache = new Map<string, SingleBar>()
   const { root = process.cwd(), ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
   if (logger.logLevel !== LogMapper.debug) {
-    const progressCache = new Map<string, SingleBar>()
-
     logger.on('progress_start', ({ id, size, message = '' }) => {
       logger.consola?.pauseLogs()
       const payload = { id, message }
@@ -60,7 +61,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     })
   }
 
-  logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
+  logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? colors.dim(inputPath!) : ''}`)
 
   const definedConfig: Config = {
     root,
@@ -81,8 +82,32 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     },
   }
   const hrStart = process.hrtime()
-  const { pluginManager, files, error } = await safeBuild({
+  const pluginManager = await setup({
     config: definedConfig,
+    logger,
+  })
+
+  if (ui) {
+    await startServer(
+      {
+        pluginManager,
+        getPercentage: () => {
+          const entries = [...progressCache.entries()]
+
+          return entries.reduce((_acc, [_key, singleBar]) => {
+            return singleBar.getProgress()
+          }, 0)
+        },
+      },
+      (info) => {
+        logger.consola?.start(`Starting ui on ${info.address} and port ${info.port}`)
+      },
+    )
+  }
+
+  const { files, error } = await safeBuild({
+    config: definedConfig,
+    pluginManager,
     logger,
   })
 
@@ -104,7 +129,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
 
   if (error && logger.consola) {
     logger.consola?.resumeLogs()
-    logger.consola.error(`Build failed ${logger.logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
+    logger.consola.error(`Build failed ${logger.logLevel !== LogMapper.silent ? colors.dim(inputPath!) : ''}`)
 
     logger.consola.box({
       title: `${config.name || ''}`,
@@ -132,7 +157,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     await executeHooks({ hooks: config.hooks, logger })
   }
 
-  logger.consola?.log(`⚡Build completed ${logger.logLevel !== LogMapper.silent ? c.dim(inputPath) : ''}`)
+  logger.consola?.log(`⚡Build completed ${logger.logLevel !== LogMapper.silent ? colors.dim(inputPath!) : ''}`)
 
   logger.consola?.box({
     title: `${config.name || ''}`,
