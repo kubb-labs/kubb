@@ -21,10 +21,10 @@ function Status(){
 
       return response.json() as Promise<{percentage?: number}>
 
-    },  refetchInterval: 1000, })
+    },  refetchInterval: 200, })
+console.log(data?.percentage* 100)
 
   return <>
-    <Button color="primary">Button</Button>
     <Progress aria-label="Loading..." size="lg" value={data?.percentage* 100} />
     <p>Status: {JSON.stringify(data, null,2 )}</p>
   </>

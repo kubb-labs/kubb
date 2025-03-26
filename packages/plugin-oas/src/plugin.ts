@@ -149,6 +149,12 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       const operationFiles = await operationGenerator.build(...generators)
 
       await this.addFile(...operationFiles)
+
+      await new Promise((resolve)=>{
+        setTimeout(()=>{
+resolve(true)
+        },2000)
+      })
     },
   }
 })
