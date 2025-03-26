@@ -1,6 +1,7 @@
 import { z } from '@hono/zod-openapi'
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi'
 import { serve } from '@hono/node-server'
+import { cors } from 'hono/cors'
 import type { AddressInfo } from 'node:net'
 import type { PluginManager } from '@kubb/core'
 

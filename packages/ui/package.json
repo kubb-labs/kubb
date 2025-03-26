@@ -39,30 +39,38 @@
     "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && vite build",
+    "start": "vite",
+    "preview": "vite preview",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --apply-unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/core": "workspace:*",
     "@hono/node-server": "^1.14.0",
     "@hono/zod-openapi": "^0.19.2",
+    "@kubb/core": "workspace:*",
     "hono": "^4.7.5",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
+    "@tanstack/react-query": "^5.69.0",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react-swc": "^3.8.0",
     "consola": "^3.4.2",
     "prettier": "^3.5.3",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "tsup": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "^6.2.0"
   },
   "engines": {
     "node": ">=20"
