@@ -118,7 +118,7 @@ Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
 ::: code-group
 ```typescript ['string']
-faker.string.alpha()
+faker.date.anytime().toISOString()
 ```
 
 ```typescript ['date']
@@ -144,10 +144,10 @@ Which parser should be used when dateType is set to 'string'.
 
 ```typescript [undefined]
 // schema with format set to 'date'
-faker.date.anytime().toString()
+faker.date.anytime().toISOString().substring(0, 10)
 
 // schema with format set to 'time'
-faker.date.anytime().toString()
+faker.date.anytime().toISOString().substring(11, 19)
 
 ```
 
