@@ -6,6 +6,7 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 import './App.css'
+import {Progress, Button} from "@heroui/react";
 
 const queryClient = new QueryClient()
 
@@ -13,13 +14,17 @@ function Status(){
   const {
     data
   } = useQuery({ queryKey: ['todos'], queryFn: async ()=>{
-      const response = await fetch('http://localhost:8787/status');
+      const response = await fetch('/api/status');
 
-      return response.json()
+      return response.json() as Promise<{percentage?: number}>
 
-    },  refetchInterval: 50, })
+    },  refetchInterval: 1000, })
 
-  return <p>Status: {JSON.stringify(data, null,2 )}</p>
+  return <>
+    <Button color="primary">Button</Button>
+    <Progress aria-label="Loading..." size="lg" value={data?.percentage} />
+  <p>Status: {JSON.stringify(data, null,2 )}</p>
+    </>
 }
 
 function App() {

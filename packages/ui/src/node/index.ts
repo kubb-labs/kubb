@@ -4,6 +4,7 @@ import { serve } from '@hono/node-server'
 import { cors } from 'hono/cors'
 import type { AddressInfo } from 'node:net'
 import type { PluginManager } from '@kubb/core'
+import {Hono} from "hono";
 
 const StatusSchema = z
   .object({
@@ -35,7 +36,9 @@ type Options = {
 
 export async function startServer(options: Options, listeningListener?: (info: AddressInfo) => void) {
   const { pluginManager, getPercentage } = options
-  const app = new OpenAPIHono()
+
+  const app = new Hono();
+  const api = new OpenAPIHono()
   const executed = new Set()
 
   pluginManager.events.on('executing', ({ plugin, hookName }) => {
@@ -45,17 +48,19 @@ export async function startServer(options: Options, listeningListener?: (info: A
     })
   })
 
-  app.openapi(route, (c) => {
+  api.use('*', cors());
+
+  api.openapi(route, (c) => {
     return c.json(
       {
         percentage: getPercentage(),
-        executed: [...executed.values()],
+        // executed: [...executed.values()],
       },
       200,
     )
   })
 
-  app.doc('/doc', {
+  api.doc('/doc', {
     openapi: '3.0.0',
     info: {
       version: '1.0.0',
@@ -63,10 +68,12 @@ export async function startServer(options: Options, listeningListener?: (info: A
     },
   })
 
+  app.route('/api', api);
+
   return serve(
     {
       fetch: app.fetch,
-      port: 8787,
+      port: 9000,
     },
     listeningListener,
   )
