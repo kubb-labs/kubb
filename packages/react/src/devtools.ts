@@ -2,7 +2,7 @@ import { onExit } from 'signal-exit'
 import ws from 'ws'
 
 declare global {
-  var WebSocket: any
+  var WebSocket: typeof WebSocket
   var self: any
   var window: any
   var isDevtoolsEnabled: any

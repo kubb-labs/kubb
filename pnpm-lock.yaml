@@ -1845,8 +1845,8 @@ importers:
         specifier: ^9.5.2
         version: 9.5.2
       natural-orderby:
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: ^5.0.0
+        version: 5.0.0
       react:
         specifier: catalog:react18
         version: 18.3.1
