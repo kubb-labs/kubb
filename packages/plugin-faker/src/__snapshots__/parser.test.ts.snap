@@ -20,7 +20,7 @@ exports[`faker parse > 'boolean' 1`] = `"faker.datatype.boolean()"`;
 
 exports[`faker parse > 'catchall' 1`] = `"{}"`;
 
-exports[`faker parse > 'date' 1`] = `"faker.date.anytime().toString()"`;
+exports[`faker parse > 'date' 1`] = `"faker.date.anytime().toISOString().substring(0, 10)"`;
 
 exports[`faker parse > 'datetime' 1`] = `"faker.date.anytime().toISOString()"`;
 
@@ -54,7 +54,7 @@ exports[`faker parse > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha(),"a
 
 exports[`faker parse > 'objectArray' 1`] = `"{"ids": faker.helpers.multiple(() => (faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$'))), { count: { min: 3, max: 10 }}) as any}"`;
 
-exports[`faker parse > 'objectDates' 1`] = `"{"dateTime": faker.date.anytime().toISOString(),"date": faker.date.anytime().toString(),"time": faker.date.anytime().toString(),"nativeDate": faker.date.anytime()}"`;
+exports[`faker parse > 'objectDates' 1`] = `"{"dateTime": faker.date.anytime().toISOString(),"date": faker.date.anytime().toISOString().substring(0, 10),"time": faker.date.anytime().toISOString().substring(11, 19),"nativeDate": faker.date.anytime()}"`;
 
 exports[`faker parse > 'objectEmpty' 1`] = `"{}"`;
 
@@ -72,7 +72,7 @@ exports[`faker parse > 'stringLocal' 1`] = `"faker.date.anytime().toISOString()"
 
 exports[`faker parse > 'stringOffset' 1`] = `"faker.date.anytime().toISOString()"`;
 
-exports[`faker parse > 'time' 1`] = `"faker.date.anytime().toString()"`;
+exports[`faker parse > 'time' 1`] = `"faker.date.anytime().toISOString().substring(11, 19)"`;
 
 exports[`faker parse > 'tuple' 1`] = `"faker.helpers.arrayElements([]) as any"`;
 
