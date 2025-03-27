@@ -9,7 +9,7 @@ export function createOrder(data?: Partial<Order>): Order {
       quantity: faker.number.int(),
       shipDateTime: faker.date.anytime().toISOString(),
       shipDate: faker.date.anytime().toISOString().substring(0, 10),
-      shipTime: faker.date.anytime().toISOString().substring(11, 23),
+      shipTime: faker.date.anytime().toISOString().substring(11, 19),
       status: faker.helpers.arrayElement<any>(['placed', 'approved', 'delivered']),
       complete: faker.datatype.boolean(),
     },
