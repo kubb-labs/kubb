@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 3.7.1
+- [`plugin-faker`](/plugins/plugin-faker/): Improve formatting of fake dates and times
+
+
 ## 3.7.0
 - [`plugin-cypress`](/plugins/plugin-cypress): support for `cy.request` with new plugin `@kubb/plugin-cypress`
 

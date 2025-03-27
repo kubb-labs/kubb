@@ -75,7 +75,7 @@ const fakerKeywordMapper = {
       if (parser !== 'faker') {
         return `${parser}(faker.date.anytime()).format("YYYY-MM-DD")`
       }
-      return 'faker.date.anytime().toString()'
+      return 'faker.date.anytime().toISOString().substring(0, 10)'
     }
 
     if (parser !== 'faker') {
@@ -94,7 +94,7 @@ const fakerKeywordMapper = {
       if (parser !== 'faker') {
         return `${parser}(faker.date.anytime()).format("HH:mm:ss")`
       }
-      return 'faker.date.anytime().toString()'
+      return 'faker.date.anytime().toISOString().substring(11, 19)'
     }
 
     if (parser !== 'faker') {

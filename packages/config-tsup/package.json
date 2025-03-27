@@ -1,6 +1,6 @@
 {
   "name": "@kubb/config-tsup",
-  "version": "3.7.0",
+  "version": "3.7.1",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "@types/node": "^20.17.27",
+    "@types/node": "^20.17.28",
     "tsup": "^8.4.0"
   },
   "peerDependencies": {

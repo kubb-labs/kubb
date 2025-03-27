@@ -38,7 +38,7 @@
     "@tanstack/svelte-query": "^5.69.0",
     "@tanstack/vue-query": "^5.69.0",
     "axios": "^1.8.4",
-    "cypress": "~14.2.0",
+    "cypress": "~14.2.1",
     "msw": "^2.7.3",
     "react": "catalog:",
     "solid-js": "^1.9.5",
@@ -46,6 +46,7 @@
     "swr": "^2.3.3",
     "tsup": "catalog:",
     "vue": "^3.5.13",
+    "cypress": "~14.2.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {

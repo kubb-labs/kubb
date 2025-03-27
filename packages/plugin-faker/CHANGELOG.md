@@ -1,5 +1,19 @@
 # @kubb/plugin-faker
 
+## 3.7.1
+
+### Patch Changes
+
+- [#1619](https://github.com/kubb-labs/kubb/pull/1619) [`c02381c`](https://github.com/kubb-labs/kubb/commit/c02381c9952c6f6183b0f8b998ba398e2e6a1e05) Thanks [@aburgel](https://github.com/aburgel)! - fix: Improve formatting of fake dates and times
+
+- Updated dependencies []:
+  - @kubb/core@3.7.1
+  - @kubb/fs@3.7.1
+  - @kubb/oas@3.7.1
+  - @kubb/plugin-oas@3.7.1
+  - @kubb/plugin-ts@3.7.1
+  - @kubb/react@3.7.1
+
 ## 3.7.0
 
 ### Patch Changes
