@@ -1,84 +1,114 @@
-import { Link } from "@heroui/link";
-import { Snippet } from "@heroui/snippet";
-import { Code } from "@heroui/code";
-import { Button } from "@heroui/button";
-import { Progress } from "@heroui/progress";
-import { button as buttonStyles } from "@heroui/theme";
-import {
-  useQuery,
-} from '@tanstack/react-query'
+import { Alert, Button, Progress, Spacer } from '@heroui/react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { siteConfig } from "../config/site";
-import { title, subtitle } from "../components/primitives";
-import { GithubIcon } from "../components/icons";
-import DefaultLayout from "../layouts/default";
+import DefaultLayout from '../layouts/default'
 
-function Status(){
-  const {
-    data
-  } = useQuery({ queryKey: ['todos'], queryFn: async ()=>{
-      const response = await fetch('/api/status');
+import type { StatusSchema } from '../models/StatusSchema.ts'
+import { Fragment } from 'react'
 
-      return response.json() as Promise<{percentage?: number}>
+function useStatus() {
+  return useQuery({
+    queryKey: ['status'],
+    queryFn: async () => {
+      const res = await fetch('/api/status', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
 
-    },  refetchInterval: 200, })
-console.log(data?.percentage* 100)
+      if (!res.ok) {
+        throw new Error('Failed to fetch data')
+      }
 
-  return <>
-    <Progress aria-label="Loading..." size="lg" value={data?.percentage* 100} />
-    <p>Status: {JSON.stringify(data, null,2 )}</p>
-  </>
+      return res.json() as Promise<StatusSchema>
+    },
+    refetchInterval: 200,
+    refetchIntervalInBackground: true,
+  })
 }
 
+function useRestart() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/api/restart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      return res.json()
+    },
+    onSuccess: async () => {
+      return queryClient.invalidateQueries({ queryKey: ['status'] })
+    },
+  })
+}
+
+function useStop() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/api/stop', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      return res.json()
+    },
+    onSuccess: async () => {
+      return queryClient.invalidateQueries({ queryKey: ['status'] })
+    },
+  })
+}
+
+function Status({ percentages }: { percentages: StatusSchema['percentages'] }) {
+  return (
+    <>
+      {Object.entries(percentages || {}).map(([label, percentage]) => {
+        return (
+          <Fragment key={label}>
+            <Progress aria-label="Loading..." size="sm" label={label} showValueLabel value={percentage * 100} />
+            <Spacer y={4} />
+          </Fragment>
+        )
+      })}
+    </>
+  )
+}
 
 export default function IndexPage() {
+  const { data } = useStatus()
+  const { mutateAsync: restart } = useRestart()
+  const { mutateAsync: stop } = useStop()
+
   return (
     <DefaultLayout>
-      <Status/>
-      <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-        <div className="inline-block max-w-lg text-center justify-center">
-          <span className={title()}>Make&nbsp;</span>
-          <span className={title({ color: "violet" })}>beautiful&nbsp;</span>
-          <br />
-          <span className={title()}>
-            websites regardless of your design experience.
-          </span>
-          <div className={subtitle({ class: "mt-4" })}>
-            Beautiful, fast and modern React UI library.
+      <section className="flex flex-col items-center justify-center gap-2">
+        <div className="inline-block max-w-lg text-center justify-center min-w-80">
+          {!data && <Alert variant={'flat'} description={<>No connection to URL</>} />}
+
+          {data?.name && (
+            <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">{data.name}</span>
+            </h1>
+          )}
+          {data?.percentages && <Status percentages={data?.percentages} />}
+        </div>
+
+        {data && (
+          <div className="flex gap-3">
+            <Button onPress={() => restart()}>Restart</Button>
+            <Button onPress={() => stop()}>Stop</Button>
           </div>
-        </div>
-
-        <div className="flex gap-3">
-          <Link
-            isExternal
-            className={buttonStyles({
-              color: "primary",
-              radius: "full",
-              variant: "shadow",
-            })}
-            href={siteConfig.links.docs}
-          >
-            Documentation
-          </Link>
-          <Link
-            isExternal
-            className={buttonStyles({ variant: "bordered", radius: "full" })}
-            href={siteConfig.links.github}
-          >
-            <GithubIcon size={20} />
-            GitHub
-          </Link>
-        </div>
-
-        <div className="mt-8">
-          <Snippet hideCopyButton hideSymbol variant="bordered">
-            <span>
-              Get started by editing{" "}
-              <Code color="primary">pages/index.tsx</Code>
-            </span>
-          </Snippet>
-        </div>
+        )}
       </section>
     </DefaultLayout>
-  );
+  )
 }

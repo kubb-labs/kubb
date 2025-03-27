@@ -11,6 +11,9 @@ import * as process from 'node:process'
 import { PromiseManager, isInputPath } from '@kubb/core'
 import { LogMapper, createLogger } from '@kubb/core/logger'
 import { generate } from '../generate.ts'
+import { startServer } from '@kubb/ui'
+import open from 'open'
+import type { SingleBar } from 'cli-progress'
 
 declare global {
   var isDevtoolsEnabled: any
@@ -64,7 +67,11 @@ const command = defineCommand({
   },
   args,
   async run(commandContext) {
+    let name = ''
+    const progressCache = new Map<string, SingleBar>()
+
     const { args } = commandContext
+
     const input = args._[0]
 
     if (args.help) {
@@ -88,6 +95,69 @@ const command = defineCommand({
 
     const config = await getConfig(result, args)
 
+    const start = async () => {
+      if (Array.isArray(config)) {
+        const promiseManager = new PromiseManager()
+        const promises = config.map((c) => () => {
+          name = c.name || ''
+          progressCache.clear()
+
+          return generate({
+            input,
+            config: c,
+            args,
+            progressCache,
+          })
+        })
+
+        await promiseManager.run('seq', promises)
+        return
+      }
+
+      progressCache.clear()
+
+      await generate({
+        input,
+        config,
+        progressCache,
+        args,
+      })
+
+      return
+    }
+
+    if (args.ui) {
+      await startServer(
+        {
+          stop: () => process.exit(1),
+          restart: () => start(),
+          getMeta: () => {
+            const entries = [...progressCache.entries()]
+
+            const percentages = entries.reduce(
+              (acc, [key, singleBar]) => {
+                acc[key] = singleBar.getProgress()
+
+                return acc
+              },
+              {} as Record<string, number>,
+            )
+
+            return {
+              name,
+              percentages,
+            }
+          },
+        },
+        (info) => {
+          const url = `${info.address}:${info.port}`.replace('::', 'http://localhost')
+          logger.consola?.start(`Starting ui on ${url}`)
+
+          open(url)
+        },
+      )
+    }
+
     if (args.watch) {
       if (Array.isArray(config)) {
         throw new Error('Cannot use watcher with multiple Configs(array)')
@@ -95,29 +165,22 @@ const command = defineCommand({
 
       if (isInputPath(config)) {
         return startWatcher([input || config.input.path], async (paths) => {
-          await generate({ config, args, input })
+          await start()
           logger.emit('start', colors.yellow(colors.bold(`Watching for changes in ${paths.join(' and ')}`)))
         })
       }
     }
 
-    if (Array.isArray(config)) {
-      const promiseManager = new PromiseManager()
-      const promises = config.map((item) => () => generate({ input, config: item, args }))
-
-      return promiseManager.run('seq', promises)
-    }
-
-    await generate({ input, config, args })
+    await start()
 
     if (globalThis.isDevtoolsEnabled) {
-      const restart = await logger.consola?.prompt('Restart(could be used to validate the profiler)?', {
+      const canRestart = await logger.consola?.prompt('Restart(could be used to validate the profiler)?', {
         type: 'confirm',
         initial: false,
       })
 
-      if (restart) {
-        await command.run?.(commandContext)
+      if (canRestart) {
+        await start()
       } else {
         process.exit(1)
       }

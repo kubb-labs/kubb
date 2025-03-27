@@ -8,24 +8,26 @@ import { getErrorCauses } from './utils/getErrorCauses.ts'
 import { getSummary } from './utils/getSummary.ts'
 
 import { createLogger } from '@kubb/core/logger'
-import { startServer } from '@kubb/ui'
 import { Presets, SingleBar } from 'cli-progress'
 import type { Args } from './commands/generate.ts'
+import process from 'node:process'
 
 type GenerateProps = {
   input?: string
   config: Config
   args: Args
+  progressCache: Map<string, SingleBar>
 }
 
-export async function generate({ input, config, args }: GenerateProps): Promise<void> {
+export async function generate({ input, config, progressCache, args }: GenerateProps): Promise<void> {
+  const hrStart = process.hrtime()
   const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
-  const ui = args.ui || false
+
   const logger = createLogger({
     logLevel,
     name: config.name,
   })
-  const progressCache = new Map<string, SingleBar>()
+
   const { root = process.cwd(), ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
@@ -61,8 +63,6 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     })
   }
 
-  logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? colors.dim(inputPath!) : ''}`)
-
   const definedConfig: Config = {
     root,
     ...userConfig,
@@ -81,29 +81,13 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
       ...userConfig.output,
     },
   }
-  const hrStart = process.hrtime()
+
   const pluginManager = await setup({
     config: definedConfig,
     logger,
   })
 
-  if (ui) {
-    await startServer(
-      {
-        pluginManager,
-        getPercentage: () => {
-          const entries = [...progressCache.entries()]
-
-          return entries.reduce((_acc, [_key, singleBar]) => {
-            return singleBar.getProgress()
-          }, 0)
-        },
-      },
-      (info) => {
-        logger.consola?.start(`Starting ui on ${info.address} and port ${info.port}`)
-      },
-    )
-  }
+  logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? colors.dim(inputPath!) : ''}`)
 
   const { files, error } = await safeBuild({
     config: definedConfig,
