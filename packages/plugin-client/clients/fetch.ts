@@ -9,7 +9,7 @@ export type RequestCredentials = 'omit' | 'same-origin' | 'include'
 export type RequestConfig<TData = unknown> = {
   baseURL?: string
   url?: string
-  method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE' | 'OPTIONS'
+  method?: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE' | 'OPTIONS'
   params?: unknown
   data?: TData | FormData
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
@@ -59,7 +59,7 @@ export const client = async <TData, _TError = unknown, TVariables = unknown>(par
 
   const response = await fetch(targetUrl, {
     credentials: config.credentials || 'same-origin',
-    method: config.method.toUpperCase(),
+    method: config.method?.toUpperCase(),
     body: JSON.stringify(config.data),
     signal: config.signal,
     headers: config.headers,

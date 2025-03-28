@@ -76,8 +76,8 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1
       taze:
-        specifier: ^19.0.2
-        version: 19.0.2
+        specifier: ^19.0.4
+        version: 19.0.4
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@20.17.28)(typescript@5.8.2)
@@ -224,17 +224,17 @@ importers:
         specifier: workspace:*
         version: link:../packages/react
       '@tanstack/react-query':
-        specifier: ^5.69.0
-        version: 5.69.0(react@18.3.1)
+        specifier: ^5.69.3
+        version: 5.69.3(react@18.3.1)
       '@tanstack/solid-query':
-        specifier: ^5.69.0
-        version: 5.69.0(solid-js@1.9.5)
+        specifier: ^5.69.2
+        version: 5.69.2(solid-js@1.9.5)
       '@tanstack/svelte-query':
-        specifier: ^5.69.0
-        version: 5.69.0(svelte@3.59.2)
+        specifier: ^5.69.2
+        version: 5.69.2(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^5.69.0
-        version: 5.69.0(vue@3.5.13(typescript@5.8.2))
+        specifier: ^5.69.2
+        version: 5.69.2(vue@3.5.13(typescript@5.8.2))
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -321,20 +321,20 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react
       '@tanstack/query-core':
-        specifier: ^5.69.0
-        version: 5.69.0
+        specifier: ^5.69.2
+        version: 5.69.2
       '@tanstack/react-query':
-        specifier: ^5.69.0
-        version: 5.69.0(react@19.0.0)
+        specifier: ^5.69.3
+        version: 5.69.3(react@19.0.0)
       '@tanstack/solid-query':
-        specifier: ^5.69.0
-        version: 5.69.0(solid-js@1.9.5)
+        specifier: ^5.69.2
+        version: 5.69.2(solid-js@1.9.5)
       '@tanstack/svelte-query':
-        specifier: ^5.69.0
-        version: 5.69.0(svelte@3.59.2)
+        specifier: ^5.69.2
+        version: 5.69.2(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^5.69.0
-        version: 5.69.0(vue@3.5.13(typescript@5.8.2))
+        specifier: ^5.69.2
+        version: 5.69.2(vue@3.5.13(typescript@5.8.2))
       '@types/react':
         specifier: ^19.0.12
         version: 19.0.12
@@ -662,11 +662,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react
       '@tanstack/react-query':
-        specifier: ^5.69.0
-        version: 5.69.0(react@18.3.1)
+        specifier: ^5.69.3
+        version: 5.69.3(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: ^5.69.0
-        version: 5.69.0(@tanstack/react-query@5.69.0(react@18.3.1))(react@18.3.1)
+        specifier: ^5.69.3
+        version: 5.69.3(@tanstack/react-query@5.69.3(react@18.3.1))(react@18.3.1)
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -729,8 +729,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/react-query':
-        specifier: ^5.69.0
-        version: 5.69.0(react@18.3.1)
+        specifier: ^5.69.3
+        version: 5.69.3(react@18.3.1)
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -915,8 +915,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/vue-query':
-        specifier: ^5.69.0
-        version: 5.69.0(vue@3.5.13(typescript@5.8.2))
+        specifier: ^5.69.2
+        version: 5.69.2(vue@3.5.13(typescript@5.8.2))
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -3367,20 +3367,20 @@ packages:
   '@tanstack/query-core@5.62.7':
     resolution: {integrity: sha512-fgpfmwatsrUal6V+8EC2cxZIQVl9xvL7qYa03gsdsCy985UTUlS4N+/3hCzwR0PclYDqisca2AqR1BVgJGpUDA==}
 
-  '@tanstack/query-core@5.69.0':
-    resolution: {integrity: sha512-Kn410jq6vs1P8Nm+ZsRj9H+U3C0kjuEkYLxbiCyn3MDEiYor1j2DGVULqAz62SLZtUZ/e9Xt6xMXiJ3NJ65WyQ==}
+  '@tanstack/query-core@5.69.2':
+    resolution: {integrity: sha512-+spKBqGMSxVMhYPMHr4L7efc4CDdb0Y8nE4UxP/FjV4V3ajP3uhBsh0T7pSuObBgYkU+nY1PRkJhKNmwlHmkUg==}
 
   '@tanstack/query-devtools@5.67.2':
     resolution: {integrity: sha512-O4QXFFd7xqp6EX7sdvc9tsVO8nm4lpWBqwpgjpVLW5g7IeOY6VnS/xvs/YzbRhBVkKTMaJMOUGU7NhSX+YGoNg==}
 
-  '@tanstack/react-query-devtools@5.69.0':
-    resolution: {integrity: sha512-sYklnou3IKAemqB5wJeBwjmG5bUGDKAL5/I4pVA+aqSnsNibVLt8/pAU976uuJ5K71w71bHtI/AMxiIs3gtkEA==}
+  '@tanstack/react-query-devtools@5.69.3':
+    resolution: {integrity: sha512-BQ37OAnG4+2zZjz7ot2A6FIerOOVMTQaMgAgcZYyxKNHrwTEsQ4e+vpmticBig4NUSK3CNSD4wGPVqSEppe+Bw==}
     peerDependencies:
-      '@tanstack/react-query': ^5.69.0
+      '@tanstack/react-query': ^5.69.3
       react: ^18 || ^19
 
-  '@tanstack/react-query@5.69.0':
-    resolution: {integrity: sha512-Ift3IUNQqTcaFa1AiIQ7WCb/PPy8aexZdq9pZWLXhfLcLxH0+PZqJ2xFImxCpdDZrFRZhLJrh76geevS5xjRhA==}
+  '@tanstack/react-query@5.69.3':
+    resolution: {integrity: sha512-EozCj1aFM/c827GQbVnvEt2x80oBax1vd2e5s/2EDeD469AZW9BPAyRK9VVyD0I1yvO6vOI+tPKXXFcadbSXvA==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -3389,8 +3389,8 @@ packages:
     peerDependencies:
       solid-js: ^1.6.0
 
-  '@tanstack/solid-query@5.69.0':
-    resolution: {integrity: sha512-yWSodAKaTGLRkGHwMe0Gg6Mh11QDoyb7GgjmU8Q0G6MGeAhcPKpPgbALeoNisa8FW5XfW2hFz2vb6zePIdx6rQ==}
+  '@tanstack/solid-query@5.69.2':
+    resolution: {integrity: sha512-bwpr+lDMMLsR49BniMnKmYvUs98dePNOtT6h/JphFMfcgbHiuNIL+xVaHnUV1ZIWVfHNZDQa4fxiWft8dVtZng==}
     peerDependencies:
       solid-js: ^1.6.0
 
@@ -3399,16 +3399,16 @@ packages:
     peerDependencies:
       svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
 
-  '@tanstack/svelte-query@5.69.0':
-    resolution: {integrity: sha512-4zn8uW76PQCIvFHS/JbvxtdjlglF1BaH9wZiiEWRp5lnlcwr+4NHYlvzXI6z7Ff4ZuJvPjVBNhrwFYfJjL+gOQ==}
+  '@tanstack/svelte-query@5.69.2':
+    resolution: {integrity: sha512-m8AYBrpUfChGe9Qa2KnUCXCV+5xx7CMKpe8KUJo2yNfFXOH9vYjkoECp7re+dseQGmKdjgqg/uo59GLhBUklzw==}
     peerDependencies:
       svelte: ^3.54.0 || ^4.0.0 || ^5.0.0
 
   '@tanstack/virtual-core@3.10.9':
     resolution: {integrity: sha512-kBknKOKzmeR7lN+vSadaKWXaLS0SZZG+oqpQ/k80Q6g9REn6zRHS/ZYdrIzHnpHgy/eWs00SujveUN/GJT2qTw==}
 
-  '@tanstack/vue-query@5.69.0':
-    resolution: {integrity: sha512-JZecDd0b+hZChqV5O1wXBfKoxlEj3aGvRj7upuqWei+oGrT+ERuOU4uQn7/DDVA5TouIt88G3oMFBjE2wKO/6A==}
+  '@tanstack/vue-query@5.69.2':
+    resolution: {integrity: sha512-xXSTmzz8Hypj7dSzuy3822PTvhUN30nxhZ4omooLzkxCWvpke424LkFVXSqFWDZQ4GJ9zhpTVOI60q334lC/gQ==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -6193,9 +6193,6 @@ packages:
     resolution: {integrity: sha512-ofRW94Ab0T4AOh5Fk8t0h8OBWrmjb0SSB20xh1H8YnPV9EJ+f5AMoYSUQ2zgJ4Iq2HAK0I2l5/Nequ8YzFS3Hg==}
     engines: {node: 4.x || >=6.0.0}
 
-  node-fetch-native@1.6.4:
-    resolution: {integrity: sha512-IhOigYzAKHd244OC0JIMIUrjzctirCmPkaIfhDeGcEETWof5zKYUW7e7MYvChGWh/4CJeXEgsRyGzuF334rOOQ==}
-
   node-fetch-native@1.6.6:
     resolution: {integrity: sha512-8Mc2HhqPdlIfedsuZoc3yioPuzp6b+L5jRCRY1QzuWZh2EGJVQrGppC6V6cF0bLdbW0+O2YpqCA25aF/1lvipQ==}
 
@@ -6517,8 +6514,8 @@ packages:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
     engines: {node: '>=4'}
 
-  pnpm-workspace-yaml@0.1.2:
-    resolution: {integrity: sha512-FaSo51Psz+jHV8YtnuIVemTheOIO5EnMtw0HSPTUsASEdOf3ppM5OBxKO5Dpvx4fWKNZF44vEEMFKc5YZG4qjA==}
+  pnpm-workspace-yaml@0.3.1:
+    resolution: {integrity: sha512-3nW5RLmREmZ8Pm8MbPsO2RM+99RRjYd25ynj3NV0cFsN7CcEl4sDFzgoFmSyduFwxFQ2Qbu3y2UdCh6HlyUOeA==}
 
   points-on-curve@0.2.0:
     resolution: {integrity: sha512-0mYKnYYe9ZcqMCWhUjItv/oHjvgEsfKvnUTg8sAtnHr3GVy7rGkXCb6d5cSyqrWqL4k81b9CPg3urd+T7aop3A==}
@@ -7296,8 +7293,8 @@ packages:
   tar-stream@3.1.7:
     resolution: {integrity: sha512-qJj60CXt7IU1Ffyc3NJMjh6EkuCFej46zUqJ4J7pqYlThyd9bO0XBTmcOIhSzZJVWfsLks0+nle/j538YAW9RQ==}
 
-  taze@19.0.2:
-    resolution: {integrity: sha512-SEFTzn2Armn0nsHt4tVoVEOGLb8mxnrYfgOItBfayCbaDHi9DrRkH7UP7wqra3b04kf6dW6KYdroIQCnCAzQOA==}
+  taze@19.0.4:
+    resolution: {integrity: sha512-bviyNotzqcIWpVBCC4QYVb2yupzKyUDGQi2m/8GERdiPaudVMtgAqaE98+x0cDDaByYRMJCyhQWM04ikUL6+kQ==}
     hasBin: true
 
   term-size@2.2.1:
@@ -7358,8 +7355,8 @@ packages:
   tinyexec@0.3.2:
     resolution: {integrity: sha512-KQQR9yN7R5+OSwaK0XQoj22pwHoTlgYqmUscPYoknOoWCWfj/5/ABTMRi69FrKU5ffPVh5QcFikpWJI/P1ocHA==}
 
-  tinyexec@1.0.0:
-    resolution: {integrity: sha512-djtKaAR3lnRo0uMT/IKYwj3s4E86IE/SdwCE3XXIJcozbDFKsfgAmi8IBIpIDmTd0Y6YKyfqo3vQ33OloPJPaQ==}
+  tinyexec@1.0.1:
+    resolution: {integrity: sha512-5uC6DDlmeqiOwCPmK9jMSdOuZTh8bU39Ys6yidB+UTt5hfZUPGAypSgFRiEp+jbi9qH40BLDvy85jIU88wKSqw==}
 
   tinyglobby@0.2.11:
     resolution: {integrity: sha512-32TmKeeKUahv0Go8WmQgiEp9Y21NuxjwjqiRC1nrUB51YacfSwuB44xgXD+HdIppmMRgjQNPdrHyA6vIybYZ+g==}
@@ -8220,7 +8217,7 @@ snapshots:
       ansis: 3.17.0
       fzf: 0.5.2
       package-manager-detector: 1.1.0
-      tinyexec: 1.0.0
+      tinyexec: 1.0.1
 
   '@antfu/utils@8.1.1': {}
 
@@ -9603,24 +9600,24 @@ snapshots:
 
   '@tanstack/query-core@5.62.7': {}
 
-  '@tanstack/query-core@5.69.0': {}
+  '@tanstack/query-core@5.69.2': {}
 
   '@tanstack/query-devtools@5.67.2': {}
 
-  '@tanstack/react-query-devtools@5.69.0(@tanstack/react-query@5.69.0(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.69.3(@tanstack/react-query@5.69.3(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@tanstack/query-devtools': 5.67.2
-      '@tanstack/react-query': 5.69.0(react@18.3.1)
+      '@tanstack/react-query': 5.69.3(react@18.3.1)
       react: 18.3.1
 
-  '@tanstack/react-query@5.69.0(react@18.3.1)':
+  '@tanstack/react-query@5.69.3(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.69.0
+      '@tanstack/query-core': 5.69.2
       react: 18.3.1
 
-  '@tanstack/react-query@5.69.0(react@19.0.0)':
+  '@tanstack/react-query@5.69.3(react@19.0.0)':
     dependencies:
-      '@tanstack/query-core': 5.69.0
+      '@tanstack/query-core': 5.69.2
       react: 19.0.0
 
   '@tanstack/solid-query@5.62.7(solid-js@1.9.5)':
@@ -9628,9 +9625,9 @@ snapshots:
       '@tanstack/query-core': 5.62.7
       solid-js: 1.9.5
 
-  '@tanstack/solid-query@5.69.0(solid-js@1.9.5)':
+  '@tanstack/solid-query@5.69.2(solid-js@1.9.5)':
     dependencies:
-      '@tanstack/query-core': 5.69.0
+      '@tanstack/query-core': 5.69.2
       solid-js: 1.9.5
 
   '@tanstack/svelte-query@5.62.7(svelte@3.59.2)':
@@ -9638,17 +9635,17 @@ snapshots:
       '@tanstack/query-core': 5.62.7
       svelte: 3.59.2
 
-  '@tanstack/svelte-query@5.69.0(svelte@3.59.2)':
+  '@tanstack/svelte-query@5.69.2(svelte@3.59.2)':
     dependencies:
-      '@tanstack/query-core': 5.69.0
+      '@tanstack/query-core': 5.69.2
       svelte: 3.59.2
 
   '@tanstack/virtual-core@3.10.9': {}
 
-  '@tanstack/vue-query@5.69.0(vue@3.5.13(typescript@5.8.2))':
+  '@tanstack/vue-query@5.69.2(vue@3.5.13(typescript@5.8.2))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.19.4
-      '@tanstack/query-core': 5.69.0
+      '@tanstack/query-core': 5.69.2
       '@vue/devtools-api': 6.6.4
       vue: 3.5.13(typescript@5.8.2)
       vue-demi: 0.14.10(vue@3.5.13(typescript@5.8.2))
@@ -12839,8 +12836,6 @@ snapshots:
     dependencies:
       http2-client: 1.3.5
 
-  node-fetch-native@1.6.4: {}
-
   node-fetch-native@1.6.6: {}
 
   node-fetch@2.7.0:
@@ -12934,7 +12929,7 @@ snapshots:
   ofetch@1.4.1:
     dependencies:
       destr: 2.0.3
-      node-fetch-native: 1.6.4
+      node-fetch-native: 1.6.6
       ufo: 1.5.4
 
   ohash@2.0.11: {}
@@ -13178,7 +13173,7 @@ snapshots:
 
   pluralize@8.0.0: {}
 
-  pnpm-workspace-yaml@0.1.2:
+  pnpm-workspace-yaml@0.3.1:
     dependencies:
       yaml: 2.7.0
 
@@ -13210,7 +13205,7 @@ snapshots:
   postcss-load-config@4.0.2(postcss@8.5.1)(ts-node@10.9.2(@types/node@20.17.28)(typescript@5.8.2)):
     dependencies:
       lilconfig: 3.1.3
-      yaml: 2.6.1
+      yaml: 2.7.0
     optionalDependencies:
       postcss: 8.5.1
       ts-node: 10.9.2(@types/node@20.17.28)(typescript@5.8.2)
@@ -14118,7 +14113,7 @@ snapshots:
       fast-fifo: 1.3.2
       streamx: 2.21.1
 
-  taze@19.0.2:
+  taze@19.0.4:
     dependencies:
       '@antfu/ni': 24.3.0
       cac: 6.7.14
@@ -14126,9 +14121,9 @@ snapshots:
       ofetch: 1.4.1
       package-manager-detector: 1.1.0
       pathe: 2.0.3
-      pnpm-workspace-yaml: 0.1.2
+      pnpm-workspace-yaml: 0.3.1
       restore-cursor: 5.1.0
-      tinyexec: 0.3.2
+      tinyexec: 1.0.1
       tinyglobby: 0.2.12
       unconfig: 7.3.1
       yaml: 2.7.0
@@ -14188,7 +14183,7 @@ snapshots:
 
   tinyexec@0.3.2: {}
 
-  tinyexec@1.0.0: {}
+  tinyexec@1.0.1: {}
 
   tinyglobby@0.2.11:
     dependencies:

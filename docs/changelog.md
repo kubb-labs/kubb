@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.7.2
+- [`plugin-client`](/plugins/plugin-client): method should be optional for default fetch and axios client
+
 ## 3.7.1
 - [`plugin-faker`](/plugins/plugin-faker/): Improve formatting of fake dates and times
 
