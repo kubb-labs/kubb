@@ -17,6 +17,7 @@ type BuildOptions = {
    * @default Logger without the spinner
    */
   logger?: Logger
+  pluginManager?: PluginManager
 }
 
 type BuildOutput = {
@@ -28,7 +29,11 @@ type BuildOutput = {
   error?: Error
 }
 
-async function setup(options: BuildOptions): Promise<PluginManager> {
+export async function setup(options: BuildOptions): Promise<PluginManager> {
+  if (options.pluginManager) {
+    return options.pluginManager
+  }
+
   const { config: userConfig, logger = createLogger() } = options
 
   try {

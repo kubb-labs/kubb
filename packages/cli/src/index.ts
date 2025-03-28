@@ -1,6 +1,7 @@
 import { defineCommand, runCommand, runMain } from 'citty'
 import getLatestVersion from 'latest-version'
 import { lt } from 'semver'
+import { default as gradientString } from 'gradient-string'
 
 import { version } from '../package.json'
 import consola from 'consola'
@@ -15,6 +16,8 @@ const main = defineCommand({
   },
   async setup({ rawArgs }) {
     try {
+      consola.log(gradientString(['#F58517', '#F5A217', '#F55A17'])('Kubb CLI:'))
+
       const latestVersion = await getLatestVersion('@kubb/cli')
 
       if (lt(version, latestVersion)) {
