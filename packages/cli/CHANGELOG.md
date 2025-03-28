@@ -1,5 +1,13 @@
 # @kubb/cli
 
+## 3.7.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.7.2
+  - @kubb/ui@3.7.2
+
 ## 3.7.1
 
 ### Patch Changes
