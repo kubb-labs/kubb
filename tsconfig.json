@@ -32,6 +32,7 @@
       "@kubb/plugin-zod/utils": ["packages/plugin-zod/src/utils/index.ts"],
       "@kubb/plugin-zod": ["packages/plugin-zod/src/index.ts"],
       "@kubb/react": ["packages/react/src/index.ts"],
+      "@kubb/ui": ["packages/ui/src/index.ts"],
       "@kubb/react/types": ["packages/react/src/types.ts"],
       "@kubb/react/devtools": ["packages/react/src/devtools.ts"],
       "@kubb/parser-ts/factory": ["packages/parser-ts/src/factory.ts"],

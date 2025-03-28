@@ -106,7 +106,6 @@
     "@types/semver": "^7.7.0",
     "consola": "^3.4.2",
     "prettier": "^3.5.3",
-    "tinyrainbow": "^1.2.0",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },
