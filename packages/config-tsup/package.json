@@ -33,11 +33,11 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@microsoft/api-extractor": "^7.52.2"
+    "@microsoft/api-extractor": "^7.52.3"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "@types/node": "^20.17.28",
+    "@types/node": "^20.17.30",
     "tsup": "^8.4.0"
   },
   "peerDependencies": {

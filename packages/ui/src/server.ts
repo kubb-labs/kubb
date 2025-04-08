@@ -141,13 +141,13 @@ export async function startServer(options: Options, listeningListener?: (info: A
 
     // If the file exists, serve it
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-      return new Response(fs.readFileSync(filePath), {
+      return new Response(fs.readFileSync(filePath) as unknown as ReadableStream, {
         headers: { 'Content-Type': getMimeType(filePath) },
       })
     }
 
     // Otherwise, return "index.html" for SPA routing
-    return new Response(fs.readFileSync(path.join(distPath, 'index.html')), {
+    return new Response(fs.readFileSync(path.join(distPath, 'index.html')) as unknown as ReadableStream, {
       headers: { 'Content-Type': 'text/html' },
     })
   })

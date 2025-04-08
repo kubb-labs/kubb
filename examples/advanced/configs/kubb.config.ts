@@ -1,4 +1,5 @@
-// import '@kubb/react/devtools' // enable/disable devtools
+//import '@kubb/react/devtools' // enable/disable devtools
+// can devtools and ui work together, default port for devtools are 8097
 
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'

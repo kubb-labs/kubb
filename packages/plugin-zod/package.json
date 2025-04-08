@@ -87,7 +87,7 @@
   },
   "devDependencies": {
     "@asteasolutions/zod-to-openapi": "^7.3.0",
-    "@hono/zod-openapi": "^0.18.4",
+    "@hono/zod-openapi": "0.19.2",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "tsup": "catalog:",
