@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.7.3
+- [`plugin-zod`](/plugins/plugin-zod): fixed version for [`@hono/zod-openapi`](https://github.com/honojs/middleware/issues/1109)
+
 ## 3.7.2
 - [`plugin-client`](/plugins/plugin-client): method should be optional for default fetch and axios client
 
