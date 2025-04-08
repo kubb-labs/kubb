@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 3.7.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.7.3
+  - @kubb/fs@3.7.3
+  - @kubb/oas@3.7.3
+  - @kubb/react@3.7.3
+
 ## 3.7.2
 
 ### Patch Changes
