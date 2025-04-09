@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.7.4
+- [`plugin-redoc`](/plugins/plugin-redoc): setup redoc without React dependency
+
 ## 3.7.3
 - [`plugin-zod`](/plugins/plugin-zod): fixed version for [`@hono/zod-openapi`](https://github.com/honojs/middleware/issues/1109)
 
@@ -12,7 +15,6 @@ title: Changelog
 
 ## 3.7.1
 - [`plugin-faker`](/plugins/plugin-faker/): Improve formatting of fake dates and times
-
 
 ## 3.7.0
 - [`plugin-cypress`](/plugins/plugin-cypress): support for `cy.request` with new plugin `@kubb/plugin-cypress`

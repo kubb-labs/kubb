@@ -118,7 +118,7 @@
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vite": "^6.2.5",
-    "webpack": "^5.99.3"
+    "webpack": "^5.99.5"
   },
   "peerDependencies": {
     "@kubb/core": "^3.0.0",

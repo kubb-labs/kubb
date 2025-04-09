@@ -55,18 +55,11 @@
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "handlebars": "^4.7.8",
-    "mobx": "^6.13.7",
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "redoc": "^2.4.0",
-    "styled-components": "^6.1.17"
+    "handlebars": "^4.7.8"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },
