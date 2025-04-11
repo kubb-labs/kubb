@@ -123,7 +123,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
         {options.mutation && (
           <>
             <File.Import name={['useMutation']} path={importPath} />
-            <File.Import name={['UseMutationOptions']} path={importPath} isTypeOnly />
+            <File.Import name={['UseMutationOptions', 'QueryClient']} path={importPath} isTypeOnly />
             <Mutation
               name={mutation.name}
               clientName={client.name}

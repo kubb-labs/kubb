@@ -122,7 +122,7 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
         {options.mutation && (
           <>
             <File.Import name={['useMutation']} path={importPath} />
-            <File.Import name={['MutationObserverOptions']} path={importPath} isTypeOnly />
+            <File.Import name={['MutationObserverOptions', 'QueryClient']} path={importPath} isTypeOnly />
             <Mutation
               name={mutation.name}
               clientName={client.name}

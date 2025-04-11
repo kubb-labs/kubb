@@ -141,7 +141,7 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
         {options.suspense && (
           <>
             <File.Import name={['useSuspenseQuery']} path={importPath} />
-            <File.Import name={['QueryKey', 'UseSuspenseQueryOptions', 'UseSuspenseQueryResult']} path={importPath} isTypeOnly />
+            <File.Import name={['QueryKey', 'QueryClient', 'UseSuspenseQueryOptions', 'UseSuspenseQueryResult']} path={importPath} isTypeOnly />
             {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
 
             <SuspenseQuery

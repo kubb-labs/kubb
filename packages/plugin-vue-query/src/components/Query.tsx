@@ -75,7 +75,7 @@ function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, t
       options: {
         type: `
 {
-  query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
 }
 `,
@@ -120,7 +120,7 @@ function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, t
     options: {
       type: `
 {
-  query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
 }
 `,
@@ -179,14 +179,14 @@ export function Query({
         }}
       >
         {`
-       const { query: queryOptions, client: config = {} } = options ?? {}
+       const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
        const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
 
        const query = useQuery({
         ...${queryOptions},
         queryKey: queryKey as QueryKey,
         ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
-       }) as ${returnType}
+       }, queryClient) as ${returnType}
 
        query.queryKey = queryKey as TQueryKey
 

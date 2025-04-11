@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { MutationObserverOptions } from '@tanstack/vue-query'
+import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
@@ -42,11 +42,11 @@ export function useUpdateUser<TContext>(
       ResponseErrorConfig<Error>,
       { username: MaybeRef<UpdateUserPathParams['username']>; data?: MaybeRef<UpdateUserMutationRequest> },
       TContext
-    >
+    > & { client?: QueryClient }
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: mutationOptions, client: config = {} } = options ?? {}
+  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
 
   return useMutation<
@@ -54,11 +54,14 @@ export function useUpdateUser<TContext>(
     ResponseErrorConfig<Error>,
     { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
     TContext
-  >({
-    mutationFn: async ({ username, data }) => {
-      return updateUser({ username }, data, config)
+  >(
+    {
+      mutationFn: async ({ username, data }) => {
+        return updateUser({ username }, data, config)
+      },
+      mutationKey,
+      ...mutationOptions,
     },
-    mutationKey,
-    ...mutationOptions,
-  })
+    queryClient,
+  )
 }

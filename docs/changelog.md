@@ -4,6 +4,12 @@ title: Changelog
 
 # Changelog
 
+## 3.8.0
+- [`plugin-react-query`](/plugins/plugin-react-query/): support for custom QueryClient
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support for custom QueryClient
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): support for custom QueryClient
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): support for custom QueryClient
+
 ## 3.7.4
 - [`plugin-redoc`](/plugins/plugin-redoc): setup redoc without React dependency
 
