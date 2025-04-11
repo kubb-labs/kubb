@@ -1,5 +1,7 @@
 # @kubb/ui
 
+## 3.7.6
+
 ## 3.7.5
 
 ### Patch Changes
