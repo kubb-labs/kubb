@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/UpdateUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
 export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const
@@ -41,11 +41,14 @@ export function useUpdateUserHook<TContext>(
       ResponseErrorConfig<Error>,
       { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
       TContext
-    >
+    > & { client?: QueryClient }
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: mutationOptions, client: config = {} } = options ?? {}
+  const {
+    mutation: { client: queryClient, ...mutationOptions } = {},
+    client: config = {},
+  } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
 
   return useMutation<
@@ -53,11 +56,14 @@ export function useUpdateUserHook<TContext>(
     ResponseErrorConfig<Error>,
     { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
     TContext
-  >({
-    mutationFn: async ({ username, data }) => {
-      return updateUserHook({ username }, data, config)
+  >(
+    {
+      mutationFn: async ({ username, data }) => {
+        return updateUserHook({ username }, data, config)
+      },
+      mutationKey,
+      ...mutationOptions,
     },
-    mutationKey,
-    ...mutationOptions,
-  })
+    queryClient,
+  )
 }

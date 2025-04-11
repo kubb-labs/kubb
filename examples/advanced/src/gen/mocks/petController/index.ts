@@ -1,3 +1,9 @@
+export {
+  createAddFiles200Faker,
+  createAddFiles405Faker,
+  createAddFilesMutationRequestFaker,
+  createAddFilesMutationResponseFaker,
+} from './createAddFilesFaker.ts'
 export { createAddPet200Faker, createAddPet405Faker, createAddPetMutationRequestFaker, createAddPetMutationResponseFaker } from './createAddPetFaker.ts'
 export {
   createDeletePetPathParamsFaker,

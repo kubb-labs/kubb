@@ -40,6 +40,7 @@ describe('groupedClientsGenerators operations', async () => {
         path: '.',
       },
       group: undefined,
+      urlType: 'export',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>

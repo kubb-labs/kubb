@@ -5,6 +5,7 @@ export type { Category } from './Category.ts'
 export type { Customer } from './Customer.ts'
 export type { OrderOrderTypeEnum, OrderStatusEnum, OrderHttpStatusEnum, Order } from './Order.ts'
 export type { PetStatusEnum, Pet } from './Pet.ts'
+export type { AddFiles200, AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse, AddFilesMutation } from './petController/AddFiles.ts'
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './petController/AddPet.ts'
 export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './petController/DeletePet.ts'
 export type {

@@ -138,7 +138,7 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
         {options.query && (
           <>
             <File.Import name={['createQuery']} path={importPath} />
-            <File.Import name={['QueryKey', 'CreateBaseQueryOptions', 'CreateQueryResult']} path={importPath} isTypeOnly />
+            <File.Import name={['QueryKey', 'QueryClient', 'CreateBaseQueryOptions', 'CreateQueryResult']} path={importPath} isTypeOnly />
             <Query
               name={query.name}
               queryOptionsName={queryOptions.name}

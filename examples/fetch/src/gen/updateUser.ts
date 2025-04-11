@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getUpdateUserUrl(username: UpdateUserPathParams['username']) {
+function getUpdateUserUrl(username: UpdateUserPathParams['username']) {
   return `/user/${username}` as const
 }
 

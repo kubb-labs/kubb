@@ -8,7 +8,7 @@ import type {
 } from '../../../models/ts/petController/UpdatePetWithForm.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) {
+function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) {
   return `/pet/${petId}` as const
 }
 

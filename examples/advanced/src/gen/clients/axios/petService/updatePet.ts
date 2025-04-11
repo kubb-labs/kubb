@@ -7,8 +7,9 @@ import type {
   UpdatePet404,
   UpdatePet405,
 } from '../../../models/ts/petController/UpdatePet.ts'
+import { updatePetMutationResponseSchema, updatePetMutationRequestSchema } from '../../../zod/petController/updatePetSchema.ts'
 
-export function getUpdatePetUrl() {
+function getUpdatePetUrl() {
   return 'https://petstore3.swagger.io/api/v3/pet' as const
 }
 
@@ -26,8 +27,8 @@ export async function updatePet(
   const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
     url: getUpdatePetUrl().toString(),
-    data,
+    data: updatePetMutationRequestSchema.parse(data),
     ...requestConfig,
   })
-  return res
+  return { ...res, data: updatePetMutationResponseSchema.parse(res.data) }
 }

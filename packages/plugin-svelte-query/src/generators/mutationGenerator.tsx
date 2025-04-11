@@ -122,7 +122,7 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
         {options.mutation && (
           <>
             <File.Import name={['createMutation']} path={importPath} />
-            <File.Import name={['CreateMutationOptions', 'CreateMutationResult']} path={importPath} isTypeOnly />
+            <File.Import name={['CreateMutationOptions', 'CreateMutationResult', 'QueryClient']} path={importPath} isTypeOnly />
             <Mutation
               name={mutation.name}
               clientName={client.name}

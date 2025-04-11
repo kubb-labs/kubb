@@ -1,4 +1,5 @@
 export { handlers } from './handlers.ts'
+export { addFilesHandler } from './petController/addFilesHandler.ts'
 export { addPetHandler } from './petController/addPetHandler.ts'
 export { deletePetHandler } from './petController/deletePetHandler.ts'
 export { findPetsByStatusHandler } from './petController/findPetsByStatusHandler.ts'

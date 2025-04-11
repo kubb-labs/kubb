@@ -1,3 +1,4 @@
+export type { AddFilesMutationKey } from './petController/useAddFiles.ts'
 export type { AddPetMutationKey } from './petController/useAddPet.ts'
 export type { DeletePetMutationKey } from './petController/useDeletePet.ts'
 export type { FindPetsByStatusQueryKey } from './petController/useFindPetsByStatus.ts'
@@ -15,6 +16,7 @@ export type { GetUserByNameQueryKey } from './userController/useGetUserByName.ts
 export type { LoginUserQueryKey } from './userController/useLoginUser.ts'
 export type { LogoutUserQueryKey } from './userController/useLogoutUser.ts'
 export type { UpdateUserMutationKey } from './userController/useUpdateUser.ts'
+export { addFilesMutationKey, useAddFiles } from './petController/useAddFiles.ts'
 export { addPetMutationKey, useAddPet } from './petController/useAddPet.ts'
 export { deletePetMutationKey, useDeletePet } from './petController/useDeletePet.ts'
 export { findPetsByStatusQueryKey, findPetsByStatusQueryOptions, useFindPetsByStatus } from './petController/useFindPetsByStatus.ts'

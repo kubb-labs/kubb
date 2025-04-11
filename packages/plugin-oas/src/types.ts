@@ -142,10 +142,15 @@ type BySchemaName = {
   pattern: string | RegExp
 }
 
-export type Exclude = ByTag | ByOperationId | ByPath | ByMethod
-export type Include = ByTag | ByOperationId | ByPath | ByMethod
+type ByContentType = {
+  type: 'contentType'
+  pattern: string | RegExp
+}
 
-export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName) & {
+export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType
+export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType
+
+export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName | ByContentType) & {
   options: Partial<TOptions>
 }
 

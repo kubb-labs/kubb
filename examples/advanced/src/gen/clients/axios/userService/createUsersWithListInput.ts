@@ -4,8 +4,12 @@ import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
+import {
+  createUsersWithListInputMutationResponseSchema,
+  createUsersWithListInputMutationRequestSchema,
+} from '../../../zod/userController/createUsersWithListInputSchema.ts'
 
-export function getCreateUsersWithListInputUrl() {
+function getCreateUsersWithListInputUrl() {
   return 'https://petstore3.swagger.io/api/v3/user/createWithList' as const
 }
 
@@ -23,8 +27,8 @@ export async function createUsersWithListInput(
   const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: getCreateUsersWithListInputUrl().toString(),
-    data,
+    data: createUsersWithListInputMutationRequestSchema.parse(data),
     ...requestConfig,
   })
-  return res
+  return { ...res, data: createUsersWithListInputMutationResponseSchema.parse(res.data) }
 }

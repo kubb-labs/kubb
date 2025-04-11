@@ -134,6 +134,7 @@ export default defineConfig(() => {
             pattern: 'store',
           },
         ],
+        parser: 'zod',
         group: { type: 'tag', name: ({ group }) => `${group}Service` },
         importPath: '../../../../axios-client.ts',
         operations: true,
@@ -141,6 +142,15 @@ export default defineConfig(() => {
         dataReturnType: 'full',
         paramsType: 'object',
         pathParamsType: 'object',
+        override: [
+          {
+            type: 'contentType',
+            pattern: 'multipart/form-data',
+            options: {
+              parser: 'client',
+            },
+          },
+        ],
       }),
       pluginZod({
         output: {

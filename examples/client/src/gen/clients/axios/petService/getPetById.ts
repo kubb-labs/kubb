@@ -3,7 +3,7 @@ import client from '@kubb/plugin-client/clients/axios'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
+function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
   return `/pet/${petId}` as const
 }
 

@@ -31,6 +31,10 @@ export const operations = {
     path: '/pet/:petId',
     method: 'delete',
   },
+  addFiles: {
+    path: '/pet/files',
+    method: 'post',
+  },
   uploadFile: {
     path: '/pet/:petId/uploadImage',
     method: 'post',

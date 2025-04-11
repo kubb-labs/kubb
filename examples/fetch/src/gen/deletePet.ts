@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getDeletePetUrl(petId: DeletePetPathParams['petId']) {
+function getDeletePetUrl(petId: DeletePetPathParams['petId']) {
   return `/pet/${petId}` as const
 }
 

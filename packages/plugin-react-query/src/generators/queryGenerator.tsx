@@ -138,7 +138,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
         {options.query && (
           <>
             <File.Import name={['useQuery']} path={importPath} />
-            <File.Import name={['QueryKey', 'QueryObserverOptions', 'UseQueryResult']} path={importPath} isTypeOnly />
+            <File.Import name={['QueryKey', 'QueryClient', 'QueryObserverOptions', 'UseQueryResult', 'QueryClient']} path={importPath} isTypeOnly />
             <Query
               name={query.name}
               queryOptionsName={queryOptions.name}

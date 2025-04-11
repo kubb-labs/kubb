@@ -87,6 +87,15 @@ describe('clientGenerator operation', async () => {
         pathParamsType: 'object',
       },
     },
+    {
+      name: 'updatePetByIdClean',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'post',
+      options: {
+        urlType: false,
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -111,6 +120,7 @@ describe('clientGenerator operation', async () => {
         banner: '/* eslint-disable no-alert, no-console */',
       },
       group: undefined,
+      urlType: 'export',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>

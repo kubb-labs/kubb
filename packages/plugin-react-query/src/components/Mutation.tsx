@@ -63,7 +63,7 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
     options: {
       type: `
 {
-  mutation?: UseMutationOptions<${generics}>,
+  mutation?: UseMutationOptions<${generics}> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
 }
 `,
@@ -159,7 +159,7 @@ export function Mutation({
         generics={['TContext']}
       >
         {`
-        const { mutation: mutationOptions, client: config = {} } = options ?? {}
+        const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
         const mutationKey = mutationOptions?.mutationKey ?? ${mutationKeyName}(${mutationKeyParams.toCall()})
 
         return useMutation<${generics}>({
@@ -168,7 +168,7 @@ export function Mutation({
           },
           mutationKey,
           ...mutationOptions
-        })
+        }, queryClient)
     `}
       </Function>
     </File.Source>

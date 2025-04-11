@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams, UpdatePetWithForm405 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getUpdatePetWithFormUrl(petId: UpdatePetWithFormPathParams['petId']) {
+function getUpdatePetWithFormUrl(petId: UpdatePetWithFormPathParams['petId']) {
   return `/pet/${petId}` as const
 }
 

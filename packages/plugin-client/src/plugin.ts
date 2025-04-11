@@ -18,6 +18,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
   const {
     output = { path: 'clients', barrelType: 'named' },
     group,
+    urlType = false,
     exclude = [],
     include,
     override = [],
@@ -47,6 +48,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       paramsCasing,
       pathParamsType,
       baseURL,
+      urlType,
     },
     pre: [pluginOasName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {

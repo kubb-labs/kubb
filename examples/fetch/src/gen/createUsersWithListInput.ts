@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getCreateUsersWithListInputUrl() {
+function getCreateUsersWithListInputUrl() {
   return '/user/createWithList' as const
 }
 

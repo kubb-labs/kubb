@@ -4,6 +4,7 @@ export type { ApiResponseSchema } from './apiResponseSchema.ts'
 export type { CategorySchema } from './categorySchema.ts'
 export type { CustomerSchema } from './customerSchema.ts'
 export type { OrderSchema } from './orderSchema.ts'
+export type { AddFiles200Schema, AddFiles405Schema, AddFilesMutationRequestSchema, AddFilesMutationResponseSchema } from './petController/addFilesSchema.ts'
 export type { AddPet200Schema, AddPet405Schema, AddPetMutationRequestSchema, AddPetMutationResponseSchema } from './petController/addPetSchema.ts'
 export type {
   DeletePetPathParamsSchema,
@@ -101,6 +102,7 @@ export { apiResponseSchema } from './apiResponseSchema.ts'
 export { categorySchema } from './categorySchema.ts'
 export { customerSchema } from './customerSchema.ts'
 export { orderSchema } from './orderSchema.ts'
+export { addFiles200Schema, addFiles405Schema, addFilesMutationRequestSchema, addFilesMutationResponseSchema } from './petController/addFilesSchema.ts'
 export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './petController/addPetSchema.ts'
 export { deletePetPathParamsSchema, deletePetHeaderParamsSchema, deletePet400Schema, deletePetMutationResponseSchema } from './petController/deletePetSchema.ts'
 export {

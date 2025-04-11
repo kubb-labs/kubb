@@ -1,5 +1,46 @@
 # @kubb/plugin-solid-query
 
+## 3.7.7
+
+### Patch Changes
+
+- Updated dependencies [[`1d415d7`](https://github.com/kubb-labs/kubb/commit/1d415d77370125c9110ea478850c7e8f4e36c13f)]:
+  - @kubb/plugin-oas@3.7.7
+  - @kubb/plugin-ts@3.7.7
+  - @kubb/plugin-zod@3.7.7
+  - @kubb/core@3.7.7
+  - @kubb/fs@3.7.7
+  - @kubb/oas@3.7.7
+  - @kubb/react@3.7.7
+
+## 3.7.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.7.6
+  - @kubb/fs@3.7.6
+  - @kubb/oas@3.7.6
+  - @kubb/plugin-oas@3.7.6
+  - @kubb/plugin-ts@3.7.6
+  - @kubb/plugin-zod@3.7.6
+  - @kubb/react@3.7.6
+
+## 3.7.5
+
+### Patch Changes
+
+- [#1636](https://github.com/kubb-labs/kubb/pull/1636) [`de65de0`](https://github.com/kubb-labs/kubb/commit/de65de0f11faca9733f340b43875d7c72e048948) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support for custom QueryClient
+
+- Updated dependencies []:
+  - @kubb/core@3.7.5
+  - @kubb/fs@3.7.5
+  - @kubb/oas@3.7.5
+  - @kubb/plugin-oas@3.7.5
+  - @kubb/plugin-ts@3.7.5
+  - @kubb/plugin-zod@3.7.5
+  - @kubb/react@3.7.5
+
 ## 3.7.4
 
 ### Patch Changes

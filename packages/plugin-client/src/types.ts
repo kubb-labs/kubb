@@ -36,6 +36,13 @@ export type Options = {
    */
   operations?: boolean
   /**
+   * Export urls that are used by operation x
+   * `export` will make them part of your barrel file
+   * false will not make them exportable
+   * @example getGetPetByIdUrl
+   */
+  urlType?: 'export' | false
+  /**
    * Path to the client import path that will be used to do the API calls.
    * It will be used as `import client from '${client.importPath}'`.
    * It allows both relative and absolute path but be aware that we will not change the path.
@@ -102,6 +109,7 @@ type ResolvedOptions = {
   group?: Options['group']
   baseURL: string | undefined
   parser: NonNullable<Options['parser']>
+  urlType: NonNullable<Options['urlType']>
   importPath: NonNullable<Options['importPath']>
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>

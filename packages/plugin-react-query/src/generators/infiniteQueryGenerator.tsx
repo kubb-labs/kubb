@@ -147,7 +147,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
         {options.infinite && (
           <>
             <File.Import name={['useInfiniteQuery']} path={importPath} />
-            <File.Import name={['QueryKey', 'InfiniteQueryObserverOptions', 'UseInfiniteQueryResult']} path={importPath} isTypeOnly />
+            <File.Import name={['QueryKey', 'QueryClient', 'InfiniteQueryObserverOptions', 'UseInfiniteQueryResult']} path={importPath} isTypeOnly />
             <InfiniteQuery
               name={query.name}
               queryOptionsName={queryOptions.name}

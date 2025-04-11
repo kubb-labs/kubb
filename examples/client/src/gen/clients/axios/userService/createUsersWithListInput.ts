@@ -6,7 +6,7 @@ import type {
 } from '../../../models/ts/userController/CreateUsersWithListInput.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export function getCreateUsersWithListInputUrl() {
+function getCreateUsersWithListInputUrl() {
   return '/user/createWithList' as const
 }
 

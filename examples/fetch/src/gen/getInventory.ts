@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { GetInventoryQueryResponse } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getGetInventoryUrl() {
+function getGetInventoryUrl() {
   return '/store/inventory' as const
 }
 

@@ -138,7 +138,7 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
         {options.query && (
           <>
             <File.Import name={['useQuery']} path={importPath} />
-            <File.Import name={['QueryKey', 'QueryObserverOptions', 'UseQueryReturnType']} path={importPath} isTypeOnly />
+            <File.Import name={['QueryKey', 'QueryClient', 'QueryObserverOptions', 'UseQueryReturnType']} path={importPath} isTypeOnly />
             <Query
               name={query.name}
               queryOptionsName={queryOptions.name}

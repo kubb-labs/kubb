@@ -3,7 +3,7 @@ import client from '@kubb/plugin-client/clients/axios'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export function getLogoutUserUrl() {
+function getLogoutUserUrl() {
   return '/user/logout' as const
 }
 

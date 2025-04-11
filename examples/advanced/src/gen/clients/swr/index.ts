@@ -1,3 +1,4 @@
+export type { AddFilesMutationKeySWR } from './petController/useAddFilesSWR.ts'
 export type { AddPetMutationKeySWR } from './petController/useAddPetSWR.ts'
 export type { DeletePetMutationKeySWR } from './petController/useDeletePetSWR.ts'
 export type { FindPetsByStatusQueryKeySWR } from './petController/useFindPetsByStatusSWR.ts'
@@ -14,6 +15,7 @@ export type { GetUserByNameQueryKeySWR } from './userController/useGetUserByName
 export type { LoginUserQueryKeySWR } from './userController/useLoginUserSWR.ts'
 export type { LogoutUserQueryKeySWR } from './userController/useLogoutUserSWR.ts'
 export type { UpdateUserMutationKeySWR } from './userController/useUpdateUserSWR.ts'
+export { addFilesMutationKeySWR, useAddFilesSWR } from './petController/useAddFilesSWR.ts'
 export { addPetMutationKeySWR, useAddPetSWR } from './petController/useAddPetSWR.ts'
 export { deletePetMutationKeySWR, useDeletePetSWR } from './petController/useDeletePetSWR.ts'
 export { findPetsByStatusQueryKeySWR, findPetsByStatusQueryOptionsSWR, useFindPetsByStatusSWR } from './petController/useFindPetsByStatusSWR.ts'
