@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.7.7
+- [`plugin-oas`](/plugins/plugin-oas): support for contentType override/exclude/include
+
 ## 3.7.6
 - [`plugin-client`](/plugins/plugin-client): Removing export of the url
 

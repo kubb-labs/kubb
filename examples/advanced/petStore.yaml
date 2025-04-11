@@ -364,6 +364,27 @@ paths:
         - petstore_auth:
             - write:pets
             - read:pets
+  /pet/files:
+    post:
+      tags:
+        - pet
+      summary: Place an file for a pet
+      description: Place a new file in the store
+      operationId: addFiles
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Pet'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '405':
+          description: Invalid input
   /pet/{petId}/uploadImage:
     post:
       tags:
@@ -421,6 +442,7 @@ paths:
                   format: int32
       security:
         - api_key: []
+
   /store/order:
     post:
       tags:

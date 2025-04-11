@@ -1,3 +1,4 @@
+export { addFiles } from './addFiles.ts'
 export { addPet } from './addPet.ts'
 export { deletePet } from './deletePet.ts'
 export { findPetsByStatus } from './findPetsByStatus.ts'

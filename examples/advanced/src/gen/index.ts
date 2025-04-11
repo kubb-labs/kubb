@@ -1,3 +1,4 @@
+export type { AddFilesMutationKey } from './clients/hooks/petController/useAddFiles.ts'
 export type { AddPetMutationKey } from './clients/hooks/petController/useAddPet.ts'
 export type { DeletePetMutationKey } from './clients/hooks/petController/useDeletePet.ts'
 export type { FindPetsByStatusQueryKey } from './clients/hooks/petController/useFindPetsByStatus.ts'
@@ -15,6 +16,7 @@ export type { GetUserByNameQueryKey } from './clients/hooks/userController/useGe
 export type { LoginUserQueryKey } from './clients/hooks/userController/useLoginUser.ts'
 export type { LogoutUserQueryKey } from './clients/hooks/userController/useLogoutUser.ts'
 export type { UpdateUserMutationKey } from './clients/hooks/userController/useUpdateUser.ts'
+export type { AddFilesMutationKeySWR } from './clients/swr/petController/useAddFilesSWR.ts'
 export type { AddPetMutationKeySWR } from './clients/swr/petController/useAddPetSWR.ts'
 export type { DeletePetMutationKeySWR } from './clients/swr/petController/useDeletePetSWR.ts'
 export type { FindPetsByStatusQueryKeySWR } from './clients/swr/petController/useFindPetsByStatusSWR.ts'
@@ -38,6 +40,7 @@ export type { Category } from './models/ts/Category.ts'
 export type { Customer } from './models/ts/Customer.ts'
 export type { OrderOrderTypeEnum, OrderStatusEnum, OrderHttpStatusEnum, Order } from './models/ts/Order.ts'
 export type { PetStatusEnum, Pet } from './models/ts/Pet.ts'
+export type { AddFiles200, AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse, AddFilesMutation } from './models/ts/petController/AddFiles.ts'
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './models/ts/petController/AddPet.ts'
 export type {
   DeletePetPathParams,
@@ -178,6 +181,7 @@ export type { ApiResponseSchema } from './zod/apiResponseSchema.ts'
 export type { CategorySchema } from './zod/categorySchema.ts'
 export type { CustomerSchema } from './zod/customerSchema.ts'
 export type { OrderSchema } from './zod/orderSchema.ts'
+export type { AddFiles200Schema, AddFiles405Schema, AddFilesMutationRequestSchema, AddFilesMutationResponseSchema } from './zod/petController/addFilesSchema.ts'
 export type { AddPet200Schema, AddPet405Schema, AddPetMutationRequestSchema, AddPetMutationResponseSchema } from './zod/petController/addPetSchema.ts'
 export type {
   DeletePetPathParamsSchema,
@@ -270,6 +274,7 @@ export type {
 } from './zod/userController/updateUserSchema.ts'
 export type { UserSchema } from './zod/userSchema.ts'
 export { operations } from './clients/axios/operations.ts'
+export { addFiles } from './clients/axios/petService/addFiles.ts'
 export { addPet } from './clients/axios/petService/addPet.ts'
 export { deletePet } from './clients/axios/petService/deletePet.ts'
 export { findPetsByStatus } from './clients/axios/petService/findPetsByStatus.ts'
@@ -289,6 +294,7 @@ export { loginUser } from './clients/axios/userService/loginUser.ts'
 export { logoutUser } from './clients/axios/userService/logoutUser.ts'
 export { updateUser } from './clients/axios/userService/updateUser.ts'
 export { userService } from './clients/axios/userService/userService.ts'
+export { addFilesMutationKey, useAddFiles } from './clients/hooks/petController/useAddFiles.ts'
 export { addPetMutationKey, useAddPet } from './clients/hooks/petController/useAddPet.ts'
 export { deletePetMutationKey, useDeletePet } from './clients/hooks/petController/useDeletePet.ts'
 export { findPetsByStatusQueryKey, findPetsByStatusQueryOptions, useFindPetsByStatus } from './clients/hooks/petController/useFindPetsByStatus.ts'
@@ -310,6 +316,7 @@ export { getUserByNameQueryKey, getUserByNameQueryOptions, useGetUserByName } fr
 export { loginUserQueryKey, loginUserQueryOptions, useLoginUser } from './clients/hooks/userController/useLoginUser.ts'
 export { logoutUserQueryKey, logoutUserQueryOptions, useLogoutUser } from './clients/hooks/userController/useLogoutUser.ts'
 export { updateUserMutationKey, useUpdateUser } from './clients/hooks/userController/useUpdateUser.ts'
+export { addFilesMutationKeySWR, useAddFilesSWR } from './clients/swr/petController/useAddFilesSWR.ts'
 export { addPetMutationKeySWR, useAddPetSWR } from './clients/swr/petController/useAddPetSWR.ts'
 export { deletePetMutationKeySWR, useDeletePetSWR } from './clients/swr/petController/useDeletePetSWR.ts'
 export { findPetsByStatusQueryKeySWR, findPetsByStatusQueryOptionsSWR, useFindPetsByStatusSWR } from './clients/swr/petController/useFindPetsByStatusSWR.ts'
@@ -336,6 +343,12 @@ export { createPetFaker } from './mocks/createPetFaker.ts'
 export { createPetNotFoundFaker } from './mocks/createPetNotFoundFaker.ts'
 export { createUserArrayFaker } from './mocks/createUserArrayFaker.ts'
 export { createUserFaker } from './mocks/createUserFaker.ts'
+export {
+  createAddFiles200Faker,
+  createAddFiles405Faker,
+  createAddFilesMutationRequestFaker,
+  createAddFilesMutationResponseFaker,
+} from './mocks/petController/createAddFilesFaker.ts'
 export {
   createAddPet200Faker,
   createAddPet405Faker,
@@ -443,6 +456,7 @@ export { petStatusEnum } from './models/ts/Pet.ts'
 export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './models/ts/petController/FindPetsByTags.ts'
 export { createPetsHeaderParamsXEXAMPLEEnum } from './models/ts/petsController/CreatePets.ts'
 export { handlers } from './msw/handlers.ts'
+export { addFilesHandler } from './msw/petController/addFilesHandler.ts'
 export { addPetHandler } from './msw/petController/addPetHandler.ts'
 export { deletePetHandler } from './msw/petController/deletePetHandler.ts'
 export { findPetsByStatusHandler } from './msw/petController/findPetsByStatusHandler.ts'
@@ -465,6 +479,7 @@ export { apiResponseSchema } from './zod/apiResponseSchema.ts'
 export { categorySchema } from './zod/categorySchema.ts'
 export { customerSchema } from './zod/customerSchema.ts'
 export { orderSchema } from './zod/orderSchema.ts'
+export { addFiles200Schema, addFiles405Schema, addFilesMutationRequestSchema, addFilesMutationResponseSchema } from './zod/petController/addFilesSchema.ts'
 export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './zod/petController/addPetSchema.ts'
 export {
   deletePetPathParamsSchema,

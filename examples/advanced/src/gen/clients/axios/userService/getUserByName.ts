@@ -6,6 +6,7 @@ import type {
   GetUserByName400,
   GetUserByName404,
 } from '../../../models/ts/userController/GetUserByName.ts'
+import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
 
 function getGetUserByNameUrl({ username }: { username: GetUserByNamePathParams['username'] }) {
   return `https://petstore3.swagger.io/api/v3/user/${username}` as const
@@ -26,5 +27,5 @@ export async function getUserByName(
     url: getGetUserByNameUrl({ username }).toString(),
     ...requestConfig,
   })
-  return res
+  return { ...res, data: getUserByNameQueryResponseSchema.parse(res.data) }
 }

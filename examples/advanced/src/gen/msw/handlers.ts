@@ -1,3 +1,4 @@
+import { addFilesHandler } from './petController/addFilesHandler.ts'
 import { addPetHandler } from './petController/addPetHandler.ts'
 import { deletePetHandler } from './petController/deletePetHandler.ts'
 import { findPetsByStatusHandler } from './petController/findPetsByStatusHandler.ts'
@@ -24,6 +25,7 @@ export const handlers = [
   getPetByIdHandler(),
   updatePetWithFormHandler(),
   deletePetHandler(),
+  addFilesHandler(),
   uploadFileHandler(),
   createUserHandler(),
   createUsersWithListInputHandler(),

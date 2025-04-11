@@ -7,6 +7,7 @@ import type {
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
 } from '../../../models/ts/petsController/CreatePets.ts'
+import { createPetsMutationResponseSchema, createPetsMutationRequestSchema } from '../../../zod/petsController/createPetsSchema.ts'
 
 function getCreatePetsUrl({ uuid }: { uuid: CreatePetsPathParams['uuid'] }) {
   return `https://petstore3.swagger.io/api/v3/pets/${uuid}` as const
@@ -31,9 +32,9 @@ export async function createPets(
     method: 'POST',
     url: getCreatePetsUrl({ uuid }).toString(),
     params,
-    data,
+    data: createPetsMutationRequestSchema.parse(data),
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
-  return res
+  return { ...res, data: createPetsMutationResponseSchema.parse(res.data) }
 }

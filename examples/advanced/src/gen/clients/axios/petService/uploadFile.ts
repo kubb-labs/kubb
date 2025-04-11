@@ -6,6 +6,7 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
+import { uploadFileMutationResponseSchema, uploadFileMutationRequestSchema } from '../../../zod/petController/uploadFileSchema.ts'
 
 function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
   return `https://petstore3.swagger.io/api/v3/pet/${petId}/uploadImage` as const
@@ -25,9 +26,9 @@ export async function uploadFile(
     method: 'POST',
     url: getUploadFileUrl({ petId }).toString(),
     params,
-    data,
+    data: uploadFileMutationRequestSchema.parse(data),
     ...requestConfig,
     headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
   })
-  return res
+  return { ...res, data: uploadFileMutationResponseSchema.parse(res.data) }
 }
