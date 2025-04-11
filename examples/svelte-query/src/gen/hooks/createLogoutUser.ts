@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
+import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
 import { queryOptions, createQuery } from '@tanstack/svelte-query'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
@@ -36,18 +36,24 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client
  */
 export function createLogoutUser<TData = LogoutUserQueryResponse, TQueryData = LogoutUserQueryResponse, TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
-    query?: Partial<CreateBaseQueryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>>
+    query?: Partial<CreateBaseQueryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { query: queryOptions, client: config = {} } = options ?? {}
+  const {
+    query: { client: queryClient, ...queryOptions } = {},
+    client: config = {},
+  } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
 
-  const query = createQuery({
-    ...(logoutUserQueryOptions(config) as unknown as CreateBaseQueryOptions),
-    queryKey,
-    ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-  }) as CreateQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
+  const query = createQuery(
+    {
+      ...(logoutUserQueryOptions(config) as unknown as CreateBaseQueryOptions),
+      queryKey,
+      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
+    },
+    queryClient,
+  ) as CreateQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

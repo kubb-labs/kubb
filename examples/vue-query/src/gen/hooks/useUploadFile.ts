@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { MutationObserverOptions } from '@tanstack/vue-query'
+import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
@@ -43,11 +43,11 @@ export function useUploadFile<TContext>(
       ResponseErrorConfig<Error>,
       { petId: MaybeRef<UploadFilePathParams['petId']>; data?: MaybeRef<UploadFileMutationRequest>; params?: MaybeRef<UploadFileQueryParams> },
       TContext
-    >
+    > & { client?: QueryClient }
     client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: mutationOptions, client: config = {} } = options ?? {}
+  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? uploadFileMutationKey()
 
   return useMutation<
@@ -55,11 +55,14 @@ export function useUploadFile<TContext>(
     ResponseErrorConfig<Error>,
     { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
     TContext
-  >({
-    mutationFn: async ({ petId, data, params }) => {
-      return uploadFile({ petId }, data, params, config)
+  >(
+    {
+      mutationFn: async ({ petId, data, params }) => {
+        return uploadFile({ petId }, data, params, config)
+      },
+      mutationKey,
+      ...mutationOptions,
     },
-    mutationKey,
-    ...mutationOptions,
-  })
+    queryClient,
+  )
 }

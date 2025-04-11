@@ -6,7 +6,7 @@ import type {
   UpdatePetWithForm405,
 } from '../../models/UpdatePetWithForm.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
+import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
 export const updatePetWithFormQueryKey = (pet_id: UpdatePetWithFormPathParams['pet_id'], params?: UpdatePetWithFormQueryParams) =>
@@ -62,18 +62,26 @@ export function useUpdatePetWithFormHook<
   pet_id: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
   options: {
-    query?: Partial<QueryObserverOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
+      client?: QueryClient
+    }
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { query: queryOptions, client: config = {} } = options ?? {}
+  const {
+    query: { client: queryClient, ...queryOptions } = {},
+    client: config = {},
+  } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(pet_id, params)
 
-  const query = useQuery({
-    ...(updatePetWithFormQueryOptionsHook(pet_id, params, config) as unknown as QueryObserverOptions),
-    queryKey,
-    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
+  const query = useQuery(
+    {
+      ...(updatePetWithFormQueryOptionsHook(pet_id, params, config) as unknown as QueryObserverOptions),
+      queryKey,
+      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
+    },
+    queryClient,
+  ) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

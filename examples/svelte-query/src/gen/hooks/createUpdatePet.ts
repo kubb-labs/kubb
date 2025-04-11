@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const
@@ -37,11 +37,14 @@ export function createUpdatePet<TContext>(
       ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
       { data: UpdatePetMutationRequest },
       TContext
-    >
+    > & { client?: QueryClient }
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: mutationOptions, client: config = {} } = options ?? {}
+  const {
+    mutation: { client: queryClient, ...mutationOptions } = {},
+    client: config = {},
+  } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
 
   return createMutation<
@@ -49,11 +52,14 @@ export function createUpdatePet<TContext>(
     ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
     { data: UpdatePetMutationRequest },
     TContext
-  >({
-    mutationFn: async ({ data }) => {
-      return updatePet(data, config)
+  >(
+    {
+      mutationFn: async ({ data }) => {
+        return updatePet(data, config)
+      },
+      mutationKey,
+      ...mutationOptions,
     },
-    mutationKey,
-    ...mutationOptions,
-  })
+    queryClient,
+  )
 }

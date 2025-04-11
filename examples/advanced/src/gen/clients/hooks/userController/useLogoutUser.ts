@@ -1,6 +1,6 @@
 import type client from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
+import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { logoutUser } from '../../axios/userService/logoutUser.ts'
@@ -30,18 +30,26 @@ export function useLogoutUser<
   TQueryKey extends QueryKey = LogoutUserQueryKey,
 >(
   options: {
-    query?: Partial<QueryObserverOptions<ResponseConfig<LogoutUserQueryResponse>, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<ResponseConfig<LogoutUserQueryResponse>, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>> & {
+      client?: QueryClient
+    }
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { query: queryOptions, client: config = {} } = options ?? {}
+  const {
+    query: { client: queryClient, ...queryOptions } = {},
+    client: config = {},
+  } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
 
-  const query = useQuery({
-    ...(logoutUserQueryOptions(config) as unknown as QueryObserverOptions),
-    queryKey,
-    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
+  const query = useQuery(
+    {
+      ...(logoutUserQueryOptions(config) as unknown as QueryObserverOptions),
+      queryKey,
+      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
+    },
+    queryClient,
+  ) as UseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

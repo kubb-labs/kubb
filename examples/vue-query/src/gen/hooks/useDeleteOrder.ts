@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { MutationObserverOptions } from '@tanstack/vue-query'
+import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
@@ -40,11 +40,11 @@ export function useDeleteOrder<TContext>(
       ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
       { orderId: MaybeRef<DeleteOrderPathParams['orderId']> },
       TContext
-    >
+    > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: mutationOptions, client: config = {} } = options ?? {}
+  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
 
   return useMutation<
@@ -52,11 +52,14 @@ export function useDeleteOrder<TContext>(
     ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
     { orderId: DeleteOrderPathParams['orderId'] },
     TContext
-  >({
-    mutationFn: async ({ orderId }) => {
-      return deleteOrder({ orderId }, config)
+  >(
+    {
+      mutationFn: async ({ orderId }) => {
+        return deleteOrder({ orderId }, config)
+      },
+      mutationKey,
+      ...mutationOptions,
     },
-    mutationKey,
-    ...mutationOptions,
-  })
+    queryClient,
+  )
 }

@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
 export const placeOrderMutationKey = () => [{ url: '/store/order' }] as const
@@ -35,18 +35,26 @@ export async function placeOrder(
  */
 export function createPlaceOrder<TContext>(
   options: {
-    mutation?: CreateMutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>
+    mutation?: CreateMutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext> & {
+      client?: QueryClient
+    }
     client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: mutationOptions, client: config = {} } = options ?? {}
+  const {
+    mutation: { client: queryClient, ...mutationOptions } = {},
+    client: config = {},
+  } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? placeOrderMutationKey()
 
-  return createMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>({
-    mutationFn: async ({ data }) => {
-      return placeOrder(data, config)
+  return createMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>(
+    {
+      mutationFn: async ({ data }) => {
+        return placeOrder(data, config)
+      },
+      mutationKey,
+      ...mutationOptions,
     },
-    mutationKey,
-    ...mutationOptions,
-  })
+    queryClient,
+  )
 }
