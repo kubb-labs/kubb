@@ -1,5 +1,20 @@
 # @kubb/plugin-client
 
+## 3.7.6
+
+### Patch Changes
+
+- [`372ac85`](https://github.com/kubb-labs/kubb/commit/372ac852c641b23bb0a1ab2e1a443b40629dd3a7) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removing export of the url
+
+- Updated dependencies []:
+  - @kubb/core@3.7.6
+  - @kubb/fs@3.7.6
+  - @kubb/oas@3.7.6
+  - @kubb/plugin-oas@3.7.6
+  - @kubb/plugin-ts@3.7.6
+  - @kubb/plugin-zod@3.7.6
+  - @kubb/react@3.7.6
+
 ## 3.7.5
 
 ### Patch Changes

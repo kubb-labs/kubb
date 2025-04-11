@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-solid-query",
-  "version": "3.7.5",
+  "version": "3.7.6",
   "description": "Generator solid-query hooks",
   "keywords": [
     "faker",
