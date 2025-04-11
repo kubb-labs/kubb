@@ -163,7 +163,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output })}
+        banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         {operationSchemas.map(mapOperationSchema)}
@@ -181,6 +181,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       plugin: {
         options: { output },
       },
+      pluginManager,
     } = useApp<PluginTs>()
     const oas = useOas()
 
@@ -198,7 +199,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     }
 
     return (
-      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta} banner={getBanner({ oas, output })} footer={getFooter({ oas, output })}>
+      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta} banner={getBanner({ oas, output, config: pluginManager.config })} footer={getFooter({ oas, output })}>
         {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />)}
         <Type
           name={type.name}
