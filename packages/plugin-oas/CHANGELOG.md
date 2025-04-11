@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 3.7.7
+
+### Patch Changes
+
+- [`1d415d7`](https://github.com/kubb-labs/kubb/commit/1d415d77370125c9110ea478850c7e8f4e36c13f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support for contentType override/exclude/include
+
+- Updated dependencies []:
+  - @kubb/core@3.7.7
+  - @kubb/fs@3.7.7
+  - @kubb/oas@3.7.7
+  - @kubb/react@3.7.7
+
 ## 3.7.6
 
 ### Patch Changes
