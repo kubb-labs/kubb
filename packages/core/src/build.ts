@@ -60,6 +60,7 @@ export async function setup(options: BuildOptions): Promise<PluginManager> {
       extension: {
         '.ts': '.ts',
       },
+      addDefaultBanner: true,
       ...userConfig.output,
     },
     plugins: userConfig.plugins as Config['plugins'],

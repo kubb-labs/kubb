@@ -20,7 +20,7 @@ export const oasGenerator = createReactGenerator<PluginTs>({
     const file = pluginManager.getFile({ name: 'oas', extname: '.ts', pluginKey })
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={getBanner({ oas, output })} footer={getFooter({ oas, output })}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={getBanner({ oas, output, config: pluginManager.config })} footer={getFooter({ oas, output })}>
         <File.Import name={['Infer']} path="@kubb/oas" isTypeOnly />
 
         <OasType name={'oas'} typeName={'Oas'} api={oas.api} />

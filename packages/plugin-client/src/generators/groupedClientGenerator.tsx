@@ -60,7 +60,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
           baseName={file.baseName}
           path={file.path}
           meta={file.meta}
-          banner={getBanner({ oas, output: options.output })}
+          banner={getBanner({ oas, output: options.output, config: pluginManager.config })}
           footer={getFooter({ oas, output: options.output })}
         >
           {clients.map((client) => (
