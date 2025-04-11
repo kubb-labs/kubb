@@ -1,5 +1,17 @@
 # @kubb/plugin-ts
 
+## 3.7.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.7.5
+  - @kubb/fs@3.7.5
+  - @kubb/oas@3.7.5
+  - @kubb/parser-ts@3.7.5
+  - @kubb/plugin-oas@3.7.5
+  - @kubb/react@3.7.5
+
 ## 3.7.4
 
 ### Patch Changes
