@@ -4,7 +4,10 @@ title: Changelog
 
 # Changelog
 
-## 3.8.0
+## 3.7.6
+- [`plugin-client`](/plugins/plugin-client): Removing export of the url
+
+## 3.7.5
 - [`plugin-react-query`](/plugins/plugin-react-query/): support for custom QueryClient
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support for custom QueryClient
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): support for custom QueryClient

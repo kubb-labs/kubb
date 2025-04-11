@@ -8,7 +8,7 @@ import type {
   UpdatePet405,
 } from '../../../models/ts/petController/UpdatePet.ts'
 
-export function getUpdatePetUrl() {
+function getUpdatePetUrl() {
   return 'https://petstore3.swagger.io/api/v3/pet' as const
 }
 

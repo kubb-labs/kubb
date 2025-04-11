@@ -3,7 +3,7 @@ import client from '@kubb/plugin-client/clients/axios'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export function getFindPetsByStatusUrl() {
+function getFindPetsByStatusUrl() {
   return '/pet/findByStatus' as const
 }
 

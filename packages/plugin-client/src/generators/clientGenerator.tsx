@@ -13,7 +13,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
   Operation({ options, operation }) {
     const {
       plugin: {
-        options: { output },
+        options: { output, urlType },
       },
     } = useApp<PluginClient>()
     const oas = useOas()
@@ -74,6 +74,8 @@ export const clientGenerator = createReactGenerator<PluginClient>({
           paramsType={options.paramsType}
           typeSchemas={type.schemas}
           operation={operation}
+          isIndexable={urlType === 'export'}
+          isExportable={urlType === 'export'}
         />
 
         <Client

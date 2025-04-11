@@ -11,8 +11,8 @@ import { getOrderByIdQueryResponseSchema } from './zod/getOrderByIdSchema.gen.ts
 import { placeOrderPatchMutationResponseSchema, placeOrderPatchMutationRequestSchema } from './zod/placeOrderPatchSchema.gen.ts'
 import { placeOrderMutationResponseSchema, placeOrderMutationRequestSchema } from './zod/placeOrderSchema.gen.ts'
 
-export function getGetInventoryUrl() {
-  return `/store/inventory` as const
+function getGetInventoryUrl() {
+  return '/store/inventory' as const
 }
 
 /**
@@ -31,8 +31,8 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: t
   return getInventoryQueryResponseSchema.parse(res.data)
 }
 
-export function getPlaceOrderUrl() {
-  return `/store/order` as const
+function getPlaceOrderUrl() {
+  return '/store/order' as const
 }
 
 /**
@@ -55,8 +55,8 @@ export async function placeOrder(
   return placeOrderMutationResponseSchema.parse(res.data)
 }
 
-export function getPlaceOrderPatchUrl() {
-  return `/store/order` as const
+function getPlaceOrderPatchUrl() {
+  return '/store/order' as const
 }
 
 /**
@@ -79,7 +79,7 @@ export async function placeOrderPatch(
   return placeOrderPatchMutationResponseSchema.parse(res.data)
 }
 
-export function getGetOrderByIdUrl({ orderId }: { orderId: GetOrderByIdPathParamsType['orderId'] }) {
+function getGetOrderByIdUrl({ orderId }: { orderId: GetOrderByIdPathParamsType['orderId'] }) {
   return `/store/order/${orderId}` as const
 }
 
@@ -102,7 +102,7 @@ export async function getOrderById(
   return getOrderByIdQueryResponseSchema.parse(res.data)
 }
 
-export function getDeleteOrderUrl({ orderId }: { orderId: DeleteOrderPathParamsType['orderId'] }) {
+function getDeleteOrderUrl({ orderId }: { orderId: DeleteOrderPathParamsType['orderId'] }) {
   return `/store/order/${orderId}` as const
 }
 

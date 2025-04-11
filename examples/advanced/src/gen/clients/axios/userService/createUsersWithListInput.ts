@@ -5,7 +5,7 @@ import type {
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
 
-export function getCreateUsersWithListInputUrl() {
+function getCreateUsersWithListInputUrl() {
   return 'https://petstore3.swagger.io/api/v3/user/createWithList' as const
 }
 

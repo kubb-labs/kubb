@@ -9,7 +9,7 @@ import type {
 } from '../../../models/ts/petController/UpdatePet.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export function getUpdatePetUrl() {
+function getUpdatePetUrl() {
   return '/pet' as const
 }
 

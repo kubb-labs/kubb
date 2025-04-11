@@ -3,7 +3,7 @@ import client from '@kubb/plugin-client/clients/axios'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export function getCreateUserUrl() {
+function getCreateUserUrl() {
   return '/user' as const
 }
 

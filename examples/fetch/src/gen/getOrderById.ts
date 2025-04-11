@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getGetOrderByIdUrl(orderId: GetOrderByIdPathParams['orderId']) {
+function getGetOrderByIdUrl(orderId: GetOrderByIdPathParams['orderId']) {
   return `/store/order/${orderId}` as const
 }
 

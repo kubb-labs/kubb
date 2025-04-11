@@ -3,7 +3,7 @@ import client from '@kubb/plugin-client/clients/axios'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export function getLoginUserUrl() {
+function getLoginUserUrl() {
   return '/user/login' as const
 }
 

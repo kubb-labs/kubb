@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getUpdatePetUrl() {
+function getUpdatePetUrl() {
   return '/pet' as const
 }
 

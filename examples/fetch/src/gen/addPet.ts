@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getAddPetUrl() {
+function getAddPetUrl() {
   return '/pet' as const
 }
 

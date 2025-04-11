@@ -6,7 +6,7 @@ import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder4
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from './models/ts/storeController/PlaceOrderPatch.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export function getGetInventoryUrlController() {
+function getGetInventoryUrlController() {
   return '/store/inventory' as const
 }
 
@@ -26,7 +26,7 @@ export async function getInventoryController(config: Partial<RequestConfig> & { 
   return res.data
 }
 
-export function getPlaceOrderUrlController() {
+function getPlaceOrderUrlController() {
   return '/store/order' as const
 }
 
@@ -50,7 +50,7 @@ export async function placeOrderController(
   return res.data
 }
 
-export function getPlaceOrderPatchUrlController() {
+function getPlaceOrderPatchUrlController() {
   return '/store/order' as const
 }
 
@@ -74,7 +74,7 @@ export async function placeOrderPatchController(
   return res.data
 }
 
-export function getGetOrderByIdUrlController(orderId: GetOrderByIdPathParams['orderId']) {
+function getGetOrderByIdUrlController(orderId: GetOrderByIdPathParams['orderId']) {
   return `/store/order/${orderId}` as const
 }
 
@@ -94,7 +94,7 @@ export async function getOrderByIdController(orderId: GetOrderByIdPathParams['or
   return res.data
 }
 
-export function getDeleteOrderUrlController(orderId: DeleteOrderPathParams['orderId']) {
+function getDeleteOrderUrlController(orderId: DeleteOrderPathParams['orderId']) {
   return `/store/order/${orderId}` as const
 }
 

@@ -1,14 +1,8 @@
 /* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/clients/axios'
-import type {
-  UpdatePetWithFormMutationResponse,
-  UpdatePetWithFormPathParams,
-  UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
-} from '../../../models/ts/petController/UpdatePetWithForm.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) {
+function getUpdatePetWithFormUrl(petId: UpdatePetWithFormPathParams['petId']) {
   return `/pet/${petId}` as const
 }
 
@@ -17,7 +11,7 @@ function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams
  * {@link /pet/:petId}
  */
 export async function updatePetWithForm(
-  { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
+  petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
@@ -25,7 +19,7 @@ export async function updatePetWithForm(
 
   const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
-    url: getUpdatePetWithFormUrl({ petId }).toString(),
+    url: getUpdatePetWithFormUrl(petId).toString(),
     params,
     ...requestConfig,
   })

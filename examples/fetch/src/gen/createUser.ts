@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getCreateUserUrl() {
+function getCreateUserUrl() {
   return '/user' as const
 }
 

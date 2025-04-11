@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getFindPetsByTagsUrl() {
+function getFindPetsByTagsUrl() {
   return '/pet/findByTags' as const
 }
 

@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getFindPetsByStatusUrl() {
+function getFindPetsByStatusUrl() {
   return '/pet/findByStatus' as const
 }
 

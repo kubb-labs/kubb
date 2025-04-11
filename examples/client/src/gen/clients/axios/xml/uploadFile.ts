@@ -8,7 +8,7 @@ import type {
 } from '../../../models/ts/petController/UploadFile.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export function getUploadFileUrlXML({ petId }: { petId: UploadFilePathParams['petId'] }) {
+function getUploadFileUrlXML({ petId }: { petId: UploadFilePathParams['petId'] }) {
   return `/pet/${petId}/uploadImage` as const
 }
 

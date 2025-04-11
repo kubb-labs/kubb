@@ -7,7 +7,7 @@ import type {
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
 
-export function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
+function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
   return `https://petstore3.swagger.io/api/v3/pet/${petId}/uploadImage` as const
 }
 

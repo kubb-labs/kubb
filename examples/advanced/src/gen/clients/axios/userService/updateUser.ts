@@ -2,7 +2,7 @@ import client from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 
-export function getUpdateUserUrl({ username }: { username: UpdateUserPathParams['username'] }) {
+function getUpdateUserUrl({ username }: { username: UpdateUserPathParams['username'] }) {
   return `https://petstore3.swagger.io/api/v3/user/${username}` as const
 }
 

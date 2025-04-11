@@ -3,7 +3,7 @@ import client from '@kubb/plugin-client/clients/axios'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export function getDeleteUserUrl({ username }: { username: DeleteUserPathParams['username'] }) {
+function getDeleteUserUrl({ username }: { username: DeleteUserPathParams['username'] }) {
   return `/user/${username}` as const
 }
 

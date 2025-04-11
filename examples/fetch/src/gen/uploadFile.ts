@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getUploadFileUrl(petId: UploadFilePathParams['petId']) {
+function getUploadFileUrl(petId: UploadFilePathParams['petId']) {
   return `/pet/${petId}/uploadImage` as const
 }
 

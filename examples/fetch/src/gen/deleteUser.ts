@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getDeleteUserUrl(username: DeleteUserPathParams['username']) {
+function getDeleteUserUrl(username: DeleteUserPathParams['username']) {
   return `/user/${username}` as const
 }
 

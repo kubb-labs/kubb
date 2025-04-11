@@ -2,7 +2,7 @@ import client from '@kubb/plugin-client/clients/fetch'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
-export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
+function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
   return `/pet/${petId}` as const
 }
 

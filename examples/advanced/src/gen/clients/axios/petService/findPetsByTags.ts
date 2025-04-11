@@ -7,7 +7,7 @@ import type {
   FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags.ts'
 
-export function getFindPetsByTagsUrl() {
+function getFindPetsByTagsUrl() {
   return 'https://petstore3.swagger.io/api/v3/pet/findByTags' as const
 }
 
