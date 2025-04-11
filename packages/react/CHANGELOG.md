@@ -1,5 +1,14 @@
 # @kubb/react
 
+## 3.7.7
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.7.7
+  - @kubb/fs@3.7.7
+  - @kubb/parser-ts@3.7.7
+
 ## 3.7.6
 
 ### Patch Changes
