@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.8.0
+- [`react`](/helpers/react/): Support for React 19 and expose `useState`, `useEffect`, `useRef` from `@kubb/react`
+
 ## 3.7.7
 - [`plugin-oas`](/plugins/plugin-oas): support for contentType override/exclude/include
 

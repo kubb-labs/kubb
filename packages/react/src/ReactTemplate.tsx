@@ -16,11 +16,6 @@ import { createNode } from './dom.ts'
 import type { FiberRoot } from './kubbRenderer.ts'
 import type { DOMElement } from './types.ts'
 
-// https://agent-hunt.medium.com/hello-world-custom-react-renderer-9a95b7cd04bc
-const noop = () => {
-  console.log('ff')
-}
-
 export type ReactTemplateOptions = {
   stdout?: NodeJS.WriteStream
   stdin?: NodeJS.ReadStream
@@ -208,7 +203,7 @@ export class ReactTemplate {
 
     this.#isUnmounted = true
 
-    KubbRenderer.updateContainerSync(null, this.#container, null, noop)
+    KubbRenderer.updateContainerSync(null, this.#container, null, null)
 
     if (this.#options.stdout) {
       this.#options.stdout.clearLine(0)

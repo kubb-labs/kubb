@@ -6,6 +6,7 @@ import { DefaultEventPriority, NoEventPriority } from 'react-reconciler/constant
 import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './dom.ts'
 
 import type { DOMElement, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
+import type { KubbNode } from '@kubb/react/types'
 
 // https://github.com/pmndrs/react-three-fiber/blob/v9/packages/fiber/src/core/reconciler.tsx
 declare module 'react-reconciler/constants' {
@@ -15,7 +16,7 @@ declare module 'react-reconciler/constants' {
 declare module 'react-reconciler' {
   // @ts-expect-error custom override
   interface Reconciler {
-    updateContainerSync(element: React.ReactNode, container: unknown, parentComponent: any, callback?: null | (() => void)): void
+    updateContainerSync(element: KubbNode, container: unknown, parentComponent: any, callback?: null | (() => void)): void
     flushSyncWork(): void
     createContainer(
       containerInfo: unknown,
