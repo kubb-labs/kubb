@@ -67,7 +67,7 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
 
       const Component = parseOptions.Operations.bind(this)
 
-      await root.render(
+      root.render(
         <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
           <Oas oas={oas} operations={operations} generator={instance}>
             <Component operations={operations} instance={instance} operationsByMethod={operationsByMethod} options={options} />
@@ -89,7 +89,7 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
 
       const Component = parseOptions.Operation.bind(this)
 
-      await root.render(
+      root.render(
         <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
           <Oas oas={oas} operations={[operation]} generator={instance}>
             <Oas.Operation operation={operation}>
@@ -113,7 +113,7 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
 
       const Component = parseOptions.Schema.bind(this)
 
-      await root.render(
+      root.render(
         <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
           <Oas oas={oas}>
             <Oas.Schema name={schema.name} value={schema.value} tree={schema.tree}>

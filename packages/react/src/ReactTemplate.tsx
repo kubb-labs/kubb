@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { onExit } from 'signal-exit'
 
-import { LegacyRoot } from 'react-reconciler/constants'
+import { ConcurrentRoot } from 'react-reconciler/constants'
 import { Root } from './components/Root.tsx'
 import { KubbRenderer } from './kubbRenderer.ts'
 import { type RendererResult, renderer } from './renderer.ts'
@@ -77,6 +77,10 @@ export class ReactTemplate {
         return
       }
 
+      if (message.match(/A React Element from an older version of React was render/gi)) {
+        return
+      }
+
       originalError(data)
     }
 
@@ -90,7 +94,7 @@ export class ReactTemplate {
         : // In older browsers and test environments, fallback to console.error.
           console.error
 
-    const rootTag = LegacyRoot
+    const rootTag = ConcurrentRoot
     const hydrationCallbacks = null
     const isStrictMode = false
     const concurrentUpdatesByDefaultOverride = false
@@ -100,7 +104,7 @@ export class ReactTemplate {
     const onRecoverableError = logRecoverableError
     const transitionCallbacks = null
 
-    this.#container = (KubbRenderer as any).createContainer(
+    this.#container = KubbRenderer.createContainer(
       this.#rootNode,
       rootTag,
       hydrationCallbacks,
@@ -170,16 +174,18 @@ export class ReactTemplate {
     this.unmount(error)
   }
 
-  async render(node: ReactNode, context?: Context): Promise<void> {
+  render(node: ReactNode, context?: Context): RendererResult {
     const element = (
       <Root logger={this.#options.logger} meta={context?.meta || {}} onExit={this.onExit.bind(this)} onError={this.onError.bind(this)}>
         {node}
       </Root>
     )
 
-    return new Promise((resolve) => {
-      KubbRenderer.updateContainer(element, this.#container, null, resolve)
-    })
+    KubbRenderer.updateContainerSync(element, this.#container, null, null)
+
+    KubbRenderer.flushSyncWork()
+
+    return renderer(this.#rootNode)
   }
 
   async renderToString(node: ReactNode, context?: Context): Promise<string> {
@@ -202,7 +208,7 @@ export class ReactTemplate {
 
     this.#isUnmounted = true
 
-    KubbRenderer.updateContainer(null, this.#container, null, noop)
+    KubbRenderer.updateContainerSync(null, this.#container, null, noop)
 
     if (this.#options.stdout) {
       this.#options.stdout.clearLine(0)

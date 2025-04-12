@@ -8,7 +8,7 @@ describe('<File/>', () => {
       return 'test'
     }
     const root = createRoot()
-    await root.render(<Component />)
+    root.render(<Component />)
 
     expect(root.output).toMatchInlineSnapshot(`"test"`)
   })
@@ -24,7 +24,7 @@ describe('<File/>', () => {
   })
 
   test('render File with Import and Export', async () => {
-    const Component = async () => {
+    const Component = () => {
       return (
         <File baseName="test.ts" path="path">
           <File.Import name={'React'} path="react" />
@@ -33,7 +33,7 @@ describe('<File/>', () => {
       )
     }
     const root = createRoot()
-    await root.render(<Component />)
+    root.render(<Component />)
 
     expect(root.files).toMatchInlineSnapshot(`
       [
