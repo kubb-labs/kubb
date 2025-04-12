@@ -1,5 +1,18 @@
 # @kubb/react
 
+## 3.8.0
+
+### Minor Changes
+
+- [#1468](https://github.com/kubb-labs/kubb/pull/1468) [`f7c5bb8`](https://github.com/kubb-labs/kubb/commit/f7c5bb8992c47333d8529e4494591c2029abd28a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for React 19 in Kubb
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.8.0
+  - @kubb/fs@3.8.0
+  - @kubb/parser-ts@3.8.0
+
 ## 3.7.7
 
 ### Patch Changes
