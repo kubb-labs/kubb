@@ -33,16 +33,16 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@mswjs/http-middleware": "^0.9.2",
-    "msw": "^2.6.8",
+    "msw": "^2.7.3",
     "react": "^18.3.1",
-    "tsup": "^8.3.5"
+    "tsup": "^8.4.0"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@types/express": "^4.17.21",
     "typescript": "~5.2.2"
   },
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@9.15.5",
   "engines": {
     "node": ">=20",
     "pnpm": ">=8.15.0"

@@ -193,7 +193,6 @@ describe('<File/>', () => {
   })
 
   test('render File with source and React element', () => {
-    const description = 'description'
     const Component = () => {
       return (
         <>

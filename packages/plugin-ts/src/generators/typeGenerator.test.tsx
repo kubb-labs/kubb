@@ -85,6 +85,24 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
+      name: 'FooBase',
+      input: '../../mocks/discriminator.yaml',
+      path: 'FooBase',
+      options: {
+        enumType: 'literal',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'FooNumber',
+      input: '../../mocks/discriminator.yaml',
+      path: 'FooNumber',
+      options: {
+        enumType: 'literal',
+        optionalType: 'questionToken',
+      },
+    },
+    {
       name: 'DogTypeAsConst',
       input: '../../mocks/discriminator.yaml',
       path: 'Dog',
@@ -203,12 +221,17 @@ describe('typeGenerator schema', async () => {
     },
     {
       name: 'EnumArray',
-      input: '../../mocks/enums_2.0.yaml',
+      input: '../../mocks/enums.yaml',
       path: 'enum.Array',
       options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
+        enumType: 'literal',
       },
+    },
+    {
+      name: 'EnumArray_2.0',
+      input: '../../mocks/enums_2.0.yaml',
+      path: 'enum.Array',
+      options: {},
     },
     {
       name: 'EnumNames',
@@ -425,6 +448,15 @@ describe('typeGenerator operation', async () => {
       method: 'post',
       options: {
         unknownType: 'unknown',
+      },
+    },
+    {
+      name: 'createPet with unknownType void',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        unknownType: 'void',
       },
     },
     {

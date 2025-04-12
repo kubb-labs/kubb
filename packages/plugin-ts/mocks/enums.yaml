@@ -18,7 +18,7 @@ components:
     enum.String:
       type: string
       enum:
-        - created_at
+        - created at
         - description
         - FILE.UPLOADED
         - FILE.DOWNLOADED
@@ -54,21 +54,15 @@ components:
                 - description
 
     enum.Array:
-      type: object
-      properties:
-      identifier:
-          type: array
-          prefixItems:
-            - type: integer
-              description: Number of items
-            - type: string
-              description: Description
-            - enum:
-                - "NW"
-                - "NE"
-                - "SW"
-                - "SE"
-              description: Wind direction
+      type: array
+      items:
+        type: string
+        enum:
+          - "NW"
+          - "NE"
+          - "SW"
+          - "SE"
+        description: Wind direction
 
     enum.Items:
       type: array

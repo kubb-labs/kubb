@@ -6,7 +6,7 @@ export type { CategoryType } from './CategoryType.ts'
 export type {
   CreatePetsPathParamsType,
   CreatePetsQueryParamsType,
-  CreatePetsHeaderParamsXExampleEnumType,
+  CreatePetsHeaderParamsXEXAMPLEEnumType,
   CreatePetsHeaderParamsType,
   CreatePets201Type,
   CreatePetsErrorType,
@@ -54,7 +54,7 @@ export type {
 } from './FindPetsByStatusType.ts'
 export type {
   FindPetsByTagsQueryParamsType,
-  FindPetsByTagsHeaderParamsXExampleEnumType,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumType,
   FindPetsByTagsHeaderParamsType,
   FindPetsByTags200Type,
   FindPetsByTags400Type,
@@ -140,8 +140,8 @@ export type {
 export type { UserArrayType } from './UserArrayType.ts'
 export type { UserType } from './UserType.ts'
 export { addPetRequestStatusEnum } from './AddPetRequestType.ts'
-export { createPetsHeaderParamsXExampleEnum } from './CreatePetsType.ts'
+export { createPetsHeaderParamsXEXAMPLEEnum } from './CreatePetsType.ts'
 export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatusType.ts'
-export { findPetsByTagsHeaderParamsXExampleEnum } from './FindPetsByTagsType.ts'
+export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './FindPetsByTagsType.ts'
 export { orderStatusEnum, orderHttpStatusEnum } from './OrderType.ts'
 export { petStatusEnum } from './PetType.ts'

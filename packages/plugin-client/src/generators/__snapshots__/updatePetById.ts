@@ -1,6 +1,10 @@
 /* eslint-disable no-alert, no-console */
 import client from '@kubb/plugin-client/clients/axios'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+
+export function getUpdatePetWithFormUrl(petId: UpdatePetWithFormPathParams['petId']) {
+  return `/pet/${petId}` as const
+}
 
 /**
  * @summary Updates a pet in the store with form data
@@ -9,8 +13,15 @@ import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
 export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> = {},
+  config: Partial<RequestConfig> & { client?: typeof client } = {},
 ) {
-  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, unknown>({ method: 'POST', url: `/pet/${petId}`, params, ...config })
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
+    method: 'POST',
+    url: getUpdatePetWithFormUrl(petId).toString(),
+    params,
+    ...requestConfig,
+  })
   return res.data
 }

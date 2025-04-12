@@ -28,6 +28,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     oasType = false,
     mapper = {},
     generators = [typeGenerator, oasType === 'infer' ? oasGenerator : undefined].filter(Boolean),
+    contentType,
   } = options
 
   return {
@@ -61,7 +62,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         return path.resolve(root, output.path)
       }
 
-      if (options?.group && group) {
+      if (group && (options?.group?.path || options?.group?.tag)) {
         const groupName: Group['name'] = group?.name
           ? group.name
           : (ctx) => {
@@ -71,7 +72,14 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
               return `${camelCase(ctx.group)}Controller`
             }
 
-        return path.resolve(root, output.path, groupName({ group: options.group }), baseName)
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)
@@ -96,7 +104,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         include: undefined,
         override,
         mode,
@@ -110,7 +118,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

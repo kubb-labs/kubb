@@ -1,3 +1,5 @@
+// version: 1.0.11
+
 export type DeleteUserPathParams = {
   /**
    * @description The name that needs to be deleted

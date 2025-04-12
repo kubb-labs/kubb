@@ -25,11 +25,12 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
     parser = 'client',
     transformers = {},
     paramsType = 'inline',
-    pathParamsType = 'inline',
+    pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
     queryKey = QueryKey.getTransformer,
     generators = [queryGenerator].filter(Boolean),
     query = {},
     paramsCasing,
+    contentType,
   } = options
 
   return {
@@ -39,7 +40,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
       client: {
         importPath: '@kubb/plugin-client/clients/axios',
         dataReturnType: 'data',
-        pathParamsType: 'inline',
+        pathParamsType,
         ...options.client,
       },
       queryKey,
@@ -52,7 +53,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
               ...query,
             },
       paramsType,
-      pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
+      pathParamsType,
       parser,
       group,
       paramsCasing,
@@ -70,7 +71,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
         return path.resolve(root, output.path)
       }
 
-      if (options?.group && group) {
+      if (group && (options?.group?.path || options?.group?.tag)) {
         const groupName: Group['name'] = group?.name
           ? group.name
           : (ctx) => {
@@ -80,7 +81,14 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
               return `${camelCase(ctx.group)}Controller`
             }
 
-        return path.resolve(root, output.path, groupName({ group: options.group }), baseName)
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)
@@ -119,7 +127,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

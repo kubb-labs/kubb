@@ -31,6 +31,8 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     coercion = false,
     inferred = false,
     generators = [zodGenerator, operations ? operationsGenerator : undefined].filter(Boolean),
+    wrapOutput = undefined,
+    contentType,
   } = options
 
   return {
@@ -50,6 +52,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       operations,
       inferred,
       group,
+      wrapOutput,
     },
     pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
@@ -64,7 +67,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         return path.resolve(root, output.path)
       }
 
-      if (options?.group && group) {
+      if (group && (options?.group?.path || options?.group?.tag)) {
         const groupName: Group['name'] = group?.name
           ? group.name
           : (ctx) => {
@@ -74,7 +77,14 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
               return `${camelCase(ctx.group)}Controller`
             }
 
-        return path.resolve(root, output.path, groupName({ group: options.group }), baseName)
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)
@@ -106,7 +116,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         include: undefined,
         override,
         mode,
@@ -120,7 +130,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

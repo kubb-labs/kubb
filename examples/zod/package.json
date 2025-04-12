@@ -27,15 +27,15 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "react": "^18.3.1",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2",
-    "zod": "^3.24.1"
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "typescript": "catalog:"
   },
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@9.15.5",
   "engines": {
     "node": ">=20",
     "pnpm": ">=8.15.0"

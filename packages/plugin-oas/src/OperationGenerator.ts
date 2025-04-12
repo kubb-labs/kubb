@@ -44,7 +44,7 @@ export class OperationGenerator<
     return (
       override.find(({ pattern, type }) => {
         if (type === 'tag') {
-          return !!operation.getTags()[0]?.name.match(pattern)
+          return !!operation.getTags().some((tag) => tag.name.match(pattern))
         }
 
         if (type === 'operationId') {
@@ -59,6 +59,10 @@ export class OperationGenerator<
           return !!method.match(pattern)
         }
 
+        if (type === 'contentType') {
+          return !!operation.getContentType().match(pattern)
+        }
+
         return false
       })?.options || {}
     )
@@ -70,7 +74,7 @@ export class OperationGenerator<
 
     exclude.forEach(({ pattern, type }) => {
       if (type === 'tag' && !matched) {
-        matched = !!operation.getTags()[0]?.name.match(pattern)
+        matched = !!operation.getTags().some((tag) => tag.name.match(pattern))
       }
 
       if (type === 'operationId' && !matched) {
@@ -83,6 +87,10 @@ export class OperationGenerator<
 
       if (type === 'method' && !matched) {
         matched = !!method.match(pattern)
+      }
+
+      if (type === 'contentType' && !matched) {
+        return !!operation.getContentType().match(pattern)
       }
     })
 
@@ -95,7 +103,7 @@ export class OperationGenerator<
 
     include.forEach(({ pattern, type }) => {
       if (type === 'tag' && !matched) {
-        matched = !!operation.getTags()[0]?.name.match(pattern)
+        matched = !!operation.getTags().some((tag) => tag.name.match(pattern))
       }
 
       if (type === 'operationId' && !matched) {
@@ -108,6 +116,10 @@ export class OperationGenerator<
 
       if (type === 'method' && !matched) {
         matched = !!method.match(pattern)
+      }
+
+      if (type === 'contentType' && !matched) {
+        matched = !!operation.getContentType().match(pattern)
       }
     })
 
@@ -224,8 +236,6 @@ export class OperationGenerator<
     }
   }
 
-  #methods = ['get', 'post', 'patch', 'put', 'delete']
-
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas } = this.context
 
@@ -235,7 +245,7 @@ export class OperationGenerator<
 
       methods.forEach((method) => {
         const operation = oas.operation(path, method)
-        if (operation && [this.#methods].some((methods) => method === operation.method)) {
+        if (operation && method === operation.method) {
           const isExcluded = this.#isExcluded(operation, method)
           const isIncluded = this.context.include ? this.#isIncluded(operation, method) : true
 
@@ -331,13 +341,13 @@ export class OperationGenerator<
   /**
    * Operation
    */
-  async operation(operation: Operation, options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
+  async operation(_operation: Operation, _options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
     return []
   }
   /**
    * Combination of GET, POST, PATCH, PUT, DELETE
    */
-  async all(operations: Operation[], paths: OperationsByMethod): OperationMethodResult<TFileMeta> {
+  async all(_operations: Operation[], _paths: OperationsByMethod): OperationMethodResult<TFileMeta> {
     return []
   }
 }

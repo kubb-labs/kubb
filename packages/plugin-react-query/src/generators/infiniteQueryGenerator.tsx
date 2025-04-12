@@ -1,6 +1,8 @@
+import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
@@ -15,7 +17,9 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
       plugin: {
         options: { output },
       },
+      pluginManager,
     } = useApp<PluginReactQuery>()
+    const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 
     const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
@@ -32,8 +36,18 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
       file: getFile(operation, { prefix: 'use', suffix: 'infinite' }),
     }
 
+    const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
     const client = {
-      name: getName(operation, { type: 'function' }),
+      name: hasClientPlugin
+        ? getName(operation, {
+            type: 'function',
+            pluginKey: [pluginClientName],
+          })
+        : getName(operation, {
+            type: 'function',
+            suffix: 'infinite',
+          }),
+      file: getFile(operation, { pluginKey: [pluginClientName] }),
     }
 
     const queryOptions = {
@@ -61,10 +75,19 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     return (
-      <File baseName={query.file.baseName} path={query.file.path} meta={query.file.meta} banner={output?.banner} footer={output?.footer}>
-        {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={query.file.path} path={zod.file.path} />}
-        <File.Import name={'client'} path={options.client.importPath} />
-        <File.Import name={['RequestConfig']} path={options.client.importPath} isTypeOnly />
+      <File
+        baseName={query.file.baseName}
+        path={query.file.path}
+        meta={query.file.meta}
+        banner={getBanner({ oas, output })}
+        footer={getFooter({ oas, output })}
+      >
+        {options.parser === 'zod' && (
+          <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={query.file.path} path={zod.file.path} />
+        )}
+        {<File.Import name={'client'} path={options.client.importPath} />}
+        {hasClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
+        <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
         <File.Import
           name={[
@@ -88,20 +111,20 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
           typeSchemas={type.schemas}
           transformer={options.queryKey}
         />
-        <Client
-          name={client.name}
-          isExportable={false}
-          isIndexable={false}
-          baseURL={options.client.baseURL}
-          operation={operation}
-          typeSchemas={type.schemas}
-          zodSchemas={zod.schemas}
-          dataReturnType={options.client.dataReturnType}
-          paramsCasing={options.paramsCasing}
-          paramsType={options.paramsType}
-          pathParamsType={options.pathParamsType}
-          parser={options.parser}
-        />
+        {!hasClientPlugin && (
+          <Client
+            name={client.name}
+            baseURL={options.client.baseURL}
+            operation={operation}
+            typeSchemas={type.schemas}
+            zodSchemas={zod.schemas}
+            dataReturnType={options.client.dataReturnType}
+            paramsCasing={options.paramsCasing}
+            paramsType={options.paramsType}
+            pathParamsType={options.pathParamsType}
+            parser={options.parser}
+          />
+        )}
         {options.infinite && (
           <>
             <File.Import name={['InfiniteData']} isTypeOnly path={importPath} />
@@ -124,7 +147,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
         {options.infinite && (
           <>
             <File.Import name={['useInfiniteQuery']} path={importPath} />
-            <File.Import name={['QueryKey', 'InfiniteQueryObserverOptions', 'UseInfiniteQueryResult']} path={importPath} isTypeOnly />
+            <File.Import name={['QueryKey', 'QueryClient', 'InfiniteQueryObserverOptions', 'UseInfiniteQueryResult']} path={importPath} isTypeOnly />
             <InfiniteQuery
               name={query.name}
               queryOptionsName={queryOptions.name}

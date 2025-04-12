@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-vue-query",
-  "version": "3.3.2",
+  "version": "3.7.7",
   "description": "Generator vue-query hooks",
   "keywords": [
     "faker",
@@ -80,7 +80,7 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
-    "remeda": "^2.17.4"
+    "remeda": "catalog:"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

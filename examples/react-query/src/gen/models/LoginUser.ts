@@ -1,3 +1,5 @@
+// version: 1.0.11
+
 export type LoginUserQueryParams = {
   /**
    * @description The user name for login

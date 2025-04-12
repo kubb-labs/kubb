@@ -4,7 +4,11 @@ import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.js'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+
+function getCreateUsersWithListInputUrl() {
+  return '/user/createWithList' as const
+}
 
 /**
  * @description Creates list of users with given input array
@@ -13,13 +17,15 @@ import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
  */
 export async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const res = await client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
-    url: '/user/createWithList',
+    url: getCreateUsersWithListInputUrl().toString(),
     data,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }

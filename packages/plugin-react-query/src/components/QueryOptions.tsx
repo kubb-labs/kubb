@@ -1,8 +1,6 @@
 import { getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react'
 
-import type { ReactNode } from 'react'
-
 import { isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
@@ -17,6 +15,7 @@ type Props = {
   paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
+  dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
 }
 
 type GetParamsProps = {
@@ -54,7 +53,9 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
         },
       },
       config: {
-        type: typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>',
+        type: typeSchemas.request?.name
+          ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
+          : 'Partial<RequestConfig> & { client?: typeof client }',
         default: '{}',
       },
     })
@@ -87,14 +88,19 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
         }
       : undefined,
     config: {
-      type: typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>',
+      type: typeSchemas.request?.name
+        ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
+        : 'Partial<RequestConfig> & { client?: typeof client }',
       default: '{}',
     },
   })
 }
 
-export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, paramsType, pathParamsType, queryKeyName }: Props): ReactNode {
+export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, paramsCasing, paramsType, pathParamsType, queryKeyName }: Props) {
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
+  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'
+
   const clientParams = Client.getParams({
     typeSchemas,
     paramsCasing,
@@ -119,7 +125,7 @@ export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, para
       <Function name={name} export params={params.toConstructor()}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return queryOptions({
+      return queryOptions<${TData}, ResponseErrorConfig<${TError}>, ${TData}, typeof queryKey>({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {

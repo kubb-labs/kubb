@@ -26,13 +26,14 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
     infinite,
     transformers = {},
     paramsType = 'inline',
-    pathParamsType = 'inline',
+    pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
     mutation = {},
     query = {},
     paramsCasing,
     mutationKey = MutationKey.getTransformer,
     queryKey = QueryKey.getTransformer,
     generators = [queryGenerator, infiniteQueryGenerator, mutationGenerator].filter(Boolean),
+    contentType,
   } = options
 
   return {
@@ -42,7 +43,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
       client: {
         importPath: '@kubb/plugin-client/clients/axios',
         dataReturnType: 'data',
-        pathParamsType: 'inline',
+        pathParamsType,
         ...options.client,
       },
       infinite: infinite
@@ -69,7 +70,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
         ...mutation,
       },
       paramsType,
-      pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
+      pathParamsType,
       parser,
       paramsCasing,
       group,
@@ -87,7 +88,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
         return path.resolve(root, output.path)
       }
 
-      if (options?.group && group) {
+      if (group && (options?.group?.path || options?.group?.tag)) {
         const groupName: Group['name'] = group?.name
           ? group.name
           : (ctx) => {
@@ -97,7 +98,14 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
               return `${camelCase(ctx.group)}Controller`
             }
 
-        return path.resolve(root, output.path, groupName({ group: options.group }), baseName)
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)
@@ -135,7 +143,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

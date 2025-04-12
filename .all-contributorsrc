@@ -143,6 +143,62 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/383903?v=4",
       "profile": "https://thijmen.dev",
       "contributions": ["code"]
+    },
+    {
+      "login": "bohdanhusak",
+      "name": "Bohdan Husak",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13829370?v=4",
+      "profile": "https://github.com/bohdanhusak",
+      "contributions": ["doc"]
+    },
+    {
+      "login": "Ericlm",
+      "name": "Éric Le Maître",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19361503?v=4",
+      "profile": "https://github.com/Ericlm",
+      "contributions": ["code"]
+    },
+    {
+      "login": "chambber",
+      "name": "Rubens Pereira do Nascimento",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11406841?v=4",
+      "profile": "https://github.com/chambber",
+      "contributions": ["code"]
+    },
+    {
+      "login": "msutkowski",
+      "name": "Matt Sutkowski",
+      "avatar_url": "https://avatars.githubusercontent.com/u/784953?v=4",
+      "profile": "https://github.com/msutkowski",
+      "contributions": ["code"]
+    },
+    {
+      "login": "vitorcamachoo",
+      "name": "Vítor Camacho",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20595956?v=4",
+      "profile": "https://github.com/vitorcamachoo",
+      "contributions": ["code"]
+    },
+    {
+      "login": "VasekProchazka",
+      "name": "Václav Procházka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13906845?v=4",
+      "profile": "https://github.com/VasekProchazka",
+      "contributions": ["code"]
+    },
+    {
+      "login": "heyBett",
+      "name": "Luiz Bett",
+      "avatar_url": "https://avatars.githubusercontent.com/u/59735735?v=4",
+      "profile": "https://codx.dev",
+      "contributions": ["code"]
+    },
+    {
+      "login": "lambdank",
+      "name": "Sebastian Andersen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5475129?v=4",
+      "profile": "https://github.com/lambdank",
+      "contributions": ["code"]
     }
   ],
   "contributorsPerLine": 7,

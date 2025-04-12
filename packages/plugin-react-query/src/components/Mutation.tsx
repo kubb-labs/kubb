@@ -56,16 +56,15 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
       : undefined,
   })
   const TRequest = mutationParams.toConstructor({ valueAsType: true })
-  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', TRequest ? `{${TRequest}}` : undefined]
-    .filter(Boolean)
-    .join(', ')
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const generics = [TData, TError, TRequest ? `{${TRequest}}` : 'void', 'TContext'].join(', ')
 
   return FunctionParams.factory({
     options: {
       type: `
 {
-  mutation?: UseMutationOptions<${generics}>,
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
+  mutation?: UseMutationOptions<${generics}> & { client?: QueryClient },
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
 }
 `,
       default: '{}',
@@ -145,9 +144,8 @@ export function Mutation({
 
   const TRequest = mutationParams.toConstructor({ valueAsType: true })
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', TRequest ? `{${TRequest}}` : undefined]
-    .filter(Boolean)
-    .join(', ')
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const generics = [TData, TError, TRequest ? `{${TRequest}}` : 'void', 'TContext'].join(', ')
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -158,9 +156,10 @@ export function Mutation({
         JSDoc={{
           comments: getComments(operation),
         }}
+        generics={['TContext']}
       >
         {`
-        const { mutation: mutationOptions, client: config = {} } = options ?? {}
+        const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
         const mutationKey = mutationOptions?.mutationKey ?? ${mutationKeyName}(${mutationKeyParams.toCall()})
 
         return useMutation<${generics}>({
@@ -169,7 +168,7 @@ export function Mutation({
           },
           mutationKey,
           ...mutationOptions
-        })
+        }, queryClient)
     `}
       </Function>
     </File.Source>

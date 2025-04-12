@@ -22,7 +22,7 @@ export default defineConfig(async () => {
       // done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
     },
     plugins: [
-      pluginOas({ output: false }),
+      pluginOas({ generators: [] }),
       pluginTs({
         output: {
           path: './ts',
@@ -37,6 +37,7 @@ export default defineConfig(async () => {
         output: {
           path: './zod',
         },
+        typed: true,
         transformers: {
           name: (name, type) => (type === 'file' ? `${name}.gen` : name),
           schema: ({ schema, parentName, name }, defaultSchemas) => {

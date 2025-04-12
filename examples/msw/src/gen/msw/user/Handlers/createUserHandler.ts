@@ -2,7 +2,7 @@ import type { CreateUserMutationResponse } from '../../../models/CreateUser.ts'
 import { http } from 'msw'
 
 export function createUserHandler(data?: CreateUserMutationResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response)) {
-  return http.post('*/user', function handler(info) {
+  return http.post('http://localhost:3000/user', function handler(info) {
     if (typeof data === 'function') return data(info)
 
     return new Response(JSON.stringify(data), {

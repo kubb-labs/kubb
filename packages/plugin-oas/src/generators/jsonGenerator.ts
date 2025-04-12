@@ -1,4 +1,5 @@
 import { camelCase } from '@kubb/core/transformers'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { createGenerator } from '../generator.tsx'
 import type { PluginOas } from '../types.ts'
 
@@ -24,8 +25,8 @@ export const jsonGenerator = createGenerator<PluginOas>({
             value: JSON.stringify(schema.value),
           },
         ],
-        banner: plugin.options.output?.banner,
-        format: plugin.options.output?.footer,
+        banner: getBanner({ oas: instance.context.oas, output: plugin.options.output }),
+        format: getFooter({ oas: instance.context.oas, output: plugin.options.output }),
       },
     ]
   },

@@ -18,7 +18,8 @@
     "verbatimModuleSyntax": true,
     "noEmit": true,
     "alwaysStrict": true,
-    "strict": true
+    "strict": true,
+    "types": ["cypress", "node"]
   },
   "include": ["./src/**/*", "./templates/**/*"],
   "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]

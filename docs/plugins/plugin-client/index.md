@@ -69,7 +69,7 @@ Add a banner text in the beginning of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
 #### output.footer
@@ -77,8 +77,11 @@ Add a footer text at the end of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
+
+### contentType
+<!--@include: ../core/contentType.md-->
 
 ### group
 <!--@include: ../core/group.md-->
@@ -117,6 +120,24 @@ Create `operations.ts` file with all operations grouped by methods.
 
 ### dataReturnType
 <!--@include: ../plugin-client/dataReturnType.md-->
+
+### urlType
+Export urls that are used by operation x
+
+|           |                     |
+|----------:|:--------------------|
+|     Type: | `'export' \| false` |
+| Required: | `false`             |
+|  Default: | `false`             |
+
+- `'export'` will make them part of your barrel file
+- `false` will not make them exportable
+
+```typescript
+export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
+  return `/pet/${petId}` as const
+}
+```
 
 ### paramsType
 <!--@include: ../plugin-client/paramsType.md-->

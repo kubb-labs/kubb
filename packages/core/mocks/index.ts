@@ -5,11 +5,12 @@ import type { File, ResolvedFile } from '@kubb/fs/types'
 import { getSource } from '../src/FileManager'
 import type { PluginManager } from '../src/PluginManager.ts'
 import type { Logger } from '../src/logger'
+import type { Plugin } from '../src/types.ts'
 import { createFile } from '../src/utils'
 
 export const mockedLogger = {
-  emit(type, message) {},
-  on(type, message) {},
+  emit(_type, _message) {},
+  on(_type, _message) {},
   consola: {},
 } as Logger
 
@@ -40,8 +41,11 @@ export const createMockedPluginManager = (name?: string) =>
       emit(message) {
         console.log(message)
       },
-      on(eventName, args) {},
+      on(_eventName, _args) {},
       logLevel: 3,
+    },
+    getPluginByKey: (_pluginKey: Plugin['key']) => {
+      return undefined
     },
     getFile: ({ name, extname, pluginKey }) => {
       const baseName = `${name}${extname}`
@@ -63,8 +67,8 @@ export async function matchFiles(files: Array<ResolvedFile | File> | undefined) 
     return undefined
   }
 
-  for (const file of files) {
+  for await (const file of files) {
     const source = await getSource(createFile(file), { logger: mockedLogger })
-    expect(source).toMatchFileSnapshot(path.join('__snapshots__', file.path))
+    await expect(source).toMatchFileSnapshot(path.join('__snapshots__', file.path))
   }
 }

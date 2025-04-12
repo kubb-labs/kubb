@@ -278,6 +278,18 @@ paths:
             type: integer
             format: int64
       responses:
+        '200':
+           description: items
+           content:
+             "application/json":
+               schema:
+                type: array
+                items:
+                   type: string
+                   enum:
+                     - TYPE1
+                     - TYPE2
+                     - TYPE3
         '400':
           description: Invalid pet value
       security:
@@ -689,9 +701,10 @@ components:
     Address:
       type: object
       properties:
-        street:
+        streetName:
           type: string
-          example: 437 Lytton
+        streetNumber:
+          type: string
         city:
           type: string
           example: Palo Alto
@@ -832,6 +845,15 @@ components:
           readOnly: true
         bark:
           type: string
+    FullAddress:
+      properties:
+        streetName:
+          type: string
+      allOf:
+        - $ref: "#/components/schemas/Address"
+      required:
+        - streetName
+        - streetNumber
     AddPetRequest:
       required:
         - name
@@ -868,6 +890,7 @@ components:
             - available
             - pending
             - sold
+            - in store
       xml:
         name: pet
     ApiResponse:

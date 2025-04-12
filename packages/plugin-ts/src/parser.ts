@@ -2,12 +2,13 @@ import transformers from '@kubb/core/transformers'
 import * as factory from '@kubb/parser-ts/factory'
 import { type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
-import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
+import type { SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 
 export const typeKeywordMapper = {
   any: () => factory.keywordTypeNodes.any,
   unknown: () => factory.keywordTypeNodes.unknown,
+  void: () => factory.keywordTypeNodes.void,
   number: () => factory.keywordTypeNodes.number,
   integer: () => factory.keywordTypeNodes.number,
   object: (nodes?: ts.TypeElement[]) => {
@@ -137,7 +138,7 @@ type ParserOptions = {
   mapper?: Record<string, ts.PropertySignature>
 }
 
-export function parse({ parent, current, siblings }: SchemaTree, options: ParserOptions): ts.Node | null | undefined {
+export function parse({ current, siblings }: SchemaTree, options: ParserOptions): ts.Node | null | undefined {
   const value = typeKeywordMapper[current.keyword as keyof typeof typeKeywordMapper]
 
   if (!value) {
@@ -206,8 +207,11 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
         const defaultSchema = schemas.find((schema) => schema.keyword === schemaKeywords.default) as SchemaKeywordMapper['default'] | undefined
         const exampleSchema = schemas.find((schema) => schema.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
         const schemaSchema = schemas.find((schema) => schema.keyword === schemaKeywords.schema) as SchemaKeywordMapper['schema'] | undefined
+        const minSchema = schemas.find((schema) => schema.keyword === schemaKeywords.min) as SchemaKeywordMapper['min'] | undefined
+        const maxSchema = schemas.find((schema) => schema.keyword === schemaKeywords.max) as SchemaKeywordMapper['max'] | undefined
+        const matchesSchema = schemas.find((schema) => schema.keyword === schemaKeywords.matches) as SchemaKeywordMapper['matches'] | undefined
 
-        let type = schemas.map((schema) => parse({ parent: current, current: schema, siblings }, options)).filter(Boolean)[0] as ts.TypeNode
+        let type = schemas.map((schema) => parse({ parent: current, current: schema, siblings: schemas }, options)).filter(Boolean)[0] as ts.TypeNode
 
         if (isNullable) {
           type = factory.createUnionDeclaration({
@@ -239,6 +243,9 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
           comments: [
             describeSchema ? `@description ${transformers.jsStringEscape(describeSchema.args)}` : undefined,
             deprecatedSchema ? '@deprecated' : undefined,
+            minSchema ? `@minLength ${minSchema.args}` : undefined,
+            maxSchema ? `@maxLength ${maxSchema.args}` : undefined,
+            matchesSchema ? `@pattern ${matchesSchema.args}` : undefined,
             defaultSchema ? `@default ${defaultSchema.args}` : undefined,
             exampleSchema ? `@example ${exampleSchema.args}` : undefined,
             schemaSchema?.args?.type || schemaSchema?.args?.format

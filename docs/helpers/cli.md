@@ -62,8 +62,8 @@ OPTIONS
   -l, --logLevel=<silent|info|debug>    Info, silent or debug
                          -w, --watch    Watch mode based on the input file
                          -d, --debug    Override logLevel to debug
+                            -u, --ui    Open ui
                           -h, --help    Show help
-
 ```
 
 Path of the input file(overrides the one in `kubb.config.js`)
@@ -106,6 +106,13 @@ kubb --debug
 #### --watch (-w)
 
 Watch mode based on the input file.
+```shell [node]
+kubb --watch
+```
+
+#### --ui (-u)  <img src="/icons/experimental.svg"/> <Badge type="tip" text="beta" />
+
+Open Kubb's ui in the default browser
 ```shell [node]
 kubb --watch
 ```

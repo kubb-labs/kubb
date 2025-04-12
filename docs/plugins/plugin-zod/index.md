@@ -7,7 +7,7 @@ outline: deep
 
 # @kubb/plugin-zod
 
-With the Zod plugin you can use [Zod](https://zod.dev/) to validate your schema's.
+With the Zod plugin you can use [Zod](https://zod.dev/) to validate your schemas.
 
 ## Installation
 
@@ -67,7 +67,7 @@ Add a banner text in the beginning of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
 #### output.footer
@@ -75,8 +75,11 @@ Add a footer text at the end of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
+
+### contentType
+<!--@include: ../core/contentType.md-->
 
 ### group
 <!--@include: ../core/group.md-->
@@ -142,7 +145,7 @@ See [datetimes](https://zod.dev/?id=datetimes).
 |----------:|:-----------------------------------------------------------------|
 |     Type: | `false \| 'string' \| 'stringOffset' \| 'stringLocal' \| 'date'` |
 | Required: | `false`                                                          |
-|  Default: | `'string''`                                                         |
+|  Default: | `'string'`                                                         |
 
 
 ::: code-group
@@ -169,11 +172,11 @@ z.date()
 
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
-|           |                      |
-|----------:|:---------------------|
-|     Type: | `'any' \| 'unknown'` |
-| Required: | `false`              |
-|  Default: | `'any'`              |
+|           |                               |
+|----------:|:------------------------------|
+|     Type: | `'any' \| 'unknown' \| 'void'` |
+| Required: | `false`                       |
+|  Default: | `'any'`                       |
 
 
 ::: code-group
@@ -269,10 +272,36 @@ Customize the schema based on the type that is provided by the plugin.
 |     Type: | `(props: { schema?: SchemaObject; name?: string; parentName?: string}, defaultSchemas: Schema[],) => Schema[] \| undefined` |
 | Required: | `false`                                                                                                                     |
 
+### wrapOutput
+Modify the generated zod schema.
+
+> [!TIP]
+> This is useful for cases where you need to extend the generated zod output with additional properties from an OpenAPI schema. E.g. in the case of `OpenAPI -> Zod -> OpenAPI`, you could include the examples from the schema for a given property and then ultimately provide a modified schema to a router that supports zod and OpenAPI spec generation.
+
+```typescript [Conditionally append .openapi() to the generated schema]
+wrapOutput: ({ output, schema }) => {
+  const metadata: ZodOpenAPIMetadata = {}
+
+  if (schema.example) {
+    metadata.example = schema.example
+  }
+
+  if (Object.keys(metadata).length > 0) {
+    return `${output}.openapi(${JSON.stringify(metadata)})`
+  }
+}
+```
+
+|           |                                                                         |
+|----------:|:------------------------------------------------------------------------|
+|     Type: | `(arg: { output: string; schema: SchemaObject }) => string \| undefined` |
+| Required: | `false`                                                                 |
+
 ## Example
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
 export default defineConfig({
@@ -284,6 +313,7 @@ export default defineConfig({
   },
   plugins: [
     pluginOas(),
+    pluginTs(),
     pluginZod({
       output: {
         path: './zod',
@@ -292,7 +322,8 @@ export default defineConfig({
       typed: true,
       dateType: 'stringOffset',
       unknownType: 'unknown',
-      importPath: 'zod'
+      importPath: 'zod',
+      wrapOutput: ({ output, schema }) => `${output}.openapi({ description: 'This is a custom extension' })`
     }),
   ],
 })

@@ -69,7 +69,7 @@ Add a banner text in the beginning of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
 #### output.footer
@@ -77,8 +77,11 @@ Add a footer text at the end of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
+
+### contentType
+<!--@include: ../core/contentType.md-->
 
 ### group
 <!--@include: ../core/group.md-->
@@ -111,7 +114,7 @@ Return the name of a group based on the group name, this will be used for the fi
 #### client.dataReturnType
 <!--@include: ../plugin-client/dataReturnType.md-->
 
-### client.baseURL
+#### client.baseURL
 <!--@include: ../plugin-client/baseURL.md-->
 
 ### paramsType

@@ -28,13 +28,14 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     infinite = false,
     transformers = {},
     paramsType = 'inline',
-    pathParamsType = 'inline',
+    pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
     generators = [queryGenerator, suspenseQueryGenerator, infiniteQueryGenerator, mutationGenerator].filter(Boolean),
     mutation = {},
     query = {},
     mutationKey = MutationKey.getTransformer,
     queryKey = QueryKey.getTransformer,
     paramsCasing,
+    contentType,
   } = options
 
   return {
@@ -44,6 +45,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       client: {
         importPath: '@kubb/plugin-client/clients/axios',
         dataReturnType: 'data',
+        pathParamsType,
         ...options.client,
       },
       infinite: infinite
@@ -71,7 +73,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         ...mutation,
       },
       paramsType,
-      pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
+      pathParamsType,
       parser,
       paramsCasing,
       group,
@@ -89,7 +91,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         return path.resolve(root, output.path)
       }
 
-      if (options?.group && group) {
+      if (group && (options?.group?.path || options?.group?.tag)) {
         const groupName: Group['name'] = group?.name
           ? group.name
           : (ctx) => {
@@ -99,7 +101,14 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
               return `${camelCase(ctx.group)}Controller`
             }
 
-        return path.resolve(root, output.path, groupName({ group: options.group }), baseName)
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)
@@ -138,7 +147,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

@@ -207,6 +207,7 @@ paths:
             application/json:
               schema:
                 type: array
+                uniqueItems: true
                 minItems: 1
                 maxItems: 3
                 items:
@@ -363,6 +364,27 @@ paths:
         - petstore_auth:
             - write:pets
             - read:pets
+  /pet/files:
+    post:
+      tags:
+        - pet
+      summary: Place an file for a pet
+      description: Place a new file in the store
+      operationId: addFiles
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Pet'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '405':
+          description: Invalid input
   /pet/{petId}/uploadImage:
     post:
       tags:
@@ -420,6 +442,7 @@ paths:
                   format: int32
       security:
         - api_key: []
+
   /store/order:
     post:
       tags:
@@ -714,6 +737,8 @@ components:
           type: integer
           format: int64
           example: 10
+          minLength: 3
+          maxLength: 100
         petId:
           type: integer
           format: int64
@@ -844,11 +869,16 @@ components:
       xml:
         name: user
     tag.Tag:
+      deprecated: true
       type: object
       properties:
         id:
           type: integer
           format: int64
+          minLength: 5
+          maxLength: 7
+          default: 1
+          deprecated: true
         name:
           type: string
       xml:

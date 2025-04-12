@@ -1,5 +1,6 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
+import type { Oas, contentType } from '@kubb/oas'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 
 export type Options = {
@@ -7,7 +8,12 @@ export type Options = {
    * Specify the export location for the files and define the behavior of the output
    * @default { path: 'clients', barrelType: 'named' }
    */
-  output?: Output
+  output?: Output<Oas>
+  /**
+   * Define which contentType should be used.
+   * By default, the first JSON valid mediaType will be used
+   */
+  contentType?: contentType
   /**
    * Group the clients based on the provided name.
    */
@@ -29,6 +35,13 @@ export type Options = {
    * @default false
    */
   operations?: boolean
+  /**
+   * Export urls that are used by operation x
+   * `export` will make them part of your barrel file
+   * false will not make them exportable
+   * @example getGetPetByIdUrl
+   */
+  urlType?: 'export' | false
   /**
    * Path to the client import path that will be used to do the API calls.
    * It will be used as `import client from '${client.importPath}'`.
@@ -92,10 +105,11 @@ export type Options = {
 }
 
 type ResolvedOptions = {
-  output: Output
+  output: Output<Oas>
   group?: Options['group']
   baseURL: string | undefined
   parser: NonNullable<Options['parser']>
+  urlType: NonNullable<Options['urlType']>
   importPath: NonNullable<Options['importPath']>
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>

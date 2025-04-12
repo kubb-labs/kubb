@@ -1,7 +1,6 @@
 import { File, Type } from '@kubb/react'
 
 import type { OasTypes } from '@kubb/oas'
-import type { KubbNode } from '@kubb/react/types'
 
 type Props = {
   /**

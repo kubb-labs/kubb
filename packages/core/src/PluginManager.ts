@@ -447,7 +447,18 @@ export class PluginManager {
       })
   }
 
-  getPluginsByKey(hookName: keyof PluginLifecycle, pluginKey: Plugin['key']): Plugin[] {
+  getPluginByKey(pluginKey: Plugin['key']): Plugin | undefined {
+    const plugins = [...this.plugins]
+    const [searchPluginName] = pluginKey
+
+    return plugins.find((item) => {
+      const [name] = item.key
+
+      return name === searchPluginName
+    })
+  }
+
+  getPluginsByKey(hookName: keyof PluginWithLifeCycle, pluginKey: Plugin['key']): Plugin[] {
     const plugins = [...this.plugins]
     const [searchPluginName, searchIdentifier] = pluginKey
 

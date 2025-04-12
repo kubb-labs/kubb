@@ -1,7 +1,7 @@
 import client from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput.ts'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
 
@@ -12,15 +12,17 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
  * @summary Creates list of users with given input array
  * {@link /user/createWithList}
  */
-async function createUsersWithListInput(
+export async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> = {},
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const res = await client<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationRequest>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: '/user/createWithList',
     data,
-    ...config,
+    ...requestConfig,
   })
   return res.data
 }
@@ -33,16 +35,26 @@ async function createUsersWithListInput(
 export function useCreateUsersWithListInput(
   options: {
     mutation?: Parameters<
-      typeof useSWRMutation<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationKey, CreateUsersWithListInputMutationRequest>
+      typeof useSWRMutation<
+        CreateUsersWithListInputMutationResponse,
+        ResponseErrorConfig<Error>,
+        CreateUsersWithListInputMutationKey,
+        CreateUsersWithListInputMutationRequest
+      >
     >[2]
-    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>>
+    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createUsersWithListInputMutationKey()
 
-  return useSWRMutation<CreateUsersWithListInputMutationResponse, Error, CreateUsersWithListInputMutationKey | null, CreateUsersWithListInputMutationRequest>(
+  return useSWRMutation<
+    CreateUsersWithListInputMutationResponse,
+    ResponseErrorConfig<Error>,
+    CreateUsersWithListInputMutationKey | null,
+    CreateUsersWithListInputMutationRequest
+  >(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return createUsersWithListInput(data, config)

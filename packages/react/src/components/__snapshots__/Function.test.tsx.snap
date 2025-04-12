@@ -40,6 +40,19 @@ export async function getData() {
 }"
 `;
 
+exports[`<Function/> > render default ArrowFunction 1`] = `
+"export default const getData = async () => {
+  return 2;
+}
+"
+`;
+
+exports[`<Function/> > render default Function 1`] = `
+"export default async function getData() {
+  return 2;
+}"
+`;
+
 exports[`<Function/> > render multiple functions 1`] = `
 "export async function getData<TData>(): Promise<number> {
   2;

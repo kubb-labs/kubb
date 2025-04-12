@@ -69,7 +69,7 @@ Add a banner text in the beginning of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
 #### output.footer
@@ -77,8 +77,11 @@ Add a footer text at the end of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
+
+### contentType
+<!--@include: ../core/contentType.md-->
 
 ### group
 <!--@include: ../core/group.md-->
@@ -115,7 +118,7 @@ Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
 ::: code-group
 ```typescript ['string']
-faker.string.alpha()
+faker.date.anytime().toISOString()
 ```
 
 ```typescript ['date']
@@ -141,10 +144,10 @@ Which parser should be used when dateType is set to 'string'.
 
 ```typescript [undefined]
 // schema with format set to 'date'
-faker.date.anytime().toString()
+faker.date.anytime().toISOString().substring(0, 10)
 
 // schema with format set to 'time'
-faker.date.anytime().toString()
+faker.date.anytime().toISOString().substring(11, 19)
 
 ```
 
@@ -177,11 +180,11 @@ moment(faker.date.anytime()).format("HH:mm:ss")
 ### unknownType
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
-|           |                      |
-|----------:|:---------------------|
-|     Type: | `'any' \| 'unknown'` |
-| Required: | `false`              |
-|  Default: | `'any'`              |
+|           |                               |
+|----------:|:------------------------------|
+|     Type: | `'any' \| 'unknown' \| 'void'` |
+| Required: | `false`                       |
+|  Default: | `'any'`                       |
 
 
 ### regexGenerator

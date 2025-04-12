@@ -69,7 +69,7 @@ Add a banner text in the beginning of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
 #### output.footer
@@ -77,78 +77,11 @@ Add a footer text at the end of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
-| Required: | `false`                               |
-## Installation
-
-::: code-group
-
-```shell [bun]
-bun add -d @kubb/plugin-react-query
-```
-
-```shell [pnpm]
-pnpm add -D @kubb/plugin-react-query
-```
-
-```shell [npm]
-npm install --save-dev @kubb/plugin-react-query
-```
-
-```shell [yarn]
-yarn add -D @kubb/plugin-react-query
-```
-
-:::
-
-## Options
-
-### output
-Specify the export location for the files and define the behavior of the output.
-
-#### output.path
-
-Path to the output folder or file that will contain the generated code.
-
-> [!TIP]
-> if `output.path` is a file, `group` cannot be used.
-
-|           |           |
-|----------:|:----------|
-|     Type: | `string`  |
-| Required: | `true`    |
-|  Default: | `'hooks'` |
-
-#### output.barrelType
-
-Define what needs to be exported, here you can also disable the export of barrel files.
-
-> [!TIP]
-> Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
-
-|           |                                 |
-|----------:|:--------------------------------|
-|     Type: | `'all' \| 'named' \| 'propagate' \| false` |
-| Required: | `false`                         |
-|  Default: | `'named'`                       |
-
-<!--@include: ../core/barrelTypes.md-->
-
-#### output.banner
-Add a banner text in the beginning of every file.
-
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
-#### output.footer
-Add a footer text at the end of every file.
-
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string` |
-| Required: | `false`                               |
+### contentType
+<!--@include: ../core/contentType.md-->
 
 ### group
 <!--@include: ../core/group.md-->
@@ -181,7 +114,7 @@ Return the name of a group based on the group name, this will be used for the fi
 #### client.dataReturnType
 <!--@include: ../plugin-client/dataReturnType.md-->
 
-### client.baseURL
+#### client.baseURL
 <!--@include: ../plugin-client/baseURL.md-->
 
 ### paramsType
@@ -260,7 +193,7 @@ Which field of the data will be used, set it to undefined when no cursor is know
 ### query
 
 Override some useQuery behaviours. <br/>
-To disable queries pass `false`.
+To disable the creation of hooks pass `false`, this will result in only creating `queryOptions`.
 
 
 |           |         |

@@ -2,7 +2,7 @@ import type { GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../model
 import { createOrder } from './createOrder.ts'
 import { faker } from '@faker-js/faker'
 
-export function createGetOrderByIdPathParams(data?: Partial<GetOrderByIdPathParams>) {
+export function createGetOrderByIdPathParams(data?: Partial<GetOrderByIdPathParams>): GetOrderByIdPathParams {
   return {
     ...{ orderId: faker.number.int() },
     ...(data || {}),
@@ -30,6 +30,6 @@ export function createGetOrderById404() {
   return undefined
 }
 
-export function createGetOrderByIdQueryResponse(data?: Partial<GetOrderByIdQueryResponse>) {
+export function createGetOrderByIdQueryResponse(data?: Partial<GetOrderByIdQueryResponse>): GetOrderByIdQueryResponse {
   return data || faker.helpers.arrayElement<any>([createGetOrderById200()])
 }

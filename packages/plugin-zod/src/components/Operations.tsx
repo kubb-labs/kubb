@@ -3,7 +3,6 @@ import { Const, File } from '@kubb/react'
 
 import transformers from '@kubb/core/transformers'
 import type { HttpMethod, Operation } from '@kubb/oas'
-import type { KubbNode } from '@kubb/react/types'
 
 type Props = {
   name: string

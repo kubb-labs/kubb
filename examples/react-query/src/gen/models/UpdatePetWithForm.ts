@@ -1,3 +1,5 @@
+// version: 1.0.11
+
 export type UpdatePetWithFormPathParams = {
   /**
    * @description ID of pet that needs to be updated

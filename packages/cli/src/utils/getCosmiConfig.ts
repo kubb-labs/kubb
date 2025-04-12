@@ -10,11 +10,17 @@ export type CosmiconfigResult = {
 }
 
 const tsLoader = async (configFile: string) => {
-  const jiti = createJiti(import.meta.url, { jsx: true })
+  const jiti = createJiti(import.meta.url, {
+    jsx: {
+      runtime: 'automatic',
+      importSource: '@kubb/react',
+    },
+    sourceMaps: true,
+  })
 
-  const mod: any = await jiti.import(configFile)
+  const mod = await jiti.import(configFile, { default: true })
 
-  return mod?.default ?? mod
+  return mod
 }
 
 export async function getCosmiConfig(moduleName: string, config?: string): Promise<CosmiconfigResult> {

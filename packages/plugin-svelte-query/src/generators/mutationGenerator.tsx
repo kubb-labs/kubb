@@ -1,7 +1,8 @@
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
@@ -16,7 +17,9 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
       plugin: {
         options: { output },
       },
+      pluginManager,
     } = useApp<PluginSvelteQuery>()
+    const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 
     const isQuery = !!options.query && options.query?.methods.some((method) => operation.method === method)
@@ -43,8 +46,17 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
+    const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
     const client = {
-      name: getName(operation, { type: 'function' }),
+      name: hasClientPlugin
+        ? getName(operation, {
+            type: 'function',
+            pluginKey: [pluginClientName],
+          })
+        : getName(operation, {
+            type: 'function',
+          }),
+      file: getFile(operation, { pluginKey: [pluginClientName] }),
     }
 
     const mutationKey = {
@@ -57,11 +69,19 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
     }
 
     return (
-      <File baseName={mutation.file.baseName} path={mutation.file.path} meta={mutation.file.meta} banner={output?.banner} footer={output?.footer}>
-        {options.parser === 'zod' && <File.Import name={[zod.schemas.response.name]} root={mutation.file.path} path={zod.file.path} />}
-
+      <File
+        baseName={mutation.file.baseName}
+        path={mutation.file.path}
+        meta={mutation.file.meta}
+        banner={getBanner({ oas, output })}
+        footer={getFooter({ oas, output })}
+      >
+        {options.parser === 'zod' && (
+          <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={mutation.file.path} path={zod.file.path} />
+        )}
         <File.Import name={'client'} path={options.client.importPath} />
-        <File.Import name={['RequestConfig', 'ResponseConfig']} path={options.client.importPath} isTypeOnly />
+        {!!hasClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
+        <File.Import name={['RequestConfig', 'ResponseConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
           name={[
             type.schemas.request?.name,
@@ -85,24 +105,24 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
           typeSchemas={type.schemas}
           transformer={options.mutationKey}
         />
-        <Client
-          name={client.name}
-          isExportable={false}
-          isIndexable={false}
-          baseURL={options.client.baseURL}
-          operation={operation}
-          typeSchemas={type.schemas}
-          zodSchemas={zod.schemas}
-          dataReturnType={options.client.dataReturnType}
-          paramsCasing={options.paramsCasing}
-          paramsType={options.paramsType}
-          pathParamsType={options.pathParamsType}
-          parser={options.parser}
-        />
+        {!hasClientPlugin && (
+          <Client
+            name={client.name}
+            baseURL={options.client.baseURL}
+            operation={operation}
+            typeSchemas={type.schemas}
+            zodSchemas={zod.schemas}
+            dataReturnType={options.client.dataReturnType}
+            paramsCasing={options.paramsCasing}
+            paramsType={options.paramsType}
+            pathParamsType={options.pathParamsType}
+            parser={options.parser}
+          />
+        )}
         {options.mutation && (
           <>
             <File.Import name={['createMutation']} path={importPath} />
-            <File.Import name={['CreateMutationOptions', 'CreateMutationResult']} path={importPath} isTypeOnly />
+            <File.Import name={['CreateMutationOptions', 'CreateMutationResult', 'QueryClient']} path={importPath} isTypeOnly />
             <Mutation
               name={mutation.name}
               clientName={client.name}

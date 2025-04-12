@@ -14,7 +14,7 @@ describe('build', () => {
   const file: KubbFile.File = {
     path: 'hello/world.json',
     baseName: 'world.json',
-    sources: [{ value: "export const hello = 'world';" }],
+    sources: [{ value: `{ "hello": "world" }` }],
   }
   const plugin = createPlugin(() => {
     return {
@@ -60,7 +60,7 @@ describe('build', () => {
 
     expect(files).toBeDefined()
     expect(pluginManager).toBeDefined()
-    expect(files.length).toBe(1)
+    expect(files.length).toBe(2)
   })
 
   test('if build with one plugin is running the different hooks in the correct order', async () => {
@@ -68,11 +68,36 @@ describe('build', () => {
       config,
     })
 
-    expect(files).toMatchObject([
-      {
-        ...file,
-      },
-    ])
+    expect(files.map((file) => ({ ...file, id: undefined, path: undefined }))).toMatchInlineSnapshot(`
+      [
+        {
+          "baseName": "world.json",
+          "exports": [],
+          "extname": ".json",
+          "id": undefined,
+          "imports": [],
+          "meta": {},
+          "name": "world",
+          "path": undefined,
+          "sources": [
+            {
+              "value": "{ "hello": "world" }",
+            },
+          ],
+        },
+        {
+          "baseName": "index.ts",
+          "exports": [],
+          "extname": ".ts",
+          "id": undefined,
+          "imports": [],
+          "meta": {},
+          "name": "index",
+          "path": undefined,
+          "sources": [],
+        },
+      ]
+    `)
 
     expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
     expect(pluginMocks.buildEnd).toHaveBeenCalledTimes(1)

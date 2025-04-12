@@ -409,6 +409,20 @@ export const oas = {
           },
         ],
         responses: {
+          '200': {
+            description: 'items',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                    enum: ['TYPE1', 'TYPE2', 'TYPE3'],
+                  },
+                },
+              },
+            },
+          },
           '400': {
             description: 'Invalid pet value',
           },
@@ -1004,9 +1018,11 @@ export const oas = {
       Address: {
         type: 'object',
         properties: {
-          street: {
+          streetName: {
             type: 'string',
-            example: '437 Lytton',
+          },
+          streetNumber: {
+            type: 'string',
           },
           city: {
             type: 'string',
@@ -1199,6 +1215,19 @@ export const oas = {
         },
         required: ['type'],
       },
+      FullAddress: {
+        properties: {
+          streetName: {
+            type: 'string',
+          },
+        },
+        allOf: [
+          {
+            $ref: '#/components/schemas/Address',
+          },
+        ],
+        required: ['streetName', 'streetNumber'],
+      },
       AddPetRequest: {
         required: ['name', 'photoUrls'],
         type: 'object',
@@ -1239,7 +1268,7 @@ export const oas = {
           status: {
             type: 'string',
             description: 'pet status in the store',
-            enum: ['available', 'pending', 'sold'],
+            enum: ['available', 'pending', 'sold', 'in store'],
           },
         },
         xml: {

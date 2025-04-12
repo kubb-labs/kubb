@@ -1,7 +1,7 @@
 import type { Address } from '../models/Address.ts'
 import { faker } from '@faker-js/faker'
 
-export function createAddress(data?: Partial<Address>) {
+export function createAddress(data?: Partial<Address>): Address {
   return {
     ...{
       street: faker.string.alpha(),

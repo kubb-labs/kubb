@@ -1,4 +1,3 @@
-import { URLPath } from '@kubb/core/utils'
 import { File, Function, FunctionParams } from '@kubb/react'
 
 import { type Operation, isOptional } from '@kubb/oas'
@@ -36,6 +35,7 @@ type GetParamsProps = {
 
 function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, typeSchemas, queryKeyTypeName }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   if (paramsType === 'object') {
     return FunctionParams.factory({
@@ -66,8 +66,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       options: {
         type: `
 {
-  query?: Parameters<typeof useSWR<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `${queryKeyTypeName} | null`].join(', ')}, any>>[2],
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
+  query?: Parameters<typeof useSWR<${[TData, TError, `${queryKeyTypeName} | null`].join(', ')}, any>>[2],
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
   shouldFetch?: boolean,
 }
 `,
@@ -105,8 +105,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
     options: {
       type: `
 {
-  query?: Parameters<typeof useSWR<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `${queryKeyTypeName} | null`].join(', ')}, any>>[2],
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
+  query?: Parameters<typeof useSWR<${[TData, TError, `${queryKeyTypeName} | null`].join(', ')}, any>>[2],
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
   shouldFetch?: boolean,
 }
 `,
@@ -128,7 +128,8 @@ export function Query({
   pathParamsType,
 }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const generics = [TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', `${queryKeyTypeName} | null`]
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const generics = [TData, TError, `${queryKeyTypeName} | null`]
 
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,

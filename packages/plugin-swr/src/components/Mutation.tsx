@@ -35,6 +35,7 @@ type GetParamsProps = {
 // TODO add same logic as being done for react-query mutations
 function getParams({ pathParamsType, paramsCasing, dataReturnType, typeSchemas, mutationKeyTypeName }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   return FunctionParams.factory({
     pathParams: {
@@ -56,8 +57,8 @@ function getParams({ pathParamsType, paramsCasing, dataReturnType, typeSchemas, 
     options: {
       type: `
 {
-  mutation?: Parameters<typeof useSWRMutation<${[TData, typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error', mutationKeyTypeName, typeSchemas.request?.name].join(', ')}>>[2],
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>>` : 'Partial<RequestConfig>'},
+  mutation?: Parameters<typeof useSWRMutation<${[TData, TError, mutationKeyTypeName, typeSchemas.request?.name].join(', ')}>>[2],
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
   shouldFetch?: boolean,
 }
 `,
@@ -79,9 +80,11 @@ export function Mutation({
   operation,
 }: Props): ReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+
   const generics = [
     TData,
-    typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error',
+    TError,
     `${mutationKeyTypeName} | null`,
     typeSchemas.request?.name, //arg: data
   ].filter(Boolean)

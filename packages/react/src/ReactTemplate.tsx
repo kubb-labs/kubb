@@ -11,7 +11,6 @@ import { FileManager, processFiles } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type * as KubbFile from '@kubb/fs/types'
 import type { ReactNode } from 'react'
-import * as React from 'react'
 import type { RootContextProps } from './components/Root.tsx'
 import { createNode } from './dom.ts'
 import type { FiberRoot } from './kubbRenderer.ts'
@@ -35,7 +34,7 @@ export type ReactTemplateOptions = {
 
 type Context = Omit<RootContextProps, 'exit'>
 
-export class ReactTemplate<TMeta extends Record<string, unknown> = Record<string, unknown>> {
+export class ReactTemplate {
   readonly #options: ReactTemplateOptions
   // Ignore last render after unmounting a tree to prevent empty output before exit
   #isUnmounted: boolean
@@ -66,16 +65,16 @@ export class ReactTemplate<TMeta extends Record<string, unknown> = Record<string
     const originalError = console.error
     //@ts-ignore
     console.error = (data: string | Error) => {
-      if (typeof data === 'string') {
-        if (data.match(/React will try to recreat/gi)) {
-          return
-        }
-        if (data.match(/Each child in a list should have a unique/gi)) {
-          return
-        }
-        if (data.match(/The above error occurred in the <KubbErrorBoundary/gi)) {
-          return
-        }
+      const message = typeof data === 'string' ? data : data?.message
+
+      if (message.match(/React will try to recreat/gi)) {
+        return
+      }
+      if (message.match(/Each child in a list should have a unique/gi)) {
+        return
+      }
+      if (message.match(/The above error occurred in the <KubbErrorBoundary/gi)) {
+        return
       }
 
       originalError(data)

@@ -3,6 +3,7 @@
 import { defineConfig } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { pluginClient } from '@kubb/plugin-client'
+import { pluginCypress } from '@kubb/plugin-cypress'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/plugin-msw'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -45,7 +46,7 @@ const baseConfig = {
   },
   plugins: [
     pluginOas({
-      output: false,
+      generators: [],
       validate: false,
       docs: false,
     }),
@@ -89,6 +90,18 @@ const baseConfig = {
         type: 'tag',
         name({ group }) {
           return `${group}Service`
+        },
+      },
+    }),
+    pluginCypress({
+      output: {
+        path: './clients/cypress',
+        barrelType: false,
+      },
+      group: {
+        type: 'tag',
+        name({ group }) {
+          return `${group}Requests`
         },
       },
     }),

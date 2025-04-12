@@ -69,7 +69,7 @@ Add a banner text in the beginning of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
 #### output.footer
@@ -77,7 +77,7 @@ Add a footer text at the end of every file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
-|     Type: | `string` |
+|     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
 ### handlers
@@ -89,6 +89,11 @@ Create `handlers.ts` file with all handlers grouped by methods.
 | Required: | `false`   |
 |  Default: | `false`   |
 
+### contentType
+<!--@include: ../core/contentType.md-->
+
+### baseURL
+<!--@include: ../plugin-client/baseURL.md-->
 
 ### group
 <!--@include: ../core/group.md-->

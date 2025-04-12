@@ -43,8 +43,9 @@ type Props = React.ComponentProps<typeof Function>
 ```
 
 | Property   | Description                                     | Type                               | Default |
-| ---------- | ----------------------------------------------- | ---------------------------------- | ------- |
+|------------|-------------------------------------------------|------------------------------------|---------|
 | name       | Name of the function.                           | `string`                           | -       |
+| default    | Add default when export is being used           | `boolean \|  undefined`            | -       |
 | params     | Parameters/options/props that need to be used.  | `string \|  undefined`             | -       |
 | export     | Does this function need to be exported.         | `boolean \|  undefined`            | -       |
 | async      | Does the function has async/promise behaviour.  | `boolean \|  undefined`            | -       |

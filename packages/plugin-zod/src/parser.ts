@@ -1,4 +1,5 @@
 import transformers from '@kubb/core/transformers'
+import type { SchemaObject } from '@kubb/oas'
 import { type SchemaKeywordMapper, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
@@ -6,6 +7,7 @@ import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
 const zodKeywordMapper = {
   any: () => 'z.any()',
   unknown: () => 'z.unknown()',
+  void: () => 'z.void()',
   number: (coercion?: boolean, min?: number, max?: number) => {
     return [coercion ? 'z.coerce.number()' : 'z.number()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
       .filter(Boolean)
@@ -20,12 +22,7 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  object: (value?: string, typeName?: string) => {
-    if (typeName) {
-      return `z.object({
-    ${value}
-    } satisfies ToZod<${typeName}>)`
-    }
+  object: (value?: string) => {
     return `z.object({
     ${value}
     })`
@@ -40,8 +37,13 @@ const zodKeywordMapper = {
   nullable: () => '.nullable()',
   null: () => 'z.null()',
   nullish: () => '.nullish()',
-  array: (items: string[] = [], min?: number, max?: number) => {
-    return [`z.array(${items?.join('')})`, min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
+  array: (items: string[] = [], min?: number, max?: number, unique?: boolean) => {
+    return [
+      `z.array(${items?.join('')})`,
+      min !== undefined ? `.min(${min})` : undefined,
+      max !== undefined ? `.max(${max})` : undefined,
+      unique ? `.refine(items => new Set(items).size === items.length, { message: "Array entries must be unique" })` : undefined,
+    ]
       .filter(Boolean)
       .join('')
   },
@@ -117,7 +119,13 @@ const zodKeywordMapper = {
   phone: undefined,
   readOnly: undefined,
   writeOnly: undefined,
-  ref: (value?: string) => (value ? `z.lazy(() => ${value})` : undefined),
+  ref: (value?: string) => {
+    if (!value) {
+      return undefined
+    }
+
+    return `z.lazy(() => ${value})`
+  },
   blob: () => 'z.instanceof(File)',
   deprecated: undefined,
   example: undefined,
@@ -147,6 +155,7 @@ export function sort(items?: Schema[]): Schema[] {
     schemaKeywords.password,
     schemaKeywords.matches,
     schemaKeywords.uuid,
+    schemaKeywords.null,
     schemaKeywords.min,
     schemaKeywords.max,
     schemaKeywords.default,
@@ -154,7 +163,6 @@ export function sort(items?: Schema[]): Schema[] {
     schemaKeywords.optional,
     schemaKeywords.nullable,
     schemaKeywords.nullish,
-    schemaKeywords.null,
   ]
 
   if (!items) {
@@ -182,6 +190,8 @@ type ParserOptions = {
   keysToOmit?: string[]
   mapper?: Record<string, string>
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
+  wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
+  rawSchema: SchemaObject
 }
 
 export function parse({ parent, current, siblings }: SchemaTree, options: ParserOptions): string | undefined {
@@ -225,6 +235,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
         .filter(Boolean),
       current.args.min,
       current.args.max,
+      current.args.unique,
     )
   }
 
@@ -284,10 +295,12 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
           return `"${name}": ${options.mapper?.[mappedName]}`
         }
 
-        return `"${name}": ${sort(schemas)
-          .map((schema, array, siblings) => parse({ parent: current, current: schema, siblings }, options))
+        const baseSchemaOutput = sort(schemas)
+          .map((schema) => parse({ parent: current, current: schema, siblings: schemas }, options))
           .filter(Boolean)
-          .join('')}`
+          .join('')
+
+        return `"${name}": ${options.wrapOutput ? options.wrapOutput({ output: baseSchemaOutput, schema: options.rawSchema?.properties?.[name] }) || baseSchemaOutput : baseSchemaOutput}`
       })
       .join(',\n')
 
@@ -299,7 +312,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
       : undefined
 
     const text = [
-      zodKeywordMapper.object(properties, options.typeName),
+      zodKeywordMapper.object(properties),
       current.args?.strict ? zodKeywordMapper.strict() : undefined,
       additionalProperties ? zodKeywordMapper.catchall(additionalProperties) : undefined,
     ].filter(Boolean)

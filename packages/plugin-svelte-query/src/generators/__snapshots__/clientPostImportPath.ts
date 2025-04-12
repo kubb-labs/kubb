@@ -1,6 +1,6 @@
 import client from 'axios'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
-import type { RequestConfig } from 'axios'
+import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
+import type { RequestConfig, ResponseErrorConfig } from 'axios'
 import { createMutation } from '@tanstack/svelte-query'
 
 export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}' }] as const
@@ -11,18 +11,20 @@ export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMu
  * @summary Updates a pet in the store with form data
  * {@link /pet/:petId}
  */
-async function updatePetWithForm(
+export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
   data?: UpdatePetWithFormMutationRequest,
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> = {},
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof client } = {},
 ) {
-  const res = await client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, UpdatePetWithFormMutationRequest>({
+  const { client: request = client, ...requestConfig } = config
+
+  const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}`,
     params,
-    data,
-    ...config,
+    data: updatePetWithFormMutationRequest.parse(data),
+    ...requestConfig,
   })
   return updatePetWithFormMutationResponse.parse(res.data)
 }
@@ -31,28 +33,33 @@ async function updatePetWithForm(
  * @summary Updates a pet in the store with form data
  * {@link /pet/:petId}
  */
-export function createUpdatePetWithForm(
+export function createUpdatePetWithForm<TContext>(
   options: {
     mutation?: CreateMutationOptions<
       UpdatePetWithFormMutationResponse,
-      UpdatePetWithForm405,
-      { petId: UpdatePetWithFormPathParams['petId']; data?: UpdatePetWithFormMutationRequest; params?: UpdatePetWithFormQueryParams }
-    >
-    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>>
+      ResponseErrorConfig<UpdatePetWithForm405>,
+      { petId: UpdatePetWithFormPathParams['petId']; data?: UpdatePetWithFormMutationRequest; params?: UpdatePetWithFormQueryParams },
+      TContext
+    > & { client?: QueryClient }
+    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: mutationOptions, client: config = {} } = options ?? {}
+  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey()
 
   return createMutation<
     UpdatePetWithFormMutationResponse,
-    UpdatePetWithForm405,
-    { petId: UpdatePetWithFormPathParams['petId']; data?: UpdatePetWithFormMutationRequest; params?: UpdatePetWithFormQueryParams }
-  >({
-    mutationFn: async ({ petId, data, params }) => {
-      return updatePetWithForm(petId, data, params, config)
+    ResponseErrorConfig<UpdatePetWithForm405>,
+    { petId: UpdatePetWithFormPathParams['petId']; data?: UpdatePetWithFormMutationRequest; params?: UpdatePetWithFormQueryParams },
+    TContext
+  >(
+    {
+      mutationFn: async ({ petId, data, params }) => {
+        return updatePetWithForm(petId, data, params, config)
+      },
+      mutationKey,
+      ...mutationOptions,
     },
-    mutationKey,
-    ...mutationOptions,
-  })
+    queryClient,
+  )
 }

@@ -1,6 +1,7 @@
 import { type OperationSchema as OperationSchemaType, SchemaGenerator, createReactGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File, useApp } from '@kubb/react'
 import { Faker } from '../components'
@@ -33,7 +34,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     const mapOperationSchema = ({ name, schema, description, ...options }: OperationSchemaType, i: number) => {
       const tree = schemaGenerator.parse({ schema, name })
       const imports = schemaManager.getImports(tree)
-      const group = options.operation ? getGroup(options.operation, plugin.options.group) : undefined
+      const group = options.operation ? getGroup(options.operation) : undefined
 
       const faker = {
         name: schemaManager.getName(name, { type: 'function' }),
@@ -76,7 +77,13 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     }
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.options.output?.banner} footer={plugin.options.output?.footer}>
+      <File
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+        banner={getBanner({ oas, output: plugin.options.output })}
+        footer={getFooter({ oas, output: plugin.options.output })}
+      >
         <File.Import name={['faker']} path="@faker-js/faker" />
         {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
         {dateParser !== 'faker' && <File.Import path={dateParser} name={dateParser} />}
@@ -93,6 +100,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         options: { output },
       },
     } = useApp<PluginFaker>()
+    const oas = useOas()
     const imports = getImports(schema.tree)
 
     const faker = {
@@ -115,7 +123,13 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     )
 
     return (
-      <File baseName={faker.file.baseName} path={faker.file.path} meta={faker.file.meta} banner={output?.banner} footer={output?.footer}>
+      <File
+        baseName={faker.file.baseName}
+        path={faker.file.path}
+        meta={faker.file.meta}
+        banner={getBanner({ oas, output })}
+        footer={getFooter({ oas, output })}
+      >
         <File.Import name={['faker']} path="@faker-js/faker" />
         {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
         {dateParser !== 'faker' && <File.Import path={dateParser} name={dateParser} />}

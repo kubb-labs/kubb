@@ -1,5 +1,23 @@
 # unplugin-kubb
 
+## 2.0.3
+
+### Patch Changes
+
+- [#1636](https://github.com/kubb-labs/kubb/pull/1636) [`de65de0`](https://github.com/kubb-labs/kubb/commit/de65de0f11faca9733f340b43875d7c72e048948) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support for custom QueryClient
+
+## 2.0.2
+
+### Patch Changes
+
+- [#1557](https://github.com/kubb-labs/kubb/pull/1557) [`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5) Thanks [@nicholaschiang](https://github.com/nicholaschiang)! - Including and excluding tags now matches any tag, instead of just the first one.
+
+## 2.0.1
+
+### Patch Changes
+
+- [`24d9e13`](https://github.com/kubb-labs/kubb/commit/24d9e131e360dcb31e16f8978f0c0cc226002288) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support custom `contentType` per plugin
+
 ## 2.0.0
 
 ### Major Changes

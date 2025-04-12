@@ -229,7 +229,7 @@ describe('FileManager', () => {
 
     const files = fileManager.orderedFiles
 
-    expect(JSON.stringify(files, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/ordered.json'))
+    await expect(JSON.stringify(files, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/ordered.json'))
   })
 
   test('fileManager.getBarrelFiles', async () => {
@@ -308,7 +308,7 @@ describe('FileManager', () => {
 
     await fileManager.add(...barrelFiles)
 
-    expect(JSON.stringify(fileManager.files, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/barrel.json'))
+    await expect(JSON.stringify(fileManager.files, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/barrel.json'))
   })
 
   test('fileManager.groupedFiles', async () => {
@@ -350,7 +350,7 @@ describe('FileManager', () => {
     })
     const files = fileManager.groupedFiles
 
-    expect(JSON.stringify(files, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/grouped.json'))
+    await expect(JSON.stringify(files, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/grouped.json'))
   })
 })
 

@@ -47,6 +47,7 @@ export type {
   GetUserByNameQueryResponse,
   GetUserByNameQuery,
 } from './models/GetUserByName.ts'
+export type { Item } from './models/Item.ts'
 export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './models/LoginUser.ts'
 export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './models/LogoutUser.ts'
 export type { OrderStatusEnum, Order } from './models/Order.ts'
@@ -84,6 +85,7 @@ export { createAddress } from './faker/createAddress.ts'
 export { createApiResponse } from './faker/createApiResponse.ts'
 export { createCategory } from './faker/createCategory.ts'
 export { createCustomer } from './faker/createCustomer.ts'
+export { createItem } from './faker/createItem.ts'
 export { createOrder } from './faker/createOrder.ts'
 export { createPet } from './faker/createPet.ts'
 export { createTag } from './faker/createTag.ts'

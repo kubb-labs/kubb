@@ -1,14 +1,15 @@
 import { createReactGenerator } from '@kubb/plugin-oas'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File, useApp } from '@kubb/react'
 import { Handlers } from '../components/Handlers.tsx'
-import { pluginMswName } from '../plugin.ts'
 import type { PluginMsw } from '../types'
 
 export const handlersGenerator = createReactGenerator<PluginMsw>({
   name: 'plugin-msw',
   Operations({ operations }) {
     const { pluginManager, plugin } = useApp<PluginMsw>()
+    const oas = useOas()
     const { getName, getFile } = useOperationManager()
 
     const file = pluginManager.getFile({ name: 'handlers', extname: '.ts', pluginKey: plugin.key })
@@ -23,7 +24,13 @@ export const handlersGenerator = createReactGenerator<PluginMsw>({
     const handlers = operations.map((operation) => `${getName(operation, { type: 'function', pluginKey: plugin.key })}()`)
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={plugin.options.output?.banner} footer={plugin.options.output?.footer}>
+      <File
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+        banner={getBanner({ oas, output: plugin.options.output })}
+        footer={getFooter({ oas, output: plugin.options.output })}
+      >
         {imports}
         <Handlers name={'handlers'} handlers={handlers} />
       </File>

@@ -1,8 +1,8 @@
 import { createReactGenerator } from '@kubb/plugin-oas'
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File, useApp } from '@kubb/react'
 import { Operations } from '../components/Operations'
-import { pluginZodName } from '../plugin.ts'
 import type { PluginZod } from '../types'
 
 export const operationsGenerator = createReactGenerator<PluginZod>({
@@ -15,6 +15,7 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
         options: { output },
       },
     } = useApp<PluginZod>()
+    const oas = useOas()
     const { getFile, groupSchemasByName } = useOperationManager()
 
     const name = 'operations'
@@ -31,7 +32,7 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
       .filter(Boolean)
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={output?.banner} footer={output?.footer}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={getBanner({ oas, output })} footer={getFooter({ oas, output })}>
         {imports}
         <Operations name={name} operations={transformedOperations} />
       </File>

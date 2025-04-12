@@ -25,13 +25,14 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
     parser = 'client',
     transformers = {},
     paramsType = 'inline',
-    pathParamsType = 'inline',
+    pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
     mutation = {},
     query = {},
     paramsCasing,
     mutationKey = MutationKey.getTransformer,
     queryKey = QueryKey.getTransformer,
     generators = [queryGenerator, mutationGenerator].filter(Boolean),
+    contentType,
   } = options
 
   return {
@@ -41,7 +42,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
       client: {
         importPath: '@kubb/plugin-client/clients/axios',
         dataReturnType: 'data',
-        pathParamsType: 'inline',
+        pathParamsType,
         ...options.client,
       },
       queryKey,
@@ -60,7 +61,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
         ...mutation,
       },
       paramsType,
-      pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
+      pathParamsType,
       parser,
       paramsCasing,
       group,
@@ -78,7 +79,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
         return path.resolve(root, output.path)
       }
 
-      if (options?.group && group) {
+      if (group && (options?.group?.path || options?.group?.tag)) {
         const groupName: Group['name'] = group?.name
           ? group.name
           : (ctx) => {
@@ -88,7 +89,14 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
               return `${camelCase(ctx.group)}Controller`
             }
 
-        return path.resolve(root, output.path, groupName({ group: options.group }), baseName)
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)
@@ -127,7 +135,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

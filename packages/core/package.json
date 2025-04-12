@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "3.3.2",
+  "version": "3.7.7",
   "description": "Generator core",
   "keywords": [
     "typescript",
@@ -89,24 +89,23 @@
     "@kubb/fs": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/types": "workspace:*",
-    "change-case": "^5.4.4",
+    "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
     "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",
-    "p-queue": "^8.0.1",
-    "remeda": "^2.17.4",
+    "p-queue": "^8.1.0",
+    "remeda": "catalog:",
     "seedrandom": "^3.0.5",
-    "semver": "^7.6.3"
+    "semver": "^7.7.1"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",
-    "@types/semver": "^7.5.8",
-    "consola": "^3.2.3",
-    "prettier": "^3.4.2",
-    "tinyrainbow": "^1.2.0",
+    "@types/semver": "^7.7.0",
+    "consola": "^3.4.2",
+    "prettier": "^3.5.3",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },

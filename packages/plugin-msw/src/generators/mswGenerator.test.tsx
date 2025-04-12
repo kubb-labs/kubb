@@ -1,4 +1,4 @@
-import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
@@ -63,6 +63,7 @@ describe('mswGenerator operation', async () => {
         path: '.',
       },
       parser: 'data',
+      baseURL: undefined,
       group: undefined,
       ...props.options,
     }

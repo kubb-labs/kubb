@@ -25,6 +25,8 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
     handlers = false,
     parser = 'data',
     generators = [mswGenerator, handlers ? handlersGenerator : undefined].filter(Boolean),
+    contentType,
+    baseURL,
   } = options
 
   return {
@@ -33,6 +35,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
       output,
       parser,
       group,
+      baseURL,
     },
     pre: [pluginOasName, pluginTsName, parser === 'faker' ? pluginFakerName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
@@ -47,7 +50,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
         return path.resolve(root, output.path)
       }
 
-      if (options?.group && group) {
+      if (group && (options?.group?.path || options?.group?.tag)) {
         const groupName: Group['name'] = group?.name
           ? group.name
           : (ctx) => {
@@ -57,7 +60,14 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
               return `${camelCase(ctx.group)}Controller`
             }
 
-        return path.resolve(root, output.path, groupName({ group: options.group }), baseName)
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)
@@ -85,7 +95,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

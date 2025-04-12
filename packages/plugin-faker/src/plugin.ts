@@ -28,6 +28,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
     dateParser = 'faker',
     generators = [fakerGenerator].filter(Boolean),
     regexGenerator = 'faker',
+    contentType,
   } = options
 
   return {
@@ -57,7 +58,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
         return path.resolve(root, output.path)
       }
 
-      if (options?.group && group) {
+      if (group && (options?.group?.path || options?.group?.tag)) {
         const groupName: Group['name'] = group?.name
           ? group.name
           : (ctx) => {
@@ -67,7 +68,14 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
               return `${camelCase(ctx.group)}Controller`
             }
 
-        return path.resolve(root, output.path, groupName({ group: options.group }), baseName)
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)
@@ -95,7 +103,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         include: undefined,
         override,
         mode,
@@ -109,7 +117,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
-        contentType: swaggerPlugin.context.contentType,
+        contentType,
         exclude,
         include,
         override,

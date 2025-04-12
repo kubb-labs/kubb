@@ -9,14 +9,15 @@ import { URLPath } from './utils/URLPath.ts'
 import { join, resolve } from 'node:path'
 import { getRelativePath } from '@kubb/fs'
 import type { Logger } from './logger.ts'
-import type { Output, PluginContext } from './types.ts'
+import type { Config, Output, UserConfig } from './types.ts'
 
 type BuildOptions = {
-  config: PluginContext['config']
+  config: UserConfig
   /**
    * @default Logger without the spinner
    */
   logger?: Logger
+  pluginManager?: PluginManager
 }
 
 type BuildOutput = {
@@ -28,27 +29,48 @@ type BuildOutput = {
   error?: Error
 }
 
-async function setup(options: BuildOptions): Promise<PluginManager> {
-  const { config, logger = createLogger() } = options
+export async function setup(options: BuildOptions): Promise<PluginManager> {
+  if (options.pluginManager) {
+    return options.pluginManager
+  }
+
+  const { config: userConfig, logger = createLogger() } = options
 
   try {
-    if (isInputPath(config) && !new URLPath(config.input.path).isURL) {
-      await read(config.input.path)
+    if (isInputPath(userConfig) && !new URLPath(userConfig.input.path).isURL) {
+      await read(userConfig.input.path)
     }
   } catch (e) {
-    if (isInputPath(config)) {
-      throw new Error(`Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${config.input.path}`, {
-        cause: e,
-      })
+    if (isInputPath(userConfig)) {
+      throw new Error(
+        `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${userConfig.input.path}`,
+        {
+          cause: e,
+        },
+      )
     }
   }
 
-  if (config.output.clean) {
-    await clean(config.output.path)
-    await clean(join(config.root, '.kubb'))
+  const definedConfig: Config = {
+    root: userConfig.root || process.cwd(),
+    ...userConfig,
+    output: {
+      write: true,
+      barrelType: 'named',
+      extension: {
+        '.ts': '.ts',
+      },
+      ...userConfig.output,
+    },
+    plugins: userConfig.plugins as Config['plugins'],
   }
 
-  return new PluginManager(config, { logger })
+  if (definedConfig.output.clean) {
+    await clean(definedConfig.output.path)
+    await clean(join(definedConfig.root, '.kubb'))
+  }
+
+  return new PluginManager(definedConfig, { logger })
 }
 
 export async function build(options: BuildOptions): Promise<BuildOutput> {
@@ -66,6 +88,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
   let files = []
   const pluginManager = await setup(options)
+  const config = pluginManager.config
 
   try {
     pluginManager.events.on('executing', ({ plugin, message }) => {
@@ -81,13 +104,13 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
 
     await pluginManager.hookParallel({
       hookName: 'buildStart',
-      parameters: [options.config],
+      parameters: [config],
       message: 'buildStart',
     })
 
     // create root barrel file
-    const root = resolve(options.config.root)
-    const rootPath = resolve(root, options.config.output.path, 'index.ts')
+    const root = resolve(config.root)
+    const rootPath = resolve(root, config.output.path, 'index.ts')
     const barrelFiles = pluginManager.fileManager.files.filter((file) => {
       return file.sources.some((source) => source.isIndexable)
     })
@@ -109,16 +132,16 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
                 const meta = file.meta as any
                 return item.key === meta?.pluginKey
               })
-              const pluginOptions = plugin?.options as { output?: Output }
+              const pluginOptions = plugin?.options as { output?: Output<any> }
 
               if (!pluginOptions || pluginOptions?.output?.barrelType === false) {
                 return undefined
               }
 
               return {
-                name: options.config.output.barrelType === 'all' ? undefined : [source.name],
+                name: config.output.barrelType === 'all' ? undefined : [source.name],
                 path: getRelativePath(rootPath, file.path),
-                isTypeOnly: options.config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
+                isTypeOnly: config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
               } as KubbFile.Export
             })
             .filter(Boolean)
@@ -128,19 +151,19 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       meta: {},
     }
 
-    if (options.config.output.barrelType) {
+    if (config.output.barrelType) {
       await pluginManager.fileManager.add(rootFile)
     }
 
     files = await processFiles({
-      root: options.config.root,
-      extension: options.config.output.extension,
-      dryRun: !options.config.output.write,
+      root: config.root,
+      extension: config.output.extension,
+      dryRun: !config.output.write,
       files: pluginManager.fileManager.files,
       logger: pluginManager.logger,
     })
 
-    await pluginManager.hookParallel({ hookName: 'buildEnd', message: `Build stopped for ${options.config.name}` })
+    await pluginManager.hookParallel({ hookName: 'buildEnd', message: `Build stopped for ${config.name}` })
 
     pluginManager.fileManager.clear()
   } catch (e) {

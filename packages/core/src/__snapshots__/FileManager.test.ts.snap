@@ -1,8 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`FileManager utils > if getFileSource is returning code with exports and exports as 1`] = `
-"import type Dog from './Dog'
-import type { Pets, Lily } from './Pets'
+"import type Dog from './Dog.ts'
+import type { Pets, Lily } from './Pets.ts'
 
 export const test = 2
 type Test = Pets | Lily | Dog
@@ -16,16 +16,16 @@ export type { Pets, Lily } from './Pets'
 `;
 
 exports[`FileManager utils > if getFileSource is returning code with imports 1`] = `
-"import type { Pets } from './Pets'
+"import type { Pets } from './Pets.ts'
 
 export type Pet = Pets
 "
 `;
 
 exports[`FileManager utils > if getFileSource is returning code with imports 2`] = `
-"import client from './Pets'
-import React from './React'
-import type { Pets, Cat } from './Pets'
+"import client from './Pets.ts'
+import React from './React.ts'
+import type { Pets, Cat } from './Pets.ts'
 
 export type Pet = Pets | Cat
 const test = [client, React]
@@ -33,9 +33,9 @@ const test = [client, React]
 `;
 
 exports[`FileManager utils > if getFileSource is returning code with imports 3`] = `
-"import client from './Pets'
-import React from './React'
-import type { Pets, Cat } from './Pets'
+"import client from './Pets.ts'
+import React from './React.ts'
+import type { Pets, Cat } from './Pets.ts'
 
 export type Pet = Pets | Cat
 const test = [client, React]
@@ -43,7 +43,7 @@ const test = [client, React]
 `;
 
 exports[`FileManager utils > if getFileSource is returning code with imports and default import 1`] = `
-"import type Pets from './Pets'
+"import type Pets from './Pets.ts'
 
 export type Pet = Pets
 "

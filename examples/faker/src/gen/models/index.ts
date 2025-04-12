@@ -34,6 +34,7 @@ export type {
   GetUserByNameQueryResponse,
   GetUserByNameQuery,
 } from './GetUserByName.ts'
+export type { Item } from './Item.ts'
 export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './LoginUser.ts'
 export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './LogoutUser.ts'
 export type { OrderStatusEnum, Order } from './Order.ts'

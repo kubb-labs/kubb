@@ -17,7 +17,7 @@ export default defineConfig({
   },
   plugins: [
     pluginOas({
-      output: false,
+      generators: [],
     }),
     pluginTs({
       output: { path: 'models' },

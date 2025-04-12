@@ -1,5 +1,87 @@
 # @kubb/parser-ts
 
+## 3.7.7
+
+## 3.7.6
+
+## 3.7.5
+
+## 3.7.4
+
+## 3.7.3
+
+## 3.7.2
+
+## 3.7.1
+
+## 3.7.0
+
+## 3.6.5
+
+## 3.6.4
+
+## 3.6.3
+
+## 3.6.2
+
+## 3.6.1
+
+## 3.6.0
+
+## 3.5.13
+
+### Patch Changes
+
+- [#1567](https://github.com/kubb-labs/kubb/pull/1567) [`09ed7ba`](https://github.com/kubb-labs/kubb/commit/09ed7ba9d585dabca249a0cddd18c8a0dce6f5e1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - enum with whitespaces
+
+## 3.5.12
+
+## 3.5.11
+
+### Patch Changes
+
+- [#1557](https://github.com/kubb-labs/kubb/pull/1557) [`860aeae`](https://github.com/kubb-labs/kubb/commit/860aeae0ed57d05a03d08560292bbddc26b83ba5) Thanks [@nicholaschiang](https://github.com/nicholaschiang)! - Including and excluding tags now matches any tag, instead of just the first one.
+
+## 3.5.10
+
+## 3.5.9
+
+## 3.5.8
+
+## 3.5.7
+
+## 3.5.6
+
+## 3.5.5
+
+## 3.5.4
+
+## 3.5.3
+
+## 3.5.2
+
+## 3.5.1
+
+## 3.5.0
+
+## 3.4.5
+
+## 3.4.4
+
+## 3.4.3
+
+## 3.4.2
+
+## 3.4.1
+
+## 3.4.0
+
+## 3.3.5
+
+## 3.3.4
+
+## 3.3.3
+
 ## 3.3.2
 
 ## 3.3.1

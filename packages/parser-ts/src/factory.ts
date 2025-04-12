@@ -1,7 +1,7 @@
 import { isNumber } from 'remeda'
-import ts, { SyntaxKind } from 'typescript'
+import ts from 'typescript'
 
-const { factory } = ts
+const { SyntaxKind, factory } = ts
 
 // https://ts-ast-viewer.com/
 
@@ -269,12 +269,12 @@ export function createInterfaceDeclaration({
 export function createTypeDeclaration({
   syntax,
   isExportable,
-  description,
+  comments,
   name,
   type,
 }: {
   syntax: 'type' | 'interface'
-  description?: string
+  comments: Array<string | undefined>
   isExportable?: boolean
   name: string | ts.Identifier
   type: ts.TypeNode
@@ -289,7 +289,7 @@ export function createTypeDeclaration({
 
     return appendJSDocToNode({
       node,
-      comments: [description ? `@description ${description}` : undefined].filter(Boolean),
+      comments,
     })
   }
 
@@ -302,7 +302,7 @@ export function createTypeDeclaration({
 
   return appendJSDocToNode({
     node,
-    comments: [description ? `@description ${description}` : undefined].filter(Boolean),
+    comments,
   })
 }
 
@@ -476,10 +476,12 @@ export function createEnumDeclaration({
         enums
           .map(([key, value]) => {
             let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
+            const isExactNumber = Number.parseInt(value.toString()) === value
 
-            if (isNumber(Number.parseInt(value.toString()))) {
+            if (isExactNumber && isNumber(Number.parseInt(value.toString()))) {
               initializer = factory.createNumericLiteral(value as number)
             }
+
             if (typeof value === 'boolean') {
               initializer = value ? factory.createTrue() : factory.createFalse()
             }
@@ -515,7 +517,7 @@ export function createEnumDeclaration({
               factory.createObjectLiteralExpression(
                 enums
                   .map(([key, value]) => {
-                    let initializer: ts.Expression = factory.createStringLiteral(`${value?.toString()}`)
+                    let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
 
                     if (isNumber(value)) {
                       // Error: Negative numbers should be created in combination with createPrefixUnaryExpression factory.
@@ -589,6 +591,7 @@ export function createOmitDeclaration({
 export const keywordTypeNodes = {
   any: factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
   unknown: factory.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword),
+  void: factory.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword),
   number: factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
   integer: factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
   object: factory.createKeywordTypeNode(ts.SyntaxKind.ObjectKeyword),

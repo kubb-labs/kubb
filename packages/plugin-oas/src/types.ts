@@ -1,22 +1,22 @@
-import type { Output, Plugin } from '@kubb/core'
+import type { Group, Output, Plugin } from '@kubb/core'
 import type { PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type * as KubbFile from '@kubb/fs/types'
 
 import type { HttpMethod, Oas, Operation, SchemaObject, contentType } from '@kubb/oas'
 import type { Generator } from './generator.tsx'
-import type { GetSchemasProps } from './utils/getSchemas.ts'
 
 export type ResolvePathOptions = {
   pluginKey?: Plugin['key']
-  group?: string
+  group?: {
+    tag?: string
+    path?: string
+  }
   type?: ResolveNameParams['type']
 }
 
 export type API = {
   getOas: () => Promise<Oas>
-  getSchemas: (options?: Pick<GetSchemasProps, 'includes'>) => Promise<Record<string, SchemaObject>>
   getBaseURL: () => Promise<string | undefined>
-  contentType?: contentType
 }
 
 export type Options = {
@@ -29,7 +29,11 @@ export type Options = {
    * Specify the export location for the files and define the behavior of the output
    * @default { path: 'schemas', barrelType: 'named' }
    */
-  output?: Output
+  output?: Output<Oas>
+  /**
+   * Group the JSON files based on the provided name.
+   */
+  group?: Group
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
    * @example
@@ -39,7 +43,7 @@ export type Options = {
   serverIndex?: number
   /**
    * Define which contentType should be used.
-   * By default, this is set based on the contentType being found.
+   * By default, the first JSON valid mediaType will be used
    */
   contentType?: contentType
   /**
@@ -128,25 +132,30 @@ type ByMethod = {
   pattern: HttpMethod | RegExp
 }
 // TODO implement as alternative for ByMethod
-type ByMethods = {
-  type: 'methods'
-  pattern: Array<HttpMethod>
-}
+// type ByMethods = {
+//   type: 'methods'
+//   pattern: Array<HttpMethod>
+// }
 
 type BySchemaName = {
   type: 'schemaName'
   pattern: string | RegExp
 }
 
-export type Exclude = ByTag | ByOperationId | ByPath | ByMethod
-export type Include = ByTag | ByOperationId | ByPath | ByMethod
+type ByContentType = {
+  type: 'contentType'
+  pattern: string | RegExp
+}
 
-export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName) & {
+export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType
+export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType
+
+export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName | ByContentType) & {
   options: Partial<TOptions>
 }
 
 type ResolvedOptions = Options & {
-  output: Output
+  output: Output<Oas>
 }
 
-export type PluginOas = PluginFactoryOptions<'plugin-oas', Options, ResolvedOptions, API, never>
+export type PluginOas = PluginFactoryOptions<'plugin-oas', Options, ResolvedOptions, API, ResolvePathOptions>

@@ -18,13 +18,14 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
   const {
     output = { path: 'clients', barrelType: 'named' },
     group,
+    urlType = false,
     exclude = [],
     include,
     override = [],
     transformers = {},
     dataReturnType = 'data',
-    pathParamsType = 'inline',
     paramsType = 'inline',
+    pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
     operations = false,
     baseURL,
     paramsCasing,
@@ -32,6 +33,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     parser = 'client',
     client = 'axios',
     importPath = client === 'fetch' ? '@kubb/plugin-client/clients/fetch' : '@kubb/plugin-client/clients/axios',
+    contentType,
   } = options
 
   return {
@@ -44,8 +46,9 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       importPath,
       paramsType,
       paramsCasing,
-      pathParamsType: paramsType === 'object' ? 'object' : pathParamsType,
+      pathParamsType,
       baseURL,
+      urlType,
     },
     pre: [pluginOasName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
@@ -60,7 +63,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         return path.resolve(root, output.path)
       }
 
-      if (options?.group && group) {
+      if (group && (options?.group?.path || options?.group?.tag)) {
         const groupName: Group['name'] = group?.name
           ? group.name
           : (ctx) => {
@@ -70,7 +73,14 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
               return `${camelCase(ctx.group)}Controller`
             }
 
-        return path.resolve(root, output.path, groupName({ group: options.group }), baseName)
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
       }
 
       return path.resolve(root, output.path, baseName)
@@ -103,7 +113,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
           oas,
           pluginManager: this.pluginManager,
           plugin: this.plugin,
-          contentType: swaggerPlugin.context.contentType,
+          contentType,
           exclude,
           include,
           override,
