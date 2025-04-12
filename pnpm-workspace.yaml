@@ -17,7 +17,7 @@ catalogs:
     '@types/react-reconciler': 0.28.9
     react: ^19.1.0
     react-dom: ^19.1.0
-    react-reconciler: 0.31.0
+    react-reconciler: 0.32.0
 catalog:
   '@types/react': ^18.3.20
   '@types/react-dom': ^18.3.6

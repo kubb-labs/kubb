@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "test": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "/Users/stijnvanhulle/GitHub/kubb/examples/mcp/src/main.ts"],
+      "env": {}
+    }
+  }
+}
