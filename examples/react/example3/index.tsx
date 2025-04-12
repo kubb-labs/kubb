@@ -1,5 +1,4 @@
 import process from 'node:process'
-import React from 'react'
 
 import path from 'node:path'
 import { Const, File, createRoot } from '@kubb/react'

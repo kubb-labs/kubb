@@ -1,5 +1,5 @@
 import process from 'node:process'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from '@kubb/react'
 
 import path from 'node:path'
 import { Const, File, Function, createRoot, useLifecycle } from '@kubb/react'
