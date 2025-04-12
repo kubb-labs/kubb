@@ -149,7 +149,9 @@ describe('<File/>', () => {
     }
     const root = createRoot()
 
-    expect(() => root.render(<Component />)).toThrowError()
+    root.render(<Component />)
+
+    expect(root.output).toMatchInlineSnapshot(`""`)
   })
 
   test('render File with source', () => {
