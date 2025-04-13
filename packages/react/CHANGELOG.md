@@ -1,5 +1,14 @@
 # @kubb/react
 
+## 3.9.0
+
+### Patch Changes
+
+- Updated dependencies [[`f8cfede`](https://github.com/kubb-labs/kubb/commit/f8cfedee78bb3ff81ba0dcc8e68dc9172913dbe0)]:
+  - @kubb/core@3.9.0
+  - @kubb/fs@3.9.0
+  - @kubb/parser-ts@3.9.0
+
 ## 3.8.1
 
 ### Patch Changes
