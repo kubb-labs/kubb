@@ -4,6 +4,16 @@ title: Changelog
 
 # Changelog
 
+
+## 3.9.0
+- [`core`](/plugins/core): add default banner feature to enhance generated file recognizability by [@akinoccc](https://github.com/akinoccc)
+
+## 3.8.1
+- [`plugin-zod`](/plugins/plugin-zod): support for Zod v4(beta)
+
+## 3.8.0
+- [`react`](/helpers/react/): Support for React 19 and expose `useState`, `useEffect`, `useRef` from `@kubb/react`
+
 ## 3.7.7
 - [`plugin-oas`](/plugins/plugin-oas): support for contentType override/exclude/include
 

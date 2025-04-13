@@ -1,5 +1,48 @@
 # @kubb/plugin-client
 
+## 3.9.0
+
+### Minor Changes
+
+- [#1635](https://github.com/kubb-labs/kubb/pull/1635) [`f8cfede`](https://github.com/kubb-labs/kubb/commit/f8cfedee78bb3ff81ba0dcc8e68dc9172913dbe0) Thanks [@akinoccc](https://github.com/akinoccc)! - feat: add default banner feature to enhance generated file recognizability
+
+### Patch Changes
+
+- Updated dependencies [[`f8cfede`](https://github.com/kubb-labs/kubb/commit/f8cfedee78bb3ff81ba0dcc8e68dc9172913dbe0)]:
+  - @kubb/plugin-oas@3.9.0
+  - @kubb/plugin-ts@3.9.0
+  - @kubb/core@3.9.0
+  - @kubb/plugin-zod@3.9.0
+  - @kubb/react@3.9.0
+  - @kubb/fs@3.9.0
+  - @kubb/oas@3.9.0
+
+## 3.8.1
+
+### Patch Changes
+
+- Updated dependencies [[`b6df4d9`](https://github.com/kubb-labs/kubb/commit/b6df4d90d28e310755fd282495426f035470a7d3)]:
+  - @kubb/plugin-zod@3.8.1
+  - @kubb/core@3.8.1
+  - @kubb/fs@3.8.1
+  - @kubb/oas@3.8.1
+  - @kubb/plugin-oas@3.8.1
+  - @kubb/plugin-ts@3.8.1
+  - @kubb/react@3.8.1
+
+## 3.8.0
+
+### Patch Changes
+
+- Updated dependencies [[`f7c5bb8`](https://github.com/kubb-labs/kubb/commit/f7c5bb8992c47333d8529e4494591c2029abd28a)]:
+  - @kubb/react@3.8.0
+  - @kubb/plugin-oas@3.8.0
+  - @kubb/plugin-ts@3.8.0
+  - @kubb/plugin-zod@3.8.0
+  - @kubb/core@3.8.0
+  - @kubb/fs@3.8.0
+  - @kubb/oas@3.8.0
+
 ## 3.7.7
 
 ### Patch Changes

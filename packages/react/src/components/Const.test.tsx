@@ -7,8 +7,9 @@ describe('<Const/>', () => {
       return <Const name="data">"blue"</Const>
     }
     const root = createRoot()
-    root.render(<Component />)
+    const renderOutput = root.render(<Component />)
 
+    expect(root.output).toEqual(renderOutput.output)
     expect(root.output).toMatchSnapshot()
   })
 

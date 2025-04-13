@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from '@kubb/react'
 
 import { Text, createRoot, useLifecycle } from '@kubb/react'
 
@@ -9,7 +9,7 @@ const root = createRoot({ stdout: process.stdout })
  * Render component that will count down from 5
  */
 function Component() {
-  const timer = useRef<NodeJS.Timer>()
+  const timer = useRef<NodeJS.Timer>(null)
   const [counter, setCounter] = useState(5)
   const { exit } = useLifecycle()
 
@@ -21,7 +21,7 @@ function Component() {
     }, 1000)
 
     return () => {
-      clearInterval(timer.current)
+      clearInterval(timer.current!)
     }
   }, [])
 
@@ -29,7 +29,7 @@ function Component() {
     if (counter === 0) {
       // trigger unmount
       exit()
-      clearInterval(timer.current)
+      clearInterval(timer.current!)
     }
   }, [counter, exit])
 

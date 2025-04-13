@@ -81,7 +81,6 @@ export const typeKeywordMapper = {
     type === 'string' ? factory.keywordTypeNodes.string : factory.createTypeReferenceNode(factory.createIdentifier('Date')),
   uuid: () => factory.keywordTypeNodes.string,
   url: () => factory.keywordTypeNodes.string,
-  strict: undefined,
   default: undefined,
   and: (nodes?: ts.TypeNode[]) => {
     if (!nodes) {
@@ -118,6 +117,7 @@ export const typeKeywordMapper = {
   schema: undefined,
   catchall: undefined,
   name: undefined,
+  interface: undefined,
 } satisfies SchemaMapper<ts.Node | null | undefined>
 
 type ParserOptions = {

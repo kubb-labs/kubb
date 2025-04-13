@@ -199,6 +199,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/5475129?v=4",
       "profile": "https://github.com/lambdank",
       "contributions": ["code"]
+    },
+    {
+      "login": "akinoccc",
+      "name": "Akino",
+      "avatar_url": "https://avatars.githubusercontent.com/u/64176534?v=4",
+      "profile": "https://akino.icu",
+      "contributions": ["code"]
     }
   ],
   "contributorsPerLine": 7,

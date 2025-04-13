@@ -171,10 +171,15 @@ export class PackageManager {
     if (!packageVersion) {
       return false
     }
+
+    if (version === 'next' && packageVersion === version) {
+      return true
+    }
+
     const semVer = coerce(packageVersion)
 
     if (!semVer) {
-      throw new Error(`${packageVersion} is not valid`)
+      return false
     }
 
     return satisfies(semVer, version)

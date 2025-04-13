@@ -11,6 +11,7 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
   name: 'cypress',
   Operation({ operation }) {
     const {
+      pluginManager,
       plugin: {
         options: { output, baseURL, dataReturnType },
       },
@@ -33,7 +34,7 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
         baseName={request.file.baseName}
         path={request.file.path}
         meta={request.file.meta}
-        banner={getBanner({ oas, output })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import

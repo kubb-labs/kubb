@@ -3,6 +3,16 @@ import { createRoot } from '../createRoot.ts'
 import { File } from './File.tsx'
 
 describe('<File/>', () => {
+  test('render text', async () => {
+    const Component = () => {
+      return 'test'
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.output).toMatchInlineSnapshot(`"test"`)
+  })
+
   test('render File', () => {
     const Component = () => {
       return <File baseName="test.ts" path="path" />
@@ -13,7 +23,7 @@ describe('<File/>', () => {
     expect(root.output).toMatchInlineSnapshot(`""`)
   })
 
-  test('render File with Import and Export', () => {
+  test('render File with Import and Export', async () => {
     const Component = () => {
       return (
         <File baseName="test.ts" path="path">
@@ -139,7 +149,9 @@ describe('<File/>', () => {
     }
     const root = createRoot()
 
-    expect(() => root.render(<Component />)).toThrowError()
+    root.render(<Component />)
+
+    expect(root.output).toMatchInlineSnapshot(`""`)
   })
 
   test('render File with source', () => {

@@ -130,12 +130,12 @@ const fakerKeywordMapper = {
   optional: undefined,
   readOnly: undefined,
   writeOnly: undefined,
-  strict: undefined,
   deprecated: undefined,
   example: undefined,
   schema: undefined,
   catchall: undefined,
   name: undefined,
+  interface: undefined,
 } satisfies SchemaMapper<string | null | undefined>
 
 /**

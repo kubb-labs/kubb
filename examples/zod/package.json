@@ -29,7 +29,7 @@
     "react": "^18.3.1",
     "tsup": "^8.4.0",
     "typescript": "^5.8.3",
-    "zod": "^3.24.2"
+    "zod": "next"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
