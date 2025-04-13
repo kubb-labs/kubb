@@ -3,12 +3,11 @@ import path from 'node:path'
 import { FileManager, type Group, PluginManager, createPlugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
-import { pluginClientName } from '@kubb/plugin-client'
 import { pluginTsName } from '@kubb/plugin-ts'
 
 import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
-import { mcpGenerator } from './generators'
+import { mcpGenerator, serverGenerator } from './generators'
 import type { PluginMcp } from './types.ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 
@@ -23,32 +22,23 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
     include,
     override = [],
     transformers = {},
-    paramsType = 'inline',
-    pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
-    paramsCasing,
-    generators = [mcpGenerator].filter(Boolean),
+    generators = [mcpGenerator, serverGenerator].filter(Boolean),
     contentType,
-    baseURL,
   } = options
 
   return {
     name: pluginMcpName,
     options: {
       output,
+      dataReturnType,
+      group,
       client: {
         importPath: '@kubb/plugin-client/clients/axios',
         dataReturnType: 'data',
-        pathParamsType,
         ...options.client,
       },
-      dataReturnType,
-      group,
-      baseURL,
-      paramsType,
-      pathParamsType,
-      paramsCasing,
     },
-    pre: [pluginOasName, pluginTsName, pluginClientName, pluginZodName].filter(Boolean),
+    pre: [pluginOasName, pluginTsName, pluginZodName].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))

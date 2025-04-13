@@ -109,6 +109,7 @@ export function Mutation({
     paramsType,
     typeSchemas,
     pathParamsType,
+    isConfigurable: true,
   })
 
   const mutationParams = FunctionParams.factory({

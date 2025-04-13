@@ -102,6 +102,7 @@ export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, para
     paramsType,
     typeSchemas,
     pathParamsType,
+    isConfigurable: true,
   })
 
   return (

@@ -108,6 +108,7 @@ export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, para
     typeSchemas,
     paramsType,
     pathParamsType,
+    isConfigurable: true,
   })
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,

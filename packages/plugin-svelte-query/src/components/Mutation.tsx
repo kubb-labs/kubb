@@ -100,6 +100,7 @@ export function Mutation({
     paramsType,
     typeSchemas,
     pathParamsType,
+    isConfigurable: true,
   })
   const mutationParams = FunctionParams.factory({
     ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),

@@ -3,7 +3,6 @@ import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@ku
 import type { Oas, contentType } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions, Generator } from '@kubb/plugin-oas'
 import type { PluginClient } from '@kubb/plugin-client'
-import type { PluginReactQuery } from '@kubb/plugin-react-query'
 
 export type Options = {
   /**
@@ -23,13 +22,12 @@ export type Options = {
    * @default 'data'
    */
   dataReturnType?: 'data' | 'full'
-  baseURL?: string
+  client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath' | 'baseURL'>
+
   /**
    * Group the mcp requests based on the provided name.
    */
   group?: Group
-  client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath' | 'baseURL'>
-
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
@@ -42,25 +40,6 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
-  /**
-   * How to style your params, by default no casing is applied
-   * - 'camelcase' will use camelcase for the params names
-   */
-  paramsCasing?: 'camelcase'
-  /**
-   * How to pass your params
-   * - 'object' will return the params and pathParams as an object.
-   * - 'inline' will return the params as comma separated params.
-   * @default 'inline'
-   */
-  paramsType?: 'object' | 'inline'
-  /**
-   * How to pass your pathParams.
-   * - 'object' will return the pathParams as an object.
-   * - 'inline' will return the pathParams as comma separated params.
-   * @default 'inline'
-   */
-  pathParamsType?: PluginClient['options']['pathParamsType']
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -76,12 +55,8 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
-  client: Required<Omit<NonNullable<PluginReactQuery['options']['client']>, 'baseURL'>> & { baseURL?: string }
-  baseURL: Options['baseURL'] | undefined
+  client: Required<Omit<NonNullable<PluginMcp['options']['client']>, 'baseURL'>> & { baseURL?: string }
   dataReturnType: NonNullable<Options['dataReturnType']>
-  pathParamsType: NonNullable<Options['pathParamsType']>
-  paramsCasing: Options['paramsCasing']
-  paramsType: NonNullable<Options['paramsType']>
 }
 
 export type PluginMcp = PluginFactoryOptions<'plugin-mcp', Options, ResolvedOptions, never, ResolvePathOptions>
