@@ -74,7 +74,7 @@ exports[`zod parse > 'enumLiteralBoolean' v4 1`] = `"z.union([z.literal(true), z
 
 exports[`zod parse > 'integer' 1`] = `"z.number().int()"`;
 
-exports[`zod parse > 'integer' v4 1`] = `"z.number().int()"`;
+exports[`zod parse > 'integer' v4 1`] = `"z.int()"`;
 
 exports[`zod parse > 'matches' 1`] = `"z.string().regex(/^[A-Z]{2}$/)"`;
 

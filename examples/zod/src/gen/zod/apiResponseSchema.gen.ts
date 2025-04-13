@@ -1,7 +1,7 @@
 import { z } from '../../zod.ts'
 
 export const apiResponseSchema = z.object({
-  code: z.number().int().optional(),
+  code: z.int().optional(),
   type: z.string().optional(),
   message: z.string().optional(),
 })

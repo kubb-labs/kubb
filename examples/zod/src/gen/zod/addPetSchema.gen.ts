@@ -13,7 +13,7 @@ export type AddPet200Schema = z.infer<typeof addPet200Schema>
  * @description Pet not found
  */
 export const addPet405Schema = z.object({
-  code: z.number().int().optional(),
+  code: z.int().optional(),
   message: z.string().optional(),
 })
 

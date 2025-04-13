@@ -1,7 +1,7 @@
 import { z } from '../../zod.ts'
 
 export const updatePetWithFormPathParamsSchema = z.object({
-  petId: z.number().int().describe('ID of pet that needs to be updated'),
+  petId: z.int().describe('ID of pet that needs to be updated'),
 })
 
 export type UpdatePetWithFormPathParamsSchema = z.infer<typeof updatePetWithFormPathParamsSchema>

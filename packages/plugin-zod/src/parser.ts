@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import type { SchemaObject } from '@kubb/oas'
-import { type SchemaKeywordMapper, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
+import { SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
 import { PackageManager } from '@kubb/core'
@@ -19,7 +19,7 @@ const zodKeywordMapper = {
   },
   integer: (coercion?: boolean, min?: number, max?: number) => {
     return [
-      coercion ? 'z.coerce.number().int()' : 'z.number().int()',
+      coercion ? 'z.coerce.number().int()' : isV4() ? 'z.int()' : 'z.number().int()',
       min !== undefined ? `.min(${min})` : undefined,
       max !== undefined ? `.max(${max})` : undefined,
     ]
@@ -314,7 +314,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
     })
 
     const hasReferences = propertyEntries.some(([_name, schemas]) => {
-      return schemas.some((schema) => isKeyword(schema, schemaKeywords.ref))
+      return SchemaGenerator.find(schemas, schemaKeywords.ref)
     })
 
     const properties = propertyEntries
@@ -336,7 +336,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
           ? options.wrapOutput({ output: baseSchemaOutput, schema: options.rawSchema?.properties?.[name] }) || baseSchemaOutput
           : baseSchemaOutput
 
-        if (isV4() && schemas.some((schema) => isKeyword(schema, schemaKeywords.ref))) {
+        if (isV4() && SchemaGenerator.find(schemas, schemaKeywords.ref)) {
           return `get ${name}(){
                 return ${objectValue}
               }`
