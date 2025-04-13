@@ -3,6 +3,10 @@ import type { SchemaObject } from '@kubb/oas'
 import { type SchemaKeywordMapper, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
+import { PackageManager } from '@kubb/core'
+
+const packageManager = new PackageManager()
+const isV4 = () => packageManager.isValidSync('zod', '>=4') || packageManager.isValidSync('zod', 'next')
 
 const zodKeywordMapper = {
   any: () => 'z.any()',
@@ -22,7 +26,29 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  object: (value?: string) => {
+  interface: (value?: string, strict?: boolean) => {
+    if (strict) {
+      return `z.strictInterface({
+    ${value}
+    })`
+    }
+    return `z.interface({
+    ${value}
+    })`
+  },
+  object: (value?: string, strict?: boolean) => {
+    if (isV4() && strict) {
+      return `z.strictObject({
+    ${value}
+    })`
+    }
+
+    if (strict) {
+      return `z.object({
+    ${value}
+    }).strict()`
+    }
+
     return `z.object({
     ${value}
     })`
@@ -32,6 +58,7 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
+  //support for discriminatedUnion
   boolean: () => 'z.boolean()',
   undefined: () => 'z.undefined()',
   nullable: () => '.nullable()',
@@ -56,11 +83,11 @@ const zodKeywordMapper = {
    */
   datetime: (offset = false, local = false) => {
     if (offset) {
-      return `z.string().datetime({ offset: ${offset} })`
+      return isV4() ? `z.iso.datetime({ offset: ${offset} })` : `z.string().datetime({ offset: ${offset} })`
     }
 
     if (local) {
-      return `z.string().datetime({ local: ${local} })`
+      return isV4() ? `z.iso.datetime({ local: ${local} })` : `z.string().datetime({ local: ${local} })`
     }
 
     return 'z.string().datetime()'
@@ -72,7 +99,7 @@ const zodKeywordMapper = {
    */
   date: (type: 'date' | 'string' = 'string', coercion?: boolean) => {
     if (type === 'string') {
-      return 'z.string().date()'
+      return isV4() ? 'z.iso.date()' : 'z.string().date()'
     }
 
     if (coercion) {
@@ -88,7 +115,7 @@ const zodKeywordMapper = {
    */
   time: (type: 'date' | 'string' = 'string', coercion?: boolean) => {
     if (type === 'string') {
-      return 'z.string().time()'
+      return isV4() ? 'z.iso.time()' : 'z.string().time()'
     }
 
     if (coercion) {
@@ -97,9 +124,8 @@ const zodKeywordMapper = {
 
     return 'z.date()'
   },
-  uuid: (coercion?: boolean) => (coercion ? 'z.coerce.string().uuid()' : 'z.string().uuid()'),
-  url: (coercion?: boolean) => (coercion ? 'z.coerce.string().url()' : 'z.string().url()'),
-  strict: () => '.strict()',
+  uuid: (coercion?: boolean) => (isV4() ? (coercion ? 'z.coerce.string().uuid()' : 'z.uuid()') : coercion ? 'z.coerce.string().uuid()' : 'z.string().uuid()'),
+  url: (coercion?: boolean) => (isV4() ? (coercion ? 'z.coerce.string().url()' : 'z.url()') : coercion ? 'z.coerce.string().url()' : 'z.string().url()'),
   default: (value?: string | number | true | object) => {
     if (typeof value === 'object') {
       return '.default({})'
@@ -112,7 +138,8 @@ const zodKeywordMapper = {
   max: (value?: number) => `.max(${value ?? ''})`,
   optional: () => '.optional()',
   matches: (value = '', coercion?: boolean) => (coercion ? `z.coerce.string().regex(${value})` : `z.string().regex(${value})`),
-  email: (coercion?: boolean) => (coercion ? 'z.coerce.string().email()' : 'z.string().email()'),
+  email: (coercion?: boolean) =>
+    isV4() ? (coercion ? 'z.coerce.string().email()' : 'z.email()') : coercion ? 'z.coerce.string().email()' : 'z.string().email()',
   firstName: undefined,
   lastName: undefined,
   password: undefined,
@@ -124,7 +151,7 @@ const zodKeywordMapper = {
       return undefined
     }
 
-    return `z.lazy(() => ${value})`
+    return isV4() ? value : `z.lazy(() => ${value})`
   },
   blob: () => 'z.instanceof(File)',
   deprecated: undefined,
@@ -281,11 +308,16 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
   }
 
   if (isKeyword(current, schemaKeywords.object)) {
-    const properties = Object.entries(current.args?.properties || {})
-      .filter((item) => {
-        const schema = item[1]
-        return schema && typeof schema.map === 'function'
-      })
+    const propertyEntries = Object.entries(current.args?.properties || {}).filter((item) => {
+      const schema = item[1]
+      return schema && typeof schema.map === 'function'
+    })
+
+    const hasReferences = propertyEntries.some(([_name, schemas]) => {
+      return schemas.some((schema) => isKeyword(schema, schemaKeywords.ref))
+    })
+
+    const properties = propertyEntries
       .map(([name, schemas]) => {
         const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
         const mappedName = nameSchema?.args || name
@@ -300,7 +332,17 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
           .filter(Boolean)
           .join('')
 
-        return `"${name}": ${options.wrapOutput ? options.wrapOutput({ output: baseSchemaOutput, schema: options.rawSchema?.properties?.[name] }) || baseSchemaOutput : baseSchemaOutput}`
+        const objectValue = options.wrapOutput
+          ? options.wrapOutput({ output: baseSchemaOutput, schema: options.rawSchema?.properties?.[name] }) || baseSchemaOutput
+          : baseSchemaOutput
+
+        if (isV4() && schemas.some((schema) => isKeyword(schema, schemaKeywords.ref))) {
+          return `get ${name}(){
+                return ${objectValue}
+              }`
+        }
+
+        return `"${name}": ${objectValue}`
       })
       .join(',\n')
 
@@ -312,8 +354,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
       : undefined
 
     const text = [
-      zodKeywordMapper.object(properties),
-      current.args?.strict ? zodKeywordMapper.strict() : undefined,
+      hasReferences && isV4() ? zodKeywordMapper.interface(properties, current.args?.strict) : zodKeywordMapper.object(properties, current.args?.strict),
       additionalProperties ? zodKeywordMapper.catchall(additionalProperties) : undefined,
     ].filter(Boolean)
 

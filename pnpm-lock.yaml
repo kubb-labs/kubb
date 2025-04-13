@@ -103,8 +103,8 @@ importers:
         specifier: ^1.6.3
         version: 1.6.3(@algolia/client-search@5.17.1)(@types/node@20.17.30)(@types/react@19.1.1)(axios@1.8.4)(change-case@5.4.4)(postcss@8.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.37.0)(typescript@5.8.3)
       vitepress-plugin-group-icons:
-        specifier: ^1.4.1
-        version: 1.4.1
+        specifier: ^1.5.1
+        version: 1.5.1
       vue:
         specifier: ^3.5.13
         version: 3.5.13(typescript@5.8.3)
@@ -967,8 +967,8 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
       zod:
-        specifier: ^3.24.2
-        version: 3.24.2
+        specifier: next
+        version: 4.0.0-beta.20250412T085909
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -5179,6 +5179,9 @@ packages:
     resolution: {integrity: sha512-UvevrgCLnze1M9kXC8h+PVtnL3YYrASx1o6cY2zRopbJ2gCKqIfl9DUDKvqCPLZN+8ZDkMDBa2YRWyFnsZFbIQ==}
     engines: {node: '>=12.0.0'}
 
+  '@zod/core@0.4.6':
+    resolution: {integrity: sha512-0IeEldTobOdkoJPyINVQgOHlgCWbpozSsDjdcd2+VcxKvf8T+SYLDVk7NKt0XJx3C0ImNXAXh3V3yIw46NJyQA==}
+
   '@zxing/text-encoding@0.9.0':
     resolution: {integrity: sha512-U/4aVJ2mxI0aDNI8Uq0wEhMgY+u4CNtEb0om3+y3+niDAsoTCOB33UF0sxpzqzdqXLqmvc+vZyAt4O8pPdfkwA==}
 
@@ -9164,8 +9167,8 @@ packages:
       yaml:
         optional: true
 
-  vitepress-plugin-group-icons@1.4.1:
-    resolution: {integrity: sha512-4APG5wzUvl2JbZcy6+I7K9DleBJE7W5RCkPu2mDPxzKxI/9pF3GmIACDnIlhyfIpUyfW4eanbyoMuP7tzLpM3Q==}
+  vitepress-plugin-group-icons@1.5.1:
+    resolution: {integrity: sha512-IF4xZ5C/BNbod7QFJk3z3XnxckJPw1Dc1pHUQp7FaJxPRt0Y7j11fM1krSR1S8D5FBEpbYp7KJI9XVmrpFOU5w==}
 
   vitepress@1.6.3:
     resolution: {integrity: sha512-fCkfdOk8yRZT8GD9BFqusW3+GggWYZ/rYncOfmgcDtP3ualNHCAg+Robxp2/6xfH1WwPHtGpPwv7mbA3qomtBw==}
@@ -9422,6 +9425,9 @@ packages:
 
   zod@3.24.2:
     resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
+
+  zod@4.0.0-beta.20250412T085909:
+    resolution: {integrity: sha512-W4OjoCnF5XTuljw4X6Hh3Inp45Ug7mmCWzWfFPv+RZcSIAGz7OPqBKOEDtLjfnJAvoxvY3vO0SkxH1zr0Md/Ag==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -13744,6 +13750,8 @@ snapshots:
       - '@vue/composition-api'
       - ts-node
       - typescript
+
+  '@zod/core@0.4.6': {}
 
   '@zxing/text-encoding@0.9.0':
     optional: true
@@ -18324,7 +18332,7 @@ snapshots:
       terser: 5.37.0
       yaml: 2.7.0
 
-  vitepress-plugin-group-icons@1.4.1:
+  vitepress-plugin-group-icons@1.5.1:
     dependencies:
       '@iconify-json/logos': 1.2.4
       '@iconify-json/vscode-icons': 1.2.19
@@ -18612,5 +18620,9 @@ snapshots:
   zod@3.23.8: {}
 
   zod@3.24.2: {}
+
+  zod@4.0.0-beta.20250412T085909:
+    dependencies:
+      '@zod/core': 0.4.6
 
   zwitch@2.0.4: {}
