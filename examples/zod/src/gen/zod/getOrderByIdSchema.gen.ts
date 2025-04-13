@@ -1,41 +1,33 @@
-import type {
-  GetOrderByIdPathParamsType,
-  GetOrderById200Type,
-  GetOrderById400Type,
-  GetOrderById404Type,
-  GetOrderByIdQueryResponseType,
-} from '../ts/GetOrderByIdType.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from '../../zod.ts'
 import { orderSchema } from './orderSchema.gen.ts'
 
 export const getOrderByIdPathParamsSchema = z.object({
-  orderId: z.number().int().describe('ID of order that needs to be fetched'),
-}) as unknown as ToZod<GetOrderByIdPathParamsType>
+  orderId: z.int().describe('ID of order that needs to be fetched'),
+})
 
-export type GetOrderByIdPathParamsSchema = GetOrderByIdPathParamsType
+export type GetOrderByIdPathParamsSchema = z.infer<typeof getOrderByIdPathParamsSchema>
 
 /**
  * @description successful operation
  */
-export const getOrderById200Schema = z.lazy(() => orderSchema) as unknown as ToZod<GetOrderById200Type>
+export const getOrderById200Schema = orderSchema
 
-export type GetOrderById200Schema = GetOrderById200Type
+export type GetOrderById200Schema = z.infer<typeof getOrderById200Schema>
 
 /**
  * @description Invalid ID supplied
  */
-export const getOrderById400Schema = z.any() as unknown as ToZod<GetOrderById400Type>
+export const getOrderById400Schema = z.any()
 
-export type GetOrderById400Schema = GetOrderById400Type
+export type GetOrderById400Schema = z.infer<typeof getOrderById400Schema>
 
 /**
  * @description Order not found
  */
-export const getOrderById404Schema = z.any() as unknown as ToZod<GetOrderById404Type>
+export const getOrderById404Schema = z.any()
 
-export type GetOrderById404Schema = GetOrderById404Type
+export type GetOrderById404Schema = z.infer<typeof getOrderById404Schema>
 
-export const getOrderByIdQueryResponseSchema = z.lazy(() => getOrderById200Schema) as unknown as ToZod<GetOrderByIdQueryResponseType>
+export const getOrderByIdQueryResponseSchema = getOrderById200Schema
 
-export type GetOrderByIdQueryResponseSchema = GetOrderByIdQueryResponseType
+export type GetOrderByIdQueryResponseSchema = z.infer<typeof getOrderByIdQueryResponseSchema>

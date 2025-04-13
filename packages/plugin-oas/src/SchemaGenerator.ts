@@ -89,7 +89,7 @@ export class SchemaGenerator<
     return uniqueWith(schemas, isDeepEqual)
   }
 
-  deepSearch<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
+  deepSearch<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): Array<SchemaKeywordMapper[T]> {
     return SchemaGenerator.deepSearch<T>(tree, keyword)
   }
 
@@ -97,7 +97,7 @@ export class SchemaGenerator<
     return SchemaGenerator.find<T>(tree, keyword)
   }
 
-  static deepSearch<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T][] {
+  static deepSearch<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): Array<SchemaKeywordMapper[T]> {
     const foundItems: SchemaKeywordMapper[T][] = []
 
     tree?.forEach((schema) => {

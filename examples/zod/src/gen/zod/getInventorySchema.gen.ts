@@ -1,14 +1,12 @@
-import type { GetInventory200Type, GetInventoryQueryResponseType } from '../ts/GetInventoryType.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from '../../zod.ts'
 
 /**
  * @description successful operation
  */
-export const getInventory200Schema = z.object({}).catchall(z.number().int()) as unknown as ToZod<GetInventory200Type>
+export const getInventory200Schema = z.object({}).catchall(z.int())
 
-export type GetInventory200Schema = GetInventory200Type
+export type GetInventory200Schema = z.infer<typeof getInventory200Schema>
 
-export const getInventoryQueryResponseSchema = z.lazy(() => getInventory200Schema) as unknown as ToZod<GetInventoryQueryResponseType>
+export const getInventoryQueryResponseSchema = getInventory200Schema
 
-export type GetInventoryQueryResponseSchema = GetInventoryQueryResponseType
+export type GetInventoryQueryResponseSchema = z.infer<typeof getInventoryQueryResponseSchema>
