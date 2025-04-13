@@ -1,27 +1,25 @@
-import type { DeleteOrderPathParamsType, DeleteOrder400Type, DeleteOrder404Type, DeleteOrderMutationResponseType } from '../ts/DeleteOrderType.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from '../../zod.ts'
 
 export const deleteOrderPathParamsSchema = z.object({
-  orderId: z.number().int().describe('ID of the order that needs to be deleted'),
-}) as unknown as ToZod<DeleteOrderPathParamsType>
+  orderId: z.int().describe('ID of the order that needs to be deleted'),
+})
 
-export type DeleteOrderPathParamsSchema = DeleteOrderPathParamsType
+export type DeleteOrderPathParamsSchema = z.infer<typeof deleteOrderPathParamsSchema>
 
 /**
  * @description Invalid ID supplied
  */
-export const deleteOrder400Schema = z.any() as unknown as ToZod<DeleteOrder400Type>
+export const deleteOrder400Schema = z.any()
 
-export type DeleteOrder400Schema = DeleteOrder400Type
+export type DeleteOrder400Schema = z.infer<typeof deleteOrder400Schema>
 
 /**
  * @description Order not found
  */
-export const deleteOrder404Schema = z.any() as unknown as ToZod<DeleteOrder404Type>
+export const deleteOrder404Schema = z.any()
 
-export type DeleteOrder404Schema = DeleteOrder404Type
+export type DeleteOrder404Schema = z.infer<typeof deleteOrder404Schema>
 
-export const deleteOrderMutationResponseSchema = z.any() as unknown as ToZod<DeleteOrderMutationResponseType>
+export const deleteOrderMutationResponseSchema = z.any()
 
-export type DeleteOrderMutationResponseSchema = DeleteOrderMutationResponseType
+export type DeleteOrderMutationResponseSchema = z.infer<typeof deleteOrderMutationResponseSchema>

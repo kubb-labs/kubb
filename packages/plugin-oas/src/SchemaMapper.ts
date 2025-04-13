@@ -9,7 +9,6 @@ export type SchemaKeywordMapper = {
       strict?: boolean
     }
   }
-  strict: { keyword: 'strict' }
   url: { keyword: 'url' }
   readOnly: { keyword: 'readOnly' }
   writeOnly: { keyword: 'writeOnly' }
@@ -88,11 +87,11 @@ export type SchemaKeywordMapper = {
   schema: { keyword: 'schema'; args: { type: 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object'; format?: string } }
   name: { keyword: 'name'; args: string }
   catchall: { keyword: 'catchall' }
+  interface: { keyword: 'interface' }
 }
 
 export const schemaKeywords = {
   any: 'any',
-  strict: 'strict',
   unknown: 'unknown',
   number: 'number',
   integer: 'integer',
@@ -138,6 +137,7 @@ export const schemaKeywords = {
   catchall: 'catchall',
   time: 'time',
   name: 'name',
+  interface: 'interface',
 } satisfies {
   [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword']
 }

@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+## 3.8.1
+- [`plugin-zod`](/plugins/plugin-zod): support for Zod v4(beta)
+
 ## 3.8.0
 - [`react`](/helpers/react/): Support for React 19 and expose `useState`, `useEffect`, `useRef` from `@kubb/react`
 

@@ -1,28 +1,26 @@
-import type { UpdateUserPathParamsType, UpdateUserErrorType, UpdateUserMutationRequestType, UpdateUserMutationResponseType } from '../ts/UpdateUserType.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from '../../zod.ts'
 import { userSchema } from './userSchema.gen.ts'
 
 export const updateUserPathParamsSchema = z.object({
   username: z.string().describe('name that need to be deleted'),
-}) as unknown as ToZod<UpdateUserPathParamsType>
+})
 
-export type UpdateUserPathParamsSchema = UpdateUserPathParamsType
+export type UpdateUserPathParamsSchema = z.infer<typeof updateUserPathParamsSchema>
 
 /**
  * @description successful operation
  */
-export const updateUserErrorSchema = z.any() as unknown as ToZod<UpdateUserErrorType>
+export const updateUserErrorSchema = z.any()
 
-export type UpdateUserErrorSchema = UpdateUserErrorType
+export type UpdateUserErrorSchema = z.infer<typeof updateUserErrorSchema>
 
 /**
  * @description Update an existent user in the store
  */
-export const updateUserMutationRequestSchema = z.lazy(() => userSchema) as unknown as ToZod<UpdateUserMutationRequestType>
+export const updateUserMutationRequestSchema = userSchema
 
-export type UpdateUserMutationRequestSchema = UpdateUserMutationRequestType
+export type UpdateUserMutationRequestSchema = z.infer<typeof updateUserMutationRequestSchema>
 
-export const updateUserMutationResponseSchema = z.any() as unknown as ToZod<UpdateUserMutationResponseType>
+export const updateUserMutationResponseSchema = z.any()
 
-export type UpdateUserMutationResponseSchema = UpdateUserMutationResponseType
+export type UpdateUserMutationResponseSchema = z.infer<typeof updateUserMutationResponseSchema>

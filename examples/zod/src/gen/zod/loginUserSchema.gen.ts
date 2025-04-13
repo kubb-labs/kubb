@@ -1,5 +1,3 @@
-import type { LoginUserQueryParamsType, LoginUser200Type, LoginUser400Type, LoginUserQueryResponseType } from '../ts/LoginUserType.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from '../../zod.ts'
 
 export const loginUserQueryParamsSchema = z
@@ -7,24 +5,24 @@ export const loginUserQueryParamsSchema = z
     username: z.string().describe('The user name for login').optional(),
     password: z.string().describe('The password for login in clear text').optional(),
   })
-  .optional() as unknown as ToZod<LoginUserQueryParamsType>
+  .optional()
 
-export type LoginUserQueryParamsSchema = LoginUserQueryParamsType
+export type LoginUserQueryParamsSchema = z.infer<typeof loginUserQueryParamsSchema>
 
 /**
  * @description successful operation
  */
-export const loginUser200Schema = z.string() as unknown as ToZod<LoginUser200Type>
+export const loginUser200Schema = z.string()
 
-export type LoginUser200Schema = LoginUser200Type
+export type LoginUser200Schema = z.infer<typeof loginUser200Schema>
 
 /**
  * @description Invalid username/password supplied
  */
-export const loginUser400Schema = z.any() as unknown as ToZod<LoginUser400Type>
+export const loginUser400Schema = z.any()
 
-export type LoginUser400Schema = LoginUser400Type
+export type LoginUser400Schema = z.infer<typeof loginUser400Schema>
 
-export const loginUserQueryResponseSchema = z.lazy(() => loginUser200Schema) as unknown as ToZod<LoginUserQueryResponseType>
+export const loginUserQueryResponseSchema = loginUser200Schema
 
-export type LoginUserQueryResponseSchema = LoginUserQueryResponseType
+export type LoginUserQueryResponseSchema = z.infer<typeof loginUserQueryResponseSchema>
