@@ -28,7 +28,7 @@ export const handlersGenerator = createReactGenerator<PluginMsw>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output })}
+        banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         {imports}

@@ -21,7 +21,13 @@ export const operationsGenerator = createReactGenerator<PluginClient>({
     const file = pluginManager.getFile({ name, extname: '.ts', pluginKey })
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={getBanner({ oas, output, config: pluginManager.config })} footer={getFooter({ oas, output })}>
+      <File
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
+        footer={getFooter({ oas, output })}
+      >
         <Operations name={name} operations={operations} />
       </File>
     )

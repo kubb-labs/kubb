@@ -23,6 +23,7 @@ export default defineConfig(() => {
       path: './src/gen',
       clean: true,
       barrelType: 'named',
+      defaultBanner: false,
     },
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],

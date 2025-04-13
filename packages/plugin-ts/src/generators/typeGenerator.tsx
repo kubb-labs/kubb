@@ -199,7 +199,13 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     }
 
     return (
-      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta} banner={getBanner({ oas, output, config: pluginManager.config })} footer={getFooter({ oas, output })}>
+      <File
+        baseName={type.file.baseName}
+        path={type.file.path}
+        meta={type.file.meta}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
+        footer={getFooter({ oas, output })}
+      >
         {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />)}
         <Type
           name={type.name}

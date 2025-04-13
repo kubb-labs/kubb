@@ -32,7 +32,13 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
       .filter(Boolean)
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={getBanner({ oas, output })} footer={getFooter({ oas, output })}>
+      <File
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
+        footer={getFooter({ oas, output })}
+      >
         {imports}
         <Operations name={name} operations={transformedOperations} />
       </File>

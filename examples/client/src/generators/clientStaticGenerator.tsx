@@ -12,6 +12,7 @@ export const clientStaticGenerator = createReactGenerator<PluginClient>({
   name: 'client',
   Operation({ options, operation }) {
     const {
+      pluginManager,
       plugin: {
         options: { output },
       },
@@ -34,7 +35,7 @@ export const clientStaticGenerator = createReactGenerator<PluginClient>({
         baseName={client.file.baseName}
         path={client.file.path}
         meta={client.file.meta}
-        banner={getBanner({ oas, output })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import name={'client'} path={options.importPath} />

@@ -28,7 +28,7 @@ export const jsonGenerator = createGenerator<PluginOas>({
         banner: getBanner({
           oas: instance.context.oas,
           output: plugin.options.output,
-          config: pluginManager.config
+          config: pluginManager.config,
         }),
         format: getFooter({ oas: instance.context.oas, output: plugin.options.output }),
       },

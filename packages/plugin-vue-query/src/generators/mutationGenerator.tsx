@@ -73,7 +73,7 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
         baseName={mutation.file.baseName}
         path={mutation.file.path}
         meta={mutation.file.meta}
-        banner={getBanner({ oas, output })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && (

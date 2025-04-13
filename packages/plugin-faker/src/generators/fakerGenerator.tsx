@@ -81,7 +81,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output })}
+        banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         <File.Import name={['faker']} path="@faker-js/faker" />
@@ -96,6 +96,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
 
     const { getName, getFile, getImports } = useSchemaManager()
     const {
+      pluginManager,
       plugin: {
         options: { output },
       },
@@ -127,7 +128,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         baseName={faker.file.baseName}
         path={faker.file.path}
         meta={faker.file.meta}
-        banner={getBanner({ oas, output })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import name={['faker']} path="@faker-js/faker" />

@@ -84,7 +84,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output })}
+        banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         <File.Import name={['z']} path={plugin.options.importPath} />
@@ -97,6 +97,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
 
     const { getName, getFile, getImports } = useSchemaManager()
     const {
+      pluginManager,
       plugin: {
         options: { output },
       },
@@ -117,7 +118,13 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     }
 
     return (
-      <File baseName={zod.file.baseName} path={zod.file.path} meta={zod.file.meta} banner={getBanner({ oas, output })} footer={getFooter({ oas, output })}>
+      <File
+        baseName={zod.file.baseName}
+        path={zod.file.path}
+        meta={zod.file.meta}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
+        footer={getFooter({ oas, output })}
+      >
         <File.Import name={['z']} path={importPath} />
         {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
         {typed && <File.Import isTypeOnly path={'@kubb/plugin-zod/utils'} name={['ToZod']} />}

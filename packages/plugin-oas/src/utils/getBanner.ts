@@ -9,17 +9,20 @@ type Props = {
 }
 
 export function getBanner({ output, oas, config }: Props) {
-  if (config?.output?.addDefaultBanner === true) {
-    return getDefaultBanner(oas, config.input)
+  let banner = ''
+  if (config?.output?.defaultBanner !== false && config) {
+    const { title, description, version } = oas.api?.info || {}
+
+    banner = getDefaultBanner({ title, description, version, config })
   }
 
   if (!output.banner) {
-    return undefined;
+    return banner
   }
 
   if (isFunction(output.banner)) {
-    return output.banner(oas)
+    return `${output.banner(oas)}\n${banner}`
   }
 
-  return output.banner
+  return `${output.banner}\n${banner}`
 }

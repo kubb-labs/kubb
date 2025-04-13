@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+
+## 3.9.0
+- [`core`](/plugins/core): add default banner feature to enhance generated file recognizability by [@akinoccc](https://github.com/akinoccc)
+
 ## 3.8.1
 - [`plugin-zod`](/plugins/plugin-zod): support for Zod v4(beta)
 
