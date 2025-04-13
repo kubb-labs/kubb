@@ -1,5 +1,18 @@
 # @kubb/core
 
+## 3.9.0
+
+### Minor Changes
+
+- [#1635](https://github.com/kubb-labs/kubb/pull/1635) [`f8cfede`](https://github.com/kubb-labs/kubb/commit/f8cfedee78bb3ff81ba0dcc8e68dc9172913dbe0) Thanks [@akinoccc](https://github.com/akinoccc)! - feat: add default banner feature to enhance generated file recognizability
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/fs@3.9.0
+  - @kubb/parser-ts@3.9.0
+  - @kubb/types@3.9.0
+
 ## 3.8.1
 
 ### Patch Changes
