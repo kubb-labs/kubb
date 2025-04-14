@@ -1,20 +1,24 @@
-import type client from '@kubb/plugin-client/clients/axios'
-import type { GetPetByIdPathParams } from '../models/ts/GetPetById.js'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import client from '@kubb/plugin-client/clients/axios'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/ts/GetPetById.js'
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import { getPetById } from '../clients/getPetById.js'
 
-export async function getPetByIdHandler(
-  petId: GetPetByIdPathParams['petId'],
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
-): Promise<Promise<CallToolResult>> {
-  const res = await getPetById(petId, config)
-
+/**
+ * @description Returns a single pet
+ * @summary Find pet by ID
+ * {@link /pet/:petId}
+ */
+export async function getPetByIdHandler({ petId }: { petId: GetPetByIdPathParams['petId'] }): Promise<Promise<CallToolResult>> {
+  const res = await client<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
+    method: 'GET',
+    url: `/pet/${petId}`,
+    baseURL: 'https://petstore.swagger.io/v2',
+  })
   return {
     content: [
       {
         type: 'text',
-        text: JSON.stringify(res),
+        text: JSON.stringify(res.data),
       },
     ],
   }

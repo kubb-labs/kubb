@@ -1,20 +1,25 @@
-import type client from '@kubb/plugin-client/clients/axios'
-import type { PlaceOrderMutationRequest } from '../models/ts/PlaceOrder.js'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import client from '@kubb/plugin-client/clients/axios'
+import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/ts/PlaceOrder.js'
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import { placeOrder } from '../clients/placeOrder.js'
 
-export async function placeOrderHandler(
-  data?: PlaceOrderMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof client } = {},
-): Promise<Promise<CallToolResult>> {
-  const res = await placeOrder(data, config)
-
+/**
+ * @description Place a new order in the store
+ * @summary Place an order for a pet
+ * {@link /store/order}
+ */
+export async function placeOrderHandler({ data }: { data?: PlaceOrderMutationRequest }): Promise<Promise<CallToolResult>> {
+  const res = await client<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
+    method: 'POST',
+    url: '/store/order',
+    baseURL: 'https://petstore.swagger.io/v2',
+    data,
+  })
   return {
     content: [
       {
         type: 'text',
-        text: JSON.stringify(res),
+        text: JSON.stringify(res.data),
       },
     ],
   }

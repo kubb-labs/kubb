@@ -1,20 +1,25 @@
-import type client from '@kubb/plugin-client/clients/axios'
-import type { AddPetMutationRequest } from '../models/ts/AddPet.js'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import client from '@kubb/plugin-client/clients/axios'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/ts/AddPet.js'
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import { addPet } from '../clients/addPet.js'
 
-export async function addPetHandler(
-  data: AddPetMutationRequest,
-  config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client } = {},
-): Promise<Promise<CallToolResult>> {
-  const res = await addPet(data, config)
-
+/**
+ * @description Add a new pet to the store
+ * @summary Add a new pet to the store
+ * {@link /pet}
+ */
+export async function addPetHandler({ data }: { data: AddPetMutationRequest }): Promise<Promise<CallToolResult>> {
+  const res = await client<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
+    method: 'POST',
+    url: '/pet',
+    baseURL: 'https://petstore.swagger.io/v2',
+    data,
+  })
   return {
     content: [
       {
         type: 'text',
-        text: JSON.stringify(res),
+        text: JSON.stringify(res.data),
       },
     ],
   }

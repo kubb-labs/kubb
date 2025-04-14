@@ -15,13 +15,6 @@ export type Options = {
    * By default, the first JSON valid mediaType will be used
    */
   contentType?: contentType
-  /**
-   * ReturnType that will be used when calling cy.request.
-   * - 'data' will return ResponseConfig[data].
-   * - 'full' will return ResponseConfig.
-   * @default 'data'
-   */
-  dataReturnType?: 'data' | 'full'
   client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath' | 'baseURL'>
 
   /**
@@ -56,7 +49,6 @@ type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
   client: Required<Omit<NonNullable<PluginMcp['options']['client']>, 'baseURL'>> & { baseURL?: string }
-  dataReturnType: NonNullable<Options['dataReturnType']>
 }
 
 export type PluginMcp = PluginFactoryOptions<'plugin-mcp', Options, ResolvedOptions, never, ResolvePathOptions>

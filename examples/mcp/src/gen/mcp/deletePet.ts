@@ -1,21 +1,31 @@
-import type client from '@kubb/plugin-client/clients/axios'
-import type { DeletePetPathParams, DeletePetHeaderParams } from '../models/ts/DeletePet.js'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import client from '@kubb/plugin-client/clients/axios'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/ts/DeletePet.js'
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import { deletePet } from '../clients/deletePet.js'
 
-export async function deletePetHandler(
-  petId: DeletePetPathParams['petId'],
-  headers?: DeletePetHeaderParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
-): Promise<Promise<CallToolResult>> {
-  const res = await deletePet(petId, headers, config)
-
+/**
+ * @description delete a pet
+ * @summary Deletes a pet
+ * {@link /pet/:petId}
+ */
+export async function deletePetHandler({
+  petId,
+  headers,
+}: {
+  petId: DeletePetPathParams['petId']
+  headers?: DeletePetHeaderParams
+}): Promise<Promise<CallToolResult>> {
+  const res = await client<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
+    method: 'DELETE',
+    url: `/pet/${petId}`,
+    baseURL: 'https://petstore.swagger.io/v2',
+    headers: { ...headers },
+  })
   return {
     content: [
       {
         type: 'text',
-        text: JSON.stringify(res),
+        text: JSON.stringify(res.data),
       },
     ],
   }

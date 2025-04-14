@@ -4,7 +4,6 @@ import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File, useApp } from '@kubb/react'
 import { Server } from '../components/Server'
 import type { PluginMcp } from '../types'
-import { pluginClientName } from '@kubb/plugin-client'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { pluginTsName } from '@kubb/plugin-ts'
 
@@ -27,7 +26,6 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
         mcp: {
           name: getName(operation, {
             type: 'function',
-            pluginKey: [pluginClientName],
             suffix: 'handler',
           }),
           file: getFile(operation),
@@ -51,7 +49,7 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
         <File.Import key={mcp.name} name={[mcp.name]} root={file.path} path={mcp.file.path} />,
         <File.Import
           key={zod.name}
-          name={[zod.schemas.request?.name, zod.schemas.pathParams?.name, zod.schemas.queryParams?.name].filter(Boolean)}
+          name={[zod.schemas.request?.name, zod.schemas.pathParams?.name, zod.schemas.queryParams?.name, zod.schemas.headerParams?.name].filter(Boolean)}
           root={file.path}
           path={zod.file.path}
         />,
@@ -78,12 +76,11 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
           <File.Source name={name}>
             {`
           {
-              "${name}": {
-              "test": {
-              "type": "stdio",
-              "command": "npx",
-              "args": ["tsx", "${file.path}"],
-              "env": {}
+            "mcpServers": {
+              "${oas.api.info?.title || 'server'}": {
+                "type": "stdio",
+                "command": "npx",
+                "args": ["tsx", "${file.path}"]
               }
             }
           }

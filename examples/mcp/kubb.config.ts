@@ -1,7 +1,6 @@
 // import '@kubb/react/devtools' // enable/disable devtools
 
 import { defineConfig } from '@kubb/core'
-import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginMcp } from '@kubb/plugin-mcp'
@@ -31,10 +30,11 @@ export default defineConfig(() => {
         output: { path: 'models/ts' },
       }),
       pluginZod({}),
-      pluginClient({
-        baseURL: 'https://petstore.swagger.io/v2',
+      pluginMcp({
+        client: {
+          baseURL: 'https://petstore.swagger.io/v2',
+        },
       }),
-      pluginMcp({}),
     ],
   }
 })

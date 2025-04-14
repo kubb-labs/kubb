@@ -1,20 +1,24 @@
-import type client from '@kubb/plugin-client/clients/axios'
-import type { FindPetsByStatusQueryParams } from '../models/ts/FindPetsByStatus.js'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import client from '@kubb/plugin-client/clients/axios'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusPathParams, FindPetsByStatus400 } from '../models/ts/FindPetsByStatus.js'
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import { findPetsByStatus } from '../clients/findPetsByStatus.js'
 
-export async function findPetsByStatusHandler(
-  params?: FindPetsByStatusQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
-): Promise<Promise<CallToolResult>> {
-  const res = await findPetsByStatus(params, config)
-
+/**
+ * @description Multiple status values can be provided with comma separated strings
+ * @summary Finds Pets by status
+ * {@link /pet/findByStatus/:step_id}
+ */
+export async function findPetsByStatusHandler({ stepId }: { stepId: FindPetsByStatusPathParams['step_id'] }): Promise<Promise<CallToolResult>> {
+  const res = await client<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
+    method: 'GET',
+    url: `/pet/findByStatus/${stepId}`,
+    baseURL: 'https://petstore.swagger.io/v2',
+  })
   return {
     content: [
       {
         type: 'text',
-        text: JSON.stringify(res),
+        text: JSON.stringify(res.data),
       },
     ],
   }

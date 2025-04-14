@@ -5,7 +5,7 @@ import type { Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { OperationGenerator } from '@kubb/plugin-oas'
-import type { PluginZod } from '../types.ts'
+import type { PluginMcp } from '../types.ts'
 import { serverGenerator } from './serverGenerator.tsx'
 
 describe('operationsGenerator operations', async () => {
@@ -22,31 +22,26 @@ describe('operationsGenerator operations', async () => {
     name: string
     path: string
     method: HttpMethod
-    options: Partial<PluginZod['resolvedOptions']>
+    options: Partial<PluginMcp['resolvedOptions']>
   }>
 
   test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginZod['resolvedOptions'] = {
-      dateType: 'date',
-      transformers: {},
-      inferred: false,
-      typed: false,
-      unknownType: 'any',
-      mapper: {},
-      importPath: 'zod',
-      coercion: false,
-      operations: false,
-      override: [],
+    const options: PluginMcp['resolvedOptions'] = {
+      client: {
+        importPath: '@kubb/plugin-client/clients/axios',
+        baseURL: '',
+        dataReturnType: 'data',
+      },
+      dataReturnType: 'data',
       output: {
         path: '.',
       },
       group: undefined,
-      wrapOutput: undefined,
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginZod>
+    const plugin = { options } as Plugin<PluginMcp>
     const instance = new OperationGenerator(options, {
       oas,
       include: undefined,

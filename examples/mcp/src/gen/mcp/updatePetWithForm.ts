@@ -1,21 +1,35 @@
-import type client from '@kubb/plugin-client/clients/axios'
-import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../models/ts/UpdatePetWithForm.js'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import client from '@kubb/plugin-client/clients/axios'
+import type {
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
+} from '../models/ts/UpdatePetWithForm.js'
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import { updatePetWithForm } from '../clients/updatePetWithForm.js'
 
-export async function updatePetWithFormHandler(
-  petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
-): Promise<Promise<CallToolResult>> {
-  const res = await updatePetWithForm(petId, params, config)
-
+/**
+ * @summary Updates a pet in the store with form data
+ * {@link /pet/:petId}
+ */
+export async function updatePetWithFormHandler({
+  petId,
+  params,
+}: {
+  petId: UpdatePetWithFormPathParams['petId']
+  params?: UpdatePetWithFormQueryParams
+}): Promise<Promise<CallToolResult>> {
+  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
+    method: 'POST',
+    url: `/pet/${petId}`,
+    baseURL: 'https://petstore.swagger.io/v2',
+    params,
+  })
   return {
     content: [
       {
         type: 'text',
-        text: JSON.stringify(res),
+        text: JSON.stringify(res.data),
       },
     ],
   }

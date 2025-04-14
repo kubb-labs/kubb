@@ -17,7 +17,6 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
   const {
     output = { path: 'mcp', barrelType: 'named' },
     group,
-    dataReturnType = 'data',
     exclude = [],
     include,
     override = [],
@@ -30,7 +29,6 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
     name: pluginMcpName,
     options: {
       output,
-      dataReturnType,
       group,
       client: {
         importPath: '@kubb/plugin-client/clients/axios',

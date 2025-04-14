@@ -1,20 +1,24 @@
-import type client from '@kubb/plugin-client/clients/axios'
-import type { GetOrderByIdPathParams } from '../models/ts/GetOrderById.js'
-import type { RequestConfig } from '@kubb/plugin-client/clients/axios'
+import client from '@kubb/plugin-client/clients/axios'
+import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/ts/GetOrderById.js'
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import { getOrderById } from '../clients/getOrderById.js'
 
-export async function getOrderByIdHandler(
-  orderId: GetOrderByIdPathParams['orderId'],
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
-): Promise<Promise<CallToolResult>> {
-  const res = await getOrderById(orderId, config)
-
+/**
+ * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
+ * @summary Find purchase order by ID
+ * {@link /store/order/:orderId}
+ */
+export async function getOrderByIdHandler({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }): Promise<Promise<CallToolResult>> {
+  const res = await client<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
+    method: 'GET',
+    url: `/store/order/${orderId}`,
+    baseURL: 'https://petstore.swagger.io/v2',
+  })
   return {
     content: [
       {
         type: 'text',
-        text: JSON.stringify(res),
+        text: JSON.stringify(res.data),
       },
     ],
   }

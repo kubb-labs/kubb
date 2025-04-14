@@ -22,7 +22,6 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-mcp": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",

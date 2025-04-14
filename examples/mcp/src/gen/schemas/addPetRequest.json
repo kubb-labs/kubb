@@ -15,10 +15,14 @@
       "type": "array",
       "xml": { "wrapped": true },
       "items": {
+        "deprecated": true,
         "type": "object",
-        "properties": { "id": { "type": "integer", "format": "int64" }, "name": { "type": "string" } },
+        "properties": {
+          "id": { "type": "integer", "format": "int64", "minLength": 5, "maxLength": 7, "default": 1, "deprecated": true },
+          "name": { "type": "string" }
+        },
         "xml": { "name": "tag" },
-        "x-readme-ref-name": "Tag"
+        "x-readme-ref-name": "tag.Tag"
       }
     },
     "status": { "type": "string", "description": "pet status in the store", "enum": ["available", "pending", "sold"] }

@@ -1,8 +1,18 @@
+export { addFiles200Schema, addFiles405Schema, addFilesMutationRequestSchema, addFilesMutationResponseSchema } from './addFilesSchema.js'
 export { addPetRequestSchema } from './addPetRequestSchema.js'
 export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './addPetSchema.js'
 export { addressSchema } from './addressSchema.js'
 export { apiResponseSchema } from './apiResponseSchema.js'
 export { categorySchema } from './categorySchema.js'
+export {
+  createPetsPathParamsSchema,
+  createPetsQueryParamsSchema,
+  createPetsHeaderParamsSchema,
+  createPets201Schema,
+  createPetsErrorSchema,
+  createPetsMutationRequestSchema,
+  createPetsMutationResponseSchema,
+} from './createPetsSchema.js'
 export { createUserErrorSchema, createUserMutationRequestSchema, createUserMutationResponseSchema } from './createUserSchema.js'
 export {
   createUsersWithListInput200Schema,
@@ -15,12 +25,18 @@ export { deleteOrderPathParamsSchema, deleteOrder400Schema, deleteOrder404Schema
 export { deletePetPathParamsSchema, deletePetHeaderParamsSchema, deletePet400Schema, deletePetMutationResponseSchema } from './deletePetSchema.js'
 export { deleteUserPathParamsSchema, deleteUser400Schema, deleteUser404Schema, deleteUserMutationResponseSchema } from './deleteUserSchema.js'
 export {
-  findPetsByStatusQueryParamsSchema,
+  findPetsByStatusPathParamsSchema,
   findPetsByStatus200Schema,
   findPetsByStatus400Schema,
   findPetsByStatusQueryResponseSchema,
 } from './findPetsByStatusSchema.js'
-export { findPetsByTagsQueryParamsSchema, findPetsByTags200Schema, findPetsByTags400Schema, findPetsByTagsQueryResponseSchema } from './findPetsByTagsSchema.js'
+export {
+  findPetsByTagsQueryParamsSchema,
+  findPetsByTagsHeaderParamsSchema,
+  findPetsByTags200Schema,
+  findPetsByTags400Schema,
+  findPetsByTagsQueryResponseSchema,
+} from './findPetsByTagsSchema.js'
 export { getInventory200Schema, getInventoryQueryResponseSchema } from './getInventorySchema.js'
 export {
   getOrderByIdPathParamsSchema,
@@ -49,9 +65,10 @@ export {
   placeOrderPatchMutationResponseSchema,
 } from './placeOrderPatchSchema.js'
 export { placeOrder200Schema, placeOrder405Schema, placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from './placeOrderSchema.js'
-export { tagSchema } from './tagSchema.js'
+export { tagTagSchema } from './tag/tagSchema.js'
 export {
   updatePet200Schema,
+  updatePet202Schema,
   updatePet400Schema,
   updatePet404Schema,
   updatePet405Schema,

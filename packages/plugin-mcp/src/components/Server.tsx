@@ -4,6 +4,7 @@ import { Const, File, FunctionParams } from '@kubb/react'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams, isOptional } from '@kubb/plugin-oas/utils'
 import { isNullable, isReference } from '@kubb/oas'
+import { camelCase } from '@kubb/core/transformers'
 
 type Props = {
   name: string
@@ -34,7 +35,6 @@ type GetParamsProps = {
 function getParams({ schemas }: GetParamsProps) {
   const pathParams = getPathParams(schemas.pathParams, {
     typed: false,
-    casing: 'camelcase',
   })
 
   return FunctionParams.factory({
@@ -62,7 +62,7 @@ function getParams({ schemas }: GetParamsProps) {
 
           return {
             ...acc,
-            [key]: param,
+            [camelCase(key)]: param,
           }
         }, {}),
         data: schemas.request?.name
@@ -75,6 +75,12 @@ function getParams({ schemas }: GetParamsProps) {
           ? {
               value: schemas.queryParams?.name,
               optional: isOptional(schemas.queryParams?.schema),
+            }
+          : undefined,
+        headers: schemas.headerParams?.name
+          ? {
+              value: schemas.headerParams?.name,
+              optional: isOptional(schemas.headerParams?.schema),
             }
           : undefined,
       },
@@ -99,12 +105,16 @@ export function Server({ name, serverName, serverVersion, operations }: Props) {
           .map(({ operationId, mcp, zod, description = '' }) => {
             const paramsClient = getParams({ schemas: zod.schemas })
 
-            if (!zod.schemas.request?.name) {
-              return undefined
+            if (zod.schemas.request?.name || zod.schemas.headerParams?.name || zod.schemas.queryParams?.name || zod.schemas.pathParams?.name) {
+              return `
+server.tool('${operationId}', '${description}', ${paramsClient.toObjectValue()}, async (${paramsClient.toObject()}) => {
+  return ${mcp.name}(${paramsClient.toObject()})
+})
+          `
             }
 
             return `
-server.tool('${operationId}', '${description}', ${paramsClient.toObjectValue()}, async (${paramsClient.toObject()}) => {
+server.tool('${operationId}', '${description}', async () => {
   return ${mcp.name}(${paramsClient.toObject()})
 })
           `
@@ -122,6 +132,8 @@ async function startServer() {
     process.exit(1)
   }
 }
+
+startServer()
 `}
       </File.Source>
     </>

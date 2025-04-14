@@ -317,6 +317,9 @@ importers:
       '@kubb/react':
         specifier: workspace:*
         version: link:../../packages/react
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.9.0
+        version: 1.9.0
       '@tanstack/query-core':
         specifier: ^5.73.3
         version: 5.73.3
@@ -339,8 +342,8 @@ importers:
         specifier: ^1.8.4
         version: 1.8.4
       cypress:
-        specifier: ~14.2.1
-        version: 14.2.1
+        specifier: ~14.3.0
+        version: 14.3.0
       msw:
         specifier: ^2.7.4
         version: 2.7.4(@types/node@20.17.30)(typescript@5.8.3)

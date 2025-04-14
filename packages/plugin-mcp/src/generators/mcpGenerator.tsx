@@ -58,13 +58,13 @@ export const mcpGenerator = createReactGenerator<PluginMcp>({
           operation={operation}
           typeSchemas={type.schemas}
           zodSchemas={undefined}
-          dataReturnType={options.dataReturnType}
+          dataReturnType={options.client.dataReturnType}
           paramsType={'object'}
           paramsCasing={'camelcase'}
           pathParamsType={'object'}
           parser={'client'}
         >
-          {options.dataReturnType === 'data' &&
+          {options.client.dataReturnType === 'data' &&
             `return {
             content: [
               {
@@ -73,7 +73,7 @@ export const mcpGenerator = createReactGenerator<PluginMcp>({
               }
             ]
            }`}
-          {options.dataReturnType === 'full' &&
+          {options.client.dataReturnType === 'full' &&
             `return {
             content: [
               {
