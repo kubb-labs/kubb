@@ -114,4 +114,4 @@ jobs:
         run: bun run build
 
       - name: Publish preview packages
-        run: pnpx pkg-pr-new publish --pnpm --compact --owner=stijnvanhulle --repo=kubb-labs/kubb './packages/*' --template './examples/*/*'
+        run: pnpx pkg-pr-new publish --pnpm --owner=stijnvanhulle --repo=kubb-labs/kubb './packages/*' --template './examples/*/*'
