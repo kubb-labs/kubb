@@ -8,7 +8,7 @@
     "url": "https://github.com/kubb-labs/kubb.git"
   },
   "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "author": "stijnvanhulle",
   "type": "module",
   "workspaces": {
     "packages": [
