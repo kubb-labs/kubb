@@ -41,13 +41,13 @@
   ],
   "scripts": {
     "build": "tsup && vite build",
-    "start": "vite & tsup --watch",
-    "preview": "vite preview",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --apply-unsafe .",
+    "preview": "vite preview",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
+    "start": "vite & tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },

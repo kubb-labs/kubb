@@ -1,7 +1,6 @@
 {
   "name": "@kubb/config-ts",
   "version": "3.9.0",
-  "types": "./reset.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
@@ -11,6 +10,7 @@
   "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
+  "types": "./reset.d.ts",
   "files": [
     "reset.d.ts",
     "base.json",
@@ -18,5 +18,9 @@
   ],
   "devDependencies": {
     "typescript": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
