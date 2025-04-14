@@ -59,7 +59,10 @@ export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TQueryData = 
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const {
+    query: { client: queryClient, ...queryOptions } = {},
+    client: config = {},
+  } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey({ pet_id })
 
   const query = useQuery(
