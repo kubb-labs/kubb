@@ -53,9 +53,12 @@ describe('mcpGenerator operation', async () => {
       output: {
         path: '.',
       },
-      baseURL: undefined,
+      client: {
+        importPath: '@kubb/plugin-client/clients/axios',
+        baseURL: '',
+        dataReturnType: 'data',
+      },
       group: undefined,
-      dataReturnType: 'data',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginMcp>

@@ -34,7 +34,6 @@ describe('operationsGenerator operations', async () => {
         baseURL: '',
         dataReturnType: 'data',
       },
-      dataReturnType: 'data',
       output: {
         path: '.',
       },
