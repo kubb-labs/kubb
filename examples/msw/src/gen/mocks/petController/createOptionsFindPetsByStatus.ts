@@ -10,9 +10,9 @@ import { faker } from '@faker-js/faker'
 /**
  * @description successful operation
  */
-export function createOptionsFindPetsByStatus200(data?: Partial<OptionsFindPetsByStatus200>): OptionsFindPetsByStatus200 {
+export function createOptionsFindPetsByStatus200(data?: OptionsFindPetsByStatus200): OptionsFindPetsByStatus200 {
   faker.seed([220])
-  return [...(faker.helpers.multiple(() => createPet()) as any), ...(data || [])]
+  return [...faker.helpers.multiple(() => createPet()), ...(data || [])]
 }
 
 export function createOptionsFindPetsByStatusMutationResponse(

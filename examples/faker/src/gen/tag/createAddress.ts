@@ -13,7 +13,7 @@ export function createAddress(data?: Partial<Address>): Address {
       city: faker.string.alpha(),
       state: faker.string.alpha(),
       zip: faker.string.alpha(),
-      identifier: faker.helpers.arrayElements([faker.number.int(), faker.string.alpha(), faker.helpers.arrayElement<any>(['NW', 'NE', 'SW', 'SE'])]) as any,
+      identifier: [faker.number.int(), faker.string.alpha(), faker.helpers.arrayElement<any>(['NW', 'NE', 'SW', 'SE'])],
     },
     ...(data || {}),
   }

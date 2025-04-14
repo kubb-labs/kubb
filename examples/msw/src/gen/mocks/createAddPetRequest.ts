@@ -15,9 +15,9 @@ export function createAddPetRequest(data?: Partial<AddPetRequest>): AddPetReques
       id: faker.number.int(),
       name: faker.string.alpha(),
       category: createCategory(),
-      photoUrls: faker.helpers.multiple(() => faker.string.alpha()) as any,
-      tags: faker.helpers.multiple(() => createTag()) as any,
-      status: faker.helpers.arrayElement<any>(['available', 'pending', 'sold']),
+      photoUrls: faker.helpers.multiple(() => faker.string.alpha()),
+      tags: faker.helpers.multiple(() => createTag()),
+      status: faker.helpers.arrayElement<NonNullable<AddPetRequest>['status']>(['available', 'pending', 'sold']),
     },
     ...(data || {}),
   }

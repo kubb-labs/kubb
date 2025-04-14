@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.9.1
+- [`plugin-zod`](/plugins/plugin-zod): reduce any's being used
+- [`plugin-faker`](/plugins/plugin-faker): reduce any's being used
 
 ## 3.9.0
 - [`core`](/plugins/core): add default banner feature to enhance generated file recognizability by [@akinoccc](https://github.com/akinoccc)

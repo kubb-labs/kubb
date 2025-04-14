@@ -9,9 +9,9 @@ export function createPetFaker(data?: Partial<Pet>): Pet {
       id: faker.number.int(),
       name: faker.string.alpha(),
       category: createCategoryFaker(),
-      photoUrls: faker.helpers.multiple(() => faker.string.alpha()) as any,
-      tags: faker.helpers.multiple(() => createTagTagFaker()) as any,
-      status: faker.helpers.arrayElement(['working', 'idle']) as any,
+      photoUrls: faker.helpers.multiple(() => faker.string.alpha()),
+      tags: faker.helpers.multiple(() => createTagTagFaker()),
+      status: faker.helpers.arrayElement<any>(['working', 'idle']),
     },
     ...(data || {}),
   }

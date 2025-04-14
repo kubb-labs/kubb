@@ -33,7 +33,7 @@ catalogs:
       version: 0.32.0
 
 overrides:
-  '@types/react': ^19.1.1
+  '@types/react': ^19.1.2
 
 importers:
 
@@ -101,7 +101,7 @@ importers:
         version: 8.0.0
       vitepress:
         specifier: ^1.6.3
-        version: 1.6.3(@algolia/client-search@5.17.1)(@types/node@20.17.30)(@types/react@19.1.1)(axios@1.8.4)(change-case@5.4.4)(postcss@8.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.37.0)(typescript@5.8.3)
+        version: 1.6.3(@algolia/client-search@5.17.1)(@types/node@20.17.30)(@types/react@19.1.2)(axios@1.8.4)(change-case@5.4.4)(postcss@8.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.37.0)(typescript@5.8.3)
       vitepress-plugin-group-icons:
         specifier: ^1.5.1
         version: 1.5.1
@@ -161,8 +161,8 @@ importers:
         specifier: ^20.17.30
         version: 20.17.30
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -336,8 +336,8 @@ importers:
         specifier: ^5.74.3
         version: 5.74.3(vue@3.5.13(typescript@5.8.3))
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -407,8 +407,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/fs
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -555,8 +555,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config-ts
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -669,8 +669,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config-ts
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -724,11 +724,11 @@ importers:
         version: link:../../packages/unplugin-kubb
     devDependencies:
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       '@types/react-dom':
         specifier: ^19.1.2
-        version: 19.1.2(@types/react@19.1.1)
+        version: 19.1.2(@types/react@19.1.2)
       '@vitejs/plugin-react':
         specifier: ^4.3.4
         version: 4.3.4(vite@6.2.6(@types/node@20.17.30)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.0))
@@ -1379,8 +1379,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -1459,8 +1459,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -1502,8 +1502,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -1542,8 +1542,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -1588,8 +1588,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -1665,8 +1665,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -1711,8 +1711,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -1760,8 +1760,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -1800,8 +1800,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -1846,8 +1846,8 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -1941,11 +1941,11 @@ importers:
         specifier: workspace:*
         version: link:../config-tsup
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       '@types/react-reconciler':
         specifier: catalog:react19
-        version: 0.28.9(@types/react@19.1.1)
+        version: 0.28.9(@types/react@19.1.2)
       '@types/signal-exit':
         specifier: ^3.0.4
         version: 3.0.4
@@ -1991,7 +1991,7 @@ importers:
     devDependencies:
       '@heroui/react':
         specifier: ^2.7.6
-        version: 2.7.6(@types/react@19.1.1)(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3)))
+        version: 2.7.6(@types/react@19.1.2)(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3)))
       '@heroui/theme':
         specifier: ^2.4.13
         version: 2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3)))
@@ -2017,8 +2017,8 @@ importers:
         specifier: 20.5.7
         version: 20.5.7
       '@types/react':
-        specifier: ^19.1.1
-        version: 19.1.1
+        specifier: ^19.1.2
+        version: 19.1.2
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
@@ -2467,7 +2467,7 @@ packages:
   '@docsearch/react@3.8.2':
     resolution: {integrity: sha512-xCRrJQlTt8N9GU0DG4ptwHRkfnSnD/YpdeaXe02iKfqs97TkZJv60yE+1eq/tjPcVnTW8dP5qLP7itifFVV5eg==}
     peerDependencies:
-      '@types/react': ^19.1.1
+      '@types/react': ^19.1.2
       react: '>= 16.8.0 < 19.0.0'
       react-dom: '>= 16.8.0 < 19.0.0'
       search-insights: '>= 1 < 3'
@@ -4971,15 +4971,15 @@ packages:
   '@types/react-dom@19.1.2':
     resolution: {integrity: sha512-XGJkWF41Qq305SKWEILa1O8vzhb3aOo3ogBlSmiqNko/WmRb6QIaweuZCXjKygVDXpzXb5wyxKTSOsmkuqj+Qw==}
     peerDependencies:
-      '@types/react': ^19.1.1
+      '@types/react': ^19.1.2
 
   '@types/react-reconciler@0.28.9':
     resolution: {integrity: sha512-HHM3nxyUZ3zAylX8ZEyrDNd2XZOnQ0D5XfunJF5FLQnZbHHYq4UWvW1QfelQNXv1ICNkwYhfxjwfnqivYB6bFg==}
     peerDependencies:
-      '@types/react': ^19.1.1
+      '@types/react': ^19.1.2
 
-  '@types/react@19.1.1':
-    resolution: {integrity: sha512-ePapxDL7qrgqSF67s0h9m412d9DbXyC1n59O2st+9rjuuamWsZuD2w55rqY12CbzsZ7uVXb5Nw0gEp9Z8MMutQ==}
+  '@types/react@19.1.2':
+    resolution: {integrity: sha512-oxLPMytKchWGbnQM9O7D67uPa9paTNxO7jVoNMXgkkErULBPhPARCfkKL9ytcIJJRGjbsVwW4ugJzyFFvm/Tiw==}
 
   '@types/sax@1.2.7':
     resolution: {integrity: sha512-rO73L89PJxeYM3s3pPPjiPgVVcymqU490g0YO5n5By0k2Erzj6tay/4lr1CHAAU4JyOWd1rpQ8bCf6cZfHU96A==}
@@ -10138,9 +10138,9 @@ snapshots:
 
   '@docsearch/css@3.8.2': {}
 
-  '@docsearch/js@3.8.2(@algolia/client-search@5.17.1)(@types/react@19.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)':
+  '@docsearch/js@3.8.2(@algolia/client-search@5.17.1)(@types/react@19.1.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)':
     dependencies:
-      '@docsearch/react': 3.8.2(@algolia/client-search@5.17.1)(@types/react@19.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)
+      '@docsearch/react': 3.8.2(@algolia/client-search@5.17.1)(@types/react@19.1.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)
       preact: 10.25.2
     transitivePeerDependencies:
       - '@algolia/client-search'
@@ -10149,14 +10149,14 @@ snapshots:
       - react-dom
       - search-insights
 
-  '@docsearch/react@3.8.2(@algolia/client-search@5.17.1)(@types/react@19.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)':
+  '@docsearch/react@3.8.2(@algolia/client-search@5.17.1)(@types/react@19.1.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)':
     dependencies:
       '@algolia/autocomplete-core': 1.17.7(@algolia/client-search@5.17.1)(algoliasearch@5.17.1)(search-insights@2.17.3)
       '@algolia/autocomplete-preset-algolia': 1.17.7(@algolia/client-search@5.17.1)(algoliasearch@5.17.1)
       '@docsearch/css': 3.8.2
       algoliasearch: 5.17.1
     optionalDependencies:
-      '@types/react': 19.1.1
+      '@types/react': 19.1.2
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       search-insights: 2.17.3
@@ -10514,12 +10514,12 @@ snapshots:
       - '@heroui/theme'
       - framer-motion
 
-  '@heroui/autocomplete@2.3.18(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(@types/react@19.1.1)(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@heroui/autocomplete@2.3.18(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(@types/react@19.1.2)(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@heroui/aria-utils': 2.2.14(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/button': 2.2.17(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/form': 2.1.16(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@heroui/input': 2.4.17(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(@types/react@19.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@heroui/input': 2.4.17(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(@types/react@19.1.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/listbox': 2.3.16(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/popover': 2.3.17(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/react-utils': 2.1.8(react@18.3.1)
@@ -10831,7 +10831,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@heroui/input@2.4.17(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(@types/react@19.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@heroui/input@2.4.17(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(@types/react@19.1.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@heroui/form': 2.1.16(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/react-utils': 2.1.8(react@18.3.1)
@@ -10849,7 +10849,7 @@ snapshots:
       '@react-types/textfield': 3.12.0(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      react-textarea-autosize: 8.5.8(@types/react@19.1.1)(react@18.3.1)
+      react-textarea-autosize: 8.5.8(@types/react@19.1.2)(react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
 
@@ -11074,11 +11074,11 @@ snapshots:
       '@heroui/shared-utils': 2.1.7
       react: 18.3.1
 
-  '@heroui/react@2.7.6(@types/react@19.1.1)(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3)))':
+  '@heroui/react@2.7.6(@types/react@19.1.2)(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3)))':
     dependencies:
       '@heroui/accordion': 2.2.14(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/alert': 2.2.17(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@heroui/autocomplete': 2.3.18(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(@types/react@19.1.1)(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@heroui/autocomplete': 2.3.18(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(@types/react@19.1.2)(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/avatar': 2.2.13(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/badge': 2.2.10(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/breadcrumbs': 2.2.13(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -11096,7 +11096,7 @@ snapshots:
       '@heroui/form': 2.1.16(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/framer-utils': 2.1.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/image': 2.2.10(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@heroui/input': 2.4.17(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(@types/react@19.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@heroui/input': 2.4.17(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(@types/react@19.1.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/input-otp': 2.1.16(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/kbd': 2.2.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroui/link': 2.2.14(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(framer-motion@11.15.0(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@heroui/theme@2.4.13(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -13531,17 +13531,17 @@ snapshots:
 
   '@types/react-dom@18.3.0':
     dependencies:
-      '@types/react': 19.1.1
+      '@types/react': 19.1.2
 
-  '@types/react-dom@19.1.2(@types/react@19.1.1)':
+  '@types/react-dom@19.1.2(@types/react@19.1.2)':
     dependencies:
-      '@types/react': 19.1.1
+      '@types/react': 19.1.2
 
-  '@types/react-reconciler@0.28.9(@types/react@19.1.1)':
+  '@types/react-reconciler@0.28.9(@types/react@19.1.2)':
     dependencies:
-      '@types/react': 19.1.1
+      '@types/react': 19.1.2
 
-  '@types/react@19.1.1':
+  '@types/react@19.1.2':
     dependencies:
       csstype: 3.1.3
 
@@ -17291,12 +17291,12 @@ snapshots:
     optionalDependencies:
       react-dom: 18.3.1(react@18.3.1)
 
-  react-textarea-autosize@8.5.8(@types/react@19.1.1)(react@18.3.1):
+  react-textarea-autosize@8.5.8(@types/react@19.1.2)(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.26.0
       react: 18.3.1
-      use-composed-ref: 1.4.0(@types/react@19.1.1)(react@18.3.1)
-      use-latest: 1.3.0(@types/react@19.1.1)(react@18.3.1)
+      use-composed-ref: 1.4.0(@types/react@19.1.2)(react@18.3.1)
+      use-latest: 1.3.0(@types/react@19.1.2)(react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
 
@@ -18525,24 +18525,24 @@ snapshots:
 
   urlpattern-polyfill@10.0.0: {}
 
-  use-composed-ref@1.4.0(@types/react@19.1.1)(react@18.3.1):
+  use-composed-ref@1.4.0(@types/react@19.1.2)(react@18.3.1):
     dependencies:
       react: 18.3.1
     optionalDependencies:
-      '@types/react': 19.1.1
+      '@types/react': 19.1.2
 
-  use-isomorphic-layout-effect@1.2.0(@types/react@19.1.1)(react@18.3.1):
+  use-isomorphic-layout-effect@1.2.0(@types/react@19.1.2)(react@18.3.1):
     dependencies:
       react: 18.3.1
     optionalDependencies:
-      '@types/react': 19.1.1
+      '@types/react': 19.1.2
 
-  use-latest@1.3.0(@types/react@19.1.1)(react@18.3.1):
+  use-latest@1.3.0(@types/react@19.1.2)(react@18.3.1):
     dependencies:
       react: 18.3.1
-      use-isomorphic-layout-effect: 1.2.0(@types/react@19.1.1)(react@18.3.1)
+      use-isomorphic-layout-effect: 1.2.0(@types/react@19.1.2)(react@18.3.1)
     optionalDependencies:
-      '@types/react': 19.1.1
+      '@types/react': 19.1.2
 
   use-sync-external-store@1.4.0(react@18.3.1):
     dependencies:
@@ -18690,10 +18690,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vitepress@1.6.3(@algolia/client-search@5.17.1)(@types/node@20.17.30)(@types/react@19.1.1)(axios@1.8.4)(change-case@5.4.4)(postcss@8.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.37.0)(typescript@5.8.3):
+  vitepress@1.6.3(@algolia/client-search@5.17.1)(@types/node@20.17.30)(@types/react@19.1.2)(axios@1.8.4)(change-case@5.4.4)(postcss@8.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.37.0)(typescript@5.8.3):
     dependencies:
       '@docsearch/css': 3.8.2
-      '@docsearch/js': 3.8.2(@algolia/client-search@5.17.1)(@types/react@19.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)
+      '@docsearch/js': 3.8.2(@algolia/client-search@5.17.1)(@types/react@19.1.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)
       '@iconify-json/simple-icons': 1.2.21
       '@shikijs/core': 2.1.0
       '@shikijs/transformers': 2.1.0
