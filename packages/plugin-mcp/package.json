@@ -90,10 +90,10 @@
     "@kubb/core": "workspace:*",
     "@kubb/fs": "workspace:*",
     "@kubb/oas": "workspace:*",
+    "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@kubb/plugin-client": "workspace:*",
     "@kubb/react": "workspace:*"
   },
   "devDependencies": {
