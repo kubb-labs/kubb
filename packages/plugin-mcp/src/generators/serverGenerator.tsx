@@ -10,19 +10,15 @@ import { pluginTsName } from '@kubb/plugin-ts'
 
 export const serverGenerator = createReactGenerator<PluginMcp>({
   name: 'operations',
-  Operations({ operations }) {
-    const {
-      pluginManager,
-      plugin: {
-        key: pluginKey,
-        options: { output },
-      },
-    } = useApp<PluginMcp>()
+  Operations({ operations, options }) {
+    const { pluginManager, plugin } = useApp<PluginMcp>()
     const oas = useOas()
     const { getFile, getName, getSchemas } = useOperationManager()
 
     const name = 'server'
-    const file = pluginManager.getFile({ name, extname: '.ts', pluginKey })
+    const file = pluginManager.getFile({ name, extname: '.ts', pluginKey: plugin.key })
+
+    const jsonFile = pluginManager.getFile({ name: '.mcp', extname: '.json', pluginKey: plugin.key })
 
     const operationsMapped = operations.map((operation) => {
       return {
@@ -63,19 +59,38 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
     })
 
     return (
-      <File
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
-        footer={getFooter({ oas, output })}
-      >
-        <File.Import name={['McpServer']} path={'@modelcontextprotocol/sdk/server/mcp'} />
-        <File.Import name={['StdioServerTransport']} path={'@modelcontextprotocol/sdk/server/stdio'} />
+      <>
+        <File
+          baseName={file.baseName}
+          path={file.path}
+          meta={file.meta}
+          banner={getBanner({ oas, output: options.output, config: pluginManager.config })}
+          footer={getFooter({ oas, output: options.output })}
+        >
+          <File.Import name={['McpServer']} path={'@modelcontextprotocol/sdk/server/mcp'} />
+          <File.Import name={['StdioServerTransport']} path={'@modelcontextprotocol/sdk/server/stdio'} />
 
-        {imports}
-        <Server name={name} serverName={oas.api.info?.title} serverVersion={oas.getVersion()} operations={operationsMapped} />
-      </File>
+          {imports}
+          <Server name={name} serverName={oas.api.info?.title} serverVersion={oas.getVersion()} operations={operationsMapped} />
+        </File>
+
+        <File baseName={jsonFile.baseName} path={jsonFile.path} meta={jsonFile.meta}>
+          <File.Source name={name}>
+            {`
+          {
+              "${name}": {
+              "test": {
+              "type": "stdio",
+              "command": "npx",
+              "args": ["tsx", "${file.path}"],
+              "env": {}
+              }
+            }
+          }
+          `}
+          </File.Source>
+        </File>
+      </>
     )
   },
 })

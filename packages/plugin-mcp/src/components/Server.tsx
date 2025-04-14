@@ -3,6 +3,7 @@ import type * as KubbFile from '@kubb/fs/types'
 import { Const, File, FunctionParams } from '@kubb/react'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams, isOptional } from '@kubb/plugin-oas/utils'
+import { isNullable, isReference } from '@kubb/oas'
 
 type Props = {
   name: string
@@ -31,20 +32,39 @@ type GetParamsProps = {
 }
 
 function getParams({ schemas }: GetParamsProps) {
+  const pathParams = getPathParams(schemas.pathParams, {
+    typed: false,
+    casing: 'camelcase',
+  })
+
   return FunctionParams.factory({
     data: {
       mode: 'object',
       children: {
-        ...getPathParams(schemas.pathParams, {
-          typed: false,
-          casing: 'camelcase',
-          // override(data, key) {
-          //   return {
-          //     ...data,
-          //     value: `${schemas.pathParams?.name}.shape.${key}`,
-          //   }
-          // },
-        }),
+        ...Object.entries(pathParams).reduce((acc, [key, param]) => {
+          if (param && schemas.pathParams?.name) {
+            let suffix = '.shape'
+
+            if (isNullable(schemas.pathParams.schema)) {
+              if (isReference(schemas.pathParams)) {
+                suffix = '.unwrap().schema.unwrap().shape'
+              } else {
+                suffix = '.unwrap().shape'
+              }
+            } else {
+              if (isReference(schemas.pathParams)) {
+                suffix = '.schema.shape'
+              }
+            }
+
+            param.value = `${schemas.pathParams?.name}${suffix}['${key}']`
+          }
+
+          return {
+            ...acc,
+            [key]: param,
+          }
+        }, {}),
         data: schemas.request?.name
           ? {
               value: schemas.request?.name,

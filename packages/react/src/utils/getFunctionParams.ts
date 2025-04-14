@@ -230,23 +230,7 @@ export class FunctionParams {
     return getFunctionParams(this.#params, { type: 'objectValue' })
   }
 
-  toConstructor({ valueAsType = false }: { valueAsType?: boolean } = {}): string {
-    if (valueAsType) {
-      const params = Object.entries(this.#params).reduce((acc, [key, item]) => {
-        if (item) {
-          acc[key] = {
-            ...item,
-            value: item?.type,
-            type: undefined,
-          }
-        }
-
-        return acc
-      }, {} as Params)
-
-      return getFunctionParams(params, { type: 'constructor' })
-    }
-
+  toConstructor(): string {
     return getFunctionParams(this.#params, { type: 'constructor' })
   }
 }

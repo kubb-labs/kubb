@@ -21,16 +21,15 @@ type Props = {
 
 export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, coercion, keysToOmit, description, wrapOutput }: Props) {
   const hasTuple = tree.some((item) => isKeyword(item, schemaKeywords.tuple))
+  const schemas = parserZod.sort(tree).filter((item) => {
+    if (hasTuple && (isKeyword(item, schemaKeywords.min) || isKeyword(item, schemaKeywords.max))) {
+      return false
+    }
 
-  const output = parserZod
-    .sort(tree)
-    .filter((item) => {
-      if (hasTuple && (isKeyword(item, schemaKeywords.min) || isKeyword(item, schemaKeywords.max))) {
-        return false
-      }
+    return true
+  })
 
-      return true
-    })
+  const output = schemas
     .map((schema, _index, siblings) =>
       parserZod.parse({ parent: undefined, current: schema, siblings }, { name, keysToOmit, typeName, description, mapper, coercion, wrapOutput, rawSchema }),
     )
@@ -38,15 +37,17 @@ export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, co
     .join('')
 
   let suffix = ''
+  const firstSchema = schemas.at(0)
+  const lastSchema = schemas.at(-1)
 
-  if (output.endsWith('.nullable()')) {
-    if (output.startsWith('z.lazy')) {
+  if (lastSchema && isKeyword(lastSchema, schemaKeywords.nullable)) {
+    if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref)) {
       suffix = '.unwrap().schema.unwrap()'
     } else {
       suffix = '.unwrap()'
     }
   } else {
-    if (output.startsWith('z.lazy')) {
+    if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref)) {
       suffix = '.schema'
     }
   }

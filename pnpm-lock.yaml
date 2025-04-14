@@ -290,6 +290,9 @@ importers:
       '@kubb/plugin-faker':
         specifier: workspace:*
         version: link:../../packages/plugin-faker
+      '@kubb/plugin-mcp':
+        specifier: workspace:*
+        version: link:../../packages/plugin-mcp
       '@kubb/plugin-msw':
         specifier: workspace:*
         version: link:../../packages/plugin-msw
