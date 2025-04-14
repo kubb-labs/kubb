@@ -138,7 +138,7 @@ type ParserOptions = {
   mapper?: Record<string, ts.PropertySignature>
 }
 
-export function parse({ current, siblings }: SchemaTree, options: ParserOptions): ts.Node | null | undefined {
+export function parse({ current, siblings, name }: SchemaTree, options: ParserOptions): ts.Node | null | undefined {
   const value = typeKeywordMapper[current.keyword as keyof typeof typeKeywordMapper]
 
   if (!value) {
@@ -147,17 +147,19 @@ export function parse({ current, siblings }: SchemaTree, options: ParserOptions)
 
   if (isKeyword(current, schemaKeywords.union)) {
     return typeKeywordMapper.union(
-      current.args.map((schema) => parse({ parent: current, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+      current.args.map((schema) => parse({ parent: current, name: name, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
     )
   }
 
   if (isKeyword(current, schemaKeywords.and)) {
-    return typeKeywordMapper.and(current.args.map((schema) => parse({ parent: current, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[])
+    return typeKeywordMapper.and(
+      current.args.map((schema) => parse({ parent: current, name: name, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+    )
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
     return typeKeywordMapper.array(
-      current.args.items.map((schema) => parse({ parent: current, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+      current.args.items.map((schema) => parse({ parent: current, name: name, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
     )
   }
 
@@ -175,7 +177,7 @@ export function parse({ current, siblings }: SchemaTree, options: ParserOptions)
 
   if (isKeyword(current, schemaKeywords.tuple)) {
     return typeKeywordMapper.tuple(
-      current.args.items.map((schema) => parse({ parent: current, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+      current.args.items.map((schema) => parse({ parent: current, name: name, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
     )
   }
 
@@ -211,7 +213,9 @@ export function parse({ current, siblings }: SchemaTree, options: ParserOptions)
         const maxSchema = schemas.find((schema) => schema.keyword === schemaKeywords.max) as SchemaKeywordMapper['max'] | undefined
         const matchesSchema = schemas.find((schema) => schema.keyword === schemaKeywords.matches) as SchemaKeywordMapper['matches'] | undefined
 
-        let type = schemas.map((schema) => parse({ parent: current, current: schema, siblings: schemas }, options)).filter(Boolean)[0] as ts.TypeNode
+        let type = schemas
+          .map((schema) => parse({ parent: current, name: name, current: schema, siblings: schemas }, options))
+          .filter(Boolean)[0] as ts.TypeNode
 
         if (isNullable) {
           type = factory.createUnionDeclaration({
@@ -258,7 +262,7 @@ export function parse({ current, siblings }: SchemaTree, options: ParserOptions)
     const additionalProperties = current.args?.additionalProperties?.length
       ? factory.createIndexSignature(
           current.args.additionalProperties
-            .map((schema) => parse({ parent: current, current: schema, siblings }, options))
+            .map((schema) => parse({ parent: current, name: name, current: schema, siblings }, options))
             .filter(Boolean)
             .at(0) as ts.TypeNode,
         )

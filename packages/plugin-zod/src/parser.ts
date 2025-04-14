@@ -221,7 +221,7 @@ type ParserOptions = {
   rawSchema: SchemaObject
 }
 
-export function parse({ parent, current, siblings }: SchemaTree, options: ParserOptions): string | undefined {
+export function parse({ parent, current, name, siblings }: SchemaTree, options: ParserOptions): string | undefined {
   const value = zodKeywordMapper[current.keyword as keyof typeof zodKeywordMapper]
 
   if (!value) {
@@ -231,7 +231,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
   if (isKeyword(current, schemaKeywords.union)) {
     // zod union type needs at least 2 items
     if (Array.isArray(current.args) && current.args.length === 1) {
-      return parse({ parent, current: current.args[0] as Schema, siblings }, options)
+      return parse({ parent, name: name, current: current.args[0] as Schema, siblings }, options)
     }
     if (Array.isArray(current.args) && !current.args.length) {
       return ''
@@ -239,7 +239,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
 
     return zodKeywordMapper.union(
       sort(current.args)
-        .map((schema, _index, siblings) => parse({ parent: current, current: schema, siblings }, options))
+        .map((schema, _index, siblings) => parse({ parent: current, name: name, current: schema, siblings }, options))
         .filter(Boolean),
     )
   }
@@ -249,7 +249,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
       .filter((schema: Schema) => {
         return ![schemaKeywords.optional, schemaKeywords.describe].includes(schema.keyword as typeof schemaKeywords.describe)
       })
-      .map((schema: Schema, _index, siblings) => parse({ parent: current, current: schema, siblings }, options))
+      .map((schema: Schema, _index, siblings) => parse({ parent: current, name: name, current: schema, siblings }, options))
       .filter(Boolean)
 
     return `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1))}`
@@ -258,7 +258,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
   if (isKeyword(current, schemaKeywords.array)) {
     return zodKeywordMapper.array(
       sort(current.args.items)
-        .map((schemas, _index, siblings) => parse({ parent: current, current: schemas, siblings }, options))
+        .map((schemas, _index, siblings) => parse({ parent: current, name: name, current: schemas, siblings }, options))
         .filter(Boolean),
       current.args.min,
       current.args.max,
@@ -273,7 +273,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
           keyword: schemaKeywords.const,
           args: current.args.items[0],
         }
-        return parse({ parent: current, current: child, siblings: [child] }, options)
+        return parse({ parent: current, name: name, current: child, siblings: [child] }, options)
       }
 
       return zodKeywordMapper.union(
@@ -283,7 +283,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
             args: schema,
           }))
           .map((schema, _index, siblings) => {
-            return parse({ parent: current, current: schema, siblings }, options)
+            return parse({ parent: current, name: name, current: schema, siblings }, options)
           })
           .filter(Boolean),
       )
@@ -328,7 +328,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
         }
 
         const baseSchemaOutput = sort(schemas)
-          .map((schema) => parse({ parent: current, current: schema, siblings: schemas }, options))
+          .map((schema) => parse({ parent: current, name, current: schema, siblings: schemas }, options))
           .filter(Boolean)
           .join('')
 
@@ -348,7 +348,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
 
     const additionalProperties = current.args?.additionalProperties?.length
       ? current.args.additionalProperties
-          .map((schema, _index, siblings) => parse({ parent: current, current: schema, siblings }, options))
+          .map((schema, _index, siblings) => parse({ parent: current, name: name, current: schema, siblings }, options))
           .filter(Boolean)
           .join('')
       : undefined
@@ -363,7 +363,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
 
   if (isKeyword(current, schemaKeywords.tuple)) {
     return zodKeywordMapper.tuple(
-      current.args.items.map((schema, _index, siblings) => parse({ parent: current, current: schema, siblings }, options)).filter(Boolean),
+      current.args.items.map((schema, _index, siblings) => parse({ parent: current, name: name, current: schema, siblings }, options)).filter(Boolean),
     )
   }
 

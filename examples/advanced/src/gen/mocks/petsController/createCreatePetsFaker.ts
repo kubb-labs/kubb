@@ -24,7 +24,7 @@ export function createCreatePetsQueryParamsFaker(data?: Partial<CreatePetsQueryP
 
 export function createCreatePetsHeaderParamsFaker(data?: Partial<CreatePetsHeaderParams>): CreatePetsHeaderParams {
   return {
-    ...{ 'X-EXAMPLE': faker.helpers.arrayElement<any>(['ONE', 'TWO', 'THREE']) },
+    ...{ 'X-EXAMPLE': faker.helpers.arrayElement<NonNullable<CreatePetsHeaderParams>['X-EXAMPLE']>(['ONE', 'TWO', 'THREE']) },
     ...(data || {}),
   }
 }

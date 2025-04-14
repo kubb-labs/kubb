@@ -159,6 +159,10 @@ export type SchemaTree = {
   parent: Schema | undefined
   current: Schema
   siblings: Schema[]
+  /**
+   * this will be equal to the key of a property(object)
+   */
+  name?: string
 }
 
 export function isKeyword<T extends Schema, K extends keyof SchemaKeywordMapper>(meta: T, keyword: K): meta is Extract<T, SchemaKeywordMapper[K]> {

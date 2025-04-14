@@ -198,7 +198,7 @@ export default defineConfig(() => {
         ],
         group: { type: 'tag' },
         mapper: {
-          status: `faker.helpers.arrayElement(['working', 'idle']) as any`,
+          status: `faker.helpers.arrayElement<any>(['working', 'idle'])`,
         },
         transformers: {
           name(name, type) {
