@@ -1,6 +1,6 @@
-import client from '@kubb/plugin-client/clients/axios'
+import client from '../../client.js'
+import type { ResponseErrorConfig } from '../../client.js'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTagsHeaderParams, FindPetsByTags400 } from '../models/ts/FindPetsByTags.js'
-import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**

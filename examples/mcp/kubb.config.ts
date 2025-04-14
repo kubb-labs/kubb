@@ -33,6 +33,7 @@ export default defineConfig(() => {
       pluginMcp({
         client: {
           baseURL: 'https://petstore.swagger.io/v2',
+          importPath: '../../client.ts',
         },
       }),
     ],

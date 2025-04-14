@@ -97,7 +97,7 @@ jobs:
           run: bun run lint:ci
 
   prerelease:
-    name: Linting
+    name: Prerelease
     timeout-minutes: 15
     runs-on: ubuntu-latest
 
