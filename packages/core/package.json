@@ -96,7 +96,8 @@
     "p-queue": "^8.1.0",
     "remeda": "catalog:",
     "seedrandom": "^3.0.5",
-    "semver": "^7.7.1"
+    "semver": "^7.7.1",
+    "zod": "next"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

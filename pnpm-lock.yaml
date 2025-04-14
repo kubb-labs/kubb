@@ -1109,6 +1109,9 @@ importers:
       semver:
         specifier: ^7.7.1
         version: 7.7.1
+      zod:
+        specifier: next
+        version: 4.0.0-beta.20250412T085909
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
