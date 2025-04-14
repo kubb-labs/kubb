@@ -95,3 +95,23 @@ jobs:
             NODE_OPTIONS: "--max_old_space_size=4096"
           continue-on-error: true
           run: bun run lint:ci
+
+  prerelease:
+    name: Prerelease
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup
+        uses: ./.github/setup
+
+      - name: Build
+        run: bun run build
+
+      - name: Publish preview packages
+        run: pnpx pkg-pr-new publish --pnpm --owner=stijnvanhulle --repo=https://github.com/kubb-labs/kubb.git './packages/*' --template './examples/*'

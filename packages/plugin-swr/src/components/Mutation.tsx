@@ -107,6 +107,7 @@ export function Mutation({
     paramsType,
     typeSchemas,
     pathParamsType,
+    isConfigurable: true,
   })
 
   return (

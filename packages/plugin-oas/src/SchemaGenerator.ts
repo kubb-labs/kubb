@@ -2,7 +2,7 @@ import { BaseGenerator, type FileMetaBase } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 
-import { isReference } from '@kubb/oas'
+import { isNullable, isReference } from '@kubb/oas'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
@@ -105,46 +105,36 @@ export class SchemaGenerator<
         foundItems.push(schema as SchemaKeywordMapper[T])
       }
 
-      if (schema.keyword === schemaKeywords.object) {
-        const subItem = schema as SchemaKeywordMapper['object']
-
-        Object.values(subItem.args?.properties || {}).forEach((entrySchema) => {
+      if (isKeyword(schema, schemaKeywords.object)) {
+        Object.values(schema.args?.properties || {}).forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>(entrySchema, keyword))
         })
 
-        Object.values(subItem.args?.additionalProperties || {}).forEach((entrySchema) => {
+        Object.values(schema.args?.additionalProperties || {}).forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
 
-      if (schema.keyword === schemaKeywords.array) {
-        const subItem = schema as SchemaKeywordMapper['array']
-
-        subItem.args.items.forEach((entrySchema) => {
+      if (isKeyword(schema, schemaKeywords.array)) {
+        schema.args.items.forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
 
-      if (schema.keyword === schemaKeywords.and) {
-        const subItem = schema as SchemaKeywordMapper['and']
-
-        subItem.args.forEach((entrySchema) => {
+      if (isKeyword(schema, schemaKeywords.and)) {
+        schema.args.forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
 
-      if (schema.keyword === schemaKeywords.tuple) {
-        const subItem = schema as SchemaKeywordMapper['tuple']
-
-        subItem.args.items.forEach((entrySchema) => {
+      if (isKeyword(schema, schemaKeywords.tuple)) {
+        schema.args.items.forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
 
-      if (schema.keyword === schemaKeywords.union) {
-        const subItem = schema as SchemaKeywordMapper['union']
-
-        subItem.args.forEach((entrySchema) => {
+      if (isKeyword(schema, schemaKeywords.union)) {
+        schema.args.forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
       }
@@ -161,16 +151,14 @@ export class SchemaGenerator<
         foundItem = schema as SchemaKeywordMapper[T]
       }
 
-      if (schema.keyword === schemaKeywords.object) {
-        const subItem = schema as SchemaKeywordMapper['object']
-
-        Object.values(subItem.args?.properties || {}).forEach((entrySchema) => {
+      if (isKeyword(schema, schemaKeywords.object)) {
+        Object.values(schema.args?.properties || {}).forEach((entrySchema) => {
           if (!foundItem) {
             foundItem = SchemaGenerator.find<T>(entrySchema, keyword)
           }
         })
 
-        Object.values(subItem.args?.additionalProperties || {}).forEach((entrySchema) => {
+        Object.values(schema.args?.additionalProperties || {}).forEach((entrySchema) => {
           if (!foundItem) {
             foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
           }
@@ -189,40 +177,32 @@ export class SchemaGenerator<
         foundItem = schema as SchemaKeywordMapper[T]
       }
 
-      if (schema.keyword === schemaKeywords.array) {
-        const subItem = schema as SchemaKeywordMapper['array']
-
-        subItem.args.items.forEach((entrySchema) => {
+      if (isKeyword(schema, schemaKeywords.array)) {
+        schema.args.items.forEach((entrySchema) => {
           if (!foundItem) {
             foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
           }
         })
       }
 
-      if (schema.keyword === schemaKeywords.and) {
-        const subItem = schema as SchemaKeywordMapper['and']
-
-        subItem.args.forEach((entrySchema) => {
+      if (isKeyword(schema, schemaKeywords.and)) {
+        schema.args.forEach((entrySchema) => {
           if (!foundItem) {
             foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
           }
         })
       }
 
-      if (schema.keyword === schemaKeywords.tuple) {
-        const subItem = schema as SchemaKeywordMapper['tuple']
-
-        subItem.args.items.forEach((entrySchema) => {
+      if (isKeyword(schema, schemaKeywords.tuple)) {
+        schema.args.items.forEach((entrySchema) => {
           if (!foundItem) {
             foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
           }
         })
       }
 
-      if (schema.keyword === schemaKeywords.union) {
-        const subItem = schema as SchemaKeywordMapper['union']
-
-        subItem.args.forEach((entrySchema) => {
+      if (isKeyword(schema, schemaKeywords.union)) {
+        schema.args.forEach((entrySchema) => {
           if (!foundItem) {
             foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
           }
@@ -397,7 +377,7 @@ export class SchemaGenerator<
     ]
     const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
     const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
-    const nullable = schema.nullable ?? schema['x-nullable'] ?? false
+    const nullable = isNullable(schema)
     const defaultNullAndNullable = schema.default === null && nullable
 
     if (schema.default !== undefined && !defaultNullAndNullable && !Array.isArray(schema.default)) {

@@ -123,6 +123,7 @@ export function InfiniteQueryOptions({
     typeSchemas,
     paramsType,
     pathParamsType,
+    isConfigurable: true,
   })
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,

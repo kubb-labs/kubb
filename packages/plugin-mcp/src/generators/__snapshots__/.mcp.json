@@ -1,0 +1,9 @@
+{
+            "mcpServers": {
+              "Swagger Petstore": {
+                "type": "stdio",
+                "command": "npx",
+                "args": ["tsx", "server.ts"]
+              }
+            }
+          }

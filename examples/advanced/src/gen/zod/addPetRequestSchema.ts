@@ -1,5 +1,3 @@
-import type { AddPetRequest } from '../models/ts/AddPetRequest.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { categorySchema } from './categorySchema.ts'
 import { tagTagSchema } from './tag/tagSchema.ts'
 import { z } from 'zod'
@@ -11,6 +9,6 @@ export const addPetRequestSchema = z.object({
   photoUrls: z.array(z.string()),
   tags: z.array(z.lazy(() => tagTagSchema)).optional(),
   status: z.enum(['available', 'pending', 'sold']).describe('pet status in the store').optional(),
-}) as unknown as ToZod<AddPetRequest>
+})
 
-export type AddPetRequestSchema = AddPetRequest
+export type AddPetRequestSchema = z.infer<typeof addPetRequestSchema>

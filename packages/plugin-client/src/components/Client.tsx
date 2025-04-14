@@ -6,6 +6,7 @@ import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react'
 import type { PluginClient } from '../types.ts'
 import { Url } from './Url.tsx'
+import type { KubbNode } from '@kubb/react/types'
 
 type Props = {
   /**
@@ -15,6 +16,8 @@ type Props = {
   urlName?: string
   isExportable?: boolean
   isIndexable?: boolean
+  isConfigurable?: boolean
+  returnType?: string
 
   baseURL: string | undefined
   dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
@@ -25,6 +28,7 @@ type Props = {
   typeSchemas: OperationSchemas
   zodSchemas: OperationSchemas | undefined
   operation: Operation
+  children?: KubbNode
 }
 
 type GetParamsProps = {
@@ -32,9 +36,10 @@ type GetParamsProps = {
   paramsType: PluginClient['resolvedOptions']['paramsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
+  isConfigurable: boolean
 }
 
-function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable }: GetParamsProps) {
   if (paramsType === 'object') {
     return FunctionParams.factory({
       data: {
@@ -61,12 +66,14 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
             : undefined,
         },
       },
-      config: {
-        type: typeSchemas.request?.name
-          ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
-          : 'Partial<RequestConfig> & { client?: typeof client }',
-        default: '{}',
-      },
+      config: isConfigurable
+        ? {
+            type: typeSchemas.request?.name
+              ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
+              : 'Partial<RequestConfig> & { client?: typeof client }',
+            default: '{}',
+          }
+        : undefined,
     })
   }
 
@@ -96,12 +103,14 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
           optional: isOptional(typeSchemas.headerParams?.schema),
         }
       : undefined,
-    config: {
-      type: typeSchemas.request?.name
-        ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
-        : 'Partial<RequestConfig> & { client?: typeof client }',
-      default: '{}',
-    },
+    config: isConfigurable
+      ? {
+          type: typeSchemas.request?.name
+            ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
+            : 'Partial<RequestConfig> & { client?: typeof client }',
+          default: '{}',
+        }
+      : undefined,
   })
 }
 
@@ -109,6 +118,7 @@ export function Client({
   name,
   isExportable = true,
   isIndexable = true,
+  returnType,
   typeSchemas,
   baseURL,
   dataReturnType,
@@ -119,6 +129,8 @@ export function Client({
   pathParamsType,
   operation,
   urlName,
+  children,
+  isConfigurable = true,
 }: Props) {
   const path = new URLPath(operation.path, { casing: paramsCasing })
   const contentType = operation.getContentType()
@@ -131,7 +143,7 @@ export function Client({
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   const generics = [typeSchemas.response.name, TError, typeSchemas.request?.name || 'unknown'].filter(Boolean)
-  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
+  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable })
   const urlParams = Url.getParams({
     paramsType,
     paramsCasing,
@@ -161,12 +173,14 @@ export function Client({
                 parser === 'zod' && zodSchemas ? `${zodSchemas.request?.name}.parse(${isFormData ? 'formData' : 'data'})` : isFormData ? 'formData' : undefined,
             }
           : undefined,
-        requestConfig: {
-          mode: 'inlineSpread',
-        },
+        requestConfig: isConfigurable
+          ? {
+              mode: 'inlineSpread',
+            }
+          : undefined,
         headers: headers.length
           ? {
-              value: headers.length ? `{ ${headers.join(', ')}, ...requestConfig.headers }` : undefined,
+              value: isConfigurable ? `{ ${headers.join(', ')}, ...requestConfig.headers }` : `{ ${headers.join(', ')} }`,
             }
           : undefined,
       },
@@ -187,6 +201,17 @@ export function Client({
   `
     : ''
 
+  const childrenElement = children ? (
+    children
+  ) : (
+    <>
+      {dataReturnType === 'full' && parser === 'zod' && zodSchemas && `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}`}
+      {dataReturnType === 'data' && parser === 'zod' && zodSchemas && `return ${zodSchemas.response.name}.parse(res.data)`}
+      {dataReturnType === 'full' && parser === 'client' && 'return res'}
+      {dataReturnType === 'data' && parser === 'client' && 'return res.data'}
+    </>
+  )
+
   return (
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
       <Function
@@ -197,17 +222,17 @@ export function Client({
         JSDoc={{
           comments: getComments(operation),
         }}
+        returnType={returnType}
       >
-        {'const { client:request = client, ...requestConfig } = config'}
+        {isConfigurable ? 'const { client:request = client, ...requestConfig } = config' : ''}
         <br />
         <br />
         {formData}
-        {`const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`}
+        {isConfigurable
+          ? `const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`
+          : `const res = await client<${generics.join(', ')}>(${clientParams.toCall()})`}
         <br />
-        {dataReturnType === 'full' && parser === 'zod' && zodSchemas && `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}`}
-        {dataReturnType === 'data' && parser === 'zod' && zodSchemas && `return ${zodSchemas.response.name}.parse(res.data)`}
-        {dataReturnType === 'full' && parser === 'client' && 'return res'}
-        {dataReturnType === 'data' && parser === 'client' && 'return res.data'}
+        {childrenElement}
       </Function>
     </File.Source>
   )

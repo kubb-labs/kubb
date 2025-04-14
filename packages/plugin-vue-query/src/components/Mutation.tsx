@@ -66,7 +66,7 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
         }
       : undefined,
   })
-  const TRequest = mutationParams.toConstructor({ valueAsType: true })
+  const TRequest = mutationParams.toConstructor()
 
   return FunctionParams.factory({
     options: {
@@ -109,6 +109,7 @@ export function Mutation({
     paramsType,
     typeSchemas,
     pathParamsType,
+    isConfigurable: true,
   })
 
   const mutationParams = FunctionParams.factory({
@@ -150,7 +151,7 @@ export function Mutation({
     },
   })
 
-  const TRequest = mutationParams.toConstructor({ valueAsType: true })
+  const TRequest = mutationParams.toConstructor()
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 

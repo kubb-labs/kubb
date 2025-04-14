@@ -10,11 +10,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-labs/kubb.git",
+    "url": "https://github.com/kubb-labs/kubb.git",
     "directory": "packages/ui"
   },
   "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
   "exports": {
@@ -65,7 +65,7 @@
     "@kubb/config-tsup": "workspace:*",
     "@react-aria/visually-hidden": "3.8.20",
     "@react-types/shared": "3.28.0",
-    "@tanstack/react-query": "^5.73.3",
+    "@tanstack/react-query": "^5.74.3",
     "@types/node": "20.5.7",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",

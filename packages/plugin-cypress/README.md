@@ -39,15 +39,15 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@kubb/plugin-msw?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmjs.com/package/@kubb/plugin-msw
-[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/plugin-msw?flat&colorA=18181B&colorB=f58517
-[npm-downloads-href]: https://npmjs.com/package/@kubb/plugin-msw
+[npm-version-src]: https://img.shields.io/npm/v/@kubb/plugin-cypress?flat&colorA=18181B&colorB=f58517
+[npm-version-href]: https://npmjs.com/package/@kubb/plugin-cypress
+[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/plugin-cypress?flat&colorA=18181B&colorB=f58517
+[npm-downloads-href]: https://npmjs.com/package/@kubb/plugin-cypress
 [license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
 [build-src]: https://img.shields.io/github/actions/workflow/status/kubb-labs/kubb/ci.yaml?style=flat&colorA=18181B&colorB=f58517
-[build-href]: https://www.npmjs.com/package/@kubb/plugin-msw
-[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/plugin-msw?style=flat&colorA=18181B&colorB=f58517
-[minified-href]: https://www.npmjs.com/package/@kubb/plugin-msw
+[build-href]: https://www.npmjs.com/package/@kubb/plugin-cypress
+[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/plugin-cypress?style=flat&colorA=18181B&colorB=f58517
+[minified-href]: https://www.npmjs.com/package/@kubb/plugin-cypress
 [coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
-[coverage-href]: https://www.npmjs.com/package/@kubb/plugin-msw
+[coverage-href]: https://www.npmjs.com/package/@kubb/plugin-cypress

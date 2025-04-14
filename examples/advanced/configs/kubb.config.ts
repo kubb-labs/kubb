@@ -12,6 +12,7 @@ import { pluginRedoc } from '@kubb/plugin-redoc'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
+import { pluginMcp } from '@kubb/plugin-mcp'
 
 export default defineConfig(() => {
   return {
@@ -166,8 +167,24 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         dateType: 'stringOffset',
         inferred: true,
-        typed: true,
+        // typed: true,
         operations: false,
+      }),
+      pluginMcp({
+        output: {
+          path: './mcp',
+          barrelType: false,
+        },
+        exclude: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+        group: { type: 'tag' },
+        client: {
+          baseURL: 'https://petstore.swagger.io/v2',
+        },
       }),
       pluginFaker({
         output: {

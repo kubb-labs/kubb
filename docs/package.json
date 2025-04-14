@@ -9,7 +9,7 @@
     "directory": "docs"
   },
   "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "author": "stijnvanhulle",
   "type": "module",
   "main": "index.js",
   "scripts": {

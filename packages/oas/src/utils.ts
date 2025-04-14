@@ -28,6 +28,10 @@ export function isParameterObject(obj: ParameterObject | SchemaObject): obj is P
   return obj && 'in' in obj
 }
 
+export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): boolean {
+  return schema?.nullable ?? schema?.['x-nullable'] ?? false
+}
+
 export function isReference(obj?: unknown): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
   return !!obj && isRef(obj)
 }
