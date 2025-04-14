@@ -24,7 +24,7 @@ export async function updatePet(data: UpdatePetMutationRequest, config: Partial<
 
   const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
-    url: `/pet`,
+    url: '/pet',
     data,
     ...requestConfig,
   })
@@ -47,7 +47,10 @@ export function useUpdatePet<TContext>(
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
+  const {
+    mutation: { client: queryClient, ...mutationOptions } = {},
+    client: config = {},
+  } = options ?? {}
   const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
 
   return useMutation<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, { data: UpdatePetMutationRequest }, TContext>(

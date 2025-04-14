@@ -1,6 +1,13 @@
 {
   "name": "@kubb/config-tsup",
   "version": "3.9.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/config-tsup"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
   "exports": {

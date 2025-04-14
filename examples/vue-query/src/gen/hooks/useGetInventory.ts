@@ -22,7 +22,7 @@ export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 export async function getInventory(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
   const { client: request = client, ...requestConfig } = config
 
-  const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/store/inventory`, ...requestConfig })
+  const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...requestConfig })
   return res.data
 }
 
@@ -48,7 +48,10 @@ export function useGetInventory<TData = GetInventoryQueryResponse, TQueryData = 
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const {
+    query: { client: queryClient, ...queryOptions } = {},
+    client: config = {},
+  } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
 
   const query = useQuery(
