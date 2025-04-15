@@ -1,5 +1,18 @@
 # @kubb/plugin-react-query
 
+## 3.9.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.9.2
+  - @kubb/fs@3.9.2
+  - @kubb/oas@3.9.2
+  - @kubb/plugin-oas@3.9.2
+  - @kubb/plugin-ts@3.9.2
+  - @kubb/plugin-zod@3.9.2
+  - @kubb/react@3.9.2
+
 ## 3.9.1
 
 ### Patch Changes
