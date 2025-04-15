@@ -28,16 +28,16 @@ export function getDefaultBanner({ title, description, version, config }: { titl
     }
 
     if (source) {
-      banner += `* Source: ${source}\n\n`
+      banner += `* Source: ${source}\n`
     }
 
     if (title) {
-      banner += `* Title: ${title}\n\n`
+      banner += `* Title: ${title}\n`
     }
 
     if (description) {
       const formattedDescription = description.replace(/\n/gm, '\n* ')
-      banner += `* Description: ${formattedDescription}\n\n`
+      banner += `* Description: ${formattedDescription}\n`
     }
 
     if (version) {

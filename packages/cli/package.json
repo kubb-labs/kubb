@@ -61,7 +61,7 @@
     "gradient-string": "^3.0.0",
     "jiti": "^2.4.2",
     "latest-version": "^9.0.0",
-    "open": "^10.1.0",
+    "open": "^10.1.1",
     "p-queue": "^8.1.0",
     "semver": "^7.7.1",
     "string-argv": "^0.3.2"
