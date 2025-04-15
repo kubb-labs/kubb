@@ -13,7 +13,7 @@ import { version } from '../../packages/core/package.json'
 
 const ogImage = 'https://kubb.dev/og.png'
 const title = 'Generate SDKs for all your APIs'
-const description = 'OpenAPI to TypeScript, React-Query, Zod, Faker.js, MSW and Axios. '
+const description = 'OpenAPI to TypeScript, React-Query, Zod, Faker.js, MSW, MCP and Axios. '
 
 const links: Array<{ url: string; lastmod: number | undefined }> = []
 
@@ -184,6 +184,10 @@ const mainSidebar = [
         link: '/plugins/plugin-cypress/',
       },
       {
+        text: '@kubb/plugin-mcp <span class="new">new in 3.9.0</span>',
+        link: '/plugins/plugin-mcp/',
+      },
+      {
         text: '@kubb/plugin-client',
         link: '/plugins/plugin-client/',
         collapsed: true,
@@ -310,6 +314,10 @@ const examplesSidebar = [
     link: '/examples/cypress',
   },
   {
+    text: 'MCP <span class="new">new in 3.9.0</span>',
+    link: '/examples/mcp',
+  },
+  {
     text: 'Advanced',
     link: '/examples/advanced',
   },
@@ -383,6 +391,10 @@ const documentationMenu = [
       {
         text: '@kubb/plugin-cypress',
         link: '/plugins/plugin-cypress/',
+      },
+      {
+        text: '@kubb/plugin-mcp',
+        link: '/plugins/plugin-mcp/',
       },
       {
         text: '@kubb/plugin-client',
@@ -517,6 +529,7 @@ export default defineConfig({
               '@kubb/fs': ['../packages/fs/src/index.ts'],
               '@kubb/fs/types': ['../packages/fs/src/types.ts'],
               '@kubb/plugin-cypress': ['../packages/plugin-cypress/src/index.ts'],
+              '@kubb/plugin-mcp': ['../packages/plugin-mcp/src/index.ts'],
               '@kubb/plugin-oas': ['../packages/plugin-oas/src/index.ts'],
               '@kubb/plugin-oas/hooks': ['../packages/plugin-oas/src/hooks/index.ts'],
               '@kubb/plugin-client': ['../packages/plugin-client/src/index.ts'],

@@ -45,7 +45,14 @@ features:
     link: /plugins/plugin-react-query
     linkText: Learn more
   - icon:
-        src: ./feature/cypress.svg
+      dark: ./feature/mcp-dark.svg
+      light: ./feature/mcp-light.svg
+    title: MCP <span class="new">new in 3.9.0</span>
+    details: Use MCP to unlock intelligent, conversational access to your API.
+    link: /plugins/plugin-mcp
+    linkText: Learn more
+  - icon:
+      src: ./feature/cypress.svg
     title: Cypress <span class="new">new in 3.7.0</span>
     details: Make type-safe Cypress requests with <b>cy.request</b>.
     link: /plugins/plugin-cypress
