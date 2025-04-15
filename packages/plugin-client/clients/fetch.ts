@@ -51,7 +51,7 @@ export const client = async <TData, _TError = unknown, TVariables = unknown>(par
     }
   })
 
-  let targetUrl = `${config.baseURL}${config.url}`
+  let targetUrl = [config.baseURL, config.url].filter(Boolean).join('')
 
   if (config.params) {
     targetUrl += `?${normalizedParams}`

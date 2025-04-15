@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.9.2
+- [`plugin-client`](/plugins/plugin-client): exclude baseURL when not set
+
 # 3.9.1
 - [`plugin-zod`](/plugins/plugin-zod): reduce any's being used
 - [`plugin-faker`](/plugins/plugin-faker): reduce any's being used
