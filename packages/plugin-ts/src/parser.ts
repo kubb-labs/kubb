@@ -214,7 +214,17 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
         const matchesSchema = schemas.find((schema) => schema.keyword === schemaKeywords.matches) as SchemaKeywordMapper['matches'] | undefined
 
         let type = schemas
-          .map((schema) => parse({ parent: current, name: name, current: schema, siblings: schemas }, options))
+          .map((schema) =>
+            parse(
+              {
+                parent: current,
+                name: name,
+                current: schema,
+                siblings: schemas,
+              },
+              options,
+            ),
+          )
           .filter(Boolean)[0] as ts.TypeNode
 
         if (isNullable) {
@@ -259,14 +269,23 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
         })
       })
 
-    const additionalProperties = current.args?.additionalProperties?.length
-      ? factory.createIndexSignature(
-          current.args.additionalProperties
-            .map((schema) => parse({ parent: current, name: name, current: schema, siblings }, options))
-            .filter(Boolean)
-            .at(0) as ts.TypeNode,
-        )
-      : undefined
+    let additionalProperties = undefined
+
+    if (current.args?.additionalProperties?.length) {
+      additionalProperties = current.args.additionalProperties
+        .map((schema) => parse({ parent: current, name: name, current: schema, siblings }, options))
+        .filter(Boolean)
+        .at(0) as ts.TypeNode
+
+      const isNullable = current.args?.additionalProperties.some((schema) => schema.keyword === schemaKeywords.nullable)
+      if (isNullable) {
+        additionalProperties = factory.createUnionDeclaration({
+          nodes: [additionalProperties, factory.keywordTypeNodes.null],
+        }) as ts.TypeNode
+      }
+
+      additionalProperties = factory.createIndexSignature(additionalProperties)
+    }
 
     return typeKeywordMapper.object([...properties, additionalProperties].filter(Boolean))
   }
