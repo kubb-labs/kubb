@@ -277,7 +277,7 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
         .filter(Boolean)
         .at(0) as ts.TypeNode
 
-      const isNullable = current.args?.additionalProperties.some((schema) => schema.keyword === schemaKeywords.nullable)
+      const isNullable = current.args?.additionalProperties.some((schema) => isKeyword(schema, schemaKeywords.nullable))
       if (isNullable) {
         additionalProperties = factory.createUnionDeclaration({
           nodes: [additionalProperties, factory.keywordTypeNodes.null],
