@@ -84,6 +84,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://akino.icu"><img src="https://avatars.githubusercontent.com/u/64176534?v=4?s=100" width="100px;" alt="Akino"/><br /><sub><b>Akino</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=akinoccc" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/rmachado-studocu"><img src="https://avatars.githubusercontent.com/u/89906313?v=4?s=100" width="100px;" alt="Ricardo Machado"/><br /><sub><b>Ricardo Machado</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=rmachado-studocu" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
