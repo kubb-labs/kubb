@@ -1,5 +1,21 @@
 # @kubb/plugin-swr
 
+## 3.9.4
+
+### Patch Changes
+
+- [`49d4b10`](https://github.com/kubb-labs/kubb/commit/49d4b10e390661a92089901cfb863e95503cd931) Thanks [@stijnvanhullem](https://github.com/stijnvanhullem)! - query type inferred as any when generating SWR hooks with useSWR
+
+- Updated dependencies []:
+  - @kubb/core@3.9.4
+  - @kubb/fs@3.9.4
+  - @kubb/oas@3.9.4
+  - @kubb/plugin-client@3.9.4
+  - @kubb/plugin-oas@3.9.4
+  - @kubb/plugin-ts@3.9.4
+  - @kubb/plugin-zod@3.9.4
+  - @kubb/react@3.9.4
+
 ## 3.9.3
 
 ### Patch Changes
