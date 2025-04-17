@@ -194,4 +194,4 @@ export default defineConfig({
 
 - [MCP](https://modelcontextprotocol.io/)
 - [Claude](https://claude.ai)
-- [chatGPT](https://openai.com/index/chatgpt/)
+- [ChatGPT](https://openai.com/index/chatgpt/)

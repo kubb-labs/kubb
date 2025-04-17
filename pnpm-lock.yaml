@@ -318,8 +318,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react
       '@modelcontextprotocol/sdk':
-        specifier: ^1.9.0
-        version: 1.9.0
+        specifier: ^1.10.0
+        version: 1.10.0
       '@tanstack/query-core':
         specifier: ^5.74.4
         version: 5.74.4
@@ -588,8 +588,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@modelcontextprotocol/sdk':
-        specifier: ^1.9.0
-        version: 1.9.0
+        specifier: ^1.10.0
+        version: 1.10.0
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -3696,8 +3696,8 @@ packages:
   '@microsoft/tsdoc@0.15.1':
     resolution: {integrity: sha512-4aErSrCR/On/e5G2hDP0wjooqDdauzEbIq8hIkIe5pXV0rtWJZvdCEKL0ykZxex+IxIwBp0eGeV48hQN07dXtw==}
 
-  '@modelcontextprotocol/sdk@1.9.0':
-    resolution: {integrity: sha512-Jq2EUCQpe0iyO5FGpzVYDNFR6oR53AIrwph9yWl7uSc7IWUMsrmpmSaTGra5hQNunXpM+9oit85p924jWuHzUA==}
+  '@modelcontextprotocol/sdk@1.10.0':
+    resolution: {integrity: sha512-wijOavYZfSOADbVM0LA7mrQ17N4IKNdFcfezknCCsZ1Y1KstVWlkDZ5ebcxuQJmqTTxsNjBHLc7it1SV0TBiPg==}
     engines: {node: '>=18'}
 
   '@mswjs/cookies@0.2.2':
@@ -11750,7 +11750,7 @@ snapshots:
 
   '@microsoft/tsdoc@0.15.1': {}
 
-  '@modelcontextprotocol/sdk@1.9.0':
+  '@modelcontextprotocol/sdk@1.10.0':
     dependencies:
       content-type: 1.0.5
       cors: 2.8.5

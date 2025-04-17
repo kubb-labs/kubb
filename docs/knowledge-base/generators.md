@@ -100,7 +100,7 @@ This **function** will be called with one schema and that for x times(based on y
 |     Type: | `(this: GeneratorOptions, props: SchemaProps) => Promise<KubbFile.File[]>` |
 | Required: | `false`  |
 
-The following properties will be accessible when `operation` is being called:
+The following properties will be accessible when `schema` is being called:
 
 |   Property | Description                                                                                | Type                                                         |
 |-----------:|--------------------------------------------------------------------------------------------|:-------------------------------------------------------------|

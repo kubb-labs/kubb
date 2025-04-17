@@ -48,7 +48,7 @@ export function updatePetWithFormQueryOptions(
 export function useUpdatePetWithForm(
   { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
   options: {
-    query?: Parameters<typeof useSWR<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormQueryKey | null, any>>[2]
+    query?: Parameters<typeof useSWR<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
