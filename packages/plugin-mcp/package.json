@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-mcp",
-  "version": "3.9.2",
+  "version": "3.9.3",
   "description": "Generator mcp",
   "keywords": [
     "typescript",
