@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.9.3
+- [`plugin-ts`](/plugins/plugin-ts): nullable: true now generates | null union
+
 # 3.9.2
 - [`plugin-client`](/plugins/plugin-client): exclude baseURL when not set
 

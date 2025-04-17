@@ -41,11 +41,11 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.9.0",
-    "@tanstack/query-core": "^5.74.3",
-    "@tanstack/react-query": "^5.74.3",
-    "@tanstack/solid-query": "^5.74.3",
-    "@tanstack/svelte-query": "^5.74.3",
-    "@tanstack/vue-query": "^5.74.3",
+    "@tanstack/query-core": "^5.74.4",
+    "@tanstack/react-query": "^5.74.4",
+    "@tanstack/solid-query": "^5.74.4",
+    "@tanstack/svelte-query": "^5.74.4",
+    "@tanstack/vue-query": "^5.74.4",
     "@types/react": "^19.1.2",
     "axios": "^1.8.4",
     "cypress": "~14.3.0",
@@ -55,7 +55,7 @@
     "svelte": "^4.2.19",
     "swr": "^2.3.3",
     "vue": "^3.5.13",
-    "zod": "^3.24.2"
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
