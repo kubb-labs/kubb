@@ -44,7 +44,7 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
 export function useGetOrderById(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: Parameters<typeof useSWR<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, GetOrderByIdQueryKey | null, any>>[2]
+    query?: Parameters<typeof useSWR<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},

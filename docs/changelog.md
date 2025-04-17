@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.9.4
+- [`plugin-swr`](/plugins/plugin-swr/): query type inferred as any when generating SWR hooks with useSWR
+
 # 3.9.3
 - [`plugin-ts`](/plugins/plugin-ts): nullable: true now generates | null union
 

@@ -32,9 +32,7 @@ export function getUserByNameQueryOptionsSWR(
 export function useGetUserByNameSWR(
   { username }: { username: GetUserByNamePathParams['username'] },
   options: {
-    query?: Parameters<
-      typeof useSWR<ResponseConfig<GetUserByNameQueryResponse>, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryKeySWR | null, any>
-    >[2]
+    query?: Parameters<typeof useSWR<ResponseConfig<GetUserByNameQueryResponse>, ResponseErrorConfig<GetUserByName400 | GetUserByName404>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},

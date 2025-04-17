@@ -37,7 +37,7 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client
  */
 export function useLogoutUser(
   options: {
-    query?: Parameters<typeof useSWR<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryKey | null, any>>[2]
+    query?: Parameters<typeof useSWR<LogoutUserQueryResponse, ResponseErrorConfig<Error>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},

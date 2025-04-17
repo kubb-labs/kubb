@@ -20,7 +20,7 @@ export type LoginUserSuspenseQueryKey = ReturnType<typeof loginUserSuspenseQuery
 export async function loginUserSuspenseHook(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
   const { client: request = client, ...requestConfig } = config
 
-  const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...requestConfig })
+  const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: `/user/login`, params, ...requestConfig })
   return res.data
 }
 
@@ -50,10 +50,7 @@ export function useLoginUserSuspenseHook<
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const {
-    query: { client: queryClient, ...queryOptions } = {},
-    client: config = {},
-  } = options ?? {}
+  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserSuspenseQueryKey(params)
 
   const query = useSuspenseQuery(

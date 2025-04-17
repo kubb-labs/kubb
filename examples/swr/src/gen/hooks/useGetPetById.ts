@@ -44,7 +44,7 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], con
 export function useGetPetById(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: Parameters<typeof useSWR<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryKey | null, any>>[2]
+    query?: Parameters<typeof useSWR<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},

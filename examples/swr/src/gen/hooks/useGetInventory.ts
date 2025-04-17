@@ -39,7 +39,7 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> & { clie
  */
 export function useGetInventory(
   options: {
-    query?: Parameters<typeof useSWR<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryKey | null, any>>[2]
+    query?: Parameters<typeof useSWR<GetInventoryQueryResponse, ResponseErrorConfig<Error>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},
