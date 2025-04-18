@@ -1,5 +1,27 @@
 # @kubb/swagger
 
+## 3.9.5
+
+### Patch Changes
+
+- [#1664](https://github.com/kubb-labs/kubb/pull/1664) [`cd36453`](https://github.com/kubb-labs/kubb/commit/cd364531aff4fa0956584234bf04ad105c27baa7) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - openapi description tag is not put into the JSDoc
+
+- Updated dependencies []:
+  - @kubb/core@3.9.5
+  - @kubb/fs@3.9.5
+  - @kubb/oas@3.9.5
+  - @kubb/react@3.9.5
+
+## 3.9.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.9.4
+  - @kubb/fs@3.9.4
+  - @kubb/oas@3.9.4
+  - @kubb/react@3.9.4
+
 ## 3.9.3
 
 ### Patch Changes

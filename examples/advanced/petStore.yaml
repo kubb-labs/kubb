@@ -845,6 +845,11 @@ components:
           type: string
           format: uuid
           deprecated: true
+        tag:
+          description: The active tag
+          readOnly: true
+          type: object
+          $ref: "#/components/schemas/tag.Tag"
         firstName:
           type: string
           example: John

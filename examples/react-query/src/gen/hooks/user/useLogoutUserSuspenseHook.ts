@@ -20,7 +20,7 @@ export type LogoutUserSuspenseQueryKey = ReturnType<typeof logoutUserSuspenseQue
 export async function logoutUserSuspenseHook(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
   const { client: request = client, ...requestConfig } = config
 
-  const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/user/logout`, ...requestConfig })
+  const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
   return res.data
 }
 
@@ -49,7 +49,10 @@ export function useLogoutUserSuspenseHook<
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const {
+    query: { client: queryClient, ...queryOptions } = {},
+    client: config = {},
+  } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserSuspenseQueryKey()
 
   const query = useSuspenseQuery(

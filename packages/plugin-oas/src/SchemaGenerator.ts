@@ -443,6 +443,10 @@ export class SchemaGenerator<
     if (isReference(schema)) {
       return [
         ...this.#getRefAlias(schema),
+        schema.description && {
+          keyword: schemaKeywords.describe,
+          args: schema.description,
+        },
         nullable && { keyword: schemaKeywords.nullable },
         schema.readOnly && { keyword: schemaKeywords.readOnly },
         schema.writeOnly && { keyword: schemaKeywords.writeOnly },
