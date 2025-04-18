@@ -105,6 +105,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
   dereferenceWithRef(schema?: unknown) {
     if (isReference(schema)) {
       return {
+        ...schema,
         ...this.get(schema.$ref),
         $ref: schema.$ref,
       }

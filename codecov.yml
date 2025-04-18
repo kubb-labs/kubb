@@ -4,3 +4,10 @@ coverage:
       default:
         target: 80%
         threshold: 10%
+
+comment:
+  require_bundle_changes: True
+
+bundle_analysis:
+  warning_threshold: "10MB"
+  status: True
