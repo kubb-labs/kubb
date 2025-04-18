@@ -86,7 +86,7 @@ importers:
         version: 5.1.4(typescript@5.8.3)(vite@6.3.2(@types/node@20.17.30)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.0))
       vitest:
         specifier: ^3.1.1
-        version: 3.1.1(@types/debug@4.1.12)(@types/node@20.17.30)(@vitest/ui@3.1.1)(jiti@2.4.2)(msw@2.7.4(@types/node@20.17.30)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.0)
+        version: 3.1.1(@types/debug@4.1.12)(@types/node@20.17.30)(@vitest/ui@3.1.1)(jiti@2.4.2)(msw@2.7.5(@types/node@20.17.30)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.0)
 
   docs:
     dependencies:
@@ -227,8 +227,8 @@ importers:
         specifier: ^5.74.4
         version: 5.74.4(svelte@4.2.19)
       '@tanstack/vue-query':
-        specifier: ^5.74.4
-        version: 5.74.4(vue@3.5.13(typescript@5.8.3))
+        specifier: ^5.74.5
+        version: 5.74.5(vue@3.5.13(typescript@5.8.3))
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -236,8 +236,8 @@ importers:
         specifier: ~14.2.1
         version: 14.2.1
       msw:
-        specifier: ^2.7.4
-        version: 2.7.4(@types/node@20.17.30)(typescript@5.8.3)
+        specifier: ^2.7.5
+        version: 2.7.5(@types/node@20.17.30)(typescript@5.8.3)
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -333,8 +333,8 @@ importers:
         specifier: ^5.74.4
         version: 5.74.4(svelte@4.2.19)
       '@tanstack/vue-query':
-        specifier: ^5.74.4
-        version: 5.74.4(vue@3.5.13(typescript@5.8.3))
+        specifier: ^5.74.5
+        version: 5.74.5(vue@3.5.13(typescript@5.8.3))
       '@types/react':
         specifier: ^19.1.2
         version: 19.1.2
@@ -345,8 +345,8 @@ importers:
         specifier: ~14.3.1
         version: 14.3.1
       msw:
-        specifier: ^2.7.4
-        version: 2.7.4(@types/node@20.17.30)(typescript@5.8.3)
+        specifier: ^2.7.5
+        version: 2.7.5(@types/node@20.17.30)(typescript@5.8.3)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -638,10 +638,10 @@ importers:
         version: link:../../packages/plugin-ts
       '@mswjs/http-middleware':
         specifier: ^0.9.2
-        version: 0.9.2(msw@2.7.4(@types/node@20.17.30)(typescript@5.2.2))
+        version: 0.9.2(msw@2.7.5(@types/node@20.17.30)(typescript@5.2.2))
       msw:
-        specifier: ^2.7.4
-        version: 2.7.4(@types/node@20.17.30)(typescript@5.2.2)
+        specifier: ^2.7.5
+        version: 2.7.5(@types/node@20.17.30)(typescript@5.2.2)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -958,8 +958,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/vue-query':
-        specifier: ^5.74.4
-        version: 5.74.4(vue@3.5.13(typescript@5.8.3))
+        specifier: ^5.74.5
+        version: 5.74.5(vue@3.5.13(typescript@5.8.3))
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -2111,8 +2111,8 @@ importers:
         specifier: ^6.3.2
         version: 6.3.2(@types/node@20.17.30)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.0)
       webpack:
-        specifier: ^5.99.5
-        version: 5.99.5(esbuild@0.24.0)
+        specifier: ^5.99.6
+        version: 5.99.6(esbuild@0.24.0)
 
 packages:
 
@@ -4629,8 +4629,8 @@ packages:
   '@tanstack/virtual-core@3.11.3':
     resolution: {integrity: sha512-v2mrNSnMwnPJtcVqNvV0c5roGCBqeogN8jDtgtuHCphdwBasOZ17x8UV8qpHUh+u0MLfX43c0uUHKje0s+Zb0w==}
 
-  '@tanstack/vue-query@5.74.4':
-    resolution: {integrity: sha512-esrdGp8/GZ2GXXBQvqz4QU/q0HPL6yCgW8pizby4EwbU16x1dtYRN/6YPPio/Ay4OLHp+zQcPixf88g6eLuhHQ==}
+  '@tanstack/vue-query@5.74.5':
+    resolution: {integrity: sha512-1IvuUASQ3h5jbM+90AR4vIDDLxYyGA9Iefvzx9uQMDA4c5Gpd9ETKHZgSUvFM3sXw6k0tY3uHtllBf875OqOcQ==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -7518,8 +7518,8 @@ packages:
       typescript:
         optional: true
 
-  msw@2.7.4:
-    resolution: {integrity: sha512-A2kuMopOjAjNEYkn0AnB1uj+x7oBjLIunFk7Ud4icEnVWFf6iBekn8oXW4zIwcpfEdWP9sLqyVaHVzneWoGEww==}
+  msw@2.7.5:
+    resolution: {integrity: sha512-00MyTlY3TJutBa5kiU+jWiz2z5pNJDYHn2TgPkGkh92kMmNH43RqvMXd8y/7HxNn8RjzUbvZWYZjcS36fdb6sw==}
     engines: {node: '>=18'}
     hasBin: true
     peerDependencies:
@@ -9375,8 +9375,8 @@ packages:
   webpack-virtual-modules@0.6.2:
     resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
 
-  webpack@5.99.5:
-    resolution: {integrity: sha512-q+vHBa6H9qwBLUlHL4Y7L0L1/LlyBKZtS9FHNCQmtayxjI5RKC9yD8gpvLeqGv5lCQp1Re04yi0MF40pf30Pvg==}
+  webpack@5.99.6:
+    resolution: {integrity: sha512-TJOLrJ6oeccsGWPl7ujCYuc0pIq2cNsuD6GZDma8i5o5Npvcco/z+NKvZSFsP0/x6SShVb0+X2JK/JHUjKY9dQ==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     peerDependencies:
@@ -11770,10 +11770,10 @@ snapshots:
       '@types/set-cookie-parser': 2.4.10
       set-cookie-parser: 2.7.1
 
-  '@mswjs/http-middleware@0.9.2(msw@2.7.4(@types/node@20.17.30)(typescript@5.2.2))':
+  '@mswjs/http-middleware@0.9.2(msw@2.7.5(@types/node@20.17.30)(typescript@5.2.2))':
     dependencies:
       express: 4.21.2
-      msw: 2.7.4(@types/node@20.17.30)(typescript@5.2.2)
+      msw: 2.7.5(@types/node@20.17.30)(typescript@5.2.2)
       strict-event-emitter: 0.5.1
     transitivePeerDependencies:
       - supports-color
@@ -13108,7 +13108,7 @@ snapshots:
 
   '@tanstack/virtual-core@3.11.3': {}
 
-  '@tanstack/vue-query@5.74.4(vue@3.5.13(typescript@5.8.3))':
+  '@tanstack/vue-query@5.74.5(vue@3.5.13(typescript@5.8.3))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.19.4
       '@tanstack/query-core': 5.74.4
@@ -13513,7 +13513,7 @@ snapshots:
       std-env: 3.8.1
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.1.1(@types/debug@4.1.12)(@types/node@20.17.30)(@vitest/ui@3.1.1)(jiti@2.4.2)(msw@2.7.4(@types/node@20.17.30)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.0)
+      vitest: 3.1.1(@types/debug@4.1.12)(@types/node@20.17.30)(@vitest/ui@3.1.1)(jiti@2.4.2)(msw@2.7.5(@types/node@20.17.30)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -13524,13 +13524,13 @@ snapshots:
       chai: 5.2.0
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.1.1(msw@2.7.4(@types/node@20.17.30)(typescript@5.8.3))(vite@6.3.2(@types/node@20.17.30)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.0))':
+  '@vitest/mocker@3.1.1(msw@2.7.5(@types/node@20.17.30)(typescript@5.8.3))(vite@6.3.2(@types/node@20.17.30)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.0))':
     dependencies:
       '@vitest/spy': 3.1.1
       estree-walker: 3.0.3
       magic-string: 0.30.17
     optionalDependencies:
-      msw: 2.7.4(@types/node@20.17.30)(typescript@5.8.3)
+      msw: 2.7.5(@types/node@20.17.30)(typescript@5.8.3)
       vite: 6.3.2(@types/node@20.17.30)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.0)
 
   '@vitest/pretty-format@3.1.1':
@@ -13561,7 +13561,7 @@ snapshots:
       sirv: 3.0.1
       tinyglobby: 0.2.12
       tinyrainbow: 2.0.0
-      vitest: 3.1.1(@types/debug@4.1.12)(@types/node@20.17.30)(@vitest/ui@3.1.1)(jiti@2.4.2)(msw@2.7.4(@types/node@20.17.30)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.0)
+      vitest: 3.1.1(@types/debug@4.1.12)(@types/node@20.17.30)(@vitest/ui@3.1.1)(jiti@2.4.2)(msw@2.7.5(@types/node@20.17.30)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.0)
 
   '@vitest/utils@3.1.1':
     dependencies:
@@ -16452,7 +16452,7 @@ snapshots:
       - encoding
       - supports-color
 
-  msw@2.7.4(@types/node@20.17.30)(typescript@5.2.2):
+  msw@2.7.5(@types/node@20.17.30)(typescript@5.2.2):
     dependencies:
       '@bundled-es-modules/cookie': 2.0.1
       '@bundled-es-modules/statuses': 1.0.1
@@ -16470,14 +16470,14 @@ snapshots:
       path-to-regexp: 6.3.0
       picocolors: 1.1.1
       strict-event-emitter: 0.5.1
-      type-fest: 4.38.0
+      type-fest: 4.40.0
       yargs: 17.7.2
     optionalDependencies:
       typescript: 5.2.2
     transitivePeerDependencies:
       - '@types/node'
 
-  msw@2.7.4(@types/node@20.17.30)(typescript@5.8.3):
+  msw@2.7.5(@types/node@20.17.30)(typescript@5.8.3):
     dependencies:
       '@bundled-es-modules/cookie': 2.0.1
       '@bundled-es-modules/statuses': 1.0.1
@@ -16495,7 +16495,7 @@ snapshots:
       path-to-regexp: 6.3.0
       picocolors: 1.1.1
       strict-event-emitter: 0.5.1
-      type-fest: 4.38.0
+      type-fest: 4.40.0
       yargs: 17.7.2
     optionalDependencies:
       typescript: 5.8.3
@@ -17899,14 +17899,14 @@ snapshots:
 
   term-size@2.2.1: {}
 
-  terser-webpack-plugin@5.3.11(esbuild@0.24.0)(webpack@5.99.5(esbuild@0.24.0)):
+  terser-webpack-plugin@5.3.11(esbuild@0.24.0)(webpack@5.99.6(esbuild@0.24.0)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
       schema-utils: 4.3.0
       serialize-javascript: 6.0.2
       terser: 5.37.0
-      webpack: 5.99.5(esbuild@0.24.0)
+      webpack: 5.99.6(esbuild@0.24.0)
     optionalDependencies:
       esbuild: 0.24.0
 
@@ -18576,10 +18576,10 @@ snapshots:
       - typescript
       - universal-cookie
 
-  vitest@3.1.1(@types/debug@4.1.12)(@types/node@20.17.30)(@vitest/ui@3.1.1)(jiti@2.4.2)(msw@2.7.4(@types/node@20.17.30)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.0):
+  vitest@3.1.1(@types/debug@4.1.12)(@types/node@20.17.30)(@vitest/ui@3.1.1)(jiti@2.4.2)(msw@2.7.5(@types/node@20.17.30)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.0):
     dependencies:
       '@vitest/expect': 3.1.1
-      '@vitest/mocker': 3.1.1(msw@2.7.4(@types/node@20.17.30)(typescript@5.8.3))(vite@6.3.2(@types/node@20.17.30)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.0))
+      '@vitest/mocker': 3.1.1(msw@2.7.5(@types/node@20.17.30)(typescript@5.8.3))(vite@6.3.2(@types/node@20.17.30)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.0))
       '@vitest/pretty-format': 3.1.1
       '@vitest/runner': 3.1.1
       '@vitest/snapshot': 3.1.1
@@ -18679,7 +18679,7 @@ snapshots:
 
   webpack-virtual-modules@0.6.2: {}
 
-  webpack@5.99.5(esbuild@0.24.0):
+  webpack@5.99.6(esbuild@0.24.0):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.7
@@ -18701,7 +18701,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.11(esbuild@0.24.0)(webpack@5.99.5(esbuild@0.24.0))
+      terser-webpack-plugin: 5.3.11(esbuild@0.24.0)(webpack@5.99.6(esbuild@0.24.0))
       watchpack: 2.4.2
       webpack-sources: 3.2.3
     transitivePeerDependencies:
