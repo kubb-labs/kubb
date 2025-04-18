@@ -11,7 +11,7 @@ export type CreateUserErrorSchema = z.infer<typeof createUserErrorSchema>
 /**
  * @description Created user object
  */
-export const createUserMutationRequestSchema = z.lazy(() => userSchema)
+export const createUserMutationRequestSchema = z.lazy(() => userSchema).schema.omit({ tag: true })
 
 export type CreateUserMutationRequestSchema = z.infer<typeof createUserMutationRequestSchema>
 

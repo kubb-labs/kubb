@@ -46,7 +46,7 @@ export function findPetsByTagsQueryOptions(
 export function useFindPetsByTags(
   { params }: { params?: FindPetsByTagsQueryParams },
   options: {
-    query?: Parameters<typeof useSWR<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryKey | null, any>>[2]
+    query?: Parameters<typeof useSWR<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},

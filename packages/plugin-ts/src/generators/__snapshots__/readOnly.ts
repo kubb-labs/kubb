@@ -18,6 +18,7 @@ export type demo = {
    */
   readonly attribute_with_ref?: attributeReadonly
   /**
+   * @description not required
    * @type integer | undefined
    */
   attribute_with_ref_readonly?: attributeWriteOnly
