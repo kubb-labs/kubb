@@ -4,6 +4,11 @@ title: Changelog
 
 # Changelog
 
+# 3.10.0
+- [`plugin-mcp`](/plugins/plugin-mcp/): create an [MCP](https://modelcontextprotocol.io) server based on your OpenAPI file and interact with an AI like Claude.
+
+- ![Claud interaction](/screenshots/claude-interaction.gif)
+
 # 3.9.4
 - [`plugin-swr`](/plugins/plugin-swr/): query type inferred as any when generating SWR hooks with useSWR
 

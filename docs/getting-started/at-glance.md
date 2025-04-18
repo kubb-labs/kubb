@@ -12,10 +12,11 @@ Kubb is a library and toolkit that transforms your [Swagger/OpenAPI](/knowledge-
 - [Vue-Query](/plugins/plugin-vue-query/)
 - [Solid-Query](/plugins/plugin-solid-query/)
 - [Svelte-Query](/plugins/plugin-svelte-query/)
-- [Zod](/plugins/plugin-zod/)
+- [Zod](/plugins/plugin-zod/) `v4 support`
 - [Faker.js](/plugins/plugin-faker/)
 - [Axios](/plugins/plugin-client/)
 - [Redoc](/plugins/plugin-redoc/)
+- [MCP](https://modelcontextprotocol.io/)
 - ...
 
 Additionally, Kubb features a plugin system, enabling you to build custom implementations and integrate other libraries.

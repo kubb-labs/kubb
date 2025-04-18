@@ -19,33 +19,54 @@ const links: Array<{ url: string; lastmod: number | undefined }> = []
 
 const knowledgeBaseSidebar = [
   {
-    text: 'Custom HTTP client',
-    link: '/knowledge-base/fetch',
+    text: "Basic",
+    items: [
+      {
+        text: 'Custom HTTP client',
+        link: '/knowledge-base/fetch',
+      },
+      {
+        text: 'Use of your own baseUrl',
+        link: '/knowledge-base/base-url',
+      },
+      {
+        text: 'Filter and sort',
+        link: '/knowledge-base/filter-and-sort',
+      },
+    ]
   },
   {
-    text: 'Use of your own baseUrl',
-    link: '/knowledge-base/base-url',
+    text: "Intermediate",
+    items: [
+      {
+        text: 'Debugging Kubb',
+        link: '/knowledge-base/debugging',
+      },
+      {
+        text: 'Setup Claude with Kubb',
+        link: '/knowledge-base/claude',
+      },
+    ]
   },
   {
-    text: 'Debugging Kubb',
-    link: '/knowledge-base/debugging',
+    text: "Advanced",
+    items: [
+      {
+        text: 'Use JSX in Kubb',
+        link: '/knowledge-base/react',
+      },
+      {
+        text: 'Generators',
+        link: '/knowledge-base/generators',
+      },
+      {
+        text: 'Kubb Plugins',
+        link: '/knowledge-base/plugins/',
+      },
+    ]
   },
-  {
-    text: 'Filter and sort',
-    link: '/knowledge-base/filter-and-sort',
-  },
-  {
-    text: 'Use JSX in Kubb',
-    link: '/knowledge-base/react',
-  },
-  {
-    text: 'Generators',
-    link: '/knowledge-base/generators',
-  },
-  {
-    text: 'Kubb Plugins',
-    link: '/knowledge-base/plugins/',
-  },
+
+
   // {
   //   text: 'Plugins',
   //   collapsed: false,

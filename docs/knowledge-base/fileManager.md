@@ -5,7 +5,7 @@ title: FileManager
 outline: deep
 ---
 
-# FileManager <Badge type="info" text="@kubb/core" />
+# FileManager <a href="/plugins/core"><Badge type="info" text="@kubb/core" /></a>
 
 The `FileManager` instance contains the building blocks in writing files, combining excludes or includes, creating barrel files.
 

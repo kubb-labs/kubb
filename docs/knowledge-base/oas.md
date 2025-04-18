@@ -5,7 +5,7 @@ title: Oas
 outline: deep
 ---
 
-# Oas <Badge type="info" text="@kubb/plugin-pas" />
+# Oas <a href="/plugins/plugin-oas"><Badge type="info" text="@kubb/plugin-oas" /></a>
 
 
 Works together with Kubb:

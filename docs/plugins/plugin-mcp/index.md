@@ -11,6 +11,17 @@ outline: deep
 
 This opens the doors to call API endpoints through the use of text of speak, MCP turns simple prompts into meaningful data based on your generated APIs.
 
+```mermaid
+graph TD
+  A[Kubb<br/>Generates code from OpenAPI] --> B[MCP Server<br/>Handles tool calls]
+  B --> C[Claude<br/>Conversational AI]
+  C -->|Sends tool request| B
+  B -->|Uses generated code| A
+```
+
+> [!TIP]
+> We provided a page in how you could set up Claude, see [Setup Claude with Kubb](/knowledge-base/claude).
+
 ## Installation
 
 ::: code-group

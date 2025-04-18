@@ -5,7 +5,7 @@ title: Use of JSX in Kubb
 outline: deep
 ---
 
-# Use of JSX in Kubb <Badge type="info" text="@kubb/react" />
+# Use of JSX in Kubb <a href="/plugins/react"><Badge type="info" text="@kubb/react" /></a>
 
 ## Links
 

@@ -9,6 +9,9 @@ outline: deep
 
 With the Zod plugin you can use [Zod](https://zod.dev/) to validate your schemas.
 
+> [!TIP]
+> Support for Zod v4 when using Kubb `v3.8.1`, see [Zod 4 migration guide](https://v4.zod.dev/v4/changelog)
+
 ## Installation
 
 ::: code-group
