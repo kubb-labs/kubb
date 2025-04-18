@@ -211,9 +211,9 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
           }
           return transformers.stringify(schema.value)
         }),
-        // key ? `NonNullable<${options.typeName}>${key.map((item) => `[${item}]`).join('')}` : undefined,
       )
     }
+
 
     return fakerKeywordMapper.enum(
       current.args.items.map((schema) => {
@@ -222,6 +222,7 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
         }
         return transformers.stringify(schema.value)
       }),
+      // TODO replace this with getEnumNameFromSchema
       name ? `NonNullable<${options.typeName}>['${name}']` : undefined,
     )
   }

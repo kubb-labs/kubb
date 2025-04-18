@@ -72,9 +72,11 @@ export class Oas<const TOAS = unknown> extends BaseOas {
           schemaObject.properties = {}
         }
 
+        const enums: string[] = (schemaObject.properties[propertyName]  as NonNullable<OpenAPIV3.SchemaObject>).enum ||[]
+
         schemaObject.properties[propertyName] = {
           ...schemaObject.properties[propertyName],
-          enum: Object.keys(mapping),
+          enum: [...Object.keys(mapping), ...enums],
         }
 
         Object.entries(mapping).forEach(([mappingKey, mappingValue]) => {
