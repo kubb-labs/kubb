@@ -7,7 +7,7 @@ titleTemplate: The ultimate toolkit for working with APIs
 
 hero:
   text: The ultimate toolkit for working with APIs
-  tagline: OpenAPI to TypeScript, React-Query, Zod, Faker.js, MSW and Axios.
+  tagline: OpenAPI to TypeScript, React-Query, Zod, Faker.js, MCP(with Claude), MSW and Axios.
   image:
     src: /logo.png
     alt: Kubbb
@@ -47,7 +47,7 @@ features:
   - icon:
       dark: ./feature/mcp-dark.svg
       light: ./feature/mcp-light.svg
-    title: MCP <span class="new">new in 3.9.0</span>
+    title: MCP <span class="new">new in 3.10.0</span>
     details: Use MCP to unlock intelligent, conversational access to your API.
     link: /plugins/plugin-mcp
     linkText: Learn more
@@ -72,7 +72,7 @@ features:
   - icon:
       src: ./feature/zod.svg
       height: 24
-    title: Zod
+    title: Zod <span class="new">v4 support</span>
     details: Create <a href="https://zod.dev/">Zod</a> schemas for validation of your data.
     link: /plugins/plugin-zod
     linkText: Learn more
