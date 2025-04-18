@@ -1,5 +1,23 @@
 # @kubb/plugin-mcp
 
+## 3.10.0
+
+### Minor Changes
+
+- [`99b3b3f`](https://github.com/kubb-labs/kubb/commit/99b3b3fca30c63b3e3e1b310658ae034c1427d3e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - create an [MCP](https://modelcontextprotocol.io) server based on your OpenAPI file
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.0
+  - @kubb/fs@3.10.0
+  - @kubb/oas@3.10.0
+  - @kubb/plugin-client@3.10.0
+  - @kubb/plugin-oas@3.10.0
+  - @kubb/plugin-ts@3.10.0
+  - @kubb/plugin-zod@3.10.0
+  - @kubb/react@3.10.0
+
 ## 3.9.5
 
 ### Patch Changes
