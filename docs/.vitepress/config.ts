@@ -496,15 +496,15 @@ export default defineConfig({
       },
     ],
   ],
-  transformHtml: (code, id, { pageData }) => {
-    if (!/[\\/]404\.html$/.test(id)) {
-      links.push({
-        // you might need to change this if not using clean urls mode
-        url: pageData.relativePath.replace(/((^|\/)index)?\.md$/, '$2'),
-        lastmod: pageData.lastUpdated,
-      })
-    }
-  },
+  // transformHtml: (code, id, { pageData }) => {
+  //   if (!/[\\/]404\.html$/.test(id)) {
+  //     links.push({
+  //       // you might need to change this if not using clean urls mode
+  //       url: pageData.relativePath.replace(/((^|\/)index)?\.md$/, '$2'),
+  //       lastmod: pageData.lastUpdated,
+  //     })
+  //   }
+  // },
   sitemap: {
     hostname: 'https://kubb.dev/',
   },
