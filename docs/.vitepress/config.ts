@@ -1,9 +1,5 @@
-import { createWriteStream } from 'node:fs'
-import { resolve } from 'node:path'
-
 import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepress-plugin-group-icons'
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
-import { SitemapStream } from 'sitemap'
 import { defineConfig } from 'vitepress'
 
 import { renderMermaidGraphsPlugin } from './mermaid'
@@ -23,15 +19,15 @@ const knowledgeBaseSidebar = [
     items: [
       {
         text: 'Custom HTTP client',
-        link: '/knowledge-base/fetch',
+        link: '/knowledge-base/fetch/',
       },
       {
         text: 'Use of your own baseUrl',
-        link: '/knowledge-base/base-url',
+        link: '/knowledge-base/base-url/',
       },
       {
         text: 'Filter and sort',
-        link: '/knowledge-base/filter-and-sort',
+        link: '/knowledge-base/filter-and-sort/',
       },
     ]
   },
@@ -40,11 +36,11 @@ const knowledgeBaseSidebar = [
     items: [
       {
         text: 'Debugging Kubb',
-        link: '/knowledge-base/debugging',
+        link: '/knowledge-base/debugging/',
       },
       {
         text: 'Setup Claude with Kubb',
-        link: '/knowledge-base/claude',
+        link: '/knowledge-base/claude/',
       },
     ]
   },
@@ -53,11 +49,11 @@ const knowledgeBaseSidebar = [
     items: [
       {
         text: 'Use JSX in Kubb',
-        link: '/knowledge-base/react',
+        link: '/knowledge-base/react/',
       },
       {
         text: 'Generators',
-        link: '/knowledge-base/generators',
+        link: '/knowledge-base/generators/',
       },
       {
         text: 'Kubb Plugins',
@@ -106,15 +102,15 @@ const mainSidebar = [
     items: [
       {
         text: 'At Glance',
-        link: '/getting-started/at-glance',
+        link: '/getting-started/at-glance/',
       },
       {
         text: 'Quick Start',
-        link: '/getting-started/quick-start',
+        link: '/getting-started/quick-start/',
       },
       {
         text: 'Configure',
-        link: '/getting-started/configure',
+        link: '/getting-started/configure/',
       },
     ],
   },
@@ -151,23 +147,23 @@ const mainSidebar = [
             items: [
               {
                 text: 'Text',
-                link: '/helpers/react/components/text',
+                link: '/helpers/react/components/text/',
               },
               {
                 text: 'Function',
-                link: '/helpers/react/components/function',
+                link: '/helpers/react/components/function/',
               },
               {
                 text: 'Type',
-                link: '/helpers/react/components/type',
+                link: '/helpers/react/components/type/',
               },
               {
                 text: 'Const',
-                link: '/helpers/react/components/const',
+                link: '/helpers/react/components/const/',
               },
               {
                 text: 'File',
-                link: '/helpers/react/components/file',
+                link: '/helpers/react/components/file/',
               },
             ],
           },
@@ -268,108 +264,108 @@ const mainSidebar = [
   },
   {
     text: 'Migration guide',
-    link: '/migration-guide',
+    link: '/migration-guide/',
   },
   {
     text: 'Changelog',
-    link: '/changelog',
+    link: '/changelog/',
   },
 ]
 
 const examplesSidebar = [
   {
     text: 'TypeScript',
-    link: '/examples/typescript',
+    link: '/examples/typescript/',
   },
   {
     text: 'Tanstack-Query',
     items: [
       {
         text: 'React-Query',
-        link: '/examples/tanstack-query/react-query',
+        link: '/examples/tanstack-query/react-query/',
       },
       {
         text: 'Vue-Query',
-        link: '/examples/tanstack-query/vue-query',
+        link: '/examples/tanstack-query/vue-query/',
       },
       {
         text: 'Svelte-Query',
-        link: '/examples/tanstack-query/svelte-query',
+        link: '/examples/tanstack-query/svelte-query/',
       },
       {
         text: 'Solid-Query',
-        link: '/examples/tanstack-query/solid-query',
+        link: '/examples/tanstack-query/solid-query/',
       },
     ],
   },
   {
     text: 'SWR-Query',
-    link: '/examples/swr',
+    link: '/examples/swr/',
   },
   {
     text: 'Zod',
-    link: '/examples/zod',
+    link: '/examples/zod/',
   },
   {
     text: 'Faker',
-    link: '/examples/faker',
+    link: '/examples/faker/',
   },
   {
     text: 'MSW',
-    link: '/examples/msw',
+    link: '/examples/msw/',
   },
   {
     text: 'Simple',
-    link: '/examples/simple',
+    link: '/examples/simple/',
   },
   {
     text: 'Client',
-    link: '/examples/client',
+    link: '/examples/client/',
   },
   {
     text: 'Fetch',
-    link: '/examples/fetch',
+    link: '/examples/fetch/',
   },
   {
     text: 'Cypress <span class="new">new in 3.7.0</span>',
-    link: '/examples/cypress',
+    link: '/examples/cypress/',
   },
   {
     text: 'MCP <span class="new">new in 3.9.0</span>',
-    link: '/examples/mcp',
+    link: '/examples/mcp/',
   },
   {
     text: 'Advanced',
-    link: '/examples/advanced',
+    link: '/examples/advanced/',
   },
   {
     text: 'Generators <span class="new">new</span>',
-    link: '/examples/generators',
+    link: '/examples/generators/',
   },
   {
     text: 'React <span class="new">new</span>',
-    link: '/examples/react',
+    link: '/examples/react/',
   },
 ]
 
 const blogSidebar = [
   {
     text: 'Release of Kubb 3.0',
-    link: '/blog/v3',
+    link: '/blog/v3/',
   },
 ]
 
 const tutorialsSidebar = [
   {
     text: 'Basic',
-    link: '/tutorials/basic',
+    link: '/tutorials/basic/',
   },
 ]
 
 const documentationMenu = [
   {
     text: 'Getting Started',
-    link: '/getting-started/at-glance',
+    link: '/getting-started/at-glance/',
   },
   {
     text: 'Parsers',
@@ -509,15 +505,8 @@ export default defineConfig({
       })
     }
   },
-  buildEnd: async ({ outDir }) => {
-    const sitemap = new SitemapStream({
-      hostname: 'https://kubb.dev/',
-    })
-    const writeStream = createWriteStream(resolve(outDir, 'sitemap.xml'))
-    sitemap.pipe(writeStream)
-    links.forEach((link) => sitemap.write(link))
-    sitemap.end()
-    await new Promise((r) => writeStream.on('finish', r))
+  sitemap: {
+    hostname: 'https://kubb.dev/',
   },
   cleanUrls: true,
   outDir: 'dist',
@@ -599,7 +588,7 @@ export default defineConfig({
       },
       {
         text: 'Knowledge base',
-        link: '/knowledge-base/fetch',
+        link: '/knowledge-base/fetch/',
         activeMatch: 'knowledge-base',
       },
       {
@@ -607,7 +596,7 @@ export default defineConfig({
         items: [
           {
             text: 'Examples',
-            link: '/examples/typescript',
+            link: '/examples/typescript/',
             activeMatch: 'examples',
           },
           {
@@ -615,11 +604,11 @@ export default defineConfig({
             items: [
               {
                 text: 'Basic',
-                link: '/tutorials/basic',
+                link: '/tutorials/basic/',
               },
             ],
           },
-          { text: 'Playground', link: '/playground' },
+          { text: 'Playground', link: '/playground/' },
         ],
       },
       {
@@ -627,11 +616,11 @@ export default defineConfig({
         items: [
           {
             text: 'Changelog',
-            link: '/changelog',
+            link: '/changelog/',
           },
           {
             text: 'Migration guide',
-            link: '/migration-guide',
+            link: '/migration-guide/',
           },
           {
             text: 'Releases',
@@ -658,19 +647,19 @@ export default defineConfig({
             items: [
               {
                 text: 'Sponsors',
-                link: 'sponsors',
+                link: '/sponsors/',
               },
               {
                 text: 'Contributers',
-                link: '/contributers',
+                link: '/contributers/',
               },
               {
                 text: 'Blog',
-                link: '/blog/v3',
+                link: '/blog/v3/',
               },
               {
                 text: 'About Kubb',
-                link: '/about',
+                link: '/about/',
               },
             ],
           },
@@ -706,7 +695,7 @@ export default defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/kubb-labs/kubb' },
       { icon: 'discord', link: 'https://discord.gg/shfBFeczrm' },
-      { icon: 'x', link: 'https://twitter.com/kubbproject' },
+      // { icon: 'x', link: 'https://twitter.com/kubbproject' },
     ],
     footer: {
       message: 'Released under the MIT License.',
