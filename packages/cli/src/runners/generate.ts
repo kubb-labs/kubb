@@ -3,13 +3,13 @@ import { LogMapper } from '@kubb/core/logger'
 import { colors } from 'consola/utils'
 
 import { type Config, safeBuild, setup } from '@kubb/core'
-import { executeHooks } from './utils/executeHooks.ts'
-import { getErrorCauses } from './utils/getErrorCauses.ts'
-import { getSummary } from './utils/getSummary.ts'
+import { executeHooks } from '../utils/executeHooks.ts'
+import { getErrorCauses } from '../utils/getErrorCauses.ts'
+import { getSummary } from '../utils/getSummary.ts'
 
 import { createLogger } from '@kubb/core/logger'
 import { Presets, SingleBar } from 'cli-progress'
-import type { Args } from './commands/generate.ts'
+import type { Args } from '../commands/generate.ts'
 import process from 'node:process'
 
 type GenerateProps = {

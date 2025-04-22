@@ -1,18 +1,18 @@
 {
-  "name": "@kubb/cli",
+  "name": "@kubb/mcp",
   "version": "3.10.0",
-  "description": "Generator cli",
+  "description": "Generator MCP",
   "keywords": [
     "typescript",
     "plugins",
     "kubb",
     "codegen",
-    "cli"
+    "MCP"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/cli"
+    "directory": "packages/mcp"
   },
   "license": "MIT",
   "author": "stijnvanhulle",
@@ -28,13 +28,9 @@
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
-  "bin": {
-    "kubb": "bin/kubb.cjs"
-  },
   "files": [
     "src",
     "dist",
-    "bin",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
@@ -51,40 +47,20 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/ui": "workspace:*",
-    "chokidar": "^4.0.3",
-    "citty": "^0.1.6",
-    "cli-progress": "^3.12.0",
-    "consola": "^3.4.2",
-    "cosmiconfig": "^9.0.0",
-    "execa": "^9.5.2",
-    "gradient-string": "^3.0.0",
-    "jiti": "^2.4.2",
-    "latest-version": "^9.0.0",
-    "open": "^10.1.1",
-    "p-queue": "^8.1.0",
-    "semver": "^7.7.1",
-    "string-argv": "^0.3.2"
-  },
-  "optionalDependencies": {
-    "@kubb/mcp": "workspace:*"
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@kubb/mcp": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@types/cli-progress": "^3.11.6",
     "@types/node": "^20.17.30",
-    "@types/semver": "^7.7.0",
-    "source-map-support": "^0.5.21",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },
   "engines": {
     "node": ">=20"
   },
-  "preferGlobal": true,
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"

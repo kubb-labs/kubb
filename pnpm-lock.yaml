@@ -91,8 +91,8 @@ importers:
   docs:
     dependencies:
       '@shikijs/vitepress-twoslash':
-        specifier: ^3.2.2
-        version: 3.2.2(@nuxt/kit@3.16.2(magicast@0.3.5))(typescript@5.8.3)
+        specifier: ^3.3.0
+        version: 3.3.0(@nuxt/kit@3.16.2(magicast@0.3.5))(typescript@5.8.3)
       mermaid:
         specifier: ^11.6.0
         version: 11.6.0
@@ -227,8 +227,8 @@ importers:
         specifier: ^5.74.4
         version: 5.74.4(svelte@4.2.19)
       '@tanstack/vue-query':
-        specifier: ^5.74.5
-        version: 5.74.5(vue@3.5.13(typescript@5.8.3))
+        specifier: ^5.74.6
+        version: 5.74.6(vue@3.5.13(typescript@5.8.3))
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -252,7 +252,7 @@ importers:
         version: 2.3.3(react@18.3.1)
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       vue:
         specifier: ^3.5.13
         version: 3.5.13(typescript@5.8.3)
@@ -318,8 +318,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react
       '@modelcontextprotocol/sdk':
-        specifier: ^1.10.1
-        version: 1.10.1
+        specifier: ^1.10.2
+        version: 1.10.2
       '@tanstack/query-core':
         specifier: ^5.74.4
         version: 5.74.4
@@ -333,8 +333,8 @@ importers:
         specifier: ^5.74.4
         version: 5.74.4(svelte@4.2.19)
       '@tanstack/vue-query':
-        specifier: ^5.74.5
-        version: 5.74.5(vue@3.5.13(typescript@5.8.3))
+        specifier: ^5.74.6
+        version: 5.74.6(vue@3.5.13(typescript@5.8.3))
       '@types/react':
         specifier: ^19.1.2
         version: 19.1.2
@@ -342,8 +342,8 @@ importers:
         specifier: ^1.8.4
         version: 1.8.4
       cypress:
-        specifier: ~14.3.1
-        version: 14.3.1
+        specifier: ~14.3.2
+        version: 14.3.2
       msw:
         specifier: ^2.7.5
         version: 2.7.5(@types/node@20.17.30)(typescript@5.8.3)
@@ -371,7 +371,7 @@ importers:
         version: link:../../packages/config-ts
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -414,7 +414,7 @@ importers:
         version: 19.1.0
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -441,14 +441,14 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.2.2)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.2.2)(yaml@2.7.0)
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../../packages/config-ts
       cypress:
-        specifier: ^14.3.1
-        version: 14.3.1
+        specifier: ^14.3.2
+        version: 14.3.2
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
@@ -487,7 +487,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -522,7 +522,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -562,7 +562,7 @@ importers:
         version: 19.1.0
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -588,8 +588,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@modelcontextprotocol/sdk':
-        specifier: ^1.10.1
-        version: 1.10.1
+        specifier: ^1.10.2
+        version: 1.10.2
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -605,7 +605,7 @@ importers:
         version: link:../../packages/fs
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -647,7 +647,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.2.2)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.2.2)(yaml@2.7.0)
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -676,7 +676,7 @@ importers:
         version: 19.1.0
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -708,8 +708,8 @@ importers:
         specifier: ^5.74.4
         version: 5.74.4(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: ^5.74.4
-        version: 5.74.4(@tanstack/react-query@5.74.4(react@18.3.1))(react@18.3.1)
+        specifier: ^5.74.6
+        version: 5.74.6(@tanstack/react-query@5.74.4(react@18.3.1))(react@18.3.1)
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -737,7 +737,7 @@ importers:
         version: 1.3.5(typescript@5.8.3)
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -782,7 +782,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -824,7 +824,7 @@ importers:
         version: 1.9.5
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
     devDependencies:
       typescript:
         specifier: ^5.8.3
@@ -864,7 +864,7 @@ importers:
         version: 4.2.19
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
     devDependencies:
       typescript:
         specifier: 'catalog:'
@@ -904,7 +904,7 @@ importers:
         version: 2.3.3(react@18.3.1)
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
 
   examples/typescript:
     dependencies:
@@ -928,7 +928,7 @@ importers:
         version: 1.8.4
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
     devDependencies:
       typescript:
         specifier: ^5.8.3
@@ -958,8 +958,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/vue-query':
-        specifier: ^5.74.5
-        version: 5.74.5(vue@3.5.13(typescript@5.8.3))
+        specifier: ^5.74.6
+        version: 5.74.6(vue@3.5.13(typescript@5.8.3))
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -978,7 +978,7 @@ importers:
         version: 1.3.5(typescript@5.8.3)
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -1011,13 +1011,13 @@ importers:
         version: 18.3.1
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
       zod:
         specifier: next
-        version: 4.0.0-beta.20250412T085909
+        version: 4.0.0-beta.20250420T053007
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -1094,10 +1094,14 @@ importers:
         version: 0.5.21
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
+    optionalDependencies:
+      '@kubb/mcp':
+        specifier: workspace:*
+        version: link:../mcp
 
   packages/config-biome: {}
 
@@ -1110,8 +1114,8 @@ importers:
   packages/config-tsup:
     dependencies:
       '@microsoft/api-extractor':
-        specifier: ^7.52.4
-        version: 7.52.4(@types/node@20.17.30)
+        specifier: ^7.52.5
+        version: 7.52.5(@types/node@20.17.30)
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -1121,7 +1125,7 @@ importers:
         version: 20.17.30
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
 
   packages/core:
     dependencies:
@@ -1182,7 +1186,7 @@ importers:
         version: 3.5.3
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1207,7 +1211,7 @@ importers:
         version: 11.0.4
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
 
   packages/kubb:
     dependencies:
@@ -1229,7 +1233,38 @@ importers:
         version: 20.17.30
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+
+  packages/mcp:
+    dependencies:
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.10.2
+        version: 1.10.2
+      zod:
+        specifier: ^3.24.3
+        version: 3.24.3
+    devDependencies:
+      '@kubb/config-ts':
+        specifier: workspace:*
+        version: link:../config-ts
+      '@kubb/config-tsup':
+        specifier: workspace:*
+        version: link:../config-tsup
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
+      '@types/node':
+        specifier: ^20.17.30
+        version: 20.17.30
+      tsup:
+        specifier: 'catalog:'
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1284,7 +1319,7 @@ importers:
         version: 1.2.1
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1309,7 +1344,7 @@ importers:
         version: link:../config-tsup
       tsup:
         specifier: ^8.4.0
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
 
   packages/plugin-client:
     dependencies:
@@ -1346,7 +1381,7 @@ importers:
         version: 1.8.4
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1386,7 +1421,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1420,7 +1455,7 @@ importers:
         version: link:../config-tsup
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1466,7 +1501,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1509,7 +1544,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1549,7 +1584,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1595,7 +1630,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1626,7 +1661,7 @@ importers:
         version: link:../config-tsup
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1672,7 +1707,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1718,7 +1753,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1767,7 +1802,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1807,7 +1842,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1853,7 +1888,7 @@ importers:
         version: 18.3.1
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1896,7 +1931,7 @@ importers:
         version: link:../config-tsup
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       zod:
         specifier: ~3.24.3
         version: 3.24.3
@@ -1954,7 +1989,7 @@ importers:
         version: 8.18.1
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1969,7 +2004,7 @@ importers:
         version: link:../config-tsup
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -2054,7 +2089,7 @@ importers:
         version: 3.4.16(ts-node@10.9.2(@types/node@20.5.7)(typescript@5.8.3))
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.5.7))(jiti@2.4.2)(postcss@8.4.38)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.5.7))(jiti@2.4.2)(postcss@8.4.38)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -2103,7 +2138,7 @@ importers:
         version: 4.40.0
       tsup:
         specifier: 'catalog:'
-        version: 8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -3548,8 +3583,8 @@ packages:
   '@microsoft/api-extractor-model@7.30.5':
     resolution: {integrity: sha512-0ic4rcbcDZHz833RaTZWTGu+NpNgrxVNjVaor0ZDUymfDFzjA/Uuk8hYziIUIOEOSTfmIQqyzVwlzxZxPe7tOA==}
 
-  '@microsoft/api-extractor@7.52.4':
-    resolution: {integrity: sha512-mIEcqgx877CFwNrTuCdPnlIGak8FjlayZb8sSBwWXX+i4gxkZRpMsb5BQcFW3v1puuJB3jYMqQ08kyAc4Vldhw==}
+  '@microsoft/api-extractor@7.52.5':
+    resolution: {integrity: sha512-6WWgjjg6FkoDWpF/O3sjB05OkszpI5wtKJqd8fUIR/JJUv8IqNCGr1lJUZJnc1HegcT9gAvyf98KfH0wFncU0w==}
     hasBin: true
 
   '@microsoft/tsdoc-config@0.17.1':
@@ -3558,8 +3593,8 @@ packages:
   '@microsoft/tsdoc@0.15.1':
     resolution: {integrity: sha512-4aErSrCR/On/e5G2hDP0wjooqDdauzEbIq8hIkIe5pXV0rtWJZvdCEKL0ykZxex+IxIwBp0eGeV48hQN07dXtw==}
 
-  '@modelcontextprotocol/sdk@1.10.1':
-    resolution: {integrity: sha512-xNYdFdkJqEfIaTVP1gPKoEvluACHZsHZegIoICX8DM1o6Qf3G5u2BQJHmgd0n4YgRPqqK/u1ujQvrgAxxSJT9w==}
+  '@modelcontextprotocol/sdk@1.10.2':
+    resolution: {integrity: sha512-rb6AMp2DR4SN+kc6L1ta2NCpApyA9WYNx3CrTSZvGxq9wH71bRur+zRqPfg0vQ9mjywR7qZdX2RGHOPq3ss+tA==}
     engines: {node: '>=18'}
 
   '@mswjs/cookies@0.2.2':
@@ -4136,19 +4171,9 @@ packages:
     resolution: {integrity: sha512-glfkQFJizLdq2fBkNvc2FJW0sxDb5exd0wIXhFk+WHaFLMREBC3CxRo2Zq7uJIdfV9U3YTceMbXJklpDfmmwFQ==}
     engines: {node: '>=18.17.0', npm: '>=9.5.0'}
 
-  '@rollup/rollup-android-arm-eabi@4.34.8':
-    resolution: {integrity: sha512-q217OSE8DTp8AFHuNHXo0Y86e1wtlfVrXiAlwkIvGRQv9zbc6mE3sjIVfwI8sYUyNxwOg0j/Vm1RKM04JcWLJw==}
-    cpu: [arm]
-    os: [android]
-
   '@rollup/rollup-android-arm-eabi@4.40.0':
     resolution: {integrity: sha512-+Fbls/diZ0RDerhE8kyC6hjADCXA1K4yVNlH0EYfd2XjyH0UGgzaQ8MlT0pCXAThfxv3QUAczHaL+qSv1E4/Cg==}
     cpu: [arm]
-    os: [android]
-
-  '@rollup/rollup-android-arm64@4.34.8':
-    resolution: {integrity: sha512-Gigjz7mNWaOL9wCggvoK3jEIUUbGul656opstjaUSGC3eT0BM7PofdAJaBfPFWWkXNVAXbaQtC99OCg4sJv70Q==}
-    cpu: [arm64]
     os: [android]
 
   '@rollup/rollup-android-arm64@4.40.0':
@@ -4156,19 +4181,9 @@ packages:
     cpu: [arm64]
     os: [android]
 
-  '@rollup/rollup-darwin-arm64@4.34.8':
-    resolution: {integrity: sha512-02rVdZ5tgdUNRxIUrFdcMBZQoaPMrxtwSb+/hOfBdqkatYHR3lZ2A2EGyHq2sGOd0Owk80oV3snlDASC24He3Q==}
-    cpu: [arm64]
-    os: [darwin]
-
   '@rollup/rollup-darwin-arm64@4.40.0':
     resolution: {integrity: sha512-GwYOcOakYHdfnjjKwqpTGgn5a6cUX7+Ra2HeNj/GdXvO2VJOOXCiYYlRFU4CubFM67EhbmzLOmACKEfvp3J1kQ==}
     cpu: [arm64]
-    os: [darwin]
-
-  '@rollup/rollup-darwin-x64@4.34.8':
-    resolution: {integrity: sha512-qIP/elwR/tq/dYRx3lgwK31jkZvMiD6qUtOycLhTzCvrjbZ3LjQnEM9rNhSGpbLXVJYQ3rq39A6Re0h9tU2ynw==}
-    cpu: [x64]
     os: [darwin]
 
   '@rollup/rollup-darwin-x64@4.40.0':
@@ -4176,19 +4191,9 @@ packages:
     cpu: [x64]
     os: [darwin]
 
-  '@rollup/rollup-freebsd-arm64@4.34.8':
-    resolution: {integrity: sha512-IQNVXL9iY6NniYbTaOKdrlVP3XIqazBgJOVkddzJlqnCpRi/yAeSOa8PLcECFSQochzqApIOE1GHNu3pCz+BDA==}
-    cpu: [arm64]
-    os: [freebsd]
-
   '@rollup/rollup-freebsd-arm64@4.40.0':
     resolution: {integrity: sha512-r7yGiS4HN/kibvESzmrOB/PxKMhPTlz+FcGvoUIKYoTyGd5toHp48g1uZy1o1xQvybwwpqpe010JrcGG2s5nkg==}
     cpu: [arm64]
-    os: [freebsd]
-
-  '@rollup/rollup-freebsd-x64@4.34.8':
-    resolution: {integrity: sha512-TYXcHghgnCqYFiE3FT5QwXtOZqDj5GmaFNTNt3jNC+vh22dc/ukG2cG+pi75QO4kACohZzidsq7yKTKwq/Jq7Q==}
-    cpu: [x64]
     os: [freebsd]
 
   '@rollup/rollup-freebsd-x64@4.40.0':
@@ -4196,18 +4201,8 @@ packages:
     cpu: [x64]
     os: [freebsd]
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.34.8':
-    resolution: {integrity: sha512-A4iphFGNkWRd+5m3VIGuqHnG3MVnqKe7Al57u9mwgbyZ2/xF9Jio72MaY7xxh+Y87VAHmGQr73qoKL9HPbXj1g==}
-    cpu: [arm]
-    os: [linux]
-
   '@rollup/rollup-linux-arm-gnueabihf@4.40.0':
     resolution: {integrity: sha512-y/qUMOpJxBMy8xCXD++jeu8t7kzjlOCkoxxajL58G62PJGBZVl/Gwpm7JK9+YvlB701rcQTzjUZ1JgUoPTnoQA==}
-    cpu: [arm]
-    os: [linux]
-
-  '@rollup/rollup-linux-arm-musleabihf@4.34.8':
-    resolution: {integrity: sha512-S0lqKLfTm5u+QTxlFiAnb2J/2dgQqRy/XvziPtDd1rKZFXHTyYLoVL58M/XFwDI01AQCDIevGLbQrMAtdyanpA==}
     cpu: [arm]
     os: [linux]
 
@@ -4216,18 +4211,8 @@ packages:
     cpu: [arm]
     os: [linux]
 
-  '@rollup/rollup-linux-arm64-gnu@4.34.8':
-    resolution: {integrity: sha512-jpz9YOuPiSkL4G4pqKrus0pn9aYwpImGkosRKwNi+sJSkz+WU3anZe6hi73StLOQdfXYXC7hUfsQlTnjMd3s1A==}
-    cpu: [arm64]
-    os: [linux]
-
   '@rollup/rollup-linux-arm64-gnu@4.40.0':
     resolution: {integrity: sha512-L5ZLphTjjAD9leJzSLI7rr8fNqJMlGDKlazW2tX4IUF9P7R5TMQPElpH82Q7eNIDQnQlAyiNVfRPfP2vM5Avvg==}
-    cpu: [arm64]
-    os: [linux]
-
-  '@rollup/rollup-linux-arm64-musl@4.34.8':
-    resolution: {integrity: sha512-KdSfaROOUJXgTVxJNAZ3KwkRc5nggDk+06P6lgi1HLv1hskgvxHUKZ4xtwHkVYJ1Rep4GNo+uEfycCRRxht7+Q==}
     cpu: [arm64]
     os: [linux]
 
@@ -4236,29 +4221,14 @@ packages:
     cpu: [arm64]
     os: [linux]
 
-  '@rollup/rollup-linux-loongarch64-gnu@4.34.8':
-    resolution: {integrity: sha512-NyF4gcxwkMFRjgXBM6g2lkT58OWztZvw5KkV2K0qqSnUEqCVcqdh2jN4gQrTn/YUpAcNKyFHfoOZEer9nwo6uQ==}
-    cpu: [loong64]
-    os: [linux]
-
   '@rollup/rollup-linux-loongarch64-gnu@4.40.0':
     resolution: {integrity: sha512-wG9e2XtIhd++QugU5MD9i7OnpaVb08ji3P1y/hNbxrQ3sYEelKJOq1UJ5dXczeo6Hj2rfDEL5GdtkMSVLa/AOg==}
     cpu: [loong64]
     os: [linux]
 
-  '@rollup/rollup-linux-powerpc64le-gnu@4.34.8':
-    resolution: {integrity: sha512-LMJc999GkhGvktHU85zNTDImZVUCJ1z/MbAJTnviiWmmjyckP5aQsHtcujMjpNdMZPT2rQEDBlJfubhs3jsMfw==}
-    cpu: [ppc64]
-    os: [linux]
-
   '@rollup/rollup-linux-powerpc64le-gnu@4.40.0':
     resolution: {integrity: sha512-vgXfWmj0f3jAUvC7TZSU/m/cOE558ILWDzS7jBhiCAFpY2WEBn5jqgbqvmzlMjtp8KlLcBlXVD2mkTSEQE6Ixw==}
     cpu: [ppc64]
-    os: [linux]
-
-  '@rollup/rollup-linux-riscv64-gnu@4.34.8':
-    resolution: {integrity: sha512-xAQCAHPj8nJq1PI3z8CIZzXuXCstquz7cIOL73HHdXiRcKk8Ywwqtx2wrIy23EcTn4aZ2fLJNBB8d0tQENPCmw==}
-    cpu: [riscv64]
     os: [linux]
 
   '@rollup/rollup-linux-riscv64-gnu@4.40.0':
@@ -4271,28 +4241,13 @@ packages:
     cpu: [riscv64]
     os: [linux]
 
-  '@rollup/rollup-linux-s390x-gnu@4.34.8':
-    resolution: {integrity: sha512-DdePVk1NDEuc3fOe3dPPTb+rjMtuFw89gw6gVWxQFAuEqqSdDKnrwzZHrUYdac7A7dXl9Q2Vflxpme15gUWQFA==}
-    cpu: [s390x]
-    os: [linux]
-
   '@rollup/rollup-linux-s390x-gnu@4.40.0':
     resolution: {integrity: sha512-SpnYlAfKPOoVsQqmTFJ0usx0z84bzGOS9anAC0AZ3rdSo3snecihbhFTlJZ8XMwzqAcodjFU4+/SM311dqE5Sw==}
     cpu: [s390x]
     os: [linux]
 
-  '@rollup/rollup-linux-x64-gnu@4.34.8':
-    resolution: {integrity: sha512-8y7ED8gjxITUltTUEJLQdgpbPh1sUQ0kMTmufRF/Ns5tI9TNMNlhWtmPKKHCU0SilX+3MJkZ0zERYYGIVBYHIA==}
-    cpu: [x64]
-    os: [linux]
-
   '@rollup/rollup-linux-x64-gnu@4.40.0':
     resolution: {integrity: sha512-RcDGMtqF9EFN8i2RYN2W+64CdHruJ5rPqrlYw+cgM3uOVPSsnAQps7cpjXe9be/yDp8UC7VLoCoKC8J3Kn2FkQ==}
-    cpu: [x64]
-    os: [linux]
-
-  '@rollup/rollup-linux-x64-musl@4.34.8':
-    resolution: {integrity: sha512-SCXcP0ZpGFIe7Ge+McxY5zKxiEI5ra+GT3QRxL0pMMtxPfpyLAKleZODi1zdRHkz5/BhueUrYtYVgubqe9JBNQ==}
     cpu: [x64]
     os: [linux]
 
@@ -4301,29 +4256,14 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@rollup/rollup-win32-arm64-msvc@4.34.8':
-    resolution: {integrity: sha512-YHYsgzZgFJzTRbth4h7Or0m5O74Yda+hLin0irAIobkLQFRQd1qWmnoVfwmKm9TXIZVAD0nZ+GEb2ICicLyCnQ==}
-    cpu: [arm64]
-    os: [win32]
-
   '@rollup/rollup-win32-arm64-msvc@4.40.0':
     resolution: {integrity: sha512-UtZQQI5k/b8d7d3i9AZmA/t+Q4tk3hOC0tMOMSq2GlMYOfxbesxG4mJSeDp0EHs30N9bsfwUvs3zF4v/RzOeTQ==}
     cpu: [arm64]
     os: [win32]
 
-  '@rollup/rollup-win32-ia32-msvc@4.34.8':
-    resolution: {integrity: sha512-r3NRQrXkHr4uWy5TOjTpTYojR9XmF0j/RYgKCef+Ag46FWUTltm5ziticv8LdNsDMehjJ543x/+TJAek/xBA2w==}
-    cpu: [ia32]
-    os: [win32]
-
   '@rollup/rollup-win32-ia32-msvc@4.40.0':
     resolution: {integrity: sha512-+m03kvI2f5syIqHXCZLPVYplP8pQch9JHyXKZ3AGMKlg8dCyr2PKHjwRLiW53LTrN/Nc3EqHOKxUxzoSPdKddA==}
     cpu: [ia32]
-    os: [win32]
-
-  '@rollup/rollup-win32-x64-msvc@4.34.8':
-    resolution: {integrity: sha512-U0FaE5O1BCpZSeE6gBl3c5ObhePQSfk9vDRToMmTkbhCOgW4jqvtS5LGyQ76L1fH8sM0keRp4uDTsbjiUyjk0g==}
-    cpu: [x64]
     os: [win32]
 
   '@rollup/rollup-win32-x64-msvc@4.40.0':
@@ -4350,8 +4290,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@rushstack/ts-command-line@4.23.7':
-    resolution: {integrity: sha512-Gr9cB7DGe6uz5vq2wdr89WbVDKz0UeuFEn5H2CfWDe7JvjFFaiV15gi6mqDBTbHhHCWS7w8mF1h3BnIfUndqdA==}
+  '@rushstack/ts-command-line@5.0.0':
+    resolution: {integrity: sha512-SW6nqZVxH26Rxz25+lJQRlnXI/YCrNH7NfDEWPPm9i0rwkSE6Rgtmzw96cuZgQjacOh0sw77d6V4SvgarAfr8g==}
 
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
@@ -4359,31 +4299,49 @@ packages:
   '@shikijs/core@3.2.2':
     resolution: {integrity: sha512-yvlSKVMLjddAGBa2Yu+vUZxuu3sClOWW1AG+UtJkvejYuGM5BVL35s6Ijiwb75O9QdEx6IkMxinHZSi8ZyrBaA==}
 
+  '@shikijs/core@3.3.0':
+    resolution: {integrity: sha512-CovkFL2WVaHk6PCrwv6ctlmD4SS1qtIfN8yEyDXDYWh4ONvomdM9MaFw20qHuqJOcb8/xrkqoWQRJ//X10phOQ==}
+
   '@shikijs/engine-javascript@3.2.2':
     resolution: {integrity: sha512-tlDKfhWpF4jKLUyVAnmL+ggIC+0VyteNsUpBzh1iwWLZu4i+PelIRr0TNur6pRRo5UZIv3ss/PLMuwahg9S2hg==}
+
+  '@shikijs/engine-javascript@3.3.0':
+    resolution: {integrity: sha512-XlhnFGv0glq7pfsoN0KyBCz9FJU678LZdQ2LqlIdAj6JKsg5xpYKay3DkazXWExp3DTJJK9rMOuGzU2911pg7Q==}
 
   '@shikijs/engine-oniguruma@3.2.2':
     resolution: {integrity: sha512-vyXRnWVCSvokwbaUD/8uPn6Gqsf5Hv7XwcW4AgiU4Z2qwy19sdr6VGzMdheKKN58tJOOe5MIKiNb901bgcUXYQ==}
 
+  '@shikijs/engine-oniguruma@3.3.0':
+    resolution: {integrity: sha512-l0vIw+GxeNU7uGnsu6B+Crpeqf+WTQ2Va71cHb5ZYWEVEPdfYwY5kXwYqRJwHrxz9WH+pjSpXQz+TJgAsrkA5A==}
+
   '@shikijs/langs@3.2.2':
     resolution: {integrity: sha512-NY0Urg2dV9ETt3JIOWoMPuoDNwte3geLZ4M1nrPHbkDS8dWMpKcEwlqiEIGqtwZNmt5gKyWpR26ln2Bg2ecPgw==}
+
+  '@shikijs/langs@3.3.0':
+    resolution: {integrity: sha512-zt6Kf/7XpBQKSI9eqku+arLkAcDQ3NHJO6zFjiChI8w0Oz6Jjjay7pToottjQGjSDCFk++R85643WbyINcuL+g==}
 
   '@shikijs/themes@3.2.2':
     resolution: {integrity: sha512-Zuq4lgAxVKkb0FFdhHSdDkALuRpsj1so1JdihjKNQfgM78EHxV2JhO10qPsMrm01FkE3mDRTdF68wfmsqjt6HA==}
 
+  '@shikijs/themes@3.3.0':
+    resolution: {integrity: sha512-tXeCvLXBnqq34B0YZUEaAD1lD4lmN6TOHAhnHacj4Owh7Ptb/rf5XCDeROZt2rEOk5yuka3OOW2zLqClV7/SOg==}
+
   '@shikijs/transformers@3.2.2':
     resolution: {integrity: sha512-DQvrPdygc6NNdbfeOZoO1+KiRnnjUQuuPLwsAbUuSKq4QFLD0Ik15FbHojmot5NbgCQRbVr8ufRg8U6X5rGWuQ==}
 
-  '@shikijs/twoslash@3.2.2':
-    resolution: {integrity: sha512-rqi1qQiQI3tYVciYVsbm2llQNGCslVWPcgzGSaapXPaSs3r9CfwmRHat9B7Vs6gT6likZN+qMxqIOqSqwCoJtQ==}
+  '@shikijs/twoslash@3.3.0':
+    resolution: {integrity: sha512-kEq+oRJ1iyYyPisBBdC+/rgZ9WWvoIoBLpm3xxThmBZjQ0m1LlwM4XpSPvp4cvrXGTESXQtYMYwZ4694aU2Z1w==}
     peerDependencies:
       typescript: '>=5.5.0'
 
   '@shikijs/types@3.2.2':
     resolution: {integrity: sha512-a5TiHk7EH5Lso8sHcLHbVNNhWKP0Wi3yVnXnu73g86n3WoDgEra7n3KszyeCGuyoagspQ2fzvy4cpSc8pKhb0A==}
 
-  '@shikijs/vitepress-twoslash@3.2.2':
-    resolution: {integrity: sha512-90nEoOBWgAjsvIBzJKRih89VTYCExWgF72BeesWJsxDpZasYyEZ/MpNaaDTSRHnEHXwfsmezZheiHOUmBi5G5g==}
+  '@shikijs/types@3.3.0':
+    resolution: {integrity: sha512-KPCGnHG6k06QG/2pnYGbFtFvpVJmC3uIpXrAiPrawETifujPBv0Se2oUxm5qYgjCvGJS9InKvjytOdN+bGuX+Q==}
+
+  '@shikijs/vitepress-twoslash@3.3.0':
+    resolution: {integrity: sha512-JkR/gugFIMW3pEmgQ5ETfLR5HQs7FsYq0RBxJ3ty0qAJ1qi1WvA8kKD9hj0z4M75sXtpWqP8D0rPrl34w5czYQ==}
 
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
@@ -4424,11 +4382,11 @@ packages:
   '@tanstack/query-core@5.74.4':
     resolution: {integrity: sha512-YuG0A0+3i9b2Gfo9fkmNnkUWh5+5cFhWBN0pJAHkHilTx6A0nv8kepkk4T4GRt4e5ahbtFj2eTtkiPcVU1xO4A==}
 
-  '@tanstack/query-devtools@5.73.3':
-    resolution: {integrity: sha512-hBQyYwsOuO7QOprK75NzfrWs/EQYjgFA0yykmcvsV62q0t6Ua97CU3sYgjHx0ZvxkXSOMkY24VRJ5uv9f5Ik4w==}
+  '@tanstack/query-devtools@5.74.6':
+    resolution: {integrity: sha512-djaFT11mVCOW3e0Ezfyiq7T6OoHy2LRI1fUFQvj+G6+/4A1FkuRMNUhQkdP1GXlx8id0f1/zd5fgDpIy5SU/Iw==}
 
-  '@tanstack/react-query-devtools@5.74.4':
-    resolution: {integrity: sha512-PGCAcytQMmeagoeGG45ccBhrC1x0/5OlNjsM1FAb9OfsQZIhPzjwjhGcwmMu6TbT4RIHgvjxLwC5NHgkUwJQzw==}
+  '@tanstack/react-query-devtools@5.74.6':
+    resolution: {integrity: sha512-vlsDwz4/FsblK0h7VAlXUdJ+9OV+i1n8OLb8CLLAZqu0M9GCnbajytZwsRmns33PXBZ6wQBJ859kg6aajx+e9Q==}
     peerDependencies:
       '@tanstack/react-query': ^5.74.4
       react: ^18 || ^19
@@ -4470,8 +4428,8 @@ packages:
   '@tanstack/virtual-core@3.11.3':
     resolution: {integrity: sha512-v2mrNSnMwnPJtcVqNvV0c5roGCBqeogN8jDtgtuHCphdwBasOZ17x8UV8qpHUh+u0MLfX43c0uUHKje0s+Zb0w==}
 
-  '@tanstack/vue-query@5.74.5':
-    resolution: {integrity: sha512-1IvuUASQ3h5jbM+90AR4vIDDLxYyGA9Iefvzx9uQMDA4c5Gpd9ETKHZgSUvFM3sXw6k0tY3uHtllBf875OqOcQ==}
+  '@tanstack/vue-query@5.74.6':
+    resolution: {integrity: sha512-Fs0ZCwY9oV2TroxzAu5JOcnVpAnjMfpntGR1uUgaFvTdi8JcMPPtEt9FJZuJMa9Vo9cDrQj9Sq1ifP7ATi25TQ==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -4633,9 +4591,6 @@ packages:
 
   '@types/eslint@9.6.1':
     resolution: {integrity: sha512-FXx2pKgId/WyYo2jXw63kk7/+TY7u7AziEJxJAnSFzHlqTAS3Ync6SvgYAN/k4/PQpnnVuzoMuVnByKK2qp0ag==}
-
-  '@types/estree@1.0.6':
-    resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
 
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
@@ -5017,8 +4972,8 @@ packages:
     resolution: {integrity: sha512-UvevrgCLnze1M9kXC8h+PVtnL3YYrASx1o6cY2zRopbJ2gCKqIfl9DUDKvqCPLZN+8ZDkMDBa2YRWyFnsZFbIQ==}
     engines: {node: '>=12.0.0'}
 
-  '@zod/core@0.4.6':
-    resolution: {integrity: sha512-0IeEldTobOdkoJPyINVQgOHlgCWbpozSsDjdcd2+VcxKvf8T+SYLDVk7NKt0XJx3C0ImNXAXh3V3yIw46NJyQA==}
+  '@zod/core@0.8.1':
+    resolution: {integrity: sha512-djj8hPhxIHcG8ptxITaw/Bout5HJZ9NyRbKr95Eilqwt9R0kvITwUQGDU+n+MVdsBIka5KwztmZSLti22F+P0A==}
 
   '@zxing/text-encoding@0.9.0':
     resolution: {integrity: sha512-U/4aVJ2mxI0aDNI8Uq0wEhMgY+u4CNtEb0om3+y3+niDAsoTCOB33UF0sxpzqzdqXLqmvc+vZyAt4O8pPdfkwA==}
@@ -5594,10 +5549,6 @@ packages:
   config-chain@1.1.13:
     resolution: {integrity: sha512-qj+f8APARXHrM0hraqXYb2/bOVSV4PvJQlNZ/DVj0QrmNM2q2euizkeuVckQ57J+W0mRH6Hvi+k50M4Jul2VRQ==}
 
-  consola@3.4.0:
-    resolution: {integrity: sha512-EiPU8G6dQG0GFHNR8ljnZFki/8a+cQwEQ+7wpxdChl02Q8HXlwEZWD5lqAF8vC2sEC3Tehr8hy7vErz88LHyUA==}
-    engines: {node: ^14.18.0 || >=16.10.0}
-
   consola@3.4.2:
     resolution: {integrity: sha512-5IKcdX0nnYavi6G7TtOhwkYzyjfJlatbjMjuLSfE2kYT5pMDOilZ4OvMhi637CcDICTmz3wARPoyhqyX1Y+XvA==}
     engines: {node: ^14.18.0 || >=16.10.0}
@@ -5695,8 +5646,8 @@ packages:
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
 
-  cypress@14.3.1:
-    resolution: {integrity: sha512-/2q06qvHMK3PNiadnRW1Je0lJ43gAFPQJUAK2zIxjr22kugtWxVQznTBLVu1AvRH+RP3oWZhCdWqiEi+0NuqCg==}
+  cypress@14.3.2:
+    resolution: {integrity: sha512-n+yGD2ZFFKgy7I3YtVpZ7BcFYrrDMcKj713eOZdtxPttpBjCyw/R8dLlFSsJPouneGN7A/HOSRyPJ5+3/gKDoA==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
 
@@ -7510,11 +7461,17 @@ packages:
     resolution: {integrity: sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ==}
     engines: {node: '>=18'}
 
+  oniguruma-parser@0.11.2:
+    resolution: {integrity: sha512-F7Ld4oDZJCI5/wCZ8AOffQbqjSzIRpKH7I/iuSs1SkhZeCj0wS6PMZ4W6VA16TWHrAo0Y9bBKEJOe7tvwcTXnw==}
+
   oniguruma-parser@0.5.4:
     resolution: {integrity: sha512-yNxcQ8sKvURiTwP0mV6bLQCYE7NKfKRRWunhbZnXgxSmB1OXa1lHrN3o4DZd+0Si0kU5blidK7BcROO8qv5TZA==}
 
   oniguruma-to-es@4.1.0:
     resolution: {integrity: sha512-SNwG909cSLo4vPyyPbU/VJkEc9WOXqu2ycBlfd1UCXLqk1IijcQktSBb2yRQ2UFPsDhpkaf+C1dtT3PkLK/yWA==}
+
+  oniguruma-to-es@4.2.0:
+    resolution: {integrity: sha512-MDPs6KSOLS0tKQ7joqg44dRIRZUyotfTy0r+7oEEs6VwWWP0+E2PPDYWMFN0aqOjRyWHBYq7RfKw9GQk2S2z5g==}
 
   open@10.1.1:
     resolution: {integrity: sha512-zy1wx4+P3PfhXSEPJNtZmJXfhkkIaxU1VauWIrDZw1O7uJRDRJtKr9n3Ic4NgbA16KyOxOXO2ng9gYwCdXuSXA==}
@@ -8039,9 +7996,6 @@ packages:
     resolution: {integrity: sha512-+crtS5QjFRqFCoQmvGduwYWEBng99ZvmFvF+cUJkGYF1L1BfU8C6Zp9T7f5vPAwyLkUExpvK+ANVZmGU49qi4Q==}
     engines: {node: '>=12'}
 
-  remeda@2.21.2:
-    resolution: {integrity: sha512-wdhkMDou8HRpD7RnxKJ/FHJWEGXRH7jV/pb0NsdLLSoBo+G9RjtxcY41hVhogLfEMkThk6aySKjs+Yd6PnpzBA==}
-
   remeda@2.21.3:
     resolution: {integrity: sha512-XXrZdLA10oEOQhLLzEJEiFFSKi21REGAkHdImIb4rt/XXy8ORGXh5HCcpUOsElfPNDb+X6TA/+wkh+p2KffYmg==}
 
@@ -8100,11 +8054,6 @@ packages:
 
   robust-predicates@3.0.2:
     resolution: {integrity: sha512-IXgzBWvWQwE6PrDI05OvmXUIruQTcoMDzRsOd5CDvHCVLcLHMTSYvOK5Cm46kWqlV3yAbuSpBZdJ5oP5OUoStg==}
-
-  rollup@4.34.8:
-    resolution: {integrity: sha512-489gTVMzAYdiZHFVA/ig/iYFllCcWFHMvUHI1rpFmkoUtRlQxqh6/yiNqnYibjMZ2b/+FUQwldG+aLsEt6bglQ==}
-    engines: {node: '>=18.0.0', npm: '>=8.0.0'}
-    hasBin: true
 
   rollup@4.40.0:
     resolution: {integrity: sha512-Noe455xmA96nnqH5piFtLobsGbCij7Tu+tb3c1vYjNbTkfzGqXqQXG3wJaYXkRZuQ0vEYN4bhwg7QnIrqB5B+w==}
@@ -8237,6 +8186,9 @@ packages:
 
   shiki@3.2.2:
     resolution: {integrity: sha512-0qWBkM2t/0NXPRcVgtLhtHv6Ak3Q5yI4K/ggMqcgLRKm4+pCs3namgZlhlat/7u2CuqNtlShNs9lENOG6n7UaQ==}
+
+  shiki@3.3.0:
+    resolution: {integrity: sha512-j0Z1tG5vlOFGW8JVj0Cpuatzvshes7VJy5ncDmmMaYcmnGW0Js1N81TOW98ivTFNZfKRn9uwEg/aIm638o368g==}
 
   should-equal@2.0.0:
     resolution: {integrity: sha512-ZP36TMrK9euEuWQYBig9W55WPC7uo37qzAEmbjHz4gfyuXrEUgF8cUvQVO+w+d3OMfPvSRQJ22lSm8MQJ43LTA==}
@@ -8577,10 +8529,6 @@ packages:
   tinyexec@1.0.1:
     resolution: {integrity: sha512-5uC6DDlmeqiOwCPmK9jMSdOuZTh8bU39Ys6yidB+UTt5hfZUPGAypSgFRiEp+jbi9qH40BLDvy85jIU88wKSqw==}
 
-  tinyglobby@0.2.11:
-    resolution: {integrity: sha512-32TmKeeKUahv0Go8WmQgiEp9Y21NuxjwjqiRC1nrUB51YacfSwuB44xgXD+HdIppmMRgjQNPdrHyA6vIybYZ+g==}
-    engines: {node: '>=12.0.0'}
-
   tinyglobby@0.2.12:
     resolution: {integrity: sha512-qkf4trmKSIiMTs/E63cxH+ojC2unam7rJ0WrauAzpT3ECNTxGRMlaXxVbfxMUC/w0LaYk6jQ4y/nGR9uBO3tww==}
     engines: {node: '>=12.0.0'}
@@ -8777,10 +8725,6 @@ packages:
   type-fest@2.19.0:
     resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
     engines: {node: '>=12.20'}
-
-  type-fest@4.38.0:
-    resolution: {integrity: sha512-2dBz5D5ycHIoliLYLi0Q2V7KRaDlH0uWIvmk7TYlAg5slqwiPv1ezJdZm1QEM0xgk29oYWMCbIG7E6gHpvChlg==}
-    engines: {node: '>=16'}
 
   type-fest@4.40.0:
     resolution: {integrity: sha512-ABHZ2/tS2JkvH1PEjxFDTUWC8dB5OsIGZP4IFLhR293GqT5Y5qB1WwL2kMPYhQW9DVgVD8Hd7I8gjwPIf5GFkw==}
@@ -9315,8 +9259,8 @@ packages:
   zod@3.24.3:
     resolution: {integrity: sha512-HhY1oqzWCQWuUqvBFnsyrtZRhyPeR7SUGv+C4+MsisMuVfSPx8HpwWqH8tRahSlt6M3PiFAcoeFhZAqIXTxoSg==}
 
-  zod@4.0.0-beta.20250412T085909:
-    resolution: {integrity: sha512-W4OjoCnF5XTuljw4X6Hh3Inp45Ug7mmCWzWfFPv+RZcSIAGz7OPqBKOEDtLjfnJAvoxvY3vO0SkxH1zr0Md/Ag==}
+  zod@4.0.0-beta.20250420T053007:
+    resolution: {integrity: sha512-5pp8Q0PNDaNcUptGiBE9akyioJh3RJpagIxrLtAVMR9IxwcSZiOsJD/1/98CyhItdTlI2H91MfhhLzRlU+fifA==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -11333,7 +11277,7 @@ snapshots:
       natural-orderby: 5.0.0
       object-hash: 3.0.0
       p-queue: 8.1.0
-      remeda: 2.21.2
+      remeda: 2.21.3
       seedrandom: 3.0.5
       semver: 7.7.1
 
@@ -11345,7 +11289,7 @@ snapshots:
   '@kubb/parser-ts@3.3.2':
     dependencies:
       prettier: 3.5.3
-      remeda: 2.21.2
+      remeda: 2.21.3
       typescript: 5.8.3
 
   '@kubb/react@3.3.2':
@@ -11426,7 +11370,7 @@ snapshots:
       - '@types/node'
     optional: true
 
-  '@microsoft/api-extractor@7.52.4(@types/node@20.17.30)':
+  '@microsoft/api-extractor@7.52.5(@types/node@20.17.30)':
     dependencies:
       '@microsoft/api-extractor-model': 7.30.5(@types/node@20.17.30)
       '@microsoft/tsdoc': 0.15.1
@@ -11434,7 +11378,7 @@ snapshots:
       '@rushstack/node-core-library': 5.13.0(@types/node@20.17.30)
       '@rushstack/rig-package': 0.5.3
       '@rushstack/terminal': 0.15.2(@types/node@20.17.30)
-      '@rushstack/ts-command-line': 4.23.7(@types/node@20.17.30)
+      '@rushstack/ts-command-line': 5.0.0(@types/node@20.17.30)
       lodash: 4.17.21
       minimatch: 3.0.8
       resolve: 1.22.9
@@ -11444,7 +11388,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@microsoft/api-extractor@7.52.4(@types/node@20.5.7)':
+  '@microsoft/api-extractor@7.52.5(@types/node@20.5.7)':
     dependencies:
       '@microsoft/api-extractor-model': 7.30.5(@types/node@20.5.7)
       '@microsoft/tsdoc': 0.15.1
@@ -11452,7 +11396,7 @@ snapshots:
       '@rushstack/node-core-library': 5.13.0(@types/node@20.5.7)
       '@rushstack/rig-package': 0.5.3
       '@rushstack/terminal': 0.15.2(@types/node@20.5.7)
-      '@rushstack/ts-command-line': 4.23.7(@types/node@20.5.7)
+      '@rushstack/ts-command-line': 5.0.0(@types/node@20.5.7)
       lodash: 4.17.21
       minimatch: 3.0.8
       resolve: 1.22.9
@@ -11472,7 +11416,7 @@ snapshots:
 
   '@microsoft/tsdoc@0.15.1': {}
 
-  '@modelcontextprotocol/sdk@1.10.1':
+  '@modelcontextprotocol/sdk@1.10.2':
     dependencies:
       content-type: 1.0.5
       cors: 2.8.5
@@ -12467,79 +12411,40 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@rollup/rollup-android-arm-eabi@4.34.8':
-    optional: true
-
   '@rollup/rollup-android-arm-eabi@4.40.0':
-    optional: true
-
-  '@rollup/rollup-android-arm64@4.34.8':
     optional: true
 
   '@rollup/rollup-android-arm64@4.40.0':
     optional: true
 
-  '@rollup/rollup-darwin-arm64@4.34.8':
-    optional: true
-
   '@rollup/rollup-darwin-arm64@4.40.0':
-    optional: true
-
-  '@rollup/rollup-darwin-x64@4.34.8':
     optional: true
 
   '@rollup/rollup-darwin-x64@4.40.0':
     optional: true
 
-  '@rollup/rollup-freebsd-arm64@4.34.8':
-    optional: true
-
   '@rollup/rollup-freebsd-arm64@4.40.0':
-    optional: true
-
-  '@rollup/rollup-freebsd-x64@4.34.8':
     optional: true
 
   '@rollup/rollup-freebsd-x64@4.40.0':
     optional: true
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.34.8':
-    optional: true
-
   '@rollup/rollup-linux-arm-gnueabihf@4.40.0':
-    optional: true
-
-  '@rollup/rollup-linux-arm-musleabihf@4.34.8':
     optional: true
 
   '@rollup/rollup-linux-arm-musleabihf@4.40.0':
     optional: true
 
-  '@rollup/rollup-linux-arm64-gnu@4.34.8':
-    optional: true
-
   '@rollup/rollup-linux-arm64-gnu@4.40.0':
-    optional: true
-
-  '@rollup/rollup-linux-arm64-musl@4.34.8':
     optional: true
 
   '@rollup/rollup-linux-arm64-musl@4.40.0':
     optional: true
 
-  '@rollup/rollup-linux-loongarch64-gnu@4.34.8':
-    optional: true
-
   '@rollup/rollup-linux-loongarch64-gnu@4.40.0':
     optional: true
 
-  '@rollup/rollup-linux-powerpc64le-gnu@4.34.8':
-    optional: true
-
   '@rollup/rollup-linux-powerpc64le-gnu@4.40.0':
-    optional: true
-
-  '@rollup/rollup-linux-riscv64-gnu@4.34.8':
     optional: true
 
   '@rollup/rollup-linux-riscv64-gnu@4.40.0':
@@ -12548,37 +12453,19 @@ snapshots:
   '@rollup/rollup-linux-riscv64-musl@4.40.0':
     optional: true
 
-  '@rollup/rollup-linux-s390x-gnu@4.34.8':
-    optional: true
-
   '@rollup/rollup-linux-s390x-gnu@4.40.0':
-    optional: true
-
-  '@rollup/rollup-linux-x64-gnu@4.34.8':
     optional: true
 
   '@rollup/rollup-linux-x64-gnu@4.40.0':
     optional: true
 
-  '@rollup/rollup-linux-x64-musl@4.34.8':
-    optional: true
-
   '@rollup/rollup-linux-x64-musl@4.40.0':
-    optional: true
-
-  '@rollup/rollup-win32-arm64-msvc@4.34.8':
     optional: true
 
   '@rollup/rollup-win32-arm64-msvc@4.40.0':
     optional: true
 
-  '@rollup/rollup-win32-ia32-msvc@4.34.8':
-    optional: true
-
   '@rollup/rollup-win32-ia32-msvc@4.40.0':
-    optional: true
-
-  '@rollup/rollup-win32-x64-msvc@4.34.8':
     optional: true
 
   '@rollup/rollup-win32-x64-msvc@4.40.0':
@@ -12631,7 +12518,7 @@ snapshots:
       '@types/node': 20.5.7
     optional: true
 
-  '@rushstack/ts-command-line@4.23.7(@types/node@20.17.30)':
+  '@rushstack/ts-command-line@5.0.0(@types/node@20.17.30)':
     dependencies:
       '@rushstack/terminal': 0.15.2(@types/node@20.17.30)
       '@types/argparse': 1.0.38
@@ -12640,7 +12527,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/ts-command-line@4.23.7(@types/node@20.5.7)':
+  '@rushstack/ts-command-line@5.0.0(@types/node@20.5.7)':
     dependencies:
       '@rushstack/terminal': 0.15.2(@types/node@20.5.7)
       '@types/argparse': 1.0.38
@@ -12659,34 +12546,60 @@ snapshots:
       '@types/hast': 3.0.4
       hast-util-to-html: 9.0.5
 
+  '@shikijs/core@3.3.0':
+    dependencies:
+      '@shikijs/types': 3.3.0
+      '@shikijs/vscode-textmate': 10.0.2
+      '@types/hast': 3.0.4
+      hast-util-to-html: 9.0.5
+
   '@shikijs/engine-javascript@3.2.2':
     dependencies:
       '@shikijs/types': 3.2.2
       '@shikijs/vscode-textmate': 10.0.2
       oniguruma-to-es: 4.1.0
 
+  '@shikijs/engine-javascript@3.3.0':
+    dependencies:
+      '@shikijs/types': 3.3.0
+      '@shikijs/vscode-textmate': 10.0.2
+      oniguruma-to-es: 4.2.0
+
   '@shikijs/engine-oniguruma@3.2.2':
     dependencies:
       '@shikijs/types': 3.2.2
+      '@shikijs/vscode-textmate': 10.0.2
+
+  '@shikijs/engine-oniguruma@3.3.0':
+    dependencies:
+      '@shikijs/types': 3.3.0
       '@shikijs/vscode-textmate': 10.0.2
 
   '@shikijs/langs@3.2.2':
     dependencies:
       '@shikijs/types': 3.2.2
 
+  '@shikijs/langs@3.3.0':
+    dependencies:
+      '@shikijs/types': 3.3.0
+
   '@shikijs/themes@3.2.2':
     dependencies:
       '@shikijs/types': 3.2.2
+
+  '@shikijs/themes@3.3.0':
+    dependencies:
+      '@shikijs/types': 3.3.0
 
   '@shikijs/transformers@3.2.2':
     dependencies:
       '@shikijs/core': 3.2.2
       '@shikijs/types': 3.2.2
 
-  '@shikijs/twoslash@3.2.2(typescript@5.8.3)':
+  '@shikijs/twoslash@3.3.0(typescript@5.8.3)':
     dependencies:
-      '@shikijs/core': 3.2.2
-      '@shikijs/types': 3.2.2
+      '@shikijs/core': 3.3.0
+      '@shikijs/types': 3.3.0
       twoslash: 0.3.1(typescript@5.8.3)
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -12697,14 +12610,19 @@ snapshots:
       '@shikijs/vscode-textmate': 10.0.2
       '@types/hast': 3.0.4
 
-  '@shikijs/vitepress-twoslash@3.2.2(@nuxt/kit@3.16.2(magicast@0.3.5))(typescript@5.8.3)':
+  '@shikijs/types@3.3.0':
     dependencies:
-      '@shikijs/twoslash': 3.2.2(typescript@5.8.3)
+      '@shikijs/vscode-textmate': 10.0.2
+      '@types/hast': 3.0.4
+
+  '@shikijs/vitepress-twoslash@3.3.0(@nuxt/kit@3.16.2(magicast@0.3.5))(typescript@5.8.3)':
+    dependencies:
+      '@shikijs/twoslash': 3.3.0(typescript@5.8.3)
       floating-vue: 5.2.2(@nuxt/kit@3.16.2(magicast@0.3.5))(vue@3.5.13(typescript@5.8.3))
       mdast-util-from-markdown: 2.0.2
       mdast-util-gfm: 3.1.0
       mdast-util-to-hast: 13.2.0
-      shiki: 3.2.2
+      shiki: 3.3.0
       twoslash: 0.3.1(typescript@5.8.3)
       twoslash-vue: 0.3.1(typescript@5.8.3)
       vue: 3.5.13(typescript@5.8.3)
@@ -12747,11 +12665,11 @@ snapshots:
 
   '@tanstack/query-core@5.74.4': {}
 
-  '@tanstack/query-devtools@5.73.3': {}
+  '@tanstack/query-devtools@5.74.6': {}
 
-  '@tanstack/react-query-devtools@5.74.4(@tanstack/react-query@5.74.4(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.74.6(@tanstack/react-query@5.74.4(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/query-devtools': 5.73.3
+      '@tanstack/query-devtools': 5.74.6
       '@tanstack/react-query': 5.74.4(react@18.3.1)
       react: 18.3.1
 
@@ -12795,7 +12713,7 @@ snapshots:
 
   '@tanstack/virtual-core@3.11.3': {}
 
-  '@tanstack/vue-query@5.74.5(vue@3.5.13(typescript@5.8.3))':
+  '@tanstack/vue-query@5.74.6(vue@3.5.13(typescript@5.8.3))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.19.4
       '@tanstack/query-core': 5.74.4
@@ -12990,8 +12908,6 @@ snapshots:
     dependencies:
       '@types/estree': 1.0.7
       '@types/json-schema': 7.0.15
-
-  '@types/estree@1.0.6': {}
 
   '@types/estree@1.0.7': {}
 
@@ -13480,7 +13396,7 @@ snapshots:
       - ts-node
       - typescript
 
-  '@zod/core@0.4.6': {}
+  '@zod/core@0.8.1': {}
 
   '@zxing/text-encoding@0.9.0':
     optional: true
@@ -14047,8 +13963,6 @@ snapshots:
       ini: 1.3.8
       proto-list: 1.2.4
 
-  consola@3.4.0: {}
-
   consola@3.4.2: {}
 
   content-disposition@0.5.4:
@@ -14170,7 +14084,7 @@ snapshots:
       untildify: 4.0.0
       yauzl: 2.10.0
 
-  cypress@14.3.1:
+  cypress@14.3.2:
     dependencies:
       '@cypress/request': 3.0.8
       '@cypress/xvfb': 1.2.4(supports-color@8.1.1)
@@ -16285,12 +16199,21 @@ snapshots:
     dependencies:
       mimic-function: 5.0.1
 
+  oniguruma-parser@0.11.2: {}
+
   oniguruma-parser@0.5.4: {}
 
   oniguruma-to-es@4.1.0:
     dependencies:
       emoji-regex-xs: 1.0.0
       oniguruma-parser: 0.5.4
+      regex: 6.0.1
+      regex-recursion: 6.0.2
+
+  oniguruma-to-es@4.2.0:
+    dependencies:
+      emoji-regex-xs: 1.0.0
+      oniguruma-parser: 0.11.2
       regex: 6.0.1
       regex-recursion: 6.0.2
 
@@ -16839,10 +16762,6 @@ snapshots:
     dependencies:
       rc: 1.2.8
 
-  remeda@2.21.2:
-    dependencies:
-      type-fest: 4.38.0
-
   remeda@2.21.3:
     dependencies:
       type-fest: 4.40.0
@@ -16891,31 +16810,6 @@ snapshots:
       package-json-from-dist: 1.0.1
 
   robust-predicates@3.0.2: {}
-
-  rollup@4.34.8:
-    dependencies:
-      '@types/estree': 1.0.6
-    optionalDependencies:
-      '@rollup/rollup-android-arm-eabi': 4.34.8
-      '@rollup/rollup-android-arm64': 4.34.8
-      '@rollup/rollup-darwin-arm64': 4.34.8
-      '@rollup/rollup-darwin-x64': 4.34.8
-      '@rollup/rollup-freebsd-arm64': 4.34.8
-      '@rollup/rollup-freebsd-x64': 4.34.8
-      '@rollup/rollup-linux-arm-gnueabihf': 4.34.8
-      '@rollup/rollup-linux-arm-musleabihf': 4.34.8
-      '@rollup/rollup-linux-arm64-gnu': 4.34.8
-      '@rollup/rollup-linux-arm64-musl': 4.34.8
-      '@rollup/rollup-linux-loongarch64-gnu': 4.34.8
-      '@rollup/rollup-linux-powerpc64le-gnu': 4.34.8
-      '@rollup/rollup-linux-riscv64-gnu': 4.34.8
-      '@rollup/rollup-linux-s390x-gnu': 4.34.8
-      '@rollup/rollup-linux-x64-gnu': 4.34.8
-      '@rollup/rollup-linux-x64-musl': 4.34.8
-      '@rollup/rollup-win32-arm64-msvc': 4.34.8
-      '@rollup/rollup-win32-ia32-msvc': 4.34.8
-      '@rollup/rollup-win32-x64-msvc': 4.34.8
-      fsevents: 2.3.3
 
   rollup@4.40.0:
     dependencies:
@@ -17104,6 +16998,17 @@ snapshots:
       '@shikijs/langs': 3.2.2
       '@shikijs/themes': 3.2.2
       '@shikijs/types': 3.2.2
+      '@shikijs/vscode-textmate': 10.0.2
+      '@types/hast': 3.0.4
+
+  shiki@3.3.0:
+    dependencies:
+      '@shikijs/core': 3.3.0
+      '@shikijs/engine-javascript': 3.3.0
+      '@shikijs/engine-oniguruma': 3.3.0
+      '@shikijs/langs': 3.3.0
+      '@shikijs/themes': 3.3.0
+      '@shikijs/types': 3.3.0
       '@shikijs/vscode-textmate': 10.0.2
       '@types/hast': 3.0.4
 
@@ -17561,11 +17466,6 @@ snapshots:
 
   tinyexec@1.0.1: {}
 
-  tinyglobby@0.2.11:
-    dependencies:
-      fdir: 6.4.3(picomatch@4.0.2)
-      picomatch: 4.0.2
-
   tinyglobby@0.2.12:
     dependencies:
       fdir: 6.4.3(picomatch@4.0.2)
@@ -17681,26 +17581,26 @@ snapshots:
 
   tslib@2.8.1: {}
 
-  tsup@8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.2.2)(yaml@2.7.0):
+  tsup@8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.2.2)(yaml@2.7.0):
     dependencies:
       bundle-require: 5.1.0(esbuild@0.25.0)
       cac: 6.7.14
       chokidar: 4.0.3
-      consola: 3.4.0
+      consola: 3.4.2
       debug: 4.4.0(supports-color@8.1.1)
       esbuild: 0.25.0
       joycon: 3.1.1
       picocolors: 1.1.1
       postcss-load-config: 6.0.1(jiti@2.4.2)(postcss@8.5.3)(yaml@2.7.0)
       resolve-from: 5.0.0
-      rollup: 4.34.8
+      rollup: 4.40.0
       source-map: 0.8.0-beta.0
       sucrase: 3.35.0
       tinyexec: 0.3.2
-      tinyglobby: 0.2.11
+      tinyglobby: 0.2.13
       tree-kill: 1.2.2
     optionalDependencies:
-      '@microsoft/api-extractor': 7.52.4(@types/node@20.17.30)
+      '@microsoft/api-extractor': 7.52.5(@types/node@20.17.30)
       postcss: 8.5.3
       typescript: 5.2.2
     transitivePeerDependencies:
@@ -17709,26 +17609,26 @@ snapshots:
       - tsx
       - yaml
 
-  tsup@8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0):
+  tsup@8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.17.30))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.0):
     dependencies:
       bundle-require: 5.1.0(esbuild@0.25.0)
       cac: 6.7.14
       chokidar: 4.0.3
-      consola: 3.4.0
+      consola: 3.4.2
       debug: 4.4.0(supports-color@8.1.1)
       esbuild: 0.25.0
       joycon: 3.1.1
       picocolors: 1.1.1
       postcss-load-config: 6.0.1(jiti@2.4.2)(postcss@8.5.3)(yaml@2.7.0)
       resolve-from: 5.0.0
-      rollup: 4.34.8
+      rollup: 4.40.0
       source-map: 0.8.0-beta.0
       sucrase: 3.35.0
       tinyexec: 0.3.2
-      tinyglobby: 0.2.11
+      tinyglobby: 0.2.13
       tree-kill: 1.2.2
     optionalDependencies:
-      '@microsoft/api-extractor': 7.52.4(@types/node@20.17.30)
+      '@microsoft/api-extractor': 7.52.5(@types/node@20.17.30)
       postcss: 8.5.3
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -17737,26 +17637,26 @@ snapshots:
       - tsx
       - yaml
 
-  tsup@8.4.0(@microsoft/api-extractor@7.52.4(@types/node@20.5.7))(jiti@2.4.2)(postcss@8.4.38)(typescript@5.8.3)(yaml@2.7.0):
+  tsup@8.4.0(@microsoft/api-extractor@7.52.5(@types/node@20.5.7))(jiti@2.4.2)(postcss@8.4.38)(typescript@5.8.3)(yaml@2.7.0):
     dependencies:
       bundle-require: 5.1.0(esbuild@0.25.0)
       cac: 6.7.14
       chokidar: 4.0.3
-      consola: 3.4.0
+      consola: 3.4.2
       debug: 4.4.0(supports-color@8.1.1)
       esbuild: 0.25.0
       joycon: 3.1.1
       picocolors: 1.1.1
       postcss-load-config: 6.0.1(jiti@2.4.2)(postcss@8.4.38)(yaml@2.7.0)
       resolve-from: 5.0.0
-      rollup: 4.34.8
+      rollup: 4.40.0
       source-map: 0.8.0-beta.0
       sucrase: 3.35.0
       tinyexec: 0.3.2
-      tinyglobby: 0.2.11
+      tinyglobby: 0.2.13
       tree-kill: 1.2.2
     optionalDependencies:
-      '@microsoft/api-extractor': 7.52.4(@types/node@20.5.7)
+      '@microsoft/api-extractor': 7.52.5(@types/node@20.5.7)
       postcss: 8.4.38
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -17822,8 +17722,6 @@ snapshots:
   type-fest@0.21.3: {}
 
   type-fest@2.19.0: {}
-
-  type-fest@4.38.0: {}
 
   type-fest@4.40.0: {}
 
@@ -18415,8 +18313,8 @@ snapshots:
 
   zod@3.24.3: {}
 
-  zod@4.0.0-beta.20250412T085909:
+  zod@4.0.0-beta.20250420T053007:
     dependencies:
-      '@zod/core': 0.4.6
+      '@zod/core': 0.8.1
 
   zwitch@2.0.4: {}
