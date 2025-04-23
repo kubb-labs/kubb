@@ -8,11 +8,11 @@ function slash(path: string, platform: 'windows' | 'mac' | 'linux' = 'linux') {
 
   if (['linux', 'mac'].includes(platform) && !isWindowsPath) {
     // linux and mac
-    return path.replaceAll(/\\/g, '/').replace('../', '').trimEnd()
+    return path.replaceAll(/\\/g, '/').replace(/\.{2}\//g, '').trimEnd()
   }
 
   // windows
-  return path.replaceAll(/\\/g, '/').replace('../', '').trimEnd()
+  return path.replaceAll(/\\/g, '/').replace(/\.{2}\//g, '').trimEnd()
 }
 
 export function getRelativePath(rootDir?: string | null, filePath?: string | null, platform: 'windows' | 'mac' | 'linux' = 'linux'): string {
