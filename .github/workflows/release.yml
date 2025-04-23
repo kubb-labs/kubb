@@ -68,6 +68,11 @@ jobs:
 #          run: |
 #            curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
 
+        - uses: freenet-actions/delete-old-releases@v1
+          with:
+            max-age: 'P10W' # Delete all releases older than 10 weeks.
+            token: '${{ github.token }}'
+
         - name: Send a discord notification
           if: steps.changesets.outputs.published == 'true'
           uses: actions/github-script@v6
