@@ -70,8 +70,9 @@ jobs:
 
         - uses: freenet-actions/delete-old-releases@v1
           with:
-            max-age: 'P10W' # Delete all releases older than 10 weeks.
+            max-age: 'P6M' # Delete all releases older than 6 months.
             token: '${{ github.token }}'
+            delete-tags: true
 
         - name: Send a discord notification
           if: steps.changesets.outputs.published == 'true'
