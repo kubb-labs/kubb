@@ -74,7 +74,10 @@
   },
   "pnpm": {
     "overrides": {
-      "@types/react": "catalog:react19"
+      "@types/react": "catalog:react19",
+      "@babel/runtime": "^7.26.10",
+      "dompurify": "^3.2.5",
+      "esbuild": "^0.25.0"
     }
   },
   "namespace": "@kubb"

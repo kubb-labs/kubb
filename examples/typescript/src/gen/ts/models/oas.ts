@@ -1147,7 +1147,7 @@ export const oas = {
           },
           type: {
             minLength: 1,
-            enum: ['dog', 'cat'],
+            enum: ['dog', 'cat', 'dog', 'cat'],
             type: 'string',
             readOnly: true,
           },
