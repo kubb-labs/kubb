@@ -6,7 +6,6 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "strictNullChecks": true,
-    "jsx": "react-jsx",
     "outDir": "es",
     "experimentalDecorators": true,
     "skipLibCheck": true,
@@ -17,6 +16,6 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": ["./src/**/*", "../../typings.d.ts"],
-  "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]
+  "include": ["main.js"],
+  "exclude": ["**/node_modules"]
 }

@@ -12,42 +12,19 @@
   },
   "license": "MIT",
   "author": "stijnvanhulle",
-  "sideEffects": false,
+  "private": true,
   "type": "module",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
-    }
+    ".": "./main.js"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
-    "src",
-    "dist",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "tsup",
-    "clean": "npx rimraf ./dist",
-    "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint --apply-unsafe .",
-    "release": "pnpm publish --no-git-check",
-    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsup --watch",
-    "test": "vitest --passWithNoTests",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-     "@kubb/mcp": "^3.10.0"
+    "@kubb/mcp": "latest"
   },
   "devDependencies": {
-    "@kubb/config-tsup": "^3.10.0",
-    "tsup": "^8.4.0",
-    "typescript": "^5.8.3"
   },
   "packageManager": "npm@11.3.0",
   "engines": {
