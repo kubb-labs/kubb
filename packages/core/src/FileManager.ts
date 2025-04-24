@@ -10,7 +10,7 @@ import type * as KubbFile from '@kubb/fs/types'
 
 import { trimExtName } from '@kubb/fs'
 import type { ResolvedFile } from '@kubb/fs/types'
-import type { GreaterThan } from '@kubb/types'
+import type { GreaterThan } from './utils/types.ts'
 import PQueue from 'p-queue'
 import type { Logger } from './logger.ts'
 import type { BarrelType, Config, Plugin } from './types.ts'

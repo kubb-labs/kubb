@@ -34,7 +34,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
     } catch (_e) {}
 
-    if (!['mcp', 'generate'].includes(rawArgs[0] as string)) {
+    if (!['generate'].includes(rawArgs[0] as string)) {
       console.log(rawArgs[0])
       // generate is not being used
       const generateCommand = await import('./commands/generate.ts').then((r) => r.default)
@@ -46,7 +46,6 @@ Run \`npm install -g @kubb/cli\` to update`,
   },
   subCommands: {
     generate: () => import('./commands/generate.ts').then((r) => r.default),
-    mcp: () => import('./commands/mcp.ts').then((r) => r.default),
   },
 })
 

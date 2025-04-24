@@ -27,7 +27,6 @@ async function startServer() {
   try {
     const transport = new StdioServerTransport()
     await server.connect(transport)
-    console.log('Server started and listening on stdio')
   } catch (error) {
     console.error('Failed to start server:', error)
     process.exit(1)
