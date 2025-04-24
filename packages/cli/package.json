@@ -72,9 +72,9 @@
     "@kubb/mcp": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@types/cli-progress": "^3.11.6",
+    "@types/node": "catalog:",
     "@types/semver": "^7.7.0",
     "source-map-support": "^0.5.21",
-    "@types/node": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },

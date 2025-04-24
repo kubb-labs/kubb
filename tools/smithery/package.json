@@ -17,15 +17,12 @@
   "exports": {
     ".": "./main.js"
   },
-  "files": [
-  ],
-  "scripts": {
-  },
+  "files": [],
+  "scripts": {},
   "dependencies": {
     "@kubb/mcp": "latest"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "packageManager": "npm@11.3.0",
   "engines": {
     "node": ">=20",
