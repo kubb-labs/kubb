@@ -5,6 +5,10 @@ on:
     - cron: '0 0 * * 0' # Runs every Sunday at 00:00 UTC
   workflow_dispatch:     # Allows manual run
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   delete-old-tags:
     runs-on: ubuntu-latest
