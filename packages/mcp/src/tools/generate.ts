@@ -2,7 +2,7 @@ import { pluginTs } from '@kubb/plugin-ts'
 import { type Include, pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-import { type Config, safeBuild, type Plugin } from '@kubb/core'
+import { type Config, safeBuild, type Plugin, getSource } from '@kubb/core'
 import type { generateSchema } from '../schemas/generateSchema.ts'
 import type { z } from 'zod'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.d.ts'
@@ -65,6 +65,12 @@ export async function generate({ plugin, openApi, operationId }: z.infer<typeof 
       }
     }
 
+    const promises = files.map(async (file) => {
+      return await getSource(file, { extname: '.ts' })
+    })
+
+    const sources = await Promise.all(promises)
+
     return {
       content: [
         // {
@@ -77,14 +83,7 @@ export async function generate({ plugin, openApi, operationId }: z.infer<typeof 
         },
         {
           type: 'text',
-          text: `Files: ${JSON.stringify(
-            files
-              .flatMap((file) => file.sources)
-              .map((source) => source.value)
-              .join('\n\n'),
-            null,
-            2,
-          )}`,
+          text: `Files: ${JSON.stringify(sources, null, 2)}`,
         },
       ],
     }
