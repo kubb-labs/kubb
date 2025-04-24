@@ -345,6 +345,7 @@ a.fancy-sponsor {
   background-clip: padding-box, border-box, border-box;
   background-size: 200%;
   animation: spin 2s infinite linear;
+  z-index: 0;
 }
 
 a.fancy-sponsor::before {

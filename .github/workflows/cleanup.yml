@@ -1,0 +1,51 @@
+name: Delete Old Tags
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Runs every Sunday at 00:00 UTC
+  workflow_dispatch:     # Allows manual run
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  delete-old-tags:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Important: fetch all tags
+
+      - name: Configure Git user
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - uses: freenet-actions/delete-old-releases@v1
+        with:
+          max-age: 'P1Y' # Delete all releases older than 1 year.
+          token: '${{ github.token }}'
+          delete-tags: true
+
+      - name: Delete tags older than 1 year
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          now=$(date +%s)
+          threshold=$((365 * 24 * 60 * 60))
+
+          git fetch --tags
+
+          git for-each-ref --sort=creatordate --format '%(refname:strip=2) %(creatordate:iso8601)' refs/tags | while read tag date; do
+            tag_seconds=$(date -d "$date" +%s)
+            age=$((now - tag_seconds))
+
+            if [ "$age" -gt "$threshold" ]; then
+              echo "Deleting tag: $tag (created on $date)"
+              git tag -d "$tag"
+              git push origin ":refs/tags/$tag"
+            fi
+          done

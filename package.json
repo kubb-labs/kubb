@@ -62,7 +62,7 @@
     "rimraf": "^6.0.1",
     "taze": "^19.0.4",
     "ts-node": "^10.9.2",
-    "turbo": "^2.5.0",
+    "turbo": "^2.5.1",
     "typescript": "catalog:",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.1.2"
@@ -74,7 +74,10 @@
   },
   "pnpm": {
     "overrides": {
-      "@types/react": "catalog:react19"
+      "@babel/runtime": "^7.27.0",
+      "@types/react": "catalog:react19",
+      "dompurify": "^3.2.5",
+      "esbuild": "^0.25.3"
     }
   },
   "namespace": "@kubb"
