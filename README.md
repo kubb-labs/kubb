@@ -7,6 +7,7 @@
 [![Coverage][coverage-src]][coverage-href]
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
+[![smithery badge](https://smithery.ai/badge/@kubb-labs/kubb)](https://smithery.ai/server/@kubb-labs/kubb)
 
 <h4>
     <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main//examples/typescript" target="_blank">View Demo</a>

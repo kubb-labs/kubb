@@ -10,8 +10,7 @@ import path from 'node:path'
 import * as process from 'node:process'
 import { PromiseManager, isInputPath } from '@kubb/core'
 import { LogMapper, createLogger } from '@kubb/core/logger'
-import { generate } from '../generate.ts'
-import { startServer } from '@kubb/ui'
+
 import open from 'open'
 import type { SingleBar } from 'cli-progress'
 
@@ -75,8 +74,7 @@ const command = defineCommand({
     const input = args._[0]
 
     if (args.help) {
-      showUsage(command)
-      return
+      return showUsage(command)
     }
 
     if (args.debug) {
@@ -87,6 +85,7 @@ const command = defineCommand({
     const logger = createLogger({
       logLevel,
     })
+    const { generate } = await import('../runners/generate.ts')
 
     logger.emit('start', 'Loading config')
 
@@ -127,6 +126,8 @@ const command = defineCommand({
     }
 
     if (args.ui) {
+      const { startServer } = await import('@kubb/ui')
+
       await startServer(
         {
           stop: () => process.exit(1),

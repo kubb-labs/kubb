@@ -45,7 +45,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
     "@mermaid-js/mermaid-cli": "^11.4.2",
-    "@types/node": "^20.17.30",
+    "@types/node": "catalog:",
     "@types/react": "catalog:",
     "cross-env": "^7.0.3",
     "react": "catalog:",

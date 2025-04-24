@@ -1,6 +1,6 @@
 import { hookFirst, hookParallel, hookSeq } from './utils/executeStrategies.ts'
 
-import type { PossiblePromise } from '@kubb/types'
+import type { PossiblePromise } from './utils/types.ts'
 import type { Strategy, StrategySwitch } from './utils/executeStrategies.ts'
 
 type PromiseFunc<T = unknown, T2 = never> = () => T2 extends never ? Promise<T> : Promise<T> | T2
