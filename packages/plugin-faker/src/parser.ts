@@ -214,7 +214,6 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
       )
     }
 
-
     return fakerKeywordMapper.enum(
       current.args.items.map((schema) => {
         if (schema.format === 'number') {

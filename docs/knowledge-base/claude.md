@@ -225,7 +225,7 @@ async function startServer() {
 startServer()
 ```
 
-## Starting Claud with the generated MCP server
+## Starting Claude with the generated MCP server
 
 Before you can get started, you need to let [Claude](https://claude.ai) know where your [MCP](https://modelcontextprotocol.io) server config file is located(`src/mcp/mcp.json`).
 For that you need to open `Claude desktop` and go to `settings`.
@@ -290,7 +290,7 @@ This will open the following view where you could see our generated [MCP](https:
 In your example we will use the prompt `create a random pet` that will call our generated [MCP](https://modelcontextprotocol.io) server.
 The [MCP](https://modelcontextprotocol.io) server will attach that to the tool `addPet` which will then call `addPetHandler` and create our pet.
 
-![Claud interaction](/screenshots/claude-interaction.gif)
+![Claude interaction](/screenshots/claude-interaction.gif)
 
 ## Links
 

@@ -15,7 +15,7 @@ const links: Array<{ url: string; lastmod: number | undefined }> = []
 
 const knowledgeBaseSidebar = [
   {
-    text: "Basic",
+    text: 'Basic',
     items: [
       {
         text: 'Custom HTTP client',
@@ -29,10 +29,10 @@ const knowledgeBaseSidebar = [
         text: 'Filter and sort',
         link: '/knowledge-base/filter-and-sort/',
       },
-    ]
+    ],
   },
   {
-    text: "Intermediate",
+    text: 'Intermediate',
     items: [
       {
         text: 'Debugging Kubb',
@@ -42,10 +42,10 @@ const knowledgeBaseSidebar = [
         text: 'Setup Claude with Kubb',
         link: '/knowledge-base/claude/',
       },
-    ]
+    ],
   },
   {
-    text: "Advanced",
+    text: 'Advanced',
     items: [
       {
         text: 'Use JSX in Kubb',
@@ -59,9 +59,8 @@ const knowledgeBaseSidebar = [
         text: 'Kubb Plugins',
         link: '/knowledge-base/plugins/',
       },
-    ]
+    ],
   },
-
 
   // {
   //   text: 'Plugins',

@@ -213,6 +213,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/89906313?v=4",
       "profile": "https://github.com/rmachado-studocu",
       "contributions": ["code"]
+    },
+    {
+      "login": "simonelnahas",
+      "name": "Simon El Nahas",
+      "avatar_url": "https://avatars.githubusercontent.com/u/29279201?v=4",
+      "profile": "http://simonelnahas.com",
+      "contributions": ["doc"]
     }
   ],
   "contributorsPerLine": 7,

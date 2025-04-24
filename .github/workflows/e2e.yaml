@@ -17,6 +17,10 @@ on:
     #     - macos-latest
     #     - windows-latest
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   build:
       name: Build and test
