@@ -15,6 +15,7 @@ import type { Oas, OpenAPIV3, SchemaObject, contentType } from '@kubb/oas'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import type { Generator } from './generator.tsx'
 import type { OperationSchema, Override, Refs } from './types.ts'
+import { merge } from 'remeda'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
@@ -476,20 +477,10 @@ export class SchemaGenerator<
             return item && item.keyword !== unknownReturn
           }),
       }
-      if (schemaWithoutOneOf.properties) {
-        const propertySchemas = this.parse({ schema: schemaWithoutOneOf, name, parentName })
-
-        union.args = [
-          ...union.args.map((arg) => {
-            return {
-              keyword: schemaKeywords.and,
-              args: [arg, ...propertySchemas],
-            }
-          }),
-        ]
-      }
 
       if (isDiscriminator(schema)) {
+        const objectPropertySchema = SchemaGenerator.find(this.parse({ schema: schemaWithoutOneOf, name, parentName }), schemaKeywords.object)
+
         const { propertyName } = schema.discriminator
         const mapping = this.context.oas.getDiscriminatorMapping(schema)
 
@@ -511,7 +502,7 @@ export class SchemaGenerator<
                   {
                     keyword: schemaKeywords.object,
                     args: {
-                      properties: {
+                      properties: merge(objectPropertySchema?.args?.properties || {}, {
                         [propertyName]: [
                           {
                             keyword: schemaKeywords.const,
@@ -522,7 +513,7 @@ export class SchemaGenerator<
                             },
                           },
                         ],
-                      },
+                      }),
                     },
                   },
                 ],
@@ -532,6 +523,23 @@ export class SchemaGenerator<
             return arg
           }),
         ]
+
+        return [union, ...baseItems]
+      }
+
+      if (schemaWithoutOneOf.properties) {
+        const propertySchemas = this.parse({ schema: schemaWithoutOneOf, name, parentName })
+
+        union.args = [
+          ...union.args.map((arg) => {
+            return {
+              keyword: schemaKeywords.and,
+              args: [arg, ...propertySchemas],
+            }
+          }),
+        ]
+
+        return [union, ...baseItems]
       }
 
       return [union, ...baseItems]
@@ -566,20 +574,9 @@ export class SchemaGenerator<
           }),
       }
 
-      if (schemaWithoutAnyOf.properties) {
-        const propertySchemas = this.parse({ schema: schemaWithoutAnyOf, name, parentName })
-
-        union.args = [
-          ...union.args.map((arg) => {
-            return {
-              keyword: schemaKeywords.and,
-              args: [arg, ...propertySchemas],
-            }
-          }),
-        ]
-      }
-
       if (isDiscriminator(schema)) {
+        const objectPropertySchema = SchemaGenerator.find(this.parse({ schema: schemaWithoutAnyOf, name, parentName }), schemaKeywords.object)
+
         const { propertyName } = schema.discriminator
         const mapping = this.context.oas.getDiscriminatorMapping(schema)
 
@@ -601,7 +598,7 @@ export class SchemaGenerator<
                   {
                     keyword: schemaKeywords.object,
                     args: {
-                      properties: {
+                      properties: merge(objectPropertySchema?.args?.properties || {}, {
                         [propertyName]: [
                           {
                             keyword: schemaKeywords.const,
@@ -612,7 +609,7 @@ export class SchemaGenerator<
                             },
                           },
                         ],
-                      },
+                      }),
                     },
                   },
                 ],
@@ -622,6 +619,21 @@ export class SchemaGenerator<
             return arg
           }),
         ]
+      }
+
+      if (schemaWithoutAnyOf.properties) {
+        const propertySchemas = this.parse({ schema: schemaWithoutAnyOf, name, parentName })
+
+        union.args = [
+          ...union.args.map((arg) => {
+            return {
+              keyword: schemaKeywords.and,
+              args: [arg, ...propertySchemas],
+            }
+          }),
+        ]
+
+        return [union, ...baseItems]
       }
 
       return [union, ...baseItems]

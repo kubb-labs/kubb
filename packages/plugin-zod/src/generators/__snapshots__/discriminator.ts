@@ -9,28 +9,28 @@ export const advanced = z.union([
     .lazy(() => enumerationValueSpecificationDto)
     .and(
       z.object({
-        type: z.enum(['enum', 'range', 'regex', 'slider']),
+        type: z.literal('enum'),
       }),
     ),
   z
     .lazy(() => rangeValueSpecificationDto)
     .and(
       z.object({
-        type: z.enum(['enum', 'range', 'regex', 'slider']),
+        type: z.literal('range'),
       }),
     ),
   z
     .lazy(() => regexValueSpecificationDto)
     .and(
       z.object({
-        type: z.enum(['enum', 'range', 'regex', 'slider']),
+        type: z.literal('regex'),
       }),
     ),
   z
     .lazy(() => sliderValueSpecificationDto)
     .and(
       z.object({
-        type: z.enum(['enum', 'range', 'regex', 'slider']),
+        type: z.literal('slider'),
       }),
     ),
 ])
