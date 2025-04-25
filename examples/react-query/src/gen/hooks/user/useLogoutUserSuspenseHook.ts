@@ -39,11 +39,7 @@ export function logoutUserSuspenseQueryOptionsHook(config: Partial<RequestConfig
  * @summary Logs out current logged in user session
  * {@link /user/logout}
  */
-export function useLogoutUserSuspenseHook<
-  TData = LogoutUserQueryResponse,
-  TQueryData = LogoutUserQueryResponse,
-  TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey,
->(
+export function useLogoutUserSuspenseHook<TData = LogoutUserQueryResponse, TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey>(
   options: {
     query?: Partial<UseSuspenseQueryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, TData, TQueryKey>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof client }

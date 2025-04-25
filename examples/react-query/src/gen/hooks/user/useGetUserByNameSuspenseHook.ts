@@ -51,11 +51,7 @@ export function getUserByNameSuspenseQueryOptionsHook(
  * @summary Get user by user name
  * {@link /user/:username}
  */
-export function useGetUserByNameSuspenseHook<
-  TData = GetUserByNameQueryResponse,
-  TQueryData = GetUserByNameQueryResponse,
-  TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey,
->(
+export function useGetUserByNameSuspenseHook<TData = GetUserByNameQueryResponse, TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey>(
   { username }: { username: GetUserByNamePathParams['username'] },
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryKey>> & {

@@ -39,11 +39,7 @@ export function loginUserSuspenseQueryOptionsHook(params?: LoginUserQueryParams,
  * @summary Logs user into the system
  * {@link /user/login}
  */
-export function useLoginUserSuspenseHook<
-  TData = LoginUserQueryResponse,
-  TQueryData = LoginUserQueryResponse,
-  TQueryKey extends QueryKey = LoginUserSuspenseQueryKey,
->(
+export function useLoginUserSuspenseHook<TData = LoginUserQueryResponse, TQueryKey extends QueryKey = LoginUserSuspenseQueryKey>(
   params?: LoginUserQueryParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, TData, TQueryKey>> & { client?: QueryClient }

@@ -50,11 +50,7 @@ export function findPetsByStatusSuspenseQueryOptionsHook(
  * @summary Finds Pets by status
  * {@link /pet/findByStatus}
  */
-export function useFindPetsByStatusSuspenseHook<
-  TData = FindPetsByStatusQueryResponse,
-  TQueryData = FindPetsByStatusQueryResponse,
-  TQueryKey extends QueryKey = FindPetsByStatusSuspenseQueryKey,
->(
+export function useFindPetsByStatusSuspenseHook<TData = FindPetsByStatusQueryResponse, TQueryKey extends QueryKey = FindPetsByStatusSuspenseQueryKey>(
   params?: FindPetsByStatusQueryParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, TData, TQueryKey>> & {

@@ -53,11 +53,7 @@ export function getPetByIdSuspenseQueryOptionsHook(
  * @summary Find pet by ID
  * {@link /pet/:pet_id}
  */
-export function useGetPetByIdSuspenseHook<
-  TData = GetPetByIdQueryResponse,
-  TQueryData = GetPetByIdQueryResponse,
-  TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey,
->(
+export function useGetPetByIdSuspenseHook<TData = GetPetByIdQueryResponse, TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey>(
   { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] },
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryKey>> & {

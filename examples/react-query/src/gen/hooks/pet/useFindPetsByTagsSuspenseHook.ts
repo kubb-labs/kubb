@@ -51,11 +51,7 @@ export function findPetsByTagsSuspenseQueryOptionsHook(params?: FindPetsByTagsQu
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export function useFindPetsByTagsSuspenseHook<
-  TData = ResponseConfig<FindPetsByTagsQueryResponse>,
-  TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
-  TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey,
->(
+export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByTagsQueryResponse>, TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey>(
   params?: FindPetsByTagsQueryParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryKey>> & {

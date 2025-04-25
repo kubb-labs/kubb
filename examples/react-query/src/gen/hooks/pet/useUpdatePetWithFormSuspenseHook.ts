@@ -59,11 +59,7 @@ export function updatePetWithFormSuspenseQueryOptionsHook(
  * @summary Updates a pet in the store with form data
  * {@link /pet/:pet_id}
  */
-export function useUpdatePetWithFormSuspenseHook<
-  TData = UpdatePetWithFormMutationResponse,
-  TQueryData = UpdatePetWithFormMutationResponse,
-  TQueryKey extends QueryKey = UpdatePetWithFormSuspenseQueryKey,
->(
+export function useUpdatePetWithFormSuspenseHook<TData = UpdatePetWithFormMutationResponse, TQueryKey extends QueryKey = UpdatePetWithFormSuspenseQueryKey>(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
   options: {
