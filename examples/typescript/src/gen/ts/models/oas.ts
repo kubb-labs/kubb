@@ -1137,6 +1137,8 @@ export const oas = {
           mapping: {
             dog: '#/components/schemas/Dog',
             cat: '#/components/schemas/Cat',
+            Dog: '#/components/schemas/Dog',
+            Cat: '#/components/schemas/Cat',
           },
         },
         properties: {
@@ -1147,7 +1149,7 @@ export const oas = {
           },
           type: {
             minLength: 1,
-            enum: ['dog', 'cat', 'dog', 'cat'],
+            enum: ['dog', 'cat'],
             type: 'string',
             readOnly: true,
           },
@@ -1197,13 +1199,11 @@ export const oas = {
             minLength: 1,
             type: 'string',
             readOnly: true,
-            enum: ['cat'],
           },
           name: {
             type: 'string',
           },
         },
-        required: ['type'],
       },
       Dog: {
         type: 'object',
@@ -1212,13 +1212,11 @@ export const oas = {
             minLength: 1,
             type: 'string',
             readOnly: true,
-            enum: ['dog'],
           },
           bark: {
             type: 'string',
           },
         },
-        required: ['type'],
       },
       FullAddress: {
         properties: {

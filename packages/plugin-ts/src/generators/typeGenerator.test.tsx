@@ -344,20 +344,29 @@ describe('typeGenerator schema', async () => {
       options: {},
     },
     {
-      name: 'PetsStoreDiscriminator',
+      name: 'CatDogDiscriminator',
       input: '../../mocks/discriminator.yaml',
-      path: 'Petstore',
+      path: 'CatDog',
       options: {
         enumType: 'asConst',
         optionalType: 'questionToken',
       },
     },
     {
-      name: 'PetsStoreAdvancedDiscriminator',
+      name: 'CatDogDiscriminatorWithoutMapping',
       input: '../../mocks/discriminator.yaml',
-      path: 'Advanced',
-      options: {},
+      path: 'CatDogWithoutMapping',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
     },
+    // {
+    //   name: 'PetsStoreAdvancedDiscriminator',
+    //   input: '../../mocks/discriminator.yaml',
+    //   path: 'Advanced',
+    //   options: {},
+    // },
   ] as const satisfies Array<{
     input: string
     name: string

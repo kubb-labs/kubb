@@ -14,7 +14,8 @@ import { pluginZod } from '@kubb/plugin-zod'
 
 const schemas = [
   // { name: 'test', path: './schemas/test.json' },
-  { name: 'Machines API', path: 'https://docs.machines.dev/spec/openapi3.json' }, // not valid anymore
+  { name: 'Machines API', path: 'https://docs.machines.dev/spec/openapi3.json' },
+  { name: 'discriminator', path: './discriminator.yaml' },
   { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },
   { name: 'petStoreV3', path: 'https://petstore3.swagger.io/api/v3/openapi.json' },
   { name: 'optionalParameters', path: './schemas/optionalParameters.json' },

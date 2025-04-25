@@ -4,21 +4,19 @@
   "oneOf": [
     {
       "type": "object",
-      "properties": { "type": { "minLength": 1, "type": "string", "readOnly": true, "enum": ["dog"] }, "bark": { "type": "string" } },
-      "x-readme-ref-name": "Dog",
-      "required": ["type"]
+      "properties": { "type": { "minLength": 1, "type": "string", "readOnly": true }, "bark": { "type": "string" } },
+      "x-readme-ref-name": "Dog"
     },
     {
       "type": "object",
-      "properties": { "type": { "minLength": 1, "type": "string", "readOnly": true, "enum": ["cat"] }, "name": { "type": "string" } },
-      "x-readme-ref-name": "Cat",
-      "required": ["type"]
+      "properties": { "type": { "minLength": 1, "type": "string", "readOnly": true }, "name": { "type": "string" } },
+      "x-readme-ref-name": "Cat"
     }
   ],
   "discriminator": { "propertyName": "type", "mapping": { "dog": "#/components/schemas/Dog", "cat": "#/components/schemas/Cat" } },
   "properties": {
     "id": { "type": "integer", "format": "int64", "example": 10 },
-    "type": { "minLength": 1, "enum": ["dog", "cat", "dog", "cat"], "type": "string", "readOnly": true },
+    "type": { "minLength": 1, "enum": ["dog", "cat"], "type": "string", "readOnly": true },
     "name": { "type": "string", "example": "doggie" },
     "category": {
       "type": "object",

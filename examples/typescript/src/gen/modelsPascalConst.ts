@@ -227,34 +227,24 @@ export type Pet =
       status?: PetStatusEnum
     })
 
-export const catTypeEnum = {
-  cat: 'cat',
-} as const
-
-export type CatTypeEnum = (typeof catTypeEnum)[keyof typeof catTypeEnum]
-
 export type Cat = {
   /**
-   * @type string
+   * @minLength 1
+   * @type string | undefined
    */
-  readonly type: CatTypeEnum
+  readonly type?: string
   /**
    * @type string | undefined
    */
   name?: string
 }
 
-export const dogTypeEnum = {
-  dog: 'dog',
-} as const
-
-export type DogTypeEnum = (typeof dogTypeEnum)[keyof typeof dogTypeEnum]
-
 export type Dog = {
   /**
-   * @type string
+   * @minLength 1
+   * @type string | undefined
    */
-  readonly type: DogTypeEnum
+  readonly type?: string
   /**
    * @type string | undefined
    */

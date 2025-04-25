@@ -2,7 +2,7 @@ import { BaseGenerator, type FileMetaBase } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 
-import { isNullable, isReference } from '@kubb/oas'
+import { isDiscriminator, isNullable, isReference } from '@kubb/oas'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
@@ -319,7 +319,7 @@ export class SchemaGenerator<
       return [
         {
           keyword: schemaKeywords.ref,
-          args: { name: ref.propertyName, path: ref.path, isImportable: !!this.context.oas.get($ref) },
+          args: { name: ref.propertyName, $ref, path: ref.path, isImportable: !!this.context.oas.get($ref) },
         },
       ]
     }
@@ -344,7 +344,7 @@ export class SchemaGenerator<
     return [
       {
         keyword: schemaKeywords.ref,
-        args: { name: ref.propertyName, path: ref?.path, isImportable: !!this.context.oas.get($ref) },
+        args: { name: ref.propertyName, $ref, path: ref?.path, isImportable: !!this.context.oas.get($ref) },
       },
     ]
   }
@@ -468,7 +468,8 @@ export class SchemaGenerator<
         keyword: schemaKeywords.union,
         args: schema.oneOf
           .map((item) => {
-            return item && this.parse({ schema: item as SchemaObject, name, parentName })[0]
+            // first item, this will be ref
+            return item && this.parse({ schema: item as SchemaObject })[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -488,6 +489,51 @@ export class SchemaGenerator<
         ]
       }
 
+      if (isDiscriminator(schema)) {
+        const { propertyName } = schema.discriminator
+        const mapping = this.context.oas.getDiscriminatorMapping(schema)
+
+        union.args = [
+          ...union.args.map((arg) => {
+            const isRef = isKeyword(arg, schemaKeywords.ref)
+
+            if (isRef) {
+              const [key] = Object.entries(mapping).find(([_key, value]) => value === arg.args.$ref) || []
+
+              if (!key) {
+                throw new Error(`Can not find a key in discriminator ${JSON.stringify(schema)}`)
+              }
+
+              return {
+                keyword: schemaKeywords.and,
+                args: [
+                  arg,
+                  {
+                    keyword: schemaKeywords.object,
+                    args: {
+                      properties: {
+                        [propertyName]: [
+                          {
+                            keyword: schemaKeywords.const,
+                            args: {
+                              name: key,
+                              format: 'string',
+                              value: key,
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                ],
+              }
+            }
+
+            return arg
+          }),
+        ]
+      }
+
       return [union, ...baseItems]
     }
 
@@ -499,7 +545,8 @@ export class SchemaGenerator<
         keyword: schemaKeywords.union,
         args: schema.anyOf
           .map((item) => {
-            return item && this.parse({ schema: item as SchemaObject, name, parentName })[0]
+            // first item, this will be ref
+            return item && this.parse({ schema: item as SchemaObject })[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -518,8 +565,63 @@ export class SchemaGenerator<
             return item
           }),
       }
+
       if (schemaWithoutAnyOf.properties) {
-        return [...this.parse({ schema: schemaWithoutAnyOf, name, parentName }), union, ...baseItems]
+        const propertySchemas = this.parse({ schema: schemaWithoutAnyOf, name, parentName })
+
+        union.args = [
+          ...union.args.map((arg) => {
+            return {
+              keyword: schemaKeywords.and,
+              args: [arg, ...propertySchemas],
+            }
+          }),
+        ]
+      }
+
+      if (isDiscriminator(schema)) {
+        const { propertyName } = schema.discriminator
+        const mapping = this.context.oas.getDiscriminatorMapping(schema)
+
+        union.args = [
+          ...union.args.map((arg) => {
+            const isRef = isKeyword(arg, schemaKeywords.ref)
+
+            if (isRef) {
+              const [key] = Object.entries(mapping).find(([_key, value]) => value === arg.args.$ref) || []
+
+              if (!key) {
+                throw new Error(`Can not find a key in discriminator ${JSON.stringify(schema)}`)
+              }
+
+              return {
+                keyword: schemaKeywords.and,
+                args: [
+                  arg,
+                  {
+                    keyword: schemaKeywords.object,
+                    args: {
+                      properties: {
+                        [propertyName]: [
+                          {
+                            keyword: schemaKeywords.const,
+                            args: {
+                              name: key,
+                              format: 'string',
+                              value: key,
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                ],
+              }
+            }
+
+            return arg
+          }),
+        ]
       }
 
       return [union, ...baseItems]
@@ -900,7 +1002,7 @@ export class SchemaGenerator<
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
 
-    oas.resolveDiscriminators()
+    // oas.resolveDiscriminators()
 
     const schemas = getSchemas({ oas, contentType, includes: include })
 

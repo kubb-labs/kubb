@@ -1,6 +1,1 @@
-{
-  "type": "object",
-  "properties": { "type": { "minLength": 1, "type": "string", "readOnly": true, "enum": ["dog"] }, "bark": { "type": "string" } },
-  "x-readme-ref-name": "Dog",
-  "required": ["type"]
-}
+{ "type": "object", "properties": { "type": { "minLength": 1, "type": "string", "readOnly": true }, "bark": { "type": "string" } }, "x-readme-ref-name": "Dog" }

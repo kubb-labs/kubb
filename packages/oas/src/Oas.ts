@@ -4,7 +4,7 @@ import { matchesMimeType } from 'oas/utils'
 
 import jsonpointer from 'jsonpointer'
 
-import { isReference } from './utils.ts'
+import { isDiscriminator, isReference } from './utils.ts'
 
 import type { Operation } from 'oas/operation'
 import type { MediaTypeObject, OASDocument, ResponseObject, SchemaObject, User } from 'oas/types'
@@ -49,6 +49,10 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     return current
   }
 
+  getKey($ref: string) {
+    return $ref.split('/').pop()
+  }
+
   set($ref: string, value: unknown) {
     $ref = $ref.trim()
     if ($ref === '') {
@@ -61,21 +65,69 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     }
   }
 
+  getDiscriminatorMapping(schema: OasTypes.SchemaObject) {
+    if (isDiscriminator(schema)) {
+      const mapping = schema.discriminator.mapping || {}
+
+      // loop over oneOf and add default mapping when none is defined
+      if (schema.oneOf) {
+        schema.oneOf?.forEach((schema) => {
+          if (isReference(schema)) {
+            const key = this.getKey(schema.$ref)
+
+            if (key && !mapping[key]) {
+              mapping[key] = schema.$ref
+            }
+          }
+        })
+      }
+
+      if (schema.anyOf) {
+        schema.anyOf?.forEach((schema) => {
+          if (isReference(schema)) {
+            const key = this.getKey(schema.$ref)
+
+            if (key && !mapping[key]) {
+              mapping[key] = schema.$ref
+            }
+          }
+        })
+      }
+
+      return mapping
+    }
+
+    return {}
+  }
+
   resolveDiscriminators(): void {
     const schemas = (this.api.components?.schemas || {}) as Record<string, OasTypes.SchemaObject>
 
     Object.entries(schemas).forEach(([_key, schemaObject]) => {
-      if ('discriminator' in schemaObject && typeof schemaObject.discriminator !== 'string') {
-        const { mapping = {}, propertyName } = (schemaObject.discriminator || {}) as OpenAPIV3.DiscriminatorObject
+      if (isDiscriminator(schemaObject)) {
+        const { mapping = {}, propertyName } = schemaObject.discriminator || {}
 
         if (!schemaObject.properties?.[propertyName]) {
           schemaObject.properties = {}
         }
 
-        const enums: string[] = (schemaObject.properties[propertyName] as NonNullable<OpenAPIV3.SchemaObject>).enum || []
+        // loop over oneOf and add default mapping when none is defined
+        if (schemaObject.oneOf) {
+          schemaObject.oneOf?.forEach((schema) => {
+            if (isReference(schema)) {
+              const key = this.getKey(schema.$ref)
+
+              if (key && !mapping[key]) {
+                mapping[key] = schema.$ref
+              }
+            }
+          })
+        }
+
+        const enums: string[] = (schemaObject.properties[propertyName] as OpenAPIV3.SchemaObject)?.enum || []
 
         schemaObject.properties[propertyName] = {
-          ...schemaObject.properties[propertyName],
+          ...((schemaObject.properties[propertyName] as OpenAPIV3.SchemaObject) || {}),
           enum: [...Object.keys(mapping), ...enums],
         }
 

@@ -219,30 +219,24 @@ export type Pet =
       status?: PetStatusEnum
     })
 
-export enum CatTypeEnum {
-  cat = 'cat',
-}
-
 export interface Cat {
   /**
-   * @type string
+   * @minLength 1
+   * @type string | undefined
    */
-  readonly type: CatTypeEnum
+  readonly type?: string
   /**
    * @type string | undefined
    */
   name?: string
 }
 
-export enum DogTypeEnum {
-  dog = 'dog',
-}
-
 export interface Dog {
   /**
-   * @type string
+   * @minLength 1
+   * @type string | undefined
    */
-  readonly type: DogTypeEnum
+  readonly type?: string
   /**
    * @type string | undefined
    */

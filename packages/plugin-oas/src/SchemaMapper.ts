@@ -53,6 +53,7 @@ export type SchemaKeywordMapper = {
     keyword: 'ref'
     args: {
       name: string
+      $ref: string
       /**
        * Full qualified path.
        */

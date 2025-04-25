@@ -32,8 +32,12 @@ export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): 
   return schema?.nullable ?? schema?.['x-nullable'] ?? false
 }
 
-export function isReference(obj?: unknown): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
+export function isReference(obj?: any): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
   return !!obj && isRef(obj)
+}
+
+export function isDiscriminator(obj?: any): obj is SchemaObject & { discriminator: OpenAPIV3.DiscriminatorObject } {
+  return !!obj && obj?.['discriminator'] && typeof obj.discriminator !== 'string'
 }
 
 export function isRequired(schema?: SchemaObject): boolean {

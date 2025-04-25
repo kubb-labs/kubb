@@ -204,26 +204,24 @@ export type Pet =
       status?: PetStatusEnum
     })
 
-export type CatTypeEnum = 'cat'
-
 export type Cat = {
   /**
-   * @type string
+   * @minLength 1
+   * @type string | undefined
    */
-  readonly type: CatTypeEnum
+  readonly type?: string
   /**
    * @type string | undefined
    */
   name?: string
 }
 
-export type DogTypeEnum = 'dog'
-
 export type Dog = {
   /**
-   * @type string
+   * @minLength 1
+   * @type string | undefined
    */
-  readonly type: DogTypeEnum
+  readonly type?: string
   /**
    * @type string | undefined
    */
