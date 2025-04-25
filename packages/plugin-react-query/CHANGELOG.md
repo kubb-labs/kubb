@@ -1,5 +1,20 @@
 # @kubb/plugin-react-query
 
+## 3.10.2
+
+### Patch Changes
+
+- [#1679](https://github.com/kubb-labs/kubb/pull/1679) [`1d69719`](https://github.com/kubb-labs/kubb/commit/1d697190f5c698de985e499172904b4a85f44ee5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove generic TQueryData when using suspense
+
+- Updated dependencies []:
+  - @kubb/core@3.10.2
+  - @kubb/fs@3.10.2
+  - @kubb/oas@3.10.2
+  - @kubb/plugin-oas@3.10.2
+  - @kubb/plugin-ts@3.10.2
+  - @kubb/plugin-zod@3.10.2
+  - @kubb/react@3.10.2
+
 ## 3.10.1
 
 ### Patch Changes
