@@ -4,6 +4,12 @@ title: Changelog
 
 # Changelog
 
+# 3.10.2
+- [`plugin-react-query`](/plugins/plugin-react-query/): remove generic TQueryData when using suspense
+
+# 3.10.1
+- Update of internal libraries
+
 # 3.10.0
 - [`plugin-mcp`](/plugins/plugin-mcp/): create an [MCP](https://modelcontextprotocol.io) server based on your OpenAPI file and interact with an AI like Claude.
 

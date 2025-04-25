@@ -41,11 +41,7 @@ export function getInventorySuspenseQueryOptionsHook(config: Partial<RequestConf
  * @summary Returns pet inventories by status
  * {@link /store/inventory}
  */
-export function useGetInventorySuspenseHook<
-  TData = GetInventoryQueryResponse,
-  TQueryData = GetInventoryQueryResponse,
-  TQueryKey extends QueryKey = GetInventorySuspenseQueryKey,
->(
+export function useGetInventorySuspenseHook<TData = GetInventoryQueryResponse, TQueryKey extends QueryKey = GetInventorySuspenseQueryKey>(
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, TData, TQueryKey>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof client }

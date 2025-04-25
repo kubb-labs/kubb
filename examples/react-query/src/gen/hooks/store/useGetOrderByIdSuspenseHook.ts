@@ -53,11 +53,7 @@ export function getOrderByIdSuspenseQueryOptionsHook(
  * @summary Find purchase order by ID
  * {@link /store/order/:orderId}
  */
-export function useGetOrderByIdSuspenseHook<
-  TData = GetOrderByIdQueryResponse,
-  TQueryData = GetOrderByIdQueryResponse,
-  TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey,
->(
+export function useGetOrderByIdSuspenseHook<TData = GetOrderByIdQueryResponse, TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey>(
   { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryKey>> & {

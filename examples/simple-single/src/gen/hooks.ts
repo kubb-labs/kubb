@@ -294,11 +294,7 @@ export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatusQu
  * @summary Finds Pets by status
  * {@link /pet/findByStatus}
  */
-export function useFindPetsByStatusSuspense<
-  TData = FindPetsByStatusQueryResponse,
-  TQueryData = FindPetsByStatusQueryResponse,
-  TQueryKey extends QueryKey = FindPetsByStatusSuspenseQueryKey,
->(
+export function useFindPetsByStatusSuspense<TData = FindPetsByStatusQueryResponse, TQueryKey extends QueryKey = FindPetsByStatusSuspenseQueryKey>(
   params?: FindPetsByStatusQueryParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, TData, TQueryKey>> & {
@@ -434,11 +430,7 @@ export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTagsQueryP
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export function useFindPetsByTagsSuspense<
-  TData = FindPetsByTagsQueryResponse,
-  TQueryData = FindPetsByTagsQueryResponse,
-  TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey,
->(
+export function useFindPetsByTagsSuspense<TData = FindPetsByTagsQueryResponse, TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey>(
   params?: FindPetsByTagsQueryParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryKey>> & { client?: QueryClient }
@@ -568,11 +560,7 @@ export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petI
  * @summary Find pet by ID
  * {@link /pet/:petId}
  */
-export function useGetPetByIdSuspense<
-  TData = GetPetByIdQueryResponse,
-  TQueryData = GetPetByIdQueryResponse,
-  TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey,
->(
+export function useGetPetByIdSuspense<TData = GetPetByIdQueryResponse, TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryKey>> & {
@@ -882,11 +870,7 @@ export function getInventorySuspenseQueryOptions(config: Partial<RequestConfig> 
  * @summary Returns pet inventories by status
  * {@link /store/inventory}
  */
-export function useGetInventorySuspense<
-  TData = GetInventoryQueryResponse,
-  TQueryData = GetInventoryQueryResponse,
-  TQueryKey extends QueryKey = GetInventorySuspenseQueryKey,
->(
+export function useGetInventorySuspense<TData = GetInventoryQueryResponse, TQueryKey extends QueryKey = GetInventorySuspenseQueryKey>(
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, TData, TQueryKey>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof client }
@@ -1129,11 +1113,7 @@ export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams
  * @summary Find purchase order by ID
  * {@link /store/order/:orderId}
  */
-export function useGetOrderByIdSuspense<
-  TData = GetOrderByIdQueryResponse,
-  TQueryData = GetOrderByIdQueryResponse,
-  TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey,
->(
+export function useGetOrderByIdSuspense<TData = GetOrderByIdQueryResponse, TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryKey>> & {
@@ -1421,11 +1401,7 @@ export function loginUserSuspenseQueryOptions(params?: LoginUserQueryParams, con
  * @summary Logs user into the system
  * {@link /user/login}
  */
-export function useLoginUserSuspense<
-  TData = LoginUserQueryResponse,
-  TQueryData = LoginUserQueryResponse,
-  TQueryKey extends QueryKey = LoginUserSuspenseQueryKey,
->(
+export function useLoginUserSuspense<TData = LoginUserQueryResponse, TQueryKey extends QueryKey = LoginUserSuspenseQueryKey>(
   params?: LoginUserQueryParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, TData, TQueryKey>> & { client?: QueryClient }
@@ -1538,11 +1514,7 @@ export function logoutUserSuspenseQueryOptions(config: Partial<RequestConfig> & 
  * @summary Logs out current logged in user session
  * {@link /user/logout}
  */
-export function useLogoutUserSuspense<
-  TData = LogoutUserQueryResponse,
-  TQueryData = LogoutUserQueryResponse,
-  TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey,
->(
+export function useLogoutUserSuspense<TData = LogoutUserQueryResponse, TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey>(
   options: {
     query?: Partial<UseSuspenseQueryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, TData, TQueryKey>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof client }
@@ -1675,11 +1647,7 @@ export function getUserByNameSuspenseQueryOptions(
  * @summary Get user by user name
  * {@link /user/:username}
  */
-export function useGetUserByNameSuspense<
-  TData = GetUserByNameQueryResponse,
-  TQueryData = GetUserByNameQueryResponse,
-  TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey,
->(
+export function useGetUserByNameSuspense<TData = GetUserByNameQueryResponse, TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey>(
   username: GetUserByNamePathParams['username'],
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryKey>> & {
