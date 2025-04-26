@@ -66,6 +66,7 @@ describe('SchemaGenerator core', async () => {
         unknownType: 'unknown',
       },
     },
+    // Add discriminator test cases
   ] as const satisfies Array<{ input: string; name: string; path: string; options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>> }>
 
   test.each(testData)('$name', async (props) => {

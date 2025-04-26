@@ -8,8 +8,9 @@ import { isDiscriminator, isReference } from './utils.ts'
 
 import type { Operation } from 'oas/operation'
 import type { MediaTypeObject, OASDocument, ResponseObject, SchemaObject, User } from 'oas/types'
-import type { OasTypes, OpenAPIV3 } from './index.ts'
+import type { OasTypes } from './index.ts'
 import type { contentType } from './types.ts'
+import type { OpenAPIV3 } from 'openapi-types'
 
 type Options = {
   contentType?: contentType
@@ -65,7 +66,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     }
   }
 
-  getDiscriminatorMapping(schema: OasTypes.SchemaObject) {
+  getDiscriminator(schema: OasTypes.SchemaObject): OpenAPIV3.DiscriminatorObject | undefined {
     if (isDiscriminator(schema)) {
       const mapping = schema.discriminator.mapping || {}
 
@@ -94,68 +95,34 @@ export class Oas<const TOAS = unknown> extends BaseOas {
         })
       }
 
-      return mapping
+      return {
+        ...schema.discriminator,
+        mapping,
+      }
     }
 
-    return {}
+    // if (schema.allOf) {
+    //   return schema.allOf?.reduce((acc, item) => {
+    //     if (isReference(item)) {
+    //       const refItem = this.get(item.$ref)
+    //
+    //       if (isDiscriminator(refItem)) {
+    //         return refItem as unknown as OpenAPIV3.DiscriminatorObject
+    //       }
+    //     }
+    //
+    //     if (isDiscriminator(item)) {
+    //       return item.discriminator as OpenAPIV3.DiscriminatorObject
+    //     }
+    //
+    //     return acc
+    //   }, {} as OpenAPIV3.DiscriminatorObject)
+    // }
+
+    return undefined
   }
 
-  resolveDiscriminators(): void {
-    const schemas = (this.api.components?.schemas || {}) as Record<string, OasTypes.SchemaObject>
-
-    Object.entries(schemas).forEach(([_key, schemaObject]) => {
-      if (isDiscriminator(schemaObject)) {
-        const { mapping = {}, propertyName } = schemaObject.discriminator || {}
-
-        if (!schemaObject.properties?.[propertyName]) {
-          schemaObject.properties = {}
-        }
-
-        // loop over oneOf and add default mapping when none is defined
-        if (schemaObject.oneOf) {
-          schemaObject.oneOf?.forEach((schema) => {
-            if (isReference(schema)) {
-              const key = this.getKey(schema.$ref)
-
-              if (key && !mapping[key]) {
-                mapping[key] = schema.$ref
-              }
-            }
-          })
-        }
-
-        const enums: string[] = (schemaObject.properties[propertyName] as OpenAPIV3.SchemaObject)?.enum || []
-
-        schemaObject.properties[propertyName] = {
-          ...((schemaObject.properties[propertyName] as OpenAPIV3.SchemaObject) || {}),
-          enum: [...Object.keys(mapping), ...enums],
-        }
-
-        Object.entries(mapping).forEach(([mappingKey, mappingValue]) => {
-          if (mappingValue) {
-            const childSchema = this.get(mappingValue)
-            if (!childSchema.properties) {
-              childSchema.properties = {}
-            }
-
-            const property = childSchema.properties[propertyName] as SchemaObject
-
-            if (childSchema.properties) {
-              childSchema.properties[propertyName] = {
-                ...(childSchema.properties ? childSchema.properties[propertyName] : {}),
-                enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
-              }
-
-              childSchema.required = [...(childSchema.required ?? []), propertyName]
-
-              this.set(mappingValue, childSchema)
-            }
-          }
-        })
-      }
-    })
-  }
-
+  // TODO add better typing
   dereferenceWithRef(schema?: unknown) {
     if (isReference(schema)) {
       return {

@@ -15,7 +15,6 @@ import type { Oas, OpenAPIV3, SchemaObject, contentType } from '@kubb/oas'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import type { Generator } from './generator.tsx'
 import type { OperationSchema, Override, Refs } from './types.ts'
-import { merge } from 'remeda'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
@@ -305,9 +304,9 @@ export class SchemaGenerator<
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
-  #getRefAlias(obj: OpenAPIV3.ReferenceObject): Schema[] {
-    const { $ref } = obj
-    let ref = this.refs[$ref]
+  #getRefAlias(schema: OpenAPIV3.ReferenceObject, name: string | undefined): Schema[] {
+    const { $ref } = schema
+    const ref = this.refs[$ref]
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
     const propertyName = this.context.pluginManager.resolveName({
@@ -317,6 +316,48 @@ export class SchemaGenerator<
     })
 
     if (ref) {
+      const dereferencedSchema = this.context.oas.dereferenceWithRef(schema)
+      // pass name to getRefAlias and use that to find in discriminator.mapping value
+
+      if (dereferencedSchema && isDiscriminator(dereferencedSchema)) {
+        const [key] = Object.entries(dereferencedSchema.discriminator.mapping || {}).find(([_key, value]) => value === name) || []
+
+        console.log(JSON.stringify({ dereferencedSchema, schema, $ref, name: `${name}` }, null, 2))
+
+        if (!key) {
+          throw new Error(`Can not find a key in discriminator ${JSON.stringify(schema)}`)
+        }
+
+        return [
+          {
+            keyword: schemaKeywords.and,
+            args: [
+              {
+                keyword: schemaKeywords.ref,
+                args: { name: ref.propertyName, $ref, path: ref.path, isImportable: !!this.context.oas.get($ref) },
+              },
+              {
+                keyword: schemaKeywords.object,
+                args: {
+                  properties: {
+                    [dereferencedSchema.discriminator.propertyName]: [
+                      {
+                        keyword: schemaKeywords.const,
+                        args: {
+                          name: key,
+                          format: 'string',
+                          value: key,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        ] as Schema[]
+      }
+
       return [
         {
           keyword: schemaKeywords.ref,
@@ -336,18 +377,13 @@ export class SchemaGenerator<
       extname: '.ts',
     })
 
-    ref = this.refs[$ref] = {
+    this.refs[$ref] = {
       propertyName,
       originalName,
       path: file.path,
     }
 
-    return [
-      {
-        keyword: schemaKeywords.ref,
-        args: { name: ref.propertyName, $ref, path: ref?.path, isImportable: !!this.context.oas.get($ref) },
-      },
-    ]
+    return this.#getRefAlias(schema, name)
   }
 
   #getParsedSchemaObject(schema?: SchemaObject) {
@@ -443,7 +479,7 @@ export class SchemaGenerator<
 
     if (isReference(schema)) {
       return [
-        ...this.#getRefAlias(schema),
+        ...this.#getRefAlias(schema, name),
         schema.description && {
           keyword: schemaKeywords.describe,
           args: schema.description,
@@ -473,23 +509,20 @@ export class SchemaGenerator<
             return item && this.parse({ schema: item as SchemaObject })[0]
           })
           .filter(Boolean)
-          .filter((item) => {
-            return item && item.keyword !== unknownReturn
-          }),
+          .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
       }
 
-      if (isDiscriminator(schema)) {
-        const objectPropertySchema = SchemaGenerator.find(this.parse({ schema: schemaWithoutOneOf, name, parentName }), schemaKeywords.object)
+      const discriminator = this.context.oas.getDiscriminator(schema)
 
-        const { propertyName } = schema.discriminator
-        const mapping = this.context.oas.getDiscriminatorMapping(schema)
+      if (discriminator) {
+        const objectPropertySchema = SchemaGenerator.find(this.parse({ schema: schemaWithoutOneOf, name, parentName }), schemaKeywords.object)
 
         union.args = [
           ...union.args.map((arg) => {
             const isRef = isKeyword(arg, schemaKeywords.ref)
 
             if (isRef) {
-              const [key] = Object.entries(mapping).find(([_key, value]) => value === arg.args.$ref) || []
+              const [key] = Object.entries(discriminator?.mapping || {}).find(([_key, value]) => value === arg.args.$ref) || []
 
               if (!key) {
                 throw new Error(`Can not find a key in discriminator ${JSON.stringify(schema)}`)
@@ -502,8 +535,9 @@ export class SchemaGenerator<
                   {
                     keyword: schemaKeywords.object,
                     args: {
-                      properties: merge(objectPropertySchema?.args?.properties || {}, {
-                        [propertyName]: [
+                      properties: {
+                        ...(objectPropertySchema?.args?.properties || {}),
+                        [discriminator.propertyName]: [
                           {
                             keyword: schemaKeywords.const,
                             args: {
@@ -512,8 +546,10 @@ export class SchemaGenerator<
                               value: key,
                             },
                           },
-                        ],
-                      }),
+                          //enum and literal will conflict
+                          ...(objectPropertySchema?.args?.properties[discriminator.propertyName] || []),
+                        ].filter((item) => !isKeyword(item, schemaKeywords.enum)),
+                      },
                     },
                   },
                 ],
@@ -557,9 +593,7 @@ export class SchemaGenerator<
             return item && this.parse({ schema: item as SchemaObject })[0]
           })
           .filter(Boolean)
-          .filter((item) => {
-            return item && item.keyword !== unknownReturn
-          })
+          .filter((item) => !isKeyword(item, schemaKeywords.unknown))
           .map((item) => {
             if (isKeyword(item, schemaKeywords.object)) {
               return {
@@ -574,18 +608,17 @@ export class SchemaGenerator<
           }),
       }
 
-      if (isDiscriminator(schema)) {
-        const objectPropertySchema = SchemaGenerator.find(this.parse({ schema: schemaWithoutAnyOf, name, parentName }), schemaKeywords.object)
+      const discriminator = this.context.oas.getDiscriminator(schema)
 
-        const { propertyName } = schema.discriminator
-        const mapping = this.context.oas.getDiscriminatorMapping(schema)
+      if (discriminator) {
+        const objectPropertySchema = SchemaGenerator.find(this.parse({ schema: schemaWithoutAnyOf, name, parentName }), schemaKeywords.object)
 
         union.args = [
           ...union.args.map((arg) => {
             const isRef = isKeyword(arg, schemaKeywords.ref)
 
             if (isRef) {
-              const [key] = Object.entries(mapping).find(([_key, value]) => value === arg.args.$ref) || []
+              const [key] = Object.entries(discriminator.mapping || {}).find(([_key, value]) => value === arg.args.$ref) || []
 
               if (!key) {
                 throw new Error(`Can not find a key in discriminator ${JSON.stringify(schema)}`)
@@ -598,8 +631,9 @@ export class SchemaGenerator<
                   {
                     keyword: schemaKeywords.object,
                     args: {
-                      properties: merge(objectPropertySchema?.args?.properties || {}, {
-                        [propertyName]: [
+                      properties: {
+                        ...(objectPropertySchema?.args?.properties || {}),
+                        [discriminator.propertyName]: [
                           {
                             keyword: schemaKeywords.const,
                             args: {
@@ -608,8 +642,10 @@ export class SchemaGenerator<
                               value: key,
                             },
                           },
-                        ],
-                      }),
+                          //enum and literal will conflict
+                          ...(objectPropertySchema?.args?.properties[discriminator.propertyName] || []),
+                        ].filter((item) => !isKeyword(item, schemaKeywords.enum)),
+                      },
                     },
                   },
                 ],
@@ -646,12 +682,10 @@ export class SchemaGenerator<
         keyword: schemaKeywords.and,
         args: schema.allOf
           .map((item) => {
-            return item && this.parse({ schema: item as SchemaObject, name, parentName })[0]
+            return item && this.parse({ schema: item as SchemaObject })[0]
           })
           .filter(Boolean)
-          .filter((item) => {
-            return item && item.keyword !== unknownReturn
-          }),
+          .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
       }
 
       if (schemaWithoutAllOf.required) {
@@ -979,6 +1013,34 @@ export class SchemaGenerator<
     }
 
     if (schema.properties || schema.additionalProperties) {
+      if (isDiscriminator(schema)) {
+        // override schema to set type to be based on discriminator mapping, use of enum to convert type string to type 'mapping1' | 'mapping2'
+        const schemaOverriden = Object.keys(schema.properties || {}).reduce((acc, propertyName) => {
+          if (acc.properties?.[propertyName] && propertyName === schema.discriminator.propertyName) {
+            return {
+              ...acc,
+              properties: {
+                ...acc.properties,
+                [propertyName]: {
+                  ...((acc.properties[propertyName] as any) || {}),
+                  enum: schema.discriminator.mapping ? Object.keys(schema.discriminator.mapping) : undefined,
+                },
+              },
+            }
+          }
+
+          return acc
+        }, schema || {}) as SchemaObject
+
+        return [
+          ...this.#parseProperties({
+            schema: schemaOverriden,
+            name,
+          }),
+          ...baseItems,
+        ]
+      }
+
       return [...this.#parseProperties({ schema, name }), ...baseItems]
     }
 
@@ -1013,8 +1075,6 @@ export class SchemaGenerator<
 
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
-
-    // oas.resolveDiscriminators()
 
     const schemas = getSchemas({ oas, contentType, includes: include })
 
