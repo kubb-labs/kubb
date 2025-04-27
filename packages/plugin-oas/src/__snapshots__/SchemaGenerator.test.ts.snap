@@ -6,6 +6,7 @@ exports[`SchemaGenerator core > 'FullAddress' 1`] = `
     "args": [
       {
         "args": {
+          "$ref": "#/components/schemas/Address",
           "isImportable": true,
           "name": "address",
           "path": "address.ts",
@@ -323,6 +324,7 @@ exports[`SchemaGenerator core > 'Pets' 1`] = `
       "items": [
         {
           "args": {
+            "$ref": "#/components/schemas/Pet",
             "isImportable": true,
             "name": "pet",
             "path": "pet.ts",

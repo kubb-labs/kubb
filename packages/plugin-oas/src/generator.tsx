@@ -52,6 +52,13 @@ export type ReactGeneratorOptions<TOptions extends PluginFactoryOptions> = {
   Schema?: (this: ReactGeneratorOptions<TOptions>, props: SchemaProps<TOptions>) => KubbNode
 }
 
+/****
+ * Creates a generator that uses React component functions to generate files for OpenAPI operations and schemas.
+ *
+ * The returned generator exposes async methods for generating files from operations, a single operation, or a schema, using the corresponding React components if provided. If a component is not defined, the method returns an empty array.
+ *
+ * @returns A generator object with async methods for operations, operation, and schema file generation.
+ */
 export function createReactGenerator<TOptions extends PluginFactoryOptions>(parseOptions: ReactGeneratorOptions<TOptions>): Generator<TOptions> {
   return {
     ...parseOptions,
@@ -116,7 +123,7 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
       root.render(
         <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
           <Oas oas={oas}>
-            <Oas.Schema name={schema.name} value={schema.value} tree={schema.tree}>
+            <Oas.Schema name={schema.name} schemaObject={schema.value} tree={schema.tree}>
               <Component schema={schema} options={options} instance={instance} />
             </Oas.Schema>
           </Oas>

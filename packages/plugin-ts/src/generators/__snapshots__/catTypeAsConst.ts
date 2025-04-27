@@ -8,6 +8,9 @@ export type cat = {
    * @type string, uuid
    */
   id: string
+  /**
+   * @type string
+   */
   type: 'Cat'
   /**
    * @type boolean | undefined

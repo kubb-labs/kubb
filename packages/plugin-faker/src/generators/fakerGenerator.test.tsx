@@ -113,7 +113,7 @@ describe('fakerGenerator schema', async () => {
     const schemas = getSchemas({ oas })
     const name = props.path
     const schema = schemas[name]!
-    const tree = instance.parse({ schema, name })
+    const tree = instance.parse({ schemaObject: schema, name })
 
     const files = await fakerGenerator.schema?.({
       schema: {

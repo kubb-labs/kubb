@@ -775,6 +775,7 @@ components:
       required:
         - name
         - photoUrls
+        - type
       type: object
       oneOf:
         - $ref: '#/components/schemas/Dog'

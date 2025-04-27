@@ -3,37 +3,28 @@
  * Do not edit manually.
  */
 
-export const advancedTypeEnum2 = {
-  enum: 'enum',
-  range: 'range',
-  regex: 'regex',
-  slider: 'slider',
-} as const
-
-export type AdvancedTypeEnum2 = (typeof advancedTypeEnum2)[keyof typeof advancedTypeEnum2]
-
 export type advanced =
   | (enumerationValueSpecificationDto & {
       /**
        * @type string
        */
-      readonly type: AdvancedTypeEnum2
+      readonly type: 'enum'
     })
   | (rangeValueSpecificationDto & {
       /**
        * @type string
        */
-      readonly type: AdvancedTypeEnum2
+      readonly type: 'range'
     })
   | (regexValueSpecificationDto & {
       /**
        * @type string
        */
-      readonly type: AdvancedTypeEnum2
+      readonly type: 'regex'
     })
   | (sliderValueSpecificationDto & {
       /**
        * @type string
        */
-      readonly type: AdvancedTypeEnum2
+      readonly type: 'slider'
     })

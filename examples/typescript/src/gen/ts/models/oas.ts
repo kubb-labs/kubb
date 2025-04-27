@@ -1122,7 +1122,7 @@ export const oas = {
         },
       },
       Pet: {
-        required: ['name', 'photoUrls'],
+        required: ['name', 'photoUrls', 'type'],
         type: 'object',
         oneOf: [
           {
@@ -1147,7 +1147,7 @@ export const oas = {
           },
           type: {
             minLength: 1,
-            enum: ['dog', 'cat', 'dog', 'cat'],
+            enum: ['dog', 'cat'],
             type: 'string',
             readOnly: true,
           },
@@ -1197,13 +1197,11 @@ export const oas = {
             minLength: 1,
             type: 'string',
             readOnly: true,
-            enum: ['cat'],
           },
           name: {
             type: 'string',
           },
         },
-        required: ['type'],
       },
       Dog: {
         type: 'object',
@@ -1212,13 +1210,11 @@ export const oas = {
             minLength: 1,
             type: 'string',
             readOnly: true,
-            enum: ['dog'],
           },
           bark: {
             type: 'string',
           },
         },
-        required: ['type'],
       },
       FullAddress: {
         properties: {

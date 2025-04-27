@@ -28,14 +28,42 @@ export function isParameterObject(obj: ParameterObject | SchemaObject): obj is P
   return obj && 'in' in obj
 }
 
+/**
+ * Determines if a schema is nullable, considering both the standard `nullable` property and the legacy `x-nullable` extension.
+ *
+ * @param schema - The schema object to check.
+ * @returns `true` if the schema is marked as nullable; otherwise, `false`.
+ */
 export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): boolean {
   return schema?.nullable ?? schema?.['x-nullable'] ?? false
 }
 
-export function isReference(obj?: unknown): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
+/**
+ * Determines if the given object is an OpenAPI ReferenceObject.
+ *
+ * @returns True if {@link obj} is a ReferenceObject; otherwise, false.
+ */
+export function isReference(obj?: any): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
   return !!obj && isRef(obj)
 }
 
+/**
+ * Determines if the given object is a SchemaObject with a discriminator property of type DiscriminatorObject.
+ *
+ * @returns True if {@link obj} is a SchemaObject containing a non-string {@link discriminator} property.
+ */
+export function isDiscriminator(obj?: any): obj is SchemaObject & { discriminator: OpenAPIV3.DiscriminatorObject } {
+  return !!obj && obj?.['discriminator'] && typeof obj.discriminator !== 'string'
+}
+
+/**
+ * Determines whether a schema is required.
+ *
+ * Returns true if the schema has a non-empty {@link SchemaObject.required} array or a truthy {@link SchemaObject.required} property.
+ *
+ * @param schema - The schema object to check.
+ * @returns True if the schema is required; otherwise, false.
+ */
 export function isRequired(schema?: SchemaObject): boolean {
   if (!schema) {
     return false

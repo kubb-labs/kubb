@@ -3,17 +3,12 @@
  * Do not edit manually.
  */
 
-export const dogTypeEnum = {
-  dog: 'dog',
-} as const
-
-export type DogTypeEnum = (typeof dogTypeEnum)[keyof typeof dogTypeEnum]
-
 export type Dog = {
   /**
-   * @type string
+   * @minLength 1
+   * @type string | undefined
    */
-  readonly type: DogTypeEnum
+  readonly type?: string
   /**
    * @type string | undefined
    */

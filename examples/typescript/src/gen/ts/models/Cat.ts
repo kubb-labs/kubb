@@ -3,17 +3,12 @@
  * Do not edit manually.
  */
 
-export const catTypeEnum = {
-  cat: 'cat',
-} as const
-
-export type CatTypeEnum = (typeof catTypeEnum)[keyof typeof catTypeEnum]
-
 export type Cat = {
   /**
-   * @type string
+   * @minLength 1
+   * @type string | undefined
    */
-  readonly type: CatTypeEnum
+  readonly type?: string
   /**
    * @type string | undefined
    */

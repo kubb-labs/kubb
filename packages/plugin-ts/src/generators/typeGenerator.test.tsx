@@ -344,9 +344,18 @@ describe('typeGenerator schema', async () => {
       options: {},
     },
     {
-      name: 'PetsStoreDiscriminator',
+      name: 'CatDogDiscriminator',
       input: '../../mocks/discriminator.yaml',
-      path: 'Petstore',
+      path: 'CatDog',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'CatDogDiscriminatorWithoutMapping',
+      input: '../../mocks/discriminator.yaml',
+      path: 'CatDogWithoutMapping',
       options: {
         enumType: 'asConst',
         optionalType: 'questionToken',
@@ -402,7 +411,7 @@ describe('typeGenerator schema', async () => {
     const schemas = getSchemas({ oas })
     const name = props.path
     const schema = schemas[name]!
-    const tree = instance.parse({ schema, name })
+    const tree = instance.parse({ schemaObject: schema, name })
 
     const files = await typeGenerator.schema?.({
       schema: {

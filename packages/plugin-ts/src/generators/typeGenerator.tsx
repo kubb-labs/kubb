@@ -128,8 +128,8 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       .flat()
       .filter(Boolean)
 
-    const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
-      const tree = schemaGenerator.parse({ schema, name })
+    const mapOperationSchema = ({ name, schema: schemaObject, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
+      const tree = schemaGenerator.parse({ schemaObject, name })
       const imports = schemaManager.getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 
@@ -140,14 +140,14 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       }
 
       return (
-        <Oas.Schema key={i} name={name} value={schema} tree={tree}>
+        <Oas.Schema key={i} name={name} schemaObject={schemaObject} tree={tree}>
           {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={file.path} path={imp.path} name={imp.name} isTypeOnly />)}
           <Type
             name={type.name}
             typedName={type.typedName}
             description={description}
             tree={tree}
-            schema={schema}
+            schema={schemaObject}
             mapper={mapper}
             enumType={enumType}
             optionalType={optionalType}

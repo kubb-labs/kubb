@@ -4,12 +4,13 @@ import { matchesMimeType } from 'oas/utils'
 
 import jsonpointer from 'jsonpointer'
 
-import { isReference } from './utils.ts'
+import { isDiscriminator, isReference } from './utils.ts'
 
 import type { Operation } from 'oas/operation'
 import type { MediaTypeObject, OASDocument, ResponseObject, SchemaObject, User } from 'oas/types'
-import type { OasTypes, OpenAPIV3 } from './index.ts'
+import type { OasTypes } from './index.ts'
 import type { contentType } from './types.ts'
+import type { OpenAPIV3 } from 'openapi-types'
 
 type Options = {
   contentType?: contentType
@@ -49,6 +50,10 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     return current
   }
 
+  getKey($ref: string) {
+    const key = $ref.split('/').pop()
+    return key === '' ? undefined : key
+  }
   set($ref: string, value: unknown) {
     $ref = $ref.trim()
     if ($ref === '') {
@@ -61,49 +66,45 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     }
   }
 
-  resolveDiscriminators(): void {
-    const schemas = (this.api.components?.schemas || {}) as Record<string, OasTypes.SchemaObject>
+  getDiscriminator(schema: OasTypes.SchemaObject): OpenAPIV3.DiscriminatorObject | undefined {
+    if (!isDiscriminator(schema)) {
+      return undefined
+    }
 
-    Object.entries(schemas).forEach(([_key, schemaObject]) => {
-      if ('discriminator' in schemaObject && typeof schemaObject.discriminator !== 'string') {
-        const { mapping = {}, propertyName } = (schemaObject.discriminator || {}) as OpenAPIV3.DiscriminatorObject
+    const mapping = schema.discriminator.mapping || {}
 
-        if (!schemaObject.properties?.[propertyName]) {
-          schemaObject.properties = {}
-        }
+    // loop over oneOf and add default mapping when none is defined
+    if (schema.oneOf) {
+      schema.oneOf.forEach((schema) => {
+        if (isReference(schema)) {
+          const key = this.getKey(schema.$ref)
 
-        const enums: string[] = (schemaObject.properties[propertyName] as NonNullable<OpenAPIV3.SchemaObject>).enum || []
-
-        schemaObject.properties[propertyName] = {
-          ...schemaObject.properties[propertyName],
-          enum: [...Object.keys(mapping), ...enums],
-        }
-
-        Object.entries(mapping).forEach(([mappingKey, mappingValue]) => {
-          if (mappingValue) {
-            const childSchema = this.get(mappingValue)
-            if (!childSchema.properties) {
-              childSchema.properties = {}
-            }
-
-            const property = childSchema.properties[propertyName] as SchemaObject
-
-            if (childSchema.properties) {
-              childSchema.properties[propertyName] = {
-                ...(childSchema.properties ? childSchema.properties[propertyName] : {}),
-                enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
-              }
-
-              childSchema.required = [...(childSchema.required ?? []), propertyName]
-
-              this.set(mappingValue, childSchema)
-            }
+          if (key && !Object.values(mapping).includes(schema.$ref)) {
+            mapping[key] = schema.$ref
           }
-        })
-      }
-    })
+        }
+      })
+    }
+
+    if (schema.anyOf) {
+      schema.anyOf.forEach((schema) => {
+        if (isReference(schema)) {
+          const key = this.getKey(schema.$ref)
+
+          if (key && !Object.values(mapping).includes(schema.$ref)) {
+            mapping[key] = schema.$ref
+          }
+        }
+      })
+    }
+
+    return {
+      ...schema.discriminator,
+      mapping,
+    }
   }
 
+  // TODO add better typing
   dereferenceWithRef(schema?: unknown) {
     if (isReference(schema)) {
       return {

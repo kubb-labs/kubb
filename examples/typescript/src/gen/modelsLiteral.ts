@@ -136,9 +136,7 @@ export type Tag = {
   name?: string
 }
 
-export type PetTypeEnum = 'dog' | 'cat'
-
-export type PetStatusEnum = 'available' | 'pending' | 'sold'
+export type StatusEnum = 'available' | 'pending' | 'sold'
 
 export type Pet =
   | (Dog & {
@@ -147,9 +145,9 @@ export type Pet =
        */
       id?: number
       /**
-       * @type string | undefined
+       * @type string
        */
-      readonly type?: PetTypeEnum
+      readonly type: 'dog'
       /**
        * @type string
        */
@@ -170,7 +168,7 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: PetStatusEnum
+      status?: StatusEnum
     })
   | (Cat & {
       /**
@@ -178,9 +176,9 @@ export type Pet =
        */
       id?: number
       /**
-       * @type string | undefined
+       * @type string
        */
-      readonly type?: PetTypeEnum
+      readonly type: 'cat'
       /**
        * @type string
        */
@@ -201,29 +199,27 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: PetStatusEnum
+      status?: StatusEnum
     })
-
-export type CatTypeEnum = 'cat'
 
 export type Cat = {
   /**
-   * @type string
+   * @minLength 1
+   * @type string | undefined
    */
-  readonly type: CatTypeEnum
+  readonly type?: string
   /**
    * @type string | undefined
    */
   name?: string
 }
 
-export type DogTypeEnum = 'dog'
-
 export type Dog = {
   /**
-   * @type string
+   * @minLength 1
+   * @type string | undefined
    */
-  readonly type: DogTypeEnum
+  readonly type?: string
   /**
    * @type string | undefined
    */

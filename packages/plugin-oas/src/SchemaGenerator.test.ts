@@ -66,6 +66,7 @@ describe('SchemaGenerator core', async () => {
         unknownType: 'unknown',
       },
     },
+    // Add discriminator test cases
   ] as const satisfies Array<{ input: string; name: string; path: string; options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>> }>
 
   test.each(testData)('$name', async (props) => {
@@ -86,7 +87,7 @@ describe('SchemaGenerator core', async () => {
       override: undefined,
       mode: 'split',
     })
-    const tree = generator.parse({ schema, name: props.name })
+    const tree = generator.parse({ schemaObject: schema, name: props.name })
 
     expect(tree).toMatchSnapshot()
   })
