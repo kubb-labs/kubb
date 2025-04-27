@@ -1,5 +1,26 @@
 # @kubb/mcp
 
+## 3.10.4
+
+### Patch Changes
+
+- [`cf9ab06`](https://github.com/kubb-labs/kubb/commit/cf9ab066ce42a9ada05c4e364a7d723ae5b68e7b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - better use of MCP tools based on oas
+
+- Updated dependencies []:
+  - @kubb/core@3.10.4
+  - @kubb/plugin-client@3.10.4
+  - @kubb/plugin-cypress@3.10.4
+  - @kubb/plugin-faker@3.10.4
+  - @kubb/plugin-mcp@3.10.4
+  - @kubb/plugin-msw@3.10.4
+  - @kubb/plugin-oas@3.10.4
+  - @kubb/plugin-react-query@3.10.4
+  - @kubb/plugin-redoc@3.10.4
+  - @kubb/plugin-swr@3.10.4
+  - @kubb/plugin-ts@3.10.4
+  - @kubb/plugin-zod@3.10.4
+  - @kubb/react@3.10.4
+
 ## 3.10.3
 
 ### Patch Changes
