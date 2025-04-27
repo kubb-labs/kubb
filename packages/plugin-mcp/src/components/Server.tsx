@@ -107,14 +107,14 @@ export function Server({ name, serverName, serverVersion, operations }: Props) {
 
             if (zod.schemas.request?.name || zod.schemas.headerParams?.name || zod.schemas.queryParams?.name || zod.schemas.pathParams?.name) {
               return `
-server.tool('${operationId}', '${description}', ${paramsClient.toObjectValue()}, async (${paramsClient.toObject()}) => {
+server.tool('${operationId}', ${JSON.stringify(description)}, ${paramsClient.toObjectValue()}, async (${paramsClient.toObject()}) => {
   return ${mcp.name}(${paramsClient.toObject()})
 })
           `
             }
 
             return `
-server.tool('${operationId}', '${description}', async () => {
+server.tool('${operationId}', ${JSON.stringify(description)}, async () => {
   return ${mcp.name}(${paramsClient.toObject()})
 })
           `
