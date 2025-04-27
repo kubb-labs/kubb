@@ -21,6 +21,13 @@ type SchemaResult<TWithRef extends boolean = false> =
       version: '3.1'
     }
 
+/**
+ * Creates a factory function that generates a versioned OpenAPI schema result.
+ *
+ * The returned function accepts an optional schema object and produces a {@link SchemaResult} containing the dereferenced schema and the OpenAPI version ('3.0' or '3.1').
+ *
+ * @returns A function that takes an optional schema and returns a versioned schema result.
+ */
 export function getSchemaFactory<TWithRef extends boolean = false>(oas: Oas): (schema?: SchemaObject) => SchemaResult<TWithRef> {
   return (schema?: SchemaObject) => {
     const version = isOpenApiV3_1Document(oas.api) ? '3.1' : '3.0'
