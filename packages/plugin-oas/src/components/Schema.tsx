@@ -23,6 +23,15 @@ const SchemaContext = createContext<SchemaContextProps>({
   tree: [],
 })
 
+/**
+ * Provides schema-related context to descendant components.
+ *
+ * Supplies the schema name, optional schema object, and schema tree to its children via React context.
+ *
+ * @param name - The name of the schema.
+ * @param schemaObject - The schema object to provide, if any.
+ * @param tree - The schema tree structure, defaults to an empty array.
+ */
 export function Schema({ name, schemaObject, tree = [], children }: Props) {
   return <SchemaContext.Provider value={{ name, schemaObject, tree }}>{children}</SchemaContext.Provider>
 }
