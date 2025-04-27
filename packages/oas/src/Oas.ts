@@ -51,9 +51,9 @@ export class Oas<const TOAS = unknown> extends BaseOas {
   }
 
   getKey($ref: string) {
-    return $ref.split('/').pop()
+    const key = $ref.split('/').pop()
+    return key === '' ? undefined : key
   }
-
   set($ref: string, value: unknown) {
     $ref = $ref.trim()
     if ($ref === '') {
