@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.10.4
+- [`plugin-mcp`](/plugins/plugin-mcp/): better use of MCP tools based on oas
+
 # 3.10.3
 - [`plugin-zod`](/plugins/plugin-zod): Better convert of `discriminator`
 

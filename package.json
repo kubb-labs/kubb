@@ -21,7 +21,7 @@
   "scripts": {
     "//changeset:beta:enter": "changeset pre enter beta",
     "//changeset:beta:exit": "changeset pre exit",
-    "build": "turbo run build --concurrency=6 --filter=./packages/*",
+    "build": "turbo run build --filter=./packages/*",
     "build:docs": " cd docs && pnpm run build:ci",
     "build:examples": "turbo run build --filter=./examples/*",
     "changeset": "changeset",
