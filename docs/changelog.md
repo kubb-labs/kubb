@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.10.3
+- [`plugin-zod`](/plugins/plugin-zod): Better convert of `discriminator`
+
 # 3.10.2
 - [`plugin-react-query`](/plugins/plugin-react-query/): remove generic TQueryData when using suspense
 
