@@ -21,8 +21,10 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
 
     const operationsMapped = operations.map((operation) => {
       return {
-        operationId: operation.getOperationId(),
-        description: operation.getDescription(),
+        tool: {
+          name: operation.getOperationId() || operation.getSummary() || `${operation.method.toUpperCase()} ${operation.path}`,
+          description: operation.getDescription() || `Make a ${operation.method.toUpperCase()} request to ${operation.path}`,
+        },
         mcp: {
           name: getName(operation, {
             type: 'function',

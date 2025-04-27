@@ -24,9 +24,14 @@ server.tool(
   },
 )
 
-server.tool('showPetById', '', { petId: showPetByIdPathParams.shape['petId'], testId: showPetByIdPathParams.shape['testId'] }, async ({ petId, testId }) => {
-  return showPetByIdHandler({ petId, testId })
-})
+server.tool(
+  'showPetById',
+  'Make a GET request to /pets/{petId}',
+  { petId: showPetByIdPathParams.shape['petId'], testId: showPetByIdPathParams.shape['testId'] },
+  async ({ petId, testId }) => {
+    return showPetByIdHandler({ petId, testId })
+  },
+)
 
 async function startServer() {
   try {

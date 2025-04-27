@@ -46,7 +46,7 @@ export const server = new McpServer({
 
 server.tool(
   'createPets',
-  '',
+  'Make a POST request to /pets/{uuid}',
   {
     uuid: createPetsPathParamsSchema.shape['uuid'],
     data: createPetsMutationRequestSchema,
@@ -90,7 +90,7 @@ server.tool('getPetById', 'Returns a single pet', { petId: getPetByIdPathParamsS
 
 server.tool(
   'updatePetWithForm',
-  '',
+  'Make a POST request to /pet/{petId}',
   { petId: updatePetWithFormPathParamsSchema.shape['petId'], params: updatePetWithFormQueryParamsSchema },
   async ({ petId, params }) => {
     return updatePetWithFormHandler({ petId, params })
@@ -112,7 +112,7 @@ server.tool('addFiles', 'Place a new file in the store', { data: addFilesMutatio
 
 server.tool(
   'uploadFile',
-  '',
+  'Make a POST request to /pet/{petId}/uploadImage',
   { petId: uploadFilePathParamsSchema.shape['petId'], data: uploadFileMutationRequestSchema, params: uploadFileQueryParamsSchema },
   async ({ petId, data, params }) => {
     return uploadFileHandler({ petId, data, params })
@@ -132,15 +132,15 @@ server.tool(
   },
 )
 
-server.tool('loginUser', '', { params: loginUserQueryParamsSchema }, async ({ params }) => {
+server.tool('loginUser', 'Make a GET request to /user/login', { params: loginUserQueryParamsSchema }, async ({ params }) => {
   return loginUserHandler({ params })
 })
 
-server.tool('logoutUser', '', async () => {
+server.tool('logoutUser', 'Make a GET request to /user/logout', async () => {
   return logoutUserHandler()
 })
 
-server.tool('getUserByName', '', { username: getUserByNamePathParamsSchema.shape['username'] }, async ({ username }) => {
+server.tool('getUserByName', 'Make a GET request to /user/{username}', { username: getUserByNamePathParamsSchema.shape['username'] }, async ({ username }) => {
   return getUserByNameHandler({ username })
 })
 

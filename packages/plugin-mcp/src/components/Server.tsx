@@ -11,8 +11,10 @@ type Props = {
   serverName: string
   serverVersion: string
   operations: Array<{
-    operationId: string
-    description?: string
+    tool: {
+      name: string
+      description: string
+    }
     mcp: {
       name: string
       file: KubbFile.File
@@ -102,19 +104,19 @@ export function Server({ name, serverName, serverVersion, operations }: Props) {
         </Const>
 
         {operations
-          .map(({ operationId, mcp, zod, description = '' }) => {
+          .map(({ tool, mcp, zod }) => {
             const paramsClient = getParams({ schemas: zod.schemas })
 
             if (zod.schemas.request?.name || zod.schemas.headerParams?.name || zod.schemas.queryParams?.name || zod.schemas.pathParams?.name) {
               return `
-server.tool('${operationId}', ${JSON.stringify(description)}, ${paramsClient.toObjectValue()}, async (${paramsClient.toObject()}) => {
+server.tool(${JSON.stringify(tool.name)}, ${JSON.stringify(tool.description)}, ${paramsClient.toObjectValue()}, async (${paramsClient.toObject()}) => {
   return ${mcp.name}(${paramsClient.toObject()})
 })
           `
             }
 
             return `
-server.tool('${operationId}', ${JSON.stringify(description)}, async () => {
+server.tool(${JSON.stringify(tool.name)}, ${JSON.stringify(tool.description)}, async () => {
   return ${mcp.name}(${paramsClient.toObject()})
 })
           `
