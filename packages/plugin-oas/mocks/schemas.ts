@@ -136,6 +136,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
     schema: {
       keyword: schemaKeywords.ref,
       args: {
+        $ref: '$ref',
         name: 'Pet',
         path: './pet.ts',
         isImportable: true,
@@ -231,7 +232,8 @@ const basic: Array<{ name: string; schema: Schema }> = [
         items: [
           {
             keyword: schemaKeywords.ref,
-            args: { name: 'Pet', path: './pet.ts', isImportable: true },
+
+            args: { name: 'Pet', $ref: '#component/schema/Pet', path: './pet.ts', isImportable: true },
           },
         ],
       },
@@ -282,7 +284,7 @@ const basic: Array<{ name: string; schema: Schema }> = [
         additionalProperties: [
           {
             keyword: schemaKeywords.ref,
-            args: { name: 'Pet', path: './Pet.ts', isImportable: true },
+            args: { name: 'Pet', $ref: '#component/schema/Pet', path: './Pet.ts', isImportable: true },
           },
         ],
       },

@@ -87,7 +87,7 @@ describe('SchemaGenerator core', async () => {
       override: undefined,
       mode: 'split',
     })
-    const tree = generator.parse({ schema, name: props.name })
+    const tree = generator.parse({ schemaObject: schema, name: props.name })
 
     expect(tree).toMatchSnapshot()
   })

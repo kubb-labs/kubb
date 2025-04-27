@@ -148,20 +148,13 @@ export type Tag = {
   name?: string
 }
 
-export const petTypeEnum = {
-  dog: 'dog',
-  cat: 'cat',
-} as const
-
-export type PetTypeEnum = (typeof petTypeEnum)[keyof typeof petTypeEnum]
-
-export const petStatusEnum = {
+export const statusEnum = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 
-export type PetStatusEnum = (typeof petStatusEnum)[keyof typeof petStatusEnum]
+export type StatusEnum = (typeof statusEnum)[keyof typeof statusEnum]
 
 export type Pet =
   | (Dog & {
@@ -170,9 +163,9 @@ export type Pet =
        */
       id?: number
       /**
-       * @type string | undefined
+       * @type string
        */
-      readonly type?: PetTypeEnum
+      readonly type: 'dog'
       /**
        * @type string
        */
@@ -193,7 +186,7 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: PetStatusEnum
+      status?: StatusEnum
     })
   | (Cat & {
       /**
@@ -201,9 +194,9 @@ export type Pet =
        */
       id?: number
       /**
-       * @type string | undefined
+       * @type string
        */
-      readonly type?: PetTypeEnum
+      readonly type: 'cat'
       /**
        * @type string
        */
@@ -224,7 +217,7 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: PetStatusEnum
+      status?: StatusEnum
     })
 
 export type Cat = {

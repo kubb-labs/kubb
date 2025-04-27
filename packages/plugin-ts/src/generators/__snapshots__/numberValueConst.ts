@@ -3,12 +3,9 @@
  * Do not edit manually.
  */
 
-/**
- * @description its value is equal to the value of the keyword
- */
 export type numberValueConst = {
   /**
-   * @type number | undefined
+   * @type number
    */
-  foobar?: 42
+  foobar: 42
 }

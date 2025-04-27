@@ -144,12 +144,7 @@ export interface Tag {
   name?: string
 }
 
-export enum PetTypeEnum {
-  dog = 'dog',
-  cat = 'cat',
-}
-
-export enum PetStatusEnum {
+export enum StatusEnum {
   available = 'available',
   pending = 'pending',
   sold = 'sold',
@@ -162,9 +157,9 @@ export type Pet =
        */
       id?: number
       /**
-       * @type string | undefined
+       * @type string
        */
-      readonly type?: PetTypeEnum
+      readonly type: 'dog'
       /**
        * @type string
        */
@@ -185,7 +180,7 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: PetStatusEnum
+      status?: StatusEnum
     })
   | (Cat & {
       /**
@@ -193,9 +188,9 @@ export type Pet =
        */
       id?: number
       /**
-       * @type string | undefined
+       * @type string
        */
-      readonly type?: PetTypeEnum
+      readonly type: 'cat'
       /**
        * @type string
        */
@@ -216,7 +211,7 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: PetStatusEnum
+      status?: StatusEnum
     })
 
 export interface Cat {

@@ -9,8 +9,11 @@ export type dog = {
    */
   id: string
   /**
+   * @type string
+   */
+  type: 'Dog'
+  /**
    * @type number | undefined
    */
   bark?: number
-  type: 'Dog'
 }

@@ -116,7 +116,7 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
       root.render(
         <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
           <Oas oas={oas}>
-            <Oas.Schema name={schema.name} value={schema.value} tree={schema.tree}>
+            <Oas.Schema name={schema.name} schemaObject={schema.value} tree={schema.tree}>
               <Component schema={schema} options={options} instance={instance} />
             </Oas.Schema>
           </Oas>

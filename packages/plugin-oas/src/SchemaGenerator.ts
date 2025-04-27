@@ -59,7 +59,7 @@ export type SchemaGeneratorOptions = {
 export type SchemaGeneratorBuildOptions = Omit<OperationSchema, 'name' | 'schema'>
 
 type SchemaProps = {
-  schema?: SchemaObject
+  schemaObject?: SchemaObject
   name?: string
   parentName?: string
 }
@@ -250,10 +250,10 @@ export class SchemaGenerator<
   /**
    * Recursively creates a type literal with the given props.
    */
-  #parseProperties({ schema, name }: SchemaProps): Schema[] {
-    const properties = schema?.properties || {}
-    const additionalProperties = schema?.additionalProperties
-    const required = schema?.required
+  #parseProperties({ schemaObject, name }: SchemaProps): Schema[] {
+    const properties = schemaObject?.properties || {}
+    const additionalProperties = schemaObject?.additionalProperties
+    const required = schemaObject?.required
 
     const propertiesSchemas = Object.keys(properties)
       .map((propertyName) => {
@@ -263,7 +263,7 @@ export class SchemaGenerator<
         const isRequired = Array.isArray(required) ? required?.includes(propertyName) : !!required
         const nullable = propertySchema.nullable ?? propertySchema['x-nullable'] ?? false
 
-        validationFunctions.push(...this.parse({ schema: propertySchema, name: propertyName, parentName: name }))
+        validationFunctions.push(...this.parse({ schemaObject: propertySchema, name: propertyName, parentName: name }))
 
         validationFunctions.push({
           keyword: schemaKeywords.name,
@@ -286,8 +286,8 @@ export class SchemaGenerator<
     if (additionalProperties) {
       additionalPropertiesSchemas =
         additionalProperties === true || !Object.keys(additionalProperties).length
-          ? [{ keyword: this.#getUnknownReturn({ schema, name }) }]
-          : this.parse({ schema: additionalProperties as SchemaObject, parentName: name })
+          ? [{ keyword: this.#getUnknownReturn({ schemaObject, name }) }]
+          : this.parse({ schemaObject: additionalProperties as SchemaObject, parentName: name })
     }
 
     return [
@@ -304,58 +304,47 @@ export class SchemaGenerator<
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
-  #getRefAlias(schema: OpenAPIV3.ReferenceObject, name: string | undefined): Schema[] {
-    const { $ref } = schema
+  #getRefAlias(schemaObject: OpenAPIV3.ReferenceObject, name: string | undefined): Schema[] {
+    const { $ref } = schemaObject
     const ref = this.refs[$ref]
 
-    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
-    const propertyName = this.context.pluginManager.resolveName({
-      name: originalName,
-      pluginKey: this.context.plugin.key,
-      type: 'function',
-    })
-
     if (ref) {
-      const dereferencedSchema = this.context.oas.dereferenceWithRef(schema)
+      const dereferencedSchema = this.context.oas.dereferenceWithRef(schemaObject)
       // pass name to getRefAlias and use that to find in discriminator.mapping value
 
       if (dereferencedSchema && isDiscriminator(dereferencedSchema)) {
-        const [key] = Object.entries(dereferencedSchema.discriminator.mapping || {}).find(([_key, value]) => value === name) || []
+        const [key] = Object.entries(dereferencedSchema.discriminator.mapping || {}).find(([_key, value]) => value.replace(/.+\//, '') === name) || []
 
-        console.log(JSON.stringify({ dereferencedSchema, schema, $ref, name: `${name}` }, null, 2))
-
-        if (!key) {
-          throw new Error(`Can not find a key in discriminator ${JSON.stringify(schema)}`)
-        }
-
-        return [
-          {
-            keyword: schemaKeywords.and,
-            args: [
-              {
-                keyword: schemaKeywords.ref,
-                args: { name: ref.propertyName, $ref, path: ref.path, isImportable: !!this.context.oas.get($ref) },
-              },
-              {
-                keyword: schemaKeywords.object,
-                args: {
-                  properties: {
-                    [dereferencedSchema.discriminator.propertyName]: [
-                      {
-                        keyword: schemaKeywords.const,
-                        args: {
-                          name: key,
-                          format: 'string',
-                          value: key,
+        if (key) {
+          return [
+            {
+              keyword: schemaKeywords.and,
+              args: [
+                {
+                  keyword: schemaKeywords.ref,
+                  args: { name: ref.propertyName, $ref, path: ref.path, isImportable: !!this.context.oas.get($ref) },
+                },
+                {
+                  keyword: schemaKeywords.object,
+                  args: {
+                    properties: {
+                      [dereferencedSchema.discriminator.propertyName]: [
+                        {
+                          keyword: schemaKeywords.const,
+                          args: {
+                            name: key,
+                            format: 'string',
+                            value: key,
+                          },
                         },
-                      },
-                    ],
+                      ],
+                    },
                   },
                 },
-              },
-            ],
-          },
-        ] as Schema[]
+              ],
+            },
+          ] as Schema[]
+        }
       }
 
       return [
@@ -365,6 +354,13 @@ export class SchemaGenerator<
         },
       ]
     }
+
+    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
+    const propertyName = this.context.pluginManager.resolveName({
+      name: originalName,
+      pluginKey: this.context.plugin.key,
+      type: 'function',
+    })
 
     const fileName = this.context.pluginManager.resolveName({
       name: originalName,
@@ -383,23 +379,80 @@ export class SchemaGenerator<
       path: file.path,
     }
 
-    return this.#getRefAlias(schema, name)
+    return this.#getRefAlias(schemaObject, name)
   }
 
   #getParsedSchemaObject(schema?: SchemaObject) {
-    const parsedSchema = getSchemaFactory(this.context.oas)(schema)
-    return parsedSchema
+    return getSchemaFactory(this.context.oas)(schema)
+  }
+
+  #addDiscriminatorToSchema<TSchema extends Schema>({
+    schema,
+    schemaObject,
+    discriminator,
+  }: { schemaObject: SchemaObject; schema: TSchema; discriminator: OpenAPIV3.DiscriminatorObject }): TSchema {
+    if (!isKeyword(schema, schemaKeywords.union)) {
+      return schema
+    }
+
+    const objectPropertySchema = SchemaGenerator.find(this.parse({ schemaObject: schemaObject }), schemaKeywords.object)
+
+    return {
+      ...schema,
+      args: schema.args.map((arg) => {
+        const isRef = isKeyword(arg, schemaKeywords.ref)
+
+        if (isRef) {
+          const [key] = Object.entries(discriminator.mapping || {}).find(([_key, value]) => value === arg.args.$ref) || []
+
+          if (!key) {
+            throw new Error(`Can not find a key in discriminator ${JSON.stringify(schema)}`)
+          }
+
+          return {
+            keyword: schemaKeywords.and,
+            args: [
+              arg,
+              {
+                keyword: schemaKeywords.object,
+                args: {
+                  properties: {
+                    ...(objectPropertySchema?.args?.properties || {}),
+                    [discriminator.propertyName]: [
+                      {
+                        keyword: schemaKeywords.const,
+                        args: {
+                          name: key,
+                          format: 'string',
+                          value: key,
+                        },
+                      },
+                      //enum and literal will conflict
+                      ...(objectPropertySchema?.args?.properties[discriminator.propertyName] || []),
+                    ].filter((item) => !isKeyword(item, schemaKeywords.enum)),
+                  },
+                },
+              },
+            ],
+          }
+        }
+
+        return arg
+      }),
+    }
   }
 
   /**
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  #parseSchemaObject({ schema: _schema, name, parentName }: SchemaProps): Schema[] {
-    const options = this.#getOptions({ schema: _schema, name })
-    const unknownReturn = this.#getUnknownReturn({ schema: _schema, name })
-    const { schema, version } = this.#getParsedSchemaObject(_schema)
-    if (!schema) {
+  #parseSchemaObject({ schemaObject: _schemaObject, name, parentName }: SchemaProps): Schema[] {
+    const { schemaObject, version } = this.#getParsedSchemaObject(_schemaObject)
+
+    const options = this.#getOptions({ schemaObject, name })
+    const unknownReturn = this.#getUnknownReturn({ schemaObject, name })
+
+    if (!schemaObject) {
       return [{ keyword: unknownReturn }]
     }
 
@@ -407,45 +460,45 @@ export class SchemaGenerator<
       {
         keyword: schemaKeywords.schema,
         args: {
-          type: schema.type as any,
-          format: schema.format,
+          type: schemaObject.type as any,
+          format: schemaObject.format,
         },
       },
     ]
-    const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
-    const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
-    const nullable = isNullable(schema)
-    const defaultNullAndNullable = schema.default === null && nullable
+    const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
+    const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
+    const nullable = isNullable(schemaObject)
+    const defaultNullAndNullable = schemaObject.default === null && nullable
 
-    if (schema.default !== undefined && !defaultNullAndNullable && !Array.isArray(schema.default)) {
-      if (typeof schema.default === 'string') {
+    if (schemaObject.default !== undefined && !defaultNullAndNullable && !Array.isArray(schemaObject.default)) {
+      if (typeof schemaObject.default === 'string') {
         baseItems.push({
           keyword: schemaKeywords.default,
-          args: transformers.stringify(schema.default),
+          args: transformers.stringify(schemaObject.default),
         })
-      } else if (typeof schema.default === 'boolean') {
+      } else if (typeof schemaObject.default === 'boolean') {
         baseItems.push({
           keyword: schemaKeywords.default,
-          args: schema.default ?? false,
+          args: schemaObject.default ?? false,
         })
       } else {
         baseItems.push({
           keyword: schemaKeywords.default,
-          args: schema.default,
+          args: schemaObject.default,
         })
       }
     }
 
-    if (schema.deprecated) {
+    if (schemaObject.deprecated) {
       baseItems.push({
         keyword: schemaKeywords.deprecated,
       })
     }
 
-    if (schema.description) {
+    if (schemaObject.description) {
       baseItems.push({
         keyword: schemaKeywords.describe,
-        args: schema.description,
+        args: schemaObject.description,
       })
     }
 
@@ -461,110 +514,65 @@ export class SchemaGenerator<
       baseItems.push({ keyword: schemaKeywords.nullable })
     }
 
-    if (schema.type && Array.isArray(schema.type)) {
-      const [_schema, nullable] = schema.type
+    if (schemaObject.type && Array.isArray(schemaObject.type)) {
+      const [_schema, nullable] = schemaObject.type
 
       if (nullable === 'null') {
         baseItems.push({ keyword: schemaKeywords.nullable })
       }
     }
 
-    if (schema.readOnly) {
+    if (schemaObject.readOnly) {
       baseItems.push({ keyword: schemaKeywords.readOnly })
     }
 
-    if (schema.writeOnly) {
+    if (schemaObject.writeOnly) {
       baseItems.push({ keyword: schemaKeywords.writeOnly })
     }
 
-    if (isReference(schema)) {
+    if (isReference(schemaObject)) {
       return [
-        ...this.#getRefAlias(schema, name),
-        schema.description && {
+        ...this.#getRefAlias(schemaObject, name),
+        schemaObject.description && {
           keyword: schemaKeywords.describe,
-          args: schema.description,
+          args: schemaObject.description,
         },
         nullable && { keyword: schemaKeywords.nullable },
-        schema.readOnly && { keyword: schemaKeywords.readOnly },
-        schema.writeOnly && { keyword: schemaKeywords.writeOnly },
+        schemaObject.readOnly && { keyword: schemaKeywords.readOnly },
+        schemaObject.writeOnly && { keyword: schemaKeywords.writeOnly },
         {
           keyword: schemaKeywords.schema,
           args: {
-            type: schema.type as any,
-            format: schema.format,
+            type: schemaObject.type as any,
+            format: schemaObject.format,
           },
         },
       ].filter(Boolean)
     }
 
-    if (schema.oneOf) {
+    if (schemaObject.oneOf) {
       // union
-      const schemaWithoutOneOf = { ...schema, oneOf: undefined }
+      const schemaWithoutOneOf = { ...schemaObject, oneOf: undefined }
 
-      const union: Schema = {
+      const union: SchemaKeywordMapper['union'] = {
         keyword: schemaKeywords.union,
-        args: schema.oneOf
+        args: schemaObject.oneOf
           .map((item) => {
             // first item, this will be ref
-            return item && this.parse({ schema: item as SchemaObject })[0]
+            return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
           })
           .filter(Boolean)
           .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
       }
 
-      const discriminator = this.context.oas.getDiscriminator(schema)
+      const discriminator = this.context.oas.getDiscriminator(schemaObject)
 
       if (discriminator) {
-        const objectPropertySchema = SchemaGenerator.find(this.parse({ schema: schemaWithoutOneOf, name, parentName }), schemaKeywords.object)
-
-        union.args = [
-          ...union.args.map((arg) => {
-            const isRef = isKeyword(arg, schemaKeywords.ref)
-
-            if (isRef) {
-              const [key] = Object.entries(discriminator?.mapping || {}).find(([_key, value]) => value === arg.args.$ref) || []
-
-              if (!key) {
-                throw new Error(`Can not find a key in discriminator ${JSON.stringify(schema)}`)
-              }
-
-              return {
-                keyword: schemaKeywords.and,
-                args: [
-                  arg,
-                  {
-                    keyword: schemaKeywords.object,
-                    args: {
-                      properties: {
-                        ...(objectPropertySchema?.args?.properties || {}),
-                        [discriminator.propertyName]: [
-                          {
-                            keyword: schemaKeywords.const,
-                            args: {
-                              name: key,
-                              format: 'string',
-                              value: key,
-                            },
-                          },
-                          //enum and literal will conflict
-                          ...(objectPropertySchema?.args?.properties[discriminator.propertyName] || []),
-                        ].filter((item) => !isKeyword(item, schemaKeywords.enum)),
-                      },
-                    },
-                  },
-                ],
-              }
-            }
-
-            return arg
-          }),
-        ]
-
-        return [union, ...baseItems]
+        return [this.#addDiscriminatorToSchema({ schemaObject: schemaWithoutOneOf, schema: union, discriminator }), ...baseItems]
       }
 
       if (schemaWithoutOneOf.properties) {
-        const propertySchemas = this.parse({ schema: schemaWithoutOneOf, name, parentName })
+        const propertySchemas = this.parse({ schemaObject: schemaWithoutOneOf, name, parentName })
 
         union.args = [
           ...union.args.map((arg) => {
@@ -581,16 +589,16 @@ export class SchemaGenerator<
       return [union, ...baseItems]
     }
 
-    if (schema.anyOf) {
+    if (schemaObject.anyOf) {
       // union
-      const schemaWithoutAnyOf = { ...schema, anyOf: undefined }
+      const schemaWithoutAnyOf = { ...schemaObject, anyOf: undefined }
 
-      const union: Schema = {
+      const union: SchemaKeywordMapper['union'] = {
         keyword: schemaKeywords.union,
-        args: schema.anyOf
+        args: schemaObject.anyOf
           .map((item) => {
             // first item, this will be ref
-            return item && this.parse({ schema: item as SchemaObject })[0]
+            return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
           })
           .filter(Boolean)
           .filter((item) => !isKeyword(item, schemaKeywords.unknown))
@@ -608,57 +616,14 @@ export class SchemaGenerator<
           }),
       }
 
-      const discriminator = this.context.oas.getDiscriminator(schema)
+      const discriminator = this.context.oas.getDiscriminator(schemaObject)
 
       if (discriminator) {
-        const objectPropertySchema = SchemaGenerator.find(this.parse({ schema: schemaWithoutAnyOf, name, parentName }), schemaKeywords.object)
-
-        union.args = [
-          ...union.args.map((arg) => {
-            const isRef = isKeyword(arg, schemaKeywords.ref)
-
-            if (isRef) {
-              const [key] = Object.entries(discriminator.mapping || {}).find(([_key, value]) => value === arg.args.$ref) || []
-
-              if (!key) {
-                throw new Error(`Can not find a key in discriminator ${JSON.stringify(schema)}`)
-              }
-
-              return {
-                keyword: schemaKeywords.and,
-                args: [
-                  arg,
-                  {
-                    keyword: schemaKeywords.object,
-                    args: {
-                      properties: {
-                        ...(objectPropertySchema?.args?.properties || {}),
-                        [discriminator.propertyName]: [
-                          {
-                            keyword: schemaKeywords.const,
-                            args: {
-                              name: key,
-                              format: 'string',
-                              value: key,
-                            },
-                          },
-                          //enum and literal will conflict
-                          ...(objectPropertySchema?.args?.properties[discriminator.propertyName] || []),
-                        ].filter((item) => !isKeyword(item, schemaKeywords.enum)),
-                      },
-                    },
-                  },
-                ],
-              }
-            }
-
-            return arg
-          }),
-        ]
+        return [this.#addDiscriminatorToSchema({ schemaObject: schemaWithoutAnyOf, schema: union, discriminator }), ...baseItems]
       }
 
       if (schemaWithoutAnyOf.properties) {
-        const propertySchemas = this.parse({ schema: schemaWithoutAnyOf, name, parentName })
+        const propertySchemas = this.parse({ schemaObject: schemaWithoutAnyOf, name, parentName })
 
         union.args = [
           ...union.args.map((arg) => {
@@ -674,15 +639,15 @@ export class SchemaGenerator<
 
       return [union, ...baseItems]
     }
-    if (schema.allOf) {
+    if (schemaObject.allOf) {
       // intersection/add
-      const schemaWithoutAllOf = { ...schema, allOf: undefined }
+      const schemaWithoutAllOf = { ...schemaObject, allOf: undefined }
 
       const and: Schema = {
         keyword: schemaKeywords.and,
-        args: schema.allOf
+        args: schemaObject.allOf
           .map((item) => {
-            return item && this.parse({ schema: item as SchemaObject })[0]
+            return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
           })
           .filter(Boolean)
           .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
@@ -690,7 +655,7 @@ export class SchemaGenerator<
 
       if (schemaWithoutAllOf.required) {
         // TODO use of Required ts helper instead
-        const schemas = schema.allOf
+        const schemas = schemaObject.allOf
           .map((item) => {
             if (isReference(item)) {
               return this.context.oas.get(item.$ref) as SchemaObject
@@ -723,37 +688,37 @@ export class SchemaGenerator<
           })
           .filter(Boolean)
 
-        and.args = [...(and.args || []), ...items.flatMap((item) => this.parse({ schema: item as SchemaObject, name, parentName }))]
+        and.args = [...(and.args || []), ...items.flatMap((item) => this.parse({ schemaObject: item as SchemaObject, name, parentName }))]
       }
 
       if (schemaWithoutAllOf.properties) {
-        and.args = [...(and.args || []), ...this.parse({ schema: schemaWithoutAllOf, name, parentName })]
+        and.args = [...(and.args || []), ...this.parse({ schemaObject: schemaWithoutAllOf, name, parentName })]
       }
 
       return [and, ...baseItems]
     }
 
-    if (schema.enum) {
+    if (schemaObject.enum) {
       if (options.enumSuffix === '') {
-        throw new Error('EnumSuffix set to an empty string does not work')
+        this.context.pluginManager.logger.emit('info', 'EnumSuffix set to an empty string does not work')
       }
 
-      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.#getUsedEnumNames({ schema, name }))
+      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.#getUsedEnumNames({ schemaObject, name }))
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,
         pluginKey: this.context.plugin.key,
         type: 'type',
       })
 
-      const nullableEnum = schema.enum.includes(null)
+      const nullableEnum = schemaObject.enum.includes(null)
       if (nullableEnum) {
         baseItems.push({ keyword: schemaKeywords.nullable })
       }
-      const filteredValues = schema.enum.filter((value) => value !== null)
+      const filteredValues = schemaObject.enum.filter((value) => value !== null)
 
       // x-enumNames has priority
       const extensionEnums = ['x-enumNames', 'x-enum-varnames']
-        .filter((extensionKey) => extensionKey in schema)
+        .filter((extensionKey) => extensionKey in schemaObject)
         .map((extensionKey) => {
           return [
             {
@@ -762,10 +727,10 @@ export class SchemaGenerator<
                 name,
                 typeName,
                 asConst: false,
-                items: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((name: string | number, index) => ({
+                items: [...new Set(schemaObject[extensionKey as keyof typeof schemaObject] as string[])].map((name: string | number, index) => ({
                   name: transformers.stringify(name),
-                  value: schema.enum?.[index] as string | number,
-                  format: isNumber(schema.enum?.[index]) ? 'number' : 'string',
+                  value: schemaObject.enum?.[index] as string | number,
+                  format: isNumber(schemaObject.enum?.[index]) ? 'number' : 'string',
                 })),
               },
             },
@@ -775,7 +740,7 @@ export class SchemaGenerator<
           ]
         })
 
-      if (schema.type === 'number' || schema.type === 'integer') {
+      if (schemaObject.type === 'number' || schemaObject.type === 'integer') {
         // we cannot use z.enum when enum type is number/integer
         const enumNames = extensionEnums[0]?.find((item) => isKeyword(item, schemaKeywords.enum)) as unknown as SchemaKeywordMapper['enum']
         return [
@@ -804,7 +769,7 @@ export class SchemaGenerator<
         ]
       }
 
-      if (schema.type === 'boolean') {
+      if (schemaObject.type === 'boolean') {
         // we cannot use z.enum when enum type is boolean
         const enumNames = extensionEnums[0]?.find((item) => isKeyword(item, schemaKeywords.enum)) as unknown as SchemaKeywordMapper['enum']
         return [
@@ -855,10 +820,10 @@ export class SchemaGenerator<
       ]
     }
 
-    if ('prefixItems' in schema) {
-      const prefixItems = schema.prefixItems as SchemaObject[]
-      const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
-      const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
+    if ('prefixItems' in schemaObject) {
+      const prefixItems = schemaObject.prefixItems as SchemaObject[]
+      const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
+      const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
 
       return [
         {
@@ -868,7 +833,7 @@ export class SchemaGenerator<
             max,
             items: prefixItems
               .map((item) => {
-                return this.parse({ schema: item, name, parentName })[0]
+                return this.parse({ schemaObject: item, name, parentName })[0]
               })
               .filter(Boolean),
           },
@@ -877,16 +842,16 @@ export class SchemaGenerator<
       ]
     }
 
-    if (version === '3.1' && 'const' in schema) {
+    if (version === '3.1' && 'const' in schemaObject) {
       // const keyword takes precendence over the actual type.
-      if (schema['const']) {
+      if (schemaObject['const']) {
         return [
           {
             keyword: schemaKeywords.const,
             args: {
-              name: schema['const'],
-              format: typeof schema['const'] === 'number' ? 'number' : 'string',
-              value: schema['const'],
+              name: schemaObject['const'],
+              format: typeof schemaObject['const'] === 'number' ? 'number' : 'string',
+              value: schemaObject['const'],
             },
           },
           ...baseItems,
@@ -904,8 +869,8 @@ export class SchemaGenerator<
      *
      * see also https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
      */
-    if (schema.format) {
-      switch (schema.format) {
+    if (schemaObject.format) {
+      switch (schemaObject.format) {
         case 'binary':
           baseItems.push({ keyword: schemaKeywords.blob })
           return baseItems
@@ -982,21 +947,21 @@ export class SchemaGenerator<
       }
     }
 
-    if (schema.pattern) {
+    if (schemaObject.pattern) {
       baseItems.unshift({
         keyword: schemaKeywords.matches,
-        args: schema.pattern,
+        args: schemaObject.pattern,
       })
 
       return baseItems
     }
 
     // type based logic
-    if ('items' in schema || schema.type === ('array' as 'string')) {
-      const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
-      const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
-      const items = this.parse({ schema: 'items' in schema ? (schema.items as SchemaObject) : [], name, parentName })
-      const unique = !!schema.uniqueItems
+    if ('items' in schemaObject || schemaObject.type === ('array' as 'string')) {
+      const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
+      const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
+      const items = this.parse({ schemaObject: 'items' in schemaObject ? (schemaObject.items as SchemaObject) : [], name, parentName })
+      const unique = !!schemaObject.uniqueItems
 
       return [
         {
@@ -1012,47 +977,47 @@ export class SchemaGenerator<
       ]
     }
 
-    if (schema.properties || schema.additionalProperties) {
-      if (isDiscriminator(schema)) {
+    if (schemaObject.properties || schemaObject.additionalProperties) {
+      if (isDiscriminator(schemaObject)) {
         // override schema to set type to be based on discriminator mapping, use of enum to convert type string to type 'mapping1' | 'mapping2'
-        const schemaOverriden = Object.keys(schema.properties || {}).reduce((acc, propertyName) => {
-          if (acc.properties?.[propertyName] && propertyName === schema.discriminator.propertyName) {
+        const schemaObjectOverriden = Object.keys(schemaObject.properties || {}).reduce((acc, propertyName) => {
+          if (acc.properties?.[propertyName] && propertyName === schemaObject.discriminator.propertyName) {
             return {
               ...acc,
               properties: {
                 ...acc.properties,
                 [propertyName]: {
                   ...((acc.properties[propertyName] as any) || {}),
-                  enum: schema.discriminator.mapping ? Object.keys(schema.discriminator.mapping) : undefined,
+                  enum: schemaObject.discriminator.mapping ? Object.keys(schemaObject.discriminator.mapping) : undefined,
                 },
               },
             }
           }
 
           return acc
-        }, schema || {}) as SchemaObject
+        }, schemaObject || {}) as SchemaObject
 
         return [
           ...this.#parseProperties({
-            schema: schemaOverriden,
+            schemaObject: schemaObjectOverriden,
             name,
           }),
           ...baseItems,
         ]
       }
 
-      return [...this.#parseProperties({ schema, name }), ...baseItems]
+      return [...this.#parseProperties({ schemaObject, name }), ...baseItems]
     }
 
-    if (schema.type) {
-      if (Array.isArray(schema.type)) {
+    if (schemaObject.type) {
+      if (Array.isArray(schemaObject.type)) {
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
-        const [type] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
+        const [type] = schemaObject.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 
         return [
           ...this.parse({
-            schema: {
-              ...schema,
+            schemaObject: {
+              ...schemaObject,
               type,
             },
             name,
@@ -1062,12 +1027,12 @@ export class SchemaGenerator<
         ].filter(Boolean)
       }
 
-      if (!['boolean', 'object', 'number', 'string', 'integer', 'null'].includes(schema.type)) {
-        this.context.pluginManager.logger.emit('warning', `Schema type '${schema.type}' is not valid for schema ${parentName}.${name}`)
+      if (!['boolean', 'object', 'number', 'string', 'integer', 'null'].includes(schemaObject.type)) {
+        this.context.pluginManager.logger.emit('warning', `Schema type '${schemaObject.type}' is not valid for schema ${parentName}.${name}`)
       }
 
       // 'string' | 'number' | 'integer' | 'boolean'
-      return [{ keyword: schema.type }, ...baseItems]
+      return [{ keyword: schemaObject.type }, ...baseItems]
     }
 
     return [{ keyword: unknownReturn }]
@@ -1094,7 +1059,7 @@ export class SchemaGenerator<
       }
 
       generators?.forEach((generator) => {
-        const tree = this.parse({ schema: value, name: name })
+        const tree = this.parse({ schemaObject: value, name: name })
 
         const promise = generator.schema?.({
           instance: this,

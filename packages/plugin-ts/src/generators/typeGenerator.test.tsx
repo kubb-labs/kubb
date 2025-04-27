@@ -361,12 +361,12 @@ describe('typeGenerator schema', async () => {
         optionalType: 'questionToken',
       },
     },
-    // {
-    //   name: 'PetsStoreAdvancedDiscriminator',
-    //   input: '../../mocks/discriminator.yaml',
-    //   path: 'Advanced',
-    //   options: {},
-    // },
+    {
+      name: 'PetsStoreAdvancedDiscriminator',
+      input: '../../mocks/discriminator.yaml',
+      path: 'Advanced',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -411,7 +411,7 @@ describe('typeGenerator schema', async () => {
     const schemas = getSchemas({ oas })
     const name = props.path
     const schema = schemas[name]!
-    const tree = instance.parse({ schema, name })
+    const tree = instance.parse({ schemaObject: schema, name })
 
     const files = await typeGenerator.schema?.({
       schema: {

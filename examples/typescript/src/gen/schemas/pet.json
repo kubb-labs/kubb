@@ -1,5 +1,5 @@
 {
-  "required": ["name", "photoUrls"],
+  "required": ["name", "photoUrls", "type"],
   "type": "object",
   "oneOf": [
     {

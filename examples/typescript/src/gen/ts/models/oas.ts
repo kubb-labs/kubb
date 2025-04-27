@@ -1122,7 +1122,7 @@ export const oas = {
         },
       },
       Pet: {
-        required: ['name', 'photoUrls'],
+        required: ['name', 'photoUrls', 'type'],
         type: 'object',
         oneOf: [
           {
@@ -1137,8 +1137,6 @@ export const oas = {
           mapping: {
             dog: '#/components/schemas/Dog',
             cat: '#/components/schemas/Cat',
-            Dog: '#/components/schemas/Dog',
-            Cat: '#/components/schemas/Cat',
           },
         },
         properties: {

@@ -67,59 +67,41 @@ export class Oas<const TOAS = unknown> extends BaseOas {
   }
 
   getDiscriminator(schema: OasTypes.SchemaObject): OpenAPIV3.DiscriminatorObject | undefined {
-    if (isDiscriminator(schema)) {
-      const mapping = schema.discriminator.mapping || {}
-
-      // loop over oneOf and add default mapping when none is defined
-      if (schema.oneOf) {
-        schema.oneOf?.forEach((schema) => {
-          if (isReference(schema)) {
-            const key = this.getKey(schema.$ref)
-
-            if (key && !mapping[key]) {
-              mapping[key] = schema.$ref
-            }
-          }
-        })
-      }
-
-      if (schema.anyOf) {
-        schema.anyOf?.forEach((schema) => {
-          if (isReference(schema)) {
-            const key = this.getKey(schema.$ref)
-
-            if (key && !mapping[key]) {
-              mapping[key] = schema.$ref
-            }
-          }
-        })
-      }
-
-      return {
-        ...schema.discriminator,
-        mapping,
-      }
+    if (!isDiscriminator(schema)) {
+      return undefined
     }
 
-    // if (schema.allOf) {
-    //   return schema.allOf?.reduce((acc, item) => {
-    //     if (isReference(item)) {
-    //       const refItem = this.get(item.$ref)
-    //
-    //       if (isDiscriminator(refItem)) {
-    //         return refItem as unknown as OpenAPIV3.DiscriminatorObject
-    //       }
-    //     }
-    //
-    //     if (isDiscriminator(item)) {
-    //       return item.discriminator as OpenAPIV3.DiscriminatorObject
-    //     }
-    //
-    //     return acc
-    //   }, {} as OpenAPIV3.DiscriminatorObject)
-    // }
+    const mapping = schema.discriminator.mapping || {}
 
-    return undefined
+    // loop over oneOf and add default mapping when none is defined
+    if (schema.oneOf) {
+      schema.oneOf.forEach((schema) => {
+        if (isReference(schema)) {
+          const key = this.getKey(schema.$ref)
+
+          if (key && !Object.values(mapping).includes(schema.$ref)) {
+            mapping[key] = schema.$ref
+          }
+        }
+      })
+    }
+
+    if (schema.anyOf) {
+      schema.anyOf.forEach((schema) => {
+        if (isReference(schema)) {
+          const key = this.getKey(schema.$ref)
+
+          if (key && !Object.values(mapping).includes(schema.$ref)) {
+            mapping[key] = schema.$ref
+          }
+        }
+      })
+    }
+
+    return {
+      ...schema.discriminator,
+      mapping,
+    }
   }
 
   // TODO add better typing
