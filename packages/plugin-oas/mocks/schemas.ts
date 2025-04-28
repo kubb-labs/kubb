@@ -440,6 +440,59 @@ const basic: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
+    name: 'objectArrayObject',
+    schema: {
+      keyword: schemaKeywords.object,
+      args: {
+        properties: {
+          ids: [
+            {
+              keyword: schemaKeywords.array,
+              args: {
+                items: [
+                  {
+                    keyword: schemaKeywords.object,
+                    args: {
+                      properties: {
+                        enum: [
+                          {
+                            keyword: schemaKeywords.schema,
+                            args: {
+                              format: 'string',
+                              type: 'string',
+                            },
+                          },
+                          {
+                            keyword: schemaKeywords.enum,
+                            args: {
+                              name: 'enum',
+                              typeName: 'Enum',
+                              asConst: false,
+                              items: [
+                                { name: 'A', value: 'A', format: schemaKeywords.string },
+                                { name: 'B', value: 'B', format: schemaKeywords.string },
+                                { name: 'C', value: 'C', format: schemaKeywords.string },
+                                { name: 2, value: 2, format: schemaKeywords.number },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                      additionalProperties: [],
+                    },
+                  },
+                ],
+                min: 3,
+                max: 10,
+              },
+            },
+          ],
+        },
+        additionalProperties: [],
+      },
+    },
+  },
+  {
     name: 'objectEmpty',
     schema: {
       keyword: schemaKeywords.object,
