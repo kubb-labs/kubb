@@ -154,6 +154,22 @@ exports[`zod parse > 'objectArray' v4 1`] = `
     })"
 `;
 
+exports[`zod parse > 'objectArrayObject' 1`] = `
+"z.object({
+    "ids": z.array(z.object({
+    "enum": z.enum(["A", "B", "C", "2"])
+    })).min(3).max(10)
+    })"
+`;
+
+exports[`zod parse > 'objectArrayObject' v4 1`] = `
+"z.object({
+    "ids": z.array(z.object({
+    "enum": z.enum(["A", "B", "C", "2"])
+    })).min(3).max(10)
+    })"
+`;
+
 exports[`zod parse > 'objectDates' 1`] = `
 "z.object({
     "dateTime": z.string().datetime({ offset: true }),

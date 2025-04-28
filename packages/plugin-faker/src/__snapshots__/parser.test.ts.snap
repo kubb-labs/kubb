@@ -54,6 +54,8 @@ exports[`faker parse > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha(),"a
 
 exports[`faker parse > 'objectArray' 1`] = `"{"ids": faker.helpers.multiple(() => (faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$'))), { count: { min: 3, max: 10 }})}"`;
 
+exports[`faker parse > 'objectArrayObject' 1`] = `"{"ids": faker.helpers.multiple(() => ({"enum": faker.helpers.arrayElement<NonNullable<undefined["ids"][number]>['enum']>(["A", "B", "C", 2])}), { count: { min: 3, max: 10 }})}"`;
+
 exports[`faker parse > 'objectDates' 1`] = `"{"dateTime": faker.date.anytime().toISOString(),"date": faker.date.anytime().toISOString().substring(0, 10),"time": faker.date.anytime().toISOString().substring(11, 19),"nativeDate": faker.date.anytime()}"`;
 
 exports[`faker parse > 'objectEmpty' 1`] = `"{}"`;

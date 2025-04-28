@@ -194,7 +194,11 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
 
   if (isKeyword(current, schemaKeywords.array)) {
     return fakerKeywordMapper.array(
-      current.args.items.map((schema) => parse({ parent: current, current: schema, siblings }, { ...options, canOverride: false })).filter(Boolean),
+      current.args.items
+        .map((schema) =>
+          parse({ parent: current, current: schema, siblings }, { ...options, typeName: `${options.typeName}["${name}"][number]`, canOverride: false }),
+        )
+        .filter(Boolean),
       current.args.min,
       current.args.max,
     )
