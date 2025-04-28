@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 3.10.5
+
+### Patch Changes
+
+- [#1691](https://github.com/kubb-labs/kubb/pull/1691) [`4eba848`](https://github.com/kubb-labs/kubb/commit/4eba848da4ab06dbe6abd6f601a4963613db6339) Thanks [@maartenvansambeek](https://github.com/maartenvansambeek)! - Fixed generation of Typescript types for schemas with a type-array.
+
+- Updated dependencies []:
+  - @kubb/core@3.10.5
+  - @kubb/fs@3.10.5
+  - @kubb/oas@3.10.5
+  - @kubb/react@3.10.5
+
 ## 3.10.4
 
 ### Patch Changes
