@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+# 3.10.5
+- [`plugin-oas`](/plugins/plugin-oas): Rewrite schemas with multiple types
+- [`plugin-faker`](/plugins/plugin-faker): Fix types of enums nested in array
+
 # 3.10.4
 - [`plugin-mcp`](/plugins/plugin-mcp/): better use of MCP tools based on oas
 

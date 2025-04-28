@@ -528,20 +528,17 @@ export class SchemaGenerator<
           {
             keyword: schemaKeywords.union,
             args: items
-              .map((item) =>
-                this.parse({
-                  schemaObject: { ...schemaObject, type: item },
-                  name,
-                  parentName,
-                })[0],
+              .map(
+                (item) =>
+                  this.parse({
+                    schemaObject: { ...schemaObject, type: item },
+                    name,
+                    parentName,
+                  })[0],
               )
               .filter(Boolean)
               .filter((item) => !isKeyword(item, schemaKeywords.unknown))
-              .map((item) =>
-                isKeyword(item, schemaKeywords.object)
-                  ? { ...item, args: { ...item.args, strict: true } }
-                  : item,
-              ),
+              .map((item) => (isKeyword(item, schemaKeywords.object) ? { ...item, args: { ...item.args, strict: true } } : item)),
           },
         ]
 
@@ -983,7 +980,7 @@ export class SchemaGenerator<
           break
       }
     }
-  
+
     if (schemaObject.pattern && schemaObject.type === 'string') {
       baseItems.unshift({
         keyword: schemaKeywords.matches,
@@ -1047,8 +1044,9 @@ export class SchemaGenerator<
     }
 
     if (schemaObject.type) {
-     
-      const type = (Array.isArray(schemaObject.type) ? schemaObject.type.filter((item) => item !== 'null')[0] : schemaObject.type) as OpenAPIV3.NonArraySchemaObjectType
+      const type = (
+        Array.isArray(schemaObject.type) ? schemaObject.type.filter((item) => item !== 'null')[0] : schemaObject.type
+      ) as OpenAPIV3.NonArraySchemaObjectType
 
       if (!['boolean', 'object', 'number', 'string', 'integer', 'null'].includes(type)) {
         this.context.pluginManager.logger.emit('warning', `Schema type '${schemaObject.type}' is not valid for schema ${parentName}.${name}`)
