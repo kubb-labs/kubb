@@ -515,10 +515,37 @@ export class SchemaGenerator<
     }
 
     if (schemaObject.type && Array.isArray(schemaObject.type)) {
-      const [_schema, nullable] = schemaObject.type
+      // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
+      const items = schemaObject.type.filter((value) => value !== 'null') as Array<OpenAPIV3.NonArraySchemaObjectType>
+      const hasNull = (schemaObject.type as string[]).includes('null')
 
-      if (nullable === 'null') {
+      if (hasNull && !nullable) {
         baseItems.push({ keyword: schemaKeywords.nullable })
+      }
+
+      if (items.length > 1) {
+        const parsedItems = [
+          {
+            keyword: schemaKeywords.union,
+            args: items
+              .map((item) =>
+                this.parse({
+                  schemaObject: { ...schemaObject, type: item },
+                  name,
+                  parentName,
+                })[0],
+              )
+              .filter(Boolean)
+              .filter((item) => !isKeyword(item, schemaKeywords.unknown))
+              .map((item) =>
+                isKeyword(item, schemaKeywords.object)
+                  ? { ...item, args: { ...item.args, strict: true } }
+                  : item,
+              ),
+          },
+        ]
+
+        return [...parsedItems, ...baseItems].filter(Boolean)
       }
     }
 
@@ -870,6 +897,16 @@ export class SchemaGenerator<
      * see also https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
      */
     if (schemaObject.format) {
+      if (schemaObject.type === 'integer' && (schemaObject.format === 'int32' || schemaObject.format === 'int64')) {
+        baseItems.unshift({ keyword: schemaKeywords.integer })
+        return baseItems
+      }
+
+      if (schemaObject.type === 'number' && (schemaObject.format === 'float' || schemaObject.format === 'double')) {
+        baseItems.unshift({ keyword: schemaKeywords.number })
+        return baseItems
+      }
+
       switch (schemaObject.format) {
         case 'binary':
           baseItems.push({ keyword: schemaKeywords.blob })
@@ -946,8 +983,8 @@ export class SchemaGenerator<
           break
       }
     }
-
-    if (schemaObject.pattern) {
+  
+    if (schemaObject.pattern && schemaObject.type === 'string') {
       baseItems.unshift({
         keyword: schemaKeywords.matches,
         args: schemaObject.pattern,
@@ -1010,29 +1047,15 @@ export class SchemaGenerator<
     }
 
     if (schemaObject.type) {
-      if (Array.isArray(schemaObject.type)) {
-        // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
-        const [type] = schemaObject.type as Array<OpenAPIV3.NonArraySchemaObjectType>
+     
+      const type = (Array.isArray(schemaObject.type) ? schemaObject.type.filter((item) => item !== 'null')[0] : schemaObject.type) as OpenAPIV3.NonArraySchemaObjectType
 
-        return [
-          ...this.parse({
-            schemaObject: {
-              ...schemaObject,
-              type,
-            },
-            name,
-            parentName,
-          }),
-          ...baseItems,
-        ].filter(Boolean)
-      }
-
-      if (!['boolean', 'object', 'number', 'string', 'integer', 'null'].includes(schemaObject.type)) {
+      if (!['boolean', 'object', 'number', 'string', 'integer', 'null'].includes(type)) {
         this.context.pluginManager.logger.emit('warning', `Schema type '${schemaObject.type}' is not valid for schema ${parentName}.${name}`)
       }
 
       // 'string' | 'number' | 'integer' | 'boolean'
-      return [{ keyword: schemaObject.type }, ...baseItems]
+      return [{ keyword: type }, ...baseItems]
     }
 
     return [{ keyword: unknownReturn }]
