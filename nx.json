@@ -5,7 +5,11 @@
   },
   "defaultBase": "main",
   "namedInputs": {
-    "sharedGlobals": ["{workspaceRoot}/package.json", "{workspaceRoot}/tsconfig.json", "{workspaceRoot}/nx.json"],
+    "sharedGlobals": [
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/tsconfig.json",
+      "{workspaceRoot}/nx.json"
+    ],
     "default": [
       "sharedGlobals",
       "{projectRoot}/**/*",
@@ -26,39 +30,73 @@
   "targetDefaults": {
     "build": {
       "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"],
-      "outputs": ["{projectRoot}/dist", "{projectRoot}/assets"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "production",
+        "^production"
+      ],
+      "outputs": [
+        "{projectRoot}/dist",
+        "{projectRoot}/assets"
+      ]
     },
     "test": {
       "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["default", "^production"],
-      "outputs": ["{projectRoot}/test-results", "{projectRoot}/coverage"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "default",
+        "^production"
+      ],
+      "outputs": [
+        "{projectRoot}/test-results",
+        "{projectRoot}/coverage"
+      ]
     },
     "clean": {
-      "dependsOn": ["^clean"],
+      "dependsOn": [
+        "^clean"
+      ],
       "cache": false
     },
     "start": {
-      "dependsOn": ["^start"],
-      "outputs": ["{projectRoot}/dist"],
+      "dependsOn": [
+        "^start"
+      ],
+      "outputs": [
+        "{projectRoot}/dist"
+      ],
       "cache": false
     },
     "typecheck": {
       "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["default", "^production"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "default",
+        "^production"
+      ]
     },
     "release": {
-      "dependsOn": ["build"]
+      "dependsOn": [
+        "build"
+      ]
     },
     "generate": {
-      "outputs": ["{projectRoot}/src/gen"],
+      "outputs": [
+        "{projectRoot}/src/gen"
+      ],
       "cache": false
     },
     "release:canary": {
-      "dependsOn": ["build"]
+      "dependsOn": [
+        "build"
+      ]
     }
-  }
+  },
+  "nxCloudId": "681131159bdf5d30fad4b2ed"
 }
