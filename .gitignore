@@ -59,4 +59,3 @@ docs/.vitepress/cache/**
 docs/.vitepress/dist/**
 #docs/api/**
 packages/ui/static/**
-.nx
