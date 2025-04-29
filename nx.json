@@ -1,0 +1,64 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "affected": {
+    "defaultBase": "main"
+  },
+  "defaultBase": "main",
+  "namedInputs": {
+    "sharedGlobals": ["{workspaceRoot}/package.json", "{workspaceRoot}/tsconfig.json", "{workspaceRoot}/nx.json"],
+    "default": [
+      "sharedGlobals",
+      "{projectRoot}/**/*",
+      "!{projectRoot}/coverage",
+      "!{projectRoot}/dist",
+      "!{projectRoot}/test-results",
+      "!{projectRoot}/**/*.md"
+    ],
+    "production": [
+      "default",
+      "!{projectRoot}/tests/**/*",
+      "!{projectRoot}/jest.config.cjs",
+      "!{projectRoot}/**/?(*.)+(spec|test).ts",
+      "!{projectRoot}/**/*.test.tsx",
+      "!{projectRoot}/**/*.test.ts"
+    ]
+  },
+  "targetDefaults": {
+    "build": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"],
+      "outputs": ["{projectRoot}/dist", "{projectRoot}/assets"]
+    },
+    "test": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^production"],
+      "outputs": ["{projectRoot}/test-results", "{projectRoot}/coverage"]
+    },
+    "clean": {
+      "dependsOn": ["^clean"],
+      "cache": false
+    },
+    "start": {
+      "dependsOn": ["^start"],
+      "outputs": ["{projectRoot}/dist"],
+      "cache": false
+    },
+    "typecheck": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^production"]
+    },
+    "release": {
+      "dependsOn": ["build"]
+    },
+    "generate": {
+      "outputs": ["{projectRoot}/src/gen"],
+      "cache": false
+    },
+    "release:canary": {
+      "dependsOn": ["build"]
+    }
+  }
+}

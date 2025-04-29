@@ -26,7 +26,7 @@ jobs:
           uses: ./.github/setup
 
         - name: Build
-          run: bun run build --concurrency=1
+          run: bun run build
 
   typecheck:
       name: Typecheck
@@ -43,10 +43,10 @@ jobs:
           uses: ./.github/setup
 
         - name: Typecheck
-          run: bun run typecheck --concurrency=1
+          run: bun run typecheck
 
         - name: Typecheck examples
-          run: bun run typecheck:examples --concurrency=1
+          run: bun run typecheck:examples
 
   tests:
       name: Tests
@@ -63,7 +63,7 @@ jobs:
           uses: ./.github/setup
 
         - name: Build
-          run: bun run build
+          run: bun run build:affected"
 
         - name: Test
           run: bun run test

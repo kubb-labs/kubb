@@ -29,7 +29,7 @@ jobs:
           uses: ./.github/setup
 
         - name: Build
-          run: bun run build --concurrency=1
+          run: bun run build
 
         - name: Test
           run: bun run test

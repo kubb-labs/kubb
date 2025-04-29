@@ -27,9 +27,5 @@ runs:
       shell: bash
       run: pnpm install --prefer-offline
 
-    - name: Setup Turbo
-      uses: dtinth/setup-github-actions-caching-for-turbo@v1
-      continue-on-error: true
-      with:
-        # Set the prefix for the cache keys.
-        cache-prefix: kubb_
+    - name: Sets the base and head SHAs for the nx affected commands in CI
+      uses: nrwl/nx-set-shas@v4
