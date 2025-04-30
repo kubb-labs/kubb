@@ -2,7 +2,7 @@ name: Release
 on:
   workflow_dispatch:
   push:
-    branches: ['main', 'alpha', 'beta', 'rc']
+    branches: ["main", "alpha", "beta", "rc"]
     paths:
       - ".changeset/**"
       - "packages/**"
@@ -16,78 +16,78 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
-      name: Release
-      timeout-minutes: 15
-      runs-on: ubuntu-latest
-      steps:
-        - name: Check out code
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 2
+    name: Release
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-        - name: Setup
-          uses: ./.github/setup
+      - name: Setup
+        uses: ./.github/setup
 
-        - name: Build
-          run: bun run build --concurrency=1
+      - name: Build
+        run: bun run build
 
-        - name: Test
-          run: bun run test
+      - name: Test
+        run: bun run test
 
-        - name: Upload coverage reports to Codecov
-          uses: codecov/codecov-action@v3
-          env:
-             CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-        - name: Publish
-          id: changesets
-          uses: changesets/action@v1
-          if: ${{ github.event.inputs.tag == '' }}
-          with:
-            publish: bun release
-            commit: "ci(changesets): version packages"
-            setupGitUser: false
-          env:
-            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-            NPM_CONFIG_PROVENANCE: true
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish
+        id: changesets
+        uses: changesets/action@v1
+        if: ${{ github.event.inputs.tag == '' }}
+        with:
+          publish: bun release
+          commit: "ci(changesets): version packages"
+          setupGitUser: false
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-        - name: Publish ${{ inputs.tag || 'canary' }}
-          if: steps.changesets.outputs.published != 'true'
-          run: |
-            git checkout main
-            bun version:canary
-            bun release:canary --tag ${{ inputs.tag || 'canary' }}
-          env:
-            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            NPM_CONFIG_PROVENANCE: true
+      - name: Publish ${{ inputs.tag || 'canary' }}
+        if: steps.changesets.outputs.published != 'true'
+        run: |
+          git checkout main
+          bun version:canary
+          bun release:canary --tag ${{ inputs.tag || 'canary' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
 
-#        - name: Deploy to Coolify
-#          run: |
-#            curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+      #        - name: Deploy to Coolify
+      #          run: |
+      #            curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
 
-        - name: Send a discord notification
-          if: steps.changesets.outputs.published == 'true'
-          uses: actions/github-script@v6
-          env:
-            DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            script: |
-              fetch(process.env.DISCORD_WEBHOOK_URL, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  content: `A new release is available 🎉. \n [Read the changelog](https://github.com/kubb-labs/kubb/releases)`
-                }),
-              })
-              .then((res) => {
-                console.log('Sent discord notification', res)
-              })
-              .catch((err) => {
-                console.error('Error sending discord notification', err)
-              })
+      - name: Send a discord notification
+        if: steps.changesets.outputs.published == 'true'
+        uses: actions/github-script@v6
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            fetch(process.env.DISCORD_WEBHOOK_URL, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                content: `A new release is available 🎉. \n [Read the changelog](https://github.com/kubb-labs/kubb/releases)`
+              }),
+            })
+            .then((res) => {
+              console.log('Sent discord notification', res)
+            })
+            .catch((err) => {
+              console.error('Error sending discord notification', err)
+            })

@@ -12,94 +12,94 @@ permissions:
 
 jobs:
   build:
-      name: Build
-      timeout-minutes: 15
-      runs-on: ubuntu-latest
+    name: Build
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Check out code
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 2
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
-        - name: Setup
-          uses: ./.github/setup
+      - name: Setup
+        uses: ./.github/setup
 
-        - name: Build
-          run: bun run build --concurrency=1
+      - name: Build
+        run: bun run build
 
   typecheck:
-      name: Typecheck
-      timeout-minutes: 15
-      runs-on: ubuntu-latest
+    name: Typecheck
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Check out code
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 2
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
-        - name: Setup
-          uses: ./.github/setup
+      - name: Setup
+        uses: ./.github/setup
 
-        - name: Typecheck
-          run: bun run typecheck --concurrency=1
+      - name: Typecheck
+        run: bun run typecheck
 
-        - name: Typecheck examples
-          run: bun run typecheck:examples --concurrency=1
+      - name: Typecheck examples
+        run: bun run typecheck:examples
 
   tests:
-      name: Tests
-      timeout-minutes: 15
-      runs-on: ubuntu-latest
+    name: Tests
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Check out code
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 2
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
-        - name: Setup
-          uses: ./.github/setup
+      - name: Setup
+        uses: ./.github/setup
 
-        - name: Build
-          run: bun run build
+      - name: Build
+        run: bun run build
 
-        - name: Test
-          run: bun run test
+      - name: Test
+        run: bun run test
 
-        - name: Upload coverage reports to Codecov
-          if: ${{ !cancelled() }}
-          uses: codecov/codecov-action@v3
-          env:
-             CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload coverage reports to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-        - name: Test with Bun
-          continue-on-error: true
-          run: bun run test:bun --coverage
+      - name: Test with Bun
+        continue-on-error: true
+        run: bun run test:bun --coverage
 
   linting:
-      name: Linting
-      timeout-minutes: 15
-      runs-on: ubuntu-latest
+    name: Linting
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Check out code
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 2
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-        - name: Setup
-          uses: ./.github/setup
+      - name: Setup
+        uses: ./.github/setup
 
-        - name: Build
-          run: bun run build
+      - name: Build
+        run: bun run build
 
-        - name: Linting
-          env:
-            NODE_OPTIONS: "--max_old_space_size=4096"
-          continue-on-error: true
-          run: bun run lint:ci
+      - name: Linting
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        continue-on-error: true
+        run: bun run lint:ci
 
   prerelease:
     name: Prerelease

@@ -22,7 +22,7 @@
     "example5": "bun ./example5/index.tsx",
     "start": "tsup --watch",
     "test": "vitest",
-    "typecheck": ""
+    "typecheck": "echo 'empty'"
   },
   "dependencies": {
     "@kubb/react": "workspace:*"

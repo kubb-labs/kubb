@@ -58,14 +58,14 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
-    "@heroui/react": "^2.7.6",
-    "@heroui/theme": "^2.4.13",
-    "@heroui/use-theme": "^2.1.6",
+    "@heroui/react": "^2.7.8",
+    "@heroui/theme": "^2.4.15",
+    "@heroui/use-theme": "^2.1.8",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@react-aria/visually-hidden": "3.8.20",
     "@react-types/shared": "3.28.0",
-    "@tanstack/react-query": "^5.74.7",
+    "@tanstack/react-query": "^5.74.11",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
@@ -76,12 +76,12 @@
     "postcss": "8.4.38",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-router-dom": "^7.5.2",
+    "react-router-dom": "^7.5.3",
     "tailwind-variants": "0.3.0",
     "tailwindcss": "3.4.16",
     "tsup": "catalog:",
     "typescript": "catalog:",
-    "vite": "^6.3.3",
+    "vite": "^6.3.4",
     "vite-tsconfig-paths": "^5.1.4"
   },
   "engines": {
