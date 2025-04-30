@@ -63,7 +63,7 @@ jobs:
           uses: ./.github/setup
 
         - name: Build
-          run: bun run build:affected"
+          run: bun run build:affected
 
         - name: Test
           run: bun run test
