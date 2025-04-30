@@ -10,8 +10,8 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version: 20
-        cache: 'pnpm'
-        registry-url: 'https://registry.npmjs.org'
+        cache: "pnpm"
+        registry-url: "https://registry.npmjs.org"
 
     - name: Install bun
       uses: oven-sh/setup-bun@v1
@@ -27,5 +27,7 @@ runs:
       shell: bash
       run: pnpm install --prefer-offline
 
-    - name: Sets the base and head SHAs for the nx affected commands in CI
-      uses: nrwl/nx-set-shas@v4
+    - name: Get base and head commits for `nx affected`
+      uses: nrwl/nx-set-shas@v4.1.2
+      with:
+        main-branch-name: main
