@@ -62,6 +62,9 @@ jobs:
       - name: Setup
         uses: ./.github/setup
 
+      - name: Build
+        run: bun run build
+
       - name: Test
         run: bun run test
 

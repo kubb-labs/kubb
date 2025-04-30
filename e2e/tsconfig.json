@@ -36,6 +36,6 @@
       "@kubb/parser-ts": ["../packages/parser-ts/src/index.ts"]
     }
   },
-  "include": ["./src/gen/**/*"],
+  "include": ["./src/**/*"],
   "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]
 }
