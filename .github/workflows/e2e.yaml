@@ -23,86 +23,86 @@ permissions:
 
 jobs:
   build:
-      name: Build and test
-      timeout-minutes: 30
-      strategy:
-        fail-fast: true
-        matrix:
-          os: [ubuntu-latest, windows-latest]
-          node-version: [20]
-          ## comment out for support of node 19,20
-          # experimental: [false]
+    name: Build and test
+    timeout-minutes: 30
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version: [20]
+        ## comment out for support of node 19,20
+        # experimental: [false]
 
-          ## comment for support of node 19,20
-#          exclude:
-#            - os: ubuntu-latest
-#              node-version: 20
-          include:
-            - os: windows-latest
-              node-version: 20
-            - os: ubuntu-latest
-              node-version: 20
+        ## comment for support of node 19,20
+        #          exclude:
+        #            - os: ubuntu-latest
+        #              node-version: 20
+        include:
+          - os: windows-latest
+            node-version: 20
+          - os: ubuntu-latest
+            node-version: 20
 
-          ## comment out for support of node 19,20
-          # include:
+        ## comment out for support of node 19,20
+        # include:
 
-            # - os: windows-latest
-            #   installer: pnpm run
-            # - os: ubuntu-latest
-            #   installer: bun run
-            # - os: windows-latest
-            #   node-version: 19
-            #   installer: pnpm run
-            #   experimental: true
-            # - os: ubuntu-latest
-            #   node-version: 19
-            #   installer: bun run
-            #   experimental: true
+        # - os: windows-latest
+        #   installer: pnpm run
+        # - os: ubuntu-latest
+        #   installer: bun run
+        # - os: windows-latest
+        #   node-version: 19
+        #   installer: pnpm run
+        #   experimental: true
+        # - os: ubuntu-latest
+        #   node-version: 19
+        #   installer: bun run
+        #   experimental: true
 
-            # - os: windows-latest
-            #   node-version: 20
-            #   installer: pnpm run
-            #   experimental: true
-            # - os: ubuntu-latest
-            #   node-version: 20
-            #   installer: bun run
-            #   experimental: true
+        # - os: windows-latest
+        #   node-version: 20
+        #   installer: pnpm run
+        #   experimental: true
+        # - os: ubuntu-latest
+        #   node-version: 20
+        #   installer: bun run
+        #   experimental: true
 
-      runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
 
-      steps:
-        - name: Check out code
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 2
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-        - name: Setup
-          uses: ./.github/setup
+      - name: Setup
+        uses: ./.github/setup
 
-        - name: Build
-          if: ${{ matrix.os == 'windows-latest' }}
-          run: pnpm run build
+      - name: Build
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: pnpm run build
 
-        - name: Build with Bun
-          if: ${{ matrix.os == 'ubuntu-latest' }}
-          run: bun run build
+      - name: Build with Bun
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: bun run build
 
-        - name: Install e2e dependencies
-          run: pnpm install --prefer-offline
-          working-directory: ./e2e
+      - name: Install e2e dependencies
+        run: pnpm install --prefer-offline
+        working-directory: ./e2e
 
-        - name: E2e
-          working-directory: ./e2e
-          if: ${{ matrix.os == 'windows-latest' }}
-          env:
-            NODE_OPTIONS: "--max_old_space_size=4096"
-          run: |
-            bun run generate
+      - name: E2e
+        working-directory: ./e2e
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: |
+          bun run generate
 
-        - name: E2e with Bun
-          working-directory: ./e2e
-          if: ${{ matrix.os == 'ubuntu-latest' }}
-          env:
-            NODE_OPTIONS: "--max_old_space_size=4096"
-          run: |
-            bun run generate
+      - name: E2e with Bun
+        working-directory: ./e2e
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: |
+          bun run generate
