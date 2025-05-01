@@ -31,9 +31,27 @@ export const typeKeywordMapper = {
 
     return factory.createArrayDeclaration({ nodes })
   },
-  tuple: (nodes?: ts.TypeNode[]) => {
+  tuple: (nodes?: ts.TypeNode[], rest?: ts.TypeNode, min?: number, max?: number) => {
     if (!nodes) {
       return undefined
+    }
+
+    if (max) {
+      nodes = nodes.slice(0, max)
+
+      if (nodes.length < max && rest) {
+        nodes = [...nodes, ...Array(max - nodes.length).fill(rest)]
+      }
+    }
+
+    if (min) {
+      nodes = nodes.map((node, index) =>
+        index >= min ? factory.createOptionalTypeNode(node) : node
+      )
+    }
+
+    if (typeof max === "undefined" && rest) {
+      nodes.push(factory.createRestTypeNode(factory.createArrayTypeNode(rest)))
     }
 
     return factory.createTupleTypeNode(nodes)
@@ -178,6 +196,9 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
   if (isKeyword(current, schemaKeywords.tuple)) {
     return typeKeywordMapper.tuple(
       current.args.items.map((schema) => parse({ parent: current, name: name, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+      current.args.rest && (parse({ parent: current, name: name, current: current.args.rest, siblings, }, options) ?? undefined) as (ts.TypeNode | undefined),
+      current.args.min,
+      current.args.max
     )
   }
 

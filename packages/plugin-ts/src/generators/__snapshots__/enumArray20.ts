@@ -16,5 +16,5 @@ export type enumArray = {
   /**
    * @type array | undefined
    */
-  identifier?: [number, string, EnumArrayIdentifierEnum2]
+  identifier?: [number, string, EnumArrayIdentifierEnum2, ...any[]]
 }

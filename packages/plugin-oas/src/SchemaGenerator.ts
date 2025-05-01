@@ -846,6 +846,7 @@ export class SchemaGenerator<
 
     if ('prefixItems' in schemaObject) {
       const prefixItems = schemaObject.prefixItems as SchemaObject[]
+      const items = "items" in schemaObject ? schemaObject.items as SchemaObject[] : []
       const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
       const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
 
@@ -860,6 +861,11 @@ export class SchemaGenerator<
                 return this.parse({ schemaObject: item, name, parentName })[0]
               })
               .filter(Boolean),
+            rest: this.parse({
+              schemaObject: items,
+              name,
+              parentName,
+            })[0],
           },
         },
         ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
