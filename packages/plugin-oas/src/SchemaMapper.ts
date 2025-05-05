@@ -1,4 +1,4 @@
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 
 export type SchemaKeywordMapper = {
   object: {

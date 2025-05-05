@@ -78,7 +78,6 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/fs": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
@@ -91,7 +90,7 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "tsup": "catalog:",
-    "zod": "~3.24.3"
+    "zod": "~3.24.4"
   },
   "peerDependencies": {
     "@kubb/react": "^3.0.0"

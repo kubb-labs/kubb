@@ -3,7 +3,7 @@ import { squashExportNodes } from './squashExportNodes.ts'
 import { squashImportNodes } from './squashImportNodes.ts'
 import { squashSourceNodes } from './squashSourceNodes.ts'
 
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 import type React from 'react'
 import type { File } from '../components/File.tsx'
 import type { DOMElement } from '../types.ts'

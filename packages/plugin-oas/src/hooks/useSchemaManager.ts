@@ -1,8 +1,7 @@
 import { useApp } from '@kubb/react'
 
 import type { FileMetaBase, Plugin, ResolveNameParams } from '@kubb/core'
-import type * as KubbFile from '@kubb/fs/types'
-import type { Mode } from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 import { SchemaGenerator } from '../SchemaGenerator.ts'
 import { type Schema, schemaKeywords } from '../SchemaMapper'
 
@@ -21,7 +20,7 @@ type UseSchemaManagerResult = {
     name: string,
     params?: {
       pluginKey?: Plugin['key']
-      mode?: Mode
+      mode?: KubbFile.Mode
       extname?: KubbFile.Extname
       group?: {
         tag?: string

@@ -1,6 +1,6 @@
 import type { Group, Output, Plugin } from '@kubb/core'
 import type { PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 
 import type { HttpMethod, Oas, Operation, SchemaObject, contentType } from '@kubb/oas'
 import type { Generator } from './generator.tsx'

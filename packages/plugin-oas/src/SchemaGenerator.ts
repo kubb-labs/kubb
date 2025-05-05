@@ -9,7 +9,7 @@ import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
 
 import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 
 import type { Oas, OpenAPIV3, SchemaObject, contentType } from '@kubb/oas'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'

@@ -1,4 +1,4 @@
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from './fs/index.ts'
 import type { PossiblePromise } from './utils/types.ts'
 import type { FileManager } from './FileManager.ts'
 import type { PluginManager } from './PluginManager.ts'

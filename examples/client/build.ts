@@ -1,5 +1,5 @@
 import { build, getSource } from '@kubb/core'
-import { write } from '@kubb/fs'
+import { write } from '@kubb/core/fs'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
 

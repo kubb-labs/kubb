@@ -5,3 +5,5 @@ export { write } from './write.ts'
 export function trimExtName(text: string): string {
   return text.replace(/\.[^/.]+$/, '')
 }
+
+export * as KubbFile from './types.ts'

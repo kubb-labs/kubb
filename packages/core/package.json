@@ -86,7 +86,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/fs": "workspace:*",
+    "fs-extra": "^11.3.0",
+    "js-runtime": "^0.0.8",
     "@kubb/parser-ts": "workspace:*",
     "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
@@ -103,6 +104,7 @@
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.7.0",
+    "@types/fs-extra": "^11.0.4",
     "consola": "^3.4.2",
     "prettier": "^3.5.3",
     "tsup": "catalog:",

@@ -29,7 +29,7 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-vue-query": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@tanstack/vue-query": "^5.74.9",
+    "@tanstack/vue-query": "^5.75.1",
     "axios": "^1.9.0",
     "unplugin-kubb": "workspace:*",
     "vue": "^3.5.13"
@@ -39,7 +39,7 @@
     "msw": "^1.3.5",
     "tsup": "^8.4.0",
     "typescript": "^5.8.3",
-    "vite": "^6.3.4"
+    "vite": "^6.3.5"
   },
   "packageManager": "pnpm@9.15.5",
   "engines": {

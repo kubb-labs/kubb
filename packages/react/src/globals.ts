@@ -1,4 +1,4 @@
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 import type React from 'react'
 import type { KubbNode } from './types.ts'
 

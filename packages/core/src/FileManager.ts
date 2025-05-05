@@ -3,13 +3,13 @@ import { extname, join, relative } from 'node:path'
 import { orderBy } from 'natural-orderby'
 import { isDeepEqual } from 'remeda'
 
-import { read, write } from '@kubb/fs'
+import { read, write } from './fs/index.ts'
 import { BarrelManager } from './BarrelManager.ts'
 
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from './fs/index.ts'
 
-import { trimExtName } from '@kubb/fs'
-import type { ResolvedFile } from '@kubb/fs/types'
+import { trimExtName } from './fs/index.ts'
+import type { ResolvedFile } from './fs/types.ts'
 import type { GreaterThan } from './utils/types.ts'
 import PQueue from 'p-queue'
 import type { Logger } from './logger.ts'

@@ -3,7 +3,7 @@ import path from 'node:path'
 import { format } from '../mocks/format.ts'
 import { FileManager, combineExports, combineImports, combineSources, getSource } from './FileManager.ts'
 
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from './fs/index.ts'
 import { createFile } from './utils'
 
 describe('FileManager', () => {

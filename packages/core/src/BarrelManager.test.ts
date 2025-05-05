@@ -1,4 +1,4 @@
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from './fs/index.ts'
 
 import { BarrelManager } from './BarrelManager.ts'
 

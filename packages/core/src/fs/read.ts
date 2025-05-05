@@ -1,18 +1,20 @@
-import { relative } from 'node:path'
+import { normalize, relative } from 'node:path'
 
 import fs from 'fs-extra'
 import { switcher } from 'js-runtime'
 
 function slash(path: string, platform: 'windows' | 'mac' | 'linux' = 'linux') {
   const isWindowsPath = /^\\\\\?\\/.test(path)
+  const normalizedPath = normalize(path)
+
 
   if (['linux', 'mac'].includes(platform) && !isWindowsPath) {
     // linux and mac
-    return path.replaceAll(/\\/g, '/').replace('../', '').trimEnd()
+    return normalizedPath.replace(/\\/g, '/')
   }
 
   // windows
-  return path.replaceAll(/\\/g, '/').replace('../', '').trimEnd()
+  return normalizedPath.replace(/\\/g, '/')
 }
 
 export function getRelativePath(rootDir?: string | null, filePath?: string | null, platform: 'windows' | 'mac' | 'linux' = 'linux'): string {

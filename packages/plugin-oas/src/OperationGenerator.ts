@@ -2,7 +2,7 @@ import { BaseGenerator, type FileMetaBase } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 
 import type { PluginFactoryOptions, PluginManager } from '@kubb/core'
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod, Oas, OasTypes, Operation, SchemaObject, contentType } from '@kubb/oas'
