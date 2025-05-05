@@ -156,6 +156,17 @@ type ParserOptions = {
   mapper?: Record<string, ts.PropertySignature>
 }
 
+/**
+ * Recursively parses a schema tree node into a corresponding TypeScript AST node.
+ *
+ * Maps OpenAPI schema keywords to TypeScript AST nodes using the `typeKeywordMapper`, handling complex types such as unions, intersections, arrays, tuples (with optional/rest elements and length constraints), enums, constants, references, and objects with property modifiers and documentation annotations.
+ *
+ * @param current - The schema node to parse.
+ * @param siblings - Sibling schema nodes, used for context in certain mappings.
+ * @param name - The name of the schema or property being parsed.
+ * @param options - Parsing options controlling output style, property handling, and custom mappers.
+ * @returns The generated TypeScript AST node, or `undefined` if the schema keyword is not mapped.
+ */
 export function parse({ current, siblings, name }: SchemaTree, options: ParserOptions): ts.Node | null | undefined {
   const value = typeKeywordMapper[current.keyword as keyof typeof typeKeywordMapper]
 
