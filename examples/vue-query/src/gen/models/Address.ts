@@ -32,5 +32,5 @@ export type Address = {
   /**
    * @type array | undefined
    */
-  identifier?: [number, string, AddressIdentifierEnum]
+  identifier?: [number, string, AddressIdentifierEnum, ...any[]]
 }

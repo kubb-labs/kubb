@@ -7,14 +7,13 @@ function slash(path: string, platform: 'windows' | 'mac' | 'linux' = 'linux') {
   const isWindowsPath = /^\\\\\?\\/.test(path)
   const normalizedPath = normalize(path)
 
-
   if (['linux', 'mac'].includes(platform) && !isWindowsPath) {
     // linux and mac
-    return normalizedPath.replace(/\\/g, '/')
+    return normalizedPath.replaceAll(/\\/g, '/').replace('../', '')
   }
 
   // windows
-  return normalizedPath.replace(/\\/g, '/')
+  return normalizedPath.replaceAll(/\\/g, '/').replace('../', '')
 }
 
 export function getRelativePath(rootDir?: string | null, filePath?: string | null, platform: 'windows' | 'mac' | 'linux' = 'linux'): string {

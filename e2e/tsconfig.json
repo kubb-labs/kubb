@@ -24,6 +24,7 @@
       "@kubb/config-tsup": ["../packages/config/config-tsup/src/index.ts"],
       "@kubb/config-ts": ["../packages/config/config-ts/src/index.ts"],
       "@kubb/core": ["../packages/core/src/index.ts"],
+      "@kubb/core/fs": ["../packages/core/src/fs/index.ts"],
       "@kubb/plugin-oas": ["../packages/plugin-oas/src/index.ts"],
       "@kubb/plugin-client": ["../packages/plugin-client/src/index.ts"],
       "@kubb/plugin-client/clients/axios": ["../packages/plugin-client/client.ts"],

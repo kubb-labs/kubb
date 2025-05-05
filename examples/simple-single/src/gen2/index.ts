@@ -414,50 +414,44 @@ export const flyHTTPResponseOptionsSchema = z.object({
   pristine: z.boolean().optional(),
 })
 
-/**
- * @description An optional object that defines one or more named checks. The key for each check is the check name.
- */
-export const flyMachineCheckSchema = z
-  .object({
-    grace_period: z
-      .lazy(() => flyDurationSchema)
-      .describe('The time to wait after a VM starts before checking its health')
-      .optional(),
-    headers: z
-      .array(
-        z
-          .lazy(() => flyMachineHTTPHeaderSchema)
-          .describe(
-            'For http checks, an array of objects with string field Name and array of strings field Values. The key/value pairs specify header and header values that will get passed with the check call.',
-          ),
-      )
-      .optional(),
-    interval: z
-      .lazy(() => flyDurationSchema)
-      .describe('The time between connectivity checks')
-      .optional(),
-    kind: z.enum(['informational', 'readiness']).describe('Kind of the check (informational, readiness)').optional(),
-    method: z.string().describe('For http checks, the HTTP method to use to when making the request').optional(),
-    path: z.string().describe('For http checks, the path to send the request to').optional(),
-    port: z.number().int().describe('The port to connect to, often the same as internal_port').optional(),
-    protocol: z.string().describe('For http checks, whether to use http or https').optional(),
-    timeout: z
-      .lazy(() => flyDurationSchema)
-      .describe('The maximum time a connection can take before being reported as failing its health check')
-      .optional(),
-    tls_server_name: z.string().describe('If the protocol is https, the hostname to use for TLS certificate validation').optional(),
-    tls_skip_verify: z.boolean().describe('For http checks with https protocol, whether or not to verify the TLS certificate').optional(),
-    type: z.string().describe('tcp or http').optional(),
-  })
-  .describe('An optional object that defines one or more named checks. The key for each check is the check name.')
+export const flyMachineCheckSchema = z.object({
+  grace_period: z
+    .lazy(() => flyDurationSchema)
+    .describe('The time to wait after a VM starts before checking its health')
+    .optional(),
+  headers: z
+    .array(
+      z
+        .lazy(() => flyMachineHTTPHeaderSchema)
+        .describe(
+          'For http checks, an array of objects with string field Name and array of strings field Values. The key/value pairs specify header and header values that will get passed with the check call.',
+        ),
+    )
+    .optional(),
+  interval: z
+    .lazy(() => flyDurationSchema)
+    .describe('The time between connectivity checks')
+    .optional(),
+  kind: z.enum(['informational', 'readiness']).describe('Kind of the check (informational, readiness)').optional(),
+  method: z.string().describe('For http checks, the HTTP method to use to when making the request').optional(),
+  path: z.string().describe('For http checks, the path to send the request to').optional(),
+  port: z.number().int().describe('The port to connect to, often the same as internal_port').optional(),
+  protocol: z.string().describe('For http checks, whether to use http or https').optional(),
+  timeout: z
+    .lazy(() => flyDurationSchema)
+    .describe('The maximum time a connection can take before being reported as failing its health check')
+    .optional(),
+  tls_server_name: z.string().describe('If the protocol is https, the hostname to use for TLS certificate validation').optional(),
+  tls_skip_verify: z.boolean().describe('For http checks with https protocol, whether or not to verify the TLS certificate').optional(),
+  type: z.string().describe('tcp or http').optional(),
+})
 
 export const flyMachineConfigSchema = z.object({
   auto_destroy: z.boolean().describe('Optional boolean telling the Machine to destroy itself once it’s complete (default false)').optional(),
   checks: z
     .object({})
-    .catchall(
-      z.lazy(() => flyMachineCheckSchema).describe('An optional object that defines one or more named checks. The key for each check is the check name.'),
-    )
+    .catchall(z.lazy(() => flyMachineCheckSchema))
+    .describe('An optional object that defines one or more named top-level checks. The key for each check is the check name.')
     .optional(),
   containers: z
     .array(z.lazy(() => flyContainerConfigSchema))
@@ -611,7 +605,8 @@ export const flyMachineServiceSchema = z.object({
     )
     .optional(),
   checks: z
-    .array(z.lazy(() => flyMachineCheckSchema).describe('An optional object that defines one or more named checks. The key for each check is the check name.'))
+    .array(z.lazy(() => flyMachineServiceCheckSchema))
+    .describe('An optional list of service checks')
     .optional(),
   concurrency: z.lazy(() => flyMachineServiceConcurrencySchema).optional(),
   force_instance_description: z.string().optional(),
@@ -620,6 +615,37 @@ export const flyMachineServiceSchema = z.object({
   min_machines_running: z.number().int().optional(),
   ports: z.array(z.lazy(() => flyMachinePortSchema)).optional(),
   protocol: z.string().optional(),
+})
+
+export const flyMachineServiceCheckSchema = z.object({
+  grace_period: z
+    .lazy(() => flyDurationSchema)
+    .describe('The time to wait after a VM starts before checking its health')
+    .optional(),
+  headers: z
+    .array(
+      z
+        .lazy(() => flyMachineHTTPHeaderSchema)
+        .describe(
+          'For http checks, an array of objects with string field Name and array of strings field Values. The key/value pairs specify header and header values that will get passed with the check call.',
+        ),
+    )
+    .optional(),
+  interval: z
+    .lazy(() => flyDurationSchema)
+    .describe('The time between connectivity checks')
+    .optional(),
+  method: z.string().describe('For http checks, the HTTP method to use to when making the request').optional(),
+  path: z.string().describe('For http checks, the path to send the request to').optional(),
+  port: z.number().int().describe('The port to connect to, often the same as internal_port').optional(),
+  protocol: z.string().describe('For http checks, whether to use http or https').optional(),
+  timeout: z
+    .lazy(() => flyDurationSchema)
+    .describe('The maximum time a connection can take before being reported as failing its health check')
+    .optional(),
+  tls_server_name: z.string().describe('If the protocol is https, the hostname to use for TLS certificate validation').optional(),
+  tls_skip_verify: z.boolean().describe('For http checks with https protocol, whether or not to verify the TLS certificate').optional(),
+  type: z.string().describe('tcp or http').optional(),
 })
 
 export const flyMachineServiceConcurrencySchema = z.object({
