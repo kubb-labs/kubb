@@ -613,6 +613,8 @@ export const createLiteralTypeNode = factory.createLiteralTypeNode
 export const createNull = factory.createNull
 export const createIdentifier = factory.createIdentifier
 
+export const createOptionalTypeNode = factory.createOptionalTypeNode
 export const createTupleTypeNode = factory.createTupleTypeNode
+export const createRestTypeNode = factory.createRestTypeNode
 export const createTrue = factory.createTrue
 export const createFalse = factory.createFalse
