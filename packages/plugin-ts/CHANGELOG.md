@@ -1,5 +1,19 @@
 # @kubb/plugin-ts
 
+## 3.10.6
+
+### Patch Changes
+
+- [#1701](https://github.com/kubb-labs/kubb/pull/1701) [`7be571a`](https://github.com/kubb-labs/kubb/commit/7be571aa4ceffb2e18dff1e81b81efa37fef0cc3) Thanks [@maartenvansambeek](https://github.com/maartenvansambeek)! - Tuple types now support optional members.
+
+- Updated dependencies [[`7be571a`](https://github.com/kubb-labs/kubb/commit/7be571aa4ceffb2e18dff1e81b81efa37fef0cc3)]:
+  - @kubb/plugin-oas@3.10.6
+  - @kubb/parser-ts@3.10.6
+  - @kubb/core@3.10.6
+  - @kubb/react@3.10.6
+  - @kubb/fs@3.10.6
+  - @kubb/oas@3.10.6
+
 ## 3.10.5
 
 ### Patch Changes
