@@ -62,7 +62,7 @@
     "bun-types": "^1.2.12",
     "nx": "^20.8.1",
     "rimraf": "^6.0.1",
-    "taze": "^19.0.4",
+    "taze": "^19.1.0",
     "ts-node": "^10.9.2",
     "typescript": "catalog:",
     "vite-tsconfig-paths": "^5.1.4",
@@ -78,7 +78,7 @@
       "@babel/runtime": "^7.27.1",
       "@types/react": "catalog:react19",
       "dompurify": "^3.2.5",
-      "esbuild": "^0.25.3"
+      "esbuild": "^0.25.4"
     }
   },
   "namespace": "@kubb"

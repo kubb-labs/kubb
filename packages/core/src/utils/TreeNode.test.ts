@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { TreeNode } from './TreeNode.ts'
-import type { KubbFile } from './fs/index.ts'
+import type { KubbFile } from '../fs/index.ts'
 
 describe('TreeNode', () => {
   const files: KubbFile.File[] = [
