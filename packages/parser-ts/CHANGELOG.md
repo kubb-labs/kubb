@@ -1,5 +1,7 @@
 # @kubb/parser-ts
 
+## 3.10.7
+
 ## 3.10.6
 
 ### Patch Changes
