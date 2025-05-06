@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 3.10.7
+
+### Patch Changes
+
+- [#1704](https://github.com/kubb-labs/kubb/pull/1704) [`f7d5447`](https://github.com/kubb-labs/kubb/commit/f7d54477b8d504a8f5237b70ff7978699556500f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - better support for Windows
+
+- Updated dependencies []:
+  - @kubb/parser-ts@3.10.7
+
 ## 3.10.6
 
 ### Patch Changes
