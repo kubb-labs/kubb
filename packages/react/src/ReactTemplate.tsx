@@ -9,7 +9,7 @@ import { throttle } from './utils/throttle.ts'
 
 import { FileManager, processFiles } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 import type { ReactNode } from 'react'
 import type { RootContextProps } from './components/Root.tsx'
 import { createNode } from './dom.ts'

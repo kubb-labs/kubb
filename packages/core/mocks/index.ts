@@ -1,7 +1,7 @@
 import { camelCase, pascalCase } from '../src/transformers/casing.ts'
 
 import path from 'node:path'
-import type { File, ResolvedFile } from '@kubb/fs/types'
+import type { File, ResolvedFile } from '../src/fs/types.ts'
 import { getSource } from '../src/FileManager'
 import type { PluginManager } from '../src/PluginManager.ts'
 import type { Logger } from '../src/logger'

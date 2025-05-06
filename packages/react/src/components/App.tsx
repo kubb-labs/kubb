@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react'
 
 import type { Plugin, PluginManager } from '@kubb/core'
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 import type { KubbNode } from '../types.ts'
 import { RootContext } from './Root.tsx'
 

@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url'
 import { findUp, findUpSync } from 'find-up'
 import { coerce, satisfies } from 'semver'
 
-import { read, readSync } from '@kubb/fs'
+import { read, readSync } from './fs/index.ts'
 
 type PackageJSON = {
   dependencies?: Record<string, string>

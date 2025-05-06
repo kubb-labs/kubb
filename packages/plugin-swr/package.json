@@ -75,7 +75,6 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/fs": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",

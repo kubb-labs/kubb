@@ -7,7 +7,7 @@ import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
 
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from './fs/index.ts'
 import type { Logger } from './logger.ts'
 import type { PluginCore } from './plugin.ts'
 import { trim } from './transformers/trim.ts'

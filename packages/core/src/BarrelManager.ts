@@ -2,8 +2,8 @@ import { join } from 'node:path'
 
 import { TreeNode } from './utils/TreeNode.ts'
 
-import { getRelativePath } from '@kubb/fs'
-import type * as KubbFile from '@kubb/fs/types'
+import { getRelativePath } from './fs/index.ts'
+import type { KubbFile } from './fs/index.ts'
 import type { FileMetaBase } from './FileManager.ts'
 import type { Logger } from './logger.ts'
 

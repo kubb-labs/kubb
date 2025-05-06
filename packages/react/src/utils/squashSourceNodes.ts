@@ -1,6 +1,6 @@
 import { nodeNames } from '../dom.ts'
 
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 import type React from 'react'
 import type { File } from '../components/File.tsx'
 import type { DOMElement, ElementNames } from '../types.ts'

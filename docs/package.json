@@ -21,7 +21,7 @@
     "serve": "vitepress serve"
   },
   "dependencies": {
-    "@shikijs/vitepress-twoslash": "^3.3.0",
+    "@shikijs/vitepress-twoslash": "^3.4.0",
     "mermaid": "^11.6.0",
     "sitemap": "^8.0.0",
     "vitepress": "^2.0.0-alpha.5",
@@ -50,7 +50,7 @@
     "cross-env": "^7.0.3",
     "react": "catalog:",
     "unplugin-kubb": "workspace:^",
-    "vite": "^6.3.4"
+    "vite": "^6.3.5"
   },
   "packageManager": "pnpm@10.4.1",
   "engines": {

@@ -1,5 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { App, createRoot } from '@kubb/react'

@@ -1,7 +1,7 @@
 import { build } from './build.ts'
 import { createPlugin } from './plugin.ts'
 
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from './fs/index.ts'
 import type { Config, Plugin } from './types.ts'
 
 describe('build', () => {

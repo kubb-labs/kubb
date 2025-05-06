@@ -1,4 +1,4 @@
-import { getRelativePath } from '@kubb/fs'
+import { getRelativePath } from '@kubb/core/fs'
 import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 

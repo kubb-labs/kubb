@@ -1,4 +1,4 @@
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 
 import { Const, File, FunctionParams } from '@kubb/react'
 import type { OperationSchemas } from '@kubb/plugin-oas'

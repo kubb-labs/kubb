@@ -4,6 +4,12 @@ title: Changelog
 
 # Changelog
 
+# 3.10.7
+- [`core`](/plugins/core): better support for Windows
+
+# 3.10.6
+- [`plugin-oas`](/plugins/plugin-oas): Improve tuple type generation
+
 # 3.10.5
 - [`plugin-oas`](/plugins/plugin-oas): Rewrite schemas with multiple types
 - [`plugin-faker`](/plugins/plugin-faker): Fix types of enums nested in array

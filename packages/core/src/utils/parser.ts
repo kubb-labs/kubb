@@ -1,7 +1,7 @@
 import path from 'node:path'
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '../fs/index.ts'
 
-import { getRelativePath } from '@kubb/fs'
+import { getRelativePath } from '../fs/index.ts'
 import hash from 'object-hash'
 import { combineExports, combineImports, combineSources } from '../FileManager.ts'
 import type { Logger } from '../logger.ts'

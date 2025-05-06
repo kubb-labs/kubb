@@ -4,7 +4,7 @@ import { colors } from 'consola/utils'
 import { EventEmitter } from './utils/EventEmitter.ts'
 
 import { resolve } from 'node:path'
-import { write } from '@kubb/fs'
+import { write } from './fs/index.ts'
 import { type ConsolaInstance, type LogLevel, createConsola } from 'consola'
 
 type DebugEvent = { date: Date; logs: string[]; fileName?: string }

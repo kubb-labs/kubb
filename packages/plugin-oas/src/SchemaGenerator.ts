@@ -9,7 +9,7 @@ import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
 
 import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 
 import type { Oas, OpenAPIV3, SchemaObject, contentType } from '@kubb/oas'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
@@ -846,7 +846,7 @@ export class SchemaGenerator<
 
     if ('prefixItems' in schemaObject) {
       const prefixItems = schemaObject.prefixItems as SchemaObject[]
-      const items = "items" in schemaObject ? schemaObject.items as SchemaObject[] : []
+      const items = 'items' in schemaObject ? (schemaObject.items as SchemaObject[]) : []
       const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
       const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
 

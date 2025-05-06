@@ -86,7 +86,6 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/fs": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-faker": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
