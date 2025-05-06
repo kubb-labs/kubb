@@ -846,7 +846,7 @@ export class SchemaGenerator<
 
     if ('prefixItems' in schemaObject) {
       const prefixItems = schemaObject.prefixItems as SchemaObject[]
-      const items = "items" in schemaObject ? schemaObject.items as SchemaObject[] : []
+      const items = 'items' in schemaObject ? (schemaObject.items as SchemaObject[]) : []
       const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
       const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
 

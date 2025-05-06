@@ -21,7 +21,7 @@ export type SchemaKeywordMapper = {
   date: { keyword: 'date'; args: { type?: 'date' | 'string' } }
   time: { keyword: 'time'; args: { type?: 'date' | 'string' } }
   datetime: { keyword: 'datetime'; args: { offset?: boolean; local?: boolean } }
-  tuple: { keyword: 'tuple'; args: { items: Schema[]; min?: number; max?: number, rest?: Schema } }
+  tuple: { keyword: 'tuple'; args: { items: Schema[]; min?: number; max?: number; rest?: Schema } }
   array: {
     keyword: 'array'
     args: { items: Schema[]; min?: number; max?: number; unique?: boolean }
