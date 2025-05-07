@@ -10,7 +10,7 @@ import type { PluginZod } from '../types'
 export const zodGenerator = createReactGenerator<PluginZod>({
   name: 'zod',
   Operation({ operation, options }) {
-    const { coercion, inferred, typed, mapper, wrapOutput } = options
+    const { coercion: globalCoercion, inferred, typed, mapper, wrapOutput } = options
 
     const { plugin, pluginManager, mode } = useApp<PluginZod>()
     const oas = useOas()
@@ -38,6 +38,8 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       const tree = [...schemaGenerator.parse({ schemaObject, name }), optional ? { keyword: schemaKeywords.optional } : undefined].filter(Boolean)
       const imports = schemaManager.getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
+
+      const coercion = name.includes('Params') ? {numbers: true, strings: false, dates: true} : globalCoercion
 
       const zod = {
         name: schemaManager.getName(name, { type: 'function' }),
