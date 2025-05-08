@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.10.8
+- [`plugin-oas`](/plugins/plugin-oas): Caching of oas
+
 # 3.10.7
 - [`core`](/plugins/core): better support for Windows
 

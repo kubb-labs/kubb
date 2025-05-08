@@ -1,5 +1,16 @@
 # @kubb/plugin-cypress
 
+## 3.10.8
+
+### Patch Changes
+
+- Updated dependencies [[`23a6e72`](https://github.com/kubb-labs/kubb/commit/23a6e72c7288bb8385707f98ef5da6d4b0339016)]:
+  - @kubb/plugin-oas@3.10.8
+  - @kubb/plugin-ts@3.10.8
+  - @kubb/core@3.10.8
+  - @kubb/oas@3.10.8
+  - @kubb/react@3.10.8
+
 ## 3.10.7
 
 ### Patch Changes
