@@ -88,6 +88,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/rmachado-studocu"><img src="https://avatars.githubusercontent.com/u/89906313?v=4?s=100" width="100px;" alt="Ricardo Machado"/><br /><sub><b>Ricardo Machado</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=rmachado-studocu" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://simonelnahas.com"><img src="https://avatars.githubusercontent.com/u/29279201?v=4?s=100" width="100px;" alt="Simon El Nahas"/><br /><sub><b>Simon El Nahas</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=simonelnahas" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/maartenvansambeek"><img src="https://avatars.githubusercontent.com/u/91739524?v=4?s=100" width="100px;" alt="maartenvansambeek"/><br /><sub><b>maartenvansambeek</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=maartenvansambeek" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://sdufresne.info"><img src="https://avatars.githubusercontent.com/u/583851?v=4?s=100" width="100px;" alt="Stefan du Fresne"/><br /><sub><b>Stefan du Fresne</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=SCdF" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
