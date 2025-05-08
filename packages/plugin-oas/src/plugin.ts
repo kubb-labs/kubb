@@ -26,23 +26,24 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     contentType,
     oasClass,
   } = options
+  let oas:Oas;
 
   const getOas = async ({ config, logger }: { config: Config; logger: Logger }): Promise<Oas> => {
-    try {
-      // needs to be in a different variable or the catch here will not work(return of a promise instead)
-      const oas = await parseFromConfig(config, oasClass)
+    // needs to be in a different variable or the catch here will not work(return of a promise instead)
+   oas = await parseFromConfig(config, oasClass)
 
+    try {
       if (validate) {
         await oas.valdiate()
       }
 
-      return oas
     } catch (e) {
       const error = e as Error
 
       logger.emit('warning', error?.message)
-      return parseFromConfig(config, oasClass)
     }
+
+    return oas
   }
 
   return {
