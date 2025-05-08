@@ -1,5 +1,16 @@
 # @kubb/swagger
 
+## 3.10.8
+
+### Patch Changes
+
+- [`23a6e72`](https://github.com/kubb-labs/kubb/commit/23a6e72c7288bb8385707f98ef5da6d4b0339016) Thanks [@stijnvanhullem](https://github.com/stijnvanhullem)! - caching oas
+
+- Updated dependencies []:
+  - @kubb/core@3.10.8
+  - @kubb/oas@3.10.8
+  - @kubb/react@3.10.8
+
 ## 3.10.7
 
 ### Patch Changes
