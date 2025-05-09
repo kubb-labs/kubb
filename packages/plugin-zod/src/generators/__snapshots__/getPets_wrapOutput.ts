@@ -7,7 +7,7 @@ import { z } from '@hono/zod-openapi'
 export const listPetsQueryParams = z
   .object({
     limit: z.string().describe('How many items to return at one time (max 100)').optional(),
-    offset: z.number().int().default(0),
+    offset: z.coerce.number().int().default(0),
   })
   .optional()
 
