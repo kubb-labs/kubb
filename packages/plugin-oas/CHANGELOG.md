@@ -1,5 +1,14 @@
 # @kubb/swagger
 
+## 3.10.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.10
+  - @kubb/oas@3.10.10
+  - @kubb/react@3.10.10
+
 ## 3.10.9
 
 ### Patch Changes
