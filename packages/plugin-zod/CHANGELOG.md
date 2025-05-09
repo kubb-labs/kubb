@@ -1,5 +1,19 @@
 # @kubb/plugin-zod
 
+## 3.10.9
+
+### Patch Changes
+
+- [#1709](https://github.com/kubb-labs/kubb/pull/1709) [`be0b8c2`](https://github.com/kubb-labs/kubb/commit/be0b8c27aee3f86bd29320fc008afe24f78856c4) Thanks [@SCdF](https://github.com/SCdF)! - always coerce numbers and dates in query and path parameters
+
+- Updated dependencies []:
+  - @kubb/core@3.10.9
+  - @kubb/oas@3.10.9
+  - @kubb/parser-ts@3.10.9
+  - @kubb/plugin-oas@3.10.9
+  - @kubb/plugin-ts@3.10.9
+  - @kubb/react@3.10.9
+
 ## 3.10.8
 
 ### Patch Changes
