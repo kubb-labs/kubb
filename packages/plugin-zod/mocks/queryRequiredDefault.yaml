@@ -1,0 +1,63 @@
+openapi: 3.0.0
+info:
+  title: Kubb Required Default example
+  description: If all query parameters are defaulted, then the entire query object should not be optional in zod
+  version: 0.0.1
+
+paths:
+  /thing:
+    summary: Represents a thing
+    description: |
+      This resource represents a thing in the system.
+    get:
+      operationId: getThings
+      summary: Get a list of things
+
+      parameters:
+        - in: query
+          name: limit
+          description: Maximum number of things to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 100
+        - in: query
+          name: skip
+          description: Number of things to skip
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+
+      responses:
+        "200":
+          description: A list of things
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Thing"
+                required:
+                  - items
+
+components:
+  schemas:
+    Thing:
+      type: object
+      properties:
+        limit:
+          description: Maximum number of things to return
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        skip:
+          description: Number of things to skip
+          type: integer
+          minimum: 0
+          default: 0
