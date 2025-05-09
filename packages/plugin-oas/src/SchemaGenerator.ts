@@ -390,7 +390,11 @@ export class SchemaGenerator<
     schema,
     schemaObject,
     discriminator,
-  }: { schemaObject: SchemaObject; schema: TSchema; discriminator: OpenAPIV3.DiscriminatorObject }): TSchema {
+  }: {
+    schemaObject: SchemaObject
+    schema: TSchema
+    discriminator: OpenAPIV3.DiscriminatorObject
+  }): TSchema {
     if (!isKeyword(schema, schemaKeywords.union)) {
       return schema
     }

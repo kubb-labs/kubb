@@ -19,7 +19,7 @@ export default defineConfig(async () => {
       clean: true,
     },
     hooks: {
-      // done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
+      // done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
     plugins: [
       pluginOas({ generators: [] }),

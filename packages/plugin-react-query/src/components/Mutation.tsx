@@ -160,8 +160,9 @@ export function Mutation({
         generics={['TContext']}
       >
         {`
-        const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
-        const mutationKey = mutationOptions?.mutationKey ?? ${mutationKeyName}(${mutationKeyParams.toCall()})
+        const { mutation = {}, client: config = {} } = options ?? {}
+        const { client: queryClient, ...mutationOptions } = mutation;
+        const mutationKey = mutationOptions.mutationKey ?? ${mutationKeyName}(${mutationKeyParams.toCall()})
 
         return useMutation<${generics}>({
           mutationFn: async(${dataParams.toConstructor()}) => {

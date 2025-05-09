@@ -22,11 +22,9 @@ export function useAddFiles<TContext>(
     client?: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const {
-    mutation: { client: queryClient, ...mutationOptions } = {},
-    client: config = {},
-  } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? addFilesMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? addFilesMutationKey()
 
   return useMutation<ResponseConfig<AddFilesMutationResponse>, ResponseErrorConfig<AddFiles405>, { data: AddFilesMutationRequest }, TContext>(
     {

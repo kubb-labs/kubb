@@ -51,11 +51,9 @@ export function useUploadFileHook<TContext>(
     client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const {
-    mutation: { client: queryClient, ...mutationOptions } = {},
-    client: config = {},
-  } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? uploadFileMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? uploadFileMutationKey()
 
   return useMutation<
     UploadFileMutationResponse,

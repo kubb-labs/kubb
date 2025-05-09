@@ -12,7 +12,7 @@ export const createPetsPathParamsSchema = z.object({
 
 export const createPetsQueryParamsSchema = z
   .object({
-    offset: z.number().int().describe('Offset */').optional(),
+    offset: z.coerce.number().int().describe('Offset */').optional(),
   })
   .optional()
 

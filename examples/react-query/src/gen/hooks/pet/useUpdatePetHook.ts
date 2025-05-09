@@ -49,11 +49,9 @@ export function useUpdatePetHook<TContext>(
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const {
-    mutation: { client: queryClient, ...mutationOptions } = {},
-    client: config = {},
-  } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? updatePetMutationKey()
 
   return useMutation<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, { data: UpdatePetMutationRequest }, TContext>(
     {

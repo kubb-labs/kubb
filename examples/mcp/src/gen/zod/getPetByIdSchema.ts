@@ -7,7 +7,7 @@ import { petSchema } from './petSchema.js'
 import { z } from 'zod'
 
 export const getPetByIdPathParamsSchema = z.object({
-  petId: z.number().int().describe('ID of pet to return'),
+  petId: z.coerce.number().int().describe('ID of pet to return'),
 })
 
 /**

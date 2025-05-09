@@ -64,10 +64,7 @@ export function useGetOrderById<TData = GetOrderByIdQueryResponse, TQueryData = 
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const {
-    query: { client: queryClient, ...queryOptions } = {},
-    client: config = {},
-  } = options ?? {}
+  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey({ orderId })
 
   const query = useQuery(

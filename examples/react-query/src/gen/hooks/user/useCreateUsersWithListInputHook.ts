@@ -49,11 +49,9 @@ export function useCreateUsersWithListInputHook<TContext>(
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const {
-    mutation: { client: queryClient, ...mutationOptions } = {},
-    client: config = {},
-  } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? createUsersWithListInputMutationKey()
 
   return useMutation<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }, TContext>(
     {

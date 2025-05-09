@@ -57,10 +57,8 @@ export function createUpdatePet<TContext>(
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const {
-    mutation: { client: queryClient, ...mutationOptions } = {},
-    client: config = {},
-  } = options ?? {}
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions?.mutationKey ?? updatePetMutationKey()
 
   return createMutation<

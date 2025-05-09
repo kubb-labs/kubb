@@ -49,11 +49,9 @@ export function usePlaceOrderPatchHook<TContext>(
     client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const {
-    mutation: { client: queryClient, ...mutationOptions } = {},
-    client: config = {},
-  } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? placeOrderPatchMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? placeOrderPatchMutationKey()
 
   return useMutation<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>(
     {

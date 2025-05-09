@@ -1127,7 +1127,7 @@ export const machinesWaitPathParamsSchema = z.object({
 export const machinesWaitQueryParamsSchema = z
   .object({
     instance_id: z.string().describe('26-character Machine version ID').optional(),
-    timeout: z.number().int().describe('wait timeout. default 60s').optional(),
+    timeout: z.coerce.number().int().describe('wait timeout. default 60s').optional(),
     state: z.enum(['started', 'stopped', 'suspended', 'destroyed']).describe('desired state').optional(),
   })
   .optional()

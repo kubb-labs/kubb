@@ -4,7 +4,7 @@ import type { IconSvgProps } from '../types'
 
 export const GithubIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => {
   return (
-    // biome-ignore lint/a11y/noSvgWithoutTitle: <explanation>
+    // biome-ignore lint/a11y/noSvgWithoutTitle: oeps
     <svg height={size || height} viewBox="0 0 24 24" width={size || width} {...props}>
       <path
         clipRule="evenodd"

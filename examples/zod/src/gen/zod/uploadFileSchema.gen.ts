@@ -7,7 +7,7 @@ import { z } from '../../zod.ts'
 import { apiResponseSchema } from './apiResponseSchema.gen.ts'
 
 export const uploadFilePathParamsSchema = z.object({
-  petId: z.int().describe('ID of pet to update'),
+  petId: z.coerce.number().int().describe('ID of pet to update'),
 })
 
 export type UploadFilePathParamsSchema = z.infer<typeof uploadFilePathParamsSchema>

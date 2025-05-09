@@ -48,8 +48,9 @@ export function useUpdatePetWithForm<TContext>(
     client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: { client: queryClient, ...mutationOptions } = {}, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? updatePetWithFormMutationKey()
 
   return useMutation<
     UpdatePetWithFormMutationResponse,

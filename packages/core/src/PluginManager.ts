@@ -396,7 +396,11 @@ export class PluginManager {
     hookName,
     parameters,
     message,
-  }: { hookName: H; parameters?: PluginParameter<H>; message: string }): Promise<void> {
+  }: {
+    hookName: H
+    parameters?: PluginParameter<H>
+    message: string
+  }): Promise<void> {
     const plugins = this.#getSortedPlugins(hookName)
     this.logger.emit('progress_start', { id: hookName, size: plugins.length })
 

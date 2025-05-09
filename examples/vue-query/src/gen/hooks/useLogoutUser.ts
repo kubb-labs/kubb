@@ -46,10 +46,7 @@ export function useLogoutUser<TData = LogoutUserQueryResponse, TQueryData = Logo
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const {
-    query: { client: queryClient, ...queryOptions } = {},
-    client: config = {},
-  } = options ?? {}
+  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
 
   const query = useQuery(

@@ -21,7 +21,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className, classNames }) => 
     onChange: () => setTheme(theme === 'light' ? 'dark' : 'light'),
   })
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: oeps
   useEffect(() => {
     setIsMounted(true)
   }, [isMounted])

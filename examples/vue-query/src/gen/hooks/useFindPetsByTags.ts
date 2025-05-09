@@ -61,10 +61,7 @@ export function useFindPetsByTags<
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const {
-    query: { client: queryClient, ...queryOptions } = {},
-    client: config = {},
-  } = options ?? {}
+  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
 
   const query = useQuery(

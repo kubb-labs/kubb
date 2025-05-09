@@ -7,7 +7,7 @@ import { orderSchema } from './orderSchema.js'
 import { z } from 'zod'
 
 export const getOrderByIdPathParamsSchema = z.object({
-  orderId: z.number().int().describe('ID of order that needs to be fetched'),
+  orderId: z.coerce.number().int().describe('ID of order that needs to be fetched'),
 })
 
 /**

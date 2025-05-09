@@ -6,7 +6,7 @@
 import { z } from 'zod'
 
 export const deletePetPathParamsSchema = z.object({
-  petId: z.number().int().describe('Pet id to delete'),
+  petId: z.coerce.number().int().describe('Pet id to delete'),
 })
 
 export const deletePetHeaderParamsSchema = z

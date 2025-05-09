@@ -201,7 +201,7 @@ describe('<File/>', () => {
           ignore
           <File baseName="test.ts" path="path">
             <File.Source>
-              {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+              {/* biome-ignore lint/a11y/useKeyWithClickEvents: oeeps */}
               <div className="className" aria-disabled={false} aria-valuemax={3} onClick={(e) => console.log(e)}>
                 sdfs
               </div>

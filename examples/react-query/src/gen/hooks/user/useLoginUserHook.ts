@@ -46,10 +46,7 @@ export function useLoginUserHook<TData = LoginUserQueryResponse, TQueryData = Lo
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const {
-    query: { client: queryClient, ...queryOptions } = {},
-    client: config = {},
-  } = options ?? {}
+  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
 
   const query = useQuery(

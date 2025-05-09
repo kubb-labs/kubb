@@ -43,7 +43,7 @@
     "build": "tsup && vite build",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint --apply-unsafe .",
+    "lint:fix": "bun biome lint--fix --unsafe .",
     "preview": "vite preview",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
@@ -54,7 +54,7 @@
   "dependencies": {
     "@hono/node-server": "^1.14.1",
     "@hono/zod-openapi": "0.19.2",
-    "hono": "^4.7.8",
+    "hono": "^4.7.9",
     "zod": "^3.24.4"
   },
   "devDependencies": {
@@ -65,7 +65,7 @@
     "@kubb/config-tsup": "workspace:*",
     "@react-aria/visually-hidden": "3.8.20",
     "@react-types/shared": "3.28.0",
-    "@tanstack/react-query": "^5.75.5",
+    "@tanstack/react-query": "^5.75.6",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
@@ -76,7 +76,7 @@
     "postcss": "8.4.38",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-router-dom": "^7.5.3",
+    "react-router-dom": "^7.6.0",
     "tailwind-variants": "0.3.0",
     "tailwindcss": "3.4.16",
     "tsup": "catalog:",

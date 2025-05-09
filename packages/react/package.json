@@ -72,7 +72,7 @@
     "build": "tsup",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint --apply-unsafe .",
+    "lint:fix": "bun biome lint--fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
     "start": "tsup --watch",
@@ -84,7 +84,7 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
-    "execa": "^9.5.2",
+    "execa": "^9.5.3",
     "natural-orderby": "^5.0.0",
     "react": "catalog:react19",
     "react-devtools-core": "^5.3.2",

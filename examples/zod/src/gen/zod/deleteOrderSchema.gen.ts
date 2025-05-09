@@ -6,7 +6,7 @@
 import { z } from '../../zod.ts'
 
 export const deleteOrderPathParamsSchema = z.object({
-  orderId: z.int().describe('ID of the order that needs to be deleted'),
+  orderId: z.coerce.number().int().describe('ID of the order that needs to be deleted'),
 })
 
 export type DeleteOrderPathParamsSchema = z.infer<typeof deleteOrderPathParamsSchema>

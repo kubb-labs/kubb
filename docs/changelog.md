@@ -4,6 +4,15 @@ title: Changelog
 
 # Changelog
 
+# 3.10.10
+- [`plugin-react-query`](/plugins/plugin-react-query/): resolve typescript error
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): resolve typescript error
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): resolve typescript error
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): resolve typescript error
+
+# 3.10.9
+- [`core`](/plugins/core): update packages
+
 # 3.10.8
 - [`plugin-oas`](/plugins/plugin-oas): Caching of oas
 
