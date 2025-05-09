@@ -1,5 +1,19 @@
 # @kubb/plugin-vue-query
 
+## 3.10.10
+
+### Patch Changes
+
+- [`f76d641`](https://github.com/kubb-labs/kubb/commit/f76d6417341549e3800a5964561271c8cfd7b72b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - resolve typescript error
+
+- Updated dependencies []:
+  - @kubb/core@3.10.10
+  - @kubb/oas@3.10.10
+  - @kubb/plugin-oas@3.10.10
+  - @kubb/plugin-ts@3.10.10
+  - @kubb/plugin-zod@3.10.10
+  - @kubb/react@3.10.10
+
 ## 3.10.9
 
 ### Patch Changes
