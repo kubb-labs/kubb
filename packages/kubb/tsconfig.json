@@ -6,7 +6,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "paths": {},
-    "rootDir": "."
+
   },
   "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"]
 }

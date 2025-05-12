@@ -3,7 +3,7 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "@kubb/react",
-    "rootDir": "."
+
   },
   "include": ["src/**/*", "mocks/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"]
 }

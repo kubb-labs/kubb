@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "rootDir": "."
+
   },
   "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"]
 }

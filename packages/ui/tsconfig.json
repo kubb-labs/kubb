@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "types": ["vitest/globals", "bun-types", "../config-ts/reset.d.ts"],
-    "rootDir": "."
+
   },
   "include": ["src/**/*", "./package.json", "./vitest.config.ts"]
 }
