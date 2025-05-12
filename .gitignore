@@ -45,8 +45,8 @@ private
 test.json
 .turbo
 .next
-docs/.vitepress/cache/**
-docs/.vitepress/dist/**
+.vitepress/cache/**
+.vitepress/dist/**
 #docs/.vitepress/graphs/**
 !__snapshots__
 kubb-files.json
@@ -55,8 +55,6 @@ hello
 .log
 .kubb
 */mocks/hellowWorld.js
-docs/.vitepress/cache/**
-docs/.vitepress/dist/**
 #docs/api/**
 packages/ui/static/**
 .nx

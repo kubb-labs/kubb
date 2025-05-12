@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import * as factory from '@kubb/parser-ts/factory'
-import { type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
+import { type SchemaTree, isKeyword, schemaKeywords, } from '@kubb/plugin-oas'
 
 import type { SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 import type ts from 'typescript'
@@ -299,7 +299,7 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
         })
       })
 
-    let additionalProperties = undefined
+    let additionalProperties: ts.TypeNode = undefined as unknown as ts.TypeNode
 
     if (current.args?.additionalProperties?.length) {
       additionalProperties = current.args.additionalProperties

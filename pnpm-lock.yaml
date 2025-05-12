@@ -19,8 +19,8 @@ catalogs:
       specifier: ^18.3.1
       version: 18.3.1
     remeda:
-      specifier: ^2.21.3
-      version: 2.21.3
+      specifier: ^2.21.4
+      version: 2.21.4
     tsup:
       specifier: ^8.4.0
       version: 8.4.0
@@ -49,8 +49,8 @@ importers:
   .:
     devDependencies:
       '@biomejs/biome':
-        specifier: ^2.0.0-beta.2
-        version: 2.0.0-beta.2
+        specifier: ^2.0.0-beta.3
+        version: 2.0.0-beta.3
       '@changesets/changelog-github':
         specifier: ^0.5.1
         version: 0.5.1
@@ -76,8 +76,8 @@ importers:
         specifier: ^3.1.3
         version: 3.1.3(vitest@3.1.3)
       bun-types:
-        specifier: ^1.2.12
-        version: 1.2.12
+        specifier: ^1.2.13
+        version: 1.2.13
       nx:
         specifier: ^21.0.3
         version: 21.0.3
@@ -98,7 +98,7 @@ importers:
         version: 5.1.4(typescript@5.8.3)(vite@6.3.5(@types/node@20.17.46)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.1))
       vitest:
         specifier: ^3.1.3
-        version: 3.1.3(@types/debug@4.1.12)(@types/node@20.17.46)(@vitest/ui@3.1.3)(jiti@2.4.2)(msw@2.8.1(@types/node@20.17.46)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.1)
+        version: 3.1.3(@types/debug@4.1.12)(@types/node@20.17.46)(@vitest/ui@3.1.3)(jiti@2.4.2)(msw@2.8.2(@types/node@20.17.46)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.1)
 
   docs:
     dependencies:
@@ -230,17 +230,17 @@ importers:
         specifier: workspace:*
         version: link:../packages/react
       '@tanstack/react-query':
-        specifier: ^5.75.6
-        version: 5.75.6(react@18.3.1)
+        specifier: ^5.76.0
+        version: 5.76.0(react@18.3.1)
       '@tanstack/solid-query':
-        specifier: ^5.75.6
-        version: 5.75.6(solid-js@1.9.6)
+        specifier: ^5.76.0
+        version: 5.76.0(solid-js@1.9.6)
       '@tanstack/svelte-query':
-        specifier: ^5.75.6
-        version: 5.75.6(svelte@4.2.19)
+        specifier: ^5.76.0
+        version: 5.76.0(svelte@4.2.19)
       '@tanstack/vue-query':
-        specifier: ^5.75.6
-        version: 5.75.6(vue@3.5.13(typescript@5.8.3))
+        specifier: ^5.76.0
+        version: 5.76.0(vue@3.5.13(typescript@5.8.3))
       axios:
         specifier: ^1.9.0
         version: 1.9.0
@@ -248,8 +248,8 @@ importers:
         specifier: ~14.2.1
         version: 14.2.1
       msw:
-        specifier: ^2.8.1
-        version: 2.8.1(@types/node@20.17.46)(typescript@5.8.3)
+        specifier: ^2.8.2
+        version: 2.8.2(@types/node@20.17.46)(typescript@5.8.3)
       react:
         specifier: 'catalog:'
         version: 18.3.1
@@ -330,23 +330,23 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react
       '@modelcontextprotocol/sdk':
-        specifier: ^1.11.1
-        version: 1.11.1
+        specifier: ^1.11.2
+        version: 1.11.2
       '@tanstack/query-core':
-        specifier: ^5.75.6
-        version: 5.75.6
+        specifier: ^5.76.0
+        version: 5.76.0
       '@tanstack/react-query':
-        specifier: ^5.75.6
-        version: 5.75.6(react@19.1.0)
+        specifier: ^5.76.0
+        version: 5.76.0(react@19.1.0)
       '@tanstack/solid-query':
-        specifier: ^5.75.6
-        version: 5.75.6(solid-js@1.9.6)
+        specifier: ^5.76.0
+        version: 5.76.0(solid-js@1.9.6)
       '@tanstack/svelte-query':
-        specifier: ^5.75.6
-        version: 5.75.6(svelte@4.2.19)
+        specifier: ^5.76.0
+        version: 5.76.0(svelte@4.2.19)
       '@tanstack/vue-query':
-        specifier: ^5.75.6
-        version: 5.75.6(vue@3.5.13(typescript@5.8.3))
+        specifier: ^5.76.0
+        version: 5.76.0(vue@3.5.13(typescript@5.8.3))
       '@types/react':
         specifier: ^19.1.3
         version: 19.1.3
@@ -357,8 +357,8 @@ importers:
         specifier: ~14.3.3
         version: 14.3.3
       msw:
-        specifier: ^2.8.1
-        version: 2.8.1(@types/node@20.17.46)(typescript@5.8.3)
+        specifier: ^2.8.2
+        version: 2.8.2(@types/node@20.17.46)(typescript@5.8.3)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -597,8 +597,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@modelcontextprotocol/sdk':
-        specifier: ^1.11.1
-        version: 1.11.1
+        specifier: ^1.11.2
+        version: 1.11.2
       axios:
         specifier: ^1.9.0
         version: 1.9.0
@@ -644,10 +644,10 @@ importers:
         version: link:../../packages/plugin-ts
       '@mswjs/http-middleware':
         specifier: ^0.9.2
-        version: 0.9.2(msw@2.8.1(@types/node@20.17.46)(typescript@5.2.2))
+        version: 0.9.2(msw@2.8.2(@types/node@20.17.46)(typescript@5.2.2))
       msw:
-        specifier: ^2.8.1
-        version: 2.8.1(@types/node@20.17.46)(typescript@5.2.2)
+        specifier: ^2.8.2
+        version: 2.8.2(@types/node@20.17.46)(typescript@5.2.2)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -711,11 +711,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react
       '@tanstack/react-query':
-        specifier: ^5.75.6
-        version: 5.75.6(react@18.3.1)
+        specifier: ^5.76.0
+        version: 5.76.0(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: ^5.75.6
-        version: 5.75.6(@tanstack/react-query@5.75.6(react@18.3.1))(react@18.3.1)
+        specifier: ^5.76.0
+        version: 5.76.0(@tanstack/react-query@5.76.0(react@18.3.1))(react@18.3.1)
       axios:
         specifier: ^1.9.0
         version: 1.9.0
@@ -778,8 +778,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/react-query':
-        specifier: ^5.75.6
-        version: 5.75.6(react@18.3.1)
+        specifier: ^5.76.0
+        version: 5.76.0(react@18.3.1)
       axios:
         specifier: ^1.9.0
         version: 1.9.0
@@ -964,8 +964,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/vue-query':
-        specifier: ^5.75.6
-        version: 5.75.6(vue@3.5.13(typescript@5.8.3))
+        specifier: ^5.76.0
+        version: 5.76.0(vue@3.5.13(typescript@5.8.3))
       axios:
         specifier: ^1.9.0
         version: 1.9.0
@@ -1160,7 +1160,7 @@ importers:
         version: 8.1.0
       remeda:
         specifier: 'catalog:'
-        version: 2.21.3
+        version: 2.21.4
       seedrandom:
         specifier: ^3.0.5
         version: 3.0.5
@@ -1266,8 +1266,8 @@ importers:
         specifier: workspace:*
         version: link:../react
       '@modelcontextprotocol/sdk':
-        specifier: ^1.11.1
-        version: 1.11.1
+        specifier: ^1.11.2
+        version: 1.11.2
       zod:
         specifier: ^3.24.4
         version: 3.24.4
@@ -1316,7 +1316,7 @@ importers:
         version: 12.1.3
       remeda:
         specifier: 'catalog:'
-        version: 2.21.3
+        version: 2.21.4
       swagger2openapi:
         specifier: ^7.0.8
         version: 7.0.8
@@ -1353,7 +1353,7 @@ importers:
         version: 3.5.3
       remeda:
         specifier: 'catalog:'
-        version: 2.21.3
+        version: 2.21.4
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -1572,7 +1572,7 @@ importers:
         version: 4.3.0
       remeda:
         specifier: 'catalog:'
-        version: 2.21.3
+        version: 2.21.4
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -1615,7 +1615,7 @@ importers:
         version: link:../react
       remeda:
         specifier: 'catalog:'
-        version: 2.21.3
+        version: 2.21.4
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -1689,7 +1689,7 @@ importers:
         version: link:../react
       remeda:
         specifier: 'catalog:'
-        version: 2.21.3
+        version: 2.21.4
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -1732,7 +1732,7 @@ importers:
         version: link:../react
       remeda:
         specifier: 'catalog:'
-        version: 2.21.3
+        version: 2.21.4
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -1778,7 +1778,7 @@ importers:
         version: link:../react
       remeda:
         specifier: 'catalog:'
-        version: 2.21.3
+        version: 2.21.4
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -1858,7 +1858,7 @@ importers:
         version: link:../react
       remeda:
         specifier: 'catalog:'
-        version: 2.21.3
+        version: 2.21.4
     devDependencies:
       '@kubb/config-ts':
         specifier: workspace:*
@@ -2011,8 +2011,8 @@ importers:
         specifier: 3.28.0
         version: 3.28.0(react@18.3.1)
       '@tanstack/react-query':
-        specifier: ^5.75.6
-        version: 5.75.6(react@18.3.1)
+        specifier: ^5.76.0
+        version: 5.76.0(react@18.3.1)
       '@types/node':
         specifier: 'catalog:'
         version: 20.17.46
@@ -2071,8 +2071,8 @@ importers:
         specifier: ^0.25.4
         version: 0.25.4
       unplugin:
-        specifier: ^2.3.2
-        version: 2.3.2
+        specifier: ^2.3.3
+        version: 2.3.3
     devDependencies:
       '@kubb/config-biome':
         specifier: workspace:*
@@ -2771,55 +2771,55 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
-  '@biomejs/biome@2.0.0-beta.2':
-    resolution: {integrity: sha512-F/2/v4T+kctdV8cY/+x5y09RJyHZibDMqi5uRIa6kpJsirm42TEsqMx1srGqcrY3bSJ3JO3pbjW3icTcIS2Z3g==}
+  '@biomejs/biome@2.0.0-beta.3':
+    resolution: {integrity: sha512-KKvtP0iapIpmOpoljEITOcG7IPOn2HVUJxZOn4ULJbUsOlPEJcrKI0BwKZ/E1PeflxjaSfcKUxHhdB7bjBBPvg==}
     engines: {node: '>=14.21.3'}
     hasBin: true
 
-  '@biomejs/cli-darwin-arm64@2.0.0-beta.2':
-    resolution: {integrity: sha512-LJ7wjYNZkqcQDV6Xyoy9pwFp931rTDp5JvJkF+oPkucurn1kg07sYKV1fPErbfgnLzquaGHAez3wVA8MsTf79A==}
+  '@biomejs/cli-darwin-arm64@2.0.0-beta.3':
+    resolution: {integrity: sha512-UYeevewqg3YOnwGEPA4m6+lQQY+YiMeev4GufnurOxodl1QoYCdMosaBhlGlISBa/HwBDw9JQ10yjzsBF9GlTQ==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [darwin]
 
-  '@biomejs/cli-darwin-x64@2.0.0-beta.2':
-    resolution: {integrity: sha512-o6KINuooUCIeg8RPUFabYjEtlosR7+P3ysyeOJ9BvGTLykgm+EtMBVMG+aZTut/cCcijkLQNDCdhza+Zj9PKQA==}
+  '@biomejs/cli-darwin-x64@2.0.0-beta.3':
+    resolution: {integrity: sha512-jANiFMTFq2Bgw1cySc6I4R1tZlkkY1Go5mdAQDXZIwAr+45TGKLzxiOKJdWTN8GGQ0KzOwJxjHZ5vV6vx1JxsA==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [darwin]
 
-  '@biomejs/cli-linux-arm64-musl@2.0.0-beta.2':
-    resolution: {integrity: sha512-OTPJalprRj+sGJKOFOrtPvRO2GqCzRBDJTk2C4MbK9ed5+h9eBMd8/A2IdQ8XOm0BECJWvIomzDaNEwKN3pNYw==}
+  '@biomejs/cli-linux-arm64-musl@2.0.0-beta.3':
+    resolution: {integrity: sha512-mOQ48zNYZ6A+0eQUyZlPwuLJdEPkUdaoOLnbL1Y9GbeQfvvQYGwohDTIfcHk7yUxSImB1pPyLpiguam0jymeOg==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [linux]
 
-  '@biomejs/cli-linux-arm64@2.0.0-beta.2':
-    resolution: {integrity: sha512-9DWVXNYcKFTZv8T3Q6SBAl6SPMNzHsiaiQuuXm/cxSGaAfI0ixh0HNWYlLeTbfC86aBsnG+Us6mGYaFKF2p8YA==}
+  '@biomejs/cli-linux-arm64@2.0.0-beta.3':
+    resolution: {integrity: sha512-KW4NLOW6n4YPEa4bVo4GPYBJpeIuFfxVd2tsyM+xjuGk8zmo4dkswPUxKN/qW/mh/98ISvdKsusKoSZ6M3kpLg==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [linux]
 
-  '@biomejs/cli-linux-x64-musl@2.0.0-beta.2':
-    resolution: {integrity: sha512-1TsFLIuefU47cdGLw1ELUVggvZsbyJbgrxy4KSeUQ3Ko1dJ9loOPvDC3X6UQBamHFdaKpbyZYzh2BiH81Pf55g==}
+  '@biomejs/cli-linux-x64-musl@2.0.0-beta.3':
+    resolution: {integrity: sha512-170/P0qpudpwZCP0U/lfU4cxjpDZwTUi/lSYKfAPyVQfnRX8P+1j+3hv4voaREBC1nenPdsIJ4daWb6BB7W2jQ==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [linux]
 
-  '@biomejs/cli-linux-x64@2.0.0-beta.2':
-    resolution: {integrity: sha512-QjFfkbkzu388ChySo5XPMh2VNrFv216Xw04k0y3VlQ9v8pAPxmx9z0y+UnBjlndtDdJj/IhsLKG2FN7RhBjXbA==}
+  '@biomejs/cli-linux-x64@2.0.0-beta.3':
+    resolution: {integrity: sha512-oYtyC7oNpQ8+2uq3hEZGhYv/EtIuwMsv7OcL5cnFzrrzVEtaB6jh5jOlYkA+agovQRVv/bgWfP4FO6yIHskG8w==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [linux]
 
-  '@biomejs/cli-win32-arm64@2.0.0-beta.2':
-    resolution: {integrity: sha512-MM60v1kLPONOwQK45jRbRwUes/083Hy/dzmO8QsQJ5eW5sV0oPIuZhuX+SMY3z3TyDmfuXZoemgPETeEjB+TdA==}
+  '@biomejs/cli-win32-arm64@2.0.0-beta.3':
+    resolution: {integrity: sha512-+ed97qATUxuAJ+rrnwCqzJ+Xhn082NV5P00GyRyLDGXGxJYMvpWhSUJWW06VABDc9UftoowOop3xK43YfcJStA==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [win32]
 
-  '@biomejs/cli-win32-x64@2.0.0-beta.2':
-    resolution: {integrity: sha512-tTHhVMEqRRBhpfWxwYTSGV8PIOQqc/RQz7WmuX/zaBkBbB9+hc2yeMmn6DPRPnaxNPjkNgD/Kwy3prQ4SxYAAw==}
+  '@biomejs/cli-win32-x64@2.0.0-beta.3':
+    resolution: {integrity: sha512-bKenWRtAayTZ+gaSXR7ySTtdC9LkDm1tiYMXNSCTA0D633hT2vNxdjsJ1uYQmehVvdqUkXJ+nrTLtrjWuS1mKA==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
@@ -3887,8 +3887,8 @@ packages:
   '@microsoft/tsdoc@0.15.1':
     resolution: {integrity: sha512-4aErSrCR/On/e5G2hDP0wjooqDdauzEbIq8hIkIe5pXV0rtWJZvdCEKL0ykZxex+IxIwBp0eGeV48hQN07dXtw==}
 
-  '@modelcontextprotocol/sdk@1.11.1':
-    resolution: {integrity: sha512-9LfmxKTb1v+vUS1/emSk1f5ePmTLkb9Le9AxOB5T0XM59EUumwcS45z05h7aiZx3GI0Bl7mjb3FMEglYj+acuQ==}
+  '@modelcontextprotocol/sdk@1.11.2':
+    resolution: {integrity: sha512-H9vwztj5OAqHg9GockCQC06k1natgcxWQSRpQcPJf6i5+MWBzfKkRtxGbjQf0X2ihii0ffLZCRGbYV2f2bjNCQ==}
     engines: {node: '>=18'}
 
   '@mswjs/cookies@0.2.2':
@@ -4972,20 +4972,20 @@ packages:
   '@tanstack/query-core@5.62.7':
     resolution: {integrity: sha512-fgpfmwatsrUal6V+8EC2cxZIQVl9xvL7qYa03gsdsCy985UTUlS4N+/3hCzwR0PclYDqisca2AqR1BVgJGpUDA==}
 
-  '@tanstack/query-core@5.75.6':
-    resolution: {integrity: sha512-r+WQ/z30KZF0TFkzCT7C8gWgrLuv7/t+gEjqeEp69JAIUS/omuieaHeIkoscjEcT6yaWebXGTyjdiIxJkYzEXg==}
+  '@tanstack/query-core@5.76.0':
+    resolution: {integrity: sha512-FN375hb8ctzfNAlex5gHI6+WDXTNpe0nbxp/d2YJtnP+IBM6OUm7zcaoCW6T63BawGOYZBbKC0iPvr41TteNVg==}
 
-  '@tanstack/query-devtools@5.74.7':
-    resolution: {integrity: sha512-nSNlfuGdnHf4yB0S+BoNYOE1o3oAH093weAYZolIHfS2stulyA/gWfSk/9H4ZFk5mAAHb5vNqAeJOmbdcGPEQw==}
+  '@tanstack/query-devtools@5.76.0':
+    resolution: {integrity: sha512-1p92nqOBPYVqVDU0Ua5nzHenC6EGZNrLnB2OZphYw8CNA1exuvI97FVgIKON7Uug3uQqvH/QY8suUKpQo8qHNQ==}
 
-  '@tanstack/react-query-devtools@5.75.6':
-    resolution: {integrity: sha512-g8NH6E4F0ggatuu7Zhx3sBkvacsiMd+mrHxezlLLfftwhjRSVP1s6bvXYEAiCOQ+RNAVYFX0X1ujGSUqmcRY4w==}
+  '@tanstack/react-query-devtools@5.76.0':
+    resolution: {integrity: sha512-RoyRzH5XJB//OhAdzQTutesw9uHyNZroLp/I7NDAQf8OVJKTTcoaYBmaw5pmB2e3bVdgqFu6nHFZUr5j5qBdZw==}
     peerDependencies:
-      '@tanstack/react-query': ^5.75.6
+      '@tanstack/react-query': ^5.76.0
       react: ^18 || ^19
 
-  '@tanstack/react-query@5.75.6':
-    resolution: {integrity: sha512-0d97uvpeHUNN5eTEsJzYgxLgAEyUM+XaJAWFFAaXH+dQgDN//TTDNbei/YVzN5BUJcWcnQ7YaQDtLLzSe+IvTg==}
+  '@tanstack/react-query@5.76.0':
+    resolution: {integrity: sha512-dZLYzVuUFZJkenxd8o01oyFimeLBmSkaUviPHuDzXe7LSLO4WTTx92jwJlNUXOOHzg6t0XknklZ15cjhYNSDjA==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -5000,8 +5000,8 @@ packages:
     peerDependencies:
       solid-js: ^1.6.0
 
-  '@tanstack/solid-query@5.75.6':
-    resolution: {integrity: sha512-U0gyj1f2x+JySb30sYFAKGc2EHY095IYOg5IUWKO8OvsOH6xmkrDJSPTLwv1nvTXtiDJrDjItoTPzIQHZZrc6w==}
+  '@tanstack/solid-query@5.76.0':
+    resolution: {integrity: sha512-zbNtAnFnneJvZgwhygtLvLCmeRzeBz7IwneOZC7UpCG1teZS5H2ohPXAkKegVGgRp8hgZrRKyU1nDJLUOOFd2w==}
     peerDependencies:
       solid-js: ^1.6.0
 
@@ -5010,8 +5010,8 @@ packages:
     peerDependencies:
       svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
 
-  '@tanstack/svelte-query@5.75.6':
-    resolution: {integrity: sha512-B7JEhtctL7x4yxLG0IDQ5dR6lPYEZO22MMiQfFxFlARISGI1MIiPyBgEwhMXks9PObHfF17fmraiV3yPymr19Q==}
+  '@tanstack/svelte-query@5.76.0':
+    resolution: {integrity: sha512-Y3tarQGErGJl/MbYfeV8GNGyToP55rmCORvqpqPMtx930QdlhDK9hcuVhLvRuWcxhhK+Cnhmi9S8iV67VdmMVQ==}
     peerDependencies:
       svelte: ^3.54.0 || ^4.0.0 || ^5.0.0
 
@@ -5021,8 +5021,8 @@ packages:
   '@tanstack/virtual-core@3.11.3':
     resolution: {integrity: sha512-v2mrNSnMwnPJtcVqNvV0c5roGCBqeogN8jDtgtuHCphdwBasOZ17x8UV8qpHUh+u0MLfX43c0uUHKje0s+Zb0w==}
 
-  '@tanstack/vue-query@5.75.6':
-    resolution: {integrity: sha512-NhE1BTyWkQmqqRGHmMj3t1vj6SvH46QlHOtOc43fS87RCfkrfkzDV6uB+nHutaPEdeIU2treLhZNzxAGNBYFvQ==}
+  '@tanstack/vue-query@5.76.0':
+    resolution: {integrity: sha512-Ow1JPfAqjam/hH2WJj15Y+a7FT5LS/So2b4jMAI3lLKUcpIjVRLEOLQXdCYZ/29YbDrL66trwLPXjA9tYrHung==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -5945,8 +5945,8 @@ packages:
   buffer@6.0.3:
     resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
 
-  bun-types@1.2.12:
-    resolution: {integrity: sha512-tvWMx5vPqbRXgE8WUZI94iS1xAYs8bkqESR9cxBB1Wi+urvfTrF1uzuDgBHFAdO0+d2lmsbG3HmeKMvUyj6pWA==}
+  bun-types@1.2.13:
+    resolution: {integrity: sha512-rRjA1T6n7wto4gxhAO/ErZEtOXyEZEmnIHQfl0Dt1QQSB4QV0iP6BZ9/YB5fZaHFQ2dwHFrmPaRQ9GGMX01k9Q==}
 
   bundle-name@4.1.0:
     resolution: {integrity: sha512-tjwM5exMg6BGRI+kNmTntNsvdZS1X8BFYS6tnJ2hdH0kVxM6/eVZ2xy+FqStSWvYmtfFMDLIxurorHwDKfDz5Q==}
@@ -8047,8 +8047,8 @@ packages:
       typescript:
         optional: true
 
-  msw@2.8.1:
-    resolution: {integrity: sha512-pchpCYtxzHajLquliCNehQX9W2TyYG4SH8zTmyaWXJHonY/ExLFZRqea0XGr2JfULjfv4rfoqVxz0H8nguV8QQ==}
+  msw@2.8.2:
+    resolution: {integrity: sha512-ugu8RBgUj6//RD0utqDDPdS+QIs36BKYkDAM6u59hcMVtFM4PM0vW4l3G1R+1uCWP2EWFUG8reT/gPXVEtx7/w==}
     engines: {node: '>=18'}
     hasBin: true
     peerDependencies:
@@ -8800,6 +8800,9 @@ packages:
   remeda@2.21.3:
     resolution: {integrity: sha512-XXrZdLA10oEOQhLLzEJEiFFSKi21REGAkHdImIb4rt/XXy8ORGXh5HCcpUOsElfPNDb+X6TA/+wkh+p2KffYmg==}
 
+  remeda@2.21.4:
+    resolution: {integrity: sha512-ggHgfoRtq/Tk+kKQGYH0TX5lAxQXFSQ8qYUxsyZV80+HCwy5/jSEjYHlnR16KwlvYrad1JaQr5q0gfQSy268lQ==}
+
   remove-accents@0.5.0:
     resolution: {integrity: sha512-8g3/Otx1eJaVD12e31UbJj1YzdtVvzH85HV7t+9MJYk/u3XmkOUJ5Ys9wQrf9PCPK8+xn4ymzqYCiZl6QWKn+A==}
 
@@ -9508,6 +9511,10 @@ packages:
     resolution: {integrity: sha512-ABHZ2/tS2JkvH1PEjxFDTUWC8dB5OsIGZP4IFLhR293GqT5Y5qB1WwL2kMPYhQW9DVgVD8Hd7I8gjwPIf5GFkw==}
     engines: {node: '>=16'}
 
+  type-fest@4.41.0:
+    resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
+    engines: {node: '>=16'}
+
   type-is@1.6.18:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}
     engines: {node: '>= 0.6'}
@@ -9620,8 +9627,8 @@ packages:
     resolution: {integrity: sha512-8U/MtpkPkkk3Atewj1+RcKIjb5WBimZ/WSLhhR3w6SsIj8XJuKTacSP8g+2JhfSGw0Cb125Y+2zA/IzJZDVbhA==}
     engines: {node: '>=18.12.0'}
 
-  unplugin@2.3.2:
-    resolution: {integrity: sha512-3n7YA46rROb3zSj8fFxtxC/PqoyvYQ0llwz9wtUPUutr9ig09C8gGo5CWCwHrUzlqC1LLR43kxp5vEIyH1ac1w==}
+  unplugin@2.3.3:
+    resolution: {integrity: sha512-DN4DgiS13HFrAapoRmmoa9B35QzmQVRH2k58HelO28htXVNEEFZ8CGlZL0aRHXOXtz9McwY6lqaZjcc15uWMow==}
     engines: {node: '>=18.12.0'}
 
   untildify@4.0.0:
@@ -10913,39 +10920,39 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
-  '@biomejs/biome@2.0.0-beta.2':
+  '@biomejs/biome@2.0.0-beta.3':
     optionalDependencies:
-      '@biomejs/cli-darwin-arm64': 2.0.0-beta.2
-      '@biomejs/cli-darwin-x64': 2.0.0-beta.2
-      '@biomejs/cli-linux-arm64': 2.0.0-beta.2
-      '@biomejs/cli-linux-arm64-musl': 2.0.0-beta.2
-      '@biomejs/cli-linux-x64': 2.0.0-beta.2
-      '@biomejs/cli-linux-x64-musl': 2.0.0-beta.2
-      '@biomejs/cli-win32-arm64': 2.0.0-beta.2
-      '@biomejs/cli-win32-x64': 2.0.0-beta.2
+      '@biomejs/cli-darwin-arm64': 2.0.0-beta.3
+      '@biomejs/cli-darwin-x64': 2.0.0-beta.3
+      '@biomejs/cli-linux-arm64': 2.0.0-beta.3
+      '@biomejs/cli-linux-arm64-musl': 2.0.0-beta.3
+      '@biomejs/cli-linux-x64': 2.0.0-beta.3
+      '@biomejs/cli-linux-x64-musl': 2.0.0-beta.3
+      '@biomejs/cli-win32-arm64': 2.0.0-beta.3
+      '@biomejs/cli-win32-x64': 2.0.0-beta.3
 
-  '@biomejs/cli-darwin-arm64@2.0.0-beta.2':
+  '@biomejs/cli-darwin-arm64@2.0.0-beta.3':
     optional: true
 
-  '@biomejs/cli-darwin-x64@2.0.0-beta.2':
+  '@biomejs/cli-darwin-x64@2.0.0-beta.3':
     optional: true
 
-  '@biomejs/cli-linux-arm64-musl@2.0.0-beta.2':
+  '@biomejs/cli-linux-arm64-musl@2.0.0-beta.3':
     optional: true
 
-  '@biomejs/cli-linux-arm64@2.0.0-beta.2':
+  '@biomejs/cli-linux-arm64@2.0.0-beta.3':
     optional: true
 
-  '@biomejs/cli-linux-x64-musl@2.0.0-beta.2':
+  '@biomejs/cli-linux-x64-musl@2.0.0-beta.3':
     optional: true
 
-  '@biomejs/cli-linux-x64@2.0.0-beta.2':
+  '@biomejs/cli-linux-x64@2.0.0-beta.3':
     optional: true
 
-  '@biomejs/cli-win32-arm64@2.0.0-beta.2':
+  '@biomejs/cli-win32-arm64@2.0.0-beta.3':
     optional: true
 
-  '@biomejs/cli-win32-x64@2.0.0-beta.2':
+  '@biomejs/cli-win32-x64@2.0.0-beta.3':
     optional: true
 
   '@braintree/sanitize-url@7.1.0': {}
@@ -12717,7 +12724,7 @@ snapshots:
 
   '@microsoft/tsdoc@0.15.1': {}
 
-  '@modelcontextprotocol/sdk@1.11.1':
+  '@modelcontextprotocol/sdk@1.11.2':
     dependencies:
       content-type: 1.0.5
       cors: 2.8.5
@@ -12737,10 +12744,10 @@ snapshots:
       '@types/set-cookie-parser': 2.4.10
       set-cookie-parser: 2.7.1
 
-  '@mswjs/http-middleware@0.9.2(msw@2.8.1(@types/node@20.17.46)(typescript@5.2.2))':
+  '@mswjs/http-middleware@0.9.2(msw@2.8.2(@types/node@20.17.46)(typescript@5.2.2))':
     dependencies:
       express: 4.21.2
-      msw: 2.8.1(@types/node@20.17.46)(typescript@5.2.2)
+      msw: 2.8.2(@types/node@20.17.46)(typescript@5.2.2)
       strict-event-emitter: 0.5.1
     transitivePeerDependencies:
       - supports-color
@@ -14194,24 +14201,24 @@ snapshots:
 
   '@tanstack/query-core@5.62.7': {}
 
-  '@tanstack/query-core@5.75.6': {}
+  '@tanstack/query-core@5.76.0': {}
 
-  '@tanstack/query-devtools@5.74.7': {}
+  '@tanstack/query-devtools@5.76.0': {}
 
-  '@tanstack/react-query-devtools@5.75.6(@tanstack/react-query@5.75.6(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.76.0(@tanstack/react-query@5.76.0(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/query-devtools': 5.74.7
-      '@tanstack/react-query': 5.75.6(react@18.3.1)
+      '@tanstack/query-devtools': 5.76.0
+      '@tanstack/react-query': 5.76.0(react@18.3.1)
       react: 18.3.1
 
-  '@tanstack/react-query@5.75.6(react@18.3.1)':
+  '@tanstack/react-query@5.76.0(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.75.6
+      '@tanstack/query-core': 5.76.0
       react: 18.3.1
 
-  '@tanstack/react-query@5.75.6(react@19.1.0)':
+  '@tanstack/react-query@5.76.0(react@19.1.0)':
     dependencies:
-      '@tanstack/query-core': 5.75.6
+      '@tanstack/query-core': 5.76.0
       react: 19.1.0
 
   '@tanstack/react-virtual@3.11.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
@@ -14225,9 +14232,9 @@ snapshots:
       '@tanstack/query-core': 5.62.7
       solid-js: 1.9.6
 
-  '@tanstack/solid-query@5.75.6(solid-js@1.9.6)':
+  '@tanstack/solid-query@5.76.0(solid-js@1.9.6)':
     dependencies:
-      '@tanstack/query-core': 5.75.6
+      '@tanstack/query-core': 5.76.0
       solid-js: 1.9.6
 
   '@tanstack/svelte-query@5.62.7(svelte@4.2.19)':
@@ -14235,19 +14242,19 @@ snapshots:
       '@tanstack/query-core': 5.62.7
       svelte: 4.2.19
 
-  '@tanstack/svelte-query@5.75.6(svelte@4.2.19)':
+  '@tanstack/svelte-query@5.76.0(svelte@4.2.19)':
     dependencies:
-      '@tanstack/query-core': 5.75.6
+      '@tanstack/query-core': 5.76.0
       svelte: 4.2.19
 
   '@tanstack/virtual-core@3.10.9': {}
 
   '@tanstack/virtual-core@3.11.3': {}
 
-  '@tanstack/vue-query@5.75.6(vue@3.5.13(typescript@5.8.3))':
+  '@tanstack/vue-query@5.76.0(vue@3.5.13(typescript@5.8.3))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.19.4
-      '@tanstack/query-core': 5.75.6
+      '@tanstack/query-core': 5.76.0
       '@vue/devtools-api': 6.6.4
       vue: 3.5.13(typescript@5.8.3)
       vue-demi: 0.14.10(vue@3.5.13(typescript@5.8.3))
@@ -14307,7 +14314,7 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.17.45
+      '@types/node': 20.17.46
 
   '@types/cookie@0.4.1': {}
 
@@ -14546,7 +14553,7 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.17.45
+      '@types/node': 20.17.46
 
   '@types/serve-static@1.15.7':
     dependencies:
@@ -14556,7 +14563,7 @@ snapshots:
 
   '@types/set-cookie-parser@2.4.10':
     dependencies:
-      '@types/node': 20.17.45
+      '@types/node': 20.17.46
 
   '@types/signal-exit@3.0.4': {}
 
@@ -14588,7 +14595,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 20.17.45
+      '@types/node': 20.17.46
     optional: true
 
   '@typescript/vfs@1.6.1(typescript@5.8.3)':
@@ -14635,7 +14642,7 @@ snapshots:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.1.3(@types/debug@4.1.12)(@types/node@20.17.46)(@vitest/ui@3.1.3)(jiti@2.4.2)(msw@2.8.1(@types/node@20.17.46)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.1)
+      vitest: 3.1.3(@types/debug@4.1.12)(@types/node@20.17.46)(@vitest/ui@3.1.3)(jiti@2.4.2)(msw@2.8.2(@types/node@20.17.46)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -14646,13 +14653,13 @@ snapshots:
       chai: 5.2.0
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.1.3(msw@2.8.1(@types/node@20.17.46)(typescript@5.8.3))(vite@6.3.5(@types/node@20.17.46)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.1))':
+  '@vitest/mocker@3.1.3(msw@2.8.2(@types/node@20.17.46)(typescript@5.8.3))(vite@6.3.5(@types/node@20.17.46)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.1))':
     dependencies:
       '@vitest/spy': 3.1.3
       estree-walker: 3.0.3
       magic-string: 0.30.17
     optionalDependencies:
-      msw: 2.8.1(@types/node@20.17.46)(typescript@5.8.3)
+      msw: 2.8.2(@types/node@20.17.46)(typescript@5.8.3)
       vite: 6.3.5(@types/node@20.17.46)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.1)
 
   '@vitest/pretty-format@3.1.3':
@@ -14683,7 +14690,7 @@ snapshots:
       sirv: 3.0.1
       tinyglobby: 0.2.13
       tinyrainbow: 2.0.0
-      vitest: 3.1.3(@types/debug@4.1.12)(@types/node@20.17.46)(@vitest/ui@3.1.3)(jiti@2.4.2)(msw@2.8.1(@types/node@20.17.46)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.1)
+      vitest: 3.1.3(@types/debug@4.1.12)(@types/node@20.17.46)(@vitest/ui@3.1.3)(jiti@2.4.2)(msw@2.8.2(@types/node@20.17.46)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.1)
 
   '@vitest/utils@3.1.3':
     dependencies:
@@ -15306,7 +15313,7 @@ snapshots:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  bun-types@1.2.12:
+  bun-types@1.2.13:
     dependencies:
       '@types/node': 20.17.46
 
@@ -17655,7 +17662,7 @@ snapshots:
       - encoding
       - supports-color
 
-  msw@2.8.1(@types/node@20.17.46)(typescript@5.2.2):
+  msw@2.8.2(@types/node@20.17.46)(typescript@5.2.2):
     dependencies:
       '@bundled-es-modules/cookie': 2.0.1
       '@bundled-es-modules/statuses': 1.0.1
@@ -17680,7 +17687,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  msw@2.8.1(@types/node@20.17.46)(typescript@5.8.3):
+  msw@2.8.2(@types/node@20.17.46)(typescript@5.8.3):
     dependencies:
       '@bundled-es-modules/cookie': 2.0.1
       '@bundled-es-modules/statuses': 1.0.1
@@ -18521,6 +18528,10 @@ snapshots:
   remeda@2.21.3:
     dependencies:
       type-fest: 4.40.0
+
+  remeda@2.21.4:
+    dependencies:
+      type-fest: 4.41.0
 
   remove-accents@0.5.0: {}
 
@@ -19470,6 +19481,8 @@ snapshots:
 
   type-fest@4.40.0: {}
 
+  type-fest@4.41.0: {}
+
   type-is@1.6.18:
     dependencies:
       media-typer: 0.3.0
@@ -19513,7 +19526,7 @@ snapshots:
       acorn: 8.14.1
       estree-walker: 3.0.3
       magic-string: 0.30.17
-      unplugin: 2.3.2
+      unplugin: 2.3.3
 
   undici-types@6.19.8: {}
 
@@ -19546,7 +19559,7 @@ snapshots:
       scule: 1.3.0
       strip-literal: 3.0.0
       tinyglobby: 0.2.13
-      unplugin: 2.3.2
+      unplugin: 2.3.3
       unplugin-utils: 0.2.4
 
   unist-util-is@6.0.0:
@@ -19585,7 +19598,7 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.2
 
-  unplugin@2.3.2:
+  unplugin@2.3.3:
     dependencies:
       acorn: 8.14.1
       picomatch: 4.0.2
@@ -19814,10 +19827,10 @@ snapshots:
       - universal-cookie
       - yaml
 
-  vitest@3.1.3(@types/debug@4.1.12)(@types/node@20.17.46)(@vitest/ui@3.1.3)(jiti@2.4.2)(msw@2.8.1(@types/node@20.17.46)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.1):
+  vitest@3.1.3(@types/debug@4.1.12)(@types/node@20.17.46)(@vitest/ui@3.1.3)(jiti@2.4.2)(msw@2.8.2(@types/node@20.17.46)(typescript@5.8.3))(terser@5.37.0)(yaml@2.7.1):
     dependencies:
       '@vitest/expect': 3.1.3
-      '@vitest/mocker': 3.1.3(msw@2.8.1(@types/node@20.17.46)(typescript@5.8.3))(vite@6.3.5(@types/node@20.17.46)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.1))
+      '@vitest/mocker': 3.1.3(msw@2.8.2(@types/node@20.17.46)(typescript@5.8.3))(vite@6.3.5(@types/node@20.17.46)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.1))
       '@vitest/pretty-format': 3.1.3
       '@vitest/runner': 3.1.3
       '@vitest/snapshot': 3.1.3

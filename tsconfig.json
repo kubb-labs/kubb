@@ -43,5 +43,5 @@
     }
   },
   "include": ["./package.json", "./tsup.config.ts", "./vitest.config.ts", "./src/**/*"],
-  "exclude": ["**/node_modules/**", "**/__snapshots__/**"]
+  "exclude": ["node_modules", "dist", "tmp", "coverage"]
 }

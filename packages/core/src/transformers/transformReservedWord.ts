@@ -99,7 +99,7 @@ export function transformReservedWord(word: string): string {
 export function isValidVarName(name: string) {
   try {
     Function(`var ${name}`)
-  } catch (e) {
+  } catch (_e) {
     return false
   }
   return true

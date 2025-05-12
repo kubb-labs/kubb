@@ -150,7 +150,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
 
       // Since no media type was supplied we need to find either the first JSON-like media type that
       // we've got, or the first available of anything else if no JSON-like media types are present.
-      let availablecontentType: string | undefined = undefined
+      let availablecontentType: string | undefined
       const contentTypes = Object.keys(responseBody.content)
       contentTypes.forEach((mt: string) => {
         if (!availablecontentType && matchesMimeType.json(mt)) {

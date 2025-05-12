@@ -28,4 +28,4 @@ catalog:
   react-reconciler: 0.29.2
   tsup: ^8.4.0
   typescript: ^5.8.3
-  remeda: ^2.21.3
+  remeda: ^2.21.4
