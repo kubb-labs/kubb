@@ -1,16 +1,13 @@
-import BaseOas from 'oas'
-import OASNormalize from 'oas-normalize'
-import { matchesMimeType } from 'oas/utils'
-
 import jsonpointer from 'jsonpointer'
-
-import { isDiscriminator, isReference } from './utils.ts'
-
+import BaseOas from 'oas'
 import type { Operation } from 'oas/operation'
 import type { MediaTypeObject, OASDocument, ResponseObject, SchemaObject, User } from 'oas/types'
+import { matchesMimeType } from 'oas/utils'
+import OASNormalize from 'oas-normalize'
+import type { OpenAPIV3 } from 'openapi-types'
 import type { OasTypes } from './index.ts'
 import type { contentType } from './types.ts'
-import type { OpenAPIV3 } from 'openapi-types'
+import { isDiscriminator, isReference } from './utils.ts'
 
 type Options = {
   contentType?: contentType
@@ -71,15 +68,21 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       return undefined
     }
 
-    const mapping = schema.discriminator.mapping || {}
+    const { mapping = {}, propertyName } = schema.discriminator
 
     // loop over oneOf and add default mapping when none is defined
     if (schema.oneOf) {
       schema.oneOf.forEach((schema) => {
         if (isReference(schema)) {
           const key = this.getKey(schema.$ref)
+          const refSchema: OpenAPIV3.SchemaObject = this.get(schema.$ref)
+          // special case where enum in the schema is set without mapping being defined, see https://github.com/kubb-labs/kubb/issues/1669
+          const propertySchema = refSchema.properties?.[propertyName] as OpenAPIV3.SchemaObject
+          const canAdd = key && !Object.values(mapping).includes(schema.$ref)
 
-          if (key && !Object.values(mapping).includes(schema.$ref)) {
+          if (canAdd && propertySchema?.enum?.length === 1) {
+            mapping[propertySchema.enum[0]] = schema.$ref
+          } else if (canAdd) {
             mapping[key] = schema.$ref
           }
         }
@@ -90,8 +93,14 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       schema.anyOf.forEach((schema) => {
         if (isReference(schema)) {
           const key = this.getKey(schema.$ref)
+          const refSchema: OpenAPIV3.SchemaObject = this.get(schema.$ref)
+          // special case where enum in the schema is set without mapping being defined, see https://github.com/kubb-labs/kubb/issues/1669
+          const propertySchema = refSchema.properties?.[propertyName] as OpenAPIV3.SchemaObject
+          const canAdd = key && !Object.values(mapping).includes(schema.$ref)
 
-          if (key && !Object.values(mapping).includes(schema.$ref)) {
+          if (canAdd && propertySchema?.enum?.length === 1) {
+            mapping[propertySchema.enum[0]] = schema.$ref
+          } else if (canAdd) {
             mapping[key] = schema.$ref
           }
         }

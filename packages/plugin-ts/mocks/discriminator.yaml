@@ -4,6 +4,55 @@ info:
 openapi: 3.1.0
 components:
   schemas:
+    DocumentDisapprovedNotification:
+      type: object
+      required:
+        - notificationType
+        - document
+      properties:
+        notificationType:
+          type: string
+          enum:
+            - DOCUMENT_DISAPPROVED
+        id:
+          type: string
+          format: uuid
+          title: Id
+    DocumentApprovedNotification:
+      type: object
+      required:
+        - notificationType
+        - document
+      properties:
+        notificationType:
+          type: string
+          enum:
+            - DOCUMENT_APPROVED
+        id:
+          type: string
+          format: uuid
+          title: Id
+    Notification:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+            createdAt:
+              type: string
+              format: date-time
+            isSeen:
+              type: boolean
+          required:
+            - id
+            - createdAt
+            - isSeen
+        - oneOf:
+            - $ref: "#/components/schemas/DocumentDisapprovedNotification"
+            - $ref: "#/components/schemas/DocumentApprovedNotification"
+          discriminator:
+            propertyName: notificationType
+
     Advanced:
       title: ValueSpecification
       required:

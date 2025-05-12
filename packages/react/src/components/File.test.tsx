@@ -212,7 +212,9 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.output).toMatchInlineSnapshot(`"<button className="className" type="button" aria-disabled={false} onClick={(e) => console.log(e)}>sdfs</button>"`)
+    expect(root.output).toMatchInlineSnapshot(
+      `"<button className="className" type="button" aria-disabled={false} onClick={(e) => console.log(e)}>sdfs</button>"`,
+    )
     expect(root.files).toMatchInlineSnapshot(`
       [
         {
