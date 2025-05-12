@@ -45,8 +45,9 @@ private
 test.json
 .turbo
 .next
-.vitepress/cache/**
-.vitepress/dist/**
+.tsup
+docs/.vitepress/cache/**
+docs/.vitepress/dist/**
 #docs/.vitepress/graphs/**
 !__snapshots__
 kubb-files.json
