@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-<h1>@kubb/plugin-cypress</h1>
+<h1>@kubb/plugin-mcp</h1>
 
 <p>
    Swagger integration to create MCP helpers.
