@@ -6,10 +6,10 @@ import { type OperationSchema as OperationSchemaType, type OperationSchemas, Sch
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
-import { pluginTsName } from '@kubb/plugin-ts'
 import { File, useApp } from '@kubb/react'
 import type ts from 'typescript'
 import { Type } from '../components'
+import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types'
 
 function printCombinedSchema({ name, schemas, pluginManager }: { name: string; schemas: OperationSchemas; pluginManager: PluginManager }): string {

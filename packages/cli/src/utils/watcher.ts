@@ -16,7 +16,7 @@ export async function startWatcher(path: string[], cb: (path: string[]) => Promi
 
     try {
       cb(path)
-    } catch (e) {
+    } catch (_e) {
       logger?.emit('warning', colors.red('Watcher failed'))
     }
   })

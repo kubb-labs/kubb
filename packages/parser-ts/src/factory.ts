@@ -304,7 +304,7 @@ export function createImportDeclaration({
 }) {
   if (!Array.isArray(name)) {
     let importPropertyName: ts.Identifier | undefined = factory.createIdentifier(name)
-    let importName: ts.NamedImportBindings | undefined = undefined
+    let importName: ts.NamedImportBindings | undefined
 
     if (isNameSpace) {
       importPropertyName = undefined

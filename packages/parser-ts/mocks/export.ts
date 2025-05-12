@@ -4,4 +4,4 @@ export type Test = number
 
 export type TestInterface = {}
 
-const notExported = 2
+const _notExported = 2

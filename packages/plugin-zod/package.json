@@ -89,6 +89,7 @@
     "@hono/zod-openapi": "0.19.2",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
     "tsup": "catalog:",
     "zod": "~3.24.4"
   },

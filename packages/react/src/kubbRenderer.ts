@@ -1,12 +1,10 @@
-import Reconciler from 'react-reconciler'
-
 import type { HostConfig } from 'react-reconciler'
+import Reconciler from 'react-reconciler'
 import { DefaultEventPriority, NoEventPriority } from 'react-reconciler/constants'
 
 import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './dom.ts'
-
+import type { KubbNode } from './types'
 import type { DOMElement, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
-import type { KubbNode } from '@kubb/react/types'
 
 // https://github.com/pmndrs/react-three-fiber/blob/v9/packages/fiber/src/core/reconciler.tsx
 declare module 'react-reconciler/constants' {

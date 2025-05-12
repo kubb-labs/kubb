@@ -4,6 +4,12 @@ title: Changelog
 
 # Changelog
 
+# 3.10.12
+- [`plugin-oas`](/plugins/plugin-oas): allow multiple `discriminator.mapping` with the same $ref
+
+# 3.10.11
+- [`plugin-zod`](/plugins/plugin-zod): update parser to include latest v4 of Zod
+
 # 3.10.10
 - [`plugin-react-query`](/plugins/plugin-react-query/): resolve typescript error
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): resolve typescript error

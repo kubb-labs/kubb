@@ -211,6 +211,7 @@ components:
         mapping:
           Cat: "#/components/schemas/Cat"
           Dog: "#/components/schemas/Dog"
+          Bulldog: "#/components/schemas/Dog"
 
     CatDogWithoutMapping:
       title: CatDogWithoutMapping

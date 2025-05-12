@@ -313,10 +313,6 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
       return schema && typeof schema.map === 'function'
     })
 
-    const hasReferences = propertyEntries.some(([_name, schemas]) => {
-      return SchemaGenerator.find(schemas, schemaKeywords.ref)
-    })
-
     const properties = propertyEntries
       .map(([name, schemas]) => {
         const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
@@ -354,7 +350,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
       : undefined
 
     const text = [
-      hasReferences && isV4() ? zodKeywordMapper.interface(properties, current.args?.strict) : zodKeywordMapper.object(properties, current.args?.strict),
+      zodKeywordMapper.object(properties, current.args?.strict),
       additionalProperties ? zodKeywordMapper.catchall(additionalProperties) : undefined,
     ].filter(Boolean)
 
