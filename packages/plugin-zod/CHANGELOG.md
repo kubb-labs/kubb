@@ -1,5 +1,19 @@
 # @kubb/plugin-zod
 
+## 3.10.11
+
+### Patch Changes
+
+- [#1714](https://github.com/kubb-labs/kubb/pull/1714) [`bec329e`](https://github.com/kubb-labs/kubb/commit/bec329e79b7ff25f9b5289211e412b52b2a23492) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - update parser to include latest v4 of Zod
+
+- Updated dependencies [[`e666e9a`](https://github.com/kubb-labs/kubb/commit/e666e9a4a038864f1d9e87a916108b291028b42b)]:
+  - @kubb/plugin-oas@3.10.11
+  - @kubb/plugin-ts@3.10.11
+  - @kubb/core@3.10.11
+  - @kubb/oas@3.10.11
+  - @kubb/parser-ts@3.10.11
+  - @kubb/react@3.10.11
+
 ## 3.10.10
 
 ### Patch Changes
