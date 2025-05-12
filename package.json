@@ -52,7 +52,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.0.0-beta.3",
     "@changesets/changelog-github": "^0.5.1",
-    "@changesets/cli": "^2.29.3",
+    "@changesets/cli": "^2.29.4",
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@nx/js": "^21.0.3",

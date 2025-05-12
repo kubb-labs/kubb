@@ -1,7 +1,6 @@
-import { schemas } from '../../plugin-oas/mocks/schemas.ts'
-
-import * as parserZod from './parser.ts'
 import { PackageManager } from '@kubb/core'
+import { schemas } from '@kubb/plugin-oas/mocks'
+import * as parserZod from './parser.ts'
 
 describe('zod parse', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {

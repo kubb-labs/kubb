@@ -15,7 +15,9 @@
   },
   "license": "MIT",
   "author": "stijnvanhulle",
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/globals.ts"
+  ],
   "type": "module",
   "exports": {
     ".": {

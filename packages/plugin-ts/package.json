@@ -78,6 +78,7 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
     "@types/react": "catalog:",
     "react": "catalog:",
     "tsup": "catalog:",

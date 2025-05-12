@@ -1,8 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "module": "esnext",
-    "lib": ["DOM", "DOM.Iterable", "ES2023"]
+    "jsx": "react-jsx",
+      "rootDir": "."
   },
   "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"]
 }

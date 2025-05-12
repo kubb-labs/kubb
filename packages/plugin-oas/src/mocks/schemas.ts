@@ -1,4 +1,4 @@
-import { type Schema, schemaKeywords } from '../src/SchemaMapper'
+import { type Schema, schemaKeywords } from '../SchemaMapper'
 
 const basic: Array<{ name: string; schema: Schema }> = [
   {

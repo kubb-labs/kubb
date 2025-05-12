@@ -30,6 +30,11 @@
       "require": "./dist/generators.cjs",
       "default": "./dist/generators.cjs"
     },
+    "./mocks": {
+      "import": "./dist/mocks.js",
+      "require": "./dist/mocks.cjs",
+      "default": "./dist/mocks.cjs"
+    },
     "./utils": {
       "import": "./dist/utils.js",
       "require": "./dist/utils.cjs",
@@ -61,6 +66,9 @@
       ],
       "components": [
         "./dist/components.d.ts"
+      ],
+      "mocks": [
+        "./dist/mocks.d.ts"
       ],
       "generators": [
         "./dist/generators.d.ts"

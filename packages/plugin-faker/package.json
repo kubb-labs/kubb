@@ -81,6 +81,7 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },

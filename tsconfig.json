@@ -2,11 +2,8 @@
   "extends": "@kubb/config-ts/bundler.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "types": ["vitest/globals", "bun-types", "@kubb/config-ts"],
-    "paths": {
-      "unplugin-kubb": ["packages/unplugin/src/index.ts"]
-    }
+    "types": ["vitest/globals", "bun-types", "@kubb/config-ts"]
   },
   "include": ["./package.json", "./tsup.config.ts", "./vitest.config.ts", "./src/**/*"],
-  "exclude": ["node_modules", "dist", "tmp", "coverage"]
+  "exclude": ["node_modules", "dist", "tmp", "coverage", "**/__snapshots__/**"]
 }

@@ -29,6 +29,11 @@
       "inputs": ["production", "^production"],
       "outputs": ["{projectRoot}/dist", "{projectRoot}/assets"]
     },
+    "test:watch": {
+      "cache": false,
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^production"]
+    },
     "test": {
       "cache": true,
       "dependsOn": ["^build"],
