@@ -5,7 +5,7 @@ title: Generators
 outline: deep
 ---
 
-# Generators <Badge type="info" text="@kubb/plugin-oas" />
+# Generators <a href="/plugins/plugin-oas"><Badge type="info" text="@kubb/plugin-oas" /></a>
 
 In Kubb, generators are functions that allow developers to hook into the framework’s file generation process to create, modify, or extend code automatically.
 Generators are central to Kubb’s workflow, enabling the automated generation of code such as API clients, React-Query hooks, TypeScrip types, or other files based on specific input(Swagger and OpenAPI specifications).
@@ -100,7 +100,7 @@ This **function** will be called with one schema and that for x times(based on y
 |     Type: | `(this: GeneratorOptions, props: SchemaProps) => Promise<KubbFile.File[]>` |
 | Required: | `false`  |
 
-The following properties will be accessible when `operation` is being called:
+The following properties will be accessible when `schema` is being called:
 
 |   Property | Description                                                                                | Type                                                         |
 |-----------:|--------------------------------------------------------------------------------------------|:-------------------------------------------------------------|

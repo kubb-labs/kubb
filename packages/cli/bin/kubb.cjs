@@ -10,7 +10,7 @@ try {
       return null
     },
   })
-} catch (err) {}
+} catch (_err) {}
 
 import('../dist/index.js').then(({ run }) => {
   process.title = 'Kubb'

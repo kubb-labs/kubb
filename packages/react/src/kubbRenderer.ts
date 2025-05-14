@@ -1,10 +1,35 @@
-import createReconciler from 'react-reconciler'
-
-import { DefaultEventPriority } from 'react-reconciler/constants.js'
+import type { HostConfig } from 'react-reconciler'
+import Reconciler from 'react-reconciler'
+import { DefaultEventPriority, NoEventPriority } from 'react-reconciler/constants'
 
 import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './dom.ts'
-
+import type { KubbNode } from './types'
 import type { DOMElement, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
+
+// https://github.com/pmndrs/react-three-fiber/blob/v9/packages/fiber/src/core/reconciler.tsx
+declare module 'react-reconciler/constants' {
+  const NoEventPriority = 0
+}
+
+declare module 'react-reconciler' {
+  // @ts-expect-error custom override
+  interface Reconciler {
+    updateContainerSync(element: KubbNode, container: unknown, parentComponent: any, callback?: null | (() => void)): void
+    flushSyncWork(): void
+    createContainer(
+      containerInfo: unknown,
+      tag: Reconciler.RootTag,
+      hydrationCallbacks: null | Reconciler.SuspenseHydrationCallbacks<any>,
+      isStrictMode: boolean,
+      concurrentUpdatesByDefaultOverride: null | boolean,
+      identifierPrefix: string,
+      onUncaughtError: (error: Error) => void,
+      onCaughtError: (error: Error) => void,
+      onRecoverableError: (error: Error) => void,
+      transitionCallbacks: null | Reconciler.TransitionTracingCallbacks,
+    ): Reconciler.OpaqueRoot
+  }
+}
 
 const diff = (before: Record<string, unknown>, after: Record<string, unknown>): Record<string, unknown> | undefined => {
   if (before === after) {
@@ -19,7 +44,7 @@ const diff = (before: Record<string, unknown>, after: Record<string, unknown>): 
   let isChanged = false
 
   for (const key of Object.keys(before)) {
-    const isDeleted = after ? !Object.hasOwnProperty.call(after, key) : true
+    const isDeleted = after ? !Object.hasOwn(after, key) : true
 
     if (isDeleted) {
       changed[key] = undefined
@@ -51,14 +76,9 @@ type UpdatePayload = {
   props: Props | undefined
 }
 
-/**
- * @link https://www.npmjs.com/package/react-devtools-inline
- * @link https://github.com/nitin42/Making-a-custom-React-renderer/blob/master/part-one.md
- * @link https://github.com/facebook/react/tree/main/packages/react-reconciler#practical-examples
- * @link https://github.com/vadimdemedes/ink
- * @link https://github.com/pixijs/pixi-react/tree/main/packages
- */
-export const KubbRenderer = createReconciler<
+let currentUpdatePriority = NoEventPriority
+
+type Config = HostConfig<
   ElementNames,
   Props,
   DOMElement,
@@ -72,32 +92,28 @@ export const KubbRenderer = createReconciler<
   unknown,
   unknown,
   unknown
->({
+>
+
+/**
+ * @link https://www.npmjs.com/package/react-devtools-inline
+ * @link https://github.com/nitin42/Making-a-custom-React-renderer/blob/master/part-one.md
+ * @link https://github.com/facebook/react/tree/main/packages/react-reconciler#practical-examples
+ * @link https://github.com/vadimdemedes/ink
+ * @link https://github.com/pixijs/pixi-react/tree/main/packages
+ * @link https://github.com/diegomura/react-pdf/blob/master/packages/reconciler/src/reconciler-31.ts
+ */
+export const KubbRenderer = Reconciler({
   getRootHostContext: () => ({
     type: 'kubb-root',
     isFile: false,
     isSource: false,
   }),
-  prepareForCommit: () => null,
+  prepareForCommit: () => {
+    return null
+  },
   preparePortalMount: () => null,
   clearContainer: () => false,
   resetAfterCommit(rootNode) {
-    if (typeof rootNode.onComputeLayout === 'function') {
-      rootNode.onComputeLayout()
-    }
-
-    // Since renders are throttled at the instance level and <Static> component children
-    // are rendered only once and then get deleted, we need an escape hatch to
-    // trigger an immediate render to ensure <Static> children are written to output before they get erased
-    if (rootNode.isStaticDirty) {
-      rootNode.isStaticDirty = false
-      if (typeof rootNode.onImmediateRender === 'function') {
-        rootNode.onImmediateRender()
-      }
-
-      return
-    }
-
     if (typeof rootNode.onRender === 'function') {
       rootNode.onRender()
     }
@@ -105,7 +121,6 @@ export const KubbRenderer = createReconciler<
   getChildHostContext(parentHostContext, type) {
     const isInsideText = type === 'kubb-text'
     const isFile = type === 'kubb-file' || parentHostContext.isFile
-
     const isSource = type === 'kubb-source' || parentHostContext.isSource
 
     return { isInsideText, isFile, isSource, type }
@@ -145,8 +160,8 @@ export const KubbRenderer = createReconciler<
   finalizeInitialChildren(_node, _type, _props, _rootNode) {
     return false
   },
-  isPrimaryRenderer: true,
   supportsMutation: true,
+  isPrimaryRenderer: true,
   supportsPersistence: false,
   supportsHydration: false,
   scheduleTimeout: setTimeout,
@@ -173,7 +188,10 @@ export const KubbRenderer = createReconciler<
 
     return { props }
   },
-  commitUpdate(node, { props }) {
+  commitMount() {},
+  commitUpdate(node, _payload, _type, _oldProps, newProps) {
+    const { props } = newProps
+
     if (props) {
       for (const [key, value] of Object.entries(props)) {
         setAttribute(node, key, value as DOMNodeAttribute)
@@ -186,6 +204,26 @@ export const KubbRenderer = createReconciler<
   removeChild(node, removeNode) {
     removeChildNode(node, removeNode)
   },
-})
+  setCurrentUpdatePriority: (newPriority: number) => {
+    currentUpdatePriority = newPriority
+  },
+  getCurrentUpdatePriority: () => currentUpdatePriority,
+  resolveUpdatePriority: () => currentUpdatePriority || DefaultEventPriority,
+  maySuspendCommit() {
+    return false
+  },
+  startSuspendingCommit() {},
+  waitForCommitToBeReady() {
+    return null
+  },
+  preloadInstance() {
+    // Return true to indicate it's already loaded
+    return true
+  },
+  suspendInstance() {},
+  shouldAttemptEagerTransition() {
+    return false
+  },
+} as Config)
 
 export type { FiberRoot } from 'react-reconciler'

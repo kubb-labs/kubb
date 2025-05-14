@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "3.6.4",
+  "version": "3.10.11",
   "description": "Generator cli",
   "keywords": [
     "typescript",
@@ -11,11 +11,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-labs/kubb.git",
+    "url": "https://github.com/kubb-labs/kubb.git",
     "directory": "packages/cli"
   },
   "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
   "exports": {
@@ -43,7 +43,7 @@
     "build:beta": "rslib build",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint --apply-unsafe .",
+    "lint:fix": "bun biome lint--fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
     "start": "tsup --watch",
@@ -52,30 +52,33 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "@kubb/ui": "workspace:*",
     "chokidar": "^4.0.3",
     "citty": "^0.1.6",
     "cli-progress": "^3.12.0",
     "consola": "^3.4.2",
     "cosmiconfig": "^9.0.0",
-    "execa": "^9.5.2",
+    "execa": "^9.5.3",
+    "gradient-string": "^3.0.0",
     "jiti": "^2.4.2",
     "latest-version": "^9.0.0",
+    "open": "^10.1.2",
     "p-queue": "^8.1.0",
     "semver": "^7.7.1",
-    "string-argv": "^0.3.2",
-    "tinyrainbow": "^1.2.0"
+    "string-argv": "^0.3.2"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
+    "@kubb/mcp": "workspace:*",
     "@kubb/config-rslib": "workspace:*",
+
     "@kubb/plugin-oas": "workspace:*",
     "@types/cli-progress": "^3.11.6",
-    "@types/node": "^20.17.27",
-    "@types/semver": "^7.5.8",
+    "@types/node": "catalog:",
+    "@types/semver": "^7.7.0",
     "source-map-support": "^0.5.21",
     "tsup": "catalog:",
-    "@rslib/core": "catalog:",
     "typescript": "catalog:"
   },
   "engines": {

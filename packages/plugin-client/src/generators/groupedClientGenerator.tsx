@@ -1,5 +1,5 @@
 import { camelCase } from '@kubb/core/transformers'
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -60,7 +60,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
           baseName={file.baseName}
           path={file.path}
           meta={file.meta}
-          banner={getBanner({ oas, output: options.output })}
+          banner={getBanner({ oas, output: options.output, config: pluginManager.config })}
           footer={getFooter({ oas, output: options.output })}
         >
           {clients.map((client) => (

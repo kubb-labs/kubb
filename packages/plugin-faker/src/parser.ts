@@ -42,24 +42,24 @@ const fakerKeywordMapper = {
   null: () => 'null',
   array: (items: string[] = [], min?: number, max?: number) => {
     if (items.length > 1) {
-      return `faker.helpers.arrayElements([${items.join(', ')}]) as any`
+      return `faker.helpers.arrayElements([${items.join(', ')}])`
     }
     const item = items.at(0)
 
     if (min !== undefined && max !== undefined) {
-      return `faker.helpers.multiple(() => (${item}), { count: { min: ${min}, max: ${max} }}) as any`
+      return `faker.helpers.multiple(() => (${item}), { count: { min: ${min}, max: ${max} }})`
     }
     if (min !== undefined) {
-      return `faker.helpers.multiple(() => (${item}), { count: ${min} }) as any`
+      return `faker.helpers.multiple(() => (${item}), { count: ${min} })`
     }
     if (max !== undefined) {
-      return `faker.helpers.multiple(() => (${item}), { count: { min: 0, max: ${max} }}) as any`
+      return `faker.helpers.multiple(() => (${item}), { count: { min: 0, max: ${max} }})`
     }
 
-    return `faker.helpers.multiple(() => (${item})) as any`
+    return `faker.helpers.multiple(() => (${item}))`
   },
-  tuple: (items: string[] = []) => `faker.helpers.arrayElements([${items.join(', ')}]) as any`,
-  enum: (items: Array<string | number> = []) => `faker.helpers.arrayElement<any>([${items.join(', ')}])`,
+  tuple: (items: string[] = []) => `[${items.join(', ')}]`,
+  enum: (items: Array<string | number | boolean | undefined> = [], type = 'any') => `faker.helpers.arrayElement<${type}>([${items.join(', ')}])`,
   union: (items: string[] = []) => `faker.helpers.arrayElement<any>([${items.join(', ')}])`,
   /**
    * ISO 8601
@@ -75,7 +75,7 @@ const fakerKeywordMapper = {
       if (parser !== 'faker') {
         return `${parser}(faker.date.anytime()).format("YYYY-MM-DD")`
       }
-      return 'faker.date.anytime().toString()'
+      return 'faker.date.anytime().toISOString().substring(0, 10)'
     }
 
     if (parser !== 'faker') {
@@ -94,7 +94,7 @@ const fakerKeywordMapper = {
       if (parser !== 'faker') {
         return `${parser}(faker.date.anytime()).format("HH:mm:ss")`
       }
-      return 'faker.date.anytime().toString()'
+      return 'faker.date.anytime().toISOString().substring(11, 19)'
     }
 
     if (parser !== 'faker') {
@@ -130,12 +130,12 @@ const fakerKeywordMapper = {
   optional: undefined,
   readOnly: undefined,
   writeOnly: undefined,
-  strict: undefined,
   deprecated: undefined,
   example: undefined,
   schema: undefined,
   catchall: undefined,
   name: undefined,
+  interface: undefined,
 } satisfies SchemaMapper<string | null | undefined>
 
 /**
@@ -173,7 +173,7 @@ type ParserOptions = {
   mapper?: Record<string, string>
 }
 
-export function parse({ current, siblings }: SchemaTree, options: ParserOptions): string | null | undefined {
+export function parse({ current, parent, name, siblings }: SchemaTree, options: ParserOptions): string | null | undefined {
   const value = fakerKeywordMapper[current.keyword as keyof typeof fakerKeywordMapper]
 
   if (!value) {
@@ -194,20 +194,39 @@ export function parse({ current, siblings }: SchemaTree, options: ParserOptions)
 
   if (isKeyword(current, schemaKeywords.array)) {
     return fakerKeywordMapper.array(
-      current.args.items.map((schema) => parse({ parent: current, current: schema, siblings }, { ...options, canOverride: false })).filter(Boolean),
+      current.args.items
+        .map((schema) =>
+          parse({ parent: current, current: schema, siblings }, { ...options, typeName: `${options.typeName}["${name}"][number]`, canOverride: false }),
+        )
+        .filter(Boolean),
       current.args.min,
       current.args.max,
     )
   }
 
   if (isKeyword(current, schemaKeywords.enum)) {
+    const isParentTuple = parent ? isKeyword(parent, schemaKeywords.tuple) : false
+
+    if (isParentTuple) {
+      return fakerKeywordMapper.enum(
+        current.args.items.map((schema) => {
+          if (schema.format === 'number') {
+            return schema.value
+          }
+          return transformers.stringify(schema.value)
+        }),
+      )
+    }
+
     return fakerKeywordMapper.enum(
       current.args.items.map((schema) => {
         if (schema.format === 'number') {
-          return schema.name
+          return schema.value
         }
-        return transformers.stringify(schema.name)
+        return transformers.stringify(schema.value)
       }),
+      // TODO replace this with getEnumNameFromSchema
+      name ? `NonNullable<${options.typeName}>['${name}']` : undefined,
     )
   }
 
@@ -241,7 +260,7 @@ export function parse({ current, siblings }: SchemaTree, options: ParserOptions)
         return `"${name}": ${joinItems(
           schemas
             .sort(schemaKeywordSorter)
-            .map((schema) => parse({ parent: current, current: schema, siblings: schemas }, { ...options, canOverride: false }))
+            .map((schema) => parse({ name, parent: current, current: schema, siblings: schemas }, { ...options, canOverride: false }))
             .filter(Boolean),
         )}`
       })

@@ -160,7 +160,9 @@
   padding: 3px 6px;
   color: var(--vp-c-text-code);
   background-color: var(--vp-c-mute);
-  transition: color 0.5s, background-color 0.5s;
+  transition:
+    color 0.5s,
+    background-color 0.5s;
 }
 .learn-more {
   position: absolute;
@@ -168,7 +170,10 @@
 }
 
 .item .VPFeature {
-  transition: transform 0.25s ease 0s, filter 0.25s ease 0s, box-shadow 0.25s ease 0s;
+  transition:
+    transform 0.25s ease 0s,
+    filter 0.25s ease 0s,
+    box-shadow 0.25s ease 0s;
 }
 .item .VPFeature:hover {
   box-shadow: 0 25px 65px 0px rgba(0, 0, 0, 0.35);
@@ -305,7 +310,10 @@ a.sponsor {
   text-align: center;
   font-weight: 600;
   white-space: nowrap;
-  transition: color 0.25s, border-color 0.25s, background-color 0.25s;
+  transition:
+    color 0.25s,
+    border-color 0.25s,
+    background-color 0.25s;
   /* .VPButton.medium */
   border-radius: 20px;
   padding: 0 20px;
@@ -345,6 +353,7 @@ a.fancy-sponsor {
   background-clip: padding-box, border-box, border-box;
   background-size: 200%;
   animation: spin 2s infinite linear;
+  z-index: 0;
 }
 
 a.fancy-sponsor::before {

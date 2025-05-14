@@ -1,7 +1,7 @@
 import { createContext } from 'react'
 
 import type { FileMetaBase } from '@kubb/core'
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 import type { Key, KubbNode } from '../types.ts'
 
 export type FileContextProps<TMeta extends FileMetaBase = FileMetaBase> = {

@@ -7,10 +7,11 @@
       "@kubb/core/utils": ["packages/core/src/utils/index.ts"],
       "@kubb/core/logger": ["packages/core/src/logger.ts"],
       "@kubb/core/transformers": ["packages/core/src/transformers/index.ts"],
-      "@kubb/fs": ["packages/fs/src/index.ts"],
-      "@kubb/fs/types": ["packages/fs/src/types.ts"],
+      "@kubb/core/fs": ["packages/core/src/fs/index.ts"],
       "@kubb/core/mocks": ["packages/core/mocks/index.ts"],
       "@kubb/core": ["packages/core/src/index.ts"],
+      "@kubb/cypress": ["packages/cypress/src/index.ts"],
+      "@kubb/mcp": ["packages/mcp/src/index.ts"],
       "@kubb/types": ["packages/types/src/index.ts"],
       "@kubb/plugin-oas/hooks": ["packages/plugin-oas/src/hooks/index.ts"],
       "@kubb/plugin-oas/utils": ["packages/plugin-oas/src/utils/index.ts"],
@@ -31,6 +32,7 @@
       "@kubb/plugin-zod/utils": ["packages/plugin-zod/src/utils/index.ts"],
       "@kubb/plugin-zod": ["packages/plugin-zod/src/index.ts"],
       "@kubb/react": ["packages/react/src/index.ts"],
+      "@kubb/ui": ["packages/ui/src/index.ts"],
       "@kubb/react/types": ["packages/react/src/types.ts"],
       "@kubb/react/devtools": ["packages/react/src/devtools.ts"],
       "@kubb/parser-ts/factory": ["packages/parser-ts/src/factory.ts"],
@@ -42,5 +44,5 @@
     }
   },
   "include": ["./package.json", "./tsup.config.ts", "./vitest.config.ts", "./src/**/*"],
-  "exclude": ["**/node_modules/**", "**/__snapshots__/**"]
+  "exclude": ["node_modules", "dist", "tmp", "coverage", "**/__snapshots__/**"]
 }

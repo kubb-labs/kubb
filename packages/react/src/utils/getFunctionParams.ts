@@ -38,7 +38,7 @@ type ParamItem =
 export type Params = Record<string, Param | undefined>
 
 type Options = {
-  type: 'constructor' | 'call'
+  type: 'constructor' | 'call' | 'object' | 'objectValue'
   transformName?: (name: string) => string
   transformType?: (type: string) => string
 }
@@ -125,6 +125,15 @@ function parseItem(name: string, item: ParamItem, options: Options): string {
   const transformedName = options.transformName ? options.transformName(name) : name
   const transformedType = options.transformType && item.type ? options.transformType(item.type) : item.type
 
+  if (options.type === 'object') {
+    return transformedName
+  }
+
+  if (options.type === 'objectValue') {
+    return item.value ? `${transformedName}: ${item.value}` : transformedName
+  }
+
+  //LEGACY
   if (item.type && options.type === 'constructor') {
     if (item.optional) {
       acc.push(`${transformedName}?: ${transformedType}`)
@@ -180,6 +189,7 @@ export function getFunctionParams(params: Params, options: Options): string {
 export function createFunctionParams(params: Params): Params {
   return params
 }
+// TODO  use of zod
 //TODO use of string as `$name: $type` to create templates for functions instead of call/constructor
 export class FunctionParams {
   #params: Params
@@ -213,23 +223,14 @@ export class FunctionParams {
     return getFunctionParams(this.#params, { type: 'call', transformName, transformType })
   }
 
-  toConstructor({ valueAsType = false }: { valueAsType?: boolean } = {}): string {
-    if (valueAsType) {
-      Object.entries(this.#params).reduce((acc, [key, item]) => {
-        if (item) {
-          acc[key] = {
-            ...item,
-            value: item?.type,
-            type: undefined,
-          }
-        }
+  toObject(): string {
+    return getFunctionParams(this.#params, { type: 'object' })
+  }
+  toObjectValue(): string {
+    return getFunctionParams(this.#params, { type: 'objectValue' })
+  }
 
-        return acc
-      }, {} as Params)
-
-      return getFunctionParams(this.#params, { type: 'constructor' })
-    }
-
+  toConstructor(): string {
     return getFunctionParams(this.#params, { type: 'constructor' })
   }
 }

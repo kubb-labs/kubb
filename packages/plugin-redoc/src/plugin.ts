@@ -4,7 +4,7 @@ import { PluginManager, createPlugin } from '@kubb/core'
 import { pluginOasName } from '@kubb/plugin-oas'
 
 import type { Plugin } from '@kubb/core'
-import { trimExtName } from '@kubb/fs'
+import { trimExtName } from '@kubb/core/fs'
 import type { PluginOas } from '@kubb/plugin-oas'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'

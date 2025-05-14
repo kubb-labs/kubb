@@ -1,5 +1,5 @@
-import { clean, read } from '@kubb/fs'
-import type * as KubbFile from '@kubb/fs/types'
+import { clean, read } from './fs/index.ts'
+import type { KubbFile } from './fs/index.ts'
 import { type FileManager, processFiles } from './FileManager.ts'
 import { PluginManager } from './PluginManager.ts'
 import { isInputPath } from './config.ts'
@@ -7,7 +7,7 @@ import { createLogger } from './logger.ts'
 import { URLPath } from './utils/URLPath.ts'
 
 import { join, resolve } from 'node:path'
-import { getRelativePath } from '@kubb/fs'
+import { getRelativePath } from './fs/index.ts'
 import type { Logger } from './logger.ts'
 import type { Config, Output, UserConfig } from './types.ts'
 
@@ -17,6 +17,7 @@ type BuildOptions = {
    * @default Logger without the spinner
    */
   logger?: Logger
+  pluginManager?: PluginManager
 }
 
 type BuildOutput = {
@@ -28,7 +29,11 @@ type BuildOutput = {
   error?: Error
 }
 
-async function setup(options: BuildOptions): Promise<PluginManager> {
+export async function setup(options: BuildOptions): Promise<PluginManager> {
+  if (options.pluginManager) {
+    return options.pluginManager
+  }
+
   const { config: userConfig, logger = createLogger() } = options
 
   try {
@@ -55,6 +60,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
       extension: {
         '.ts': '.ts',
       },
+      defaultBanner: 'simple',
       ...userConfig.output,
     },
     plugins: userConfig.plugins as Config['plugins'],

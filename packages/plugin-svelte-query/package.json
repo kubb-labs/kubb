@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-svelte-query",
-  "version": "3.6.4",
+  "version": "3.10.11",
   "description": "Generator svelte-query hooks",
   "keywords": [
     "faker",
@@ -16,11 +16,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-labs/kubb.git",
+    "url": "https://github.com/kubb-labs/kubb.git",
     "directory": "packages/plugin-svelte-query"
   },
   "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
   "exports": {
@@ -65,7 +65,7 @@
     "build": "tsup",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint --apply-unsafe .",
+    "lint:fix": "bun biome lint--fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
     "start": "tsup --watch",
@@ -74,8 +74,8 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/fs": "workspace:*",
     "@kubb/oas": "workspace:*",
+    "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",

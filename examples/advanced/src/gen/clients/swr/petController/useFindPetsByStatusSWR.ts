@@ -28,9 +28,7 @@ export function findPetsByStatusQueryOptionsSWR(
 export function useFindPetsByStatusSWR(
   { step_id }: { step_id: FindPetsByStatusPathParams['step_id'] },
   options: {
-    query?: Parameters<
-      typeof useSWR<ResponseConfig<FindPetsByStatusQueryResponse>, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryKeySWR | null, any>
-    >[2]
+    query?: Parameters<typeof useSWR<ResponseConfig<FindPetsByStatusQueryResponse>, ResponseErrorConfig<FindPetsByStatus400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},

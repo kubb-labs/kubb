@@ -19,7 +19,7 @@ export default defineConfig(async () => {
       clean: true,
     },
     hooks: {
-      // done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
+      // done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
     plugins: [
       pluginOas({ generators: [] }),
@@ -28,7 +28,7 @@ export default defineConfig(async () => {
           path: './ts',
         },
         transformers: {
-          name: (name, type) => {
+          name: (name, _type) => {
             return `${name}Type`
           },
         },
@@ -37,7 +37,7 @@ export default defineConfig(async () => {
         output: {
           path: './zod',
         },
-        typed: true,
+        // typed: true,
         transformers: {
           name: (name, type) => (type === 'file' ? `${name}.gen` : name),
           schema: ({ schema, parentName, name }, defaultSchemas) => {

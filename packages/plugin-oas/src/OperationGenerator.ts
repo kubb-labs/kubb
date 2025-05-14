@@ -2,7 +2,7 @@ import { BaseGenerator, type FileMetaBase } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 
 import type { PluginFactoryOptions, PluginManager } from '@kubb/core'
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod, Oas, OasTypes, Operation, SchemaObject, contentType } from '@kubb/oas'
@@ -59,6 +59,10 @@ export class OperationGenerator<
           return !!method.match(pattern)
         }
 
+        if (type === 'contentType') {
+          return !!operation.getContentType().match(pattern)
+        }
+
         return false
       })?.options || {}
     )
@@ -84,6 +88,10 @@ export class OperationGenerator<
       if (type === 'method' && !matched) {
         matched = !!method.match(pattern)
       }
+
+      if (type === 'contentType' && !matched) {
+        return !!operation.getContentType().match(pattern)
+      }
     })
 
     return matched
@@ -108,6 +116,10 @@ export class OperationGenerator<
 
       if (type === 'method' && !matched) {
         matched = !!method.match(pattern)
+      }
+
+      if (type === 'contentType' && !matched) {
+        matched = !!operation.getContentType().match(pattern)
       }
     })
 

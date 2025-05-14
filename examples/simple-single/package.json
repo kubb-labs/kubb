@@ -5,11 +5,11 @@
   "description": "Simple single PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-labs/kubb.git",
+    "url": "https://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/single-single"
   },
   "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
   "scripts": {
@@ -31,11 +31,11 @@
     "@kubb/plugin-redoc": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@tanstack/react-query": "^5.69.0",
-    "axios": "^1.8.4",
+    "@tanstack/react-query": "^5.76.0",
+    "axios": "^1.9.0",
     "react": "^18.3.1",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.2",
-    "zod": "^3.24.2"
+    "typescript": "^5.8.3",
+    "zod": "^3.24.4"
   }
 }

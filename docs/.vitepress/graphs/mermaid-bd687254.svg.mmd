@@ -1,0 +1,19 @@
+flowchart LR
+  subgraph "Your Computer"
+    Host[MCP Host<br/>(e.g., Claude Desktop, IDEs)]
+    S1[MCP Server A]
+    S2[MCP Server B]
+    S3[MCP Server C]
+    D1[Local Data Source A]
+    D2[Local Data Source B]
+    Host -->|MCP Protocol| S1
+    Host -->|MCP Protocol| S2
+    Host -->|MCP Protocol| S3
+    S1 <--> D1
+    S2 <--> D2
+  end
+
+  subgraph "Internet"
+    D3[Remote Service C]
+    S3 <--> D3
+  end

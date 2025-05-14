@@ -16,7 +16,7 @@ export default defineConfig(() => {
       path: './petStore.yaml',
     },
     hooks: {
-      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
+      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
     output: {
       path: './src/gen',

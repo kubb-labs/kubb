@@ -6,8 +6,9 @@ import type {
   FindPetsByTagsHeaderParams,
   FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags.ts'
+import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 
-export function getFindPetsByTagsUrl() {
+function getFindPetsByTagsUrl() {
   return 'https://petstore3.swagger.io/api/v3/pet/findByTags' as const
 }
 
@@ -29,5 +30,5 @@ export async function findPetsByTags(
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
-  return res
+  return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
 }

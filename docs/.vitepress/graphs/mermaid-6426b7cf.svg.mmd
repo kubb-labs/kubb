@@ -1,0 +1,5 @@
+graph TD
+  A[Kubb<br/>Generates code from OpenAPI] --> B[MCP Server<br/>Handles tool calls]
+  B --> C[Claude<br/>Conversational AI]
+  C -->|Sends tool request| B
+  B -->|Uses generated code| A

@@ -1,0 +1,262 @@
+info:
+  title: Swagger Petstore
+  version: 1.0.0
+openapi: 3.1.0
+components:
+  schemas:
+    Advanced:
+      title: ValueSpecification
+      required:
+        - type
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/EnumerationValueSpecificationDto"
+        - $ref: "#/components/schemas/RangeValueSpecificationDto"
+        - $ref: "#/components/schemas/RegexValueSpecificationDto"
+        - $ref: "#/components/schemas/SliderValueSpecificationDto"
+      properties:
+        type:
+          type: string
+          enum:
+            - enum
+            - range
+            - regex
+            - slider
+          minLength: 1
+          readOnly: true
+      additionalProperties: false
+      discriminator:
+        propertyName: type
+        mapping:
+          enum: "#/components/schemas/EnumerationValueSpecificationDto"
+          range: "#/components/schemas/RangeValueSpecificationDto"
+          regex: "#/components/schemas/RegexValueSpecificationDto"
+          slider: "#/components/schemas/SliderValueSpecificationDto"
+
+    EnumerationValueSpecificationDto:
+      title: EnumerationValueSpecification
+      type: object
+      required:
+        - enumeration
+        - type
+      properties:
+        type:
+          type: string
+          minLength: 1
+          readOnly: true
+        enumeration:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+
+    RangeValueSpecificationDto:
+      title: RangeValueSpecification
+      type: object
+      required:
+        - min
+        - max
+        - type
+      properties:
+        type:
+          type: string
+          minLength: 1
+          readOnly: true
+        min:
+          type: number
+          format: float
+        max:
+          type: number
+          format: float
+      additionalProperties: false
+
+    RegexValueSpecificationDto:
+      title: RegexValueSpecification
+      type: object
+      required:
+        - regex
+        - type
+      properties:
+        type:
+          type: string
+          minLength: 1
+          readOnly: true
+        regex:
+          type: string
+          minLength: 1
+      additionalProperties: false
+
+    SliderValueSpecificationDto:
+      title: SliderValueSpecification
+      type: object
+      required:
+        - left_text
+        - right_text
+        - max_value
+        - type
+      properties:
+        type:
+          type: string
+          minLength: 1
+          readOnly: true
+        left_text:
+          $ref: "#/components/schemas/LocalizedTextDto"
+        right_text:
+          $ref: "#/components/schemas/LocalizedTextDto"
+        max_value:
+          type: integer
+          format: int32
+      additionalProperties: false
+
+    LocalizedTextDto:
+      title: LocalizedText
+      type: object
+      required:
+        - text_id
+        - default_text
+      properties:
+        text_id:
+          type: string
+          minLength: 1
+        default_text:
+          type: string
+          minLength: 1
+      additionalProperties: false
+
+    NullConst:
+      title: NullConst
+      type: object
+      properties:
+        withoutValue:
+          type: "null"
+          const: null
+      required:
+        - withoutValue
+
+    StringValueConst:
+      title: StringValueConst
+      type: object
+      properties:
+        foobar:
+          type: string
+          const: "foobar"
+      required:
+        - foobar
+
+    NumberValueConst:
+      title: NumberValueConst
+      type: object
+      properties:
+        foobar:
+          type: number
+          const: 42
+      required:
+        - foobar
+
+    MixedValueTypeConst:
+      title: MixedValueTypeConst
+      type: object
+      properties:
+        foobar:
+          type: number
+          const: 42
+      required:
+        - foobar
+
+    Cat:
+      title: Cat
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        type:
+          type: string
+          const: Cat
+          title: Type
+        meow:
+          type: boolean
+          title: Meowing prevalence
+      required:
+        - id
+        - type
+
+    Dog:
+      title: Dog
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        type:
+          type: string
+          const: Dog
+          title: Type
+        bark:
+          type: number
+          title: Barking frequency
+      required:
+        - id
+        - type
+
+    CatDog:
+      title: CatDog
+      oneOf:
+        - $ref: "#/components/schemas/Cat"
+        - $ref: "#/components/schemas/Dog"
+      discriminator:
+        propertyName: type
+        mapping:
+          Cat: "#/components/schemas/Cat"
+          Dog: "#/components/schemas/Dog"
+
+    CatDogWithoutMapping:
+      title: CatDogWithoutMapping
+      oneOf:
+        - $ref: "#/components/schemas/Cat"
+        - $ref: "#/components/schemas/Dog"
+      discriminator:
+        propertyName: type
+
+    FooBase:
+      title: FooBase
+      type: object
+      properties:
+        $type:
+          type: string
+      required:
+        - $type
+      additionalProperties: false
+      discriminator:
+        propertyName: $type
+        mapping:
+          type-string: '#/components/schemas/FooString'
+          type-number: '#/components/schemas/FooNumber'
+
+    FooString:
+      title: FooString
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/FooBase'
+      properties:
+        value:
+          type: string
+      required:
+        - value
+      additionalProperties: false
+
+    FooNumber:
+      title: FooNumber
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/FooBase'
+      properties:
+        value:
+          type: number
+      required:
+        - value
+      additionalProperties: false
+
+paths: {}

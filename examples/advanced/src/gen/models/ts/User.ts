@@ -1,3 +1,5 @@
+import type { TagTag } from './tag/Tag.ts'
+
 export type User = {
   /**
    * @type integer | undefined, int64
@@ -12,6 +14,11 @@ export type User = {
    * @type string | undefined, uuid
    */
   uuid?: string
+  /**
+   * @description The active tag
+   * @type object | undefined
+   */
+  readonly tag?: TagTag
   /**
    * @type string | undefined
    */

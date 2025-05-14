@@ -5,11 +5,11 @@
   "description": "ReactQuery PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-labs/kubb.git",
+    "url": "https://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/react-query"
   },
   "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
   "scripts": {
@@ -29,21 +29,21 @@
     "@kubb/plugin-react-query": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@tanstack/react-query": "^5.69.0",
-    "@tanstack/react-query-devtools": "^5.69.0",
-    "axios": "^1.8.4",
+    "@tanstack/react-query": "^5.76.0",
+    "@tanstack/react-query-devtools": "^5.76.0",
+    "axios": "^1.9.0",
     "react": "^18.3.1",
-    "react-dom": "^19.0.0",
+    "react-dom": "^19.1.0",
     "unplugin-kubb": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "^18.3.20",
-    "@types/react-dom": "^19.0.4",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@types/react": "^18.3.21",
+    "@types/react-dom": "^19.1.4",
+    "@vitejs/plugin-react": "^4.4.1",
     "msw": "^1.3.5",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.2",
-    "vite": "^6.2.3"
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
   },
   "packageManager": "pnpm@9.15.5",
   "engines": {

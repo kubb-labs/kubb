@@ -2,7 +2,7 @@ import { OperationGenerator } from './OperationGenerator.ts'
 import { parseFromConfig } from './utils/parseFromConfig.ts'
 
 import type { FileMetaBase, PluginManager } from '@kubb/core'
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
@@ -373,7 +373,7 @@ describe('OperationGenerator include and exclude', async () => {
         include: [
           {
             type: 'path',
-            pattern: /\pets$/,
+            pattern: /pets$/,
           },
         ],
         exclude: [

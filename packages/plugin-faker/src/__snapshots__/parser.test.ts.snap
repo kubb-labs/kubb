@@ -4,15 +4,15 @@ exports[`faker parse > 'and' 1`] = `"Object.assign({}, faker.string.alpha(), fak
 
 exports[`faker parse > 'any' 1`] = `"undefined"`;
 
-exports[`faker parse > 'array' 1`] = `"faker.helpers.multiple(() => (faker.helpers.arrayElement<any>([faker.number.float(), faker.string.alpha()]))) as any"`;
+exports[`faker parse > 'array' 1`] = `"faker.helpers.multiple(() => (faker.helpers.arrayElement<any>([faker.number.float(), faker.string.alpha()])))"`;
 
-exports[`faker parse > 'arrayAdvanced' 1`] = `"faker.helpers.multiple(() => (faker.number.float({ min: 1, max: 10 })), { count: { min: 3, max: 10 }}) as any"`;
+exports[`faker parse > 'arrayAdvanced' 1`] = `"faker.helpers.multiple(() => (faker.number.float({ min: 1, max: 10 })), { count: { min: 3, max: 10 }})"`;
 
-exports[`faker parse > 'arrayEmpty' 1`] = `"faker.helpers.multiple(() => (undefined)) as any"`;
+exports[`faker parse > 'arrayEmpty' 1`] = `"faker.helpers.multiple(() => (undefined))"`;
 
-exports[`faker parse > 'arrayRef' 1`] = `"faker.helpers.multiple(() => (Pet())) as any"`;
+exports[`faker parse > 'arrayRef' 1`] = `"faker.helpers.multiple(() => (Pet()))"`;
 
-exports[`faker parse > 'arrayRegex' 1`] = `"faker.helpers.multiple(() => (faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$'))), { count: { min: 3, max: 10 }}) as any"`;
+exports[`faker parse > 'arrayRegex' 1`] = `"faker.helpers.multiple(() => (faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$'))), { count: { min: 3, max: 10 }})"`;
 
 exports[`faker parse > 'blob' 1`] = `"faker.image.url() as unknown as Blob"`;
 
@@ -20,7 +20,7 @@ exports[`faker parse > 'boolean' 1`] = `"faker.datatype.boolean()"`;
 
 exports[`faker parse > 'catchall' 1`] = `"{}"`;
 
-exports[`faker parse > 'date' 1`] = `"faker.date.anytime().toString()"`;
+exports[`faker parse > 'date' 1`] = `"faker.date.anytime().toISOString().substring(0, 10)"`;
 
 exports[`faker parse > 'datetime' 1`] = `"faker.date.anytime().toISOString()"`;
 
@@ -52,13 +52,15 @@ exports[`faker parse > 'object' 1`] = `"{"firstName": faker.string.alpha(),"addr
 
 exports[`faker parse > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({}, faker.string.alpha(), faker.number.float())}"`;
 
-exports[`faker parse > 'objectArray' 1`] = `"{"ids": faker.helpers.multiple(() => (faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$'))), { count: { min: 3, max: 10 }}) as any}"`;
+exports[`faker parse > 'objectArray' 1`] = `"{"ids": faker.helpers.multiple(() => (faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$'))), { count: { min: 3, max: 10 }})}"`;
 
-exports[`faker parse > 'objectDates' 1`] = `"{"dateTime": faker.date.anytime().toISOString(),"date": faker.date.anytime().toString(),"time": faker.date.anytime().toString(),"nativeDate": faker.date.anytime()}"`;
+exports[`faker parse > 'objectArrayObject' 1`] = `"{"ids": faker.helpers.multiple(() => ({"enum": faker.helpers.arrayElement<NonNullable<undefined["ids"][number]>['enum']>(["A", "B", "C", 2])}), { count: { min: 3, max: 10 }})}"`;
+
+exports[`faker parse > 'objectDates' 1`] = `"{"dateTime": faker.date.anytime().toISOString(),"date": faker.date.anytime().toISOString().substring(0, 10),"time": faker.date.anytime().toISOString().substring(11, 19),"nativeDate": faker.date.anytime()}"`;
 
 exports[`faker parse > 'objectEmpty' 1`] = `"{}"`;
 
-exports[`faker parse > 'objectEnum' 1`] = `"{"version": faker.helpers.arrayElement<any>(["A", "B", "C", 2])}"`;
+exports[`faker parse > 'objectEnum' 1`] = `"{"version": faker.helpers.arrayElement<NonNullable<undefined>['version']>(["A", "B", "C", 2])}"`;
 
 exports[`faker parse > 'objectOptional' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
 
@@ -72,11 +74,11 @@ exports[`faker parse > 'stringLocal' 1`] = `"faker.date.anytime().toISOString()"
 
 exports[`faker parse > 'stringOffset' 1`] = `"faker.date.anytime().toISOString()"`;
 
-exports[`faker parse > 'time' 1`] = `"faker.date.anytime().toString()"`;
+exports[`faker parse > 'time' 1`] = `"faker.date.anytime().toISOString().substring(11, 19)"`;
 
-exports[`faker parse > 'tuple' 1`] = `"faker.helpers.arrayElements([]) as any"`;
+exports[`faker parse > 'tuple' 1`] = `"[]"`;
 
-exports[`faker parse > 'tupleMulti' 1`] = `"faker.helpers.arrayElements([faker.string.alpha(), faker.number.float()]) as any"`;
+exports[`faker parse > 'tupleMulti' 1`] = `"[faker.string.alpha(), faker.number.float()]"`;
 
 exports[`faker parse > 'undefined' 1`] = `"undefined"`;
 

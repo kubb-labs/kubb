@@ -7,11 +7,13 @@ export default defineConfig([
     ...optionsCJS,
     entry: {
       index: 'src/index.ts',
-      transformers: 'src/transformers.ts',
+      transformers: 'src/transformers/index.ts',
       utils: 'src/utils/index.ts',
+      fs: 'src/fs/index.ts',
       logger: 'src/logger.ts',
       mocks: 'src/mocks/index.ts',
     },
+    noExternal: [/p-queue/, /find-up/, /natural-orderby/, /camelcase/],
   },
   {
     ...optionsESM,
@@ -19,9 +21,10 @@ export default defineConfig([
       index: 'src/index.ts',
       transformers: 'src/transformers/index.ts',
       utils: 'src/utils/index.ts',
+      fs: 'src/fs/index.ts',
       logger: 'src/logger.ts',
       mocks: 'src/mocks/index.ts',
     },
-    external: [/p-queue/, /find-up/, /camelcase/],
+    noExternal: [/natural-orderby/],
   },
 ])

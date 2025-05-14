@@ -6,14 +6,14 @@ import type { Schema as SchemaType } from '../SchemaMapper.ts'
 
 export type SchemaContextProps = {
   name: string
-  schema?: SchemaObject
+  schemaObject?: SchemaObject
   tree: Array<SchemaType>
 }
 
 type Props = {
   key?: Key
   name: string
-  value?: SchemaObject
+  schemaObject?: SchemaObject
   tree?: Array<SchemaType>
   children?: KubbNode
 }
@@ -23,8 +23,17 @@ const SchemaContext = createContext<SchemaContextProps>({
   tree: [],
 })
 
-export function Schema({ name, value, tree = [], children }: Props) {
-  return <SchemaContext.Provider value={{ name, schema: value, tree }}>{children}</SchemaContext.Provider>
+/**
+ * Provides schema-related context to descendant components.
+ *
+ * Wraps its children with a context containing the schema name, optional schema object, and an optional schema type tree.
+ *
+ * @param name - The name of the schema.
+ * @param schemaObject - The schema object to provide in context, if available.
+ * @param tree - An array representing the schema type hierarchy.
+ */
+export function Schema({ name, schemaObject, tree = [], children }: Props) {
+  return <SchemaContext.Provider value={{ name, schemaObject, tree }}>{children}</SchemaContext.Provider>
 }
 
 Schema.Context = SchemaContext

@@ -74,7 +74,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
         baseName={query.file.baseName}
         path={query.file.path}
         meta={query.file.meta}
-        banner={getBanner({ oas, output })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && (
@@ -134,7 +134,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
         {options.query && (
           <>
             <File.Import name={['createQuery']} path={importPath} />
-            <File.Import name={['QueryKey', 'CreateBaseQueryOptions', 'CreateQueryResult']} path={importPath} isTypeOnly />
+            <File.Import name={['QueryKey', 'QueryClient', 'CreateBaseQueryOptions', 'CreateQueryResult']} path={importPath} isTypeOnly />
             <Query
               name={query.name}
               queryOptionsName={queryOptions.name}

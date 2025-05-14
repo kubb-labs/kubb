@@ -1,12 +1,11 @@
 import seedrandom from 'seedrandom'
-import c, { createColors } from 'tinyrainbow'
+import { colors } from 'consola/utils'
 
 import { EventEmitter } from './utils/EventEmitter.ts'
 
 import { resolve } from 'node:path'
-import { write } from '@kubb/fs'
+import { write } from './fs/index.ts'
 import { type ConsolaInstance, type LogLevel, createConsola } from 'consola'
-import type { Formatter } from 'tinyrainbow'
 
 type DebugEvent = { date: Date; logs: string[]; fileName?: string }
 
@@ -74,11 +73,11 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
   })
 
   events.on('warning', (message) => {
-    consola.warn(c.yellow(message))
+    consola.warn(colors.yellow(message))
   })
 
   events.on('info', (message) => {
-    consola.info(c.yellow(message))
+    consola.info(colors.yellow(message))
   })
 
   events.on('debug', (message) => {
@@ -135,37 +134,25 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
   return logger
 }
 
-const defaultColours = ['black', 'blue', 'darkBlue', 'cyan', 'gray', 'green', 'darkGreen', 'magenta', 'red', 'darkRed', 'yellow', 'darkYellow'] as const
-
-export function randomColour(text?: string, colours = defaultColours): string {
+export function randomColour(text?: string): keyof typeof colors {
   if (!text) {
     return 'white'
   }
 
+  const defaultColours = ['black', 'red', 'green', 'yellow', 'blue', 'red', 'green', 'magenta', 'cyan', 'gray'] as const
+
   const random = seedrandom(text)
-  const colour = colours.at(Math.floor(random() * colours.length)) || 'white'
+  const colour = defaultColours.at(Math.floor(random() * defaultColours.length)) || 'white'
 
   return colour
 }
 
-export function randomCliColour(text?: string, colors = defaultColours): string {
-  const colours = createColors(true)
-
+export function randomCliColour(text?: string): string {
   if (!text) {
-    return colours.white(text)
+    return ''
   }
 
-  const colour = randomColour(text, colors)
-  const isDark = colour.includes('dark')
-  const key = colour.replace('dark', '').toLowerCase() as keyof typeof colours
-  const formatter: Formatter = colours[key] as Formatter
+  const colour = randomColour(text)
 
-  if (isDark) {
-    return c.bold(formatter(text))
-  }
-
-  if (typeof formatter !== 'function') {
-    throw new Error('Formatter for picoColor is not of type function/Formatter')
-  }
-  return formatter(text)
+  return colors[colour]?.(text)
 }

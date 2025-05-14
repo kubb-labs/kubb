@@ -5,11 +5,11 @@
   "description": "MSW PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-labs/kubb.git",
+    "url": "https://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/msw"
   },
   "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
   "scripts": {
@@ -33,7 +33,7 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@mswjs/http-middleware": "^0.9.2",
-    "msw": "^2.7.3",
+    "msw": "^2.8.2",
     "react": "^18.3.1",
     "tsup": "^8.4.0"
   },

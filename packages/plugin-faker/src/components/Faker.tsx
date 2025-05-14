@@ -37,20 +37,24 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
       .filter(Boolean),
   )
 
+  const isArray = fakerText.startsWith('faker.helpers.arrayElements') || fakerText.startsWith('faker.helpers.multiple')
+  const isObject = fakerText.startsWith('{')
+  const isTuple = fakerText.startsWith('faker.helpers.arrayElement')
+
   let fakerTextWithOverride = fakerText
 
-  if (canOverride && fakerText.startsWith('{')) {
+  if (canOverride && isObject) {
     fakerTextWithOverride = `{
   ...${fakerText},
   ...data || {}
 }`
   }
 
-  if (canOverride && fakerText.startsWith('faker.helpers.arrayElement')) {
+  if (canOverride && isTuple) {
     fakerTextWithOverride = `data || ${fakerText}`
   }
 
-  if ((canOverride && fakerText.startsWith('faker.helpers.arrayElements')) || fakerText.startsWith('faker.helpers.multiple')) {
+  if (canOverride && isArray) {
     fakerTextWithOverride = `[
       ...${fakerText},
       ...data || []
@@ -59,7 +63,8 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
 
   const params = FunctionParams.factory({
     data: {
-      type: `Partial<${typeName}>`,
+      // making a partial out of an array does not make sense
+      type: isArray ? typeName : `Partial<${typeName}>`,
       optional: true,
     },
   })

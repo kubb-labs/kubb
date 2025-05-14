@@ -23,7 +23,7 @@ export function loginUserQueryOptionsSWR({ params }: { params?: LoginUserQueryPa
 export function useLoginUserSWR(
   { params }: { params?: LoginUserQueryParams },
   options: {
-    query?: Parameters<typeof useSWR<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>, LoginUserQueryKeySWR | null, any>>[2]
+    query?: Parameters<typeof useSWR<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},

@@ -5,11 +5,11 @@
   "description": "SvelteQuery PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-labs/kubb.git",
+    "url": "https://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/svelte-query"
   },
   "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
   "scripts": {
@@ -28,8 +28,8 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/svelte-query": "5.62.7",
-    "axios": "^1.8.4",
-    "svelte": "^3.59.2",
+    "axios": "^1.9.0",
+    "svelte": "^4.2.19",
     "tsup": "^8.4.0"
   },
   "devDependencies": {

@@ -7,14 +7,12 @@ const props = defineProps(['allContributors'])
     <div class="content-container">
       <main class="main">
         <div class="vp-doc flex flex-col items-center mt-10">
-          <p align="center">
-            <h2 id="the-team op50 font-normal pt-5 pb-2">
-              Sponsors
-            </h2>
-            <a href="https://github.com/sponsors/stijnvanhulle">
-              <img style="max-height: 300px;" src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
-            </a>
-          </p>
+          <h2 id="the-team op50 font-normal pt-5 pb-2">
+            Sponsors
+          </h2>
+          <a href="https://github.com/sponsors/stijnvanhulle">
+            <img style="max-height: 300px;" src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
+          </a>
           <div class="action">
             <a
               class="fancy-sponsor"

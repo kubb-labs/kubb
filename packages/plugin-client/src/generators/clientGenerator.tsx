@@ -13,8 +13,9 @@ export const clientGenerator = createReactGenerator<PluginClient>({
   Operation({ options, operation }) {
     const {
       plugin: {
-        options: { output },
+        options: { output, urlType },
       },
+      pluginManager,
     } = useApp<PluginClient>()
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
@@ -44,7 +45,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
         baseName={client.file.baseName}
         path={client.file.path}
         meta={client.file.meta}
-        banner={getBanner({ oas, output })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import name={'client'} path={options.importPath} />
@@ -74,6 +75,8 @@ export const clientGenerator = createReactGenerator<PluginClient>({
           paramsType={options.paramsType}
           typeSchemas={type.schemas}
           operation={operation}
+          isIndexable={urlType === 'export'}
+          isExportable={urlType === 'export'}
         />
 
         <Client

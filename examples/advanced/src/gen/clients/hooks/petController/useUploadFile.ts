@@ -6,7 +6,7 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { uploadFile } from '../../axios/petService/uploadFile.ts'
 import { useMutation } from '@tanstack/react-query'
 
@@ -25,23 +25,27 @@ export function useUploadFile<TContext>(
       ResponseErrorConfig<Error>,
       { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
       TContext
-    >
+    > & { client?: QueryClient }
     client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? uploadFileMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? uploadFileMutationKey()
 
   return useMutation<
     ResponseConfig<UploadFileMutationResponse>,
     ResponseErrorConfig<Error>,
     { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
     TContext
-  >({
-    mutationFn: async ({ petId, data, params }) => {
-      return uploadFile({ petId, data, params }, config)
+  >(
+    {
+      mutationFn: async ({ petId, data, params }) => {
+        return uploadFile({ petId, data, params }, config)
+      },
+      mutationKey,
+      ...mutationOptions,
     },
-    mutationKey,
-    ...mutationOptions,
-  })
+    queryClient,
+  )
 }

@@ -1,6 +1,6 @@
 import type { Group, Output, Plugin } from '@kubb/core'
 import type { PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 
 import type { HttpMethod, Oas, Operation, SchemaObject, contentType } from '@kubb/oas'
 import type { Generator } from './generator.tsx'
@@ -142,10 +142,15 @@ type BySchemaName = {
   pattern: string | RegExp
 }
 
-export type Exclude = ByTag | ByOperationId | ByPath | ByMethod
-export type Include = ByTag | ByOperationId | ByPath | ByMethod
+type ByContentType = {
+  type: 'contentType'
+  pattern: string | RegExp
+}
 
-export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName) & {
+export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType
+export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType
+
+export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName | ByContentType) & {
   options: Partial<TOptions>
 }
 

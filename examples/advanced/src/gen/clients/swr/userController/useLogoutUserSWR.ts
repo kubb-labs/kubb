@@ -22,7 +22,7 @@ export function logoutUserQueryOptionsSWR(config: Partial<RequestConfig> & { cli
  */
 export function useLogoutUserSWR(
   options: {
-    query?: Parameters<typeof useSWR<ResponseConfig<LogoutUserQueryResponse>, ResponseErrorConfig<Error>, LogoutUserQueryKeySWR | null, any>>[2]
+    query?: Parameters<typeof useSWR<ResponseConfig<LogoutUserQueryResponse>, ResponseErrorConfig<Error>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},

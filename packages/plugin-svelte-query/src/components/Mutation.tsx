@@ -57,13 +57,13 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
         }
       : undefined,
   })
-  const TRequest = mutationParams.toConstructor({ valueAsType: true })
+  const TRequest = mutationParams.toConstructor()
 
   return FunctionParams.factory({
     options: {
       type: `
 {
-  mutation?: CreateMutationOptions<${[TData, TError, TRequest ? `{${TRequest}}` : 'void', 'TContext'].join(', ')}>,
+  mutation?: CreateMutationOptions<${[TData, TError, TRequest ? `{${TRequest}}` : 'void', 'TContext'].join(', ')}> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
 }
 `,
@@ -100,6 +100,7 @@ export function Mutation({
     paramsType,
     typeSchemas,
     pathParamsType,
+    isConfigurable: true,
   })
   const mutationParams = FunctionParams.factory({
     ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
@@ -140,7 +141,7 @@ export function Mutation({
     },
   })
 
-  const TRequest = mutationParams.toConstructor({ valueAsType: true })
+  const TRequest = mutationParams.toConstructor()
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
   const generics = [TData, TError, TRequest ? `{${TRequest}}` : 'void', 'TContext'].join(', ')
@@ -157,7 +158,8 @@ export function Mutation({
         generics={['TContext']}
       >
         {`
-        const { mutation: mutationOptions, client: config = {} } = options ?? {}
+        const { mutation = {}, client: config = {} } = options ?? {}
+        const { client: queryClient, ...mutationOptions } = mutation;
         const mutationKey = mutationOptions?.mutationKey ?? ${mutationKeyName}(${mutationKeyParams.toCall()})
 
         return createMutation<${generics}>({
@@ -166,7 +168,7 @@ export function Mutation({
           },
           mutationKey,
           ...mutationOptions
-        })
+        }, queryClient)
     `}
       </Function>
     </File.Source>

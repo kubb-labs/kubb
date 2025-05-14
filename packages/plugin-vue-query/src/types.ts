@@ -3,7 +3,6 @@ import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@ku
 import type { HttpMethod, Oas, Operation, contentType } from '@kubb/oas'
 import type { PluginClient } from '@kubb/plugin-client'
 import type { Exclude, Generator, Include, OperationSchemas, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { PluginReactQuery } from '@kubb/plugin-react-query'
 
 type TransformerProps = {
   operation: Operation
@@ -154,7 +153,7 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
-  client: Required<Omit<NonNullable<PluginReactQuery['options']['client']>, 'baseURL'>> & { baseURL?: string }
+  client: Required<Omit<NonNullable<PluginVueQuery['options']['client']>, 'baseURL'>> & { baseURL?: string }
   parser: Required<NonNullable<Options['parser']>>
   paramsCasing: Options['paramsCasing']
   paramsType: NonNullable<Options['paramsType']>

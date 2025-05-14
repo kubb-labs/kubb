@@ -73,7 +73,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
         baseName={mutation.file.baseName}
         path={mutation.file.path}
         meta={mutation.file.meta}
-        banner={getBanner({ oas, output })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && (
@@ -123,7 +123,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
         {options.mutation && (
           <>
             <File.Import name={['useMutation']} path={importPath} />
-            <File.Import name={['UseMutationOptions']} path={importPath} isTypeOnly />
+            <File.Import name={['UseMutationOptions', 'QueryClient']} path={importPath} isTypeOnly />
             <Mutation
               name={mutation.name}
               clientName={client.name}

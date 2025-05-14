@@ -1,8 +1,10 @@
-// import '@kubb/react/devtools' // enable/disable devtools
+//import '@kubb/react/devtools' // enable/disable devtools
+// can devtools and ui work together, default port for devtools are 8097
 
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
+import { pluginCypress } from '@kubb/plugin-cypress'
 import { pluginMsw } from '@kubb/plugin-msw'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
@@ -10,6 +12,7 @@ import { pluginRedoc } from '@kubb/plugin-redoc'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
+import { pluginMcp } from '@kubb/plugin-mcp'
 
 export default defineConfig(() => {
   return {
@@ -21,9 +24,10 @@ export default defineConfig(() => {
       path: './src/gen',
       clean: true,
       barrelType: 'named',
+      defaultBanner: false,
     },
     hooks: {
-      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --apply-unsafe ./src'],
+      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
     plugins: [
       pluginOas({
@@ -132,6 +136,7 @@ export default defineConfig(() => {
             pattern: 'store',
           },
         ],
+        parser: 'zod',
         group: { type: 'tag', name: ({ group }) => `${group}Service` },
         importPath: '../../../../axios-client.ts',
         operations: true,
@@ -139,6 +144,15 @@ export default defineConfig(() => {
         dataReturnType: 'full',
         paramsType: 'object',
         pathParamsType: 'object',
+        override: [
+          {
+            type: 'contentType',
+            pattern: 'multipart/form-data',
+            options: {
+              parser: 'client',
+            },
+          },
+        ],
       }),
       pluginZod({
         output: {
@@ -153,8 +167,24 @@ export default defineConfig(() => {
         group: { type: 'tag' },
         dateType: 'stringOffset',
         inferred: true,
-        typed: true,
+        // typed: true,
         operations: false,
+      }),
+      pluginMcp({
+        output: {
+          path: './mcp',
+          barrelType: false,
+        },
+        exclude: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+        group: { type: 'tag' },
+        client: {
+          baseURL: 'https://petstore.swagger.io/v2',
+        },
       }),
       pluginFaker({
         output: {
@@ -168,13 +198,20 @@ export default defineConfig(() => {
         ],
         group: { type: 'tag' },
         mapper: {
-          status: `faker.helpers.arrayElement(['working', 'idle']) as any`,
+          status: `faker.helpers.arrayElement<any>(['working', 'idle'])`,
         },
         transformers: {
           name(name, type) {
             return `${name}Faker`
           },
         },
+      }),
+      pluginCypress({
+        output: {
+          path: 'cypress',
+          barrelType: false,
+        },
+        group: { type: 'tag' },
       }),
       pluginMsw({
         output: {

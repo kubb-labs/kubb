@@ -9,6 +9,12 @@ export { createPetNotFoundFaker } from './createPetNotFoundFaker.ts'
 export { createUserArrayFaker } from './createUserArrayFaker.ts'
 export { createUserFaker } from './createUserFaker.ts'
 export {
+  createAddFiles200Faker,
+  createAddFiles405Faker,
+  createAddFilesMutationRequestFaker,
+  createAddFilesMutationResponseFaker,
+} from './petController/createAddFilesFaker.ts'
+export {
   createAddPet200Faker,
   createAddPet405Faker,
   createAddPetMutationRequestFaker,

@@ -5,11 +5,11 @@
   "description": "Zod PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-labs/kubb.git",
+    "url": "https://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/zod"
   },
   "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
   "scripts": {
@@ -28,8 +28,8 @@
     "@kubb/plugin-zod": "workspace:*",
     "react": "^18.3.1",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.2",
-    "zod": "^3.24.2"
+    "typescript": "^5.8.3",
+    "zod": "next"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

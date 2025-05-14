@@ -1,6 +1,6 @@
 import type client from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
+import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type {
   GetUserByNameQueryResponse,
   GetUserByNamePathParams,
@@ -48,18 +48,21 @@ export function useGetUserByName<
   options: {
     query?: Partial<
       QueryObserverOptions<ResponseConfig<GetUserByNameQueryResponse>, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>
-    >
+    > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { query: queryOptions, client: config = {} } = options ?? {}
+  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey({ username })
 
-  const query = useQuery({
-    ...(getUserByNameQueryOptions({ username }, config) as unknown as QueryObserverOptions),
-    queryKey,
-    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }
+  const query = useQuery(
+    {
+      ...(getUserByNameQueryOptions({ username }, config) as unknown as QueryObserverOptions),
+      queryKey,
+      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
+    },
+    queryClient,
+  ) as UseQueryResult<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

@@ -75,7 +75,7 @@ export function Root<Meta extends Record<string, unknown> = Record<string, unkno
         <RootContext.Provider value={{ meta, exit: onExit }}>{children}</RootContext.Provider>
       </ErrorBoundary>
     )
-  } catch (e) {
+  } catch (_e) {
     return null
   }
 }

@@ -4,12 +4,112 @@ title: Changelog
 
 # Changelog
 
-## 3.6.4
+# 3.10.12
+- [`plugin-oas`](/plugins/plugin-oas): allow multiple `discriminator.mapping` with the same $ref
+
+# 3.10.11
+- [`plugin-zod`](/plugins/plugin-zod): update parser to include latest v4 of Zod
+
+# 3.10.10
+- [`plugin-react-query`](/plugins/plugin-react-query/): resolve typescript error
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): resolve typescript error
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): resolve typescript error
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): resolve typescript error
+
+# 3.10.9
+- [`core`](/plugins/core): update packages
+
+# 3.10.8
+- [`plugin-oas`](/plugins/plugin-oas): Caching of oas
+
+# 3.10.7
+- [`core`](/plugins/core): better support for Windows
+
+# 3.10.6
+- [`plugin-oas`](/plugins/plugin-oas): Improve tuple type generation
+
+# 3.10.5
+- [`plugin-oas`](/plugins/plugin-oas): Rewrite schemas with multiple types
+- [`plugin-faker`](/plugins/plugin-faker): Fix types of enums nested in array
+
+# 3.10.4
+- [`plugin-mcp`](/plugins/plugin-mcp/): better use of MCP tools based on oas
+
+# 3.10.3
+- [`plugin-zod`](/plugins/plugin-zod): Better convert of `discriminator`
+
+# 3.10.2
+- [`plugin-react-query`](/plugins/plugin-react-query/): remove generic TQueryData when using suspense
+
+# 3.10.1
+- Update of internal libraries
+
+# 3.10.0
+- [`plugin-mcp`](/plugins/plugin-mcp/): create an [MCP](https://modelcontextprotocol.io) server based on your OpenAPI file and interact with an AI like Claude.
+
+- ![Claud interaction](/screenshots/claude-interaction.gif)
+
+# 3.9.5
+- [`plugin-ts`](/plugins/plugin-ts): openapi description tag is not put into the JSDoc
+
+# 3.9.4
+- [`plugin-swr`](/plugins/plugin-swr/): query type inferred as any when generating SWR hooks with useSWR
+
+# 3.9.3
+- [`plugin-ts`](/plugins/plugin-ts): nullable: true now generates | null union
+
+# 3.9.2
+- [`plugin-client`](/plugins/plugin-client): exclude baseURL when not set
+
+# 3.9.1
+- [`plugin-zod`](/plugins/plugin-zod): reduce any's being used
+- [`plugin-faker`](/plugins/plugin-faker): reduce any's being used
+
+## 3.9.0
+- [`core`](/plugins/core): add default banner feature to enhance generated file recognizability by [@akinoccc](https://github.com/akinoccc)
+
+## 3.8.1
+- [`plugin-zod`](/plugins/plugin-zod): support for Zod v4(beta)
+
+## 3.8.0
+- [`react`](/helpers/react/): Support for React 19 and expose `useState`, `useEffect`, `useRef` from `@kubb/react`
+
+## 3.7.7
+- [`plugin-oas`](/plugins/plugin-oas): support for contentType override/exclude/include
+
+## 3.7.6
+- [`plugin-client`](/plugins/plugin-client): Removing export of the url
+
+## 3.7.5
+- [`plugin-react-query`](/plugins/plugin-react-query/): support for custom QueryClient
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support for custom QueryClient
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): support for custom QueryClient
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): support for custom QueryClient
+
+## 3.7.4
+- [`plugin-redoc`](/plugins/plugin-redoc): setup redoc without React dependency
+
+## 3.7.3
+- [`plugin-zod`](/plugins/plugin-zod): fixed version for [`@hono/zod-openapi`](https://github.com/honojs/middleware/issues/1109)
+
+## 3.7.2
+- [`plugin-client`](/plugins/plugin-client): method should be optional for default fetch and axios client
+
+## 3.7.1
+- [`plugin-faker`](/plugins/plugin-faker/): Improve formatting of fake dates and times
+
+## 3.7.0
+- [`plugin-cypress`](/plugins/plugin-cypress): support for `cy.request` with new plugin `@kubb/plugin-cypress`
+
+## 3.6.5
 - [`plugin-react-query`](/plugins/plugin-react-query/): `TVariables` set to `void` as default
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): `TVariables` set to `void` as default
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): `TVariables` set to `void` as default
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): `TVariables` set to `void` as default
 - [`plugin-zod`](/plugins/plugin-zod): zod omit instead of `z.never`
+
+## 3.6.4
+- Update external packages
 
 ## 3.6.3
 - [`plugin-oas`](/plugins/plugin-oas): extra checks for empty values for properties of a discriminator type

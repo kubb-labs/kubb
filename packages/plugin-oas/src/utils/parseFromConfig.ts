@@ -19,7 +19,7 @@ export function parseFromConfig(config: Config, oasClass: typeof Oas = Oas): Pro
       const api: string = yaml.parse(config.input.data as string) as string
 
       return parse(api, oasClass)
-    } catch (e) {
+    } catch (_e) {
       /* empty */
     }
 

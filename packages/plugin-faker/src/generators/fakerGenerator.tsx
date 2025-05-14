@@ -31,8 +31,8 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       .flat()
       .filter(Boolean)
 
-    const mapOperationSchema = ({ name, schema, description, ...options }: OperationSchemaType, i: number) => {
-      const tree = schemaGenerator.parse({ schema, name })
+    const mapOperationSchema = ({ name, schema: schemaObject, description, ...options }: OperationSchemaType, i: number) => {
+      const tree = schemaGenerator.parse({ schemaObject, name })
       const imports = schemaManager.getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 
@@ -56,7 +56,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       )
 
       return (
-        <Oas.Schema key={i} name={name} value={schema} tree={tree}>
+        <Oas.Schema key={i} name={name} schemaObject={schemaObject} tree={tree}>
           {canOverride && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
           {imports.map((imp, index) => (
             <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />
@@ -81,7 +81,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output })}
+        banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         <File.Import name={['faker']} path="@faker-js/faker" />
@@ -96,6 +96,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
 
     const { getName, getFile, getImports } = useSchemaManager()
     const {
+      pluginManager,
       plugin: {
         options: { output },
       },
@@ -127,7 +128,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         baseName={faker.file.baseName}
         path={faker.file.path}
         meta={faker.file.meta}
-        banner={getBanner({ oas, output })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import name={['faker']} path="@faker-js/faker" />

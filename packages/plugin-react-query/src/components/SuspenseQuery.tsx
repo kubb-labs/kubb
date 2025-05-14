@@ -65,7 +65,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       options: {
         type: `
 {
-  query?: Partial<UseSuspenseQueryOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>>,
+  query?: Partial<UseSuspenseQueryOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
 }
 `,
@@ -103,7 +103,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
     options: {
       type: `
 {
-  query?: Partial<UseSuspenseQueryOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>>,
+  query?: Partial<UseSuspenseQueryOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
 }
 `,
@@ -112,6 +112,13 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
   })
 }
 
+/**
+ * Generates a strongly-typed React Query Suspense hook function for an OpenAPI operation.
+ *
+ * The generated function wraps `useSuspenseQuery`, providing type-safe parameters and return types based on the supplied OpenAPI schemas and configuration.
+ *
+ * @returns A React component source node containing the generated query function.
+ */
 export function SuspenseQuery({
   name,
   queryKeyTypeName,
@@ -127,7 +134,7 @@ export function SuspenseQuery({
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
   const returnType = `UseSuspenseQueryResult<${['TData', TError].join(', ')}> & { queryKey: TQueryKey }`
-  const generics = [`TData = ${TData}`, `TQueryData = ${TData}`, `TQueryKey extends QueryKey = ${queryKeyTypeName}`]
+  const generics = [`TData = ${TData}`, `TQueryKey extends QueryKey = ${queryKeyTypeName}`]
 
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,
@@ -162,14 +169,14 @@ export function SuspenseQuery({
         }}
       >
         {`
-       const { query: queryOptions, client: config = {} } = options ?? {}
+       const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
        const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
 
        const query = useSuspenseQuery({
         ...${queryOptions},
         queryKey,
         ...queryOptions as unknown as Omit<UseSuspenseQueryOptions, "queryKey">
-       }) as ${returnType}
+       }, queryClient) as ${returnType}
 
        query.queryKey = queryKey as TQueryKey
 

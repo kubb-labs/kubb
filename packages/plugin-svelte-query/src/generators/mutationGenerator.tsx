@@ -73,7 +73,7 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
         baseName={mutation.file.baseName}
         path={mutation.file.path}
         meta={mutation.file.meta}
-        banner={getBanner({ oas, output })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && (
@@ -122,7 +122,7 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
         {options.mutation && (
           <>
             <File.Import name={['createMutation']} path={importPath} />
-            <File.Import name={['CreateMutationOptions', 'CreateMutationResult']} path={importPath} isTypeOnly />
+            <File.Import name={['CreateMutationOptions', 'CreateMutationResult', 'QueryClient']} path={importPath} isTypeOnly />
             <Mutation
               name={mutation.name}
               clientName={client.name}

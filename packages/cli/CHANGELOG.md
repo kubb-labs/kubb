@@ -1,5 +1,234 @@
 # @kubb/cli
 
+## 3.10.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.11
+  - @kubb/ui@3.10.11
+
+## 3.10.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.10
+  - @kubb/ui@3.10.10
+
+## 3.10.9
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.9
+  - @kubb/ui@3.10.9
+
+## 3.10.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.8
+  - @kubb/ui@3.10.8
+
+## 3.10.7
+
+### Patch Changes
+
+- Updated dependencies [[`f7d5447`](https://github.com/kubb-labs/kubb/commit/f7d54477b8d504a8f5237b70ff7978699556500f)]:
+  - @kubb/core@3.10.7
+  - @kubb/ui@3.10.7
+
+## 3.10.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.6
+  - @kubb/ui@3.10.6
+
+## 3.10.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.5
+  - @kubb/ui@3.10.5
+
+## 3.10.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.4
+  - @kubb/ui@3.10.4
+
+## 3.10.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.3
+  - @kubb/ui@3.10.3
+
+## 3.10.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.2
+  - @kubb/ui@3.10.2
+
+## 3.10.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.1
+  - @kubb/ui@3.10.1
+
+## 3.10.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.0
+  - @kubb/ui@3.10.0
+
+## 3.9.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.9.5
+  - @kubb/ui@3.9.5
+
+## 3.9.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.9.4
+  - @kubb/ui@3.9.4
+
+## 3.9.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.9.3
+  - @kubb/ui@3.9.3
+
+## 3.9.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.9.2
+  - @kubb/ui@3.9.2
+
+## 3.9.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.9.1
+  - @kubb/ui@3.9.1
+
+## 3.9.0
+
+### Patch Changes
+
+- Updated dependencies [[`f8cfede`](https://github.com/kubb-labs/kubb/commit/f8cfedee78bb3ff81ba0dcc8e68dc9172913dbe0)]:
+  - @kubb/core@3.9.0
+  - @kubb/ui@3.9.0
+
+## 3.8.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.8.1
+  - @kubb/ui@3.8.1
+
+## 3.8.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.8.0
+  - @kubb/ui@3.8.0
+
+## 3.7.7
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.7.7
+  - @kubb/ui@3.7.7
+
+## 3.7.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.7.6
+  - @kubb/ui@3.7.6
+
+## 3.7.5
+
+### Patch Changes
+
+- Updated dependencies [[`de65de0`](https://github.com/kubb-labs/kubb/commit/de65de0f11faca9733f340b43875d7c72e048948)]:
+  - @kubb/ui@3.7.5
+  - @kubb/core@3.7.5
+
+## 3.7.4
+
+### Patch Changes
+
+- Updated dependencies [[`ba45f4b`](https://github.com/kubb-labs/kubb/commit/ba45f4b23fb33a9eb549cd8f3aeacff35aca9d31)]:
+  - @kubb/ui@3.7.4
+  - @kubb/core@3.7.4
+
+## 3.7.3
+
+### Patch Changes
+
+- Updated dependencies [[`c7727b1`](https://github.com/kubb-labs/kubb/commit/c7727b17ca7613a2d97d1caec238029f74c030e8)]:
+  - @kubb/ui@3.7.3
+  - @kubb/core@3.7.3
+
+## 3.7.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.7.2
+  - @kubb/ui@3.7.2
+
+## 3.7.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.7.1
+
+## 3.7.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.7.0
+
+## 3.6.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.6.5
+
 ## 3.6.4
 
 ### Patch Changes

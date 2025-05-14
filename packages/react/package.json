@@ -1,6 +1,6 @@
 {
   "name": "@kubb/react",
-  "version": "3.6.4",
+  "version": "3.10.11",
   "description": "Generator react",
   "keywords": [
     "typescript",
@@ -10,12 +10,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-labs/kubb.git",
+    "url": "https://github.com/kubb-labs/kubb.git",
     "directory": "packages/react"
   },
   "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
-  "sideEffects": false,
+  "author": "stijnvanhulle",
+  "sideEffects": [
+    "./src/globals.ts"
+  ],
   "type": "module",
   "exports": {
     ".": {
@@ -72,7 +74,7 @@
     "build": "tsup",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint --apply-unsafe .",
+    "lint:fix": "bun biome lint--fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
     "start": "tsup --watch",
@@ -83,23 +85,22 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/fs": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
-    "execa": "^9.5.2",
-    "natural-orderby": "^4.0.0",
-    "react": "catalog:react18",
+    "execa": "^9.5.3",
+    "natural-orderby": "^5.0.0",
+    "react": "catalog:react19",
     "react-devtools-core": "^5.3.2",
-    "react-reconciler": "catalog:react18",
+    "react-reconciler": "catalog:react19",
     "signal-exit": "^4.1.0",
-    "ws": "^8.18.1"
+    "ws": "^8.18.2"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "catalog:react18",
-    "@types/react-reconciler": "catalog:react18",
+    "@types/react": "catalog:react19",
+    "@types/react-reconciler": "catalog:react19",
     "@types/signal-exit": "^3.0.4",
-    "@types/ws": "^8.18.0",
+    "@types/ws": "^8.18.1",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },

@@ -1,6 +1,6 @@
 # Based on Bun's template
 
-name: 🐛 Bug Report
+name: Bug Report
 description: Report an issue that should be fixed
 labels: [bug]
 body:
@@ -22,7 +22,7 @@ body:
       description: MacOS, Windows, Linux.
   - type: textarea
     attributes:
-      label: How does your `kubb.config.ts` config look like
+      label: Your `kubb.config.ts` config file?
       description: Copy-paste your Kubb config
       render: typescript
   - type: textarea
@@ -42,9 +42,9 @@ body:
         Explain the bug and provide a code snippet that can reproduce it.
          Please add a link to a minimal reproduction.
         Note:
-        - Your bug may get fixed much faster if we can run your code and it doesn't have dependencies other than React/Solid/Vue/Svelte.
-        - To create a shareable code example for web, you can use CodeSandbox (https://codesandbox.io/s/new) or Stackblitz (https://stackblitz.com/).
-        - For TypeScript related issues only, a TypeScript Playground link might be sufficient: https://www.typescriptlang.org/play
+        - Your bug may get fixed much faster if we can run your code, and it doesn't have dependencies other than React/Solid/Vue/Svelte.
+        - To create a shareable code example, use CodeSandbox (https://codesandbox.io/s/new) or Stackblitz (https://stackblitz.com/).
+        - For TypeScript-related issues only, a TypeScript Playground link might be sufficient: https://www.typescriptlang.org/play
         - Please read these tips for providing a minimal example: https://stackoverflow.com/help/mcve
     validations:
       required: true
@@ -60,7 +60,7 @@ body:
         - Only once
   - type: textarea
     attributes:
-      label: What is the expected behavior?
+      label: What is the expected behaviour?
       description: If possible, please provide text instead of a screenshot.
   - type: textarea
     attributes:

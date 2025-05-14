@@ -1,9 +1,7 @@
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import type { PluginReactQuery } from '@kubb/plugin-react-query'
+import { File, Function, FunctionParams } from '@kubb/react'
 import type { ReactNode } from 'react'
 import type { PluginVueQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
@@ -19,14 +17,14 @@ type Props = {
   queryKeyTypeName: string
   typeSchemas: OperationSchemas
   operation: Operation
-  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
 }
 
 type GetParamsProps = {
-  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
+  paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginVueQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginVueQuery['resolvedOptions']['client']['dataReturnType']
@@ -75,7 +73,7 @@ function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, t
       options: {
         type: `
 {
-  query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
 }
 `,
@@ -120,7 +118,7 @@ function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, t
     options: {
       type: `
 {
-  query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>>,
+  query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
 }
 `,
@@ -179,14 +177,14 @@ export function Query({
         }}
       >
         {`
-       const { query: queryOptions, client: config = {} } = options ?? {}
+       const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
        const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
 
        const query = useQuery({
         ...${queryOptions},
         queryKey: queryKey as QueryKey,
         ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
-       }) as ${returnType}
+       }, queryClient) as ${returnType}
 
        query.queryKey = queryKey as TQueryKey
 

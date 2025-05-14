@@ -1,8 +1,12 @@
 import transformers from '@kubb/core/transformers'
 import type { SchemaObject } from '@kubb/oas'
-import { type SchemaKeywordMapper, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
+import { SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
+import { PackageManager } from '@kubb/core'
+
+const packageManager = new PackageManager()
+const isV4 = () => packageManager.isValidSync('zod', '>=4') || packageManager.isValidSync('zod', 'next')
 
 const zodKeywordMapper = {
   any: () => 'z.any()',
@@ -15,14 +19,36 @@ const zodKeywordMapper = {
   },
   integer: (coercion?: boolean, min?: number, max?: number) => {
     return [
-      coercion ? 'z.coerce.number().int()' : 'z.number().int()',
+      coercion ? 'z.coerce.number().int()' : isV4() ? 'z.int()' : 'z.number().int()',
       min !== undefined ? `.min(${min})` : undefined,
       max !== undefined ? `.max(${max})` : undefined,
     ]
       .filter(Boolean)
       .join('')
   },
-  object: (value?: string) => {
+  interface: (value?: string, strict?: boolean) => {
+    if (strict) {
+      return `z.strictInterface({
+    ${value}
+    })`
+    }
+    return `z.interface({
+    ${value}
+    })`
+  },
+  object: (value?: string, strict?: boolean) => {
+    if (isV4() && strict) {
+      return `z.strictObject({
+    ${value}
+    })`
+    }
+
+    if (strict) {
+      return `z.object({
+    ${value}
+    }).strict()`
+    }
+
     return `z.object({
     ${value}
     })`
@@ -32,6 +58,7 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
+  //support for discriminatedUnion
   boolean: () => 'z.boolean()',
   undefined: () => 'z.undefined()',
   nullable: () => '.nullable()',
@@ -56,11 +83,11 @@ const zodKeywordMapper = {
    */
   datetime: (offset = false, local = false) => {
     if (offset) {
-      return `z.string().datetime({ offset: ${offset} })`
+      return isV4() ? `z.iso.datetime({ offset: ${offset} })` : `z.string().datetime({ offset: ${offset} })`
     }
 
     if (local) {
-      return `z.string().datetime({ local: ${local} })`
+      return isV4() ? `z.iso.datetime({ local: ${local} })` : `z.string().datetime({ local: ${local} })`
     }
 
     return 'z.string().datetime()'
@@ -72,7 +99,7 @@ const zodKeywordMapper = {
    */
   date: (type: 'date' | 'string' = 'string', coercion?: boolean) => {
     if (type === 'string') {
-      return 'z.string().date()'
+      return isV4() ? 'z.iso.date()' : 'z.string().date()'
     }
 
     if (coercion) {
@@ -88,7 +115,7 @@ const zodKeywordMapper = {
    */
   time: (type: 'date' | 'string' = 'string', coercion?: boolean) => {
     if (type === 'string') {
-      return 'z.string().time()'
+      return isV4() ? 'z.iso.time()' : 'z.string().time()'
     }
 
     if (coercion) {
@@ -97,9 +124,8 @@ const zodKeywordMapper = {
 
     return 'z.date()'
   },
-  uuid: (coercion?: boolean) => (coercion ? 'z.coerce.string().uuid()' : 'z.string().uuid()'),
-  url: (coercion?: boolean) => (coercion ? 'z.coerce.string().url()' : 'z.string().url()'),
-  strict: () => '.strict()',
+  uuid: (coercion?: boolean) => (isV4() ? (coercion ? 'z.coerce.string().uuid()' : 'z.uuid()') : coercion ? 'z.coerce.string().uuid()' : 'z.string().uuid()'),
+  url: (coercion?: boolean) => (isV4() ? (coercion ? 'z.coerce.string().url()' : 'z.url()') : coercion ? 'z.coerce.string().url()' : 'z.string().url()'),
   default: (value?: string | number | true | object) => {
     if (typeof value === 'object') {
       return '.default({})'
@@ -112,7 +138,8 @@ const zodKeywordMapper = {
   max: (value?: number) => `.max(${value ?? ''})`,
   optional: () => '.optional()',
   matches: (value = '', coercion?: boolean) => (coercion ? `z.coerce.string().regex(${value})` : `z.string().regex(${value})`),
-  email: (coercion?: boolean) => (coercion ? 'z.coerce.string().email()' : 'z.string().email()'),
+  email: (coercion?: boolean) =>
+    isV4() ? (coercion ? 'z.coerce.string().email()' : 'z.email()') : coercion ? 'z.coerce.string().email()' : 'z.string().email()',
   firstName: undefined,
   lastName: undefined,
   password: undefined,
@@ -124,7 +151,7 @@ const zodKeywordMapper = {
       return undefined
     }
 
-    return `z.lazy(() => ${value})`
+    return isV4() ? value : `z.lazy(() => ${value})`
   },
   blob: () => 'z.instanceof(File)',
   deprecated: undefined,
@@ -194,7 +221,7 @@ type ParserOptions = {
   rawSchema: SchemaObject
 }
 
-export function parse({ parent, current, siblings }: SchemaTree, options: ParserOptions): string | undefined {
+export function parse({ parent, current, name, siblings }: SchemaTree, options: ParserOptions): string | undefined {
   const value = zodKeywordMapper[current.keyword as keyof typeof zodKeywordMapper]
 
   if (!value) {
@@ -204,7 +231,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
   if (isKeyword(current, schemaKeywords.union)) {
     // zod union type needs at least 2 items
     if (Array.isArray(current.args) && current.args.length === 1) {
-      return parse({ parent, current: current.args[0] as Schema, siblings }, options)
+      return parse({ parent, name: name, current: current.args[0] as Schema, siblings }, options)
     }
     if (Array.isArray(current.args) && !current.args.length) {
       return ''
@@ -212,7 +239,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
 
     return zodKeywordMapper.union(
       sort(current.args)
-        .map((schema, _index, siblings) => parse({ parent: current, current: schema, siblings }, options))
+        .map((schema, _index, siblings) => parse({ parent: current, name: name, current: schema, siblings }, options))
         .filter(Boolean),
     )
   }
@@ -222,7 +249,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
       .filter((schema: Schema) => {
         return ![schemaKeywords.optional, schemaKeywords.describe].includes(schema.keyword as typeof schemaKeywords.describe)
       })
-      .map((schema: Schema, _index, siblings) => parse({ parent: current, current: schema, siblings }, options))
+      .map((schema: Schema, _index, siblings) => parse({ parent: current, name: name, current: schema, siblings }, options))
       .filter(Boolean)
 
     return `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1))}`
@@ -231,7 +258,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
   if (isKeyword(current, schemaKeywords.array)) {
     return zodKeywordMapper.array(
       sort(current.args.items)
-        .map((schemas, _index, siblings) => parse({ parent: current, current: schemas, siblings }, options))
+        .map((schemas, _index, siblings) => parse({ parent: current, name: name, current: schemas, siblings }, options))
         .filter(Boolean),
       current.args.min,
       current.args.max,
@@ -246,7 +273,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
           keyword: schemaKeywords.const,
           args: current.args.items[0],
         }
-        return parse({ parent: current, current: child, siblings: [child] }, options)
+        return parse({ parent: current, name: name, current: child, siblings: [child] }, options)
       }
 
       return zodKeywordMapper.union(
@@ -256,7 +283,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
             args: schema,
           }))
           .map((schema, _index, siblings) => {
-            return parse({ parent: current, current: schema, siblings }, options)
+            return parse({ parent: current, name: name, current: schema, siblings }, options)
           })
           .filter(Boolean),
       )
@@ -281,11 +308,12 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
   }
 
   if (isKeyword(current, schemaKeywords.object)) {
-    const properties = Object.entries(current.args?.properties || {})
-      .filter((item) => {
-        const schema = item[1]
-        return schema && typeof schema.map === 'function'
-      })
+    const propertyEntries = Object.entries(current.args?.properties || {}).filter((item) => {
+      const schema = item[1]
+      return schema && typeof schema.map === 'function'
+    })
+
+    const properties = propertyEntries
       .map(([name, schemas]) => {
         const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
         const mappedName = nameSchema?.args || name
@@ -296,24 +324,33 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
         }
 
         const baseSchemaOutput = sort(schemas)
-          .map((schema) => parse({ parent: current, current: schema, siblings: schemas }, options))
+          .map((schema) => parse({ parent: current, name, current: schema, siblings: schemas }, options))
           .filter(Boolean)
           .join('')
 
-        return `"${name}": ${options.wrapOutput ? options.wrapOutput({ output: baseSchemaOutput, schema: options.rawSchema?.properties?.[name] }) || baseSchemaOutput : baseSchemaOutput}`
+        const objectValue = options.wrapOutput
+          ? options.wrapOutput({ output: baseSchemaOutput, schema: options.rawSchema?.properties?.[name] }) || baseSchemaOutput
+          : baseSchemaOutput
+
+        if (isV4() && SchemaGenerator.find(schemas, schemaKeywords.ref)) {
+          return `get ${name}(){
+                return ${objectValue}
+              }`
+        }
+
+        return `"${name}": ${objectValue}`
       })
       .join(',\n')
 
     const additionalProperties = current.args?.additionalProperties?.length
       ? current.args.additionalProperties
-          .map((schema, _index, siblings) => parse({ parent: current, current: schema, siblings }, options))
+          .map((schema, _index, siblings) => parse({ parent: current, name: name, current: schema, siblings }, options))
           .filter(Boolean)
           .join('')
       : undefined
 
     const text = [
-      zodKeywordMapper.object(properties),
-      current.args?.strict ? zodKeywordMapper.strict() : undefined,
+      zodKeywordMapper.object(properties, current.args?.strict),
       additionalProperties ? zodKeywordMapper.catchall(additionalProperties) : undefined,
     ].filter(Boolean)
 
@@ -322,7 +359,7 @@ export function parse({ parent, current, siblings }: SchemaTree, options: Parser
 
   if (isKeyword(current, schemaKeywords.tuple)) {
     return zodKeywordMapper.tuple(
-      current.args.items.map((schema, _index, siblings) => parse({ parent: current, current: schema, siblings }, options)).filter(Boolean),
+      current.args.items.map((schema, _index, siblings) => parse({ parent: current, name: name, current: schema, siblings }, options)).filter(Boolean),
     )
   }
 

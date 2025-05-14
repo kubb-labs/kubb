@@ -32,9 +32,7 @@ export function findPetsByTagsQueryOptionsSWR(
 export function useFindPetsByTagsSWR(
   { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   options: {
-    query?: Parameters<
-      typeof useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryKeySWR | null, any>
-    >[2]
+    query?: Parameters<typeof useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof client }
     shouldFetch?: boolean
   } = {},

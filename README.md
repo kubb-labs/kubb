@@ -7,6 +7,7 @@
 [![Coverage][coverage-src]][coverage-href]
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
+[![smithery badge](https://smithery.ai/badge/@kubb-labs/kubb)](https://smithery.ai/server/@kubb-labs/kubb)
 
 <h4>
     <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main//examples/typescript" target="_blank">View Demo</a>
@@ -81,6 +82,13 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/VasekProchazka"><img src="https://avatars.githubusercontent.com/u/13906845?v=4?s=100" width="100px;" alt="Václav Procházka"/><br /><sub><b>Václav Procházka</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=VasekProchazka" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://codx.dev"><img src="https://avatars.githubusercontent.com/u/59735735?v=4?s=100" width="100px;" alt="Luiz Bett"/><br /><sub><b>Luiz Bett</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=heyBett" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/lambdank"><img src="https://avatars.githubusercontent.com/u/5475129?v=4?s=100" width="100px;" alt="Sebastian Andersen"/><br /><sub><b>Sebastian Andersen</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=lambdank" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://akino.icu"><img src="https://avatars.githubusercontent.com/u/64176534?v=4?s=100" width="100px;" alt="Akino"/><br /><sub><b>Akino</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=akinoccc" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/rmachado-studocu"><img src="https://avatars.githubusercontent.com/u/89906313?v=4?s=100" width="100px;" alt="Ricardo Machado"/><br /><sub><b>Ricardo Machado</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=rmachado-studocu" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://simonelnahas.com"><img src="https://avatars.githubusercontent.com/u/29279201?v=4?s=100" width="100px;" alt="Simon El Nahas"/><br /><sub><b>Simon El Nahas</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=simonelnahas" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/maartenvansambeek"><img src="https://avatars.githubusercontent.com/u/91739524?v=4?s=100" width="100px;" alt="maartenvansambeek"/><br /><sub><b>maartenvansambeek</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=maartenvansambeek" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://sdufresne.info"><img src="https://avatars.githubusercontent.com/u/583851?v=4?s=100" width="100px;" alt="Stefan du Fresne"/><br /><sub><b>Stefan du Fresne</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=SCdF" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

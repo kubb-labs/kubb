@@ -6,10 +6,10 @@ import { type OperationSchema as OperationSchemaType, type OperationSchemas, Sch
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
-import { pluginTsName } from '@kubb/plugin-ts'
 import { File, useApp } from '@kubb/react'
 import type ts from 'typescript'
 import { Type } from '../components'
+import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types'
 
 function printCombinedSchema({ name, schemas, pluginManager }: { name: string; schemas: OperationSchemas; pluginManager: PluginManager }): string {
@@ -128,8 +128,8 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       .flat()
       .filter(Boolean)
 
-    const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
-      const tree = schemaGenerator.parse({ schema, name })
+    const mapOperationSchema = ({ name, schema: schemaObject, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
+      const tree = schemaGenerator.parse({ schemaObject, name })
       const imports = schemaManager.getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 
@@ -140,14 +140,14 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       }
 
       return (
-        <Oas.Schema key={i} name={name} value={schema} tree={tree}>
+        <Oas.Schema key={i} name={name} schemaObject={schemaObject} tree={tree}>
           {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={file.path} path={imp.path} name={imp.name} isTypeOnly />)}
           <Type
             name={type.name}
             typedName={type.typedName}
             description={description}
             tree={tree}
-            schema={schema}
+            schema={schemaObject}
             mapper={mapper}
             enumType={enumType}
             optionalType={optionalType}
@@ -163,7 +163,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output })}
+        banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         {operationSchemas.map(mapOperationSchema)}
@@ -181,6 +181,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       plugin: {
         options: { output },
       },
+      pluginManager,
     } = useApp<PluginTs>()
     const oas = useOas()
 
@@ -198,7 +199,13 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     }
 
     return (
-      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta} banner={getBanner({ oas, output })} footer={getFooter({ oas, output })}>
+      <File
+        baseName={type.file.baseName}
+        path={type.file.path}
+        meta={type.file.meta}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
+        footer={getFooter({ oas, output })}
+      >
         {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />)}
         <Type
           name={type.name}

@@ -1,4 +1,4 @@
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from '@kubb/core/fs'
 
 export type SchemaKeywordMapper = {
   object: {
@@ -9,7 +9,6 @@ export type SchemaKeywordMapper = {
       strict?: boolean
     }
   }
-  strict: { keyword: 'strict' }
   url: { keyword: 'url' }
   readOnly: { keyword: 'readOnly' }
   writeOnly: { keyword: 'writeOnly' }
@@ -22,7 +21,7 @@ export type SchemaKeywordMapper = {
   date: { keyword: 'date'; args: { type?: 'date' | 'string' } }
   time: { keyword: 'time'; args: { type?: 'date' | 'string' } }
   datetime: { keyword: 'datetime'; args: { offset?: boolean; local?: boolean } }
-  tuple: { keyword: 'tuple'; args: { items: Schema[]; min?: number; max?: number } }
+  tuple: { keyword: 'tuple'; args: { items: Schema[]; min?: number; max?: number; rest?: Schema } }
   array: {
     keyword: 'array'
     args: { items: Schema[]; min?: number; max?: number; unique?: boolean }
@@ -54,6 +53,7 @@ export type SchemaKeywordMapper = {
     keyword: 'ref'
     args: {
       name: string
+      $ref: string
       /**
        * Full qualified path.
        */
@@ -88,11 +88,11 @@ export type SchemaKeywordMapper = {
   schema: { keyword: 'schema'; args: { type: 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object'; format?: string } }
   name: { keyword: 'name'; args: string }
   catchall: { keyword: 'catchall' }
+  interface: { keyword: 'interface' }
 }
 
 export const schemaKeywords = {
   any: 'any',
-  strict: 'strict',
   unknown: 'unknown',
   number: 'number',
   integer: 'integer',
@@ -138,6 +138,7 @@ export const schemaKeywords = {
   catchall: 'catchall',
   time: 'time',
   name: 'name',
+  interface: 'interface',
 } satisfies {
   [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword']
 }
@@ -159,6 +160,10 @@ export type SchemaTree = {
   parent: Schema | undefined
   current: Schema
   siblings: Schema[]
+  /**
+   * this will be equal to the key of a property(object)
+   */
+  name?: string
 }
 
 export function isKeyword<T extends Schema, K extends keyof SchemaKeywordMapper>(meta: T, keyword: K): meta is Extract<T, SchemaKeywordMapper[K]> {

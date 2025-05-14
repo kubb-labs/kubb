@@ -19,10 +19,8 @@ export function createCreateUsersWithListInputErrorFaker() {
   return undefined
 }
 
-export function createCreateUsersWithListInputMutationRequestFaker(
-  data?: Partial<CreateUsersWithListInputMutationRequest>,
-): CreateUsersWithListInputMutationRequest {
-  return [...(faker.helpers.multiple(() => createUserFaker()) as any), ...(data || [])]
+export function createCreateUsersWithListInputMutationRequestFaker(data?: CreateUsersWithListInputMutationRequest): CreateUsersWithListInputMutationRequest {
+  return [...faker.helpers.multiple(() => createUserFaker()), ...(data || [])]
 }
 
 export function createCreateUsersWithListInputMutationResponseFaker(

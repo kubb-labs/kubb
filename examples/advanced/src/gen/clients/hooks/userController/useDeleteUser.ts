@@ -1,7 +1,7 @@
 import type client from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { deleteUser } from '../../axios/userService/deleteUser.ts'
 import { useMutation } from '@tanstack/react-query'
 
@@ -21,23 +21,27 @@ export function useDeleteUser<TContext>(
       ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
       { username: DeleteUserPathParams['username'] },
       TContext
-    >
+    > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? deleteUserMutationKey()
 
   return useMutation<
     ResponseConfig<DeleteUserMutationResponse>,
     ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
     { username: DeleteUserPathParams['username'] },
     TContext
-  >({
-    mutationFn: async ({ username }) => {
-      return deleteUser({ username }, config)
+  >(
+    {
+      mutationFn: async ({ username }) => {
+        return deleteUser({ username }, config)
+      },
+      mutationKey,
+      ...mutationOptions,
     },
-    mutationKey,
-    ...mutationOptions,
-  })
+    queryClient,
+  )
 }

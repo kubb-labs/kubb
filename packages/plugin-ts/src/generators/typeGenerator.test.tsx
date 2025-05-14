@@ -1,7 +1,6 @@
-import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
-
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
@@ -343,19 +342,38 @@ describe('typeGenerator schema', async () => {
       path: 'Demo',
       options: {},
     },
+    // https://github.com/kubb-labs/kubb/issues/1669
     {
-      name: 'PetsStoreDiscriminator',
+      name: 'CatDogDiscriminator',
       input: '../../mocks/discriminator.yaml',
-      path: 'Petstore',
+      path: 'CatDog',
       options: {
         enumType: 'asConst',
         optionalType: 'questionToken',
       },
     },
+    // https://github.com/kubb-labs/kubb/issues/1669
+    {
+      name: 'CatDogDiscriminatorWithoutMapping',
+      input: '../../mocks/discriminator.yaml',
+      path: 'CatDogWithoutMapping',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    // https://github.com/kubb-labs/kubb/issues/1669
     {
       name: 'PetsStoreAdvancedDiscriminator',
       input: '../../mocks/discriminator.yaml',
       path: 'Advanced',
+      options: {},
+    },
+    // https://github.com/kubb-labs/kubb/issues/1669
+    {
+      name: 'PetsStoreNotifcationDiscriminator',
+      input: '../../mocks/discriminator.yaml',
+      path: 'Notification',
       options: {},
     },
   ] as const satisfies Array<{
@@ -402,7 +420,7 @@ describe('typeGenerator schema', async () => {
     const schemas = getSchemas({ oas })
     const name = props.path
     const schema = schemas[name]!
-    const tree = instance.parse({ schema, name })
+    const tree = instance.parse({ schemaObject: schema, name })
 
     const files = await typeGenerator.schema?.({
       schema: {

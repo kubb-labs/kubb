@@ -1,5 +1,67 @@
 # @kubb/parser-ts
 
+## 3.10.11
+
+## 3.10.10
+
+## 3.10.9
+
+## 3.10.8
+
+## 3.10.7
+
+## 3.10.6
+
+### Patch Changes
+
+- [#1701](https://github.com/kubb-labs/kubb/pull/1701) [`7be571a`](https://github.com/kubb-labs/kubb/commit/7be571aa4ceffb2e18dff1e81b81efa37fef0cc3) Thanks [@maartenvansambeek](https://github.com/maartenvansambeek)! - Tuple types now support optional members.
+
+## 3.10.5
+
+## 3.10.4
+
+## 3.10.3
+
+## 3.10.2
+
+## 3.10.1
+
+## 3.10.0
+
+## 3.9.5
+
+## 3.9.4
+
+## 3.9.3
+
+## 3.9.2
+
+## 3.9.1
+
+## 3.9.0
+
+## 3.8.1
+
+## 3.8.0
+
+## 3.7.7
+
+## 3.7.6
+
+## 3.7.5
+
+## 3.7.4
+
+## 3.7.3
+
+## 3.7.2
+
+## 3.7.1
+
+## 3.7.0
+
+## 3.6.5
+
 ## 3.6.4
 
 ## 3.6.3

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-redoc",
-  "version": "3.6.4",
+  "version": "3.10.11",
   "description": "Beautiful docs with Redoc",
   "keywords": [
     "typescript",
@@ -11,11 +11,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-labs/kubb.git",
+    "url": "https://github.com/kubb-labs/kubb.git",
     "directory": "packages/plugin-redoc"
   },
   "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
   "exports": {
@@ -44,7 +44,7 @@
     "build": "tsup",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint --apply-unsafe .",
+    "lint:fix": "bun biome lint--fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
     "start": "tsup --watch",
@@ -55,18 +55,11 @@
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "handlebars": "^4.7.8",
-    "mobx": "^6.13.7",
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "redoc": "^2.4.0",
-    "styled-components": "^6.1.16"
+    "handlebars": "^4.7.8"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },

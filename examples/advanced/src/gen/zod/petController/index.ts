@@ -1,3 +1,4 @@
+export type { AddFiles200Schema, AddFiles405Schema, AddFilesMutationRequestSchema, AddFilesMutationResponseSchema } from './addFilesSchema.ts'
 export type { AddPet200Schema, AddPet405Schema, AddPetMutationRequestSchema, AddPetMutationResponseSchema } from './addPetSchema.ts'
 export type { DeletePetPathParamsSchema, DeletePetHeaderParamsSchema, DeletePet400Schema, DeletePetMutationResponseSchema } from './deletePetSchema.ts'
 export type {
@@ -42,6 +43,7 @@ export type {
   UploadFileMutationRequestSchema,
   UploadFileMutationResponseSchema,
 } from './uploadFileSchema.ts'
+export { addFiles200Schema, addFiles405Schema, addFilesMutationRequestSchema, addFilesMutationResponseSchema } from './addFilesSchema.ts'
 export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './addPetSchema.ts'
 export { deletePetPathParamsSchema, deletePetHeaderParamsSchema, deletePet400Schema, deletePetMutationResponseSchema } from './deletePetSchema.ts'
 export {

@@ -4,7 +4,7 @@ import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { createUsersWithListInput } from '../../axios/userService/createUsersWithListInput.ts'
 import { useMutation } from '@tanstack/react-query'
 
@@ -24,23 +24,27 @@ export function useCreateUsersWithListInput<TContext>(
       ResponseErrorConfig<Error>,
       { data?: CreateUsersWithListInputMutationRequest },
       TContext
-    >
+    > & { client?: QueryClient }
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client }
   } = {},
 ) {
-  const { mutation: mutationOptions, client: config = {} } = options ?? {}
-  const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
+  const { mutation = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...mutationOptions } = mutation
+  const mutationKey = mutationOptions.mutationKey ?? createUsersWithListInputMutationKey()
 
   return useMutation<
     ResponseConfig<CreateUsersWithListInputMutationResponse>,
     ResponseErrorConfig<Error>,
     { data?: CreateUsersWithListInputMutationRequest },
     TContext
-  >({
-    mutationFn: async ({ data }) => {
-      return createUsersWithListInput({ data }, config)
+  >(
+    {
+      mutationFn: async ({ data }) => {
+        return createUsersWithListInput({ data }, config)
+      },
+      mutationKey,
+      ...mutationOptions,
     },
-    mutationKey,
-    ...mutationOptions,
-  })
+    queryClient,
+  )
 }

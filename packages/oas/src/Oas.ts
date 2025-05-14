@@ -1,15 +1,13 @@
-import BaseOas from 'oas'
-import OASNormalize from 'oas-normalize'
-import { matchesMimeType } from 'oas/utils'
-
 import jsonpointer from 'jsonpointer'
-
-import { isReference } from './utils.ts'
-
+import BaseOas from 'oas'
 import type { Operation } from 'oas/operation'
 import type { MediaTypeObject, OASDocument, ResponseObject, SchemaObject, User } from 'oas/types'
-import type { OasTypes, OpenAPIV3 } from './index.ts'
+import { matchesMimeType } from 'oas/utils'
+import OASNormalize from 'oas-normalize'
+import type { OpenAPIV3 } from 'openapi-types'
+import type { OasTypes } from './index.ts'
 import type { contentType } from './types.ts'
+import { isDiscriminator, isReference } from './utils.ts'
 
 type Options = {
   contentType?: contentType
@@ -49,6 +47,10 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     return current
   }
 
+  getKey($ref: string) {
+    const key = $ref.split('/').pop()
+    return key === '' ? undefined : key
+  }
   set($ref: string, value: unknown) {
     $ref = $ref.trim()
     if ($ref === '') {
@@ -61,50 +63,61 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     }
   }
 
-  resolveDiscriminators(): void {
-    const schemas = (this.api.components?.schemas || {}) as Record<string, OasTypes.SchemaObject>
+  getDiscriminator(schema: OasTypes.SchemaObject): OpenAPIV3.DiscriminatorObject | undefined {
+    if (!isDiscriminator(schema)) {
+      return undefined
+    }
 
-    Object.entries(schemas).forEach(([_key, schemaObject]) => {
-      if ('discriminator' in schemaObject && typeof schemaObject.discriminator !== 'string') {
-        const { mapping = {}, propertyName } = (schemaObject.discriminator || {}) as OpenAPIV3.DiscriminatorObject
+    const { mapping = {}, propertyName } = schema.discriminator
 
-        if (!schemaObject.properties?.[propertyName]) {
-          schemaObject.properties = {}
-        }
+    // loop over oneOf and add default mapping when none is defined
+    if (schema.oneOf) {
+      schema.oneOf.forEach((schema) => {
+        if (isReference(schema)) {
+          const key = this.getKey(schema.$ref)
+          const refSchema: OpenAPIV3.SchemaObject = this.get(schema.$ref)
+          // special case where enum in the schema is set without mapping being defined, see https://github.com/kubb-labs/kubb/issues/1669
+          const propertySchema = refSchema.properties?.[propertyName] as OpenAPIV3.SchemaObject
+          const canAdd = key && !Object.values(mapping).includes(schema.$ref)
 
-        schemaObject.properties[propertyName] = {
-          ...schemaObject.properties[propertyName],
-          enum: Object.keys(mapping),
-        }
-
-        Object.entries(mapping).forEach(([mappingKey, mappingValue]) => {
-          if (mappingValue) {
-            const childSchema = this.get(mappingValue)
-            if (!childSchema.properties) {
-              childSchema.properties = {}
-            }
-
-            const property = childSchema.properties[propertyName] as SchemaObject
-
-            if (childSchema.properties) {
-              childSchema.properties[propertyName] = {
-                ...(childSchema.properties ? childSchema.properties[propertyName] : {}),
-                enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
-              }
-
-              childSchema.required = [...(childSchema.required ?? []), propertyName]
-
-              this.set(mappingValue, childSchema)
-            }
+          if (canAdd && propertySchema?.enum?.length === 1) {
+            mapping[propertySchema.enum[0]] = schema.$ref
+          } else if (canAdd) {
+            mapping[key] = schema.$ref
           }
-        })
-      }
-    })
+        }
+      })
+    }
+
+    if (schema.anyOf) {
+      schema.anyOf.forEach((schema) => {
+        if (isReference(schema)) {
+          const key = this.getKey(schema.$ref)
+          const refSchema: OpenAPIV3.SchemaObject = this.get(schema.$ref)
+          // special case where enum in the schema is set without mapping being defined, see https://github.com/kubb-labs/kubb/issues/1669
+          const propertySchema = refSchema.properties?.[propertyName] as OpenAPIV3.SchemaObject
+          const canAdd = key && !Object.values(mapping).includes(schema.$ref)
+
+          if (canAdd && propertySchema?.enum?.length === 1) {
+            mapping[propertySchema.enum[0]] = schema.$ref
+          } else if (canAdd) {
+            mapping[key] = schema.$ref
+          }
+        }
+      })
+    }
+
+    return {
+      ...schema.discriminator,
+      mapping,
+    }
   }
 
+  // TODO add better typing
   dereferenceWithRef(schema?: unknown) {
     if (isReference(schema)) {
       return {
+        ...schema,
         ...this.get(schema.$ref),
         $ref: schema.$ref,
       }
@@ -146,7 +159,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
 
       // Since no media type was supplied we need to find either the first JSON-like media type that
       // we've got, or the first available of anything else if no JSON-like media types are present.
-      let availablecontentType: string | undefined = undefined
+      let availablecontentType: string | undefined
       const contentTypes = Object.keys(responseBody.content)
       contentTypes.forEach((mt: string) => {
         if (!availablecontentType && matchesMimeType.json(mt)) {

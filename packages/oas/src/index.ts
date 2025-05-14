@@ -1,5 +1,5 @@
 export * from './types.ts'
 export { findSchemaDefinition, matchesMimeType } from 'oas/utils'
-export { isRequired, isOptional, isReference, isParameterObject, isOpenApiV3_1Document, parse } from './utils.ts'
+export { isRequired, isOptional, isDiscriminator, isNullable, isReference, isParameterObject, isOpenApiV3_1Document, parse } from './utils.ts'
 export { Oas } from './Oas.ts'
 export type { Infer, Model, RequestParams, Response } from './infer/index.ts'

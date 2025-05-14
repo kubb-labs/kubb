@@ -1,7 +1,7 @@
 import type { Logger } from '@kubb/core/logger'
 import { execa } from 'execa'
 import { parseArgsStringToArgv } from 'string-argv'
-import c from 'tinyrainbow'
+import { colors } from 'consola/utils'
 
 import { ConsolaWritable } from './Writables.ts'
 
@@ -27,7 +27,7 @@ export async function executeHooks({ hooks, logger }: ExecutingHooksProps): Prom
     }
 
     await queue.add(async () => {
-      logger?.emit('start', `Executing hook ${logger.logLevel !== LogMapper.silent ? c.dim(command) : ''}`)
+      logger?.emit('start', `Executing hook ${logger.logLevel !== LogMapper.silent ? colors.dim(command) : ''}`)
 
       await execa(cmd, _args, {
         detached: true,
@@ -35,7 +35,7 @@ export async function executeHooks({ hooks, logger }: ExecutingHooksProps): Prom
         stripFinalNewline: true,
       })
 
-      logger?.emit('success', `Executed hook ${logger.logLevel !== LogMapper.silent ? c.dim(command) : ''}`)
+      logger?.emit('success', `Executed hook ${logger.logLevel !== LogMapper.silent ? colors.dim(command) : ''}`)
     })
   })
 

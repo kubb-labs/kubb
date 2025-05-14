@@ -5,7 +5,7 @@ title: Use of your own baseURL
 outline: deep
 ---
 
-# Use of your own baseURL <Badge type="info" text="@kubb/plugin-client" />
+# Use of your own baseURL <a href="/plugins/plugin-client"><Badge type="info" text="@kubb/plugin-client" /></a>
 
 In Kubb, there are multiple ways to specify a baseURL. This can be done with a custom client, using the serverIndex of your Swagger/OpenAPI spec file or using the `baseURL` config.
 

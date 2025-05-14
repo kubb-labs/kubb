@@ -199,6 +199,41 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/5475129?v=4",
       "profile": "https://github.com/lambdank",
       "contributions": ["code"]
+    },
+    {
+      "login": "akinoccc",
+      "name": "Akino",
+      "avatar_url": "https://avatars.githubusercontent.com/u/64176534?v=4",
+      "profile": "https://akino.icu",
+      "contributions": ["code"]
+    },
+    {
+      "login": "rmachado-studocu",
+      "name": "Ricardo Machado",
+      "avatar_url": "https://avatars.githubusercontent.com/u/89906313?v=4",
+      "profile": "https://github.com/rmachado-studocu",
+      "contributions": ["code"]
+    },
+    {
+      "login": "simonelnahas",
+      "name": "Simon El Nahas",
+      "avatar_url": "https://avatars.githubusercontent.com/u/29279201?v=4",
+      "profile": "http://simonelnahas.com",
+      "contributions": ["doc"]
+    },
+    {
+      "login": "maartenvansambeek",
+      "name": "maartenvansambeek",
+      "avatar_url": "https://avatars.githubusercontent.com/u/91739524?v=4",
+      "profile": "https://github.com/maartenvansambeek",
+      "contributions": ["code"]
+    },
+    {
+      "login": "SCdF",
+      "name": "Stefan du Fresne",
+      "avatar_url": "https://avatars.githubusercontent.com/u/583851?v=4",
+      "profile": "https://sdufresne.info",
+      "contributions": ["code"]
     }
   ],
   "contributorsPerLine": 7,

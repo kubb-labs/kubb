@@ -1,6 +1,6 @@
 import type client from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
+import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
 import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { loginUser } from '../../axios/userService/loginUser.ts'
@@ -31,18 +31,23 @@ export function useLoginUser<
 >(
   { params }: { params?: LoginUserQueryParams },
   options: {
-    query?: Partial<QueryObserverOptions<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>, TData, TQueryData, TQueryKey>>
+    query?: Partial<QueryObserverOptions<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>, TData, TQueryData, TQueryKey>> & {
+      client?: QueryClient
+    }
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {
-  const { query: queryOptions, client: config = {} } = options ?? {}
+  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
 
-  const query = useQuery({
-    ...(loginUserQueryOptions({ params }, config) as unknown as QueryObserverOptions),
-    queryKey,
-    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryResult<TData, ResponseErrorConfig<LoginUser400>> & { queryKey: TQueryKey }
+  const query = useQuery(
+    {
+      ...(loginUserQueryOptions({ params }, config) as unknown as QueryObserverOptions),
+      queryKey,
+      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
+    },
+    queryClient,
+  ) as UseQueryResult<TData, ResponseErrorConfig<LoginUser400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

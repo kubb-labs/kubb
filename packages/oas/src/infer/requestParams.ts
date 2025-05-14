@@ -1,9 +1,11 @@
-import type { SplitByDelimiter, TupleToUnion } from '@kubb/types'
 import type { Pipe, Strings, Tuples } from 'hotscript'
 import type { FromSchema, JSONSchema } from 'json-schema-to-ts'
 import type { OasTypes } from '../types.ts'
 import type { MethodMap, ParamMap, PathMap } from './mappers.ts'
 import type { SecurityParamsBySecurityRef } from './security.ts'
+
+type TupleToUnion<T> = T extends any[] ? T[number] : never
+type SplitByDelimiter<T extends string, D extends string> = T extends `${infer P}${D}${infer Q}` ? [P, ...SplitByDelimiter<Q, D>] : [T]
 
 type Checks = {
   RequestBodyJson: {

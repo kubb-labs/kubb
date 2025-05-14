@@ -78,7 +78,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
         baseName={query.file.baseName}
         path={query.file.path}
         meta={query.file.meta}
-        banner={getBanner({ oas, output })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && (
@@ -148,7 +148,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
         {options.infinite && (
           <>
             <File.Import name={['useInfiniteQuery']} path={importPath} />
-            <File.Import name={['QueryKey', 'InfiniteQueryObserverOptions', 'UseInfiniteQueryReturnType']} path={importPath} isTypeOnly />
+            <File.Import name={['QueryKey', 'QueryClient', 'InfiniteQueryObserverOptions', 'UseInfiniteQueryReturnType']} path={importPath} isTypeOnly />
             <InfiniteQuery
               name={query.name}
               queryOptionsName={queryOptions.name}

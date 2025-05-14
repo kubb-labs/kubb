@@ -1,4 +1,4 @@
-import { schemas } from '../../plugin-oas/mocks/schemas.ts'
+import { schemas } from '@kubb/plugin-oas/mocks'
 
 import * as parserType from './parser.ts'
 

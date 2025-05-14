@@ -1,0 +1,45 @@
+{
+  "name": "cypress-pet-store",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Cypress PetStore example",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/examples/cypress"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "build": "tsup",
+    "generate": "kubb generate",
+    "generate:js": "kubb generate --config .kubbrc",
+    "generate:json": "kubb generate --config kubb.json",
+    "generate:ts": "kubb generate --config kubb.config.js",
+    "start": "tsup --watch",
+    "start:server": "bun ./src/server.ts",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/cli": "workspace:*",
+    "@kubb/core": "workspace:*",
+    "@kubb/plugin-cypress": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
+    "react": "^18.3.1",
+    "tsup": "^8.4.0"
+  },
+  "devDependencies": {
+    "@kubb/config-ts": "workspace:*",
+    "cypress": "^14.3.3",
+    "typescript": "~5.2.2"
+  },
+  "packageManager": "pnpm@9.15.5",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=8.15.0"
+  }
+}

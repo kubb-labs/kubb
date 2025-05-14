@@ -1,0 +1,112 @@
+{
+  "name": "@kubb/plugin-cypress",
+  "version": "3.10.11",
+  "description": "Generator cypress",
+  "keywords": [
+    "typescript",
+    "plugins",
+    "kubb",
+    "codegen",
+    "cypress",
+    "openapi"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/plugin-cypress"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.cjs"
+    },
+    "./utils": {
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs",
+      "default": "./dist/utils.cjs"
+    },
+    "./hooks": {
+      "import": "./dist/hooks.js",
+      "require": "./dist/hooks.cjs",
+      "default": "./dist/hooks.cjs"
+    },
+    "./components": {
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs",
+      "default": "./dist/components.cjs"
+    },
+    "./generators": {
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs",
+      "default": "./dist/generators.cjs"
+    },
+    "./package.json": "./package.json",
+    "./*": "./*"
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "utils": [
+        "./dist/utils.d.ts"
+      ],
+      "hooks": [
+        "./dist/hooks.d.ts"
+      ],
+      "components": [
+        "./dist/components.d.ts"
+      ],
+      "generators": [
+        "./dist/generators.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "npx rimraf ./dist",
+    "lint": "bun biome lint .",
+    "lint:fix": "bun biome lint--fix --unsafe .",
+    "release": "pnpm publish --no-git-check",
+    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
+    "start": "tsup --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/core": "workspace:*",
+    "@kubb/oas": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
+    "@kubb/react": "workspace:*"
+  },
+  "devDependencies": {
+    "@kubb/config-ts": "workspace:*",
+    "@kubb/config-tsup": "workspace:*",
+    "@types/react": "catalog:",
+    "react": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "@kubb/react": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

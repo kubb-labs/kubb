@@ -1,4 +1,4 @@
-import type { PossiblePromise } from '@kubb/types'
+import type { PossiblePromise } from './utils/types.ts'
 import type { InputPath, UserConfig } from './types.ts'
 
 type Args = {

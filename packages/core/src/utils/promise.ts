@@ -1,4 +1,4 @@
-import type { PossiblePromise } from '@kubb/types'
+import type { PossiblePromise } from './types.ts'
 
 export function isPromise<T>(result: PossiblePromise<T>): result is Promise<T> {
   return !!result && typeof (result as Promise<unknown>)?.then === 'function'

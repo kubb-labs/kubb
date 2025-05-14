@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import { randomCliColour } from '@kubb/core/logger'
 
-import c from 'tinyrainbow'
+import { colors } from 'consola/utils'
 
 import { parseHrtimeToSeconds } from './parseHrtimeToSeconds.ts'
 
@@ -32,20 +32,20 @@ export function getSummary({ pluginManager, filesCreated, status, hrStart, confi
   const meta = {
     plugins:
       status === 'success'
-        ? `${c.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
-        : `${c.red(`${failedPlugins?.length ?? 1} failed`)}, ${pluginsCount} total`,
+        ? `${colors.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
+        : `${colors.red(`${failedPlugins?.length ?? 1} failed`)}, ${pluginsCount} total`,
     pluginsFailed: status === 'failed' ? failedPlugins?.map((name) => randomCliColour(name))?.join(', ') : undefined,
     filesCreated: filesCreated,
-    time: `${c.yellow(`${elapsedSeconds}s`)}`,
+    time: `${colors.yellow(`${elapsedSeconds}s`)}`,
     output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
   } as const
 
   logs.add(
     [
-      [`${c.bold('Plugins:')}        ${meta.plugins}`, true],
-      [`${c.dim('Failed:')}          ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
-      [`${c.bold('Generated:')}      ${meta.filesCreated} files in ${meta.time}`, true],
-      [`${c.bold('Output:')}         ${meta.output}`, true],
+      [`${colors.bold('Plugins:')}        ${meta.plugins}`, true],
+      [`${colors.dim('Failed:')}          ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
+      [`${colors.bold('Generated:')}      ${meta.filesCreated} files in ${meta.time}`, true],
+      [`${colors.bold('Output:')}         ${meta.output}`, true],
     ]
       .map((item) => {
         if (item.at(1)) {

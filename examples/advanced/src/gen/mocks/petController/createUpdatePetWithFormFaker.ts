@@ -10,7 +10,7 @@ export function createUpdatePetWithFormPathParamsFaker(data?: Partial<UpdatePetW
 
 export function createUpdatePetWithFormQueryParamsFaker(data?: Partial<UpdatePetWithFormQueryParams>): UpdatePetWithFormQueryParams {
   return {
-    ...{ name: faker.string.alpha(), status: faker.helpers.arrayElement(['working', 'idle']) as any },
+    ...{ name: faker.string.alpha(), status: faker.helpers.arrayElement<any>(['working', 'idle']) },
     ...(data || {}),
   }
 }

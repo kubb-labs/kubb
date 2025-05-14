@@ -5,11 +5,11 @@
   "description": "Fetch PetStore example",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kubb-labs/kubb.git",
+    "url": "https://github.com/kubb-labs/kubb.git",
     "directory": "packages/examples/fetch"
   },
   "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "author": "stijnvanhulle",
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
@@ -30,7 +30,7 @@
     "@kubb/config-ts": "workspace:*",
     "react": "^18.3.1",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   },
   "packageManager": "pnpm@9.15.5",
   "engines": {

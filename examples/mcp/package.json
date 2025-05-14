@@ -1,0 +1,43 @@
+{
+  "name": "mcp-pet-store",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Mcp PetStore example",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/examples/mcp"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "clean": "npx rimraf ./dist",
+    "generate": "kubb generate --config kubb.config.ts",
+    "start": "tsup --watch",
+    "test": "vitest",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/cli": "workspace:*",
+    "@kubb/core": "workspace:*",
+    "@kubb/plugin-mcp": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
+    "@kubb/plugin-zod": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.11.2",
+    "axios": "^1.9.0",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@kubb/config-ts": "workspace:*",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "pnpm@9.15.5",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=8.15.0"
+  }
+}

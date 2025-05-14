@@ -1,0 +1,31 @@
+{
+  "name": "smithery",
+  "version": "0.0.0",
+  "description": "Kubb smithery",
+  "keywords": [
+    "smithery"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubb-labs/kubb.git",
+    "directory": "tools/smithery"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./main.js"
+  },
+  "files": [],
+  "scripts": {},
+  "dependencies": {
+    "@kubb/mcp": "^3.10.10"
+  },
+  "devDependencies": {},
+  "packageManager": "npm@11.3.0",
+  "engines": {
+    "node": ">=20",
+    "npm": ">=11.3.0"
+  }
+}

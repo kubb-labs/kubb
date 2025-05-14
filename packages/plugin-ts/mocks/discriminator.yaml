@@ -1,8 +1,58 @@
 info:
   title: Swagger Petstore
+  version: 1.0.0
 openapi: 3.1.0
 components:
   schemas:
+    DocumentDisapprovedNotification:
+      type: object
+      required:
+        - notificationType
+        - document
+      properties:
+        notificationType:
+          type: string
+          enum:
+            - DOCUMENT_DISAPPROVED
+        id:
+          type: string
+          format: uuid
+          title: Id
+    DocumentApprovedNotification:
+      type: object
+      required:
+        - notificationType
+        - document
+      properties:
+        notificationType:
+          type: string
+          enum:
+            - DOCUMENT_APPROVED
+        id:
+          type: string
+          format: uuid
+          title: Id
+    Notification:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+            createdAt:
+              type: string
+              format: date-time
+            isSeen:
+              type: boolean
+          required:
+            - id
+            - createdAt
+            - isSeen
+        - oneOf:
+            - $ref: "#/components/schemas/DocumentDisapprovedNotification"
+            - $ref: "#/components/schemas/DocumentApprovedNotification"
+          discriminator:
+            propertyName: notificationType
+
     Advanced:
       title: ValueSpecification
       required:
@@ -15,13 +65,13 @@ components:
         - $ref: "#/components/schemas/SliderValueSpecificationDto"
       properties:
         type:
-          minLength: 1
+          type: string
           enum:
             - enum
             - range
             - regex
             - slider
-          type: string
+          minLength: 1
           readOnly: true
       additionalProperties: false
       discriminator:
@@ -31,33 +81,35 @@ components:
           range: "#/components/schemas/RangeValueSpecificationDto"
           regex: "#/components/schemas/RegexValueSpecificationDto"
           slider: "#/components/schemas/SliderValueSpecificationDto"
+
     EnumerationValueSpecificationDto:
       title: EnumerationValueSpecification
+      type: object
       required:
         - enumeration
         - type
-      type: object
       properties:
         type:
-          minLength: 1
           type: string
+          minLength: 1
           readOnly: true
         enumeration:
           type: array
-          items: { }
+          items:
+            type: string
       additionalProperties: false
 
     RangeValueSpecificationDto:
       title: RangeValueSpecification
-      required:
-        - max
-        - min
-        - type
       type: object
+      required:
+        - min
+        - max
+        - type
       properties:
         type:
-          minLength: 1
           type: string
+          minLength: 1
           readOnly: true
         min:
           type: number
@@ -69,33 +121,32 @@ components:
 
     RegexValueSpecificationDto:
       title: RegexValueSpecification
+      type: object
       required:
         - regex
         - type
-      type: object
       properties:
         type:
-          minLength: 1
           type: string
+          minLength: 1
           readOnly: true
         regex:
-          minLength: 1
           type: string
+          minLength: 1
       additionalProperties: false
-
 
     SliderValueSpecificationDto:
       title: SliderValueSpecification
+      type: object
       required:
         - left_text
-        - max_value
         - right_text
+        - max_value
         - type
-      type: object
       properties:
         type:
-          minLength: 1
           type: string
+          minLength: 1
           readOnly: true
         left_text:
           $ref: "#/components/schemas/LocalizedTextDto"
@@ -108,104 +159,119 @@ components:
 
     LocalizedTextDto:
       title: LocalizedText
-      required:
-        - default_text
-        - text_id
       type: object
+      required:
+        - text_id
+        - default_text
       properties:
         text_id:
-          minLength: 1
           type: string
+          minLength: 1
         default_text:
-          minLength: 1
           type: string
+          minLength: 1
       additionalProperties: false
+
     NullConst:
-      description: |
-        The value of this keyword MAY be null.
-        Use of this keyword is functionally equivalent to an "enum" (Section 6.1.2) with a single value.
-        An instance validates successfully against this keyword if its value is equal to the value of the keyword.
+      title: NullConst
+      type: object
       properties:
         withoutValue:
-          const:
+          type: "null"
+          const: null
+      required:
+        - withoutValue
+
     StringValueConst:
-      description: its value is equal to the value of the keyword
+      title: StringValueConst
+      type: object
       properties:
         foobar:
-          const: "foobar"
           type: string
-    NumberValueConst:
-      description: its value is equal to the value of the keyword
-      properties:
-        foobar:
-          const: 42
-          type: number
-    MixedValueTypeConst:
-      description: This probably should fail miserably
-      properties:
-        foobar:
           const: "foobar"
+      required:
+        - foobar
+
+    NumberValueConst:
+      title: NumberValueConst
+      type: object
+      properties:
+        foobar:
           type: number
+          const: 42
+      required:
+        - foobar
+
+    MixedValueTypeConst:
+      title: MixedValueTypeConst
+      type: object
+      properties:
+        foobar:
+          type: number
+          const: 42
+      required:
+        - foobar
 
     Cat:
       title: Cat
       type: object
       properties:
         id:
+          type: string
           format: uuid
           title: Id
-          type: string
         type:
+          type: string
           const: Cat
           title: Type
         meow:
           type: boolean
           title: Meowing prevalence
       required:
-      - id
-      - type
+        - id
+        - type
+
     Dog:
       title: Dog
       type: object
       properties:
         id:
+          type: string
           format: uuid
           title: Id
+        type:
           type: string
+          const: Dog
+          title: Type
         bark:
           type: number
           title: Barking frequency
-        type:
-          const: Dog
-          title: Type
       required:
-      - id
-      - type
-    Petstore:
-      title: Petstore
-      type: object
-      description: A project is an analysis project. It has a name, an id, and has
-        a dataset
-      properties:
-        id:
-          title: Id
-          type: integer
-        pets:
-          default: []
-          items:
-            discriminator:
-              mapping:
-                Cat: "#/components/schemas/Cat"
-                Dog: "#/components/schemas/Dog"
-              propertyName: type
-            oneOf:
-            - "$ref": "#/components/schemas/Cat"
-            - "$ref": "#/components/schemas/Dog"
-          title: Pets
-          type: array
-      required:
-      - id
+        - id
+        - type
+
+    CatDog:
+      title: CatDog
+      oneOf:
+        - $ref: "#/components/schemas/Cat"
+        - $ref: "#/components/schemas/Dog"
+      discriminator:
+        propertyName: type
+        mapping:
+          Cat: "#/components/schemas/Cat"
+          Dog: "#/components/schemas/Dog"
+          Bulldog: "#/components/schemas/Dog"
+
+    CatDogWithoutMapping:
+      title: CatDogWithoutMapping
+      oneOf:
+        - $ref: "#/components/schemas/Cat"
+        - $ref: "#/components/schemas/Dog"
+      discriminator:
+        propertyName: type
+
     FooBase:
+      title: FooBase
       type: object
       properties:
         $type:
@@ -218,7 +284,9 @@ components:
         mapping:
           type-string: '#/components/schemas/FooString'
           type-number: '#/components/schemas/FooNumber'
+
     FooString:
+      title: FooString
       type: object
       allOf:
         - $ref: '#/components/schemas/FooBase'
@@ -228,16 +296,17 @@ components:
       required:
         - value
       additionalProperties: false
-    FooNumber:
-        type: object
-        allOf:
-          - $ref: '#/components/schemas/FooBase'
-        properties:
-          value:
-            type: number
-        required:
-          - value
-        additionalProperties: false
 
+    FooNumber:
+      title: FooNumber
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/FooBase'
+      properties:
+        value:
+          type: number
+      required:
+        - value
+      additionalProperties: false
 
 paths: {}

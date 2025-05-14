@@ -7,7 +7,7 @@ import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
 
-import type * as KubbFile from '@kubb/fs/types'
+import type { KubbFile } from './fs/index.ts'
 import type { Logger } from './logger.ts'
 import type { PluginCore } from './plugin.ts'
 import { trim } from './transformers/trim.ts'
@@ -396,7 +396,11 @@ export class PluginManager {
     hookName,
     parameters,
     message,
-  }: { hookName: H; parameters?: PluginParameter<H>; message: string }): Promise<void> {
+  }: {
+    hookName: H
+    parameters?: PluginParameter<H>
+    message: string
+  }): Promise<void> {
     const plugins = this.#getSortedPlugins(hookName)
     this.logger.emit('progress_start', { id: hookName, size: plugins.length })
 

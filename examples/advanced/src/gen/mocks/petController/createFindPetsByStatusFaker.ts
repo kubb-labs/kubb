@@ -12,8 +12,8 @@ export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByS
 /**
  * @description successful operation
  */
-export function createFindPetsByStatus200Faker(data?: Partial<FindPetsByStatus200>): FindPetsByStatus200 {
-  return [...(faker.helpers.multiple(() => createPetFaker(), { count: { min: 1, max: 3 } }) as any), ...(data || [])]
+export function createFindPetsByStatus200Faker(data?: FindPetsByStatus200): FindPetsByStatus200 {
+  return [...faker.helpers.multiple(() => createPetFaker(), { count: { min: 1, max: 3 } }), ...(data || [])]
 }
 
 /**

@@ -29,11 +29,10 @@ type GetParamsProps = {
   paramsType: PluginSwr['resolvedOptions']['paramsType']
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   dataReturnType: PluginSwr['resolvedOptions']['client']['dataReturnType']
-  queryKeyTypeName: string
   typeSchemas: OperationSchemas
 }
 
-function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, typeSchemas, queryKeyTypeName }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
@@ -66,7 +65,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       options: {
         type: `
 {
-  query?: Parameters<typeof useSWR<${[TData, TError, `${queryKeyTypeName} | null`].join(', ')}, any>>[2],
+  query?: Parameters<typeof useSWR<${[TData, TError].join(', ')}>>[2],
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
   shouldFetch?: boolean,
 }
@@ -105,7 +104,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
     options: {
       type: `
 {
-  query?: Parameters<typeof useSWR<${[TData, TError, `${queryKeyTypeName} | null`].join(', ')}, any>>[2],
+  query?: Parameters<typeof useSWR<${[TData, TError].join(', ')}>>[2],
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
   shouldFetch?: boolean,
 }
@@ -142,7 +141,6 @@ export function Query({
     pathParamsType,
     dataReturnType,
     typeSchemas,
-    queryKeyTypeName,
   })
 
   const queryOptionsParams = QueryOptions.getParams({

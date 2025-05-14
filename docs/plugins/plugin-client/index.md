@@ -121,6 +121,24 @@ Create `operations.ts` file with all operations grouped by methods.
 ### dataReturnType
 <!--@include: ../plugin-client/dataReturnType.md-->
 
+### urlType
+Export urls that are used by operation x
+
+|           |                     |
+|----------:|:--------------------|
+|     Type: | `'export' \| false` |
+| Required: | `false`             |
+|  Default: | `false`             |
+
+- `'export'` will make them part of your barrel file
+- `false` will not make them exportable
+
+```typescript
+export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
+  return `/pet/${petId}` as const
+}
+```
+
 ### paramsType
 <!--@include: ../plugin-client/paramsType.md-->
 

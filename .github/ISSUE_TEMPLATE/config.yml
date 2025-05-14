@@ -1,8 +1,8 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
-  - name: 💬 Feature Requests & Questions
+  - name: Feature Requests & Questions
+    url: https://github.com/kubb-labs/kubb/discussions
+    about: Please ask and answer questions here.
+  - name: Community Chat
     url: https://discord.gg/shfBFeczrm
     about: Please ask and answer questions here.
-  - name: 🐥 Twitter
-    url: https://twitter.com/stijnvanhulle
-    about: Ask questions around Kubb on Twitter

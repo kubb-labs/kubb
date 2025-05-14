@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url'
 import { findUp, findUpSync } from 'find-up'
 import { coerce, satisfies } from 'semver'
 
-import { read, readSync } from '@kubb/fs'
+import { read, readSync } from './fs/index.ts'
 
 type PackageJSON = {
   dependencies?: Record<string, string>
@@ -171,10 +171,15 @@ export class PackageManager {
     if (!packageVersion) {
       return false
     }
+
+    if (version === 'next' && packageVersion === version) {
+      return true
+    }
+
     const semVer = coerce(packageVersion)
 
     if (!semVer) {
-      throw new Error(`${packageVersion} is not valid`)
+      return false
     }
 
     return satisfies(semVer, version)

@@ -44,13 +44,7 @@ export function createQuestionToken(token?: boolean | ts.QuestionToken) {
   return token
 }
 
-export function createIntersectionDeclaration({
-  nodes,
-  withParentheses,
-}: {
-  nodes: Array<ts.TypeNode>
-  withParentheses?: boolean
-}): ts.TypeNode | null {
+export function createIntersectionDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
   if (!nodes.length) {
     return null
   }
@@ -72,13 +66,7 @@ export function createIntersectionDeclaration({
  * Minimum nodes length of 2
  * @example `string & number`
  */
-export function createTupleDeclaration({
-  nodes,
-  withParentheses,
-}: {
-  nodes: Array<ts.TypeNode>
-  withParentheses?: boolean
-}): ts.TypeNode | null {
+export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
   if (!nodes.length) {
     return null
   }
@@ -96,11 +84,7 @@ export function createTupleDeclaration({
   return node
 }
 
-export function createArrayDeclaration({
-  nodes,
-}: {
-  nodes: Array<ts.TypeNode>
-}): ts.TypeNode | null {
+export function createArrayDeclaration({ nodes }: { nodes: Array<ts.TypeNode> }): ts.TypeNode | null {
   if (!nodes.length) {
     return factory.createTupleTypeNode([])
   }
@@ -116,13 +100,7 @@ export function createArrayDeclaration({
  * Minimum nodes length of 2
  * @example `string | number`
  */
-export function createUnionDeclaration({
-  nodes,
-  withParentheses,
-}: {
-  nodes: Array<ts.TypeNode>
-  withParentheses?: boolean
-}): ts.TypeNode {
+export function createUnionDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode {
   if (!nodes.length) {
     return keywordTypeNodes.any
   }
@@ -201,13 +179,7 @@ export function createJSDoc({ comments }: { comments: string[] }) {
 /**
  * @link https://github.com/microsoft/TypeScript/issues/44151
  */
-export function appendJSDocToNode<TNode extends ts.Node>({
-  node,
-  comments,
-}: {
-  node: TNode
-  comments: Array<string | undefined>
-}) {
+export function appendJSDocToNode<TNode extends ts.Node>({ node, comments }: { node: TNode; comments: Array<string | undefined> }) {
   const filteredComments = comments.filter(Boolean)
 
   if (!filteredComments.length) {
@@ -306,13 +278,7 @@ export function createTypeDeclaration({
   })
 }
 
-export function createNamespaceDeclaration({
-  statements,
-  name,
-}: {
-  name: string
-  statements: ts.Statement[]
-}) {
+export function createNamespaceDeclaration({ statements, name }: { name: string; statements: ts.Statement[] }) {
   return factory.createModuleDeclaration(
     [factory.createToken(ts.SyntaxKind.ExportKeyword)],
     factory.createIdentifier(name),
@@ -338,7 +304,7 @@ export function createImportDeclaration({
 }) {
   if (!Array.isArray(name)) {
     let importPropertyName: ts.Identifier | undefined = factory.createIdentifier(name)
-    let importName: ts.NamedImportBindings | undefined = undefined
+    let importName: ts.NamedImportBindings | undefined
 
     if (isNameSpace) {
       importPropertyName = undefined
@@ -563,15 +529,7 @@ export function createEnumDeclaration({
   ]
 }
 
-export function createOmitDeclaration({
-  keys,
-  type,
-  nonNullable,
-}: {
-  keys: Array<string> | string
-  type: ts.TypeNode
-  nonNullable?: boolean
-}) {
+export function createOmitDeclaration({ keys, type, nonNullable }: { keys: Array<string> | string; type: ts.TypeNode; nonNullable?: boolean }) {
   const node = nonNullable ? factory.createTypeReferenceNode(factory.createIdentifier('NonNullable'), [type]) : type
 
   if (Array.isArray(keys)) {
@@ -613,6 +571,8 @@ export const createLiteralTypeNode = factory.createLiteralTypeNode
 export const createNull = factory.createNull
 export const createIdentifier = factory.createIdentifier
 
+export const createOptionalTypeNode = factory.createOptionalTypeNode
 export const createTupleTypeNode = factory.createTupleTypeNode
+export const createRestTypeNode = factory.createRestTypeNode
 export const createTrue = factory.createTrue
 export const createFalse = factory.createFalse
