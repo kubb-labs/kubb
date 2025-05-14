@@ -5,22 +5,16 @@ export default defineConfig({
   ...options,
   source: {
     ...options.source,
+    exclude: [
+      /\.test\.[jt]sx?$/,
+      /\.spec\.[jt]sx?$/,
+    ],
     entry: {
-      index: 'src/index.ts',
-      transformers: 'src/transformers.ts',
-      // utils: 'src/utils/index.ts',
-      logger: 'src/logger.ts',
-      // mocks: 'src/mocks/index.ts',
-    },
-    tsconfigPath: './tsconfig.build.json',
+      index: 'src/**',
+    }
   },
   lib: [
-    {
-      ...optionsCJS,
-      output: {
-        externals: [/p-queue/, /find-up/, /camelcase/],
-      },
-    },
+    optionsCJS,
     optionsESM,
   ],
 })

@@ -36,9 +36,7 @@ export const optionsCJS: LibConfig = {
 
 export const options: RslibConfig = {
   source: {
-    entry: {
-      index: 'src/index.ts',
-    },
+
   },
   lib: [optionsESM, optionsCJS],
   output: {
