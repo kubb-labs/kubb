@@ -55,6 +55,7 @@ kubb.log
 hello
 .log
 .kubb
+.rslib
 */mocks/hellowWorld.js
 #docs/api/**
 packages/ui/static/**

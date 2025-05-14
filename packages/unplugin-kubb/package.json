@@ -103,15 +103,15 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "unplugin": "^2.3.3"
+    "unplugin": "^2.3.4"
   },
   "devDependencies": {
     "@kubb/config-biome": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@nuxt/kit": "^3.17.2",
-    "@nuxt/schema": "^3.17.2",
+    "@nuxt/kit": "^3.17.3",
+    "@nuxt/schema": "^3.17.3",
     "@types/node": "catalog:",
     "rimraf": "^6.0.1",
     "rollup": "^4.40.2",

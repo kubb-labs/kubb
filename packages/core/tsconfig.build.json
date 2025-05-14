@@ -2,7 +2,8 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-
+    "rootDir": "./src",
+    "paths": {}
   },
-  "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"]
+  "include": ["src/**/*"]
 }

@@ -40,6 +40,7 @@
   ],
   "scripts": {
     "build": "tsup",
+    "build:beta": "rslib build",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint--fix --unsafe .",
@@ -63,10 +64,11 @@
     "latest-version": "^9.0.0",
     "open": "^10.1.2",
     "p-queue": "^8.1.0",
-    "semver": "^7.7.1",
+    "semver": "^7.7.2",
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
+    "@kubb/config-rslib": "workspace:*",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@kubb/mcp": "workspace:*",
