@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.10.13
+- [`plugin-zod`](/plugins/plugin-zod): query parameter objects are no longer optional if at least one parameter is defaulted
+
 # 3.10.12
 - [`plugin-oas`](/plugins/plugin-oas): allow multiple `discriminator.mapping` with the same $ref
 
