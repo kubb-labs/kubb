@@ -1,5 +1,19 @@
 # @kubb/plugin-zod
 
+## 3.10.12
+
+### Patch Changes
+
+- [#1724](https://github.com/kubb-labs/kubb/pull/1724) [`90f78c2`](https://github.com/kubb-labs/kubb/commit/90f78c2bfbc77ec8838e8e82bc521e7b24cecf65) Thanks [@SCdF](https://github.com/SCdF)! - query parameter objects are no longer optional if at least one parameter is defaulted
+
+- Updated dependencies []:
+  - @kubb/core@3.10.12
+  - @kubb/oas@3.10.12
+  - @kubb/parser-ts@3.10.12
+  - @kubb/plugin-oas@3.10.12
+  - @kubb/plugin-ts@3.10.12
+  - @kubb/react@3.10.12
+
 ## 3.10.11
 
 ### Patch Changes

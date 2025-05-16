@@ -1,5 +1,16 @@
 # @kubb/plugin-cypress
 
+## 3.10.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.12
+  - @kubb/oas@3.10.12
+  - @kubb/plugin-oas@3.10.12
+  - @kubb/plugin-ts@3.10.12
+  - @kubb/react@3.10.12
+
 ## 3.10.11
 
 ### Patch Changes
