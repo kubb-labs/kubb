@@ -54,10 +54,9 @@ kubb.log
 hello
 .log
 .kubb
-packages/core/mocks/hellowWorld.js
+*/mocks/hellowWorld.js
 docs/.vitepress/cache/**
 docs/.vitepress/dist/**
 #docs/api/**
 packages/ui/static/**
 .nx
-packages/core/mocks/hellowWorld.js
