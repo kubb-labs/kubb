@@ -1,12 +1,11 @@
-import { camelCase, pascalCase } from '../src/transformers/casing.ts'
-
 import path from 'node:path'
-import type { File, ResolvedFile } from '../src/fs/types.ts'
-import { getSource } from '../src/FileManager'
-import type { PluginManager } from '../src/PluginManager.ts'
-import type { Logger } from '../src/logger'
-import type { Plugin } from '../src/types.ts'
-import { createFile } from '../src/utils'
+import { getSource } from '../FileManager'
+import type { File, ResolvedFile } from '../fs/types.ts'
+import type { Logger } from '../logger'
+import type { PluginManager } from '../PluginManager.ts'
+import { camelCase, pascalCase } from '../transformers/casing.ts'
+import type { Plugin } from '../types.ts'
+import { createFile } from '../utils'
 
 export const mockedLogger = {
   emit(_type, _message) {},

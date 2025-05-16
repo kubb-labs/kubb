@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-client",
-  "version": "3.10.9",
+  "version": "3.10.11",
   "description": "Generator plugin-client",
   "keywords": [
     "typescript",
@@ -70,9 +70,7 @@
   },
   "files": [
     "src",
-    "clients",
     "dist",
-    "client.ts",
     "*.d.ts",
     "*.d.cts",
     "!/**/**.test.**",

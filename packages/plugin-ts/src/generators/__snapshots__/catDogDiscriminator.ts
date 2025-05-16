@@ -10,3 +10,6 @@ export type catDog =
   | (dog & {
       type: 'Dog'
     })
+  | (dog & {
+      type: 'Bulldog'
+    })

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/ui",
-  "version": "3.10.9",
+  "version": "3.10.11",
   "description": "Kubb ui",
   "keywords": [
     "typescript",
@@ -65,7 +65,7 @@
     "@kubb/config-tsup": "workspace:*",
     "@react-aria/visually-hidden": "3.8.20",
     "@react-types/shared": "3.28.0",
-    "@tanstack/react-query": "^5.75.6",
+    "@tanstack/react-query": "^5.76.0",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

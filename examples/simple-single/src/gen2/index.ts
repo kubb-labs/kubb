@@ -227,6 +227,8 @@ export const volumeSchema = z.object({
   blocks: z.number().int().optional(),
   blocks_avail: z.number().int().optional(),
   blocks_free: z.number().int().optional(),
+  bytes_total: z.number().int().optional(),
+  bytes_used: z.number().int().optional(),
   created_at: z.string().optional(),
   encrypted: z.boolean().optional(),
   fstype: z.string().optional(),

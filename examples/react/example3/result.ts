@@ -1,3 +1,3 @@
 import { name } from './name'
 
-const hello = name
+const _hello = name

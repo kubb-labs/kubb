@@ -1,6 +1,6 @@
 {
   "name": "@kubb/mcp",
-  "version": "3.10.9",
+  "version": "3.10.11",
   "description": "Generator MCP",
   "keywords": [
     "typescript",
@@ -73,7 +73,7 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.11.1",
+    "@modelcontextprotocol/sdk": "^1.11.2",
     "zod": "^3.24.4"
   },
   "devDependencies": {

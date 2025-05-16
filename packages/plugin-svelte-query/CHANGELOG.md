@@ -1,5 +1,32 @@
 # @kubb/plugin-svelte-query
 
+## 3.10.11
+
+### Patch Changes
+
+- Updated dependencies [[`bec329e`](https://github.com/kubb-labs/kubb/commit/bec329e79b7ff25f9b5289211e412b52b2a23492), [`e666e9a`](https://github.com/kubb-labs/kubb/commit/e666e9a4a038864f1d9e87a916108b291028b42b)]:
+  - @kubb/plugin-zod@3.10.11
+  - @kubb/plugin-oas@3.10.11
+  - @kubb/plugin-client@3.10.11
+  - @kubb/plugin-ts@3.10.11
+  - @kubb/core@3.10.11
+  - @kubb/oas@3.10.11
+  - @kubb/react@3.10.11
+
+## 3.10.10
+
+### Patch Changes
+
+- [`f76d641`](https://github.com/kubb-labs/kubb/commit/f76d6417341549e3800a5964561271c8cfd7b72b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - resolve typescript error
+
+- Updated dependencies []:
+  - @kubb/core@3.10.10
+  - @kubb/oas@3.10.10
+  - @kubb/plugin-oas@3.10.10
+  - @kubb/plugin-ts@3.10.10
+  - @kubb/plugin-zod@3.10.10
+  - @kubb/react@3.10.10
+
 ## 3.10.9
 
 ### Patch Changes

@@ -1,5 +1,25 @@
 # @kubb/swagger
 
+## 3.10.11
+
+### Patch Changes
+
+- [#1714](https://github.com/kubb-labs/kubb/pull/1714) [`e666e9a`](https://github.com/kubb-labs/kubb/commit/e666e9a4a038864f1d9e87a916108b291028b42b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - allow multiple `discriminator.mapping` with the same $ref
+
+- Updated dependencies []:
+  - @kubb/core@3.10.11
+  - @kubb/oas@3.10.11
+  - @kubb/react@3.10.11
+
+## 3.10.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.10
+  - @kubb/oas@3.10.10
+  - @kubb/react@3.10.10
+
 ## 3.10.9
 
 ### Patch Changes

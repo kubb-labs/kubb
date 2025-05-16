@@ -373,7 +373,7 @@ describe('OperationGenerator include and exclude', async () => {
         include: [
           {
             type: 'path',
-            pattern: /\pets$/,
+            pattern: /pets$/,
           },
         ],
         exclude: [

@@ -39,7 +39,7 @@ export class URLPath {
       if (url?.href) {
         return true
       }
-    } catch (error) {
+    } catch (_error) {
       return false
     }
     return false

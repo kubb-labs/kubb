@@ -201,10 +201,9 @@ describe('<File/>', () => {
           ignore
           <File baseName="test.ts" path="path">
             <File.Source>
-              {/* biome-ignore lint/a11y/useKeyWithClickEvents: oeeps */}
-              <div className="className" aria-disabled={false} aria-valuemax={3} onClick={(e) => console.log(e)}>
+              <button className="className" type={'button'} aria-disabled={false} onClick={(e) => console.log(e)}>
                 sdfs
-              </div>
+              </button>
             </File.Source>
           </File>
         </>
@@ -213,7 +212,9 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.output).toMatchInlineSnapshot(`"<div className="className" aria-disabled={false} aria-valuemax={3} onClick={(e) => console.log(e)}>sdfs</div>"`)
+    expect(root.output).toMatchInlineSnapshot(
+      `"<button className="className" type="button" aria-disabled={false} onClick={(e) => console.log(e)}>sdfs</button>"`,
+    )
     expect(root.files).toMatchInlineSnapshot(`
       [
         {
@@ -231,7 +232,7 @@ describe('<File/>', () => {
               "isIndexable": undefined,
               "isTypeOnly": undefined,
               "name": undefined,
-              "value": "<div className="className" aria-disabled={false} aria-valuemax={3} onClick={(e) => console.log(e)}>sdfs</div>",
+              "value": "<button className="className" type="button" aria-disabled={false} onClick={(e) => console.log(e)}>sdfs</button>",
             },
           ],
         },

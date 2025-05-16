@@ -3,7 +3,6 @@
   "affected": {
     "defaultBase": "main"
   },
-  "defaultBase": "main",
   "namedInputs": {
     "sharedGlobals": ["{workspaceRoot}/package.json", "{workspaceRoot}/tsconfig.json", "{workspaceRoot}/nx.json"],
     "default": [
@@ -30,6 +29,11 @@
       "inputs": ["production", "^production"],
       "outputs": ["{projectRoot}/dist", "{projectRoot}/assets"]
     },
+    "test:watch": {
+      "cache": false,
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^production"]
+    },
     "test": {
       "cache": true,
       "dependsOn": ["^build"],
@@ -54,8 +58,10 @@
       "dependsOn": ["build"]
     },
     "generate": {
-      "outputs": ["{projectRoot}/src/gen"],
-      "cache": false
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^production"],
+      "outputs": ["{projectRoot}/src/gen"]
     },
     "release:canary": {
       "dependsOn": ["build"]

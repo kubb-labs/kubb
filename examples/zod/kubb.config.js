@@ -28,7 +28,7 @@ export default defineConfig(async () => {
           path: './ts',
         },
         transformers: {
-          name: (name, type) => {
+          name: (name, _type) => {
             return `${name}Type`
           },
         },

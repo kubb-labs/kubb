@@ -144,7 +144,7 @@ export class SchemaGenerator<
   }
 
   static findInObject<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T] | undefined {
-    let foundItem: SchemaKeywordMapper[T] | undefined = undefined
+    let foundItem: SchemaKeywordMapper[T] | undefined
 
     tree?.forEach((schema) => {
       if (!foundItem && schema.keyword === keyword) {
@@ -170,7 +170,7 @@ export class SchemaGenerator<
   }
 
   static find<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T] | undefined {
-    let foundItem: SchemaKeywordMapper[T] | undefined = undefined
+    let foundItem: SchemaKeywordMapper[T] | undefined
 
     tree?.forEach((schema) => {
       if (!foundItem && schema.keyword === keyword) {
@@ -403,45 +403,34 @@ export class SchemaGenerator<
 
     return {
       ...schema,
-      args: schema.args.map((arg) => {
-        const isRef = isKeyword(arg, schemaKeywords.ref)
-
-        if (isRef) {
-          const [key] = Object.entries(discriminator.mapping || {}).find(([_key, value]) => value === arg.args.$ref) || []
-
-          if (!key) {
-            throw new Error(`Can not find a key in discriminator ${JSON.stringify(schema)}`)
-          }
-
-          return {
-            keyword: schemaKeywords.and,
-            args: [
-              arg,
-              {
-                keyword: schemaKeywords.object,
-                args: {
-                  properties: {
-                    ...(objectPropertySchema?.args?.properties || {}),
-                    [discriminator.propertyName]: [
-                      {
-                        keyword: schemaKeywords.const,
-                        args: {
-                          name: key,
-                          format: 'string',
-                          value: key,
-                        },
+      args: Object.entries(discriminator.mapping || {}).map(([key, value]) => {
+        const arg = schema.args.find((item) => isKeyword(item, schemaKeywords.ref) && item.args.$ref === value)
+        return {
+          keyword: schemaKeywords.and,
+          args: [
+            arg,
+            {
+              keyword: schemaKeywords.object,
+              args: {
+                properties: {
+                  ...(objectPropertySchema?.args?.properties || {}),
+                  [discriminator.propertyName]: [
+                    {
+                      keyword: schemaKeywords.const,
+                      args: {
+                        name: key,
+                        format: 'string',
+                        value: key,
                       },
-                      //enum and literal will conflict
-                      ...(objectPropertySchema?.args?.properties[discriminator.propertyName] || []),
-                    ].filter((item) => !isKeyword(item, schemaKeywords.enum)),
-                  },
+                    },
+                    //enum and literal will conflict
+                    ...(objectPropertySchema?.args?.properties[discriminator.propertyName] || []),
+                  ].filter((item) => !isKeyword(item, schemaKeywords.enum)),
                 },
               },
-            ],
-          }
+            },
+          ],
         }
-
-        return arg
       }),
     }
   }
@@ -581,6 +570,7 @@ export class SchemaGenerator<
     if (schemaObject.oneOf) {
       // union
       const schemaWithoutOneOf = { ...schemaObject, oneOf: undefined }
+      const discriminator = this.context.oas.getDiscriminator(schemaObject)
 
       const union: SchemaKeywordMapper['union'] = {
         keyword: schemaKeywords.union,
@@ -592,8 +582,6 @@ export class SchemaGenerator<
           .filter(Boolean)
           .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
       }
-
-      const discriminator = this.context.oas.getDiscriminator(schemaObject)
 
       if (discriminator) {
         return [this.#addDiscriminatorToSchema({ schemaObject: schemaWithoutOneOf, schema: union, discriminator }), ...baseItems]

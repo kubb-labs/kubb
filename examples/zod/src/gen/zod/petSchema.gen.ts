@@ -7,7 +7,7 @@ import { z } from '../../zod.ts'
 import { categorySchema } from './categorySchema.gen.ts'
 import { tagSchema } from './tagSchema.gen.ts'
 
-export const petSchema = z.interface({
+export const petSchema = z.object({
   id: z.int().optional(),
   internalId: z
     .string()

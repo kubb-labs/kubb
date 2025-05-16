@@ -5,7 +5,7 @@
 
 import { z } from '../../zod.ts'
 
-export const categorySchema = z.interface({
+export const categorySchema = z.object({
   id: z.int().optional(),
   name: z.string().optional(),
   get parent() {
