@@ -9,7 +9,7 @@ export type RequestCredentials = 'omit' | 'same-origin' | 'include'
 export type RequestConfig<TData = unknown> = {
   baseURL?: string
   url?: string
-  method?: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE' | 'OPTIONS'
+  method?: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE' | 'OPTIONS' | 'HEAD'
   params?: unknown
   data?: TData | FormData
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
