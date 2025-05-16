@@ -30,7 +30,7 @@
     "@tanstack/svelte-query": "5.62.7",
     "axios": "^1.9.0",
     "svelte": "^4.2.19",
-    "tsup": "^8.4.0"
+    "tsup": "^8.5.0"
   },
   "devDependencies": {
     "typescript": "catalog:"

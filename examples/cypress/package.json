@@ -30,7 +30,7 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "react": "^18.3.1",
-    "tsup": "^8.4.0"
+    "tsup": "^8.5.0"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

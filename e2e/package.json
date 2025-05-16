@@ -33,7 +33,7 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@tanstack/react-query": "^5.76.0",
+    "@tanstack/react-query": "^5.76.1",
     "@tanstack/solid-query": "^5.76.0",
     "@tanstack/svelte-query": "^5.76.0",
     "@tanstack/vue-query": "^5.76.0",
@@ -41,11 +41,11 @@
     "cypress": "~14.2.1",
     "msw": "^2.8.2",
     "react": "catalog:",
-    "solid-js": "^1.9.6",
+    "solid-js": "^1.9.7",
     "svelte": "^4.2.19",
     "swr": "^2.3.3",
     "tsup": "catalog:",
-    "vue": "^3.5.13",
+    "vue": "^3.5.14",
     "zod": "^3.24.4"
   },
   "devDependencies": {
