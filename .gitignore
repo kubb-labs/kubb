@@ -60,3 +60,4 @@ docs/.vitepress/dist/**
 #docs/api/**
 packages/ui/static/**
 .nx
+packages/core/mocks/hellowWorld.js
