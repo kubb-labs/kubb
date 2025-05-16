@@ -333,6 +333,13 @@ describe('zodGenerator operation', async () => {
       method: 'delete',
       options: {},
     },
+    {
+      name: 'query-all-defaulted',
+      input: '../../mocks/queryRequiredDefault.yaml',
+      method: 'get',
+      path: '/thing',
+      options: {}
+    }
   ] as const satisfies Array<{
     input: string
     name: string
