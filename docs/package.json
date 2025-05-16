@@ -21,12 +21,12 @@
     "serve": "vitepress serve"
   },
   "dependencies": {
-    "@shikijs/vitepress-twoslash": "^3.4.0",
+    "@shikijs/vitepress-twoslash": "^3.4.2",
     "mermaid": "^11.6.0",
     "sitemap": "^8.0.0",
     "vitepress": "^2.0.0-alpha.5",
-    "vitepress-plugin-group-icons": "^1.5.2",
-    "vue": "^3.5.13"
+    "vitepress-plugin-group-icons": "^1.5.5",
+    "vue": "^3.5.14"
   },
   "devDependencies": {
     "@kubb/cli": "workspace:*",
