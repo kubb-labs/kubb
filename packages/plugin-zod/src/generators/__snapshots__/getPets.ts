@@ -4,12 +4,10 @@
  */
 import { z } from 'zod'
 
-export const listPetsQueryParams = z
-  .object({
-    limit: z.string().describe('How many items to return at one time (max 100)').optional(),
-    offset: z.coerce.number().int().default(0),
-  })
-  .optional()
+export const listPetsQueryParams = z.object({
+  limit: z.string().describe('How many items to return at one time (max 100)').optional(),
+  offset: z.coerce.number().int().default(0),
+})
 
 /**
  * @description A paged array of pets
