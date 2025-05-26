@@ -73,8 +73,8 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.11.3",
-    "zod": "^3.24.4"
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.25.28"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
