@@ -172,8 +172,6 @@ export function Query({
         ...queryOptions as unknown as Omit<CreateBaseQueryOptions, "queryKey">
        }), queryClient? () => queryClient: undefined) as ${returnType}
 
-       query.queryKey = queryKey as TQueryKey
-
        return query
        `}
       </Function>
