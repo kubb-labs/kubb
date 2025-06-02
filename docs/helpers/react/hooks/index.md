@@ -16,7 +16,7 @@ Some hooks that can be used with `@kubb/react`.
 
 
 ```tsx
-import { useCli } from '@kubb/react'
+import { useLifecycle } from '@kubb/react'
 
 function Component() {
   const { exit } = useLifecycle()
