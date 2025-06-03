@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.11.0
+- [`plugin-faker`](/plugins/plugin-faker): Min and max is not applied to the faker functions when only one of them is defined
+
 # 3.10.13
 - [`plugin-zod`](/plugins/plugin-zod): query parameter objects are no longer optional if at least one parameter is defaulted
 

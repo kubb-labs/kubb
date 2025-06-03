@@ -23,7 +23,7 @@ export async function findPetsByTagsInfiniteHook(params?: FindPetsByTagsQueryPar
 
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
-    url: '/pet/findByTags',
+    url: `/pet/findByTags`,
     params,
     ...requestConfig,
   })
@@ -66,9 +66,9 @@ export function useFindPetsByTagsInfiniteHook<
 >(
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: Partial<
-      InfiniteQueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>
-    > & { client?: QueryClient }
+    query?: Partial<InfiniteQueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryKey>> & {
+      client?: QueryClient
+    }
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {

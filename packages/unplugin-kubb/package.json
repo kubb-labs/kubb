@@ -1,159 +1,158 @@
 {
-  "name": "unplugin-kubb",
-  "version": "2.0.3",
-  "description": "Unplugin for Kubb",
-  "keywords": [
-    "unplugin",
-    "vite",
-    "webpack",
-    "rollup",
-    "transform",
-    "astro",
-    "kubb",
-    "swagger",
-    "OpenAPI",
-    "rspack",
-    "nuxt",
-    "esbuild"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/unplugin"
-  },
-  "license": "MIT",
-  "author": "stijnvanhulle",
-  "sideEffects": false,
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
-    },
-    "./astro": {
-      "import": "./dist/astro.js",
-      "require": "./dist/astro.cjs",
-      "default": "./dist/astro.cjs"
-    },
-    "./rspack": {
-      "import": "./dist/rspack.js",
-      "require": "./dist/rspack.cjs",
-      "default": "./dist/rspack.cjs"
-    },
-    "./vite": {
-      "import": "./dist/vite.js",
-      "require": "./dist/vite.cjs",
-      "default": "./dist/vite.cjs"
-    },
-    "./webpack": {
-      "import": "./dist/webpack.js",
-      "require": "./dist/webpack.cjs",
-      "default": "./dist/webpack.cjs"
-    },
-    "./rollup": {
-      "import": "./dist/rollup.js",
-      "require": "./dist/rollup.cjs",
-      "default": "./dist/rollup.cjs"
-    },
-    "./esbuild": {
-      "import": "./dist/esbuild.js",
-      "require": "./dist/esbuild.cjs",
-      "default": "./dist/esbuild.cjs"
-    },
-    "./nuxt": {
-      "import": "./dist/nuxt.js",
-      "require": "./dist/nuxt.cjs",
-      "default": "./dist/nuxt.cjs"
-    },
-    "./types": {
-      "import": "./dist/types.js",
-      "require": "./dist/types.cjs",
-      "default": "./dist/types.cjs"
-    },
-    "./package.json": "./package.json",
-    "./*": "./*"
-  },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/*",
-        "./*"
-      ]
-    }
-  },
-  "files": [
-    "src",
-    "dist",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
-  "scripts": {
-    "build": "tsup",
-    "clean": "npx rimraf ./dist",
-    "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint--fix --unsafe .",
-    "release": "pnpm publish --no-git-check",
-    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsup --watch",
-    "test": "vitest --passWithNoTests",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
-  },
-  "dependencies": {
-    "unplugin": "^2.3.4"
-  },
-  "devDependencies": {
-    "@kubb/config-biome": "workspace:*",
-    "@kubb/config-ts": "workspace:*",
-    "@kubb/config-tsup": "workspace:*",
-    "@kubb/core": "workspace:*",
-    "@nuxt/kit": "^3.17.4",
-    "@nuxt/schema": "^3.17.4",
-    "@types/node": "catalog:",
-    "rimraf": "^6.0.1",
-    "rollup": "^4.41.1",
-    "tsup": "catalog:",
-    "typescript": "catalog:",
-    "vite": "^6.3.5",
-    "webpack": "^5.99.9"
-  },
-  "peerDependencies": {
-    "@kubb/core": "^3.0.0",
-    "@nuxt/kit": "^3",
-    "@nuxt/schema": "^3",
-    "esbuild": "*",
-    "rollup": "^3",
-    "vite": ">=3",
-    "webpack": "^5"
-  },
-  "peerDependenciesMeta": {
-    "@nuxt/kit": {
-      "optional": true
-    },
-    "@nuxt/schema": {
-      "optional": true
-    },
-    "esbuild": {
-      "optional": true
-    },
-    "rollup": {
-      "optional": true
-    },
-    "vite": {
-      "optional": true
-    },
-    "webpack": {
-      "optional": true
-    }
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  }
+	"name": "unplugin-kubb",
+	"version": "2.0.3",
+	"description": "Unplugin for Kubb",
+	"keywords": [
+		"unplugin",
+		"vite",
+		"webpack",
+		"rollup",
+		"transform",
+		"astro",
+		"kubb",
+		"swagger",
+		"OpenAPI",
+		"rspack",
+		"nuxt",
+		"esbuild"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kubb-labs/kubb.git",
+		"directory": "packages/unplugin"
+	},
+	"license": "MIT",
+	"author": "stijnvanhulle",
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs",
+			"default": "./dist/index.cjs"
+		},
+		"./astro": {
+			"import": "./dist/astro.js",
+			"require": "./dist/astro.cjs",
+			"default": "./dist/astro.cjs"
+		},
+		"./rspack": {
+			"import": "./dist/rspack.js",
+			"require": "./dist/rspack.cjs",
+			"default": "./dist/rspack.cjs"
+		},
+		"./vite": {
+			"import": "./dist/vite.js",
+			"require": "./dist/vite.cjs",
+			"default": "./dist/vite.cjs"
+		},
+		"./webpack": {
+			"import": "./dist/webpack.js",
+			"require": "./dist/webpack.cjs",
+			"default": "./dist/webpack.cjs"
+		},
+		"./rollup": {
+			"import": "./dist/rollup.js",
+			"require": "./dist/rollup.cjs",
+			"default": "./dist/rollup.cjs"
+		},
+		"./esbuild": {
+			"import": "./dist/esbuild.js",
+			"require": "./dist/esbuild.cjs",
+			"default": "./dist/esbuild.cjs"
+		},
+		"./nuxt": {
+			"import": "./dist/nuxt.js",
+			"require": "./dist/nuxt.cjs",
+			"default": "./dist/nuxt.cjs"
+		},
+		"./types": {
+			"import": "./dist/types.js",
+			"require": "./dist/types.cjs",
+			"default": "./dist/types.cjs"
+		},
+		"./package.json": "./package.json",
+		"./*": "./*"
+	},
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"typesVersions": {
+		"*": {
+			"*": [
+				"./dist/*",
+				"./*"
+			]
+		}
+	},
+	"files": [
+		"src",
+		"dist",
+		"!/**/**.test.**",
+		"!/**/__tests__/**"
+	],
+	"scripts": {
+		"build": "tsup",
+		"clean": "npx rimraf ./dist",
+		"lint": "bun biome lint .",
+		"lint:fix": "bun biome lint--fix --unsafe .",
+		"release": "pnpm publish --no-git-check",
+		"release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
+		"start": "tsup --watch",
+		"test": "vitest --passWithNoTests",
+		"typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"unplugin": "^2.3.5"
+	},
+	"devDependencies": {
+		"@kubb/config-ts": "workspace:*",
+		"@kubb/config-tsup": "workspace:*",
+		"@kubb/core": "workspace:*",
+		"@nuxt/kit": "^3.17.4",
+		"@nuxt/schema": "^3.17.4",
+		"@types/node": "catalog:",
+		"rimraf": "^6.0.1",
+		"rollup": "^4.41.1",
+		"tsup": "catalog:",
+		"typescript": "catalog:",
+		"vite": "^6.3.5",
+		"webpack": "^5.99.9"
+	},
+	"peerDependencies": {
+		"@kubb/core": "^3.0.0",
+		"@nuxt/kit": "^3",
+		"@nuxt/schema": "^3",
+		"esbuild": "*",
+		"rollup": "^3",
+		"vite": ">=3",
+		"webpack": "^5"
+	},
+	"peerDependenciesMeta": {
+		"@nuxt/kit": {
+			"optional": true
+		},
+		"@nuxt/schema": {
+			"optional": true
+		},
+		"esbuild": {
+			"optional": true
+		},
+		"rollup": {
+			"optional": true
+		},
+		"vite": {
+			"optional": true
+		},
+		"webpack": {
+			"optional": true
+		}
+	},
+	"engines": {
+		"node": ">=20"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	}
 }

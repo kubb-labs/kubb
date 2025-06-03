@@ -48,9 +48,9 @@ exports[`faker parse > 'nullableAdditionalProperties' 1`] = `"{}"`;
 
 exports[`faker parse > 'number' 1`] = `"faker.number.float()"`;
 
-exports[`faker parse > 'object' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
+exports[`faker parse > 'object' 1`] = `"{"firstName": faker.string.alpha({ length: 2 }),"address": faker.string.alpha()}"`;
 
-exports[`faker parse > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha(),"age": faker.number.float(),"address": Object.assign({}, faker.string.alpha(), faker.number.float())}"`;
+exports[`faker parse > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha({ length: 2 }),"age": faker.number.float({ min: 3 }),"address": Object.assign({}, faker.string.alpha(), faker.number.float())}"`;
 
 exports[`faker parse > 'objectArray' 1`] = `"{"ids": faker.helpers.multiple(() => (faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$'))), { count: { min: 3, max: 10 }})}"`;
 
@@ -62,7 +62,7 @@ exports[`faker parse > 'objectEmpty' 1`] = `"{}"`;
 
 exports[`faker parse > 'objectEnum' 1`] = `"{"version": faker.helpers.arrayElement<NonNullable<undefined>['version']>(["A", "B", "C", 2])}"`;
 
-exports[`faker parse > 'objectOptional' 1`] = `"{"firstName": faker.string.alpha(),"address": faker.string.alpha()}"`;
+exports[`faker parse > 'objectOptional' 1`] = `"{"firstName": faker.string.alpha({ length: 2 }),"address": faker.string.alpha()}"`;
 
 exports[`faker parse > 'primitiveDate' 1`] = `"faker.date.anytime()"`;
 

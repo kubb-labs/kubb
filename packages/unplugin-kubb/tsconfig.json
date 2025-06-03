@@ -1,7 +1,5 @@
 {
   "extends": "../../tsconfig.json",
-  "compilerOptions": {
-
-  },
+  "compilerOptions": {},
   "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"]
 }

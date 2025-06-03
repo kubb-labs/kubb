@@ -1,7 +1,6 @@
 import transformers from '@kubb/core/transformers'
-import { SchemaGenerator, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
-
 import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
+import { isKeyword, SchemaGenerator, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
 import type { Options } from './types.ts'
 
 const fakerKeywordMapper = {
@@ -13,6 +12,14 @@ const fakerKeywordMapper = {
       return `faker.number.float({ min: ${min}, max: ${max} })`
     }
 
+    if (max !== undefined) {
+      return `faker.number.float({ max: ${max} })`
+    }
+
+    if (min !== undefined) {
+      return `faker.number.float({ min: ${min} })`
+    }
+
     return 'faker.number.float()'
   },
   integer: (min?: number, max?: number) => {
@@ -20,12 +27,12 @@ const fakerKeywordMapper = {
       return `faker.number.int({ min: ${min}, max: ${max} })`
     }
 
-    if (min !== undefined) {
-      return `faker.number.int({ min: ${min} })`
-    }
-
     if (max !== undefined) {
       return `faker.number.int({ max: ${max} })`
+    }
+
+    if (min !== undefined) {
+      return `faker.number.int({ min: ${min} })`
     }
 
     return 'faker.number.int()'
@@ -33,6 +40,14 @@ const fakerKeywordMapper = {
   string: (min?: number, max?: number) => {
     if (max !== undefined && min !== undefined) {
       return `faker.string.alpha({ length: { min: ${min}, max: ${max} } })`
+    }
+
+    if (max !== undefined) {
+      return `faker.string.alpha({ length: ${max} })`
+    }
+
+    if (min !== undefined) {
+      return `faker.string.alpha({ length: ${min} })`
     }
 
     return 'faker.string.alpha()'
@@ -196,7 +211,14 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
     return fakerKeywordMapper.array(
       current.args.items
         .map((schema) =>
-          parse({ parent: current, current: schema, siblings }, { ...options, typeName: `${options.typeName}["${name}"][number]`, canOverride: false }),
+          parse(
+            { parent: current, current: schema, siblings },
+            {
+              ...options,
+              typeName: `${options.typeName}["${name}"][number]`,
+              canOverride: false,
+            },
+          ),
         )
         .filter(Boolean),
       current.args.min,

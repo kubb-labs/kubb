@@ -338,8 +338,8 @@ describe('zodGenerator operation', async () => {
       input: '../../mocks/queryRequiredDefault.yaml',
       method: 'get',
       path: '/thing',
-      options: {}
-    }
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string

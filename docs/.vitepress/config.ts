@@ -1,11 +1,9 @@
-import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepress-plugin-group-icons'
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { defineConfig } from 'vitepress'
-
+import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepress-plugin-group-icons'
+import { version } from '../../packages/core/package.json'
 import { renderMermaidGraphsPlugin } from './mermaid'
 import { transposeTables } from './transposeTables'
-
-import { version } from '../../packages/core/package.json'
 
 const ogImage = 'https://kubb.dev/og.png'
 const title = 'Generate SDKs for all your APIs'
@@ -527,7 +525,6 @@ export default defineConfig({
           compilerOptions: {
             paths: {
               '@kubb/cli': ['../packages/cli/src/index.ts'],
-              '@kubb/config-biome': ['../packages/config/config-biome/src/index.ts'],
               '@kubb/config-tsup': ['../packages/config/config-tsup/src/index.ts'],
               '@kubb/config-ts': ['../packages/config/config-ts/src/index.ts'],
               '@kubb/core': ['../packages/core/src/index.ts'],

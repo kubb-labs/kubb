@@ -130,11 +130,9 @@ export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema)
 
 export const addPetMutationResponseSchema = z.lazy(() => addPet200Schema)
 
-export const findPetsByStatusQueryParamsSchema = z
-  .object({
-    status: z.enum(['available', 'pending', 'sold']).default('available').describe('Status values that need to be considered for filter'),
-  })
-  .optional()
+export const findPetsByStatusQueryParamsSchema = z.object({
+  status: z.enum(['available', 'pending', 'sold']).default('available').describe('Status values that need to be considered for filter'),
+})
 
 /**
  * @description successful operation

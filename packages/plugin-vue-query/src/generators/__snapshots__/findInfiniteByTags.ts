@@ -70,7 +70,7 @@ export function useFindPetsByTagsInfinite<
   headers: MaybeRef<FindPetsByTagsHeaderParams>,
   params?: MaybeRef<FindPetsByTagsQueryParams>,
   options: {
-    query?: Partial<InfiniteQueryObserverOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>> & {
+    query?: Partial<InfiniteQueryObserverOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof client }

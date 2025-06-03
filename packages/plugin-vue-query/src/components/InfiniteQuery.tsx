@@ -1,8 +1,7 @@
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, FunctionParams } from '@kubb/react'
 import type { ReactNode } from 'react'
 import type { PluginVueQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
@@ -74,7 +73,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       options: {
         type: `
 {
-  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
+  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
 }
 `,
@@ -119,7 +118,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
     options: {
       type: `
 {
-  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
+  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
 }
 `,
