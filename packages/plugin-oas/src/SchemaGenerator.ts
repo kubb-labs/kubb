@@ -1,20 +1,17 @@
+import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import { BaseGenerator, type FileMetaBase } from '@kubb/core'
+import type { KubbFile } from '@kubb/core/fs'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
-
+import type { contentType, Oas, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference } from '@kubb/oas'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
+import type { Generator } from './generator.tsx'
+import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
+import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
-
-import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type { KubbFile } from '@kubb/core/fs'
-
-import type { Oas, OpenAPIV3, SchemaObject, contentType } from '@kubb/oas'
-import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
-import type { Generator } from './generator.tsx'
-import type { OperationSchema, Override, Refs } from './types.ts'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
@@ -663,7 +660,18 @@ export class SchemaGenerator<
         keyword: schemaKeywords.and,
         args: schemaObject.allOf
           .map((item) => {
-            return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
+            const schemaObjectItem = item as SchemaObject
+            const requiredKey = Object.keys((schemaObjectItem.properties || {}) as Record<string, unknown>).find((it) =>
+              schemaObjectItem.required && Array.isArray(schemaObjectItem.required) ? schemaObjectItem.required?.includes(it) : false,
+            )
+
+            if (requiredKey && Array.isArray(schemaObjectItem.required)) {
+              schemaObjectItem.required = [...schemaObjectItem.required, requiredKey]
+            } else if (requiredKey && !schemaObjectItem.required) {
+              schemaObjectItem.required = [requiredKey]
+            }
+
+            return item && this.parse({ schemaObject: schemaObjectItem, name, parentName })[0]
           })
           .filter(Boolean)
           .filter((item) => !isKeyword(item, schemaKeywords.unknown)),

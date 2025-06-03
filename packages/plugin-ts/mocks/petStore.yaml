@@ -71,6 +71,8 @@ paths:
                     properties:
                         name:
                             $ref: "#/components/schemas/ErrorCode"
+                required:
+                  - message
         '202':
           description: Accepted response
         default:
@@ -140,7 +142,6 @@ components:
       type: object
       required:
         - code
-        - message
       properties:
         code:
           type: integer
