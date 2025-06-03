@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-react-query",
-  "version": "3.10.12",
+  "version": "3.10.13",
   "description": "Generator react-query hooks",
   "keywords": [
     "faker",
