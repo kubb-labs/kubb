@@ -26,7 +26,7 @@ export async function createUserHook(
 
   const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
-    url: `/user`,
+    url: '/user',
     data,
     ...requestConfig,
   })

@@ -540,8 +540,11 @@ describe('FileManager utils', () => {
     expect(combineSources(sources)).toMatchInlineSnapshot(`
       [
         {
-          "isExportable": undefined,
-          "isIndexable": undefined,
+          "isTypeOnly": false,
+          "name": "test",
+          "value": "const test = 2",
+        },
+        {
           "isTypeOnly": false,
           "name": "test",
           "value": "const test = 3",

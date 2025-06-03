@@ -1,21 +1,18 @@
 import { extname, join, relative } from 'node:path'
 
 import { orderBy } from 'natural-orderby'
-import { isDeepEqual } from 'remeda'
-
-import { read, write } from './fs/index.ts'
+import PQueue from 'p-queue'
+import { isDeepEqual, uniqueBy } from 'remeda'
 import { BarrelManager } from './BarrelManager.ts'
 
 import type { KubbFile } from './fs/index.ts'
-
-import { trimExtName } from './fs/index.ts'
+import { read, trimExtName, write } from './fs/index.ts'
 import type { ResolvedFile } from './fs/types.ts'
-import type { GreaterThan } from './utils/types.ts'
-import PQueue from 'p-queue'
 import type { Logger } from './logger.ts'
 import type { BarrelType, Config, Plugin } from './types.ts'
 import { createFile, getFileParser } from './utils'
-import { type DirectoryTree, TreeNode, buildDirectoryTree } from './utils/TreeNode.ts'
+import { buildDirectoryTree, type DirectoryTree, TreeNode } from './utils/TreeNode.ts'
+import type { GreaterThan } from './utils/types.ts'
 
 export type FileMetaBase = {
   pluginKey?: Plugin['key']
@@ -218,29 +215,7 @@ function mergeFile<TMeta extends FileMetaBase = FileMetaBase>(a: KubbFile.File<T
 }
 
 export function combineSources(sources: Array<KubbFile.Source>): Array<KubbFile.Source> {
-  return sources.reduce(
-    (prev, curr) => {
-      const prevByName = prev.findLast((imp) => imp.name && imp.name === curr.name)
-      const prevByPathAndIsExportable = prev.findLast((imp) => imp.name === curr.name && imp.isExportable)
-
-      if (prevByPathAndIsExportable) {
-        // we already have an export that has the same name but uses `isExportable` (export type ...)
-        return [...prev, curr]
-      }
-
-      if (prevByName) {
-        prevByName.value = curr.value
-        prevByName.isExportable = curr.isExportable
-        prevByName.isTypeOnly = curr.isTypeOnly
-        prevByName.isIndexable = curr.isIndexable
-
-        return prev
-      }
-
-      return [...prev, curr]
-    },
-    [] as Array<KubbFile.Source>,
-  )
+  return uniqueBy(sources, (obj) => [obj.name, obj.isExportable, obj.isTypeOnly] as const)
 }
 
 export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.Export> {
