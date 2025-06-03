@@ -23,7 +23,7 @@ export async function findPetsByStatusHook(params?: FindPetsByStatusQueryParams,
 
   const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
-    url: '/pet/findByStatus',
+    url: `/pet/findByStatus`,
     params,
     ...requestConfig,
   })

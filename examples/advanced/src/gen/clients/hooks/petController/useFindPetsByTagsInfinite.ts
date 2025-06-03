@@ -48,14 +48,14 @@ export function findPetsByTagsInfiniteQueryOptions(
  */
 export function useFindPetsByTagsInfinite<
   TData = InfiniteData<ResponseConfig<FindPetsByTagsQueryResponse>>,
-  TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
+  _TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(
   { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   options: {
-    query?: Partial<
-      InfiniteQueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>
-    > & { client?: QueryClient }
+    query?: Partial<InfiniteQueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryKey>> & {
+      client?: QueryClient
+    }
     client?: Partial<RequestConfig> & { client?: typeof client }
   } = {},
 ) {

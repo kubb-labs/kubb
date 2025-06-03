@@ -26,6 +26,13 @@ runs:
     - name: Install dependencies
       shell: bash
       run: pnpm install --prefer-offline
+      
+    - name: Setup Turbo
+      uses: rharkor/caching-for-turbo@v1.8
+      continue-on-error: true
+      with:
+        # Set the prefix for the cache keys.
+        cache-prefix: kubb_
 
     - name: Get base and head commits for `nx affected`
       uses: nrwl/nx-set-shas@v4.1.2

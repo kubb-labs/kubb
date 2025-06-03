@@ -12,6 +12,16 @@ export const appSchema = z.object({
   status: z.string().optional(),
 })
 
+export const appSecretSchema = z.object({
+  digest: z.string().optional(),
+  name: z.string().optional(),
+  value: z.string().optional(),
+})
+
+export const appSecretsSchema = z.object({
+  secrets: z.array(z.lazy(() => appSecretSchema)).optional(),
+})
+
 export const checkStatusSchema = z.object({
   name: z.string().optional(),
   output: z.string().optional(),
@@ -44,6 +54,7 @@ export const createMachineRequestSchema = z.object({
     .describe('The target region. Omitting this param launches in the same region as your WireGuard peer connection (somewhere near you).')
     .optional(),
   skip_launch: z.boolean().optional(),
+  skip_secrets: z.boolean().optional(),
   skip_service_registration: z.boolean().optional(),
 })
 
@@ -56,10 +67,6 @@ export const createOIDCTokenRequestSchema = z
     aws_principal_tags: z.boolean().optional(),
   })
   .describe('Optional parameters')
-
-export const createSecretRequestSchema = z.object({
-  value: z.array(z.number().int()).optional(),
-})
 
 export const createVolumeRequestSchema = z.object({
   compute: z.lazy(() => flyMachineGuestSchema).optional(),
@@ -74,6 +81,24 @@ export const createVolumeRequestSchema = z.object({
   snapshot_retention: z.number().int().optional(),
   source_volume_id: z.string().describe('fork from remote volume').optional(),
   unique_zone_app_wide: z.boolean().optional(),
+})
+
+export const decryptSecretkeyRequestSchema = z.object({
+  associated_data: z.array(z.number().int()).optional(),
+  ciphertext: z.array(z.number().int()).optional(),
+})
+
+export const decryptSecretkeyResponseSchema = z.object({
+  plaintext: z.array(z.number().int()).optional(),
+})
+
+export const encryptSecretkeyRequestSchema = z.object({
+  associated_data: z.array(z.number().int()).optional(),
+  plaintext: z.array(z.number().int()).optional(),
+})
+
+export const encryptSecretkeyResponseSchema = z.object({
+  ciphertext: z.array(z.number().int()).optional(),
 })
 
 export const errorResponseSchema = z.object({
@@ -117,12 +142,6 @@ export const listAppSchema = z.object({
 export const listAppsResponseSchema = z.object({
   apps: z.array(z.lazy(() => listAppSchema)).optional(),
   total_apps: z.number().int().optional(),
-})
-
-export const listSecretSchema = z.object({
-  label: z.string().optional(),
-  publickey: z.array(z.number().int()).optional(),
-  type: z.string().optional(),
 })
 
 export const listenSocketSchema = z.object({
@@ -186,6 +205,47 @@ export const processStatSchema = z.object({
   stime: z.number().int().optional(),
 })
 
+export const secretKeySchema = z.object({
+  name: z.string().optional(),
+  public_key: z.array(z.number().int()).optional(),
+  type: z.string().optional(),
+})
+
+export const secretKeysSchema = z.object({
+  secret_keys: z.array(z.lazy(() => secretKeySchema)).optional(),
+})
+
+export const setAppSecretRequestSchema = z.object({
+  value: z.string().optional(),
+})
+
+export const setAppSecretResponseSchema = z.object({
+  digest: z.string().optional(),
+  name: z.string().optional(),
+  value: z.string().optional(),
+  version: z.number().int().optional(),
+})
+
+export const setSecretkeyRequestSchema = z.object({
+  type: z.string().optional(),
+  value: z.array(z.number().int()).optional(),
+})
+
+export const setSecretkeyResponseSchema = z.object({
+  name: z.string().optional(),
+  public_key: z.array(z.number().int()).optional(),
+  type: z.string().optional(),
+  version: z.number().int().optional(),
+})
+
+export const signSecretkeyRequestSchema = z.object({
+  plaintext: z.array(z.number().int()).optional(),
+})
+
+export const signSecretkeyResponseSchema = z.object({
+  signature: z.array(z.number().int()).optional(),
+})
+
 export const signalRequestSchema = z.object({
   signal: z
     .enum(['SIGABRT', 'SIGALRM', 'SIGFPE', 'SIGHUP', 'SIGILL', 'SIGINT', 'SIGKILL', 'SIGPIPE', 'SIGQUIT', 'SIGSEGV', 'SIGTERM', 'SIGTRAP', 'SIGUSR1'])
@@ -211,12 +271,18 @@ export const updateMachineRequestSchema = z.object({
     .describe('The target region. Omitting this param launches in the same region as your WireGuard peer connection (somewhere near you).')
     .optional(),
   skip_launch: z.boolean().optional(),
+  skip_secrets: z.boolean().optional(),
   skip_service_registration: z.boolean().optional(),
 })
 
 export const updateVolumeRequestSchema = z.object({
   auto_backup_enabled: z.boolean().optional(),
   snapshot_retention: z.number().int().optional(),
+})
+
+export const verifySecretkeyRequestSchema = z.object({
+  plaintext: z.array(z.number().int()).optional(),
+  signature: z.array(z.number().int()).optional(),
 })
 
 export const volumeSchema = z.object({
@@ -701,7 +767,63 @@ export const flydv1ExecResponseSchema = z.object({
   stdout: z.string().optional(),
 })
 
+export const mainGetPlacementsRequestSchema = z.object({
+  compute: z
+    .lazy(() => flyMachineGuestSchema)
+    .describe('Resource requirements for the Machine to simulate. Defaults to a performance-1x machine')
+    .optional(),
+  count: z
+    .number()
+    .int()
+    .describe('Number of machines to simulate placement.\nDefaults to 0, which returns the org-specific limit for each region.')
+    .optional(),
+  org_slug: z.string(),
+  region: z
+    .string()
+    .describe(
+      'Region expression for placement as a comma-delimited set of regions or aliases.\nDefaults to "[region],any", to prefer the API endpoint\'s local region with any other region as fallback.',
+    )
+    .optional(),
+  volume_name: z.string().optional(),
+  volume_size_bytes: z.number().int().optional(),
+  weights: z
+    .lazy(() => placementWeightsSchema)
+    .describe('Optional weights to override default placement preferences.')
+    .optional(),
+})
+
+export const mainGetPlacementsResponseSchema = z.object({
+  regions: z.array(z.lazy(() => placementRegionPlacementSchema)).optional(),
+})
+
+export const mainRegionResponseSchema = z.object({
+  regions: z.array(z.lazy(() => readsGetCapacityPerRegionRowSchema)).optional(),
+})
+
 export const mainStatusCodeSchema = z.enum(['unknown', 'insufficient_capacity'])
+
+export const placementRegionPlacementSchema = z.object({
+  concurrency: z
+    .number()
+    .int()
+    .describe('Hint on the number of machines in this region can be created concurrently.\nEqual to the number of unique hosts selected for placement.')
+    .optional(),
+  count: z.number().int().optional(),
+  region: z.string().optional(),
+})
+
+export const placementWeightsSchema = z.object({}).catchall(z.number().int())
+
+export const readsGetCapacityPerRegionRowSchema = z.object({
+  capacity: z.number().int().optional(),
+  code: z.string().optional(),
+  gateway_available: z.boolean().optional(),
+  geo_region: z.string().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  name: z.string().optional(),
+  requires_paid_plan: z.boolean().optional(),
+})
 
 export const appsListQueryParamsSchema = z.object({
   org_slug: z.string().describe("The org slug, or 'personal', to filter apps"),
@@ -1146,39 +1268,256 @@ export const machinesWait400Schema = z.lazy(() => errorResponseSchema)
 
 export const machinesWaitQueryResponseSchema = z.lazy(() => machinesWait200Schema)
 
-export const secretsListPathParamsSchema = z.object({
+export const secretkeysListPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),
 })
+
+export const secretkeysListQueryParamsSchema = z
+  .object({
+    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    types: z.string().describe('Comma-seperated list of secret keys to list').optional(),
+  })
+  .optional()
 
 /**
  * @description OK
  */
-export const secretsList200Schema = z.array(z.lazy(() => listSecretSchema))
+export const secretkeysList200Schema = z.lazy(() => secretKeysSchema)
 
-export const secretsListQueryResponseSchema = z.lazy(() => secretsList200Schema)
+export const secretkeysListQueryResponseSchema = z.lazy(() => secretkeysList200Schema)
 
-export const secretDeletePathParamsSchema = z.object({
+export const secretkeyGetPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),
-  secret_label: z.string().describe('App Secret Label'),
+  secret_name: z.string().describe('Secret key name'),
 })
+
+export const secretkeyGetQueryParamsSchema = z
+  .object({
+    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+  })
+  .optional()
 
 /**
  * @description OK
  */
-export const secretDelete200Schema = z.any()
+export const secretkeyGet200Schema = z.lazy(() => secretKeySchema)
 
-export const secretDeleteMutationResponseSchema = z.lazy(() => secretDelete200Schema)
+export const secretkeyGetQueryResponseSchema = z.lazy(() => secretkeyGet200Schema)
 
-export const secretCreatePathParamsSchema = z.object({
+export const secretkeySetPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),
-  secret_label: z.string().describe('App Secret Label'),
-  secret_type: z.string().describe('App Secret Type'),
+  secret_name: z.string().describe('Secret key name'),
 })
 
 /**
  * @description Created
  */
-export const secretCreate201Schema = z.any()
+export const secretkeySet201Schema = z.lazy(() => setSecretkeyResponseSchema)
+
+/**
+ * @description Bad Request
+ */
+export const secretkeySet400Schema = z.lazy(() => errorResponseSchema)
+
+/**
+ * @description Create secret key request
+ */
+export const secretkeySetMutationRequestSchema = z.lazy(() => setSecretkeyRequestSchema)
+
+export const secretkeySetMutationResponseSchema = z.lazy(() => secretkeySet201Schema)
+
+export const secretkeyDeletePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+/**
+ * @description No Content
+ */
+export const secretkeyDelete204Schema = z.any()
+
+export const secretkeyDeleteMutationResponseSchema = z.lazy(() => secretkeyDelete204Schema)
+
+export const secretkeyDecryptPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+export const secretkeyDecryptQueryParamsSchema = z
+  .object({
+    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const secretkeyDecrypt200Schema = z.lazy(() => decryptSecretkeyResponseSchema)
+
+/**
+ * @description Bad Request
+ */
+export const secretkeyDecrypt400Schema = z.lazy(() => errorResponseSchema)
+
+/**
+ * @description Decrypt with secret key request
+ */
+export const secretkeyDecryptMutationRequestSchema = z.lazy(() => decryptSecretkeyRequestSchema)
+
+export const secretkeyDecryptMutationResponseSchema = z.lazy(() => secretkeyDecrypt200Schema)
+
+export const secretkeyEncryptPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+export const secretkeyEncryptQueryParamsSchema = z
+  .object({
+    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const secretkeyEncrypt200Schema = z.lazy(() => encryptSecretkeyResponseSchema)
+
+/**
+ * @description Bad Request
+ */
+export const secretkeyEncrypt400Schema = z.lazy(() => errorResponseSchema)
+
+/**
+ * @description Encrypt with secret key request
+ */
+export const secretkeyEncryptMutationRequestSchema = z.lazy(() => encryptSecretkeyRequestSchema)
+
+export const secretkeyEncryptMutationResponseSchema = z.lazy(() => secretkeyEncrypt200Schema)
+
+export const secretkeyGeneratePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+/**
+ * @description Created
+ */
+export const secretkeyGenerate201Schema = z.lazy(() => setSecretkeyResponseSchema)
+
+/**
+ * @description Bad Request
+ */
+export const secretkeyGenerate400Schema = z.lazy(() => errorResponseSchema)
+
+/**
+ * @description generate secret key request
+ */
+export const secretkeyGenerateMutationRequestSchema = z.lazy(() => setSecretkeyRequestSchema)
+
+export const secretkeyGenerateMutationResponseSchema = z.lazy(() => secretkeyGenerate201Schema)
+
+export const secretkeySignPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+export const secretkeySignQueryParamsSchema = z
+  .object({
+    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const secretkeySign200Schema = z.lazy(() => signSecretkeyResponseSchema)
+
+/**
+ * @description Bad Request
+ */
+export const secretkeySign400Schema = z.lazy(() => errorResponseSchema)
+
+/**
+ * @description Sign with secret key request
+ */
+export const secretkeySignMutationRequestSchema = z.lazy(() => signSecretkeyRequestSchema)
+
+export const secretkeySignMutationResponseSchema = z.lazy(() => secretkeySign200Schema)
+
+export const secretkeyVerifyPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+export const secretkeyVerifyQueryParamsSchema = z
+  .object({
+    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+  })
+  .optional()
+
+/**
+ * @description No Content
+ */
+export const secretkeyVerify204Schema = z.any()
+
+/**
+ * @description Bad Request
+ */
+export const secretkeyVerify400Schema = z.lazy(() => errorResponseSchema)
+
+/**
+ * @description Verify with secret key request
+ */
+export const secretkeyVerifyMutationRequestSchema = z.lazy(() => verifySecretkeyRequestSchema)
+
+export const secretkeyVerifyMutationResponseSchema = z.lazy(() => secretkeyVerify204Schema)
+
+export const secretsListPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+})
+
+export const secretsListQueryParamsSchema = z
+  .object({
+    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    show_secrets: z.boolean().describe('Show the secret values.').optional(),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const secretsList200Schema = z.lazy(() => appSecretsSchema)
+
+export const secretsListQueryResponseSchema = z.lazy(() => secretsList200Schema)
+
+export const secretGetPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('App secret name'),
+})
+
+export const secretGetQueryParamsSchema = z
+  .object({
+    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    show_secrets: z.boolean().describe('Show the secret value.').optional(),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const secretGet200Schema = z.lazy(() => appSecretSchema)
+
+export const secretGetQueryResponseSchema = z.lazy(() => secretGet200Schema)
+
+export const secretCreatePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('App secret name'),
+})
+
+/**
+ * @description Created
+ */
+export const secretCreate201Schema = z.lazy(() => setAppSecretResponseSchema)
 
 /**
  * @description Bad Request
@@ -1186,29 +1525,23 @@ export const secretCreate201Schema = z.any()
 export const secretCreate400Schema = z.lazy(() => errorResponseSchema)
 
 /**
- * @description secret body
+ * @description Create app secret request
  */
-export const secretCreateMutationRequestSchema = z.lazy(() => createSecretRequestSchema)
+export const secretCreateMutationRequestSchema = z.lazy(() => setAppSecretRequestSchema)
 
 export const secretCreateMutationResponseSchema = z.lazy(() => secretCreate201Schema)
 
-export const secretGeneratePathParamsSchema = z.object({
+export const secretDeletePathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),
-  secret_label: z.string().describe('App Secret Label'),
-  secret_type: z.string().describe('App Secret Type'),
+  secret_name: z.string().describe('App secret name'),
 })
 
 /**
- * @description Created
+ * @description No Content
  */
-export const secretGenerate201Schema = z.any()
+export const secretDelete204Schema = z.any()
 
-/**
- * @description Bad Request
- */
-export const secretGenerate400Schema = z.lazy(() => errorResponseSchema)
-
-export const secretGenerateMutationResponseSchema = z.lazy(() => secretGenerate201Schema)
+export const secretDeleteMutationResponseSchema = z.lazy(() => secretDelete204Schema)
 
 export const volumesListPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),
@@ -1329,6 +1662,36 @@ export const createVolumeSnapshotPathParamsSchema = z.object({
 export const createVolumeSnapshot200Schema = z.any()
 
 export const createVolumeSnapshotMutationResponseSchema = z.lazy(() => createVolumeSnapshot200Schema)
+
+/**
+ * @description OK
+ */
+export const platformPlacementsPost200Schema = z.lazy(() => mainGetPlacementsResponseSchema)
+
+/**
+ * @description Get placements request
+ */
+export const platformPlacementsPostMutationRequestSchema = z.lazy(() => mainGetPlacementsRequestSchema)
+
+export const platformPlacementsPostMutationResponseSchema = z.lazy(() => platformPlacementsPost200Schema)
+
+export const platformRegionsGetQueryParamsSchema = z
+  .object({
+    size: z.string().describe('guest machine size preset. default performance-1x').optional(),
+    cpu_kind: z.string().describe('guest CPU kind').optional(),
+    memory_mb: z.coerce.number().int().describe('guest memory in megabytes').optional(),
+    cpus: z.coerce.number().int().describe('guest CPU count').optional(),
+    gpus: z.coerce.number().int().describe('guest GPU count').optional(),
+    gpu_kind: z.string().describe('guest GPU kind').optional(),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const platformRegionsGet200Schema = z.lazy(() => mainRegionResponseSchema)
+
+export const platformRegionsGetQueryResponseSchema = z.lazy(() => platformRegionsGet200Schema)
 
 /**
  * @description KMS token

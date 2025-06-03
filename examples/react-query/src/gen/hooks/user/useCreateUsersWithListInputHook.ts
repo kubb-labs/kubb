@@ -26,7 +26,7 @@ export async function createUsersWithListInputHook(
 
   const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
-    url: '/user/createWithList',
+    url: `/user/createWithList`,
     data,
     ...requestConfig,
   })
