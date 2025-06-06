@@ -230,6 +230,8 @@ import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
+import path from 'node:path'
+
 
 export default defineConfig({
   input: {
@@ -248,7 +250,8 @@ export default defineConfig({
       },
       group: {
         type: 'tag',
-        name: ({ group }) => `${group}Hooks`,
+        name: ({ group }) =>
+          `${group.replaceAll(" ", "").replaceAll("|", path.sep)}Hooks`,
       },
       client: {
         dataReturnType: 'full',
