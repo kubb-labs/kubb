@@ -96,7 +96,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
             group:
               group.type === "path"
                 ? options.group.path!
-                : options.group.tag?.replaceAll(" ", "").replaceAll("|", "/")!,
+                : options.group.tag?.replaceAll(" ", "").replaceAll("|", path.sep)!,
           }),
           baseName
         )
