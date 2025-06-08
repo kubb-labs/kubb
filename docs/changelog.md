@@ -4,10 +4,16 @@ title: Changelog
 
 # Changelog
 
-# 3.11.0
+# 3.10.16
+- [`plugin-ts`](/plugins/plugin-ts): constEnum should be treated as export * instead of export type *
+
+# 3.10.15
+- [`plugin-ts`](/plugins/plugin-ts): Nullable response for @kubb/plugin-ts and @kubb/plugin-zod plugins inconsistency
+
+# 3.10.14
 - [`plugin-faker`](/plugins/plugin-faker): Min and max is not applied to the faker functions when only one of them is defined
 - [`core`](/plugins/core): uniqueBy for file.sources(isExportable and name)
-- [`plugin-ts`](/plugins/plugin-ts): Duplicated enums on typescript types
+- [`plugin-ts`](/plugins/plugin-ts): Duplicated enums on TypeScript types
 
 # 3.10.13
 - [`plugin-zod`](/plugins/plugin-zod): query parameter objects are no longer optional if at least one parameter is defaulted

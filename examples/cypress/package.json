@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "cypress": "^14.4.0",
+    "cypress": "^14.4.1",
     "typescript": "~5.2.2"
   },
   "packageManager": "pnpm@9.15.5",
