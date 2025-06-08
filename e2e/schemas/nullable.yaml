@@ -1,0 +1,277 @@
+{
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "API",
+    "contact": {},
+    "version": "1.0"
+  },
+  "host": "example.com",
+  "basePath": "/api",
+  "paths": {
+    "/v1/users/check-subscription": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Users"
+        ],
+        "summary": "Check subscription",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "pageNum",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "pageSize",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "query",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/CheckSubscriptionResponse"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/{userId}/payment-history": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get payment history",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "refId",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/PaymentHistoryResponse"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "required": [
+        "error"
+      ],
+      "properties": {
+        "error": {
+          "type": "string"
+        }
+      }
+    },
+    "SubscriptionItem": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "name",
+        "id",
+        "contact"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "contact": {
+          "type": "string"
+        }
+
+      }
+    },
+    "PaymentItem": {
+      "type": "object",
+      "required": [
+        "id",
+        "duration",
+        "state",
+        "userId"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "duration": {
+          "type": "string"
+        },
+        "state": {
+          "type": "integer"
+        },
+        "userId": {
+          "type": "integer"
+        }
+      }
+    },
+    "PaginationData": {
+      "type": "object",
+      "required": [
+        "currentPage",
+        "totalItems",
+        "totalPages"
+      ],
+      "properties": {
+        "currentPage": {
+          "type": "integer"
+        },
+        "totalItems": {
+          "type": "integer"
+        },
+        "totalPages": {
+          "type": "integer"
+        }
+      }
+    },
+    "CheckSubscriptionResponse": {
+      "type": "object",
+      "required": [
+        "data",
+        "pagination"
+      ],
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SubscriptionItem"
+          },
+          "nullable": true
+        },
+        "pagination": {
+          "$ref": "#/definitions/PaginationData"
+        }
+      },
+      "nullable": true
+    },
+    "PaymentHistoryResponse": {
+      "type": "object",
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PaymentItem"
+          },
+          "nullable": true
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "ApiKeyAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}

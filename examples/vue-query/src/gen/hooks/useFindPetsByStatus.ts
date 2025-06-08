@@ -25,7 +25,7 @@ export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, con
 
   const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
-    url: `/pet/findByStatus`,
+    url: '/pet/findByStatus',
     params,
     ...requestConfig,
   })

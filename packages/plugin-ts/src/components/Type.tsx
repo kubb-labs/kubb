@@ -1,11 +1,10 @@
-import { File } from '@kubb/react'
-
 import transformers from '@kubb/core/transformers'
 import type { SchemaObject } from '@kubb/oas'
 import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 import { createTypeDeclaration } from '@kubb/parser-ts/factory'
-import { type Schema, SchemaGenerator, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
+import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { File } from '@kubb/react'
 import { Fragment, type ReactNode } from 'react'
 import type ts from 'typescript'
 import { parse, typeKeywordMapper } from '../parser.ts'
@@ -53,7 +52,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
       .filter(Boolean)
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
 
-  if (schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.schema) && schemaFromTree.args.type !== 'object') {
+  if (schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.schema)) {
     const isNullish = tree.some((item) => item.keyword === schemaKeywords.nullish)
     const isNullable = tree.some((item) => item.keyword === schemaKeywords.nullable)
     const isOptional = tree.some((item) => item.keyword === schemaKeywords.optional)
@@ -141,7 +140,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
               name={typeName}
               isIndexable
               isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
-              isTypeOnly={['asConst', 'constEnum', 'literal', undefined].includes(enumType)}
+              isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
             >
               {print([typeNode])}
             </File.Source>

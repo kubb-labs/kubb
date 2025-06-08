@@ -1,14 +1,13 @@
-import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
-
 import path from 'node:path'
+import type { ZodOpenAPIMetadata } from '@asteasolutions/zod-to-openapi'
 import type { Plugin } from '@kubb/core'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import type { PluginZod } from '../types.ts'
 import { zodGenerator } from './zodGenerator.tsx'
-import type { ZodOpenAPIMetadata } from '@asteasolutions/zod-to-openapi'
 
 describe('zodGenerator schema', async () => {
   const testData = [
@@ -233,6 +232,12 @@ describe('zodGenerator schema', async () => {
       options: {
         coercion: { dates: true },
       },
+    },
+    {
+      name: 'Nullable',
+      input: '../../mocks/nullable.yaml',
+      path: 'Nullable',
+      options: {},
     },
   ] as const satisfies Array<{
     input: string

@@ -1,11 +1,9 @@
 import { join } from 'node:path'
-
-import { TreeNode } from './utils/TreeNode.ts'
-
-import { getRelativePath } from './fs/index.ts'
-import type { KubbFile } from './fs/index.ts'
 import type { FileMetaBase } from './FileManager.ts'
+import type { KubbFile } from './fs/index.ts'
+import { getRelativePath } from './fs/index.ts'
 import type { Logger } from './logger.ts'
+import { TreeNode } from './utils/TreeNode.ts'
 
 type BarrelManagerOptions = {
   logger?: Logger
@@ -59,7 +57,9 @@ export class BarrelManager {
           if (!item.data.file?.path || !source.isIndexable || !source.name) {
             return undefined
           }
-          const alreadyContainInPreviousBarrelFile = previousBarrelFile?.sources.some((item) => item.name === source.name)
+          const alreadyContainInPreviousBarrelFile = previousBarrelFile?.sources.some(
+            (item) => item.name === source.name && item.isTypeOnly === source.isTypeOnly,
+          )
 
           if (alreadyContainInPreviousBarrelFile) {
             return undefined

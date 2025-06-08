@@ -86,7 +86,5 @@ export function createUpdatePetWithForm<
     queryClient ? () => queryClient : undefined,
   ) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 
-  query.queryKey = queryKey as TQueryKey
-
   return query
 }

@@ -80,7 +80,5 @@ export function createFindPetsByTags<
     queryClient ? () => queryClient : undefined,
   ) as CreateQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 
-  query.queryKey = queryKey as TQueryKey
-
   return query
 }

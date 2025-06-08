@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-zod",
-  "version": "3.10.12",
+  "version": "3.10.14",
   "description": "Generator plugin-zod",
   "keywords": [
     "typescript",
@@ -85,7 +85,7 @@
     "@kubb/react": "workspace:*"
   },
   "devDependencies": {
-    "@asteasolutions/zod-to-openapi": "^7.3.2",
+    "@asteasolutions/zod-to-openapi": "^7.3.3",
     "@hono/zod-openapi": "0.19.2",
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",

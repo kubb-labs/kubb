@@ -21,11 +21,11 @@
     "serve": "vitepress serve"
   },
   "dependencies": {
-    "@shikijs/vitepress-twoslash": "^3.4.2",
+    "@shikijs/vitepress-twoslash": "^3.6.0",
     "mermaid": "^11.6.0",
     "sitemap": "^8.0.0",
     "vitepress": "^2.0.0-alpha.5",
-    "vitepress-plugin-group-icons": "^1.5.5",
+    "vitepress-plugin-group-icons": "^1.6.0",
     "vue": "^3.5.16"
   },
   "devDependencies": {

@@ -54,8 +54,8 @@
 		"@changesets/cli": "^2.29.4",
 		"@kubb/config-ts": "workspace:*",
 		"@types/node": "catalog:",
-		"@vitest/coverage-v8": "^3.2.0",
-		"@vitest/ui": "^3.2.0",
+		"@vitest/coverage-v8": "^3.2.2",
+		"@vitest/ui": "^3.2.2",
 		"bun-types": "^1.2.15",
 		"rimraf": "^6.0.1",
 		"taze": "^19.1.0",
@@ -63,7 +63,7 @@
 		"turbo": "^2.5.4",
 		"typescript": "catalog:",
 		"vite-tsconfig-paths": "^5.1.4",
-		"vitest": "^3.2.0"
+		"vitest": "^3.2.2"
 	},
 	"packageManager": "pnpm@10.10.0",
 	"engines": {
@@ -72,7 +72,7 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"@babel/runtime": "^7.27.4",
+			"@babel/runtime": "^7.27.6",
 			"@types/react": "catalog:react19",
 			"dompurify": "^3.2.6",
 			"esbuild": "^0.25.5"

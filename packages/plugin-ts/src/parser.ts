@@ -330,7 +330,6 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
   if (isKeyword(current, schemaKeywords.time)) {
     return typeKeywordMapper.time(current.args.type)
   }
-
   if (current.keyword in typeKeywordMapper) {
     return value()
   }
