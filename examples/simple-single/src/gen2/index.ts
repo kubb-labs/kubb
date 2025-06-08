@@ -29,11 +29,19 @@ export const checkStatusSchema = z.object({
   updated_at: z.string().optional(),
 })
 
+export const createAppDeployTokenRequestSchema = z.object({
+  expiry: z.string().optional(),
+})
+
 export const createAppRequestSchema = z.object({
   app_name: z.string().optional(),
   enable_subdomains: z.boolean().optional(),
   network: z.string().optional(),
   org_slug: z.string().optional(),
+})
+
+export const createAppResponseSchema = z.object({
+  token: z.string().optional(),
 })
 
 export const createLeaseRequestSchema = z.object({
@@ -48,6 +56,7 @@ export const createMachineRequestSchema = z.object({
     .optional(),
   lease_ttl: z.number().int().optional(),
   lsvd: z.boolean().optional(),
+  min_secrets_version: z.number().int().optional(),
   name: z.string().describe('Unique name for this Machine. If omitted, one is generated for you').optional(),
   region: z
     .string()
@@ -265,6 +274,7 @@ export const updateMachineRequestSchema = z.object({
   current_version: z.string().optional(),
   lease_ttl: z.number().int().optional(),
   lsvd: z.boolean().optional(),
+  min_secrets_version: z.number().int().optional(),
   name: z.string().describe('Unique name for this Machine. If omitted, one is generated for you').optional(),
   region: z
     .string()
@@ -875,6 +885,22 @@ export const appsDelete202Schema = z.any()
 
 export const appsDeleteMutationResponseSchema = z.lazy(() => appsDelete202Schema)
 
+export const appCreateDeployTokenPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+})
+
+/**
+ * @description OK
+ */
+export const appCreateDeployToken200Schema = z.lazy(() => createAppResponseSchema)
+
+/**
+ * @description Request body
+ */
+export const appCreateDeployTokenMutationRequestSchema = z.lazy(() => createAppDeployTokenRequestSchema)
+
+export const appCreateDeployTokenMutationResponseSchema = z.lazy(() => appCreateDeployToken200Schema)
+
 export const machinesListPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),
 })
@@ -1274,7 +1300,7 @@ export const secretkeysListPathParamsSchema = z.object({
 
 export const secretkeysListQueryParamsSchema = z
   .object({
-    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
     types: z.string().describe('Comma-seperated list of secret keys to list').optional(),
   })
   .optional()
@@ -1293,7 +1319,7 @@ export const secretkeyGetPathParamsSchema = z.object({
 
 export const secretkeyGetQueryParamsSchema = z
   .object({
-    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
   })
   .optional()
 
@@ -1345,7 +1371,7 @@ export const secretkeyDecryptPathParamsSchema = z.object({
 
 export const secretkeyDecryptQueryParamsSchema = z
   .object({
-    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
   })
   .optional()
 
@@ -1373,7 +1399,7 @@ export const secretkeyEncryptPathParamsSchema = z.object({
 
 export const secretkeyEncryptQueryParamsSchema = z
   .object({
-    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
   })
   .optional()
 
@@ -1423,7 +1449,7 @@ export const secretkeySignPathParamsSchema = z.object({
 
 export const secretkeySignQueryParamsSchema = z
   .object({
-    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
   })
   .optional()
 
@@ -1451,7 +1477,7 @@ export const secretkeyVerifyPathParamsSchema = z.object({
 
 export const secretkeyVerifyQueryParamsSchema = z
   .object({
-    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
   })
   .optional()
 
@@ -1478,7 +1504,7 @@ export const secretsListPathParamsSchema = z.object({
 
 export const secretsListQueryParamsSchema = z
   .object({
-    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
     show_secrets: z.boolean().describe('Show the secret values.').optional(),
   })
   .optional()
@@ -1497,7 +1523,7 @@ export const secretGetPathParamsSchema = z.object({
 
 export const secretGetQueryParamsSchema = z
   .object({
-    version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
     show_secrets: z.boolean().describe('Show the secret value.').optional(),
   })
   .optional()
