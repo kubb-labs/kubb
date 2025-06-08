@@ -1,5 +1,18 @@
 # @kubb/plugin-faker
 
+## 3.10.13
+
+### Patch Changes
+
+- [`3c7aa35`](https://github.com/kubb-labs/kubb/commit/3c7aa354761f4dba9288db93d15e5d29d1094116) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Min and max is not applied to the faker functions when only one of them is defined
+
+- Updated dependencies []:
+  - @kubb/core@3.10.13
+  - @kubb/oas@3.10.13
+  - @kubb/plugin-oas@3.10.13
+  - @kubb/plugin-ts@3.10.13
+  - @kubb/react@3.10.13
+
 ## 3.10.12
 
 ### Patch Changes
