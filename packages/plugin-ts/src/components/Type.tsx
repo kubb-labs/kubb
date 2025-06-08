@@ -140,7 +140,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
               name={typeName}
               isIndexable
               isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
-              isTypeOnly={['asConst', 'constEnum', 'literal', undefined].includes(enumType)}
+              isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
             >
               {print([typeNode])}
             </File.Source>

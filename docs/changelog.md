@@ -4,8 +4,11 @@ title: Changelog
 
 # Changelog
 
+# 3.10.16
+- [`plugin-ts`](/plugins/plugin-ts): constEnum should be treated as export * instead of export type *
+
 # 3.10.15
-- [`plugin-ts`](/plugins/plugin-ts) Nullable response for @kubb/plugin-ts and @kubb/plugin-zod plugins inconsistency
+- [`plugin-ts`](/plugins/plugin-ts): Nullable response for @kubb/plugin-ts and @kubb/plugin-zod plugins inconsistency
 
 # 3.10.14
 - [`plugin-faker`](/plugins/plugin-faker): Min and max is not applied to the faker functions when only one of them is defined
