@@ -1,5 +1,18 @@
 # @kubb/plugin-ts
 
+## 3.10.14
+
+### Patch Changes
+
+- [`17ebfce`](https://github.com/kubb-labs/kubb/commit/17ebfce849874784aa0625310eae17c8574528b3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Nullable response for @kubb/plugin-ts and @kubb/plugin-zod plugins inconsistency
+
+- Updated dependencies []:
+  - @kubb/core@3.10.14
+  - @kubb/oas@3.10.14
+  - @kubb/parser-ts@3.10.14
+  - @kubb/plugin-oas@3.10.14
+  - @kubb/react@3.10.14
+
 ## 3.10.13
 
 ### Patch Changes

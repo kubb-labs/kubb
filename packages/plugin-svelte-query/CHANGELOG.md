@@ -1,5 +1,18 @@
 # @kubb/plugin-svelte-query
 
+## 3.10.14
+
+### Patch Changes
+
+- Updated dependencies [[`17ebfce`](https://github.com/kubb-labs/kubb/commit/17ebfce849874784aa0625310eae17c8574528b3)]:
+  - @kubb/plugin-ts@3.10.14
+  - @kubb/plugin-client@3.10.14
+  - @kubb/plugin-zod@3.10.14
+  - @kubb/core@3.10.14
+  - @kubb/oas@3.10.14
+  - @kubb/plugin-oas@3.10.14
+  - @kubb/react@3.10.14
+
 ## 3.10.13
 
 ### Patch Changes
