@@ -376,6 +376,12 @@ describe('typeGenerator schema', async () => {
       path: 'Notification',
       options: {},
     },
+    {
+      name: 'Nullable',
+      input: '../../mocks/nullable.yaml',
+      path: 'Nullable',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string

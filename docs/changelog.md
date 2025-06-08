@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.10.15
+- [`plugin-ts`](/plugins/plugin-ts) Nullable response for @kubb/plugin-ts and @kubb/plugin-zod plugins inconsistency
+
 # 3.10.14
 - [`plugin-faker`](/plugins/plugin-faker): Min and max is not applied to the faker functions when only one of them is defined
 - [`core`](/plugins/core): uniqueBy for file.sources(isExportable and name)
