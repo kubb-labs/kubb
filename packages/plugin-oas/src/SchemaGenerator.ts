@@ -660,18 +660,7 @@ export class SchemaGenerator<
         keyword: schemaKeywords.and,
         args: schemaObject.allOf
           .map((item) => {
-            const schemaObjectItem = item as SchemaObject
-            const requiredKey = Object.keys((schemaObjectItem.properties || {}) as Record<string, unknown>).find((it) =>
-              schemaObjectItem.required && Array.isArray(schemaObjectItem.required) ? schemaObjectItem.required?.includes(it) : false,
-            )
-
-            if (requiredKey && Array.isArray(schemaObjectItem.required)) {
-              schemaObjectItem.required = [...schemaObjectItem.required, requiredKey]
-            } else if (requiredKey && !schemaObjectItem.required) {
-              schemaObjectItem.required = [requiredKey]
-            }
-
-            return item && this.parse({ schemaObject: schemaObjectItem, name, parentName })[0]
+            return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
           })
           .filter(Boolean)
           .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
