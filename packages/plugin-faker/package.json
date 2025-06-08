@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-faker",
-  "version": "3.10.14",
+  "version": "3.10.15",
   "description": "Generator plugin-faker",
   "keywords": [
     "faker",

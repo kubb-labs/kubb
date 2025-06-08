@@ -1,5 +1,18 @@
 # @kubb/plugin-ts
 
+## 3.10.15
+
+### Patch Changes
+
+- [`db73926`](https://github.com/kubb-labs/kubb/commit/db73926f46739e598244bedc52f466591b2d7320) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - constEnum should be treated as export _ instead of export type _
+
+- Updated dependencies []:
+  - @kubb/core@3.10.15
+  - @kubb/oas@3.10.15
+  - @kubb/parser-ts@3.10.15
+  - @kubb/plugin-oas@3.10.15
+  - @kubb/react@3.10.15
+
 ## 3.10.14
 
 ### Patch Changes
