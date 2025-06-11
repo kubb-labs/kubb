@@ -365,7 +365,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
 
   if (isKeyword(current, schemaKeywords.const)) {
     if (current.args.format === 'number' && current.args.value !== undefined) {
-      return zodKeywordMapper.const(Number.parseInt(current.args.value?.toString()))
+      return zodKeywordMapper.const(Number(current.args.value?.toString()))
     }
 
     if (current.args.format === 'boolean' && current.args.value !== undefined) {
