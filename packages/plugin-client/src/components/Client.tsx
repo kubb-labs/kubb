@@ -193,7 +193,7 @@ export function Client({
    if(data) {
     Object.keys(data).forEach((key) => {
       const value = data[key as keyof typeof data];
-      if (typeof key === "string" && (typeof value === "string" || (value as Blob) instanceof Blob)) {
+      if (typeof key === "string" && (typeof value === "string" || (value as unknown as Blob) instanceof Blob)) {
         formData.append(key, value as unknown as string);
       }
     })
