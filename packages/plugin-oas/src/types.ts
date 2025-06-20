@@ -1,8 +1,7 @@
-import type { Group, Output, Plugin } from '@kubb/core'
-import type { PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Group, Output, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/core/fs'
 
-import type { HttpMethod, Oas, Operation, SchemaObject, contentType } from '@kubb/oas'
+import type { contentType, HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
 import type { Generator } from './generator.tsx'
 
 export type ResolvePathOptions = {
@@ -46,6 +45,18 @@ export type Options = {
    * By default, the first JSON valid mediaType will be used
    */
   contentType?: contentType
+  /**
+   * Defines how the discriminator value should be interpreted during processing.
+   *
+   * @default 'strict'
+   *
+   * @example
+   * - `inherit`: Replaces the `oneOf` schema with the schema referenced by `discriminator.mapping[key]`.
+   * - `strict`: Uses the `oneOf` schemas as defined, without modification.
+   *
+   * @see https://github.com/kubb-labs/kubb/issues/1736
+   */
+  discriminator?: 'strict' | 'inherit'
   /**
    * Override some behaviour of the Oas class instance, see '@kubb/oas'
    */

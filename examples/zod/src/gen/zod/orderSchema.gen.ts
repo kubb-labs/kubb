@@ -15,6 +15,10 @@ export const orderSchema = z.object({
     .union([z.literal(200), z.literal(400)])
     .describe('HTTP Status')
     .optional(),
+  value: z
+    .union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(3.5), z.literal(4)])
+    .describe('Price')
+    .optional(),
   complete: z.boolean().optional(),
 })
 

@@ -1,16 +1,14 @@
-import { FileManager, type Group, createPlugin } from '@kubb/core'
-
-import { parseFromConfig } from './utils/parseFromConfig.ts'
-
 import path from 'node:path'
 import type { Config } from '@kubb/core'
+import { createPlugin, FileManager, type Group } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import { camelCase } from '@kubb/core/transformers'
 import type { Oas } from '@kubb/oas'
+import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
-import { jsonGenerator } from './generators'
 import type { PluginOas } from './types.ts'
+import { parseFromConfig } from './utils/parseFromConfig.ts'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 
@@ -25,12 +23,18 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     serverIndex,
     contentType,
     oasClass,
+    discriminator = 'strict',
   } = options
   let oas: Oas
 
   const getOas = async ({ config, logger }: { config: Config; logger: Logger }): Promise<Oas> => {
     // needs to be in a different variable or the catch here will not work(return of a promise instead)
     oas = await parseFromConfig(config, oasClass)
+
+    oas.setOptions({
+      contentType,
+      discriminator,
+    })
 
     try {
       if (validate) {
@@ -49,6 +53,8 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     name: pluginOasName,
     options: {
       output,
+      validate,
+      discriminator,
       ...options,
     },
     context() {

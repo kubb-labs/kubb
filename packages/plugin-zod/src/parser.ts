@@ -1,9 +1,9 @@
+import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import type { SchemaObject } from '@kubb/oas'
-import { SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
-import { PackageManager } from '@kubb/core'
+import { isKeyword, SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
 
 const packageManager = new PackageManager()
 const isV4 = () => packageManager.isValidSync('zod', '>=4') || packageManager.isValidSync('zod', 'next')
@@ -365,7 +365,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
 
   if (isKeyword(current, schemaKeywords.const)) {
     if (current.args.format === 'number' && current.args.value !== undefined) {
-      return zodKeywordMapper.const(Number.parseInt(current.args.value?.toString()))
+      return zodKeywordMapper.const(Number(current.args.value))
     }
 
     if (current.args.format === 'boolean' && current.args.value !== undefined) {

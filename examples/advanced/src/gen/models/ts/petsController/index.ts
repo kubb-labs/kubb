@@ -1,5 +1,6 @@
 export type {
   CreatePetsPathParams,
+  CreatePetsQueryParamsBoolParamEnum,
   CreatePetsQueryParams,
   CreatePetsHeaderParamsXEXAMPLEEnum,
   CreatePetsHeaderParams,
@@ -9,4 +10,4 @@ export type {
   CreatePetsMutationResponse,
   CreatePetsMutation,
 } from './CreatePets.ts'
-export { createPetsHeaderParamsXEXAMPLEEnum } from './CreatePets.ts'
+export { createPetsQueryParamsBoolParamEnum, createPetsHeaderParamsXEXAMPLEEnum } from './CreatePets.ts'

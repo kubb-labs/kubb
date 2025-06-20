@@ -1,4 +1,4 @@
-import { type OperationSchema as OperationSchemaType, SchemaGenerator, createReactGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { createReactGenerator, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -58,8 +58,8 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       return (
         <Oas.Schema key={i} name={name} schemaObject={schemaObject} tree={tree}>
           {canOverride && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
-          {imports.map((imp, index) => (
-            <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />
+          {imports.map((imp) => (
+            <File.Import key={[imp.path, imp.name].join('-')} root={file.path} path={imp.path} name={imp.name} />
           ))}
           <Faker
             name={faker.name}
@@ -135,8 +135,8 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         {regexGenerator === 'randexp' && <File.Import name={'RandExp'} path={'randexp'} />}
         {dateParser !== 'faker' && <File.Import path={dateParser} name={dateParser} />}
         <File.Import isTypeOnly root={faker.file.path} path={type.file.path} name={[type.name]} />
-        {imports.map((imp, index) => (
-          <File.Import key={index} root={faker.file.path} path={imp.path} name={imp.name} />
+        {imports.map((imp) => (
+          <File.Import key={[imp.path, imp.name].join('-')} root={faker.file.path} path={imp.path} name={imp.name} />
         ))}
 
         <Faker

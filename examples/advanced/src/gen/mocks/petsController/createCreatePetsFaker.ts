@@ -17,7 +17,7 @@ export function createCreatePetsPathParamsFaker(data?: Partial<CreatePetsPathPar
 
 export function createCreatePetsQueryParamsFaker(data?: Partial<CreatePetsQueryParams>): CreatePetsQueryParams {
   return {
-    ...{ offset: faker.number.int() },
+    ...{ bool_param: faker.helpers.arrayElement<NonNullable<CreatePetsQueryParams>['bool_param']>([true]), offset: faker.number.int() },
     ...(data || {}),
   }
 }
