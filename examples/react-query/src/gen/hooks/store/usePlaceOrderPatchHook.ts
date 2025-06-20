@@ -26,7 +26,7 @@ export async function placeOrderPatchHook(
 
   const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
-    url: '/store/order',
+    url: `/store/order`,
     data,
     ...requestConfig,
   })

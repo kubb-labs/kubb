@@ -154,6 +154,125 @@ const plugin = pluginOas({ serverIndex: 1 })
 ```
 :::
 
+### discriminator
+
+Defines how the discriminator value should be interpreted during processing.
+This has been mentioned in [issues/1736](https://github.com/kubb-labs/kubb/issues/1736).
+
+
+|           |                          |
+|----------:|:-------------------------|
+|     Type: | ` 'strict' \| 'inherit'` |
+| Required: | `'strict'`                 |
+
+- `'inherit'` Replaces the `oneOf` schema with the schema referenced by `discriminator.mapping[key]`.
+- `'strict'` Uses the `oneOf` schemas as defined, without modification.
+
+::: code-group
+
+```yaml [OpenAPI]
+openapi: 3.0.3
+components:
+  schemas:
+    Animal:
+    title: Animal
+    required:
+      - type
+    type: object
+    oneOf:
+      - $ref: "#/components/schemas/Cat"
+      - $ref: "#/components/schemas/Dog"
+    properties:
+      type:
+        type: string
+        enum:
+          - cat
+          - dog
+    discriminator:
+      propertyName: type
+      mapping:
+        cat: "#/components/schemas/Cat"
+        dog: "#/components/schemas/Dog"
+
+    Cat:
+      title: Cat
+      type: object
+      required:
+        - indoor
+        - type
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        indoor:
+          type: boolean
+
+    Dog:
+      title: Dog
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+```
+
+```typescript [discriminator 'strict']
+export type Cat = {
+  type: string
+  name?: string
+  indoor: boolean
+}
+
+export type Dog = {
+  type: string
+  name: string
+}
+
+export type Animal =
+  | (Cat & {
+  type: 'cat'
+})
+  | (Dog & {
+  type: 'dog'
+})
+```
+
+```typescript [discriminator 'inherit']
+export const catTypeEnum = {
+  cat: 'cat',
+} as const
+
+export type CatTypeEnum = (typeof catTypeEnum)[keyof typeof catTypeEnum]
+export type Cat = {
+  type: CatTypeEnum
+  name?: string
+  indoor: boolean
+}
+
+export const dogTypeEnum = {
+  dog: 'dog',
+} as const
+
+export type DogTypeEnum = (typeof dogTypeEnum)[keyof typeof dogTypeEnum]
+export type Dog = {
+  type: DogTypeEnum
+  name: string
+}
+
+export type Animal =
+  | (Cat & {
+  type: 'cat'
+})
+  | (Dog & {
+  type: 'dog'
+})
+```
+
 ### contentType
 <!--@include: ../core/contentType.md-->
 

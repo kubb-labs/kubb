@@ -76,6 +76,16 @@
         ],
         "parameters": [
           {
+            "name": "bool_param",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "enum": [
+                true
+              ]
+            }
+          },
+          {
             "description": "UUID",
             "in": "path",
             "name": "uuid",
@@ -4786,6 +4796,121 @@
           "name": "##default"
         },
         "x-readme-ref-name": "ApiResponse"
+      },
+      "Animal": {
+        "title": "Animal",
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "oneOf": [
+          {
+            "title": "Cat",
+            "type": "object",
+            "required": [
+              "indoor",
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "minLength": 1,
+                "readOnly": true
+              },
+              "name": {
+                "type": "string"
+              },
+              "indoor": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false,
+            "x-readme-ref-name": "Cat"
+          },
+          {
+            "title": "Dog",
+            "type": "object",
+            "required": [
+              "name",
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "minLength": 1,
+                "readOnly": true
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "x-readme-ref-name": "Dog"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "cat",
+              "dog"
+            ],
+            "minLength": 1,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false,
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "cat": "#/components/schemas/Cat",
+            "dog": "#/components/schemas/Dog"
+          }
+        },
+        "x-readme-ref-name": "Animal"
+      },
+      "Cat": {
+        "title": "Cat",
+        "type": "object",
+        "required": [
+          "indoor",
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "readOnly": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "indoor": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "x-readme-ref-name": "Cat"
+      },
+      "Dog": {
+        "title": "Dog",
+        "type": "object",
+        "required": [
+          "name",
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "readOnly": true
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "x-readme-ref-name": "Dog"
       }
     },
     "requestBodies": {

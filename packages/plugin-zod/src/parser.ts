@@ -1,9 +1,9 @@
+import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import type { SchemaObject } from '@kubb/oas'
-import { SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
-import { PackageManager } from '@kubb/core'
+import { isKeyword, SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
 
 const packageManager = new PackageManager()
 const isV4 = () => packageManager.isValidSync('zod', '>=4') || packageManager.isValidSync('zod', 'next')

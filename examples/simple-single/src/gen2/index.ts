@@ -1006,6 +1006,12 @@ export const machinesListEventsPathParamsSchema = z.object({
   machine_id: z.string().describe('Machine ID'),
 })
 
+export const machinesListEventsQueryParamsSchema = z
+  .object({
+    limit: z.coerce.number().int().describe('The number of events to fetch (max of 50). If omitted, this is set to 20 by default.').optional(),
+  })
+  .optional()
+
 /**
  * @description OK
  */

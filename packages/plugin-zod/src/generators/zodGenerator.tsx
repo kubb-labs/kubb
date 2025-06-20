@@ -1,4 +1,4 @@
-import { type OperationSchema as OperationSchemaType, SchemaGenerator, createReactGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { createReactGenerator, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -64,8 +64,8 @@ export const zodGenerator = createReactGenerator<PluginZod>({
         <Oas.Schema key={i} name={name} schemaObject={schemaObject} tree={tree}>
           {typed && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
           {typed && <File.Import isTypeOnly path={'@kubb/plugin-zod/utils'} name={['ToZod']} />}
-          {imports.map((imp, index) => (
-            <File.Import key={index} root={file.path} path={imp.path} name={imp.name} />
+          {imports.map((imp) => (
+            <File.Import key={[imp.path, imp.name].join('-')} root={file.path} path={imp.path} name={imp.name} />
           ))}
           <Zod
             name={zod.name}
@@ -132,8 +132,8 @@ export const zodGenerator = createReactGenerator<PluginZod>({
         <File.Import name={['z']} path={importPath} />
         {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
         {typed && <File.Import isTypeOnly path={'@kubb/plugin-zod/utils'} name={['ToZod']} />}
-        {imports.map((imp, index) => (
-          <File.Import key={index} root={zod.file.path} path={imp.path} name={imp.name} />
+        {imports.map((imp) => (
+          <File.Import key={[imp.path, imp.name].join('-')} root={zod.file.path} path={imp.path} name={imp.name} />
         ))}
 
         <Zod

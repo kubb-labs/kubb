@@ -363,6 +363,7 @@ describe('typeGenerator schema', async () => {
       },
     },
     // https://github.com/kubb-labs/kubb/issues/1669
+    // https://github.com/kubb-labs/kubb/issues/1736
     {
       name: 'PetsStoreAdvancedDiscriminator',
       input: '../../mocks/discriminator.yaml',
