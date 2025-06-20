@@ -11,13 +11,16 @@ import { isDiscriminator, isReference } from './utils.ts'
 
 type Options = {
   contentType?: contentType
+  discriminator?: 'strict' | 'inherit'
 }
 
 export class Oas<const TOAS = unknown> extends BaseOas {
-  #options: Options = {}
+  #options: Options = {
+    discriminator: 'strict',
+  }
   document: TOAS = undefined as unknown as TOAS
 
-  constructor({ oas, user }: { oas: TOAS | OASDocument | string; user?: User }, options: Options = {}) {
+  constructor({ oas, user }: { oas: TOAS | OASDocument | string; user?: User }) {
     if (typeof oas === 'string') {
       oas = JSON.parse(oas)
     }
@@ -25,7 +28,14 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     super(oas as OASDocument, user)
 
     this.document = oas as TOAS
+  }
+
+  setOptions(options: Options) {
     this.#options = options
+  }
+
+  get options(): Options {
+    return this.#options
   }
 
   get($ref: string) {
@@ -69,6 +79,30 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     }
 
     const { mapping = {}, propertyName } = schema.discriminator
+
+    if (this.#options.discriminator === 'inherit') {
+      Object.entries(mapping).forEach(([mappingKey, mappingValue]) => {
+        if (mappingValue) {
+          const childSchema = this.get(mappingValue)
+          if (!childSchema.properties) {
+            childSchema.properties = {}
+          }
+
+          const property = childSchema.properties[propertyName] as SchemaObject
+
+          if (childSchema.properties) {
+            childSchema.properties[propertyName] = {
+              ...(childSchema.properties ? childSchema.properties[propertyName] : {}),
+              enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
+            }
+
+            childSchema.required = [...(childSchema.required ?? []), propertyName]
+
+            this.set(mappingValue, childSchema)
+          }
+        }
+      })
+    }
 
     // loop over oneOf and add default mapping when none is defined
     if (schema.oneOf) {

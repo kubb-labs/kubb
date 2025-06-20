@@ -985,6 +985,61 @@ components:
           type: string
       xml:
         name: "##default"
+
+    Animal:
+      title: Animal
+      required:
+        - type
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/Cat"
+        - $ref: "#/components/schemas/Dog"
+      properties:
+        type:
+          type: string
+          enum:
+            - cat
+            - dog
+          minLength: 1
+          readOnly: true
+      additionalProperties: false
+      discriminator:
+        propertyName: type
+        mapping:
+          cat: "#/components/schemas/Cat"
+          dog: "#/components/schemas/Dog"
+
+    Cat:
+      title: Cat
+      type: object
+      required:
+        - indoor
+        - type
+      properties:
+        type:
+          type: string
+          minLength: 1
+          readOnly: true
+        name:
+          type: string
+        indoor:
+          type: boolean
+      additionalProperties: false
+
+    Dog:
+      title: Dog
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        type:
+          type: string
+          minLength: 1
+          readOnly: true
+        name:
+          type: string
+      additionalProperties: false
   requestBodies:
     Pet:
       description: Pet object that needs to be added to the store

@@ -23,7 +23,7 @@ export async function findPetsByTagsSuspenseHook(params?: FindPetsByTagsQueryPar
 
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
-    url: '/pet/findByTags',
+    url: `/pet/findByTags`,
     params,
     ...requestConfig,
   })

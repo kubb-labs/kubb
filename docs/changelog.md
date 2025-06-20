@@ -4,7 +4,8 @@ title: Changelog
 
 # Changelog
 
-# 3.10.17
+# 3.11.0
+- [`plugin-oas`](/plugins/plugin-oas): discriminator flag that could override a schema when mapping is used(see inherit), resolves [https://github.com/kubb-labs/kubb/issues/1736](https://github.com/kubb-labs/kubb/issues/1736)
 - [`plugin-zod`](/plugins/plugin-zod): enums of type "number" are parsed to integers
 - [`plugin-faker`](/plugins/plugin-faker): Incompatible type used for true literal enum in query param
 
