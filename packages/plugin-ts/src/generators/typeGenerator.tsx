@@ -141,7 +141,8 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
       return (
         <Oas.Schema key={i} name={name} schemaObject={schemaObject} tree={tree}>
-          {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={file.path} path={imp.path} name={imp.name} isTypeOnly />)}
+          {mode === 'split' &&
+            imports.map((imp) => <File.Import key={[imp.name, imp.path].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />)}
           <Type
             name={type.name}
             typedName={type.typedName}
@@ -206,7 +207,8 @@ export const typeGenerator = createReactGenerator<PluginTs>({
         banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
-        {mode === 'split' && imports.map((imp, index) => <File.Import key={index} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />)}
+        {mode === 'split' &&
+          imports.map((imp) => <File.Import key={[imp.name, imp.path].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />)}
         <Type
           name={type.name}
           typedName={type.typedName}

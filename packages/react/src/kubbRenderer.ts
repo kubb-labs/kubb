@@ -141,7 +141,7 @@ export const KubbRenderer = Reconciler({
   },
   createTextInstance(text, _root, hostContext) {
     if (hostContext.isFile && !hostContext.isSource) {
-      throw new Error('[react] `${text}` should be part of <File.Source> component when using the <File/> component.')
+      throw new Error(`[react] '${text}' should be part of <File.Source> component when using the <File/> component`)
     }
 
     return createTextNode(text)

@@ -101,6 +101,7 @@ export type {
 export type { PetNotFound } from './models/ts/PetNotFound.ts'
 export type {
   CreatePetsPathParams,
+  CreatePetsQueryParamsBoolParamEnum,
   CreatePetsQueryParams,
   CreatePetsHeaderParamsXEXAMPLEEnum,
   CreatePetsHeaderParams,
@@ -454,7 +455,7 @@ export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.ts'
 export { orderOrderTypeEnum, orderStatusEnum, orderHttpStatusEnum } from './models/ts/Order.ts'
 export { petStatusEnum } from './models/ts/Pet.ts'
 export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './models/ts/petController/FindPetsByTags.ts'
-export { createPetsHeaderParamsXEXAMPLEEnum } from './models/ts/petsController/CreatePets.ts'
+export { createPetsQueryParamsBoolParamEnum, createPetsHeaderParamsXEXAMPLEEnum } from './models/ts/petsController/CreatePets.ts'
 export { handlers } from './msw/handlers.ts'
 export { addFilesHandler } from './msw/petController/addFilesHandler.ts'
 export { addPetHandler } from './msw/petController/addPetHandler.ts'

@@ -29,10 +29,10 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-vue-query": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@tanstack/vue-query": "^5.80.6",
-    "axios": "^1.9.0",
+    "@tanstack/vue-query": "^5.80.10",
+    "axios": "^1.10.0",
     "unplugin-kubb": "workspace:*",
-    "vue": "^3.5.16"
+    "vue": "^3.5.17"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.4",

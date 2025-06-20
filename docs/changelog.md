@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+# 3.10.17
+- [`plugin-zod`](/plugins/plugin-zod): enums of type "number" are parsed to integers
+- [`plugin-faker`](/plugins/plugin-faker): Incompatible type used for true literal enum in query param
+
 # 3.10.16
 - [`plugin-ts`](/plugins/plugin-ts): constEnum should be treated as export * instead of export type *
 

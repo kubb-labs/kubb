@@ -726,6 +726,24 @@ components:
           x-enumNames:
             - ok
             - not_found
+        value:
+          type: number
+          description: Price
+          example: 2
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 3.5
+            - 4
+          x-enumNames:
+            - FIRST_VALUE
+            - FOLLOWING_VALUE
+            - ANOTHER_ONE
+            - ONE_MORE
+            - ALMOST_FINISHED
+            - DONE
         complete:
           type: boolean
       xml:

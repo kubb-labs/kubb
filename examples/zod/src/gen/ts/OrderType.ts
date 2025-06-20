@@ -18,6 +18,17 @@ export const orderHttpStatusEnum = {
 
 export type OrderHttpStatusEnumType = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
+export const orderValueEnum = {
+  FIRST_VALUE: 0,
+  FOLLOWING_VALUE: 1,
+  ANOTHER_ONE: 2,
+  ONE_MORE: 3,
+  ALMOST_FINISHED: 3.5,
+  DONE: 4,
+} as const
+
+export type OrderValueEnumType = (typeof orderValueEnum)[keyof typeof orderValueEnum]
+
 export type OrderType = {
   /**
    * @type integer | undefined, int64
@@ -45,6 +56,11 @@ export type OrderType = {
    * @type number | undefined
    */
   http_status?: OrderHttpStatusEnumType
+  /**
+   * @description Price
+   * @type number | undefined
+   */
+  value?: OrderValueEnumType
   /**
    * @type boolean | undefined
    */
