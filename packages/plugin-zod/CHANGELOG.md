@@ -1,5 +1,19 @@
 # @kubb/plugin-zod
 
+## 3.11.0
+
+### Patch Changes
+
+- [`13189ee`](https://github.com/kubb-labs/kubb/commit/13189ee0c7b297cc42cf9a7d476780ff7e357efe) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - enums of type "number" are parsed to integers
+
+- Updated dependencies [[`55de3d2`](https://github.com/kubb-labs/kubb/commit/55de3d2758ce4957882243ad70d3168d3c41ff40)]:
+  - @kubb/plugin-oas@3.11.0
+  - @kubb/plugin-ts@3.11.0
+  - @kubb/core@3.11.0
+  - @kubb/oas@3.11.0
+  - @kubb/parser-ts@3.11.0
+  - @kubb/react@3.11.0
+
 ## 3.10.15
 
 ### Patch Changes
