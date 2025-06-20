@@ -1,5 +1,19 @@
 # @kubb/plugin-zod
 
+## 3.11.1
+
+### Patch Changes
+
+- [#1751](https://github.com/kubb-labs/kubb/pull/1751) [`5400e56`](https://github.com/kubb-labs/kubb/commit/5400e56fd866dbee721cd2dcbdb288088c58d990) Thanks [@rmachado-studocu](https://github.com/rmachado-studocu)! - fix(plugin-zod): avoids converting float values to integers
+
+- Updated dependencies []:
+  - @kubb/core@3.11.1
+  - @kubb/oas@3.11.1
+  - @kubb/parser-ts@3.11.1
+  - @kubb/plugin-oas@3.11.1
+  - @kubb/plugin-ts@3.11.1
+  - @kubb/react@3.11.1
+
 ## 3.11.0
 
 ### Patch Changes
