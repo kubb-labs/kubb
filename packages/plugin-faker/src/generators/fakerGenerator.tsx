@@ -59,7 +59,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         <Oas.Schema key={i} name={name} schemaObject={schemaObject} tree={tree}>
           {canOverride && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
           {imports.map((imp) => (
-            <File.Import key={[imp.path, imp.name].join('-')} root={file.path} path={imp.path} name={imp.name} />
+            <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} />
           ))}
           <Faker
             name={faker.name}
@@ -136,7 +136,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         {dateParser !== 'faker' && <File.Import path={dateParser} name={dateParser} />}
         <File.Import isTypeOnly root={faker.file.path} path={type.file.path} name={[type.name]} />
         {imports.map((imp) => (
-          <File.Import key={[imp.path, imp.name].join('-')} root={faker.file.path} path={imp.path} name={imp.name} />
+          <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={faker.file.path} path={imp.path} name={imp.name} />
         ))}
 
         <Faker
