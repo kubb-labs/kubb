@@ -1,5 +1,18 @@
 # @kubb/plugin-faker
 
+## 3.10.16
+
+### Patch Changes
+
+- [`13189ee`](https://github.com/kubb-labs/kubb/commit/13189ee0c7b297cc42cf9a7d476780ff7e357efe) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Incompatible type used for true literal enum in query param
+
+- Updated dependencies []:
+  - @kubb/core@3.10.16
+  - @kubb/oas@3.10.16
+  - @kubb/plugin-oas@3.10.16
+  - @kubb/plugin-ts@3.10.16
+  - @kubb/react@3.10.16
+
 ## 3.10.15
 
 ### Patch Changes
