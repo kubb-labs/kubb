@@ -57,6 +57,11 @@ export type Options = {
    */
   unknownType?: 'any' | 'unknown' | 'void'
   /**
+   * Which type to use for empty schema values
+   * @default `unknownType`
+   */
+  emptySchemaType?: 'any' | 'unknown' | 'void'
+  /**
    * Choose what to use as mode for an optional value.
    * @examples 'questionToken': type?: string
    * @examples 'undefined': type: string | undefined
@@ -99,6 +104,7 @@ type ResolvedOptions = {
   enumSuffix: NonNullable<Options['enumSuffix']>
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
+  emptySchemaType: NonNullable<Options['emptySchemaType']>
   optionalType: NonNullable<Options['optionalType']>
   transformers: NonNullable<Options['transformers']>
   oasType: NonNullable<Options['oasType']>
