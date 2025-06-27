@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.12.0
+- [`plugin-zod`](/plugins/plugin-zod): full support for Zod v4
+
 # 3.11.1
 - [`plugin-oas`](/plugins/plugin-oas): resolve anyof when used together with allof
 

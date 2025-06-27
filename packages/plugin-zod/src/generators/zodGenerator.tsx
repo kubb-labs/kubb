@@ -78,6 +78,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
             coercion={coercion}
             keysToOmit={keysToOmit}
             wrapOutput={wrapOutput}
+            version={plugin.options.version}
           />
         </Oas.Schema>
       )
@@ -97,7 +98,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     )
   },
   Schema({ schema, options }) {
-    const { coercion, inferred, typed, mapper, importPath, wrapOutput } = options
+    const { coercion, inferred, typed, mapper, importPath, wrapOutput, version } = options
 
     const { getName, getFile, getImports } = useSchemaManager()
     const {
@@ -146,6 +147,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
           mapper={mapper}
           coercion={coercion}
           wrapOutput={wrapOutput}
+          version={version}
         />
       </File>
     )

@@ -15,7 +15,7 @@ export type GetUserByNamePathParamsSchema = z.infer<typeof getUserByNamePathPara
 /**
  * @description successful operation
  */
-export const getUserByName200Schema = userSchema
+export const getUserByName200Schema = z.lazy(() => userSchema)
 
 export type GetUserByName200Schema = z.infer<typeof getUserByName200Schema>
 
@@ -33,6 +33,6 @@ export const getUserByName404Schema = z.any()
 
 export type GetUserByName404Schema = z.infer<typeof getUserByName404Schema>
 
-export const getUserByNameQueryResponseSchema = getUserByName200Schema
+export const getUserByNameQueryResponseSchema = z.lazy(() => getUserByName200Schema)
 
 export type GetUserByNameQueryResponseSchema = z.infer<typeof getUserByNameQueryResponseSchema>

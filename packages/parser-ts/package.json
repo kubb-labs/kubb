@@ -59,7 +59,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.2",
     "remeda": "catalog:",
     "typescript": "catalog:"
   },

@@ -1,13 +1,10 @@
 import path from 'node:path'
-
-import { FileManager, type Group, PluginManager, createPlugin } from '@kubb/core'
-import { camelCase, pascalCase } from '@kubb/core/transformers'
-import { OperationGenerator, SchemaGenerator, pluginOasName } from '@kubb/plugin-oas'
-
-import { pluginTsName } from '@kubb/plugin-ts'
-
 import type { Plugin } from '@kubb/core'
+import { createPlugin, FileManager, type Group, PluginManager } from '@kubb/core'
+import { camelCase, pascalCase } from '@kubb/core/transformers'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
+import { pluginTsName } from '@kubb/plugin-ts'
 import { operationsGenerator } from './generators'
 import { zodGenerator } from './generators/zodGenerator.tsx'
 import type { PluginZod } from './types.ts'
@@ -33,6 +30,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     generators = [zodGenerator, operations ? operationsGenerator : undefined].filter(Boolean),
     wrapOutput = undefined,
     contentType,
+    version = '3',
   } = options
 
   return {
@@ -53,6 +51,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       inferred,
       group,
       wrapOutput,
+      version,
     },
     pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {

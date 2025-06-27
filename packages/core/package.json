@@ -114,7 +114,7 @@
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.7.0",
     "consola": "^3.4.2",
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.2",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },
