@@ -273,6 +273,8 @@ export type Animal =
 })
 ```
 
+:::
+
 ### contentType
 <!--@include: ../core/contentType.md-->
 

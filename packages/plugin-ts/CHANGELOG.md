@@ -1,5 +1,27 @@
 # @kubb/plugin-ts
 
+## 3.11.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.11.1
+  - @kubb/oas@3.11.1
+  - @kubb/parser-ts@3.11.1
+  - @kubb/plugin-oas@3.11.1
+  - @kubb/react@3.11.1
+
+## 3.11.0
+
+### Patch Changes
+
+- Updated dependencies [[`55de3d2`](https://github.com/kubb-labs/kubb/commit/55de3d2758ce4957882243ad70d3168d3c41ff40)]:
+  - @kubb/plugin-oas@3.11.0
+  - @kubb/core@3.11.0
+  - @kubb/oas@3.11.0
+  - @kubb/parser-ts@3.11.0
+  - @kubb/react@3.11.0
+
 ## 3.10.15
 
 ### Patch Changes

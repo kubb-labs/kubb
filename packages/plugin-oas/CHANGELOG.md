@@ -1,5 +1,27 @@
 # @kubb/swagger
 
+## 3.11.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.11.1
+  - @kubb/oas@3.11.1
+  - @kubb/react@3.11.1
+
+## 3.11.0
+
+### Minor Changes
+
+- [`55de3d2`](https://github.com/kubb-labs/kubb/commit/55de3d2758ce4957882243ad70d3168d3c41ff40) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - discriminator flag that could override a schema when mapping is used(see inherit)
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.11.0
+  - @kubb/oas@3.11.0
+  - @kubb/react@3.11.0
+
 ## 3.10.15
 
 ### Patch Changes
