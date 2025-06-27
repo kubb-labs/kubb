@@ -1,5 +1,19 @@
 # @kubb/plugin-zod
 
+## 3.12.1
+
+### Patch Changes
+
+- [`517fedc`](https://github.com/kubb-labs/kubb/commit/517fedc6e1adc748ae1768072bc6823c243bcde5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct v4 imports when no importPath is defined
+
+- Updated dependencies []:
+  - @kubb/core@3.12.1
+  - @kubb/oas@3.12.1
+  - @kubb/parser-ts@3.12.1
+  - @kubb/plugin-oas@3.12.1
+  - @kubb/plugin-ts@3.12.1
+  - @kubb/react@3.12.1
+
 ## 3.12.0
 
 ### Minor Changes
