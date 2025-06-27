@@ -45,12 +45,16 @@ export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, co
 
   if (lastSchema && isKeyword(lastSchema, schemaKeywords.nullable)) {
     if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref)) {
-      suffix = '.unwrap().schema.unwrap()'
+      if (version === '3') {
+        suffix = '.unwrap().schema.unwrap()'
+      } else {
+        suffix = '.unwrap().unwrap()'
+      }
     } else {
       suffix = '.unwrap()'
     }
   } else {
-    if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref)) {
+    if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref) && version === '3') {
       suffix = '.schema'
     }
   }

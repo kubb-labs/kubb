@@ -4,7 +4,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
 import { createUserMutationResponseSchema, createUserMutationRequestSchema } from '../../../zod/userController/createUserSchema.ts'
 
 function getCreateUserUrl() {
-  return 'https://petstore3.swagger.io/api/v3/user' as const
+  return `https://petstore3.swagger.io/api/v3/user` as const
 }
 
 /**

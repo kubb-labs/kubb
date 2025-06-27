@@ -4,7 +4,7 @@ import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from 
 import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
 
 function getLoginUserUrl() {
-  return 'https://petstore3.swagger.io/api/v3/user/login' as const
+  return `https://petstore3.swagger.io/api/v3/user/login` as const
 }
 
 /**
