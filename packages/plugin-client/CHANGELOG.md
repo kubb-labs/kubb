@@ -1,5 +1,19 @@
 # @kubb/plugin-client
 
+## 3.12.0
+
+### Patch Changes
+
+- [#1757](https://github.com/kubb-labs/kubb/pull/1757) [`7a9e6e7`](https://github.com/kubb-labs/kubb/commit/7a9e6e7b6bffa233c3c573ec5116e4c0dda7cce2) Thanks [@belgattitude](https://github.com/belgattitude)! - Fix typescript strict checking issue regarding FormData values
+
+- Updated dependencies [[`2ba42c5`](https://github.com/kubb-labs/kubb/commit/2ba42c5603e037b0a324c3b720e7b6505daf9acf)]:
+  - @kubb/plugin-zod@3.12.0
+  - @kubb/core@3.12.0
+  - @kubb/oas@3.12.0
+  - @kubb/plugin-oas@3.12.0
+  - @kubb/plugin-ts@3.12.0
+  - @kubb/react@3.12.0
+
 ## 3.11.1
 
 ### Patch Changes
