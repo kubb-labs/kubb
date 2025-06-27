@@ -1,7 +1,7 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const petNotFoundSchema = z.object({
-  code: z.number().int().optional(),
+  code: z.int().optional(),
   message: z.string().optional(),
 })
 

@@ -1,7 +1,7 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const categorySchema = z.object({
-  id: z.number().int().optional(),
+  id: z.int().optional(),
   name: z.string().optional(),
 })
 

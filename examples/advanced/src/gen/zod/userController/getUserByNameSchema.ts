@@ -1,5 +1,5 @@
 import { userSchema } from '../userSchema.ts'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const getUserByNamePathParamsSchema = z.object({
   username: z.string().describe('The name that needs to be fetched. Use user1 for testing. '),
@@ -10,7 +10,7 @@ export type GetUserByNamePathParamsSchema = z.infer<typeof getUserByNamePathPara
 /**
  * @description successful operation
  */
-export const getUserByName200Schema = z.lazy(() => userSchema)
+export const getUserByName200Schema = userSchema
 
 export type GetUserByName200Schema = z.infer<typeof getUserByName200Schema>
 
@@ -28,6 +28,6 @@ export const getUserByName404Schema = z.any()
 
 export type GetUserByName404Schema = z.infer<typeof getUserByName404Schema>
 
-export const getUserByNameQueryResponseSchema = z.lazy(() => getUserByName200Schema)
+export const getUserByNameQueryResponseSchema = getUserByName200Schema
 
 export type GetUserByNameQueryResponseSchema = z.infer<typeof getUserByNameQueryResponseSchema>

@@ -11,7 +11,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 export async function createUserHandler({ data }: { data?: CreateUserMutationRequest }): Promise<Promise<CallToolResult>> {
   const res = await client<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
-    url: '/user',
+    url: `/user`,
     baseURL: 'https://petstore.swagger.io/v2',
     data,
   })

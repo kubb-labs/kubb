@@ -1,7 +1,7 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const tagTagSchema = z.object({
-  id: z.number().int().min(5).max(7).default(1),
+  id: z.int().min(5).max(7).default(1),
   name: z.string().optional(),
 })
 

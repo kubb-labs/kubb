@@ -1,5 +1,5 @@
 import { petSchema } from '../petSchema.ts'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const findPetsByStatusPathParamsSchema = z.object({
   step_id: z.string(),
@@ -11,7 +11,7 @@ export type FindPetsByStatusPathParamsSchema = z.infer<typeof findPetsByStatusPa
  * @description successful operation
  */
 export const findPetsByStatus200Schema = z
-  .array(z.lazy(() => petSchema))
+  .array(petSchema)
   .min(1)
   .max(3)
   .refine((items) => new Set(items).size === items.length, { message: 'Array entries must be unique' })
@@ -25,6 +25,6 @@ export const findPetsByStatus400Schema = z.any()
 
 export type FindPetsByStatus400Schema = z.infer<typeof findPetsByStatus400Schema>
 
-export const findPetsByStatusQueryResponseSchema = z.lazy(() => findPetsByStatus200Schema)
+export const findPetsByStatusQueryResponseSchema = findPetsByStatus200Schema
 
 export type FindPetsByStatusQueryResponseSchema = z.infer<typeof findPetsByStatusQueryResponseSchema>

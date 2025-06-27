@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.12.1
+- [`plugin-zod`](/plugins/plugin-zod): Correct v4 imports when no importPath is defined
+
 # 3.12.0
 - [`plugin-zod`](/plugins/plugin-zod): full support for Zod v4
 

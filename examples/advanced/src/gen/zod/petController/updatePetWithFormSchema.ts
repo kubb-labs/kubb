@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const updatePetWithFormPathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet that needs to be updated'),

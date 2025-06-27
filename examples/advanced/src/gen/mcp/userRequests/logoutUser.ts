@@ -10,7 +10,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 export async function logoutUserHandler(): Promise<Promise<CallToolResult>> {
   const res = await client<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
-    url: '/user/logout',
+    url: `/user/logout`,
     baseURL: 'https://petstore.swagger.io/v2',
   })
   return {

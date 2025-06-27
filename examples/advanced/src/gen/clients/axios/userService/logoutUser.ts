@@ -4,7 +4,7 @@ import type { LogoutUserQueryResponse } from '../../../models/ts/userController/
 import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.ts'
 
 function getLogoutUserUrl() {
-  return 'https://petstore3.swagger.io/api/v3/user/logout' as const
+  return `https://petstore3.swagger.io/api/v3/user/logout` as const
 }
 
 /**
