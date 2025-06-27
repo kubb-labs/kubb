@@ -52,6 +52,11 @@ export type Options = {
    */
   unknownType?: 'any' | 'unknown' | 'void'
   /**
+   * Which type to use for empty schema values
+   * @default `unknownType`
+   */
+  emptySchemaType?: 'any' | 'unknown' | 'void'
+  /**
    * Choose which generator to use when using Regexp.
    *
    * `'faker'` will use `faker.helpers.fromRegExp(new RegExp(/test/))`
@@ -90,6 +95,7 @@ type ResolvedOptions = {
   dateType: NonNullable<Options['dateType']>
   dateParser: NonNullable<Options['dateParser']>
   unknownType: NonNullable<Options['unknownType']>
+  emptySchemaType: NonNullable<Options['emptySchemaType']>
   transformers: NonNullable<Options['transformers']>
   seed: NonNullable<Options['seed']> | undefined
   mapper: NonNullable<Options['mapper']>

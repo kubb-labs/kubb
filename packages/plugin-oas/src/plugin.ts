@@ -122,6 +122,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       const schemaGenerator = new SchemaGenerator(
         {
           unknownType: 'unknown',
+          emptySchemaType: 'unknown',
           dateType: 'date',
           transformers: {},
           ...this.plugin.options,

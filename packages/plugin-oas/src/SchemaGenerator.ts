@@ -34,6 +34,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
 export type SchemaGeneratorOptions = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   unknownType: 'any' | 'unknown' | 'void'
+  emptySchemaType: 'any' | 'unknown' | 'void'
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   enumSuffix?: string
   usedEnumNames?: Record<string, number>
@@ -231,13 +232,26 @@ export class SchemaGenerator<
     }
   }
 
-  #getUnknownReturn(props: SchemaProps) {
+  #getUnknownType(props: SchemaProps) {
     const options = this.#getOptions(props)
 
     if (options.unknownType === 'any') {
       return schemaKeywords.any
     }
     if (options.unknownType === 'void') {
+      return schemaKeywords.void
+    }
+
+    return schemaKeywords.unknown
+  }
+
+  #getEmptyType(props: SchemaProps) {
+    const options = this.#getOptions(props)
+
+    if (options.emptySchemaType === 'any') {
+      return schemaKeywords.any
+    }
+    if (options.emptySchemaType === 'void') {
       return schemaKeywords.void
     }
 
@@ -283,7 +297,7 @@ export class SchemaGenerator<
     if (additionalProperties) {
       additionalPropertiesSchemas =
         additionalProperties === true || !Object.keys(additionalProperties).length
-          ? [{ keyword: this.#getUnknownReturn({ schemaObject, name }) }]
+          ? [{ keyword: this.#getUnknownType({ schemaObject, name }) }]
           : this.parse({ schemaObject: additionalProperties as SchemaObject, parentName: name })
     }
 
@@ -440,10 +454,10 @@ export class SchemaGenerator<
     const { schemaObject, version } = this.#getParsedSchemaObject(_schemaObject)
 
     const options = this.#getOptions({ schemaObject, name })
-    const unknownReturn = this.#getUnknownReturn({ schemaObject, name })
+    const emptyType = this.#getEmptyType({ schemaObject, name })
 
     if (!schemaObject) {
-      return [{ keyword: unknownReturn }]
+      return [{ keyword: emptyType }]
     }
 
     const baseItems: Schema[] = [
@@ -1001,7 +1015,7 @@ export class SchemaGenerator<
       return [{ keyword: type }, ...baseItems]
     }
 
-    return [{ keyword: unknownReturn }]
+    return [{ keyword: emptyType }]
   }
 
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {

@@ -189,6 +189,31 @@ z.any()
 ```typescript ['unknown']
 z.unknown()
 ```
+```typescript ['void']
+z.void()
+```
+:::
+
+### emptySchemaType
+
+Which type to use for empty schema values.
+
+|           |                                |
+|----------:|:-------------------------------|
+|     Type: | `'any' \| 'unknown' \| 'void'` |
+| Required: | `false`                        |
+|  Default: | `unknownType`                  |
+
+::: code-group
+```typescript ['any']
+z.any()
+```
+```typescript ['unknown']
+z.unknown()
+```
+```typescript ['void']
+z.void()
+```
 :::
 
 ### coercion

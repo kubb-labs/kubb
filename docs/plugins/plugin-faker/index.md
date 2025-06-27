@@ -187,6 +187,17 @@ Which type to use when the Swagger/OpenAPI file is not providing more informatio
 |  Default: | `'any'`                       |
 
 
+### emptySchemaType
+
+Which type to use for empty schema values.
+
+|           |                                |
+|----------:|:-------------------------------|
+|     Type: | `'any' \| 'unknown' \| 'void'` |
+| Required: | `false`                        |
+|  Default: | `unknownType`                  |
+
+
 ### regexGenerator
 
 Choose which generator to use when using Regexp.
