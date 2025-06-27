@@ -61,13 +61,13 @@ export const createMockedPluginManager = (name?: string) =>
 
 export const mockedPluginManager = createMockedPluginManager('')
 
-export async function matchFiles(files: Array<ResolvedFile | File> | undefined) {
+export async function matchFiles(files: Array<ResolvedFile | File> | undefined, pre?: string) {
   if (!files) {
     return undefined
   }
 
   for await (const file of files) {
     const source = await getSource(createFile(file), { logger: mockedLogger })
-    await expect(source).toMatchFileSnapshot(path.join('__snapshots__', file.path))
+    await expect(source).toMatchFileSnapshot(path.join(...['__snapshots__', pre, file.path].filter(Boolean)))
   }
 }

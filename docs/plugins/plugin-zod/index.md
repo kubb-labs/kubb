@@ -236,6 +236,14 @@ z.coerce.number()
 |     Type: | `Record<string, string>` |
 | Required: | `false`   |
 
+### version
+Which version of Zod should be used.
+
+|           |              |
+|----------:|:-------------|
+|     Type: | `'3' \| '4'` |
+| Required: | `'3'`        |
+
 ### exclude
 <!--@include: ../core/exclude.md-->
 

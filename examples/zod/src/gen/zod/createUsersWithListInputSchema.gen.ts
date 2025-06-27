@@ -9,7 +9,7 @@ import { userSchema } from './userSchema.gen.ts'
 /**
  * @description Successful operation
  */
-export const createUsersWithListInput200Schema = userSchema
+export const createUsersWithListInput200Schema = z.lazy(() => userSchema)
 
 export type CreateUsersWithListInput200Schema = z.infer<typeof createUsersWithListInput200Schema>
 
@@ -20,10 +20,10 @@ export const createUsersWithListInputErrorSchema = z.any()
 
 export type CreateUsersWithListInputErrorSchema = z.infer<typeof createUsersWithListInputErrorSchema>
 
-export const createUsersWithListInputMutationRequestSchema = z.array(userSchema)
+export const createUsersWithListInputMutationRequestSchema = z.array(z.lazy(() => userSchema))
 
 export type CreateUsersWithListInputMutationRequestSchema = z.infer<typeof createUsersWithListInputMutationRequestSchema>
 
-export const createUsersWithListInputMutationResponseSchema = createUsersWithListInput200Schema
+export const createUsersWithListInputMutationResponseSchema = z.lazy(() => createUsersWithListInput200Schema)
 
 export type CreateUsersWithListInputMutationResponseSchema = z.infer<typeof createUsersWithListInputMutationResponseSchema>

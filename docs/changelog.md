@@ -4,6 +4,17 @@ title: Changelog
 
 # Changelog
 
+# 3.12.0
+- [`plugin-zod`](/plugins/plugin-zod): full support for Zod v4
+
+# 3.11.1
+- [`plugin-oas`](/plugins/plugin-oas): resolve anyof when used together with allof
+
+# 3.11.0
+- [`plugin-oas`](/plugins/plugin-oas): discriminator flag that could override a schema when mapping is used(see inherit), resolves [https://github.com/kubb-labs/kubb/issues/1736](https://github.com/kubb-labs/kubb/issues/1736)
+- [`plugin-zod`](/plugins/plugin-zod): enums of type "number" are parsed to integers
+- [`plugin-faker`](/plugins/plugin-faker): Incompatible type used for true literal enum in query param
+
 # 3.10.16
 - [`plugin-ts`](/plugins/plugin-ts): constEnum should be treated as export * instead of export type *
 

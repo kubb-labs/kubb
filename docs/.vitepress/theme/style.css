@@ -346,7 +346,8 @@ a.fancy-sponsor {
   font-size: 14px;
   line-height: 30px;
 
-  background: linear-gradient(var(--vp-button-alt-hover-bg), var(--vp-button-alt-hover-bg)),
+  background:
+    linear-gradient(var(--vp-button-alt-hover-bg), var(--vp-button-alt-hover-bg)),
     linear-gradient(var(--vp-button-alt-hover-bg) 50%, rgba(18, 18, 19, 0.6) 80%, rgba(18, 18, 19, 0)),
     linear-gradient(90deg, var(--orange), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red));
   background-origin: border-box;

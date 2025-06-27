@@ -23,7 +23,7 @@ export type UploadFileQueryParamsSchema = z.infer<typeof uploadFileQueryParamsSc
 /**
  * @description successful operation
  */
-export const uploadFile200Schema = apiResponseSchema
+export const uploadFile200Schema = z.lazy(() => apiResponseSchema)
 
 export type UploadFile200Schema = z.infer<typeof uploadFile200Schema>
 
@@ -31,6 +31,6 @@ export const uploadFileMutationRequestSchema = z.instanceof(File)
 
 export type UploadFileMutationRequestSchema = z.infer<typeof uploadFileMutationRequestSchema>
 
-export const uploadFileMutationResponseSchema = uploadFile200Schema
+export const uploadFileMutationResponseSchema = z.lazy(() => uploadFile200Schema)
 
 export type UploadFileMutationResponseSchema = z.infer<typeof uploadFileMutationResponseSchema>

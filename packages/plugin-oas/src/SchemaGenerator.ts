@@ -1,20 +1,17 @@
+import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import { BaseGenerator, type FileMetaBase } from '@kubb/core'
+import type { KubbFile } from '@kubb/core/fs'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
-
+import type { contentType, Oas, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference } from '@kubb/oas'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
+import type { Generator } from './generator.tsx'
+import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
+import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
-
-import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type { KubbFile } from '@kubb/core/fs'
-
-import type { Oas, OpenAPIV3, SchemaObject, contentType } from '@kubb/oas'
-import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
-import type { Generator } from './generator.tsx'
-import type { OperationSchema, Override, Refs } from './types.ts'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
@@ -567,14 +564,14 @@ export class SchemaGenerator<
       ].filter(Boolean)
     }
 
-    if (schemaObject.oneOf) {
+    if (schemaObject.oneOf || schemaObject.anyOf) {
       // union
-      const schemaWithoutOneOf = { ...schemaObject, oneOf: undefined }
+      const schemaWithoutOneOf = { ...schemaObject, oneOf: undefined, anyOf: undefined }
       const discriminator = this.context.oas.getDiscriminator(schemaObject)
 
       const union: SchemaKeywordMapper['union'] = {
         keyword: schemaKeywords.union,
-        args: schemaObject.oneOf
+        args: (schemaObject.oneOf || schemaObject.anyOf)!
           .map((item) => {
             // first item, this will be ref
             return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
@@ -584,7 +581,7 @@ export class SchemaGenerator<
       }
 
       if (discriminator) {
-        return [this.#addDiscriminatorToSchema({ schemaObject: schemaWithoutOneOf, schema: union, discriminator }), ...baseItems]
+        if (this.context) return [this.#addDiscriminatorToSchema({ schemaObject: schemaWithoutOneOf, schema: union, discriminator }), ...baseItems]
       }
 
       if (schemaWithoutOneOf.properties) {
@@ -605,56 +602,6 @@ export class SchemaGenerator<
       return [union, ...baseItems]
     }
 
-    if (schemaObject.anyOf) {
-      // union
-      const schemaWithoutAnyOf = { ...schemaObject, anyOf: undefined }
-
-      const union: SchemaKeywordMapper['union'] = {
-        keyword: schemaKeywords.union,
-        args: schemaObject.anyOf
-          .map((item) => {
-            // first item, this will be ref
-            return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
-          })
-          .filter(Boolean)
-          .filter((item) => !isKeyword(item, schemaKeywords.unknown))
-          .map((item) => {
-            if (isKeyword(item, schemaKeywords.object)) {
-              return {
-                ...item,
-                args: {
-                  ...item.args,
-                  strict: true,
-                },
-              }
-            }
-            return item
-          }),
-      }
-
-      const discriminator = this.context.oas.getDiscriminator(schemaObject)
-
-      if (discriminator) {
-        return [this.#addDiscriminatorToSchema({ schemaObject: schemaWithoutAnyOf, schema: union, discriminator }), ...baseItems]
-      }
-
-      if (schemaWithoutAnyOf.properties) {
-        const propertySchemas = this.parse({ schemaObject: schemaWithoutAnyOf, name, parentName })
-
-        union.args = [
-          ...union.args.map((arg) => {
-            return {
-              keyword: schemaKeywords.and,
-              args: [arg, ...propertySchemas],
-            }
-          }),
-        ]
-
-        return [union, ...baseItems]
-      }
-
-      return [union, ...baseItems]
-    }
     if (schemaObject.allOf) {
       // intersection/add
       const schemaWithoutAllOf = { ...schemaObject, allOf: undefined }

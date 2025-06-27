@@ -13,8 +13,8 @@ import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
 const schemas = [
-  { name: 'test', path: './schemas/test.json' },
-  { name: 'notus', path: 'https://api.notus.team/openapi' },
+  // { name: 'test', path: './schemas/test.json' },
+  // { name: 'notus', path: 'https://api.notus.team/openapi' },
   { name: 'Machines API', path: 'https://docs.machines.dev/spec/openapi3.json' },
   { name: 'discriminator', path: './schemas/discriminator.yaml' },
   { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },

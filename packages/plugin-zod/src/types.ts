@@ -1,5 +1,5 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { Oas, SchemaObject, contentType } from '@kubb/oas'
+import type { contentType, Oas, SchemaObject } from '@kubb/oas'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
 
 export type Options = {
@@ -89,6 +89,11 @@ export type Options = {
     ) => Schema[] | undefined
   }
   /**
+   * Which version of Zod should be used
+   * @default '3
+   */
+  version?: '3' | '4'
+  /**
    * Callback function to wrap the output of the generated zod schema
    *
    * This is useful for edge case scenarios where you might leverage something like `z.object({ ... }).openapi({ example: { some: "complex-example" }})`
@@ -116,6 +121,7 @@ type ResolvedOptions = {
   coercion: NonNullable<Options['coercion']>
   operations: NonNullable<Options['operations']>
   wrapOutput: Options['wrapOutput']
+  version: NonNullable<Options['version']>
 }
 
 export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions>

@@ -9,7 +9,7 @@ import { orderSchema } from './orderSchema.gen.ts'
 /**
  * @description successful operation
  */
-export const placeOrder200Schema = orderSchema
+export const placeOrder200Schema = z.lazy(() => orderSchema)
 
 export type PlaceOrder200Schema = z.infer<typeof placeOrder200Schema>
 
@@ -20,10 +20,10 @@ export const placeOrder405Schema = z.any()
 
 export type PlaceOrder405Schema = z.infer<typeof placeOrder405Schema>
 
-export const placeOrderMutationRequestSchema = orderSchema
+export const placeOrderMutationRequestSchema = z.lazy(() => orderSchema)
 
 export type PlaceOrderMutationRequestSchema = z.infer<typeof placeOrderMutationRequestSchema>
 
-export const placeOrderMutationResponseSchema = placeOrder200Schema
+export const placeOrderMutationResponseSchema = z.lazy(() => placeOrder200Schema)
 
 export type PlaceOrderMutationResponseSchema = z.infer<typeof placeOrderMutationResponseSchema>

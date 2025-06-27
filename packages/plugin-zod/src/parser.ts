@@ -1,12 +1,8 @@
 import transformers from '@kubb/core/transformers'
 import type { SchemaObject } from '@kubb/oas'
-import { SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
-import { PackageManager } from '@kubb/core'
-
-const packageManager = new PackageManager()
-const isV4 = () => packageManager.isValidSync('zod', '>=4') || packageManager.isValidSync('zod', 'next')
+import { isKeyword, SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
 
 const zodKeywordMapper = {
   any: () => 'z.any()',
@@ -17,9 +13,9 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  integer: (coercion?: boolean, min?: number, max?: number) => {
+  integer: (coercion?: boolean, min?: number, max?: number, version: '3' | '4' = '3') => {
     return [
-      coercion ? 'z.coerce.number().int()' : isV4() ? 'z.int()' : 'z.number().int()',
+      coercion ? 'z.coerce.number().int()' : version === '4' ? 'z.int()' : 'z.number().int()',
       min !== undefined ? `.min(${min})` : undefined,
       max !== undefined ? `.max(${max})` : undefined,
     ]
@@ -36,8 +32,8 @@ const zodKeywordMapper = {
     ${value}
     })`
   },
-  object: (value?: string, strict?: boolean) => {
-    if (isV4() && strict) {
+  object: (value?: string, strict?: boolean, version: '3' | '4' = '3') => {
+    if (version === '4' && strict) {
       return `z.strictObject({
     ${value}
     })`
@@ -81,13 +77,13 @@ const zodKeywordMapper = {
   /**
    * ISO 8601
    */
-  datetime: (offset = false, local = false) => {
+  datetime: (offset = false, local = false, version: '3' | '4' = '3') => {
     if (offset) {
-      return isV4() ? `z.iso.datetime({ offset: ${offset} })` : `z.string().datetime({ offset: ${offset} })`
+      return version === '4' ? `z.iso.datetime({ offset: ${offset} })` : `z.string().datetime({ offset: ${offset} })`
     }
 
     if (local) {
-      return isV4() ? `z.iso.datetime({ local: ${local} })` : `z.string().datetime({ local: ${local} })`
+      return version === '4' ? `z.iso.datetime({ local: ${local} })` : `z.string().datetime({ local: ${local} })`
     }
 
     return 'z.string().datetime()'
@@ -97,9 +93,9 @@ const zodKeywordMapper = {
    * Type `'string'` ISO date format (YYYY-MM-DD)
    * @default ISO date format (YYYY-MM-DD)
    */
-  date: (type: 'date' | 'string' = 'string', coercion?: boolean) => {
+  date: (type: 'date' | 'string' = 'string', coercion?: boolean, version: '3' | '4' = '3') => {
     if (type === 'string') {
-      return isV4() ? 'z.iso.date()' : 'z.string().date()'
+      return version === '4' ? 'z.iso.date()' : 'z.string().date()'
     }
 
     if (coercion) {
@@ -113,9 +109,9 @@ const zodKeywordMapper = {
    * Type `'string'` ISO time format (HH:mm:ss[.SSSSSS])
    * @default ISO time format (HH:mm:ss[.SSSSSS])
    */
-  time: (type: 'date' | 'string' = 'string', coercion?: boolean) => {
+  time: (type: 'date' | 'string' = 'string', coercion?: boolean, version: '3' | '4' = '3') => {
     if (type === 'string') {
-      return isV4() ? 'z.iso.time()' : 'z.string().time()'
+      return version === '4' ? 'z.iso.time()' : 'z.string().time()'
     }
 
     if (coercion) {
@@ -124,8 +120,10 @@ const zodKeywordMapper = {
 
     return 'z.date()'
   },
-  uuid: (coercion?: boolean) => (isV4() ? (coercion ? 'z.coerce.string().uuid()' : 'z.uuid()') : coercion ? 'z.coerce.string().uuid()' : 'z.string().uuid()'),
-  url: (coercion?: boolean) => (isV4() ? (coercion ? 'z.coerce.string().url()' : 'z.url()') : coercion ? 'z.coerce.string().url()' : 'z.string().url()'),
+  uuid: (coercion?: boolean, version: '3' | '4' = '3') =>
+    version === '4' ? (coercion ? 'z.coerce.string().uuid()' : 'z.uuid()') : coercion ? 'z.coerce.string().uuid()' : 'z.string().uuid()',
+  url: (coercion?: boolean, version: '3' | '4' = '3') =>
+    version === '4' ? (coercion ? 'z.coerce.string().url()' : 'z.url()') : coercion ? 'z.coerce.string().url()' : 'z.string().url()',
   default: (value?: string | number | true | object) => {
     if (typeof value === 'object') {
       return '.default({})'
@@ -138,20 +136,20 @@ const zodKeywordMapper = {
   max: (value?: number) => `.max(${value ?? ''})`,
   optional: () => '.optional()',
   matches: (value = '', coercion?: boolean) => (coercion ? `z.coerce.string().regex(${value})` : `z.string().regex(${value})`),
-  email: (coercion?: boolean) =>
-    isV4() ? (coercion ? 'z.coerce.string().email()' : 'z.email()') : coercion ? 'z.coerce.string().email()' : 'z.string().email()',
+  email: (coercion?: boolean, version: '3' | '4' = '3') =>
+    version === '4' ? (coercion ? 'z.coerce.string().email()' : 'z.email()') : coercion ? 'z.coerce.string().email()' : 'z.string().email()',
   firstName: undefined,
   lastName: undefined,
   password: undefined,
   phone: undefined,
   readOnly: undefined,
   writeOnly: undefined,
-  ref: (value?: string) => {
+  ref: (value?: string, version: '3' | '4' = '3') => {
     if (!value) {
       return undefined
     }
 
-    return isV4() ? value : `z.lazy(() => ${value})`
+    return version === '4' ? value : `z.lazy(() => ${value})`
   },
   blob: () => 'z.instanceof(File)',
   deprecated: undefined,
@@ -219,6 +217,7 @@ type ParserOptions = {
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
   rawSchema: SchemaObject
+  version: '3' | '4'
 }
 
 export function parse({ parent, current, name, siblings }: SchemaTree, options: ParserOptions): string | undefined {
@@ -304,7 +303,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
   }
 
   if (isKeyword(current, schemaKeywords.ref)) {
-    return zodKeywordMapper.ref(current.args?.name)
+    return zodKeywordMapper.ref(current.args?.name, options.version)
   }
 
   if (isKeyword(current, schemaKeywords.object)) {
@@ -332,7 +331,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
           ? options.wrapOutput({ output: baseSchemaOutput, schema: options.rawSchema?.properties?.[name] }) || baseSchemaOutput
           : baseSchemaOutput
 
-        if (isV4() && SchemaGenerator.find(schemas, schemaKeywords.ref)) {
+        if (options.version === '4' && SchemaGenerator.find(schemas, schemaKeywords.ref)) {
           return `get ${name}(){
                 return ${objectValue}
               }`
@@ -350,7 +349,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
       : undefined
 
     const text = [
-      zodKeywordMapper.object(properties, current.args?.strict),
+      zodKeywordMapper.object(properties, current.args?.strict, options.version),
       additionalProperties ? zodKeywordMapper.catchall(additionalProperties) : undefined,
     ].filter(Boolean)
 
@@ -365,7 +364,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
 
   if (isKeyword(current, schemaKeywords.const)) {
     if (current.args.format === 'number' && current.args.value !== undefined) {
-      return zodKeywordMapper.const(Number.parseInt(current.args.value?.toString()))
+      return zodKeywordMapper.const(Number(current.args.value))
     }
 
     if (current.args.format === 'boolean' && current.args.value !== undefined) {
@@ -397,15 +396,15 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
   }
 
   if (isKeyword(current, schemaKeywords.uuid)) {
-    return zodKeywordMapper.uuid(shouldCoerce(options.coercion, 'strings'))
+    return zodKeywordMapper.uuid(shouldCoerce(options.coercion, 'strings'), options.version)
   }
 
   if (isKeyword(current, schemaKeywords.email)) {
-    return zodKeywordMapper.email(shouldCoerce(options.coercion, 'strings'))
+    return zodKeywordMapper.email(shouldCoerce(options.coercion, 'strings'), options.version)
   }
 
   if (isKeyword(current, schemaKeywords.url)) {
-    return zodKeywordMapper.url(shouldCoerce(options.coercion, 'strings'))
+    return zodKeywordMapper.url(shouldCoerce(options.coercion, 'strings'), options.version)
   }
 
   if (isKeyword(current, schemaKeywords.number)) {
@@ -413,7 +412,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
   }
 
   if (isKeyword(current, schemaKeywords.integer)) {
-    return zodKeywordMapper.integer(shouldCoerce(options.coercion, 'numbers'))
+    return zodKeywordMapper.integer(shouldCoerce(options.coercion, 'numbers'), undefined, undefined, options.version)
   }
 
   if (isKeyword(current, schemaKeywords.min)) {
@@ -424,15 +423,15 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
   }
 
   if (isKeyword(current, schemaKeywords.datetime)) {
-    return zodKeywordMapper.datetime(current.args.offset, current.args.local)
+    return zodKeywordMapper.datetime(current.args.offset, current.args.local, options.version)
   }
 
   if (isKeyword(current, schemaKeywords.date)) {
-    return zodKeywordMapper.date(current.args.type, shouldCoerce(options.coercion, 'dates'))
+    return zodKeywordMapper.date(current.args.type, shouldCoerce(options.coercion, 'dates'), options.version)
   }
 
   if (isKeyword(current, schemaKeywords.time)) {
-    return zodKeywordMapper.time(current.args.type, shouldCoerce(options.coercion, 'dates'))
+    return zodKeywordMapper.time(current.args.type, shouldCoerce(options.coercion, 'dates'), options.version)
   }
 
   if (current.keyword in zodKeywordMapper && 'args' in current) {

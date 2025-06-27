@@ -18,6 +18,14 @@ describe('zodGenerator schema', async () => {
       options: {},
     },
     {
+      name: 'Pet-v4',
+      path: 'Pet',
+      input: '../../mocks/petStore.yaml',
+      options: {
+        version: '4',
+      },
+    },
+    {
       name: 'Pets',
       path: 'Pets',
       input: '../../mocks/petStore.yaml',
@@ -265,6 +273,7 @@ describe('zodGenerator schema', async () => {
       },
       group: undefined,
       wrapOutput: undefined,
+      version: '3',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
@@ -372,6 +381,7 @@ describe('zodGenerator operation', async () => {
       },
       group: undefined,
       wrapOutput: undefined,
+      version: '3',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
@@ -414,6 +424,7 @@ describe('zodGenerator operation', async () => {
           path: '.',
         },
         group: undefined,
+        version: '3',
         wrapOutput: ({ output, schema }) => {
           const metadata: ZodOpenAPIMetadata = {}
 
@@ -496,6 +507,7 @@ describe('zodGenerator operation', async () => {
           path: '.',
         },
         group: undefined,
+        version: '3',
         wrapOutput: ({ output, schema }) => {
           const metadata: ZodOpenAPIMetadata = {}
 

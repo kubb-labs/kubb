@@ -92,38 +92,37 @@ function getParams({ schemas }: GetParamsProps) {
 
 export function Server({ name, serverName, serverVersion, operations }: Props) {
   return (
-    <>
-      <File.Source name={name} isExportable isIndexable>
-        <Const name={'server'} export>
-          {`
+    <File.Source name={name} isExportable isIndexable>
+      <Const name={'server'} export>
+        {`
           new McpServer({
   name: '${serverName}',
   version: '${serverVersion}',
 })
           `}
-        </Const>
+      </Const>
 
-        {operations
-          .map(({ tool, mcp, zod }) => {
-            const paramsClient = getParams({ schemas: zod.schemas })
+      {operations
+        .map(({ tool, mcp, zod }) => {
+          const paramsClient = getParams({ schemas: zod.schemas })
 
-            if (zod.schemas.request?.name || zod.schemas.headerParams?.name || zod.schemas.queryParams?.name || zod.schemas.pathParams?.name) {
-              return `
+          if (zod.schemas.request?.name || zod.schemas.headerParams?.name || zod.schemas.queryParams?.name || zod.schemas.pathParams?.name) {
+            return `
 server.tool(${JSON.stringify(tool.name)}, ${JSON.stringify(tool.description)}, ${paramsClient.toObjectValue()}, async (${paramsClient.toObject()}) => {
   return ${mcp.name}(${paramsClient.toObject()})
 })
           `
-            }
+          }
 
-            return `
+          return `
 server.tool(${JSON.stringify(tool.name)}, ${JSON.stringify(tool.description)}, async () => {
   return ${mcp.name}(${paramsClient.toObject()})
 })
           `
-          })
-          .filter(Boolean)}
+        })
+        .filter(Boolean)}
 
-        {`
+      {`
 async function startServer() {
   try {
     const transport = new StdioServerTransport()
@@ -137,7 +136,6 @@ async function startServer() {
 
 startServer()
 `}
-      </File.Source>
-    </>
+    </File.Source>
   )
 }
