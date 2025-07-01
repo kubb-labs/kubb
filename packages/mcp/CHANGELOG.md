@@ -1,5 +1,24 @@
 # @kubb/mcp
 
+## 3.12.2
+
+### Patch Changes
+
+- Updated dependencies [[`74e2203`](https://github.com/kubb-labs/kubb/commit/74e2203a91becf5728b18c979247075332dcb660)]:
+  - @kubb/core@3.12.2
+  - @kubb/plugin-client@3.12.2
+  - @kubb/plugin-cypress@3.12.2
+  - @kubb/plugin-faker@3.12.2
+  - @kubb/plugin-mcp@3.12.2
+  - @kubb/plugin-msw@3.12.2
+  - @kubb/plugin-oas@3.12.2
+  - @kubb/plugin-react-query@3.12.2
+  - @kubb/plugin-redoc@3.12.2
+  - @kubb/plugin-swr@3.12.2
+  - @kubb/plugin-ts@3.12.2
+  - @kubb/plugin-zod@3.12.2
+  - @kubb/react@3.12.2
+
 ## 3.12.1
 
 ### Patch Changes
