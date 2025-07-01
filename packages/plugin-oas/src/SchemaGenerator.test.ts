@@ -75,6 +75,7 @@ describe('SchemaGenerator core', async () => {
     const schema = schemas?.[props.path]
 
     const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
+      emptySchemaType: 'unknown',
       ...props.options,
     }
     const plugin = { options } as Plugin<any>

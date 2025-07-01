@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type DeletePetsPetidMutationResponse = any
+export type DeletePetsPetidMutationResponse = unknown
 
 export type deletePetsPetidMutation = {
   Response: any

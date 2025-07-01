@@ -4,6 +4,11 @@ title: Changelog
 
 # Changelog
 
+# 3.13.0
+- [`plugin-ts`](/plugins/plugin-ts): Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
+- [`plugin-zod`](/plugins/plugin-zod): Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
+- [`plugin-faker`](/plugins/plugin-faker): Adds `emptySchemaType` option. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
+
 # 3.12.2
 - [`core`](/plugins/core): Better support for Windows [back slashes](https://github.com/kubb-labs/kubb/issues/1776)
 

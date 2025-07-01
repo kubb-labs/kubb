@@ -7,7 +7,7 @@ import { z } from '@hono/zod-openapi'
 /**
  * @description Null response
  */
-export const createPets201 = z.any()
+export const createPets201 = z.unknown()
 
 /**
  * @description unexpected error

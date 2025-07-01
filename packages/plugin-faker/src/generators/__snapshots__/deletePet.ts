@@ -4,5 +4,5 @@
  */
 
 export function deletePetsPetidMutationResponse() {
-  return unknown
+  return undefined
 }

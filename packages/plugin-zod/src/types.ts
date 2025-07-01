@@ -66,12 +66,12 @@ export type Options = {
    * can also be an object to enable coercion for dates, strings, and numbers
    */
   coercion?:
-  | boolean
-  | {
-    dates?: boolean
-    strings?: boolean
-    numbers?: boolean
-  }
+    | boolean
+    | {
+        dates?: boolean
+        strings?: boolean
+        numbers?: boolean
+      }
   operations?: boolean
   mapper?: Record<string, string>
   transformers?: {

@@ -405,6 +405,7 @@ describe('typeGenerator schema', async () => {
       override: [],
       mapper: {},
       syntaxType: 'type',
+      emptySchemaType: 'unknown',
       output: {
         path: '.',
       },
@@ -536,6 +537,7 @@ describe('typeGenerator operation', async () => {
         path: '.',
       },
       group: undefined,
+      emptySchemaType: 'unknown',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>

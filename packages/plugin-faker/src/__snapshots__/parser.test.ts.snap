@@ -86,4 +86,4 @@ exports[`faker parse > 'union' 1`] = `"faker.helpers.arrayElement<any>([faker.st
 
 exports[`faker parse > 'unionOne' 1`] = `"faker.helpers.arrayElement<any>([faker.string.alpha()])"`;
 
-exports[`faker parse > 'unknown' 1`] = `"unknown"`;
+exports[`faker parse > 'unknown' 1`] = `"undefined"`;

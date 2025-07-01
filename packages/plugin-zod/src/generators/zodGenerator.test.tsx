@@ -274,6 +274,7 @@ describe('zodGenerator schema', async () => {
       group: undefined,
       wrapOutput: undefined,
       version: '3',
+      emptySchemaType: 'unknown',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
@@ -382,6 +383,7 @@ describe('zodGenerator operation', async () => {
       group: undefined,
       wrapOutput: undefined,
       version: '3',
+      emptySchemaType: 'unknown',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
@@ -425,6 +427,7 @@ describe('zodGenerator operation', async () => {
         },
         group: undefined,
         version: '3',
+        emptySchemaType: 'unknown',
         wrapOutput: ({ output, schema }) => {
           const metadata: ZodOpenAPIMetadata = {}
 
@@ -508,6 +511,7 @@ describe('zodGenerator operation', async () => {
         },
         group: undefined,
         version: '3',
+        emptySchemaType: 'unknown',
         wrapOutput: ({ output, schema }) => {
           const metadata: ZodOpenAPIMetadata = {}
 
