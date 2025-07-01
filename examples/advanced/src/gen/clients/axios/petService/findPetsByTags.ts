@@ -8,8 +8,8 @@ import type {
 } from '../../../models/ts/petController/FindPetsByTags.ts'
 import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 
-function getFindPetsByTagsUrl() {
-  return `https://petstore3.swagger.io/api/v3/pet/findByTags` as const
+export function getFindPetsByTagsUrl() {
+  return 'https://petstore3.swagger.io/api/v3/pet/findByTags' as const
 }
 
 /**

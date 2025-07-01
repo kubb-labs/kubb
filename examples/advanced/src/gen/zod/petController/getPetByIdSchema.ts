@@ -10,7 +10,7 @@ export type GetPetByIdPathParamsSchema = z.infer<typeof getPetByIdPathParamsSche
 /**
  * @description successful operation
  */
-export const getPetById200Schema = petSchema.schema.omit({ name: true })
+export const getPetById200Schema = petSchema.omit({ name: true })
 
 export type GetPetById200Schema = z.infer<typeof getPetById200Schema>
 

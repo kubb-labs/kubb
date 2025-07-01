@@ -2,8 +2,8 @@ import client from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { AddFilesMutationRequest, AddFilesMutationResponse, AddFiles405 } from '../../../models/ts/petController/AddFiles.ts'
 
-function getAddFilesUrl() {
-  return `https://petstore3.swagger.io/api/v3/pet/files` as const
+export function getAddFilesUrl() {
+  return 'https://petstore3.swagger.io/api/v3/pet/files' as const
 }
 
 /**

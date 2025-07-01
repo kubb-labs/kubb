@@ -3,7 +3,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-clien
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusPathParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
 import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
 
-function getFindPetsByStatusUrl({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }) {
+export function getFindPetsByStatusUrl({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }) {
   return `https://petstore3.swagger.io/api/v3/pet/findByStatus/${step_id}` as const
 }
 

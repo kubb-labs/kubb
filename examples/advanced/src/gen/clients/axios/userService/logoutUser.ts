@@ -3,8 +3,8 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-clien
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.ts'
 
-function getLogoutUserUrl() {
-  return `https://petstore3.swagger.io/api/v3/user/logout` as const
+export function getLogoutUserUrl() {
+  return 'https://petstore3.swagger.io/api/v3/user/logout' as const
 }
 
 /**

@@ -8,7 +8,7 @@ import type {
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import { updatePetWithFormMutationResponseSchema } from '../../../zod/petController/updatePetWithFormSchema.ts'
 
-function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) {
+export function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) {
   return `https://petstore3.swagger.io/api/v3/pet/${petId}` as const
 }
 

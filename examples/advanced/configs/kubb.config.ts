@@ -15,217 +15,243 @@ import { pluginZod } from '@kubb/plugin-zod'
 import { pluginMcp } from '@kubb/plugin-mcp'
 
 export default defineConfig(() => {
-  return {
-    root: '.',
-    input: {
-      path: './petStore.yaml',
-    },
-    output: {
-      path: './src/gen',
-      clean: true,
-      barrelType: 'named',
-      defaultBanner: false,
-    },
-    hooks: {
-      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
-    },
-    plugins: [
-      pluginOas({
-        validate: true,
-      }),
-      pluginOas({
-        output: {
-          path: 'schemas2',
-        },
-        group: {
-          type: 'tag',
-        },
-        validate: false,
-      }),
-      pluginRedoc(),
-      pluginTs({
-        output: {
-          path: 'models/ts',
-        },
-        group: {
-          type: 'tag',
-        },
-        enumType: 'asConst',
-        enumSuffix: 'enum',
-        dateType: 'string',
-        override: [
-          {
-            type: 'operationId',
-            pattern: 'findPetsByStatus',
-            options: {
-              enumType: 'enum',
-            },
+  return [
+    {
+      name: 'gen2',
+      root: '.',
+      input: {
+        path: './petStore.yaml',
+      },
+      output: {
+        path: './src/gen2',
+        clean: true,
+        barrelType: 'named',
+        defaultBanner: false,
+      },
+      hooks: {
+        done: [],
+      },
+      plugins: [
+        pluginOas({
+          output: {
+            path: 'schemas',
           },
-        ],
-      }),
-      pluginReactQuery({
-        output: {
-          path: './clients/hooks',
-        },
-        exclude: [
-          {
+          group: {
             type: 'tag',
-            pattern: 'store',
           },
-        ],
-        override: [
-          {
-            type: 'operationId',
-            pattern: 'findPetsByTags',
-            options: {
-              infinite: {
-                queryParam: 'pageSize',
-                initialPageParam: 0,
-              },
-              mutation: {
-                importPath: '@tanstack/react-query',
-                methods: ['post', 'put', 'delete'],
+          validate: false,
+          discriminator: 'inherit',
+        }),
+        pluginTs({}),
+      ],
+    },
+    {
+      name: 'gen',
+      root: '.',
+      input: {
+        path: './petStore.yaml',
+      },
+      output: {
+        path: './src/gen',
+        clean: true,
+        barrelType: 'named',
+        defaultBanner: false,
+      },
+      hooks: {
+        done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+      },
+      plugins: [
+        pluginOas({
+          validate: true,
+          discriminator: 'strict',
+        }),
+        pluginRedoc(),
+        pluginTs({
+          output: {
+            path: 'models/ts',
+          },
+          group: {
+            type: 'tag',
+          },
+          enumType: 'asConst',
+          enumSuffix: 'enum',
+          dateType: 'string',
+          override: [
+            {
+              type: 'operationId',
+              pattern: 'findPetsByStatus',
+              options: {
+                enumType: 'enum',
               },
             },
+          ],
+        }),
+        pluginReactQuery({
+          output: {
+            path: './clients/hooks',
           },
-        ],
-        group: { type: 'tag' },
-        client: {
-          dataReturnType: 'full',
-          importPath: '../../../../axios-client.ts',
-        },
-        query: {
-          importPath: '../../../../tanstack-query-hook',
-        },
-        infinite: false,
-        suspense: false,
-        paramsType: 'object',
-        parser: 'zod',
-      }),
-      pluginSwr({
-        output: {
-          path: './clients/swr',
-        },
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
+          exclude: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          override: [
+            {
+              type: 'operationId',
+              pattern: 'findPetsByTags',
+              options: {
+                infinite: {
+                  queryParam: 'pageSize',
+                  initialPageParam: 0,
+                },
+                mutation: {
+                  importPath: '@tanstack/react-query',
+                  methods: ['post', 'put', 'delete'],
+                },
+              },
+            },
+          ],
+          group: { type: 'tag' },
+          client: {
+            dataReturnType: 'full',
+            importPath: '../../../../axios-client.ts',
           },
-        ],
-        group: { type: 'tag' },
-        client: {
+          query: {
+            importPath: '../../../../tanstack-query-hook',
+          },
+          infinite: false,
+          suspense: false,
+          paramsType: 'object',
+          parser: 'zod',
+        }),
+        pluginSwr({
+          output: {
+            path: './clients/swr',
+          },
+          exclude: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          group: { type: 'tag' },
+          client: {
+            importPath: '../../../../axios-client.ts',
+            dataReturnType: 'full',
+            baseURL: 'https://petstore3.swagger.io/api/v3',
+          },
+          paramsType: 'object',
+          pathParamsType: 'object',
+          transformers: {
+            name(name, _type) {
+              return `${name}SWR`
+            },
+          },
+        }),
+        pluginClient({
+          output: {
+            path: './clients/axios',
+          },
+          exclude: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          parser: 'zod',
+          group: { type: 'tag', name: ({ group }) => `${group}Service` },
           importPath: '../../../../axios-client.ts',
-          dataReturnType: 'full',
+          operations: true,
           baseURL: 'https://petstore3.swagger.io/api/v3',
-        },
-        paramsType: 'object',
-        pathParamsType: 'object',
-        transformers: {
-          name(name, type) {
-            return `${name}SWR`
+          dataReturnType: 'full',
+          paramsType: 'object',
+          pathParamsType: 'object',
+          urlType: 'export',
+          override: [
+            {
+              type: 'contentType',
+              pattern: 'multipart/form-data',
+              options: {
+                parser: 'client',
+              },
+            },
+          ],
+        }),
+        pluginZod({
+          output: {
+            path: './zod',
           },
-        },
-      }),
-      pluginClient({
-        output: {
-          path: './clients/axios',
-        },
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
+          exclude: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          group: { type: 'tag' },
+          dateType: 'stringOffset',
+          inferred: true,
+          // typed: true,
+          operations: false,
+          version: '4',
+        }),
+        pluginMcp({
+          output: {
+            path: './mcp',
+            barrelType: false,
           },
-        ],
-        parser: 'zod',
-        group: { type: 'tag', name: ({ group }) => `${group}Service` },
-        importPath: '../../../../axios-client.ts',
-        operations: true,
-        baseURL: 'https://petstore3.swagger.io/api/v3',
-        dataReturnType: 'full',
-        paramsType: 'object',
-        pathParamsType: 'object',
-        override: [
-          {
-            type: 'contentType',
-            pattern: 'multipart/form-data',
-            options: {
-              parser: 'client',
+          exclude: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          group: { type: 'tag' },
+          client: {
+            baseURL: 'https://petstore.swagger.io/v2',
+          },
+        }),
+        pluginFaker({
+          output: {
+            path: 'mocks',
+          },
+          exclude: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          group: { type: 'tag' },
+          mapper: {
+            status: `faker.helpers.arrayElement<any>(['working', 'idle'])`,
+          },
+          transformers: {
+            name(name, _type) {
+              return `${name}Faker`
             },
           },
-        ],
-      }),
-      pluginZod({
-        output: {
-          path: './zod',
-        },
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
+        }),
+        pluginCypress({
+          output: {
+            path: 'cypress',
+            barrelType: false,
           },
-        ],
-        group: { type: 'tag' },
-        dateType: 'stringOffset',
-        inferred: true,
-        // typed: true,
-        operations: false,
-      }),
-      pluginMcp({
-        output: {
-          path: './mcp',
-          barrelType: false,
-        },
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
+          group: { type: 'tag' },
+        }),
+        pluginMsw({
+          output: {
+            path: 'msw',
           },
-        ],
-        group: { type: 'tag' },
-        client: {
-          baseURL: 'https://petstore.swagger.io/v2',
-        },
-      }),
-      pluginFaker({
-        output: {
-          path: 'mocks',
-        },
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-        group: { type: 'tag' },
-        mapper: {
-          status: `faker.helpers.arrayElement<any>(['working', 'idle'])`,
-        },
-        transformers: {
-          name(name, type) {
-            return `${name}Faker`
-          },
-        },
-      }),
-      pluginCypress({
-        output: {
-          path: 'cypress',
-          barrelType: false,
-        },
-        group: { type: 'tag' },
-      }),
-      pluginMsw({
-        output: {
-          path: 'msw',
-        },
-        handlers: true,
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-        group: { type: 'tag' },
-      }),
-    ],
-  }
+          handlers: true,
+          exclude: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          group: { type: 'tag' },
+        }),
+      ],
+    },
+  ]
 })
