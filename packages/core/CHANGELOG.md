@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 3.12.2
+
+### Patch Changes
+
+- [#1779](https://github.com/kubb-labs/kubb/pull/1779) [`74e2203`](https://github.com/kubb-labs/kubb/commit/74e2203a91becf5728b18c979247075332dcb660) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Better support for Windows back slashes
+
+- Updated dependencies []:
+  - @kubb/parser-ts@3.12.2
+
 ## 3.12.1
 
 ### Patch Changes
