@@ -1,5 +1,18 @@
 # @kubb/plugin-mcp
 
+## 3.13.0
+
+### Patch Changes
+
+- Updated dependencies [[`d875cd8`](https://github.com/kubb-labs/kubb/commit/d875cd81d443cb6258011b7f5fd918e220deaf53)]:
+  - @kubb/plugin-zod@3.13.0
+  - @kubb/plugin-ts@3.13.0
+  - @kubb/plugin-client@3.13.0
+  - @kubb/core@3.13.0
+  - @kubb/oas@3.13.0
+  - @kubb/plugin-oas@3.13.0
+  - @kubb/react@3.13.0
+
 ## 3.12.2
 
 ### Patch Changes

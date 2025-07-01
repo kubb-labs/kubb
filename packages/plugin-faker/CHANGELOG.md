@@ -1,5 +1,20 @@
 # @kubb/plugin-faker
 
+## 3.13.0
+
+### Minor Changes
+
+- [`d875cd8`](https://github.com/kubb-labs/kubb/commit/d875cd81d443cb6258011b7f5fd918e220deaf53) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
+
+### Patch Changes
+
+- Updated dependencies [[`d875cd8`](https://github.com/kubb-labs/kubb/commit/d875cd81d443cb6258011b7f5fd918e220deaf53)]:
+  - @kubb/plugin-ts@3.13.0
+  - @kubb/core@3.13.0
+  - @kubb/oas@3.13.0
+  - @kubb/plugin-oas@3.13.0
+  - @kubb/react@3.13.0
+
 ## 3.12.2
 
 ### Patch Changes
