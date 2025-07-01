@@ -1906,10 +1906,10 @@ importers:
     devDependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^7.3.4
-        version: 7.3.4(zod@3.24.4)
+        version: 7.3.4(zod@3.25.67)
       '@hono/zod-openapi':
         specifier: 0.19.2
-        version: 0.19.2(hono@4.8.3)(zod@3.24.4)
+        version: 0.19.2(hono@4.8.3)(zod@3.25.67)
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -1920,8 +1920,8 @@ importers:
         specifier: 'catalog:'
         version: 8.5.0(@microsoft/api-extractor@7.52.8(@types/node@20.19.2))(jiti@2.4.2)(postcss@8.5.6)(typescript@5.8.3)(yaml@2.7.1)
       zod:
-        specifier: ~3.24.4
-        version: 3.24.4
+        specifier: ^3.25.67
+        version: 3.25.67
 
   packages/react:
     dependencies:
@@ -9418,9 +9418,6 @@ packages:
   zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
-  zod@3.24.4:
-    resolution: {integrity: sha512-OdqJE9UDRPwWsrHjLN2F8bPxvwJBK22EHLWtanu0LSYr5YqzsaaW3RMgmjwr8Rypg5k+meEJdSPXJZXE/yqOMg==}
-
   zod@3.25.67:
     resolution: {integrity: sha512-idA2YXwpCdqUSKRCACDE6ItZD9TZzy3OZMtpfLoh6oPR47lipysRrJfjzMqFxQ3uJuUPyUeWe1r9vLH33xO/Qw==}
 
@@ -9562,11 +9559,6 @@ snapshots:
     dependencies:
       '@types/json-schema': 7.0.15
       js-yaml: 4.1.0
-
-  '@asteasolutions/zod-to-openapi@7.3.4(zod@3.24.4)':
-    dependencies:
-      openapi3-ts: 4.4.0
-      zod: 3.24.4
 
   '@asteasolutions/zod-to-openapi@7.3.4(zod@3.25.67)':
     dependencies:
@@ -11178,24 +11170,12 @@ snapshots:
     dependencies:
       hono: 4.8.3
 
-  '@hono/zod-openapi@0.19.2(hono@4.8.3)(zod@3.24.4)':
-    dependencies:
-      '@asteasolutions/zod-to-openapi': 7.3.4(zod@3.24.4)
-      '@hono/zod-validator': 0.4.3(hono@4.8.3)(zod@3.24.4)
-      hono: 4.8.3
-      zod: 3.24.4
-
   '@hono/zod-openapi@0.19.2(hono@4.8.3)(zod@3.25.67)':
     dependencies:
       '@asteasolutions/zod-to-openapi': 7.3.4(zod@3.25.67)
       '@hono/zod-validator': 0.4.3(hono@4.8.3)(zod@3.25.67)
       hono: 4.8.3
       zod: 3.25.67
-
-  '@hono/zod-validator@0.4.3(hono@4.8.3)(zod@3.24.4)':
-    dependencies:
-      hono: 4.8.3
-      zod: 3.24.4
 
   '@hono/zod-validator@0.4.3(hono@4.8.3)(zod@3.25.67)':
     dependencies:
@@ -18515,8 +18495,6 @@ snapshots:
       zod: 3.25.67
 
   zod@3.23.8: {}
-
-  zod@3.24.4: {}
 
   zod@3.25.67: {}
 
