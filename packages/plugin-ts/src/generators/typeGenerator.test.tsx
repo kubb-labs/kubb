@@ -491,6 +491,24 @@ describe('typeGenerator operation', async () => {
       method: 'delete',
       options: {},
     },
+    {
+      name: 'createPet with emptySchemaType unknown',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        emptySchemaType: 'unknown',
+      },
+    },
+    {
+      name: 'createPet with emptySchemaType void',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        emptySchemaType: 'void',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

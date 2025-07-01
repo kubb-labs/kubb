@@ -49,6 +49,11 @@ export type Options = {
    */
   unknownType?: 'any' | 'unknown' | 'void'
   /**
+   * Which type to use for empty schema values
+   * @default `unknownType`
+   */
+  emptySchemaType?: 'any' | 'unknown' | 'void'
+  /**
    * Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
    */
   typed?: boolean
@@ -61,12 +66,12 @@ export type Options = {
    * can also be an object to enable coercion for dates, strings, and numbers
    */
   coercion?:
-    | boolean
-    | {
-        dates?: boolean
-        strings?: boolean
-        numbers?: boolean
-      }
+  | boolean
+  | {
+    dates?: boolean
+    strings?: boolean
+    numbers?: boolean
+  }
   operations?: boolean
   mapper?: Record<string, string>
   transformers?: {
@@ -114,6 +119,7 @@ type ResolvedOptions = {
   transformers: NonNullable<Options['transformers']>
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
+  emptySchemaType: NonNullable<Options['emptySchemaType']>
   typed: NonNullable<Options['typed']>
   inferred: NonNullable<Options['inferred']>
   mapper: NonNullable<Options['mapper']>

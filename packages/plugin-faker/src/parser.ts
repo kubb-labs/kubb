@@ -5,8 +5,8 @@ import type { Options } from './types.ts'
 
 const fakerKeywordMapper = {
   any: () => 'undefined',
-  unknown: () => 'unknown',
-  void: () => 'void',
+  unknown: () => 'undefined',
+  void: () => 'undefined',
   number: (min?: number, max?: number) => {
     if (max !== undefined && min !== undefined) {
       return `faker.number.float({ min: ${min}, max: ${max} })`
