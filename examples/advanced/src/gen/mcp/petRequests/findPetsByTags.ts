@@ -22,7 +22,7 @@ export async function findPetsByTagsHandler({
 }): Promise<Promise<CallToolResult>> {
   const res = await client<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
-    url: `/pet/findByTags`,
+    url: '/pet/findByTags',
     baseURL: 'https://petstore.swagger.io/v2',
     params,
     headers: { ...headers },

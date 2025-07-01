@@ -10,7 +10,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 export async function loginUserHandler({ params }: { params?: LoginUserQueryParams }): Promise<Promise<CallToolResult>> {
   const res = await client<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
     method: 'GET',
-    url: `/user/login`,
+    url: '/user/login',
     baseURL: 'https://petstore.swagger.io/v2',
     params,
   })

@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import type client from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'

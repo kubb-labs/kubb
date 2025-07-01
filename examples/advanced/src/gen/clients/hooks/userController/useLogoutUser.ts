@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import type client from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'

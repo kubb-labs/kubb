@@ -20,7 +20,7 @@ export async function addFilesHandler({ data }: { data: AddFilesMutationRequest 
   }
   const res = await client<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({
     method: 'POST',
-    url: `/pet/files`,
+    url: '/pet/files',
     baseURL: 'https://petstore.swagger.io/v2',
     data: formData,
     headers: { 'Content-Type': 'multipart/form-data' },

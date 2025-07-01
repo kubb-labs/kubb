@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import type client from '../../../../axios-client.ts'
 import useSWRMutation from 'swr/mutation'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'

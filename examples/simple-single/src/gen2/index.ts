@@ -544,6 +544,7 @@ export const flyMachineConfigSchema = z.object({
   init: z.lazy(() => flyMachineInitSchema).optional(),
   metadata: z.object({}).catchall(z.string()).optional(),
   metrics: z.lazy(() => flyMachineMetricsSchema).optional(),
+  mounts: z.array(z.lazy(() => flyMachineMountSchema)).optional(),
   processes: z.array(z.lazy(() => flyMachineProcessSchema)).optional(),
   restart: z
     .lazy(() => flyMachineRestartSchema)
@@ -597,6 +598,17 @@ export const flyMachineMetricsSchema = z.object({
   https: z.boolean().optional(),
   path: z.string().optional(),
   port: z.number().int().optional(),
+})
+
+export const flyMachineMountSchema = z.object({
+  add_size_gb: z.number().int().optional(),
+  encrypted: z.boolean().optional(),
+  extend_threshold_percent: z.number().int().optional(),
+  name: z.string().optional(),
+  path: z.string().optional(),
+  size_gb: z.number().int().optional(),
+  size_gb_limit: z.number().int().optional(),
+  volume: z.string().optional(),
 })
 
 export const flyMachinePortSchema = z.object({

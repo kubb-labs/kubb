@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import type client from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { AddFilesMutationRequest, AddFilesMutationResponse, AddFiles405 } from '../../../models/ts/petController/AddFiles.ts'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'

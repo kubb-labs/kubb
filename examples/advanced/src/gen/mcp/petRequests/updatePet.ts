@@ -11,7 +11,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 export async function updatePetHandler({ data }: { data: UpdatePetMutationRequest }): Promise<Promise<CallToolResult>> {
   const res = await client<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
-    url: `/pet`,
+    url: '/pet',
     baseURL: 'https://petstore.swagger.io/v2',
     data,
   })
