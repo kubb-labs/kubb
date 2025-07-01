@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import type client from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   CreatePetsMutationRequest,

@@ -25,7 +25,7 @@
     "mermaid": "^11.7.0",
     "sitemap": "^8.0.0",
     "vitepress": "^2.0.0-alpha.7",
-    "vitepress-plugin-group-icons": "^1.6.0",
+    "vitepress-plugin-group-icons": "^1.6.1",
     "vue": "^3.5.17"
   },
   "devDependencies": {

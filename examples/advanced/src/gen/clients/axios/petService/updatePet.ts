@@ -9,8 +9,8 @@ import type {
 } from '../../../models/ts/petController/UpdatePet.ts'
 import { updatePetMutationResponseSchema, updatePetMutationRequestSchema } from '../../../zod/petController/updatePetSchema.ts'
 
-function getUpdatePetUrl() {
-  return `https://petstore3.swagger.io/api/v3/pet` as const
+export function getUpdatePetUrl() {
+  return 'https://petstore3.swagger.io/api/v3/pet' as const
 }
 
 /**

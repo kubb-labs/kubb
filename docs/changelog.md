@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.12.2
+- [`core`](/plugins/core): Better support for Windows [back slashes](https://github.com/kubb-labs/kubb/issues/1776)
+
 # 3.12.1
 - [`plugin-zod`](/plugins/plugin-zod): Correct v4 imports when no importPath is defined
 

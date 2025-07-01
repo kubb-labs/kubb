@@ -5,7 +5,7 @@ import { z } from 'zod/v4'
 /**
  * @description Successful operation
  */
-export const addPet200Schema = petSchema.schema.omit({ name: true })
+export const addPet200Schema = petSchema.omit({ name: true })
 
 export type AddPet200Schema = z.infer<typeof addPet200Schema>
 

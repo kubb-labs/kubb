@@ -9,8 +9,8 @@ import {
   createUsersWithListInputMutationRequestSchema,
 } from '../../../zod/userController/createUsersWithListInputSchema.ts'
 
-function getCreateUsersWithListInputUrl() {
-  return `https://petstore3.swagger.io/api/v3/user/createWithList` as const
+export function getCreateUsersWithListInputUrl() {
+  return 'https://petstore3.swagger.io/api/v3/user/createWithList' as const
 }
 
 /**

@@ -17,7 +17,7 @@ export type UpdateUserErrorSchema = z.infer<typeof updateUserErrorSchema>
 /**
  * @description Update an existent user in the store
  */
-export const updateUserMutationRequestSchema = userSchema.schema.omit({ tag: true })
+export const updateUserMutationRequestSchema = userSchema.omit({ tag: true })
 
 export type UpdateUserMutationRequestSchema = z.infer<typeof updateUserMutationRequestSchema>
 

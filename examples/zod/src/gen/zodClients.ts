@@ -17,7 +17,7 @@ import { placeOrderPatchMutationResponseSchema, placeOrderPatchMutationRequestSc
 import { placeOrderMutationResponseSchema, placeOrderMutationRequestSchema } from './zod/placeOrderSchema.gen.ts'
 
 function getGetInventoryUrl() {
-  return `/store/inventory` as const
+  return '/store/inventory' as const
 }
 
 /**
@@ -37,7 +37,7 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: t
 }
 
 function getPlaceOrderUrl() {
-  return `/store/order` as const
+  return '/store/order' as const
 }
 
 /**
@@ -61,7 +61,7 @@ export async function placeOrder(
 }
 
 function getPlaceOrderPatchUrl() {
-  return `/store/order` as const
+  return '/store/order' as const
 }
 
 /**
