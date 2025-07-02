@@ -1,5 +1,19 @@
 # @kubb/plugin-client
 
+## 3.13.1
+
+### Patch Changes
+
+- [`92e3e8c`](https://github.com/kubb-labs/kubb/commit/92e3e8c58e80cc36e4a2dc8fc83a089635e36562) Thanks [@stijnvanhullem](https://github.com/stijnvanhullem)! - Parse and validate request data with Zod, including FormData, before forwarding it to the client.
+
+- Updated dependencies []:
+  - @kubb/core@3.13.1
+  - @kubb/oas@3.13.1
+  - @kubb/plugin-oas@3.13.1
+  - @kubb/plugin-ts@3.13.1
+  - @kubb/plugin-zod@3.13.1
+  - @kubb/react@3.13.1
+
 ## 3.13.0
 
 ### Patch Changes
