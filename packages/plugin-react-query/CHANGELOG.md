@@ -1,5 +1,20 @@
 # @kubb/plugin-react-query
 
+## 3.13.2
+
+### Patch Changes
+
+- Shadowed variables error when using `client`, use of `fetch` instead when an import to `@kubb/plugin-client/clients/axios` is needed.
+
+- Updated dependencies []:
+  - @kubb/plugin-client@3.13.2
+  - @kubb/core@3.13.2
+  - @kubb/plugin-oas@3.13.2
+  - @kubb/plugin-ts@3.13.2
+  - @kubb/plugin-zod@3.13.2
+  - @kubb/react@3.13.2
+  - @kubb/oas@3.13.2
+
 ## 3.13.1
 
 ### Patch Changes
