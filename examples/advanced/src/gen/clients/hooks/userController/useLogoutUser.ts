@@ -1,4 +1,4 @@
-import type client from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
@@ -9,7 +9,7 @@ export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
 
-export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = logoutUserQueryKey()
   return queryOptions<ResponseConfig<LogoutUserQueryResponse>, ResponseErrorConfig<Error>, ResponseConfig<LogoutUserQueryResponse>, typeof queryKey>({
     queryKey,
@@ -33,7 +33,7 @@ export function useLogoutUser<
     query?: Partial<QueryObserverOptions<ResponseConfig<LogoutUserQueryResponse>, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
   const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}

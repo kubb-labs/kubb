@@ -17,7 +17,7 @@ export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMu
 export async function updatePetWithForm(
   { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
 
@@ -39,7 +39,7 @@ export function useUpdatePetWithForm(
   params?: UpdatePetWithFormQueryParams,
   options: {
     mutation?: Parameters<typeof useSWRMutation<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationKey>>[2]
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {

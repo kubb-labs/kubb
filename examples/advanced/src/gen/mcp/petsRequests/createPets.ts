@@ -1,4 +1,4 @@
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
@@ -25,7 +25,7 @@ export async function createPetsHandler({
   params?: CreatePetsQueryParams
 }): Promise<Promise<CallToolResult>> {
   const requestData = data
-  const res = await client<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
+  const res = await fetch<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
     url: `/pets/${uuid}`,
     baseURL: 'https://petstore.swagger.io/v2',

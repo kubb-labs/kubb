@@ -1,4 +1,4 @@
-import type client from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
@@ -19,7 +19,7 @@ export function useCreateUser<TContext>(
     mutation?: UseMutationOptions<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client }
+    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

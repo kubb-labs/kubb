@@ -17,7 +17,7 @@ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQuery
  */
 export async function updatePetWithForm(
   { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
 
@@ -32,7 +32,7 @@ export async function updatePetWithForm(
 
 export function updatePetWithFormQueryOptions(
   { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   return {
     fetcher: async () => {
@@ -49,7 +49,7 @@ export function useUpdatePetWithForm(
   { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
   options: {
     query?: Parameters<typeof useSWR<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>>>[2]
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {

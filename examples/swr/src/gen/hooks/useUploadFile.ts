@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
@@ -20,9 +20,9 @@ export async function uploadFile(
   petId: UploadFilePathParams['petId'],
   data?: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
   const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
@@ -45,7 +45,7 @@ export function useUploadFile(
   params?: UploadFileQueryParams,
   options: {
     mutation?: Parameters<typeof useSWRMutation<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationKey, UploadFileMutationRequest>>[2]
-    client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client }
+    client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {

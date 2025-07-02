@@ -4,7 +4,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -25,9 +25,9 @@ export async function uploadFileXML(
   { petId }: { petId: UploadFilePathParams['petId'] },
   data: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
   const formData = new FormData()

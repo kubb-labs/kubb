@@ -1,4 +1,4 @@
-import client from '../../client.js'
+import fetch from '../../client.js'
 import type { ResponseErrorConfig } from '../../client.js'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/ts/UpdateUser.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
@@ -16,7 +16,7 @@ export async function updateUserHandler({
   data?: UpdateUserMutationRequest
 }): Promise<Promise<CallToolResult>> {
   const requestData = data
-  const res = await client<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
+  const res = await fetch<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
     url: `/user/${username}`,
     baseURL: 'https://petstore.swagger.io/v2',

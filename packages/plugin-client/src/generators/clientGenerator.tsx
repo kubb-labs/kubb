@@ -48,7 +48,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
         banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
-        <File.Import name={'client'} path={options.importPath} />
+        <File.Import name={'fetch'} path={options.importPath} />
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
         {options.parser === 'zod' && (
           <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={client.file.path} path={zod.file.path} />

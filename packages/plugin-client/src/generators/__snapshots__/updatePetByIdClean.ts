@@ -17,7 +17,7 @@ function getUpdatePetWithFormUrl(petId: UpdatePetWithFormPathParams['petId']) {
 export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
 

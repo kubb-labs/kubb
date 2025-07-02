@@ -1,4 +1,4 @@
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../models/ts/userController/DeleteUser.ts'
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
@@ -9,7 +9,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
  * {@link /user/:username}
  */
 export async function deleteUserHandler({ username }: { username: DeleteUserPathParams['username'] }): Promise<Promise<CallToolResult>> {
-  const res = await client<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
+  const res = await fetch<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
     url: `/user/${username}`,
     baseURL: 'https://petstore.swagger.io/v2',

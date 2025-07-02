@@ -1,4 +1,4 @@
-import type client from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
 import useSWRMutation from 'swr/mutation'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
@@ -19,7 +19,7 @@ export function useUpdateUserSWR(
     mutation?: Parameters<
       typeof useSWRMutation<ResponseConfig<UpdateUserMutationResponse>, ResponseErrorConfig<Error>, UpdateUserMutationKeySWR, UpdateUserMutationRequest>
     >[2]
-    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client }
+    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {

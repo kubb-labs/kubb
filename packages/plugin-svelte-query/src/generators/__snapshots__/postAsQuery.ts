@@ -23,7 +23,7 @@ export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
   data?: UpdatePetWithFormMutationRequest,
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
 
@@ -42,7 +42,7 @@ export function updatePetWithFormQueryOptions(
   petId: UpdatePetWithFormPathParams['petId'],
   data?: UpdatePetWithFormMutationRequest,
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, data, params)
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
@@ -71,7 +71,7 @@ export function createUpdatePetWithForm<
     query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof client }
+    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch }
   } = {},
 ) {
   const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}

@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
@@ -20,9 +20,9 @@ export function getCreateUsersWithListInputUrl() {
  */
 export async function createUsersWithListInput(
   { data }: { data?: CreateUsersWithListInputMutationRequest },
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const requestData = createUsersWithListInputMutationRequestSchema.parse(data)
   const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({

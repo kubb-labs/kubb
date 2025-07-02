@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { AddFilesMutationRequest, AddFilesMutationResponse, AddFiles405 } from '../../../models/ts/petController/AddFiles.ts'
 
@@ -13,9 +13,9 @@ export function getAddFilesUrl() {
  */
 export async function addFiles(
   { data }: { data: AddFilesMutationRequest },
-  config: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
   const formData = new FormData()

@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.ts'
 import { addPetMutationResponseSchema, addPetMutationRequestSchema } from '../../../zod/petController/addPetSchema.ts'
@@ -14,9 +14,9 @@ export function getAddPetUrl() {
  */
 export async function addPet(
   { data }: { data: AddPetMutationRequest },
-  config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const requestData = addPetMutationRequestSchema.parse(data)
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({

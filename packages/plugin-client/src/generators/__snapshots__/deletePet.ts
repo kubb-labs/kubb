@@ -18,7 +18,7 @@ export function getDeletePetUrl(petId: DeletePetPathParams['petId']) {
 export async function deletePet(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePetHeaderParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = client, ...requestConfig } = config
 

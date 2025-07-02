@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   CreatePetsMutationRequest,
@@ -24,9 +24,9 @@ export async function createPets(
     headers,
     params,
   }: { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
-  config: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const requestData = createPetsMutationRequestSchema.parse(data)
   const res = await request<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({

@@ -1,4 +1,4 @@
-import client from '../../client.js'
+import fetch from '../../client.js'
 import type { ResponseErrorConfig } from '../../client.js'
 import type {
   CreatePetsMutationRequest,
@@ -25,7 +25,7 @@ export async function createPetsHandler({
   params?: CreatePetsQueryParams
 }): Promise<Promise<CallToolResult>> {
   const requestData = data
-  const res = await client<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
+  const res = await fetch<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
     url: `/pets/${uuid}`,
     baseURL: 'https://petstore.swagger.io/v2',

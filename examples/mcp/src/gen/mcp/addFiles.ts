@@ -1,4 +1,4 @@
-import client from '../../client.js'
+import fetch from '../../client.js'
 import type { ResponseErrorConfig } from '../../client.js'
 import type { AddFilesMutationRequest, AddFilesMutationResponse, AddFiles405 } from '../models/ts/AddFiles.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
@@ -19,7 +19,7 @@ export async function addFilesHandler({ data }: { data: AddFilesMutationRequest 
       }
     })
   }
-  const res = await client<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({
+  const res = await fetch<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({
     method: 'POST',
     url: '/pet/files',
     baseURL: 'https://petstore.swagger.io/v2',

@@ -16,7 +16,7 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
  * @summary Find pet by ID
  * {@link /pet/:pet_id}
  */
-export async function getPetById(petId: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+export async function getPetById(petId: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = client, ...requestConfig } = config
 
   const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
@@ -27,7 +27,7 @@ export async function getPetById(petId: GetPetByIdPathParams['pet_id'], config: 
   return getPetByIdQueryResponse.parse(res.data)
 }
 
-export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = getPetByIdQueryKey(petId)
   return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!petId,
@@ -50,7 +50,7 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetP
     query?: Partial<QueryObserverOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
   const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}

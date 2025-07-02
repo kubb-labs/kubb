@@ -1,4 +1,4 @@
-import type client from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.ts'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
@@ -19,7 +19,7 @@ export function useAddPet<TContext>(
     mutation?: UseMutationOptions<ResponseConfig<AddPetMutationResponse>, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client }
+    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

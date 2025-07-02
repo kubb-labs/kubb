@@ -1,4 +1,4 @@
-import type client from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
 import useSWRMutation from 'swr/mutation'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { AddFilesMutationRequest, AddFilesMutationResponse, AddFiles405 } from '../../../models/ts/petController/AddFiles.ts'
@@ -18,7 +18,7 @@ export function useAddFilesSWR(
     mutation?: Parameters<
       typeof useSWRMutation<ResponseConfig<AddFilesMutationResponse>, ResponseErrorConfig<AddFiles405>, AddFilesMutationKeySWR, AddFilesMutationRequest>
     >[2]
-    client?: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: typeof client }
+    client?: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {

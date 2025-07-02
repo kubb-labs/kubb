@@ -1,4 +1,4 @@
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -22,7 +22,7 @@ export async function uploadFileHandler({
   params?: UploadFileQueryParams
 }): Promise<Promise<CallToolResult>> {
   const requestData = data
-  const res = await client<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
+  const res = await fetch<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     baseURL: 'https://petstore.swagger.io/v2',

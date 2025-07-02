@@ -15,7 +15,7 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTags({ params }: { params?: FindPetsByTagsQueryParams }, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+export async function findPetsByTags({ params }: { params?: FindPetsByTagsQueryParams }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = client, ...requestConfig } = config
 
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
@@ -29,7 +29,7 @@ export async function findPetsByTags({ params }: { params?: FindPetsByTagsQueryP
 
 export function findPetsByTagsQueryOptions(
   { params }: { params?: FindPetsByTagsQueryParams },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   return {
     fetcher: async () => {
@@ -47,7 +47,7 @@ export function useFindPetsByTags(
   { params }: { params?: FindPetsByTagsQueryParams },
   options: {
     query?: Parameters<typeof useSWR<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>>>[2]
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {

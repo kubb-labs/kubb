@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.13.2
+- [`plugin-client`](/plugins/plugin-client): Shadowed variables error when using `client`, use of `fetch` instead when an import to `@kubb/plugin-client/clients/axios` is needed.
+
 # 3.13.1
 - [`plugin-client`](/plugins/plugin-client): Parse and validate request data with Zod, including FormData, before forwarding it to the client.
 

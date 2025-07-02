@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   UpdatePetMutationRequest,
@@ -20,9 +20,9 @@ export function getUpdatePetUrl() {
  */
 export async function updatePet(
   { data }: { data: UpdatePetMutationRequest },
-  config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const requestData = updatePetMutationRequestSchema.parse(data)
   const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({

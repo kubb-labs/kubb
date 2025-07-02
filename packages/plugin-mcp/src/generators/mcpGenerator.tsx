@@ -34,7 +34,7 @@ export const mcpGenerator = createReactGenerator<PluginMcp>({
         footer={getFooter({ oas, output: options.output })}
       >
         <File.Import name={['CallToolResult']} path={'@modelcontextprotocol/sdk/types'} isTypeOnly />
-        <File.Import name={'client'} path={options.client.importPath} />
+        <File.Import name={'fetch'} path={options.client.importPath} />
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
           name={[
