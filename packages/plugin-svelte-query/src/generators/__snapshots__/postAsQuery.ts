@@ -27,11 +27,12 @@ export async function updatePetWithForm(
 ) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = updatePetWithFormMutationRequest.parse(data)
   const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}`,
     params,
-    data: updatePetWithFormMutationRequest.parse(data),
+    data: requestData,
     ...requestConfig,
   })
   return updatePetWithFormMutationResponse.parse(res.data)

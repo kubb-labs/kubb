@@ -19,10 +19,11 @@ function getAddPetUrl() {
 export async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client } = {}) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = data
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
     url: getAddPetUrl().toString(),
-    data,
+    data: requestData,
     ...requestConfig,
   })
   return res.data

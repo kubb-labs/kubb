@@ -22,10 +22,11 @@ export async function placeOrder(
 ) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = data
   const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
     url: getPlaceOrderUrl().toString(),
-    data,
+    data: requestData,
     ...requestConfig,
   })
   return res.data

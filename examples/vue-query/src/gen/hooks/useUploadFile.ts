@@ -26,11 +26,12 @@ export async function uploadFile(
 ) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = data
   const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     params,
-    data,
+    data: requestData,
     ...requestConfig,
     headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
   })

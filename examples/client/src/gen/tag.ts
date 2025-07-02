@@ -46,10 +46,11 @@ export async function placeOrderController(
 ) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = data
   const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
     url: getPlaceOrderUrlController().toString(),
-    data,
+    data: requestData,
     ...requestConfig,
   })
   return res.data
@@ -70,10 +71,11 @@ export async function placeOrderPatchController(
 ) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = data
   const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
     url: getPlaceOrderPatchUrlController().toString(),
-    data,
+    data: requestData,
     ...requestConfig,
   })
   return res.data

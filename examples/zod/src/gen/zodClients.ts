@@ -51,10 +51,11 @@ export async function placeOrder(
 ) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = placeOrderMutationRequestSchema.parse(data)
   const res = await request<PlaceOrderMutationResponseType, ResponseErrorConfig<PlaceOrder405Type>, PlaceOrderMutationRequestType>({
     method: 'POST',
     url: getPlaceOrderUrl().toString(),
-    data: placeOrderMutationRequestSchema.parse(data),
+    data: requestData,
     ...requestConfig,
   })
   return placeOrderMutationResponseSchema.parse(res.data)
@@ -75,10 +76,11 @@ export async function placeOrderPatch(
 ) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = placeOrderPatchMutationRequestSchema.parse(data)
   const res = await request<PlaceOrderPatchMutationResponseType, ResponseErrorConfig<PlaceOrderPatch405Type>, PlaceOrderPatchMutationRequestType>({
     method: 'PATCH',
     url: getPlaceOrderPatchUrl().toString(),
-    data: placeOrderPatchMutationRequestSchema.parse(data),
+    data: requestData,
     ...requestConfig,
   })
   return placeOrderPatchMutationResponseSchema.parse(res.data)

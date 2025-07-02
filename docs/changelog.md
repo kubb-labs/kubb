@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.13.1
+- [`plugin-client`](/plugins/plugin-client): Parse and validate request data with Zod, including FormData, before forwarding it to the client.
+
 # 3.13.0
 - [`plugin-ts`](/plugins/plugin-ts): Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
 - [`plugin-zod`](/plugins/plugin-zod): Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.

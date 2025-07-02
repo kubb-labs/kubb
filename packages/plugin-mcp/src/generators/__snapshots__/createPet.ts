@@ -8,7 +8,12 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
  * {@link /pets}
  */
 export async function createPetsHandler({ data }: { data: CreatePetsMutationRequest }): Promise<Promise<CallToolResult>> {
-  const res = await client<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({ method: 'POST', url: `/pets`, data })
+  const requestData = data
+  const res = await client<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
+    method: 'POST',
+    url: `/pets`,
+    data: requestData,
+  })
   return {
     content: [
       {

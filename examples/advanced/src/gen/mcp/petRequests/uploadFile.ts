@@ -21,12 +21,13 @@ export async function uploadFileHandler({
   data?: UploadFileMutationRequest
   params?: UploadFileQueryParams
 }): Promise<Promise<CallToolResult>> {
+  const requestData = data
   const res = await client<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     baseURL: 'https://petstore.swagger.io/v2',
     params,
-    data,
+    data: requestData,
     headers: { 'Content-Type': 'application/octet-stream' },
   })
   return {

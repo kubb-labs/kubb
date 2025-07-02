@@ -24,10 +24,11 @@ export async function createUsersWithListInput(
 ) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = createUsersWithListInputMutationRequestSchema.parse(data)
   const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: getCreateUsersWithListInputUrl().toString(),
-    data: createUsersWithListInputMutationRequestSchema.parse(data),
+    data: requestData,
     ...requestConfig,
   })
   return { ...res, data: createUsersWithListInputMutationResponseSchema.parse(res.data) }

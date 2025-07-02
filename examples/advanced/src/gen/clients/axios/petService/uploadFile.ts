@@ -22,11 +22,12 @@ export async function uploadFile(
 ) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = uploadFileMutationRequestSchema.parse(data)
   const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: getUploadFileUrl({ petId }).toString(),
     params,
-    data: uploadFileMutationRequestSchema.parse(data),
+    data: requestData,
     ...requestConfig,
     headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
   })

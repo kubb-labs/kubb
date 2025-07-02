@@ -15,11 +15,12 @@ export async function updateUserHandler({
   username: UpdateUserPathParams['username']
   data?: UpdateUserMutationRequest
 }): Promise<Promise<CallToolResult>> {
+  const requestData = data
   const res = await client<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
     url: `/user/${username}`,
     baseURL: 'https://petstore.swagger.io/v2',
-    data,
+    data: requestData,
   })
   return {
     content: [

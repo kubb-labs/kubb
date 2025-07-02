@@ -9,11 +9,12 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
  * {@link /store/order}
  */
 export async function placeOrderHandler({ data }: { data?: PlaceOrderMutationRequest }): Promise<Promise<CallToolResult>> {
+  const requestData = data
   const res = await client<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
     url: '/store/order',
     baseURL: 'https://petstore.swagger.io/v2',
-    data,
+    data: requestData,
   })
   return {
     content: [

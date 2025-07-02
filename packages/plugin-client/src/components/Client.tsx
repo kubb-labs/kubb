@@ -169,8 +169,7 @@ export function Client({
         params: typeSchemas.queryParams?.name ? {} : undefined,
         data: typeSchemas.request?.name
           ? {
-              value:
-                parser === 'zod' && zodSchemas ? `${zodSchemas.request?.name}.parse(${isFormData ? 'formData' : 'data'})` : isFormData ? 'formData' : undefined,
+              value: isFormData ? 'formData' : 'requestData',
             }
           : undefined,
         requestConfig: isConfigurable
@@ -190,9 +189,9 @@ export function Client({
   const formData = isFormData
     ? `
    const formData = new FormData()
-   if(data) {
-    Object.keys(data).forEach((key) => {
-      const value = data[key as keyof typeof data];
+   if(requestData) {
+    Object.keys(requestData).forEach((key) => {
+      const value = requestData[key as keyof typeof requestData];
       if (typeof value === 'string' || (value as unknown) instanceof Blob) {
         formData.append(key, value as unknown as string | Blob);
       }
@@ -226,6 +225,9 @@ export function Client({
       >
         {isConfigurable ? 'const { client:request = client, ...requestConfig } = config' : ''}
         <br />
+        <br />
+        {parser === 'zod' && zodSchemas?.request?.name && `const requestData = ${zodSchemas.request.name}.parse(data)`}
+        {parser === 'client' && typeSchemas?.request?.name && 'const requestData = data'}
         <br />
         {formData}
         {isConfigurable

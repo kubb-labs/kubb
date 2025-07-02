@@ -25,10 +25,11 @@ export async function createUser(
 ) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = data
   const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
     url: '/user',
-    data,
+    data: requestData,
     ...requestConfig,
   })
   return res.data

@@ -18,10 +18,11 @@ export async function updateUser(
 ) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = updateUserMutationRequestSchema.parse(data)
   const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
     url: getUpdateUserUrl({ username }).toString(),
-    data: updateUserMutationRequestSchema.parse(data),
+    data: requestData,
     ...requestConfig,
   })
   return { ...res, data: updateUserMutationResponseSchema.parse(res.data) }

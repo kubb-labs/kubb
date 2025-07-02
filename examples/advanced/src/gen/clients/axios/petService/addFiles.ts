@@ -17,10 +17,11 @@ export async function addFiles(
 ) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = data
   const formData = new FormData()
-  if (data) {
-    Object.keys(data).forEach((key) => {
-      const value = data[key as keyof typeof data]
+  if (requestData) {
+    Object.keys(requestData).forEach((key) => {
+      const value = requestData[key as keyof typeof requestData]
       if (typeof value === 'string' || (value as unknown) instanceof Blob) {
         formData.append(key, value as unknown as string | Blob)
       }

@@ -20,10 +20,11 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
 export async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client } = {}) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = data
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
     url: '/pet',
-    data,
+    data: requestData,
     ...requestConfig,
   })
   return res.data

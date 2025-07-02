@@ -18,10 +18,11 @@ export async function addPet(
 ) {
   const { client: request = client, ...requestConfig } = config
 
+  const requestData = addPetMutationRequestSchema.parse(data)
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
     url: getAddPetUrl().toString(),
-    data: addPetMutationRequestSchema.parse(data),
+    data: requestData,
     ...requestConfig,
   })
   return { ...res, data: addPetMutationResponseSchema.parse(res.data) }
