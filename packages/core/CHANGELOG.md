@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 3.13.2
+
+### Patch Changes
+
+- Shadowed variables error when using `client`, use of `fetch` instead when an import to `@kubb/plugin-client/clients/axios` is needed.
+
+- Updated dependencies []:
+  - @kubb/parser-ts@3.13.2
+
 ## 3.13.1
 
 ### Patch Changes
