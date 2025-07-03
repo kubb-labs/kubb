@@ -132,7 +132,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
 [minified-href]: https://www.npmjs.com/package/@kubb/core
 [coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
 [coverage-href]: https://www.npmjs.com/package/@kubb/core
-[contributors-src]: https://img.shields.io/github/contributors/stijnvanhulle/kubb?style=flat&colorA=18181B&colorB=f58517&label=%20
+[contributors-src]: https://img.shields.io/github/contributors/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517&label=%20
 [contributors-href]: #contributors-
 [sponsors-src]: https://img.shields.io/github/sponsors/stijnvanhulle?style=flat&colorA=18181B&colorB=f58517
 [sponsors-href]: https://github.com/sponsors/stijnvanhulle/
