@@ -1,5 +1,17 @@
 # @kubb/cli
 
+## 3.14.0
+
+### Minor Changes
+
+- [`169a9c7`](https://github.com/kubb-labs/kubb/commit/169a9c7167a1bd5a441eedc22a02f808a2850321) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add `validate` cli command to validate a Swagger/OpenAPI file
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.14.0
+  - @kubb/ui@3.14.0
+
 ## 3.13.2
 
 ### Patch Changes
