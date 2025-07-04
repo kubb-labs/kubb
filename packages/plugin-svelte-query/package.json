@@ -1,18 +1,20 @@
 {
   "name": "@kubb/plugin-svelte-query",
   "version": "3.13.2",
-  "description": "Generator svelte-query hooks",
+  "description": "Svelte Query hooks generator plugin for Kubb, creating type-safe API client hooks from OpenAPI specifications for Svelte applications.",
   "keywords": [
-    "faker",
-    "faker.js",
-    "msw",
-    "mock",
-    "mocking",
-    "plugins",
-    "kubb",
-    "codegen",
+    "svelte-query",
+    "svelte",
+    "tanstack-query",
+    "hooks",
+    "api-client",
+    "typescript",
+    "openapi",
     "swagger",
-    "openapi"
+    "code-generator",
+    "codegen",
+    "plugins",
+    "kubb"
   ],
   "repository": {
     "type": "git",

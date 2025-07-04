@@ -1,14 +1,17 @@
 {
   "name": "@kubb/plugin-ts",
   "version": "3.13.2",
-  "description": "Generator plugin-ts",
+  "description": "TypeScript code generation plugin for Kubb, transforming OpenAPI schemas into TypeScript interfaces, types, and utility functions.",
   "keywords": [
-    "zod",
-    "plugins",
-    "kubb",
-    "codegen",
+    "typescript",
+    "types",
+    "interfaces",
+    "openapi",
     "swagger",
-    "openapi"
+    "code-generator",
+    "codegen",
+    "plugins",
+    "kubb"
   ],
   "repository": {
     "type": "git",

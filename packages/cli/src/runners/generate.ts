@@ -1,16 +1,12 @@
-import { LogMapper } from '@kubb/core/logger'
-
-import { colors } from 'consola/utils'
-
+import process from 'node:process'
 import { type Config, safeBuild, setup } from '@kubb/core'
+import { createLogger, LogMapper } from '@kubb/core/logger'
+import { Presets, SingleBar } from 'cli-progress'
+import { colors } from 'consola/utils'
+import type { Args } from '../commands/generate.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
 import { getErrorCauses } from '../utils/getErrorCauses.ts'
 import { getSummary } from '../utils/getSummary.ts'
-
-import { createLogger } from '@kubb/core/logger'
-import { Presets, SingleBar } from 'cli-progress'
-import type { Args } from '../commands/generate.ts'
-import process from 'node:process'
 
 type GenerateProps = {
   input?: string
@@ -134,7 +130,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
     logger.consola?.error(error)
 
-    process.exit(0)
+    process.exit(1)
   }
 
   if (config.hooks) {

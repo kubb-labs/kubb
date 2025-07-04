@@ -6,7 +6,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/examples/vue-query"
+    "directory": "examples/vue-query"
   },
   "license": "MIT",
   "author": "stijnvanhulle",

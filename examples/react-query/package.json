@@ -6,7 +6,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/examples/react-query"
+    "directory": "examples/react-query"
   },
   "license": "MIT",
   "author": "stijnvanhulle",

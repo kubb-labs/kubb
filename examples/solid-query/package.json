@@ -6,7 +6,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/examples/solid-query"
+    "directory": "examples/solid-query"
   },
   "license": "MIT",
   "author": "stijnvanhulle",

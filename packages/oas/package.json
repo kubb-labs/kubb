@@ -1,12 +1,16 @@
 {
   "name": "@kubb/oas",
   "version": "3.13.2",
-  "description": "Oas helpers",
+  "description": "OpenAPI Specification (OAS) utilities and helpers for Kubb, providing parsing, normalization, and manipulation of OpenAPI/Swagger schemas.",
   "keywords": [
+    "openapi",
+    "swagger",
+    "oas",
+    "api-specification",
+    "schema",
     "typescript",
-    "plugins",
-    "kubb",
-    "codegen"
+    "codegen",
+    "kubb"
   ],
   "repository": {
     "type": "git",

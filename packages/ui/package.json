@@ -1,12 +1,16 @@
 {
   "name": "@kubb/ui",
   "version": "3.13.2",
-  "description": "Kubb ui",
+  "description": "User interface components and web dashboard for Kubb, providing a visual interface for managing and monitoring code generation.",
   "keywords": [
+    "ui",
+    "dashboard",
+    "web-interface",
+    "react",
+    "tailwindcss",
+    "hono",
     "typescript",
-    "plugins",
-    "kubb",
-    "ui"
+    "kubb"
   ],
   "repository": {
     "type": "git",
@@ -54,8 +58,8 @@
   "dependencies": {
     "@hono/node-server": "^1.15.0",
     "@hono/zod-openapi": "0.19.2",
-    "hono": "^4.8.3",
-    "zod": "^3.25.71"
+    "hono": "^4.8.4",
+    "zod": "^3.25.73"
   },
   "devDependencies": {
     "@heroui/react": "^2.7.11",

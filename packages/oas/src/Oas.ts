@@ -315,7 +315,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       colorizeErrors: true,
     })
 
-    await oasNormalize.validate({
+    return oasNormalize.validate({
       parser: {
         validate: {
           errors: {
