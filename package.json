@@ -72,8 +72,11 @@
 			"@babel/runtime": "^7.27.6",
 			"@types/react": "catalog:react19",
 			"dompurify": "^3.2.6",
-			"esbuild": "^0.25.5"
-		}
+			"esbuild": "^0.25.6"
+		},
+		"onlyBuiltDependencies": [
+			"esbuild"
+		]
 	},
 	"namespace": "@kubb"
 }
