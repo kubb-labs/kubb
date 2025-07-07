@@ -79,7 +79,6 @@
     "@kubb/config-tsup": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
     "@types/swagger2openapi": "^7.0.4",
-    "expect-type": "^1.2.1",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },

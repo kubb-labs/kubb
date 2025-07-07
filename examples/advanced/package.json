@@ -51,13 +51,13 @@
     "@types/react": "^19.1.8",
     "axios": "^1.10.0",
     "cypress": "~14.3.3",
-    "msw": "^2.10.2",
+    "msw": "^2.10.3",
     "react": "^19.1.0",
     "solid-js": "^1.9.7",
     "svelte": "^4.2.20",
     "swr": "^2.3.4",
     "vue": "^3.5.17",
-    "zod": "^3.25.73"
+    "zod": "^3.25.75"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

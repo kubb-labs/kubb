@@ -49,7 +49,7 @@ COMMANDS
 Use kubb <command> --help for more information about a command.
 ```
 
-## generate
+## `kubb generate`
 Generate files based on a `kubb.config.ts` file
 
 > [!TIP]
@@ -134,7 +134,7 @@ Display the help.
 kubb --help
 ```
 
-## validate
+## `kubb validate`
 The command will check for syntax and structural errors in your Swagger/OpenAPI file, and provide clear feedback (errors/warnings).
 
 Useful for CI pipelines, pre-commit hooks, and early feedback in development
@@ -164,7 +164,7 @@ Path to your Swagger/OpenAPI file
 kubb generate --input
 ```
 
-## mcp
+## `kubb mcp`
 Start a MCP server to make Kubb work together with a LLM like Claude.
 
 > [!IMPORTANT]

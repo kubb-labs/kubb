@@ -4,12 +4,11 @@ import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepre
 import { version } from '../../packages/core/package.json'
 import { renderMermaidGraphsPlugin } from './mermaid'
 import { transposeTables } from './transposeTables'
+import { GitChangelog, GitChangelogMarkdownSection } from '@nolebase/vitepress-plugin-git-changelog/vite'
 
 const ogImage = 'https://kubb.dev/og.png'
 const title = 'Generate SDKs for all your APIs'
 const description = 'OpenAPI to TypeScript, React-Query, Zod, Faker.js, MSW, MCP and Axios. '
-
-const links: Array<{ url: string; lastmod: number | undefined }> = []
 
 const knowledgeBaseSidebar = [
   {
@@ -704,6 +703,12 @@ export default defineConfig({
     // },
   },
   vite: {
+    optimizeDeps: {
+      exclude: ['@nolebase/vitepress-plugin-enhanced-readabilities/client', 'vitepress', '@nolebase/ui'],
+    },
+    ssr: {
+      noExternal: ['@nolebase/vitepress-plugin-highlight-targeted-heading', '@nolebase/vitepress-plugin-enhanced-readabilities', '@nolebase/ui'],
+    },
     plugins: [
       renderMermaidGraphsPlugin(),
       groupIconVitePlugin({
@@ -712,6 +717,10 @@ export default defineConfig({
           'kubb.config.js': localIconLoader(import.meta.url, '../public/logo.svg'),
         },
       }),
+      GitChangelog({
+        repoURL: () => 'https://github.com/kubb-labs/kubb',
+      }),
+      GitChangelogMarkdownSection(),
     ],
   },
 })

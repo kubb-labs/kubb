@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@shikijs/vitepress-twoslash": "^3.7.0",
-    "mermaid": "^11.8.0",
+    "mermaid": "^11.8.1",
     "sitemap": "^8.0.0",
     "vitepress": "^2.0.0-alpha.7",
     "vitepress-plugin-group-icons": "^1.6.1",
@@ -45,6 +45,9 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
     "@mermaid-js/mermaid-cli": "^11.6.0",
+    "@nolebase/vitepress-plugin-enhanced-readabilities": "^2.18.0",
+    "@nolebase/vitepress-plugin-git-changelog": "^2.18.0",
+    "@nolebase/vitepress-plugin-highlight-targeted-heading": "^2.18.0",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "cross-env": "^7.0.3",

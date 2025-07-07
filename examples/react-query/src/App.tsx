@@ -61,7 +61,7 @@ function Pets() {
     },
   )
 
-  const { data: pagedPet } = useFindPetsByTagsInfiniteHook(
+  const { data: _pagedPet } = useFindPetsByTagsInfiniteHook(
     {},
     {
       query: {
