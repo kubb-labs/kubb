@@ -4,7 +4,7 @@ nixPkgs = ["git", "nodejs_20", "pnpm"]
 [phases.install]
 cmds = [
   "git init && git remote add origin https://github.com/kubb-labs/kubb.git",
-  "git fetch --depth=10 origin main && git reset --hard origin/main",
+  "git fetch origin main && git reset --hard origin/main",
   "pnpm install --no-frozen-lockfile"
 ]
 
