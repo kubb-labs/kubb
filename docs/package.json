@@ -46,6 +46,7 @@
     "@kubb/react": "workspace:*",
     "@mermaid-js/mermaid-cli": "^11.6.0",
     "@nolebase/vitepress-plugin-enhanced-readabilities": "^2.18.0",
+    "@nolebase/vitepress-plugin-git-changelog": "^2.18.0",
     "@nolebase/vitepress-plugin-highlight-targeted-heading": "^2.18.0",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

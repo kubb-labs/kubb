@@ -1,3 +1,4 @@
+import { GitChangelog, GitChangelogMarkdownSection } from '@nolebase/vitepress-plugin-git-changelog/vite'
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { defineConfig } from 'vitepress'
 import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepress-plugin-group-icons'
@@ -716,6 +717,10 @@ export default defineConfig({
           'kubb.config.js': localIconLoader(import.meta.url, '../public/logo.svg'),
         },
       }),
+      GitChangelog({
+        repoURL: () => 'https://github.com/kubb-labs/kubb',
+      }),
+      GitChangelogMarkdownSection(),
     ],
   },
 })
