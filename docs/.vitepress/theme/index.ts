@@ -10,12 +10,14 @@ import '@nolebase/vitepress-plugin-highlight-targeted-heading/client/style.css'
 import '@nolebase/vitepress-plugin-git-changelog/client/style.css'
 import '@nolebase/vitepress-plugin-enhanced-readabilities/client/style.css'
 
+// @ts-ignore
 import HomePage from './HomePage.vue'
 
 import '@shikijs/vitepress-twoslash/style.css'
 import 'virtual:group-icons.css'
 import './style.css'
 
+// @ts-ignore
 import allContributorsStr from '../../../.all-contributorsrc?raw'
 
 export default {

@@ -719,8 +719,16 @@ export default defineConfig({
       }),
       GitChangelog({
         repoURL: () => 'https://github.com/kubb-labs/kubb',
+        mapAuthors: [
+          {
+            name: 'Stijn Van Hulle',
+            username: 'stijnvanhulle',
+            mapByEmailAliases: ['stijn@stijnvanhulle.be'],
+          },
+        ],
+        maxGitLogCount: 100,
       }),
       GitChangelogMarkdownSection(),
-    ],
+    ] as any,
   },
 })
