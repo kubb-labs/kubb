@@ -42,6 +42,9 @@ jobs:
       - name: Setup
         uses: ./.github/setup
 
+      - name: Build
+        run: bun run build
+
       - name: Typecheck
         run: bun run typecheck
 
