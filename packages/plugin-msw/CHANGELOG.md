@@ -1,5 +1,19 @@
 # @kubb/plugin-msw
 
+## 3.14.2
+
+### Patch Changes
+
+- [#1795](https://github.com/kubb-labs/kubb/pull/1795) [`9314a0f`](https://github.com/kubb-labs/kubb/commit/9314a0f53b98e2b8fefbc68642c5754094097182) Thanks [@ducodrupsteen](https://github.com/ducodrupsteen)! - Mocked responses now include 2xx status codes from the OpenAPI specification
+
+- Updated dependencies []:
+  - @kubb/core@3.14.2
+  - @kubb/oas@3.14.2
+  - @kubb/plugin-faker@3.14.2
+  - @kubb/plugin-oas@3.14.2
+  - @kubb/plugin-ts@3.14.2
+  - @kubb/react@3.14.2
+
 ## 3.14.1
 
 ### Patch Changes
