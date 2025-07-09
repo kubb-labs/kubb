@@ -1,5 +1,18 @@
 # @kubb/swagger
 
+## 3.14.3
+
+### Patch Changes
+
+- [#1741](https://github.com/kubb-labs/kubb/pull/1741) [`2376899`](https://github.com/kubb-labs/kubb/commit/2376899898e92483945e48c7bbca2398d3b8ac9c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - required in allOf should be combined
+
+- [#1741](https://github.com/kubb-labs/kubb/pull/1741) [`2376899`](https://github.com/kubb-labs/kubb/commit/2376899898e92483945e48c7bbca2398d3b8ac9c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - combineObjects to combine SchemaKeywords.object together
+
+- Updated dependencies [[`991249c`](https://github.com/kubb-labs/kubb/commit/991249c18e86c6ebdfef3912de44cbfaa81b6891)]:
+  - @kubb/core@3.14.3
+  - @kubb/react@3.14.3
+  - @kubb/oas@3.14.3
+
 ## 3.14.2
 
 ### Patch Changes

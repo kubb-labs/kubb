@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 3.14.3
+
+### Patch Changes
+
+- [`991249c`](https://github.com/kubb-labs/kubb/commit/991249c18e86c6ebdfef3912de44cbfaa81b6891) Thanks [@stijnvanhullem](https://github.com/stijnvanhullem)! - Support Google api format, for example: `my-api/foo/v1/bar/{id}:search`
+
+- Updated dependencies []:
+  - @kubb/parser-ts@3.14.3
+
 ## 3.14.2
 
 ### Patch Changes

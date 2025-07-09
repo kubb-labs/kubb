@@ -1,6 +1,6 @@
 {
   "name": "@kubb/config-tsup",
-  "version": "3.14.2",
+  "version": "3.14.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
