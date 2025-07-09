@@ -1,13 +1,20 @@
 {
   "name": "kubb",
-  "version": "3.0.79",
-  "description": "OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js, MSW and Axios.",
+  "version": "3.0.90",
+  "description": "Transform OpenAPI specifications into TypeScript, React-Query, Zod, Faker.js, MSW and more with a plugin-based code generation tool.",
   "keywords": [
     "typescript",
-    "plugins",
-    "kubb",
+    "openapi",
+    "swagger",
+    "code-generator",
     "codegen",
-    "cli"
+    "plugins",
+    "react-query",
+    "zod",
+    "msw",
+    "faker",
+    "api-client",
+    "kubb"
   ],
   "repository": {
     "type": "git",

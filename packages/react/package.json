@@ -1,12 +1,16 @@
 {
   "name": "@kubb/react",
-  "version": "3.10.14",
-  "description": "Generator react",
+  "version": "3.14.1",
+  "description": "React integration for Kubb, providing JSX runtime support and React component generation capabilities for code generation plugins.",
   "keywords": [
+    "react",
+    "jsx",
+    "component-generation",
     "typescript",
+    "code-generator",
+    "codegen",
     "plugins",
-    "kubb",
-    "codegen"
+    "kubb"
   ],
   "repository": {
     "type": "git",
@@ -92,7 +96,7 @@
     "react-devtools-core": "^5.3.2",
     "react-reconciler": "catalog:react19",
     "signal-exit": "^4.1.0",
-    "ws": "^8.18.2"
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

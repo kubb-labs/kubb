@@ -1,5 +1,104 @@
 # @kubb/plugin-redoc
 
+## 3.14.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.14.1
+  - @kubb/plugin-oas@3.14.1
+  - @kubb/oas@3.14.1
+
+## 3.14.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.14.0
+  - @kubb/oas@3.14.0
+  - @kubb/plugin-oas@3.14.0
+
+## 3.13.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.13.2
+  - @kubb/plugin-oas@3.13.2
+  - @kubb/oas@3.13.2
+
+## 3.13.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.13.1
+  - @kubb/oas@3.13.1
+  - @kubb/plugin-oas@3.13.1
+
+## 3.13.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.13.0
+  - @kubb/oas@3.13.0
+  - @kubb/plugin-oas@3.13.0
+
+## 3.12.2
+
+### Patch Changes
+
+- Updated dependencies [[`74e2203`](https://github.com/kubb-labs/kubb/commit/74e2203a91becf5728b18c979247075332dcb660)]:
+  - @kubb/core@3.12.2
+  - @kubb/plugin-oas@3.12.2
+  - @kubb/oas@3.12.2
+
+## 3.12.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.12.1
+  - @kubb/oas@3.12.1
+  - @kubb/plugin-oas@3.12.1
+
+## 3.12.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.12.0
+  - @kubb/oas@3.12.0
+  - @kubb/plugin-oas@3.12.0
+
+## 3.11.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.11.1
+  - @kubb/oas@3.11.1
+  - @kubb/plugin-oas@3.11.1
+
+## 3.11.0
+
+### Patch Changes
+
+- Updated dependencies [[`55de3d2`](https://github.com/kubb-labs/kubb/commit/55de3d2758ce4957882243ad70d3168d3c41ff40)]:
+  - @kubb/plugin-oas@3.11.0
+  - @kubb/core@3.11.0
+  - @kubb/oas@3.11.0
+
+## 3.10.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.15
+  - @kubb/oas@3.10.15
+  - @kubb/plugin-oas@3.10.15
+
 ## 3.10.14
 
 ### Patch Changes

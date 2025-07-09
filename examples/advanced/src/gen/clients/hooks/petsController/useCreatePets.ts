@@ -1,4 +1,4 @@
-import type client from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   CreatePetsMutationRequest,
@@ -27,7 +27,7 @@ export function useCreatePets<TContext>(
       { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof client }
+    client?: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

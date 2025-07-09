@@ -1,5 +1,5 @@
-import type { KubbFile } from '../fs/index.ts'
 import { FileManager } from '../FileManager.ts'
+import type { KubbFile } from '../fs/index.ts'
 
 type BarrelData = {
   file?: KubbFile.File
@@ -158,9 +158,16 @@ export type DirectoryTree = {
   children: Array<DirectoryTree>
 }
 
+const normalizePath = (p: string): string => p.replace(/\\/g, '/')
+
 export function buildDirectoryTree(files: Array<KubbFile.File>, rootFolder = ''): DirectoryTree | null {
-  const rootPrefix = rootFolder.endsWith('/') ? rootFolder : `${rootFolder}/`
-  const filteredFiles = files.filter((file) => (rootFolder ? file.path.startsWith(rootPrefix) && !file.path.endsWith('.json') : !file.path.endsWith('.json')))
+  const normalizedRootFolder = normalizePath(rootFolder)
+  const rootPrefix = normalizedRootFolder.endsWith('/') ? normalizedRootFolder : `${normalizedRootFolder}/`
+
+  const filteredFiles = files.filter((file) => {
+    const normalizedFilePath = normalizePath(file.path)
+    return rootFolder ? normalizedFilePath.startsWith(rootPrefix) && !normalizedFilePath.endsWith('.json') : !normalizedFilePath.endsWith('.json')
+  })
 
   if (filteredFiles.length === 0) {
     return null // No files match the root folder

@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import yaml from '@stoplight/yaml'
-import { expectTypeOf } from 'expect-type'
+import { expectTypeOf } from 'vitest'
 
 import { petStore } from '../mocks/petStore.ts'
 

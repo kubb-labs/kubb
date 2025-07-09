@@ -66,7 +66,7 @@ module.exports = defineConfig(() => {
             path: './faker',
           },
           transformers: {
-            schema({ schema, name, parentName }, defaultSchemas) {
+            schema({ schema: _schema, name, parentName }, defaultSchemas) {
               /* override a property with name 'name'
                Pet:
                   required:

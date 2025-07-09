@@ -363,6 +363,7 @@ describe('typeGenerator schema', async () => {
       },
     },
     // https://github.com/kubb-labs/kubb/issues/1669
+    // https://github.com/kubb-labs/kubb/issues/1736
     {
       name: 'PetsStoreAdvancedDiscriminator',
       input: '../../mocks/discriminator.yaml',
@@ -404,6 +405,7 @@ describe('typeGenerator schema', async () => {
       override: [],
       mapper: {},
       syntaxType: 'type',
+      emptySchemaType: 'unknown',
       output: {
         path: '.',
       },
@@ -490,6 +492,24 @@ describe('typeGenerator operation', async () => {
       method: 'delete',
       options: {},
     },
+    {
+      name: 'createPet with emptySchemaType unknown',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        emptySchemaType: 'unknown',
+      },
+    },
+    {
+      name: 'createPet with emptySchemaType void',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        emptySchemaType: 'void',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -517,6 +537,7 @@ describe('typeGenerator operation', async () => {
         path: '.',
       },
       group: undefined,
+      emptySchemaType: 'unknown',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>

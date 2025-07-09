@@ -1,13 +1,17 @@
 {
   "name": "@kubb/cli",
-  "version": "3.10.14",
-  "description": "Generator cli",
+  "version": "3.14.1",
+  "description": "Command-line interface for Kubb, enabling easy generation of TypeScript, React-Query, Zod, and other code from OpenAPI specifications.",
   "keywords": [
+    "cli",
+    "command-line",
     "typescript",
-    "plugins",
-    "kubb",
+    "openapi",
+    "swagger",
+    "code-generator",
     "codegen",
-    "cli"
+    "plugins",
+    "kubb"
   ],
   "repository": {
     "type": "git",
@@ -70,6 +74,7 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
     "@kubb/mcp": "workspace:*",
+    "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@types/cli-progress": "^3.11.6",
     "@types/node": "catalog:",

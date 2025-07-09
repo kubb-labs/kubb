@@ -16,7 +16,7 @@ export type CreatePets201 = error & {
 /**
  * @description Accepted response
  */
-export type CreatePets202 = void
+export type CreatePets202 = unknown
 
 /**
  * @description unexpected error

@@ -92,6 +92,10 @@ export const createVolumeRequestSchema = z.object({
   unique_zone_app_wide: z.boolean().optional(),
 })
 
+export const currentTokenResponseSchema = z.object({
+  tokens: z.array(z.lazy(() => mainTokenInfoSchema)).optional(),
+})
+
 export const decryptSecretkeyRequestSchema = z.object({
   associated_data: z.array(z.number().int()).optional(),
   ciphertext: z.array(z.number().int()).optional(),
@@ -544,6 +548,7 @@ export const flyMachineConfigSchema = z.object({
   init: z.lazy(() => flyMachineInitSchema).optional(),
   metadata: z.object({}).catchall(z.string()).optional(),
   metrics: z.lazy(() => flyMachineMetricsSchema).optional(),
+  mounts: z.array(z.lazy(() => flyMachineMountSchema)).optional(),
   processes: z.array(z.lazy(() => flyMachineProcessSchema)).optional(),
   restart: z
     .lazy(() => flyMachineRestartSchema)
@@ -597,6 +602,17 @@ export const flyMachineMetricsSchema = z.object({
   https: z.boolean().optional(),
   path: z.string().optional(),
   port: z.number().int().optional(),
+})
+
+export const flyMachineMountSchema = z.object({
+  add_size_gb: z.number().int().optional(),
+  encrypted: z.boolean().optional(),
+  extend_threshold_percent: z.number().int().optional(),
+  name: z.string().optional(),
+  path: z.string().optional(),
+  size_gb: z.number().int().optional(),
+  size_gb_limit: z.number().int().optional(),
+  volume: z.string().optional(),
 })
 
 export const flyMachinePortSchema = z.object({
@@ -812,6 +828,16 @@ export const mainRegionResponseSchema = z.object({
 
 export const mainStatusCodeSchema = z.enum(['unknown', 'insufficient_capacity'])
 
+export const mainTokenInfoSchema = z.object({
+  apps: z.array(z.string()).optional(),
+  org_slug: z.string().optional(),
+  organization: z.string().optional(),
+  restricted_to_machine: z.string().describe('Machine the token is restricted to (FromMachine caveat)').optional(),
+  source_machine_id: z.string().describe('Machine making the request').optional(),
+  token_id: z.string().optional(),
+  user: z.string().describe('User identifier if token is for a user').optional(),
+})
+
 export const placementRegionPlacementSchema = z.object({
   concurrency: z
     .number()
@@ -1005,6 +1031,12 @@ export const machinesListEventsPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),
   machine_id: z.string().describe('Machine ID'),
 })
+
+export const machinesListEventsQueryParamsSchema = z
+  .object({
+    limit: z.coerce.number().int().describe('The number of events to fetch (max of 50). If omitted, this is set to 20 by default.').optional(),
+  })
+  .optional()
 
 /**
  * @description OK
@@ -1742,3 +1774,20 @@ export const tokensRequestOIDC400Schema = z.lazy(() => errorResponseSchema)
 export const tokensRequestOIDCMutationRequestSchema = z.lazy(() => createOIDCTokenRequestSchema).describe('Optional parameters')
 
 export const tokensRequestOIDCMutationResponseSchema = z.lazy(() => tokensRequestOIDC200Schema)
+
+/**
+ * @description OK
+ */
+export const currentTokenShow200Schema = z.lazy(() => currentTokenResponseSchema)
+
+/**
+ * @description Unauthorized
+ */
+export const currentTokenShow401Schema = z.lazy(() => errorResponseSchema)
+
+/**
+ * @description Internal Server Error
+ */
+export const currentTokenShow500Schema = z.lazy(() => errorResponseSchema)
+
+export const currentTokenShowQueryResponseSchema = z.lazy(() => currentTokenShow200Schema)

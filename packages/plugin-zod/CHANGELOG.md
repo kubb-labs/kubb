@@ -1,5 +1,151 @@
 # @kubb/plugin-zod
 
+## 3.14.1
+
+### Patch Changes
+
+- Updated dependencies [[`b48928e`](https://github.com/kubb-labs/kubb/commit/b48928e0256f6a5870e7f01e2b9a4419f37cf9bd)]:
+  - @kubb/parser-ts@3.14.1
+  - @kubb/core@3.14.1
+  - @kubb/plugin-ts@3.14.1
+  - @kubb/react@3.14.1
+  - @kubb/plugin-oas@3.14.1
+  - @kubb/oas@3.14.1
+
+## 3.14.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.14.0
+  - @kubb/oas@3.14.0
+  - @kubb/parser-ts@3.14.0
+  - @kubb/plugin-oas@3.14.0
+  - @kubb/plugin-ts@3.14.0
+  - @kubb/react@3.14.0
+
+## 3.13.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.13.2
+  - @kubb/plugin-oas@3.13.2
+  - @kubb/plugin-ts@3.13.2
+  - @kubb/react@3.13.2
+  - @kubb/oas@3.13.2
+  - @kubb/parser-ts@3.13.2
+
+## 3.13.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.13.1
+  - @kubb/oas@3.13.1
+  - @kubb/parser-ts@3.13.1
+  - @kubb/plugin-oas@3.13.1
+  - @kubb/plugin-ts@3.13.1
+  - @kubb/react@3.13.1
+
+## 3.13.0
+
+### Minor Changes
+
+- [`d875cd8`](https://github.com/kubb-labs/kubb/commit/d875cd81d443cb6258011b7f5fd918e220deaf53) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
+
+### Patch Changes
+
+- Updated dependencies [[`d875cd8`](https://github.com/kubb-labs/kubb/commit/d875cd81d443cb6258011b7f5fd918e220deaf53)]:
+  - @kubb/plugin-ts@3.13.0
+  - @kubb/core@3.13.0
+  - @kubb/oas@3.13.0
+  - @kubb/parser-ts@3.13.0
+  - @kubb/plugin-oas@3.13.0
+  - @kubb/react@3.13.0
+
+## 3.12.2
+
+### Patch Changes
+
+- Updated dependencies [[`74e2203`](https://github.com/kubb-labs/kubb/commit/74e2203a91becf5728b18c979247075332dcb660)]:
+  - @kubb/core@3.12.2
+  - @kubb/plugin-oas@3.12.2
+  - @kubb/plugin-ts@3.12.2
+  - @kubb/react@3.12.2
+  - @kubb/oas@3.12.2
+  - @kubb/parser-ts@3.12.2
+
+## 3.12.1
+
+### Patch Changes
+
+- [`517fedc`](https://github.com/kubb-labs/kubb/commit/517fedc6e1adc748ae1768072bc6823c243bcde5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct v4 imports when no importPath is defined
+
+- Updated dependencies []:
+  - @kubb/core@3.12.1
+  - @kubb/oas@3.12.1
+  - @kubb/parser-ts@3.12.1
+  - @kubb/plugin-oas@3.12.1
+  - @kubb/plugin-ts@3.12.1
+  - @kubb/react@3.12.1
+
+## 3.12.0
+
+### Minor Changes
+
+- [`2ba42c5`](https://github.com/kubb-labs/kubb/commit/2ba42c5603e037b0a324c3b720e7b6505daf9acf) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - full support for Zod v4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.12.0
+  - @kubb/oas@3.12.0
+  - @kubb/parser-ts@3.12.0
+  - @kubb/plugin-oas@3.12.0
+  - @kubb/plugin-ts@3.12.0
+  - @kubb/react@3.12.0
+
+## 3.11.1
+
+### Patch Changes
+
+- [#1751](https://github.com/kubb-labs/kubb/pull/1751) [`5400e56`](https://github.com/kubb-labs/kubb/commit/5400e56fd866dbee721cd2dcbdb288088c58d990) Thanks [@rmachado-studocu](https://github.com/rmachado-studocu)! - fix(plugin-zod): avoids converting float values to integers
+
+- Updated dependencies []:
+  - @kubb/core@3.11.1
+  - @kubb/oas@3.11.1
+  - @kubb/parser-ts@3.11.1
+  - @kubb/plugin-oas@3.11.1
+  - @kubb/plugin-ts@3.11.1
+  - @kubb/react@3.11.1
+
+## 3.11.0
+
+### Patch Changes
+
+- [`13189ee`](https://github.com/kubb-labs/kubb/commit/13189ee0c7b297cc42cf9a7d476780ff7e357efe) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - enums of type "number" are parsed to integers
+
+- Updated dependencies [[`55de3d2`](https://github.com/kubb-labs/kubb/commit/55de3d2758ce4957882243ad70d3168d3c41ff40)]:
+  - @kubb/plugin-oas@3.11.0
+  - @kubb/plugin-ts@3.11.0
+  - @kubb/core@3.11.0
+  - @kubb/oas@3.11.0
+  - @kubb/parser-ts@3.11.0
+  - @kubb/react@3.11.0
+
+## 3.10.15
+
+### Patch Changes
+
+- Updated dependencies [[`db73926`](https://github.com/kubb-labs/kubb/commit/db73926f46739e598244bedc52f466591b2d7320)]:
+  - @kubb/plugin-ts@3.10.15
+  - @kubb/core@3.10.15
+  - @kubb/oas@3.10.15
+  - @kubb/parser-ts@3.10.15
+  - @kubb/plugin-oas@3.10.15
+  - @kubb/react@3.10.15
+
 ## 3.10.14
 
 ### Patch Changes

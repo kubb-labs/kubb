@@ -4,7 +4,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -25,16 +25,17 @@ export async function uploadFile(
   { petId }: { petId: UploadFilePathParams['petId'] },
   data: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
+  const requestData = data
   const formData = new FormData()
-  if (data) {
-    Object.keys(data).forEach((key) => {
-      const value = data[key as keyof typeof data]
-      if (typeof key === 'string' && (typeof value === 'string' || (value as Blob) instanceof Blob)) {
-        formData.append(key, value as unknown as string)
+  if (requestData) {
+    Object.keys(requestData).forEach((key) => {
+      const value = requestData[key as keyof typeof requestData]
+      if (typeof value === 'string' || (value as unknown) instanceof Blob) {
+        formData.append(key, value as unknown as string | Blob)
       }
     })
   }

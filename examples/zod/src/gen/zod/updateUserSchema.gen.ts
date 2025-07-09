@@ -22,7 +22,7 @@ export type UpdateUserErrorSchema = z.infer<typeof updateUserErrorSchema>
 /**
  * @description Update an existent user in the store
  */
-export const updateUserMutationRequestSchema = userSchema
+export const updateUserMutationRequestSchema = z.lazy(() => userSchema)
 
 export type UpdateUserMutationRequestSchema = z.infer<typeof updateUserMutationRequestSchema>
 

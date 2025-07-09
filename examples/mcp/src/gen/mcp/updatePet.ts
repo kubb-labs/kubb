@@ -1,4 +1,4 @@
-import client from '../../client.js'
+import fetch from '../../client.js'
 import type { ResponseErrorConfig } from '../../client.js'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/ts/UpdatePet.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
@@ -9,11 +9,12 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
  * {@link /pet}
  */
 export async function updatePetHandler({ data }: { data: UpdatePetMutationRequest }): Promise<Promise<CallToolResult>> {
-  const res = await client<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
+  const requestData = data
+  const res = await fetch<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
     url: '/pet',
     baseURL: 'https://petstore.swagger.io/v2',
-    data,
+    data: requestData,
   })
   return {
     content: [

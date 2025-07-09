@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   CreatePetsMutationRequest,
@@ -9,7 +9,7 @@ import type {
 } from '../../../models/ts/petsController/CreatePets.ts'
 import { createPetsMutationResponseSchema, createPetsMutationRequestSchema } from '../../../zod/petsController/createPetsSchema.ts'
 
-function getCreatePetsUrl({ uuid }: { uuid: CreatePetsPathParams['uuid'] }) {
+export function getCreatePetsUrl({ uuid }: { uuid: CreatePetsPathParams['uuid'] }) {
   return `https://petstore3.swagger.io/api/v3/pets/${uuid}` as const
 }
 
@@ -24,15 +24,16 @@ export async function createPets(
     headers,
     params,
   }: { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
-  config: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
+  const requestData = createPetsMutationRequestSchema.parse(data)
   const res = await request<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
     url: getCreatePetsUrl({ uuid }).toString(),
     params,
-    data: createPetsMutationRequestSchema.parse(data),
+    data: requestData,
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })

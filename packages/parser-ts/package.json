@@ -1,12 +1,16 @@
 {
   "name": "@kubb/parser-ts",
-  "version": "3.10.14",
-  "description": "TypeScript parser",
+  "version": "3.14.1",
+  "description": "TypeScript parsing and manipulation utilities for Kubb, enabling code generation with proper TypeScript syntax and formatting.",
   "keywords": [
     "typescript",
-    "plugins",
-    "kubb",
-    "codegen"
+    "parser",
+    "ast",
+    "code-generation",
+    "syntax",
+    "formatting",
+    "codegen",
+    "kubb"
   ],
   "repository": {
     "type": "git",
@@ -59,9 +63,9 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.2",
     "remeda": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "5.8.3"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

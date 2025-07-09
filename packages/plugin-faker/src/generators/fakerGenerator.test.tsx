@@ -1,7 +1,6 @@
-import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
-
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
@@ -95,6 +94,7 @@ describe('fakerGenerator schema', async () => {
         path: '.',
       },
       group: undefined,
+      emptySchemaType: 'unknown',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>
@@ -201,6 +201,7 @@ describe('fakerGenerator operation', async () => {
         path: '.',
       },
       group: undefined,
+      emptySchemaType: 'unknown',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>

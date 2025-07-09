@@ -1,4 +1,4 @@
-import type client from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
 import useSWR from 'swr'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
@@ -10,7 +10,7 @@ export type GetPetByIdQueryKeySWR = ReturnType<typeof getPetByIdQueryKeySWR>
 
 export function getPetByIdQueryOptionsSWR(
   { petId }: { petId: GetPetByIdPathParams['petId'] },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   return {
     fetcher: async () => {
@@ -28,7 +28,7 @@ export function useGetPetByIdSWR(
   { petId }: { petId: GetPetByIdPathParams['petId'] },
   options: {
     query?: Parameters<typeof useSWR<ResponseConfig<GetPetByIdQueryResponse>, ResponseErrorConfig<GetPetById400 | GetPetById404>>>[2]
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {

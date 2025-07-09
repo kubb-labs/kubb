@@ -1,12 +1,16 @@
 {
   "name": "@kubb/oas",
-  "version": "3.10.14",
-  "description": "Oas helpers",
+  "version": "3.14.1",
+  "description": "OpenAPI Specification (OAS) utilities and helpers for Kubb, providing parsing, normalization, and manipulation of OpenAPI/Swagger schemas.",
   "keywords": [
+    "openapi",
+    "swagger",
+    "oas",
+    "api-specification",
+    "schema",
     "typescript",
-    "plugins",
-    "kubb",
-    "codegen"
+    "codegen",
+    "kubb"
   ],
   "repository": {
     "type": "git",
@@ -75,7 +79,6 @@
     "@kubb/config-tsup": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
     "@types/swagger2openapi": "^7.0.4",
-    "expect-type": "^1.2.1",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },

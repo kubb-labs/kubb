@@ -8,7 +8,17 @@ export type CreatePetsPathParams = {
   uuid: string
 }
 
+export const createPetsQueryParamsBoolParamEnum = {
+  true: true,
+} as const
+
+export type CreatePetsQueryParamsBoolParamEnum = (typeof createPetsQueryParamsBoolParamEnum)[keyof typeof createPetsQueryParamsBoolParamEnum]
+
 export type CreatePetsQueryParams = {
+  /**
+   * @type boolean | undefined
+   */
+  bool_param?: CreatePetsQueryParamsBoolParamEnum
   /**
    * @description Offset *\/
    * @type integer | undefined

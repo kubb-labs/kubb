@@ -9,7 +9,7 @@ import { faker } from '@faker-js/faker'
  */
 export function createPets201() {
   faker.seed([222])
-  return unknown
+  return undefined
 }
 
 /**

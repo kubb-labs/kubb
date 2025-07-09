@@ -5,8 +5,8 @@ import type { Options } from './types.ts'
 
 const fakerKeywordMapper = {
   any: () => 'undefined',
-  unknown: () => 'unknown',
-  void: () => 'void',
+  unknown: () => 'undefined',
+  void: () => 'undefined',
   number: (min?: number, max?: number) => {
     if (max !== undefined && min !== undefined) {
       return `faker.number.float({ min: ${min}, max: ${max} })`
@@ -235,6 +235,10 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
           if (schema.format === 'number') {
             return schema.value
           }
+
+          if (schema.format === 'boolean') {
+            return schema.value
+          }
           return transformers.stringify(schema.value)
         }),
       )
@@ -243,6 +247,9 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
     return fakerKeywordMapper.enum(
       current.args.items.map((schema) => {
         if (schema.format === 'number') {
+          return schema.value
+        }
+        if (schema.format === 'boolean') {
           return schema.value
         }
         return transformers.stringify(schema.value)

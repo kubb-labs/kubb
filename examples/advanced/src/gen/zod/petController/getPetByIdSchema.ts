@@ -1,5 +1,5 @@
 import { petSchema } from '../petSchema.ts'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const getPetByIdPathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet to return'),
@@ -10,7 +10,7 @@ export type GetPetByIdPathParamsSchema = z.infer<typeof getPetByIdPathParamsSche
 /**
  * @description successful operation
  */
-export const getPetById200Schema = z.lazy(() => petSchema).schema.omit({ name: true })
+export const getPetById200Schema = petSchema.omit({ name: true })
 
 export type GetPetById200Schema = z.infer<typeof getPetById200Schema>
 
@@ -28,6 +28,6 @@ export const getPetById404Schema = z.any()
 
 export type GetPetById404Schema = z.infer<typeof getPetById404Schema>
 
-export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema)
+export const getPetByIdQueryResponseSchema = getPetById200Schema
 
 export type GetPetByIdQueryResponseSchema = z.infer<typeof getPetByIdQueryResponseSchema>

@@ -306,7 +306,6 @@ svg[id^="mermaid-"] .cluster rect {
 a.sponsor {
   /* .VPButton */
   display: inline-block;
-  border: 1px solid transparent;
   text-align: center;
   font-weight: 600;
   white-space: nowrap;
@@ -345,32 +344,16 @@ a.fancy-sponsor {
   padding: 0 15px;
   font-size: 14px;
   line-height: 30px;
-
-  background: linear-gradient(var(--vp-button-alt-hover-bg), var(--vp-button-alt-hover-bg)),
+  background:
+    linear-gradient(var(--vp-button-alt-hover-bg), var(--vp-button-alt-hover-bg)),
     linear-gradient(var(--vp-button-alt-hover-bg) 50%, rgba(18, 18, 19, 0.6) 80%, rgba(18, 18, 19, 0)),
     linear-gradient(90deg, var(--orange), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red));
   background-origin: border-box;
   background-clip: padding-box, border-box, border-box;
   background-size: 200%;
-  animation: spin 2s infinite linear;
   z-index: 0;
 }
 
-a.fancy-sponsor::before {
-  content: "";
-  background: linear-gradient(90deg, var(--orange), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red));
-  height: 20%;
-  width: 60%;
-  position: absolute;
-  bottom: -20%;
-  z-index: -5;
-  background-size: 200%;
-  animation: spin 2s infinite linear;
-  filter: blur(calc(0.8 * 2rem));
-}
-
-a.fancy-sponsor:hover,
-a.fancy-sponsor:hover::before {
+a.fancy-sponsor:hover {
   animation: spin 0.5s infinite linear;
-  color: var(--vp-c-text-1);
 }

@@ -30,7 +30,7 @@ exports[`faker parse > 'default' 2`] = `undefined`;
 
 exports[`faker parse > 'enum' 1`] = `"faker.helpers.arrayElement<any>(["A", "B", "C", 2])"`;
 
-exports[`faker parse > 'enumLiteralBoolean' 1`] = `"faker.helpers.arrayElement<any>(["true", "false"])"`;
+exports[`faker parse > 'enumLiteralBoolean' 1`] = `"faker.helpers.arrayElement<any>([true, false])"`;
 
 exports[`faker parse > 'integer' 1`] = `"faker.number.int()"`;
 
@@ -86,4 +86,4 @@ exports[`faker parse > 'union' 1`] = `"faker.helpers.arrayElement<any>([faker.st
 
 exports[`faker parse > 'unionOne' 1`] = `"faker.helpers.arrayElement<any>([faker.string.alpha()])"`;
 
-exports[`faker parse > 'unknown' 1`] = `"unknown"`;
+exports[`faker parse > 'unknown' 1`] = `"undefined"`;

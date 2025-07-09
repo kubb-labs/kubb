@@ -1,14 +1,20 @@
 {
   "name": "@kubb/plugin-msw",
-  "version": "3.10.14",
-  "description": "Generator swagger",
+  "version": "3.14.1",
+  "description": "Mock Service Worker (MSW) handlers generator plugin for Kubb, creating API mocks from OpenAPI specifications for frontend development and testing.",
   "keywords": [
+    "msw",
+    "mock-service-worker",
+    "api-mocking",
+    "testing",
+    "development",
     "typescript",
-    "plugins",
-    "kubb",
-    "codegen",
+    "openapi",
     "swagger",
-    "openapi"
+    "code-generator",
+    "codegen",
+    "plugins",
+    "kubb"
   ],
   "repository": {
     "type": "git",

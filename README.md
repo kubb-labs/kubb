@@ -90,6 +90,10 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/maartenvansambeek"><img src="https://avatars.githubusercontent.com/u/91739524?v=4?s=100" width="100px;" alt="maartenvansambeek"/><br /><sub><b>maartenvansambeek</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=maartenvansambeek" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://sdufresne.info"><img src="https://avatars.githubusercontent.com/u/583851?v=4?s=100" width="100px;" alt="Stefan du Fresne"/><br /><sub><b>Stefan du Fresne</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=SCdF" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://hugofelippe.github.io/"><img src="https://avatars.githubusercontent.com/u/19368365?v=4?s=100" width="100px;" alt="Hugo Felippe de Souza Cruz"/><br /><sub><b>Hugo Felippe de Souza Cruz</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=hugoFelippe" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/belgattitude"><img src="https://avatars.githubusercontent.com/u/259798?v=4?s=100" width="100px;" alt="Sébastien Vanvelthem"/><br /><sub><b>Sébastien Vanvelthem</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=belgattitude" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://bento.me/vitalygashkov"><img src="https://avatars.githubusercontent.com/u/30000398?v=4?s=100" width="100px;" alt="Vitaly Gashkov"/><br /><sub><b>Vitaly Gashkov</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=vitalygashkov" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
@@ -131,7 +135,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
 [minified-href]: https://www.npmjs.com/package/@kubb/core
 [coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
 [coverage-href]: https://www.npmjs.com/package/@kubb/core
-[contributors-src]: https://img.shields.io/github/contributors/stijnvanhulle/kubb?style=flat&colorA=18181B&colorB=f58517&label=%20
+[contributors-src]: https://img.shields.io/github/contributors/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517&label=%20
 [contributors-href]: #contributors-
 [sponsors-src]: https://img.shields.io/github/sponsors/stijnvanhulle?style=flat&colorA=18181B&colorB=f58517
 [sponsors-href]: https://github.com/sponsors/stijnvanhulle/

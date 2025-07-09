@@ -1,20 +1,18 @@
 import process from 'node:process'
-import { onExit } from 'signal-exit'
-
-import { ConcurrentRoot } from 'react-reconciler/constants'
-import { Root } from './components/Root.tsx'
-import { KubbRenderer } from './kubbRenderer.ts'
-import { type RendererResult, renderer } from './renderer.ts'
-import { throttle } from './utils/throttle.ts'
-
 import { FileManager, processFiles } from '@kubb/core'
-import type { Logger } from '@kubb/core/logger'
 import type { KubbFile } from '@kubb/core/fs'
+import type { Logger } from '@kubb/core/logger'
 import type { ReactNode } from 'react'
+import { ConcurrentRoot } from 'react-reconciler/constants'
+import { onExit } from 'signal-exit'
 import type { RootContextProps } from './components/Root.tsx'
+import { Root } from './components/Root.tsx'
 import { createNode } from './dom.ts'
 import type { FiberRoot } from './kubbRenderer.ts'
+import { KubbRenderer } from './kubbRenderer.ts'
+import { type RendererResult, renderer } from './renderer.ts'
 import type { DOMElement } from './types.ts'
+import { throttle } from './utils/throttle.ts'
 
 export type ReactTemplateOptions = {
   stdout?: NodeJS.WriteStream
@@ -62,6 +60,9 @@ export class ReactTemplate {
     console.error = (data: string | Error) => {
       const message = typeof data === 'string' ? data : data?.message
 
+      if (message.match(/Encountered two children with the same key/gi)) {
+        return
+      }
       if (message.match(/React will try to recreat/gi)) {
         return
       }

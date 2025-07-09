@@ -1,4 +1,4 @@
-import client from '../../client.js'
+import fetch from '../../client.js'
 import type { ResponseErrorConfig } from '../../client.js'
 import type {
   UpdatePetWithFormMutationResponse,
@@ -19,7 +19,7 @@ export async function updatePetWithFormHandler({
   petId: UpdatePetWithFormPathParams['petId']
   params?: UpdatePetWithFormQueryParams
 }): Promise<Promise<CallToolResult>> {
-  const res = await client<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
+  const res = await fetch<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
     url: `/pet/${petId}`,
     baseURL: 'https://petstore.swagger.io/v2',

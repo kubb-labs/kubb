@@ -1,0 +1,12 @@
+{
+  "title": "Cat",
+  "type": "object",
+  "required": ["indoor", "type", "type"],
+  "properties": {
+    "type": { "type": "string", "minLength": 1, "readOnly": true, "enum": ["cat"] },
+    "name": { "type": "string" },
+    "indoor": { "type": "boolean" }
+  },
+  "additionalProperties": false,
+  "x-readme-ref-name": "Cat"
+}

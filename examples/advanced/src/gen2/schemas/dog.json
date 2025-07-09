@@ -1,0 +1,8 @@
+{
+  "title": "Dog",
+  "type": "object",
+  "required": ["name", "type", "type"],
+  "properties": { "type": { "type": "string", "minLength": 1, "readOnly": true, "enum": ["dog"] }, "name": { "type": "string" } },
+  "additionalProperties": false,
+  "x-readme-ref-name": "Dog"
+}

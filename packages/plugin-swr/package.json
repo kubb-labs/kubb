@@ -1,19 +1,23 @@
 {
   "name": "@kubb/plugin-swr",
-  "version": "3.10.14",
-  "description": "Generator plugin-swr",
+  "version": "3.14.1",
+  "description": "SWR hooks generator plugin for Kubb, creating type-safe data fetching hooks from OpenAPI specifications for React and Next.js applications.",
   "keywords": [
-    "typescript",
-    "plugins",
-    "kubb",
-    "codegen",
-    "swagger",
-    "openapi",
     "swr",
-    "vercel",
+    "react",
     "nextjs",
     "next",
-    "axios"
+    "vercel",
+    "data-fetching",
+    "hooks",
+    "api-client",
+    "typescript",
+    "openapi",
+    "swagger",
+    "code-generator",
+    "codegen",
+    "plugins",
+    "kubb"
   ],
   "repository": {
     "type": "git",

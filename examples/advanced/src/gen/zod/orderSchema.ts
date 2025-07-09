@@ -1,12 +1,12 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const orderSchema = z.object({
-  id: z.number().int().min(3).max(100).optional(),
-  petId: z.number().int().optional(),
-  quantity: z.number().int().optional(),
+  id: z.int().min(3).max(100).optional(),
+  petId: z.int().optional(),
+  quantity: z.int().optional(),
   orderType: z.enum(['foo', 'bar']).optional(),
   type: z.string().describe('Order Status').optional(),
-  shipDate: z.string().datetime({ offset: true }).optional(),
+  shipDate: z.iso.datetime({ offset: true }).optional(),
   status: z.enum(['placed', 'approved', 'delivered']).describe('Order Status').optional(),
   http_status: z
     .union([z.literal(200), z.literal(400)])

@@ -1,18 +1,21 @@
 {
   "name": "@kubb/plugin-solid-query",
-  "version": "3.10.14",
-  "description": "Generator solid-query hooks",
+  "version": "3.14.1",
+  "description": "Solid Query hooks generator plugin for Kubb, creating type-safe API client hooks from OpenAPI specifications for Solid.js applications.",
   "keywords": [
-    "faker",
-    "faker.js",
-    "msw",
-    "mock",
-    "mocking",
-    "plugins",
-    "kubb",
-    "codegen",
+    "solid-query",
+    "solid-js",
+    "solid",
+    "tanstack-query",
+    "hooks",
+    "api-client",
+    "typescript",
+    "openapi",
     "swagger",
-    "openapi"
+    "code-generator",
+    "codegen",
+    "plugins",
+    "kubb"
   ],
   "repository": {
     "type": "git",

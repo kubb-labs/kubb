@@ -1,14 +1,21 @@
 {
   "name": "@kubb/plugin-cypress",
-  "version": "3.10.14",
-  "description": "Generator cypress",
+  "version": "3.14.1",
+  "description": "Cypress test generator plugin for Kubb, creating end-to-end tests from OpenAPI specifications for automated API testing.",
   "keywords": [
-    "typescript",
-    "plugins",
-    "kubb",
-    "codegen",
     "cypress",
-    "openapi"
+    "e2e-testing",
+    "end-to-end",
+    "testing",
+    "api-testing",
+    "test-automation",
+    "typescript",
+    "openapi",
+    "swagger",
+    "code-generator",
+    "codegen",
+    "plugins",
+    "kubb"
   ],
   "repository": {
     "type": "git",

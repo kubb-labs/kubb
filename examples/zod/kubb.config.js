@@ -40,7 +40,7 @@ export default defineConfig(async () => {
         // typed: true,
         transformers: {
           name: (name, type) => (type === 'file' ? `${name}.gen` : name),
-          schema: ({ schema, parentName, name }, defaultSchemas) => {
+          schema: ({ parentName, name }, defaultSchemas) => {
             /* override a property with name 'name'
                Pet:
                   required:

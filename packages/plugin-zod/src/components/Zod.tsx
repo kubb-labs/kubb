@@ -1,10 +1,9 @@
 import transformers from '@kubb/core/transformers'
-import { type Schema, schemaKeywords } from '@kubb/plugin-oas'
-import { isKeyword } from '@kubb/plugin-oas'
+import type { SchemaObject } from '@kubb/oas'
+import { isKeyword, type Schema, schemaKeywords } from '@kubb/plugin-oas'
 import { Const, File, Type } from '@kubb/react'
 import * as parserZod from '../parser.ts'
 import type { PluginZod } from '../types.ts'
-import type { SchemaObject } from '@kubb/oas'
 
 type Props = {
   name: string
@@ -17,9 +16,10 @@ type Props = {
   mapper: PluginZod['resolvedOptions']['mapper']
   keysToOmit?: string[]
   wrapOutput?: PluginZod['resolvedOptions']['wrapOutput']
+  version: '3' | '4'
 }
 
-export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, coercion, keysToOmit, description, wrapOutput }: Props) {
+export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, coercion, keysToOmit, description, wrapOutput, version }: Props) {
   const hasTuple = tree.some((item) => isKeyword(item, schemaKeywords.tuple))
   const schemas = parserZod.sort(tree).filter((item) => {
     if (hasTuple && (isKeyword(item, schemaKeywords.min) || isKeyword(item, schemaKeywords.max))) {
@@ -31,7 +31,10 @@ export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, co
 
   const output = schemas
     .map((schema, _index, siblings) =>
-      parserZod.parse({ parent: undefined, current: schema, siblings }, { name, keysToOmit, typeName, description, mapper, coercion, wrapOutput, rawSchema }),
+      parserZod.parse(
+        { parent: undefined, current: schema, siblings },
+        { name, keysToOmit, typeName, description, mapper, coercion, wrapOutput, rawSchema, version },
+      ),
     )
     .filter(Boolean)
     .join('')
@@ -42,12 +45,16 @@ export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, co
 
   if (lastSchema && isKeyword(lastSchema, schemaKeywords.nullable)) {
     if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref)) {
-      suffix = '.unwrap().schema.unwrap()'
+      if (version === '3') {
+        suffix = '.unwrap().schema.unwrap()'
+      } else {
+        suffix = '.unwrap().unwrap()'
+      }
     } else {
       suffix = '.unwrap()'
     }
   } else {
-    if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref)) {
+    if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref) && version === '3') {
       suffix = '.schema'
     }
   }

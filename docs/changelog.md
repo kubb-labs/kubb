@@ -4,6 +4,41 @@ title: Changelog
 
 # Changelog
 
+# 3.14.1
+- [`parser/ts`](/parsers/parser-ts/):Fixed order of import and export files when using `print` of TypeScript + fixed TypeScript version
+
+# 3.14.0
+- [`cli`](/helpers/cli/): `validate` cli command to validate a Swagger/OpenAPI file: `npx kubb validate --input swagger.json`
+- [`cli`](/helpers/cli/): `mcp` cli command to start the MCP client to interact with LLMs(like Claude): `npx kubb mcp`
+
+# 3.13.2
+- [`plugin-client`](/plugins/plugin-client): Shadowed variables error when using `client`, use of `fetch` instead when an import to `@kubb/plugin-client/clients/axios` is needed.
+
+# 3.13.1
+- [`plugin-client`](/plugins/plugin-client): Parse and validate request data with Zod, including FormData, before forwarding it to the client.
+
+# 3.13.0
+- [`plugin-ts`](/plugins/plugin-ts): Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
+- [`plugin-zod`](/plugins/plugin-zod): Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
+- [`plugin-faker`](/plugins/plugin-faker): Adds `emptySchemaType` option. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
+
+# 3.12.2
+- [`core`](/plugins/core): Better support for Windows [back slashes](https://github.com/kubb-labs/kubb/issues/1776)
+
+# 3.12.1
+- [`plugin-zod`](/plugins/plugin-zod): Correct v4 imports when no importPath is defined
+
+# 3.12.0
+- [`plugin-zod`](/plugins/plugin-zod): full support for Zod v4
+
+# 3.11.1
+- [`plugin-oas`](/plugins/plugin-oas): resolve anyof when used together with allof
+
+# 3.11.0
+- [`plugin-oas`](/plugins/plugin-oas): discriminator flag that could override a schema when mapping is used(see inherit), resolves [https://github.com/kubb-labs/kubb/issues/1736](https://github.com/kubb-labs/kubb/issues/1736)
+- [`plugin-zod`](/plugins/plugin-zod): enums of type "number" are parsed to integers
+- [`plugin-faker`](/plugins/plugin-faker): Incompatible type used for true literal enum in query param
+
 # 3.10.16
 - [`plugin-ts`](/plugins/plugin-ts): constEnum should be treated as export * instead of export type *
 

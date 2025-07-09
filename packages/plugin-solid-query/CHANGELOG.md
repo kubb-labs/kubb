@@ -1,5 +1,150 @@
 # @kubb/plugin-solid-query
 
+## 3.14.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.14.1
+  - @kubb/plugin-ts@3.14.1
+  - @kubb/plugin-zod@3.14.1
+  - @kubb/react@3.14.1
+  - @kubb/plugin-client@3.14.1
+  - @kubb/plugin-oas@3.14.1
+  - @kubb/oas@3.14.1
+
+## 3.14.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.14.0
+  - @kubb/oas@3.14.0
+  - @kubb/plugin-client@3.14.0
+  - @kubb/plugin-oas@3.14.0
+  - @kubb/plugin-ts@3.14.0
+  - @kubb/plugin-zod@3.14.0
+  - @kubb/react@3.14.0
+
+## 3.13.2
+
+### Patch Changes
+
+- Shadowed variables error when using `client`, use of `fetch` instead when an import to `@kubb/plugin-client/clients/axios` is needed.
+
+- Updated dependencies []:
+  - @kubb/plugin-client@3.13.2
+  - @kubb/core@3.13.2
+  - @kubb/plugin-oas@3.13.2
+  - @kubb/plugin-ts@3.13.2
+  - @kubb/plugin-zod@3.13.2
+  - @kubb/react@3.13.2
+  - @kubb/oas@3.13.2
+
+## 3.13.1
+
+### Patch Changes
+
+- Updated dependencies [[`92e3e8c`](https://github.com/kubb-labs/kubb/commit/92e3e8c58e80cc36e4a2dc8fc83a089635e36562)]:
+  - @kubb/plugin-client@3.13.1
+  - @kubb/core@3.13.1
+  - @kubb/oas@3.13.1
+  - @kubb/plugin-oas@3.13.1
+  - @kubb/plugin-ts@3.13.1
+  - @kubb/plugin-zod@3.13.1
+  - @kubb/react@3.13.1
+
+## 3.13.0
+
+### Patch Changes
+
+- Updated dependencies [[`d875cd8`](https://github.com/kubb-labs/kubb/commit/d875cd81d443cb6258011b7f5fd918e220deaf53)]:
+  - @kubb/plugin-zod@3.13.0
+  - @kubb/plugin-ts@3.13.0
+  - @kubb/plugin-client@3.13.0
+  - @kubb/core@3.13.0
+  - @kubb/oas@3.13.0
+  - @kubb/plugin-oas@3.13.0
+  - @kubb/react@3.13.0
+
+## 3.12.2
+
+### Patch Changes
+
+- Updated dependencies [[`74e2203`](https://github.com/kubb-labs/kubb/commit/74e2203a91becf5728b18c979247075332dcb660)]:
+  - @kubb/core@3.12.2
+  - @kubb/plugin-client@3.12.2
+  - @kubb/plugin-oas@3.12.2
+  - @kubb/plugin-ts@3.12.2
+  - @kubb/plugin-zod@3.12.2
+  - @kubb/react@3.12.2
+  - @kubb/oas@3.12.2
+
+## 3.12.1
+
+### Patch Changes
+
+- Updated dependencies [[`517fedc`](https://github.com/kubb-labs/kubb/commit/517fedc6e1adc748ae1768072bc6823c243bcde5)]:
+  - @kubb/plugin-zod@3.12.1
+  - @kubb/plugin-client@3.12.1
+  - @kubb/core@3.12.1
+  - @kubb/oas@3.12.1
+  - @kubb/plugin-oas@3.12.1
+  - @kubb/plugin-ts@3.12.1
+  - @kubb/react@3.12.1
+
+## 3.12.0
+
+### Patch Changes
+
+- Updated dependencies [[`7a9e6e7`](https://github.com/kubb-labs/kubb/commit/7a9e6e7b6bffa233c3c573ec5116e4c0dda7cce2), [`2ba42c5`](https://github.com/kubb-labs/kubb/commit/2ba42c5603e037b0a324c3b720e7b6505daf9acf)]:
+  - @kubb/plugin-client@3.12.0
+  - @kubb/plugin-zod@3.12.0
+  - @kubb/core@3.12.0
+  - @kubb/oas@3.12.0
+  - @kubb/plugin-oas@3.12.0
+  - @kubb/plugin-ts@3.12.0
+  - @kubb/react@3.12.0
+
+## 3.11.1
+
+### Patch Changes
+
+- Updated dependencies [[`5400e56`](https://github.com/kubb-labs/kubb/commit/5400e56fd866dbee721cd2dcbdb288088c58d990)]:
+  - @kubb/plugin-zod@3.11.1
+  - @kubb/plugin-client@3.11.1
+  - @kubb/core@3.11.1
+  - @kubb/oas@3.11.1
+  - @kubb/plugin-oas@3.11.1
+  - @kubb/plugin-ts@3.11.1
+  - @kubb/react@3.11.1
+
+## 3.11.0
+
+### Patch Changes
+
+- Updated dependencies [[`13189ee`](https://github.com/kubb-labs/kubb/commit/13189ee0c7b297cc42cf9a7d476780ff7e357efe), [`55de3d2`](https://github.com/kubb-labs/kubb/commit/55de3d2758ce4957882243ad70d3168d3c41ff40)]:
+  - @kubb/plugin-zod@3.11.0
+  - @kubb/plugin-oas@3.11.0
+  - @kubb/plugin-client@3.11.0
+  - @kubb/plugin-ts@3.11.0
+  - @kubb/core@3.11.0
+  - @kubb/oas@3.11.0
+  - @kubb/react@3.11.0
+
+## 3.10.15
+
+### Patch Changes
+
+- Updated dependencies [[`db73926`](https://github.com/kubb-labs/kubb/commit/db73926f46739e598244bedc52f466591b2d7320)]:
+  - @kubb/plugin-ts@3.10.15
+  - @kubb/plugin-client@3.10.15
+  - @kubb/plugin-zod@3.10.15
+  - @kubb/core@3.10.15
+  - @kubb/oas@3.10.15
+  - @kubb/plugin-oas@3.10.15
+  - @kubb/react@3.10.15
+
 ## 3.10.14
 
 ### Patch Changes

@@ -1,8 +1,8 @@
-import client from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { AddFilesMutationRequest, AddFilesMutationResponse, AddFiles405 } from '../../../models/ts/petController/AddFiles.ts'
 
-function getAddFilesUrl() {
+export function getAddFilesUrl() {
   return 'https://petstore3.swagger.io/api/v3/pet/files' as const
 }
 
@@ -13,16 +13,17 @@ function getAddFilesUrl() {
  */
 export async function addFiles(
   { data }: { data: AddFilesMutationRequest },
-  config: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
+  const requestData = data
   const formData = new FormData()
-  if (data) {
-    Object.keys(data).forEach((key) => {
-      const value = data[key as keyof typeof data]
-      if (typeof key === 'string' && (typeof value === 'string' || (value as Blob) instanceof Blob)) {
-        formData.append(key, value as unknown as string)
+  if (requestData) {
+    Object.keys(requestData).forEach((key) => {
+      const value = requestData[key as keyof typeof requestData]
+      if (typeof value === 'string' || (value as unknown) instanceof Blob) {
+        formData.append(key, value as unknown as string | Blob)
       }
     })
   }

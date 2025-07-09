@@ -311,6 +311,24 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "belgattitude",
+      "name": "Sébastien Vanvelthem",
+      "avatar_url": "https://avatars.githubusercontent.com/u/259798?v=4",
+      "profile": "https://github.com/belgattitude",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "vitalygashkov",
+      "name": "Vitaly Gashkov",
+      "avatar_url": "https://avatars.githubusercontent.com/u/30000398?v=4",
+      "profile": "http://bento.me/vitalygashkov",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,

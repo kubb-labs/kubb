@@ -1,5 +1,93 @@
 # @kubb/react
 
+## 3.14.1
+
+### Patch Changes
+
+- Updated dependencies [[`b48928e`](https://github.com/kubb-labs/kubb/commit/b48928e0256f6a5870e7f01e2b9a4419f37cf9bd)]:
+  - @kubb/parser-ts@3.14.1
+  - @kubb/core@3.14.1
+
+## 3.14.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.14.0
+  - @kubb/parser-ts@3.14.0
+
+## 3.13.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.13.2
+  - @kubb/parser-ts@3.13.2
+
+## 3.13.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.13.1
+  - @kubb/parser-ts@3.13.1
+
+## 3.13.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.13.0
+  - @kubb/parser-ts@3.13.0
+
+## 3.12.2
+
+### Patch Changes
+
+- Updated dependencies [[`74e2203`](https://github.com/kubb-labs/kubb/commit/74e2203a91becf5728b18c979247075332dcb660)]:
+  - @kubb/core@3.12.2
+  - @kubb/parser-ts@3.12.2
+
+## 3.12.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.12.1
+  - @kubb/parser-ts@3.12.1
+
+## 3.12.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.12.0
+  - @kubb/parser-ts@3.12.0
+
+## 3.11.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.11.1
+  - @kubb/parser-ts@3.11.1
+
+## 3.11.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.11.0
+  - @kubb/parser-ts@3.11.0
+
+## 3.10.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.10.15
+  - @kubb/parser-ts@3.10.15
+
 ## 3.10.14
 
 ### Patch Changes

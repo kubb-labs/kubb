@@ -1,10 +1,9 @@
 import { defineCommand, runCommand, runMain } from 'citty'
+import consola from 'consola'
+import { default as gradientString } from 'gradient-string'
 import getLatestVersion from 'latest-version'
 import { lt } from 'semver'
-import { default as gradientString } from 'gradient-string'
-
 import { version } from '../package.json'
-import consola from 'consola'
 
 const name = 'kubb'
 
@@ -34,7 +33,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
     } catch (_e) {}
 
-    if (!['generate'].includes(rawArgs[0] as string)) {
+    if (!['generate', 'validate', 'mcp'].includes(rawArgs[0] as string)) {
       console.log(rawArgs[0])
       // generate is not being used
       const generateCommand = await import('./commands/generate.ts').then((r) => r.default)
@@ -46,6 +45,8 @@ Run \`npm install -g @kubb/cli\` to update`,
   },
   subCommands: {
     generate: () => import('./commands/generate.ts').then((r) => r.default),
+    validate: () => import('./commands/validate.ts').then((r) => r.default),
+    mcp: () => import('./commands/mcp.ts').then((r) => r.default),
   },
 })
 
