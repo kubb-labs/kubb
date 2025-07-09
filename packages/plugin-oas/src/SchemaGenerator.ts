@@ -682,52 +682,54 @@ export class SchemaGenerator<
           .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
       }
 
-      if (schemaWithoutAllOf.required) {
-        // TODO use of Required ts helper instead
-        const schemas = schemaObject.allOf
-          .map((item) => {
-            if (isReference(item)) {
-              return this.context.oas.get(item.$ref) as SchemaObject
-            }
+      if (schemaWithoutAllOf.required?.length) {
+        const allOfItems = schemaObject.allOf
+        const resolvedSchemas: SchemaObject[] = []
 
-            return item
-          })
-          .filter(Boolean)
+        for (const item of allOfItems) {
+          const resolved = isReference(item) ? (this.context.oas.get(item.$ref) as SchemaObject) : item
 
-        const items = schemaWithoutAllOf.required
-          .filter((key) => {
-            // filter out keys that are already part of the properties(reduce duplicated keys(https://github.com/kubb-labs/kubb/issues/1492)
-            if (schemaWithoutAllOf.properties) {
-              return !Object.keys(schemaWithoutAllOf.properties).includes(key)
-            }
+          if (resolved) {
+            resolvedSchemas.push(resolved)
+          }
+        }
 
-            // schema should include required fields when necessary https://github.com/kubb-labs/kubb/issues/1522
-            return true
-          })
-          .map((key) => {
-            const schema = schemas.find((item) => item.properties && Object.keys(item.properties).find((propertyKey) => propertyKey === key))
+        const existingKeys = schemaWithoutAllOf.properties ? new Set(Object.keys(schemaWithoutAllOf.properties)) : null
 
-            if (schema?.properties?.[key]) {
-              return {
-                ...schema,
+        const parsedItems: SchemaObject[] = []
+
+        for (const key of schemaWithoutAllOf.required) {
+          if (existingKeys?.has(key)) {
+            continue
+          }
+
+          for (const schema of resolvedSchemas) {
+            if (schema.properties?.[key]) {
+              parsedItems.push({
                 properties: {
                   [key]: schema.properties[key],
                 },
                 required: [key],
-              }
+              } as SchemaObject)
+              break
             }
-          })
-          .filter(Boolean)
+          }
+        }
 
-        and.args = [...(and.args || []), ...items.flatMap((item) => this.parse({ schemaObject: item as SchemaObject, name, parentName }))]
+        for (const item of parsedItems) {
+          const parsed = this.parse({ schemaObject: item, name, parentName })
+
+          if (Array.isArray(parsed)) {
+            and.args = and.args ? and.args.concat(parsed) : parsed
+          }
+        }
       }
 
       if (schemaWithoutAllOf.properties) {
         and.args = [...(and.args || []), ...this.parse({ schemaObject: schemaWithoutAllOf, name, parentName })]
       }
 
-      // return SchemaGenerator.combineObjects([and, ...baseItems])
-      return [and, ...baseItems]
+      return SchemaGenerator.combineObjects([and, ...baseItems])
     }
 
     if (schemaObject.enum) {
