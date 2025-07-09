@@ -116,7 +116,7 @@ kubb --watch
 
 Open Kubb's ui in the default browser
 ```shell [node]
-kubb --watch
+kubb --ui
 ```
 
 #### --version (-v)
