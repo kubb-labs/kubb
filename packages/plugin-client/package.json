@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-client",
-  "version": "3.14.2",
+  "version": "3.14.3",
   "description": "API client generator plugin for Kubb, creating type-safe HTTP clients (Axios, Fetch) from OpenAPI specifications for making API requests.",
   "keywords": [
     "api-client",

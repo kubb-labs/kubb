@@ -1,6 +1,6 @@
 {
   "name": "@kubb/ui",
-  "version": "3.14.2",
+  "version": "3.14.3",
   "description": "User interface components and web dashboard for Kubb, providing a visual interface for managing and monitoring code generation.",
   "keywords": [
     "ui",
