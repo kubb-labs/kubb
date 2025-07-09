@@ -10,7 +10,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export async function updatePetWithFormHandler({
   petId,
@@ -21,7 +21,7 @@ export async function updatePetWithFormHandler({
 }): Promise<Promise<CallToolResult>> {
   const res = await fetch<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
-    url: `/pet/${petId}`,
+    url: `/pet/${petId}:search`,
     baseURL: 'https://petstore.swagger.io/v2',
     params,
   })

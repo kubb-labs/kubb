@@ -9,13 +9,13 @@ import type {
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import { updatePetWithForm } from '../../axios/petService/updatePetWithForm.ts'
 
-export const updatePetWithFormMutationKeySWR = () => [{ url: '/pet/{petId}' }] as const
+export const updatePetWithFormMutationKeySWR = () => [{ url: '/pet/{petId}:search' }] as const
 
 export type UpdatePetWithFormMutationKeySWR = ReturnType<typeof updatePetWithFormMutationKeySWR>
 
 /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export function useUpdatePetWithFormSWR(
   { petId }: { petId: UpdatePetWithFormPathParams['petId'] },

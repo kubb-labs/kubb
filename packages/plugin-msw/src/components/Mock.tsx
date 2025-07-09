@@ -12,7 +12,7 @@ type Props = {
   fakerName: string
   url: string
   baseURL: string | undefined
-  method: HttpMethod,
+  method: HttpMethod
   statusCode: number
 }
 
@@ -29,7 +29,7 @@ export function Mock({ baseURL = '', name, typeName, url, method, statusCode }: 
   return (
     <File.Source name={name} isIndexable isExportable>
       <Function name={name} export params={params.toConstructor()}>
-        {`return http.${method}('${baseURL}${url}', function handler(info) {
+        {`return http.${method}('${baseURL}${url.replace(/([^/]):/g, '$1\\\\:')}', function handler(info) {
     if(typeof data === 'function') return data(info)
 
     return new Response(JSON.stringify(data), {

@@ -4,14 +4,14 @@ import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
 import { deletePet } from '../../axios/petService/deletePet.ts'
 
-export const deletePetMutationKeySWR = () => [{ url: '/pet/{petId}' }] as const
+export const deletePetMutationKeySWR = () => [{ url: '/pet/{petId}:search' }] as const
 
 export type DeletePetMutationKeySWR = ReturnType<typeof deletePetMutationKeySWR>
 
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export function useDeletePetSWR(
   { petId }: { petId: DeletePetPathParams['petId'] },

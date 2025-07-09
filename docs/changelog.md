@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+# 3.14.3
+- [`plugin-client`](/plugins/plugin-client): Support Google api format, for example: `my-api/foo/v1/bar/{id}:search`
+- [`plugin-msw`](/plugins/plugin-msw): Support Google api format, for example: `my-api/foo/v1/bar/{id}:search`
+
 # 3.14.2
 - [`plugin-oas`](/plugins/plugin-oas): Required properties not handled correctly when allOf is used
 

@@ -9,12 +9,12 @@ import type {
 import { updatePetWithFormMutationResponseSchema } from '../../../zod/petController/updatePetWithFormSchema.ts'
 
 export function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) {
-  return `https://petstore3.swagger.io/api/v3/pet/${petId}` as const
+  return `https://petstore3.swagger.io/api/v3/pet/${petId}:search` as const
 }
 
 /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export async function updatePetWithForm(
   { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },

@@ -90,7 +90,7 @@ server.tool('getPetById', 'Returns a single pet', { petId: getPetByIdPathParamsS
 
 server.tool(
   'updatePetWithForm',
-  'Make a POST request to /pet/{petId}',
+  'Make a POST request to /pet/{petId}:search',
   { petId: updatePetWithFormPathParamsSchema.shape['petId'], params: updatePetWithFormQueryParamsSchema },
   async ({ petId, params }) => {
     return updatePetWithFormHandler({ petId, params })

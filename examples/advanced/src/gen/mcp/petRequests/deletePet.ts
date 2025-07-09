@@ -6,7 +6,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export async function deletePetHandler({
   petId,
@@ -17,7 +17,7 @@ export async function deletePetHandler({
 }): Promise<Promise<CallToolResult>> {
   const res = await fetch<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
-    url: `/pet/${petId}`,
+    url: `/pet/${petId}:search`,
     baseURL: 'https://petstore.swagger.io/v2',
     headers: { ...headers },
   })

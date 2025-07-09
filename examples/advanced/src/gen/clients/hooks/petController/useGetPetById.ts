@@ -5,7 +5,7 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetP
 import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { getPetById } from '../../axios/petService/getPetById.ts'
 
-export const getPetByIdQueryKey = ({ petId }: { petId: GetPetByIdPathParams['petId'] }) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+export const getPetByIdQueryKey = ({ petId }: { petId: GetPetByIdPathParams['petId'] }) => [{ url: '/pet/:petId:search', params: { petId: petId } }] as const
 
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 
@@ -29,7 +29,7 @@ export function getPetByIdQueryOptions({ petId }: { petId: GetPetByIdPathParams[
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export function useGetPetById<
   TData = ResponseConfig<GetPetByIdQueryResponse>,

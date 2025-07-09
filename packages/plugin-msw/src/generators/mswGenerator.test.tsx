@@ -53,9 +53,9 @@ describe('mswGenerator operation', async () => {
       path: '/pets',
       method: 'post',
       options: {
-        parser: 'faker'
+        parser: 'faker',
       },
-    }
+    },
   ] as const satisfies Array<{
     input: string
     name: string

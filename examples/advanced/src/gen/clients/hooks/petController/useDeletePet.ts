@@ -5,14 +5,14 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { deletePet } from '../../axios/petService/deletePet.ts'
 import { useMutation } from '@tanstack/react-query'
 
-export const deletePetMutationKey = () => [{ url: '/pet/{petId}' }] as const
+export const deletePetMutationKey = () => [{ url: '/pet/{petId}:search' }] as const
 
 export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export function useDeletePet<TContext>(
   options: {

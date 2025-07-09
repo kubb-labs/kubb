@@ -4,7 +4,7 @@ import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../.
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 import { getPetById } from '../../axios/petService/getPetById.ts'
 
-export const getPetByIdQueryKeySWR = ({ petId }: { petId: GetPetByIdPathParams['petId'] }) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+export const getPetByIdQueryKeySWR = ({ petId }: { petId: GetPetByIdPathParams['petId'] }) => [{ url: '/pet/:petId:search', params: { petId: petId } }] as const
 
 export type GetPetByIdQueryKeySWR = ReturnType<typeof getPetByIdQueryKeySWR>
 
@@ -22,7 +22,7 @@ export function getPetByIdQueryOptionsSWR(
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export function useGetPetByIdSWR(
   { petId }: { petId: GetPetByIdPathParams['petId'] },

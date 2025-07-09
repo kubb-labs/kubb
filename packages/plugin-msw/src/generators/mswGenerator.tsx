@@ -35,8 +35,8 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
       schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
     }
 
-    const successStatusCodes = operation.getResponseStatusCodes().filter(code => code.startsWith('2'));
-    const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200;
+    const successStatusCodes = operation.getResponseStatusCodes().filter((code) => code.startsWith('2'))
+    const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200
 
     return (
       <File
@@ -60,7 +60,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
             fakerName={faker.schemas.response.name}
             method={operation.method}
             baseURL={baseURL}
-            url={new URLPath(operation.path).toURLPath()}
+            url={new URLPath(operation.path).toURLPath().replace(/([^/]):/g, '$1\\\\:')}
             statusCode={statusCode}
           />
         )}
@@ -71,7 +71,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
             fakerName={faker.schemas.response.name}
             method={operation.method}
             baseURL={baseURL}
-            url={new URLPath(operation.path).toURLPath()}
+            url={new URLPath(operation.path).toURLPath().replace(/([^/]):/g, '$1\\\\:')}
             statusCode={statusCode}
           />
         )}

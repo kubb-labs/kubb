@@ -6,6 +6,7 @@ export function createPetsHandler(data?: CreatePetsMutationResponse | ((info: Pa
     if (typeof data === 'function') return data(info)
 
     return new Response(JSON.stringify(data), {
+      status: 201,
       headers: {
         'Content-Type': 'application/json',
       },
