@@ -8,7 +8,7 @@ export function createPets(data?: CreatePetsMutationResponse | ((info: Parameter
   return http.post('/pets', function handler(info) {
     if (typeof data === 'function') return data(info)
 
-    return new Response(JSON.stringify(data), {
+    return new Response(JSON.stringify(data || createPetsMutationResponse(data)), {
       status: 201,
       headers: {
         'Content-Type': 'application/json',

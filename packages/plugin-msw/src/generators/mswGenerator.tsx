@@ -35,6 +35,9 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
       schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
     }
 
+    const successStatusCodes = operation.getResponseStatusCodes().filter(code => code.startsWith('2'));
+    const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200;
+
     return (
       <File
         baseName={mock.file.baseName}
@@ -58,6 +61,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
             method={operation.method}
             baseURL={baseURL}
             url={new URLPath(operation.path).toURLPath()}
+            statusCode={statusCode}
           />
         )}
         {parser === 'data' && (
@@ -68,6 +72,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
             method={operation.method}
             baseURL={baseURL}
             url={new URLPath(operation.path).toURLPath()}
+            statusCode={statusCode}
           />
         )}
       </File>
