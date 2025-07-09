@@ -37,7 +37,7 @@ describe('URLPath', () => {
       params: { userID: 'userID' },
     })
     // const userId = 2
-        expect(simplePath.toObject({ type: 'template', stringify: true })).toStrictEqual('{url:`/user/${userID}`,params:{userID:userID}}')
+    expect(simplePath.toObject({ type: 'template', stringify: true })).toStrictEqual('{url:`/user/${userID}`,params:{userID:userID}}')
 
     expect(simplePath.toObject()).toStrictEqual({
       url: '/user/:userID',

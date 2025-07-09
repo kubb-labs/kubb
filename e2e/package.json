@@ -46,7 +46,7 @@
     "swr": "^2.3.4",
     "tsup": "catalog:",
     "vue": "^3.5.17",
-    "zod": "^3.25.75"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

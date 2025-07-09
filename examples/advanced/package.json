@@ -57,7 +57,7 @@
     "svelte": "^4.2.20",
     "swr": "^2.3.4",
     "vue": "^3.5.17",
-    "zod": "^3.25.75"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

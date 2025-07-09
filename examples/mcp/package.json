@@ -28,7 +28,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.15.0",
     "axios": "^1.10.0",
-    "zod": "^3.25.75"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",

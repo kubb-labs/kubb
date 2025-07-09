@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.14.1
+- [`parser/ts`](/parsers/parser-ts/):Fixed order of import and export files when using `print` of TypeScript + fixed TypeScript version
+
 # 3.14.0
 - [`cli`](/helpers/cli/): `validate` cli command to validate a Swagger/OpenAPI file: `npx kubb validate --input swagger.json`
 - [`cli`](/helpers/cli/): `mcp` cli command to start the MCP client to interact with LLMs(like Claude): `npx kubb mcp`
