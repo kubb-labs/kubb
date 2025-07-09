@@ -211,6 +211,58 @@ export class SchemaGenerator<
     return foundItem
   }
 
+  static combineObjects(tree: Schema[] | undefined): Schema[] {
+    if (!tree) {
+      return []
+    }
+
+    return tree.map((schema) => {
+      if (!isKeyword(schema, schemaKeywords.and)) {
+        return schema
+      }
+
+      let mergedProperties: Record<string, Schema[]> | null = null
+      let mergedAdditionalProps: Schema[] = []
+
+      const newArgs: Schema[] = []
+
+      for (const subSchema of schema.args) {
+        if (isKeyword(subSchema, schemaKeywords.object)) {
+          const { properties = {}, additionalProperties = [] } = subSchema.args ?? {}
+
+          if (!mergedProperties) {
+            mergedProperties = {}
+          }
+
+          for (const [key, value] of Object.entries(properties)) {
+            mergedProperties[key] = value
+          }
+
+          if (additionalProperties.length > 0) {
+            mergedAdditionalProps = additionalProperties
+          }
+        } else {
+          newArgs.push(subSchema)
+        }
+      }
+
+      if (mergedProperties) {
+        newArgs.push({
+          keyword: schemaKeywords.object,
+          args: {
+            properties: mergedProperties,
+            additionalProperties: mergedAdditionalProps,
+          },
+        })
+      }
+
+      return {
+        keyword: schemaKeywords.and,
+        args: newArgs,
+      }
+    })
+  }
+
   #getUsedEnumNames(props: SchemaProps) {
     const options = this.#getOptions(props)
 
@@ -637,6 +689,8 @@ export class SchemaGenerator<
             if (isReference(item)) {
               return this.context.oas.get(item.$ref) as SchemaObject
             }
+
+            return item
           })
           .filter(Boolean)
 
@@ -672,6 +726,7 @@ export class SchemaGenerator<
         and.args = [...(and.args || []), ...this.parse({ schemaObject: schemaWithoutAllOf, name, parentName })]
       }
 
+      // return SchemaGenerator.combineObjects([and, ...baseItems])
       return [and, ...baseItems]
     }
 

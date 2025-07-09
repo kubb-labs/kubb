@@ -95,7 +95,7 @@ jobs:
         working-directory: ./e2e
         if: ${{ matrix.os == 'windows-latest' }}
         env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
+          NODE_OPTIONS: "--max_old_space_size=3072"
         run: |
           bun run generate
 
@@ -103,6 +103,6 @@ jobs:
         working-directory: ./e2e
         if: ${{ matrix.os == 'ubuntu-latest' }}
         env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
+          NODE_OPTIONS: "--max_old_space_size=3072"
         run: |
           bun run generate
