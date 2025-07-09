@@ -3,7 +3,14 @@
  * Do not edit manually.
  */
 
-export type notification = {
+export type notification = (
+  | (documentDisapprovedNotification & {
+      notificationType: 'DOCUMENT_DISAPPROVED'
+    })
+  | (documentApprovedNotification & {
+      notificationType: 'DOCUMENT_APPROVED'
+    })
+) & {
   /**
    * @type integer
    */
@@ -16,11 +23,4 @@ export type notification = {
    * @type boolean
    */
   isSeen: boolean
-} & (
-  | (documentDisapprovedNotification & {
-      notificationType: 'DOCUMENT_DISAPPROVED'
-    })
-  | (documentApprovedNotification & {
-      notificationType: 'DOCUMENT_APPROVED'
-    })
-)
+}

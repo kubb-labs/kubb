@@ -92,4 +92,165 @@ describe('SchemaGenerator core', async () => {
 
     expect(tree).toMatchSnapshot()
   })
+
+  test('combineObjects', () => {
+    const input = [
+      {
+        keyword: 'and',
+        args: [
+          {
+            keyword: 'ref',
+            args: {
+              name: 'EventBase',
+              $ref: '#/components/schemas/EventBase',
+              path: '/Users/stijnvanhullem/Git/external/kubb/examples/typescript/src/gen/models.ts',
+              isImportable: true,
+            },
+          },
+          {
+            keyword: 'object',
+            args: {
+              properties: {
+                text: [
+                  {
+                    keyword: 'string',
+                  },
+                  {
+                    keyword: 'schema',
+                    args: {
+                      type: 'string',
+                    },
+                  },
+                  {
+                    keyword: 'name',
+                    args: 'text',
+                  },
+                  {
+                    keyword: 'optional',
+                  },
+                ],
+                verified: [
+                  {
+                    keyword: 'boolean',
+                  },
+                  {
+                    keyword: 'schema',
+                    args: {
+                      type: 'boolean',
+                    },
+                  },
+                  {
+                    keyword: 'name',
+                    args: 'verified',
+                  },
+                  {
+                    keyword: 'optional',
+                  },
+                ],
+              },
+              additionalProperties: [],
+            },
+          },
+          {
+            keyword: 'object',
+            args: {
+              properties: {
+                id: [
+                  {
+                    keyword: 'uuid',
+                  },
+                  {
+                    keyword: 'schema',
+                    args: {
+                      type: 'string',
+                      format: 'uuid',
+                    },
+                  },
+                  {
+                    keyword: 'name',
+                    args: 'id',
+                  },
+                ],
+              },
+              additionalProperties: [],
+            },
+          },
+          {
+            keyword: 'schema',
+            args: {
+              type: 'object',
+            },
+          },
+          {
+            keyword: 'object',
+            args: {
+              properties: {
+                text: [
+                  {
+                    keyword: 'string',
+                  },
+                  {
+                    keyword: 'schema',
+                    args: {
+                      type: 'string',
+                    },
+                  },
+                  {
+                    keyword: 'name',
+                    args: 'text',
+                  },
+                ],
+              },
+              additionalProperties: [],
+            },
+          },
+          {
+            keyword: 'schema',
+            args: {
+              type: 'object',
+            },
+          },
+          {
+            keyword: 'object',
+            args: {
+              properties: {
+                ts: [
+                  {
+                    keyword: 'datetime',
+                    args: {
+                      offset: false,
+                    },
+                  },
+                  {
+                    keyword: 'schema',
+                    args: {
+                      type: 'string',
+                      format: 'date-time',
+                    },
+                  },
+                  {
+                    keyword: 'name',
+                    args: 'ts',
+                  },
+                ],
+              },
+              additionalProperties: [],
+            },
+          },
+          {
+            keyword: 'schema',
+            args: {
+              type: 'object',
+            },
+          },
+        ],
+      },
+      {
+        keyword: 'schema',
+        args: {},
+      },
+    ]
+
+    expect(SchemaGenerator.combineObjects(input)).toMatchSnapshot()
+  })
 })

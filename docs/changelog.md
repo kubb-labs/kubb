@@ -4,8 +4,11 @@ title: Changelog
 
 # Changelog
 
+# 3.14.2
+- [`plugin-oas`](/plugins/plugin-oas): Required properties not handled correctly when allOf is used
+
 # 3.14.1
-- [`parser/ts`](/parsers/parser-ts/):Fixed order of import and export files when using `print` of TypeScript + fixed TypeScript version
+- [`parser/ts`](/parsers/parser-ts/): Fixed order of import and export files when using `print` of TypeScript + fixed TypeScript version
 
 # 3.14.0
 - [`cli`](/helpers/cli/): `validate` cli command to validate a Swagger/OpenAPI file: `npx kubb validate --input swagger.json`
