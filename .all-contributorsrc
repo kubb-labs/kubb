@@ -329,6 +329,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "ducodrupsteen",
+      "name": "Duco Drupsteen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9675738?v=4",
+      "profile": "https://ducduc.nl",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
