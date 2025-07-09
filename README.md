@@ -94,6 +94,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="http://bento.me/vitalygashkov"><img src="https://avatars.githubusercontent.com/u/30000398?v=4?s=100" width="100px;" alt="Vitaly Gashkov"/><br /><sub><b>Vitaly Gashkov</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=vitalygashkov" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://ducduc.nl"><img src="https://avatars.githubusercontent.com/u/9675738?v=4?s=100" width="100px;" alt="Duco Drupsteen"/><br /><sub><b>Duco Drupsteen</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=ducodrupsteen" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
