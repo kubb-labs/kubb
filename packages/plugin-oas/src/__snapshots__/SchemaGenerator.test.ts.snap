@@ -16,14 +16,14 @@ exports[`SchemaGenerator core > 'FullAddress' 1`] = `
       {
         "args": {
           "format": undefined,
-          "type": "object",
+          "type": undefined,
         },
         "keyword": "schema",
       },
       {
         "args": {
           "format": undefined,
-          "type": "object",
+          "type": undefined,
         },
         "keyword": "schema",
       },
