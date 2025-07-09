@@ -1,10 +1,10 @@
+import { GitChangelog, GitChangelogMarkdownSection } from '@nolebase/vitepress-plugin-git-changelog/vite'
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { defineConfig } from 'vitepress'
 import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepress-plugin-group-icons'
 import { version } from '../../packages/core/package.json'
 import { renderMermaidGraphsPlugin } from './mermaid'
 import { transposeTables } from './transposeTables'
-// import { GitChangelog, GitChangelogMarkdownSection } from '@nolebase/vitepress-plugin-git-changelog/vite'
 
 const ogImage = 'https://kubb.dev/og.png'
 const title = 'Generate SDKs for all your APIs'
@@ -717,10 +717,18 @@ export default defineConfig({
           'kubb.config.js': localIconLoader(import.meta.url, '../public/logo.svg'),
         },
       }),
-      // GitChangelog({
-      //   repoURL: () => 'https://github.com/kubb-labs/kubb',
-      // }),
-      // GitChangelogMarkdownSection(),
-    ],
+      GitChangelog({
+        repoURL: () => 'https://github.com/kubb-labs/kubb',
+        mapAuthors: [
+          {
+            name: 'Stijn Van Hulle',
+            username: 'stijnvanhulle',
+            mapByEmailAliases: ['stijn@stijnvanhulle.be'],
+          },
+        ],
+        maxGitLogCount: 100,
+      }),
+      GitChangelogMarkdownSection(),
+    ] as any,
   },
 })

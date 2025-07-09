@@ -1,22 +1,23 @@
+import { NolebaseEnhancedReadabilitiesMenu, NolebaseEnhancedReadabilitiesScreenMenu } from '@nolebase/vitepress-plugin-enhanced-readabilities/client'
+import { NolebaseGitChangelogPlugin } from '@nolebase/vitepress-plugin-git-changelog/client'
+import { NolebaseHighlightTargetedHeading } from '@nolebase/vitepress-plugin-highlight-targeted-heading/client'
 import TwoslashFloatingVue from '@shikijs/vitepress-twoslash/client'
-import type { EnhanceAppContext } from 'vitepress'
+import type { EnhanceAppContext, Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import { h } from 'vue'
-import type { Theme } from 'vitepress'
-// import { NolebaseGitChangelogPlugin } from '@nolebase/vitepress-plugin-git-changelog/client'
-import { NolebaseHighlightTargetedHeading } from '@nolebase/vitepress-plugin-highlight-targeted-heading/client'
-import { NolebaseEnhancedReadabilitiesMenu, NolebaseEnhancedReadabilitiesScreenMenu } from '@nolebase/vitepress-plugin-enhanced-readabilities/client'
 
 import '@nolebase/vitepress-plugin-highlight-targeted-heading/client/style.css'
 import '@nolebase/vitepress-plugin-git-changelog/client/style.css'
 import '@nolebase/vitepress-plugin-enhanced-readabilities/client/style.css'
 
+// @ts-ignore
 import HomePage from './HomePage.vue'
 
 import '@shikijs/vitepress-twoslash/style.css'
 import 'virtual:group-icons.css'
 import './style.css'
 
+// @ts-ignore
 import allContributorsStr from '../../../.all-contributorsrc?raw'
 
 export default {
@@ -33,6 +34,6 @@ export default {
   enhanceApp(ctx: EnhanceAppContext) {
     DefaultTheme.enhanceApp(ctx)
     ctx.app.use(TwoslashFloatingVue)
-    // ctx.app.use(NolebaseGitChangelogPlugin)
+    ctx.app.use(NolebaseGitChangelogPlugin)
   },
 } satisfies Theme
