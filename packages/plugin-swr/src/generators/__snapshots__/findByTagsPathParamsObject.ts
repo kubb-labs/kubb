@@ -39,9 +39,13 @@ export function findPetsByTagsQueryOptions(
 }
 
 /**
- * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
- * @summary Finds Pets by tags
- * {@link /pet/findByTags}
+ * React hook to fetch pets by tags from the `/pet/findByTags` endpoint using SWR.
+ *
+ * Accepts optional query parameters and configuration options, including SWR query options, a custom Axios client, a flag to conditionally enable fetching, and an `immutable` flag to disable automatic revalidation behaviors.
+ *
+ * @param params - Optional query parameters to filter pets by tags
+ * @param options - Optional configuration including SWR options, custom client, conditional fetching, and immutability
+ * @returns The SWR response object containing the fetched pets data and error information
  */
 export function useFindPetsByTags(
   { params }: { params?: FindPetsByTagsQueryParams },

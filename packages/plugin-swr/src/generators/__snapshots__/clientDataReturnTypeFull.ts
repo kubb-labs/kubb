@@ -39,9 +39,13 @@ export function findPetsByTagsQueryOptions(
 }
 
 /**
- * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
- * @summary Finds Pets by tags
- * {@link /pet/findByTags}
+ * React hook to fetch pets filtered by tags from the `/pet/findByTags` endpoint using SWR.
+ *
+ * Accepts optional query parameters and configuration options, including SWR query options, custom HTTP client settings, conditional fetching, and immutability to disable automatic revalidation.
+ *
+ * @param params - Optional query parameters to filter pets by tags
+ * @param options - Optional configuration including SWR options, custom client, conditional fetching, and immutability
+ * @returns The SWR response object containing the fetched data or error
  */
 export function useFindPetsByTags(
   { params }: { params?: FindPetsByTagsQueryParams },

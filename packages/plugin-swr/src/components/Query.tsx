@@ -32,6 +32,13 @@ type GetParamsProps = {
   typeSchemas: OperationSchemas
 }
 
+/**
+ * Generates the parameter structure for a typed SWR query function based on OpenAPI operation schemas and plugin options.
+ *
+ * Constructs either a single object parameter or separate parameters for path, request, query, and header data, depending on the `paramsType` option. Always includes an `options` parameter supporting SWR query options, client configuration, conditional fetching, and immutability.
+ *
+ * @returns The parameter definition for the generated query function, suitable for use with code generation utilities.
+ */
 function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
@@ -116,6 +123,13 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
   })
 }
 
+/**
+ * Generates a typed React query hook function using SWR for data fetching based on OpenAPI operation schemas and plugin options.
+ *
+ * The generated function supports flexible parameter structures, advanced SWR options, and conditional immutability for disabling automatic revalidation.
+ *
+ * @returns A ReactNode containing the generated query hook function.
+ */
 export function Query({
   name,
   typeSchemas,

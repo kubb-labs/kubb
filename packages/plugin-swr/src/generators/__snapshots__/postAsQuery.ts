@@ -42,8 +42,12 @@ export function updatePetWithFormQueryOptions(
 }
 
 /**
- * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * React hook for updating a pet's information in the store using form data, with SWR-based caching and revalidation control.
+ *
+ * @param petId - The ID of the pet to update
+ * @param params - Optional query parameters for the update request
+ * @param options - Optional settings including SWR query options, request configuration, a flag to enable or disable fetching, and an `immutable` flag to control automatic revalidation
+ * @returns The SWR response object containing the update result, error, and status
  */
 export function useUpdatePetWithForm(
   { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
