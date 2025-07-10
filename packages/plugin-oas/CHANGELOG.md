@@ -1,5 +1,16 @@
 # @kubb/swagger
 
+## 3.14.4
+
+### Patch Changes
+
+- [`18572ff`](https://github.com/kubb-labs/kubb/commit/18572ff28378e8ac9bee5157a71ab2cc7d89d612) Thanks [@stijnvanhullem](https://github.com/stijnvanhullem)! - AnyOf where `const`(empty string) is being used should not be converted to a nullable value.
+
+- Updated dependencies []:
+  - @kubb/core@3.14.4
+  - @kubb/oas@3.14.4
+  - @kubb/react@3.14.4
+
 ## 3.14.3
 
 ### Patch Changes
