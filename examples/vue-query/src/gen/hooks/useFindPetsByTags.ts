@@ -66,10 +66,10 @@ export function useFindPetsByTags<
 
   const query = useQuery(
     {
-      ...(findPetsByTagsQueryOptions(params, config) as unknown as QueryObserverOptions),
-      queryKey: queryKey as QueryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...findPetsByTagsQueryOptions(params, config),
+      queryKey,
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryReturnType<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 

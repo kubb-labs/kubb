@@ -240,10 +240,10 @@ export function useFindPetsByStatus<
 
   const query = useQuery(
     {
-      ...(findPetsByStatusQueryOptions(params, config) as unknown as QueryObserverOptions),
+      ...findPetsByStatusQueryOptions(params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByStatus400>> & { queryKey: TQueryKey }
 
@@ -303,10 +303,10 @@ export function useFindPetsByStatusSuspense<TData = FindPetsByStatusQueryRespons
 
   const query = useSuspenseQuery(
     {
-      ...(findPetsByStatusSuspenseQueryOptions(params, config) as unknown as UseSuspenseQueryOptions),
+      ...findPetsByStatusSuspenseQueryOptions(params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<FindPetsByStatus400>> & { queryKey: TQueryKey }
 
@@ -370,10 +370,10 @@ export function useFindPetsByTags<
 
   const query = useQuery(
     {
-      ...(findPetsByTagsQueryOptions(params, config) as unknown as QueryObserverOptions),
+      ...findPetsByTagsQueryOptions(params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 
@@ -431,10 +431,10 @@ export function useFindPetsByTagsSuspense<TData = FindPetsByTagsQueryResponse, T
 
   const query = useSuspenseQuery(
     {
-      ...(findPetsByTagsSuspenseQueryOptions(params, config) as unknown as UseSuspenseQueryOptions),
+      ...findPetsByTagsSuspenseQueryOptions(params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 
@@ -494,10 +494,10 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetP
 
   const query = useQuery(
     {
-      ...(getPetByIdQueryOptions(petId, config) as unknown as QueryObserverOptions),
+      ...getPetByIdQueryOptions(petId, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<GetPetById400 | GetPetById404>> & { queryKey: TQueryKey }
 
@@ -557,10 +557,10 @@ export function useGetPetByIdSuspense<TData = GetPetByIdQueryResponse, TQueryKey
 
   const query = useSuspenseQuery(
     {
-      ...(getPetByIdSuspenseQueryOptions(petId, config) as unknown as UseSuspenseQueryOptions),
+      ...getPetByIdSuspenseQueryOptions(petId, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetPetById400 | GetPetById404>> & { queryKey: TQueryKey }
 
@@ -798,10 +798,10 @@ export function useGetInventory<TData = GetInventoryQueryResponse, TQueryData = 
 
   const query = useQuery(
     {
-      ...(getInventoryQueryOptions(config) as unknown as QueryObserverOptions),
+      ...getInventoryQueryOptions(config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 
@@ -853,10 +853,10 @@ export function useGetInventorySuspense<TData = GetInventoryQueryResponse, TQuer
 
   const query = useSuspenseQuery(
     {
-      ...(getInventorySuspenseQueryOptions(config) as unknown as UseSuspenseQueryOptions),
+      ...getInventorySuspenseQueryOptions(config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 
@@ -1024,10 +1024,10 @@ export function useGetOrderById<TData = GetOrderByIdQueryResponse, TQueryData = 
 
   const query = useQuery(
     {
-      ...(getOrderByIdQueryOptions(orderId, config) as unknown as QueryObserverOptions),
+      ...getOrderByIdQueryOptions(orderId, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<GetOrderById400 | GetOrderById404>> & { queryKey: TQueryKey }
 
@@ -1088,10 +1088,10 @@ export function useGetOrderByIdSuspense<TData = GetOrderByIdQueryResponse, TQuer
 
   const query = useSuspenseQuery(
     {
-      ...(getOrderByIdSuspenseQueryOptions(orderId, config) as unknown as UseSuspenseQueryOptions),
+      ...getOrderByIdSuspenseQueryOptions(orderId, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetOrderById400 | GetOrderById404>> & { queryKey: TQueryKey }
 
@@ -1307,10 +1307,10 @@ export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginU
 
   const query = useQuery(
     {
-      ...(loginUserQueryOptions(params, config) as unknown as QueryObserverOptions),
+      ...loginUserQueryOptions(params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<LoginUser400>> & { queryKey: TQueryKey }
 
@@ -1361,10 +1361,10 @@ export function useLoginUserSuspense<TData = LoginUserQueryResponse, TQueryKey e
 
   const query = useSuspenseQuery(
     {
-      ...(loginUserSuspenseQueryOptions(params, config) as unknown as UseSuspenseQueryOptions),
+      ...loginUserSuspenseQueryOptions(params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<LoginUser400>> & { queryKey: TQueryKey }
 
@@ -1414,10 +1414,10 @@ export function useLogoutUser<TData = LogoutUserQueryResponse, TQueryData = Logo
 
   const query = useQuery(
     {
-      ...(logoutUserQueryOptions(config) as unknown as QueryObserverOptions),
+      ...logoutUserQueryOptions(config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 
@@ -1467,10 +1467,10 @@ export function useLogoutUserSuspense<TData = LogoutUserQueryResponse, TQueryKey
 
   const query = useSuspenseQuery(
     {
-      ...(logoutUserSuspenseQueryOptions(config) as unknown as UseSuspenseQueryOptions),
+      ...logoutUserSuspenseQueryOptions(config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 
@@ -1532,10 +1532,10 @@ export function useGetUserByName<
 
   const query = useQuery(
     {
-      ...(getUserByNameQueryOptions(username, config) as unknown as QueryObserverOptions),
+      ...getUserByNameQueryOptions(username, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }
 
@@ -1597,10 +1597,10 @@ export function useGetUserByNameSuspense<TData = GetUserByNameQueryResponse, TQu
 
   const query = useSuspenseQuery(
     {
-      ...(getUserByNameSuspenseQueryOptions(username, config) as unknown as UseSuspenseQueryOptions),
+      ...getUserByNameSuspenseQueryOptions(username, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }
 

@@ -67,10 +67,10 @@ export function useGetPetByIdSuspenseHook<TData = GetPetByIdQueryResponse, TQuer
 
   const query = useSuspenseQuery(
     {
-      ...(getPetByIdSuspenseQueryOptionsHook({ pet_id }, config) as unknown as UseSuspenseQueryOptions),
+      ...getPetByIdSuspenseQueryOptionsHook({ pet_id }, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetPetById400 | GetPetById404>> & { queryKey: TQueryKey }
 

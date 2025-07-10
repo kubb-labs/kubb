@@ -65,10 +65,10 @@ export function useGetUserByNameSuspenseHook<TData = GetUserByNameQueryResponse,
 
   const query = useSuspenseQuery(
     {
-      ...(getUserByNameSuspenseQueryOptionsHook({ username }, config) as unknown as UseSuspenseQueryOptions),
+      ...getUserByNameSuspenseQueryOptionsHook({ username }, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }
 

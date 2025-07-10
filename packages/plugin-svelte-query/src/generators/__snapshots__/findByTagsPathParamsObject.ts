@@ -72,10 +72,10 @@ export function createFindPetsByTags<
 
   const query = createQuery(
     {
-      ...(findPetsByTagsQueryOptions(headers, params, config) as unknown as CreateBaseQueryOptions),
+      ...findPetsByTagsQueryOptions(headers, params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 

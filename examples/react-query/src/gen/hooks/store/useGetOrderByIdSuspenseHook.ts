@@ -67,10 +67,10 @@ export function useGetOrderByIdSuspenseHook<TData = GetOrderByIdQueryResponse, T
 
   const query = useSuspenseQuery(
     {
-      ...(getOrderByIdSuspenseQueryOptionsHook({ orderId }, config) as unknown as UseSuspenseQueryOptions),
+      ...getOrderByIdSuspenseQueryOptionsHook({ orderId }, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetOrderById400 | GetOrderById404>> & { queryKey: TQueryKey }
 

@@ -52,10 +52,10 @@ export function useGetInventorySuspenseHook<TData = GetInventoryQueryResponse, T
 
   const query = useSuspenseQuery(
     {
-      ...(getInventorySuspenseQueryOptionsHook(config) as unknown as UseSuspenseQueryOptions),
+      ...getInventorySuspenseQueryOptionsHook(config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 

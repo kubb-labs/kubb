@@ -42,10 +42,10 @@ export function useLoginUser<
 
   const query = useQuery(
     {
-      ...(loginUserQueryOptions({ params }, config) as unknown as QueryObserverOptions),
+      ...loginUserQueryOptions({ params }, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<LoginUser400>> & { queryKey: TQueryKey }
 

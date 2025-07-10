@@ -50,10 +50,10 @@ export function useLogoutUserHook<TData = LogoutUserQueryResponse, TQueryData = 
 
   const query = useQuery(
     {
-      ...(logoutUserQueryOptionsHook(config) as unknown as QueryObserverOptions),
+      ...logoutUserQueryOptionsHook(config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 

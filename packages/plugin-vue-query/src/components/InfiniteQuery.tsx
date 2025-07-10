@@ -163,7 +163,7 @@ export function InfiniteQuery({
     typeSchemas,
   })
 
-  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()}) as unknown as InfiniteQueryObserverOptions`
+  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()})`
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -182,9 +182,9 @@ export function InfiniteQuery({
 
        const query = useInfiniteQuery({
         ...${queryOptions},
-        queryKey: queryKey as QueryKey,
-        ...queryOptions as unknown as Omit<InfiniteQueryObserverOptions, "queryKey">
-       }, queryClient) as ${returnType}
+        queryKey,
+        ...queryOptions
+       } as unknown as InfiniteQueryObserverOptions, queryClient) as ${returnType}
 
        query.queryKey = queryKey as TQueryKey
 

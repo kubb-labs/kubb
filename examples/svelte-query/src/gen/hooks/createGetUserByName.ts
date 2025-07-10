@@ -73,10 +73,10 @@ export function createGetUserByName<
 
   const query = createQuery(
     {
-      ...(getUserByNameQueryOptions(username, config) as unknown as CreateBaseQueryOptions),
+      ...getUserByNameQueryOptions(username, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }
 

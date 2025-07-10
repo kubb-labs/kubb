@@ -65,10 +65,10 @@ export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByT
 
   const query = useSuspenseQuery(
     {
-      ...(findPetsByTagsSuspenseQueryOptionsHook(params, config) as unknown as UseSuspenseQueryOptions),
+      ...findPetsByTagsSuspenseQueryOptionsHook(params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 

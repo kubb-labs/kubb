@@ -65,10 +65,10 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetP
 
   const query = useQuery(
     {
-      ...(getPetByIdQueryOptions({ petId }, config) as unknown as QueryObserverOptions),
-      queryKey: queryKey as QueryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...getPetByIdQueryOptions({ petId }, config),
+      queryKey,
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryReturnType<TData, ResponseErrorConfig<GetPetById400 | GetPetById404>> & { queryKey: TQueryKey }
 

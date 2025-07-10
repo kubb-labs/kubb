@@ -155,7 +155,7 @@ export function SuspenseQuery({
     typeSchemas,
   })
 
-  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()}) as unknown as UseSuspenseQueryOptions`
+  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()})`
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -175,8 +175,8 @@ export function SuspenseQuery({
        const query = useSuspenseQuery({
         ...${queryOptions},
         queryKey,
-        ...queryOptions as unknown as Omit<UseSuspenseQueryOptions, "queryKey">
-       }, queryClient) as ${returnType}
+        ...queryOptions
+       } as unknown as UseSuspenseQueryOptions, queryClient) as ${returnType}
 
        query.queryKey = queryKey as TQueryKey
 

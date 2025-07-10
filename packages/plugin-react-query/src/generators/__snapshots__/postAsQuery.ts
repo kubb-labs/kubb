@@ -79,10 +79,10 @@ export function useUpdatePetWithForm<
 
   const query = useQuery(
     {
-      ...(updatePetWithFormQueryOptions(petId, data, params, config) as unknown as QueryObserverOptions),
+      ...updatePetWithFormQueryOptions(petId, data, params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 

@@ -69,10 +69,10 @@ export function useGetUserByNameHook<
 
   const query = useQuery(
     {
-      ...(getUserByNameQueryOptionsHook({ username }, config) as unknown as QueryObserverOptions),
+      ...getUserByNameQueryOptionsHook({ username }, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }
 

@@ -89,10 +89,10 @@ export function createUpdatePetWithForm<
 
   const query = createQuery(
     {
-      ...(updatePetWithFormQueryOptions(petId, params, config) as unknown as CreateBaseQueryOptions),
+      ...updatePetWithFormQueryOptions(petId, params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 

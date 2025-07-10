@@ -163,7 +163,7 @@ export function Query({
     typeSchemas,
   })
 
-  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()}) as unknown as QueryObserverOptions`
+  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()})`
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -182,9 +182,9 @@ export function Query({
 
        const query = useQuery({
         ...${queryOptions},
-        queryKey: queryKey as QueryKey,
-        ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
-       }, queryClient) as ${returnType}
+        queryKey,
+        ...queryOptions
+       } as unknown as QueryObserverOptions, queryClient) as ${returnType}
 
        query.queryKey = queryKey as TQueryKey
 

@@ -75,10 +75,10 @@ export function createFindPetsByStatus<
 
   const query = createQuery(
     {
-      ...(findPetsByStatusQueryOptions(params, config) as unknown as CreateBaseQueryOptions),
+      ...findPetsByStatusQueryOptions(params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<FindPetsByStatus400>> & { queryKey: TQueryKey }
 

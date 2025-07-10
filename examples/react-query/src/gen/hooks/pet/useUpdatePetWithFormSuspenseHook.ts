@@ -74,10 +74,10 @@ export function useUpdatePetWithFormSuspenseHook<TData = UpdatePetWithFormMutati
 
   const query = useSuspenseQuery(
     {
-      ...(updatePetWithFormSuspenseQueryOptionsHook(pet_id, params, config) as unknown as UseSuspenseQueryOptions),
+      ...updatePetWithFormSuspenseQueryOptionsHook(pet_id, params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 

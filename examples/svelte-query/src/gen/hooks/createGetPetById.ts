@@ -71,10 +71,10 @@ export function createGetPetById<TData = GetPetByIdQueryResponse, TQueryData = G
 
   const query = createQuery(
     {
-      ...(getPetByIdQueryOptions(pet_id, config) as unknown as CreateBaseQueryOptions),
+      ...getPetByIdQueryOptions(pet_id, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<GetPetById400 | GetPetById404>> & { queryKey: TQueryKey }
 

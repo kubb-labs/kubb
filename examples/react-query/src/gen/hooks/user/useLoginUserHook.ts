@@ -51,10 +51,10 @@ export function useLoginUserHook<TData = LoginUserQueryResponse, TQueryData = Lo
 
   const query = useQuery(
     {
-      ...(loginUserQueryOptionsHook(params, config) as unknown as QueryObserverOptions),
+      ...loginUserQueryOptionsHook(params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<LoginUser400>> & { queryKey: TQueryKey }
 

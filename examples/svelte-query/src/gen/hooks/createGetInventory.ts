@@ -67,10 +67,10 @@ export function createGetInventory<
 
   const query = createQuery(
     {
-      ...(getInventoryQueryOptions(config) as unknown as CreateBaseQueryOptions),
+      ...getInventoryQueryOptions(config),
       queryKey,
-      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 

@@ -50,10 +50,10 @@ export function useLogoutUserSuspenseHook<TData = LogoutUserQueryResponse, TQuer
 
   const query = useSuspenseQuery(
     {
-      ...(logoutUserSuspenseQueryOptionsHook(config) as unknown as UseSuspenseQueryOptions),
+      ...logoutUserSuspenseQueryOptionsHook(config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 

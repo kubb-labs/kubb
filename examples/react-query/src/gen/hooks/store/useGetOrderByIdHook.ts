@@ -71,10 +71,10 @@ export function useGetOrderByIdHook<
 
   const query = useQuery(
     {
-      ...(getOrderByIdQueryOptionsHook({ orderId }, config) as unknown as QueryObserverOptions),
+      ...getOrderByIdQueryOptionsHook({ orderId }, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<GetOrderById400 | GetOrderById404>> & { queryKey: TQueryKey }
 

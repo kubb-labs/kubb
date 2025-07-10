@@ -41,10 +41,10 @@ export function useLogoutUser<
 
   const query = useQuery(
     {
-      ...(logoutUserQueryOptions(config) as unknown as QueryObserverOptions),
+      ...logoutUserQueryOptions(config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 

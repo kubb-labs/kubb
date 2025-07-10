@@ -62,10 +62,10 @@ export function createLoginUser<TData = LoginUserQueryResponse, TQueryData = Log
 
   const query = createQuery(
     {
-      ...(loginUserQueryOptions(params, config) as unknown as CreateBaseQueryOptions),
+      ...loginUserQueryOptions(params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<LoginUser400>> & { queryKey: TQueryKey }
 

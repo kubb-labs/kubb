@@ -64,10 +64,10 @@ export function useFindPetsByTagsInfinite<
 
   const query = useInfiniteQuery(
     {
-      ...(findPetsByTagsInfiniteQueryOptions({ headers, params }, config) as unknown as InfiniteQueryObserverOptions),
+      ...findPetsByTagsInfiniteQueryOptions({ headers, params }, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<InfiniteQueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as InfiniteQueryObserverOptions,
     queryClient,
   ) as UseInfiniteQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 
