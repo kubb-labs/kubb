@@ -4,6 +4,13 @@ title: Changelog
 
 # Changelog
 
+# 3.15.0
+- [`plugin-swr`](/plugins/plugin-swr/): `immutable` option to disable `revalidateIfStale`, `revalidateOnFocus` and `revalidateOnReconnect`, see [https://swr.vercel.app/docs/revalidation#disable-automatic-revalidations](https://swr.vercel.app/docs/revalidation#disable-automatic-revalidations).
+```typescript
+const { data, error } = useGetOrderById(2) // [!code --]
+const { data, error } = useGetOrderById(2, { immutable: true }) // [!code ++]
+```
+
 # 3.14.4
 - [`plugin-oas`](/plugins/plugin-oas): AnyOf where `const`(empty string) is being used should not be converted to a nullable value.
 ```

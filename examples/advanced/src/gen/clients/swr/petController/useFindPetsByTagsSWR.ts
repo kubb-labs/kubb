@@ -35,9 +35,10 @@ export function useFindPetsByTagsSWR(
     query?: Parameters<typeof useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
+    immutable?: boolean
   } = {},
 ) {
-  const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
   const queryKey = findPetsByTagsQueryKeySWR(params)
 
@@ -45,6 +46,13 @@ export function useFindPetsByTagsSWR(
     shouldFetch ? queryKey : null,
     {
       ...findPetsByTagsQueryOptionsSWR({ headers, params }, config),
+      ...(immutable
+        ? {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+          }
+        : {}),
       ...queryOptions,
     },
   )

@@ -31,9 +31,10 @@ export function useFindPetsByStatusSWR(
     query?: Parameters<typeof useSWR<ResponseConfig<FindPetsByStatusQueryResponse>, ResponseErrorConfig<FindPetsByStatus400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
+    immutable?: boolean
   } = {},
 ) {
-  const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
   const queryKey = findPetsByStatusQueryKeySWR({ step_id })
 
@@ -41,6 +42,13 @@ export function useFindPetsByStatusSWR(
     shouldFetch ? queryKey : null,
     {
       ...findPetsByStatusQueryOptionsSWR({ step_id }, config),
+      ...(immutable
+        ? {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+          }
+        : {}),
       ...queryOptions,
     },
   )
