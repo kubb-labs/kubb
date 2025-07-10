@@ -1,5 +1,5 @@
 import { isRef, isSchema } from 'oas/types'
-import { isPlainObject } from 'remeda'
+import { isPlainObject, mergeDeep } from 'remeda'
 
 import { bundle, loadConfig } from '@redocly/openapi-core'
 import OASNormalize from 'oas-normalize'
@@ -76,8 +76,11 @@ export function isOptional(schema?: SchemaObject): boolean {
   return !isRequired(schema)
 }
 
-export async function parse(pathOrApi: string | OASDocument, oasClass: typeof Oas = Oas): Promise<Oas> {
-  if (typeof pathOrApi === 'string') {
+export async function parse(
+  pathOrApi: string | OASDocument,
+  { oasClass = Oas, canBundle = true, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
+): Promise<Oas> {
+  if (typeof pathOrApi === 'string' && canBundle) {
     // resolve external refs
     const config = await loadConfig()
     const bundleResults = await bundle({ ref: pathOrApi, config, base: pathOrApi })
@@ -86,7 +89,7 @@ export async function parse(pathOrApi: string | OASDocument, oasClass: typeof Oa
   }
 
   const oasNormalize = new OASNormalize(pathOrApi, {
-    enablePaths: true,
+    enablePaths,
     colorizeErrors: true,
   })
   const document = (await oasNormalize.load()) as OpenAPI.Document
@@ -100,4 +103,31 @@ export async function parse(pathOrApi: string | OASDocument, oasClass: typeof Oa
   }
 
   return new oasClass({ oas: document })
+}
+
+export async function merge(pathOrApi: Array<string | OASDocument>, { oasClass = Oas }: { oasClass?: typeof Oas } = {}): Promise<Oas> {
+  const instances = await Promise.all(pathOrApi.map((p) => parse(p, { oasClass, enablePaths: false, canBundle: false })))
+
+  if (instances.length === 0) {
+    throw new Error('No OAS instances provided for merging.')
+  }
+
+  const merged = instances.reduce(
+    (acc, current) => {
+      return mergeDeep(acc, current.document as OASDocument)
+    },
+    {
+      openapi: '3.0.0',
+      info: {
+        title: 'Merged API',
+        version: '1.0.0',
+      },
+      paths: {},
+      components: {
+        schemas: {},
+      },
+    } as any,
+  )
+
+  return parse(merged, { oasClass })
 }

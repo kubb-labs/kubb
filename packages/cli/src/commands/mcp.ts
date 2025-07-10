@@ -1,6 +1,7 @@
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import consola from 'consola'
+import { colors } from 'consola/utils'
 import { createJiti } from 'jiti'
 
 const jiti = createJiti(import.meta.url, {
@@ -41,7 +42,7 @@ const command = defineCommand({
     const { startServer } = mod
     try {
       consola.start('Starting MCP server...')
-      consola.warn('This feature is still under development — use with caution')
+      consola.warn(colors.yellow('This feature is still under development — use with caution'))
       await startServer()
     } catch (e) {
       consola.error((e as Error)?.message)

@@ -1,4 +1,4 @@
-import { clean, read } from './fs/index.ts'
+import { clean, exists } from './fs/index.ts'
 import type { KubbFile } from './fs/index.ts'
 import { type FileManager, processFiles } from './FileManager.ts'
 import { PluginManager } from './PluginManager.ts'
@@ -10,6 +10,8 @@ import { join, resolve } from 'node:path'
 import { getRelativePath } from './fs/index.ts'
 import type { Logger } from './logger.ts'
 import type { Config, Output, UserConfig } from './types.ts'
+import consola from 'consola'
+import { colors } from 'consola/utils'
 
 type BuildOptions = {
   config: UserConfig
@@ -36,9 +38,13 @@ export async function setup(options: BuildOptions): Promise<PluginManager> {
 
   const { config: userConfig, logger = createLogger() } = options
 
+  if (Array.isArray(userConfig.input)) {
+    consola.warn(colors.yellow('This feature is still under development — use with caution'))
+  }
+
   try {
     if (isInputPath(userConfig) && !new URLPath(userConfig.input.path).isURL) {
-      await read(userConfig.input.path)
+      await exists(userConfig.input.path)
     }
   } catch (e) {
     if (isInputPath(userConfig)) {

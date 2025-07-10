@@ -39,7 +39,7 @@ export type InputData = {
   data: string | unknown
 }
 
-type Input = InputPath | InputData
+type Input = InputPath | InputData | Array<InputPath>
 
 export type BarrelType = 'all' | 'named' | 'propagate'
 

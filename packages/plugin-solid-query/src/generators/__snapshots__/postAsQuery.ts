@@ -4,7 +4,7 @@
  */
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from 'custom-query'
+import type { QueryKey, QueryClient, UseBaseQueryOptions, UseQueryResult } from 'custom-query'
 import { queryOptions, createQuery } from 'custom-query'
 
 export const updatePetWithFormQueryKey = (
@@ -68,7 +68,7 @@ export function createUpdatePetWithForm<
   data?: UpdatePetWithFormMutationRequest,
   params?: UpdatePetWithFormQueryParams,
   options: {
-    query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
+    query?: Partial<UseBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch }
@@ -79,13 +79,13 @@ export function createUpdatePetWithForm<
 
   const query = createQuery(
     () => ({
-      ...(updatePetWithFormQueryOptions(petId, data, params, config) as unknown as CreateBaseQueryOptions),
+      ...(updatePetWithFormQueryOptions(petId, data, params, config) as unknown as UseBaseQueryOptions),
       queryKey,
       initialData: null,
-      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
+      ...(queryOptions as unknown as Omit<UseBaseQueryOptions, 'queryKey'>),
     }),
     queryClient ? () => queryClient : undefined,
-  ) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
+  ) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 
   return query
 }

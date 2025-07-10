@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 import fetch from 'axios'
-import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
+import type { QueryKey, QueryClient, UseBaseQueryOptions, UseQueryResult } from '@tanstack/svelte-query'
 import type { RequestConfig, ResponseErrorConfig } from 'axios'
 import { queryOptions, createQuery } from '@tanstack/svelte-query'
 
@@ -61,7 +61,7 @@ export function createFindPetsByTags<
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: Partial<CreateBaseQueryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>> & {
+    query?: Partial<UseBaseQueryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -72,13 +72,13 @@ export function createFindPetsByTags<
 
   const query = createQuery(
     () => ({
-      ...(findPetsByTagsQueryOptions(headers, params, config) as unknown as CreateBaseQueryOptions),
+      ...(findPetsByTagsQueryOptions(headers, params, config) as unknown as UseBaseQueryOptions),
       queryKey,
       initialData: null,
-      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
+      ...(queryOptions as unknown as Omit<UseBaseQueryOptions, 'queryKey'>),
     }),
     queryClient ? () => queryClient : undefined,
-  ) as CreateQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
+  ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 
   return query
 }

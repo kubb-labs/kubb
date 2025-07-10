@@ -4,12 +4,12 @@ import { switcher } from 'js-runtime'
 const reader = switcher(
   {
     node: async (path: string) => {
-      return fs.readFile(path, { encoding: 'utf8' })
+      return fs.pathExists(path)
     },
     bun: async (path: string) => {
       const file = Bun.file(path)
 
-      return file.text()
+      return file.exists()
     },
   },
   'node',
@@ -18,7 +18,7 @@ const reader = switcher(
 const syncReader = switcher(
   {
     node: (path: string) => {
-      return fs.readFileSync(path, { encoding: 'utf8' })
+      return fs.pathExistsSync(path)
     },
     bun: () => {
       throw new Error('Bun cannot read sync')
@@ -27,10 +27,10 @@ const syncReader = switcher(
   'node',
 )
 
-export async function read(path: string): Promise<string> {
+export async function exists(path: string): Promise<boolean> {
   return reader(path)
 }
 
-export function readSync(path: string): string {
+export function existsSync(path: string): boolean {
   return syncReader(path)
 }
