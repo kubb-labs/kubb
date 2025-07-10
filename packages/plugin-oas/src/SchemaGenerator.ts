@@ -884,20 +884,25 @@ export class SchemaGenerator<
 
     if (version === '3.1' && 'const' in schemaObject) {
       // const keyword takes precendence over the actual type.
-      if (schemaObject['const']) {
-        return [
-          {
-            keyword: schemaKeywords.const,
-            args: {
-              name: schemaObject['const'],
-              format: typeof schemaObject['const'] === 'number' ? 'number' : 'string',
-              value: schemaObject['const'],
-            },
-          },
-          ...baseItems,
-        ]
+
+      if (schemaObject['const'] === null) {
+        return [{ keyword: schemaKeywords.null }]
       }
-      return [{ keyword: schemaKeywords.null }]
+      if (schemaObject['const'] === undefined) {
+        return [{ keyword: schemaKeywords.undefined }]
+      }
+
+      return [
+        {
+          keyword: schemaKeywords.const,
+          args: {
+            name: schemaObject['const'],
+            format: typeof schemaObject['const'] === 'number' ? 'number' : 'string',
+            value: schemaObject['const'],
+          },
+        },
+        ...baseItems,
+      ]
     }
 
     /**

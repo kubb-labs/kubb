@@ -20,6 +20,8 @@ exports[`faker parse > 'boolean' 1`] = `"faker.datatype.boolean()"`;
 
 exports[`faker parse > 'catchall' 1`] = `"{}"`;
 
+exports[`faker parse > 'const' 1`] = `""""`;
+
 exports[`faker parse > 'date' 1`] = `"faker.date.anytime().toISOString().substring(0, 10)"`;
 
 exports[`faker parse > 'datetime' 1`] = `"faker.date.anytime().toISOString()"`;

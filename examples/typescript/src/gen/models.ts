@@ -3,12 +3,6 @@
  * Do not edit manually.
  */
 
-export enum OrderStatusEnum {
-  placed = 'placed',
-  approved = 'approved',
-  delivered = 'delivered',
-}
-
 export enum OrderHttpStatusEnum {
   OrderHttpStatusEnum_200 = 200,
   OrderHttpStatusEnum_400 = 400,
@@ -34,9 +28,8 @@ export interface Order {
   shipDate?: string
   /**
    * @description Order Status
-   * @type string | undefined
    */
-  status?: OrderStatusEnum
+  status?: string
   /**
    * @description HTTP Status
    * @type number | undefined

@@ -384,6 +384,8 @@ NodeObject {
 }
 `;
 
+exports[`type parse > 'const' 1`] = `undefined`;
+
 exports[`type parse > 'date' 1`] = `
 TokenObject {
   "emitNode": undefined,

@@ -3,8 +3,6 @@
  * Do not edit manually.
  */
 
-export type OrderStatusEnum = 'placed' | 'approved' | 'delivered'
-
 export type OrderHttpStatusEnum = 200 | 400 | 500
 
 export type Order = {
@@ -26,9 +24,8 @@ export type Order = {
   shipDate?: string
   /**
    * @description Order Status
-   * @type string | undefined
    */
-  status?: OrderStatusEnum
+  status?: string
   /**
    * @description HTTP Status
    * @type number | undefined

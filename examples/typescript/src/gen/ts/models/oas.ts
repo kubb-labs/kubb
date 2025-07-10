@@ -6,7 +6,7 @@
 import type { Infer } from '@kubb/oas'
 
 export const oas = {
-  openapi: '3.0.3',
+  openapi: '3.1.0',
   info: {
     title: 'Swagger Petstore - OpenAPI 3.0',
     description:
@@ -974,10 +974,17 @@ export const oas = {
             format: 'date-time',
           },
           status: {
-            type: 'string',
             description: 'Order Status',
-            example: 'approved',
-            enum: ['placed', 'approved', 'delivered'],
+            anyOf: [
+              {
+                type: 'string',
+                const: '',
+              },
+              {
+                type: 'string',
+                format: 'email',
+              },
+            ],
           },
           http_status: {
             type: 'number',

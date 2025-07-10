@@ -4,6 +4,28 @@ title: Changelog
 
 # Changelog
 
+# 3.14.4
+- [`plugin-oas`](/plugins/plugin-oas): AnyOf where `const`(empty string) is being used should not be converted to a nullable value.
+```
+"anyOf": [
+  {
+    "const": "",
+    "type": "string"
+  },
+  {
+    "format": "email",
+    "type": "string"
+  }
+]
+```
+```typescript
+type Order ={
+  status?: null | string // [!code --]
+  status?: string // [!code ++]
+}
+
+```
+
 # 3.14.3
 - [`plugin-client`](/plugins/plugin-client): Support Google api format, for example: `my-api/foo/v1/bar/{id}:search`
 - [`plugin-msw`](/plugins/plugin-msw): Support Google api format, for example: `my-api/foo/v1/bar/{id}:search`

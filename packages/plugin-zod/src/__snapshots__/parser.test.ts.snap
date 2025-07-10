@@ -48,6 +48,10 @@ exports[`zod parse > 'catchall' v4 1`] = `
     }).catchall(Pet)"
 `;
 
+exports[`zod parse > 'const' 1`] = `"z.literal("")"`;
+
+exports[`zod parse > 'const' v4 1`] = `"z.literal("")"`;
+
 exports[`zod parse > 'date' 1`] = `"z.string().date()"`;
 
 exports[`zod parse > 'date' v4 1`] = `"z.iso.date()"`;

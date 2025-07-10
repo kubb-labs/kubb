@@ -132,6 +132,17 @@ const basic: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
+    name: 'const',
+    schema: {
+      keyword: schemaKeywords.const,
+      args: {
+        name: '',
+        value: '',
+        format: schemaKeywords.string,
+      },
+    },
+  },
+  {
     name: 'ref',
     schema: {
       keyword: schemaKeywords.ref,
