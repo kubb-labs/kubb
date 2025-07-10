@@ -11,7 +11,7 @@ import type {
   UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/solid-query'
+import type { QueryKey, QueryClient, UseBaseQueryOptions, UseQueryResult } from '@tanstack/solid-query'
 import { queryOptions, createQuery } from '@tanstack/solid-query'
 
 export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
@@ -67,7 +67,7 @@ export function createUpdatePetWithForm<
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options: {
-    query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
+    query?: Partial<UseBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -78,13 +78,13 @@ export function createUpdatePetWithForm<
 
   const query = createQuery(
     () => ({
-      ...(updatePetWithFormQueryOptions(petId, params, config) as unknown as CreateBaseQueryOptions),
+      ...(updatePetWithFormQueryOptions(petId, params, config) as unknown as UseBaseQueryOptions),
       queryKey,
       initialData: null,
-      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
+      ...(queryOptions as unknown as Omit<UseBaseQueryOptions, 'queryKey'>),
     }),
     queryClient ? () => queryClient : undefined,
-  ) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
+  ) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 
   return query
 }

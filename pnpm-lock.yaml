@@ -823,8 +823,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/solid-query':
-        specifier: 5.62.7
-        version: 5.62.7(solid-js@1.9.7)
+        specifier: ^5.82.0
+        version: 5.82.0(solid-js@1.9.7)
       axios:
         specifier: ^1.10.0
         version: 1.10.0
@@ -4486,11 +4486,6 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
-  '@tanstack/solid-query@5.62.7':
-    resolution: {integrity: sha512-KhA86YvhNw+vxEXW6s98mA5UAKRd82THPx6NPmZj6F13QdIhZCDLpw1Vb0ymKX91cDjIxuRURZbxqU06DlubPQ==}
-    peerDependencies:
-      solid-js: ^1.6.0
 
   '@tanstack/solid-query@5.82.0':
     resolution: {integrity: sha512-1VardJQ2dOluS1YfwintpUa7BqHk+KA3nLpM2DtcNLCbRt5vQScpPw96ZzW5WOPiGIoobAAyg5e2Ci9FlEOmtg==}
@@ -13018,11 +13013,6 @@ snapshots:
       '@tanstack/virtual-core': 3.11.3
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-
-  '@tanstack/solid-query@5.62.7(solid-js@1.9.7)':
-    dependencies:
-      '@tanstack/query-core': 5.62.7
-      solid-js: 1.9.7
 
   '@tanstack/solid-query@5.82.0(solid-js@1.9.7)':
     dependencies:
