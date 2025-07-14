@@ -1,4 +1,5 @@
 import { extname, join, relative } from 'node:path'
+import { open } from 'lmdb'
 
 import { orderBy } from 'natural-orderby'
 import PQueue from 'p-queue'
@@ -43,46 +44,58 @@ type AddIndexesProps = {
 }
 
 export class FileManager {
-  #filesByPath: Map<KubbFile.Path, KubbFile.ResolvedFile> = new Map()
+  #fileStore = open<KubbFile.ResolvedFile>({
+    name: 'kubb-files',
+    path: '.kubb/files',
+    encoding: 'msgpack',
+    compression: true,
+    useVersions: false,
+    strictAsyncOrder: true,
+  })
   constructor() {
     return this
   }
 
-  get files(): Array<KubbFile.ResolvedFile> {
-    return [...this.#filesByPath.values()]
+  get files(): ResolvedFile[] {
+    const result: ResolvedFile[] = []
+    for (const { value } of this.#fileStore.getRange()) {
+      result.push(value)
+    }
+    return result
   }
 
   get orderedFiles(): Array<KubbFile.ResolvedFile> {
-    return orderBy(
-      [...this.#filesByPath.values()],
-      [
-        (v) => v?.meta && 'pluginKey' in v.meta && !v.meta.pluginKey,
-        (v) => v.path.length,
-        (v) => trimExtName(v.path).endsWith('index'),
-        (v) => trimExtName(v.baseName),
-        (v) => v.path.split('.').pop(),
-      ],
-    )
+    return orderBy(this.files, [
+      (v) => v?.meta && 'pluginKey' in v.meta && !v.meta.pluginKey,
+      (v) => v.path.length,
+      (v) => trimExtName(v.path).endsWith('index'),
+      (v) => trimExtName(v.baseName),
+      (v) => v.path.split('.').pop(),
+    ])
   }
 
   get groupedFiles(): DirectoryTree | null {
-    return buildDirectoryTree([...this.#filesByPath.values()])
+    return buildDirectoryTree(this.files)
   }
 
   get treeNode(): TreeNode | null {
-    return TreeNode.build([...this.#filesByPath.values()])
+    return TreeNode.build(this.files)
   }
 
   async add<T extends Array<KubbFile.File> = Array<KubbFile.File>>(...files: T): AddResult<T> {
-    const promises = files.map((file) => {
-      if (file.override) {
-        return this.#add(file)
+    const resolvedFiles: ResolvedFile[] = []
+
+    // Batch all operations in a transaction
+    await this.#fileStore.transaction(() => {
+      for (const file of files) {
+        const existing = this.#fileStore.get(file.path)
+        const merged = existing ? mergeFile(existing, file) : file
+        const resolved = createFile(merged)
+
+        this.#fileStore.putSync(resolved.path, resolved)
+        resolvedFiles.push(resolved)
       }
-
-      return this.#addOrAppend(file)
     })
-
-    const resolvedFiles = await Promise.all(promises)
 
     if (files.length > 1) {
       return resolvedFiles as unknown as AddResult<T>
@@ -91,44 +104,20 @@ export class FileManager {
     return resolvedFiles[0] as unknown as AddResult<T>
   }
 
-  async #add(file: KubbFile.File): Promise<ResolvedFile> {
-    const resolvedFile = createFile(file)
-
-    this.#filesByPath.set(resolvedFile.path, resolvedFile)
-
-    return resolvedFile
-  }
-
   clear() {
-    this.#filesByPath.clear()
-  }
-
-  async #addOrAppend(file: KubbFile.File): Promise<ResolvedFile> {
-    const previousFile = this.#filesByPath.get(file.path)
-
-    if (previousFile) {
-      this.#filesByPath.delete(previousFile.path)
-
-      return this.#add(mergeFile(previousFile, file))
-    }
-    return this.#add(file)
+    this.#fileStore.clearSync()
   }
 
   getCacheById(id: string): KubbFile.File | undefined {
-    return [...this.#filesByPath.values()].find((file) => file.id === id)
+    return this.files.find((file) => file.id === id)
   }
 
-  getByPath(path: KubbFile.Path): KubbFile.ResolvedFile | undefined {
-    return this.#filesByPath.get(path)
+  async getByPath(path: KubbFile.Path): Promise<KubbFile.ResolvedFile | undefined> {
+    return this.#fileStore.get(path)
   }
 
-  deleteByPath(path: KubbFile.Path): void {
-    const cacheItem = this.getByPath(path)
-    if (!cacheItem) {
-      return
-    }
-
-    this.#filesByPath.delete(path)
+  async deleteByPath(path: KubbFile.Path): Promise<void> {
+    await this.#fileStore.remove(path)
   }
 
   async getBarrelFiles({ type, files, meta = {}, root, output, logger }: AddIndexesProps): Promise<KubbFile.File[]> {

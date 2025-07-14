@@ -5,6 +5,7 @@ import { PluginManager } from './PluginManager.ts'
 import { isInputPath } from './config.ts'
 import { createLogger } from './logger.ts'
 import { URLPath } from './utils/URLPath.ts'
+import { isDeepEqual } from 'remeda'
 
 import { join, resolve } from 'node:path'
 import { getRelativePath } from './fs/index.ts'
@@ -137,7 +138,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
               // validate of the file is coming from plugin x, needs pluginKey on every file TODO update typing
               const plugin = [...pluginManager.plugins].find((item) => {
                 const meta = file.meta as any
-                return item.key === meta?.pluginKey
+                return isDeepEqual(item.key, meta?.pluginKey)
               })
               const pluginOptions = plugin?.options as { output?: Output<any> }
 
