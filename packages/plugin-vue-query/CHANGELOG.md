@@ -1,5 +1,20 @@
 # @kubb/plugin-vue-query
 
+## 3.15.1
+
+### Patch Changes
+
+- [#1805](https://github.com/kubb-labs/kubb/pull/1805) [`571a19b`](https://github.com/kubb-labs/kubb/commit/571a19b5f8dadc524a1ba7584e6b660b8af02f4a) Thanks [@th3l0g4n](https://github.com/th3l0g4n)! - use MaybeRefOrGetter as argument type; use toValue for unwrapping arguments
+
+- Updated dependencies []:
+  - @kubb/core@3.15.1
+  - @kubb/oas@3.15.1
+  - @kubb/plugin-client@3.15.1
+  - @kubb/plugin-oas@3.15.1
+  - @kubb/plugin-ts@3.15.1
+  - @kubb/plugin-zod@3.15.1
+  - @kubb/react@3.15.1
+
 ## 3.15.0
 
 ### Patch Changes
