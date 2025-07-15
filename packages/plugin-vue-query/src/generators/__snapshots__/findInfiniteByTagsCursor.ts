@@ -5,10 +5,10 @@
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { InfiniteData, QueryKey, QueryClient, InfiniteQueryObserverOptions, UseInfiniteQueryReturnType } from '@tanstack/react-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
 
-export const findPetsByTagsInfiniteQueryKey = (params?: MaybeRef<FindPetsByTagsQueryParams>) =>
+export const findPetsByTagsInfiniteQueryKey = (params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>) =>
   [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
@@ -36,8 +36,8 @@ export async function findPetsByTagsInfinite(
 }
 
 export function findPetsByTagsInfiniteQueryOptions(
-  headers: MaybeRef<FindPetsByTagsHeaderParams>,
-  params?: MaybeRef<FindPetsByTagsQueryParams>,
+  headers: MaybeRefOrGetter<FindPetsByTagsHeaderParams>,
+  params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
@@ -67,8 +67,8 @@ export function useFindPetsByTagsInfinite<
   TQueryData = FindPetsByTagsQueryResponse,
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(
-  headers: MaybeRef<FindPetsByTagsHeaderParams>,
-  params?: MaybeRef<FindPetsByTagsQueryParams>,
+  headers: MaybeRefOrGetter<FindPetsByTagsHeaderParams>,
+  params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>,
   options: {
     query?: Partial<InfiniteQueryObserverOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryKey>> & {
       client?: QueryClient

@@ -5,11 +5,12 @@
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryReturnType } from '@tanstack/react-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { queryOptions, useQuery } from '@tanstack/react-query'
-import { unref } from 'vue'
+import { toValue } from 'vue'
 
-export const findPetsByTagsQueryKey = (params?: MaybeRef<FindPetsByTagsQueryParams>) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>) =>
+  [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 
@@ -36,8 +37,8 @@ export async function findPetsByTags(
 }
 
 export function findPetsByTagsQueryOptions(
-  headers: MaybeRef<FindPetsByTagsQueryParams>,
-  params?: MaybeRef<FindPetsByTagsQueryParams>,
+  headers: MaybeRefOrGetter<FindPetsByTagsQueryParams>,
+  params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByTagsQueryKey(params)
@@ -45,7 +46,7 @@ export function findPetsByTagsQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return findPetsByTags(unref(headers), unref(params), unref(config))
+      return findPetsByTags(toValue(headers), toValue(params), toValue(config))
     },
   })
 }
@@ -60,8 +61,8 @@ export function useFindPetsByTags<
   TQueryData = FindPetsByTagsQueryResponse,
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(
-  headers: MaybeRef<FindPetsByTagsHeaderParams>,
-  params?: MaybeRef<FindPetsByTagsQueryParams>,
+  headers: MaybeRefOrGetter<FindPetsByTagsHeaderParams>,
+  params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>,
   options: {
     query?: Partial<QueryObserverOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
