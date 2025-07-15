@@ -5,14 +5,14 @@
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryReturnType } from 'custom-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { queryOptions, useQuery } from 'custom-query'
-import { unref } from 'vue'
+import { toValue } from 'vue'
 
 export const updatePetWithFormQueryKey = (
-  petId: MaybeRef<UpdatePetWithFormPathParams['petId']>,
-  data?: MaybeRef<UpdatePetWithFormMutationRequest>,
-  params?: MaybeRef<UpdatePetWithFormQueryParams>,
+  petId: MaybeRefOrGetter<UpdatePetWithFormPathParams['petId']>,
+  data?: MaybeRefOrGetter<UpdatePetWithFormMutationRequest>,
+  params?: MaybeRefOrGetter<UpdatePetWithFormQueryParams>,
 ) => [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
@@ -41,9 +41,9 @@ export async function updatePetWithForm(
 }
 
 export function updatePetWithFormQueryOptions(
-  petId: MaybeRef<UpdatePetWithFormPathParams['petId']>,
-  data?: MaybeRef<UpdatePetWithFormMutationRequest>,
-  params?: MaybeRef<UpdatePetWithFormQueryParams>,
+  petId: MaybeRefOrGetter<UpdatePetWithFormPathParams['petId']>,
+  data?: MaybeRefOrGetter<UpdatePetWithFormMutationRequest>,
+  params?: MaybeRefOrGetter<UpdatePetWithFormQueryParams>,
   config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, data, params)
@@ -52,7 +52,7 @@ export function updatePetWithFormQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return updatePetWithForm(unref(petId), unref(data), unref(params), unref(config))
+      return updatePetWithForm(toValue(petId), toValue(data), toValue(params), toValue(config))
     },
   })
 }
@@ -66,9 +66,9 @@ export function useUpdatePetWithForm<
   TQueryData = UpdatePetWithFormMutationResponse,
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
 >(
-  petId: MaybeRef<UpdatePetWithFormPathParams['petId']>,
-  data?: MaybeRef<UpdatePetWithFormMutationRequest>,
-  params?: MaybeRef<UpdatePetWithFormQueryParams>,
+  petId: MaybeRefOrGetter<UpdatePetWithFormPathParams['petId']>,
+  data?: MaybeRefOrGetter<UpdatePetWithFormMutationRequest>,
+  params?: MaybeRefOrGetter<UpdatePetWithFormQueryParams>,
   options: {
     query?: Partial<QueryObserverOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient

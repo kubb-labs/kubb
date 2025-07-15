@@ -33,20 +33,20 @@ function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps
         override(item) {
           return {
             ...item,
-            type: `MaybeRef<${item.type}>`,
+            type: `MaybeRefOrGetter<${item.type}>`,
           }
         },
       }),
     },
     data: typeSchemas.request?.name
       ? {
-          type: `MaybeRef<${typeSchemas.request?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
           optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
-          type: `MaybeRef<${typeSchemas.queryParams?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
           optional: isOptional(typeSchemas.queryParams?.schema),
         }
       : undefined,
