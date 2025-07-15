@@ -1,5 +1,18 @@
 # @kubb/plugin-swr
 
+## 3.15.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.15.1
+  - @kubb/oas@3.15.1
+  - @kubb/plugin-client@3.15.1
+  - @kubb/plugin-oas@3.15.1
+  - @kubb/plugin-ts@3.15.1
+  - @kubb/plugin-zod@3.15.1
+  - @kubb/react@3.15.1
+
 ## 3.15.0
 
 ### Minor Changes
