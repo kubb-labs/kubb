@@ -44,12 +44,6 @@ type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 
 type Props<TMeta extends FileMetaBase = FileMetaBase> = BaseProps & {
   key?: Key
-  /**
-   * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists.
-   * This will also ignore the combinefiles utils
-   * @default `false`
-   */
-  override?: KubbFile.File['override']
   meta?: TMeta
   banner?: string
   footer?: string

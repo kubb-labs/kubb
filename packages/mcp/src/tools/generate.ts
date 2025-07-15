@@ -65,9 +65,7 @@ export async function generate({ plugin, openApi, operationId }: z.infer<typeof 
       }
     }
 
-    const promises = files.map(async (file) => {
-      return await getSource(file, { extname: '.ts' })
-    })
+    const promises = files.map((file) => getSource(file, { extname: '.ts' }))
 
     const sources = await Promise.all(promises)
 

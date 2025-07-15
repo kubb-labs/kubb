@@ -1,5 +1,4 @@
 import process from 'node:process'
-import { FileManager, processFiles } from '@kubb/core'
 import type { KubbFile } from '@kubb/core/fs'
 import type { Logger } from '@kubb/core/logger'
 import type { ReactNode } from 'react'
@@ -219,17 +218,6 @@ export class ReactTemplate {
     }
 
     this.resolveExitPromise(this.#lastRendererResult)
-  }
-
-  async write() {
-    const fileManager = new FileManager()
-
-    await fileManager.add(...this.#lastRendererResult.files)
-
-    return processFiles({
-      root: process.cwd(),
-      files: fileManager.files,
-    })
   }
 
   async waitUntilExit(): Promise<RendererResult> {

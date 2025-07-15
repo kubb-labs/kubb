@@ -99,6 +99,7 @@
   },
   "dependencies": {
     "@kubb/parser-ts": "workspace:*",
+    "cacache": "^19.0.1",
     "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
     "fs-extra": "^11.3.0",
@@ -114,6 +115,7 @@
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
     "@kubb/config-tsup": "workspace:*",
+    "@types/cacache": "^19.0.0",
     "@types/fs-extra": "^11.0.4",
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",

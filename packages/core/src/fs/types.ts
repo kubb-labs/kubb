@@ -105,12 +105,6 @@ export type File<TMeta extends object = object> = {
   imports?: Array<Import>
   exports?: Array<Export>
   /**
-   * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists
-   * This will also ignore the combinefiles utils
-   * @default `false`
-   */
-  override?: boolean
-  /**
    * Use extra meta, this is getting used to generate the barrel/index files.
    */
   meta?: TMeta

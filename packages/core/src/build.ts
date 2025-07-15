@@ -1,6 +1,5 @@
 import { clean, exists } from './fs/index.ts'
 import type { KubbFile } from './fs/index.ts'
-import { type FileManager, processFiles } from './FileManager.ts'
 import { PluginManager } from './PluginManager.ts'
 import { isInputPath } from './config.ts'
 import { createLogger } from './logger.ts'
@@ -24,7 +23,7 @@ type BuildOptions = {
 }
 
 type BuildOutput = {
-  files: FileManager['files']
+  files: Array<KubbFile.ResolvedFile>
   pluginManager: PluginManager
   /**
    * Only for safeBuild
@@ -94,7 +93,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 }
 
 export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
-  let files = []
+  let processedFiles = []
   const pluginManager = await setup(options)
   const config = pluginManager.config
 
@@ -119,7 +118,8 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
     // create root barrel file
     const root = resolve(config.root)
     const rootPath = resolve(root, config.output.path, 'index.ts')
-    const barrelFiles = pluginManager.fileManager.files.filter((file) => {
+    const files = await pluginManager.fileManager.getFiles()
+    const barrelFiles = files.filter((file) => {
       return file.sources.some((source) => source.isIndexable)
     })
 
@@ -163,17 +163,16 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       await pluginManager.fileManager.add(rootFile)
     }
 
-    files = await processFiles({
+    processedFiles = await pluginManager.fileManager.processFiles({
       root: config.root,
       extension: config.output.extension,
       dryRun: !config.output.write,
-      files: pluginManager.fileManager.files,
       logger: pluginManager.logger,
     })
 
     await pluginManager.hookParallel({ hookName: 'buildEnd', message: `Build stopped for ${config.name}` })
 
-    pluginManager.fileManager.clear()
+    await pluginManager.fileManager.clear()
   } catch (e) {
     return {
       files: [],
@@ -183,7 +182,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
   }
 
   return {
-    files,
+    files: processedFiles,
     pluginManager,
   }
 }
