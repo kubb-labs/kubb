@@ -1,5 +1,5 @@
 import { FileManager } from './FileManager.ts'
-import { isPromise, isPromiseRejectedResult } from './PromiseManager.ts'
+import { isPromiseRejectedResult } from './PromiseManager.ts'
 import { PromiseManager } from './PromiseManager.ts'
 import { ValidationPluginError } from './errors.ts'
 import { pluginCore } from './plugin.ts'
@@ -520,12 +520,12 @@ export class PluginManager {
    */
   // Implementation signature
   #execute<H extends PluginLifecycleHooks>({
-    strategy,
-    hookName,
-    parameters,
-    plugin,
-    message,
-  }: {
+                                             strategy,
+                                             hookName,
+                                             parameters,
+                                             plugin,
+                                             message,
+                                           }: {
     strategy: Strategy
     hookName: H
     parameters: unknown[] | undefined
@@ -540,25 +540,29 @@ export class PluginManager {
     }
 
     this.events.emit('executing', { strategy, hookName, parameters, plugin, message })
-    const promise = new Promise((resolve) => {
-      resolve(undefined)
-    })
 
-    const task = promise
-      .then(() => {
+    const task = (async () => {
+      try {
         if (typeof hook === 'function') {
-          const possiblePromiseResult = (hook as Function).apply({ ...this.#core.context, plugin }, parameters) as Promise<ReturnType<ParseResult<H>>>
+          const result = await Promise.resolve(
+            (hook as Function).apply({ ...this.#core.context, plugin }, parameters)
+          )
 
-          if (isPromise(possiblePromiseResult)) {
-            return Promise.resolve(possiblePromiseResult)
-          }
-          return possiblePromiseResult
+          output = result
+
+          this.#addExecutedToCallStack({
+            parameters,
+            output,
+            strategy,
+            hookName,
+            plugin,
+            message,
+          })
+
+          return result
         }
 
-        return hook
-      })
-      .then((result) => {
-        output = result
+        output = hook
 
         this.#addExecutedToCallStack({
           parameters,
@@ -569,13 +573,12 @@ export class PluginManager {
           message,
         })
 
-        return result
-      })
-      .catch((e: Error) => {
-        this.#catcher<H>(e, plugin, hookName)
-
+        return hook
+      } catch (e) {
+        this.#catcher<H>(e as Error, plugin, hookName)
         return null
-      })
+      }
+    })()
 
     return task
   }
