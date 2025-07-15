@@ -12,4 +12,4 @@ export type { URLObject } from './URLPath.ts'
 export { URLPath } from './URLPath.ts'
 export { getFileParser, createFileImport, createFileExport, createFile, createFileParser, getDefaultBanner } from './parser.ts'
 export type { ParserModule } from './parser.ts'
-export { ContentCache, Cache} from "./ContentCache.ts"
+export { Cache } from './Cache.ts'

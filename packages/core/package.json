@@ -99,7 +99,6 @@
   },
   "dependencies": {
     "@kubb/parser-ts": "workspace:*",
-    "cacache": "^19.0.1",
     "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
     "fs-extra": "^11.3.0",

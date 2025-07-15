@@ -57,24 +57,23 @@ export function getDefaultBanner({ title, description, version, config }: { titl
  */
 export function createFile<TMeta extends object = object>(file: KubbFile.File<TMeta>): KubbFile.ResolvedFile<TMeta> {
   const extname = path.extname(file.baseName) as KubbFile.Extname
-
   if (!extname) {
     throw new Error(`No extname found for ${file.baseName}`)
   }
 
   const source = file.sources.map((item) => item.value).join('\n\n')
-  const exports = file.exports ? combineExports(file.exports) : []
-  const imports = file.imports && source ? combineImports(file.imports, exports, source) : []
-  const sources = file.sources ? combineSources(file.sources) : []
+  const exports = file.exports?.length ? combineExports(file.exports) : []
+  const imports = file.imports?.length && source ? combineImports(file.imports, exports, source) : []
+  const sources = file.sources?.length ? combineSources(file.sources) : []
 
   return {
     ...file,
     id: hash({ path: file.path }),
     name: trimExtName(file.baseName),
     extname,
-    imports: imports.map((item) => createFileImport(item)),
-    exports: exports.map((item) => createFileExport(item)),
-    sources: sources.map((item) => createFileSource(item)),
+    imports: imports.map(createFileImport),
+    exports: exports.map(createFileExport),
+    sources: sources.map(createFileSource),
     meta: file.meta || ({} as TMeta),
   }
 }

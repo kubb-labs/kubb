@@ -520,12 +520,12 @@ export class PluginManager {
    */
   // Implementation signature
   #execute<H extends PluginLifecycleHooks>({
-                                             strategy,
-                                             hookName,
-                                             parameters,
-                                             plugin,
-                                             message,
-                                           }: {
+    strategy,
+    hookName,
+    parameters,
+    plugin,
+    message,
+  }: {
     strategy: Strategy
     hookName: H
     parameters: unknown[] | undefined
@@ -544,9 +544,7 @@ export class PluginManager {
     const task = (async () => {
       try {
         if (typeof hook === 'function') {
-          const result = await Promise.resolve(
-            (hook as Function).apply({ ...this.#core.context, plugin }, parameters)
-          )
+          const result = await Promise.resolve((hook as Function).apply({ ...this.#core.context, plugin }, parameters))
 
           output = result
 

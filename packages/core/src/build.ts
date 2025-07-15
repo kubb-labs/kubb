@@ -4,15 +4,13 @@ import { PluginManager } from './PluginManager.ts'
 import { isInputPath } from './config.ts'
 import { createLogger } from './logger.ts'
 import { URLPath } from './utils/URLPath.ts'
-// import { isDeepEqual } from 'remeda'
 
 import { join, resolve } from 'node:path'
-// import { getRelativePath } from './fs/index.ts'
 import type { Logger } from './logger.ts'
 import type { Config, Output, UserConfig } from './types.ts'
 import consola from 'consola'
 import { colors } from 'consola/utils'
-import { isDeepEqual } from 'remeda';
+import { isDeepEqual } from 'remeda'
 
 type BuildOptions = {
   config: UserConfig
@@ -115,12 +113,10 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       message: 'buildStart',
     })
 
-
-
     if (config.output.barrelType) {
-    // create root barrel file
-    const root = resolve(config.root)
-    const rootPath = resolve(root, config.output.path, 'index.ts')
+      // create root barrel file
+      const root = resolve(config.root)
+      const rootPath = resolve(root, config.output.path, 'index.ts')
 
       //TODO find clean method without loading all files
       const files = await pluginManager.fileManager.getFiles()
@@ -167,10 +163,9 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       }
 
       await pluginManager.fileManager.add(rootFile)
-
     }
 
-     const files = await pluginManager.fileManager.processFiles({
+    const files = await pluginManager.fileManager.processFiles({
       root: config.root,
       extension: config.output.extension,
       dryRun: !config.output.write,
