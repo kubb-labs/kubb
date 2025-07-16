@@ -22,6 +22,6 @@ export function createDeleteUser404Faker() {
   return undefined
 }
 
-export function createDeleteUserMutationResponseFaker(data?: Partial<DeleteUserMutationResponse>): DeleteUserMutationResponse {
-  return data || faker.helpers.arrayElement<any>([])
+export function createDeleteUserMutationResponseFaker(_data?: Partial<DeleteUserMutationResponse>): DeleteUserMutationResponse {
+  return undefined
 }

@@ -86,7 +86,7 @@ describe('OperationGenerator exclude', async () => {
 
     const operations = await og.getOperations()
 
-    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
+    expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
   test('if exclude is filtered out for path', async () => {
@@ -111,7 +111,7 @@ describe('OperationGenerator exclude', async () => {
 
     const operations = await og.getOperations()
 
-    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
+    expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
   test('if exclude is filtered out for method', async () => {
@@ -136,7 +136,7 @@ describe('OperationGenerator exclude', async () => {
 
     const operations = await og.getOperations()
 
-    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
+    expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
   test('if exclude is filtered out for path and operationId', async () => {
@@ -165,7 +165,7 @@ describe('OperationGenerator exclude', async () => {
 
     const operations = await og.getOperations()
 
-    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
+    expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 })
 
@@ -198,7 +198,7 @@ describe('OperationGenerator include', async () => {
 
     const operations = await og.getOperations()
 
-    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
+    expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
   test('if include is only selecting for operationId', async () => {
@@ -223,7 +223,7 @@ describe('OperationGenerator include', async () => {
 
     const operations = await og.getOperations()
 
-    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
+    expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
   test('if include is only selecting for path', async () => {
@@ -248,7 +248,7 @@ describe('OperationGenerator include', async () => {
 
     const operations = await og.getOperations()
 
-    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
+    expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
   test('if include is only selecting for method', async () => {
@@ -273,7 +273,7 @@ describe('OperationGenerator include', async () => {
 
     const operations = await og.getOperations()
 
-    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
+    expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
   test('if include is only selecting path and operationId', async () => {
@@ -302,7 +302,7 @@ describe('OperationGenerator include', async () => {
 
     const operations = await og.getOperations()
 
-    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
+    expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 })
 

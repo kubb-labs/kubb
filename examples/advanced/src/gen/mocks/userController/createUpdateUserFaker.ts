@@ -23,6 +23,6 @@ export function createUpdateUserMutationRequestFaker() {
   return createUserFaker()
 }
 
-export function createUpdateUserMutationResponseFaker(data?: Partial<UpdateUserMutationResponse>): UpdateUserMutationResponse {
-  return data || faker.helpers.arrayElement<any>([])
+export function createUpdateUserMutationResponseFaker(_data?: Partial<UpdateUserMutationResponse>): UpdateUserMutationResponse {
+  return undefined
 }

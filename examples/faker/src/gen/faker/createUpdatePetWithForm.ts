@@ -27,6 +27,6 @@ export function createUpdatePetWithForm405() {
   return undefined
 }
 
-export function createUpdatePetWithFormMutationResponse(data?: Partial<UpdatePetWithFormMutationResponse>): UpdatePetWithFormMutationResponse {
-  return data || faker.helpers.arrayElement<any>([])
+export function createUpdatePetWithFormMutationResponse(_data?: Partial<UpdatePetWithFormMutationResponse>): UpdatePetWithFormMutationResponse {
+  return undefined
 }

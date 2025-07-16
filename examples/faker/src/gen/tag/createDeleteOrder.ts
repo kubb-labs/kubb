@@ -27,6 +27,6 @@ export function createDeleteOrder404() {
   return undefined
 }
 
-export function createDeleteOrderMutationResponse(data?: Partial<DeleteOrderMutationResponse>): DeleteOrderMutationResponse {
-  return data || faker.helpers.arrayElement<any>([])
+export function createDeleteOrderMutationResponse(_data?: Partial<DeleteOrderMutationResponse>): DeleteOrderMutationResponse {
+  return undefined
 }

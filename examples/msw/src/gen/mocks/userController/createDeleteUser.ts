@@ -30,7 +30,7 @@ export function createDeleteUser404() {
   return undefined
 }
 
-export function createDeleteUserMutationResponse(data?: Partial<DeleteUserMutationResponse>): DeleteUserMutationResponse {
+export function createDeleteUserMutationResponse(_data?: Partial<DeleteUserMutationResponse>): DeleteUserMutationResponse {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([])
+  return undefined
 }

@@ -23,7 +23,7 @@ export function createCreateUserMutationRequest() {
   return createUser()
 }
 
-export function createCreateUserMutationResponse(data?: Partial<CreateUserMutationResponse>): CreateUserMutationResponse {
+export function createCreateUserMutationResponse(_data?: Partial<CreateUserMutationResponse>): CreateUserMutationResponse {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([])
+  return undefined
 }

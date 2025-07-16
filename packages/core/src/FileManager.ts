@@ -77,16 +77,9 @@ export class FileManager {
       const merged = existing ? mergeFile(existing, file) : file
       const resolvedFile = createFile(merged)
 
-    for (const file of mergedFiles.values()) {
-      const existing = await this.#cache.get(file.path)
-      const merged = existing ? mergeFile(existing, file) : file
-      const resolvedFile = createFile(merged)
-
       await this.#cache.set(resolvedFile.path, resolvedFile)
-      resolvedFiles.push(resolvedFile)
-    }
+      await this.#cache.flush()
 
-    await this.#cache.flush()
       resolvedFiles.push(resolvedFile)
     }
 
