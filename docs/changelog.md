@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.16.0
+- [`core`](/plugins/core): Improve memory usage by using concurrency
+
 # 3.15.0
 - [`plugin-swr`](/plugins/plugin-swr/): `immutable` option to disable `revalidateIfStale`, `revalidateOnFocus` and `revalidateOnReconnect`, see [https://swr.vercel.app/docs/revalidation#disable-automatic-revalidations](https://swr.vercel.app/docs/revalidation#disable-automatic-revalidations).
 ```typescript
