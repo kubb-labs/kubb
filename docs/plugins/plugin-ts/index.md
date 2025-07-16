@@ -374,7 +374,7 @@ export default defineConfig({
       ],
       group: {
         type: 'tag',
-        name: ({ group }) => `'${group}Controller`
+        name: ({ group }) => `${group}Controller`
       },
       enumType: "asConst",
       enumSuffix: 'Enum',
