@@ -21,7 +21,7 @@ export type FindPetsByStatus200Schema = z.infer<typeof findPetsByStatus200Schema
 /**
  * @description Invalid status value
  */
-export const findPetsByStatus400Schema = z.any()
+export const findPetsByStatus400Schema = z.unknown()
 
 export type FindPetsByStatus400Schema = z.infer<typeof findPetsByStatus400Schema>
 

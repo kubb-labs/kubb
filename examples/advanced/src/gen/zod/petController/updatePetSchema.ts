@@ -20,21 +20,21 @@ export type UpdatePet202Schema = z.infer<typeof updatePet202Schema>
 /**
  * @description Invalid ID supplied
  */
-export const updatePet400Schema = z.any()
+export const updatePet400Schema = z.unknown()
 
 export type UpdatePet400Schema = z.infer<typeof updatePet400Schema>
 
 /**
  * @description Pet not found
  */
-export const updatePet404Schema = z.any()
+export const updatePet404Schema = z.unknown()
 
 export type UpdatePet404Schema = z.infer<typeof updatePet404Schema>
 
 /**
  * @description Validation exception
  */
-export const updatePet405Schema = z.any()
+export const updatePet405Schema = z.unknown()
 
 export type UpdatePet405Schema = z.infer<typeof updatePet405Schema>
 

@@ -17,14 +17,14 @@ export type GetPetById200Schema = z.infer<typeof getPetById200Schema>
 /**
  * @description Invalid ID supplied
  */
-export const getPetById400Schema = z.any()
+export const getPetById400Schema = z.unknown()
 
 export type GetPetById400Schema = z.infer<typeof getPetById400Schema>
 
 /**
  * @description Pet not found
  */
-export const getPetById404Schema = z.any()
+export const getPetById404Schema = z.unknown()
 
 export type GetPetById404Schema = z.infer<typeof getPetById404Schema>
 

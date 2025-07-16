@@ -12,6 +12,6 @@ export const logoutUserErrorSchema = z.any()
 
 export type LogoutUserErrorSchema = z.infer<typeof logoutUserErrorSchema>
 
-export const logoutUserQueryResponseSchema = z.any()
+export const logoutUserQueryResponseSchema = z.undefined()
 
 export type LogoutUserQueryResponseSchema = z.infer<typeof logoutUserQueryResponseSchema>

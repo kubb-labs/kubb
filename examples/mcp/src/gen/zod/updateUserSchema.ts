@@ -20,4 +20,4 @@ export const updateUserErrorSchema = z.any()
  */
 export const updateUserMutationRequestSchema = z.lazy(() => userSchema)
 
-export const updateUserMutationResponseSchema = z.any()
+export const updateUserMutationResponseSchema = z.undefined()

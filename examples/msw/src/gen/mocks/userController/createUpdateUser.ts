@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { UpdateUserPathParams } from '../../models/UpdateUser.ts'
+import type { UpdateUserPathParams, UpdateUserMutationResponse } from '../../models/UpdateUser.ts'
 import { createUser } from '../createUser.ts'
 import { faker } from '@faker-js/faker'
 
@@ -31,7 +31,7 @@ export function createUpdateUserMutationRequest() {
   return createUser()
 }
 
-export function createUpdateUserMutationResponse() {
+export function createUpdateUserMutationResponse(data?: Partial<UpdateUserMutationResponse>): UpdateUserMutationResponse {
   faker.seed([220])
-  return undefined
+  return data || faker.helpers.arrayElement<any>([])
 }

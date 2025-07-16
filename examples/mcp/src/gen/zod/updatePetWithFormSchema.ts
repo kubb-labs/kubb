@@ -21,4 +21,4 @@ export const updatePetWithFormQueryParamsSchema = z
  */
 export const updatePetWithForm405Schema = z.any()
 
-export const updatePetWithFormMutationResponseSchema = z.any()
+export const updatePetWithFormMutationResponseSchema = z.undefined()

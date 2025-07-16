@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../models/UpdatePetWithForm.ts'
+import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams, UpdatePetWithFormMutationResponse } from '../../models/UpdatePetWithForm.ts'
 import { faker } from '@faker-js/faker'
 
 export function createUpdatePetWithFormPathParams(data?: Partial<UpdatePetWithFormPathParams>): UpdatePetWithFormPathParams {
@@ -30,7 +30,7 @@ export function createUpdatePetWithForm405() {
   return undefined
 }
 
-export function createUpdatePetWithFormMutationResponse() {
+export function createUpdatePetWithFormMutationResponse(data?: Partial<UpdatePetWithFormMutationResponse>): UpdatePetWithFormMutationResponse {
   faker.seed([220])
-  return undefined
+  return data || faker.helpers.arrayElement<any>([])
 }

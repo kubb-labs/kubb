@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { DeleteUserPathParams } from '../../models/DeleteUser.ts'
+import type { DeleteUserPathParams, DeleteUserMutationResponse } from '../../models/DeleteUser.ts'
 import { faker } from '@faker-js/faker'
 
 export function createDeleteUserPathParams(data?: Partial<DeleteUserPathParams>): DeleteUserPathParams {
@@ -30,7 +30,7 @@ export function createDeleteUser404() {
   return undefined
 }
 
-export function createDeleteUserMutationResponse() {
+export function createDeleteUserMutationResponse(data?: Partial<DeleteUserMutationResponse>): DeleteUserMutationResponse {
   faker.seed([220])
-  return undefined
+  return data || faker.helpers.arrayElement<any>([])
 }

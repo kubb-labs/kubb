@@ -1,4 +1,4 @@
-import type { UpdateUserPathParams } from '../../models/ts/userController/UpdateUser.ts'
+import type { UpdateUserPathParams, UpdateUserMutationResponse } from '../../models/ts/userController/UpdateUser.ts'
 import { createUserFaker } from '../createUserFaker.ts'
 import { faker } from '@faker-js/faker'
 
@@ -23,6 +23,6 @@ export function createUpdateUserMutationRequestFaker() {
   return createUserFaker()
 }
 
-export function createUpdateUserMutationResponseFaker() {
-  return undefined
+export function createUpdateUserMutationResponseFaker(data?: Partial<UpdateUserMutationResponse>): UpdateUserMutationResponse {
+  return data || faker.helpers.arrayElement<any>([])
 }

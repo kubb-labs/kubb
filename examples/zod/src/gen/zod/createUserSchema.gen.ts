@@ -20,6 +20,6 @@ export const createUserMutationRequestSchema = z.lazy(() => userSchema)
 
 export type CreateUserMutationRequestSchema = z.infer<typeof createUserMutationRequestSchema>
 
-export const createUserMutationResponseSchema = z.any()
+export const createUserMutationResponseSchema = z.undefined()
 
 export type CreateUserMutationResponseSchema = z.infer<typeof createUserMutationResponseSchema>

@@ -27,7 +27,7 @@ export type FindPetsByTags200Schema = z.infer<typeof findPetsByTags200Schema>
 /**
  * @description Invalid tag value
  */
-export const findPetsByTags400Schema = z.any()
+export const findPetsByTags400Schema = z.unknown()
 
 export type FindPetsByTags400Schema = z.infer<typeof findPetsByTags400Schema>
 

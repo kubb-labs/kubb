@@ -25,6 +25,6 @@ export const deleteOrder404Schema = z.any()
 
 export type DeleteOrder404Schema = z.infer<typeof deleteOrder404Schema>
 
-export const deleteOrderMutationResponseSchema = z.any()
+export const deleteOrderMutationResponseSchema = z.undefined()
 
 export type DeleteOrderMutationResponseSchema = z.infer<typeof deleteOrderMutationResponseSchema>

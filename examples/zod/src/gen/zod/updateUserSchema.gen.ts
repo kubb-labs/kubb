@@ -26,6 +26,6 @@ export const updateUserMutationRequestSchema = z.lazy(() => userSchema)
 
 export type UpdateUserMutationRequestSchema = z.infer<typeof updateUserMutationRequestSchema>
 
-export const updateUserMutationResponseSchema = z.any()
+export const updateUserMutationResponseSchema = z.undefined()
 
 export type UpdateUserMutationResponseSchema = z.infer<typeof updateUserMutationResponseSchema>

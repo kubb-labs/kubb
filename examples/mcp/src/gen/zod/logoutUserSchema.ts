@@ -10,4 +10,4 @@ import { z } from 'zod'
  */
 export const logoutUserErrorSchema = z.any()
 
-export const logoutUserQueryResponseSchema = z.any()
+export const logoutUserQueryResponseSchema = z.undefined()

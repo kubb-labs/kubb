@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 
+import type { CreateUserMutationResponse } from '../../models/CreateUser.ts'
 import { createUser } from '../createUser.ts'
 import { faker } from '@faker-js/faker'
 
@@ -22,7 +23,7 @@ export function createCreateUserMutationRequest() {
   return createUser()
 }
 
-export function createCreateUserMutationResponse() {
+export function createCreateUserMutationResponse(data?: Partial<CreateUserMutationResponse>): CreateUserMutationResponse {
   faker.seed([220])
-  return undefined
+  return data || faker.helpers.arrayElement<any>([])
 }

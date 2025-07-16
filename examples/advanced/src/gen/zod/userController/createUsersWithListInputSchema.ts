@@ -11,7 +11,7 @@ export type CreateUsersWithListInput200Schema = z.infer<typeof createUsersWithLi
 /**
  * @description successful operation
  */
-export const createUsersWithListInputErrorSchema = z.any()
+export const createUsersWithListInputErrorSchema = z.unknown()
 
 export type CreateUsersWithListInputErrorSchema = z.infer<typeof createUsersWithListInputErrorSchema>
 

@@ -1,4 +1,6 @@
+import type { CreateUserMutationResponse } from '../../models/ts/userController/CreateUser.ts'
 import { createUserFaker } from '../createUserFaker.ts'
+import { faker } from '@faker-js/faker'
 
 /**
  * @description successful operation
@@ -14,6 +16,6 @@ export function createCreateUserMutationRequestFaker() {
   return createUserFaker()
 }
 
-export function createCreateUserMutationResponseFaker() {
-  return undefined
+export function createCreateUserMutationResponseFaker(data?: Partial<CreateUserMutationResponse>): CreateUserMutationResponse {
+  return data || faker.helpers.arrayElement<any>([])
 }

@@ -10,7 +10,7 @@ export type UpdateUserPathParamsSchema = z.infer<typeof updateUserPathParamsSche
 /**
  * @description successful operation
  */
-export const updateUserErrorSchema = z.any()
+export const updateUserErrorSchema = z.unknown()
 
 export type UpdateUserErrorSchema = z.infer<typeof updateUserErrorSchema>
 
@@ -21,6 +21,6 @@ export const updateUserMutationRequestSchema = userSchema.omit({ tag: true })
 
 export type UpdateUserMutationRequestSchema = z.infer<typeof updateUserMutationRequestSchema>
 
-export const updateUserMutationResponseSchema = z.any()
+export const updateUserMutationResponseSchema = z.undefined()
 
 export type UpdateUserMutationResponseSchema = z.infer<typeof updateUserMutationResponseSchema>

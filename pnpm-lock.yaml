@@ -1175,9 +1175,6 @@ importers:
       '@kubb/config-tsup':
         specifier: workspace:*
         version: link:../config-tsup
-      '@types/cacache':
-        specifier: ^19.0.0
-        version: 19.0.0
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4
@@ -4569,9 +4566,6 @@ packages:
 
   '@types/body-parser@1.19.5':
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
-
-  '@types/cacache@19.0.0':
-    resolution: {integrity: sha512-O4V427CUunRaoaoG6awmIbamf/gTmsys9PHJNb2ujB+tGtSiDkAtkT+M8Lc04jhDxVBIWnBkFoKjFyne4zjKEw==}
 
   '@types/chai@5.2.2':
     resolution: {integrity: sha512-8kB30R7Hwqf40JPiKhVzodJs2Qc1ZJ5zuT3uzw5Hq/dhNCl3G3l83jfpdI1e20BP348+fV7VIL/+FxaXkqBmWg==}
@@ -13103,10 +13097,6 @@ snapshots:
     dependencies:
       '@types/connect': 3.4.38
       '@types/node': 20.19.4
-
-  '@types/cacache@19.0.0':
-    dependencies:
-      '@types/node': 20.19.6
 
   '@types/chai@5.2.2':
     dependencies:
