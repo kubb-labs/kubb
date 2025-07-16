@@ -19,4 +19,4 @@ export const deletePetHeaderParams = z
  */
 export const deletePet400 = z.unknown()
 
-export const deletePetMutationResponse = z.undefined()
+export const deletePetMutationResponse = z.unknown()

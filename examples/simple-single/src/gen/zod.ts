@@ -203,7 +203,7 @@ export const updatePetWithFormQueryParamsSchema = z
  */
 export const updatePetWithForm405Schema = z.any()
 
-export const updatePetWithFormMutationResponseSchema = z.undefined()
+export const updatePetWithFormMutationResponseSchema = z.any()
 
 export const deletePetPathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('Pet id to delete'),
@@ -220,7 +220,7 @@ export const deletePetHeaderParamsSchema = z
  */
 export const deletePet400Schema = z.any()
 
-export const deletePetMutationResponseSchema = z.undefined()
+export const deletePetMutationResponseSchema = z.any()
 
 export const uploadFilePathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet to update'),
@@ -311,7 +311,7 @@ export const deleteOrder400Schema = z.any()
  */
 export const deleteOrder404Schema = z.any()
 
-export const deleteOrderMutationResponseSchema = z.undefined()
+export const deleteOrderMutationResponseSchema = z.any()
 
 /**
  * @description successful operation
@@ -323,7 +323,7 @@ export const createUserErrorSchema = z.lazy(() => userSchema)
  */
 export const createUserMutationRequestSchema = z.lazy(() => userSchema)
 
-export const createUserMutationResponseSchema = z.undefined()
+export const createUserMutationResponseSchema = z.any()
 
 /**
  * @description Successful operation
@@ -363,7 +363,7 @@ export const loginUserQueryResponseSchema = z.lazy(() => loginUser200Schema)
  */
 export const logoutUserErrorSchema = z.any()
 
-export const logoutUserQueryResponseSchema = z.undefined()
+export const logoutUserQueryResponseSchema = z.any()
 
 export const getUserByNamePathParamsSchema = z.object({
   username: z.string().describe('The name that needs to be fetched. Use user1 for testing. '),
@@ -400,7 +400,7 @@ export const updateUserErrorSchema = z.any()
  */
 export const updateUserMutationRequestSchema = z.lazy(() => userSchema)
 
-export const updateUserMutationResponseSchema = z.undefined()
+export const updateUserMutationResponseSchema = z.any()
 
 export const deleteUserPathParamsSchema = z.object({
   username: z.string().describe('The name that needs to be deleted'),
@@ -416,4 +416,4 @@ export const deleteUser400Schema = z.any()
  */
 export const deleteUser404Schema = z.any()
 
-export const deleteUserMutationResponseSchema = z.undefined()
+export const deleteUserMutationResponseSchema = z.any()

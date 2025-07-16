@@ -15,6 +15,6 @@ export const createUserMutationRequestSchema = userSchema.omit({ tag: true })
 
 export type CreateUserMutationRequestSchema = z.infer<typeof createUserMutationRequestSchema>
 
-export const createUserMutationResponseSchema = z.undefined()
+export const createUserMutationResponseSchema = z.any()
 
 export type CreateUserMutationResponseSchema = z.infer<typeof createUserMutationResponseSchema>

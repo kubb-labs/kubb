@@ -1,62 +1,10 @@
 import { OperationGenerator } from './OperationGenerator.ts'
 import { parseFromConfig } from './utils/parseFromConfig.ts'
 
-import type { FileMetaBase, PluginManager } from '@kubb/core'
-import type { KubbFile } from '@kubb/core/fs'
+import type { PluginManager } from '@kubb/core'
 
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
-import type { Operation } from '@kubb/oas'
-import type { OperationMethodResult } from './OperationGenerator.ts'
-import type { Resolver } from './types.ts'
-
-class DummyOperationGenerator extends OperationGenerator {
-  operation(): OperationMethodResult<FileMetaBase> {
-    return Promise.resolve(null)
-  }
-  resolve(_operation: Operation): Resolver {
-    return {
-      baseName: 'baseName.ts',
-      path: 'models/baseName/ts/baseName.ts',
-      name: 'baseName',
-    }
-  }
-
-  all(): Promise<KubbFile.File | null> {
-    return Promise.resolve(null)
-  }
-
-  get(operation: Operation): Promise<KubbFile.File | null> {
-    return new Promise((resolve) => {
-      const baseName: `${string}.ts` = `${operation.getOperationId()}.ts`
-      resolve({ baseName, path: baseName, sources: [], meta: {} })
-    })
-  }
-
-  post(operation: Operation): Promise<KubbFile.File | null> {
-    return new Promise((resolve) => {
-      const baseName: `${string}.ts` = `${operation.getOperationId()}.ts`
-      resolve({ baseName, path: baseName, sources: [], meta: {} })
-    })
-  }
-  patch(_operation: Operation): Promise<KubbFile.File | null> {
-    return new Promise((resolve) => {
-      resolve(null)
-    })
-  }
-
-  put(_operation: Operation): Promise<KubbFile.File | null> {
-    return new Promise((resolve) => {
-      resolve(null)
-    })
-  }
-
-  delete(_operation: Operation): Promise<KubbFile.File | null> {
-    return new Promise((resolve) => {
-      resolve(null)
-    })
-  }
-}
 
 describe('OperationGenerator core', async () => {
   const oas = await parseFromConfig({
@@ -66,7 +14,7 @@ describe('OperationGenerator core', async () => {
   })
 
   test('if pathParams return undefined when there are no params in path', async () => {
-    const og = new DummyOperationGenerator(
+    const og = new OperationGenerator(
       {},
       {
         oas,
@@ -92,7 +40,7 @@ describe('OperationGenerator exclude', async () => {
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
   })
   test('if exclude is filtered out for tag', async () => {
-    const og = new DummyOperationGenerator(
+    const og = new OperationGenerator(
       {},
       {
         oas,
@@ -111,13 +59,13 @@ describe('OperationGenerator exclude', async () => {
       },
     )
 
-    const files = await og.build()
+    const operations = await og.getOperations()
 
-    expect(files).toMatchSnapshot()
+    expect(operations.map((op) => op.path)).toMatchSnapshot()
   })
 
   test('if exclude is filtered out for operationId', async () => {
-    const og = new DummyOperationGenerator(
+    const og = new OperationGenerator(
       {},
       {
         oas,
@@ -136,13 +84,13 @@ describe('OperationGenerator exclude', async () => {
       },
     )
 
-    const files = await og.build()
+    const operations = await og.getOperations()
 
-    expect(files).toMatchSnapshot()
+    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
   })
 
   test('if exclude is filtered out for path', async () => {
-    const og = new DummyOperationGenerator(
+    const og = new OperationGenerator(
       {},
       {
         oas,
@@ -161,13 +109,13 @@ describe('OperationGenerator exclude', async () => {
       },
     )
 
-    const files = await og.build()
+    const operations = await og.getOperations()
 
-    expect(files).toMatchSnapshot()
+    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
   })
 
   test('if exclude is filtered out for method', async () => {
-    const og = new DummyOperationGenerator(
+    const og = new OperationGenerator(
       {},
       {
         oas,
@@ -186,13 +134,13 @@ describe('OperationGenerator exclude', async () => {
       },
     )
 
-    const files = await og.build()
+    const operations = await og.getOperations()
 
-    expect(files).toMatchSnapshot()
+    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
   })
 
   test('if exclude is filtered out for path and operationId', async () => {
-    const og = new DummyOperationGenerator(
+    const og = new OperationGenerator(
       {},
       {
         oas,
@@ -215,9 +163,9 @@ describe('OperationGenerator exclude', async () => {
       },
     )
 
-    const files = await og.build()
+    const operations = await og.getOperations()
 
-    expect(files).toMatchSnapshot()
+    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
   })
 })
 
@@ -229,7 +177,7 @@ describe('OperationGenerator include', async () => {
   })
 
   test('if include is only selecting tag', async () => {
-    const og = new DummyOperationGenerator(
+    const og = new OperationGenerator(
       {},
       {
         oas,
@@ -248,13 +196,13 @@ describe('OperationGenerator include', async () => {
       },
     )
 
-    const files = await og.build()
+    const operations = await og.getOperations()
 
-    expect(files).toMatchSnapshot()
+    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
   })
 
   test('if include is only selecting for operationId', async () => {
-    const og = new DummyOperationGenerator(
+    const og = new OperationGenerator(
       {},
       {
         oas,
@@ -273,13 +221,13 @@ describe('OperationGenerator include', async () => {
       },
     )
 
-    const files = await og.build()
+    const operations = await og.getOperations()
 
-    expect(files).toMatchSnapshot()
+    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
   })
 
   test('if include is only selecting for path', async () => {
-    const og = new DummyOperationGenerator(
+    const og = new OperationGenerator(
       {},
       {
         oas,
@@ -298,13 +246,13 @@ describe('OperationGenerator include', async () => {
       },
     )
 
-    const files = await og.build()
+    const operations = await og.getOperations()
 
-    expect(files).toMatchSnapshot()
+    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
   })
 
   test('if include is only selecting for method', async () => {
-    const og = new DummyOperationGenerator(
+    const og = new OperationGenerator(
       {},
       {
         oas,
@@ -323,13 +271,13 @@ describe('OperationGenerator include', async () => {
       },
     )
 
-    const files = await og.build()
+    const operations = await og.getOperations()
 
-    expect(files).toMatchSnapshot()
+    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
   })
 
   test('if include is only selecting path and operationId', async () => {
-    const og = new DummyOperationGenerator(
+    const og = new OperationGenerator(
       {},
       {
         oas,
@@ -352,9 +300,9 @@ describe('OperationGenerator include', async () => {
       },
     )
 
-    const files = await og.build()
+    const operations = await og.getOperations()
 
-    expect(files).toMatchSnapshot()
+    expect(operations.map((op) => ({path: op.path, method: op.method}))).toMatchSnapshot()
   })
 })
 
@@ -366,7 +314,7 @@ describe('OperationGenerator include and exclude', async () => {
   })
 
   test('if include is only selecting path and exclude is removing the GET calls', async () => {
-    const og = new DummyOperationGenerator(
+    const og = new OperationGenerator(
       {},
       {
         oas,
@@ -390,8 +338,8 @@ describe('OperationGenerator include and exclude', async () => {
       },
     )
 
-    const files = await og.build()
+    const operations = await og.getOperations()
 
-    expect(files).toMatchSnapshot()
+    expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 })

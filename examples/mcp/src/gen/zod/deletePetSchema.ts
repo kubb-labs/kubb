@@ -20,4 +20,4 @@ export const deletePetHeaderParamsSchema = z
  */
 export const deletePet400Schema = z.any()
 
-export const deletePetMutationResponseSchema = z.undefined()
+export const deletePetMutationResponseSchema = z.any()

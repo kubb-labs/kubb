@@ -19,4 +19,4 @@ export const deleteUser400Schema = z.any()
  */
 export const deleteUser404Schema = z.any()
 
-export const deleteUserMutationResponseSchema = z.undefined()
+export const deleteUserMutationResponseSchema = z.any()

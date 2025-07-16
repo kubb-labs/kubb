@@ -1,23 +1,117 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`OperationGenerator exclude > if exclude is filtered out for method 1`] = `[]`;
+exports[`OperationGenerator exclude > if exclude is filtered out for method 1`] = `
+[
+  {
+    "method": "post",
+    "path": "/pets",
+  },
+]
+`;
 
-exports[`OperationGenerator exclude > if exclude is filtered out for operationId 1`] = `[]`;
+exports[`OperationGenerator exclude > if exclude is filtered out for operationId 1`] = `
+[
+  {
+    "method": "post",
+    "path": "/pets",
+  },
+  {
+    "method": "get",
+    "path": "/pets/{petId}",
+  },
+]
+`;
 
-exports[`OperationGenerator exclude > if exclude is filtered out for path 1`] = `[]`;
+exports[`OperationGenerator exclude > if exclude is filtered out for path 1`] = `
+[
+  {
+    "method": "get",
+    "path": "/pets",
+  },
+  {
+    "method": "post",
+    "path": "/pets",
+  },
+]
+`;
 
-exports[`OperationGenerator exclude > if exclude is filtered out for path and operationId 1`] = `[]`;
+exports[`OperationGenerator exclude > if exclude is filtered out for path and operationId 1`] = `
+[
+  {
+    "method": "post",
+    "path": "/pets",
+  },
+]
+`;
 
 exports[`OperationGenerator exclude > if exclude is filtered out for tag 1`] = `[]`;
 
-exports[`OperationGenerator include > if include is only selecting for method 1`] = `[]`;
+exports[`OperationGenerator include > if include is only selecting for method 1`] = `
+[
+  {
+    "method": "get",
+    "path": "/pets",
+  },
+  {
+    "method": "get",
+    "path": "/pets/{petId}",
+  },
+]
+`;
 
-exports[`OperationGenerator include > if include is only selecting for operationId 1`] = `[]`;
+exports[`OperationGenerator include > if include is only selecting for operationId 1`] = `
+[
+  {
+    "method": "get",
+    "path": "/pets",
+  },
+]
+`;
 
-exports[`OperationGenerator include > if include is only selecting for path 1`] = `[]`;
+exports[`OperationGenerator include > if include is only selecting for path 1`] = `
+[
+  {
+    "method": "get",
+    "path": "/pets/{petId}",
+  },
+]
+`;
 
-exports[`OperationGenerator include > if include is only selecting path and operationId 1`] = `[]`;
+exports[`OperationGenerator include > if include is only selecting path and operationId 1`] = `
+[
+  {
+    "method": "get",
+    "path": "/pets",
+  },
+  {
+    "method": "get",
+    "path": "/pets/{petId}",
+  },
+]
+`;
 
-exports[`OperationGenerator include > if include is only selecting tag 1`] = `[]`;
+exports[`OperationGenerator include > if include is only selecting tag 1`] = `
+[
+  {
+    "method": "get",
+    "path": "/pets",
+  },
+  {
+    "method": "post",
+    "path": "/pets",
+  },
+  {
+    "method": "get",
+    "path": "/pets/{petId}",
+  },
+]
+`;
 
-exports[`OperationGenerator include and exclude > if include is only selecting path and exclude is removing the GET calls 1`] = `[]`;
+exports[`OperationGenerator include and exclude > if include is only selecting path and exclude is removing the GET calls 1`] = `
+[
+  {
+    "method": "get",
+    "path": "/pets",
+  },
+]
+`;

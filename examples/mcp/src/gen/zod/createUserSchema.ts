@@ -16,4 +16,4 @@ export const createUserErrorSchema = z.lazy(() => userSchema)
  */
 export const createUserMutationRequestSchema = z.lazy(() => userSchema)
 
-export const createUserMutationResponseSchema = z.undefined()
+export const createUserMutationResponseSchema = z.any()
