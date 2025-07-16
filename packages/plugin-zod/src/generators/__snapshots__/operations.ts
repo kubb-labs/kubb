@@ -12,6 +12,10 @@ import {
   showPetById200,
   showPetByIdQueryResponse,
   showPetByIdPathParams,
+  deletePet400,
+  deletePetMutationResponse,
+  deletePetPathParams,
+  deletePetHeaderParams,
 } from './showPetById'
 
 export const operations = {
@@ -54,6 +58,21 @@ export const operations = {
     },
     errors: {},
   },
+  deletePet: {
+    request: undefined,
+    parameters: {
+      path: deletePetPathParams,
+      query: undefined,
+      header: deletePetHeaderParams,
+    },
+    responses: {
+      400: deletePet400,
+      default: deletePetMutationResponse,
+    },
+    errors: {
+      400: deletePet400,
+    },
+  },
 } as const
 
 export const paths = {
@@ -63,5 +82,6 @@ export const paths = {
   },
   '/pets/{petId}': {
     get: operations['showPetById'],
+    delete: operations['deletePet'],
   },
 } as const

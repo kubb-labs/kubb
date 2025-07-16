@@ -11,7 +11,6 @@ import type { FiberRoot } from './kubbRenderer.ts'
 import { KubbRenderer } from './kubbRenderer.ts'
 import { type RendererResult, renderer } from './renderer.ts'
 import type { DOMElement } from './types.ts'
-import { throttle } from './utils/throttle.ts'
 
 export type ReactTemplateOptions = {
   stdout?: NodeJS.WriteStream
@@ -40,7 +39,7 @@ export class ReactTemplate {
     this.#options = options
 
     this.#rootNode = createNode('kubb-root')
-    this.#rootNode.onRender = options.debug ? this.onRender : throttle(this.onRender, 32)[0]
+    this.#rootNode.onRender = this.onRender
     this.#rootNode.onImmediateRender = this.onRender
 
     // Ignore last render after unmounting a tree to prevent empty output before exit

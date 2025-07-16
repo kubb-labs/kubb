@@ -21,6 +21,7 @@ export class PromiseManager<TState = any> {
   run<TInput extends Array<PromiseFunc<TValue, null>>, TValue, TStrategy extends Strategy, TOutput = StrategySwitch<TStrategy, TInput, TValue>>(
     strategy: TStrategy,
     promises: TInput,
+    { concurrency = Number.POSITIVE_INFINITY }: { concurrency?: number } = {},
   ): TOutput {
     if (strategy === 'seq') {
       return hookSeq<TInput, TValue, TOutput>(promises)
@@ -31,7 +32,7 @@ export class PromiseManager<TState = any> {
     }
 
     if (strategy === 'parallel') {
-      return hookParallel<TInput, TValue, TOutput>(promises)
+      return hookParallel<TInput, TValue, TOutput>(promises, concurrency)
     }
 
     throw new Error(`${strategy} not implemented`)

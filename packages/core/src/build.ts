@@ -76,7 +76,7 @@ export async function setup(options: BuildOptions): Promise<PluginManager> {
     await clean(join(definedConfig.root, '.kubb'))
   }
 
-  return new PluginManager(definedConfig, { logger })
+  return new PluginManager(definedConfig, { logger, concurrency: 5 })
 }
 
 export async function build(options: BuildOptions): Promise<BuildOutput> {

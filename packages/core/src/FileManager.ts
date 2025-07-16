@@ -108,14 +108,14 @@ export class FileManager {
     // order by path length and if file is a barrel file
     const keys = orderBy(cachedKeys, [(v) => v.length, (v) => trimExtName(v).endsWith('index')])
 
-    const files = await Promise.all(
-      keys.map(async (key) => {
-        return this.#limit(async () => {
-          const file = await this.#cache.get(key)
-          return file as KubbFile.ResolvedFile
-        })
+    const filesTasks = keys.map((key) =>
+      this.#limit(async () => {
+        const file = await this.#cache.get(key)
+        return file as KubbFile.ResolvedFile
       }),
     )
+
+    const files = await Promise.all(filesTasks)
 
     return files.filter(Boolean)
   }
