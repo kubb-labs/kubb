@@ -12,6 +12,7 @@ import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
+import pLimit from 'p-limit'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
@@ -1082,58 +1083,43 @@ export class SchemaGenerator<
 
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
-
     const schemas = getSchemas({ oas, contentType, includes: include })
+    const schemaEntries = Object.entries(schemas)
 
-    const promises = Object.entries(schemas).reduce((acc, [name, value]) => {
-      if (!value) {
-        return acc
-      }
+    const generatorLimit = pLimit(1)
+    const schemaLimit = pLimit(10)
 
-      const options = this.#getOptions({ name })
-      const promiseOperation = this.schema.call(this, name, value, {
-        ...this.options,
-        ...options,
-      })
+    const writeTasks = generators.map((generator) =>
+      generatorLimit(async () => {
+        const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
+          schemaLimit(async () => {
+            const options = this.#getOptions({ name })
+            const tree = this.parse({ name, schemaObject })
 
-      if (promiseOperation) {
-        acc.push(promiseOperation)
-      }
+            const result = await generator.schema?.({
+              instance: this,
+              schema: {
+                name,
+                value: schemaObject,
+                tree,
+              },
+              options: {
+                ...this.options,
+                ...options,
+              },
+            })
 
-      generators?.forEach((generator) => {
-        const tree = this.parse({ schemaObject: value, name: name })
+            return result ?? []
+          }),
+        )
 
-        const promise = generator.schema?.({
-          instance: this,
-          schema: {
-            name,
-            value,
-            tree,
-          },
-          options: {
-            ...this.options,
-            ...options,
-          },
-        } as any) as Promise<Array<KubbFile.File<TFileMeta>>>
+        const schemaResults = await Promise.all(schemaTasks)
+        return schemaResults.flat() as unknown as KubbFile.File<TFileMeta>
+      }),
+    )
 
-        if (promise) {
-          acc.push(promise)
-        }
-      })
+    const nestedResults = await Promise.all(writeTasks)
 
-      return acc
-    }, [] as SchemaMethodResult<TFileMeta>[])
-
-    const files = await Promise.all(promises)
-
-    // using .flat because schemaGenerator[method] can return an array of files or just one file
-    return files.flat().filter(Boolean)
-  }
-
-  /**
-   * Schema
-   */
-  async schema(_name: string, _object: SchemaObject, _options: TOptions): SchemaMethodResult<TFileMeta> {
-    return []
+    return nestedResults.flat()
   }
 }

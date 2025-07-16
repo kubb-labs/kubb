@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 
+import type { LogoutUserQueryResponse } from '../../models/LogoutUser.ts'
 import { faker } from '@faker-js/faker'
 
 /**
@@ -13,7 +14,7 @@ export function createLogoutUserError() {
   return undefined
 }
 
-export function createLogoutUserQueryResponse() {
+export function createLogoutUserQueryResponse(_data?: Partial<LogoutUserQueryResponse>): LogoutUserQueryResponse {
   faker.seed([220])
   return undefined
 }

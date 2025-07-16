@@ -1,18 +1,19 @@
 import { extname, join, relative } from 'node:path'
 
 import { orderBy } from 'natural-orderby'
-import PQueue from 'p-queue'
 import { isDeepEqual, uniqueBy } from 'remeda'
+import pLimit from 'p-limit'
+
 import { BarrelManager } from './BarrelManager.ts'
 
 import type { KubbFile } from './fs/index.ts'
-import { read, trimExtName, write } from './fs/index.ts'
+import { trimExtName, write } from './fs/index.ts'
 import type { ResolvedFile } from './fs/types.ts'
 import type { Logger } from './logger.ts'
 import type { BarrelType, Config, Plugin } from './types.ts'
 import { createFile, getFileParser } from './utils'
-import { buildDirectoryTree, type DirectoryTree, TreeNode } from './utils/TreeNode.ts'
 import type { GreaterThan } from './utils/types.ts'
+import { Cache } from './utils/Cache.ts'
 
 export type FileMetaBase = {
   pluginKey?: Plugin['key']
@@ -26,7 +27,6 @@ type AddIndexesProps = {
    * Root based on root and output.path specified in the config
    */
   root: string
-  files: KubbFile.File[]
   /**
    * Output for plugin
    */
@@ -42,47 +42,46 @@ type AddIndexesProps = {
   meta?: FileMetaBase
 }
 
+type WriteFilesProps = {
+  root: Config['root']
+  extension?: Record<KubbFile.Extname, KubbFile.Extname | ''>
+  logger?: Logger
+  dryRun?: boolean
+}
+
 export class FileManager {
-  #filesByPath: Map<KubbFile.Path, KubbFile.ResolvedFile> = new Map()
+  #cache = new Cache<KubbFile.ResolvedFile>()
+  #limit = pLimit(100)
+
   constructor() {
     return this
   }
 
-  get files(): Array<KubbFile.ResolvedFile> {
-    return [...this.#filesByPath.values()]
-  }
-
-  get orderedFiles(): Array<KubbFile.ResolvedFile> {
-    return orderBy(
-      [...this.#filesByPath.values()],
-      [
-        (v) => v?.meta && 'pluginKey' in v.meta && !v.meta.pluginKey,
-        (v) => v.path.length,
-        (v) => trimExtName(v.path).endsWith('index'),
-        (v) => trimExtName(v.baseName),
-        (v) => v.path.split('.').pop(),
-      ],
-    )
-  }
-
-  get groupedFiles(): DirectoryTree | null {
-    return buildDirectoryTree([...this.#filesByPath.values()])
-  }
-
-  get treeNode(): TreeNode | null {
-    return TreeNode.build([...this.#filesByPath.values()])
-  }
-
   async add<T extends Array<KubbFile.File> = Array<KubbFile.File>>(...files: T): AddResult<T> {
-    const promises = files.map((file) => {
-      if (file.override) {
-        return this.#add(file)
-      }
+    const resolvedFiles: KubbFile.ResolvedFile[] = []
 
-      return this.#addOrAppend(file)
+    const mergedFiles = new Map<string, KubbFile.File>()
+
+    files.forEach((file) => {
+      const existing = mergedFiles.get(file.path)
+      if (existing) {
+        mergedFiles.set(file.path, mergeFile(existing, file))
+      } else {
+        mergedFiles.set(file.path, file)
+      }
     })
 
-    const resolvedFiles = await Promise.all(promises)
+    for (const file of mergedFiles.values()) {
+      const existing = await this.#cache.get(file.path)
+
+      const merged = existing ? mergeFile(existing, file) : file
+      const resolvedFile = createFile(merged)
+
+      await this.#cache.set(resolvedFile.path, resolvedFile)
+      await this.#cache.flush()
+
+      resolvedFiles.push(resolvedFile)
+    }
 
     if (files.length > 1) {
       return resolvedFiles as unknown as AddResult<T>
@@ -91,52 +90,68 @@ export class FileManager {
     return resolvedFiles[0] as unknown as AddResult<T>
   }
 
-  async #add(file: KubbFile.File): Promise<ResolvedFile> {
-    const resolvedFile = createFile(file)
-
-    this.#filesByPath.set(resolvedFile.path, resolvedFile)
-
-    return resolvedFile
+  async getByPath(path: KubbFile.Path): Promise<KubbFile.ResolvedFile | null> {
+    return this.#cache.get(path)
   }
 
-  clear() {
-    this.#filesByPath.clear()
+  async deleteByPath(path: KubbFile.Path): Promise<void> {
+    await this.#cache.delete(path)
   }
 
-  async #addOrAppend(file: KubbFile.File): Promise<ResolvedFile> {
-    const previousFile = this.#filesByPath.get(file.path)
-
-    if (previousFile) {
-      this.#filesByPath.delete(previousFile.path)
-
-      return this.#add(mergeFile(previousFile, file))
-    }
-    return this.#add(file)
+  async clear(): Promise<void> {
+    await this.#cache.clear()
   }
 
-  getCacheById(id: string): KubbFile.File | undefined {
-    return [...this.#filesByPath.values()].find((file) => file.id === id)
+  async getFiles(): Promise<Array<KubbFile.ResolvedFile>> {
+    const cachedKeys = await this.#cache.keys()
+
+    // order by path length and if file is a barrel file
+    const keys = orderBy(cachedKeys, [(v) => v.length, (v) => trimExtName(v).endsWith('index')])
+
+    const filesTasks = keys.map((key) =>
+      this.#limit(async () => {
+        const file = await this.#cache.get(key)
+        return file as KubbFile.ResolvedFile
+      }),
+    )
+
+    const files = await Promise.all(filesTasks)
+
+    return files.filter(Boolean)
   }
 
-  getByPath(path: KubbFile.Path): KubbFile.ResolvedFile | undefined {
-    return this.#filesByPath.get(path)
+  async processFiles({ dryRun, root, extension, logger }: WriteFilesProps): Promise<Array<KubbFile.ResolvedFile>> {
+    const files = await this.getFiles()
+
+    logger?.emit('progress_start', { id: 'files', size: files.length, message: 'Writing files ...' })
+
+    const promises = files.map((file) => {
+      return this.#limit(async () => {
+        const message = file ? `Writing ${relative(root, file.path)}` : ''
+        const extname = extension?.[file.extname] || undefined
+
+        if (!dryRun) {
+          const source = await getSource(file, { logger, extname })
+          await write(file.path, source, { sanity: false })
+        }
+
+        logger?.emit('progressed', { id: 'files', message })
+      })
+    })
+
+    await Promise.all(promises)
+
+    logger?.emit('progress_stop', { id: 'files' })
+
+    return files
   }
-
-  deleteByPath(path: KubbFile.Path): void {
-    const cacheItem = this.getByPath(path)
-    if (!cacheItem) {
-      return
-    }
-
-    this.#filesByPath.delete(path)
-  }
-
-  async getBarrelFiles({ type, files, meta = {}, root, output, logger }: AddIndexesProps): Promise<KubbFile.File[]> {
+  async getBarrelFiles({ type, meta = {}, root, output, logger }: AddIndexesProps): Promise<KubbFile.File[]> {
     if (!type || type === 'propagate') {
       return []
     }
 
     const barrelManager = new BarrelManager({ logger })
+    const files = await this.getFiles()
 
     const pathToBuildFrom = join(root, output.path)
 
@@ -168,14 +183,6 @@ export class FileManager {
         meta,
       }
     })
-  }
-
-  async write(...params: Parameters<typeof write>): ReturnType<typeof write> {
-    return write(...params)
-  }
-
-  async read(...params: Parameters<typeof read>): ReturnType<typeof read> {
-    return read(...params)
   }
 
   // statics
@@ -285,7 +292,7 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
         }
 
         const checker = (name?: string) => {
-          return name && !!source.includes(name)
+          return name && source.includes(name)
         }
 
         return checker(importName) || exports.some(({ name }) => (Array.isArray(name) ? name.some(checker) : checker(name)))
@@ -342,54 +349,4 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
     },
     [] as Array<KubbFile.Import>,
   )
-}
-
-type WriteFilesProps = {
-  root: Config['root']
-  files: Array<KubbFile.ResolvedFile>
-  extension?: Record<KubbFile.Extname, KubbFile.Extname | ''>
-  logger?: Logger
-  dryRun?: boolean
-}
-/**
- * Global queue
- */
-const queue = new PQueue({ concurrency: 100 })
-
-export async function processFiles({ dryRun, root, extension, logger, files }: WriteFilesProps) {
-  const orderedFiles = orderBy(files, [
-    (v) => v?.meta && 'pluginKey' in v.meta && !v.meta.pluginKey,
-    (v) => v.path.length,
-    (v) => trimExtName(v.path).endsWith('index'),
-  ])
-
-  logger?.emit('debug', {
-    date: new Date(),
-    logs: [JSON.stringify({ files: orderedFiles }, null, 2)],
-    fileName: 'kubb-files.log',
-  })
-
-  if (!dryRun) {
-    const size = orderedFiles.length
-
-    logger?.emit('progress_start', { id: 'files', size, message: 'Writing files ...' })
-    const promises = orderedFiles.map(async (file) => {
-      await queue.add(async () => {
-        const message = file ? `Writing ${relative(root, file.path)}` : ''
-        const extname = extension?.[file.extname] || undefined
-
-        const source = await getSource(file, { logger, extname })
-
-        await write(file.path, source, { sanity: false })
-
-        logger?.emit('progressed', { id: 'files', message })
-      })
-    })
-
-    await Promise.all(promises)
-
-    logger?.emit('progress_stop', { id: 'files' })
-  }
-
-  return files
 }

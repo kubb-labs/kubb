@@ -1,3 +1,5 @@
+import pLimit from 'p-limit'
+
 type PromiseFunc<T = unknown, T2 = never> = (state?: T) => T2 extends never ? Promise<T> : Promise<T> | T2
 
 type ValueOfPromiseFuncArray<TInput extends Array<unknown>> = TInput extends Array<PromiseFunc<infer X, infer Y>> ? X | Y : never
@@ -53,12 +55,17 @@ export function hookFirst<TInput extends Array<PromiseFunc<TValue, null>>, TValu
 type HookParallelOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue> = Promise<PromiseSettledResult<Awaited<ValueOfPromiseFuncArray<TInput>>>[]>
 
 /**
- * Run promises in parallel with allSettled
+ * Runs an array of promise functions with optional concurrency limit.
  */
 export function hookParallel<TInput extends Array<PromiseFunc<TValue, null>>, TValue = unknown, TOutput = HookParallelOutput<TInput, TValue>>(
   promises: TInput,
+  concurrency: number = Number.POSITIVE_INFINITY,
 ): TOutput {
-  return Promise.allSettled(promises.filter(Boolean).map((promise) => promise())) as TOutput
+  const limit = pLimit(concurrency)
+
+  const tasks = promises.filter(Boolean).map((promise) => limit(() => promise()))
+
+  return Promise.allSettled(tasks) as TOutput
 }
 
 export type Strategy = 'seq' | 'first' | 'parallel'

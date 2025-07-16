@@ -161,7 +161,6 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         type: output.barrelType ?? 'named',
         root,
         output,
-        files: this.fileManager.files,
         meta: {
           pluginKey: this.plugin.key,
         },

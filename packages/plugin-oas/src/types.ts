@@ -122,7 +122,6 @@ export type OperationSchemas = {
   errors?: Array<OperationSchema>
 }
 
-export type OperationsByMethod = Record<string, Record<HttpMethod, { operation: Operation; schemas: OperationSchemas }>>
 type ByTag = {
   type: 'tag'
   pattern: string | RegExp

@@ -1,5 +1,5 @@
 import { FileManager } from './FileManager.ts'
-import { isPromise, isPromiseRejectedResult } from './PromiseManager.ts'
+import { isPromiseRejectedResult } from './PromiseManager.ts'
 import { PromiseManager } from './PromiseManager.ts'
 import { ValidationPluginError } from './errors.ts'
 import { pluginCore } from './plugin.ts'
@@ -50,6 +50,10 @@ type SafeParseResult<H extends PluginLifecycleHooks, Result = ReturnType<ParseRe
 
 type Options = {
   logger: Logger
+  /**
+   * @default Number.POSITIVE_INFINITY
+   */
+  concurrency?: number
 }
 
 type Events = {
@@ -215,19 +219,21 @@ export class PluginManager {
 
     this.logger.emit('progress_start', { id: hookName, size: plugins.length, message: 'Running plugins...' })
 
-    const promises = plugins
-      .map((plugin) => {
-        return this.#execute<H>({
-          strategy: 'hookFirst',
-          hookName,
-          parameters,
-          plugin,
-          message,
-        })
-      })
-      .filter(Boolean)
+    const items: Array<ReturnType<ParseResult<H>>> = []
 
-    const items = await Promise.all(promises)
+    for (const plugin of plugins) {
+      const result = await this.#execute<H>({
+        strategy: 'hookFirst',
+        hookName,
+        parameters,
+        plugin,
+        message,
+      })
+
+      if (result !== undefined && result !== null) {
+        items.push(result)
+      }
+    }
 
     this.logger.emit('progress_stop', { id: hookName })
 
@@ -374,7 +380,7 @@ export class PluginManager {
         }) as Promise<TOuput>
     })
 
-    const results = await this.#promiseManager.run('parallel', promises)
+    const results = await this.#promiseManager.run('parallel', promises, { concurrency: this.options.concurrency })
 
     results.forEach((result, index) => {
       if (isPromiseRejectedResult<Error>(result)) {
@@ -540,25 +546,27 @@ export class PluginManager {
     }
 
     this.events.emit('executing', { strategy, hookName, parameters, plugin, message })
-    const promise = new Promise((resolve) => {
-      resolve(undefined)
-    })
 
-    const task = promise
-      .then(() => {
+    const task = (async () => {
+      try {
         if (typeof hook === 'function') {
-          const possiblePromiseResult = (hook as Function).apply({ ...this.#core.context, plugin }, parameters) as Promise<ReturnType<ParseResult<H>>>
+          const result = await Promise.resolve((hook as Function).apply({ ...this.#core.context, plugin }, parameters))
 
-          if (isPromise(possiblePromiseResult)) {
-            return Promise.resolve(possiblePromiseResult)
-          }
-          return possiblePromiseResult
+          output = result
+
+          this.#addExecutedToCallStack({
+            parameters,
+            output,
+            strategy,
+            hookName,
+            plugin,
+            message,
+          })
+
+          return result
         }
 
-        return hook
-      })
-      .then((result) => {
-        output = result
+        output = hook
 
         this.#addExecutedToCallStack({
           parameters,
@@ -569,13 +577,12 @@ export class PluginManager {
           message,
         })
 
-        return result
-      })
-      .catch((e: Error) => {
-        this.#catcher<H>(e, plugin, hookName)
-
+        return hook
+      } catch (e) {
+        this.#catcher<H>(e as Error, plugin, hookName)
         return null
-      })
+      }
+    })()
 
     return task
   }

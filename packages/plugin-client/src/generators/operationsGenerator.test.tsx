@@ -56,11 +56,10 @@ describe('operationsGenerator operations', async () => {
     })
     await instance.build(operationsGenerator)
 
-    const operations = Object.values(instance.operationsByMethod).map((item) => Object.values(item).map((item) => item.operation))
+    const operations = await instance.getOperations()
 
     const files = await operationsGenerator.operations?.({
-      operations: operations.flat().filter(Boolean),
-      operationsByMethod: instance.operationsByMethod,
+      operations: operations.map((item) => item.operation),
       options,
       instance,
     })

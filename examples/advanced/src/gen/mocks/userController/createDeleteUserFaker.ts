@@ -1,4 +1,4 @@
-import type { DeleteUserPathParams } from '../../models/ts/userController/DeleteUser.ts'
+import type { DeleteUserPathParams, DeleteUserMutationResponse } from '../../models/ts/userController/DeleteUser.ts'
 import { faker } from '@faker-js/faker'
 
 export function createDeleteUserPathParamsFaker(data?: Partial<DeleteUserPathParams>): DeleteUserPathParams {
@@ -22,6 +22,6 @@ export function createDeleteUser404Faker() {
   return undefined
 }
 
-export function createDeleteUserMutationResponseFaker() {
+export function createDeleteUserMutationResponseFaker(_data?: Partial<DeleteUserMutationResponse>): DeleteUserMutationResponse {
   return undefined
 }

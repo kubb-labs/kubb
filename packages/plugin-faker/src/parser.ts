@@ -196,6 +196,10 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
   }
 
   if (isKeyword(current, schemaKeywords.union)) {
+    if (Array.isArray(current.args) && !current.args.length) {
+      return ''
+    }
+
     return fakerKeywordMapper.union(
       current.args.map((schema) => parse({ parent: current, current: schema, siblings }, { ...options, canOverride: false })).filter(Boolean),
     )
