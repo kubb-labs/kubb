@@ -1083,20 +1083,18 @@ export class SchemaGenerator<
 
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
-
-    const files: Array<KubbFile.File<any>> = []
-
     const schemas = getSchemas({ oas, contentType, includes: include })
+    const schemaEntries = Object.entries(schemas)
 
     const generatorLimit = pLimit(1)
     const schemaLimit = pLimit(10)
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
-        const schemaTasks = Object.entries(schemas).map(([name, schemaObject]) =>
+        const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {
             const options = this.#getOptions({ name })
-            const tree = this.parse({ schemaObject, name: name })
+            const tree = this.parse({ name, schemaObject })
 
             const result = await generator.schema?.({
               instance: this,
@@ -1109,20 +1107,19 @@ export class SchemaGenerator<
                 ...this.options,
                 ...options,
               },
-            } as any)
+            })
 
-            if (result) {
-              files.push(...result)
-            }
+            return result ?? []
           }),
         )
 
-        await Promise.all(schemaTasks)
+        const schemaResults = await Promise.all(schemaTasks)
+        return schemaResults.flat() as unknown as KubbFile.File<TFileMeta>
       }),
     )
 
-    await Promise.all(writeTasks)
+    const nestedResults = await Promise.all(writeTasks)
 
-    return files
+    return nestedResults.flat()
   }
 }

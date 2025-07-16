@@ -19,7 +19,7 @@ export type LoginUser200Schema = z.infer<typeof loginUser200Schema>
 /**
  * @description Invalid username/password supplied
  */
-export const loginUser400Schema = z.unknown()
+export const loginUser400Schema = z.any()
 
 export type LoginUser400Schema = z.infer<typeof loginUser400Schema>
 

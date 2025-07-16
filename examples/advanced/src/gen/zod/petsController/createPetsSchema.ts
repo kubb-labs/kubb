@@ -25,7 +25,7 @@ export type CreatePetsHeaderParamsSchema = z.infer<typeof createPetsHeaderParams
 /**
  * @description Null response
  */
-export const createPets201Schema = z.unknown()
+export const createPets201Schema = z.any()
 
 export type CreatePets201Schema = z.infer<typeof createPets201Schema>
 

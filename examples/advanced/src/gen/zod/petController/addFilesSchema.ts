@@ -11,7 +11,7 @@ export type AddFiles200Schema = z.infer<typeof addFiles200Schema>
 /**
  * @description Invalid input
  */
-export const addFiles405Schema = z.unknown()
+export const addFiles405Schema = z.any()
 
 export type AddFiles405Schema = z.infer<typeof addFiles405Schema>
 

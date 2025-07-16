@@ -100,8 +100,8 @@
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/react": "workspace:*",
-    "p-limit": "~6.2.0",
     "@stoplight/yaml": "^4.3.0",
+    "p-limit": "~6.2.0",
     "remeda": "catalog:"
   },
   "devDependencies": {

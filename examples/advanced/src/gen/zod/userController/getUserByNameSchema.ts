@@ -17,14 +17,14 @@ export type GetUserByName200Schema = z.infer<typeof getUserByName200Schema>
 /**
  * @description Invalid username supplied
  */
-export const getUserByName400Schema = z.unknown()
+export const getUserByName400Schema = z.any()
 
 export type GetUserByName400Schema = z.infer<typeof getUserByName400Schema>
 
 /**
  * @description User not found
  */
-export const getUserByName404Schema = z.unknown()
+export const getUserByName404Schema = z.any()
 
 export type GetUserByName404Schema = z.infer<typeof getUserByName404Schema>
 

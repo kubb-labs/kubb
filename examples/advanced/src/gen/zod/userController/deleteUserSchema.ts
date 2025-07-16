@@ -9,14 +9,14 @@ export type DeleteUserPathParamsSchema = z.infer<typeof deleteUserPathParamsSche
 /**
  * @description Invalid username supplied
  */
-export const deleteUser400Schema = z.unknown()
+export const deleteUser400Schema = z.any()
 
 export type DeleteUser400Schema = z.infer<typeof deleteUser400Schema>
 
 /**
  * @description User not found
  */
-export const deleteUser404Schema = z.unknown()
+export const deleteUser404Schema = z.any()
 
 export type DeleteUser404Schema = z.infer<typeof deleteUser404Schema>
 

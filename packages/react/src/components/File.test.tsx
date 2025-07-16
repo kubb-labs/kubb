@@ -59,7 +59,6 @@ describe('<File/>', () => {
             },
           ],
           "meta": {},
-          "override": undefined,
           "path": "path",
           "sources": [],
         },
@@ -116,7 +115,6 @@ describe('<File/>', () => {
           "footer": undefined,
           "imports": [],
           "meta": {},
-          "override": undefined,
           "path": "path",
           "sources": [
             {
@@ -178,7 +176,6 @@ describe('<File/>', () => {
           "footer": undefined,
           "imports": [],
           "meta": {},
-          "override": undefined,
           "path": "path",
           "sources": [
             {
@@ -224,7 +221,6 @@ describe('<File/>', () => {
           "footer": undefined,
           "imports": [],
           "meta": {},
-          "override": undefined,
           "path": "path",
           "sources": [
             {
@@ -265,7 +261,6 @@ describe('<File/>', () => {
           "footer": undefined,
           "imports": [],
           "meta": {},
-          "override": undefined,
           "path": "path",
           "sources": [
             {
@@ -408,7 +403,6 @@ describe('<File.Import/>', () => {
             },
           ],
           "meta": {},
-          "override": undefined,
           "path": "path",
           "sources": [
             {
@@ -454,7 +448,6 @@ describe('<File.Import/>', () => {
             },
           ],
           "meta": {},
-          "override": undefined,
           "path": "path.ts",
           "sources": [
             {

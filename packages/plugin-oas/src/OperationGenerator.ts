@@ -217,8 +217,6 @@ export class OperationGenerator<
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const operations = await this.getOperations()
 
-    const files: Array<KubbFile.File<any>> = []
-
     const generatorLimit = pLimit(1)
     const operationLimit = pLimit(10)
 
@@ -233,28 +231,26 @@ export class OperationGenerator<
               operation,
               options: { ...this.options, ...options },
             })
-            if (result) {
-              files.push(...result)
-            }
+
+            return result ?? []
           }),
         )
 
-        await Promise.all(operationTasks)
+        const operationResults = await Promise.all(operationTasks)
+        const opResultsFlat = operationResults.flat()
 
-        const result = await generator.operations?.({
+        const operationsResult = await generator.operations?.({
           instance: this,
           operations: operations.map((op) => op.operation),
           options: this.options,
         })
 
-        if (result) {
-          files.push(...result)
-        }
+        return [...opResultsFlat, ...(operationsResult ?? [])] as unknown as KubbFile.File<TFileMeta>
       }),
     )
 
-    await Promise.all(writeTasks)
+    const nestedResults = await Promise.all(writeTasks)
 
-    return files
+    return nestedResults.flat()
   }
 }

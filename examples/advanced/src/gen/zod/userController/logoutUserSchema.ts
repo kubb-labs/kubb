@@ -3,7 +3,7 @@ import { z } from 'zod/v4'
 /**
  * @description successful operation
  */
-export const logoutUserErrorSchema = z.unknown()
+export const logoutUserErrorSchema = z.any()
 
 export type LogoutUserErrorSchema = z.infer<typeof logoutUserErrorSchema>
 
