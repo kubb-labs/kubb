@@ -219,7 +219,7 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
             { parent: current, current: schema, siblings },
             {
               ...options,
-              typeName: `${options.typeName}["${name}"][number]`,
+              typeName: `NonNullable<${options.typeName}>[number]`,
               canOverride: false,
             },
           ),
@@ -259,7 +259,7 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
         return transformers.stringify(schema.value)
       }),
       // TODO replace this with getEnumNameFromSchema
-      name ? `NonNullable<${options.typeName}>['${name}']` : undefined,
+      name ? options.typeName : undefined,
     )
   }
 
@@ -293,7 +293,14 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
         return `"${name}": ${joinItems(
           schemas
             .sort(schemaKeywordSorter)
-            .map((schema) => parse({ name, parent: current, current: schema, siblings: schemas }, { ...options, canOverride: false }))
+            .map((schema) => parse(
+              { name, parent: current, current: schema, siblings: schemas },
+              {
+                ...options,
+                typeName: `NonNullable<${options.typeName}>[${JSON.stringify(name)}]`,
+                canOverride: false,
+              }
+            ))
             .filter(Boolean),
         )}`
       })
