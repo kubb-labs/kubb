@@ -71,7 +71,7 @@ export const typeKeywordMapper = {
     })
   },
   const: (name?: string | number | boolean, format?: 'string' | 'number' | 'boolean') => {
-    if (!name) {
+    if (name === null || name === undefined || name === '') {
       return undefined
     }
 

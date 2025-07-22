@@ -1027,6 +1027,41 @@ export const oas = {
           name: 'customer',
         },
       },
+      HappyCustomer: {
+        allOf: [
+          {
+            $ref: '#/components/schemas/Customer',
+          },
+          {
+            type: 'object',
+            properties: {
+              isHappy: {
+                type: 'boolean',
+                const: true,
+              },
+            },
+          },
+        ],
+      },
+      UnhappyCustomer: {
+        allOf: [
+          {
+            $ref: '#/components/schemas/Customer',
+          },
+          {
+            type: 'object',
+            properties: {
+              reasonToBeUnhappy: {
+                type: 'string',
+              },
+              isHappy: {
+                type: 'boolean',
+                const: false,
+              },
+            },
+          },
+        ],
+      },
       Address: {
         type: 'object',
         properties: {

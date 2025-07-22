@@ -893,12 +893,17 @@ export class SchemaGenerator<
         return [{ keyword: schemaKeywords.undefined }]
       }
 
+      let format = typeof schemaObject['const']
+      if (format !== 'number' && format !== 'boolean') {
+        format = 'string'
+      }
+
       return [
         {
           keyword: schemaKeywords.const,
           args: {
             name: schemaObject['const'],
-            format: typeof schemaObject['const'] === 'number' ? 'number' : 'string',
+            format,
             value: schemaObject['const'],
           },
         },
