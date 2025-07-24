@@ -1,5 +1,16 @@
 # @kubb/swagger
 
+## 3.16.1
+
+### Patch Changes
+
+- [#1817](https://github.com/kubb-labs/kubb/pull/1817) [`e51db4c`](https://github.com/kubb-labs/kubb/commit/e51db4c77b3bb7e044382d2b19400262e927cd3a) Thanks [@grreeenn](https://github.com/grreeenn)! - bugfix - boolean consts are no longer breaking TS plugin output, and will result in the correct zod output. Number 0 const will also stop breaking TS plugin output
+
+- Updated dependencies []:
+  - @kubb/core@3.16.1
+  - @kubb/oas@3.16.1
+  - @kubb/react@3.16.1
+
 ## 3.16.0
 
 ### Minor Changes

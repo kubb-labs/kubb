@@ -1,5 +1,16 @@
 # @kubb/plugin-faker
 
+## 3.16.1
+
+### Patch Changes
+
+- Updated dependencies [[`e51db4c`](https://github.com/kubb-labs/kubb/commit/e51db4c77b3bb7e044382d2b19400262e927cd3a)]:
+  - @kubb/plugin-oas@3.16.1
+  - @kubb/plugin-ts@3.16.1
+  - @kubb/core@3.16.1
+  - @kubb/oas@3.16.1
+  - @kubb/react@3.16.1
+
 ## 3.16.0
 
 ### Patch Changes
