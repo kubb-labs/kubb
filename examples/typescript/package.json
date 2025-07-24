@@ -27,7 +27,7 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "axios": "^1.10.0",
+    "axios": "^1.11.0",
     "tsup": "^8.5.0"
   },
   "devDependencies": {
