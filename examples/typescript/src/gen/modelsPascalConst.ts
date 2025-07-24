@@ -58,6 +58,24 @@ export type Customer = {
   address?: Address[]
 }
 
+export type HappyCustomer = Customer & {
+  /**
+   * @type boolean | undefined
+   */
+  isHappy?: true
+}
+
+export type UnhappyCustomer = Customer & {
+  /**
+   * @type string | undefined
+   */
+  reasonToBeUnhappy?: string
+  /**
+   * @type boolean | undefined
+   */
+  isHappy?: false
+}
+
 export type Address = {
   /**
    * @type string | undefined

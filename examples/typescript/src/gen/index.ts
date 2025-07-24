@@ -59,6 +59,7 @@ export type {
   GetUserByNameQueryResponse,
   GetUserByNameQuery,
 } from './ts/models/GetUserByName.ts'
+export type { HappyCustomer } from './ts/models/HappyCustomer.ts'
 export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './ts/models/LoginUser.ts'
 export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './ts/models/LogoutUser.ts'
 export type { Oas } from './ts/models/oas.ts'
@@ -74,6 +75,7 @@ export type {
   PlaceOrderPatchMutation,
 } from './ts/models/PlaceOrderPatch.ts'
 export type { Tag } from './ts/models/Tag.ts'
+export type { UnhappyCustomer } from './ts/models/UnhappyCustomer.ts'
 export type {
   UpdatePet200,
   UpdatePet400,
