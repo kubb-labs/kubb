@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-svelte-query",
-  "version": "3.16.0",
+  "version": "3.16.1",
   "description": "Svelte Query hooks generator plugin for Kubb, creating type-safe API client hooks from OpenAPI specifications for Svelte applications.",
   "keywords": [
     "svelte-query",
