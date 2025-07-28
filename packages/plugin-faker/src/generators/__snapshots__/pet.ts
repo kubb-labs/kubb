@@ -13,6 +13,7 @@ export function pet(data?: Partial<Pet>): Pet {
       code: faker.helpers.fromRegExp(new RegExp('\\b[1-9]\\b')),
       shipDate: faker.date.anytime(),
       shipTime: faker.date.anytime(),
+      info: { animal: faker.helpers.arrayElement<NonNullable<NonNullable<Pet>['info']>['animal']>(['dog', 'cat', 'ant']) },
     },
     ...(data || {}),
   }
