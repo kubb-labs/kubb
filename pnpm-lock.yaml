@@ -1346,9 +1346,6 @@ importers:
 
   packages/parser-ts:
     dependencies:
-      prettier:
-        specifier: ^3.6.2
-        version: 3.6.2
       remeda:
         specifier: 'catalog:'
         version: 2.26.0
@@ -1362,6 +1359,9 @@ importers:
       '@kubb/config-tsup':
         specifier: workspace:*
         version: link:../config-tsup
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(@microsoft/api-extractor@7.52.8(@types/node@20.19.8))(jiti@2.4.2)(postcss@8.5.6)(typescript@5.8.3)(yaml@2.7.1)
