@@ -7,11 +7,11 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { queryOptions, useQuery } from '@tanstack/vue-query'
-import { unref } from 'vue'
+import { toValue } from 'vue'
 
-export const loginUserQueryKey = (params?: MaybeRef<LoginUserQueryParams>) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+export const loginUserQueryKey = (params?: MaybeRefOrGetter<LoginUserQueryParams>) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 
@@ -26,13 +26,13 @@ export async function loginUser(params?: LoginUserQueryParams, config: Partial<R
   return res.data
 }
 
-export function loginUserQueryOptions(params?: MaybeRef<LoginUserQueryParams>, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function loginUserQueryOptions(params?: MaybeRefOrGetter<LoginUserQueryParams>, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = loginUserQueryKey(params)
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return loginUser(unref(params), unref(config))
+      return loginUser(toValue(params), toValue(config))
     },
   })
 }
@@ -42,7 +42,7 @@ export function loginUserQueryOptions(params?: MaybeRef<LoginUserQueryParams>, c
  * {@link /user/login}
  */
 export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginUserQueryResponse, TQueryKey extends QueryKey = LoginUserQueryKey>(
-  params?: MaybeRef<LoginUserQueryParams>,
+  params?: MaybeRefOrGetter<LoginUserQueryParams>,
   options: {
     query?: Partial<QueryObserverOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, TData, TQueryData, TQueryKey>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }

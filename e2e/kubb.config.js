@@ -121,6 +121,7 @@ const baseConfig = {
       inferred: true,
       typed: false,
       operations: false,
+      version: '3',
     }),
     pluginFaker({
       output: {

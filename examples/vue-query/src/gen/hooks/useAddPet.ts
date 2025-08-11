@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
@@ -39,7 +39,7 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
  */
 export function useAddPet<TContext>(
   options: {
-    mutation?: MutationObserverOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: MaybeRef<AddPetMutationRequest> }, TContext> & {
+    mutation?: MutationObserverOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: MaybeRefOrGetter<AddPetMutationRequest> }, TContext> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch }

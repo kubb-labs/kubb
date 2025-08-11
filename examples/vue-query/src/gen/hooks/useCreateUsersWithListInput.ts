@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
 export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
@@ -45,7 +45,7 @@ export function useCreateUsersWithListInput<TContext>(
     mutation?: MutationObserverOptions<
       CreateUsersWithListInputMutationResponse,
       ResponseErrorConfig<Error>,
-      { data?: MaybeRef<CreateUsersWithListInputMutationRequest> },
+      { data?: MaybeRefOrGetter<CreateUsersWithListInputMutationRequest> },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch }

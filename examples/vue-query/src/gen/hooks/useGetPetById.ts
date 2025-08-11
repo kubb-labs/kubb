@@ -7,11 +7,12 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { queryOptions, useQuery } from '@tanstack/vue-query'
-import { unref } from 'vue'
+import { toValue } from 'vue'
 
-export const getPetByIdQueryKey = ({ petId }: { petId: MaybeRef<GetPetByIdPathParams['petId']> }) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+export const getPetByIdQueryKey = ({ petId }: { petId: MaybeRefOrGetter<GetPetByIdPathParams['petId']> }) =>
+  [{ url: '/pet/:petId', params: { petId: petId } }] as const
 
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 
@@ -32,7 +33,7 @@ export async function getPetById({ petId }: { petId: GetPetByIdPathParams['petId
 }
 
 export function getPetByIdQueryOptions(
-  { petId }: { petId: MaybeRef<GetPetByIdPathParams['petId']> },
+  { petId }: { petId: MaybeRefOrGetter<GetPetByIdPathParams['petId']> },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = getPetByIdQueryKey({ petId })
@@ -41,7 +42,7 @@ export function getPetByIdQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getPetById(unref({ petId: unref(petId) }), unref(config))
+      return getPetById(toValue({ petId: toValue(petId) }), toValue(config))
     },
   })
 }
@@ -52,7 +53,7 @@ export function getPetByIdQueryOptions(
  * {@link /pet/:petId}
  */
 export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetPetByIdQueryResponse, TQueryKey extends QueryKey = GetPetByIdQueryKey>(
-  { petId }: { petId: MaybeRef<GetPetByIdPathParams['petId']> },
+  { petId }: { petId: MaybeRefOrGetter<GetPetByIdPathParams['petId']> },
   options: {
     query?: Partial<QueryObserverOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient

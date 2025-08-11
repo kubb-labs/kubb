@@ -7,11 +7,11 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { queryOptions, useQuery } from '@tanstack/vue-query'
-import { unref } from 'vue'
+import { toValue } from 'vue'
 
-export const getUserByNameQueryKey = ({ username }: { username: MaybeRef<GetUserByNamePathParams['username']> }) =>
+export const getUserByNameQueryKey = ({ username }: { username: MaybeRefOrGetter<GetUserByNamePathParams['username']> }) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
@@ -35,7 +35,7 @@ export async function getUserByName(
 }
 
 export function getUserByNameQueryOptions(
-  { username }: { username: MaybeRef<GetUserByNamePathParams['username']> },
+  { username }: { username: MaybeRefOrGetter<GetUserByNamePathParams['username']> },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = getUserByNameQueryKey({ username })
@@ -44,7 +44,7 @@ export function getUserByNameQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getUserByName(unref({ username: unref(username) }), unref(config))
+      return getUserByName(toValue({ username: toValue(username) }), toValue(config))
     },
   })
 }
@@ -58,7 +58,7 @@ export function useGetUserByName<
   TQueryData = GetUserByNameQueryResponse,
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
-  { username }: { username: MaybeRef<GetUserByNamePathParams['username']> },
+  { username }: { username: MaybeRefOrGetter<GetUserByNamePathParams['username']> },
   options: {
     query?: Partial<
       QueryObserverOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>

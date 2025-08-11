@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
 export const deletePetMutationKey = () => [{ url: '/pet/{petId}' }] as const
@@ -45,7 +45,7 @@ export function useDeletePet<TContext>(
     mutation?: MutationObserverOptions<
       DeletePetMutationResponse,
       ResponseErrorConfig<DeletePet400>,
-      { petId: MaybeRef<DeletePetPathParams['petId']>; headers?: MaybeRef<DeletePetHeaderParams> },
+      { petId: MaybeRefOrGetter<DeletePetPathParams['petId']>; headers?: MaybeRefOrGetter<DeletePetHeaderParams> },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }

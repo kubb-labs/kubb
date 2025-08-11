@@ -35,9 +35,17 @@ export function Zod({
   emptySchemaType,
 }: Props) {
   const hasTuple = tree.some((item) => isKeyword(item, schemaKeywords.tuple))
+  const hasMatches = tree.some((item) => isKeyword(item, schemaKeywords.matches))
+  const hasRef = tree.some((item) => isKeyword(item, schemaKeywords.ref))
+
   const schemas = parserZod.sort(tree).filter((item) => {
     if (hasTuple && (isKeyword(item, schemaKeywords.min) || isKeyword(item, schemaKeywords.max))) {
       return false
+    }
+
+    if (hasMatches && hasRef) {
+      // when ref and matches are combined, this cannot work together with Zod, just use ref and ignore matches
+      return !isKeyword(item, schemaKeywords.matches)
     }
 
     return true

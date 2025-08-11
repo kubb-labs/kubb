@@ -8,7 +8,7 @@ import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import { queryOptions, useQuery } from '@tanstack/vue-query'
-import { unref } from 'vue'
+import { toValue } from 'vue'
 
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 
@@ -32,7 +32,7 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> & { clie
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getInventory(unref(config))
+      return getInventory(toValue(config))
     },
   })
 }

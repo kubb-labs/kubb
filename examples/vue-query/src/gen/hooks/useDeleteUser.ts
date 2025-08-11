@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
 export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
@@ -43,7 +43,7 @@ export function useDeleteUser<TContext>(
     mutation?: MutationObserverOptions<
       DeleteUserMutationResponse,
       ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
-      { username: MaybeRef<DeleteUserPathParams['username']> },
+      { username: MaybeRefOrGetter<DeleteUserPathParams['username']> },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
