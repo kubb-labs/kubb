@@ -16,6 +16,7 @@ export type RequestConfig<TData = unknown> = {
   data?: TData | FormData
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
   signal?: AbortSignal
+  validateStatus?: (status: number) => boolean
   headers?: AxiosRequestConfig['headers']
 }
 
