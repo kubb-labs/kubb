@@ -1,5 +1,20 @@
 # @kubb/plugin-ts
 
+## 3.16.2
+
+### Patch Changes
+
+- [#1835](https://github.com/kubb-labs/kubb/pull/1835) [`9f386f7`](https://github.com/kubb-labs/kubb/commit/9f386f763728119c1baef4ee50733e6dc2079ac7) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ERROR Warning: Encountered two children with the same key
+
+- [#1835](https://github.com/kubb-labs/kubb/pull/1835) [`9f386f7`](https://github.com/kubb-labs/kubb/commit/9f386f763728119c1baef4ee50733e6dc2079ac7) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - does not consider pattern property for js doc
+
+- Updated dependencies []:
+  - @kubb/core@3.16.2
+  - @kubb/oas@3.16.2
+  - @kubb/parser-ts@3.16.2
+  - @kubb/plugin-oas@3.16.2
+  - @kubb/react@3.16.2
+
 ## 3.16.1
 
 ### Patch Changes
