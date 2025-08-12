@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
@@ -39,9 +39,12 @@ export async function createUser(data?: CreateUserMutationRequest, config: Parti
  */
 export function useCreateUser<TContext>(
   options: {
-    mutation?: MutationObserverOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: MaybeRef<CreateUserMutationRequest> }, TContext> & {
-      client?: QueryClient
-    }
+    mutation?: MutationObserverOptions<
+      CreateUserMutationResponse,
+      ResponseErrorConfig<Error>,
+      { data?: MaybeRefOrGetter<CreateUserMutationRequest> },
+      TContext
+    > & { client?: QueryClient }
     client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch }
   } = {},
 ) {

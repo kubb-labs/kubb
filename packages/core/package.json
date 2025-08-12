@@ -101,7 +101,7 @@
     "@kubb/parser-ts": "workspace:*",
     "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
-    "fs-extra": "^11.3.0",
+    "fs-extra": "^11.3.1",
     "js-runtime": "^0.0.8",
     "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",

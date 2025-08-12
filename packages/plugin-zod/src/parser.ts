@@ -223,6 +223,14 @@ type ParserOptions = {
 export function parse({ parent, current, name, siblings }: SchemaTree, options: ParserOptions): string | undefined {
   const value = zodKeywordMapper[current.keyword as keyof typeof zodKeywordMapper]
 
+  // Early exit: if siblings contain both matches and ref → skip matches entirely
+  const hasMatches = siblings.some((it) => isKeyword(it, schemaKeywords.matches))
+  const hasRef = siblings.some((it) => isKeyword(it, schemaKeywords.ref))
+
+  if (hasMatches && hasRef && isKeyword(current, schemaKeywords.matches)) {
+    return undefined // strip matches
+  }
+
   if (!value) {
     return undefined
   }

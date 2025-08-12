@@ -13,6 +13,7 @@ export default defineConfig([
       generators: 'src/generators/index.ts',
       hooks: 'src/hooks/index.ts',
     },
+    noExternal: [/p-limit/],
   },
   {
     ...optionsESM,

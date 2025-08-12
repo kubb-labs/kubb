@@ -150,6 +150,7 @@ export const listAppSchema = z.object({
   machine_count: z.number().int().optional(),
   name: z.string().optional(),
   network: z.object({}).optional(),
+  volume_count: z.number().int().optional(),
 })
 
 export const listAppsResponseSchema = z.object({
