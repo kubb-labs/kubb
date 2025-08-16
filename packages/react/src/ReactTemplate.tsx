@@ -54,7 +54,6 @@ export class ReactTemplate {
       output: '',
     }
     const originalError = console.error
-    //@ts-ignore
     console.error = (data: string | Error) => {
       const message = typeof data === 'string' ? data : data?.message
 

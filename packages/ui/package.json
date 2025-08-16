@@ -24,15 +24,13 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
+      "require": "./dist/index.cjs"
     },
-    "./package.json": "./package.json",
-    "./*": "./*"
+    "./package.json": "./package.json"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {}
   },
@@ -44,21 +42,21 @@
     "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "tsup && vite build",
+    "build": "tsdown && vite build",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint--fix --unsafe .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
     "preview": "vite preview",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "vite & tsup --watch",
+    "start": "vite & tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@hono/node-server": "^1.18.1",
+    "@hono/node-server": "^1.18.2",
     "@hono/zod-openapi": "0.19.2",
-    "hono": "^4.9.0",
+    "hono": "^4.9.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -66,26 +64,26 @@
     "@heroui/theme": "^2.4.20",
     "@heroui/use-theme": "^2.1.10",
     "@kubb/config-ts": "workspace:*",
-    "@kubb/config-tsup": "workspace:*",
-    "@react-aria/visually-hidden": "3.8.20",
-    "@react-types/shared": "3.28.0",
-    "@tanstack/react-query": "^5.84.2",
+    "@react-aria/visually-hidden": "^3.8.26",
+    "@react-types/shared": "^3.31.0",
+    "@tailwindcss/postcss": "^4.1.12",
+    "@tanstack/react-query": "^5.85.3",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "^4.7.0",
-    "autoprefixer": "10.4.19",
-    "clsx": "2.1.1",
-    "framer-motion": "11.15.0",
-    "postcss": "8.4.38",
+    "@vitejs/plugin-react": "^5.0.0",
+    "autoprefixer": "^10.4.21",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.23.12",
+    "postcss": "^8.5.6",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-router-dom": "^7.8.0",
-    "tailwind-variants": "0.3.0",
-    "tailwindcss": "3.4.16",
-    "tsup": "catalog:",
+    "react-router-dom": "^7.8.1",
+    "tailwind-variants": "^2.1.0",
+    "tailwindcss": "^4.1.12",
+    "tsdown": "catalog:",
     "typescript": "catalog:",
-    "vite": "^6.3.5",
+    "vite": "^7.1.2",
     "vite-tsconfig-paths": "^5.1.4"
   },
   "engines": {

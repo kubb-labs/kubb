@@ -24,8 +24,8 @@
     "@shikijs/vitepress-twoslash": "^3.9.2",
     "mermaid": "^11.9.0",
     "sitemap": "^8.0.0",
-    "vitepress": "^2.0.0-alpha.10",
-    "vitepress-plugin-group-icons": "^1.6.2",
+    "vitepress": "^2.0.0-alpha.11",
+    "vitepress-plugin-group-icons": "^1.6.3",
     "vue": "^3.5.18"
   },
   "devDependencies": {
@@ -45,9 +45,9 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
     "@mermaid-js/mermaid-cli": "^11.9.0",
-    "@nolebase/vitepress-plugin-enhanced-readabilities": "^2.18.1",
-    "@nolebase/vitepress-plugin-git-changelog": "^2.18.1",
-    "@nolebase/vitepress-plugin-highlight-targeted-heading": "^2.18.1",
+    "@nolebase/vitepress-plugin-enhanced-readabilities": "^2.18.2",
+    "@nolebase/vitepress-plugin-git-changelog": "^2.18.2",
+    "@nolebase/vitepress-plugin-highlight-targeted-heading": "^2.18.2",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "cross-env": "^7.0.3",

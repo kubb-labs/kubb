@@ -84,7 +84,7 @@ function openDevtools() {
       subprocess = execa.execa({ preferLocal: true })`npx react-devtools`
     })
     .then(() => {
-      // @ts-ignore
+      // @ts-expect-error
       return import('react-devtools-core')
     })
     .then((devtools) => {

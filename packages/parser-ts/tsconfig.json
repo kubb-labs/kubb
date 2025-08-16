@@ -4,5 +4,5 @@
     "baseUrl": ".",
     "types": ["vitest/globals", "bun-types", "../config-ts/reset.d.ts"]
   },
-  "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts", "@kubb/config-ts/reset"]
+  "include": ["src/**/*", "./package.json", "./tsdown.config.ts", "./vitest.config.ts", "@kubb/config-ts/reset"]
 }

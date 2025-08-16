@@ -26,40 +26,33 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
-    },
-    "./generators": {
-      "import": "./dist/generators.js",
-      "require": "./dist/generators.cjs",
-      "default": "./dist/generators.cjs"
-    },
-    "./mocks": {
-      "import": "./dist/mocks.js",
-      "require": "./dist/mocks.cjs",
-      "default": "./dist/mocks.cjs"
-    },
-    "./utils": {
-      "import": "./dist/utils.js",
-      "require": "./dist/utils.cjs",
-      "default": "./dist/utils.cjs"
-    },
-    "./hooks": {
-      "import": "./dist/hooks.js",
-      "require": "./dist/hooks.cjs",
-      "default": "./dist/hooks.cjs"
+      "require": "./dist/index.cjs"
     },
     "./components": {
       "import": "./dist/components.js",
-      "require": "./dist/components.cjs",
-      "default": "./dist/components.cjs"
+      "require": "./dist/components.cjs"
     },
-    "./package.json": "./package.json",
-    "./*": "./*"
+    "./generators": {
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs"
+    },
+    "./hooks": {
+      "import": "./dist/hooks.js",
+      "require": "./dist/hooks.cjs"
+    },
+    "./mocks": {
+      "import": "./dist/mocks.js",
+      "require": "./dist/mocks.cjs"
+    },
+    "./utils": {
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs"
+    },
+    "./package.json": "./package.json"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
       "utils": [
@@ -86,13 +79,13 @@
     "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint--fix --unsafe .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsup --watch",
+    "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -101,15 +94,14 @@
     "@kubb/oas": "workspace:*",
     "@kubb/react": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
-    "p-limit": "~6.2.0",
+    "p-limit": "catalog:",
     "remeda": "catalog:"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "@kubb/config-tsup": "workspace:*",
     "@types/react": "catalog:",
     "react": "catalog:",
-    "tsup": "catalog:",
+    "tsdown": "catalog:",
     "typescript": "catalog:"
   },
   "peerDependencies": {

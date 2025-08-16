@@ -1,11 +1,8 @@
+import type { OASDocument, ParameterObject, SchemaObject } from 'oas/types'
 import { isRef, isSchema } from 'oas/types'
-import { isPlainObject, mergeDeep } from 'remeda'
-
-import { bundle, loadConfig } from '@redocly/openapi-core'
 import OASNormalize from 'oas-normalize'
-import type { OASDocument } from 'oas/types'
-import type { ParameterObject, SchemaObject } from 'oas/types'
 import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+import { isPlainObject, mergeDeep } from 'remeda'
 import swagger2openapi from 'swagger2openapi'
 import { Oas } from './Oas.ts'
 
@@ -80,12 +77,14 @@ export async function parse(
   pathOrApi: string | OASDocument,
   { oasClass = Oas, canBundle = true, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
 ): Promise<Oas> {
+  const { loadConfig, bundle } = await import('@redocly/openapi-core')
+
   if (typeof pathOrApi === 'string' && canBundle) {
     // resolve external refs
     const config = await loadConfig()
     const bundleResults = await bundle({ ref: pathOrApi, config, base: pathOrApi })
 
-    return parse(bundleResults.bundle.parsed)
+    return parse(bundleResults.bundle.parsed as string)
   }
 
   const oasNormalize = new OASNormalize(pathOrApi, {

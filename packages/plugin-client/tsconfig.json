@@ -4,5 +4,5 @@
     "jsx": "react-jsx",
     "jsxImportSource": "@kubb/react"
   },
-  "include": ["src/**/*", "mocks/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"]
+  "include": ["src/**/*", "mocks/**/*", "./package.json", "./tsdown.config.ts", "./vitest.config.ts"]
 }

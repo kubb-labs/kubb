@@ -1,6 +1,6 @@
 import { Writable } from 'node:stream'
 
-import { colors } from 'consola/utils'
+import pc from 'picocolors'
 
 import * as process from 'node:process'
 import type { WritableOptions } from 'node:stream'
@@ -16,7 +16,7 @@ export class ConsolaWritable extends Writable {
     this.consola = consola
   }
   _write(chunk: any, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
-    process.stdout.write(`${colors.dim(chunk?.toString())}`)
+    process.stdout.write(`${pc.dim(chunk?.toString())}`)
 
     callback()
   }
