@@ -20,7 +20,8 @@
   "license": "MIT",
   "author": "stijnvanhulle",
   "sideEffects": [
-    "./src/globals.ts"
+    "./dist/globals.js",
+    "./dist/globals.cjs"
   ],
   "type": "module",
   "exports": {
@@ -31,6 +32,14 @@
     "./devtools": {
       "import": "./dist/devtools.js",
       "require": "./dist/devtools.cjs"
+    },
+    "./globals": {
+      "import": "./dist/globals.js",
+      "require": "./dist/globals.cjs"
+    },
+    "./jsx-dev-runtime": {
+      "import": "./dist/jsx-dev-runtime.js",
+      "require": "./dist/jsx-dev-runtime.cjs"
     },
     "./jsx-runtime": {
       "import": "./dist/jsx-runtime.js",
@@ -68,7 +77,7 @@
     "build": "tsdown",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint--fix --unsafe .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
     "start": "tsdown --watch",
@@ -83,7 +92,7 @@
     "execa": "^9.6.0",
     "natural-orderby": "^5.0.0",
     "react": "catalog:react19",
-    "react-devtools-core": "^5.3.2",
+    "react-devtools-core": "^6.1.5",
     "react-reconciler": "catalog:react19",
     "signal-exit": "^4.1.0",
     "ws": "^8.18.3"
@@ -92,7 +101,6 @@
     "@kubb/config-ts": "workspace:*",
     "@types/react": "catalog:react19",
     "@types/react-reconciler": "catalog:react19",
-    "@types/signal-exit": "^3.0.4",
     "@types/ws": "^8.18.1",
     "tsdown": "catalog:",
     "typescript": "catalog:"

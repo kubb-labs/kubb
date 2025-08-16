@@ -1,15 +1,9 @@
-import type { HostConfig } from 'react-reconciler'
 import Reconciler from 'react-reconciler'
 import { DefaultEventPriority, NoEventPriority } from 'react-reconciler/constants'
 
 import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './dom.ts'
 import type { KubbNode } from './types'
 import type { DOMElement, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
-
-// https://github.com/pmndrs/react-three-fiber/blob/v9/packages/fiber/src/core/reconciler.tsx
-declare module 'react-reconciler/constants' {
-  const NoEventPriority = 0
-}
 
 declare module 'react-reconciler' {
   // @ts-expect-error custom override
@@ -31,39 +25,6 @@ declare module 'react-reconciler' {
   }
 }
 
-const diff = (before: Record<string, unknown>, after: Record<string, unknown>): Record<string, unknown> | undefined => {
-  if (before === after) {
-    return
-  }
-
-  if (!before) {
-    return after
-  }
-
-  const changed: Record<string, unknown> = {}
-  let isChanged = false
-
-  for (const key of Object.keys(before)) {
-    const isDeleted = after ? !Object.hasOwn(after, key) : true
-
-    if (isDeleted) {
-      changed[key] = undefined
-      isChanged = true
-    }
-  }
-
-  if (after) {
-    for (const key of Object.keys(after)) {
-      if (after[key] !== before[key]) {
-        changed[key] = after[key]
-        isChanged = true
-      }
-    }
-  }
-
-  return isChanged ? changed : undefined
-}
-
 type Props = Record<string, unknown>
 
 type HostContext = {
@@ -72,27 +33,7 @@ type HostContext = {
   isSource: boolean
 }
 
-type UpdatePayload = {
-  props: Props | undefined
-}
-
 let currentUpdatePriority = NoEventPriority
-
-type Config = HostConfig<
-  ElementNames,
-  Props,
-  DOMElement,
-  DOMElement,
-  TextNode,
-  DOMElement,
-  unknown,
-  unknown,
-  HostContext,
-  UpdatePayload,
-  unknown,
-  unknown,
-  unknown
->
 
 /**
  * @link https://www.npmjs.com/package/react-devtools-inline
@@ -113,12 +54,12 @@ export const KubbRenderer = Reconciler({
   },
   preparePortalMount: () => null,
   clearContainer: () => false,
-  resetAfterCommit(rootNode) {
+  resetAfterCommit(rootNode: DOMElement) {
     if (typeof rootNode.onRender === 'function') {
       rootNode.onRender()
     }
   },
-  getChildHostContext(parentHostContext, type) {
+  getChildHostContext(parentHostContext: HostContext, type: ElementNames) {
     const isInsideText = type === 'kubb-text'
     const isFile = type === 'kubb-file' || parentHostContext.isFile
     const isSource = type === 'kubb-source' || parentHostContext.isSource
@@ -126,7 +67,7 @@ export const KubbRenderer = Reconciler({
     return { isInsideText, isFile, isSource, type }
   },
   shouldSetTextContent: () => false,
-  createInstance(originalType, newProps, _root) {
+  createInstance(originalType: ElementNames, newProps: Props, _root: DOMElement) {
     const node = createNode(originalType)
 
     for (const [key, value] of Object.entries(newProps)) {
@@ -139,7 +80,7 @@ export const KubbRenderer = Reconciler({
 
     return node
   },
-  createTextInstance(text, _root, hostContext) {
+  createTextInstance(text: string, _root: DOMElement, hostContext: HostContext) {
     if (hostContext.isFile && !hostContext.isSource) {
       throw new Error(`[react] '${text}' should be part of <File.Source> component when using the <File/> component`)
     }
@@ -147,10 +88,10 @@ export const KubbRenderer = Reconciler({
     return createTextNode(text)
   },
   resetTextContent() {},
-  hideTextInstance(node) {
+  hideTextInstance(node: TextNode) {
     setTextNodeValue(node, '')
   },
-  unhideTextInstance(node, text) {
+  unhideTextInstance(node: TextNode, text: string) {
     setTextNodeValue(node, text)
   },
   getPublicInstance: (instance) => instance,
@@ -167,7 +108,6 @@ export const KubbRenderer = Reconciler({
   scheduleTimeout: setTimeout,
   cancelTimeout: clearTimeout,
   noTimeout: -1,
-  getCurrentEventPriority: () => DefaultEventPriority,
   beforeActiveInstanceBlur() {},
   afterActiveInstanceBlur() {},
   detachDeletedInstance() {},
@@ -176,20 +116,12 @@ export const KubbRenderer = Reconciler({
   getInstanceFromScope: () => null,
   appendChildToContainer: appendChildNode,
   insertInContainerBefore: insertBeforeNode,
-  removeChildFromContainer(node, removeNode) {
+  removeChildFromContainer(node: DOMElement, removeNode: TextNode) {
     removeChildNode(node, removeNode)
   },
-  prepareUpdate(_node, _type, oldProps, newProps, _rootNode) {
-    const props = diff(oldProps, newProps)
-
-    if (!props) {
-      return null
-    }
-
-    return { props }
-  },
+  resetFormInstance() {},
   commitMount() {},
-  commitUpdate(node, _payload, _type, _oldProps, newProps) {
+  commitUpdate(node: DOMElement, _payload, _type, _oldProps: Props, newProps: Props) {
     const { props } = newProps
 
     if (props) {
@@ -198,10 +130,10 @@ export const KubbRenderer = Reconciler({
       }
     }
   },
-  commitTextUpdate(node, _oldText, newText) {
+  commitTextUpdate(node: TextNode, _oldText, newText) {
     setTextNodeValue(node, newText)
   },
-  removeChild(node, removeNode) {
+  removeChild(node: DOMElement, removeNode: TextNode) {
     removeChildNode(node, removeNode)
   },
   setCurrentUpdatePriority: (newPriority: number) => {
@@ -224,6 +156,20 @@ export const KubbRenderer = Reconciler({
   shouldAttemptEagerTransition() {
     return false
   },
-} as Config)
+  NotPendingTransition: undefined,
+  requestPostPaintCallback: function (_callback: (time: number) => void): void {
+    throw new Error('Function not implemented.')
+  },
+  trackSchedulerEvent: function (): void {
+    throw new Error('Function not implemented.')
+  },
+  resolveEventType: function (): null | string {
+    throw new Error('Function not implemented.')
+  },
+  resolveEventTimeStamp: function (): number {
+    throw new Error('Function not implemented.')
+  },
+  HostTransitionContext: undefined as any,
+})
 
 export type { FiberRoot } from 'react-reconciler'

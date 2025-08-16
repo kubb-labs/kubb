@@ -25,8 +25,8 @@ declare module 'react' {
     }
   }
 }
-
-// @ts-expect-error
+// biome-ignore lint/suspicious/noTsIgnore: not needed
+// @ts-ignore
 declare module '@kubb/react/jsx-runtime' {
   namespace JSX {
     interface IntrinsicElements {
