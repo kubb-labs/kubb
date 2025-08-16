@@ -64,9 +64,9 @@
     "execa": "^9.6.0",
     "gradient-string": "^3.0.0",
     "jiti": "^2.5.1",
-    "picocolors": "^1.1.1",
     "latest-version": "^9.0.0",
     "open": "^10.2.0",
+    "picocolors": "^1.1.1",
     "semver": "^7.7.2",
     "string-argv": "^0.3.2"
   },

@@ -93,7 +93,7 @@
 		"typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"unplugin": "^2.3.5"
+		"unplugin": "^2.3.6"
 	},
 	"devDependencies": {
 		"@kubb/config-ts": "workspace:*",
@@ -106,7 +106,7 @@
 		"tsdown": "catalog:",
 		"typescript": "catalog:",
 		"vite": "^6.3.5",
-		"webpack": "^5.101.0"
+		"webpack": "^5.101.2"
 	},
 	"peerDependencies": {
 		"@kubb/core": "^3.0.0",

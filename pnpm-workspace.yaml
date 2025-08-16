@@ -20,7 +20,7 @@ catalogs:
     react-reconciler: 0.32.0
 catalog:
   '@types/react': ^18.3.23
-  '@types/node': ^20.19.10
+  '@types/node': ^20.19.11
   '@types/react-dom': ^18.3.7
   '@types/react-reconciler': 0.32.0
   react: ^18.3.1

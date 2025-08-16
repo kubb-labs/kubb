@@ -98,8 +98,8 @@
     "js-runtime": "^0.0.8",
     "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",
-    "picocolors": "^1.1.1",
     "p-limit": "^6.2.0",
+    "picocolors": "^1.1.1",
     "remeda": "catalog:",
     "seedrandom": "^3.0.5",
     "semver": "^7.7.2"
