@@ -1,11 +1,10 @@
-import seedrandom from 'seedrandom'
-import { colors } from 'consola/utils'
-
-import { EventEmitter } from './utils/EventEmitter.ts'
-
 import { resolve } from 'node:path'
-import { write } from './fs/index.ts'
-import { type ConsolaInstance, type LogLevel, createConsola } from 'consola'
+import type { ConsolaInstance, LogLevel } from 'consola'
+import { createConsola } from 'consola'
+import pc from 'picocolors'
+import seedrandom from 'seedrandom'
+import { write } from './fs/write.ts'
+import { EventEmitter } from './utils/EventEmitter.ts'
 
 type DebugEvent = { date: Date; logs: string[]; fileName?: string }
 
@@ -73,11 +72,11 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
   })
 
   events.on('warning', (message) => {
-    consola.warn(colors.yellow(message))
+    consola.warn(pc.yellow(message))
   })
 
   events.on('info', (message) => {
-    consola.info(colors.yellow(message))
+    consola.info(pc.yellow(message))
   })
 
   events.on('debug', (message) => {
@@ -134,7 +133,7 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
   return logger
 }
 
-export function randomColour(text?: string): keyof typeof colors {
+export function randomColour(text?: string): 'black' | 'red' | 'green' | 'yellow' | 'blue' | 'magenta' | 'cyan' | 'white' | 'gray' {
   if (!text) {
     return 'white'
   }
@@ -154,5 +153,6 @@ export function randomCliColour(text?: string): string {
 
   const colour = randomColour(text)
 
-  return colors[colour]?.(text)
+  const fn = pc[colour]
+  return fn ? fn(text) : text
 }

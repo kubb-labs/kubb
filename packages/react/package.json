@@ -26,35 +26,13 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
+      "require": "./dist/index.cjs"
     },
-    "./package.json": "./package.json",
-    "./jsx-runtime": {
-      "import": "./dist/jsx-runtime.js",
-      "require": "./dist/jsx-runtime.cjs",
-      "default": "./dist/jsx-runtime.cjs"
-    },
-    "./jsx-dev-runtime": {
-      "import": "./dist/jsx-runtime.js",
-      "require": "./dist/jsx-runtime.cjs",
-      "default": "./dist/jsx-runtime.cjs"
-    },
-    "./devtools": {
-      "import": "./dist/devtools.js",
-      "require": "./dist/devtools.cjs",
-      "default": "./dist/devtools.cjs"
-    },
-    "./types": {
-      "import": "./dist/types.js",
-      "require": "./dist/types.cjs",
-      "default": "./dist/types.cjs"
-    },
-    "./*": "./*"
+    "./package.json": "./package.json"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
       "devtools": [
@@ -75,13 +53,13 @@
     "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint--fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
-    "start": "tsup --watch",
+    "start": "tsdown --watch",
     "start:devtools": "npx react-devtools",
     "test": "vitest --passWithNoTests",
     "test:devtools": "node ./dist/runner.cjs",
@@ -100,12 +78,11 @@
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "@kubb/config-tsup": "workspace:*",
     "@types/react": "catalog:react19",
     "@types/react-reconciler": "catalog:react19",
     "@types/signal-exit": "^3.0.4",
     "@types/ws": "^8.18.1",
-    "tsup": "catalog:",
+    "tsdown": "catalog:",
     "typescript": "catalog:"
   },
   "engines": {

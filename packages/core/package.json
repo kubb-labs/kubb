@@ -24,40 +24,33 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
-    },
-    "./utils": {
-      "import": "./dist/utils.js",
-      "require": "./dist/utils.cjs",
-      "default": "./dist/utils.cjs"
-    },
-    "./transformers": {
-      "import": "./dist/transformers.js",
-      "require": "./dist/transformers.cjs",
-      "default": "./dist/transformers.cjs"
+      "require": "./dist/index.cjs"
     },
     "./fs": {
       "import": "./dist/fs.js",
-      "require": "./dist/fs.cjs",
-      "default": "./dist/fs.cjs"
+      "require": "./dist/fs.cjs"
     },
     "./logger": {
       "import": "./dist/logger.js",
-      "require": "./dist/logger.cjs",
-      "default": "./dist/logger.cjs"
+      "require": "./dist/logger.cjs"
     },
     "./mocks": {
       "import": "./dist/mocks.js",
-      "require": "./dist/mocks.cjs",
-      "default": "./dist/mocks.cjs"
+      "require": "./dist/mocks.cjs"
     },
-    "./package.json": "./package.json",
-    "./*": "./*"
+    "./server": {
+      "import": "./dist/server.js",
+      "require": "./dist/server.cjs"
+    },
+    "./utils": {
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs"
+    },
+    "./package.json": "./package.json"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
       "utils": [
@@ -87,13 +80,13 @@
     "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint--fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsup --watch",
+    "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -105,6 +98,7 @@
     "js-runtime": "^0.0.8",
     "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",
+    "picocolors": "^1.1.1",
     "p-limit": "^6.2.0",
     "remeda": "catalog:",
     "seedrandom": "^3.0.5",
@@ -112,14 +106,13 @@
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "@kubb/config-tsup": "workspace:*",
     "@types/fs-extra": "^11.0.4",
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.7.0",
     "consola": "^3.4.2",
     "prettier": "^3.6.2",
-    "tsup": "catalog:",
+    "tsdown": "catalog:",
     "typescript": "catalog:"
   },
   "engines": {

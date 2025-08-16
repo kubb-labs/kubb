@@ -1,16 +1,14 @@
-import { clean, exists, getRelativePath } from './fs/index.ts'
-import type { KubbFile } from './fs/index.ts'
-import { PluginManager } from './PluginManager.ts'
-import { isInputPath } from './config.ts'
-import { createLogger } from './logger.ts'
-import { URLPath } from './utils/URLPath.ts'
-
 import { join, resolve } from 'node:path'
-import type { Logger } from './logger.ts'
-import type { Config, Output, UserConfig } from './types.ts'
-import consola from 'consola'
-import { colors } from 'consola/utils'
+import pc from 'picocolors'
 import { isDeepEqual } from 'remeda'
+import { isInputPath } from './config.ts'
+import type { KubbFile } from './fs/index.ts'
+import { clean, exists, getRelativePath } from './fs/index.ts'
+import type { Logger } from './logger.ts'
+import { createLogger } from './logger.ts'
+import { PluginManager } from './PluginManager.ts'
+import type { Config, Output, UserConfig } from './types.ts'
+import { URLPath } from './utils/URLPath.ts'
 
 type BuildOptions = {
   config: UserConfig
@@ -38,7 +36,7 @@ export async function setup(options: BuildOptions): Promise<PluginManager> {
   const { config: userConfig, logger = createLogger() } = options
 
   if (Array.isArray(userConfig.input)) {
-    consola.warn(colors.yellow('This feature is still under development — use with caution'))
+    console.warn(pc.yellow('This feature is still under development — use with caution'))
   }
 
   try {

@@ -6,7 +6,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", "*.d.ts", "*.d.cts"],
-      "inputs": ["src/**/*.ts", "src/**/*.tsx", "tsup.config.ts", "package.json", "tsconfig.json"]
+      "inputs": ["src/**/*.ts", "src/**/*.tsx", "tsdown.config.ts", "package.json", "tsconfig.json"]
     },
     "clean": {
       "dependsOn": ["^clean"],
