@@ -1,5 +1,19 @@
 # @kubb/plugin-zod
 
+## 3.16.4
+
+### Patch Changes
+
+- [#1782](https://github.com/kubb-labs/kubb/pull/1782) [`ce6ebfc`](https://github.com/kubb-labs/kubb/commit/ce6ebfc959229a92b9f779744d9f6556861a5ba1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - toZod support for Zod v4
+
+- Updated dependencies []:
+  - @kubb/core@3.16.4
+  - @kubb/oas@3.16.4
+  - @kubb/parser-ts@3.16.4
+  - @kubb/plugin-oas@3.16.4
+  - @kubb/plugin-ts@3.16.4
+  - @kubb/react@3.16.4
+
 ## 3.16.3
 
 ### Patch Changes
