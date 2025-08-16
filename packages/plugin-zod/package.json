@@ -41,6 +41,10 @@
       "import": "./dist/utils.js",
       "require": "./dist/utils.cjs"
     },
+    "./utils/v4": {
+      "import": "./dist/utils/v4.js",
+      "require": "./dist/utils/v4.cjs"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
@@ -56,6 +60,9 @@
       ],
       "utils": [
         "./dist/utils.d.ts"
+      ],
+      "utils/v4": [
+        "./dist/utils/v4.d.ts"
       ]
     }
   },
@@ -90,7 +97,7 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "tsdown": "catalog:",
-    "zod": "~3.24.4"
+    "zod": "^3.25.67"
   },
   "peerDependencies": {
     "@kubb/react": "^3.0.0"

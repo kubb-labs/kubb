@@ -1,3 +1,5 @@
+import type { Order } from '../models/ts/Order.ts'
+import type { ToZod } from '@kubb/plugin-zod/utils/v4'
 import { z } from 'zod/v4'
 
 export const orderSchema = z.object({
@@ -13,6 +15,6 @@ export const orderSchema = z.object({
     .describe('HTTP Status')
     .optional(),
   complete: z.boolean().optional(),
-})
+}) as unknown as ToZod<Order>
 
-export type OrderSchema = z.infer<typeof orderSchema>
+export type OrderSchema = Order

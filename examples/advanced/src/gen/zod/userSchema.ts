@@ -1,3 +1,5 @@
+import type { User } from '../models/ts/User.ts'
+import type { ToZod } from '@kubb/plugin-zod/utils/v4'
 import { tagTagSchema } from './tag/tagSchema.ts'
 import { z } from 'zod/v4'
 
@@ -14,6 +16,6 @@ export const userSchema = z.object({
   password: z.string().optional(),
   phone: z.string().optional(),
   userStatus: z.int().describe('User Status').optional(),
-})
+}) as unknown as ToZod<User>
 
-export type UserSchema = z.infer<typeof userSchema>
+export type UserSchema = User
