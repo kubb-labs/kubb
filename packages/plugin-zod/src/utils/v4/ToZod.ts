@@ -28,30 +28,34 @@ type zodKey<T> = isAny<T> extends true
                 ? 'number'
                 : equals<T, Date> extends true
                   ? 'date'
-                  : T extends { [k: string]: any }
-                    ? 'object'
-                    : 'rest'
+                  : T extends { slice: any; stream: any; text: any }
+                    ? 'blob'
+                    : T extends { [key: string]: any }
+                      ? 'object'
+                      : 'rest'
 
-type ToZodV4<T> = {
+type ToZod<T> = {
   any: z.ZodAny
-  // @ts-ignore
-  optional: z.ZodOptional<ToZodV4<nonoptional<T>>>
-  // @ts-ignore
-  nullable: z.ZodNullable<ToZodV4<nonnullable<T>>>
-  // @ts-ignore
-  array: T extends Array<infer U> ? z.ZodArray<ToZodV4<U>> : never
+  // @ts-expect-error Excessive stack depth comparing types
+  optional: z.ZodOptional<ToZod<nonoptional<T>>>
+  // @ts-expect-error Excessive stack depth comparing types
+  nullable: z.ZodNullable<ToZod<nonnullable<T>>>
+  // @ts-expect-error Excessive stack depth comparing types
+  array: T extends Array<infer U> ? z.ZodArray<ToZod<U>> : never
   string: z.ZodString
+  file: z.ZodFile
+  blob: z.ZodType<Blob, T>
   bigint: z.ZodBigInt
   number: z.ZodNumber
   boolean: z.ZodBoolean
   date: z.ZodDate
-  // @ts-ignore
-  object: z.ZodObject<ZodV4Shape<T>, 'passthrough'>
+  // @ts-expect-error Excessive stack depth comparing types
+  object: z.ZodObject<ZodShape<T>, 'passthrough'>
   rest: z.ZodType<T>
 }[zodKey<T>]
 
-type ZodV4Shape<T> = {
-  [key in keyof T]-?: ToZodV4<T[key]>
+type ZodShape<T> = {
+  [key in keyof T]-?: ToZod<T[key]>
 }
 
-export type { ToZodV4, ZodV4Shape }
+export type { ToZod, ZodShape }

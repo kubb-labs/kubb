@@ -1,6 +1,5 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
-import { createPlugin, FileManager, type Group, PluginManager } from '@kubb/core'
+import { createPlugin, FileManager, type Group, PackageManager, type Plugin, PluginManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
@@ -25,7 +24,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     typed = false,
     mapper = {},
     operations = false,
-    version = '3',
+    version = new PackageManager().isValidSync('zod', '>=4') ? '4' : '3',
     importPath = version === '4' ? 'zod/v4' : 'zod',
     coercion = false,
     inferred = false,

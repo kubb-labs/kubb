@@ -4,10 +4,12 @@ title: Changelog
 
 # Changelog
 
+# 3.16.4
+- [`plugin-zod`](/plugins/plugin-zod): toZod support for Zod v4
+
 # 3.16.3
 - [`plugin-msw`](/plugins/plugin-msw): Return contentType from response instead of request
 - [`plugin-faker`](/plugins/plugin-faker): update Faker parser to work with enums in nested objects
-
 
 # 3.16.2
 - Upgrade of internal dependencies
