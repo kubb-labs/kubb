@@ -2,11 +2,11 @@ import './globals.ts'
 
 import ReactJSXRuntime from 'react/jsx-runtime'
 
-// @ts-ignore
+// @ts-expect-error
 export const Fragment = ReactJSXRuntime.Fragment
-// @ts-ignore
+// @ts-expect-error
 export const jsx = ReactJSXRuntime.jsx
-// @ts-ignore
+// @ts-expect-error
 export const jsxs = ReactJSXRuntime.jsxs
-// @ts-ignore
+// @ts-expect-error
 export const jsxDEV = ReactJSXRuntime.jsx

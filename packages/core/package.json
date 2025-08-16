@@ -38,9 +38,9 @@
       "import": "./dist/mocks.js",
       "require": "./dist/mocks.cjs"
     },
-    "./server": {
-      "import": "./dist/server.js",
-      "require": "./dist/server.cjs"
+    "./transformers": {
+      "import": "./dist/transformers.js",
+      "require": "./dist/transformers.cjs"
     },
     "./utils": {
       "import": "./dist/utils.js",

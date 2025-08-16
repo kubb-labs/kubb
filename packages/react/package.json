@@ -28,6 +28,18 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./devtools": {
+      "import": "./dist/devtools.js",
+      "require": "./dist/devtools.cjs"
+    },
+    "./jsx-runtime": {
+      "import": "./dist/jsx-runtime.js",
+      "require": "./dist/jsx-runtime.cjs"
+    },
+    "./types": {
+      "import": "./dist/types.js",
+      "require": "./dist/types.cjs"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",

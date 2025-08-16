@@ -26,7 +26,7 @@ declare module 'react' {
   }
 }
 
-// @ts-ignore
+// @ts-expect-error
 declare module '@kubb/react/jsx-runtime' {
   namespace JSX {
     interface IntrinsicElements {
