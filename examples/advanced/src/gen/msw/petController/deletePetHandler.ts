@@ -7,9 +7,6 @@ export function deletePetHandler(data?: DeletePetMutationResponse | ((info: Para
 
     return new Response(JSON.stringify(data), {
       status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
     })
   })
 }

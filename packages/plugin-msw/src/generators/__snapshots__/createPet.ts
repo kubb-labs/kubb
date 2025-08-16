@@ -10,9 +10,6 @@ export function createPets(data?: CreatePetsMutationResponse | ((info: Parameter
 
     return new Response(JSON.stringify(data), {
       status: 201,
-      headers: {
-        'Content-Type': 'application/json',
-      },
     })
   })
 }

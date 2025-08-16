@@ -1,4 +1,3 @@
-import { URLPath } from '@kubb/core/utils'
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -35,9 +34,6 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
       schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
     }
 
-    const successStatusCodes = operation.getResponseStatusCodes().filter((code) => code.startsWith('2'))
-    const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200
-
     return (
       <File
         baseName={mock.file.baseName}
@@ -58,22 +54,12 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
             name={mock.name}
             typeName={type.schemas.response.name}
             fakerName={faker.schemas.response.name}
-            method={operation.method}
+            operation={operation}
             baseURL={baseURL}
-            url={new URLPath(operation.path).toURLPath().replace(/([^/]):/g, '$1\\\\:')}
-            statusCode={statusCode}
           />
         )}
         {parser === 'data' && (
-          <Mock
-            name={mock.name}
-            typeName={type.schemas.response.name}
-            fakerName={faker.schemas.response.name}
-            method={operation.method}
-            baseURL={baseURL}
-            url={new URLPath(operation.path).toURLPath().replace(/([^/]):/g, '$1\\\\:')}
-            statusCode={statusCode}
-          />
+          <Mock name={mock.name} typeName={type.schemas.response.name} fakerName={faker.schemas.response.name} operation={operation} baseURL={baseURL} />
         )}
       </File>
     )
