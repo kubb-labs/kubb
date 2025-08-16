@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-client",
-  "version": "3.16.1",
+  "version": "3.16.2",
   "description": "API client generator plugin for Kubb, creating type-safe HTTP clients (Axios, Fetch) from OpenAPI specifications for making API requests.",
   "keywords": [
     "api-client",
@@ -29,35 +29,29 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
-    },
-    "./generators": {
-      "import": "./dist/generators.js",
-      "require": "./dist/generators.cjs",
-      "default": "./dist/generators.cjs"
-    },
-    "./components": {
-      "import": "./dist/components.js",
-      "require": "./dist/components.cjs",
-      "default": "./dist/components.cjs"
+      "require": "./dist/index.cjs"
     },
     "./clients/axios": {
       "import": "./dist/clients/axios.js",
-      "require": "./dist/clients/axios.cjs",
-      "default": "./dist/clients/axios.cjs"
+      "require": "./dist/clients/axios.cjs"
     },
     "./clients/fetch": {
       "import": "./dist/clients/fetch.js",
-      "require": "./dist/clients/fetch.cjs",
-      "default": "./dist/clients/fetch.cjs"
+      "require": "./dist/clients/fetch.cjs"
     },
-    "./package.json": "./package.json",
-    "./*": "./*"
+    "./components": {
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs"
+    },
+    "./generators": {
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs"
+    },
+    "./package.json": "./package.json"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
       "components": [
@@ -83,13 +77,13 @@
     "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint--fix --unsafe .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsup --watch",
+    "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -103,9 +97,8 @@
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "@kubb/config-tsup": "workspace:*",
-    "axios": "^1.10.0",
-    "tsup": "catalog:",
+    "axios": "^1.11.0",
+    "tsdown": "catalog:",
     "typescript": "catalog:"
   },
   "peerDependencies": {

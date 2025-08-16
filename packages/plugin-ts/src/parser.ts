@@ -133,7 +133,7 @@ export const typeKeywordMapper = {
   catchall: undefined,
   name: undefined,
   interface: undefined,
-} satisfies SchemaMapper<ts.Node | null | undefined>
+} satisfies SchemaMapper<ts.TypeNode | null | undefined>
 
 type ParserOptions = {
   name: string

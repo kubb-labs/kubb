@@ -534,6 +534,8 @@ export const oas = {
           content: {
             'application/json': {
               schema: {
+                description: 'Order description',
+                pattern: '^[a-zA-Z0-9]{1,13}$',
                 $ref: '#/components/schemas/Order',
               },
             },

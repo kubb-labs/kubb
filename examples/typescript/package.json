@@ -27,12 +27,12 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "axios": "^1.10.0",
+    "axios": "^1.11.0",
     "tsup": "^8.5.0"
   },
   "devDependencies": {
     "tsup": "^8.5.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "packageManager": "pnpm@9.15.5",
   "engines": {

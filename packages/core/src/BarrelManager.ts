@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/useIterableCallbackReturn: not needed */
 import { join } from 'node:path'
 import type { FileMetaBase } from './FileManager.ts'
 import type { KubbFile } from './fs/index.ts'

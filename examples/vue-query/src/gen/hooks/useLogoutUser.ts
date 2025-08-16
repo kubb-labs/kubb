@@ -8,7 +8,7 @@ import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import { queryOptions, useQuery } from '@tanstack/vue-query'
-import { unref } from 'vue'
+import { toValue } from 'vue'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 
@@ -31,7 +31,7 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return logoutUser(unref(config))
+      return logoutUser(toValue(config))
     },
   })
 }

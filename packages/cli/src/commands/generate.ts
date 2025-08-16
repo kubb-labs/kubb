@@ -1,18 +1,15 @@
-import { defineCommand, showUsage } from 'citty'
+import path from 'node:path'
+import * as process from 'node:process'
+import { isInputPath, PromiseManager } from '@kubb/core'
+import { createLogger, LogMapper } from '@kubb/core/logger'
 import type { ArgsDef, ParsedArgs } from 'citty'
-import { colors } from 'consola/utils'
-
+import { defineCommand, showUsage } from 'citty'
+import type { SingleBar } from 'cli-progress'
+import open from 'open'
+import pc from 'picocolors'
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { startWatcher } from '../utils/watcher.ts'
-
-import path from 'node:path'
-import * as process from 'node:process'
-import { PromiseManager, isInputPath } from '@kubb/core'
-import { LogMapper, createLogger } from '@kubb/core/logger'
-
-import open from 'open'
-import type { SingleBar } from 'cli-progress'
 
 declare global {
   var isDevtoolsEnabled: any
@@ -90,7 +87,7 @@ const command = defineCommand({
     logger.emit('start', 'Loading config')
 
     const result = await getCosmiConfig('kubb', args.config)
-    logger.emit('success', `Config loaded(${colors.dim(path.relative(process.cwd(), result.filepath))})`)
+    logger.emit('success', `Config loaded(${pc.dim(path.relative(process.cwd(), result.filepath))})`)
 
     const config = await getConfig(result, args)
 
@@ -167,7 +164,7 @@ const command = defineCommand({
       if (isInputPath(config)) {
         return startWatcher([input || config.input.path], async (paths) => {
           await start()
-          logger.emit('start', colors.yellow(colors.bold(`Watching for changes in ${paths.join(' and ')}`)))
+          logger.emit('start', pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
         })
       }
     }

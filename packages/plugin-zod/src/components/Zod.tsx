@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import type { SchemaObject } from '@kubb/oas'
-import { isKeyword, type Schema, schemaKeywords } from '@kubb/plugin-oas'
+import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Const, File, Type } from '@kubb/react'
 import * as parserZod from '../parser.ts'
 import type { PluginZod } from '../types.ts'
@@ -34,7 +34,8 @@ export function Zod({
   version,
   emptySchemaType,
 }: Props) {
-  const hasTuple = tree.some((item) => isKeyword(item, schemaKeywords.tuple))
+  const hasTuple = !!SchemaGenerator.deepSearch(tree, schemaKeywords.tuple)
+
   const schemas = parserZod.sort(tree).filter((item) => {
     if (hasTuple && (isKeyword(item, schemaKeywords.min) || isKeyword(item, schemaKeywords.max))) {
       return false

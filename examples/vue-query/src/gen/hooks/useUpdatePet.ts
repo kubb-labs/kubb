@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const
@@ -42,7 +42,7 @@ export function useUpdatePet<TContext>(
     mutation?: MutationObserverOptions<
       UpdatePetMutationResponse,
       ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
-      { data: MaybeRef<UpdatePetMutationRequest> },
+      { data: MaybeRefOrGetter<UpdatePetMutationRequest> },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch }

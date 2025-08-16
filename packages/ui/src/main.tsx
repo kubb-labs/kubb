@@ -17,7 +17,7 @@ const queryClient = new QueryClient({
   },
 })
 
-// @ts-ignore: cannot find lib dom
+// @ts-expect-error: cannot find lib dom
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>

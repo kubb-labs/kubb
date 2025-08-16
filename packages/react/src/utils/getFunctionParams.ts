@@ -65,7 +65,7 @@ function order(items: Array<[key: string, item?: ParamItem]>) {
 }
 
 function parseChild(key: string, item: ParamItem, options: Options): string | null {
-  // @ts-ignore
+  // @ts-expect-error
   const entries = order(Object.entries(item.children))
 
   const types: string[] = []

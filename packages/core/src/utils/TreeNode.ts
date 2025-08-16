@@ -142,7 +142,9 @@ export class TreeNode {
         }
       }
 
-      filteredTree.children?.forEach((child) => recurse(treeNode, child))
+      filteredTree.children?.forEach((child) => {
+        recurse(treeNode, child)
+      })
 
       return treeNode
     } catch (e) {

@@ -22,7 +22,6 @@
       "!**/.github",
       "!**/.codesandbox",
       "!**/.devcontainer",
-      "!**/node_modules/**",
       "!.nx"
     ]
   },

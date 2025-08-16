@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
 export const deleteOrderMutationKey = () => [{ url: '/store/order/{orderId}' }] as const
@@ -40,7 +40,7 @@ export function useDeleteOrder<TContext>(
     mutation?: MutationObserverOptions<
       DeleteOrderMutationResponse,
       ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
-      { orderId: MaybeRef<DeleteOrderPathParams['orderId']> },
+      { orderId: MaybeRefOrGetter<DeleteOrderPathParams['orderId']> },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }

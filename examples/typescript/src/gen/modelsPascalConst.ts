@@ -630,6 +630,9 @@ export type PlaceOrder200 = Order
  */
 export type PlaceOrder405 = any
 
+/**
+ * @pattern ^[a-zA-Z0-9]{1,13}$
+ */
 export type PlaceOrderMutationRequest = Order
 
 export type PlaceOrderMutationResponse = PlaceOrder200

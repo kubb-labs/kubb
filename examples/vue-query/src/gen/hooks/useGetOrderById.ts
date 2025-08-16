@@ -7,11 +7,11 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { queryOptions, useQuery } from '@tanstack/vue-query'
-import { unref } from 'vue'
+import { toValue } from 'vue'
 
-export const getOrderByIdQueryKey = ({ orderId }: { orderId: MaybeRef<GetOrderByIdPathParams['orderId']> }) =>
+export const getOrderByIdQueryKey = ({ orderId }: { orderId: MaybeRefOrGetter<GetOrderByIdPathParams['orderId']> }) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
@@ -36,7 +36,7 @@ export async function getOrderById(
 }
 
 export function getOrderByIdQueryOptions(
-  { orderId }: { orderId: MaybeRef<GetOrderByIdPathParams['orderId']> },
+  { orderId }: { orderId: MaybeRefOrGetter<GetOrderByIdPathParams['orderId']> },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = getOrderByIdQueryKey({ orderId })
@@ -45,7 +45,7 @@ export function getOrderByIdQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getOrderById(unref({ orderId: unref(orderId) }), unref(config))
+      return getOrderById(toValue({ orderId: toValue(orderId) }), toValue(config))
     },
   })
 }
@@ -56,7 +56,7 @@ export function getOrderByIdQueryOptions(
  * {@link /store/order/:orderId}
  */
 export function useGetOrderById<TData = GetOrderByIdQueryResponse, TQueryData = GetOrderByIdQueryResponse, TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
-  { orderId }: { orderId: MaybeRef<GetOrderByIdPathParams['orderId']> },
+  { orderId }: { orderId: MaybeRefOrGetter<GetOrderByIdPathParams['orderId']> },
   options: {
     query?: Partial<QueryObserverOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient

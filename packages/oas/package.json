@@ -1,6 +1,6 @@
 {
   "name": "@kubb/oas",
-  "version": "3.16.1",
+  "version": "3.16.2",
   "description": "OpenAPI Specification (OAS) utilities and helpers for Kubb, providing parsing, normalization, and manipulation of OpenAPI/Swagger schemas.",
   "keywords": [
     "openapi",
@@ -24,19 +24,16 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
+      "require": "./dist/index.cjs"
     },
     "./infer": {
       "import": "./dist/infer.js",
-      "require": "./dist/infer.cjs",
-      "default": "./dist/infer.cjs"
+      "require": "./dist/infer.cjs"
     },
-    "./package.json": "./package.json",
-    "./*": "./*"
+    "./package.json": "./package.json"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
@@ -52,23 +49,23 @@
     "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint--fix --unsafe .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsup --watch",
+    "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@redocly/openapi-core": "^1.34.3",
+    "@redocly/openapi-core": "^2.0.5",
     "hotscript": "^1.0.13",
     "json-schema-to-ts": "^3.1.1",
     "jsonpointer": "^5.0.1",
-    "oas": "^27.2.1",
-    "oas-normalize": "^14.1.2",
+    "oas": "^28.1.0",
+    "oas-normalize": "^15.0.1",
     "openapi-types": "^12.1.3",
     "remeda": "catalog:",
     "swagger2openapi": "^7.0.8",
@@ -76,10 +73,9 @@
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "@kubb/config-tsup": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
     "@types/swagger2openapi": "^7.0.4",
-    "tsup": "catalog:",
+    "tsdown": "catalog:",
     "typescript": "catalog:"
   },
   "engines": {

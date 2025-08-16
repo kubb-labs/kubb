@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
 export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const
@@ -46,7 +46,7 @@ export function useUpdateUser<TContext>(
     mutation?: MutationObserverOptions<
       UpdateUserMutationResponse,
       ResponseErrorConfig<Error>,
-      { username: MaybeRef<UpdateUserPathParams['username']>; data?: MaybeRef<UpdateUserMutationRequest> },
+      { username: MaybeRefOrGetter<UpdateUserPathParams['username']>; data?: MaybeRefOrGetter<UpdateUserMutationRequest> },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch }

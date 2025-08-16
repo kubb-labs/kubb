@@ -3,5 +3,5 @@
   "compilerOptions": {
     "jsxImportSource": "@kubb/react"
   },
-  "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts", "../../typings.d.ts"]
+  "include": ["src/**/*", "./package.json", "./tsdown.config.ts", "./vitest.config.ts", "../../typings.d.ts"]
 }

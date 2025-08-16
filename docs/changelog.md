@@ -4,6 +4,11 @@ title: Changelog
 
 # Changelog
 
+# 3.16.1
+- [`plugin-client`](/plugins/plugin-client): `validateStatus` as part of the axios client
+- [`plugin-ts`](/plugins/plugin-ts): ERROR Warning: Encountered two children with the same key
+- [`plugin-ts`](/plugins/plugin-ts): Does not consider pattern property for js doc
+
 # 3.16.0
 - [`core`](/plugins/core): Improve memory usage by using concurrency
 

@@ -25,7 +25,7 @@ declare module 'react' {
     }
   }
 }
-
+// biome-ignore lint/suspicious/noTsIgnore: not needed
 // @ts-ignore
 declare module '@kubb/react/jsx-runtime' {
   namespace JSX {

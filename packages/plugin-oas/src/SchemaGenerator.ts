@@ -5,6 +5,7 @@ import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 import type { contentType, Oas, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference } from '@kubb/oas'
+import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { Generator } from './generator.tsx'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
@@ -12,7 +13,6 @@ import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
-import pLimit from 'p-limit'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
@@ -618,6 +618,11 @@ export class SchemaGenerator<
           keyword: schemaKeywords.describe,
           args: schemaObject.description,
         },
+        schemaObject.pattern &&
+          schemaObject.type === 'string' && {
+            keyword: schemaKeywords.matches,
+            args: schemaObject.pattern,
+          },
         nullable && { keyword: schemaKeywords.nullable },
         schemaObject.readOnly && { keyword: schemaKeywords.readOnly },
         schemaObject.writeOnly && { keyword: schemaKeywords.writeOnly },
