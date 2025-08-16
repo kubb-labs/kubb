@@ -7,9 +7,6 @@ export function logoutUserHandler(data?: LogoutUserQueryResponse | ((info: Param
 
     return new Response(JSON.stringify(data), {
       status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
     })
   })
 }

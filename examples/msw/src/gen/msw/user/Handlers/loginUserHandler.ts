@@ -13,7 +13,7 @@ export function loginUserHandler(data?: LoginUserQueryResponse | ((info: Paramet
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/xml',
       },
     })
   })

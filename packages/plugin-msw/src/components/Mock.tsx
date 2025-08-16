@@ -1,6 +1,6 @@
+import { URLPath } from '@kubb/core/utils'
+import type { OasTypes, Operation } from '@kubb/oas'
 import { File, Function, FunctionParams } from '@kubb/react'
-
-import type { HttpMethod } from '@kubb/oas'
 import type { ReactNode } from 'react'
 
 type Props = {
@@ -10,13 +10,21 @@ type Props = {
   name: string
   typeName: string
   fakerName: string
-  url: string
   baseURL: string | undefined
-  method: HttpMethod
-  statusCode: number
+  operation: Operation
 }
 
-export function Mock({ baseURL = '', name, typeName, url, method, statusCode }: Props): ReactNode {
+export function Mock({ baseURL = '', name, typeName, operation }: Props): ReactNode {
+  const method = operation.method
+  const successStatusCodes = operation.getResponseStatusCodes().filter((code) => code.startsWith('2'))
+  const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200
+
+  const responseObject = operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject
+  const contentType = Object.keys(responseObject.content || {})?.[0]
+  const url = new URLPath(operation.path).toURLPath().replace(/([^/]):/g, '$1\\\\:')
+
+  const headers = [contentType ? `'Content-Type': '${contentType}'` : undefined].filter(Boolean)
+
   const params = FunctionParams.factory({
     data: {
       type: `${typeName} | ((
@@ -34,9 +42,13 @@ export function Mock({ baseURL = '', name, typeName, url, method, statusCode }: 
 
     return new Response(JSON.stringify(data), {
       status: ${statusCode},
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      ${
+        headers.length
+          ? `  headers: {
+        ${headers.join(', \n')}
+      },`
+          : ''
+      }
     })
   })`}
       </Function>

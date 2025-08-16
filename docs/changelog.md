@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+# 3.16.2
+
+- [`plugin-msw`](/plugins/plugin-msw): Return contentType from response instead of request
+
 # 3.16.1
 - [`plugin-client`](/plugins/plugin-client): `validateStatus` as part of the axios client
 - [`plugin-ts`](/plugins/plugin-ts): ERROR Warning: Encountered two children with the same key
