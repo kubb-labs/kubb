@@ -1,5 +1,20 @@
 # @kubb/plugin-mcp
 
+## 3.16.3
+
+### Patch Changes
+
+- [`ddc9d59`](https://github.com/kubb-labs/kubb/commit/ddc9d59cffeb5e28a5ee280dec0944f49aa49443) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Return contentType from response instead of request
+
+- Updated dependencies []:
+  - @kubb/core@3.16.3
+  - @kubb/oas@3.16.3
+  - @kubb/plugin-client@3.16.3
+  - @kubb/plugin-oas@3.16.3
+  - @kubb/plugin-ts@3.16.3
+  - @kubb/plugin-zod@3.16.3
+  - @kubb/react@3.16.3
+
 ## 3.16.2
 
 ### Patch Changes
