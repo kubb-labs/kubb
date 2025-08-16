@@ -451,6 +451,45 @@ const basic: Array<{ name: string; schema: Schema }> = [
     },
   },
   {
+    name: 'objectObjectEnum',
+    schema: {
+      keyword: schemaKeywords.object,
+      args: {
+        properties: {
+          prop1: [
+            {
+              keyword: schemaKeywords.object,
+              args: {
+                properties: {
+                  prop2: [
+                    {
+                      keyword: schemaKeywords.schema,
+                      args: { format: 'string', type: 'string' },
+                    },
+                    {
+                      keyword: schemaKeywords.enum,
+                      args: {
+                        name: 'enum',
+                        typeName: 'Enum',
+                        asConst: false,
+                        items: [
+                          { name: 'A', value: 'A', format: schemaKeywords.string },
+                          { name: 'B', value: 'B', format: schemaKeywords.string },
+                        ],
+                      },
+                    },
+                  ],
+                },
+                additionalProperties: [],
+              },
+            },
+          ],
+        },
+        additionalProperties: [],
+      },
+    },
+  },
+  {
     name: 'objectArrayObject',
     schema: {
       keyword: schemaKeywords.object,

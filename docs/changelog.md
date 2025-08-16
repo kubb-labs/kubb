@@ -7,6 +7,7 @@ title: Changelog
 # 3.16.2
 
 - [`plugin-msw`](/plugins/plugin-msw): Return contentType from response instead of request
+- [`plugin-faker`](/plugins/plugin-faker): update Faker parser to work with enums in nested objects
 
 # 3.16.1
 - [`plugin-client`](/plugins/plugin-client): `validateStatus` as part of the axios client

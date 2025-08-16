@@ -216,6 +216,22 @@ exports[`zod parse > 'objectEnum' v4 1`] = `
     })"
 `;
 
+exports[`zod parse > 'objectObjectEnum' 1`] = `
+"z.object({
+    "prop1": z.object({
+    "prop2": z.enum(["A", "B"])
+    })
+    })"
+`;
+
+exports[`zod parse > 'objectObjectEnum' v4 1`] = `
+"z.object({
+    "prop1": z.object({
+    "prop2": z.enum(["A", "B"])
+    })
+    })"
+`;
+
 exports[`zod parse > 'objectOptional' 1`] = `
 "z.object({
     "firstName": z.string().min(2).optional(),
