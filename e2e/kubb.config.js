@@ -31,7 +31,7 @@ const schemas = [
   { name: 'zalando', path: './schemas/zalando.yaml' },
   { name: 'requestBody', path: './schemas/requestBody.yaml' },
   { name: 'box', path: './schemas/box.json' },
-  { name: 'digitalocean', path: './schemas/digitalocean.yaml' },
+  // { name: 'digitalocean', path: './schemas/digitalocean.yaml' },
   { name: 'enums', path: './schemas/enums.yaml' },
   { name: 'dataset_api', path: './schemas/dataset_api.yaml' },
 ]
@@ -121,6 +121,7 @@ const baseConfig = {
       inferred: true,
       typed: false,
       operations: false,
+      version: '3',
     }),
     pluginFaker({
       output: {

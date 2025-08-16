@@ -3,11 +3,11 @@ import transformers from '@kubb/core/transformers'
 
 import type { PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { KubbFile } from '@kubb/core/fs'
-
 import type { Plugin } from '@kubb/core'
 import type { HttpMethod, Oas, OasTypes, Operation, SchemaObject, contentType } from '@kubb/oas'
 import type { Generator } from './generator.tsx'
-import type { Exclude, Include, OperationSchemas, OperationsByMethod, Override } from './types.ts'
+import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
+import pLimit from 'p-limit'
 
 export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
@@ -29,101 +29,75 @@ export class OperationGenerator<
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
 > extends BaseGenerator<TPluginOptions['resolvedOptions'], Context<TPluginOptions['resolvedOptions'], TPluginOptions>> {
-  #operationsByMethod: OperationsByMethod = {}
-  get operationsByMethod(): OperationsByMethod {
-    return this.#operationsByMethod
-  }
-
-  set operationsByMethod(paths: OperationsByMethod) {
-    this.#operationsByMethod = paths
-  }
-
   #getOptions(operation: Operation, method: HttpMethod): Partial<TPluginOptions['resolvedOptions']> {
     const { override = [] } = this.context
+    const operationId = operation.getOperationId({ friendlyCase: true })
+    const contentType = operation.getContentType()
 
     return (
       override.find(({ pattern, type }) => {
-        if (type === 'tag') {
-          return !!operation.getTags().some((tag) => tag.name.match(pattern))
+        switch (type) {
+          case 'tag':
+            return operation.getTags().some((tag) => tag.name.match(pattern))
+          case 'operationId':
+            return !!operationId.match(pattern)
+          case 'path':
+            return !!operation.path.match(pattern)
+          case 'method':
+            return !!method.match(pattern)
+          case 'contentType':
+            return !!contentType.match(pattern)
+          default:
+            return false
         }
-
-        if (type === 'operationId') {
-          return !!operation.getOperationId({ friendlyCase: true }).match(pattern)
-        }
-
-        if (type === 'path') {
-          return !!operation.path.match(pattern)
-        }
-
-        if (type === 'method') {
-          return !!method.match(pattern)
-        }
-
-        if (type === 'contentType') {
-          return !!operation.getContentType().match(pattern)
-        }
-
-        return false
       })?.options || {}
     )
   }
 
   #isExcluded(operation: Operation, method: HttpMethod): boolean {
     const { exclude = [] } = this.context
-    let matched = false
+    const operationId = operation.getOperationId({ friendlyCase: true })
+    const contentType = operation.getContentType()
 
-    exclude.forEach(({ pattern, type }) => {
-      if (type === 'tag' && !matched) {
-        matched = !!operation.getTags().some((tag) => tag.name.match(pattern))
-      }
-
-      if (type === 'operationId' && !matched) {
-        matched = !!operation.getOperationId({ friendlyCase: true }).match(pattern)
-      }
-
-      if (type === 'path' && !matched) {
-        matched = !!operation.path.match(pattern)
-      }
-
-      if (type === 'method' && !matched) {
-        matched = !!method.match(pattern)
-      }
-
-      if (type === 'contentType' && !matched) {
-        return !!operation.getContentType().match(pattern)
+    return exclude.some(({ pattern, type }) => {
+      switch (type) {
+        case 'tag':
+          return operation.getTags().some((tag) => tag.name.match(pattern))
+        case 'operationId':
+          return !!operationId.match(pattern)
+        case 'path':
+          return !!operation.path.match(pattern)
+        case 'method':
+          return !!method.match(pattern)
+        case 'contentType':
+          return !!contentType.match(pattern)
+        default:
+          return false
       }
     })
-
-    return matched
   }
 
   #isIncluded(operation: Operation, method: HttpMethod): boolean {
     const { include = [] } = this.context
-    let matched = false
+    const operationId = operation.getOperationId({ friendlyCase: true })
+    const contentType = operation.getContentType()
 
-    include.forEach(({ pattern, type }) => {
-      if (type === 'tag' && !matched) {
-        matched = !!operation.getTags().some((tag) => tag.name.match(pattern))
-      }
-
-      if (type === 'operationId' && !matched) {
-        matched = !!operation.getOperationId({ friendlyCase: true }).match(pattern)
-      }
-
-      if (type === 'path' && !matched) {
-        matched = !!operation.path.match(pattern)
-      }
-
-      if (type === 'method' && !matched) {
-        matched = !!method.match(pattern)
-      }
-
-      if (type === 'contentType' && !matched) {
-        matched = !!operation.getContentType().match(pattern)
+    return include.some(({ pattern, type }) => {
+      switch (type) {
+        case 'tag':
+          return operation.getTags().some((tag) => tag.name.match(pattern))
+        case 'operationId':
+          return !!operationId.match(pattern)
+        case 'path':
+          return !!operation.path.match(pattern)
+        case 'method':
+          return !!method.match(pattern)
+        case 'contentType':
+          return !!contentType.match(pattern)
+        default:
+          return false
       }
     })
-
-    return matched
   }
 
   getSchemas(
@@ -134,220 +108,149 @@ export class OperationGenerator<
       resolveName?: (name: string) => string
     } = {},
   ): OperationSchemas {
+    const operationId = operation.getOperationId({ friendlyCase: true })
+    const method = operation.method
+    const operationName = transformers.pascalCase(operationId)
+
+    const resolveKeys = (schema?: SchemaObject) => (schema?.properties ? Object.keys(schema.properties) : undefined)
+
     const pathParamsSchema = this.context.oas.getParametersSchema(operation, 'path')
     const queryParamsSchema = this.context.oas.getParametersSchema(operation, 'query')
     const headerParamsSchema = this.context.oas.getParametersSchema(operation, 'header')
     const requestSchema = this.context.oas.getRequestSchema(operation)
     const statusCodes = operation.getResponseStatusCodes().map((statusCode) => {
-      let name = statusCode
-      if (name === 'default') {
-        name = 'error'
-      }
-
+      const name = statusCode === 'default' ? 'error' : statusCode
       const schema = this.context.oas.getResponseSchema(operation, statusCode)
+      const keys = resolveKeys(schema)
 
       return {
-        name: resolveName(transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} ${name}`)),
+        name: resolveName(transformers.pascalCase(`${operationId} ${name}`)),
         description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
         schema,
         operation,
-        operationName: transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })}`),
+        operationName,
         statusCode: name === 'error' ? undefined : Number(statusCode),
-        keys: schema?.properties ? Object.keys(schema.properties) : undefined,
-        keysToOmit: schema?.properties
-          ? Object.keys(schema.properties).filter((key) => {
-              const item = schema.properties?.[key] as OasTypes.SchemaObject
-              return item?.writeOnly
-            })
-          : undefined,
+        keys,
+        keysToOmit: keys?.filter((key) => (schema?.properties?.[key] as OasTypes.SchemaObject)?.writeOnly),
       }
     })
-    const hasResponses = statusCodes.some((item) => item.statusCode?.toString().startsWith('2'))
+
+    const successful = statusCodes.filter((item) => item.statusCode?.toString().startsWith('2'))
+    const errors = statusCodes.filter((item) => item.statusCode?.toString().startsWith('4') || item.statusCode?.toString().startsWith('5'))
 
     return {
       pathParams: pathParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} PathParams`)),
+            name: resolveName(transformers.pascalCase(`${operationId} PathParams`)),
             operation,
-            operationName: transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })}`),
+            operationName,
             schema: pathParamsSchema,
-            keys: pathParamsSchema.properties ? Object.keys(pathParamsSchema.properties) : undefined,
+            keys: resolveKeys(pathParamsSchema),
           }
         : undefined,
       queryParams: queryParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} QueryParams`)),
+            name: resolveName(transformers.pascalCase(`${operationId} QueryParams`)),
             operation,
-            operationName: transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })}`),
+            operationName,
             schema: queryParamsSchema,
-            keys: queryParamsSchema.properties ? Object.keys(queryParamsSchema.properties) : [],
+            keys: resolveKeys(queryParamsSchema) || [],
           }
         : undefined,
       headerParams: headerParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} HeaderParams`)),
+            name: resolveName(transformers.pascalCase(`${operationId} HeaderParams`)),
             operation,
-            operationName: transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })}`),
+            operationName,
             schema: headerParamsSchema,
-            keys: headerParamsSchema.properties ? Object.keys(headerParamsSchema.properties) : undefined,
+            keys: resolveKeys(headerParamsSchema),
           }
         : undefined,
       request: requestSchema
         ? {
-            name: resolveName(
-              transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`),
-            ),
+            name: resolveName(transformers.pascalCase(`${operationId} ${method === 'get' ? 'queryRequest' : 'mutationRequest'}`)),
             description: (operation.schema.requestBody as OasTypes.RequestBodyObject)?.description,
             operation,
-            operationName: transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })}`),
+            operationName,
             schema: requestSchema,
-            keys: requestSchema.properties ? Object.keys(requestSchema.properties) : undefined,
-            keysToOmit: requestSchema.properties
-              ? Object.keys(requestSchema.properties).filter((key) => {
-                  const item = requestSchema.properties?.[key] as OasTypes.SchemaObject
-
-                  return item?.readOnly
-                })
-              : undefined,
+            keys: resolveKeys(requestSchema),
+            keysToOmit: resolveKeys(requestSchema)?.filter((key) => (requestSchema.properties?.[key] as OasTypes.SchemaObject)?.readOnly),
           }
         : undefined,
       response: {
-        name: resolveName(
-          transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`),
-        ),
+        name: resolveName(transformers.pascalCase(`${operationId} ${method === 'get' ? 'queryResponse' : 'mutationResponse'}`)),
         operation,
-        operationName: transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })}`),
+        operationName,
         schema: {
-          oneOf: hasResponses
-            ? statusCodes
-                .filter((item) => item.statusCode?.toString().startsWith('2'))
-                .map((item) => {
-                  return {
-                    ...item.schema,
-                    $ref: resolveName(transformers.pascalCase(`${operation.getOperationId({ friendlyCase: true })} ${item.statusCode}`)),
-                  }
-                })
-            : undefined,
+          oneOf: successful.map((item) => ({ ...item.schema, $ref: item.name })) || undefined,
         } as SchemaObject,
       },
-      responses: statusCodes.filter((item) => item.statusCode?.toString().startsWith('2')),
-      errors: statusCodes.filter((item) => item.statusCode?.toString().startsWith('4') || item.statusCode?.toString().startsWith('5')),
+      responses: successful,
+      errors,
       statusCodes,
     }
   }
 
-  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async getOperations(): Promise<Array<{ path: string; method: HttpMethod; operation: Operation }>> {
     const { oas } = this.context
 
     const paths = oas.getPaths()
-    this.operationsByMethod = Object.entries(paths).reduce((acc, [path, method]) => {
-      const methods = Object.keys(method) as HttpMethod[]
 
-      methods.forEach((method) => {
-        const operation = oas.operation(path, method)
-        if (operation && method === operation.method) {
-          const isExcluded = this.#isExcluded(operation, method)
-          const isIncluded = this.context.include ? this.#isIncluded(operation, method) : true
-
-          if (isIncluded && !isExcluded) {
-            if (!acc[path]) {
-              acc[path] = {} as OperationsByMethod['get']
-            }
-            acc[path] = {
-              ...acc[path],
-              [method]: {
-                operation,
-                schemas: this.getSchemas(operation),
-              },
-            } as OperationsByMethod['get']
+    return Object.entries(paths).flatMap(([path, methods]) =>
+      Object.entries(methods)
+        .map((values) => {
+          const [method, operation] = values as [HttpMethod, Operation]
+          if (this.#isExcluded(operation, method)) {
+            return null
           }
-        }
-      })
 
-      return acc
-    }, {} as OperationsByMethod)
-
-    const promises = Object.keys(this.operationsByMethod).reduce((acc, path) => {
-      const methods = this.operationsByMethod[path] ? (Object.keys(this.operationsByMethod[path]!) as HttpMethod[]) : []
-
-      methods.forEach((method) => {
-        const { operation } = this.operationsByMethod[path]?.[method]!
-        const options = this.#getOptions(operation, method)
-
-        const methodToCall = this[method as keyof typeof this] as any
-
-        if (typeof methodToCall === 'function') {
-          const promiseMethod = methodToCall?.call(this, operation, {
-            ...this.options,
-            ...options,
-          })
-
-          if (promiseMethod) {
-            acc.push(promiseMethod)
+          if (this.context.include && !this.#isIncluded(operation, method)) {
+            return null
           }
-        }
 
-        const promiseOperation = this.operation.call(this, operation, {
-          ...this.options,
-          ...options,
+          return operation ? { path, method: method as HttpMethod, operation } : null
         })
-
-        if (promiseOperation) {
-          acc.push(promiseOperation)
-        }
-
-        generators?.forEach((generator) => {
-          const promise = generator.operation?.({
-            instance: this,
-            operation,
-            options: {
-              ...this.options,
-              ...options,
-            },
-          } as any) as Promise<Array<KubbFile.File<TFileMeta>>>
-
-          if (promise) {
-            acc.push(promise)
-          }
-        })
-      })
-
-      return acc
-    }, [] as OperationMethodResult<TFileMeta>[])
-
-    const operations = Object.values(this.operationsByMethod).map((item) => Object.values(item).map((item) => item.operation))
-
-    promises.push(this.all(operations.flat().filter(Boolean), this.operationsByMethod))
-
-    generators?.forEach((generator) => {
-      const promise = generator.operations?.({
-        instance: this,
-        operations: operations.flat().filter(Boolean),
-        operationsByMethod: this.operationsByMethod,
-        options: this.options,
-      } as any) as Promise<Array<KubbFile.File<TFileMeta>>>
-
-      if (promise) {
-        promises.push(promise)
-      }
-    })
-
-    const files = await Promise.all(promises)
-
-    // using .flat because operationGenerator[method] can return a array of files or just one file
-    return files.flat().filter(Boolean)
+        .filter(Boolean),
+    )
   }
 
-  /**
-   * Operation
-   */
-  async operation(_operation: Operation, _options: TPluginOptions['resolvedOptions']): OperationMethodResult<TFileMeta> {
-    return []
-  }
-  /**
-   * Combination of GET, POST, PATCH, PUT, DELETE
-   */
-  async all(_operations: Operation[], _paths: OperationsByMethod): OperationMethodResult<TFileMeta> {
-    return []
+  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+    const operations = await this.getOperations()
+
+    const generatorLimit = pLimit(1)
+    const operationLimit = pLimit(10)
+
+    const writeTasks = generators.map((generator) =>
+      generatorLimit(async () => {
+        const operationTasks = operations.map(({ operation, method }) =>
+          operationLimit(async () => {
+            const options = this.#getOptions(operation, method)
+
+            const result = await generator.operation?.({
+              instance: this,
+              operation,
+              options: { ...this.options, ...options },
+            })
+
+            return result ?? []
+          }),
+        )
+
+        const operationResults = await Promise.all(operationTasks)
+        const opResultsFlat = operationResults.flat()
+
+        const operationsResult = await generator.operations?.({
+          instance: this,
+          operations: operations.map((op) => op.operation),
+          options: this.options,
+        })
+
+        return [...opResultsFlat, ...(operationsResult ?? [])] as unknown as KubbFile.File<TFileMeta>
+      }),
+    )
+
+    const nestedResults = await Promise.all(writeTasks)
+
+    return nestedResults.flat()
   }
 }

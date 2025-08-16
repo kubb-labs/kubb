@@ -53,7 +53,9 @@ export class FunctionParams {
     }
 
     if (Array.isArray(item)) {
-      item.filter(Boolean).forEach((it) => this.#items.push(it))
+      item.filter(Boolean).forEach((it) => {
+        this.#items.push(it)
+      })
       return this
     }
     this.#items.push(item)

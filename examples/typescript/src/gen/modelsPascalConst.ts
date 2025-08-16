@@ -3,14 +3,6 @@
  * Do not edit manually.
  */
 
-export const orderStatusEnum = {
-  placed: 'placed',
-  approved: 'approved',
-  delivered: 'delivered',
-} as const
-
-export type OrderStatusEnum = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
-
 export const orderHttpStatusEnum = {
   '200': 200,
   '400': 400,
@@ -38,9 +30,8 @@ export type Order = {
   shipDate?: string
   /**
    * @description Order Status
-   * @type string | undefined
    */
-  status?: OrderStatusEnum
+  status?: string
   /**
    * @description HTTP Status
    * @type number | undefined
@@ -65,6 +56,24 @@ export type Customer = {
    * @type array | undefined
    */
   address?: Address[]
+}
+
+export type HappyCustomer = Customer & {
+  /**
+   * @type boolean | undefined
+   */
+  isHappy?: true
+}
+
+export type UnhappyCustomer = Customer & {
+  /**
+   * @type string | undefined
+   */
+  reasonToBeUnhappy?: string
+  /**
+   * @type boolean | undefined
+   */
+  isHappy?: false
 }
 
 export type Address = {
@@ -249,7 +258,6 @@ export type FullAddress = Address & {
    * @type string
    */
   streetNumber: string
-} & {
   /**
    * @type string
    */
@@ -622,6 +630,9 @@ export type PlaceOrder200 = Order
  */
 export type PlaceOrder405 = any
 
+/**
+ * @pattern ^[a-zA-Z0-9]{1,13}$
+ */
 export type PlaceOrderMutationRequest = Order
 
 export type PlaceOrderMutationResponse = PlaceOrder200

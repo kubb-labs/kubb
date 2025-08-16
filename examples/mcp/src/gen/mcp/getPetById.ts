@@ -1,4 +1,4 @@
-import client from '../../client.js'
+import fetch from '../../client.js'
 import type { ResponseErrorConfig } from '../../client.js'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/ts/GetPetById.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
@@ -9,7 +9,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
  * {@link /pet/:petId}
  */
 export async function getPetByIdHandler({ petId }: { petId: GetPetByIdPathParams['petId'] }): Promise<Promise<CallToolResult>> {
-  const res = await client<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
+  const res = await fetch<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
     method: 'GET',
     url: `/pet/${petId}`,
     baseURL: 'https://petstore.swagger.io/v2',

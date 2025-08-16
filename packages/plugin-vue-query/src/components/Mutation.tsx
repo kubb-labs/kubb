@@ -43,25 +43,25 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
       override(item) {
         return {
           ...item,
-          type: `MaybeRef<${item.type}>`,
+          type: `MaybeRefOrGetter<${item.type}>`,
         }
       },
     }),
     data: typeSchemas.request?.name
       ? {
-          type: `MaybeRef<${typeSchemas.request?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
           optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
-          type: `MaybeRef<${typeSchemas.queryParams?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
           optional: isOptional(typeSchemas.queryParams?.schema),
         }
       : undefined,
     headers: typeSchemas.headerParams?.name
       ? {
-          type: `MaybeRef<${typeSchemas.headerParams?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.headerParams?.name}>`,
           optional: isOptional(typeSchemas.headerParams?.schema),
         }
       : undefined,
@@ -73,7 +73,7 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
       type: `
 {
   mutation?: MutationObserverOptions<${[TData, TError, TRequest ? `{${TRequest}}` : 'void', 'TContext'].join(', ')}> & { client?: QueryClient },
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'},
 }
 `,
       default: '{}',

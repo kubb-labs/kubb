@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noTemplateCurlyInString: test case */
 import { URLPath } from './URLPath.ts'
 
 describe('URLPath', () => {

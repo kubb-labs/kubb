@@ -1,4 +1,4 @@
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
@@ -13,7 +13,7 @@ export async function showPetByIdHandler({
   petId: ShowPetByIdPathParams['petId']
   testId: ShowPetByIdPathParams['testId']
 }): Promise<Promise<CallToolResult>> {
-  const res = await client<ShowPetByIdQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/pets/${petId}` })
+  const res = await fetch<ShowPetByIdQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/pets/${petId}` })
   return {
     content: [
       {

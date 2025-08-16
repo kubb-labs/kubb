@@ -122,6 +122,15 @@ components:
         shipTime:
           type: string
           format: time
+        info:
+          type: object
+          properties:
+            animal:
+              type: string
+              enum:
+              - dog
+              - cat
+              - ant
     Pets:
       type: array
       items:

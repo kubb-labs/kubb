@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import { createUserMutationResponseSchema, createUserMutationRequestSchema } from '../../../zod/userController/createUserSchema.ts'
@@ -14,14 +14,15 @@ export function getCreateUserUrl() {
  */
 export async function createUser(
   { data }: { data?: CreateUserMutationRequest },
-  config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
+  const requestData = createUserMutationRequestSchema.parse(data)
   const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
     url: getCreateUserUrl().toString(),
-    data: createUserMutationRequestSchema.parse(data),
+    data: requestData,
     ...requestConfig,
   })
   return { ...res, data: createUserMutationResponseSchema.parse(res.data) }

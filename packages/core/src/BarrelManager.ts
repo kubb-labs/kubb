@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/useIterableCallbackReturn: not needed */
 import { join } from 'node:path'
 import type { FileMetaBase } from './FileManager.ts'
 import type { KubbFile } from './fs/index.ts'
@@ -18,12 +19,10 @@ export class BarrelManager {
     return this
   }
 
-  getFiles({ files: generatedFiles, root, meta }: { files: KubbFile.File[]; root?: string; meta?: FileMetaBase | undefined }): Array<KubbFile.File> {
+  getFiles({ files: generatedFiles, root }: { files: KubbFile.File[]; root?: string; meta?: FileMetaBase | undefined }): Array<KubbFile.File> {
     const { logger } = this.#options
 
     const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
-
-    logger?.emit('debug', { date: new Date(), logs: [`Start barrel generation for pluginKey ${meta?.pluginKey?.join('.')} and root '${root}'`] })
 
     TreeNode.build(generatedFiles, root)?.forEach((treeNode) => {
       if (!treeNode || !treeNode.children || !treeNode.parent?.data.path) {
@@ -95,23 +94,6 @@ export class BarrelManager {
             isIndexable: false,
           })
         })
-      })
-
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: [
-          `Generating barrelFile '${getRelativePath(root, barrelFile.path)}' for '${getRelativePath(root, treeNode.data?.path)}' with ${barrelFile.sources.length} indexable exports: '${barrelFile.sources?.map((source) => source.name).join(', ')}'`,
-        ],
-      })
-
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: [
-          `Generated barrelFile '${getRelativePath(root, barrelFile.path)}' for '${getRelativePath(root, treeNode.data?.path)}' with exports: '${cachedFiles
-            .get(barrelFile.path)
-            ?.sources?.map((source) => source.name)
-            .join(', ')}'`,
-        ],
       })
 
       if (previousBarrelFile) {

@@ -16,6 +16,7 @@
       "@kubb/plugin-oas/hooks": ["packages/plugin-oas/src/hooks/index.ts"],
       "@kubb/plugin-oas/utils": ["packages/plugin-oas/src/utils/index.ts"],
       "@kubb/plugin-oas/components": ["packages/plugin-oas/src/components/index.ts"],
+      "@kubb/plugin-oas/mocks": ["packages/plugin-oas/src/mocks/index.ts"],
       "@kubb/plugin-oas": ["packages/plugin-oas/src/index.ts"],
       "@kubb/plugin-ts/hooks": ["packages/plugin-ts/src/hooks/index.ts"],
       "@kubb/plugin-ts": ["packages/plugin-ts/src/index.ts"],
@@ -38,10 +39,9 @@
       "@kubb/parser-ts/factory": ["packages/parser-ts/src/factory.ts"],
       "@kubb/parser-ts": ["packages/parser-ts/src/index.ts"],
       "@kubb/oas": ["packages/oas/src/index.ts"],
-      "@kubb/config-tsup": ["packages/config-tsup/src/index.ts"],
       "unplugin-kubb": ["packages/unplugin/src/index.ts"]
     }
   },
-  "include": ["./package.json", "./tsup.config.ts", "./vitest.config.ts", "./src/**/*"],
+  "include": ["./package.json", "./tsdown.config.ts", "./vitest.config.ts", "./src/**/*"],
   "exclude": ["node_modules", "dist", "tmp", "coverage", "**/__snapshots__/**"]
 }

@@ -1,3 +1,1 @@
-import { startServer } from '@kubb/mcp'
-
-startServer()
+import '@kubb/mcp/server'

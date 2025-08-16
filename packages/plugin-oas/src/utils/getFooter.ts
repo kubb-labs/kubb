@@ -2,12 +2,12 @@ import type { Output } from '@kubb/core'
 import type { Oas } from '@kubb/oas'
 import { isFunction } from 'remeda'
 
-type Props = {
-  oas: Oas
-  output: Output<Oas>
+type Props<TOas extends Oas> = {
+  oas: TOas
+  output: Output<any>
 }
 
-export function getFooter({ output, oas }: Props) {
+export function getFooter<TOas extends Oas>({ output, oas }: Props<TOas>) {
   if (!output.footer) {
     return undefined
   }

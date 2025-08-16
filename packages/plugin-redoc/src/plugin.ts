@@ -4,7 +4,7 @@ import { PluginManager, createPlugin } from '@kubb/core'
 import { pluginOasName } from '@kubb/plugin-oas'
 
 import type { Plugin } from '@kubb/core'
-import { trimExtName } from '@kubb/core/fs'
+import { trimExtName, write } from '@kubb/core/fs'
 import type { PluginOas } from '@kubb/plugin-oas'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
@@ -30,7 +30,7 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const pageHTML = await getPageHTML(oas.api)
 
-      await this.fileManager.write(path.resolve(root, output.path || './docs.html'), pageHTML)
+      await write(path.resolve(root, output.path || './docs.html'), pageHTML)
     },
   }
 })

@@ -69,8 +69,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
       config: isConfigurable
         ? {
             type: typeSchemas.request?.name
-              ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
-              : 'Partial<RequestConfig> & { client?: typeof client }',
+              ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
+              : 'Partial<RequestConfig> & { client?: typeof fetch }',
             default: '{}',
           }
         : undefined,
@@ -106,8 +106,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
     config: isConfigurable
       ? {
           type: typeSchemas.request?.name
-            ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
-            : 'Partial<RequestConfig> & { client?: typeof client }',
+            ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
+            : 'Partial<RequestConfig> & { client?: typeof fetch }',
           default: '{}',
         }
       : undefined,
@@ -169,8 +169,7 @@ export function Client({
         params: typeSchemas.queryParams?.name ? {} : undefined,
         data: typeSchemas.request?.name
           ? {
-              value:
-                parser === 'zod' && zodSchemas ? `${zodSchemas.request?.name}.parse(${isFormData ? 'formData' : 'data'})` : isFormData ? 'formData' : undefined,
+              value: isFormData ? 'formData' : 'requestData',
             }
           : undefined,
         requestConfig: isConfigurable
@@ -190,9 +189,9 @@ export function Client({
   const formData = isFormData
     ? `
    const formData = new FormData()
-   if(data) {
-    Object.keys(data).forEach((key) => {
-      const value = data[key as keyof typeof data];
+   if(requestData) {
+    Object.keys(requestData).forEach((key) => {
+      const value = requestData[key as keyof typeof requestData];
       if (typeof value === 'string' || (value as unknown) instanceof Blob) {
         formData.append(key, value as unknown as string | Blob);
       }
@@ -224,13 +223,16 @@ export function Client({
         }}
         returnType={returnType}
       >
-        {isConfigurable ? 'const { client:request = client, ...requestConfig } = config' : ''}
+        {isConfigurable ? 'const { client:request = fetch, ...requestConfig } = config' : ''}
         <br />
+        <br />
+        {parser === 'zod' && zodSchemas?.request?.name && `const requestData = ${zodSchemas.request.name}.parse(data)`}
+        {parser === 'client' && typeSchemas?.request?.name && 'const requestData = data'}
         <br />
         {formData}
         {isConfigurable
           ? `const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`
-          : `const res = await client<${generics.join(', ')}>(${clientParams.toCall()})`}
+          : `const res = await fetch<${generics.join(', ')}>(${clientParams.toCall()})`}
         <br />
         {childrenElement}
       </Function>

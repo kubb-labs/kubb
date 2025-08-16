@@ -442,9 +442,9 @@ export function createEnumDeclaration({
         enums
           .map(([key, value]) => {
             let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
-            const isExactNumber = Number.parseInt(value.toString()) === value
+            const isExactNumber = Number.parseInt(value.toString(), 10) === value
 
-            if (isExactNumber && isNumber(Number.parseInt(value.toString()))) {
+            if (isExactNumber && isNumber(Number.parseInt(value.toString(), 10))) {
               initializer = factory.createNumericLiteral(value as number)
             }
 
@@ -452,7 +452,7 @@ export function createEnumDeclaration({
               initializer = value ? factory.createTrue() : factory.createFalse()
             }
 
-            if (isNumber(Number.parseInt(key.toString()))) {
+            if (isNumber(Number.parseInt(key.toString(), 10))) {
               return factory.createEnumMember(factory.createStringLiteral(`${typeName}_${key}`), initializer)
             }
 

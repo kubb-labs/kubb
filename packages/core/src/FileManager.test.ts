@@ -25,7 +25,9 @@ describe('FileManager', () => {
       sources: [],
     })
 
-    expect(fileManager.files.length).toBe(2)
+    const files = await fileManager.getFiles()
+
+    expect(files.length).toBe(2)
   })
 
   test('fileManager.add will return array of files or one file depending on the input', async () => {
@@ -96,8 +98,9 @@ describe('FileManager', () => {
     })
 
     expect(file).toBeDefined()
+    const files = await fileManager.getFiles()
 
-    expect(fileManager.files.length).toBe(1)
+    expect(files.length).toBe(1)
 
     expect(file.sources).toMatchInlineSnapshot(`
       [
@@ -122,48 +125,34 @@ describe('FileManager', () => {
       ]
     `)
   })
-  test('if creation of graph is correct', () => {
+  test('if creation of graph is correct', async () => {
     const fileManager = new FileManager()
-    fileManager.add({
+    await fileManager.add({
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       sources: [],
     })
-    fileManager.add({
+    await fileManager.add({
       path: path.resolve('./src/hooks/file1.ts'),
       baseName: 'file1.ts',
       sources: [],
     })
 
-    fileManager.add({
+    await fileManager.add({
       path: path.resolve('./src/models/file1.ts'),
       baseName: 'file1.ts',
       sources: [],
     })
 
-    fileManager.add({
+    await fileManager.add({
       path: path.resolve('./src/models/file2.ts'),
       baseName: 'file2.ts',
       sources: [],
     })
 
-    expect(fileManager.files.length).toBe(4)
-  })
+    const files = await fileManager.getFiles()
 
-  test('fileManager.getCacheById', async () => {
-    const fileManager = new FileManager()
-    const file = await fileManager.add({
-      path: path.resolve('./src/file1.ts'),
-      baseName: 'file1.ts',
-      sources: [],
-    })
-
-    const resolvedFile = fileManager.getCacheById(file.id)
-
-    if (resolvedFile) {
-      expect(resolvedFile).toBeDefined()
-      expect(resolvedFile.sources).toBe(file.sources)
-    }
+    expect(files.length).toBe(4)
   })
 
   test('fileManager.remove', async () => {
@@ -176,8 +165,9 @@ describe('FileManager', () => {
     })
 
     fileManager.deleteByPath(filePath)
+    const files = await fileManager.getFiles()
 
-    const expectedRemovedFile = fileManager.files.find((f) => f.path === filePath)
+    const expectedRemovedFile = files.find((f) => f.path === filePath)
 
     expect(expectedRemovedFile).toBeUndefined()
   })
@@ -187,49 +177,6 @@ describe('FileManager', () => {
     expect(FileManager.getMode(folderPath)).toBe('split')
     expect(FileManager.getMode(undefined)).toBe('split')
     expect(FileManager.getMode(null)).toBe('split')
-  })
-
-  test('fileManager.orderedFiles', async () => {
-    const fileManager = new FileManager()
-    await fileManager.add({
-      path: 'src/axios/file2.ts',
-      baseName: 'file2.ts',
-      sources: [],
-    })
-
-    await fileManager.add({
-      path: 'src/controller/test.ts',
-      baseName: 'test.ts',
-      sources: [],
-    })
-
-    await fileManager.add({
-      path: 'src/axios/file1.ts',
-      baseName: 'file2.ts',
-      sources: [],
-    })
-
-    await fileManager.add({
-      path: 'src/test.ts',
-      baseName: 'test.ts',
-      sources: [],
-    })
-
-    await fileManager.add({
-      path: 'src/axios/controller/pet.ts',
-      baseName: 'pet.ts',
-      sources: [],
-    })
-
-    await fileManager.add({
-      path: 'src/axios/index.ts',
-      baseName: 'index.ts',
-      sources: [],
-    })
-
-    const files = fileManager.orderedFiles
-
-    await expect(JSON.stringify(files, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/ordered.json'))
   })
 
   test('fileManager.getBarrelFiles', async () => {
@@ -297,9 +244,10 @@ describe('FileManager', () => {
       },
     ]
 
+    await fileManager.add(...files)
+
     const barrelFiles = await fileManager.getBarrelFiles({
       type: 'all',
-      files,
       root: 'src',
       output: {
         path: '.',
@@ -308,49 +256,9 @@ describe('FileManager', () => {
 
     await fileManager.add(...barrelFiles)
 
-    await expect(JSON.stringify(fileManager.files, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/barrel.json'))
-  })
+    const processedFiles = await fileManager.getFiles()
 
-  test('fileManager.groupedFiles', async () => {
-    const fileManager = new FileManager()
-    await fileManager.add({
-      path: 'src/axios/file2.ts',
-      baseName: 'file2.ts',
-      sources: [],
-    })
-
-    await fileManager.add({
-      path: 'src/controller/test.ts',
-      baseName: 'test.ts',
-      sources: [],
-    })
-
-    await fileManager.add({
-      path: 'src/axios/file1.ts',
-      baseName: 'file2.ts',
-      sources: [],
-    })
-
-    await fileManager.add({
-      path: 'src/test.ts',
-      baseName: 'test.ts',
-      sources: [],
-    })
-
-    await fileManager.add({
-      path: 'src/axios/controller/pet.ts',
-      baseName: 'pet.ts',
-      sources: [],
-    })
-
-    await fileManager.add({
-      path: 'src/axios/index.ts',
-      baseName: 'index.ts',
-      sources: [],
-    })
-    const files = fileManager.groupedFiles
-
-    await expect(JSON.stringify(files, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/grouped.json'))
+    await expect(JSON.stringify(processedFiles, undefined, 2)).toMatchFileSnapshot(path.resolve(__dirname, '__snapshots__/barrel.json'))
   })
 })
 

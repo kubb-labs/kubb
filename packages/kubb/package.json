@@ -1,13 +1,20 @@
 {
   "name": "kubb",
-  "version": "3.0.85",
-  "description": "OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js, MSW and Axios.",
+  "version": "3.0.98",
+  "description": "Transform OpenAPI specifications into TypeScript, React-Query, Zod, Faker.js, MSW and more with a plugin-based code generation tool.",
   "keywords": [
     "typescript",
-    "plugins",
-    "kubb",
+    "openapi",
+    "swagger",
+    "code-generator",
     "codegen",
-    "cli"
+    "plugins",
+    "react-query",
+    "zod",
+    "msw",
+    "faker",
+    "api-client",
+    "kubb"
   ],
   "repository": {
     "type": "git",
@@ -18,9 +25,9 @@
   "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
   "bin": {
     "kubb": "bin/kubb.js"
   },
@@ -32,13 +39,13 @@
     "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "clean": "npx rimraf ./dist",
     "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
     "lint-fix": "bun run lint --quiet --fix",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsup --watch",
+    "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -48,9 +55,8 @@
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "@kubb/config-tsup": "workspace:*",
     "@types/node": "catalog:",
-    "tsup": "catalog:",
+    "tsdown": "catalog:",
     "typescript": "catalog:"
   },
   "engines": {
@@ -60,5 +66,12 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
   }
 }

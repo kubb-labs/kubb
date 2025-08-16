@@ -1,3 +1,4 @@
+import { GitChangelog, GitChangelogMarkdownSection } from '@nolebase/vitepress-plugin-git-changelog/vite'
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { defineConfig } from 'vitepress'
 import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepress-plugin-group-icons'
@@ -8,8 +9,6 @@ import { transposeTables } from './transposeTables'
 const ogImage = 'https://kubb.dev/og.png'
 const title = 'Generate SDKs for all your APIs'
 const description = 'OpenAPI to TypeScript, React-Query, Zod, Faker.js, MSW, MCP and Axios. '
-
-const links: Array<{ url: string; lastmod: number | undefined }> = []
 
 const knowledgeBaseSidebar = [
   {
@@ -525,7 +524,6 @@ export default defineConfig({
           compilerOptions: {
             paths: {
               '@kubb/cli': ['../packages/cli/src/index.ts'],
-              '@kubb/config-tsup': ['../packages/config/config-tsup/src/index.ts'],
               '@kubb/config-ts': ['../packages/config/config-ts/src/index.ts'],
               '@kubb/core': ['../packages/core/src/index.ts'],
               '@kubb/types': ['../packages/types/src/index.ts'],
@@ -704,6 +702,12 @@ export default defineConfig({
     // },
   },
   vite: {
+    optimizeDeps: {
+      exclude: ['@nolebase/vitepress-plugin-enhanced-readabilities/client', 'vitepress', '@nolebase/ui'],
+    },
+    ssr: {
+      noExternal: ['@nolebase/vitepress-plugin-highlight-targeted-heading', '@nolebase/vitepress-plugin-enhanced-readabilities', '@nolebase/ui'],
+    },
     plugins: [
       renderMermaidGraphsPlugin(),
       groupIconVitePlugin({
@@ -712,6 +716,18 @@ export default defineConfig({
           'kubb.config.js': localIconLoader(import.meta.url, '../public/logo.svg'),
         },
       }),
-    ],
+      GitChangelog({
+        repoURL: () => 'https://github.com/kubb-labs/kubb',
+        mapAuthors: [
+          {
+            name: 'Stijn Van Hulle',
+            username: 'stijnvanhulle',
+            mapByEmailAliases: ['stijn@stijnvanhulle.be'],
+          },
+        ],
+        maxGitLogCount: 100,
+      }),
+      GitChangelogMarkdownSection(),
+    ] as any,
   },
 })

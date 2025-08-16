@@ -71,7 +71,7 @@ export const typeKeywordMapper = {
     })
   },
   const: (name?: string | number | boolean, format?: 'string' | 'number' | 'boolean') => {
-    if (!name) {
+    if (name === null || name === undefined || name === '') {
       return undefined
     }
 
@@ -133,7 +133,7 @@ export const typeKeywordMapper = {
   catchall: undefined,
   name: undefined,
   interface: undefined,
-} satisfies SchemaMapper<ts.Node | null | undefined>
+} satisfies SchemaMapper<ts.TypeNode | null | undefined>
 
 type ParserOptions = {
   name: string

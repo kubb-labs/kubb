@@ -1,4 +1,4 @@
-import type client from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type { InfiniteData, QueryKey, QueryClient, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '../../../../tanstack-query-hook'
 import type {
@@ -16,7 +16,7 @@ export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInf
 
 export function findPetsByTagsInfiniteQueryOptions(
   { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return infiniteQueryOptions<
@@ -56,7 +56,7 @@ export function useFindPetsByTagsInfinite<
     query?: Partial<InfiniteQueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
   const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
@@ -64,10 +64,10 @@ export function useFindPetsByTagsInfinite<
 
   const query = useInfiniteQuery(
     {
-      ...(findPetsByTagsInfiniteQueryOptions({ headers, params }, config) as unknown as InfiniteQueryObserverOptions),
+      ...findPetsByTagsInfiniteQueryOptions({ headers, params }, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<InfiniteQueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as InfiniteQueryObserverOptions,
     queryClient,
   ) as UseInfiniteQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 

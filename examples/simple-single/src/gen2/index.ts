@@ -92,6 +92,10 @@ export const createVolumeRequestSchema = z.object({
   unique_zone_app_wide: z.boolean().optional(),
 })
 
+export const currentTokenResponseSchema = z.object({
+  tokens: z.array(z.lazy(() => mainTokenInfoSchema)).optional(),
+})
+
 export const decryptSecretkeyRequestSchema = z.object({
   associated_data: z.array(z.number().int()).optional(),
   ciphertext: z.array(z.number().int()).optional(),
@@ -146,6 +150,7 @@ export const listAppSchema = z.object({
   machine_count: z.number().int().optional(),
   name: z.string().optional(),
   network: z.object({}).optional(),
+  volume_count: z.number().int().optional(),
 })
 
 export const listAppsResponseSchema = z.object({
@@ -823,6 +828,16 @@ export const mainRegionResponseSchema = z.object({
 })
 
 export const mainStatusCodeSchema = z.enum(['unknown', 'insufficient_capacity'])
+
+export const mainTokenInfoSchema = z.object({
+  apps: z.array(z.string()).optional(),
+  org_slug: z.string().optional(),
+  organization: z.string().optional(),
+  restricted_to_machine: z.string().describe('Machine the token is restricted to (FromMachine caveat)').optional(),
+  source_machine_id: z.string().describe('Machine making the request').optional(),
+  token_id: z.string().optional(),
+  user: z.string().describe('User identifier if token is for a user').optional(),
+})
 
 export const placementRegionPlacementSchema = z.object({
   concurrency: z
@@ -1760,3 +1775,20 @@ export const tokensRequestOIDC400Schema = z.lazy(() => errorResponseSchema)
 export const tokensRequestOIDCMutationRequestSchema = z.lazy(() => createOIDCTokenRequestSchema).describe('Optional parameters')
 
 export const tokensRequestOIDCMutationResponseSchema = z.lazy(() => tokensRequestOIDC200Schema)
+
+/**
+ * @description OK
+ */
+export const currentTokenShow200Schema = z.lazy(() => currentTokenResponseSchema)
+
+/**
+ * @description Unauthorized
+ */
+export const currentTokenShow401Schema = z.lazy(() => errorResponseSchema)
+
+/**
+ * @description Internal Server Error
+ */
+export const currentTokenShow500Schema = z.lazy(() => errorResponseSchema)
+
+export const currentTokenShowQueryResponseSchema = z.lazy(() => currentTokenShow200Schema)

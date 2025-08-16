@@ -20,15 +20,15 @@ export const operations = {
     method: 'get',
   },
   getPetById: {
-    path: '/pet/:petId',
+    path: '/pet/:petId:search',
     method: 'get',
   },
   updatePetWithForm: {
-    path: '/pet/:petId',
+    path: '/pet/:petId:search',
     method: 'post',
   },
   deletePet: {
-    path: '/pet/:petId',
+    path: '/pet/:petId:search',
     method: 'delete',
   },
   addFiles: {

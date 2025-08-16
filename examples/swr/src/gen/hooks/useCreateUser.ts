@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
@@ -17,16 +17,14 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  * @summary Create user
  * {@link /user}
  */
-export async function createUser(
-  data?: CreateUserMutationRequest,
-  config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client } = {},
-) {
-  const { client: request = client, ...requestConfig } = config
+export async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
 
+  const requestData = data
   const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
     url: '/user',
-    data,
+    data: requestData,
     ...requestConfig,
   })
   return res.data
@@ -40,7 +38,7 @@ export async function createUser(
 export function useCreateUser(
   options: {
     mutation?: Parameters<typeof useSWRMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationKey, CreateUserMutationRequest>>[2]
-    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof client }
+    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {

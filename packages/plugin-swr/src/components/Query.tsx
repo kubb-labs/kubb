@@ -66,8 +66,9 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
         type: `
 {
   query?: Parameters<typeof useSWR<${[TData, TError].join(', ')}>>[2],
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'},
   shouldFetch?: boolean,
+  immutable?: boolean
 }
 `,
         default: '{}',
@@ -105,8 +106,9 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       type: `
 {
   query?: Parameters<typeof useSWR<${[TData, TError].join(', ')}>>[2],
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'},
   shouldFetch?: boolean,
+  immutable?: boolean
 }
 `,
       default: '{}',
@@ -161,7 +163,7 @@ export function Query({
         }}
       >
         {`
-       const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+       const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
        const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
 
@@ -169,6 +171,11 @@ export function Query({
         shouldFetch ? queryKey : null,
         {
           ...${queryOptionsName}(${queryOptionsParams.toCall()}),
+          ...(immutable ? {
+              revalidateIfStale: false,
+              revalidateOnFocus: false,
+              revalidateOnReconnect: false
+            } : { }),
           ...queryOptions
         }
        )

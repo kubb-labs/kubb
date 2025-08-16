@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -26,9 +26,9 @@ export type UpdatePetWithFormSuspenseQueryKey = ReturnType<typeof updatePetWithF
 export async function updatePetWithFormSuspenseHook(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
@@ -42,7 +42,7 @@ export async function updatePetWithFormSuspenseHook(
 export function updatePetWithFormSuspenseQueryOptionsHook(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormSuspenseQueryKey(pet_id, params)
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
@@ -66,7 +66,7 @@ export function useUpdatePetWithFormSuspenseHook<TData = UpdatePetWithFormMutati
     query?: Partial<UseSuspenseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
   const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
@@ -74,10 +74,10 @@ export function useUpdatePetWithFormSuspenseHook<TData = UpdatePetWithFormMutati
 
   const query = useSuspenseQuery(
     {
-      ...(updatePetWithFormSuspenseQueryOptionsHook(pet_id, params, config) as unknown as UseSuspenseQueryOptions),
+      ...updatePetWithFormSuspenseQueryOptionsHook(pet_id, params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 

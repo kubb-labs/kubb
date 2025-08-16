@@ -7,13 +7,11 @@ import { Oas } from './components/Oas.tsx'
 import type { OperationGenerator } from './OperationGenerator.ts'
 import type { SchemaGenerator, SchemaGeneratorOptions } from './SchemaGenerator.ts'
 import type { Schema } from './SchemaMapper.ts'
-import type { OperationsByMethod } from './types.ts'
 
 type OperationsProps<TOptions extends PluginFactoryOptions> = {
   instance: Omit<OperationGenerator<TOptions>, 'build'>
   options: TOptions['resolvedOptions']
   operations: Array<Operation>
-  operationsByMethod: OperationsByMethod
 }
 
 type OperationProps<TOptions extends PluginFactoryOptions> = {
@@ -62,7 +60,7 @@ export type ReactGeneratorOptions<TOptions extends PluginFactoryOptions> = {
 export function createReactGenerator<TOptions extends PluginFactoryOptions>(parseOptions: ReactGeneratorOptions<TOptions>): Generator<TOptions> {
   return {
     ...parseOptions,
-    async operations({ instance, options, operations, operationsByMethod }) {
+    async operations({ instance, options, operations }) {
       if (!parseOptions.Operations) {
         return []
       }
@@ -71,17 +69,15 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
       const root = createRoot({
         logger: pluginManager.logger,
       })
-
       const Component = parseOptions.Operations.bind(this)
 
       root.render(
         <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
           <Oas oas={oas} operations={operations} generator={instance}>
-            <Component operations={operations} instance={instance} operationsByMethod={operationsByMethod} options={options} />
+            <Component operations={operations} instance={instance} options={options} />
           </Oas>
         </App>,
       )
-
       return root.files
     },
     async operation({ instance, operation, options }) {
@@ -93,7 +89,6 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
       const root = createRoot({
         logger: pluginManager.logger,
       })
-
       const Component = parseOptions.Operation.bind(this)
 
       root.render(
@@ -105,7 +100,6 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
           </Oas>
         </App>,
       )
-
       return root.files
     },
     async schema({ instance, schema, options }) {
@@ -114,12 +108,11 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
       }
 
       const { pluginManager, oas, plugin, mode } = instance.context
+
+      const Component = parseOptions.Schema.bind(this)
       const root = createRoot({
         logger: pluginManager.logger,
       })
-
-      const Component = parseOptions.Schema.bind(this)
-
       root.render(
         <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
           <Oas oas={oas}>
@@ -129,7 +122,6 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
           </Oas>
         </App>,
       )
-
       return root.files
     },
   }

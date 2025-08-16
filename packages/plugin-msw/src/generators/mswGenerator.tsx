@@ -1,4 +1,3 @@
-import { URLPath } from '@kubb/core/utils'
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -55,20 +54,12 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
             name={mock.name}
             typeName={type.schemas.response.name}
             fakerName={faker.schemas.response.name}
-            method={operation.method}
+            operation={operation}
             baseURL={baseURL}
-            url={new URLPath(operation.path).toURLPath()}
           />
         )}
         {parser === 'data' && (
-          <Mock
-            name={mock.name}
-            typeName={type.schemas.response.name}
-            fakerName={faker.schemas.response.name}
-            method={operation.method}
-            baseURL={baseURL}
-            url={new URLPath(operation.path).toURLPath()}
-          />
+          <Mock name={mock.name} typeName={type.schemas.response.name} fakerName={faker.schemas.response.name} operation={operation} baseURL={baseURL} />
         )}
       </File>
     )

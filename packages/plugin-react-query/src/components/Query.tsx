@@ -66,7 +66,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
         type: `
 {
   query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
         default: '{}',
@@ -104,7 +104,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       type: `
 {
   query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
       default: '{}',
@@ -148,7 +148,7 @@ export function Query({
     typeSchemas,
   })
 
-  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()}) as unknown as QueryObserverOptions`
+  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()})`
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -168,8 +168,8 @@ export function Query({
        const query = useQuery({
         ...${queryOptions},
         queryKey,
-        ...queryOptions as unknown as Omit<QueryObserverOptions, "queryKey">
-       }, queryClient) as ${returnType}
+        ...queryOptions
+       } as unknown as QueryObserverOptions, queryClient) as ${returnType}
 
        query.queryKey = queryKey as TQueryKey
 

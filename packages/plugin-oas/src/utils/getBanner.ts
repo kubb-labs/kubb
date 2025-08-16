@@ -1,14 +1,14 @@
-import { getDefaultBanner, type Config, type Output } from '@kubb/core'
+import { type Config, getDefaultBanner, type Output } from '@kubb/core'
 import type { Oas } from '@kubb/oas'
 import { isFunction } from 'remeda'
 
-type Props = {
-  oas: Oas
-  output: Output<Oas>
+type Props<TOas extends Oas> = {
+  oas: TOas
+  output: Output<any>
   config?: Config
 }
 
-export function getBanner({ output, oas, config }: Props) {
+export function getBanner<TOas extends Oas>({ output, oas, config }: Props<TOas>): string {
   let banner = ''
   if (config?.output?.defaultBanner !== false && config) {
     const { title, description, version } = oas.api?.info || {}

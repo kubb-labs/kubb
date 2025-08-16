@@ -142,7 +142,9 @@ export class TreeNode {
         }
       }
 
-      filteredTree.children?.forEach((child) => recurse(treeNode, child))
+      filteredTree.children?.forEach((child) => {
+        recurse(treeNode, child)
+      })
 
       return treeNode
     } catch (e) {
@@ -164,7 +166,10 @@ export function buildDirectoryTree(files: Array<KubbFile.File>, rootFolder = '')
   const normalizedRootFolder = normalizePath(rootFolder)
   const rootPrefix = normalizedRootFolder.endsWith('/') ? normalizedRootFolder : `${normalizedRootFolder}/`
 
-  const filteredFiles = files.filter((file) => (rootFolder ? file.path.startsWith(rootPrefix) && !file.path.endsWith('.json') : !file.path.endsWith('.json')))
+  const filteredFiles = files.filter((file) => {
+    const normalizedFilePath = normalizePath(file.path)
+    return rootFolder ? normalizedFilePath.startsWith(rootPrefix) && !normalizedFilePath.endsWith('.json') : !normalizedFilePath.endsWith('.json')
+  })
 
   if (filteredFiles.length === 0) {
     return null // No files match the root folder

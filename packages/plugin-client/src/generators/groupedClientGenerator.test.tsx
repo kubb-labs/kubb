@@ -56,11 +56,10 @@ describe('groupedClientsGenerators operations', async () => {
     })
     await instance.build(groupedClientGenerator)
 
-    const operations = Object.values(instance.operationsByMethod).map((item) => Object.values(item).map((item) => item.operation))
+    const operations = await instance.getOperations()
 
     const files = await groupedClientGenerator.operations?.({
-      operations: operations.flat().filter(Boolean),
-      operationsByMethod: instance.operationsByMethod,
+      operations: operations.map((item) => item.operation),
       options,
       instance,
     })

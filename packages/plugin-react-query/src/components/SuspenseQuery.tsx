@@ -66,7 +66,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
         type: `
 {
   query?: Partial<UseSuspenseQueryOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
         default: '{}',
@@ -104,7 +104,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       type: `
 {
   query?: Partial<UseSuspenseQueryOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
       default: '{}',
@@ -155,7 +155,7 @@ export function SuspenseQuery({
     typeSchemas,
   })
 
-  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()}) as unknown as UseSuspenseQueryOptions`
+  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()})`
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -175,8 +175,8 @@ export function SuspenseQuery({
        const query = useSuspenseQuery({
         ...${queryOptions},
         queryKey,
-        ...queryOptions as unknown as Omit<UseSuspenseQueryOptions, "queryKey">
-       }, queryClient) as ${returnType}
+        ...queryOptions
+       } as unknown as UseSuspenseQueryOptions, queryClient) as ${returnType}
 
        query.queryKey = queryKey as TQueryKey
 

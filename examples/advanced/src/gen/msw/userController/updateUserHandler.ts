@@ -6,9 +6,7 @@ export function updateUserHandler(data?: UpdateUserMutationResponse | ((info: Pa
     if (typeof data === 'function') return data(info)
 
     return new Response(JSON.stringify(data), {
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      status: 200,
     })
   })
 }

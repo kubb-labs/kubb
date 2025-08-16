@@ -20,10 +20,10 @@
   "files": [],
   "scripts": {},
   "dependencies": {
-    "@kubb/mcp": "^3.12.1"
+    "@kubb/mcp": "^3.16.2"
   },
   "devDependencies": {},
-  "packageManager": "npm@11.4.2",
+  "packageManager": "npm@11.5.2",
   "engines": {
     "node": ">=20",
     "npm": ">=11.3.0"

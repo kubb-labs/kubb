@@ -133,7 +133,6 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
         type: output.barrelType ?? 'named',
         root,
         output,
-        files: this.fileManager.files,
         meta: {
           pluginKey: this.plugin.key,
         },

@@ -47,6 +47,15 @@ describe('mswGenerator operation', async () => {
       method: 'delete',
       options: {},
     },
+    {
+      name: 'createPetFaker',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        parser: 'faker',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

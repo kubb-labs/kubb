@@ -1,16 +1,12 @@
-import { LogMapper } from '@kubb/core/logger'
-
-import { colors } from 'consola/utils'
-
+import process from 'node:process'
 import { type Config, safeBuild, setup } from '@kubb/core'
+import { createLogger, LogMapper } from '@kubb/core/logger'
+import { Presets, SingleBar } from 'cli-progress'
+import pc from 'picocolors'
+import type { Args } from '../commands/generate.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
 import { getErrorCauses } from '../utils/getErrorCauses.ts'
 import { getSummary } from '../utils/getSummary.ts'
-
-import { createLogger } from '@kubb/core/logger'
-import { Presets, SingleBar } from 'cli-progress'
-import type { Args } from '../commands/generate.ts'
-import process from 'node:process'
 
 type GenerateProps = {
   input?: string
@@ -87,7 +83,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     logger,
   })
 
-  logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? colors.dim(inputPath!) : ''}`)
+  logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
   const { files, error } = await safeBuild({
     config: definedConfig,
@@ -113,7 +109,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   if (error && logger.consola) {
     logger.consola?.resumeLogs()
-    logger.consola.error(`Build failed ${logger.logLevel !== LogMapper.silent ? colors.dim(inputPath!) : ''}`)
+    logger.consola.error(`Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
     logger.consola.box({
       title: `${config.name || ''}`,
@@ -134,14 +130,14 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
     logger.consola?.error(error)
 
-    process.exit(0)
+    process.exit(1)
   }
 
   if (config.hooks) {
     await executeHooks({ hooks: config.hooks, logger })
   }
 
-  logger.consola?.log(`⚡Build completed ${logger.logLevel !== LogMapper.silent ? colors.dim(inputPath!) : ''}`)
+  logger.consola?.log(`⚡Build completed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
   logger.consola?.box({
     title: `${config.name || ''}`,

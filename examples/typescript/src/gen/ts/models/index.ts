@@ -46,10 +46,11 @@ export type {
   GetUserByNameQueryResponse,
   GetUserByNameQuery,
 } from './GetUserByName.ts'
+export type { HappyCustomer } from './HappyCustomer.ts'
 export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './LoginUser.ts'
 export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './LogoutUser.ts'
 export type { Oas } from './oas.ts'
-export type { OrderStatusEnum, OrderHttpStatusEnum, Order } from './Order.ts'
+export type { OrderHttpStatusEnum, Order } from './Order.ts'
 export type { StatusEnum, Pet } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'
 export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrderMutation } from './PlaceOrder.ts'
@@ -61,6 +62,7 @@ export type {
   PlaceOrderPatchMutation,
 } from './PlaceOrderPatch.ts'
 export type { Tag } from './Tag.ts'
+export type { UnhappyCustomer } from './UnhappyCustomer.ts'
 export type {
   UpdatePet200,
   UpdatePet400,
@@ -92,5 +94,5 @@ export { addPetRequestStatusEnum } from './AddPetRequest.ts'
 export { deletePet200Enum } from './DeletePet.ts'
 export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus.ts'
 export { oas } from './oas.ts'
-export { orderStatusEnum, orderHttpStatusEnum } from './Order.ts'
+export { orderHttpStatusEnum } from './Order.ts'
 export { statusEnum } from './Pet.ts'

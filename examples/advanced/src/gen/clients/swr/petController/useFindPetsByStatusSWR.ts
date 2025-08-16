@@ -1,4 +1,4 @@
-import type client from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
 import useSWR from 'swr'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusPathParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
@@ -11,7 +11,7 @@ export type FindPetsByStatusQueryKeySWR = ReturnType<typeof findPetsByStatusQuer
 
 export function findPetsByStatusQueryOptionsSWR(
   { step_id }: { step_id: FindPetsByStatusPathParams['step_id'] },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   return {
     fetcher: async () => {
@@ -29,11 +29,12 @@ export function useFindPetsByStatusSWR(
   { step_id }: { step_id: FindPetsByStatusPathParams['step_id'] },
   options: {
     query?: Parameters<typeof useSWR<ResponseConfig<FindPetsByStatusQueryResponse>, ResponseErrorConfig<FindPetsByStatus400>>>[2]
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
+    immutable?: boolean
   } = {},
 ) {
-  const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
   const queryKey = findPetsByStatusQueryKeySWR({ step_id })
 
@@ -41,6 +42,13 @@ export function useFindPetsByStatusSWR(
     shouldFetch ? queryKey : null,
     {
       ...findPetsByStatusQueryOptionsSWR({ step_id }, config),
+      ...(immutable
+        ? {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+          }
+        : {}),
       ...queryOptions,
     },
   )

@@ -46,25 +46,25 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
             override(item) {
               return {
                 ...item,
-                type: `MaybeRef<${item.type}>`,
+                type: `MaybeRefOrGetter<${item.type}>`,
               }
             },
           }),
           data: typeSchemas.request?.name
             ? {
-                type: `MaybeRef<${typeSchemas.request?.name}>`,
+                type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
                 optional: isOptional(typeSchemas.request?.schema),
               }
             : undefined,
           params: typeSchemas.queryParams?.name
             ? {
-                type: `MaybeRef<${typeSchemas.queryParams?.name}>`,
+                type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
                 optional: isOptional(typeSchemas.queryParams?.schema),
               }
             : undefined,
           headers: typeSchemas.headerParams?.name
             ? {
-                type: `MaybeRef<${typeSchemas.headerParams?.name}>`,
+                type: `MaybeRefOrGetter<${typeSchemas.headerParams?.name}>`,
                 optional: isOptional(typeSchemas.headerParams?.schema),
               }
             : undefined,
@@ -74,7 +74,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
         type: `
 {
   query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
         default: '{}',
@@ -92,26 +92,26 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
         override(item) {
           return {
             ...item,
-            type: `MaybeRef<${item.type}>`,
+            type: `MaybeRefOrGetter<${item.type}>`,
           }
         },
       }),
     },
     data: typeSchemas.request?.name
       ? {
-          type: `MaybeRef<${typeSchemas.request?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
           optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
-          type: `MaybeRef<${typeSchemas.queryParams?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
           optional: isOptional(typeSchemas.queryParams?.schema),
         }
       : undefined,
     headers: typeSchemas.headerParams?.name
       ? {
-          type: `MaybeRef<${typeSchemas.headerParams?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.headerParams?.name}>`,
           optional: isOptional(typeSchemas.headerParams?.schema),
         }
       : undefined,
@@ -119,7 +119,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       type: `
 {
   query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
       default: '{}',
@@ -163,7 +163,7 @@ export function InfiniteQuery({
     typeSchemas,
   })
 
-  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()}) as unknown as InfiniteQueryObserverOptions`
+  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()})`
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -182,9 +182,9 @@ export function InfiniteQuery({
 
        const query = useInfiniteQuery({
         ...${queryOptions},
-        queryKey: queryKey as QueryKey,
-        ...queryOptions as unknown as Omit<InfiniteQueryObserverOptions, "queryKey">
-       }, queryClient) as ${returnType}
+        queryKey,
+        ...queryOptions
+       } as unknown as InfiniteQueryObserverOptions, queryClient) as ${returnType}
 
        query.queryKey = queryKey as TQueryKey
 

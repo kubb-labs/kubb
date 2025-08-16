@@ -37,7 +37,7 @@ export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, 
     <File.Source name={name} isIndexable isExportable>
       <Function name={name} export params={params.toConstructor()} returnType={returnType}>
         {dataReturnType === 'data' &&
-          `return cy.request('${method}', '${new URLPath(`${baseURL ?? ''}${url}`).toURLPath()}', ${body}).then((res: Cypress.Response<${typeSchemas.response.name}>) => res.body)`}
+          `return cy.request('${method}', '${baseURL ?? ''}${new URLPath(url).toURLPath().replace(/([^/]):/g, '$1\\\\:')}', ${body}).then((res: Cypress.Response<${typeSchemas.response.name}>) => res.body)`}
         {dataReturnType === 'full' && `return cy.request('${method}', '${new URLPath(`${baseURL ?? ''}${url}`).toURLPath()}', ${body})`}
       </Function>
     </File.Source>

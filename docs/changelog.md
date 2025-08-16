@@ -4,6 +4,71 @@ title: Changelog
 
 # Changelog
 
+# 3.16.3
+- [`plugin-msw`](/plugins/plugin-msw): Return contentType from response instead of request
+- [`plugin-faker`](/plugins/plugin-faker): update Faker parser to work with enums in nested objects
+
+
+# 3.16.2
+- Upgrade of internal dependencies
+
+# 3.16.1
+- [`plugin-client`](/plugins/plugin-client): `validateStatus` as part of the axios client
+- [`plugin-ts`](/plugins/plugin-ts): ERROR Warning: Encountered two children with the same key
+- [`plugin-ts`](/plugins/plugin-ts): Does not consider pattern property for js doc
+
+# 3.16.0
+- [`core`](/plugins/core): Improve memory usage by using concurrency
+
+# 3.15.0
+- [`plugin-swr`](/plugins/plugin-swr/): `immutable` option to disable `revalidateIfStale`, `revalidateOnFocus` and `revalidateOnReconnect`, see [https://swr.vercel.app/docs/revalidation#disable-automatic-revalidations](https://swr.vercel.app/docs/revalidation#disable-automatic-revalidations).
+```typescript
+const { data, error } = useGetOrderById(2) // [!code --]
+const { data, error } = useGetOrderById(2, { immutable: true }) // [!code ++]
+```
+
+# 3.14.4
+- [`plugin-oas`](/plugins/plugin-oas): AnyOf where `const`(empty string) is being used should not be converted to a nullable value.
+```
+"anyOf": [
+  {
+    "const": "",
+    "type": "string"
+  },
+  {
+    "format": "email",
+    "type": "string"
+  }
+]
+```
+```typescript
+type Order ={
+  status?: null | string // [!code --]
+  status?: string // [!code ++]
+}
+
+```
+
+# 3.14.3
+- [`plugin-client`](/plugins/plugin-client): Support Google api format, for example: `my-api/foo/v1/bar/{id}:search`
+- [`plugin-msw`](/plugins/plugin-msw): Support Google api format, for example: `my-api/foo/v1/bar/{id}:search`
+
+# 3.14.2
+- [`plugin-oas`](/plugins/plugin-oas): Required properties not handled correctly when allOf is used
+
+# 3.14.1
+- [`parser/ts`](/parsers/parser-ts/): Fixed order of import and export files when using `print` of TypeScript + fixed TypeScript version
+
+# 3.14.0
+- [`cli`](/helpers/cli/): `validate` cli command to validate a Swagger/OpenAPI file: `npx kubb validate --input swagger.json`
+- [`cli`](/helpers/cli/): `mcp` cli command to start the MCP client to interact with LLMs(like Claude): `npx kubb mcp`
+
+# 3.13.2
+- [`plugin-client`](/plugins/plugin-client): Shadowed variables error when using `client`, use of `fetch` instead when an import to `@kubb/plugin-client/clients/axios` is needed.
+
+# 3.13.1
+- [`plugin-client`](/plugins/plugin-client): Parse and validate request data with Zod, including FormData, before forwarding it to the client.
+
 # 3.13.0
 - [`plugin-ts`](/plugins/plugin-ts): Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
 - [`plugin-zod`](/plugins/plugin-zod): Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.

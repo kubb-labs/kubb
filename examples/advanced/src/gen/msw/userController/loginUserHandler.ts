@@ -6,8 +6,9 @@ export function loginUserHandler(data?: LoginUserQueryResponse | ((info: Paramet
     if (typeof data === 'function') return data(info)
 
     return new Response(JSON.stringify(data), {
+      status: 200,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/xml',
       },
     })
   })

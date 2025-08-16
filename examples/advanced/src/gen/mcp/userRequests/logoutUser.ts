@@ -1,4 +1,4 @@
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { LogoutUserQueryResponse } from '../../models/ts/userController/LogoutUser.ts'
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
@@ -8,7 +8,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
  * {@link /user/logout}
  */
 export async function logoutUserHandler(): Promise<Promise<CallToolResult>> {
-  const res = await client<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({
+  const res = await fetch<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
     url: '/user/logout',
     baseURL: 'https://petstore.swagger.io/v2',

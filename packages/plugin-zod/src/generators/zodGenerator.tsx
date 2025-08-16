@@ -79,6 +79,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
             keysToOmit={keysToOmit}
             wrapOutput={wrapOutput}
             version={plugin.options.version}
+            emptySchemaType={plugin.options.emptySchemaType}
           />
         </Oas.Schema>
       )
@@ -104,7 +105,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     const {
       pluginManager,
       plugin: {
-        options: { output },
+        options: { output, emptySchemaType },
       },
     } = useApp<PluginZod>()
     const oas = useOas()
@@ -148,6 +149,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
           coercion={coercion}
           wrapOutput={wrapOutput}
           version={version}
+          emptySchemaType={emptySchemaType}
         />
       </File>
     )

@@ -25,7 +25,7 @@ describe('toRegExp', () => {
   })
 
   test('node_modules regex', () => {
-    const source = String.raw`node_modules`
+    const source = 'node_modules'
 
     expect(new RegExp(/node_modules/).source).toBe(source)
     expect(toRegExp(/node_modules/).source).toBe(source)
@@ -38,7 +38,7 @@ describe('toRegExp', () => {
   })
 
   test('advanced regex', () => {
-    const source = String.raw`^[a-z0-9-]{1,63}$`
+    const source = '^[a-z0-9-]{1,63}$'
 
     expect(new RegExp(/^[a-z0-9-]{1,63}$/).source).toBe(source)
     expect(toRegExp(/^[a-z0-9-]{1,63}$/).source).toBe(source)

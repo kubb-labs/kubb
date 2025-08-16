@@ -128,7 +128,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       .flat()
       .filter(Boolean)
 
-    const mapOperationSchema = ({ name, schema: schemaObject, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
+    const mapOperationSchema = ({ name, schema: schemaObject, description, keysToOmit, ...options }: OperationSchemaType) => {
       const tree = schemaGenerator.parse({ schemaObject, name })
       const imports = schemaManager.getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
@@ -140,10 +140,10 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       }
 
       return (
-        <Oas.Schema key={i} name={name} schemaObject={schemaObject} tree={tree}>
+        <Oas.Schema key={[name, schemaObject.$ref].join('-')} name={name} schemaObject={schemaObject} tree={tree}>
           {mode === 'split' &&
             imports.map((imp) => (
-              <File.Import key={[imp.name, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />
+              <File.Import key={[name, imp.name, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />
             ))}
           <Type
             name={type.name}
@@ -211,7 +211,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       >
         {mode === 'split' &&
           imports.map((imp) => (
-            <File.Import key={[imp.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
+            <File.Import key={[schema.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
           ))}
         <Type
           name={type.name}

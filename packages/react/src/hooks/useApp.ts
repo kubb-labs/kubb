@@ -1,7 +1,7 @@
 import type { FileManager, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { KubbFile } from '@kubb/core/fs'
 import { useContext } from 'react'
-import { App } from '../components/App'
+import { App } from '../components/App.tsx'
 
 type AppResult<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**

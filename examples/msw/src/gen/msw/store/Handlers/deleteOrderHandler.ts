@@ -11,9 +11,7 @@ export function deleteOrderHandler(data?: DeleteOrderMutationResponse | ((info: 
     if (typeof data === 'function') return data(info)
 
     return new Response(JSON.stringify(data), {
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      status: 200,
     })
   })
 }

@@ -20,6 +20,8 @@ exports[`faker parse > 'boolean' 1`] = `"faker.datatype.boolean()"`;
 
 exports[`faker parse > 'catchall' 1`] = `"{}"`;
 
+exports[`faker parse > 'const' 1`] = `""""`;
+
 exports[`faker parse > 'date' 1`] = `"faker.date.anytime().toISOString().substring(0, 10)"`;
 
 exports[`faker parse > 'datetime' 1`] = `"faker.date.anytime().toISOString()"`;
@@ -54,13 +56,15 @@ exports[`faker parse > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha({ le
 
 exports[`faker parse > 'objectArray' 1`] = `"{"ids": faker.helpers.multiple(() => (faker.helpers.fromRegExp(new RegExp('^[a-zA-Z0-9]{1,13}$'))), { count: { min: 3, max: 10 }})}"`;
 
-exports[`faker parse > 'objectArrayObject' 1`] = `"{"ids": faker.helpers.multiple(() => ({"enum": faker.helpers.arrayElement<NonNullable<undefined["ids"][number]>['enum']>(["A", "B", "C", 2])}), { count: { min: 3, max: 10 }})}"`;
+exports[`faker parse > 'objectArrayObject' 1`] = `"{"ids": faker.helpers.multiple(() => ({"enum": faker.helpers.arrayElement<NonNullable<NonNullable<NonNullable<Pet>["ids"]>[number]>["enum"]>(["A", "B", "C", 2])}), { count: { min: 3, max: 10 }})}"`;
 
 exports[`faker parse > 'objectDates' 1`] = `"{"dateTime": faker.date.anytime().toISOString(),"date": faker.date.anytime().toISOString().substring(0, 10),"time": faker.date.anytime().toISOString().substring(11, 19),"nativeDate": faker.date.anytime()}"`;
 
 exports[`faker parse > 'objectEmpty' 1`] = `"{}"`;
 
-exports[`faker parse > 'objectEnum' 1`] = `"{"version": faker.helpers.arrayElement<NonNullable<undefined>['version']>(["A", "B", "C", 2])}"`;
+exports[`faker parse > 'objectEnum' 1`] = `"{"version": faker.helpers.arrayElement<NonNullable<Pet>["version"]>(["A", "B", "C", 2])}"`;
+
+exports[`faker parse > 'objectObjectEnum' 1`] = `"{"prop1": {"prop2": faker.helpers.arrayElement<NonNullable<NonNullable<Pet>["prop1"]>["prop2"]>(["A", "B"])}}"`;
 
 exports[`faker parse > 'objectOptional' 1`] = `"{"firstName": faker.string.alpha({ length: 2 }),"address": faker.string.alpha()}"`;
 

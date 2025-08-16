@@ -1,5 +1,4 @@
 import process from 'node:process'
-import { FileManager, processFiles } from '@kubb/core'
 import type { KubbFile } from '@kubb/core/fs'
 import type { Logger } from '@kubb/core/logger'
 import type { ReactNode } from 'react'
@@ -12,7 +11,6 @@ import type { FiberRoot } from './kubbRenderer.ts'
 import { KubbRenderer } from './kubbRenderer.ts'
 import { type RendererResult, renderer } from './renderer.ts'
 import type { DOMElement } from './types.ts'
-import { throttle } from './utils/throttle.ts'
 
 export type ReactTemplateOptions = {
   stdout?: NodeJS.WriteStream
@@ -41,7 +39,7 @@ export class ReactTemplate {
     this.#options = options
 
     this.#rootNode = createNode('kubb-root')
-    this.#rootNode.onRender = options.debug ? this.onRender : throttle(this.onRender, 32)[0]
+    this.#rootNode.onRender = this.onRender
     this.#rootNode.onImmediateRender = this.onRender
 
     // Ignore last render after unmounting a tree to prevent empty output before exit
@@ -56,7 +54,6 @@ export class ReactTemplate {
       output: '',
     }
     const originalError = console.error
-    //@ts-ignore
     console.error = (data: string | Error) => {
       const message = typeof data === 'string' ? data : data?.message
 
@@ -219,17 +216,6 @@ export class ReactTemplate {
     }
 
     this.resolveExitPromise(this.#lastRendererResult)
-  }
-
-  async write() {
-    const fileManager = new FileManager()
-
-    await fileManager.add(...this.#lastRendererResult.files)
-
-    return processFiles({
-      root: process.cwd(),
-      files: fileManager.files,
-    })
   }
 
   async waitUntilExit(): Promise<RendererResult> {

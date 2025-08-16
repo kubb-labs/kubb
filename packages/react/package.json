@@ -1,12 +1,16 @@
 {
   "name": "@kubb/react",
-  "version": "3.12.2",
-  "description": "Generator react",
+  "version": "3.16.2",
+  "description": "React integration for Kubb, providing JSX runtime support and React component generation capabilities for code generation plugins.",
   "keywords": [
+    "react",
+    "jsx",
+    "component-generation",
     "typescript",
+    "code-generator",
+    "codegen",
     "plugins",
-    "kubb",
-    "codegen"
+    "kubb"
   ],
   "repository": {
     "type": "git",
@@ -16,41 +20,40 @@
   "license": "MIT",
   "author": "stijnvanhulle",
   "sideEffects": [
-    "./src/globals.ts"
+    "./dist/globals.js",
+    "./dist/globals.cjs"
   ],
   "type": "module",
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
-    },
-    "./package.json": "./package.json",
-    "./jsx-runtime": {
-      "import": "./dist/jsx-runtime.js",
-      "require": "./dist/jsx-runtime.cjs",
-      "default": "./dist/jsx-runtime.cjs"
-    },
-    "./jsx-dev-runtime": {
-      "import": "./dist/jsx-runtime.js",
-      "require": "./dist/jsx-runtime.cjs",
-      "default": "./dist/jsx-runtime.cjs"
+      "require": "./dist/index.cjs"
     },
     "./devtools": {
       "import": "./dist/devtools.js",
-      "require": "./dist/devtools.cjs",
-      "default": "./dist/devtools.cjs"
+      "require": "./dist/devtools.cjs"
+    },
+    "./globals": {
+      "import": "./dist/globals.js",
+      "require": "./dist/globals.cjs"
+    },
+    "./jsx-dev-runtime": {
+      "import": "./dist/jsx-dev-runtime.js",
+      "require": "./dist/jsx-dev-runtime.cjs"
+    },
+    "./jsx-runtime": {
+      "import": "./dist/jsx-runtime.js",
+      "require": "./dist/jsx-runtime.cjs"
     },
     "./types": {
       "import": "./dist/types.js",
-      "require": "./dist/types.cjs",
-      "default": "./dist/types.cjs"
+      "require": "./dist/types.cjs"
     },
-    "./*": "./*"
+    "./package.json": "./package.json"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
       "devtools": [
@@ -71,13 +74,13 @@
     "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint--fix --unsafe .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
-    "start": "tsup --watch",
+    "start": "tsdown --watch",
     "start:devtools": "npx react-devtools",
     "test": "vitest --passWithNoTests",
     "test:devtools": "node ./dist/runner.cjs",
@@ -89,19 +92,17 @@
     "execa": "^9.6.0",
     "natural-orderby": "^5.0.0",
     "react": "catalog:react19",
-    "react-devtools-core": "^5.3.2",
+    "react-devtools-core": "^6.1.5",
     "react-reconciler": "catalog:react19",
     "signal-exit": "^4.1.0",
     "ws": "^8.18.3"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "@kubb/config-tsup": "workspace:*",
     "@types/react": "catalog:react19",
     "@types/react-reconciler": "catalog:react19",
-    "@types/signal-exit": "^3.0.4",
     "@types/ws": "^8.18.1",
-    "tsup": "catalog:",
+    "tsdown": "catalog:",
     "typescript": "catalog:"
   },
   "engines": {
