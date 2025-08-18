@@ -8,7 +8,7 @@ import useSWRMutation from 'swr/mutation'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
+export const uploadFileMutationKey = () => [{ url: '/pet/:petId/uploadImage' }] as const
 
 export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
 

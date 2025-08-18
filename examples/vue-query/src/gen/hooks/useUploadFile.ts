@@ -10,7 +10,7 @@ import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
-export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
+export const uploadFileMutationKey = () => [{ url: '/pet/:petId/uploadImage' }] as const
 
 export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
 

@@ -9,7 +9,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
-export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
+export const uploadFileMutationKey = () => [{ url: '/pet/:petId/uploadImage' }] as const
 
 export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
 

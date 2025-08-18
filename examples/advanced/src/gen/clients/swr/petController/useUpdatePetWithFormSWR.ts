@@ -9,7 +9,7 @@ import type {
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import { updatePetWithForm } from '../../axios/petService/updatePetWithForm.ts'
 
-export const updatePetWithFormMutationKeySWR = () => [{ url: '/pet/{petId}:search' }] as const
+export const updatePetWithFormMutationKeySWR = () => [{ url: '/pet/:petId:search' }] as const
 
 export type UpdatePetWithFormMutationKeySWR = ReturnType<typeof updatePetWithFormMutationKeySWR>
 

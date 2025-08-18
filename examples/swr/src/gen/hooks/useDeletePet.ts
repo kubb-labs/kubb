@@ -8,7 +8,7 @@ import useSWRMutation from 'swr/mutation'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export const deletePetMutationKey = () => [{ url: '/pet/{petId}' }] as const
+export const deletePetMutationKey = () => [{ url: '/pet/:petId' }] as const
 
 export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 

@@ -8,7 +8,7 @@ import useSWRMutation from 'swr/mutation'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const
+export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 

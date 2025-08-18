@@ -20,7 +20,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
-export const deletePetMutationKey = () => [{ url: '/pet/{pet_id}' }] as const
+export const deletePetMutationKey = () => [{ url: '/pet/:pet_id' }] as const
 
 export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 

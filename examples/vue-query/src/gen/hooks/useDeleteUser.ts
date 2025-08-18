@@ -10,7 +10,7 @@ import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
-export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
+export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
 

@@ -10,7 +10,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { uploadFile } from '../../axios/petService/uploadFile.ts'
 import { useMutation } from '@tanstack/react-query'
 
-export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
+export const uploadFileMutationKey = () => [{ url: '/pet/:petId/uploadImage' }] as const
 
 export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
 

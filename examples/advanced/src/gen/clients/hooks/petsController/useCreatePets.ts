@@ -11,7 +11,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { createPets } from '../../axios/petsService/createPets.ts'
 import { useMutation } from '@tanstack/react-query'
 
-export const createPetsMutationKey = () => [{ url: '/pets/{uuid}' }] as const
+export const createPetsMutationKey = () => [{ url: '/pets/:uuid' }] as const
 
 export type CreatePetsMutationKey = ReturnType<typeof createPetsMutationKey>
 

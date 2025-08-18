@@ -218,11 +218,11 @@ Specifies the formatting tool to be used.
 
 
 > [!IMPORTANT]
-> By default, we use Prettier. Since Kubb `v3.17.1` included Prettier as a dependency, this ensures backward compatibility.
+> By default, we use [Prettier](https://prettier.io/). Since Kubb `v3.17.1` included Prettier as a dependency, this ensures backward compatibility.
 
 
-- `'prettier'`: Uses Prettier for code formatting.
-- `'biome'`: Uses Biome for code formatting.
+- `'prettier'`: Uses [Prettier](https://prettier.io/) for code formatting.
+- `'biome'`: Uses [Biome](https://biomejs.dev/) for code formatting.
 
 |           |                                  |
 |----------:|:---------------------------------|
@@ -234,9 +234,9 @@ Specifies the formatting tool to be used.
 #### output.lint
 Specifies the formatting tool to be used.
 
-- `'eslint'`: Represents the use of ESLint, a widely used JavaScript linter.
-- `'biome'`: Represents the Biome linter, a modern tool for code scanning.
-- `'oxlint'`: Represents the Oxlint tool for linting purposes.
+- `'eslint'`: Represents the use of [Eslint](https://eslint.org/), a widely used JavaScript linter.
+- `'biome'`: Represents the [Biome](https://biomejs.dev/) linter, a modern tool for code scanning.
+- `'oxlint'`: Represents the [Oxlint](https://oxc.rs/docs/guide/usage/linter) tool for linting purposes.
 
 |           |                                            |
 |----------:|:-------------------------------------------|
