@@ -6,65 +6,61 @@
 import { z } from 'zod'
 
 export const appSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().optional(),
-  organization: z.lazy(() => organizationSchema).optional(),
-  status: z.string().optional(),
+  id: z.optional(z.string()),
+  name: z.optional(z.string()),
+  organization: z.optional(z.lazy(() => organizationSchema)),
+  status: z.optional(z.string()),
 })
 
 export const appSecretSchema = z.object({
-  digest: z.string().optional(),
-  name: z.string().optional(),
-  value: z.string().optional(),
+  digest: z.optional(z.string()),
+  name: z.optional(z.string()),
+  value: z.optional(z.string()),
 })
 
 export const appSecretsSchema = z.object({
-  secrets: z.array(z.lazy(() => appSecretSchema)).optional(),
+  secrets: z.optional(z.array(z.lazy(() => appSecretSchema))),
 })
 
 export const checkStatusSchema = z.object({
-  name: z.string().optional(),
-  output: z.string().optional(),
-  status: z.string().optional(),
-  updated_at: z.string().optional(),
+  name: z.optional(z.string()),
+  output: z.optional(z.string()),
+  status: z.optional(z.string()),
+  updated_at: z.optional(z.string()),
 })
 
 export const createAppDeployTokenRequestSchema = z.object({
-  expiry: z.string().optional(),
+  expiry: z.optional(z.string()),
 })
 
 export const createAppRequestSchema = z.object({
-  app_name: z.string().optional(),
-  enable_subdomains: z.boolean().optional(),
-  network: z.string().optional(),
-  org_slug: z.string().optional(),
+  app_name: z.optional(z.string()),
+  enable_subdomains: z.optional(z.boolean()),
+  network: z.optional(z.string()),
+  org_slug: z.optional(z.string()),
 })
 
 export const createAppResponseSchema = z.object({
-  token: z.string().optional(),
+  token: z.optional(z.string()),
 })
 
 export const createLeaseRequestSchema = z.object({
-  description: z.string().optional(),
-  ttl: z.number().int().describe('seconds lease will be valid').optional(),
+  description: z.optional(z.string()),
+  ttl: z.optional(z.number().int().describe('seconds lease will be valid')),
 })
 
 export const createMachineRequestSchema = z.object({
-  config: z
-    .lazy(() => flyMachineConfigSchema)
-    .describe('An object defining the Machine configuration')
-    .optional(),
-  lease_ttl: z.number().int().optional(),
-  lsvd: z.boolean().optional(),
-  min_secrets_version: z.number().int().optional(),
-  name: z.string().describe('Unique name for this Machine. If omitted, one is generated for you').optional(),
-  region: z
-    .string()
-    .describe('The target region. Omitting this param launches in the same region as your WireGuard peer connection (somewhere near you).')
-    .optional(),
-  skip_launch: z.boolean().optional(),
-  skip_secrets: z.boolean().optional(),
-  skip_service_registration: z.boolean().optional(),
+  config: z.optional(z.lazy(() => flyMachineConfigSchema).describe('An object defining the Machine configuration')),
+  lease_ttl: z.optional(z.number().int()),
+  lsvd: z.optional(z.boolean()),
+  min_secrets_version: z.optional(z.number().int()),
+  name: z.optional(z.string().describe('Unique name for this Machine. If omitted, one is generated for you')),
+  region: z.optional(
+    z.string().describe('The target region. Omitting this param launches in the same region as your WireGuard peer connection (somewhere near you).'),
+  ),
+  skip_launch: z.optional(z.boolean()),
+  skip_secrets: z.optional(z.boolean()),
+  skip_service_registration: z.optional(z.boolean()),
 })
 
 /**
@@ -72,338 +68,334 @@ export const createMachineRequestSchema = z.object({
  */
 export const createOIDCTokenRequestSchema = z
   .object({
-    aud: z.string().optional(),
-    aws_principal_tags: z.boolean().optional(),
+    aud: z.optional(z.string()),
+    aws_principal_tags: z.optional(z.boolean()),
   })
   .describe('Optional parameters')
 
 export const createVolumeRequestSchema = z.object({
-  compute: z.lazy(() => flyMachineGuestSchema).optional(),
-  compute_image: z.string().optional(),
-  encrypted: z.boolean().optional(),
-  fstype: z.string().optional(),
-  name: z.string().optional(),
-  region: z.string().optional(),
-  require_unique_zone: z.boolean().optional(),
-  size_gb: z.number().int().optional(),
-  snapshot_id: z.string().describe('restore from snapshot').optional(),
-  snapshot_retention: z.number().int().optional(),
-  source_volume_id: z.string().describe('fork from remote volume').optional(),
-  unique_zone_app_wide: z.boolean().optional(),
+  compute: z.optional(z.lazy(() => flyMachineGuestSchema)),
+  compute_image: z.optional(z.string()),
+  encrypted: z.optional(z.boolean()),
+  fstype: z.optional(z.string()),
+  name: z.optional(z.string()),
+  region: z.optional(z.string()),
+  require_unique_zone: z.optional(z.boolean()),
+  size_gb: z.optional(z.number().int()),
+  snapshot_id: z.optional(z.string().describe('restore from snapshot')),
+  snapshot_retention: z.optional(z.number().int()),
+  source_volume_id: z.optional(z.string().describe('fork from remote volume')),
+  unique_zone_app_wide: z.optional(z.boolean()),
 })
 
 export const currentTokenResponseSchema = z.object({
-  tokens: z.array(z.lazy(() => mainTokenInfoSchema)).optional(),
+  tokens: z.optional(z.array(z.lazy(() => mainTokenInfoSchema))),
 })
 
 export const decryptSecretkeyRequestSchema = z.object({
-  associated_data: z.array(z.number().int()).optional(),
-  ciphertext: z.array(z.number().int()).optional(),
+  associated_data: z.optional(z.array(z.number().int())),
+  ciphertext: z.optional(z.array(z.number().int())),
 })
 
 export const decryptSecretkeyResponseSchema = z.object({
-  plaintext: z.array(z.number().int()).optional(),
+  plaintext: z.optional(z.array(z.number().int())),
 })
 
 export const encryptSecretkeyRequestSchema = z.object({
-  associated_data: z.array(z.number().int()).optional(),
-  plaintext: z.array(z.number().int()).optional(),
+  associated_data: z.optional(z.array(z.number().int())),
+  plaintext: z.optional(z.array(z.number().int())),
 })
 
 export const encryptSecretkeyResponseSchema = z.object({
-  ciphertext: z.array(z.number().int()).optional(),
+  ciphertext: z.optional(z.array(z.number().int())),
 })
 
 export const errorResponseSchema = z.object({
-  details: z.object({}).describe('Deprecated').optional(),
-  error: z.string().optional(),
-  status: z.lazy(() => mainStatusCodeSchema).optional(),
+  details: z.optional(z.object({}).describe('Deprecated')),
+  error: z.optional(z.string()),
+  status: z.optional(z.lazy(() => mainStatusCodeSchema)),
 })
 
 export const extendVolumeRequestSchema = z.object({
-  size_gb: z.number().int().optional(),
+  size_gb: z.optional(z.number().int()),
 })
 
 export const extendVolumeResponseSchema = z.object({
-  needs_restart: z.boolean().optional(),
-  volume: z.lazy(() => volumeSchema).optional(),
+  needs_restart: z.optional(z.boolean()),
+  volume: z.optional(z.lazy(() => volumeSchema)),
 })
 
 export const imageRefSchema = z.object({
-  digest: z.string().optional(),
-  labels: z.object({}).catchall(z.string()).optional(),
-  registry: z.string().optional(),
-  repository: z.string().optional(),
-  tag: z.string().optional(),
+  digest: z.optional(z.string()),
+  labels: z.optional(z.object({}).catchall(z.string())),
+  registry: z.optional(z.string()),
+  repository: z.optional(z.string()),
+  tag: z.optional(z.string()),
 })
 
 export const leaseSchema = z.object({
-  description: z.string().describe('Description or reason for the Lease.').optional(),
-  expires_at: z.number().int().describe('ExpiresAt is the unix timestamp in UTC to denote when the Lease will no longer be valid.').optional(),
-  nonce: z.string().describe('Nonce is the unique ID autogenerated and associated with the Lease.').optional(),
-  owner: z.string().describe('Owner is the user identifier which acquired the Lease.').optional(),
-  version: z.string().describe('Machine version').optional(),
+  description: z.optional(z.string().describe('Description or reason for the Lease.')),
+  expires_at: z.optional(z.number().int().describe('ExpiresAt is the unix timestamp in UTC to denote when the Lease will no longer be valid.')),
+  nonce: z.optional(z.string().describe('Nonce is the unique ID autogenerated and associated with the Lease.')),
+  owner: z.optional(z.string().describe('Owner is the user identifier which acquired the Lease.')),
+  version: z.optional(z.string().describe('Machine version')),
 })
 
 export const listAppSchema = z.object({
-  id: z.string().optional(),
-  machine_count: z.number().int().optional(),
-  name: z.string().optional(),
-  network: z.object({}).optional(),
-  volume_count: z.number().int().optional(),
+  id: z.optional(z.string()),
+  machine_count: z.optional(z.number().int()),
+  name: z.optional(z.string()),
+  network: z.optional(z.object({})),
+  volume_count: z.optional(z.number().int()),
 })
 
 export const listAppsResponseSchema = z.object({
-  apps: z.array(z.lazy(() => listAppSchema)).optional(),
-  total_apps: z.number().int().optional(),
+  apps: z.optional(z.array(z.lazy(() => listAppSchema))),
+  total_apps: z.optional(z.number().int()),
 })
 
 export const listenSocketSchema = z.object({
-  address: z.string().optional(),
-  proto: z.string().optional(),
+  address: z.optional(z.string()),
+  proto: z.optional(z.string()),
 })
 
 export const machineSchema = z.object({
-  checks: z.array(z.lazy(() => checkStatusSchema)).optional(),
-  config: z.lazy(() => flyMachineConfigSchema).optional(),
-  created_at: z.string().optional(),
-  events: z.array(z.lazy(() => machineEventSchema)).optional(),
-  host_status: z.enum(['ok', 'unknown', 'unreachable']).optional(),
-  id: z.string().optional(),
-  image_ref: z.lazy(() => imageRefSchema).optional(),
-  incomplete_config: z.lazy(() => flyMachineConfigSchema).optional(),
-  instance_id: z.string().describe('InstanceID is unique for each version of the machine').optional(),
-  name: z.string().optional(),
-  nonce: z.string().describe('Nonce is only every returned on machine creation if a lease_duration was provided.').optional(),
-  private_ip: z.string().describe('PrivateIP is the internal 6PN address of the machine.').optional(),
-  region: z.string().optional(),
-  state: z.string().optional(),
-  updated_at: z.string().optional(),
+  checks: z.optional(z.array(z.lazy(() => checkStatusSchema))),
+  config: z.optional(z.lazy(() => flyMachineConfigSchema)),
+  created_at: z.optional(z.string()),
+  events: z.optional(z.array(z.lazy(() => machineEventSchema))),
+  host_status: z.optional(z.enum(['ok', 'unknown', 'unreachable'])),
+  id: z.optional(z.string()),
+  image_ref: z.optional(z.lazy(() => imageRefSchema)),
+  incomplete_config: z.optional(z.lazy(() => flyMachineConfigSchema)),
+  instance_id: z.optional(z.string().describe('InstanceID is unique for each version of the machine')),
+  name: z.optional(z.string()),
+  nonce: z.optional(z.string().describe('Nonce is only every returned on machine creation if a lease_duration was provided.')),
+  private_ip: z.optional(z.string().describe('PrivateIP is the internal 6PN address of the machine.')),
+  region: z.optional(z.string()),
+  state: z.optional(z.string()),
+  updated_at: z.optional(z.string()),
 })
 
 export const machineEventSchema = z.object({
-  id: z.string().optional(),
-  request: z.object({}).optional(),
-  source: z.string().optional(),
-  status: z.string().optional(),
-  timestamp: z.number().int().optional(),
-  type: z.string().optional(),
+  id: z.optional(z.string()),
+  request: z.optional(z.object({})),
+  source: z.optional(z.string()),
+  status: z.optional(z.string()),
+  timestamp: z.optional(z.number().int()),
+  type: z.optional(z.string()),
 })
 
 export const machineExecRequestSchema = z.object({
-  cmd: z.string().describe('Deprecated: use Command instead').optional(),
-  command: z.array(z.string()).optional(),
-  container: z.string().optional(),
-  stdin: z.string().optional(),
-  timeout: z.number().int().optional(),
+  cmd: z.optional(z.string().describe('Deprecated: use Command instead')),
+  command: z.optional(z.array(z.string())),
+  container: z.optional(z.string()),
+  stdin: z.optional(z.string()),
+  timeout: z.optional(z.number().int()),
 })
 
 export const machineVersionSchema = z.object({
-  user_config: z.lazy(() => flyMachineConfigSchema).optional(),
-  version: z.string().optional(),
+  user_config: z.optional(z.lazy(() => flyMachineConfigSchema)),
+  version: z.optional(z.string()),
 })
 
 export const organizationSchema = z.object({
-  name: z.string().optional(),
-  slug: z.string().optional(),
+  name: z.optional(z.string()),
+  slug: z.optional(z.string()),
 })
 
 export const processStatSchema = z.object({
-  command: z.string().optional(),
-  cpu: z.number().int().optional(),
-  directory: z.string().optional(),
-  listen_sockets: z.array(z.lazy(() => listenSocketSchema)).optional(),
-  pid: z.number().int().optional(),
-  rss: z.number().int().optional(),
-  rtime: z.number().int().optional(),
-  stime: z.number().int().optional(),
+  command: z.optional(z.string()),
+  cpu: z.optional(z.number().int()),
+  directory: z.optional(z.string()),
+  listen_sockets: z.optional(z.array(z.lazy(() => listenSocketSchema))),
+  pid: z.optional(z.number().int()),
+  rss: z.optional(z.number().int()),
+  rtime: z.optional(z.number().int()),
+  stime: z.optional(z.number().int()),
 })
 
 export const secretKeySchema = z.object({
-  name: z.string().optional(),
-  public_key: z.array(z.number().int()).optional(),
-  type: z.string().optional(),
+  name: z.optional(z.string()),
+  public_key: z.optional(z.array(z.number().int())),
+  type: z.optional(z.string()),
 })
 
 export const secretKeysSchema = z.object({
-  secret_keys: z.array(z.lazy(() => secretKeySchema)).optional(),
+  secret_keys: z.optional(z.array(z.lazy(() => secretKeySchema))),
 })
 
 export const setAppSecretRequestSchema = z.object({
-  value: z.string().optional(),
+  value: z.optional(z.string()),
 })
 
 export const setAppSecretResponseSchema = z.object({
-  digest: z.string().optional(),
-  name: z.string().optional(),
-  value: z.string().optional(),
-  version: z.number().int().optional(),
+  digest: z.optional(z.string()),
+  name: z.optional(z.string()),
+  value: z.optional(z.string()),
+  version: z.optional(z.number().int()),
 })
 
 export const setSecretkeyRequestSchema = z.object({
-  type: z.string().optional(),
-  value: z.array(z.number().int()).optional(),
+  type: z.optional(z.string()),
+  value: z.optional(z.array(z.number().int())),
 })
 
 export const setSecretkeyResponseSchema = z.object({
-  name: z.string().optional(),
-  public_key: z.array(z.number().int()).optional(),
-  type: z.string().optional(),
-  version: z.number().int().optional(),
+  name: z.optional(z.string()),
+  public_key: z.optional(z.array(z.number().int())),
+  type: z.optional(z.string()),
+  version: z.optional(z.number().int()),
 })
 
 export const signSecretkeyRequestSchema = z.object({
-  plaintext: z.array(z.number().int()).optional(),
+  plaintext: z.optional(z.array(z.number().int())),
 })
 
 export const signSecretkeyResponseSchema = z.object({
-  signature: z.array(z.number().int()).optional(),
+  signature: z.optional(z.array(z.number().int())),
 })
 
 export const signalRequestSchema = z.object({
-  signal: z
-    .enum(['SIGABRT', 'SIGALRM', 'SIGFPE', 'SIGHUP', 'SIGILL', 'SIGINT', 'SIGKILL', 'SIGPIPE', 'SIGQUIT', 'SIGSEGV', 'SIGTERM', 'SIGTRAP', 'SIGUSR1'])
-    .optional(),
+  signal: z.optional(
+    z.enum(['SIGABRT', 'SIGALRM', 'SIGFPE', 'SIGHUP', 'SIGILL', 'SIGINT', 'SIGKILL', 'SIGPIPE', 'SIGQUIT', 'SIGSEGV', 'SIGTERM', 'SIGTRAP', 'SIGUSR1']),
+  ),
 })
 
 export const stopRequestSchema = z.object({
-  signal: z.string().optional(),
-  timeout: z.lazy(() => flyDurationSchema).optional(),
+  signal: z.optional(z.string()),
+  timeout: z.optional(z.lazy(() => flyDurationSchema)),
 })
 
 export const updateMachineRequestSchema = z.object({
-  config: z
-    .lazy(() => flyMachineConfigSchema)
-    .describe('An object defining the Machine configuration')
-    .optional(),
-  current_version: z.string().optional(),
-  lease_ttl: z.number().int().optional(),
-  lsvd: z.boolean().optional(),
-  min_secrets_version: z.number().int().optional(),
-  name: z.string().describe('Unique name for this Machine. If omitted, one is generated for you').optional(),
-  region: z
-    .string()
-    .describe('The target region. Omitting this param launches in the same region as your WireGuard peer connection (somewhere near you).')
-    .optional(),
-  skip_launch: z.boolean().optional(),
-  skip_secrets: z.boolean().optional(),
-  skip_service_registration: z.boolean().optional(),
+  config: z.optional(z.lazy(() => flyMachineConfigSchema).describe('An object defining the Machine configuration')),
+  current_version: z.optional(z.string()),
+  lease_ttl: z.optional(z.number().int()),
+  lsvd: z.optional(z.boolean()),
+  min_secrets_version: z.optional(z.number().int()),
+  name: z.optional(z.string().describe('Unique name for this Machine. If omitted, one is generated for you')),
+  region: z.optional(
+    z.string().describe('The target region. Omitting this param launches in the same region as your WireGuard peer connection (somewhere near you).'),
+  ),
+  skip_launch: z.optional(z.boolean()),
+  skip_secrets: z.optional(z.boolean()),
+  skip_service_registration: z.optional(z.boolean()),
 })
 
 export const updateVolumeRequestSchema = z.object({
-  auto_backup_enabled: z.boolean().optional(),
-  snapshot_retention: z.number().int().optional(),
+  auto_backup_enabled: z.optional(z.boolean()),
+  snapshot_retention: z.optional(z.number().int()),
 })
 
 export const verifySecretkeyRequestSchema = z.object({
-  plaintext: z.array(z.number().int()).optional(),
-  signature: z.array(z.number().int()).optional(),
+  plaintext: z.optional(z.array(z.number().int())),
+  signature: z.optional(z.array(z.number().int())),
 })
 
 export const volumeSchema = z.object({
-  attached_alloc_id: z.string().optional(),
-  attached_machine_id: z.string().optional(),
-  auto_backup_enabled: z.boolean().optional(),
-  block_size: z.number().int().optional(),
-  blocks: z.number().int().optional(),
-  blocks_avail: z.number().int().optional(),
-  blocks_free: z.number().int().optional(),
-  bytes_total: z.number().int().optional(),
-  bytes_used: z.number().int().optional(),
-  created_at: z.string().optional(),
-  encrypted: z.boolean().optional(),
-  fstype: z.string().optional(),
-  host_status: z.enum(['ok', 'unknown', 'unreachable']).optional(),
-  id: z.string().optional(),
-  name: z.string().optional(),
-  region: z.string().optional(),
-  size_gb: z.number().int().optional(),
-  snapshot_retention: z.number().int().optional(),
-  state: z.string().optional(),
-  zone: z.string().optional(),
+  attached_alloc_id: z.optional(z.string()),
+  attached_machine_id: z.optional(z.string()),
+  auto_backup_enabled: z.optional(z.boolean()),
+  block_size: z.optional(z.number().int()),
+  blocks: z.optional(z.number().int()),
+  blocks_avail: z.optional(z.number().int()),
+  blocks_free: z.optional(z.number().int()),
+  bytes_total: z.optional(z.number().int()),
+  bytes_used: z.optional(z.number().int()),
+  created_at: z.optional(z.string()),
+  encrypted: z.optional(z.boolean()),
+  fstype: z.optional(z.string()),
+  host_status: z.optional(z.enum(['ok', 'unknown', 'unreachable'])),
+  id: z.optional(z.string()),
+  name: z.optional(z.string()),
+  region: z.optional(z.string()),
+  size_gb: z.optional(z.number().int()),
+  snapshot_retention: z.optional(z.number().int()),
+  state: z.optional(z.string()),
+  zone: z.optional(z.string()),
 })
 
 export const volumeSnapshotSchema = z.object({
-  created_at: z.string().optional(),
-  digest: z.string().optional(),
-  id: z.string().optional(),
-  retention_days: z.number().int().optional(),
-  size: z.number().int().optional(),
-  status: z.string().optional(),
+  created_at: z.optional(z.string()),
+  digest: z.optional(z.string()),
+  id: z.optional(z.string()),
+  retention_days: z.optional(z.number().int()),
+  size: z.optional(z.number().int()),
+  status: z.optional(z.string()),
 })
 
 export const flyContainerConfigSchema = z.object({
-  cmd: z.array(z.string()).describe('CmdOverride is used to override the default command of the image.').optional(),
-  depends_on: z
-    .array(z.lazy(() => flyContainerDependencySchema))
-    .describe(
-      'DependsOn can be used to define dependencies between containers. The container will only be\nstarted after all of its dependent conditions have been satisfied.',
-    )
-    .optional(),
-  entrypoint: z.array(z.string()).describe('EntrypointOverride is used to override the default entrypoint of the image.').optional(),
-  env: z.object({}).catchall(z.string()).describe('ExtraEnv is used to add additional environment variables to the container.').optional(),
-  env_from: z
-    .array(z.lazy(() => flyEnvFromSchema).describe('EnvVar defines an environment variable to be populated from a machine field, env_var'))
-    .describe('EnvFrom can be provided to set environment variables from machine fields.')
-    .optional(),
-  exec: z
-    .array(z.string())
-    .describe(
-      'Image Config overrides - these fields are used to override the image configuration.\nIf not provided, the image configuration will be used.\nExecOverride is used to override the default command of the image.',
-    )
-    .optional(),
-  files: z
-    .array(z.lazy(() => flyFileSchema).describe('A file that will be written to the Machine. One of RawValue or SecretName must be set.'))
-    .describe('Files are files that will be written to the container file system.')
-    .optional(),
-  healthchecks: z
-    .array(z.lazy(() => flyContainerHealthcheckSchema))
-    .describe('Healthchecks determine the health of your containers. Healthchecks can use HTTP, TCP or an Exec command.')
-    .optional(),
-  image: z.string().describe('Image is the docker image to run.').optional(),
-  name: z.string().describe('Name is used to identify the container in the machine.').optional(),
-  restart: z
-    .lazy(() => flyMachineRestartSchema)
-    .describe('Restart is used to define the restart policy for the container. NOTE: spot-price is not\nsupported for containers.')
-    .optional(),
-  secrets: z
-    .array(z.lazy(() => flyMachineSecretSchema).describe('A Secret needing to be set in the environment of the Machine. env_var is required'))
-    .describe(
-      'Secrets can be provided at the process level to explicitly indicate which secrets should be\nused for the process. If not provided, the secrets provided at the machine level will be used.',
-    )
-    .optional(),
-  stop: z
-    .lazy(() => flyStopConfigSchema)
-    .describe('Stop is used to define the signal and timeout for stopping the container.')
-    .optional(),
-  user: z.string().describe('UserOverride is used to override the default user of the image.').optional(),
+  cmd: z.optional(z.array(z.string()).describe('CmdOverride is used to override the default command of the image.')),
+  depends_on: z.optional(
+    z
+      .array(z.lazy(() => flyContainerDependencySchema))
+      .describe(
+        'DependsOn can be used to define dependencies between containers. The container will only be\nstarted after all of its dependent conditions have been satisfied.',
+      ),
+  ),
+  entrypoint: z.optional(z.array(z.string()).describe('EntrypointOverride is used to override the default entrypoint of the image.')),
+  env: z.optional(z.object({}).catchall(z.string()).describe('ExtraEnv is used to add additional environment variables to the container.')),
+  env_from: z.optional(
+    z
+      .array(z.lazy(() => flyEnvFromSchema).describe('EnvVar defines an environment variable to be populated from a machine field, env_var'))
+      .describe('EnvFrom can be provided to set environment variables from machine fields.'),
+  ),
+  exec: z.optional(
+    z
+      .array(z.string())
+      .describe(
+        'Image Config overrides - these fields are used to override the image configuration.\nIf not provided, the image configuration will be used.\nExecOverride is used to override the default command of the image.',
+      ),
+  ),
+  files: z.optional(
+    z
+      .array(z.lazy(() => flyFileSchema).describe('A file that will be written to the Machine. One of RawValue or SecretName must be set.'))
+      .describe('Files are files that will be written to the container file system.'),
+  ),
+  healthchecks: z.optional(
+    z
+      .array(z.lazy(() => flyContainerHealthcheckSchema))
+      .describe('Healthchecks determine the health of your containers. Healthchecks can use HTTP, TCP or an Exec command.'),
+  ),
+  image: z.optional(z.string().describe('Image is the docker image to run.')),
+  name: z.optional(z.string().describe('Name is used to identify the container in the machine.')),
+  restart: z.optional(
+    z
+      .lazy(() => flyMachineRestartSchema)
+      .describe('Restart is used to define the restart policy for the container. NOTE: spot-price is not\nsupported for containers.'),
+  ),
+  secrets: z.optional(
+    z
+      .array(z.lazy(() => flyMachineSecretSchema).describe('A Secret needing to be set in the environment of the Machine. env_var is required'))
+      .describe(
+        'Secrets can be provided at the process level to explicitly indicate which secrets should be\nused for the process. If not provided, the secrets provided at the machine level will be used.',
+      ),
+  ),
+  stop: z.optional(z.lazy(() => flyStopConfigSchema).describe('Stop is used to define the signal and timeout for stopping the container.')),
+  user: z.optional(z.string().describe('UserOverride is used to override the default user of the image.')),
 })
 
 export const flyContainerDependencySchema = z.object({
-  condition: z.lazy(() => flyContainerDependencyConditionSchema).optional(),
-  name: z.string().optional(),
+  condition: z.optional(z.lazy(() => flyContainerDependencyConditionSchema)),
+  name: z.optional(z.string()),
 })
 
 export const flyContainerDependencyConditionSchema = z.enum(['exited_successfully', 'healthy', 'started'])
 
 export const flyContainerHealthcheckSchema = z.object({
-  exec: z.lazy(() => flyExecHealthcheckSchema).optional(),
-  failure_threshold: z.number().int().describe('The number of times the check must fail before considering the container unhealthy.').optional(),
-  grace_period: z.number().int().describe('The time in seconds to wait after a container starts before checking its health.').optional(),
-  http: z.lazy(() => flyHTTPHealthcheckSchema).optional(),
-  interval: z.number().int().describe('The time in seconds between executing the defined check.').optional(),
-  kind: z
-    .lazy(() => flyContainerHealthcheckKindSchema)
-    .describe('Kind of healthcheck (readiness, liveness)')
-    .optional(),
-  name: z.string().describe('The name of the check. Must be unique within the container.').optional(),
-  success_threshold: z.number().int().describe('The number of times the check must succeeed before considering the container healthy.').optional(),
-  tcp: z.lazy(() => flyTCPHealthcheckSchema).optional(),
-  timeout: z.number().int().describe('The time in seconds to wait for the check to complete.').optional(),
-  unhealthy: z
-    .lazy(() => flyUnhealthyPolicySchema)
-    .describe('Unhealthy policy that determines what action to take if a container is deemed unhealthy')
-    .optional(),
+  exec: z.optional(z.lazy(() => flyExecHealthcheckSchema)),
+  failure_threshold: z.optional(z.number().int().describe('The number of times the check must fail before considering the container unhealthy.')),
+  grace_period: z.optional(z.number().int().describe('The time in seconds to wait after a container starts before checking its health.')),
+  http: z.optional(z.lazy(() => flyHTTPHealthcheckSchema)),
+  interval: z.optional(z.number().int().describe('The time in seconds between executing the defined check.')),
+  kind: z.optional(z.lazy(() => flyContainerHealthcheckKindSchema).describe('Kind of healthcheck (readiness, liveness)')),
+  name: z.optional(z.string().describe('The name of the check. Must be unique within the container.')),
+  success_threshold: z.optional(z.number().int().describe('The number of times the check must succeeed before considering the container healthy.')),
+  tcp: z.optional(z.lazy(() => flyTCPHealthcheckSchema)),
+  timeout: z.optional(z.number().int().describe('The time in seconds to wait for the check to complete.')),
+  unhealthy: z.optional(
+    z.lazy(() => flyUnhealthyPolicySchema).describe('Unhealthy policy that determines what action to take if a container is deemed unhealthy'),
+  ),
 })
 
 export const flyContainerHealthcheckKindSchema = z.enum(['readiness', 'liveness'])
@@ -411,17 +403,17 @@ export const flyContainerHealthcheckKindSchema = z.enum(['readiness', 'liveness'
 export const flyContainerHealthcheckSchemeSchema = z.enum(['http', 'https'])
 
 export const flyDNSConfigSchema = z.object({
-  dns_forward_rules: z.array(z.lazy(() => flyDnsForwardRuleSchema)).optional(),
-  hostname: z.string().optional(),
-  hostname_fqdn: z.string().optional(),
-  nameservers: z.array(z.string()).optional(),
-  options: z.array(z.lazy(() => flyDnsOptionSchema)).optional(),
-  searches: z.array(z.string()).optional(),
-  skip_registration: z.boolean().optional(),
+  dns_forward_rules: z.optional(z.array(z.lazy(() => flyDnsForwardRuleSchema))),
+  hostname: z.optional(z.string()),
+  hostname_fqdn: z.optional(z.string()),
+  nameservers: z.optional(z.array(z.string())),
+  options: z.optional(z.array(z.lazy(() => flyDnsOptionSchema))),
+  searches: z.optional(z.array(z.string())),
+  skip_registration: z.optional(z.boolean()),
 })
 
 export const flyDurationSchema = z.object({
-  'time.Duration': z.number().int().optional(),
+  'time.Duration': z.optional(z.number().int()),
 })
 
 /**
@@ -429,21 +421,23 @@ export const flyDurationSchema = z.object({
  */
 export const flyEnvFromSchema = z
   .object({
-    env_var: z
-      .string()
-      .describe(
-        'EnvVar is required and is the name of the environment variable that will be set from the\nsecret. It must be a valid environment variable name.',
-      )
-      .optional(),
-    field_ref: z
-      .enum(['id', 'version', 'app_name', 'private_ip', 'region', 'image'])
-      .describe('FieldRef selects a field of the Machine: supports id, version, app_name, private_ip, region, image.')
-      .optional(),
+    env_var: z.optional(
+      z
+        .string()
+        .describe(
+          'EnvVar is required and is the name of the environment variable that will be set from the\nsecret. It must be a valid environment variable name.',
+        ),
+    ),
+    field_ref: z.optional(
+      z
+        .enum(['id', 'version', 'app_name', 'private_ip', 'region', 'image'])
+        .describe('FieldRef selects a field of the Machine: supports id, version, app_name, private_ip, region, image.'),
+    ),
   })
   .describe('EnvVar defines an environment variable to be populated from a machine field, env_var')
 
 export const flyExecHealthcheckSchema = z.object({
-  command: z.array(z.string()).describe('The command to run to check the health of the container (e.g. ["cat", "/tmp/healthy"])').optional(),
+  command: z.optional(z.array(z.string()).describe('The command to run to check the health of the container (e.g. ["cat", "/tmp/healthy"])')),
 })
 
 /**
@@ -451,131 +445,125 @@ export const flyExecHealthcheckSchema = z.object({
  */
 export const flyFileSchema = z
   .object({
-    guest_path: z
-      .string()
-      .describe('GuestPath is the path on the machine where the file will be written and must be an absolute path.\nFor example: /full/path/to/file.json')
-      .optional(),
-    image_config: z.string().describe('The name of an image to use the OCI image config as the file contents.').optional(),
-    mode: z.number().int().describe('Mode bits used to set permissions on this file as accepted by chmod(2).').optional(),
-    raw_value: z.string().describe('The base64 encoded string of the file contents.').optional(),
-    secret_name: z.string().describe('The name of the secret that contains the base64 encoded file contents.').optional(),
+    guest_path: z.optional(
+      z
+        .string()
+        .describe('GuestPath is the path on the machine where the file will be written and must be an absolute path.\nFor example: /full/path/to/file.json'),
+    ),
+    image_config: z.optional(z.string().describe('The name of an image to use the OCI image config as the file contents.')),
+    mode: z.optional(z.number().int().describe('Mode bits used to set permissions on this file as accepted by chmod(2).')),
+    raw_value: z.optional(z.string().describe('The base64 encoded string of the file contents.')),
+    secret_name: z.optional(z.string().describe('The name of the secret that contains the base64 encoded file contents.')),
   })
   .describe('A file that will be written to the Machine. One of RawValue or SecretName must be set.')
 
 export const flyHTTPHealthcheckSchema = z.object({
-  headers: z
-    .array(
-      z
-        .lazy(() => flyMachineHTTPHeaderSchema)
-        .describe(
-          'For http checks, an array of objects with string field Name and array of strings field Values. The key/value pairs specify header and header values that will get passed with the check call.',
-        ),
-    )
-    .describe('Additional headers to send with the request')
-    .optional(),
-  method: z.string().describe('The HTTP method to use to when making the request').optional(),
-  path: z.string().describe('The path to send the request to').optional(),
-  port: z.number().int().describe('The port to connect to, often the same as internal_port').optional(),
-  scheme: z
-    .lazy(() => flyContainerHealthcheckSchemeSchema)
-    .describe('Whether to use http or https')
-    .optional(),
-  tls_server_name: z.string().describe('If the protocol is https, the hostname to use for TLS certificate validation').optional(),
-  tls_skip_verify: z.boolean().describe('If the protocol is https, whether or not to verify the TLS certificate').optional(),
+  headers: z.optional(
+    z
+      .array(
+        z
+          .lazy(() => flyMachineHTTPHeaderSchema)
+          .describe(
+            'For http checks, an array of objects with string field Name and array of strings field Values. The key/value pairs specify header and header values that will get passed with the check call.',
+          ),
+      )
+      .describe('Additional headers to send with the request'),
+  ),
+  method: z.optional(z.string().describe('The HTTP method to use to when making the request')),
+  path: z.optional(z.string().describe('The path to send the request to')),
+  port: z.optional(z.number().int().describe('The port to connect to, often the same as internal_port')),
+  scheme: z.optional(z.lazy(() => flyContainerHealthcheckSchemeSchema).describe('Whether to use http or https')),
+  tls_server_name: z.optional(z.string().describe('If the protocol is https, the hostname to use for TLS certificate validation')),
+  tls_skip_verify: z.optional(z.boolean().describe('If the protocol is https, whether or not to verify the TLS certificate')),
 })
 
 export const flyHTTPOptionsSchema = z.object({
-  compress: z.boolean().optional(),
-  h2_backend: z.boolean().optional(),
-  headers_read_timeout: z.number().int().optional(),
-  idle_timeout: z.number().int().optional(),
-  response: z.lazy(() => flyHTTPResponseOptionsSchema).optional(),
+  compress: z.optional(z.boolean()),
+  h2_backend: z.optional(z.boolean()),
+  headers_read_timeout: z.optional(z.number().int()),
+  idle_timeout: z.optional(z.number().int()),
+  response: z.optional(z.lazy(() => flyHTTPResponseOptionsSchema)),
 })
 
 export const flyHTTPResponseOptionsSchema = z.object({
-  headers: z.object({}).catchall(z.object({})).optional(),
-  pristine: z.boolean().optional(),
+  headers: z.optional(z.object({}).catchall(z.object({}))),
+  pristine: z.optional(z.boolean()),
 })
 
 export const flyMachineCheckSchema = z.object({
-  grace_period: z
-    .lazy(() => flyDurationSchema)
-    .describe('The time to wait after a VM starts before checking its health')
-    .optional(),
-  headers: z
-    .array(
+  grace_period: z.optional(z.lazy(() => flyDurationSchema).describe('The time to wait after a VM starts before checking its health')),
+  headers: z.optional(
+    z.array(
       z
         .lazy(() => flyMachineHTTPHeaderSchema)
         .describe(
           'For http checks, an array of objects with string field Name and array of strings field Values. The key/value pairs specify header and header values that will get passed with the check call.',
         ),
-    )
-    .optional(),
-  interval: z
-    .lazy(() => flyDurationSchema)
-    .describe('The time between connectivity checks')
-    .optional(),
-  kind: z.enum(['informational', 'readiness']).describe('Kind of the check (informational, readiness)').optional(),
-  method: z.string().describe('For http checks, the HTTP method to use to when making the request').optional(),
-  path: z.string().describe('For http checks, the path to send the request to').optional(),
-  port: z.number().int().describe('The port to connect to, often the same as internal_port').optional(),
-  protocol: z.string().describe('For http checks, whether to use http or https').optional(),
-  timeout: z
-    .lazy(() => flyDurationSchema)
-    .describe('The maximum time a connection can take before being reported as failing its health check')
-    .optional(),
-  tls_server_name: z.string().describe('If the protocol is https, the hostname to use for TLS certificate validation').optional(),
-  tls_skip_verify: z.boolean().describe('For http checks with https protocol, whether or not to verify the TLS certificate').optional(),
-  type: z.string().describe('tcp or http').optional(),
+    ),
+  ),
+  interval: z.optional(z.lazy(() => flyDurationSchema).describe('The time between connectivity checks')),
+  kind: z.optional(z.enum(['informational', 'readiness']).describe('Kind of the check (informational, readiness)')),
+  method: z.optional(z.string().describe('For http checks, the HTTP method to use to when making the request')),
+  path: z.optional(z.string().describe('For http checks, the path to send the request to')),
+  port: z.optional(z.number().int().describe('The port to connect to, often the same as internal_port')),
+  protocol: z.optional(z.string().describe('For http checks, whether to use http or https')),
+  timeout: z.optional(z.lazy(() => flyDurationSchema).describe('The maximum time a connection can take before being reported as failing its health check')),
+  tls_server_name: z.optional(z.string().describe('If the protocol is https, the hostname to use for TLS certificate validation')),
+  tls_skip_verify: z.optional(z.boolean().describe('For http checks with https protocol, whether or not to verify the TLS certificate')),
+  type: z.optional(z.string().describe('tcp or http')),
 })
 
 export const flyMachineConfigSchema = z.object({
-  auto_destroy: z.boolean().describe('Optional boolean telling the Machine to destroy itself once it’s complete (default false)').optional(),
-  checks: z
-    .object({})
-    .catchall(z.lazy(() => flyMachineCheckSchema))
-    .describe('An optional object that defines one or more named top-level checks. The key for each check is the check name.')
-    .optional(),
-  containers: z
-    .array(z.lazy(() => flyContainerConfigSchema))
-    .describe('Containers are a list of containers that will run in the machine. Currently restricted to\nonly specific organizations.')
-    .optional(),
-  disable_machine_autostart: z.boolean().describe('Deprecated: use Service.Autostart instead').optional(),
-  dns: z.lazy(() => flyDNSConfigSchema).optional(),
-  env: z.object({}).catchall(z.string()).describe('An object filled with key/value pairs to be set as environment variables').optional(),
-  files: z.array(z.lazy(() => flyFileSchema).describe('A file that will be written to the Machine. One of RawValue or SecretName must be set.')).optional(),
-  guest: z.lazy(() => flyMachineGuestSchema).optional(),
-  image: z.string().describe('The docker image to run').optional(),
-  init: z.lazy(() => flyMachineInitSchema).optional(),
-  metadata: z.object({}).catchall(z.string()).optional(),
-  metrics: z.lazy(() => flyMachineMetricsSchema).optional(),
-  mounts: z.array(z.lazy(() => flyMachineMountSchema)).optional(),
-  processes: z.array(z.lazy(() => flyMachineProcessSchema)).optional(),
-  restart: z
-    .lazy(() => flyMachineRestartSchema)
-    .describe(
-      'The Machine restart policy defines whether and how flyd restarts a Machine after its main process exits. See https://fly.io/docs/machines/guides-examples/machine-restart-policy/.',
-    )
-    .optional(),
-  schedule: z.string().optional(),
-  services: z.array(z.lazy(() => flyMachineServiceSchema)).optional(),
-  size: z.string().describe('Deprecated: use Guest instead').optional(),
-  standbys: z
-    .array(z.string())
-    .describe('Standbys enable a machine to be a standby for another. In the event of a hardware failure,\nthe standby machine will be started.')
-    .optional(),
-  statics: z.array(z.lazy(() => flyStaticSchema)).optional(),
-  stop_config: z.lazy(() => flyStopConfigSchema).optional(),
+  auto_destroy: z.optional(z.boolean().describe('Optional boolean telling the Machine to destroy itself once it’s complete (default false)')),
+  checks: z.optional(
+    z
+      .object({})
+      .catchall(z.lazy(() => flyMachineCheckSchema))
+      .describe('An optional object that defines one or more named top-level checks. The key for each check is the check name.'),
+  ),
+  containers: z.optional(
+    z
+      .array(z.lazy(() => flyContainerConfigSchema))
+      .describe('Containers are a list of containers that will run in the machine. Currently restricted to\nonly specific organizations.'),
+  ),
+  disable_machine_autostart: z.optional(z.boolean().describe('Deprecated: use Service.Autostart instead')),
+  dns: z.optional(z.lazy(() => flyDNSConfigSchema)),
+  env: z.optional(z.object({}).catchall(z.string()).describe('An object filled with key/value pairs to be set as environment variables')),
+  files: z.optional(z.array(z.lazy(() => flyFileSchema).describe('A file that will be written to the Machine. One of RawValue or SecretName must be set.'))),
+  guest: z.optional(z.lazy(() => flyMachineGuestSchema)),
+  image: z.optional(z.string().describe('The docker image to run')),
+  init: z.optional(z.lazy(() => flyMachineInitSchema)),
+  metadata: z.optional(z.object({}).catchall(z.string())),
+  metrics: z.optional(z.lazy(() => flyMachineMetricsSchema)),
+  mounts: z.optional(z.array(z.lazy(() => flyMachineMountSchema))),
+  processes: z.optional(z.array(z.lazy(() => flyMachineProcessSchema))),
+  restart: z.optional(
+    z
+      .lazy(() => flyMachineRestartSchema)
+      .describe(
+        'The Machine restart policy defines whether and how flyd restarts a Machine after its main process exits. See https://fly.io/docs/machines/guides-examples/machine-restart-policy/.',
+      ),
+  ),
+  schedule: z.optional(z.string()),
+  services: z.optional(z.array(z.lazy(() => flyMachineServiceSchema))),
+  size: z.optional(z.string().describe('Deprecated: use Guest instead')),
+  standbys: z.optional(
+    z
+      .array(z.string())
+      .describe('Standbys enable a machine to be a standby for another. In the event of a hardware failure,\nthe standby machine will be started.'),
+  ),
+  statics: z.optional(z.array(z.lazy(() => flyStaticSchema))),
+  stop_config: z.optional(z.lazy(() => flyStopConfigSchema)),
 })
 
 export const flyMachineGuestSchema = z.object({
-  cpu_kind: z.string().optional(),
-  cpus: z.number().int().optional(),
-  gpu_kind: z.string().optional(),
-  gpus: z.number().int().optional(),
-  host_dedication_id: z.string().optional(),
-  kernel_args: z.array(z.string()).optional(),
-  memory_mb: z.number().int().optional(),
+  cpu_kind: z.optional(z.string()),
+  cpus: z.optional(z.number().int()),
+  gpu_kind: z.optional(z.string()),
+  gpus: z.optional(z.number().int()),
+  host_dedication_id: z.optional(z.string()),
+  kernel_args: z.optional(z.array(z.string())),
+  memory_mb: z.optional(z.number().int()),
 })
 
 /**
@@ -583,72 +571,75 @@ export const flyMachineGuestSchema = z.object({
  */
 export const flyMachineHTTPHeaderSchema = z
   .object({
-    name: z.string().describe('The header name').optional(),
-    values: z.array(z.string()).describe('The header value').optional(),
+    name: z.optional(z.string().describe('The header name')),
+    values: z.optional(z.array(z.string()).describe('The header value')),
   })
   .describe(
     'For http checks, an array of objects with string field Name and array of strings field Values. The key/value pairs specify header and header values that will get passed with the check call.',
   )
 
 export const flyMachineInitSchema = z.object({
-  cmd: z.array(z.string()).optional(),
-  entrypoint: z.array(z.string()).optional(),
-  exec: z.array(z.string()).optional(),
-  kernel_args: z.array(z.string()).optional(),
-  swap_size_mb: z.number().int().optional(),
-  tty: z.boolean().optional(),
+  cmd: z.optional(z.array(z.string())),
+  entrypoint: z.optional(z.array(z.string())),
+  exec: z.optional(z.array(z.string())),
+  kernel_args: z.optional(z.array(z.string())),
+  swap_size_mb: z.optional(z.number().int()),
+  tty: z.optional(z.boolean()),
 })
 
 export const flyMachineMetricsSchema = z.object({
-  https: z.boolean().optional(),
-  path: z.string().optional(),
-  port: z.number().int().optional(),
+  https: z.optional(z.boolean()),
+  path: z.optional(z.string()),
+  port: z.optional(z.number().int()),
 })
 
 export const flyMachineMountSchema = z.object({
-  add_size_gb: z.number().int().optional(),
-  encrypted: z.boolean().optional(),
-  extend_threshold_percent: z.number().int().optional(),
-  name: z.string().optional(),
-  path: z.string().optional(),
-  size_gb: z.number().int().optional(),
-  size_gb_limit: z.number().int().optional(),
-  volume: z.string().optional(),
+  add_size_gb: z.optional(z.number().int()),
+  encrypted: z.optional(z.boolean()),
+  extend_threshold_percent: z.optional(z.number().int()),
+  name: z.optional(z.string()),
+  path: z.optional(z.string()),
+  size_gb: z.optional(z.number().int()),
+  size_gb_limit: z.optional(z.number().int()),
+  volume: z.optional(z.string()),
 })
 
 export const flyMachinePortSchema = z.object({
-  end_port: z.number().int().optional(),
-  force_https: z.boolean().optional(),
-  handlers: z.array(z.string()).optional(),
-  http_options: z.lazy(() => flyHTTPOptionsSchema).optional(),
-  port: z.number().int().optional(),
-  proxy_proto_options: z.lazy(() => flyProxyProtoOptionsSchema).optional(),
-  start_port: z.number().int().optional(),
-  tls_options: z.lazy(() => flyTLSOptionsSchema).optional(),
+  end_port: z.optional(z.number().int()),
+  force_https: z.optional(z.boolean()),
+  handlers: z.optional(z.array(z.string())),
+  http_options: z.optional(z.lazy(() => flyHTTPOptionsSchema)),
+  port: z.optional(z.number().int()),
+  proxy_proto_options: z.optional(z.lazy(() => flyProxyProtoOptionsSchema)),
+  start_port: z.optional(z.number().int()),
+  tls_options: z.optional(z.lazy(() => flyTLSOptionsSchema)),
 })
 
 export const flyMachineProcessSchema = z.object({
-  cmd: z.array(z.string()).optional(),
-  entrypoint: z.array(z.string()).optional(),
-  env: z.object({}).catchall(z.string()).optional(),
-  env_from: z
-    .array(z.lazy(() => flyEnvFromSchema).describe('EnvVar defines an environment variable to be populated from a machine field, env_var'))
-    .describe('EnvFrom can be provided to set environment variables from machine fields.')
-    .optional(),
-  exec: z.array(z.string()).optional(),
-  ignore_app_secrets: z
-    .boolean()
-    .describe(
-      'IgnoreAppSecrets can be set to true to ignore the secrets for the App the Machine belongs to\nand only use the secrets provided at the process level. The default/legacy behavior is to use\nthe secrets provided at the App level.',
-    )
-    .optional(),
-  secrets: z
-    .array(z.lazy(() => flyMachineSecretSchema).describe('A Secret needing to be set in the environment of the Machine. env_var is required'))
-    .describe(
-      'Secrets can be provided at the process level to explicitly indicate which secrets should be\nused for the process. If not provided, the secrets provided at the machine level will be used.',
-    )
-    .optional(),
-  user: z.string().optional(),
+  cmd: z.optional(z.array(z.string())),
+  entrypoint: z.optional(z.array(z.string())),
+  env: z.optional(z.object({}).catchall(z.string())),
+  env_from: z.optional(
+    z
+      .array(z.lazy(() => flyEnvFromSchema).describe('EnvVar defines an environment variable to be populated from a machine field, env_var'))
+      .describe('EnvFrom can be provided to set environment variables from machine fields.'),
+  ),
+  exec: z.optional(z.array(z.string())),
+  ignore_app_secrets: z.optional(
+    z
+      .boolean()
+      .describe(
+        'IgnoreAppSecrets can be set to true to ignore the secrets for the App the Machine belongs to\nand only use the secrets provided at the process level. The default/legacy behavior is to use\nthe secrets provided at the App level.',
+      ),
+  ),
+  secrets: z.optional(
+    z
+      .array(z.lazy(() => flyMachineSecretSchema).describe('A Secret needing to be set in the environment of the Machine. env_var is required'))
+      .describe(
+        'Secrets can be provided at the process level to explicitly indicate which secrets should be\nused for the process. If not provided, the secrets provided at the machine level will be used.',
+      ),
+  ),
+  user: z.optional(z.string()),
 })
 
 /**
@@ -656,18 +647,17 @@ export const flyMachineProcessSchema = z.object({
  */
 export const flyMachineRestartSchema = z
   .object({
-    gpu_bid_price: z.number().describe('GPU bid price for spot Machines.').optional(),
-    max_retries: z
-      .number()
-      .int()
-      .describe('When policy is on-failure, the maximum number of times to attempt to restart the Machine before letting it stop.')
-      .optional(),
-    policy: z
-      .enum(['no', 'always', 'on-failure', 'spot-price'])
-      .describe(
-        '* no - Never try to restart a Machine automatically when its main process exits, whether that’s on purpose or on a crash.\n* always - Always restart a Machine automatically and never let it enter a stopped state, even when the main process exits cleanly.\n* on-failure - Try up to MaxRetries times to automatically restart the Machine if it exits with a non-zero exit code. Default when no explicit policy is set, and for Machines with schedules.\n* spot-price - Starts the Machine only when there is capacity and the spot price is less than or equal to the bid price.',
-      )
-      .optional(),
+    gpu_bid_price: z.optional(z.number().describe('GPU bid price for spot Machines.')),
+    max_retries: z.optional(
+      z.number().int().describe('When policy is on-failure, the maximum number of times to attempt to restart the Machine before letting it stop.'),
+    ),
+    policy: z.optional(
+      z
+        .enum(['no', 'always', 'on-failure', 'spot-price'])
+        .describe(
+          '* no - Never try to restart a Machine automatically when its main process exits, whether that’s on purpose or on a crash.\n* always - Always restart a Machine automatically and never let it enter a stopped state, even when the main process exits cleanly.\n* on-failure - Try up to MaxRetries times to automatically restart the Machine if it exits with a non-zero exit code. Default when no explicit policy is set, and for Machines with schedules.\n* spot-price - Starts the Machine only when there is capacity and the spot price is less than or equal to the bid price.',
+        ),
+    ),
   })
   .describe(
     'The Machine restart policy defines whether and how flyd restarts a Machine after its main process exits. See https://fly.io/docs/machines/guides-examples/machine-restart-policy/.',
@@ -678,188 +668,173 @@ export const flyMachineRestartSchema = z
  */
 export const flyMachineSecretSchema = z
   .object({
-    env_var: z
-      .string()
-      .describe(
-        'EnvVar is required and is the name of the environment variable that will be set from the\nsecret. It must be a valid environment variable name.',
-      )
-      .optional(),
-    name: z
-      .string()
-      .describe('Name is optional and when provided is used to reference a secret name where the EnvVar is\ndifferent from what was set as the secret name.')
-      .optional(),
+    env_var: z.optional(
+      z
+        .string()
+        .describe(
+          'EnvVar is required and is the name of the environment variable that will be set from the\nsecret. It must be a valid environment variable name.',
+        ),
+    ),
+    name: z.optional(
+      z
+        .string()
+        .describe('Name is optional and when provided is used to reference a secret name where the EnvVar is\ndifferent from what was set as the secret name.'),
+    ),
   })
   .describe('A Secret needing to be set in the environment of the Machine. env_var is required')
 
 export const flyMachineServiceSchema = z.object({
-  autostart: z.boolean().optional(),
-  autostop: z
-    .enum(['off', 'stop', 'suspend'])
-    .describe(
-      'Accepts a string (new format) or a boolean (old format). For backward compatibility with older clients, the API continues to use booleans for "off" and "stop" in responses.\n* "off" or false - Do not autostop the Machine.\n* "stop" or true - Automatically stop the Machine.\n* "suspend" - Automatically suspend the Machine, falling back to a full stop if this is not possible.',
-    )
-    .optional(),
-  checks: z
-    .array(z.lazy(() => flyMachineServiceCheckSchema))
-    .describe('An optional list of service checks')
-    .optional(),
-  concurrency: z.lazy(() => flyMachineServiceConcurrencySchema).optional(),
-  force_instance_description: z.string().optional(),
-  force_instance_key: z.string().optional(),
-  internal_port: z.number().int().optional(),
-  min_machines_running: z.number().int().optional(),
-  ports: z.array(z.lazy(() => flyMachinePortSchema)).optional(),
-  protocol: z.string().optional(),
+  autostart: z.optional(z.boolean()),
+  autostop: z.optional(
+    z
+      .enum(['off', 'stop', 'suspend'])
+      .describe(
+        'Accepts a string (new format) or a boolean (old format). For backward compatibility with older clients, the API continues to use booleans for "off" and "stop" in responses.\n* "off" or false - Do not autostop the Machine.\n* "stop" or true - Automatically stop the Machine.\n* "suspend" - Automatically suspend the Machine, falling back to a full stop if this is not possible.',
+      ),
+  ),
+  checks: z.optional(z.array(z.lazy(() => flyMachineServiceCheckSchema)).describe('An optional list of service checks')),
+  concurrency: z.optional(z.lazy(() => flyMachineServiceConcurrencySchema)),
+  force_instance_description: z.optional(z.string()),
+  force_instance_key: z.optional(z.string()),
+  internal_port: z.optional(z.number().int()),
+  min_machines_running: z.optional(z.number().int()),
+  ports: z.optional(z.array(z.lazy(() => flyMachinePortSchema))),
+  protocol: z.optional(z.string()),
 })
 
 export const flyMachineServiceCheckSchema = z.object({
-  grace_period: z
-    .lazy(() => flyDurationSchema)
-    .describe('The time to wait after a VM starts before checking its health')
-    .optional(),
-  headers: z
-    .array(
+  grace_period: z.optional(z.lazy(() => flyDurationSchema).describe('The time to wait after a VM starts before checking its health')),
+  headers: z.optional(
+    z.array(
       z
         .lazy(() => flyMachineHTTPHeaderSchema)
         .describe(
           'For http checks, an array of objects with string field Name and array of strings field Values. The key/value pairs specify header and header values that will get passed with the check call.',
         ),
-    )
-    .optional(),
-  interval: z
-    .lazy(() => flyDurationSchema)
-    .describe('The time between connectivity checks')
-    .optional(),
-  method: z.string().describe('For http checks, the HTTP method to use to when making the request').optional(),
-  path: z.string().describe('For http checks, the path to send the request to').optional(),
-  port: z.number().int().describe('The port to connect to, often the same as internal_port').optional(),
-  protocol: z.string().describe('For http checks, whether to use http or https').optional(),
-  timeout: z
-    .lazy(() => flyDurationSchema)
-    .describe('The maximum time a connection can take before being reported as failing its health check')
-    .optional(),
-  tls_server_name: z.string().describe('If the protocol is https, the hostname to use for TLS certificate validation').optional(),
-  tls_skip_verify: z.boolean().describe('For http checks with https protocol, whether or not to verify the TLS certificate').optional(),
-  type: z.string().describe('tcp or http').optional(),
+    ),
+  ),
+  interval: z.optional(z.lazy(() => flyDurationSchema).describe('The time between connectivity checks')),
+  method: z.optional(z.string().describe('For http checks, the HTTP method to use to when making the request')),
+  path: z.optional(z.string().describe('For http checks, the path to send the request to')),
+  port: z.optional(z.number().int().describe('The port to connect to, often the same as internal_port')),
+  protocol: z.optional(z.string().describe('For http checks, whether to use http or https')),
+  timeout: z.optional(z.lazy(() => flyDurationSchema).describe('The maximum time a connection can take before being reported as failing its health check')),
+  tls_server_name: z.optional(z.string().describe('If the protocol is https, the hostname to use for TLS certificate validation')),
+  tls_skip_verify: z.optional(z.boolean().describe('For http checks with https protocol, whether or not to verify the TLS certificate')),
+  type: z.optional(z.string().describe('tcp or http')),
 })
 
 export const flyMachineServiceConcurrencySchema = z.object({
-  hard_limit: z.number().int().optional(),
-  soft_limit: z.number().int().optional(),
-  type: z.string().optional(),
+  hard_limit: z.optional(z.number().int()),
+  soft_limit: z.optional(z.number().int()),
+  type: z.optional(z.string()),
 })
 
 export const flyProxyProtoOptionsSchema = z.object({
-  version: z.string().optional(),
+  version: z.optional(z.string()),
 })
 
 export const flyStaticSchema = z.object({
   guest_path: z.string(),
-  index_document: z.string().optional(),
-  tigris_bucket: z.string().optional(),
+  index_document: z.optional(z.string()),
+  tigris_bucket: z.optional(z.string()),
   url_prefix: z.string(),
 })
 
 export const flyStopConfigSchema = z.object({
-  signal: z.string().optional(),
-  timeout: z.lazy(() => flyDurationSchema).optional(),
+  signal: z.optional(z.string()),
+  timeout: z.optional(z.lazy(() => flyDurationSchema)),
 })
 
 export const flyTCPHealthcheckSchema = z.object({
-  port: z.number().int().describe('The port to connect to, often the same as internal_port').optional(),
+  port: z.optional(z.number().int().describe('The port to connect to, often the same as internal_port')),
 })
 
 export const flyTLSOptionsSchema = z.object({
-  alpn: z.array(z.string()).optional(),
-  default_self_signed: z.boolean().optional(),
-  versions: z.array(z.string()).optional(),
+  alpn: z.optional(z.array(z.string())),
+  default_self_signed: z.optional(z.boolean()),
+  versions: z.optional(z.array(z.string())),
 })
 
 export const flyUnhealthyPolicySchema = z.enum(['stop'])
 
 export const flyDnsForwardRuleSchema = z.object({
-  addr: z.string().optional(),
-  basename: z.string().optional(),
+  addr: z.optional(z.string()),
+  basename: z.optional(z.string()),
 })
 
 export const flyDnsOptionSchema = z.object({
-  name: z.string().optional(),
-  value: z.string().optional(),
+  name: z.optional(z.string()),
+  value: z.optional(z.string()),
 })
 
 export const flydv1ExecResponseSchema = z.object({
-  exit_code: z.number().int().optional(),
-  exit_signal: z.number().int().optional(),
-  stderr: z.string().optional(),
-  stdout: z.string().optional(),
+  exit_code: z.optional(z.number().int()),
+  exit_signal: z.optional(z.number().int()),
+  stderr: z.optional(z.string()),
+  stdout: z.optional(z.string()),
 })
 
 export const mainGetPlacementsRequestSchema = z.object({
-  compute: z
-    .lazy(() => flyMachineGuestSchema)
-    .describe('Resource requirements for the Machine to simulate. Defaults to a performance-1x machine')
-    .optional(),
-  count: z
-    .number()
-    .int()
-    .describe('Number of machines to simulate placement.\nDefaults to 0, which returns the org-specific limit for each region.')
-    .optional(),
+  compute: z.optional(z.lazy(() => flyMachineGuestSchema).describe('Resource requirements for the Machine to simulate. Defaults to a performance-1x machine')),
+  count: z.optional(
+    z.number().int().describe('Number of machines to simulate placement.\nDefaults to 0, which returns the org-specific limit for each region.'),
+  ),
   org_slug: z.string(),
-  region: z
-    .string()
-    .describe(
-      'Region expression for placement as a comma-delimited set of regions or aliases.\nDefaults to "[region],any", to prefer the API endpoint\'s local region with any other region as fallback.',
-    )
-    .optional(),
-  volume_name: z.string().optional(),
-  volume_size_bytes: z.number().int().optional(),
-  weights: z
-    .lazy(() => placementWeightsSchema)
-    .describe('Optional weights to override default placement preferences.')
-    .optional(),
+  region: z.optional(
+    z
+      .string()
+      .describe(
+        'Region expression for placement as a comma-delimited set of regions or aliases.\nDefaults to "[region],any", to prefer the API endpoint\'s local region with any other region as fallback.',
+      ),
+  ),
+  volume_name: z.optional(z.string()),
+  volume_size_bytes: z.optional(z.number().int()),
+  weights: z.optional(z.lazy(() => placementWeightsSchema).describe('Optional weights to override default placement preferences.')),
 })
 
 export const mainGetPlacementsResponseSchema = z.object({
-  regions: z.array(z.lazy(() => placementRegionPlacementSchema)).optional(),
+  regions: z.optional(z.array(z.lazy(() => placementRegionPlacementSchema))),
 })
 
 export const mainRegionResponseSchema = z.object({
-  regions: z.array(z.lazy(() => readsGetCapacityPerRegionRowSchema)).optional(),
+  regions: z.optional(z.array(z.lazy(() => readsGetCapacityPerRegionRowSchema))),
 })
 
 export const mainStatusCodeSchema = z.enum(['unknown', 'insufficient_capacity'])
 
 export const mainTokenInfoSchema = z.object({
-  apps: z.array(z.string()).optional(),
-  org_slug: z.string().optional(),
-  organization: z.string().optional(),
-  restricted_to_machine: z.string().describe('Machine the token is restricted to (FromMachine caveat)').optional(),
-  source_machine_id: z.string().describe('Machine making the request').optional(),
-  token_id: z.string().optional(),
-  user: z.string().describe('User identifier if token is for a user').optional(),
+  apps: z.optional(z.array(z.string())),
+  org_slug: z.optional(z.string()),
+  organization: z.optional(z.string()),
+  restricted_to_machine: z.optional(z.string().describe('Machine the token is restricted to (FromMachine caveat)')),
+  source_machine_id: z.optional(z.string().describe('Machine making the request')),
+  token_id: z.optional(z.string()),
+  user: z.optional(z.string().describe('User identifier if token is for a user')),
 })
 
 export const placementRegionPlacementSchema = z.object({
-  concurrency: z
-    .number()
-    .int()
-    .describe('Hint on the number of machines in this region can be created concurrently.\nEqual to the number of unique hosts selected for placement.')
-    .optional(),
-  count: z.number().int().optional(),
-  region: z.string().optional(),
+  concurrency: z.optional(
+    z
+      .number()
+      .int()
+      .describe('Hint on the number of machines in this region can be created concurrently.\nEqual to the number of unique hosts selected for placement.'),
+  ),
+  count: z.optional(z.number().int()),
+  region: z.optional(z.string()),
 })
 
 export const placementWeightsSchema = z.object({}).catchall(z.number().int())
 
 export const readsGetCapacityPerRegionRowSchema = z.object({
-  capacity: z.number().int().optional(),
-  code: z.string().optional(),
-  gateway_available: z.boolean().optional(),
-  geo_region: z.string().optional(),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
-  name: z.string().optional(),
-  requires_paid_plan: z.boolean().optional(),
+  capacity: z.optional(z.number().int()),
+  code: z.optional(z.string()),
+  gateway_available: z.optional(z.boolean()),
+  geo_region: z.optional(z.string()),
+  latitude: z.optional(z.number()),
+  longitude: z.optional(z.number()),
+  name: z.optional(z.string()),
+  requires_paid_plan: z.optional(z.boolean()),
 })
 
 export const appsListQueryParamsSchema = z.object({
@@ -934,10 +909,10 @@ export const machinesListPathParamsSchema = z.object({
 
 export const machinesListQueryParamsSchema = z
   .object({
-    include_deleted: z.boolean().describe('Include deleted machines').optional(),
-    region: z.string().describe('Region filter').optional(),
-    state: z.string().describe('comma separated list of states to filter (created, started, stopped, suspended)').optional(),
-    summary: z.boolean().describe('Only return summary info about machines (omit config, checks, events, host_status, nonce, etc.)').optional(),
+    include_deleted: z.optional(z.boolean().describe('Include deleted machines')),
+    region: z.optional(z.string().describe('Region filter')),
+    state: z.optional(z.string().describe('comma separated list of states to filter (created, started, stopped, suspended)')),
+    summary: z.optional(z.boolean().describe('Only return summary info about machines (omit config, checks, events, host_status, nonce, etc.)')),
   })
   .optional()
 
@@ -1005,7 +980,7 @@ export const machinesDeletePathParamsSchema = z.object({
 
 export const machinesDeleteQueryParamsSchema = z
   .object({
-    force: z.boolean().describe("Force kill the machine if it's running").optional(),
+    force: z.optional(z.boolean().describe("Force kill the machine if it's running")),
   })
   .optional()
 
@@ -1035,7 +1010,7 @@ export const machinesListEventsPathParamsSchema = z.object({
 
 export const machinesListEventsQueryParamsSchema = z
   .object({
-    limit: z.coerce.number().int().describe('The number of events to fetch (max of 50). If omitted, this is set to 20 by default.').optional(),
+    limit: z.optional(z.coerce.number().int().describe('The number of events to fetch (max of 50). If omitted, this is set to 20 by default.')),
   })
   .optional()
 
@@ -1087,7 +1062,7 @@ export const machinesCreateLeasePathParamsSchema = z.object({
 
 export const machinesCreateLeaseHeaderParamsSchema = z
   .object({
-    'fly-machine-lease-nonce': z.string().describe('Existing lease nonce to refresh by ttl, empty or non-existent to create a new lease').optional(),
+    'fly-machine-lease-nonce': z.optional(z.string().describe('Existing lease nonce to refresh by ttl, empty or non-existent to create a new lease')),
   })
   .optional()
 
@@ -1169,8 +1144,8 @@ export const machinesListProcessesPathParamsSchema = z.object({
 
 export const machinesListProcessesQueryParamsSchema = z
   .object({
-    sort_by: z.string().describe('Sort by').optional(),
-    order: z.string().describe('Order').optional(),
+    sort_by: z.optional(z.string().describe('Sort by')),
+    order: z.optional(z.string().describe('Order')),
   })
   .optional()
 
@@ -1193,8 +1168,8 @@ export const machinesRestartPathParamsSchema = z.object({
 
 export const machinesRestartQueryParamsSchema = z
   .object({
-    timeout: z.string().describe('Restart timeout as a Go duration string or number of seconds').optional(),
-    signal: z.string().describe('Unix signal name').optional(),
+    timeout: z.optional(z.string().describe('Restart timeout as a Go duration string or number of seconds')),
+    signal: z.optional(z.string().describe('Unix signal name')),
   })
   .optional()
 
@@ -1309,9 +1284,9 @@ export const machinesWaitPathParamsSchema = z.object({
 
 export const machinesWaitQueryParamsSchema = z
   .object({
-    instance_id: z.string().describe('26-character Machine version ID').optional(),
-    timeout: z.coerce.number().int().describe('wait timeout. default 60s').optional(),
-    state: z.enum(['started', 'stopped', 'suspended', 'destroyed']).describe('desired state').optional(),
+    instance_id: z.optional(z.string().describe('26-character Machine version ID')),
+    timeout: z.optional(z.coerce.number().int().describe('wait timeout. default 60s')),
+    state: z.optional(z.enum(['started', 'stopped', 'suspended', 'destroyed']).describe('desired state')),
   })
   .optional()
 
@@ -1333,8 +1308,8 @@ export const secretkeysListPathParamsSchema = z.object({
 
 export const secretkeysListQueryParamsSchema = z
   .object({
-    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
-    types: z.string().describe('Comma-seperated list of secret keys to list').optional(),
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
+    types: z.optional(z.string().describe('Comma-seperated list of secret keys to list')),
   })
   .optional()
 
@@ -1352,7 +1327,7 @@ export const secretkeyGetPathParamsSchema = z.object({
 
 export const secretkeyGetQueryParamsSchema = z
   .object({
-    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
   })
   .optional()
 
@@ -1404,7 +1379,7 @@ export const secretkeyDecryptPathParamsSchema = z.object({
 
 export const secretkeyDecryptQueryParamsSchema = z
   .object({
-    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
   })
   .optional()
 
@@ -1432,7 +1407,7 @@ export const secretkeyEncryptPathParamsSchema = z.object({
 
 export const secretkeyEncryptQueryParamsSchema = z
   .object({
-    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
   })
   .optional()
 
@@ -1482,7 +1457,7 @@ export const secretkeySignPathParamsSchema = z.object({
 
 export const secretkeySignQueryParamsSchema = z
   .object({
-    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
   })
   .optional()
 
@@ -1510,7 +1485,7 @@ export const secretkeyVerifyPathParamsSchema = z.object({
 
 export const secretkeyVerifyQueryParamsSchema = z
   .object({
-    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
   })
   .optional()
 
@@ -1537,8 +1512,8 @@ export const secretsListPathParamsSchema = z.object({
 
 export const secretsListQueryParamsSchema = z
   .object({
-    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
-    show_secrets: z.boolean().describe('Show the secret values.').optional(),
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
+    show_secrets: z.optional(z.boolean().describe('Show the secret values.')),
   })
   .optional()
 
@@ -1556,8 +1531,8 @@ export const secretGetPathParamsSchema = z.object({
 
 export const secretGetQueryParamsSchema = z
   .object({
-    min_version: z.string().describe('Minimum secrets version to return. Returned when setting a new secret').optional(),
-    show_secrets: z.boolean().describe('Show the secret value.').optional(),
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
+    show_secrets: z.optional(z.boolean().describe('Show the secret value.')),
   })
   .optional()
 
@@ -1608,7 +1583,7 @@ export const volumesListPathParamsSchema = z.object({
 
 export const volumesListQueryParamsSchema = z
   .object({
-    summary: z.boolean().describe('Only return summary info about volumes (omit blocks, block size, etc)').optional(),
+    summary: z.optional(z.boolean().describe('Only return summary info about volumes (omit blocks, block size, etc)')),
   })
   .optional()
 
@@ -1736,12 +1711,12 @@ export const platformPlacementsPostMutationResponseSchema = z.lazy(() => platfor
 
 export const platformRegionsGetQueryParamsSchema = z
   .object({
-    size: z.string().describe('guest machine size preset. default performance-1x').optional(),
-    cpu_kind: z.string().describe('guest CPU kind').optional(),
-    memory_mb: z.coerce.number().int().describe('guest memory in megabytes').optional(),
-    cpus: z.coerce.number().int().describe('guest CPU count').optional(),
-    gpus: z.coerce.number().int().describe('guest GPU count').optional(),
-    gpu_kind: z.string().describe('guest GPU kind').optional(),
+    size: z.optional(z.string().describe('guest machine size preset. default performance-1x')),
+    cpu_kind: z.optional(z.string().describe('guest CPU kind')),
+    memory_mb: z.optional(z.coerce.number().int().describe('guest memory in megabytes')),
+    cpus: z.optional(z.coerce.number().int().describe('guest CPU count')),
+    gpus: z.optional(z.coerce.number().int().describe('guest GPU count')),
+    gpu_kind: z.optional(z.string().describe('guest GPU kind')),
   })
   .optional()
 

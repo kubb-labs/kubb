@@ -19,8 +19,8 @@ export type CreatePetsPathParamsSchema = CreatePetsPathParams
 
 export const createPetsQueryParamsSchema = z
   .object({
-    bool_param: z.literal(true).optional(),
-    offset: z.coerce.number().int().describe('Offset */').optional(),
+    bool_param: z.optional(z.literal(true)),
+    offset: z.optional(z.coerce.number().int().describe('Offset */')),
   })
   .optional() as unknown as ToZod<CreatePetsQueryParams>
 

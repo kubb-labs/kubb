@@ -11,8 +11,8 @@ export const updatePetWithFormPathParamsSchema = z.object({
 
 export const updatePetWithFormQueryParamsSchema = z
   .object({
-    name: z.string().describe('Name of pet that needs to be updated').optional(),
-    status: z.string().describe('Status of pet that needs to be updated').optional(),
+    name: z.optional(z.string().describe('Name of pet that needs to be updated')),
+    status: z.optional(z.string().describe('Status of pet that needs to be updated')),
   })
   .optional()
 

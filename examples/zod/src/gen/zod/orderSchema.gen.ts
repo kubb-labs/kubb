@@ -6,20 +6,14 @@
 import { z } from '../../zod.ts'
 
 export const orderSchema = z.object({
-  id: z.number().int().optional(),
-  petId: z.number().int().optional(),
-  quantity: z.number().int().optional(),
-  shipDate: z.string().datetime().optional(),
-  status: z.enum(['placed', 'approved', 'delivered']).describe('Order Status').optional(),
-  http_status: z
-    .union([z.literal(200), z.literal(400)])
-    .describe('HTTP Status')
-    .optional(),
-  value: z
-    .union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(3.5), z.literal(4)])
-    .describe('Price')
-    .optional(),
-  complete: z.boolean().optional(),
+  id: z.optional(z.number().int()),
+  petId: z.optional(z.number().int()),
+  quantity: z.optional(z.number().int()),
+  shipDate: z.optional(z.string().datetime()),
+  status: z.optional(z.enum(['placed', 'approved', 'delivered']).describe('Order Status')),
+  http_status: z.optional(z.union([z.literal(200), z.literal(400)]).describe('HTTP Status')),
+  value: z.optional(z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(3.5), z.literal(4)]).describe('Price')),
+  complete: z.optional(z.boolean()),
 })
 
 export type OrderSchema = z.infer<typeof orderSchema>

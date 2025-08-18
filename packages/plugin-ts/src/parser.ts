@@ -274,7 +274,7 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
           }) as ts.TypeNode
         }
 
-        const propertySignature = factory.createPropertySignature({
+        const propertyNode = factory.createPropertySignature({
           questionToken: isOptional || isNullish ? ['questionToken', 'questionTokenAndUndefined'].includes(options.optionalType as string) : false,
           name: mappedName,
           type,
@@ -282,7 +282,7 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
         })
 
         return factory.appendJSDocToNode({
-          node: propertySignature,
+          node: propertyNode,
           comments: [
             describeSchema ? `@description ${transformers.jsStringEscape(describeSchema.args)}` : undefined,
             deprecatedSchema ? '@deprecated' : undefined,

@@ -17,7 +17,7 @@ export type UploadFilePathParamsSchema = UploadFilePathParams
 
 export const uploadFileQueryParamsSchema = z
   .object({
-    additionalMetadata: z.string().describe('Additional Metadata').optional(),
+    additionalMetadata: z.optional(z.string().describe('Additional Metadata')),
   })
   .optional() as unknown as ToZod<UploadFileQueryParams>
 

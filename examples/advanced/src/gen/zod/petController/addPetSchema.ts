@@ -15,8 +15,8 @@ export type AddPet200Schema = AddPet200
  * @description Pet not found
  */
 export const addPet405Schema = z.object({
-  code: z.int().optional(),
-  message: z.string().optional(),
+  code: z.optional(z.int()),
+  message: z.optional(z.string()),
 }) as unknown as ToZod<AddPet405>
 
 export type AddPet405Schema = AddPet405

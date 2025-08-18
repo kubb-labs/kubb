@@ -45,18 +45,21 @@ export function Zod({
   })
 
   const output = schemas
-    .map((schema, _index, siblings) =>
-      parserZod.parse(
+    .map((schema, index) => {
+      const siblings = schemas.filter((_, i) => i !== index)
+
+      return parserZod.parse(
         { parent: undefined, current: schema, siblings },
         { name, keysToOmit, typeName, description, mapper, coercion, wrapOutput, rawSchema, version },
-      ),
-    )
+      )
+    })
     .filter(Boolean)
     .join('')
 
   let suffix = ''
   const firstSchema = schemas.at(0)
   const lastSchema = schemas.at(-1)
+  const isOptional = schemas.some((item) => item.keyword === schemaKeywords.optional)
 
   if (lastSchema && isKeyword(lastSchema, schemaKeywords.nullable)) {
     if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref)) {
@@ -86,7 +89,13 @@ export function Zod({
   )
 
   const baseSchemaOutput =
-    [output, keysToOmit?.length ? `${suffix}.omit({ ${keysToOmit.map((key) => `${key}: true`).join(',')} })` : undefined].filter(Boolean).join('') ||
+    [
+      output,
+      isOptional ? '.optional()' : undefined,
+      keysToOmit?.length ? `${suffix}.omit({ ${keysToOmit.map((key) => `${key}: true`).join(',')} })` : undefined,
+    ]
+      .filter(Boolean)
+      .join('') ||
     emptyValue ||
     ''
   const wrappedSchemaOutput = wrapOutput ? wrapOutput({ output: baseSchemaOutput, schema: rawSchema }) || baseSchemaOutput : baseSchemaOutput

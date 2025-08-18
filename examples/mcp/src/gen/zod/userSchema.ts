@@ -6,13 +6,13 @@
 import { z } from 'zod'
 
 export const userSchema = z.object({
-  id: z.number().int().optional(),
-  username: z.string().optional(),
-  uuid: z.string().uuid().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  email: z.string().email().optional(),
-  password: z.string().optional(),
-  phone: z.string().optional(),
-  userStatus: z.number().int().describe('User Status').optional(),
+  id: z.optional(z.number().int()),
+  username: z.optional(z.string()),
+  uuid: z.optional(z.string().uuid()),
+  firstName: z.optional(z.string()),
+  lastName: z.optional(z.string()),
+  email: z.optional(z.string().email()),
+  password: z.optional(z.string()),
+  phone: z.optional(z.string()),
+  userStatus: z.optional(z.number().int().describe('User Status')),
 })

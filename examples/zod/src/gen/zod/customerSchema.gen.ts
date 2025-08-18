@@ -7,9 +7,9 @@ import { z } from '../../zod.ts'
 import { addressSchema } from './addressSchema.gen.ts'
 
 export const customerSchema = z.object({
-  id: z.number().int().optional(),
-  username: z.string().optional(),
-  address: z.array(z.lazy(() => addressSchema)).optional(),
+  id: z.optional(z.number().int()),
+  username: z.optional(z.string()),
+  address: z.optional(z.array(z.lazy(() => addressSchema))),
 })
 
 export type CustomerSchema = z.infer<typeof customerSchema>

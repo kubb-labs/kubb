@@ -3,7 +3,7 @@ import type { SchemaObject } from '@kubb/oas'
 import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 import { createTypeDeclaration } from '@kubb/parser-ts/factory'
-import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { File } from '@kubb/react'
 import { Fragment, type ReactNode } from 'react'
 import type ts from 'typescript'
@@ -52,7 +52,8 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
       .filter(Boolean)
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
 
-  if (schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.schema)) {
+  if (schemaFromTree) {
+    //TODO check if this part is still needed
     const isNullish = tree.some((item) => item.keyword === schemaKeywords.nullish)
     const isNullable = tree.some((item) => item.keyword === schemaKeywords.nullable)
     const isOptional = tree.some((item) => item.keyword === schemaKeywords.optional)
@@ -92,6 +93,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
       syntax: useTypeGeneration ? 'type' : 'interface',
       comments: [
         description ? `@description ${transformers.jsStringEscape(description)}` : undefined,
+        //TODO check if this part is still needed and see if we can use the tree to find minlength, ...
         schema.deprecated ? '@deprecated' : undefined,
         schema.minLength ? `@minLength ${schema.minLength}` : undefined,
         schema.maxLength ? `@maxLength ${schema.maxLength}` : undefined,
