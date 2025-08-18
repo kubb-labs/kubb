@@ -35,5 +35,5 @@ export function print(elements: Array<ts.Node>, { source = '', baseName = 'print
   const nodes = (Array.isArray(elements) ? elements : [elements]).filter(Boolean).sort((a, b) => (a.pos ?? 0) - (b.pos ?? 0))
   const output = printer.printList(ts.ListFormat.MultiLine, factory.createNodeArray(nodes), sourceFile)
 
-  return restoreNewLines(output).replace(/\r\n/g, '\n').replace(/"/g, "'")
+  return restoreNewLines(output).replace(/\r\n/g, '\n')
 }

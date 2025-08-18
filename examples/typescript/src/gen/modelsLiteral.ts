@@ -380,7 +380,7 @@ export type FindPetsByStatusQueryParamsStatusEnum = 'available' | 'pending' | 's
 export type FindPetsByStatusQueryParams = {
   /**
    * @description Status values that need to be considered for filter
-   * @default 'available'
+   * @default "available"
    * @type string | undefined
    */
   status?: FindPetsByStatusQueryParamsStatusEnum
