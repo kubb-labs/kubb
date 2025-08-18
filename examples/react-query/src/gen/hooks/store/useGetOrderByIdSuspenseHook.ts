@@ -62,7 +62,8 @@ export function useGetOrderByIdSuspenseHook<TData = GetOrderByIdQueryResponse, T
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getOrderByIdSuspenseQueryKey({ orderId })
 
   const query = useSuspenseQuery(

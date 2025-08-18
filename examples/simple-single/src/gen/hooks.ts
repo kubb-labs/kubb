@@ -132,7 +132,8 @@ export function useFindPetsByStatus<
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
 
   const query = useQuery(
@@ -199,7 +200,8 @@ export function useFindPetsByTags<
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
 
   const query = useQuery(
@@ -262,7 +264,8 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetP
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
 
   const query = useQuery(
@@ -317,7 +320,8 @@ export function useGetInventory<TData = GetInventoryQueryResponse, TQueryData = 
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
 
   const query = useQuery(
@@ -380,7 +384,8 @@ export function useGetOrderById<TData = GetOrderByIdQueryResponse, TQueryData = 
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
 
   const query = useQuery(
@@ -434,7 +439,8 @@ export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginU
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
 
   const query = useQuery(
@@ -487,7 +493,8 @@ export function useLogoutUser<TData = LogoutUserQueryResponse, TQueryData = Logo
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
 
   const query = useQuery(
@@ -552,7 +559,8 @@ export function useGetUserByName<
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
 
   const query = useQuery(
@@ -615,7 +623,8 @@ export function useFindPetsByStatusSuspense<TData = FindPetsByStatusQueryRespons
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusSuspenseQueryKey(params)
 
   const query = useSuspenseQuery(
@@ -676,7 +685,8 @@ export function useFindPetsByTagsSuspense<TData = FindPetsByTagsQueryResponse, T
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
 
   const query = useSuspenseQuery(
@@ -739,7 +749,8 @@ export function useGetPetByIdSuspense<TData = GetPetByIdQueryResponse, TQueryKey
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getPetByIdSuspenseQueryKey(petId)
 
   const query = useSuspenseQuery(
@@ -794,7 +805,8 @@ export function useGetInventorySuspense<TData = GetInventoryQueryResponse, TQuer
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getInventorySuspenseQueryKey()
 
   const query = useSuspenseQuery(
@@ -858,7 +870,8 @@ export function useGetOrderByIdSuspense<TData = GetOrderByIdQueryResponse, TQuer
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getOrderByIdSuspenseQueryKey(orderId)
 
   const query = useSuspenseQuery(
@@ -912,7 +925,8 @@ export function useLoginUserSuspense<TData = LoginUserQueryResponse, TQueryKey e
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? loginUserSuspenseQueryKey(params)
 
   const query = useSuspenseQuery(
@@ -965,7 +979,8 @@ export function useLogoutUserSuspense<TData = LogoutUserQueryResponse, TQueryKey
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? logoutUserSuspenseQueryKey()
 
   const query = useSuspenseQuery(
@@ -1030,7 +1045,8 @@ export function useGetUserByNameSuspense<TData = GetUserByNameQueryResponse, TQu
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getUserByNameSuspenseQueryKey(username)
 
   const query = useSuspenseQuery(
