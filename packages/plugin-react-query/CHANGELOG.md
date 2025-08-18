@@ -1,5 +1,20 @@
 # @kubb/plugin-react-query
 
+## 3.17.1
+
+### Patch Changes
+
+- [`bc32858`](https://github.com/kubb-labs/kubb/commit/bc32858345c1c9a2ace82c64681443bf6ebc5352) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - resolve typescript error related to `queryClient` not having a default value
+
+- Updated dependencies [[`5362b0f`](https://github.com/kubb-labs/kubb/commit/5362b0f93ee9fa2ca68d58de57c03d3573d2cdfb)]:
+  - @kubb/core@3.17.1
+  - @kubb/plugin-zod@3.17.1
+  - @kubb/plugin-client@3.17.1
+  - @kubb/plugin-oas@3.17.1
+  - @kubb/plugin-ts@3.17.1
+  - @kubb/react@3.17.1
+  - @kubb/oas@3.17.1
+
 ## 3.17.0
 
 ### Patch Changes
