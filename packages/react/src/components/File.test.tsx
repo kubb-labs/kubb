@@ -338,7 +338,7 @@ describe('<File.Export/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.output).toMatch('export * from "kubb"')
+    expect(root.output).toMatch(`export * from 'kubb'`)
   })
 })
 
@@ -350,7 +350,7 @@ describe('<File.Import/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.output).toMatch('import React from "react"')
+    expect(root.output).toMatch(`import React from 'react'`)
   })
 
   test('render Import with type', () => {
@@ -360,7 +360,7 @@ describe('<File.Import/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.output).toMatch('import type React from "react"')
+    expect(root.output).toMatch(`import type React from 'react'`)
   })
 
   test('render Import with root', () => {
@@ -370,7 +370,7 @@ describe('<File.Import/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.output).toMatch('import React from "./test"')
+    expect(root.output).toMatch(`import React from './test'`)
   })
 
   test('render Import with File.Import inside of File.Source', () => {
@@ -410,13 +410,13 @@ describe('<File.Import/>', () => {
               "isIndexable": undefined,
               "isTypeOnly": undefined,
               "name": undefined,
-              "value": "import React from "react";",
+              "value": "import React from 'react';",
             },
           ],
         },
       ]
     `)
-    expect(root.output).toMatchInlineSnapshot(`"import React from "react";"`)
+    expect(root.output).toMatchInlineSnapshot(`"import React from 'react';"`)
   })
 
   test('render Import with File.Import inside of File', () => {

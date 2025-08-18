@@ -1,8 +1,8 @@
 import { extname, join, relative } from 'node:path'
 
 import { orderBy } from 'natural-orderby'
-import { isDeepEqual, uniqueBy } from 'remeda'
 import pLimit from 'p-limit'
+import { isDeepEqual, uniqueBy } from 'remeda'
 
 import { BarrelManager } from './BarrelManager.ts'
 
@@ -12,8 +12,8 @@ import type { ResolvedFile } from './fs/types.ts'
 import type { Logger } from './logger.ts'
 import type { BarrelType, Config, Plugin } from './types.ts'
 import { createFile, getFileParser } from './utils'
-import type { GreaterThan } from './utils/types.ts'
 import { Cache } from './utils/Cache.ts'
+import type { GreaterThan } from './utils/types.ts'
 
 export type FileMetaBase = {
   pluginKey?: Plugin['key']
@@ -204,12 +204,8 @@ export async function getSource<TMeta extends FileMetaBase = FileMetaBase>(
   { logger, extname }: GetSourceOptions = {},
 ): Promise<string> {
   const parser = await getFileParser(file.extname)
-  const source = await parser.print(file, { logger, extname })
 
-  return parser.format(source).catch((err) => {
-    console.warn(err)
-    return source
-  })
+  return parser.print(file, { logger, extname })
 }
 
 function mergeFile<TMeta extends FileMetaBase = FileMetaBase>(a: KubbFile.File<TMeta>, b: KubbFile.File<TMeta>): KubbFile.File<TMeta> {

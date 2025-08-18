@@ -1,9 +1,8 @@
 import path from 'node:path'
-import type { KubbFile } from '../fs/index.ts'
-
-import { getRelativePath } from '../fs/index.ts'
 import hash from 'object-hash'
 import { combineExports, combineImports, combineSources } from '../FileManager.ts'
+import type { KubbFile } from '../fs/index.ts'
+import { getRelativePath } from '../fs/index.ts'
 import type { Logger } from '../logger.ts'
 import type { Config } from '../types.ts'
 
@@ -104,7 +103,6 @@ export function createFileExport(exp: KubbFile.Export): KubbFile.ResolvedExport 
 }
 
 export type ParserModule<TMeta extends object = object> = {
-  format: (source: string) => Promise<string>
   /**
    * Convert a file to string
    */
@@ -121,11 +119,6 @@ type PrintOptions = {
 }
 
 const typeScriptParser = createFileParser({
-  async format(source) {
-    const module = await import('@kubb/parser-ts')
-
-    return module.format(source)
-  },
   async print(file, options = { extname: '.ts' }) {
     const module = await import('@kubb/parser-ts')
 
@@ -164,20 +157,12 @@ const typeScriptParser = createFileParser({
 })
 
 const tsxParser = createFileParser({
-  async format(source) {
-    const module = await import('@kubb/parser-ts')
-    //4 = tsx
-    return module.format(source)
-  },
   async print(file, options = { extname: '.tsx' }) {
     return typeScriptParser.print(file, options)
   },
 })
 
 const defaultParser = createFileParser({
-  async format(source) {
-    return source
-  },
   async print(file) {
     return file.sources.map((item) => item.value).join('\n\n')
   },

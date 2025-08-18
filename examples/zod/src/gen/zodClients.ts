@@ -19,7 +19,7 @@ import { placeOrderMutationResponseSchema, placeOrderMutationRequestSchema } fro
 function getGetInventoryUrl() {
   const res = {
     method: 'GET',
-    url: '/store/inventory' as const,
+    url: `/store/inventory` as const,
   }
   return res
 }
@@ -43,7 +43,7 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: t
 function getPlaceOrderUrl() {
   const res = {
     method: 'POST',
-    url: '/store/order' as const,
+    url: `/store/order` as const,
   }
   return res
 }
@@ -72,7 +72,7 @@ export async function placeOrder(
 function getPlaceOrderPatchUrl() {
   const res = {
     method: 'PATCH',
-    url: '/store/order' as const,
+    url: `/store/order` as const,
   }
   return res
 }

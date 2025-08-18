@@ -48,7 +48,7 @@ export function findPetsByTagsInfiniteQueryOptions(
  */
 export function useFindPetsByTagsInfinite<
   TData = InfiniteData<ResponseConfig<FindPetsByTagsQueryResponse>>,
-  _TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
+  TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(
   { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },

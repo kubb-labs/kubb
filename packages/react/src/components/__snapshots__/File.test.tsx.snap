@@ -2,7 +2,7 @@
 
 exports[`<File/> > render multiple Files 1`] = `
 "const test = 1;
-            import node from "node";
+            import node from 'node';
 
 const test2 = 2;"
 `;
@@ -15,7 +15,7 @@ exports[`<File/> > render multiple Files 2`] = `
     "isTypeOnly": undefined,
     "name": undefined,
     "value": "const test = 1;
-            import node from "node";",
+            import node from 'node';",
   },
 ]
 `;

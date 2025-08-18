@@ -213,6 +213,36 @@ export default defineConfig({
 })
 ```
 
+#### output.format
+Specifies the formatting tool to be used.
+
+
+> [!IMPORTANT]
+> By default, we use Prettier. Since Kubb `v3.17.1` included Prettier as a dependency, this ensures backward compatibility.
+
+
+- `'prettier'`: Uses Prettier for code formatting.
+- `'biome'`: Uses Biome for code formatting.
+
+|           |                                  |
+|----------:|:---------------------------------|
+|     Type: | `'prettier' \| 'biome' \| false` |
+| Required: | `false`                          |
+|  Default: | `prettier`                       |
+
+
+#### output.lint
+Specifies the formatting tool to be used.
+
+- `'eslint'`: Represents the use of ESLint, a widely used JavaScript linter.
+- `'biome'`: Represents the Biome linter, a modern tool for code scanning.
+- `'oxlint'`: Represents the Oxlint tool for linting purposes.
+
+|           |                                            |
+|----------:|:-------------------------------------------|
+|     Type: | `'eslint' \| 'biome' \| 'oxlint' \| false` |
+| Required: | `false`                                    |
+
 #### output.write
 Save files to the file system.
 

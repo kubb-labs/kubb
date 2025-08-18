@@ -75,6 +75,9 @@ importers:
       bun-types:
         specifier: ^1.2.20
         version: 1.2.20(@types/react@19.1.10)
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -1171,9 +1174,6 @@ importers:
       consola:
         specifier: ^3.4.2
         version: 3.4.2
-      prettier:
-        specifier: ^3.6.2
-        version: 3.6.2
       tsdown:
         specifier: 'catalog:'
         version: 0.14.1(typescript@5.9.2)
@@ -1321,9 +1321,6 @@ importers:
 
   packages/parser-ts:
     dependencies:
-      prettier:
-        specifier: ^3.6.2
-        version: 3.6.2
       remeda:
         specifier: 'catalog:'
         version: 2.30.0

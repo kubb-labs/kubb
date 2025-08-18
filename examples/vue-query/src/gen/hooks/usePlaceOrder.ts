@@ -25,7 +25,7 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
   const requestData = data
   const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
-    url: '/store/order',
+    url: `/store/order`,
     data: requestData,
     ...requestConfig,
   })
