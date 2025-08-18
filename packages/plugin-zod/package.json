@@ -97,7 +97,7 @@
     "@kubb/config-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "tsdown": "catalog:",
-    "zod": "^3.25.67"
+    "zod": "^3.25.76"
   },
   "peerDependencies": {
     "@kubb/react": "^3.0.0"

@@ -3,7 +3,11 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-clien
 import type { AddFilesMutationRequest, AddFilesMutationResponse, AddFiles405 } from '../../../models/ts/petController/AddFiles.ts'
 
 export function getAddFilesUrl() {
-  return 'https://petstore3.swagger.io/api/v3/pet/files' as const
+  const res = {
+    method: 'POST',
+    url: 'https://petstore3.swagger.io/api/v3/pet/files' as const,
+  }
+  return res
 }
 
 /**
@@ -29,7 +33,7 @@ export async function addFiles(
   }
   const res = await request<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({
     method: 'POST',
-    url: getAddFilesUrl().toString(),
+    url: getAddFilesUrl().url.toString(),
     data: formData,
     ...requestConfig,
     headers: { 'Content-Type': 'multipart/form-data', ...requestConfig.headers },

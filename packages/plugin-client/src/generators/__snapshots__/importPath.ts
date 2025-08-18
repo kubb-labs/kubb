@@ -7,7 +7,11 @@ import fetch from 'axios'
 import type { RequestConfig, ResponseErrorConfig } from 'axios'
 
 export function getFindPetsByTagsUrl() {
-  return `/pet/findByTags` as const
+  const res = {
+    method: 'GET',
+    url: `/pet/findByTags` as const,
+  }
+  return res
 }
 
 /**
@@ -20,7 +24,7 @@ export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config:
 
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
-    url: getFindPetsByTagsUrl().toString(),
+    url: getFindPetsByTagsUrl().url.toString(),
     params,
     ...requestConfig,
   })

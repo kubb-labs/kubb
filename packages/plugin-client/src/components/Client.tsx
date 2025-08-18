@@ -1,12 +1,12 @@
 import { URLPath } from '@kubb/core/utils'
 
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react'
+import type { KubbNode } from '@kubb/react/types'
 import type { PluginClient } from '../types.ts'
 import { Url } from './Url.tsx'
-import type { KubbNode } from '@kubb/react/types'
 
 type Props = {
   /**
@@ -158,7 +158,7 @@ export function Client({
           value: JSON.stringify(operation.method.toUpperCase()),
         },
         url: {
-          value: urlName ? `${urlName}(${urlParams.toCall()}).toString()` : path.template,
+          value: urlName ? `${urlName}(${urlParams.toCall()}).url.toString()` : path.template,
         },
         baseURL:
           baseURL && !urlName

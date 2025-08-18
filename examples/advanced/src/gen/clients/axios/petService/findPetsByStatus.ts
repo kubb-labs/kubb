@@ -4,7 +4,11 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusPathParams, FindPet
 import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
 
 export function getFindPetsByStatusUrl({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }) {
-  return `https://petstore3.swagger.io/api/v3/pet/findByStatus/${step_id}` as const
+  const res = {
+    method: 'GET',
+    url: `https://petstore3.swagger.io/api/v3/pet/findByStatus/${step_id}` as const,
+  }
+  return res
 }
 
 /**
@@ -20,8 +24,12 @@ export async function findPetsByStatus(
 
   const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
-    url: getFindPetsByStatusUrl({ step_id }).toString(),
+    url: getFindPetsByStatusUrl({ step_id }).url.toString(),
     ...requestConfig,
   })
   return { ...res, data: findPetsByStatusQueryResponseSchema.parse(res.data) }
 }
+
+const controller = new AbortController();
+
+findPetsByStatus({step_id: "2"}, {signal: controller.signal })

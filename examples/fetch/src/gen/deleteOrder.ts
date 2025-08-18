@@ -8,7 +8,11 @@ import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getDeleteOrderUrl(orderId: DeleteOrderPathParams['orderId']) {
-  return `/store/order/${orderId}` as const
+  const res = {
+    method: 'DELETE',
+    url: `/store/order/${orderId}` as const,
+  }
+  return res
 }
 
 /**
@@ -21,7 +25,7 @@ export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], con
 
   const res = await request<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
     method: 'DELETE',
-    url: getDeleteOrderUrl(orderId).toString(),
+    url: getDeleteOrderUrl(orderId).url.toString(),
     ...requestConfig,
   })
   return res.data

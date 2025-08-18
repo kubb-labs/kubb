@@ -8,7 +8,11 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPe
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getFindPetsByStatusUrl() {
-  return '/pet/findByStatus' as const
+  const res = {
+    method: 'GET',
+    url: '/pet/findByStatus' as const,
+  }
+  return res
 }
 
 /**
@@ -21,7 +25,7 @@ export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, con
 
   const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
-    url: getFindPetsByStatusUrl().toString(),
+    url: getFindPetsByStatusUrl().url.toString(),
     params,
     ...requestConfig,
   })

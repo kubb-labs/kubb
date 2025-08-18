@@ -14,7 +14,11 @@ import type {
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) {
-  return `/pet/${petId}` as const
+  const res = {
+    method: 'POST',
+    url: `/pet/${petId}` as const,
+  }
+  return res
 }
 
 /**
@@ -30,7 +34,7 @@ export async function updatePetWithForm(
 
   const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
-    url: getUpdatePetWithFormUrl({ petId }).toString(),
+    url: getUpdatePetWithFormUrl({ petId }).url.toString(),
     params,
     ...requestConfig,
   })

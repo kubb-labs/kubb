@@ -8,7 +8,11 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from './mo
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getCreateUserUrl() {
-  return '/user' as const
+  const res = {
+    method: 'POST',
+    url: '/user' as const,
+  }
+  return res
 }
 
 /**
@@ -22,7 +26,7 @@ export async function createUser(data?: CreateUserMutationRequest, config: Parti
   const requestData = data
   const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
-    url: getCreateUserUrl().toString(),
+    url: getCreateUserUrl().url.toString(),
     data: requestData,
     ...requestConfig,
   })

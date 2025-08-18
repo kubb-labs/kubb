@@ -9,7 +9,11 @@ import type {
 import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 
 export function getFindPetsByTagsUrl() {
-  return 'https://petstore3.swagger.io/api/v3/pet/findByTags' as const
+  const res = {
+    method: 'GET',
+    url: 'https://petstore3.swagger.io/api/v3/pet/findByTags' as const,
+  }
+  return res
 }
 
 /**
@@ -25,7 +29,7 @@ export async function findPetsByTags(
 
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
-    url: getFindPetsByTagsUrl().toString(),
+    url: getFindPetsByTagsUrl().url.toString(),
     params,
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },

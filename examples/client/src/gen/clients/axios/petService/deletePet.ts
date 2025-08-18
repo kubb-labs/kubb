@@ -9,7 +9,11 @@ import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderPar
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
-  return `/pet/${petId}` as const
+  const res = {
+    method: 'DELETE',
+    url: `/pet/${petId}` as const,
+  }
+  return res
 }
 
 /**
@@ -26,7 +30,7 @@ export async function deletePet(
 
   const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
-    url: getDeletePetUrl({ petId }).toString(),
+    url: getDeletePetUrl({ petId }).url.toString(),
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })

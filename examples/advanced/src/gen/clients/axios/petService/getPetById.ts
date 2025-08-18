@@ -4,7 +4,11 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetP
 import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
 
 export function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
-  return `https://petstore3.swagger.io/api/v3/pet/${petId}:search` as const
+  const res = {
+    method: 'GET',
+    url: `https://petstore3.swagger.io/api/v3/pet/${petId}:search` as const,
+  }
+  return res
 }
 
 /**
@@ -17,7 +21,7 @@ export async function getPetById({ petId }: { petId: GetPetByIdPathParams['petId
 
   const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
     method: 'GET',
-    url: getGetPetByIdUrl({ petId }).toString(),
+    url: getGetPetByIdUrl({ petId }).url.toString(),
     ...requestConfig,
   })
   return { ...res, data: getPetByIdQueryResponseSchema.parse(res.data) }

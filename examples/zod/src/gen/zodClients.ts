@@ -17,7 +17,11 @@ import { placeOrderPatchMutationResponseSchema, placeOrderPatchMutationRequestSc
 import { placeOrderMutationResponseSchema, placeOrderMutationRequestSchema } from './zod/placeOrderSchema.gen.ts'
 
 function getGetInventoryUrl() {
-  return '/store/inventory' as const
+  const res = {
+    method: 'GET',
+    url: '/store/inventory' as const,
+  }
+  return res
 }
 
 /**
@@ -30,14 +34,18 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: t
 
   const res = await request<GetInventoryQueryResponseType, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
-    url: getGetInventoryUrl().toString(),
+    url: getGetInventoryUrl().url.toString(),
     ...requestConfig,
   })
   return getInventoryQueryResponseSchema.parse(res.data)
 }
 
 function getPlaceOrderUrl() {
-  return '/store/order' as const
+  const res = {
+    method: 'POST',
+    url: '/store/order' as const,
+  }
+  return res
 }
 
 /**
@@ -54,7 +62,7 @@ export async function placeOrder(
   const requestData = placeOrderMutationRequestSchema.parse(data)
   const res = await request<PlaceOrderMutationResponseType, ResponseErrorConfig<PlaceOrder405Type>, PlaceOrderMutationRequestType>({
     method: 'POST',
-    url: getPlaceOrderUrl().toString(),
+    url: getPlaceOrderUrl().url.toString(),
     data: requestData,
     ...requestConfig,
   })
@@ -62,7 +70,11 @@ export async function placeOrder(
 }
 
 function getPlaceOrderPatchUrl() {
-  return '/store/order' as const
+  const res = {
+    method: 'PATCH',
+    url: '/store/order' as const,
+  }
+  return res
 }
 
 /**
@@ -79,7 +91,7 @@ export async function placeOrderPatch(
   const requestData = placeOrderPatchMutationRequestSchema.parse(data)
   const res = await request<PlaceOrderPatchMutationResponseType, ResponseErrorConfig<PlaceOrderPatch405Type>, PlaceOrderPatchMutationRequestType>({
     method: 'PATCH',
-    url: getPlaceOrderPatchUrl().toString(),
+    url: getPlaceOrderPatchUrl().url.toString(),
     data: requestData,
     ...requestConfig,
   })
@@ -87,7 +99,11 @@ export async function placeOrderPatch(
 }
 
 function getGetOrderByIdUrl({ orderId }: { orderId: GetOrderByIdPathParamsType['orderId'] }) {
-  return `/store/order/${orderId}` as const
+  const res = {
+    method: 'GET',
+    url: `/store/order/${orderId}` as const,
+  }
+  return res
 }
 
 /**
@@ -103,14 +119,18 @@ export async function getOrderById(
 
   const res = await request<GetOrderByIdQueryResponseType, ResponseErrorConfig<GetOrderById400Type | GetOrderById404Type>, unknown>({
     method: 'GET',
-    url: getGetOrderByIdUrl({ orderId }).toString(),
+    url: getGetOrderByIdUrl({ orderId }).url.toString(),
     ...requestConfig,
   })
   return getOrderByIdQueryResponseSchema.parse(res.data)
 }
 
 function getDeleteOrderUrl({ orderId }: { orderId: DeleteOrderPathParamsType['orderId'] }) {
-  return `/store/order/${orderId}` as const
+  const res = {
+    method: 'DELETE',
+    url: `/store/order/${orderId}` as const,
+  }
+  return res
 }
 
 /**
@@ -126,7 +146,7 @@ export async function deleteOrder(
 
   const res = await request<DeleteOrderMutationResponseType, ResponseErrorConfig<DeleteOrder400Type | DeleteOrder404Type>, unknown>({
     method: 'DELETE',
-    url: getDeleteOrderUrl({ orderId }).toString(),
+    url: getDeleteOrderUrl({ orderId }).url.toString(),
     ...requestConfig,
   })
   return deleteOrderMutationResponseSchema.parse(res.data)

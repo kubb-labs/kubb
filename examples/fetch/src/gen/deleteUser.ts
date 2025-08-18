@@ -8,7 +8,11 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, D
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getDeleteUserUrl(username: DeleteUserPathParams['username']) {
-  return `/user/${username}` as const
+  const res = {
+    method: 'DELETE',
+    url: `/user/${username}` as const,
+  }
+  return res
 }
 
 /**
@@ -21,7 +25,7 @@ export async function deleteUser(username: DeleteUserPathParams['username'], con
 
   const res = await request<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
-    url: getDeleteUserUrl(username).toString(),
+    url: getDeleteUserUrl(username).url.toString(),
     ...requestConfig,
   })
   return res.data

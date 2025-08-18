@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.17.0
+- [`plugin-client`](/plugins/plugin-client): export method when using `urlType` as discussed in [1828](https://github.com/kubb-labs/kubb/discussions/1828)
+
 # 3.16.4
 - [`plugin-zod`](/plugins/plugin-zod): toZod support for Zod v4
 
