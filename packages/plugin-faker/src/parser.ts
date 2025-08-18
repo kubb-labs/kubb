@@ -127,7 +127,7 @@ const fakerKeywordMapper = {
     if (regexGenerator === 'randexp') {
       return `${transformers.toRegExpString(value, 'RandExp')}.gen()`
     }
-    return `faker.helpers.fromRegExp(${transformers.toRegExpString(value)})`
+    return `faker.helpers.fromRegExp("${value}")`
   },
   email: () => 'faker.internet.email()',
   firstName: () => 'faker.person.firstName()',

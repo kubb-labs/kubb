@@ -29,7 +29,3 @@ export async function findPetsByStatus(
   })
   return { ...res, data: findPetsByStatusQueryResponseSchema.parse(res.data) }
 }
-
-const controller = new AbortController();
-
-findPetsByStatus({step_id: "2"}, {signal: controller.signal })

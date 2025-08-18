@@ -6,6 +6,10 @@ import { z } from 'zod/v4'
 
 export const petSchema = z.object({
   id: z.int().optional(),
+  signature: z
+    .string()
+    .regex(/^data:image\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$/)
+    .optional(),
   name: z.string(),
   get category() {
     return categorySchema.optional()

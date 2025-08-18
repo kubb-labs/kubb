@@ -113,7 +113,8 @@
     "consola": "^3.4.2",
     "prettier": "^3.6.2",
     "tsdown": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "zod": "^4.0.17"
   },
   "engines": {
     "node": ">=20"

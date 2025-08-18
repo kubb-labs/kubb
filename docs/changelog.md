@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+# 3.17.1
+- [`plugin-faker`](/plugins/plugin-faker): Escaping regex correctly and without `new RegExp()`
+- [`plugin-zod`](/plugins/plugin-zod): Escaping regex correctly by using `new RegExp().source` behind the scenes
+
 # 3.17.0
 - [`plugin-client`](/plugins/plugin-client): export method when using `urlType` as discussed in [1828](https://github.com/kubb-labs/kubb/discussions/1828)
 

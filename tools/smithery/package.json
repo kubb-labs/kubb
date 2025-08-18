@@ -20,7 +20,7 @@
   "files": [],
   "scripts": {},
   "dependencies": {
-    "@kubb/mcp": "^3.16.4"
+    "@kubb/mcp": "^3.17.0"
   },
   "devDependencies": {},
   "packageManager": "npm@11.5.2",
