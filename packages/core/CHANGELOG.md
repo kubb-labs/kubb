@@ -1,5 +1,16 @@
 # @kubb/core
 
+## 3.18.0
+
+### Minor Changes
+
+- [#1847](https://github.com/kubb-labs/kubb/pull/1847) [`8d5e9af`](https://github.com/kubb-labs/kubb/commit/8d5e9afe10c56f7246970c42b593e031ea5aa9f0) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for custom formatters (Prettier, Biome) and linters (ESLint, Oxlint, Biome).
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/parser-ts@3.18.0
+
 ## 3.17.1
 
 ### Patch Changes
