@@ -5,7 +5,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { deleteUser } from '../../axios/userService/deleteUser.ts'
 import { useMutation } from '@tanstack/react-query'
 
-export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
+export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
 

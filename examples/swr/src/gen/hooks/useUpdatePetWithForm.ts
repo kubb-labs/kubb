@@ -13,7 +13,7 @@ import type {
 } from '../models/UpdatePetWithForm.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
-export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}' }] as const
+export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
 

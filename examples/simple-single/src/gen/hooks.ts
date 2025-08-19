@@ -1166,7 +1166,7 @@ export function useAddPet<TContext>(
   )
 }
 
-export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}' }] as const
+export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
 
@@ -1226,7 +1226,7 @@ export function useUpdatePetWithForm<TContext>(
   )
 }
 
-export const deletePetMutationKey = () => [{ url: '/pet/{petId}' }] as const
+export const deletePetMutationKey = () => [{ url: '/pet/:petId' }] as const
 
 export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 
@@ -1288,7 +1288,7 @@ export function useDeletePet<TContext>(
   )
 }
 
-export const uploadFileMutationKey = () => [{ url: '/pet/{petId}/uploadImage' }] as const
+export const uploadFileMutationKey = () => [{ url: '/pet/:petId/uploadImage' }] as const
 
 export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
 
@@ -1460,7 +1460,7 @@ export function usePlaceOrderPatch<TContext>(
   )
 }
 
-export const deleteOrderMutationKey = () => [{ url: '/store/order/{orderId}' }] as const
+export const deleteOrderMutationKey = () => [{ url: '/store/order/:orderId' }] as const
 
 export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
 
@@ -1625,7 +1625,7 @@ export function useCreateUsersWithListInput<TContext>(
   )
 }
 
-export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const
+export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 
@@ -1688,7 +1688,7 @@ export function useUpdateUser<TContext>(
   )
 }
 
-export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
+export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
 

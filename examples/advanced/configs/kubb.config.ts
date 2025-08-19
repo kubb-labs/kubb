@@ -56,9 +56,11 @@ export default defineConfig(() => {
         clean: true,
         barrelType: 'named',
         defaultBanner: false,
+        lint: 'biome',
+        format: 'biome',
       },
       hooks: {
-        done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+        done: ['npm run typecheck'],
       },
       plugins: [
         pluginOas({

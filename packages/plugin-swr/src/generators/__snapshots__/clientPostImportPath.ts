@@ -6,7 +6,7 @@ import fetch from 'axios'
 import useSWRMutation from 'swr/mutation'
 import type { RequestConfig, ResponseErrorConfig } from 'axios'
 
-export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}' }] as const
+export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
 

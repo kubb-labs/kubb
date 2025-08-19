@@ -7,7 +7,7 @@ import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import type { RequestConfig, ResponseErrorConfig } from 'axios'
 import { createMutation } from '@tanstack/svelte-query'
 
-export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}' }] as const
+export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
 

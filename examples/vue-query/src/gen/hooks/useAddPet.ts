@@ -25,7 +25,7 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
   const requestData = data
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
-    url: '/pet',
+    url: `/pet`,
     data: requestData,
     ...requestConfig,
   })

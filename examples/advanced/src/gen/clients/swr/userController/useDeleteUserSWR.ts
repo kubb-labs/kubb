@@ -4,7 +4,7 @@ import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
 import { deleteUser } from '../../axios/userService/deleteUser.ts'
 
-export const deleteUserMutationKeySWR = () => [{ url: '/user/{username}' }] as const
+export const deleteUserMutationKeySWR = () => [{ url: '/user/:username' }] as const
 
 export type DeleteUserMutationKeySWR = ReturnType<typeof deleteUserMutationKeySWR>
 

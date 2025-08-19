@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { format } from '../../mocks/format.ts'
 import { getSource } from '../FileManager'
 import type { File, ResolvedFile } from '../fs/types.ts'
 import type { Logger } from '../logger'
@@ -68,6 +69,11 @@ export async function matchFiles(files: Array<ResolvedFile | File> | undefined, 
 
   for await (const file of files) {
     const source = await getSource(createFile(file), { logger: mockedLogger })
-    await expect(source).toMatchFileSnapshot(path.join(...['__snapshots__', pre, file.path].filter(Boolean)))
+    let code = source
+    if (!file.baseName.endsWith('.json')) {
+      code = await format(source)
+    }
+
+    await expect(code).toMatchFileSnapshot(path.join(...['__snapshots__', pre, file.path].filter(Boolean)))
   }
 }

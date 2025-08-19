@@ -1,9 +1,8 @@
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, FunctionParams } from '@kubb/react'
 import type { ReactNode } from 'react'
 import type { PluginSwr } from '../types.ts'
 import { MutationKey } from './MutationKey.tsx'
@@ -57,7 +56,7 @@ function getParams({ pathParamsType, paramsCasing, dataReturnType, typeSchemas, 
     options: {
       type: `
 {
-  mutation?: Parameters<typeof useSWRMutation<${[TData, TError, mutationKeyTypeName, typeSchemas.request?.name].join(', ')}>>[2],
+  mutation?: Parameters<typeof useSWRMutation<${[TData, TError, mutationKeyTypeName, typeSchemas.request?.name].filter(Boolean).join(', ')}>>[2],
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'},
   shouldFetch?: boolean,
 }

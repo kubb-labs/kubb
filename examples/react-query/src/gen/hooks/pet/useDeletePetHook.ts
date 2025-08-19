@@ -9,7 +9,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
-export const deletePetMutationKey = () => [{ url: '/pet/{pet_id}' }] as const
+export const deletePetMutationKey = () => [{ url: '/pet/:pet_id' }] as const
 
 export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 

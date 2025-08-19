@@ -1,7 +1,10 @@
+import path from 'node:path'
 import process from 'node:process'
 import { type Config, safeBuild, setup } from '@kubb/core'
+import { unlink, write } from '@kubb/core/fs'
 import { createLogger, LogMapper } from '@kubb/core/logger'
 import { Presets, SingleBar } from 'cli-progress'
+import { execa } from 'execa'
 import pc from 'picocolors'
 import type { Args } from '../commands/generate.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
@@ -74,6 +77,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
       extension: {
         '.ts': '.ts',
       },
+      format: 'prettier',
       ...userConfig.output,
     },
   }
@@ -131,6 +135,111 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     logger.consola?.error(error)
 
     process.exit(1)
+  }
+
+  // formatting
+
+  // fallback on prettier to have backwards compatibility for v3.17.1 and before
+  if (userConfig.output.format === undefined) {
+    const config = {
+      tabWidth: 2,
+      printWidth: 160,
+      singleQuote: true,
+      semi: false,
+      bracketSameLine: false,
+      endOfLine: 'auto',
+      plugins: ['prettier/plugins/typescript'],
+    }
+
+    try {
+      logger?.emit('start', 'Applying default Formatting')
+
+      const configPath = path.resolve(definedConfig.root, '.prettierrc.temp.json')
+      await write(configPath, JSON.stringify(config))
+
+      await execa('npx', [
+        '--yes',
+        'prettier',
+        '--ignore-unknown',
+        '--config',
+        configPath,
+        '--write',
+        path.resolve(definedConfig.root, definedConfig.output.path),
+      ])
+
+      await unlink(configPath)
+    } catch (e) {
+      logger.consola?.warn('Prettier not found')
+      logger.consola?.error(e)
+    }
+
+    logger?.emit('success', 'Applied default Formatting')
+  }
+
+  if (config.output.format === 'prettier') {
+    logger?.emit('start', `Formatting with ${config.output.format}`)
+
+    try {
+      await execa('prettier', ['--ignore-unknown', '--write', path.resolve(definedConfig.root, definedConfig.output.path)])
+    } catch (e) {
+      logger.consola?.warn('Prettier not found')
+      logger.consola?.error(e)
+    }
+
+    logger?.emit('success', `Formatted with ${config.output.format}`)
+  }
+
+  if (config.output.format === 'biome') {
+    logger?.emit('start', `Formatting with ${config.output.format}`)
+
+    try {
+      await execa('biome', ['format', '--write', path.resolve(definedConfig.root, definedConfig.output.path)])
+    } catch (e) {
+      logger.consola?.warn('Biome not found')
+      logger.consola?.error(e)
+    }
+
+    logger?.emit('success', `Formatted with ${config.output.format}`)
+  }
+
+  // linting
+  if (config.output.lint === 'eslint') {
+    logger?.emit('start', `Linting with ${config.output.format}`)
+
+    try {
+      await execa('eslint', [path.resolve(definedConfig.root, definedConfig.output.path), '--fix'])
+    } catch (e) {
+      logger.consola?.warn('Eslint not found')
+      logger.consola?.error(e)
+    }
+
+    logger?.emit('success', `Linted with ${config.output.format}`)
+  }
+
+  if (config.output.lint === 'biome') {
+    logger?.emit('start', `Linting with ${config.output.format}`)
+
+    try {
+      await execa('biome', ['lint', '--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
+    } catch (e) {
+      logger.consola?.warn('Biome not found')
+      logger.consola?.error(e)
+    }
+
+    logger?.emit('success', `Linted with ${config.output.format}`)
+  }
+
+  if (config.output.lint === 'oxlint') {
+    logger?.emit('start', `Linting with ${config.output.format}`)
+
+    try {
+      await execa('oxlint', ['--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
+    } catch (e) {
+      logger.consola?.warn('Oxlint not found')
+      logger.consola?.error(e)
+    }
+
+    logger?.emit('success', `Linted with ${config.output.format}`)
   }
 
   if (config.hooks) {

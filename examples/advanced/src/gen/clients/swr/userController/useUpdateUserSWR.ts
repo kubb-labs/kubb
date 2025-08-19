@@ -4,7 +4,7 @@ import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 import { updateUser } from '../../axios/userService/updateUser.ts'
 
-export const updateUserMutationKeySWR = () => [{ url: '/user/{username}' }] as const
+export const updateUserMutationKeySWR = () => [{ url: '/user/:username' }] as const
 
 export type UpdateUserMutationKeySWR = ReturnType<typeof updateUserMutationKeySWR>
 
