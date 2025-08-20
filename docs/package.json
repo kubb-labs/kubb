@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@shikijs/vitepress-twoslash": "^3.9.2",
-    "mermaid": "^11.9.0",
+    "mermaid": "^11.10.0",
     "sitemap": "^8.0.0",
     "vitepress": "^2.0.0-alpha.11",
     "vitepress-plugin-group-icons": "^1.6.3",
