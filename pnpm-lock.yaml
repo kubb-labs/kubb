@@ -1873,6 +1873,9 @@ importers:
       execa:
         specifier: ^9.6.0
         version: 9.6.0
+      indent-string:
+        specifier: ^5.0.0
+        version: 5.0.0
       natural-orderby:
         specifier: ^5.0.0
         version: 5.0.0
@@ -6928,6 +6931,10 @@ packages:
   indent-string@4.0.0:
     resolution: {integrity: sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==}
     engines: {node: '>=8'}
+
+  indent-string@5.0.0:
+    resolution: {integrity: sha512-m6FAo/spmsW2Ab2fU35JTYwtOKa2yAwXSwgjSv1TJzh4Mh7mC3lzAOVLBprb72XsTrgkEIsl7YrFNAiDiRhIGg==}
+    engines: {node: '>=12'}
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -16122,6 +16129,8 @@ snapshots:
   import-meta-resolve@4.1.0: {}
 
   indent-string@4.0.0: {}
+
+  indent-string@5.0.0: {}
 
   inherits@2.0.4: {}
 
