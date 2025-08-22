@@ -60,8 +60,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "remeda": "catalog:",
     "prettier": "^3.6.2",
+    "remeda": "catalog:",
     "typescript": "5.9.2"
   },
   "devDependencies": {

@@ -32,7 +32,7 @@
     "@tanstack/vue-query": "5.81.5",
     "axios": "^1.11.0",
     "unplugin-kubb": "workspace:*",
-    "vue": "^3.5.18"
+    "vue": "^3.5.19"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.4",

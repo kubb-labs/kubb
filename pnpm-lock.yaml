@@ -1321,6 +1321,9 @@ importers:
 
   packages/parser-ts:
     dependencies:
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
       remeda:
         specifier: 'catalog:'
         version: 2.30.0
@@ -1328,12 +1331,6 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
     devDependencies:
-      '@biomejs/js-api':
-        specifier: ^3.0.0
-        version: 3.0.0(@biomejs/wasm-nodejs@2.2.0)
-      '@biomejs/wasm-nodejs':
-        specifier: ^2.2.0
-        version: 2.2.0
       '@kubb/config-ts':
         specifier: workspace:*
         version: link:../config-ts
@@ -1984,8 +1981,8 @@ importers:
         specifier: 'catalog:'
         version: 18.3.1(react@18.3.1)
       react-router-dom:
-        specifier: ^7.8.1
-        version: 7.8.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^7.8.2
+        version: 7.8.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       tailwind-variants:
         specifier: ^2.1.0
         version: 2.1.0(tailwind-merge@3.3.1)(tailwindcss@4.1.12)
@@ -2267,23 +2264,6 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
-
-  '@biomejs/js-api@3.0.0':
-    resolution: {integrity: sha512-5QcGJFj9IO+yXl76ICjvkdE38uxRcTDsBzcCZHEZ+ma+Te/nbvJg4A3KtAds9HCrEF0JKLWiyjMhAbqazuJvYA==}
-    peerDependencies:
-      '@biomejs/wasm-bundler': ^2.2.0
-      '@biomejs/wasm-nodejs': ^2.2.0
-      '@biomejs/wasm-web': ^2.2.0
-    peerDependenciesMeta:
-      '@biomejs/wasm-bundler':
-        optional: true
-      '@biomejs/wasm-nodejs':
-        optional: true
-      '@biomejs/wasm-web':
-        optional: true
-
-  '@biomejs/wasm-nodejs@2.2.0':
-    resolution: {integrity: sha512-jTN0IdKqt8EOPAzMGYKzeNykOKljZBRwABO2N6rEaC5CzJEhS3CuApdjqWpK/TMsVfw694gA3qhNNRhyFI2mWg==}
 
   '@braintree/sanitize-url@7.1.0':
     resolution: {integrity: sha512-o+UlMLt49RvtCASlOMW0AkHnabN9wR9rwCCherxO0yG4Npy34GkvrAqdXQvrhNs+jh+gkK8gB8Lf05qL/O7KWg==}
@@ -8397,15 +8377,15 @@ packages:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
     engines: {node: '>=0.10.0'}
 
-  react-router-dom@7.8.1:
-    resolution: {integrity: sha512-NkgBCF3sVgCiAWIlSt89GR2PLaksMpoo3HDCorpRfnCEfdtRPLiuTf+CNXvqZMI5SJLZCLpVCvcZrTdtGW64xQ==}
+  react-router-dom@7.8.2:
+    resolution: {integrity: sha512-Z4VM5mKDipal2jQ385H6UBhiiEDlnJPx6jyWsTYoZQdl5TrjxEV2a9yl3Fi60NBJxYzOTGTTHXPi0pdizvTwow==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
       react-dom: '>=18'
 
-  react-router@7.8.1:
-    resolution: {integrity: sha512-5cy/M8DHcG51/KUIka1nfZ2QeylS4PJRs6TT8I4PF5axVsI5JUxp0hC0NZ/AEEj8Vw7xsEoD7L/6FY+zoYaOGA==}
+  react-router@7.8.2:
+    resolution: {integrity: sha512-7M2fR1JbIZ/jFWqelpvSZx+7vd7UlBTfdZqf6OSdF9g6+sfdqJDAWcak6ervbHph200ePlu+7G8LdoiC3ReyAQ==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -10172,12 +10152,6 @@ snapshots:
 
   '@biomejs/cli-win32-x64@2.2.0':
     optional: true
-
-  '@biomejs/js-api@3.0.0(@biomejs/wasm-nodejs@2.2.0)':
-    optionalDependencies:
-      '@biomejs/wasm-nodejs': 2.2.0
-
-  '@biomejs/wasm-nodejs@2.2.0': {}
 
   '@braintree/sanitize-url@7.1.0': {}
 
@@ -17737,13 +17711,13 @@ snapshots:
 
   react-refresh@0.17.0: {}
 
-  react-router-dom@7.8.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-router-dom@7.8.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      react-router: 7.8.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.8.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
-  react-router@7.8.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-router@7.8.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       cookie: 1.0.2
       react: 18.3.1
