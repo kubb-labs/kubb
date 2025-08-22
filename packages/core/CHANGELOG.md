@@ -1,5 +1,12 @@
 # @kubb/core
 
+## 3.17.2
+
+### Patch Changes
+
+- Updated dependencies [[`7990392`](https://github.com/kubb-labs/kubb/commit/7990392d5174e3d1886ba77c7f7bf6c926943e1b)]:
+  - @kubb/parser-ts@3.17.2
+
 ## 3.17.1
 
 ### Patch Changes

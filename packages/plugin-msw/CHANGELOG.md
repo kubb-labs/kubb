@@ -1,5 +1,17 @@
 # @kubb/plugin-msw
 
+## 3.17.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.17.2
+  - @kubb/plugin-ts@3.17.2
+  - @kubb/react@3.17.2
+  - @kubb/plugin-faker@3.17.2
+  - @kubb/plugin-oas@3.17.2
+  - @kubb/oas@3.17.2
+
 ## 3.17.1
 
 ### Patch Changes
