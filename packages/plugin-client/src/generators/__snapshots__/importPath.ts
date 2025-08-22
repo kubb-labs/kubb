@@ -7,10 +7,7 @@ import fetch from 'axios'
 import type { RequestConfig, ResponseErrorConfig } from 'axios'
 
 export function getFindPetsByTagsUrl() {
-  const res = {
-    method: 'GET',
-    url: `/pet/findByTags` as const,
-  }
+  const res = { method: 'GET', url: `/pet/findByTags` as const }
   return res
 }
 

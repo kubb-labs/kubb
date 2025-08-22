@@ -7,10 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
-  const res = {
-    method: 'DELETE',
-    url: `/pet/${petId}` as const,
-  }
+  const res = { method: 'DELETE', url: `/pet/${petId}` as const }
   return res
 }
 
