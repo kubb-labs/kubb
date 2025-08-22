@@ -8,10 +8,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from './mo
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getCreateUserUrl() {
-  const res = {
-    method: 'POST',
-    url: '/user' as const,
-  }
+  const res = { method: 'POST', url: '/user' as const }
   return res
 }
 

@@ -3,14 +3,17 @@ title: Changelog
 ---
 
 # Changelog
+
+# 3.18.1
+- [`parser/ts`](/parsers/parser-ts/): revert prettier removal as default formatter
+
+# 3.18.0
 - [`core`](/plugins/core): Support for custom formatters like [Biome](https://biomejs.dev/) and [Prettier](https://prettier.io/)
 - [`core`](/plugins/core): Support for custom linters like [Biome](https://biomejs.dev/), [Eslint](https://eslint.org/) and [Oxlint](https://oxc.rs/docs/guide/usage/linter)
 - [`plugin-react-query`](/plugins/plugin-react-query/): use of `toURLPath` for mutationKey
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): use of `toURLPath` for mutationKey
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): use of `toURLPath` for mutationKey
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): use of `toURLPath` for mutationKey
-
-# 3.18.0
 
 # 3.17.1
 - [`plugin-faker`](/plugins/plugin-faker): Escaping regex correctly and without `new RegExp()`

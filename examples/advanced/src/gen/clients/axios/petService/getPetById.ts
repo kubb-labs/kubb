@@ -4,10 +4,7 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetP
 import { getPetByIdQueryResponseSchema } from '../../../zod/petController/getPetByIdSchema.ts'
 
 export function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
-  const res = {
-    method: 'GET',
-    url: `https://petstore3.swagger.io/api/v3/pet/${petId}:search` as const,
-  }
+  const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/pet/${petId}:search` as const }
   return res
 }
 

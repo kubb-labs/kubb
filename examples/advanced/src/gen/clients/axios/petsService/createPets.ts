@@ -10,10 +10,7 @@ import type {
 import { createPetsMutationResponseSchema, createPetsMutationRequestSchema } from '../../../zod/petsController/createPetsSchema.ts'
 
 export function getCreatePetsUrl({ uuid }: { uuid: CreatePetsPathParams['uuid'] }) {
-  const res = {
-    method: 'POST',
-    url: `https://petstore3.swagger.io/api/v3/pets/${uuid}` as const,
-  }
+  const res = { method: 'POST', url: `https://petstore3.swagger.io/api/v3/pets/${uuid}` as const }
   return res
 }
 

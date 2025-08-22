@@ -59,14 +59,8 @@ export function Url({ name, isExportable = true, isIndexable = true, typeSchemas
   return (
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
       <Function name={name} export={isExportable} params={params.toConstructor()}>
-        <Const name={'res'}>
-          {`
-        {
-          method: '${operation.method.toUpperCase()}',
-          url: ${path.toTemplateString({ prefix: baseURL })} as const
-        }
-        `}
-        </Const>
+        <Const name={'res'}>{`{ method: '${operation.method.toUpperCase()}', url: ${path.toTemplateString({ prefix: baseURL })} as const }`}</Const>
+        <br />
         return res
       </Function>
     </File.Source>

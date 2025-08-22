@@ -14,10 +14,7 @@ import type {
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getUploadFileUrlXML({ petId }: { petId: UploadFilePathParams['petId'] }) {
-  const res = {
-    method: 'POST',
-    url: `/pet/${petId}/uploadImage` as const,
-  }
+  const res = { method: 'POST', url: `/pet/${petId}/uploadImage` as const }
   return res
 }
 

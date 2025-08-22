@@ -9,10 +9,7 @@ import type {
 import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
 
 export function getGetUserByNameUrl({ username }: { username: GetUserByNamePathParams['username'] }) {
-  const res = {
-    method: 'GET',
-    url: `https://petstore3.swagger.io/api/v3/user/${username}` as const,
-  }
+  const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
   return res
 }
 

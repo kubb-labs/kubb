@@ -17,10 +17,7 @@ import { placeOrderPatchMutationResponseSchema, placeOrderPatchMutationRequestSc
 import { placeOrderMutationResponseSchema, placeOrderMutationRequestSchema } from './zod/placeOrderSchema.gen.ts'
 
 function getGetInventoryUrl() {
-  const res = {
-    method: 'GET',
-    url: `/store/inventory` as const,
-  }
+  const res = { method: 'GET', url: `/store/inventory` as const }
   return res
 }
 
@@ -41,10 +38,7 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: t
 }
 
 function getPlaceOrderUrl() {
-  const res = {
-    method: 'POST',
-    url: `/store/order` as const,
-  }
+  const res = { method: 'POST', url: `/store/order` as const }
   return res
 }
 
@@ -70,10 +64,7 @@ export async function placeOrder(
 }
 
 function getPlaceOrderPatchUrl() {
-  const res = {
-    method: 'PATCH',
-    url: `/store/order` as const,
-  }
+  const res = { method: 'PATCH', url: `/store/order` as const }
   return res
 }
 
@@ -99,10 +90,7 @@ export async function placeOrderPatch(
 }
 
 function getGetOrderByIdUrl({ orderId }: { orderId: GetOrderByIdPathParamsType['orderId'] }) {
-  const res = {
-    method: 'GET',
-    url: `/store/order/${orderId}` as const,
-  }
+  const res = { method: 'GET', url: `/store/order/${orderId}` as const }
   return res
 }
 
@@ -126,10 +114,7 @@ export async function getOrderById(
 }
 
 function getDeleteOrderUrl({ orderId }: { orderId: DeleteOrderPathParamsType['orderId'] }) {
-  const res = {
-    method: 'DELETE',
-    url: `/store/order/${orderId}` as const,
-  }
+  const res = { method: 'DELETE', url: `/store/order/${orderId}` as const }
   return res
 }
 

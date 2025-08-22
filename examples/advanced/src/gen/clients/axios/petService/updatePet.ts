@@ -10,10 +10,7 @@ import type {
 import { updatePetMutationResponseSchema, updatePetMutationRequestSchema } from '../../../zod/petController/updatePetSchema.ts'
 
 export function getUpdatePetUrl() {
-  const res = {
-    method: 'PUT',
-    url: 'https://petstore3.swagger.io/api/v3/pet' as const,
-  }
+  const res = { method: 'PUT', url: 'https://petstore3.swagger.io/api/v3/pet' as const }
   return res
 }
 

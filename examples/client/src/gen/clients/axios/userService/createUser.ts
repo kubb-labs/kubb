@@ -9,10 +9,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getCreateUserUrl() {
-  const res = {
-    method: 'POST',
-    url: '/user' as const,
-  }
+  const res = { method: 'POST', url: '/user' as const }
   return res
 }
 

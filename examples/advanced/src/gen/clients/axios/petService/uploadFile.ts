@@ -9,10 +9,7 @@ import type {
 import { uploadFileMutationResponseSchema, uploadFileMutationRequestSchema } from '../../../zod/petController/uploadFileSchema.ts'
 
 export function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
-  const res = {
-    method: 'POST',
-    url: `https://petstore3.swagger.io/api/v3/pet/${petId}/uploadImage` as const,
-  }
+  const res = { method: 'POST', url: `https://petstore3.swagger.io/api/v3/pet/${petId}/uploadImage` as const }
   return res
 }
 

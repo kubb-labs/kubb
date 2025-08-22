@@ -8,10 +8,7 @@ import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getGetUserByNameUrl(username: GetUserByNamePathParams['username']) {
-  const res = {
-    method: 'GET',
-    url: `/user/${username}` as const,
-  }
+  const res = { method: 'GET', url: `/user/${username}` as const }
   return res
 }
 

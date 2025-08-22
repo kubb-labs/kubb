@@ -9,10 +9,7 @@ import type { LogoutUserQueryResponse } from '../../../models/ts/userController/
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getLogoutUserUrl() {
-  const res = {
-    method: 'GET',
-    url: '/user/logout' as const,
-  }
+  const res = { method: 'GET', url: '/user/logout' as const }
   return res
 }
 

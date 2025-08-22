@@ -14,10 +14,7 @@ import type {
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) {
-  const res = {
-    method: 'POST',
-    url: `/pet/${petId}` as const,
-  }
+  const res = { method: 'POST', url: `/pet/${petId}` as const }
   return res
 }
 

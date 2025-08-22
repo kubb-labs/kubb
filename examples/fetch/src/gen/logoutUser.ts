@@ -8,10 +8,7 @@ import type { LogoutUserQueryResponse } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getLogoutUserUrl() {
-  const res = {
-    method: 'GET',
-    url: '/user/logout' as const,
-  }
+  const res = { method: 'GET', url: '/user/logout' as const }
   return res
 }
 

@@ -152,7 +152,9 @@ const typeScriptParser = createFileParser({
       })
       .filter(Boolean)
 
-    return [file.banner, module.print([...importNodes, ...exportNodes]), source, file.footer].join('\n')
+    const code = [file.banner, module.print([...importNodes, ...exportNodes]), source, file.footer].join('\n')
+
+    return module.format(code)
   },
 })
 

@@ -4,10 +4,7 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusPathParams, FindPet
 import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
 
 export function getFindPetsByStatusUrl({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }) {
-  const res = {
-    method: 'GET',
-    url: `https://petstore3.swagger.io/api/v3/pet/findByStatus/${step_id}` as const,
-  }
+  const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/pet/findByStatus/${step_id}` as const }
   return res
 }
 

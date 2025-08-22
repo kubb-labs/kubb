@@ -14,10 +14,7 @@ import type {
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getGetUserByNameUrl({ username }: { username: GetUserByNamePathParams['username'] }) {
-  const res = {
-    method: 'GET',
-    url: `/user/${username}` as const,
-  }
+  const res = { method: 'GET', url: `/user/${username}` as const }
   return res
 }
 

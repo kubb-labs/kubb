@@ -8,10 +8,7 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetP
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
-  const res = {
-    method: 'GET',
-    url: `/pet/${petId}` as const,
-  }
+  const res = { method: 'GET', url: `/pet/${petId}` as const }
   return res
 }
 

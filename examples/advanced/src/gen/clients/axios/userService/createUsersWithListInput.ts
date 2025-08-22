@@ -10,10 +10,7 @@ import {
 } from '../../../zod/userController/createUsersWithListInputSchema.ts'
 
 export function getCreateUsersWithListInputUrl() {
-  const res = {
-    method: 'POST',
-    url: 'https://petstore3.swagger.io/api/v3/user/createWithList' as const,
-  }
+  const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/user/createWithList' as const }
   return res
 }
 

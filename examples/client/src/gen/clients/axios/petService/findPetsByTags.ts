@@ -9,10 +9,7 @@ import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsBy
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getFindPetsByTagsUrl() {
-  const res = {
-    method: 'GET',
-    url: '/pet/findByTags' as const,
-  }
+  const res = { method: 'GET', url: '/pet/findByTags' as const }
   return res
 }
 

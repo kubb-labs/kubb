@@ -8,10 +8,7 @@ import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFileP
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getUploadFileUrl(petId: UploadFilePathParams['petId']) {
-  const res = {
-    method: 'POST',
-    url: `/pet/${petId}/uploadImage` as const,
-  }
+  const res = { method: 'POST', url: `/pet/${petId}/uploadImage` as const }
   return res
 }
 
