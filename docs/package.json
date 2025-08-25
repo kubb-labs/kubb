@@ -26,7 +26,8 @@
     "sitemap": "^8.0.0",
     "vitepress": "^2.0.0-alpha.12",
     "vitepress-plugin-group-icons": "^1.6.3",
-    "vue": "^3.5.19"
+    "vitepress-plugin-llms": "^1.7.3",
+    "vue": "^3.5.20"
   },
   "devDependencies": {
     "@kubb/cli": "workspace:*",
