@@ -2,4 +2,4 @@
 "@kubb/cli": patch
 ---
 
-fix: support version alias
+Support printing version via `--version` or `-v`.
