@@ -11,7 +11,7 @@ body:
   - type: input
     attributes:
       label: What version of `kubb` is running?
-      description: Copy the output of `kubb -v`
+      description: Copy the output of `npx kubb -v`
   - type: dropdown
     attributes:
       label: What kind of platform do you use?
