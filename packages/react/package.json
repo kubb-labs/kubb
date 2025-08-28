@@ -90,6 +90,7 @@
     "@kubb/core": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "execa": "^9.6.0",
+    "indent-string": "^5.0.0",
     "natural-orderby": "^5.0.0",
     "react": "catalog:react19",
     "react-devtools-core": "^6.1.5",

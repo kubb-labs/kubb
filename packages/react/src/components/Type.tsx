@@ -1,8 +1,6 @@
 import { createJSDocBlockText } from '@kubb/core/transformers'
-
-import { Text } from './Text.tsx'
-
 import type { JSDoc, Key, KubbNode } from '../types.ts'
+import { Text } from './Text.tsx'
 
 type Props = {
   key?: Key
