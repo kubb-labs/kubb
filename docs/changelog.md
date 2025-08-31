@@ -4,6 +4,11 @@ title: Changelog
 
 # Changelog
 
+# 3.18.2
+- [`plugin-react-query`](/plugins/plugin-react-query/): Correct generic for infiniteQuery(issue #1790)
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Correct generic for infiniteQuery(issue #1790)
+
+
 # 3.18.1
 - [`parser/ts`](/parsers/parser-ts/): revert prettier removal as default formatter
 

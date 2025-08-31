@@ -61,14 +61,14 @@ export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQu
  */
 export function useFindPetsByTagsInfiniteHook<
   TData = InfiniteData<ResponseConfig<FindPetsByTagsQueryResponse>>,
-  _TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
+  TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: Partial<InfiniteQueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryKey>> & {
-      client?: QueryClient
-    }
+    query?: Partial<
+      InfiniteQueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TQueryData, TQueryKey, TQueryData>
+    > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
