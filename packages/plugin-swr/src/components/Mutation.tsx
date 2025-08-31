@@ -123,7 +123,7 @@ export function Mutation({
         const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
         const mutationKey = ${mutationKeyName}(${mutationKeyParams.toCall()})
 
-        return useSWRMutation<${generics}>(
+        return useSWRMutation<${generics.join(' ')}>(
           shouldFetch ? mutationKey : null,
           async (_url${typeSchemas.request?.name ? ', { arg: data }' : ''}) => {
             return ${clientName}(${clientParams.toCall()})

@@ -189,7 +189,7 @@ export function Client({
   const formData = isFormData
     ? `
    const formData = new FormData()
-   if(requestData) {
+   if (requestData) {
     Object.keys(requestData).forEach((key) => {
       const value = requestData[key as keyof typeof requestData];
       if (typeof value === 'string' || (value as unknown) instanceof Blob) {
@@ -198,7 +198,7 @@ export function Client({
     })
    }
   `
-    : ''
+    : undefined
 
   const childrenElement = children ? (
     children
@@ -223,13 +223,14 @@ export function Client({
         }}
         returnType={returnType}
       >
-        {isConfigurable ? 'const { client:request = fetch, ...requestConfig } = config' : ''}
+        {isConfigurable ? 'const { client: request = fetch, ...requestConfig } = config' : ''}
         <br />
         <br />
         {parser === 'zod' && zodSchemas?.request?.name && `const requestData = ${zodSchemas.request.name}.parse(data)`}
         {parser === 'client' && typeSchemas?.request?.name && 'const requestData = data'}
         <br />
         {formData}
+        <br />
         {isConfigurable
           ? `const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`
           : `const res = await fetch<${generics.join(', ')}>(${clientParams.toCall()})`}

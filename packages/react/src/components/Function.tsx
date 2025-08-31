@@ -1,6 +1,6 @@
 import { createJSDocBlockText } from '@kubb/core/transformers'
 import type { JSDoc, Key, KubbNode } from '../types.ts'
-import { indentReactChildren } from '../utils/indentReactChildren.ts'
+import { Indent } from './Indent.tsx'
 import { Space } from './Text.tsx'
 
 type Props = {
@@ -87,7 +87,7 @@ export function Function({ name, default: isDefault, export: canExport, async, g
       )}
       {' {'}
       <br />
-      {indentReactChildren({ size: 2, children: children })}
+      <Indent size={2}>{children}</Indent>
       <br />
       {'}'}
     </>
@@ -152,7 +152,7 @@ function ArrowFunction({ name, default: isDefault, export: canExport, async, gen
       {singleLine && (
         <>
           <>{' => '}</>
-          {indentReactChildren({ size: 2, children: children })}
+          {children}
           <br />
         </>
       )}
@@ -161,7 +161,7 @@ function ArrowFunction({ name, default: isDefault, export: canExport, async, gen
         <>
           <>{' => {'}</>
           <br />
-          {indentReactChildren({ size: 2, children: children })}
+          <Indent size={2}>{children}</Indent>
           <br />
           <>{'}'}</>
           <br />

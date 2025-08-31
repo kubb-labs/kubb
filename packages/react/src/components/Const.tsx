@@ -1,8 +1,7 @@
 import { createJSDocBlockText } from '@kubb/core/transformers'
-
-import { Text } from './Text.tsx'
-
 import type { JSDoc, Key, KubbNode } from '../types.ts'
+
+import { Space } from './Text.tsx'
 
 type Props = {
   key?: Key
@@ -39,32 +38,28 @@ export function Const({ name, export: canExport, type, JSDoc, asConst, children 
         </>
       )}
       {canExport && (
-        <Text>
-          export
-          <Text.Space />
-        </Text>
-      )}
-      <Text>
-        const {name}
-        <Text.Space />
-      </Text>
-      {type && (
         <>
-          <Text>{':'}</Text>
-          <Text>{type}</Text>
-          <Text.Space />
+          export
+          <Space />
         </>
       )}
-      <Text>
-        =
-        <Text.Space />
-      </Text>
-      <Text>{children}</Text>
+      <>
+        const {name}
+        <Space />
+      </>
+      {type && (
+        <>
+          <>{':'}</>
+          <>{type}</>
+          <Space />
+        </>
+      )}
+      = {children}
       {asConst && (
-        <Text>
-          <Text.Space />
+        <>
+          <Space />
           as const
-        </Text>
+        </>
       )}
     </>
   )

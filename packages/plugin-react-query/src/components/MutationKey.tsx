@@ -27,7 +27,7 @@ function getParams({}: GetParamsProps) {
 const getTransformer: Transformer = ({ operation, casing }) => {
   const path = new URLPath(operation.path, { casing })
 
-  return [JSON.stringify({ url: path.toURLPath() })].filter(Boolean)
+  return [`{ url: '${path.toURLPath()}' }`]
 }
 
 export function MutationKey({ name, typeSchemas, pathParamsType, paramsCasing, operation, typeName, transformer = getTransformer }: Props): ReactNode {
