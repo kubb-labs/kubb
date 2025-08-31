@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-vue-query",
-  "version": "3.18.2",
+  "version": "3.18.3",
   "description": "Vue Query hooks generator plugin for Kubb, creating type-safe API client hooks from OpenAPI specifications for Vue.js applications.",
   "keywords": [
     "vue-query",
