@@ -22,6 +22,15 @@ export const appSecretsSchema = z.object({
   secrets: z.array(z.lazy(() => appSecretSchema)).optional(),
 })
 
+export const appSecretsUpdateRequestSchema = z.object({
+  values: z.object({}).catchall(z.string()).optional(),
+})
+
+export const appSecretsUpdateRespSchema = z.object({
+  secrets: z.array(z.lazy(() => appSecretSchema)).optional(),
+  version: z.number().int().optional(),
+})
+
 export const checkStatusSchema = z.object({
   name: z.string().optional(),
   output: z.string().optional(),
@@ -105,6 +114,14 @@ export const decryptSecretkeyResponseSchema = z.object({
   plaintext: z.array(z.number().int()).optional(),
 })
 
+export const deleteAppSecretResponseSchema = z.object({
+  version: z.number().int().optional(),
+})
+
+export const deleteSecretkeyResponseSchema = z.object({
+  version: z.number().int().optional(),
+})
+
 export const encryptSecretkeyRequestSchema = z.object({
   associated_data: z.array(z.number().int()).optional(),
   plaintext: z.array(z.number().int()).optional(),
@@ -127,6 +144,14 @@ export const extendVolumeRequestSchema = z.object({
 export const extendVolumeResponseSchema = z.object({
   needs_restart: z.boolean().optional(),
   volume: z.lazy(() => volumeSchema).optional(),
+})
+
+export const IPAssignmentSchema = z.object({
+  created_at: z.string().optional(),
+  ip: z.string().optional(),
+  region: z.string().optional(),
+  service_name: z.string().optional(),
+  shared: z.boolean().optional(),
 })
 
 export const imageRefSchema = z.object({
@@ -330,6 +355,14 @@ export const volumeSnapshotSchema = z.object({
   retention_days: z.number().int().optional(),
   size: z.number().int().optional(),
   status: z.string().optional(),
+})
+
+export const assignIPRequestSchema = z.object({
+  network: z.string().optional(),
+  org_slug: z.string().optional(),
+  region: z.string().optional(),
+  service_name: z.string().optional(),
+  type: z.string().optional(),
 })
 
 export const flyContainerConfigSchema = z.object({
@@ -794,6 +827,10 @@ export const flydv1ExecResponseSchema = z.object({
   stdout: z.string().optional(),
 })
 
+export const listIPAssignmentsResponseSchema = z.object({
+  ips: z.array(z.lazy(() => IPAssignmentSchema)).optional(),
+})
+
 export const mainGetPlacementsRequestSchema = z.object({
   compute: z
     .lazy(() => flyMachineGuestSchema)
@@ -927,6 +964,32 @@ export const appCreateDeployToken200Schema = z.lazy(() => createAppResponseSchem
 export const appCreateDeployTokenMutationRequestSchema = z.lazy(() => createAppDeployTokenRequestSchema)
 
 export const appCreateDeployTokenMutationResponseSchema = z.lazy(() => appCreateDeployToken200Schema)
+
+/**
+ * @description OK
+ */
+export const appIPAssignmentsList200Schema = z.lazy(() => listIPAssignmentsResponseSchema)
+
+export const appIPAssignmentsListQueryResponseSchema = z.lazy(() => appIPAssignmentsList200Schema)
+
+/**
+ * @description OK
+ */
+export const appIPAssignmentsCreate200Schema = z.lazy(() => IPAssignmentSchema)
+
+/**
+ * @description Assign IP request
+ */
+export const appIPAssignmentsCreateMutationRequestSchema = z.lazy(() => assignIPRequestSchema)
+
+export const appIPAssignmentsCreateMutationResponseSchema = z.lazy(() => appIPAssignmentsCreate200Schema)
+
+/**
+ * @description No Content
+ */
+export const appIPAssignmentsDelete204Schema = z.any()
+
+export const appIPAssignmentsDeleteMutationResponseSchema = z.lazy(() => appIPAssignmentsDelete204Schema)
 
 export const machinesListPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),
@@ -1391,11 +1454,11 @@ export const secretkeyDeletePathParamsSchema = z.object({
 })
 
 /**
- * @description No Content
+ * @description OK
  */
-export const secretkeyDelete204Schema = z.any()
+export const secretkeyDelete200Schema = z.lazy(() => deleteSecretkeyResponseSchema)
 
-export const secretkeyDeleteMutationResponseSchema = z.lazy(() => secretkeyDelete204Schema)
+export const secretkeyDeleteMutationResponseSchema = z.lazy(() => secretkeyDelete200Schema)
 
 export const secretkeyDecryptPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),
@@ -1549,6 +1612,27 @@ export const secretsList200Schema = z.lazy(() => appSecretsSchema)
 
 export const secretsListQueryResponseSchema = z.lazy(() => secretsList200Schema)
 
+export const secretsUpdatePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+})
+
+/**
+ * @description OK
+ */
+export const secretsUpdate200Schema = z.lazy(() => appSecretsUpdateRespSchema)
+
+/**
+ * @description Bad Request
+ */
+export const secretsUpdate400Schema = z.lazy(() => errorResponseSchema)
+
+/**
+ * @description Update app secret request, with values to set, or nil to unset
+ */
+export const secretsUpdateMutationRequestSchema = z.lazy(() => appSecretsUpdateRequestSchema)
+
+export const secretsUpdateMutationResponseSchema = z.lazy(() => secretsUpdate200Schema)
+
 export const secretGetPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),
   secret_name: z.string().describe('App secret name'),
@@ -1596,11 +1680,11 @@ export const secretDeletePathParamsSchema = z.object({
 })
 
 /**
- * @description No Content
+ * @description OK
  */
-export const secretDelete204Schema = z.any()
+export const secretDelete200Schema = z.lazy(() => deleteAppSecretResponseSchema)
 
-export const secretDeleteMutationResponseSchema = z.lazy(() => secretDelete204Schema)
+export const secretDeleteMutationResponseSchema = z.lazy(() => secretDelete200Schema)
 
 export const volumesListPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),

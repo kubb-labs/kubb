@@ -49,6 +49,7 @@ export async function placeOrderController(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
     url: getPlaceOrderUrlController().url.toString(),
@@ -75,6 +76,7 @@ export async function placeOrderPatchController(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
     url: getPlaceOrderPatchUrlController().url.toString(),

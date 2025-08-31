@@ -36,16 +36,16 @@ export function Indent({ size = 2, children }: IndentProps) {
 
   return (
     <>
-      {result.map((child, i) => {
+      {result.map((child) => {
         if (typeof child === 'string') {
           const cleaned = dedent(child)
-          return <React.Fragment key={i}>{indentString(cleaned, size)}</React.Fragment>
+          return <>{indentString(cleaned, size)}</>
         }
         return (
-          <React.Fragment key={i}>
+          <>
             {' '.repeat(size)}
             {child}
-          </React.Fragment>
+          </>
         )
       })}
     </>

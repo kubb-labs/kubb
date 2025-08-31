@@ -43,14 +43,12 @@ export function Const({ name, export: canExport, type, JSDoc, asConst, children 
           <Space />
         </>
       )}
-      <>
-        const {name}
-        <Space />
-      </>
+      const {name}
+      <Space />
       {type && (
         <>
-          <>{':'}</>
-          <>{type}</>
+          {':'}
+          {type}
           <Space />
         </>
       )}

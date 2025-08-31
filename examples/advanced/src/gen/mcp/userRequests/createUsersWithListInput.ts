@@ -13,6 +13,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
  */
 export async function createUsersWithListInputHandler({ data }: { data?: CreateUsersWithListInputMutationRequest }): Promise<Promise<CallToolResult>> {
   const requestData = data
+
   const res = await fetch<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: '/user/createWithList',

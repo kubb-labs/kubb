@@ -24,6 +24,7 @@ export async function uploadFile(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = uploadFileMutationRequestSchema.parse(data)
+
   const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: getUploadFileUrl({ petId }).url.toString(),

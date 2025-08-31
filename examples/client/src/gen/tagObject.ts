@@ -40,6 +40,7 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
     url: '/store/order',
@@ -69,6 +70,7 @@ export async function placeOrderPatch(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
     url: '/store/order',

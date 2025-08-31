@@ -22,6 +22,7 @@ export async function uploadFileHandler({
   params?: UploadFileQueryParams
 }): Promise<Promise<CallToolResult>> {
   const requestData = data
+
   const res = await fetch<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,

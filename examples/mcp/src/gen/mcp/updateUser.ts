@@ -16,6 +16,7 @@ export async function updateUserHandler({
   data?: UpdateUserMutationRequest
 }): Promise<Promise<CallToolResult>> {
   const requestData = data
+
   const res = await fetch<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
     url: `/user/${username}`,

@@ -69,7 +69,7 @@ export function Function({ name, default: isDefault, export: canExport, async, g
           <Space />
         </>
       )}
-      <>function {name}</>
+      function {name}
       {generics && (
         <>
           {'<'}
@@ -124,9 +124,7 @@ function ArrowFunction({ name, default: isDefault, export: canExport, async, gen
           <Space />
         </>
       )}
-      <>
-        const {name} =<Space />
-      </>
+      const {name} =<Space />
       {async && (
         <>
           async
@@ -140,8 +138,7 @@ function ArrowFunction({ name, default: isDefault, export: canExport, async, gen
           {'>'}
         </>
       )}
-      <>({params})</>
-      {returnType && !async && <>: {returnType}</>}
+      ({params}){returnType && !async && <>: {returnType}</>}
       {returnType && async && (
         <>
           : Promise{'<'}
@@ -151,19 +148,18 @@ function ArrowFunction({ name, default: isDefault, export: canExport, async, gen
       )}
       {singleLine && (
         <>
-          <>{' => '}</>
+          {' => '}
           {children}
           <br />
         </>
       )}
-
       {!singleLine && (
         <>
-          <>{' => {'}</>
+          {' => {'}
           <br />
           <Indent size={2}>{children}</Indent>
           <br />
-          <>{'}'}</>
+          {'}'}
           <br />
         </>
       )}
