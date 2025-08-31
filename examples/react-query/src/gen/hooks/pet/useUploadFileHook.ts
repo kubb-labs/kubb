@@ -26,6 +26,7 @@ export async function uploadFileHook(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,

@@ -22,6 +22,7 @@ export async function updatePetHook(data: UpdatePetMutationRequest, config: Part
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
     url: '/pet',

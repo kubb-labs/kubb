@@ -1076,6 +1076,7 @@ export async function updatePet(data: UpdatePetMutationRequest, config: Partial<
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
     url: '/pet',
@@ -1130,6 +1131,7 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
     url: '/pet',
@@ -1305,6 +1307,7 @@ export async function uploadFile(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
@@ -1365,6 +1368,7 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
     url: '/store/order',
@@ -1419,6 +1423,7 @@ export async function placeOrderPatch(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
     url: '/store/order',
@@ -1530,6 +1535,7 @@ export async function createUser(data?: CreateUserMutationRequest, config: Parti
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
     url: '/user',
@@ -1584,6 +1590,7 @@ export async function createUsersWithListInput(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: '/user/createWithList',
@@ -1642,6 +1649,7 @@ export async function updateUser(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
     url: `/user/${username}`,

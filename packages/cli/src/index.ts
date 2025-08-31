@@ -17,13 +17,13 @@ const main = defineCommand({
     version: {
       type: 'boolean',
       alias: 'v',
-      description: 'Show version number'
-    }
+      description: 'Show version number',
+    },
   },
   async setup({ rawArgs, args }) {
     if (args.version) {
-      console.log(version);
-      process.exit(0);
+      console.log(version)
+      process.exit(0)
     }
     try {
       consola.log(gradientString(['#F58517', '#F5A217', '#F55A17'])('Kubb CLI:'))

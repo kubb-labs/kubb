@@ -28,6 +28,7 @@ export async function updatePet(data: UpdatePetMutationRequest, config: Partial<
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
     url: getUpdatePetUrl().url.toString(),

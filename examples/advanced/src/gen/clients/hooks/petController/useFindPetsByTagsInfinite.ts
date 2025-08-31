@@ -30,9 +30,10 @@ export function findPetsByTagsInfiniteQueryOptions(
     queryFn: async ({ signal, pageParam }) => {
       config.signal = signal
 
-      if (params) {
-        params['pageSize'] = pageParam as unknown as FindPetsByTagsQueryParams['pageSize']
+      if (!params) {
+        params = {}
       }
+      params['pageSize'] = pageParam as unknown as FindPetsByTagsQueryParams['pageSize']
       return findPetsByTags({ headers, params }, config)
     },
     initialPageParam: 0,
@@ -53,9 +54,9 @@ export function useFindPetsByTagsInfinite<
 >(
   { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   options: {
-    query?: Partial<InfiniteQueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryKey>> & {
-      client?: QueryClient
-    }
+    query?: Partial<
+      InfiniteQueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TQueryData, TQueryKey, TQueryData>
+    > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {

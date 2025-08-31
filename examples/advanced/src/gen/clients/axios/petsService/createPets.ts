@@ -30,6 +30,7 @@ export async function createPets(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = createPetsMutationRequestSchema.parse(data)
+
   const res = await request<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
     url: getCreatePetsUrl({ uuid }).url.toString(),

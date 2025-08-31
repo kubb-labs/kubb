@@ -20,6 +20,7 @@ export async function addPet(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = addPetMutationRequestSchema.parse(data)
+
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
     url: getAddPetUrl().url.toString(),

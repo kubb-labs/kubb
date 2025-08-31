@@ -20,6 +20,7 @@ export async function createUser(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = createUserMutationRequestSchema.parse(data)
+
   const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
     url: getCreateUserUrl().url.toString(),
