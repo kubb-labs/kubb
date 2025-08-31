@@ -43,9 +43,10 @@ export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQu
     queryFn: async ({ signal, pageParam }) => {
       config.signal = signal
 
-      if (params) {
-        params['pageSize'] = pageParam as unknown as FindPetsByTagsQueryParams['pageSize']
+      if (!params) {
+        params = {}
       }
+      params['pageSize'] = pageParam as unknown as FindPetsByTagsQueryParams['pageSize']
       return findPetsByTagsInfiniteHook(params, config)
     },
     initialPageParam: 0,

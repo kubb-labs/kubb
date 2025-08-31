@@ -145,9 +145,10 @@ export function InfiniteQueryOptions({
   const infiniteOverrideParams =
     queryParam && typeSchemas.queryParams?.name
       ? `
-          if(params) {
-           params['${queryParam}'] = pageParam as unknown as ${typeSchemas.queryParams?.name}['${queryParam}']
-          }`
+          if (!params) {
+           params = { }
+          }
+          params['${queryParam}'] = pageParam as unknown as ${typeSchemas.queryParams?.name}['${queryParam}']`
       : ''
 
   const enabled = Object.entries(queryKeyParams.flatParams)
