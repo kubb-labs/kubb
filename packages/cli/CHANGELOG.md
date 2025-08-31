@@ -1,5 +1,23 @@
 # @kubb/cli
 
+## 3.18.2
+
+### Patch Changes
+
+- [#1860](https://github.com/kubb-labs/kubb/pull/1860) [`3ace25e`](https://github.com/kubb-labs/kubb/commit/3ace25e19395a764681e081aada0d316fb058e60) Thanks [@rxliuli](https://github.com/rxliuli)! - Support printing version via `--version` or `-v`.
+
+- Updated dependencies []:
+  - @kubb/core@3.18.2
+  - @kubb/ui@3.18.2
+
+## 3.18.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.18.1
+  - @kubb/ui@3.18.1
+
 ## 3.17.1
 
 ### Patch Changes

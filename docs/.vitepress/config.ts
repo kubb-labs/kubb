@@ -2,6 +2,7 @@ import { GitChangelog, GitChangelogMarkdownSection } from '@nolebase/vitepress-p
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { defineConfig } from 'vitepress'
 import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepress-plugin-group-icons'
+import llmstxt, { copyOrDownloadAsMarkdownButtons } from 'vitepress-plugin-llms'
 import { version } from '../../packages/core/package.json'
 import { renderMermaidGraphsPlugin } from './mermaid'
 import { transposeTables } from './transposeTables'
@@ -516,6 +517,7 @@ export default defineConfig({
     config(md) {
       transposeTables(md)
       md.use(groupIconMdPlugin)
+      md.use(copyOrDownloadAsMarkdownButtons)
     },
     lineNumbers: false,
     codeTransformers: [
@@ -709,6 +711,7 @@ export default defineConfig({
       noExternal: ['@nolebase/vitepress-plugin-highlight-targeted-heading', '@nolebase/vitepress-plugin-enhanced-readabilities', '@nolebase/ui'],
     },
     plugins: [
+      llmstxt(),
       renderMermaidGraphsPlugin(),
       groupIconVitePlugin({
         customIcon: {
