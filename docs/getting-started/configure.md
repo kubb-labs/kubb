@@ -6,7 +6,7 @@ outline: deep
 ---
 
 # Configure
-Kubb can be configured with a configuation file (preferably with `kubb.config.ts`), for that we are using [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) to load the config.
+Kubb can be configured with a configuration file (preferably with `kubb.config.ts`), for that we are using [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) to load the config.
 
 ## Usage
 
