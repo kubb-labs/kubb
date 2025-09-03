@@ -472,7 +472,7 @@ export function createEnumDeclaration({
 
   return [
     factory.createVariableStatement(
-      [],
+      [factory.createToken(ts.SyntaxKind.ExportKeyword)],
       factory.createVariableDeclarationList(
         [
           factory.createVariableDeclaration(
@@ -519,7 +519,7 @@ export function createEnumDeclaration({
     ),
     factory.createTypeAliasDeclaration(
       type === 'asPascalConst' ? [] : [factory.createToken(ts.SyntaxKind.ExportKeyword)],
-      factory.createIdentifier(typeName),
+      factory.createIdentifier(type === 'asConst' ? typeName + 'Key' : typeName),
       undefined,
       factory.createIndexedAccessTypeNode(
         factory.createParenthesizedType(factory.createTypeQueryNode(factory.createIdentifier(identifierName), undefined)),

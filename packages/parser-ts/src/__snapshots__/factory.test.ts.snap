@@ -34,35 +34,35 @@ exports[`codegen > createEnumDeclaration 1`] = `
 `;
 
 exports[`codegen > createEnumDeclaration 2`] = `
-"const Hello = {
+"export const Hello = {
   hello: 'world',
   end: 2050,
   survive: true,
 } as const
-export type Hello = (typeof Hello)[keyof typeof Hello]
+export type HelloKey = (typeof Hello)[keyof typeof Hello]
 "
 `;
 
 exports[`codegen > createEnumDeclaration 3`] = `
-"const HELLO = {
+"export const HELLO = {
   hello: 'world',
   end: 500,
 } as const
-export type HELLO = (typeof HELLO)[keyof typeof HELLO]
+export type HELLOKey = (typeof HELLO)[keyof typeof HELLO]
 "
 `;
 
 exports[`codegen > createEnumDeclaration 4`] = `
-"const Hello = {
+"export const Hello = {
   'FILE.UPLOADED': 'FILE.UPLOADED',
   'FILE.PREVIEWE': 'FILE.PREVIEWE',
 } as const
-export type Hello = (typeof Hello)[keyof typeof Hello]
+export type HelloKey = (typeof Hello)[keyof typeof Hello]
 "
 `;
 
 exports[`codegen > createEnumDeclaration 5`] = `
-"const Hello = {
+"export const Hello = {
   hello: 'world',
   end: 2050,
   survive: true,
