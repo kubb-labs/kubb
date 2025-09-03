@@ -468,7 +468,7 @@ export function createEnumDeclaration({
   }
 
   // used when using `as const` instead of an TypeScript enum.
-  const identifierName = type === 'asPascalConst' ? typeName : name
+  const identifierName = type === 'asPascalConst' || type === 'asConst' ? typeName : name
 
   return [
     factory.createVariableStatement(
@@ -519,7 +519,7 @@ export function createEnumDeclaration({
     ),
     factory.createTypeAliasDeclaration(
       type === 'asPascalConst' ? [] : [factory.createToken(ts.SyntaxKind.ExportKeyword)],
-      factory.createIdentifier(typeName),
+      factory.createIdentifier(type === 'asConst' ? typeName + 'Key' : typeName),
       undefined,
       factory.createIndexedAccessTypeNode(
         factory.createParenthesizedType(factory.createTypeQueryNode(factory.createIdentifier(identifierName), undefined)),
