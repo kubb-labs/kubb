@@ -468,7 +468,7 @@ export function createEnumDeclaration({
   }
 
   // used when using `as const` instead of an TypeScript enum.
-  const identifierName = type === 'asPascalConst' ? typeName : name
+  const identifierName = type === 'asPascalConst' || type === 'asConst' ? typeName : name
 
   return [
     factory.createVariableStatement(
