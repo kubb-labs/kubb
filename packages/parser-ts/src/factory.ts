@@ -472,7 +472,7 @@ export function createEnumDeclaration({
 
   return [
     factory.createVariableStatement(
-      [factory.createToken(ts.SyntaxKind.ExportKeyword)],
+      [],
       factory.createVariableDeclarationList(
         [
           factory.createVariableDeclaration(
