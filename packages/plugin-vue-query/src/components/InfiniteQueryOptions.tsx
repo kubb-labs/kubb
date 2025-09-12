@@ -185,7 +185,11 @@ export function InfiniteQueryOptions({
        queryFn: async ({ signal, pageParam }) => {
           config.signal = signal
           ${infiniteOverrideParams}
-          return ${clientName}(${clientParams.toCall()})
+          return ${clientName}(${clientParams.toCall({
+            transformName(name) {
+              return `toValue(${name})`
+            },
+          })})
        },
        ${queryOptions.join(',\n')}
       })

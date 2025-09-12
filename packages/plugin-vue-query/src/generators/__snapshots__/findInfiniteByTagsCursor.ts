@@ -7,6 +7,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import type { InfiniteData, QueryKey, QueryClient, InfiniteQueryObserverOptions, UseInfiniteQueryReturnType } from '@tanstack/react-query'
 import type { MaybeRefOrGetter } from 'vue'
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
+import { toValue } from 'vue'
 
 export const findPetsByTagsInfiniteQueryKey = (params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>) =>
   [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
@@ -50,7 +51,7 @@ export function findPetsByTagsInfiniteQueryOptions(
         params = {}
       }
       params['pageSize'] = pageParam as unknown as FindPetsByTagsQueryParams['pageSize']
-      return findPetsByTagsInfinite(headers, params, config)
+      return findPetsByTagsInfinite(toValue(headers), toValue(params), toValue(config))
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['cursor'],
