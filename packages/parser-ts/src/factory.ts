@@ -519,7 +519,7 @@ export function createEnumDeclaration({
     ),
     factory.createTypeAliasDeclaration(
       type === 'asPascalConst' ? [] : [factory.createToken(ts.SyntaxKind.ExportKeyword)],
-      factory.createIdentifier(typeName),
+      factory.createIdentifier(typeName + 'Key'),
       undefined,
       factory.createIndexedAccessTypeNode(
         factory.createParenthesizedType(factory.createTypeQueryNode(factory.createIdentifier(identifierName), undefined)),
