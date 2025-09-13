@@ -39,7 +39,7 @@ exports[`codegen > createEnumDeclaration 2`] = `
   end: 2050,
   survive: true,
 } as const
-export type Hello = (typeof hello)[keyof typeof hello]
+export type HelloKey = (typeof hello)[keyof typeof hello]
 "
 `;
 
@@ -49,7 +49,7 @@ exports[`codegen > createEnumDeclaration 3`] = `
   end: 2050,
   survive: true,
 } as const
-export type Hello = (typeof Hello)[keyof typeof Hello]
+export type HelloKey = (typeof Hello)[keyof typeof Hello]
 "
 `;
 
@@ -58,7 +58,7 @@ exports[`codegen > createEnumDeclaration 4`] = `
   'FILE.UPLOADED': 'FILE.UPLOADED',
   'FILE.PREVIEWE': 'FILE.PREVIEWE',
 } as const
-export type Hello = (typeof hello)[keyof typeof hello]
+export type HelloKey = (typeof hello)[keyof typeof hello]
 "
 `;
 
@@ -68,7 +68,7 @@ exports[`codegen > createEnumDeclaration 5`] = `
   end: 2050,
   survive: true,
 } as const
-type Hello = (typeof Hello)[keyof typeof Hello]
+type HelloKey = (typeof Hello)[keyof typeof Hello]
 "
 `;
 
