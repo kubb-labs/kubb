@@ -519,7 +519,7 @@ export function createEnumDeclaration({
     ),
     factory.createTypeAliasDeclaration(
       type === 'asPascalConst' ? [] : [factory.createToken(ts.SyntaxKind.ExportKeyword)],
-      factory.createIdentifier(typeName + 'Key'),
+      factory.createIdentifier(typeName + 'Key'), // Adding "Key" suffix to avoid collisions (see https://github.com/kubb-labs/kubb/issues/1873)
       undefined,
       factory.createIndexedAccessTypeNode(
         factory.createParenthesizedType(factory.createTypeQueryNode(factory.createIdentifier(identifierName), undefined)),
