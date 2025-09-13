@@ -277,6 +277,21 @@ describe('codegen', () => {
       ),
     ).toMatchSnapshot()
 
+   expect(
+      await formatTS(
+        createEnumDeclaration({
+          type: 'asConst',
+          name: 'Hello',
+          typeName: 'Hello',
+          enums: [
+            ['hello', 'world'],
+            ['end', 2050],
+            ['survive', true],
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
+
     expect(
       await formatTS(
         createEnumDeclaration({
