@@ -39,30 +39,40 @@ exports[`codegen > createEnumDeclaration 2`] = `
   end: 2050,
   survive: true,
 } as const
-export type Hello = (typeof hello)[keyof typeof hello]
+export type HelloKey = (typeof hello)[keyof typeof hello]
 "
 `;
 
 exports[`codegen > createEnumDeclaration 3`] = `
-"export const hello = {
-  'FILE.UPLOADED': 'FILE.UPLOADED',
-  'FILE.PREVIEWE': 'FILE.PREVIEWE',
-} as const
-export type Hello = (typeof hello)[keyof typeof hello]
-"
-`;
-
-exports[`codegen > createEnumDeclaration 4`] = `
 "export const Hello = {
   hello: 'world',
   end: 2050,
   survive: true,
 } as const
-type Hello = (typeof Hello)[keyof typeof Hello]
+export type HelloKey = (typeof Hello)[keyof typeof Hello]
+"
+`;
+
+exports[`codegen > createEnumDeclaration 4`] = `
+"export const hello = {
+  'FILE.UPLOADED': 'FILE.UPLOADED',
+  'FILE.PREVIEWE': 'FILE.PREVIEWE',
+} as const
+export type HelloKey = (typeof hello)[keyof typeof hello]
 "
 `;
 
 exports[`codegen > createEnumDeclaration 5`] = `
+"export const Hello = {
+  hello: 'world',
+  end: 2050,
+  survive: true,
+} as const
+type HelloKey = (typeof Hello)[keyof typeof Hello]
+"
+`;
+
+exports[`codegen > createEnumDeclaration 6`] = `
 "export const enum Hello {
   'hello' = 'world',
   'end' = 2050,
@@ -71,12 +81,12 @@ exports[`codegen > createEnumDeclaration 5`] = `
 "
 `;
 
-exports[`codegen > createEnumDeclaration 6`] = `
+exports[`codegen > createEnumDeclaration 7`] = `
 "export type Hello = 'world' | 2050 | true
 "
 `;
 
-exports[`codegen > createEnumDeclaration 7`] = `
+exports[`codegen > createEnumDeclaration 8`] = `
 "export enum Hello {
   'Hello_1' = 'world',
   'Hello_2' = 2050,
