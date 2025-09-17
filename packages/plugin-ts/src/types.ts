@@ -109,8 +109,7 @@ type ResolvedOptions = {
   transformers: NonNullable<Options['transformers']>
   oasType: NonNullable<Options['oasType']>
   syntaxType: NonNullable<Options['syntaxType']>
-  usedEnumNames: Record<string, number>
   mapper: Record<string, any>
 }
 
-export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, { usedEnumNames: Record<string, number> }, ResolvePathOptions>

@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-export enum EnumNamesTypeEnum2 {
+export enum EnumNamesTypeEnum {
   'Pending' = 0,
   'Received' = 1,
 }
 
-export type enumNamesType = EnumNamesTypeEnum2
+export type enumNamesType = EnumNamesTypeEnum
