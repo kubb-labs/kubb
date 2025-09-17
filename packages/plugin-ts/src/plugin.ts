@@ -71,11 +71,11 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         const groupName: Group['name'] = group?.name
           ? group.name
           : (ctx) => {
-            if (group?.type === 'path') {
-              return `${ctx.group.split('/')[1]}`
+              if (group?.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Controller`
             }
-            return `${camelCase(ctx.group)}Controller`
-          }
 
         return path.resolve(
           root,
