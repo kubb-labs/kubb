@@ -72,7 +72,7 @@
 		"overrides": {
 			"@babel/runtime": "^7.28.4",
 			"@types/react": "catalog:react19",
-			"dompurify": "^3.2.6",
+			"dompurify": "^3.2.7",
 			"esbuild": "^0.25.9"
 		},
 		"onlyBuiltDependencies": [

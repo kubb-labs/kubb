@@ -45,7 +45,6 @@ private
 test.json
 .turbo
 .next
-.tsup
 docs/.vitepress/cache/**
 docs/.vitepress/dist/**
 docs/.vitepress/graphs/**

@@ -13,9 +13,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "tsup",
     "generate": "kubb generate",
-    "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -29,11 +27,9 @@
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/solid-query": "^5.89.0",
     "axios": "^1.12.2",
-    "solid-js": "^1.9.9",
-    "tsup": "^8.5.0"
+    "solid-js": "^1.9.9"
   },
   "devDependencies": {
-    "tsup": "^8.5.0",
     "typescript": "^5.9.2"
   },
   "packageManager": "pnpm@9.15.5",

@@ -13,9 +13,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "tsup",
     "generate": "kubb --config kubb.config.js",
-    "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -27,7 +25,6 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "react": "^18.3.1",
-    "tsup": "^8.5.0",
     "typescript": "^5.9.2",
     "zod": "next"
   },

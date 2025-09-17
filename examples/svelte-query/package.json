@@ -13,9 +13,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "tsup",
     "generate": "kubb generate",
-    "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -29,8 +27,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/svelte-query": "5.62.7",
     "axios": "^1.12.2",
-    "svelte": "^4.2.20",
-    "tsup": "^8.5.0"
+    "svelte": "^4.2.20"
   },
   "devDependencies": {
     "typescript": "catalog:"
