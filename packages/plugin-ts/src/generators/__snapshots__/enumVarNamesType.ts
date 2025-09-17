@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-export const enumVarNamesTypeEnum = {
+export const enumVarNamesTypeEnum2 = {
   Pending: 0,
   Received: 1,
 } as const
 
-export type EnumVarNamesTypeEnum = (typeof enumVarNamesTypeEnum)[keyof typeof enumVarNamesTypeEnum]
+export type EnumVarNamesTypeEnum2Key = (typeof enumVarNamesTypeEnum2)[keyof typeof enumVarNamesTypeEnum2]
 
-export type enumVarNamesType = EnumVarNamesTypeEnum
+export type enumVarNamesType = EnumVarNamesTypeEnum2Key

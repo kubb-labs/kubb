@@ -6,7 +6,7 @@ import { createTypeDeclaration } from '@kubb/parser-ts/factory'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { File } from '@kubb/react'
 import { Fragment, type ReactNode } from 'react'
-import type ts from 'typescript'
+import ts from 'typescript'
 import { parse, typeKeywordMapper } from '../parser.ts'
 import type { PluginTs } from '../types.ts'
 
@@ -31,6 +31,8 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
   }
 
   const schemaFromTree = tree.find((item) => item.keyword === schemaKeywords.schema)
+    const enumSchemas = SchemaGenerator.deepSearch(tree, schemaKeywords.enum)
+
 
   let type =
     (tree
@@ -51,6 +53,22 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
       )
       .filter(Boolean)
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
+
+      if(enumType === 'asConst' && enumSchemas.length > 0) {
+    const isDirectEnum = schema.type === 'array' && schema.items !== undefined
+    const isEnumOnly = 'enum' in schema && schema.enum
+    
+    if(isDirectEnum || isEnumOnly) {
+      const enumSchema = enumSchemas[0]!
+      const typeNameWithKey = `${enumSchema.args.typeName}Key`
+        
+        type = factory.createTypeReferenceNode(typeNameWithKey)
+
+        if(schema.type === 'array') {
+          type = factory.createArrayTypeNode(type)
+        }
+    }
+  }
 
   if (schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.schema)) {
     const isNullish = tree.some((item) => item.keyword === schemaKeywords.nullish)
@@ -78,6 +96,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
 
   const useTypeGeneration = syntaxType === 'type' || [factory.syntaxKind.union].includes(type.kind as typeof factory.syntaxKind.union) || !!keysToOmit?.length
 
+
   typeNodes.push(
     createTypeDeclaration({
       name,
@@ -102,11 +121,9 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
     }),
   )
 
-  const enumSchemas = SchemaGenerator.deepSearch(tree, schemaKeywords.enum)
-
   const enums = [...new Set(enumSchemas)].map((enumSchema) => {
     const name = enumType === 'asPascalConst' ? transformers.pascalCase(enumSchema.args.name) : transformers.camelCase(enumSchema.args.name)
-    const typeName = enumSchema.args.typeName
+    const typeName = enumType === 'asConst' ? `${enumSchema.args.typeName}Key` : enumSchema.args.typeName
 
     const [nameNode, typeNode] = factory.createEnumDeclaration({
       name,
@@ -146,11 +163,9 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
           }
         </Fragment>
       ))}
-      {enums.every((item) => item.typeName !== name) && (
-        <File.Source name={typedName} isTypeOnly isExportable isIndexable>
+      <File.Source name={name}>
           {print(typeNodes)}
-        </File.Source>
-      )}
+      </File.Source>
     </Fragment>
   )
 }

@@ -195,9 +195,14 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       console.warn(`enumType '${enumType}' is deprecated`)
     }
 
+    let typedName = getName(schema.name, { type: 'type' })
+
+    if (enumType === 'asConst') 
+      typedName = typedName += 'Key'
+
     const type = {
       name: getName(schema.name, { type: 'function' }),
-      typedName: getName(schema.name, { type: 'type' }),
+      typedName,
       file: getFile(schema.name),
     }
 

@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-export const enumNullableMemberEnum = {
+export const enumNullableMemberEnum2 = {
   first: 'first',
   second: 'second',
 } as const
 
-export type EnumNullableMemberEnum = (typeof enumNullableMemberEnum)[keyof typeof enumNullableMemberEnum]
+export type EnumNullableMemberEnum2Key = (typeof enumNullableMemberEnum2)[keyof typeof enumNullableMemberEnum2]
 
-export type enumNullableMember = EnumNullableMemberEnum | null
+export type enumNullableMember = EnumNullableMemberEnum2Key | null

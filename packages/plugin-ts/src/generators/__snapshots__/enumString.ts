@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-export const enumStringEnum = {
+export const enumStringEnum2 = {
   'created at': 'created at',
   description: 'description',
   'FILE.UPLOADED': 'FILE.UPLOADED',
   'FILE.DOWNLOADED': 'FILE.DOWNLOADED',
 } as const
 
-export type EnumStringEnum = (typeof enumStringEnum)[keyof typeof enumStringEnum]
+export type EnumStringEnum2Key = (typeof enumStringEnum2)[keyof typeof enumStringEnum2]
 
-export type enumString = EnumStringEnum
+export type enumString = EnumStringEnum2Key

@@ -3,16 +3,16 @@
  * Do not edit manually.
  */
 
-export const enumInObjectReasonEnum = {
+export const enumInObjectReasonEnum2 = {
   created_at: 'created_at',
   description: 'description',
 } as const
 
-export type EnumInObjectReasonEnum = (typeof enumInObjectReasonEnum)[keyof typeof enumInObjectReasonEnum]
+export type EnumInObjectReasonEnum2Key = (typeof enumInObjectReasonEnum2)[keyof typeof enumInObjectReasonEnum2]
 
 export type enumInObject = {
   /**
    * @type string | undefined
    */
-  reason?: EnumInObjectReasonEnum
+  reason?: EnumInObjectReasonEnum2Key
 }

@@ -190,7 +190,11 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
   }
 
   if (isKeyword(current, schemaKeywords.enum)) {
-    return typeKeywordMapper.enum(current.args.typeName)
+    return typeKeywordMapper.enum(
+      options.enumType === 'asConst'
+      ? current.args.typeName + 'Key'
+      : current.args.typeName
+    )
   }
 
   if (isKeyword(current, schemaKeywords.ref)) {
