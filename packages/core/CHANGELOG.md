@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 4.0.0
+
+### Patch Changes
+
+- [#1887](https://github.com/kubb-labs/kubb/pull/1887) [`1468999`](https://github.com/kubb-labs/kubb/commit/1468999cbf23df2d4e7ab6debcaa9a7421b88bbb) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Keep `usedEnumNames` in cache but not between builds
+
+- Updated dependencies []:
+  - @kubb/parser-ts@4.0.0
+
 ## 3.18.3
 
 ### Patch Changes
