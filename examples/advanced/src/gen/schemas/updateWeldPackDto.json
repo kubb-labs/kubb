@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "properties": {
+    "resellerId": { "type": "number" },
+    "durationDays": { "type": "number" },
+    "lastActivationDate": { "format": "date-time", "type": "string", "nullable": true },
+    "initialWeldCredits": { "type": "number" },
+    "type": { "allOf": [{ "type": "string", "enum": ["SETUP", "DEMO", "FULL"], "x-readme-ref-name": "WeldPackType" }] }
+  },
+  "required": ["resellerId", "durationDays", "lastActivationDate", "initialWeldCredits", "type"],
+  "x-readme-ref-name": "UpdateWeldPackDto"
+}

@@ -1,0 +1,6 @@
+{
+  "type": "object",
+  "properties": { "downloadedWelds": { "type": "array", "items": { "type": "string" } } },
+  "required": ["downloadedWelds"],
+  "x-readme-ref-name": "DownloadPartDto"
+}

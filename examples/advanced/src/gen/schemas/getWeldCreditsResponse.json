@@ -1,0 +1,6 @@
+{
+  "type": "object",
+  "properties": { "activeWeldCredits": { "type": "number" }, "consumedWeldCredits": { "type": "number" }, "totalWeldCredits": { "type": "number" } },
+  "required": ["activeWeldCredits", "consumedWeldCredits", "totalWeldCredits"],
+  "x-readme-ref-name": "GetWeldCreditsResponse"
+}

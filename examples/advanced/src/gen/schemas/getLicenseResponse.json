@@ -1,0 +1,43 @@
+{
+  "type": "object",
+  "properties": {
+    "id": { "type": "number" },
+    "activationDate": { "format": "date-time", "type": "string", "nullable": true },
+    "durationDays": { "type": "number" },
+    "lastActivationDate": { "format": "date-time", "type": "string", "nullable": true },
+    "includedWeldCredits": { "type": "number" },
+    "type": { "allOf": [{ "type": "string", "enum": ["SETUP", "DEMO", "FULL"], "x-readme-ref-name": "LicenseType" }] },
+    "isDeactivated": { "type": "boolean" },
+    "tenant": {
+      "nullable": true,
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": { "type": "number" },
+            "shortName": { "type": "string" },
+            "name": { "type": "string" },
+            "emailsAllowed": { "type": "array", "items": { "type": "string" } },
+            "emailsDenied": { "type": "array", "items": { "type": "string" } },
+            "domainsAllowed": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["id", "shortName", "name", "emailsAllowed", "emailsDenied", "domainsAllowed"],
+          "x-readme-ref-name": "Tenant"
+        }
+      ]
+    },
+    "reseller": {
+      "nullable": true,
+      "allOf": [
+        {
+          "type": "object",
+          "properties": { "id": { "type": "number" }, "name": { "type": "string" } },
+          "required": ["id", "name"],
+          "x-readme-ref-name": "Reseller"
+        }
+      ]
+    }
+  },
+  "required": ["id", "activationDate", "durationDays", "lastActivationDate", "includedWeldCredits", "type", "isDeactivated", "tenant", "reseller"],
+  "x-readme-ref-name": "GetLicenseResponse"
+}

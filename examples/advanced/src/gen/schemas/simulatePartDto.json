@@ -1,0 +1,6 @@
+{
+  "type": "object",
+  "properties": { "simulatedWelds": { "type": "array", "items": { "type": "string" } } },
+  "required": ["simulatedWelds"],
+  "x-readme-ref-name": "SimulatePartDto"
+}
