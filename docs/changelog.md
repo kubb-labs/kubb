@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 3.18.4
+- [`plugin-ts`](/plugins/plugin-ts): Keep `usedEnumNames` in cache but not between builds
+
 # 3.18.3
 - [`plugin-react-query`](/plugins/plugin-react-query/): Correct generic for infiniteQuery(issue #1790)
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): Correct generic for infiniteQuery(issue #1790)

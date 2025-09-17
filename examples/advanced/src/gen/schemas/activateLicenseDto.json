@@ -1,1 +1,0 @@
-{ "type": "object", "properties": { "tenantId": { "type": "number" } }, "required": ["tenantId"], "x-readme-ref-name": "ActivateLicenseDto" }

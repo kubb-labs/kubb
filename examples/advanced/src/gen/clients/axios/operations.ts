@@ -1,122 +1,70 @@
 export const operations = {
-  AppController_getStatus: {
-    path: '/api/status',
-    method: 'get',
-  },
-  LicensesController_getLicenses: {
-    path: '/api/licenses',
-    method: 'get',
-  },
-  LicensesController_createLicense: {
-    path: '/api/licenses',
+  createPets: {
+    path: '/pets/:uuid',
     method: 'post',
   },
-  LicensesController_getLicense: {
-    path: '/api/licenses/:id',
+  updatePet: {
+    path: '/pet',
+    method: 'put',
+  },
+  addPet: {
+    path: '/pet',
+    method: 'post',
+  },
+  findPetsByStatus: {
+    path: '/pet/findByStatus/:step_id',
     method: 'get',
   },
-  LicensesController_updateLicense: {
-    path: '/api/licenses/:id',
-    method: 'patch',
+  findPetsByTags: {
+    path: '/pet/findByTags',
+    method: 'get',
   },
-  LicensesController_deleteLicense: {
-    path: '/api/licenses/:id',
+  getPetById: {
+    path: '/pet/:petId:search',
+    method: 'get',
+  },
+  updatePetWithForm: {
+    path: '/pet/:petId:search',
+    method: 'post',
+  },
+  deletePet: {
+    path: '/pet/:petId:search',
     method: 'delete',
   },
-  LicensesController_activateLicense: {
-    path: '/api/licenses/:id/activate',
+  addFiles: {
+    path: '/pet/files',
     method: 'post',
   },
-  LicensesController_deactivateLicense: {
-    path: '/api/licenses/:id/deactivate',
+  uploadFile: {
+    path: '/pet/:petId/uploadImage',
     method: 'post',
   },
-  ResellersController_getResellers: {
-    path: '/api/resellers',
-    method: 'get',
-  },
-  ResellersController_createReseller: {
-    path: '/api/resellers',
+  createUser: {
+    path: '/user',
     method: 'post',
   },
-  ResellersController_getReseller: {
-    path: '/api/resellers/:id',
-    method: 'get',
-  },
-  ResellersController_updateReseller: {
-    path: '/api/resellers/:id',
-    method: 'patch',
-  },
-  TenantsController_getTenants: {
-    path: '/api/tenants',
-    method: 'get',
-  },
-  TenantsController_createTenant: {
-    path: '/api/tenants',
+  createUsersWithListInput: {
+    path: '/user/createWithList',
     method: 'post',
   },
-  TenantsController_getTenant: {
-    path: '/api/tenants/:id',
+  loginUser: {
+    path: '/user/login',
     method: 'get',
   },
-  TenantsController_updateTenant: {
-    path: '/api/tenants/:id',
-    method: 'patch',
-  },
-  TenantsController_getActiveLicense: {
-    path: '/api/tenants/:id/active-license',
+  logoutUser: {
+    path: '/user/logout',
     method: 'get',
   },
-  TenantsController_getActiveWeldPack: {
-    path: '/api/tenants/:id/active-weldpack',
+  getUserByName: {
+    path: '/user/:username',
     method: 'get',
   },
-  TenantsController_getWeldCredits: {
-    path: '/api/tenants/:id/weld-credits',
-    method: 'get',
+  updateUser: {
+    path: '/user/:username',
+    method: 'put',
   },
-  WeldPacksController_getWeldPacks: {
-    path: '/api/weldpacks',
-    method: 'get',
-  },
-  WeldPacksController_createWeldPack: {
-    path: '/api/weldpacks',
-    method: 'post',
-  },
-  WeldPacksController_getWeldPack: {
-    path: '/api/weldpacks/:id',
-    method: 'get',
-  },
-  WeldPacksController_updateWeldPack: {
-    path: '/api/weldpacks/:id',
-    method: 'patch',
-  },
-  WeldPacksController_deleteWeldPack: {
-    path: '/api/weldpacks/:id',
+  deleteUser: {
+    path: '/user/:username',
     method: 'delete',
-  },
-  WeldPacksController_activateWeldPack: {
-    path: '/api/weldpacks/:id/activate',
-    method: 'post',
-  },
-  WeldPacksController_deactivateLicense: {
-    path: '/api/weldpacks/:id/deactivate',
-    method: 'post',
-  },
-  PartsController_getParts: {
-    path: '/api/parts',
-    method: 'get',
-  },
-  PartsController_getPart: {
-    path: '/api/parts/:urn',
-    method: 'get',
-  },
-  PartsController_downloadPart: {
-    path: '/api/parts/:urn/download',
-    method: 'post',
-  },
-  PartsController_simulatePart: {
-    path: '/api/parts/:urn/simulate',
-    method: 'post',
   },
 } as const

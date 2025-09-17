@@ -1,1 +1,0 @@
-{ "type": "string", "enum": ["SETUP", "DEMO", "FULL"], "x-readme-ref-name": "LicenseType" }

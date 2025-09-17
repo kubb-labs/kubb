@@ -1,63 +1,37 @@
-import { appControllerGetStatusHandler } from './appController/appControllerGetStatusHandler.ts'
-import { licensesControllerActivateLicenseHandler } from './licensesController/licensesControllerActivateLicenseHandler.ts'
-import { licensesControllerCreateLicenseHandler } from './licensesController/licensesControllerCreateLicenseHandler.ts'
-import { licensesControllerDeactivateLicenseHandler } from './licensesController/licensesControllerDeactivateLicenseHandler.ts'
-import { licensesControllerDeleteLicenseHandler } from './licensesController/licensesControllerDeleteLicenseHandler.ts'
-import { licensesControllerGetLicenseHandler } from './licensesController/licensesControllerGetLicenseHandler.ts'
-import { licensesControllerGetLicensesHandler } from './licensesController/licensesControllerGetLicensesHandler.ts'
-import { licensesControllerUpdateLicenseHandler } from './licensesController/licensesControllerUpdateLicenseHandler.ts'
-import { partsControllerDownloadPartHandler } from './partsController/partsControllerDownloadPartHandler.ts'
-import { partsControllerGetPartHandler } from './partsController/partsControllerGetPartHandler.ts'
-import { partsControllerGetPartsHandler } from './partsController/partsControllerGetPartsHandler.ts'
-import { partsControllerSimulatePartHandler } from './partsController/partsControllerSimulatePartHandler.ts'
-import { resellersControllerCreateResellerHandler } from './resellersController/resellersControllerCreateResellerHandler.ts'
-import { resellersControllerGetResellerHandler } from './resellersController/resellersControllerGetResellerHandler.ts'
-import { resellersControllerGetResellersHandler } from './resellersController/resellersControllerGetResellersHandler.ts'
-import { resellersControllerUpdateResellerHandler } from './resellersController/resellersControllerUpdateResellerHandler.ts'
-import { tenantsControllerCreateTenantHandler } from './tenantsController/tenantsControllerCreateTenantHandler.ts'
-import { tenantsControllerGetActiveLicenseHandler } from './tenantsController/tenantsControllerGetActiveLicenseHandler.ts'
-import { tenantsControllerGetActiveWeldPackHandler } from './tenantsController/tenantsControllerGetActiveWeldPackHandler.ts'
-import { tenantsControllerGetTenantHandler } from './tenantsController/tenantsControllerGetTenantHandler.ts'
-import { tenantsControllerGetTenantsHandler } from './tenantsController/tenantsControllerGetTenantsHandler.ts'
-import { tenantsControllerGetWeldCreditsHandler } from './tenantsController/tenantsControllerGetWeldCreditsHandler.ts'
-import { tenantsControllerUpdateTenantHandler } from './tenantsController/tenantsControllerUpdateTenantHandler.ts'
-import { weldPacksControllerActivateWeldPackHandler } from './weldPacksController/weldPacksControllerActivateWeldPackHandler.ts'
-import { weldPacksControllerCreateWeldPackHandler } from './weldPacksController/weldPacksControllerCreateWeldPackHandler.ts'
-import { weldPacksControllerDeactivateLicenseHandler } from './weldPacksController/weldPacksControllerDeactivateLicenseHandler.ts'
-import { weldPacksControllerDeleteWeldPackHandler } from './weldPacksController/weldPacksControllerDeleteWeldPackHandler.ts'
-import { weldPacksControllerGetWeldPackHandler } from './weldPacksController/weldPacksControllerGetWeldPackHandler.ts'
-import { weldPacksControllerGetWeldPacksHandler } from './weldPacksController/weldPacksControllerGetWeldPacksHandler.ts'
-import { weldPacksControllerUpdateWeldPackHandler } from './weldPacksController/weldPacksControllerUpdateWeldPackHandler.ts'
+import { addFilesHandler } from './petController/addFilesHandler.ts'
+import { addPetHandler } from './petController/addPetHandler.ts'
+import { deletePetHandler } from './petController/deletePetHandler.ts'
+import { findPetsByStatusHandler } from './petController/findPetsByStatusHandler.ts'
+import { findPetsByTagsHandler } from './petController/findPetsByTagsHandler.ts'
+import { getPetByIdHandler } from './petController/getPetByIdHandler.ts'
+import { updatePetHandler } from './petController/updatePetHandler.ts'
+import { updatePetWithFormHandler } from './petController/updatePetWithFormHandler.ts'
+import { uploadFileHandler } from './petController/uploadFileHandler.ts'
+import { createPetsHandler } from './petsController/createPetsHandler.ts'
+import { createUserHandler } from './userController/createUserHandler.ts'
+import { createUsersWithListInputHandler } from './userController/createUsersWithListInputHandler.ts'
+import { deleteUserHandler } from './userController/deleteUserHandler.ts'
+import { getUserByNameHandler } from './userController/getUserByNameHandler.ts'
+import { loginUserHandler } from './userController/loginUserHandler.ts'
+import { logoutUserHandler } from './userController/logoutUserHandler.ts'
+import { updateUserHandler } from './userController/updateUserHandler.ts'
 
 export const handlers = [
-  appControllerGetStatusHandler(),
-  licensesControllerGetLicensesHandler(),
-  licensesControllerCreateLicenseHandler(),
-  licensesControllerGetLicenseHandler(),
-  licensesControllerUpdateLicenseHandler(),
-  licensesControllerDeleteLicenseHandler(),
-  licensesControllerActivateLicenseHandler(),
-  licensesControllerDeactivateLicenseHandler(),
-  resellersControllerGetResellersHandler(),
-  resellersControllerCreateResellerHandler(),
-  resellersControllerGetResellerHandler(),
-  resellersControllerUpdateResellerHandler(),
-  tenantsControllerGetTenantsHandler(),
-  tenantsControllerCreateTenantHandler(),
-  tenantsControllerGetTenantHandler(),
-  tenantsControllerUpdateTenantHandler(),
-  tenantsControllerGetActiveLicenseHandler(),
-  tenantsControllerGetActiveWeldPackHandler(),
-  tenantsControllerGetWeldCreditsHandler(),
-  weldPacksControllerGetWeldPacksHandler(),
-  weldPacksControllerCreateWeldPackHandler(),
-  weldPacksControllerGetWeldPackHandler(),
-  weldPacksControllerUpdateWeldPackHandler(),
-  weldPacksControllerDeleteWeldPackHandler(),
-  weldPacksControllerActivateWeldPackHandler(),
-  weldPacksControllerDeactivateLicenseHandler(),
-  partsControllerGetPartsHandler(),
-  partsControllerGetPartHandler(),
-  partsControllerDownloadPartHandler(),
-  partsControllerSimulatePartHandler(),
+  createPetsHandler(),
+  updatePetHandler(),
+  addPetHandler(),
+  findPetsByStatusHandler(),
+  findPetsByTagsHandler(),
+  getPetByIdHandler(),
+  updatePetWithFormHandler(),
+  deletePetHandler(),
+  addFilesHandler(),
+  uploadFileHandler(),
+  createUserHandler(),
+  createUsersWithListInputHandler(),
+  loginUserHandler(),
+  logoutUserHandler(),
+  getUserByNameHandler(),
+  updateUserHandler(),
+  deleteUserHandler(),
 ] as const

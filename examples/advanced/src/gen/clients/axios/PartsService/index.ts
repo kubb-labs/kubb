@@ -1,5 +1,0 @@
-export { getPartsControllerDownloadPartUrl, partsControllerDownloadPart } from './partsControllerDownloadPart.ts'
-export { getPartsControllerGetPartUrl, partsControllerGetPart } from './partsControllerGetPart.ts'
-export { getPartsControllerGetPartsUrl, partsControllerGetParts } from './partsControllerGetParts.ts'
-export { getPartsControllerSimulatePartUrl, partsControllerSimulatePart } from './partsControllerSimulatePart.ts'
-export { partsService } from './partsService.ts'

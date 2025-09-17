@@ -1,8 +1,0 @@
-export { getLicensesControllerActivateLicenseUrl, licensesControllerActivateLicense } from './licensesControllerActivateLicense.ts'
-export { getLicensesControllerCreateLicenseUrl, licensesControllerCreateLicense } from './licensesControllerCreateLicense.ts'
-export { getLicensesControllerDeactivateLicenseUrl, licensesControllerDeactivateLicense } from './licensesControllerDeactivateLicense.ts'
-export { getLicensesControllerDeleteLicenseUrl, licensesControllerDeleteLicense } from './licensesControllerDeleteLicense.ts'
-export { getLicensesControllerGetLicenseUrl, licensesControllerGetLicense } from './licensesControllerGetLicense.ts'
-export { getLicensesControllerGetLicensesUrl, licensesControllerGetLicenses } from './licensesControllerGetLicenses.ts'
-export { getLicensesControllerUpdateLicenseUrl, licensesControllerUpdateLicense } from './licensesControllerUpdateLicense.ts'
-export { licensesService } from './licensesService.ts'

@@ -1,8 +1,0 @@
-export { getWeldPacksControllerActivateWeldPackUrl, weldPacksControllerActivateWeldPack } from './weldPacksControllerActivateWeldPack.ts'
-export { getWeldPacksControllerCreateWeldPackUrl, weldPacksControllerCreateWeldPack } from './weldPacksControllerCreateWeldPack.ts'
-export { getWeldPacksControllerDeactivateLicenseUrl, weldPacksControllerDeactivateLicense } from './weldPacksControllerDeactivateLicense.ts'
-export { getWeldPacksControllerDeleteWeldPackUrl, weldPacksControllerDeleteWeldPack } from './weldPacksControllerDeleteWeldPack.ts'
-export { getWeldPacksControllerGetWeldPackUrl, weldPacksControllerGetWeldPack } from './weldPacksControllerGetWeldPack.ts'
-export { getWeldPacksControllerGetWeldPacksUrl, weldPacksControllerGetWeldPacks } from './weldPacksControllerGetWeldPacks.ts'
-export { getWeldPacksControllerUpdateWeldPackUrl, weldPacksControllerUpdateWeldPack } from './weldPacksControllerUpdateWeldPack.ts'
-export { weldPacksService } from './weldPacksService.ts'

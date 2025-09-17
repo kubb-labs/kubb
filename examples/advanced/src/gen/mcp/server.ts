@@ -1,328 +1,161 @@
-import { appControllerGetStatusHandler } from './appRequests/appControllerGetStatus.ts'
-import { licensesControllerActivateLicenseHandler } from './licensesRequests/licensesControllerActivateLicense.ts'
-import { licensesControllerCreateLicenseHandler } from './licensesRequests/licensesControllerCreateLicense.ts'
-import { licensesControllerDeactivateLicenseHandler } from './licensesRequests/licensesControllerDeactivateLicense.ts'
-import { licensesControllerDeleteLicenseHandler } from './licensesRequests/licensesControllerDeleteLicense.ts'
-import { licensesControllerGetLicenseHandler } from './licensesRequests/licensesControllerGetLicense.ts'
-import { licensesControllerGetLicensesHandler } from './licensesRequests/licensesControllerGetLicenses.ts'
-import { licensesControllerUpdateLicenseHandler } from './licensesRequests/licensesControllerUpdateLicense.ts'
-import { partsControllerDownloadPartHandler } from './partsRequests/partsControllerDownloadPart.ts'
-import { partsControllerGetPartHandler } from './partsRequests/partsControllerGetPart.ts'
-import { partsControllerGetPartsHandler } from './partsRequests/partsControllerGetParts.ts'
-import { partsControllerSimulatePartHandler } from './partsRequests/partsControllerSimulatePart.ts'
-import { resellersControllerCreateResellerHandler } from './resellersRequests/resellersControllerCreateReseller.ts'
-import { resellersControllerGetResellerHandler } from './resellersRequests/resellersControllerGetReseller.ts'
-import { resellersControllerGetResellersHandler } from './resellersRequests/resellersControllerGetResellers.ts'
-import { resellersControllerUpdateResellerHandler } from './resellersRequests/resellersControllerUpdateReseller.ts'
-import { tenantsControllerCreateTenantHandler } from './tenantsRequests/tenantsControllerCreateTenant.ts'
-import { tenantsControllerGetActiveLicenseHandler } from './tenantsRequests/tenantsControllerGetActiveLicense.ts'
-import { tenantsControllerGetActiveWeldPackHandler } from './tenantsRequests/tenantsControllerGetActiveWeldPack.ts'
-import { tenantsControllerGetTenantHandler } from './tenantsRequests/tenantsControllerGetTenant.ts'
-import { tenantsControllerGetTenantsHandler } from './tenantsRequests/tenantsControllerGetTenants.ts'
-import { tenantsControllerGetWeldCreditsHandler } from './tenantsRequests/tenantsControllerGetWeldCredits.ts'
-import { tenantsControllerUpdateTenantHandler } from './tenantsRequests/tenantsControllerUpdateTenant.ts'
-import { weldPacksControllerActivateWeldPackHandler } from './weldPacksRequests/weldPacksControllerActivateWeldPack.ts'
-import { weldPacksControllerCreateWeldPackHandler } from './weldPacksRequests/weldPacksControllerCreateWeldPack.ts'
-import { weldPacksControllerDeactivateLicenseHandler } from './weldPacksRequests/weldPacksControllerDeactivateLicense.ts'
-import { weldPacksControllerDeleteWeldPackHandler } from './weldPacksRequests/weldPacksControllerDeleteWeldPack.ts'
-import { weldPacksControllerGetWeldPackHandler } from './weldPacksRequests/weldPacksControllerGetWeldPack.ts'
-import { weldPacksControllerGetWeldPacksHandler } from './weldPacksRequests/weldPacksControllerGetWeldPacks.ts'
-import { weldPacksControllerUpdateWeldPackHandler } from './weldPacksRequests/weldPacksControllerUpdateWeldPack.ts'
+import { addFilesHandler } from './petRequests/addFiles.ts'
+import { addPetHandler } from './petRequests/addPet.ts'
+import { deletePetHandler } from './petRequests/deletePet.ts'
+import { findPetsByStatusHandler } from './petRequests/findPetsByStatus.ts'
+import { findPetsByTagsHandler } from './petRequests/findPetsByTags.ts'
+import { getPetByIdHandler } from './petRequests/getPetById.ts'
+import { updatePetHandler } from './petRequests/updatePet.ts'
+import { updatePetWithFormHandler } from './petRequests/updatePetWithForm.ts'
+import { uploadFileHandler } from './petRequests/uploadFile.ts'
+import { createPetsHandler } from './petsRequests/createPets.ts'
+import { createUserHandler } from './userRequests/createUser.ts'
+import { createUsersWithListInputHandler } from './userRequests/createUsersWithListInput.ts'
+import { deleteUserHandler } from './userRequests/deleteUser.ts'
+import { getUserByNameHandler } from './userRequests/getUserByName.ts'
+import { loginUserHandler } from './userRequests/loginUser.ts'
+import { logoutUserHandler } from './userRequests/logoutUser.ts'
+import { updateUserHandler } from './userRequests/updateUser.ts'
+import { addFilesMutationRequestSchema } from '../zod/petController/addFilesSchema.ts'
+import { addPetMutationRequestSchema } from '../zod/petController/addPetSchema.ts'
+import { deletePetPathParamsSchema, deletePetHeaderParamsSchema } from '../zod/petController/deletePetSchema.ts'
+import { findPetsByStatusPathParamsSchema } from '../zod/petController/findPetsByStatusSchema.ts'
+import { findPetsByTagsQueryParamsSchema, findPetsByTagsHeaderParamsSchema } from '../zod/petController/findPetsByTagsSchema.ts'
+import { getPetByIdPathParamsSchema } from '../zod/petController/getPetByIdSchema.ts'
+import { updatePetMutationRequestSchema } from '../zod/petController/updatePetSchema.ts'
+import { updatePetWithFormPathParamsSchema, updatePetWithFormQueryParamsSchema } from '../zod/petController/updatePetWithFormSchema.ts'
+import { uploadFileMutationRequestSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from '../zod/petController/uploadFileSchema.ts'
 import {
-  licensesControllerActivateLicenseMutationRequestSchema,
-  licensesControllerActivateLicensePathParamsSchema,
-} from '../zod/licensesController/licensesControllerActivateLicenseSchema.ts'
-import { licensesControllerCreateLicenseMutationRequestSchema } from '../zod/licensesController/licensesControllerCreateLicenseSchema.ts'
-import { licensesControllerDeactivateLicensePathParamsSchema } from '../zod/licensesController/licensesControllerDeactivateLicenseSchema.ts'
-import { licensesControllerDeleteLicensePathParamsSchema } from '../zod/licensesController/licensesControllerDeleteLicenseSchema.ts'
-import { licensesControllerGetLicensePathParamsSchema } from '../zod/licensesController/licensesControllerGetLicenseSchema.ts'
-import {
-  licensesControllerUpdateLicenseMutationRequestSchema,
-  licensesControllerUpdateLicensePathParamsSchema,
-} from '../zod/licensesController/licensesControllerUpdateLicenseSchema.ts'
-import {
-  partsControllerDownloadPartMutationRequestSchema,
-  partsControllerDownloadPartPathParamsSchema,
-} from '../zod/partsController/partsControllerDownloadPartSchema.ts'
-import { partsControllerGetPartPathParamsSchema } from '../zod/partsController/partsControllerGetPartSchema.ts'
-import {
-  partsControllerSimulatePartMutationRequestSchema,
-  partsControllerSimulatePartPathParamsSchema,
-} from '../zod/partsController/partsControllerSimulatePartSchema.ts'
-import { resellersControllerCreateResellerMutationRequestSchema } from '../zod/resellersController/resellersControllerCreateResellerSchema.ts'
-import { resellersControllerGetResellerPathParamsSchema } from '../zod/resellersController/resellersControllerGetResellerSchema.ts'
-import {
-  resellersControllerUpdateResellerMutationRequestSchema,
-  resellersControllerUpdateResellerPathParamsSchema,
-} from '../zod/resellersController/resellersControllerUpdateResellerSchema.ts'
-import { tenantsControllerCreateTenantMutationRequestSchema } from '../zod/tenantsController/tenantsControllerCreateTenantSchema.ts'
-import { tenantsControllerGetActiveLicensePathParamsSchema } from '../zod/tenantsController/tenantsControllerGetActiveLicenseSchema.ts'
-import { tenantsControllerGetActiveWeldPackPathParamsSchema } from '../zod/tenantsController/tenantsControllerGetActiveWeldPackSchema.ts'
-import { tenantsControllerGetTenantPathParamsSchema } from '../zod/tenantsController/tenantsControllerGetTenantSchema.ts'
-import { tenantsControllerGetWeldCreditsPathParamsSchema } from '../zod/tenantsController/tenantsControllerGetWeldCreditsSchema.ts'
-import {
-  tenantsControllerUpdateTenantMutationRequestSchema,
-  tenantsControllerUpdateTenantPathParamsSchema,
-} from '../zod/tenantsController/tenantsControllerUpdateTenantSchema.ts'
-import {
-  weldPacksControllerActivateWeldPackMutationRequestSchema,
-  weldPacksControllerActivateWeldPackPathParamsSchema,
-} from '../zod/weldPacksController/weldPacksControllerActivateWeldPackSchema.ts'
-import { weldPacksControllerCreateWeldPackMutationRequestSchema } from '../zod/weldPacksController/weldPacksControllerCreateWeldPackSchema.ts'
-import { weldPacksControllerDeactivateLicensePathParamsSchema } from '../zod/weldPacksController/weldPacksControllerDeactivateLicenseSchema.ts'
-import { weldPacksControllerDeleteWeldPackPathParamsSchema } from '../zod/weldPacksController/weldPacksControllerDeleteWeldPackSchema.ts'
-import { weldPacksControllerGetWeldPackPathParamsSchema } from '../zod/weldPacksController/weldPacksControllerGetWeldPackSchema.ts'
-import {
-  weldPacksControllerUpdateWeldPackMutationRequestSchema,
-  weldPacksControllerUpdateWeldPackPathParamsSchema,
-} from '../zod/weldPacksController/weldPacksControllerUpdateWeldPackSchema.ts'
+  createPetsMutationRequestSchema,
+  createPetsPathParamsSchema,
+  createPetsQueryParamsSchema,
+  createPetsHeaderParamsSchema,
+} from '../zod/petsController/createPetsSchema.ts'
+import { createUserMutationRequestSchema } from '../zod/userController/createUserSchema.ts'
+import { createUsersWithListInputMutationRequestSchema } from '../zod/userController/createUsersWithListInputSchema.ts'
+import { deleteUserPathParamsSchema } from '../zod/userController/deleteUserSchema.ts'
+import { getUserByNamePathParamsSchema } from '../zod/userController/getUserByNameSchema.ts'
+import { loginUserQueryParamsSchema } from '../zod/userController/loginUserSchema.ts'
+import { updateUserMutationRequestSchema, updateUserPathParamsSchema } from '../zod/userController/updateUserSchema.ts'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
 
 export const server = new McpServer({
-  name: 'Receipt AI',
-  version: '3.0.0',
-})
-
-server.tool('AppController_getStatus', 'Make a GET request to /api/status', async () => {
-  return appControllerGetStatusHandler()
-})
-
-server.tool('LicensesController_getLicenses', 'Make a GET request to /api/licenses', async () => {
-  return licensesControllerGetLicensesHandler()
+  name: 'Swagger Petstore - OpenAPI 3.0',
+  version: '3.0.3',
 })
 
 server.tool(
-  'LicensesController_createLicense',
-  'Make a POST request to /api/licenses',
-  { data: licensesControllerCreateLicenseMutationRequestSchema },
+  'createPets',
+  'Make a POST request to /pets/{uuid}',
+  {
+    uuid: createPetsPathParamsSchema.shape['uuid'],
+    data: createPetsMutationRequestSchema,
+    headers: createPetsHeaderParamsSchema,
+    params: createPetsQueryParamsSchema,
+  },
+  async ({ uuid, data, headers, params }) => {
+    return createPetsHandler({ uuid, data, headers, params })
+  },
+)
+
+server.tool('updatePet', 'Update an existing pet by Id', { data: updatePetMutationRequestSchema }, async ({ data }) => {
+  return updatePetHandler({ data })
+})
+
+server.tool('addPet', 'Add a new pet to the store', { data: addPetMutationRequestSchema }, async ({ data }) => {
+  return addPetHandler({ data })
+})
+
+server.tool(
+  'findPetsByStatus',
+  'Multiple status values can be provided with comma separated strings',
+  { stepId: findPetsByStatusPathParamsSchema.shape['step_id'] },
+  async ({ stepId }) => {
+    return findPetsByStatusHandler({ stepId })
+  },
+)
+
+server.tool(
+  'findPetsByTags',
+  'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
+  { headers: findPetsByTagsHeaderParamsSchema, params: findPetsByTagsQueryParamsSchema },
+  async ({ headers, params }) => {
+    return findPetsByTagsHandler({ headers, params })
+  },
+)
+
+server.tool('getPetById', 'Returns a single pet', { petId: getPetByIdPathParamsSchema.shape['petId'] }, async ({ petId }) => {
+  return getPetByIdHandler({ petId })
+})
+
+server.tool(
+  'updatePetWithForm',
+  'Make a POST request to /pet/{petId}:search',
+  { petId: updatePetWithFormPathParamsSchema.shape['petId'], params: updatePetWithFormQueryParamsSchema },
+  async ({ petId, params }) => {
+    return updatePetWithFormHandler({ petId, params })
+  },
+)
+
+server.tool(
+  'deletePet',
+  'delete a pet',
+  { petId: deletePetPathParamsSchema.shape['petId'], headers: deletePetHeaderParamsSchema },
+  async ({ petId, headers }) => {
+    return deletePetHandler({ petId, headers })
+  },
+)
+
+server.tool('addFiles', 'Place a new file in the store', { data: addFilesMutationRequestSchema }, async ({ data }) => {
+  return addFilesHandler({ data })
+})
+
+server.tool(
+  'uploadFile',
+  'Make a POST request to /pet/{petId}/uploadImage',
+  { petId: uploadFilePathParamsSchema.shape['petId'], data: uploadFileMutationRequestSchema, params: uploadFileQueryParamsSchema },
+  async ({ petId, data, params }) => {
+    return uploadFileHandler({ petId, data, params })
+  },
+)
+
+server.tool('createUser', 'This can only be done by the logged in user.', { data: createUserMutationRequestSchema }, async ({ data }) => {
+  return createUserHandler({ data })
+})
+
+server.tool(
+  'createUsersWithListInput',
+  'Creates list of users with given input array',
+  { data: createUsersWithListInputMutationRequestSchema },
   async ({ data }) => {
-    return licensesControllerCreateLicenseHandler({ data })
+    return createUsersWithListInputHandler({ data })
   },
 )
 
-server.tool(
-  'LicensesController_getLicense',
-  'Make a GET request to /api/licenses/{id}',
-  { id: licensesControllerGetLicensePathParamsSchema.shape['id'] },
-  async ({ id }) => {
-    return licensesControllerGetLicenseHandler({ id })
-  },
-)
+server.tool('loginUser', 'Make a GET request to /user/login', { params: loginUserQueryParamsSchema }, async ({ params }) => {
+  return loginUserHandler({ params })
+})
 
-server.tool(
-  'LicensesController_updateLicense',
-  'Make a PATCH request to /api/licenses/{id}',
-  { id: licensesControllerUpdateLicensePathParamsSchema.shape['id'], data: licensesControllerUpdateLicenseMutationRequestSchema },
-  async ({ id, data }) => {
-    return licensesControllerUpdateLicenseHandler({ id, data })
-  },
-)
+server.tool('logoutUser', 'Make a GET request to /user/logout', async () => {
+  return logoutUserHandler()
+})
 
-server.tool(
-  'LicensesController_deleteLicense',
-  'Make a DELETE request to /api/licenses/{id}',
-  { id: licensesControllerDeleteLicensePathParamsSchema.shape['id'] },
-  async ({ id }) => {
-    return licensesControllerDeleteLicenseHandler({ id })
-  },
-)
-
-server.tool(
-  'LicensesController_activateLicense',
-  'Make a POST request to /api/licenses/{id}/activate',
-  { id: licensesControllerActivateLicensePathParamsSchema.shape['id'], data: licensesControllerActivateLicenseMutationRequestSchema },
-  async ({ id, data }) => {
-    return licensesControllerActivateLicenseHandler({ id, data })
-  },
-)
-
-server.tool(
-  'LicensesController_deactivateLicense',
-  'Make a POST request to /api/licenses/{id}/deactivate',
-  { id: licensesControllerDeactivateLicensePathParamsSchema.shape['id'] },
-  async ({ id }) => {
-    return licensesControllerDeactivateLicenseHandler({ id })
-  },
-)
-
-server.tool('ResellersController_getResellers', 'Make a GET request to /api/resellers', async () => {
-  return resellersControllerGetResellersHandler()
+server.tool('getUserByName', 'Make a GET request to /user/{username}', { username: getUserByNamePathParamsSchema.shape['username'] }, async ({ username }) => {
+  return getUserByNameHandler({ username })
 })
 
 server.tool(
-  'ResellersController_createReseller',
-  'Make a POST request to /api/resellers',
-  { data: resellersControllerCreateResellerMutationRequestSchema },
-  async ({ data }) => {
-    return resellersControllerCreateResellerHandler({ data })
+  'updateUser',
+  'This can only be done by the logged in user.',
+  { username: updateUserPathParamsSchema.shape['username'], data: updateUserMutationRequestSchema },
+  async ({ username, data }) => {
+    return updateUserHandler({ username, data })
   },
 )
 
-server.tool(
-  'ResellersController_getReseller',
-  'Make a GET request to /api/resellers/{id}',
-  { id: resellersControllerGetResellerPathParamsSchema.shape['id'] },
-  async ({ id }) => {
-    return resellersControllerGetResellerHandler({ id })
-  },
-)
-
-server.tool(
-  'ResellersController_updateReseller',
-  'Make a PATCH request to /api/resellers/{id}',
-  { id: resellersControllerUpdateResellerPathParamsSchema.shape['id'], data: resellersControllerUpdateResellerMutationRequestSchema },
-  async ({ id, data }) => {
-    return resellersControllerUpdateResellerHandler({ id, data })
-  },
-)
-
-server.tool('TenantsController_getTenants', 'Make a GET request to /api/tenants', async () => {
-  return tenantsControllerGetTenantsHandler()
+server.tool('deleteUser', 'This can only be done by the logged in user.', { username: deleteUserPathParamsSchema.shape['username'] }, async ({ username }) => {
+  return deleteUserHandler({ username })
 })
-
-server.tool(
-  'TenantsController_createTenant',
-  'Make a POST request to /api/tenants',
-  { data: tenantsControllerCreateTenantMutationRequestSchema },
-  async ({ data }) => {
-    return tenantsControllerCreateTenantHandler({ data })
-  },
-)
-
-server.tool(
-  'TenantsController_getTenant',
-  'Make a GET request to /api/tenants/{id}',
-  { id: tenantsControllerGetTenantPathParamsSchema.shape['id'] },
-  async ({ id }) => {
-    return tenantsControllerGetTenantHandler({ id })
-  },
-)
-
-server.tool(
-  'TenantsController_updateTenant',
-  'Make a PATCH request to /api/tenants/{id}',
-  { id: tenantsControllerUpdateTenantPathParamsSchema.shape['id'], data: tenantsControllerUpdateTenantMutationRequestSchema },
-  async ({ id, data }) => {
-    return tenantsControllerUpdateTenantHandler({ id, data })
-  },
-)
-
-server.tool(
-  'TenantsController_getActiveLicense',
-  'Make a GET request to /api/tenants/{id}/active-license',
-  { id: tenantsControllerGetActiveLicensePathParamsSchema.shape['id'] },
-  async ({ id }) => {
-    return tenantsControllerGetActiveLicenseHandler({ id })
-  },
-)
-
-server.tool(
-  'TenantsController_getActiveWeldPack',
-  'Make a GET request to /api/tenants/{id}/active-weldpack',
-  { id: tenantsControllerGetActiveWeldPackPathParamsSchema.shape['id'] },
-  async ({ id }) => {
-    return tenantsControllerGetActiveWeldPackHandler({ id })
-  },
-)
-
-server.tool(
-  'TenantsController_getWeldCredits',
-  'Make a GET request to /api/tenants/{id}/weld-credits',
-  { id: tenantsControllerGetWeldCreditsPathParamsSchema.shape['id'] },
-  async ({ id }) => {
-    return tenantsControllerGetWeldCreditsHandler({ id })
-  },
-)
-
-server.tool('WeldPacksController_getWeldPacks', 'Make a GET request to /api/weldpacks', async () => {
-  return weldPacksControllerGetWeldPacksHandler()
-})
-
-server.tool(
-  'WeldPacksController_createWeldPack',
-  'Make a POST request to /api/weldpacks',
-  { data: weldPacksControllerCreateWeldPackMutationRequestSchema },
-  async ({ data }) => {
-    return weldPacksControllerCreateWeldPackHandler({ data })
-  },
-)
-
-server.tool(
-  'WeldPacksController_getWeldPack',
-  'Make a GET request to /api/weldpacks/{id}',
-  { id: weldPacksControllerGetWeldPackPathParamsSchema.shape['id'] },
-  async ({ id }) => {
-    return weldPacksControllerGetWeldPackHandler({ id })
-  },
-)
-
-server.tool(
-  'WeldPacksController_updateWeldPack',
-  'Make a PATCH request to /api/weldpacks/{id}',
-  { id: weldPacksControllerUpdateWeldPackPathParamsSchema.shape['id'], data: weldPacksControllerUpdateWeldPackMutationRequestSchema },
-  async ({ id, data }) => {
-    return weldPacksControllerUpdateWeldPackHandler({ id, data })
-  },
-)
-
-server.tool(
-  'WeldPacksController_deleteWeldPack',
-  'Make a DELETE request to /api/weldpacks/{id}',
-  { id: weldPacksControllerDeleteWeldPackPathParamsSchema.shape['id'] },
-  async ({ id }) => {
-    return weldPacksControllerDeleteWeldPackHandler({ id })
-  },
-)
-
-server.tool(
-  'WeldPacksController_activateWeldPack',
-  'Make a POST request to /api/weldpacks/{id}/activate',
-  { id: weldPacksControllerActivateWeldPackPathParamsSchema.shape['id'], data: weldPacksControllerActivateWeldPackMutationRequestSchema },
-  async ({ id, data }) => {
-    return weldPacksControllerActivateWeldPackHandler({ id, data })
-  },
-)
-
-server.tool(
-  'WeldPacksController_deactivateLicense',
-  'Make a POST request to /api/weldpacks/{id}/deactivate',
-  { id: weldPacksControllerDeactivateLicensePathParamsSchema.shape['id'] },
-  async ({ id }) => {
-    return weldPacksControllerDeactivateLicenseHandler({ id })
-  },
-)
-
-server.tool('PartsController_getParts', 'Make a GET request to /api/parts', async () => {
-  return partsControllerGetPartsHandler()
-})
-
-server.tool(
-  'PartsController_getPart',
-  'Make a GET request to /api/parts/{urn}',
-  { urn: partsControllerGetPartPathParamsSchema.shape['urn'] },
-  async ({ urn }) => {
-    return partsControllerGetPartHandler({ urn })
-  },
-)
-
-server.tool(
-  'PartsController_downloadPart',
-  'Make a POST request to /api/parts/{urn}/download',
-  { urn: partsControllerDownloadPartPathParamsSchema.shape['urn'], data: partsControllerDownloadPartMutationRequestSchema },
-  async ({ urn, data }) => {
-    return partsControllerDownloadPartHandler({ urn, data })
-  },
-)
-
-server.tool(
-  'PartsController_simulatePart',
-  'Make a POST request to /api/parts/{urn}/simulate',
-  { urn: partsControllerSimulatePartPathParamsSchema.shape['urn'], data: partsControllerSimulatePartMutationRequestSchema },
-  async ({ urn, data }) => {
-    return partsControllerSimulatePartHandler({ urn, data })
-  },
-)
 
 async function startServer() {
   try {
