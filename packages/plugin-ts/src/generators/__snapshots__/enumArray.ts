@@ -3,6 +3,6 @@
  * Do not edit manually.
  */
 
-export type EnumArrayEnum2 = 'NW' | 'NE' | 'SW' | 'SE'
+export type EnumArrayEnum = 'NW' | 'NE' | 'SW' | 'SE'
 
-export type enumArray = EnumArrayEnum2[]
+export type enumArray = EnumArrayEnum[]
