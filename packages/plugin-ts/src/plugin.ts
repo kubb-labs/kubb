@@ -42,14 +42,17 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       oasType,
       enumType,
       enumSuffix,
-      // keep the used enumnames between SchemaGenerator and OperationGenerator per plugin(pluginKey)
-      usedEnumNames: {},
       unknownType,
       emptySchemaType,
       syntaxType,
       group,
       override,
       mapper,
+    },
+    context() {
+      return {
+        usedEnumNames: {} as Record<string, number>,
+      }
     },
     pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {
@@ -68,11 +71,11 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         const groupName: Group['name'] = group?.name
           ? group.name
           : (ctx) => {
-              if (group?.type === 'path') {
-                return `${ctx.group.split('/')[1]}`
-              }
-              return `${camelCase(ctx.group)}Controller`
+            if (group?.type === 'path') {
+              return `${ctx.group.split('/')[1]}`
             }
+            return `${camelCase(ctx.group)}Controller`
+          }
 
         return path.resolve(
           root,

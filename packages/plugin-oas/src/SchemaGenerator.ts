@@ -264,12 +264,6 @@ export class SchemaGenerator<
     })
   }
 
-  #getUsedEnumNames(props: SchemaProps) {
-    const options = this.#getOptions(props)
-
-    return options.usedEnumNames || {}
-  }
-
   #getOptions({ name }: SchemaProps): Partial<TOptions> {
     const { override = [] } = this.context
 
@@ -451,10 +445,10 @@ export class SchemaGenerator<
   }
 
   #addDiscriminatorToSchema<TSchema extends Schema>({
-    schema,
-    schemaObject,
-    discriminator,
-  }: {
+                                                      schema,
+                                                      schemaObject,
+                                                      discriminator,
+                                                    }: {
     schemaObject: SchemaObject
     schema: TSchema
     discriminator: OpenAPIV3.DiscriminatorObject
@@ -619,10 +613,10 @@ export class SchemaGenerator<
           args: schemaObject.description,
         },
         schemaObject.pattern &&
-          schemaObject.type === 'string' && {
-            keyword: schemaKeywords.matches,
-            args: schemaObject.pattern,
-          },
+        schemaObject.type === 'string' && {
+          keyword: schemaKeywords.matches,
+          args: schemaObject.pattern,
+        },
         nullable && { keyword: schemaKeywords.nullable },
         schemaObject.readOnly && { keyword: schemaKeywords.readOnly },
         schemaObject.writeOnly && { keyword: schemaKeywords.writeOnly },
@@ -743,7 +737,7 @@ export class SchemaGenerator<
         this.context.pluginManager.logger.emit('info', 'EnumSuffix set to an empty string does not work')
       }
 
-      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.#getUsedEnumNames({ schemaObject, name }))
+      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.context.plugin.context?.usedEnumNames || {})
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,
         pluginKey: this.context.plugin.key,
@@ -792,17 +786,17 @@ export class SchemaGenerator<
               asConst: true,
               items: enumNames?.args?.items
                 ? [...new Set(enumNames.args.items)].map(({ name, value }) => ({
-                    name,
+                  name,
+                  value,
+                  format: 'number',
+                }))
+                : [...new Set(filteredValues)].map((value: string) => {
+                  return {
+                    name: value,
                     value,
                     format: 'number',
-                  }))
-                : [...new Set(filteredValues)].map((value: string) => {
-                    return {
-                      name: value,
-                      value,
-                      format: 'number',
-                    }
-                  }),
+                  }
+                }),
             },
           },
           ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max && item.keyword !== schemaKeywords.matches),
@@ -821,17 +815,17 @@ export class SchemaGenerator<
               asConst: true,
               items: enumNames?.args?.items
                 ? [...new Set(enumNames.args.items)].map(({ name, value }) => ({
-                    name,
+                  name,
+                  value,
+                  format: 'boolean',
+                }))
+                : [...new Set(filteredValues)].map((value: string) => {
+                  return {
+                    name: value,
                     value,
                     format: 'boolean',
-                  }))
-                : [...new Set(filteredValues)].map((value: string) => {
-                    return {
-                      name: value,
-                      value,
-                      format: 'boolean',
-                    }
-                  }),
+                  }
+                }),
             },
           },
           ...baseItems.filter((item) => item.keyword !== schemaKeywords.matches),
