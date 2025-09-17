@@ -97,7 +97,7 @@
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "axios": "^1.11.0",
+    "axios": "^1.12.2",
     "tsdown": "catalog:",
     "typescript": "catalog:"
   },

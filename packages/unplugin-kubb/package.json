@@ -98,14 +98,14 @@
 	"devDependencies": {
 		"@kubb/config-ts": "workspace:*",
 		"@kubb/core": "workspace:*",
-		"@nuxt/kit": "^3.18.1",
-		"@nuxt/schema": "^3.18.1",
+		"@nuxt/kit": "^3.19.2",
+		"@nuxt/schema": "^3.19.2",
 		"@types/node": "catalog:",
 		"rimraf": "^6.0.1",
-		"rollup": "^4.50.0",
+		"rollup": "^4.50.2",
 		"tsdown": "catalog:",
 		"typescript": "catalog:",
-		"vite": "^6.3.5",
+		"vite": "^6.3.6",
 		"webpack": "^5.101.3"
 	},
 	"peerDependencies": {

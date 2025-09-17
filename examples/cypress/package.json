@@ -13,12 +13,10 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "tsup",
     "generate": "kubb generate",
     "generate:js": "kubb generate --config .kubbrc",
     "generate:json": "kubb generate --config kubb.json",
     "generate:ts": "kubb generate --config kubb.config.js",
-    "start": "tsup --watch",
     "start:server": "bun ./src/server.ts",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
@@ -29,8 +27,7 @@
     "@kubb/plugin-cypress": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "react": "^18.3.1",
-    "tsup": "^8.5.0"
+    "react": "^18.3.1"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
