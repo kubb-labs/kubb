@@ -15,37 +15,37 @@ import { pluginZod } from '@kubb/plugin-zod'
 import { pluginMcp } from '@kubb/plugin-mcp'
 
 export default defineConfig(() => {
-  return [
-    {
-      name: 'gen2',
-      root: '.',
-      input: {
-        path: './petStore.yaml',
-      },
-      output: {
-        path: './src/gen2',
-        clean: true,
-        barrelType: 'named',
-        defaultBanner: false,
-      },
-      hooks: {
-        done: [],
-      },
-      plugins: [
-        pluginOas({
-          output: {
-            path: 'schemas',
-          },
-          group: {
-            type: 'tag',
-          },
-          validate: false,
-          discriminator: 'inherit',
-        }),
-        pluginTs({}),
-      ],
-    },
-    {
+  // return [
+    // {
+    //   name: 'gen2',
+    //   root: '.',
+    //   input: {
+    //     path: './petStore.yaml',
+    //   },
+    //   output: {
+    //     path: './src/gen2',
+    //     clean: true,
+    //     barrelType: 'named',
+    //     defaultBanner: false,
+    //   },
+    //   hooks: {
+    //     done: [],
+    //   },
+    //   plugins: [
+    //     pluginOas({
+    //       output: {
+    //         path: 'schemas',
+    //       },
+    //       group: {
+    //         type: 'tag',
+    //       },
+    //       validate: false,
+    //       discriminator: 'inherit',
+    //     }),
+    //     pluginTs({}),
+    //   ],
+    // },
+    return {
       name: 'gen',
       root: '.',
       input: {
@@ -254,6 +254,5 @@ export default defineConfig(() => {
           group: { type: 'tag' },
         }),
       ],
-    },
-  ]
+    }
 })

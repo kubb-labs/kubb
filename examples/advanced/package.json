@@ -17,6 +17,7 @@
     "generate": "kubb generate",
     "validate": "kubb validate --input petStore.yaml",
     "mcp": "kubb mcp",
+    "generate:watch": "kubb generate --watch",
     "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
     "generate:bun": "kubb generate --bun",
     "generate:js": "kubb generate --config .kubbrc.js",

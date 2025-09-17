@@ -264,12 +264,6 @@ export class SchemaGenerator<
     })
   }
 
-  #getUsedEnumNames(props: SchemaProps) {
-    const options = this.#getOptions(props)
-
-    return options.usedEnumNames || {}
-  }
-
   #getOptions({ name }: SchemaProps): Partial<TOptions> {
     const { override = [] } = this.context
 
@@ -743,7 +737,7 @@ export class SchemaGenerator<
         this.context.pluginManager.logger.emit('info', 'EnumSuffix set to an empty string does not work')
       }
 
-      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.#getUsedEnumNames({ schemaObject, name }))
+      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.context.plugin.context?.usedEnumNames || {})
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,
         pluginKey: this.context.plugin.key,

@@ -1,1103 +1,1434 @@
-openapi: 3.0.3
-info:
-  title: Swagger Petstore - OpenAPI 3.0
-  description: |-
-    This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
-    Swagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!
-    You can now help us improve the API whether it's by making changes to the definition itself or to the code.
-    That way, with time, we can improve the API in general, and expose some of the new features in OAS3.
-
-    Some useful links:
-    - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)
-    - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
-
-  termsOfService: http://swagger.io/terms/
-  contact:
-    email: apiteam@swagger.io
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.11
-externalDocs:
-  description: Find out more about Swagger
-  url: http://swagger.io
-servers:
-  - url: https://petstore3.swagger.io/api/v3
-tags:
-  - name: pet
-    description: Everything about your Pets
-    externalDocs:
-      description: Find out more
-      url: http://swagger.io
-  - name: store
-    description: Access to Petstore orders
-    externalDocs:
-      description: Find out more about our store
-      url: http://swagger.io
-  - name: user
-    description: Operations about user
-paths:
-  /pets/{uuid}:
-    post:
-      summary: Create a pet
-      operationId: createPets
-      tags:
-        - pets
-      parameters:
-        - name: bool_param
-          in: query
-          schema:
-            type: boolean
-            enum:
-              - true
-        - description: UUID
-          in: path
-          name: uuid
-          required: true
-          schema:
-            type: string
-        - description: Offset */
-          in: query
-          name: offset
-          schema:
-            type: integer
-        - description: Header parameters
-          in: header
-          name: X-EXAMPLE
-          required: true
-          schema:
-            type: string
-            enum:
-              - ONE
-              - TWO
-              - THREE
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - "name"
-                - "tag"
-              properties:
-                name:
-                  type: string
-                tag:
-                  type: string
-      responses:
-        "201":
-          description: Null response
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/PetNotFound"
-  /pet:
-    put:
-      tags:
-        - pet
-      summary: Update an existing pet
-      description: Update an existing pet by Id
-      operationId: updatePet
-      requestBody:
-        description: Update an existent pet in the store
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Pet"
-          application/xml:
-            schema:
-              $ref: "#/components/schemas/Pet"
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: "#/components/schemas/Pet"
-        required: true
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Pet"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/Pet"
-        '202':
-          description: accepted operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    format: int64
-                    example: 10
-        "400":
-          description: Invalid ID supplied
-        "404":
-          description: Pet not found
-        "405":
-          description: Validation exception
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-    post:
-      tags:
-        - pet
-      summary: Add a new pet to the store
-      description: Add a new pet to the store
-      operationId: addPet
-      requestBody:
-        description: Create a new pet in the store
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AddPetRequest"
-          application/xml:
-            schema:
-              $ref: "#/components/schemas/Pet"
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: "#/components/schemas/Pet"
-        required: true
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Pet"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/Pet"
-        "405":
-          description: Invalid input
-          $ref: "#/components/responses/PetNotFound"
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /pet/findByStatus/{step_id}:
-    get:
-      tags:
-        - pet
-      summary: Finds Pets by status
-      description: Multiple status values can be provided with comma separated strings
-      operationId: findPetsByStatus
-      parameters:
-        - name: step_id
-          in: path
-          required: true
-          schema:
-            type: string
-#        - name: status
-#          in: query
-#          description: Status values that need to be considered for filter
-#          required: false
-#          explode: true
-#          schema:
-#            type: string
-#            default: available
-#            enum:
-#              - available
-#              - pending
-#              - sold
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                uniqueItems: true
-                minItems: 1
-                maxItems: 3
-                items:
-                  $ref: "#/components/schemas/Pet"
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Pet"
-        "400":
-          description: Invalid status value
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /pet/findByTags:
-    get:
-      tags:
-        - pet
-      summary: Finds Pets by tags
-      description: Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
-      operationId: findPetsByTags
-      parameters:
-        - name: tags
-          in: query
-          description: Tags to filter by
-          required: false
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-        - $ref: "#/components/parameters/page"
-        - $ref: "#/components/parameters/pageSize"
-        - description: Header parameters
-          in: header
-          name: X-EXAMPLE
-          required: true
-          schema:
-            type: string
-            enum:
-              - ONE
-              - TWO
-              - THREE
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Pet"
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Pet"
-        "400":
-          description: Invalid tag value
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /pet/{petId}:search:
-    get:
-      tags:
-        - pet
-      summary: Find pet by ID
-      description: Returns a single pet
-      operationId: getPetById
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet to return
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Pet"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/Pet"
-        "400":
-          description: Invalid ID supplied
-        "404":
-          description: Pet not found
-      security:
-        - api_key: []
-        - petstore_auth:
-            - write:pets
-            - read:pets
-    post:
-      tags:
-        - pet
-      summary: Updates a pet in the store with form data
-      description: ""
-      operationId: updatePetWithForm
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: name
-          in: query
-          description: Name of pet that needs to be updated
-          schema:
-            type: string
-        - name: status
-          in: query
-          description: Status of pet that needs to be updated
-          schema:
-            type: string
-      responses:
-        "405":
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-    delete:
-      tags:
-        - pet
-      summary: Deletes a pet
-      description: delete a pet
-      operationId: deletePet
-      parameters:
-        - name: api_key
-          in: header
-          description: ""
-          required: false
-          schema:
-            type: string
-        - name: petId
-          in: path
-          description: Pet id to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        "400":
-          description: Invalid pet value
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /pet/files:
-    post:
-      tags:
-        - pet
-      summary: Place an file for a pet
-      description: Place a new file in the store
-      operationId: addFiles
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Pet'
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pet'
-        '405':
-          description: Invalid input
-  /pet/{petId}/uploadImage:
-    post:
-      tags:
-        - pet
-      summary: uploads an image
-      description: ""
-      operationId: uploadFile
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet to update
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: additionalMetadata
-          in: query
-          description: Additional Metadata
-          required: false
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/octet-stream:
-            schema:
-              type: string
-              format: binary
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResponse"
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /store/inventory:
-    get:
-      tags:
-        - store
-      summary: Returns pet inventories by status
-      description: Returns a map of status codes to quantities
-      operationId: getInventory
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties:
-                  type: integer
-                  format: int32
-      security:
-        - api_key: []
-
-  /store/order:
-    post:
-      tags:
-        - store
-      summary: Place an order for a pet
-      description: Place a new order in the store
-      operationId: placeOrder
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Order"
-          application/xml:
-            schema:
-              $ref: "#/components/schemas/Order"
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: "#/components/schemas/Order"
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Order"
-        "405":
-          description: Invalid input
-
-    patch:
-      tags:
-        - store
-      summary: Place an order for a pet with patch
-      description: Place a new order in the store with patch
-      operationId: placeOrderPatch
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Order"
-          application/xml:
-            schema:
-              $ref: "#/components/schemas/Order"
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: "#/components/schemas/Order"
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Order"
-        "405":
-          description: Invalid input
-  /store/order/{orderId}:
-    get:
-      tags:
-        - store
-      summary: Find purchase order by ID
-      description: For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
-      operationId: getOrderById
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of order that needs to be fetched
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Order"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/Order"
-        "400":
-          description: Invalid ID supplied
-        "404":
-          description: Order not found
-    delete:
-      tags:
-        - store
-      summary: Delete purchase order by ID
-      description: For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
-      operationId: deleteOrder
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of the order that needs to be deleted
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        "400":
-          description: Invalid ID supplied
-        "404":
-          description: Order not found
-  /user:
-    post:
-      tags:
-        - user
-      summary: Create user
-      description: This can only be done by the logged in user.
-      operationId: createUser
-      requestBody:
-        description: Created user object
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
-          application/xml:
-            schema:
-              $ref: "#/components/schemas/User"
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: "#/components/schemas/User"
-      responses:
-        default:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/User"
-  /user/createWithList:
-    post:
-      tags:
-        - user
-      summary: Creates list of users with given input array
-      description: Creates list of users with given input array
-      operationId: createUsersWithListInput
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/User"
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/User"
-        default:
-          description: successful operation
-  /user/login:
-    get:
-      tags:
-        - user
-      summary: Logs user into the system
-      description: ""
-      operationId: loginUser
-      parameters:
-        - name: username
-          in: query
-          description: The user name for login
-          required: false
-          schema:
-            type: string
-        - name: password
-          in: query
-          description: The password for login in clear text
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: successful operation
-          headers:
-            X-Rate-Limit:
-              description: calls per hour allowed by the user
-              schema:
-                type: integer
-                format: int32
-            X-Expires-After:
-              description: date in UTC when token expires
-              schema:
-                type: string
-                format: date-time
-          content:
-            application/xml:
-              schema:
-                type: string
-            application/json:
-              schema:
-                type: string
-        "400":
-          description: Invalid username/password supplied
-  /user/logout:
-    get:
-      tags:
-        - user
-      summary: Logs out current logged in user session
-      description: ""
-      operationId: logoutUser
-      parameters: []
-      responses:
-        default:
-          description: successful operation
-  /user/{username}:
-    get:
-      tags:
-        - user
-      summary: Get user by user name
-      description: ""
-      operationId: getUserByName
-      parameters:
-        - name: username
-          in: path
-          description: "The name that needs to be fetched. Use user1 for testing. "
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/User"
-        "400":
-          description: Invalid username supplied
-        "404":
-          description: User not found
-    put:
-      tags:
-        - user
-      summary: Update user
-      description: This can only be done by the logged in user.
-      operationId: updateUser
-      parameters:
-        - name: username
-          in: path
-          description: name that need to be deleted
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Update an existent user in the store
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
-          application/xml:
-            schema:
-              $ref: "#/components/schemas/User"
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: "#/components/schemas/User"
-      responses:
-        default:
-          description: successful operation
-    delete:
-      tags:
-        - user
-      summary: Delete user
-      description: This can only be done by the logged in user.
-      operationId: deleteUser
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be deleted
-          required: true
-          schema:
-            type: string
-      responses:
-        "400":
-          description: Invalid username supplied
-        "404":
-          description: User not found
-components:
-  schemas:
-    Order:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
-          minLength: 3
-          maxLength: 100
-        petId:
-          type: integer
-          format: int64
-          example: 198772
-        quantity:
-          type: integer
-          format: int32
-          example: 7
-        orderType:
-           type: string
-           enum:
-             - foo
-             - bar
-        type:
-           type: string
-           description: Order Status
-           example: approved
-        shipDate:
-          type: string
-          format: date-time
-        status:
-          type: string
-          description: Order Status
-          example: approved
-          enum:
-            - placed
-            - approved
-            - delivered
-        http_status:
-          type: number
-          description: HTTP Status
-          example: 200
-          enum:
-            - 200
-            - 400
-            - 500
-          x-enumNames:
-            - ok
-            - not_found
-        complete:
-          type: boolean
-      xml:
-        name: order
-    Customer:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 100000
-        username:
-          type: string
-          example: fehguy
-        address:
-          type: array
-          xml:
-            name: addresses
-            wrapped: true
-          items:
-            $ref: "#/components/schemas/Address"
-      xml:
-        name: customer
-    Address:
-      type: object
-      properties:
-        street:
-          type: string
-          example: 437 Lytton
-        city:
-          type: string
-          example: Palo Alto
-        state:
-          type: string
-          example: CA
-        zip:
-          type: string
-          example: "94301"
-      xml:
-        name: address
-    Category:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 1
-        name:
-          type: string
-          example: Dogs
-      xml:
-        name: category
-
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
-        username:
-          type: string
-          example: theUser
-        uuid:
-          type: string
-          format: uuid
-          deprecated: true
-        tag:
-          description: The active tag
-          readOnly: true
-          type: object
-          $ref: "#/components/schemas/tag.Tag"
-        firstName:
-          type: string
-          example: John
-        lastName:
-          type: string
-          example: James
-        email:
-          type: string
-          format: email
-          example: john@email.com
-        password:
-          type: string
-          example: "12345"
-        phone:
-          type: string
-          example: "12345"
-        userStatus:
-          type: integer
-          description: User Status
-          format: int32
-          example: 1
-      xml:
-        name: user
-    tag.Tag:
-      deprecated: true
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          minLength: 5
-          maxLength: 7
-          default: 1
-          deprecated: true
-        name:
-          type: string
-      xml:
-        name: tag
-
-    Pet:
-      required:
-        - name
-        - photoUrls
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
-          readOnly: true
-        signature:
-          type: string
-          pattern: "^data:image\\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$"
-        name:
-          type: string
-          example: doggie
-          writeOnly: true
-        category:
-          $ref: "#/components/schemas/Category"
-        photoUrls:
-          type: array
-          xml:
-            wrapped: true
-          items:
-            type: string
-            xml:
-              name: photoUrl
-        tags:
-          type: array
-          xml:
-            wrapped: true
-          items:
-            $ref: "#/components/schemas/tag.Tag"
-        status:
-          type: string
-          description: pet status in the store
-          enum:
-            - available
-            - pending
-            - sold
-      xml:
-        name: pet
-    AddPetRequest:
-      required:
-        - name
-        - photoUrls
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
-        name:
-          type: string
-          example: doggie
-        category:
-          $ref: "#/components/schemas/Category"
-        photoUrls:
-          type: array
-          xml:
-            wrapped: true
-          items:
-            type: string
-            xml:
-              name: photoUrl
-        tags:
-          type: array
-          xml:
-            wrapped: true
-          items:
-            $ref: "#/components/schemas/tag.Tag"
-        status:
-          type: string
-          description: pet status in the store
-          enum:
-            - available
-            - pending
-            - sold
-      xml:
-        name: pet
-    ApiResponse:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        type:
-          type: string
-        message:
-          type: string
-      xml:
-        name: "##default"
-
-    Animal:
-      title: Animal
-      required:
-        - type
-      type: object
-      oneOf:
-        - $ref: "#/components/schemas/Cat"
-        - $ref: "#/components/schemas/Dog"
-      properties:
-        type:
-          type: string
-          enum:
-            - cat
-            - dog
-          minLength: 1
-          readOnly: true
-      additionalProperties: false
-      discriminator:
-        propertyName: type
-        mapping:
-          cat: "#/components/schemas/Cat"
-          dog: "#/components/schemas/Dog"
-
-    Cat:
-      title: Cat
-      type: object
-      required:
-        - indoor
-        - type
-      properties:
-        type:
-          type: string
-          minLength: 1
-          readOnly: true
-        name:
-          type: string
-        indoor:
-          type: boolean
-      additionalProperties: false
-
-    Dog:
-      title: Dog
-      type: object
-      required:
-        - name
-        - type
-      properties:
-        type:
-          type: string
-          minLength: 1
-          readOnly: true
-        name:
-          type: string
-      additionalProperties: false
-  requestBodies:
-    Pet:
-      description: Pet object that needs to be added to the store
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Pet"
-        application/xml:
-          schema:
-            $ref: "#/components/schemas/Pet"
-    UserArray:
-      description: List of user object
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/User"
-  securitySchemes:
-    petstore_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
-          scopes:
-            write:pets: modify pets in your account
-            read:pets: read your pets
-    api_key:
-      type: apiKey
-      name: api_key
-      in: header
-  parameters:
-    page:
-      description: to request with required page number or pagination
-      in: query
-      name: page
-      required: false
-      schema:
-        type: string
-    pageSize:
-      description: to request with required page size
-      in: query
-      name: pageSize
-      required: false
-      schema:
-        type: string
-  responses:
-    PetNotFound:
-      content:
-        application/json:
-          schema:
-            properties:
-              code:
-                format: int32
-                type: integer
-              message:
-                type: string
-      description: Pet not found
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/status": {
+      "get": {
+        "operationId": "AppController_getStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returns the status of the application"
+          }
+        },
+        "tags": ["App"]
+      }
+    },
+    "/api/licenses": {
+      "get": {
+        "operationId": "LicensesController_getLicenses",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/License"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Licenses"]
+      },
+      "post": {
+        "operationId": "LicensesController_createLicense",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLicenseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/License"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Licenses"]
+      }
+    },
+    "/api/licenses/{id}": {
+      "get": {
+        "operationId": "LicensesController_getLicense",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetLicenseResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Licenses"]
+      },
+      "patch": {
+        "operationId": "LicensesController_updateLicense",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLicenseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/License"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Licenses"]
+      },
+      "delete": {
+        "operationId": "LicensesController_deleteLicense",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Licenses"]
+      }
+    },
+    "/api/licenses/{id}/activate": {
+      "post": {
+        "operationId": "LicensesController_activateLicense",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateLicenseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/License"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Licenses"]
+      }
+    },
+    "/api/licenses/{id}/deactivate": {
+      "post": {
+        "operationId": "LicensesController_deactivateLicense",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/License"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Licenses"]
+      }
+    },
+    "/api/resellers": {
+      "get": {
+        "operationId": "ResellersController_getResellers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reseller"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Resellers"]
+      },
+      "post": {
+        "operationId": "ResellersController_createReseller",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateResellerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reseller"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Resellers"]
+      }
+    },
+    "/api/resellers/{id}": {
+      "get": {
+        "operationId": "ResellersController_getReseller",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reseller"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Resellers"]
+      },
+      "patch": {
+        "operationId": "ResellersController_updateReseller",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateResellerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reseller"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Resellers"]
+      }
+    },
+    "/api/tenants": {
+      "get": {
+        "operationId": "TenantsController_getTenants",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tenant"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Tenants"]
+      },
+      "post": {
+        "operationId": "TenantsController_createTenant",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tenant"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Tenants"]
+      }
+    },
+    "/api/tenants/{id}": {
+      "get": {
+        "operationId": "TenantsController_getTenant",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTenantResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Tenants"]
+      },
+      "patch": {
+        "operationId": "TenantsController_updateTenant",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTenantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tenant"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Tenants"]
+      }
+    },
+    "/api/tenants/{id}/active-license": {
+      "get": {
+        "operationId": "TenantsController_getActiveLicense",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/License"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Tenants"]
+      }
+    },
+    "/api/tenants/{id}/active-weldpack": {
+      "get": {
+        "operationId": "TenantsController_getActiveWeldPack",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeldPack"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Tenants"]
+      }
+    },
+    "/api/tenants/{id}/weld-credits": {
+      "get": {
+        "operationId": "TenantsController_getWeldCredits",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetWeldCreditsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Tenants"]
+      }
+    },
+    "/api/weldpacks": {
+      "get": {
+        "operationId": "WeldPacksController_getWeldPacks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeldPack"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["WeldPacks"]
+      },
+      "post": {
+        "operationId": "WeldPacksController_createWeldPack",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWeldPackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeldPack"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["WeldPacks"]
+      }
+    },
+    "/api/weldpacks/{id}": {
+      "get": {
+        "operationId": "WeldPacksController_getWeldPack",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeldPack"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["WeldPacks"]
+      },
+      "patch": {
+        "operationId": "WeldPacksController_updateWeldPack",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWeldPackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeldPack"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["WeldPacks"]
+      },
+      "delete": {
+        "operationId": "WeldPacksController_deleteWeldPack",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["WeldPacks"]
+      }
+    },
+    "/api/weldpacks/{id}/activate": {
+      "post": {
+        "operationId": "WeldPacksController_activateWeldPack",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateWeldPackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeldPack"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["WeldPacks"]
+      }
+    },
+    "/api/weldpacks/{id}/deactivate": {
+      "post": {
+        "operationId": "WeldPacksController_deactivateLicense",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeldPack"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["WeldPacks"]
+      }
+    },
+    "/api/parts": {
+      "get": {
+        "operationId": "PartsController_getParts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Part"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Parts"]
+      }
+    },
+    "/api/parts/{urn}": {
+      "get": {
+        "operationId": "PartsController_getPart",
+        "parameters": [
+          {
+            "name": "urn",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Part"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Parts"]
+      }
+    },
+    "/api/parts/{urn}/download": {
+      "post": {
+        "operationId": "PartsController_downloadPart",
+        "parameters": [
+          {
+            "name": "urn",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DownloadPartDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Part"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Parts"]
+      }
+    },
+    "/api/parts/{urn}/simulate": {
+      "post": {
+        "operationId": "PartsController_simulatePart",
+        "parameters": [
+          {
+            "name": "urn",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulatePartDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Part"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Parts"]
+      }
+    }
+  },
+  "info": {
+    "title": "Receipt AI",
+    "description": "Receipt AI API",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "LicenseType": {
+        "type": "string",
+        "enum": ["SETUP", "DEMO", "FULL"]
+      },
+      "License": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "activationDate": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "durationDays": {
+            "type": "integer"
+          },
+          "lastActivationDate": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "includedWeldCredits": {
+            "type": "integer"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LicenseType"
+              }
+            ]
+          },
+          "isDeactivated": {
+            "type": "boolean"
+          },
+          "expirationDate": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "activationDate",
+          "durationDays",
+          "lastActivationDate",
+          "includedWeldCredits",
+          "type",
+          "isDeactivated",
+          "expirationDate",
+          "isActive"
+        ]
+      },
+      "Tenant": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "shortName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "emailsAllowed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "emailsDenied": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "domainsAllowed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["id", "shortName", "name", "emailsAllowed", "emailsDenied", "domainsAllowed"]
+      },
+      "Reseller": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "name"]
+      },
+      "GetLicenseResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "activationDate": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "durationDays": {
+            "type": "number"
+          },
+          "lastActivationDate": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "includedWeldCredits": {
+            "type": "number"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LicenseType"
+              }
+            ]
+          },
+          "isDeactivated": {
+            "type": "boolean"
+          },
+          "tenant": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Tenant"
+              }
+            ]
+          },
+          "reseller": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Reseller"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "activationDate",
+          "durationDays",
+          "lastActivationDate",
+          "includedWeldCredits",
+          "type",
+          "isDeactivated",
+          "tenant",
+          "reseller"
+        ]
+      },
+      "CreateLicenseDto": {
+        "type": "object",
+        "properties": {
+          "resellerId": {
+            "type": "number"
+          },
+          "durationDays": {
+            "type": "number"
+          },
+          "lastActivationDate": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "includedWeldCredits": {
+            "type": "number"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LicenseType"
+              }
+            ]
+          }
+        },
+        "required": ["resellerId", "durationDays", "lastActivationDate", "includedWeldCredits", "type"]
+      },
+      "ActivateLicenseDto": {
+        "type": "object",
+        "properties": {
+          "tenantId": {
+            "type": "number"
+          }
+        },
+        "required": ["tenantId"]
+      },
+      "UpdateLicenseDto": {
+        "type": "object",
+        "properties": {
+          "resellerId": {
+            "type": "number"
+          },
+          "durationDays": {
+            "type": "number"
+          },
+          "lastActivationDate": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "includedWeldCredits": {
+            "type": "number"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LicenseType"
+              }
+            ]
+          }
+        },
+        "required": ["resellerId", "durationDays", "lastActivationDate", "includedWeldCredits", "type"]
+      },
+      "CreateResellerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"]
+      },
+      "UpdateResellerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"]
+      },
+      "WeldPackType": {
+        "type": "string",
+        "enum": ["SETUP", "DEMO", "FULL"]
+      },
+      "WeldPack": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "initialWeldCredits": {
+            "type": "number"
+          },
+          "consumedWeldCredits": {
+            "type": "number"
+          },
+          "activationDate": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "durationDays": {
+            "type": "number"
+          },
+          "lastActivationDate": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WeldPackType"
+              }
+            ]
+          },
+          "isDeactivated": {
+            "type": "boolean"
+          },
+          "tenant": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Tenant"
+              }
+            ]
+          },
+          "expirationDate": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "initialWeldCredits",
+          "consumedWeldCredits",
+          "activationDate",
+          "durationDays",
+          "lastActivationDate",
+          "type",
+          "isDeactivated",
+          "tenant",
+          "expirationDate",
+          "isActive"
+        ]
+      },
+      "GetTenantResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "shortName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "emailsAllowed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "emailsDenied": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "domainsAllowed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "licenses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/License"
+            }
+          },
+          "weldPacks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeldPack"
+            }
+          },
+          "reseller": {
+            "$ref": "#/components/schemas/Reseller"
+          }
+        },
+        "required": [
+          "id",
+          "shortName",
+          "name",
+          "emailsAllowed",
+          "emailsDenied",
+          "domainsAllowed",
+          "licenses",
+          "weldPacks",
+          "reseller"
+        ]
+      },
+      "GetWeldCreditsResponse": {
+        "type": "object",
+        "properties": {
+          "activeWeldCredits": {
+            "type": "number"
+          },
+          "consumedWeldCredits": {
+            "type": "number"
+          },
+          "totalWeldCredits": {
+            "type": "number"
+          }
+        },
+        "required": ["activeWeldCredits", "consumedWeldCredits", "totalWeldCredits"]
+      },
+      "CreateTenantDto": {
+        "type": "object",
+        "properties": {
+          "shortName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "resellerId": {
+            "type": "number"
+          },
+          "emailsAllowed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "emailsDenied": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "domainsAllowed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["shortName", "name", "resellerId", "emailsAllowed", "emailsDenied", "domainsAllowed"]
+      },
+      "UpdateTenantDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "resellerId": {
+            "type": "number"
+          },
+          "emailsAllowed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "emailsDenied": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "domainsAllowed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["name", "resellerId", "emailsAllowed", "emailsDenied", "domainsAllowed"]
+      },
+      "CreateWeldPackDto": {
+        "type": "object",
+        "properties": {
+          "resellerId": {
+            "type": "number"
+          },
+          "durationDays": {
+            "type": "number"
+          },
+          "lastActivationDate": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "initialWeldCredits": {
+            "type": "integer"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WeldPackType"
+              }
+            ]
+          }
+        },
+        "required": ["resellerId", "durationDays", "lastActivationDate", "initialWeldCredits", "type"]
+      },
+      "ActivateWeldPackDto": {
+        "type": "object",
+        "properties": {
+          "tenantId": {
+            "type": "number"
+          }
+        },
+        "required": ["tenantId"]
+      },
+      "UpdateWeldPackDto": {
+        "type": "object",
+        "properties": {
+          "resellerId": {
+            "type": "number"
+          },
+          "durationDays": {
+            "type": "number"
+          },
+          "lastActivationDate": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "initialWeldCredits": {
+            "type": "number"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WeldPackType"
+              }
+            ]
+          }
+        },
+        "required": ["resellerId", "durationDays", "lastActivationDate", "initialWeldCredits", "type"]
+      },
+      "Part": {
+        "type": "object",
+        "properties": {
+          "urn": {
+            "type": "string"
+          },
+          "downloadedWelds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "simulatedWelds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "billedWeldCredits": {
+            "type": "integer"
+          }
+        },
+        "required": ["urn", "downloadedWelds", "simulatedWelds", "billedWeldCredits"]
+      },
+      "DownloadPartDto": {
+        "type": "object",
+        "properties": {
+          "downloadedWelds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["downloadedWelds"]
+      },
+      "SimulatePartDto": {
+        "type": "object",
+        "properties": {
+          "simulatedWelds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["simulatedWelds"]
+      }
+    }
+  }
+}
