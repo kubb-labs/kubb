@@ -53,6 +53,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
       .filter(Boolean)
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
 
+  // Add a "Key" suffix to avoid collisions where necessary
   if (enumType === 'asConst' && enumSchemas.length > 0) {
     const isDirectEnum = schema.type === 'array' && schema.items !== undefined
     const isEnumOnly = 'enum' in schema && schema.enum
