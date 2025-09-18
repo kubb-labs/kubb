@@ -197,8 +197,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
     let typedName = getName(schema.name, { type: 'type' })
 
-    if (enumType === 'asConst') 
-      typedName = typedName += 'Key'
+    if (enumType === 'asConst') typedName = typedName += 'Key' // Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
 
     const type = {
       name: getName(schema.name, { type: 'function' }),
