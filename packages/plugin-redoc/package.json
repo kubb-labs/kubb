@@ -61,7 +61,7 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react": "^4.0.0"
+    "@kubb/react": "^3.18.0"
   },
   "engines": {
     "node": ">=20"
