@@ -8,6 +8,12 @@ components:
       x-enum-varnames:
       - Pending
       - Received
+    PASCALEnums.Type:
+      type: string
+      enum:
+        - first
+        - second
+        - null
     enumNames.Type:
       enum:
       - 0

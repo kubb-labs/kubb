@@ -432,7 +432,7 @@ NodeObject {
   "typeName": IdentifierObject {
     "emitNode": undefined,
     "end": -1,
-    "escapedText": "Enum",
+    "escapedText": "EnumKey",
     "flags": 16,
     "flowNode": undefined,
     "id": 0,
@@ -462,7 +462,7 @@ NodeObject {
   "typeName": IdentifierObject {
     "emitNode": undefined,
     "end": -1,
-    "escapedText": "PetEnumLiteral",
+    "escapedText": "PetEnumLiteralKey",
     "flags": 16,
     "flowNode": undefined,
     "id": 0,
@@ -1263,7 +1263,7 @@ NodeObject {
                 "typeName": IdentifierObject {
                   "emitNode": undefined,
                   "end": -1,
-                  "escapedText": "Enum",
+                  "escapedText": "EnumKey",
                   "flags": 16,
                   "flowNode": undefined,
                   "id": 0,
@@ -1592,7 +1592,7 @@ NodeObject {
         "typeName": IdentifierObject {
           "emitNode": undefined,
           "end": -1,
-          "escapedText": "Enum",
+          "escapedText": "EnumKey",
           "flags": 16,
           "flowNode": undefined,
           "id": 0,
@@ -1721,7 +1721,7 @@ NodeObject {
               "typeName": IdentifierObject {
                 "emitNode": undefined,
                 "end": -1,
-                "escapedText": "Enum",
+                "escapedText": "EnumKey",
                 "flags": 16,
                 "flowNode": undefined,
                 "id": 0,
