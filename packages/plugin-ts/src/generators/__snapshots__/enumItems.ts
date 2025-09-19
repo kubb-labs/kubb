@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-export const enumItemsEnum2 = {
+export const enumItemsEnum = {
   created_at: 'created_at',
   description: 'description',
 } as const
 
-export type EnumItemsEnum2Key = (typeof enumItemsEnum2)[keyof typeof enumItemsEnum2]
+export type EnumItemsEnumKey = (typeof enumItemsEnum)[keyof typeof enumItemsEnum]
 
-export type enumItems = EnumItemsEnum2Key[]
+export type enumItems = EnumItemsEnumKey[]

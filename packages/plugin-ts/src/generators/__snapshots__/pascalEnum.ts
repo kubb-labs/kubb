@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-export const PASCALEnumsTypeEnum2 = {
+export const PASCALEnumsTypeEnum = {
   first: 'first',
   second: 'second',
 } as const
 
-export type PASCALEnumsTypeEnum2Key = (typeof PASCALEnumsTypeEnum2)[keyof typeof PASCALEnumsTypeEnum2]
+export type PASCALEnumsTypeEnumKey = (typeof PASCALEnumsTypeEnum)[keyof typeof PASCALEnumsTypeEnum]
 
-export type PASCALEnumsType = PASCALEnumsTypeEnum2Key | null
+export type PASCALEnumsType = PASCALEnumsTypeEnumKey | null

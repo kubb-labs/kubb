@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-export const enumAllOfReasonEnum2 = {
+export const enumAllOfReasonEnum = {
   created_at: 'created_at',
   description: 'description',
 } as const
 
-export type EnumAllOfReasonEnum2Key = (typeof enumAllOfReasonEnum2)[keyof typeof enumAllOfReasonEnum2]
+export type EnumAllOfReasonEnumKey = (typeof enumAllOfReasonEnum)[keyof typeof enumAllOfReasonEnum]
 
 export type enumAllOf = {
-  reason?: EnumAllOfReasonEnum2Key
+  reason?: EnumAllOfReasonEnumKey
 }
