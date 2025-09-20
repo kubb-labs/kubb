@@ -159,6 +159,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
               dataReturnType={options.client.dataReturnType}
               queryKeyName={queryKey.name}
               queryKeyTypeName={queryKey.typeName}
+              queryParam={options.infinite.queryParam}
             />
           </>
         )}

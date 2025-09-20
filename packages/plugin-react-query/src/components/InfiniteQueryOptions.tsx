@@ -112,8 +112,9 @@ export function InfiniteQueryOptions({
   queryParam,
   queryKeyName,
 }: Props): ReactNode {
-  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const queryFnDataType = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const errorType = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const pageParamType = queryParam && typeSchemas.queryParams?.name ? `${typeSchemas.queryParams?.name}['${queryParam}']` : 'number'
 
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
@@ -164,7 +165,7 @@ export function InfiniteQueryOptions({
         <Function name={name} export params={params.toConstructor()}>
           {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return infiniteQueryOptions<${TData}, ${TError}, ${TData}, typeof queryKey, number>({
+      return infiniteQueryOptions<${queryFnDataType}, ${errorType}, InfiniteData<${queryFnDataType}>, typeof queryKey, ${pageParamType}>({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal, pageParam }) => {
@@ -185,7 +186,7 @@ export function InfiniteQueryOptions({
       <Function name={name} export params={params.toConstructor()}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return infiniteQueryOptions<${TData}, ${TError}, ${TData}, typeof queryKey>({
+      return infiniteQueryOptions<${queryFnDataType}, ${errorType}, InfiniteData<${queryFnDataType}>, typeof queryKey, ${pageParamType}>({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {
