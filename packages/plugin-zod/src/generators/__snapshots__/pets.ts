@@ -9,6 +9,6 @@ export const pets = z.array(
   z.object({
     id: z.number().int(),
     name: z.string(),
-    tag: z.string().optional(),
+    tag: z.optional(z.string()),
   }),
 ) as unknown as ToZod<Pets>

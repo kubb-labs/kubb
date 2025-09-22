@@ -67,7 +67,12 @@ const zodKeywordMapper = {
     return '.nullable()'
   },
   null: () => 'z.null()',
-  nullish: undefined,
+  nullish: (value?: string) => {
+    if (value) {
+      return `z.nullish(${value})`
+    }
+    return '.nullish()'
+  },
   array: (items: string[] = [], min?: number, max?: number, unique?: boolean) => {
     return [
       `z.array(${items?.join('')})`,
@@ -244,14 +249,6 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
     return undefined // strip matches
   }
 
-  if (isKeyword(current, schemaKeywords.optional)) {
-    return undefined
-  }
-
-  if (isKeyword(current, schemaKeywords.nullable)) {
-    return undefined
-  }
-
   if (!value) {
     return undefined
   }
@@ -343,8 +340,9 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
 
     const properties = propertyEntries
       .map(([name, schemas]) => {
-        const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
+        const nameSchema = schemas.find((it) => it.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
         const isNullable = schemas.some((it) => isKeyword(it, schemaKeywords.nullable))
+        const isNullish = schemas.some((it) => isKeyword(it, schemaKeywords.nullish))
         const isOptional = schemas.some((it) => isKeyword(it, schemaKeywords.optional))
 
         const mappedName = nameSchema?.args || name
@@ -355,6 +353,9 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
         }
 
         const baseSchemaOutput = sort(schemas)
+          .filter((schema) => {
+            return !isKeyword(schema, schemaKeywords.optional) && !isKeyword(schema, schemaKeywords.nullable) && !isKeyword(schema, schemaKeywords.nullish)
+          })
           .map((schema) => parse({ parent: current, name, current: schema, siblings: schemas }, options))
           .filter(Boolean)
           .join('')
@@ -364,12 +365,21 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
           : baseSchemaOutput
 
         if (options.version === '4' && SchemaGenerator.find(schemas, schemaKeywords.ref)) {
+          // both optional and nullable
+          if (isNullish) {
+            return `get ${name}(){
+                return ${zodKeywordMapper.nullish(objectValue)}
+              }`
+          }
+
+          // undefined
           if (isOptional) {
             return `get ${name}(){
                 return ${zodKeywordMapper.optional(objectValue)}
               }`
           }
 
+          // null
           if (isNullable) {
             return `get ${name}(){
                 return ${zodKeywordMapper.nullable(objectValue)}
@@ -381,10 +391,17 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
               }`
         }
 
+        // both optional and nullable
+        if (isNullish) {
+          return `"${name}": ${objectValue}${zodKeywordMapper.nullish()}`
+        }
+
+        // undefined
         if (isOptional) {
           return `"${name}": ${zodKeywordMapper.optional(objectValue)}`
         }
 
+        // null
         if (isNullable) {
           return `"${name}": ${zodKeywordMapper.nullable(objectValue)}`
         }

@@ -2,7 +2,7 @@
   "extends": "./bundler.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "types": ["vitest/globals", "bun-types", "./reset.d.ts"],
+    "types": ["vitest/globals", "bun-types"],
     "paths": {
       "@kubb/core/utils": ["packages/core/src/utils/index.ts"],
       "@kubb/core/logger": ["packages/core/src/logger.ts"],

@@ -10,7 +10,7 @@ export const deletePetPathParams = z.object({
 
 export const deletePetHeaderParams = z
   .object({
-    api_key: z.string().optional(),
+    api_key: z.optional(z.string()),
   })
   .optional()
 
