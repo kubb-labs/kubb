@@ -4,6 +4,11 @@ title: Changelog
 
 # Changelog
 
+# 4.0.0
+- [`plugin-ts`](/plugins/plugin-ts): enums generated with "asConst" have a "Key" suffix
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): unwrap in vue infinite query
+- [`plugin-react-query`](/plugins/plugin-react-query/): align infinite query generics with tanstack
+
 # 3.18.4
 - [`plugin-ts`](/plugins/plugin-ts): Keep `usedEnumNames` in cache but not between builds
 

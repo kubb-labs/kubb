@@ -9,14 +9,14 @@ export const orderStatusEnum = {
   delivered: 'delivered',
 } as const
 
-export type OrderStatusEnumType = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
+export type OrderStatusEnumTypeKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
 export const orderHttpStatusEnum = {
   ok: 200,
   not_found: 400,
 } as const
 
-export type OrderHttpStatusEnumType = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
+export type OrderHttpStatusEnumTypeKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
 export const orderValueEnum = {
   FIRST_VALUE: 0,
@@ -27,7 +27,7 @@ export const orderValueEnum = {
   DONE: 4,
 } as const
 
-export type OrderValueEnumType = (typeof orderValueEnum)[keyof typeof orderValueEnum]
+export type OrderValueEnumTypeKey = (typeof orderValueEnum)[keyof typeof orderValueEnum]
 
 export type OrderType = {
   /**
@@ -50,17 +50,17 @@ export type OrderType = {
    * @description Order Status
    * @type string | undefined
    */
-  status?: OrderStatusEnumType
+  status?: OrderStatusEnumTypeKey
   /**
    * @description HTTP Status
    * @type number | undefined
    */
-  http_status?: OrderHttpStatusEnumType
+  http_status?: OrderHttpStatusEnumTypeKey
   /**
    * @description Price
    * @type number | undefined
    */
-  value?: OrderValueEnumType
+  value?: OrderValueEnumTypeKey
   /**
    * @type boolean | undefined
    */

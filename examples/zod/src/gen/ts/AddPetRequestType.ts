@@ -12,7 +12,7 @@ export const addPetRequestStatusEnum = {
   sold: 'sold',
 } as const
 
-export type AddPetRequestStatusEnumType = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
+export type AddPetRequestStatusEnumTypeKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
 
 export type AddPetRequestType = {
   /**
@@ -39,5 +39,5 @@ export type AddPetRequestType = {
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: AddPetRequestStatusEnumType
+  status?: AddPetRequestStatusEnumTypeKey
 }

@@ -350,6 +350,10 @@ const blogSidebar = [
     text: 'Release of Kubb 3.0',
     link: '/blog/v3/',
   },
+  {
+    text: 'Release of Kubb 4.0',
+    link: '/blog/v4/',
+  },
 ]
 
 const tutorialsSidebar = [

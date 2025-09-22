@@ -24,12 +24,12 @@ export const deletePet200Enum = {
   TYPE3: 'TYPE3',
 } as const
 
-export type DeletePet200Enum = (typeof deletePet200Enum)[keyof typeof deletePet200Enum]
+export type DeletePet200EnumKey = (typeof deletePet200Enum)[keyof typeof deletePet200Enum]
 
 /**
  * @description items
  */
-export type DeletePet200 = DeletePet200Enum[]
+export type DeletePet200 = DeletePet200EnumKey[]
 
 /**
  * @description Invalid pet value

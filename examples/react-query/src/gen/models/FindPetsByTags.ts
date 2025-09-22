@@ -19,9 +19,9 @@ export type FindPetsByTagsQueryParams = {
   page?: string
   /**
    * @description to request with required page size
-   * @type string | undefined
+   * @type number | undefined
    */
-  pageSize?: string
+  pageSize?: number
 }
 
 /**

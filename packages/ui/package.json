@@ -54,7 +54,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.3",
+    "@hono/node-server": "^1.19.4",
     "@hono/zod-openapi": "0.19.2",
     "hono": "^4.9.8",
     "zod": "^3.25.76"
@@ -67,14 +67,14 @@
     "@react-aria/visually-hidden": "^3.8.27",
     "@react-types/shared": "^3.32.0",
     "@tailwindcss/postcss": "^4.1.13",
-    "@tanstack/react-query": "^5.89.0",
+    "@tanstack/react-query": "^5.90.1",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "^5.0.3",
     "autoprefixer": "^10.4.21",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.23.15",
+    "framer-motion": "^12.23.18",
     "postcss": "^8.5.6",
     "react": "catalog:",
     "react-dom": "catalog:",
@@ -83,7 +83,7 @@
     "tailwindcss": "^4.1.13",
     "tsdown": "catalog:",
     "typescript": "catalog:",
-    "vite": "^7.1.6",
+    "vite": "^7.1.7",
     "vite-tsconfig-paths": "^5.1.4"
   },
   "engines": {

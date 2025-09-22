@@ -34,7 +34,10 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       data: {
         mode: 'object',
         children: {
-          ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+          ...getPathParams(typeSchemas.pathParams, {
+            typed: true,
+            casing: paramsCasing,
+          }),
           data: typeSchemas.request?.name
             ? {
                 type: typeSchemas.request?.name,
@@ -68,7 +71,10 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+          children: getPathParams(typeSchemas.pathParams, {
+            typed: true,
+            casing: paramsCasing,
+          }),
           optional: isOptional(typeSchemas.pathParams?.schema),
         }
       : undefined,
@@ -114,9 +120,14 @@ export function InfiniteQueryOptions({
 }: Props): ReactNode {
   const queryFnDataType = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const errorType = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
-  const pageParamType = queryParam && typeSchemas.queryParams?.name ? `${typeSchemas.queryParams?.name}['${queryParam}']` : 'number'
+  const pageParamType = queryParam && typeSchemas.queryParams?.name ? `NonNullable<${typeSchemas.queryParams?.name}['${queryParam}']>` : 'number'
 
-  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
+  const params = getParams({
+    paramsType,
+    paramsCasing,
+    pathParamsType,
+    typeSchemas,
+  })
   const clientParams = Client.getParams({
     paramsCasing,
     typeSchemas,

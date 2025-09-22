@@ -130,7 +130,7 @@ export function InfiniteQuery({
 }: Props): ReactNode {
   const responseType = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const errorType = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
-  const explicitPageParamType = queryParam && typeSchemas.queryParams?.name ? `${typeSchemas.queryParams?.name}['${queryParam}']` : undefined
+  const explicitPageParamType = queryParam && typeSchemas.queryParams?.name ? `NonNullable<${typeSchemas.queryParams?.name}['${queryParam}']>` : undefined
   const pageParamType = explicitPageParamType ?? 'number'
   const returnType = 'UseInfiniteQueryResult<TData, TError> & { queryKey: TQueryKey }'
   const generics = [

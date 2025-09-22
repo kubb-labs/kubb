@@ -113,7 +113,7 @@
     "consola": "^3.4.2",
     "tsdown": "catalog:",
     "typescript": "catalog:",
-    "zod": "^4.1.9"
+    "zod": "^4.1.11"
   },
   "engines": {
     "node": ">=20"

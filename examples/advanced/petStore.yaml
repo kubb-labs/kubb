@@ -1088,7 +1088,7 @@ components:
       name: pageSize
       required: false
       schema:
-        type: string
+        type: number
   responses:
     PetNotFound:
       content:

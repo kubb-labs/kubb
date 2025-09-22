@@ -35,9 +35,9 @@ export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQu
   return infiniteQueryOptions<
     ResponseConfig<FindPetsByTagsQueryResponse>,
     ResponseErrorConfig<FindPetsByTags400>,
-    ResponseConfig<FindPetsByTagsQueryResponse>,
+    InfiniteData<ResponseConfig<FindPetsByTagsQueryResponse>>,
     typeof queryKey,
-    number
+    NonNullable<FindPetsByTagsQueryParams['pageSize']>
   >({
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
@@ -61,15 +61,15 @@ export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQu
  * {@link /pet/findByTags}
  */
 export function useFindPetsByTagsInfiniteHook<
-  TData = InfiniteData<ResponseConfig<FindPetsByTagsQueryResponse>>,
-  TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
+  TQueryFnData = ResponseConfig<FindPetsByTagsQueryResponse>,
+  TError = ResponseErrorConfig<FindPetsByTags400>,
+  TData = InfiniteData<TQueryFnData>,
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
+  TPageParam = NonNullable<FindPetsByTagsQueryParams['pageSize']>,
 >(
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: Partial<
-      InfiniteQueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TQueryData, TQueryKey, TQueryData>
-    > & { client?: QueryClient }
+    query?: Partial<InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
@@ -82,9 +82,9 @@ export function useFindPetsByTagsInfiniteHook<
       ...findPetsByTagsInfiniteQueryOptionsHook(params, config),
       queryKey,
       ...queryOptions,
-    } as unknown as InfiniteQueryObserverOptions,
+    } as unknown as InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
     queryClient,
-  ) as UseInfiniteQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
+  ) as UseInfiniteQueryResult<TData, TError> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 
