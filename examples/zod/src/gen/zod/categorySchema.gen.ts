@@ -3,12 +3,14 @@
  * Do not edit manually.
  */
 
+import type { CategoryType } from '../ts/CategoryType.ts'
+import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from '../../zod.ts'
 
 export const categorySchema = z.object({
   id: z.optional(z.number().int()),
   name: z.optional(z.string()),
   parent: z.optional(z.lazy(() => categorySchema)),
-})
+}) as unknown as ToZod<CategoryType>
 
-export type CategorySchema = z.infer<typeof categorySchema>
+export type CategorySchema = CategoryType
