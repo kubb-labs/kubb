@@ -65,7 +65,6 @@
     "typescript": "5.9.2"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
     "tsdown": "catalog:"
   },
   "engines": {

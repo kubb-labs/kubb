@@ -54,7 +54,6 @@
     "@kubb/core": "workspace:*"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
     "@types/node": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:"

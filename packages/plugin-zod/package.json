@@ -94,7 +94,6 @@
   "devDependencies": {
     "@asteasolutions/zod-to-openapi": "^7.3.4",
     "@hono/zod-openapi": "0.19.2",
-    "@kubb/config-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "tsdown": "catalog:",
     "zod": "^3.25.76"

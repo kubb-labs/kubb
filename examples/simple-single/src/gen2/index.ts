@@ -23,12 +23,12 @@ export const appSecretsSchema = z.object({
 })
 
 export const appSecretsUpdateRequestSchema = z.object({
-  values: z.object({}).catchall(z.string()).optional(),
+  values: z.optional(z.object({}).catchall(z.string())),
 })
 
 export const appSecretsUpdateRespSchema = z.object({
-  secrets: z.array(z.lazy(() => appSecretSchema)).optional(),
-  version: z.number().int().optional(),
+  secrets: z.optional(z.array(z.lazy(() => appSecretSchema))),
+  version: z.optional(z.number().int()),
 })
 
 export const checkStatusSchema = z.object({
@@ -111,11 +111,11 @@ export const decryptSecretkeyResponseSchema = z.object({
 })
 
 export const deleteAppSecretResponseSchema = z.object({
-  version: z.number().int().optional(),
+  version: z.optional(z.number().int()),
 })
 
 export const deleteSecretkeyResponseSchema = z.object({
-  version: z.number().int().optional(),
+  version: z.optional(z.number().int()),
 })
 
 export const encryptSecretkeyRequestSchema = z.object({
@@ -143,11 +143,11 @@ export const extendVolumeResponseSchema = z.object({
 })
 
 export const IPAssignmentSchema = z.object({
-  created_at: z.string().optional(),
-  ip: z.string().optional(),
-  region: z.string().optional(),
-  service_name: z.string().optional(),
-  shared: z.boolean().optional(),
+  created_at: z.optional(z.string()),
+  ip: z.optional(z.string()),
+  region: z.optional(z.string()),
+  service_name: z.optional(z.string()),
+  shared: z.optional(z.boolean()),
 })
 
 export const imageRefSchema = z.object({
@@ -350,11 +350,11 @@ export const volumeSnapshotSchema = z.object({
 })
 
 export const assignIPRequestSchema = z.object({
-  network: z.string().optional(),
-  org_slug: z.string().optional(),
-  region: z.string().optional(),
-  service_name: z.string().optional(),
-  type: z.string().optional(),
+  network: z.optional(z.string()),
+  org_slug: z.optional(z.string()),
+  region: z.optional(z.string()),
+  service_name: z.optional(z.string()),
+  type: z.optional(z.string()),
 })
 
 export const flyContainerConfigSchema = z.object({
@@ -809,7 +809,7 @@ export const flydv1ExecResponseSchema = z.object({
 })
 
 export const listIPAssignmentsResponseSchema = z.object({
-  ips: z.array(z.lazy(() => IPAssignmentSchema)).optional(),
+  ips: z.optional(z.array(z.lazy(() => IPAssignmentSchema))),
 })
 
 export const mainGetPlacementsRequestSchema = z.object({

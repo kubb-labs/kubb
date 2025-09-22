@@ -100,7 +100,6 @@
     "ws": "^8.18.3"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
     "@types/react": "catalog:react19",
     "@types/react-reconciler": "catalog:react19",
     "@types/ws": "^8.18.1",

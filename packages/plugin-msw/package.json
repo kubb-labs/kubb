@@ -85,7 +85,6 @@
     "@kubb/react": "workspace:*"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
     "@types/react": "catalog:",
     "react": "catalog:",
     "tsdown": "catalog:",

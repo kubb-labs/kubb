@@ -96,7 +96,6 @@
 		"unplugin": "^2.3.10"
 	},
 	"devDependencies": {
-		"@kubb/config-ts": "workspace:*",
 		"@kubb/core": "workspace:*",
 		"@nuxt/kit": "^3.19.2",
 		"@nuxt/schema": "^3.19.2",

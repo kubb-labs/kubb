@@ -1,8 +1,8 @@
 {
-  "extends": "@kubb/config-ts/bundler.json",
+  "extends": "./bundler.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "types": ["vitest/globals", "bun-types", "@kubb/config-ts"],
+    "types": ["vitest/globals", "bun-types", "./reset.d.ts"],
     "paths": {
       "@kubb/core/utils": ["packages/core/src/utils/index.ts"],
       "@kubb/core/logger": ["packages/core/src/logger.ts"],
@@ -33,7 +33,6 @@
       "@kubb/plugin-zod/utils": ["packages/plugin-zod/src/utils/index.ts"],
       "@kubb/plugin-zod": ["packages/plugin-zod/src/index.ts"],
       "@kubb/react": ["packages/react/src/index.ts"],
-      "@kubb/ui": ["packages/ui/src/index.ts"],
       "@kubb/react/types": ["packages/react/src/types.ts"],
       "@kubb/react/devtools": ["packages/react/src/devtools.ts"],
       "@kubb/parser-ts/factory": ["packages/parser-ts/src/factory.ts"],

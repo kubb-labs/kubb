@@ -96,7 +96,6 @@
     "@kubb/react": "workspace:*"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
     "axios": "^1.12.2",
     "tsdown": "catalog:",
     "typescript": "catalog:"

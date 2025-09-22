@@ -72,7 +72,6 @@
     "ts-toolbelt": "^9.6.0"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
     "@types/swagger2openapi": "^7.0.4",
     "tsdown": "catalog:",

@@ -76,7 +76,6 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
