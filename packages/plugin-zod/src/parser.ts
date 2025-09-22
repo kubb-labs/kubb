@@ -367,26 +367,26 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
         if (options.version === '4' && SchemaGenerator.find(schemas, schemaKeywords.ref)) {
           // both optional and nullable
           if (isNullish) {
-            return `get ${name}(){
+            return `get "${name}"(){
                 return ${zodKeywordMapper.nullish(objectValue)}
               }`
           }
 
           // undefined
           if (isOptional) {
-            return `get ${name}(){
+            return `get "${name}"(){
                 return ${zodKeywordMapper.optional(objectValue)}
               }`
           }
 
           // null
           if (isNullable) {
-            return `get ${name}(){
+            return `get "${name}"(){
                 return ${zodKeywordMapper.nullable(objectValue)}
               }`
           }
 
-          return `get ${name}(){
+          return `get "${name}"(){
                 return ${objectValue}
               }`
         }
