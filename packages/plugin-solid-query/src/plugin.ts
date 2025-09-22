@@ -1,16 +1,13 @@
 import path from 'node:path'
-
-import { FileManager, type Group, PluginManager, createPlugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
+import { createPlugin, FileManager, type Group, PluginManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
+import type { PluginOas } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
-
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-
-import type { Plugin } from '@kubb/core'
-import type { PluginOas } from '@kubb/plugin-oas'
-import { QueryKey } from './components'
-import { queryGenerator } from './generators'
+import { MutationKey, QueryKey } from './components'
+import { mutationGenerator, queryGenerator } from './generators'
 import type { PluginSolidQuery } from './types.ts'
 
 export const pluginSolidQueryName = 'plugin-solid-query' satisfies PluginSolidQuery['name']
@@ -27,8 +24,10 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
     paramsType = 'inline',
     pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
     queryKey = QueryKey.getTransformer,
-    generators = [queryGenerator].filter(Boolean),
+    generators = [queryGenerator, mutationGenerator].filter(Boolean),
+    mutation = {},
     query = {},
+    mutationKey = MutationKey.getTransformer,
     paramsCasing,
     contentType,
   } = options
@@ -52,6 +51,12 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
               importPath: '@tanstack/solid-query',
               ...query,
             },
+      mutationKey,
+      mutation: {
+        methods: ['post', 'put', 'patch', 'delete'],
+        importPath: '@tanstack/solid-query',
+        ...mutation,
+      },
       paramsType,
       pathParamsType,
       parser,

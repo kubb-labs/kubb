@@ -8,7 +8,8 @@ import type { LogoutUserQueryResponse } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getLogoutUserUrl() {
-  return '/user/logout' as const
+  const res = { method: 'GET', url: '/user/logout' as const }
+  return res
 }
 
 /**
@@ -20,7 +21,7 @@ export async function logoutUser(config: Partial<RequestConfig> & { client?: typ
 
   const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
-    url: getLogoutUserUrl().toString(),
+    url: getLogoutUserUrl().url.toString(),
     ...requestConfig,
   })
   return res.data

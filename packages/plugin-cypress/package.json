@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-cypress",
-  "version": "3.16.4",
+  "version": "4.0.1",
   "description": "Cypress test generator plugin for Kubb, creating end-to-end tests from OpenAPI specifications for automated API testing.",
   "keywords": [
     "cypress",
@@ -92,7 +92,7 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react": "^3.0.0"
+    "@kubb/react": "^4.0.0"
   },
   "engines": {
     "node": ">=20"

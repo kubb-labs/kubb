@@ -25,6 +25,7 @@ export async function createPetsHandler({
   params?: CreatePetsQueryParams
 }): Promise<Promise<CallToolResult>> {
   const requestData = data
+
   const res = await fetch<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
     url: `/pets/${uuid}`,

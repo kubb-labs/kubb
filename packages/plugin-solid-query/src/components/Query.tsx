@@ -1,8 +1,7 @@
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, FunctionParams } from '@kubb/react'
 import type { ReactNode } from 'react'
 import type { PluginSolidQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
@@ -162,10 +161,11 @@ export function Query({
         }}
       >
         {`
-       const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+       const { query: queryConfig = {}, client: config = {} } = options ?? {}
+       const { client: queryClient, ...queryOptions } = queryConfig
        const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
 
-       const query = createQuery(() => ({
+       const query = useQuery(() => ({
         ...${queryOptions},
         queryKey,
         initialData: null,

@@ -1,8 +1,6 @@
 import { createJSDocBlockText } from '@kubb/core/transformers'
-
-import { Text } from './Text.tsx'
-
 import type { JSDoc, Key, KubbNode } from '../types.ts'
+import { Space } from './Text.tsx'
 
 type Props = {
   key?: Key
@@ -35,16 +33,12 @@ export function Type({ name, export: canExport, JSDoc, children }: Props) {
         </>
       )}
       {canExport && (
-        <Text>
+        <>
           export
-          <Text.Space />
-        </Text>
+          <Space />
+        </>
       )}
-      <Text>
-        type {name} =
-        <Text.Space />
-      </Text>
-      <Text>{children}</Text>
+      type {name} = {children}
     </>
   )
 }

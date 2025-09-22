@@ -9,7 +9,8 @@ import type {
 import { uploadFileMutationResponseSchema, uploadFileMutationRequestSchema } from '../../../zod/petController/uploadFileSchema.ts'
 
 export function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
-  return `https://petstore3.swagger.io/api/v3/pet/${petId}/uploadImage` as const
+  const res = { method: 'POST', url: `https://petstore3.swagger.io/api/v3/pet/${petId}/uploadImage` as const }
+  return res
 }
 
 /**
@@ -23,9 +24,10 @@ export async function uploadFile(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = uploadFileMutationRequestSchema.parse(data)
+
   const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
-    url: getUploadFileUrl({ petId }).toString(),
+    url: getUploadFileUrl({ petId }).url.toString(),
     params,
     data: requestData,
     ...requestConfig,

@@ -5,9 +5,9 @@ import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
-import ts, { factory } from 'typescript'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
+import ts, { factory } from 'typescript'
 
 describe('typeGenerator schema', async () => {
   const testData = [
@@ -150,6 +150,15 @@ describe('typeGenerator schema', async () => {
       name: 'EnumVarNamesType',
       input: '../../mocks/enums.yaml',
       path: 'enumVarNames.Type',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'PascalEnum',
+      input: '../../mocks/enums.yaml',
+      path: 'PASCALEnums.Type',
       options: {
         enumType: 'asConst',
         optionalType: 'questionToken',
@@ -394,7 +403,6 @@ describe('typeGenerator schema', async () => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginTs['resolvedOptions'] = {
-      usedEnumNames: {},
       enumType: 'asConst',
       enumSuffix: 'enum',
       dateType: 'string',
@@ -526,7 +534,6 @@ describe('typeGenerator operation', async () => {
       enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
-      usedEnumNames: {},
       transformers: {},
       oasType: false,
       unknownType: 'any',

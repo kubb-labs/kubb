@@ -177,7 +177,8 @@ export function Query({
         }}
       >
         {`
-       const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+       const { query: queryConfig = {}, client: config = {} } = options ?? {}
+       const { client: queryClient, ...queryOptions } = queryConfig
        const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
 
        const query = useQuery({

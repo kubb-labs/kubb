@@ -10,6 +10,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
  */
 export async function placeOrderPatchHandler({ data }: { data?: PlaceOrderPatchMutationRequest }): Promise<Promise<CallToolResult>> {
   const requestData = data
+
   const res = await fetch<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
     url: '/store/order',

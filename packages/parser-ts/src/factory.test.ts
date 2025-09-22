@@ -1,5 +1,5 @@
 import ts from 'typescript'
-
+import { format } from '../../core/mocks/format.ts'
 import {
   appendJSDocToNode,
   createArrayDeclaration,
@@ -14,7 +14,6 @@ import {
   createUnionDeclaration,
   modifiers,
 } from './factory.ts'
-import { format } from './format.ts'
 import { print } from './print.ts'
 
 const { factory } = ts

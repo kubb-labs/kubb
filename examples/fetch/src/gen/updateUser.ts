@@ -8,7 +8,8 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getUpdateUserUrl(username: UpdateUserPathParams['username']) {
-  return `/user/${username}` as const
+  const res = { method: 'PUT', url: `/user/${username}` as const }
+  return res
 }
 
 /**
@@ -24,9 +25,10 @@ export async function updateUser(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
-    url: getUpdateUserUrl(username).toString(),
+    url: getUpdateUserUrl(username).url.toString(),
     data: requestData,
     ...requestConfig,
   })

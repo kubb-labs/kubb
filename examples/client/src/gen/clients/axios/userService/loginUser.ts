@@ -9,7 +9,8 @@ import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getLoginUserUrl() {
-  return '/user/login' as const
+  const res = { method: 'GET', url: '/user/login' as const }
+  return res
 }
 
 /**
@@ -21,7 +22,7 @@ export async function loginUser(params?: LoginUserQueryParams, config: Partial<R
 
   const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
     method: 'GET',
-    url: getLoginUserUrl().toString(),
+    url: getLoginUserUrl().url.toString(),
     params,
     ...requestConfig,
   })

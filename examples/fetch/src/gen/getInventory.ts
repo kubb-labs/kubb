@@ -8,7 +8,8 @@ import type { GetInventoryQueryResponse } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getGetInventoryUrl() {
-  return '/store/inventory' as const
+  const res = { method: 'GET', url: '/store/inventory' as const }
+  return res
 }
 
 /**
@@ -21,7 +22,7 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: t
 
   const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
-    url: getGetInventoryUrl().toString(),
+    url: getGetInventoryUrl().url.toString(),
     ...requestConfig,
   })
   return res.data

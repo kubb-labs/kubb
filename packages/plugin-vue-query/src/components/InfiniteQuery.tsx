@@ -73,7 +73,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       options: {
         type: `
 {
-  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
+  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TQueryData', 'TQueryKey', 'TQueryData'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
@@ -118,7 +118,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
     options: {
       type: `
 {
-  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
+  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TQueryData', 'TQueryKey', 'TQueryData'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
@@ -177,7 +177,8 @@ export function InfiniteQuery({
         }}
       >
         {`
-       const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+       const { query: queryConfig = {}, client: config = {} } = options ?? {}
+       const { client: queryClient, ...queryOptions } = queryConfig
        const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
 
        const query = useInfiniteQuery({

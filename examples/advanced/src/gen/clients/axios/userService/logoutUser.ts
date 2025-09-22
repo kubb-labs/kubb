@@ -4,7 +4,8 @@ import type { LogoutUserQueryResponse } from '../../../models/ts/userController/
 import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.ts'
 
 export function getLogoutUserUrl() {
-  return 'https://petstore3.swagger.io/api/v3/user/logout' as const
+  const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/user/logout' as const }
+  return res
 }
 
 /**
@@ -16,7 +17,7 @@ export async function logoutUser(config: Partial<RequestConfig> & { client?: typ
 
   const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
-    url: getLogoutUserUrl().toString(),
+    url: getLogoutUserUrl().url.toString(),
     ...requestConfig,
   })
   return { ...res, data: logoutUserQueryResponseSchema.parse(res.data) }

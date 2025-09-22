@@ -10,7 +10,8 @@ import type {
 import { updatePetMutationResponseSchema, updatePetMutationRequestSchema } from '../../../zod/petController/updatePetSchema.ts'
 
 export function getUpdatePetUrl() {
-  return 'https://petstore3.swagger.io/api/v3/pet' as const
+  const res = { method: 'PUT', url: 'https://petstore3.swagger.io/api/v3/pet' as const }
+  return res
 }
 
 /**
@@ -25,9 +26,10 @@ export async function updatePet(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = updatePetMutationRequestSchema.parse(data)
+
   const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
-    url: getUpdatePetUrl().toString(),
+    url: getUpdatePetUrl().url.toString(),
     data: requestData,
     ...requestConfig,
   })

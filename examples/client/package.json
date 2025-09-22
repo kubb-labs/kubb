@@ -12,10 +12,8 @@
   "author": "stijnvanhulle",
   "sideEffects": false,
   "scripts": {
-    "build": "tsup",
     "clean": "npx rimraf ./dist",
     "generate": "kubb generate --config kubb.config.ts",
-    "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -26,13 +24,12 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/react": "workspace:*",
-    "axios": "^1.11.0"
+    "axios": "^1.12.2"
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "@types/react": "^19.1.10",
+    "@types/react": "^19.1.13",
     "react": "^19.1.1",
-    "tsup": "^8.5.0",
     "typescript": "^5.9.2"
   },
   "packageManager": "pnpm@9.15.5",

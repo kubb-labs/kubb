@@ -10,7 +10,7 @@ import type {
 } from '../../../models/ts/petsController/CreatePets.ts'
 import { createPets } from '../../axios/petsService/createPets.ts'
 
-export const createPetsMutationKeySWR = () => [{ url: '/pets/{uuid}' }] as const
+export const createPetsMutationKeySWR = () => [{ url: '/pets/:uuid' }] as const
 
 export type CreatePetsMutationKeySWR = ReturnType<typeof createPetsMutationKeySWR>
 

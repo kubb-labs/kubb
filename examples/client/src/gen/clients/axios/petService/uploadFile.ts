@@ -14,7 +14,8 @@ import type {
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
-  return `/pet/${petId}/uploadImage` as const
+  const res = { method: 'POST', url: `/pet/${petId}/uploadImage` as const }
+  return res
 }
 
 /**
@@ -41,7 +42,7 @@ export async function uploadFile(
   }
   const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
-    url: getUploadFileUrl({ petId }).toString(),
+    url: getUploadFileUrl({ petId }).url.toString(),
     params,
     data: formData,
     ...requestConfig,

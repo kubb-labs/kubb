@@ -190,7 +190,8 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
   }
 
   if (isKeyword(current, schemaKeywords.enum)) {
-    return typeKeywordMapper.enum(current.args.typeName)
+    // Adding suffix to enum (see https://github.com/kubb-labs/kubb/issues/1873)
+    return typeKeywordMapper.enum(options.enumType === 'asConst' ? `${current.args.typeName}Key` : current.args.typeName)
   }
 
   if (isKeyword(current, schemaKeywords.ref)) {

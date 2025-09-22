@@ -9,7 +9,7 @@ import type {
 } from '../../../models/ts/petController/UploadFile.ts'
 import { uploadFile } from '../../axios/petService/uploadFile.ts'
 
-export const uploadFileMutationKeySWR = () => [{ url: '/pet/{petId}/uploadImage' }] as const
+export const uploadFileMutationKeySWR = () => [{ url: '/pet/:petId/uploadImage' }] as const
 
 export type UploadFileMutationKeySWR = ReturnType<typeof uploadFileMutationKeySWR>
 

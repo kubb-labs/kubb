@@ -9,7 +9,8 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getCreateUserUrl() {
-  return '/user' as const
+  const res = { method: 'POST', url: '/user' as const }
+  return res
 }
 
 /**
@@ -21,9 +22,10 @@ export async function createUser(data?: CreateUserMutationRequest, config: Parti
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
-    url: getCreateUserUrl().toString(),
+    url: getCreateUserUrl().url.toString(),
     data: requestData,
     ...requestConfig,
   })

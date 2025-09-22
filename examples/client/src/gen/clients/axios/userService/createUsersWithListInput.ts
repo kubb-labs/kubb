@@ -12,7 +12,8 @@ import type {
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getCreateUsersWithListInputUrl() {
-  return '/user/createWithList' as const
+  const res = { method: 'POST', url: '/user/createWithList' as const }
+  return res
 }
 
 /**
@@ -27,9 +28,10 @@ export async function createUsersWithListInput(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
-    url: getCreateUsersWithListInputUrl().toString(),
+    url: getCreateUsersWithListInputUrl().url.toString(),
     data: requestData,
     ...requestConfig,
   })

@@ -4,7 +4,8 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
 import { addPetMutationResponseSchema, addPetMutationRequestSchema } from '../../../zod/petController/addPetSchema.ts'
 
 export function getAddPetUrl() {
-  return 'https://petstore3.swagger.io/api/v3/pet' as const
+  const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/pet' as const }
+  return res
 }
 
 /**
@@ -19,9 +20,10 @@ export async function addPet(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = addPetMutationRequestSchema.parse(data)
+
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
-    url: getAddPetUrl().toString(),
+    url: getAddPetUrl().url.toString(),
     data: requestData,
     ...requestConfig,
   })

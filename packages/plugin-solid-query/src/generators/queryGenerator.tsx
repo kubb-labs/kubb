@@ -133,7 +133,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
         />
         {options.query && (
           <>
-            <File.Import name={['createQuery']} path={importPath} />
+            <File.Import name={['useQuery']} path={importPath} />
             <File.Import name={['QueryKey', 'QueryClient', 'UseBaseQueryOptions', 'UseQueryResult']} path={importPath} isTypeOnly />
             <Query
               name={query.name}

@@ -10,7 +10,7 @@ export const addressIdentifierEnum = {
   SE: 'SE',
 } as const
 
-export type AddressIdentifierEnum = (typeof addressIdentifierEnum)[keyof typeof addressIdentifierEnum]
+export type AddressIdentifierEnumKey = (typeof addressIdentifierEnum)[keyof typeof addressIdentifierEnum]
 
 export type Address = {
   /**
@@ -32,5 +32,5 @@ export type Address = {
   /**
    * @type array | undefined
    */
-  identifier?: [number, string, AddressIdentifierEnum, ...any[]]
+  identifier?: [number, string, AddressIdentifierEnumKey, ...any[]]
 }

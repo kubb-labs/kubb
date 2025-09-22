@@ -1,5 +1,58 @@
 # @kubb/core
 
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/parser-ts@4.0.1
+
+## 4.0.0
+
+### Patch Changes
+
+- [#1887](https://github.com/kubb-labs/kubb/pull/1887) [`1468999`](https://github.com/kubb-labs/kubb/commit/1468999cbf23df2d4e7ab6debcaa9a7421b88bbb) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Keep `usedEnumNames` in cache but not between builds
+
+- Updated dependencies []:
+  - @kubb/parser-ts@4.0.0
+
+## 3.18.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/parser-ts@3.18.3
+
+## 3.18.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/parser-ts@3.18.2
+
+## 3.18.1
+
+### Patch Changes
+
+- Updated dependencies [[`7990392`](https://github.com/kubb-labs/kubb/commit/7990392d5174e3d1886ba77c7f7bf6c926943e1b)]:
+  - @kubb/parser-ts@3.18.1
+
+## 3.17.1
+
+### Patch Changes
+
+- [`5362b0f`](https://github.com/kubb-labs/kubb/commit/5362b0f93ee9fa2ca68d58de57c03d3573d2cdfb) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Escaping regex correctly by using `new RegExp().source` behind the scenes
+
+- Updated dependencies []:
+  - @kubb/parser-ts@3.17.1
+
+## 3.17.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/parser-ts@3.17.0
+
 ## 3.16.4
 
 ### Patch Changes

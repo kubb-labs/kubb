@@ -4,7 +4,8 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
 import { updateUserMutationResponseSchema, updateUserMutationRequestSchema } from '../../../zod/userController/updateUserSchema.ts'
 
 export function getUpdateUserUrl({ username }: { username: UpdateUserPathParams['username'] }) {
-  return `https://petstore3.swagger.io/api/v3/user/${username}` as const
+  const res = { method: 'PUT', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
+  return res
 }
 
 /**
@@ -19,9 +20,10 @@ export async function updateUser(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = updateUserMutationRequestSchema.parse(data)
+
   const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
-    url: getUpdateUserUrl({ username }).toString(),
+    url: getUpdateUserUrl({ username }).url.toString(),
     data: requestData,
     ...requestConfig,
   })

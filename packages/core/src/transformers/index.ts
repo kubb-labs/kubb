@@ -9,10 +9,12 @@ import { createIndent } from './indent.ts'
 import { nameSorter } from './nameSorter.ts'
 import { searchAndReplace } from './searchAndReplace.ts'
 import { stringify, stringifyObject } from './stringify.ts'
-import { toRegExp, toRegExpString } from './toRegExp.ts'
+import { toRegExpString } from './toRegExp.ts'
 import { isValidVarName, transformReservedWord } from './transformReservedWord.ts'
 import { trim, trimQuotes } from './trim.ts'
 
+export { orderBy } from 'natural-orderby'
+export { merge } from 'remeda'
 export { camelCase, pascalCase } from './casing.ts'
 export { combineCodes } from './combineCodes.ts'
 export { createJSDocBlockText } from './createJSDocBlockText.ts'
@@ -21,11 +23,9 @@ export { createIndent } from './indent.ts'
 export { nameSorter } from './nameSorter.ts'
 export { searchAndReplace } from './searchAndReplace.ts'
 export { stringify, stringifyObject } from './stringify.ts'
-export { toRegExp, toRegExpString } from './toRegExp.ts'
-export { transformReservedWord, isValidVarName } from './transformReservedWord.ts'
+export { toRegExpString } from './toRegExp.ts'
+export { isValidVarName, transformReservedWord } from './transformReservedWord.ts'
 export { trim, trimQuotes } from './trim.ts'
-export { merge } from 'remeda'
-export { orderBy } from 'natural-orderby'
 
 export default {
   combineCodes,
@@ -38,7 +38,6 @@ export default {
   searchAndReplace,
   stringify,
   stringifyObject,
-  toRegExp,
   toRegExpString,
   trim,
   trimQuotes,

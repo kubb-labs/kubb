@@ -20,7 +20,6 @@
     "example3": "bun ./example3/index.tsx",
     "example4": "bun ./example4/index.tsx",
     "example5": "bun ./example5/index.tsx",
-    "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "echo 'empty'"
   },
@@ -29,9 +28,8 @@
   },
   "devDependencies": {
     "@kubb/config-ts": "workspace:*",
-    "@types/react": "^19.1.10",
+    "@types/react": "^19.1.13",
     "react": "^19.1.1",
-    "tsup": "^8.5.0",
     "typescript": "^5.9.2"
   },
   "packageManager": "pnpm@9.15.5",

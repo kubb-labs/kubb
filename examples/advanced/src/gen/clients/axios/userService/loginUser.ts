@@ -4,7 +4,8 @@ import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from 
 import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
 
 export function getLoginUserUrl() {
-  return 'https://petstore3.swagger.io/api/v3/user/login' as const
+  const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/user/login' as const }
+  return res
 }
 
 /**
@@ -16,7 +17,7 @@ export async function loginUser({ params }: { params?: LoginUserQueryParams }, c
 
   const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
     method: 'GET',
-    url: getLoginUserUrl().toString(),
+    url: getLoginUserUrl().url.toString(),
     params,
     ...requestConfig,
   })

@@ -1,5 +1,23 @@
 # @kubb/parser-ts
 
+## 4.0.1
+
+## 4.0.0
+
+## 3.18.3
+
+## 3.18.2
+
+## 3.18.1
+
+### Patch Changes
+
+- [`7990392`](https://github.com/kubb-labs/kubb/commit/7990392d5174e3d1886ba77c7f7bf6c926943e1b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - rollback prettier remove
+
+## 3.17.1
+
+## 3.17.0
+
 ## 3.16.4
 
 ## 3.16.3

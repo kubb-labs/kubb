@@ -4,6 +4,43 @@ title: Changelog
 
 # Changelog
 
+# 4.0.0
+- [`plugin-ts`](/plugins/plugin-ts): enums generated with "asConst" have a "Key" suffix
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): unwrap in vue infinite query
+- [`plugin-react-query`](/plugins/plugin-react-query/): align infinite query generics with tanstack
+
+# 3.18.4
+- [`plugin-ts`](/plugins/plugin-ts): Keep `usedEnumNames` in cache but not between builds
+
+# 3.18.3
+- [`plugin-react-query`](/plugins/plugin-react-query/): Correct generic for infiniteQuery(issue #1790)
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Correct generic for infiniteQuery(issue #1790)
+
+# 3.18.2
+- [`core`](/plugins/core): update packages
+
+# 3.18.1
+- [`parser/ts`](/parsers/parser-ts/): revert prettier removal as default formatter
+
+# 3.18.0
+- [`core`](/plugins/core): Support for custom formatters like [Biome](https://biomejs.dev/) and [Prettier](https://prettier.io/)
+- [`core`](/plugins/core): Support for custom linters like [Biome](https://biomejs.dev/), [Eslint](https://eslint.org/) and [Oxlint](https://oxc.rs/docs/guide/usage/linter)
+- [`plugin-react-query`](/plugins/plugin-react-query/): use of `toURLPath` for mutationKey
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): use of `toURLPath` for mutationKey
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): use of `toURLPath` for mutationKey
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): use of `toURLPath` for mutationKey
+
+# 3.17.1
+- [`plugin-faker`](/plugins/plugin-faker): Escaping regex correctly and without `new RegExp()`
+- [`plugin-zod`](/plugins/plugin-zod): Escaping regex correctly by using `new RegExp().source` behind the scenes
+- [`plugin-react-query`](/plugins/plugin-react-query/): resolve typescript error related to `queryClient` not having a default value
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): resolve typescript error related to `queryClient` not having a default value
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): resolve typescript error related to `queryClient` not having a default value
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): resolve typescript error related to `queryClient` not having a default value
+
+# 3.17.0
+- [`plugin-client`](/plugins/plugin-client): export method when using `urlType` as discussed in [1828](https://github.com/kubb-labs/kubb/discussions/1828)
+
 # 3.16.4
 - [`plugin-zod`](/plugins/plugin-zod): toZod support for Zod v4
 

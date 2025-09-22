@@ -96,6 +96,8 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
       <td align="center" valign="top" width="14.28%"><a href="http://bento.me/vitalygashkov"><img src="https://avatars.githubusercontent.com/u/30000398?v=4?s=100" width="100px;" alt="Vitaly Gashkov"/><br /><sub><b>Vitaly Gashkov</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=vitalygashkov" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://ducduc.nl"><img src="https://avatars.githubusercontent.com/u/9675738?v=4?s=100" width="100px;" alt="Duco Drupsteen"/><br /><sub><b>Duco Drupsteen</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=ducodrupsteen" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/th3l0g4n"><img src="https://avatars.githubusercontent.com/u/326306?v=4?s=100" width="100px;" alt="th3l0g4n"/><br /><sub><b>th3l0g4n</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=th3l0g4n" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://rxliuli.com"><img src="https://avatars.githubusercontent.com/u/24560368?v=4?s=100" width="100px;" alt="rxliuli"/><br /><sub><b>rxliuli</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=rxliuli" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/humarkx"><img src="https://avatars.githubusercontent.com/u/13049940?v=4?s=100" width="100px;" alt="humarkx"/><br /><sub><b>humarkx</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=humarkx" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

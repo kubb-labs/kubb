@@ -10,7 +10,7 @@ export function pet(data?: Partial<Pet>): Pet {
       id: faker.number.int(),
       name: faker.string.alpha(),
       tag: faker.string.alpha(),
-      code: faker.helpers.fromRegExp(new RegExp('\\b[1-9]\\b')),
+      code: faker.helpers.fromRegExp('\b[1-9]\b'),
       shipDate: faker.date.anytime().toISOString().substring(0, 10),
       shipTime: faker.date.anytime().toISOString().substring(11, 19),
       info: { animal: faker.helpers.arrayElement<NonNullable<NonNullable<Pet>['info']>['animal']>(['dog', 'cat', 'ant']) },

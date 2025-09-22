@@ -14,7 +14,8 @@ import type {
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getGetUserByNameUrl({ username }: { username: GetUserByNamePathParams['username'] }) {
-  return `/user/${username}` as const
+  const res = { method: 'GET', url: `/user/${username}` as const }
+  return res
 }
 
 /**
@@ -29,7 +30,7 @@ export async function getUserByName(
 
   const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
     method: 'GET',
-    url: getGetUserByNameUrl({ username }).toString(),
+    url: getGetUserByNameUrl({ username }).url.toString(),
     ...requestConfig,
   })
   return res.data

@@ -1,8 +1,7 @@
 import { URLPath } from '@kubb/core/utils'
-import { File, Function, FunctionParams, Type } from '@kubb/react'
-
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
+import { File, Function, FunctionParams, Type } from '@kubb/react'
 import type { ReactNode } from 'react'
 import type { PluginVueQuery, Transformer } from '../types'
 
@@ -28,7 +27,7 @@ function getParams({}: GetParamsProps) {
 const getTransformer: Transformer = ({ operation, casing }) => {
   const path = new URLPath(operation.path, { casing })
 
-  return [JSON.stringify({ url: path.path })].filter(Boolean)
+  return [`{ url: '${path.toURLPath()}' }`]
 }
 
 export function MutationKey({ name, typeSchemas, paramsCasing, pathParamsType, operation, typeName, transformer = getTransformer }: Props): ReactNode {

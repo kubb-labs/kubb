@@ -8,7 +8,8 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getAddPetUrl() {
-  return '/pet' as const
+  const res = { method: 'POST', url: '/pet' as const }
+  return res
 }
 
 /**
@@ -20,9 +21,10 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
-    url: getAddPetUrl().toString(),
+    url: getAddPetUrl().url.toString(),
     data: requestData,
     ...requestConfig,
   })

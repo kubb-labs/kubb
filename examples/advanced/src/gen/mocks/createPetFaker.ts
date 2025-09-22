@@ -7,6 +7,7 @@ export function createPetFaker(data?: Partial<Pet>): Pet {
   return {
     ...{
       id: faker.number.int(),
+      signature: faker.helpers.fromRegExp('^data:image/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$'),
       name: faker.string.alpha(),
       category: createCategoryFaker(),
       photoUrls: faker.helpers.multiple(() => faker.string.alpha()),

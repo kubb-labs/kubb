@@ -22,6 +22,6 @@ export function createDeleteUser404Faker() {
   return undefined
 }
 
-export function createDeleteUserMutationResponseFaker(_data?: Partial<DeleteUserMutationResponse>): DeleteUserMutationResponse {
+export function createDeleteUserMutationResponseFaker(data?: Partial<DeleteUserMutationResponse>): DeleteUserMutationResponse {
   return undefined
 }

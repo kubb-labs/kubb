@@ -1,35 +1,18 @@
-import { jsStringEscape } from './escape'
 import { trimQuotes } from './trim'
 
-function stringToRegex(text: string) {
-  const isStartWithSlash = text.startsWith('/')
-  const isEndWithSlash = text.endsWith('/')
-
-  return new RegExp(text.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined))
-}
-
-/**
- * @experimental
- */
-export function toRegExp(text: string | RegExp): RegExp {
-  if (typeof text === 'string') {
-    const source = trimQuotes(text)
-
-    return stringToRegex(source)
-  }
-
-  return stringToRegex(text.toString())
-}
-
 export function toRegExpString(text: string, func: string | null = 'RegExp'): string {
-  const isStartWithSlash = text.startsWith('/')
-  const isEndWithSlash = text.endsWith('/')
+  const raw = trimQuotes(text)
+
+  const cleaned = raw.replace(/^\\?\//, '').replace(/\\?\/$/, '')
+
+  const regex = new RegExp(cleaned)
+  const source = regex.source
+  const flags = regex.flags
 
   if (func === null) {
-    return `/${text.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined).replaceAll('/', '\\/')}/`
+    return `/${source}/${flags}`
   }
 
-  const regexp = `new ${func}('${jsStringEscape(text.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined))}')`
-
-  return regexp
+  // return as constructor → new RegExp("pattern", "flags")
+  return `new ${func}(${JSON.stringify(source)}${flags ? `, ${JSON.stringify(flags)}` : ''})`
 }

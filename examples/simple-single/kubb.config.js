@@ -49,33 +49,6 @@ export default defineConfig([
     ],
   },
   {
-    name: 'test',
-    root: '.',
-    input: {
-      path: 'https://raw.githubusercontent.com/burt202/kubb-test/refs/heads/master/docs/main.yml',
-    },
-    output: {
-      path: 'src/gen3/',
-      barrelType: 'all',
-      clean: true,
-    },
-    plugins: [
-      pluginOas({
-        generators: [],
-      }),
-      pluginTs({
-        output: {
-          path: './types.ts',
-          barrelType: 'propagate',
-        },
-        enumSuffix: '',
-      }),
-    ],
-    hooks: {
-      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
-    },
-  },
-  {
     name: 'openapi3',
     root: '.',
     input: {

@@ -8,7 +8,8 @@ import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, P
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getPlaceOrderPatchUrl() {
-  return '/store/order' as const
+  const res = { method: 'PATCH', url: '/store/order' as const }
+  return res
 }
 
 /**
@@ -23,9 +24,10 @@ export async function placeOrderPatch(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
-    url: getPlaceOrderPatchUrl().toString(),
+    url: getPlaceOrderPatchUrl().url.toString(),
     data: requestData,
     ...requestConfig,
   })

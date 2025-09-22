@@ -4,7 +4,8 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, D
 import { deleteUserMutationResponseSchema } from '../../../zod/userController/deleteUserSchema.ts'
 
 export function getDeleteUserUrl({ username }: { username: DeleteUserPathParams['username'] }) {
-  return `https://petstore3.swagger.io/api/v3/user/${username}` as const
+  const res = { method: 'DELETE', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
+  return res
 }
 
 /**
@@ -20,7 +21,7 @@ export async function deleteUser(
 
   const res = await request<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
-    url: getDeleteUserUrl({ username }).toString(),
+    url: getDeleteUserUrl({ username }).url.toString(),
     ...requestConfig,
   })
   return { ...res, data: deleteUserMutationResponseSchema.parse(res.data) }

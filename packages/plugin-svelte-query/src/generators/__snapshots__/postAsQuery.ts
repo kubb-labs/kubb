@@ -28,6 +28,7 @@ export async function updatePetWithForm(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = updatePetWithFormMutationRequest.parse(data)
+
   const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}`,
@@ -74,7 +75,8 @@ export function createUpdatePetWithForm<
     client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, data, params)
 
   const query = createQuery(

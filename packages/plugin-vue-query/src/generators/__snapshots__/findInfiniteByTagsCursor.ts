@@ -7,6 +7,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import type { InfiniteData, QueryKey, QueryClient, InfiniteQueryObserverOptions, UseInfiniteQueryReturnType } from '@tanstack/react-query'
 import type { MaybeRefOrGetter } from 'vue'
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
+import { toValue } from 'vue'
 
 export const findPetsByTagsInfiniteQueryKey = (params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>) =>
   [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
@@ -46,10 +47,11 @@ export function findPetsByTagsInfiniteQueryOptions(
     queryFn: async ({ signal, pageParam }) => {
       config.signal = signal
 
-      if (params) {
-        params['pageSize'] = pageParam as unknown as FindPetsByTagsQueryParams['pageSize']
+      if (!params) {
+        params = {}
       }
-      return findPetsByTagsInfinite(headers, params, config)
+      params['pageSize'] = pageParam as unknown as FindPetsByTagsQueryParams['pageSize']
+      return findPetsByTagsInfinite(toValue(headers), toValue(params), toValue(config))
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['cursor'],
@@ -70,13 +72,14 @@ export function useFindPetsByTagsInfinite<
   headers: MaybeRefOrGetter<FindPetsByTagsHeaderParams>,
   params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>,
   options: {
-    query?: Partial<InfiniteQueryObserverOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryKey>> & {
+    query?: Partial<InfiniteQueryObserverOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TQueryData, TQueryKey, TQueryData>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
 
   const query = useInfiniteQuery(

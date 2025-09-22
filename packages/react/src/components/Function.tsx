@@ -1,8 +1,7 @@
 import { createJSDocBlockText } from '@kubb/core/transformers'
-
-import { Text } from './Text.tsx'
-
 import type { JSDoc, Key, KubbNode } from '../types.ts'
+import { Indent } from './Indent.tsx'
+import { Space } from './Text.tsx'
 
 type Props = {
   key?: Key
@@ -53,45 +52,44 @@ export function Function({ name, default: isDefault, export: canExport, async, g
         </>
       )}
       {canExport && (
-        <Text>
-          export
-          <Text.Space />
-        </Text>
-      )}
-      {isDefault && (
-        <Text>
-          default
-          <Text.Space />
-        </Text>
-      )}
-      {async && (
-        <Text>
-          async
-          <Text.Space />
-        </Text>
-      )}
-      <Text>function {name}</Text>
-      {generics && (
         <>
-          <Text>{'<'}</Text>
-          <Text>{Array.isArray(generics) ? generics.join(', ').trim() : generics}</Text>
-          <Text>{'>'}</Text>
+          export
+          <Space />
         </>
       )}
-      <Text>({params})</Text>
-      {returnType && !async && <Text>: {returnType}</Text>}
+      {isDefault && (
+        <>
+          default
+          <Space />
+        </>
+      )}
+      {async && (
+        <>
+          async
+          <Space />
+        </>
+      )}
+      function {name}
+      {generics && (
+        <>
+          {'<'}
+          {Array.isArray(generics) ? generics.join(', ').trim() : generics}
+          {'>'}
+        </>
+      )}
+      ({params}){returnType && !async && <>: {returnType}</>}
       {returnType && async && (
-        <Text>
+        <>
           : Promise{'<'}
           {returnType}
           {'>'}
-        </Text>
+        </>
       )}
-      <Text>{' {'}</Text>
+      {' {'}
       <br />
-      <Text indentSize={2}>{children}</Text>
+      <Indent size={2}>{children}</Indent>
       <br />
-      <Text>{'}'}</Text>
+      {'}'}
     </>
   )
 }
@@ -115,57 +113,53 @@ function ArrowFunction({ name, default: isDefault, export: canExport, async, gen
         </>
       )}
       {canExport && (
-        <Text>
+        <>
           export
-          <Text.Space />
-        </Text>
+          <Space />
+        </>
       )}
       {isDefault && (
-        <Text>
+        <>
           default
-          <Text.Space />
-        </Text>
+          <Space />
+        </>
       )}
-      <Text>
-        const {name} =<Text.Space />
-      </Text>
+      const {name} =<Space />
       {async && (
-        <Text>
+        <>
           async
-          <Text.Space />
-        </Text>
+          <Space />
+        </>
       )}
       {generics && (
         <>
-          <Text>{'<'}</Text>
-          <Text>{Array.isArray(generics) ? generics.join(', ').trim() : generics}</Text>
-          <Text>{'>'}</Text>
+          {'<'}
+          {Array.isArray(generics) ? generics.join(', ').trim() : generics}
+          {'>'}
         </>
       )}
-      <Text>({params})</Text>
-      {returnType && !async && <Text>: {returnType}</Text>}
+      ({params}){returnType && !async && <>: {returnType}</>}
       {returnType && async && (
-        <Text>
+        <>
           : Promise{'<'}
           {returnType}
           {'>'}
-        </Text>
+        </>
       )}
       {singleLine && (
         <>
-          <Text>{' => '}</Text>
-          <Text indentSize={2}>{children}</Text>
+          {' => '}
+          {children}
           <br />
         </>
       )}
-
       {!singleLine && (
         <>
-          <Text>{' => {'}</Text>
+          {' => {'}
           <br />
-          <Text indentSize={2}>{children}</Text>
+          <Indent size={2}>{children}</Indent>
           <br />
-          <Text>{'}'}</Text>
+          {'}'}
           <br />
         </>
       )}

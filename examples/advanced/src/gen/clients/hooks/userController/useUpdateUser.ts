@@ -5,7 +5,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { updateUser } from '../../axios/userService/updateUser.ts'
 import { useMutation } from '@tanstack/react-query'
 
-export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const
+export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 

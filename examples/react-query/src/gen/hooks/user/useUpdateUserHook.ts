@@ -9,7 +9,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
-export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const
+export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 
@@ -26,6 +26,7 @@ export async function updateUserHook(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
+
   const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
     url: `/user/${username}`,

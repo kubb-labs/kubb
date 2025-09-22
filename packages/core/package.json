@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "3.16.4",
+  "version": "4.0.1",
   "description": "Core functionality for Kubb's plugin-based code generation system, providing the foundation for transforming OpenAPI specifications.",
   "keywords": [
     "typescript",
@@ -94,7 +94,7 @@
     "@kubb/parser-ts": "workspace:*",
     "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
-    "fs-extra": "^11.3.1",
+    "fs-extra": "^11.3.2",
     "js-runtime": "^0.0.8",
     "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",
@@ -109,11 +109,11 @@
     "@types/fs-extra": "^11.0.4",
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",
-    "@types/semver": "^7.7.0",
+    "@types/semver": "^7.7.1",
     "consola": "^3.4.2",
-    "prettier": "^3.6.2",
     "tsdown": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "zod": "^4.1.11"
   },
   "engines": {
     "node": ">=20"

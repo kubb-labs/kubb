@@ -9,7 +9,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 
-export const deleteOrderMutationKey = () => [{ url: '/store/order/{orderId}' }] as const
+export const deleteOrderMutationKey = () => [{ url: '/store/order/:orderId' }] as const
 
 export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
 

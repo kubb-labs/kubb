@@ -26,7 +26,7 @@ export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, con
 
   const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
-    url: '/pet/findByStatus',
+    url: `/pet/findByStatus`,
     params,
     ...requestConfig,
   })
@@ -65,7 +65,8 @@ export function useFindPetsByStatus<
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
 
   const query = useQuery(

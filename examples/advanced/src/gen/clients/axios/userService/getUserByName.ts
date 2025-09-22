@@ -9,7 +9,8 @@ import type {
 import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
 
 export function getGetUserByNameUrl({ username }: { username: GetUserByNamePathParams['username'] }) {
-  return `https://petstore3.swagger.io/api/v3/user/${username}` as const
+  const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
+  return res
 }
 
 /**
@@ -24,7 +25,7 @@ export async function getUserByName(
 
   const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
     method: 'GET',
-    url: getGetUserByNameUrl({ username }).toString(),
+    url: getGetUserByNameUrl({ username }).url.toString(),
     ...requestConfig,
   })
   return { ...res, data: getUserByNameQueryResponseSchema.parse(res.data) }

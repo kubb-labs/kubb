@@ -42,14 +42,17 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       oasType,
       enumType,
       enumSuffix,
-      // keep the used enumnames between SchemaGenerator and OperationGenerator per plugin(pluginKey)
-      usedEnumNames: {},
       unknownType,
       emptySchemaType,
       syntaxType,
       group,
       override,
       mapper,
+    },
+    context() {
+      return {
+        usedEnumNames: {} as Record<string, number>,
+      }
     },
     pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {

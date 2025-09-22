@@ -9,7 +9,7 @@ export const orderStatusEnum = {
   delivered: 'delivered',
 } as const
 
-export type OrderStatusEnum = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
+export type OrderStatusEnumKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
 export const orderHttpStatusEnum = {
   '200': 200,
@@ -17,7 +17,7 @@ export const orderHttpStatusEnum = {
   '500': 500,
 } as const
 
-export type OrderHttpStatusEnum = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
+export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
 export type Order = {
   /**
@@ -40,12 +40,12 @@ export type Order = {
    * @description Order Status
    * @type string | undefined
    */
-  status?: OrderStatusEnum
+  status?: OrderStatusEnumKey
   /**
    * @description HTTP Status
    * @type number | undefined
    */
-  http_status?: OrderHttpStatusEnum
+  http_status?: OrderHttpStatusEnumKey
   /**
    * @type boolean | undefined
    */
@@ -150,7 +150,7 @@ export const petStatusEnum = {
   sold: 'sold',
 } as const
 
-export type PetStatusEnum = (typeof petStatusEnum)[keyof typeof petStatusEnum]
+export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
 
 export type Pet = {
   /**
@@ -177,7 +177,7 @@ export type Pet = {
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: PetStatusEnum
+  status?: PetStatusEnumKey
 }
 
 export const addPetRequestStatusEnum = {
@@ -186,7 +186,7 @@ export const addPetRequestStatusEnum = {
   sold: 'sold',
 } as const
 
-export type AddPetRequestStatusEnum = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
+export type AddPetRequestStatusEnumKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
 
 export type AddPetRequest = {
   /**
@@ -213,7 +213,7 @@ export type AddPetRequest = {
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: AddPetRequestStatusEnum
+  status?: AddPetRequestStatusEnumKey
 }
 
 export type ApiResponse = {
@@ -315,7 +315,7 @@ export const findPetsByStatusQueryParamsStatusEnum = {
   sold: 'sold',
 } as const
 
-export type FindPetsByStatusQueryParamsStatusEnum = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
+export type FindPetsByStatusQueryParamsStatusEnumKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
 
 export type FindPetsByStatusQueryParams = {
   /**
@@ -323,7 +323,7 @@ export type FindPetsByStatusQueryParams = {
    * @default "available"
    * @type string | undefined
    */
-  status?: FindPetsByStatusQueryParamsStatusEnum
+  status?: FindPetsByStatusQueryParamsStatusEnumKey
 }
 
 /**

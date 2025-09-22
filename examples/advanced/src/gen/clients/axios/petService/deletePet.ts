@@ -4,7 +4,8 @@ import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderPar
 import { deletePetMutationResponseSchema } from '../../../zod/petController/deletePetSchema.ts'
 
 export function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
-  return `https://petstore3.swagger.io/api/v3/pet/${petId}:search` as const
+  const res = { method: 'DELETE', url: `https://petstore3.swagger.io/api/v3/pet/${petId}:search` as const }
+  return res
 }
 
 /**
@@ -20,7 +21,7 @@ export async function deletePet(
 
   const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
-    url: getDeletePetUrl({ petId }).toString(),
+    url: getDeletePetUrl({ petId }).url.toString(),
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-ts",
-  "version": "3.16.4",
+  "version": "4.0.1",
   "description": "TypeScript code generation plugin for Kubb, transforming OpenAPI schemas into TypeScript interfaces, types, and utility functions.",
   "keywords": [
     "typescript",
@@ -83,7 +83,7 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react": "^3.0.0"
+    "@kubb/react": "^4.0.0"
   },
   "engines": {
     "node": ">=20"

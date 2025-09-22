@@ -1,5 +1,100 @@
 # @kubb/plugin-react-query
 
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`c531bb9`](https://github.com/kubb-labs/kubb/commit/c531bb9c898c8974c74a80e3c65ac3ea7229538b)]:
+  - @kubb/plugin-ts@4.0.1
+  - @kubb/plugin-client@4.0.1
+  - @kubb/plugin-zod@4.0.1
+  - @kubb/core@4.0.1
+  - @kubb/oas@4.0.1
+  - @kubb/plugin-oas@4.0.1
+  - @kubb/react@4.0.1
+
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`1468999`](https://github.com/kubb-labs/kubb/commit/1468999cbf23df2d4e7ab6debcaa9a7421b88bbb)]:
+  - @kubb/core@4.0.0
+  - @kubb/plugin-ts@4.0.0
+  - @kubb/plugin-client@4.0.0
+  - @kubb/plugin-oas@4.0.0
+  - @kubb/plugin-zod@4.0.0
+  - @kubb/react@4.0.0
+  - @kubb/oas@4.0.0
+
+## 3.18.3
+
+### Patch Changes
+
+- [#1858](https://github.com/kubb-labs/kubb/pull/1858) [`233ec07`](https://github.com/kubb-labs/kubb/commit/233ec076b12efca7feaf8e6f0df3d86bf103efb7) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct generic for infiniteQuery(issue #1790)
+
+- Updated dependencies []:
+  - @kubb/core@3.18.3
+  - @kubb/oas@3.18.3
+  - @kubb/plugin-client@3.18.3
+  - @kubb/plugin-oas@3.18.3
+  - @kubb/plugin-ts@3.18.3
+  - @kubb/plugin-zod@3.18.3
+  - @kubb/react@3.18.3
+
+## 3.18.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.18.2
+  - @kubb/oas@3.18.2
+  - @kubb/plugin-client@3.18.2
+  - @kubb/plugin-oas@3.18.2
+  - @kubb/plugin-ts@3.18.2
+  - @kubb/plugin-zod@3.18.2
+  - @kubb/react@3.18.2
+
+## 3.18.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.18.1
+  - @kubb/plugin-ts@3.18.1
+  - @kubb/plugin-zod@3.18.1
+  - @kubb/react@3.18.1
+  - @kubb/plugin-client@3.18.1
+  - @kubb/plugin-oas@3.18.1
+  - @kubb/oas@3.18.1
+
+## 3.17.1
+
+### Patch Changes
+
+- [`bc32858`](https://github.com/kubb-labs/kubb/commit/bc32858345c1c9a2ace82c64681443bf6ebc5352) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - resolve typescript error related to `queryClient` not having a default value
+
+- Updated dependencies [[`5362b0f`](https://github.com/kubb-labs/kubb/commit/5362b0f93ee9fa2ca68d58de57c03d3573d2cdfb)]:
+  - @kubb/core@3.17.1
+  - @kubb/plugin-zod@3.17.1
+  - @kubb/plugin-client@3.17.1
+  - @kubb/plugin-oas@3.17.1
+  - @kubb/plugin-ts@3.17.1
+  - @kubb/react@3.17.1
+  - @kubb/oas@3.17.1
+
+## 3.17.0
+
+### Patch Changes
+
+- Updated dependencies [[`3352fae`](https://github.com/kubb-labs/kubb/commit/3352faebffe9f74e4cab58bb8e7e0bd3ef204227)]:
+  - @kubb/plugin-client@3.17.0
+  - @kubb/core@3.17.0
+  - @kubb/oas@3.17.0
+  - @kubb/plugin-oas@3.17.0
+  - @kubb/plugin-ts@3.17.0
+  - @kubb/plugin-zod@3.17.0
+  - @kubb/react@3.17.0
+
 ## 3.16.4
 
 ### Patch Changes

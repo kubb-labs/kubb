@@ -8,7 +8,7 @@ import type { RequestConfig, ResponseErrorConfig } from 'axios'
 import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
-export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}' }] as const
+export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
 
@@ -25,6 +25,7 @@ export async function updatePetWithForm(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = updatePetWithFormMutationRequest.parse(data)
+
   const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}`,

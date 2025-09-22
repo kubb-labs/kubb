@@ -1,11 +1,9 @@
-import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import type { ReactNode } from 'react'
-
 import { isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
+import { getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, FunctionParams } from '@kubb/react'
+import type { ReactNode } from 'react'
 import type { Infinite, PluginReactQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 
@@ -36,7 +34,10 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       data: {
         mode: 'object',
         children: {
-          ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+          ...getPathParams(typeSchemas.pathParams, {
+            typed: true,
+            casing: paramsCasing,
+          }),
           data: typeSchemas.request?.name
             ? {
                 type: typeSchemas.request?.name,
@@ -70,7 +71,10 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+          children: getPathParams(typeSchemas.pathParams, {
+            typed: true,
+            casing: paramsCasing,
+          }),
           optional: isOptional(typeSchemas.pathParams?.schema),
         }
       : undefined,
@@ -114,10 +118,16 @@ export function InfiniteQueryOptions({
   queryParam,
   queryKeyName,
 }: Props): ReactNode {
-  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const queryFnDataType = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const errorType = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const pageParamType = queryParam && typeSchemas.queryParams?.name ? `NonNullable<${typeSchemas.queryParams?.name}['${queryParam}']>` : 'number'
 
-  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
+  const params = getParams({
+    paramsType,
+    paramsCasing,
+    pathParamsType,
+    typeSchemas,
+  })
   const clientParams = Client.getParams({
     paramsCasing,
     typeSchemas,
@@ -147,9 +157,10 @@ export function InfiniteQueryOptions({
   const infiniteOverrideParams =
     queryParam && typeSchemas.queryParams?.name
       ? `
-          if(params) {
-           params['${queryParam}'] = pageParam as unknown as ${typeSchemas.queryParams?.name}['${queryParam}']
-          }`
+          if (!params) {
+           params = { }
+          }
+          params['${queryParam}'] = pageParam as unknown as ${typeSchemas.queryParams?.name}['${queryParam}']`
       : ''
 
   const enabled = Object.entries(queryKeyParams.flatParams)
@@ -165,7 +176,7 @@ export function InfiniteQueryOptions({
         <Function name={name} export params={params.toConstructor()}>
           {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return infiniteQueryOptions<${TData}, ${TError}, ${TData}, typeof queryKey, number>({
+      return infiniteQueryOptions<${queryFnDataType}, ${errorType}, InfiniteData<${queryFnDataType}>, typeof queryKey, ${pageParamType}>({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal, pageParam }) => {
@@ -186,7 +197,7 @@ export function InfiniteQueryOptions({
       <Function name={name} export params={params.toConstructor()}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return infiniteQueryOptions<${TData}, ${TError}, ${TData}, typeof queryKey>({
+      return infiniteQueryOptions<${queryFnDataType}, ${errorType}, InfiniteData<${queryFnDataType}>, typeof queryKey, ${pageParamType}>({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {

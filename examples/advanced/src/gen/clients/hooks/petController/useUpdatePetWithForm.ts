@@ -10,7 +10,7 @@ import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { updatePetWithForm } from '../../axios/petService/updatePetWithForm.ts'
 import { useMutation } from '@tanstack/react-query'
 
-export const updatePetWithFormMutationKey = () => [{ url: '/pet/{petId}:search' }] as const
+export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId:search' }] as const
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
 

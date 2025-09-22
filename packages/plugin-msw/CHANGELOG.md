@@ -1,5 +1,89 @@
 # @kubb/plugin-msw
 
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`c531bb9`](https://github.com/kubb-labs/kubb/commit/c531bb9c898c8974c74a80e3c65ac3ea7229538b)]:
+  - @kubb/plugin-ts@4.0.1
+  - @kubb/plugin-faker@4.0.1
+  - @kubb/core@4.0.1
+  - @kubb/oas@4.0.1
+  - @kubb/plugin-oas@4.0.1
+  - @kubb/react@4.0.1
+
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`1468999`](https://github.com/kubb-labs/kubb/commit/1468999cbf23df2d4e7ab6debcaa9a7421b88bbb)]:
+  - @kubb/core@4.0.0
+  - @kubb/plugin-ts@4.0.0
+  - @kubb/plugin-faker@4.0.0
+  - @kubb/plugin-oas@4.0.0
+  - @kubb/react@4.0.0
+  - @kubb/oas@4.0.0
+
+## 3.18.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.18.3
+  - @kubb/oas@3.18.3
+  - @kubb/plugin-faker@3.18.3
+  - @kubb/plugin-oas@3.18.3
+  - @kubb/plugin-ts@3.18.3
+  - @kubb/react@3.18.3
+
+## 3.18.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.18.2
+  - @kubb/oas@3.18.2
+  - @kubb/plugin-faker@3.18.2
+  - @kubb/plugin-oas@3.18.2
+  - @kubb/plugin-ts@3.18.2
+  - @kubb/react@3.18.2
+
+## 3.18.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.18.1
+  - @kubb/plugin-ts@3.18.1
+  - @kubb/react@3.18.1
+  - @kubb/plugin-faker@3.18.1
+  - @kubb/plugin-oas@3.18.1
+  - @kubb/oas@3.18.1
+
+## 3.17.1
+
+### Patch Changes
+
+- Updated dependencies [[`5362b0f`](https://github.com/kubb-labs/kubb/commit/5362b0f93ee9fa2ca68d58de57c03d3573d2cdfb)]:
+  - @kubb/plugin-faker@3.17.1
+  - @kubb/core@3.17.1
+  - @kubb/plugin-oas@3.17.1
+  - @kubb/plugin-ts@3.17.1
+  - @kubb/react@3.17.1
+  - @kubb/oas@3.17.1
+
+## 3.17.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.17.0
+  - @kubb/oas@3.17.0
+  - @kubb/plugin-faker@3.17.0
+  - @kubb/plugin-oas@3.17.0
+  - @kubb/plugin-ts@3.17.0
+  - @kubb/react@3.17.0
+
 ## 3.16.4
 
 ### Patch Changes

@@ -5,16 +5,20 @@ import { tagTagSchema } from './tag/tagSchema.ts'
 import { z } from 'zod/v4'
 
 export const petSchema = z.object({
-  id: z.optional(z.int()),
+  id: z.int().optional(),
+  signature: z
+    .string()
+    .regex(/^data:image\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$/)
+    .optional(),
   name: z.string(),
   get category() {
-    return z.optional(categorySchema)
+    return categorySchema.optional()
   },
   photoUrls: z.array(z.string()),
   get tags() {
-    return z.optional(z.array(tagTagSchema))
+    return z.array(tagTagSchema).optional()
   },
-  status: z.optional(z.enum(['available', 'pending', 'sold']).describe('pet status in the store')),
+  status: z.enum(['available', 'pending', 'sold']).describe('pet status in the store').optional(),
 }) as unknown as ToZod<Pet>
 
 export type PetSchema = Pet
