@@ -26,7 +26,8 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
     const isMutation = difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some(
       (method) => operation.method === method,
     )
-    const infiniteOptions = options.infinite === false ? undefined : options.infinite
+    const infiniteOptions =
+      options.infinite && typeof options.infinite === 'object' ? options.infinite : undefined
 
     const importPath = options.query ? options.query.importPath : '@tanstack/react-query'
 
