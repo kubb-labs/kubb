@@ -16,6 +16,8 @@ export async function addFilesHandler({ data }: { data: AddFilesMutationRequest 
       const value = requestData[key as keyof typeof requestData]
       if (typeof value === 'string' || (value as unknown) instanceof Blob) {
         formData.append(key, value as unknown as string | Blob)
+      } else {
+        formData.append(key, JSON.stringify(value))
       }
     })
   }

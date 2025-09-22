@@ -6,6 +6,7 @@ title: Changelog
 
 # 4.0.2
 - [`plugin-zod`](/plugins/plugin-zod): Escape omit keys correctly with `'`
+- [`plugin-client`](/plugins/plugin-client): Support stringify when using `multipart/form-data`
 
 # 4.0.1
 - Upgrade internal packages
