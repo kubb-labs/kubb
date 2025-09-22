@@ -118,7 +118,8 @@ export function Mutation({
   const TRequest = mutationParams.toConstructor()
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
-  const returnType = `UseMutationOptions<${[TData, TError, TRequest ? `{${TRequest}}` : 'void', 'TContext'].join(', ')}>`
+  const generics = [TData, TError, TRequest ? `{${TRequest}}` : 'void', 'TContext'].join(', ')
+  const returnType = `UseMutationResult<${generics}>`
 
   const mutationOptions = `${mutationOptionsName}(${mutationOptionsParams.toCall()})`
 
@@ -138,11 +139,13 @@ export function Mutation({
         const { client: queryClient, ...mutationOptions } = mutation;
         const mutationKey = mutationOptions.mutationKey ?? ${mutationKeyName}(${mutationKeyParams.toCall()})
 
-        return useMutation({
-          ...${mutationOptions},
+        const baseOptions = ${mutationOptions} as UseMutationOptions<${generics}>
+
+        return useMutation<${generics}>({
+          ...baseOptions,
           mutationKey,
-          ...mutationOptions
-        } as unknown as UseMutationOptions, queryClient) as ${returnType}
+          ...mutationOptions,
+        }, queryClient) as ${returnType}
     `}
       </Function>
     </File.Source>

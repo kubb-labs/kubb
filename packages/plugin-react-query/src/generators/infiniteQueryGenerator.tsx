@@ -26,7 +26,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
     const isMutation = difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some(
       (method) => operation.method === method,
     )
-    const isInfinite = !!options.infinite
+    const infiniteOptions = options.infinite === false ? undefined : options.infinite
 
     const importPath = options.query ? options.query.importPath : '@tanstack/react-query'
 
@@ -70,7 +70,23 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
       schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
-    if (!isQuery || isMutation || !isInfinite) {
+    if (!isQuery || isMutation || !infiniteOptions) {
+      return null
+    }
+
+    const normalizeKey = (key?: string | null) => (key ?? '').replace(/\?$/, '')
+    const queryParam = infiniteOptions.queryParam
+    const cursorParam = infiniteOptions.cursorParam
+    const queryParamKeys = type.schemas.queryParams?.keys ?? []
+    const responseKeys = [
+      ...(type.schemas.responses?.flatMap((item) => item.keys ?? []) ?? []),
+      ...(type.schemas.response?.keys ?? []),
+    ]
+
+    const hasQueryParam = queryParam ? queryParamKeys.some((key) => normalizeKey(key) === queryParam) : false
+    const hasCursorParam = cursorParam ? responseKeys.some((key) => normalizeKey(key) === cursorParam) : true
+
+    if (!hasQueryParam || !hasCursorParam) {
       return null
     }
 
@@ -125,7 +141,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
             parser={options.parser}
           />
         )}
-        {options.infinite && (
+        {infiniteOptions && (
           <>
             <File.Import name={['InfiniteData']} isTypeOnly path={importPath} />
             <File.Import name={['infiniteQueryOptions']} path={importPath} />
@@ -138,13 +154,13 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
               paramsType={options.paramsType}
               pathParamsType={options.pathParamsType}
               dataReturnType={options.client.dataReturnType}
-              cursorParam={options.infinite.cursorParam}
-              initialPageParam={options.infinite.initialPageParam}
-              queryParam={options.infinite.queryParam}
+              cursorParam={infiniteOptions.cursorParam}
+              initialPageParam={infiniteOptions.initialPageParam}
+              queryParam={infiniteOptions.queryParam}
             />
           </>
         )}
-        {options.infinite && (
+        {infiniteOptions && (
           <>
             <File.Import name={['useInfiniteQuery']} path={importPath} />
             <File.Import name={['QueryKey', 'QueryClient', 'InfiniteQueryObserverOptions', 'UseInfiniteQueryResult']} path={importPath} isTypeOnly />
@@ -159,7 +175,8 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
               dataReturnType={options.client.dataReturnType}
               queryKeyName={queryKey.name}
               queryKeyTypeName={queryKey.typeName}
-              queryParam={options.infinite.queryParam}
+              initialPageParam={infiniteOptions.initialPageParam}
+              queryParam={infiniteOptions.queryParam}
             />
           </>
         )}
