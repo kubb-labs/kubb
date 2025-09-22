@@ -3,8 +3,6 @@
  * Do not edit manually.
  */
 
-import type { UserType } from '../ts/UserType.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from '../../zod.ts'
 
 export const userSchema = z.object({
@@ -16,6 +14,6 @@ export const userSchema = z.object({
   password: z.optional(z.string()),
   phone: z.optional(z.string()),
   userStatus: z.optional(z.number().int().describe('User Status')),
-}) as unknown as ToZod<UserType>
+})
 
-export type UserSchema = UserType
+export type UserSchema = z.infer<typeof userSchema>

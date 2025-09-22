@@ -3,14 +3,12 @@
  * Do not edit manually.
  */
 
-import type { ApiResponseType } from '../ts/ApiResponseType.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from '../../zod.ts'
 
 export const apiResponseSchema = z.object({
   code: z.optional(z.number().int()),
   type: z.optional(z.string()),
   message: z.optional(z.string()),
-}) as unknown as ToZod<ApiResponseType>
+})
 
-export type ApiResponseSchema = ApiResponseType
+export type ApiResponseSchema = z.infer<typeof apiResponseSchema>
