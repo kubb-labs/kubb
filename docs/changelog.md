@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.1.1
+- [`plugin-zod`](/plugins/plugin-zod): use of `z.ZodType` when using Zod v4
+
 # 4.1.0
 - [`plugin-react-query`](/plugins/plugin-react-query/): Add mutationOptions to react-query
 
