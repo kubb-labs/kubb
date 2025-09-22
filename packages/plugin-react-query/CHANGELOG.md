@@ -1,5 +1,22 @@
 # @kubb/plugin-react-query
 
+## 4.1.0
+
+### Minor Changes
+
+- [#1898](https://github.com/kubb-labs/kubb/pull/1898) [`3d037cc`](https://github.com/kubb-labs/kubb/commit/3d037cca86b7c8ae5ef21b816ff8a6e6e813d47f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add mutationOptions to react-query
+
+### Patch Changes
+
+- Updated dependencies [[`c70ef78`](https://github.com/kubb-labs/kubb/commit/c70ef78d1dd9479f9459a5dcb710505515e2c7c6)]:
+  - @kubb/plugin-zod@4.1.0
+  - @kubb/plugin-client@4.1.0
+  - @kubb/core@4.1.0
+  - @kubb/oas@4.1.0
+  - @kubb/plugin-oas@4.1.0
+  - @kubb/plugin-ts@4.1.0
+  - @kubb/react@4.1.0
+
 ## 4.0.2
 
 ### Patch Changes
