@@ -5,7 +5,6 @@ import { createLogger, LogMapper } from '@kubb/core/logger'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import type { SingleBar } from 'cli-progress'
-import open from 'open'
 import pc from 'picocolors'
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
@@ -40,12 +39,6 @@ const args = {
     alias: 'd',
     default: false,
   },
-  ui: {
-    type: 'boolean',
-    description: 'Open ui',
-    alias: 'u',
-    default: false,
-  },
   help: {
     type: 'boolean',
     description: 'Show help',
@@ -63,7 +56,6 @@ const command = defineCommand({
   },
   args,
   async run(commandContext) {
-    let name = ''
     const progressCache = new Map<string, SingleBar>()
 
     const { args } = commandContext
@@ -95,7 +87,6 @@ const command = defineCommand({
       if (Array.isArray(config)) {
         const promiseManager = new PromiseManager()
         const promises = config.map((c) => () => {
-          name = c.name || ''
           progressCache.clear()
 
           return generate({
@@ -120,40 +111,6 @@ const command = defineCommand({
       })
 
       return
-    }
-
-    if (args.ui) {
-      const { startServer } = await import('@kubb/ui')
-
-      await startServer(
-        {
-          stop: () => process.exit(1),
-          restart: () => start(),
-          getMeta: () => {
-            const entries = [...progressCache.entries()]
-
-            const percentages = entries.reduce(
-              (acc, [key, singleBar]) => {
-                acc[key] = singleBar.getProgress()
-
-                return acc
-              },
-              {} as Record<string, number>,
-            )
-
-            return {
-              name,
-              percentages,
-            }
-          },
-        },
-        (info) => {
-          const url = `${info.address}:${info.port}`.replace('::', 'http://localhost')
-          logger.consola?.start(`Starting ui on ${url}`)
-
-          open(url)
-        },
-      )
     }
 
     if (args.watch) {

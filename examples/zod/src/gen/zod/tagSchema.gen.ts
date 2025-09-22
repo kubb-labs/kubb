@@ -6,8 +6,8 @@
 import { z } from '../../zod.ts'
 
 export const tagSchema = z.object({
-  id: z.number().int().optional(),
-  name: z.string().optional(),
+  id: z.optional(z.number().int()),
+  name: z.optional(z.string()),
 })
 
 export type TagSchema = z.infer<typeof tagSchema>

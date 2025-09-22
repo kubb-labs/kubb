@@ -1,7 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["vitest/globals", "bun-types", "../../reset.d.ts"]
   },
   "include": ["src/**/*", "./package.json", "./tsdown.config.ts", "./vitest.config.ts"]
 }

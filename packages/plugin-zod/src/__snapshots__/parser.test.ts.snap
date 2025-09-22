@@ -88,13 +88,13 @@ exports[`zod parse > 'matchesReg' 1`] = `"z.string().regex(/node_modules/)"`;
 
 exports[`zod parse > 'matchesReg' v4 1`] = `"z.string().regex(/node_modules/)"`;
 
-exports[`zod parse > 'max' 1`] = `".max(2)"`;
+exports[`zod parse > 'max' 1`] = `undefined`;
 
-exports[`zod parse > 'max' v4 1`] = `".max(2)"`;
+exports[`zod parse > 'max' v4 1`] = `undefined`;
 
-exports[`zod parse > 'min' 1`] = `".min(2)"`;
+exports[`zod parse > 'min' 1`] = `undefined`;
 
-exports[`zod parse > 'min' v4 1`] = `".min(2)"`;
+exports[`zod parse > 'min' v4 1`] = `undefined`;
 
 exports[`zod parse > 'nullable' 1`] = `".nullable()"`;
 
@@ -119,14 +119,14 @@ exports[`zod parse > 'number' v4 1`] = `"z.number()"`;
 exports[`zod parse > 'object' 1`] = `
 "z.object({
     "firstName": z.string().min(2),
-"address": z.string().describe("Your address").nullable()
+"address": z.nullable(z.string().describe("Your address"))
     })"
 `;
 
 exports[`zod parse > 'object' v4 1`] = `
 "z.object({
     "firstName": z.string().min(2),
-"address": z.string().describe("Your address").nullable()
+"address": z.nullable(z.string().describe("Your address"))
     })"
 `;
 
@@ -134,7 +134,7 @@ exports[`zod parse > 'objectAnd' 1`] = `
 "z.object({
     "firstName": z.string().min(2).default(test),
 "age": z.number().min(3).default(2),
-"address": z.string().and(z.number()).describe("Your address").nullable()
+"address": z.nullable(z.string().and(z.number()).describe("Your address"))
     })"
 `;
 
@@ -142,7 +142,7 @@ exports[`zod parse > 'objectAnd' v4 1`] = `
 "z.object({
     "firstName": z.string().min(2).default(test),
 "age": z.number().min(3).default(2),
-"address": z.string().and(z.number()).describe("Your address").nullable()
+"address": z.nullable(z.string().and(z.number()).describe("Your address"))
     })"
 `;
 
@@ -206,13 +206,13 @@ exports[`zod parse > 'objectEmpty' v4 1`] = `
 
 exports[`zod parse > 'objectEnum' 1`] = `
 "z.object({
-    "version": z.enum(["A", "B", "C", "2"]).min(4).describe("Your address")
+    "version": z.enum(["A", "B", "C", "2"]).describe("Your address")
     })"
 `;
 
 exports[`zod parse > 'objectEnum' v4 1`] = `
 "z.object({
-    "version": z.enum(["A", "B", "C", "2"]).min(4).describe("Your address")
+    "version": z.enum(["A", "B", "C", "2"]).describe("Your address")
     })"
 `;
 
@@ -234,15 +234,15 @@ exports[`zod parse > 'objectObjectEnum' v4 1`] = `
 
 exports[`zod parse > 'objectOptional' 1`] = `
 "z.object({
-    "firstName": z.string().min(2).optional(),
-"address": z.string().describe("Your address").nullable()
+    "firstName": z.optional(z.string().min(2)),
+"address": z.nullable(z.string().describe("Your address"))
     })"
 `;
 
 exports[`zod parse > 'objectOptional' v4 1`] = `
 "z.object({
-    "firstName": z.string().min(2).optional(),
-"address": z.string().describe("Your address").nullable()
+    "firstName": z.optional(z.string().min(2)),
+"address": z.nullable(z.string().describe("Your address"))
     })"
 `;
 

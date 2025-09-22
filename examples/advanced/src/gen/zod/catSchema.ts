@@ -4,7 +4,7 @@ import { z } from 'zod/v4'
 
 export const catSchema = z.object({
   type: z.string().min(1),
-  name: z.string().optional(),
+  name: z.optional(z.string()),
   indoor: z.boolean(),
 }) as unknown as ToZod<Cat>
 

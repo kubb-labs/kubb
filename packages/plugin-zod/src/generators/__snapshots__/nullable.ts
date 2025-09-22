@@ -6,6 +6,6 @@ import { z } from 'zod'
 
 export const nullable = z
   .object({
-    foo: z.string().nullable().nullish(),
+    foo: z.string().nullish(),
   })
   .nullable()

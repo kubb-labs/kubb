@@ -45,12 +45,14 @@ export function Zod({
   })
 
   const output = schemas
-    .map((schema, _index, siblings) =>
-      parserZod.parse(
+    .map((schema, index) => {
+      const siblings = schemas.filter((_, i) => i !== index)
+
+      return parserZod.parse(
         { parent: undefined, current: schema, siblings },
         { name, keysToOmit, typeName, description, mapper, coercion, wrapOutput, rawSchema, version },
-      ),
-    )
+      )
+    })
     .filter(Boolean)
     .join('')
 

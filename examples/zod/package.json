@@ -29,7 +29,6 @@
     "zod": "next"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
     "typescript": "catalog:"
   },
   "packageManager": "pnpm@9.15.5",

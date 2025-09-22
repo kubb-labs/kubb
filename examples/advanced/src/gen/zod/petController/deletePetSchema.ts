@@ -10,7 +10,7 @@ export type DeletePetPathParamsSchema = DeletePetPathParams
 
 export const deletePetHeaderParamsSchema = z
   .object({
-    api_key: z.string().optional(),
+    api_key: z.optional(z.string()),
   })
   .optional() as unknown as ToZod<DeletePetHeaderParams>
 

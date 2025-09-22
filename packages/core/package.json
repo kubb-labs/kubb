@@ -105,7 +105,6 @@
     "semver": "^7.7.2"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
     "@types/fs-extra": "^11.0.4",
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",

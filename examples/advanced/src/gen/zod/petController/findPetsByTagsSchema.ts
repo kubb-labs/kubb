@@ -11,9 +11,9 @@ import { z } from 'zod/v4'
 
 export const findPetsByTagsQueryParamsSchema = z
   .object({
-    tags: z.array(z.string()).describe('Tags to filter by').optional(),
-    page: z.string().describe('to request with required page number or pagination').optional(),
-    pageSize: z.coerce.number().describe('to request with required page size').optional(),
+    tags: z.optional(z.array(z.string()).describe('Tags to filter by')),
+    page: z.optional(z.string().describe('to request with required page number or pagination')),
+    pageSize: z.optional(z.coerce.number().describe('to request with required page size')),
   })
   .optional() as unknown as ToZod<FindPetsByTagsQueryParams>
 

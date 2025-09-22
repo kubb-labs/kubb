@@ -97,8 +97,6 @@ describe('mutationGenerator operation', async () => {
         methods: ['post'],
         importPath: '@tanstack/solid-query',
       },
-      suspense: false,
-      infinite: false,
       output: {
         path: '.',
       },

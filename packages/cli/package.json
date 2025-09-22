@@ -55,7 +55,6 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/ui": "workspace:*",
     "chokidar": "^4.0.3",
     "citty": "^0.1.6",
     "cli-progress": "^3.12.0",
@@ -65,13 +64,11 @@
     "gradient-string": "^3.0.0",
     "jiti": "^2.5.1",
     "latest-version": "^9.0.0",
-    "open": "^10.2.0",
     "picocolors": "^1.1.1",
     "semver": "^7.7.2",
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
     "@kubb/mcp": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",

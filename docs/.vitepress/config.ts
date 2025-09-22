@@ -530,7 +530,6 @@ export default defineConfig({
           compilerOptions: {
             paths: {
               '@kubb/cli': ['../packages/cli/src/index.ts'],
-              '@kubb/config-ts': ['../packages/config/config-ts/src/index.ts'],
               '@kubb/core': ['../packages/core/src/index.ts'],
               '@kubb/types': ['../packages/types/src/index.ts'],
               '@kubb/core/utils': ['../packages/core/src/utils/index.ts'],

@@ -14,7 +14,7 @@ export type CreatePetsPathParamsSchema = z.infer<typeof createPetsPathParamsSche
 
 export const createPetsQueryParamsSchema = z
   .object({
-    offset: z.coerce.number().int().describe('Offset').optional(),
+    offset: z.optional(z.coerce.number().int().describe('Offset')),
   })
   .optional()
 

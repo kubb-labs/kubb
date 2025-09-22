@@ -9,6 +9,6 @@ import { z } from 'zod'
  */
 export const petTupleObject = z
   .object({
-    tupleProperty: z.tuple([z.string(), z.string()]).optional(),
+    tupleProperty: z.optional(z.tuple([z.string(), z.string()])),
   })
   .describe('Tuple of exact length 2 nested in an object')

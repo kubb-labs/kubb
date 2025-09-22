@@ -6,79 +6,76 @@
 import { z } from 'zod'
 
 export const orderSchema = z.object({
-  id: z.number().int().optional(),
-  petId: z.number().int().optional(),
-  quantity: z.number().int().optional(),
-  shipDate: z.string().datetime().optional(),
-  status: z.enum(['placed', 'approved', 'delivered']).describe('Order Status').optional(),
-  http_status: z
-    .union([z.literal(200), z.literal(400), z.literal(500)])
-    .describe("HTTP Status's and item of this")
-    .optional(),
-  complete: z.boolean().optional(),
+  id: z.optional(z.number().int()),
+  petId: z.optional(z.number().int()),
+  quantity: z.optional(z.number().int()),
+  shipDate: z.optional(z.string().datetime()),
+  status: z.optional(z.enum(['placed', 'approved', 'delivered']).describe('Order Status')),
+  http_status: z.optional(z.union([z.literal(200), z.literal(400), z.literal(500)]).describe("HTTP Status's and item of this")),
+  complete: z.optional(z.boolean()),
 })
 
 export const customerSchema = z.object({
-  id: z.number().int().optional(),
-  username: z.string().optional(),
-  address: z.array(z.lazy(() => addressSchema)).optional(),
+  id: z.optional(z.number().int()),
+  username: z.optional(z.string()),
+  address: z.optional(z.array(z.lazy(() => addressSchema))),
 })
 
 export const addressSchema = z.object({
-  street: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  zip: z.string().optional(),
+  street: z.optional(z.string()),
+  city: z.optional(z.string()),
+  state: z.optional(z.string()),
+  zip: z.optional(z.string()),
 })
 
 export const categorySchema = z.object({
-  id: z.number().int().optional(),
-  name: z.string().optional(),
+  id: z.optional(z.number().int()),
+  name: z.optional(z.string()),
 })
 
 export const userSchema = z.object({
-  id: z.number().int().optional(),
-  username: z.string().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  email: z.string().optional(),
-  password: z.string().optional(),
-  phone: z.string().optional(),
-  userStatus: z.number().int().describe('User Status').optional(),
+  id: z.optional(z.number().int()),
+  username: z.optional(z.string()),
+  firstName: z.optional(z.string()),
+  lastName: z.optional(z.string()),
+  email: z.optional(z.string()),
+  password: z.optional(z.string()),
+  phone: z.optional(z.string()),
+  userStatus: z.optional(z.number().int().describe('User Status')),
 })
 
 export const tagSchema = z.object({
-  id: z.number().int().optional(),
-  name: z.string().optional(),
+  id: z.optional(z.number().int()),
+  name: z.optional(z.string()),
 })
 
 export const petSchema = z.object({
-  id: z.number().int().optional(),
+  id: z.optional(z.number().int()),
   name: z.string(),
-  category: z.lazy(() => categorySchema).optional(),
+  category: z.optional(z.lazy(() => categorySchema)),
   photoUrls: z.array(z.string()),
-  tags: z.array(z.lazy(() => tagSchema)).optional(),
-  status: z.enum(['available', 'pending', 'sold']).describe('pet status in the store').optional(),
+  tags: z.optional(z.array(z.lazy(() => tagSchema))),
+  status: z.optional(z.enum(['available', 'pending', 'sold']).describe('pet status in the store')),
 })
 
 export const addPetRequestSchema = z.object({
-  id: z.number().int().optional(),
+  id: z.optional(z.number().int()),
   name: z.string(),
-  category: z.lazy(() => categorySchema).optional(),
+  category: z.optional(z.lazy(() => categorySchema)),
   photoUrls: z.array(z.string()),
-  tags: z.array(z.lazy(() => tagSchema)).optional(),
-  status: z.enum(['available', 'pending', 'sold']).describe('pet status in the store').optional(),
+  tags: z.optional(z.array(z.lazy(() => tagSchema))),
+  status: z.optional(z.enum(['available', 'pending', 'sold']).describe('pet status in the store')),
 })
 
 export const apiResponseSchema = z.object({
-  code: z.number().int().optional(),
-  type: z.string().optional(),
-  message: z.string().optional(),
+  code: z.optional(z.number().int()),
+  type: z.optional(z.string()),
+  message: z.optional(z.string()),
 })
 
 export const petNotFoundSchema = z.object({
-  code: z.number().int().optional(),
-  message: z.string().optional(),
+  code: z.optional(z.number().int()),
+  message: z.optional(z.string()),
 })
 
 export const userArraySchema = z.array(z.lazy(() => userSchema))
@@ -119,8 +116,8 @@ export const addPet200Schema = z.lazy(() => petSchema)
  * @description Pet not found
  */
 export const addPet405Schema = z.object({
-  code: z.number().int().optional(),
-  message: z.string().optional(),
+  code: z.optional(z.number().int()),
+  message: z.optional(z.string()),
 })
 
 /**
@@ -131,7 +128,7 @@ export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema)
 export const addPetMutationResponseSchema = z.lazy(() => addPet200Schema)
 
 export const findPetsByStatusQueryParamsSchema = z.object({
-  status: z.enum(['available', 'pending', 'sold']).default('available').describe('Status values that need to be considered for filter'),
+  status: z.optional(z.enum(['available', 'pending', 'sold']).default('available').describe('Status values that need to be considered for filter')),
 })
 
 /**
@@ -148,9 +145,9 @@ export const findPetsByStatusQueryResponseSchema = z.lazy(() => findPetsByStatus
 
 export const findPetsByTagsQueryParamsSchema = z
   .object({
-    tags: z.array(z.string()).describe('Tags to filter by').optional(),
-    page: z.string().describe('to request with required page number or pagination').optional(),
-    pageSize: z.string().describe('to request with required page size').optional(),
+    tags: z.optional(z.array(z.string()).describe('Tags to filter by')),
+    page: z.optional(z.string().describe('to request with required page number or pagination')),
+    pageSize: z.optional(z.string().describe('to request with required page size')),
   })
   .optional()
 
@@ -193,8 +190,8 @@ export const updatePetWithFormPathParamsSchema = z.object({
 
 export const updatePetWithFormQueryParamsSchema = z
   .object({
-    name: z.string().describe('Name of pet that needs to be updated').optional(),
-    status: z.string().describe('Status of pet that needs to be updated').optional(),
+    name: z.optional(z.string().describe('Name of pet that needs to be updated')),
+    status: z.optional(z.string().describe('Status of pet that needs to be updated')),
   })
   .optional()
 
@@ -211,7 +208,7 @@ export const deletePetPathParamsSchema = z.object({
 
 export const deletePetHeaderParamsSchema = z
   .object({
-    api_key: z.string().optional(),
+    api_key: z.optional(z.string()),
   })
   .optional()
 
@@ -228,7 +225,7 @@ export const uploadFilePathParamsSchema = z.object({
 
 export const uploadFileQueryParamsSchema = z
   .object({
-    additionalMetadata: z.string().describe('Additional Metadata').optional(),
+    additionalMetadata: z.optional(z.string().describe('Additional Metadata')),
   })
   .optional()
 
@@ -341,8 +338,8 @@ export const createUsersWithListInputMutationResponseSchema = z.lazy(() => creat
 
 export const loginUserQueryParamsSchema = z
   .object({
-    username: z.string().describe('The user name for login').optional(),
-    password: z.string().describe('The password for login in clear text').optional(),
+    username: z.optional(z.string().describe('The user name for login')),
+    password: z.optional(z.string().describe('The password for login in clear text')),
   })
   .optional()
 
