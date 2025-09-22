@@ -1,5 +1,18 @@
 # @kubb/plugin-ts
 
+## 4.0.1
+
+### Patch Changes
+
+- [#1875](https://github.com/kubb-labs/kubb/pull/1875) [`c531bb9`](https://github.com/kubb-labs/kubb/commit/c531bb9c898c8974c74a80e3c65ac3ea7229538b) Thanks [@Ericlm](https://github.com/Ericlm)! - fix: enums generated with "asConst" have a "Key" suffix
+
+- Updated dependencies []:
+  - @kubb/core@4.0.1
+  - @kubb/oas@4.0.1
+  - @kubb/parser-ts@4.0.1
+  - @kubb/plugin-oas@4.0.1
+  - @kubb/react@4.0.1
+
 ## 4.0.0
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-solid-query",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Solid Query hooks generator plugin for Kubb, creating type-safe API client hooks from OpenAPI specifications for Solid.js applications.",
   "keywords": [
     "solid-query",
