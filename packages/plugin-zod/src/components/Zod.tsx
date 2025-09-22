@@ -88,7 +88,7 @@ export function Zod({
   )
 
   const baseSchemaOutput =
-    [output, keysToOmit?.length ? `${suffix}.omit({ ${keysToOmit.map((key) => `${key}: true`).join(',')} })` : undefined].filter(Boolean).join('') ||
+    [output, keysToOmit?.length ? `${suffix}.omit({ ${keysToOmit.map((key) => `'${key}': true`).join(',')} })` : undefined].filter(Boolean).join('') ||
     emptyValue ||
     ''
   const wrappedSchemaOutput = wrapOutput ? wrapOutput({ output: baseSchemaOutput, schema: rawSchema }) || baseSchemaOutput : baseSchemaOutput

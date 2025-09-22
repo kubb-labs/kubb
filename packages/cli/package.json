@@ -62,7 +62,7 @@
     "cosmiconfig": "^9.0.0",
     "execa": "^9.6.0",
     "gradient-string": "^3.0.0",
-    "jiti": "^2.5.1",
+    "jiti": "^2.6.0",
     "latest-version": "^9.0.0",
     "picocolors": "^1.1.1",
     "semver": "^7.7.2",

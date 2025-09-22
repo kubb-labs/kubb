@@ -4,6 +4,12 @@ title: Changelog
 
 # Changelog
 
+# 4.0.2
+- [`plugin-zod`](/plugins/plugin-zod): Escape omit keys correctly with `'`
+
+# 4.0.1
+- Upgrade internal packages
+
 # 4.0.0
 - [`plugin-ts`](/plugins/plugin-ts): enums generated with "asConst" have a "Key" suffix
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): unwrap in vue infinite query
