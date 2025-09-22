@@ -1,5 +1,19 @@
 # @kubb/plugin-zod
 
+## 4.0.2
+
+### Patch Changes
+
+- [`fe675c6`](https://github.com/kubb-labs/kubb/commit/fe675c66ba624339bccfbba3ab75c8acadeca239) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Escape omit keys
+
+- Updated dependencies []:
+  - @kubb/core@4.0.2
+  - @kubb/oas@4.0.2
+  - @kubb/parser-ts@4.0.2
+  - @kubb/plugin-oas@4.0.2
+  - @kubb/plugin-ts@4.0.2
+  - @kubb/react@4.0.2
+
 ## 4.0.1
 
 ### Patch Changes

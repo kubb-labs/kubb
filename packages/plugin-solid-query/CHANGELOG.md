@@ -1,5 +1,20 @@
 # @kubb/plugin-solid-query
 
+## 4.0.2
+
+### Patch Changes
+
+- [`70c8ee9`](https://github.com/kubb-labs/kubb/commit/70c8ee9b05f1c5caae9dee935b32a9e8d3ade569) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support generating mutations with @kubb/plugin-solid-query
+
+- Updated dependencies [[`fe675c6`](https://github.com/kubb-labs/kubb/commit/fe675c66ba624339bccfbba3ab75c8acadeca239)]:
+  - @kubb/plugin-zod@4.0.2
+  - @kubb/plugin-client@4.0.2
+  - @kubb/core@4.0.2
+  - @kubb/oas@4.0.2
+  - @kubb/plugin-oas@4.0.2
+  - @kubb/plugin-ts@4.0.2
+  - @kubb/react@4.0.2
+
 ## 4.0.1
 
 ### Patch Changes
