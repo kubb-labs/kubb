@@ -1,5 +1,24 @@
 # @kubb/mcp
 
+## 4.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.0.2
+  - @kubb/plugin-client@4.0.2
+  - @kubb/plugin-cypress@4.0.2
+  - @kubb/plugin-faker@4.0.2
+  - @kubb/plugin-mcp@4.0.2
+  - @kubb/plugin-msw@4.0.2
+  - @kubb/plugin-oas@4.0.2
+  - @kubb/plugin-react-query@4.0.2
+  - @kubb/plugin-redoc@4.0.2
+  - @kubb/plugin-swr@4.0.2
+  - @kubb/plugin-ts@4.0.2
+  - @kubb/plugin-zod@4.0.2
+  - @kubb/react@4.0.2
+
 ## 4.0.1
 
 ### Patch Changes
