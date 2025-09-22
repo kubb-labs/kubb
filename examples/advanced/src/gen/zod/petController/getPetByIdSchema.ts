@@ -1,35 +1,33 @@
-import type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils/v4'
 import { petSchema } from '../petSchema.ts'
 import { z } from 'zod/v4'
 
 export const getPetByIdPathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet to return'),
-}) as unknown as ToZod<GetPetByIdPathParams>
+})
 
-export type GetPetByIdPathParamsSchema = GetPetByIdPathParams
+export type GetPetByIdPathParamsSchema = z.infer<typeof getPetByIdPathParamsSchema>
 
 /**
  * @description successful operation
  */
-export const getPetById200Schema = petSchema.omit({ name: true }) as unknown as ToZod<GetPetById200>
+export const getPetById200Schema = petSchema.omit({ name: true })
 
-export type GetPetById200Schema = GetPetById200
+export type GetPetById200Schema = z.infer<typeof getPetById200Schema>
 
 /**
  * @description Invalid ID supplied
  */
-export const getPetById400Schema = z.any() as unknown as ToZod<GetPetById400>
+export const getPetById400Schema = z.any()
 
-export type GetPetById400Schema = GetPetById400
+export type GetPetById400Schema = z.infer<typeof getPetById400Schema>
 
 /**
  * @description Pet not found
  */
-export const getPetById404Schema = z.any() as unknown as ToZod<GetPetById404>
+export const getPetById404Schema = z.any()
 
-export type GetPetById404Schema = GetPetById404
+export type GetPetById404Schema = z.infer<typeof getPetById404Schema>
 
-export const getPetByIdQueryResponseSchema = getPetById200Schema as unknown as ToZod<GetPetByIdQueryResponse>
+export const getPetByIdQueryResponseSchema = getPetById200Schema
 
-export type GetPetByIdQueryResponseSchema = GetPetByIdQueryResponse
+export type GetPetByIdQueryResponseSchema = z.infer<typeof getPetByIdQueryResponseSchema>

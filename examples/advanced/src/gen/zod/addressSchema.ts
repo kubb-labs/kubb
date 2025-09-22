@@ -1,5 +1,3 @@
-import type { Address } from '../models/ts/Address.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils/v4'
 import { z } from 'zod/v4'
 
 export const addressSchema = z.object({
@@ -7,6 +5,6 @@ export const addressSchema = z.object({
   city: z.optional(z.string()),
   state: z.optional(z.string()),
   zip: z.optional(z.string()),
-}) as unknown as ToZod<Address>
+})
 
-export type AddressSchema = Address
+export type AddressSchema = z.infer<typeof addressSchema>

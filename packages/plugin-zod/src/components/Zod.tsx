@@ -92,7 +92,7 @@ export function Zod({
     emptyValue ||
     ''
   const wrappedSchemaOutput = wrapOutput ? wrapOutput({ output: baseSchemaOutput, schema: rawSchema }) || baseSchemaOutput : baseSchemaOutput
-  const finalOutput = typeName ? `${wrappedSchemaOutput} as unknown as ToZod<${typeName}>` : wrappedSchemaOutput
+  const finalOutput = typeName ? `${wrappedSchemaOutput} as unknown as ${version === '4' ? 'z.ZodType' : 'ToZod'}<${typeName}>` : wrappedSchemaOutput
 
   return (
     <>

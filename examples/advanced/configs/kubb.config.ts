@@ -3,8 +3,9 @@
 
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
-import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginCypress } from '@kubb/plugin-cypress'
+import { pluginFaker } from '@kubb/plugin-faker'
+import { pluginMcp } from '@kubb/plugin-mcp'
 import { pluginMsw } from '@kubb/plugin-msw'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
@@ -12,7 +13,6 @@ import { pluginRedoc } from '@kubb/plugin-redoc'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
-import { pluginMcp } from '@kubb/plugin-mcp'
 
 export default defineConfig(() => {
   return [
@@ -193,7 +193,7 @@ export default defineConfig(() => {
           group: { type: 'tag' },
           dateType: 'stringOffset',
           inferred: true,
-          typed: true,
+          typed: false,
           operations: false,
           version: '4',
         }),
