@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../../models/PlaceOrder.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const placeOrderMutationKey = () => [{ url: '/store/order' }] as const
 
@@ -35,6 +35,16 @@ export async function placeOrderHook(
   return res.data
 }
 
+export function placeOrderMutationOptionsHook(config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch } = {}) {
+  const mutationKey = placeOrderMutationKey()
+  return mutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, typeof mutationKey>({
+    mutationKey,
+    mutationFn: async ({ data }) => {
+      return placeOrderHook(data, config)
+    },
+  })
+}
+
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
@@ -52,14 +62,12 @@ export function usePlaceOrderHook<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? placeOrderMutationKey()
 
-  return useMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>(
+  return useMutation(
     {
-      mutationFn: async ({ data }) => {
-        return placeOrderHook(data, config)
-      },
+      ...placeOrderMutationOptionsHook(config),
       mutationKey,
       ...mutationOptions,
-    },
+    } as unknown as UseMutationOptions,
     queryClient,
-  )
+  ) as UseMutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>
 }

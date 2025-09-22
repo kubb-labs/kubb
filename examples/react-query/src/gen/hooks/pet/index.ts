@@ -11,8 +11,8 @@ export type { UpdatePetMutationKey } from './useUpdatePetHook.ts'
 export type { UpdatePetWithFormQueryKey } from './useUpdatePetWithFormHook.ts'
 export type { UpdatePetWithFormSuspenseQueryKey } from './useUpdatePetWithFormSuspenseHook.ts'
 export type { UploadFileMutationKey } from './useUploadFileHook.ts'
-export { addPetMutationKey, addPetHook, useAddPetHook } from './useAddPetHook.ts'
-export { deletePetMutationKey, deletePetHook, useDeletePetHook } from './useDeletePetHook.ts'
+export { addPetMutationKey, addPetHook, addPetMutationOptionsHook, useAddPetHook } from './useAddPetHook.ts'
+export { deletePetMutationKey, deletePetHook, deletePetMutationOptionsHook, useDeletePetHook } from './useDeletePetHook.ts'
 export { findPetsByStatusQueryKey, findPetsByStatusHook, findPetsByStatusQueryOptionsHook, useFindPetsByStatusHook } from './useFindPetsByStatusHook.ts'
 export {
   findPetsByStatusSuspenseQueryKey,
@@ -40,7 +40,7 @@ export {
   getPetByIdSuspenseQueryOptionsHook,
   useGetPetByIdSuspenseHook,
 } from './useGetPetByIdSuspenseHook.ts'
-export { updatePetMutationKey, updatePetHook, useUpdatePetHook } from './useUpdatePetHook.ts'
+export { updatePetMutationKey, updatePetHook, updatePetMutationOptionsHook, useUpdatePetHook } from './useUpdatePetHook.ts'
 export { updatePetWithFormQueryKey, updatePetWithFormHook, updatePetWithFormQueryOptionsHook, useUpdatePetWithFormHook } from './useUpdatePetWithFormHook.ts'
 export {
   updatePetWithFormSuspenseQueryKey,
@@ -48,4 +48,4 @@ export {
   updatePetWithFormSuspenseQueryOptionsHook,
   useUpdatePetWithFormSuspenseHook,
 } from './useUpdatePetWithFormSuspenseHook.ts'
-export { uploadFileMutationKey, uploadFileHook, useUploadFileHook } from './useUploadFileHook.ts'
+export { uploadFileMutationKey, uploadFileHook, uploadFileMutationOptionsHook, useUploadFileHook } from './useUploadFileHook.ts'

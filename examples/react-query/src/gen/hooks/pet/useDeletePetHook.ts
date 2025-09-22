@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../models/DeletePet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const deletePetMutationKey = () => [{ url: '/pet/:pet_id' }] as const
 
@@ -34,6 +34,21 @@ export async function deletePetHook(
   return res.data
 }
 
+export function deletePetMutationOptionsHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const mutationKey = deletePetMutationKey()
+  return mutationOptions<
+    DeletePetMutationResponse,
+    ResponseErrorConfig<DeletePet400>,
+    { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },
+    typeof mutationKey
+  >({
+    mutationKey,
+    mutationFn: async ({ pet_id, headers }) => {
+      return deletePetHook({ pet_id }, headers, config)
+    },
+  })
+}
+
 /**
  * @description delete a pet
  * @summary Deletes a pet
@@ -54,19 +69,17 @@ export function useDeletePetHook<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? deletePetMutationKey()
 
-  return useMutation<
+  return useMutation(
+    {
+      ...deletePetMutationOptionsHook(config),
+      mutationKey,
+      ...mutationOptions,
+    } as unknown as UseMutationOptions,
+    queryClient,
+  ) as UseMutationOptions<
     DeletePetMutationResponse,
     ResponseErrorConfig<DeletePet400>,
     { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },
     TContext
-  >(
-    {
-      mutationFn: async ({ pet_id, headers }) => {
-        return deletePetHook({ pet_id }, headers, config)
-      },
-      mutationKey,
-      ...mutationOptions,
-    },
-    queryClient,
-  )
+  >
 }

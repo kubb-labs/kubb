@@ -3,11 +3,26 @@ import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { deletePet } from '../../axios/petService/deletePet.ts'
-import { useMutation } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const deletePetMutationKey = () => [{ url: '/pet/:petId:search' }] as const
 
 export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
+
+export function deletePetMutationOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const mutationKey = deletePetMutationKey()
+  return mutationOptions<
+    ResponseConfig<DeletePetMutationResponse>,
+    ResponseErrorConfig<DeletePet400>,
+    { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
+    typeof mutationKey
+  >({
+    mutationKey,
+    mutationFn: async ({ petId, headers }) => {
+      return deletePet({ petId, headers }, config)
+    },
+  })
+}
 
 /**
  * @description delete a pet
@@ -29,19 +44,17 @@ export function useDeletePet<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? deletePetMutationKey()
 
-  return useMutation<
+  return useMutation(
+    {
+      ...deletePetMutationOptions(config),
+      mutationKey,
+      ...mutationOptions,
+    } as unknown as UseMutationOptions,
+    queryClient,
+  ) as UseMutationOptions<
     ResponseConfig<DeletePetMutationResponse>,
     ResponseErrorConfig<DeletePet400>,
     { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
     TContext
-  >(
-    {
-      mutationFn: async ({ petId, headers }) => {
-        return deletePet({ petId, headers }, config)
-      },
-      mutationKey,
-      ...mutationOptions,
-    },
-    queryClient,
-  )
+  >
 }

@@ -9,11 +9,26 @@ import type {
 } from '../../../models/ts/petController/UpdatePet.ts'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { updatePet } from '../../axios/petService/updatePet.ts'
-import { useMutation } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const
 
 export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
+
+export function updatePetMutationOptions(config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch } = {}) {
+  const mutationKey = updatePetMutationKey()
+  return mutationOptions<
+    ResponseConfig<UpdatePetMutationResponse>,
+    ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
+    { data: UpdatePetMutationRequest },
+    typeof mutationKey
+  >({
+    mutationKey,
+    mutationFn: async ({ data }) => {
+      return updatePet({ data }, config)
+    },
+  })
+}
 
 /**
  * @description Update an existing pet by Id
@@ -35,19 +50,17 @@ export function useUpdatePet<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? updatePetMutationKey()
 
-  return useMutation<
+  return useMutation(
+    {
+      ...updatePetMutationOptions(config),
+      mutationKey,
+      ...mutationOptions,
+    } as unknown as UseMutationOptions,
+    queryClient,
+  ) as UseMutationOptions<
     ResponseConfig<UpdatePetMutationResponse>,
     ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
     { data: UpdatePetMutationRequest },
     TContext
-  >(
-    {
-      mutationFn: async ({ data }) => {
-        return updatePet({ data }, config)
-      },
-      mutationKey,
-      ...mutationOptions,
-    },
-    queryClient,
-  )
+  >
 }

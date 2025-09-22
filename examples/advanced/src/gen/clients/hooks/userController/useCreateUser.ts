@@ -3,11 +3,21 @@ import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { createUser } from '../../axios/userService/createUser.ts'
-import { useMutation } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
 
 export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
+
+export function createUserMutationOptions(config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {}) {
+  const mutationKey = createUserMutationKey()
+  return mutationOptions<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, typeof mutationKey>({
+    mutationKey,
+    mutationFn: async ({ data }) => {
+      return createUser({ data }, config)
+    },
+  })
+}
 
 /**
  * @description This can only be done by the logged in user.
@@ -26,14 +36,12 @@ export function useCreateUser<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? createUserMutationKey()
 
-  return useMutation<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>(
+  return useMutation(
     {
-      mutationFn: async ({ data }) => {
-        return createUser({ data }, config)
-      },
+      ...createUserMutationOptions(config),
       mutationKey,
       ...mutationOptions,
-    },
+    } as unknown as UseMutationOptions,
     queryClient,
-  )
+  ) as UseMutationOptions<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>
 }

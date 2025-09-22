@@ -8,6 +8,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 import { File, useApp } from '@kubb/react'
 import { difference } from 'remeda'
 import { Mutation, MutationKey } from '../components'
+import { MutationOptions } from '../components/MutationOptions.tsx'
 import type { PluginReactQuery } from '../types'
 
 export const mutationGenerator = createReactGenerator<PluginReactQuery>({
@@ -57,6 +58,10 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
             type: 'function',
           }),
       file: getFile(operation, { pluginKey: [pluginClientName] }),
+    }
+
+    const mutationOptions = {
+      name: getName(operation, { type: 'function', suffix: 'MutationOptions' }),
     }
 
     const mutationKey = {
@@ -120,19 +125,30 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
             parser={options.parser}
           />
         )}
+        <File.Import name={['mutationOptions']} path={importPath} />
+
+        <MutationOptions
+          name={mutationOptions.name}
+          clientName={client.name}
+          mutationKeyName={mutationKey.name}
+          typeSchemas={type.schemas}
+          paramsCasing={options.paramsCasing}
+          paramsType={options.paramsType}
+          pathParamsType={options.pathParamsType}
+          dataReturnType={options.client.dataReturnType}
+        />
         {options.mutation && (
           <>
             <File.Import name={['useMutation']} path={importPath} />
             <File.Import name={['UseMutationOptions', 'QueryClient']} path={importPath} isTypeOnly />
             <Mutation
               name={mutation.name}
-              clientName={client.name}
+              mutationOptionsName={mutationOptions.name}
               typeName={mutation.typeName}
               typeSchemas={type.schemas}
               operation={operation}
               dataReturnType={options.client.dataReturnType}
               paramsCasing={options.paramsCasing}
-              paramsType={options.paramsType}
               pathParamsType={options.pathParamsType}
               mutationKeyName={mutationKey.name}
             />

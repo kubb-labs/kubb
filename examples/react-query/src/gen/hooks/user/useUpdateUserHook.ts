@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/UpdateUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
@@ -36,6 +36,21 @@ export async function updateUserHook(
   return res.data
 }
 
+export function updateUserMutationOptionsHook(config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch } = {}) {
+  const mutationKey = updateUserMutationKey()
+  return mutationOptions<
+    UpdateUserMutationResponse,
+    ResponseErrorConfig<Error>,
+    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    typeof mutationKey
+  >({
+    mutationKey,
+    mutationFn: async ({ username, data }) => {
+      return updateUserHook({ username }, data, config)
+    },
+  })
+}
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
@@ -56,19 +71,17 @@ export function useUpdateUserHook<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? updateUserMutationKey()
 
-  return useMutation<
+  return useMutation(
+    {
+      ...updateUserMutationOptionsHook(config),
+      mutationKey,
+      ...mutationOptions,
+    } as unknown as UseMutationOptions,
+    queryClient,
+  ) as UseMutationOptions<
     UpdateUserMutationResponse,
     ResponseErrorConfig<Error>,
     { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
     TContext
-  >(
-    {
-      mutationFn: async ({ username, data }) => {
-        return updateUserHook({ username }, data, config)
-      },
-      mutationKey,
-      ...mutationOptions,
-    },
-    queryClient,
-  )
+  >
 }
