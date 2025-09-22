@@ -8,6 +8,6 @@ export const enumNullableMemberEnum = {
   second: 'second',
 } as const
 
-export type EnumNullableMemberEnum = (typeof enumNullableMemberEnum)[keyof typeof enumNullableMemberEnum]
+export type EnumNullableMemberEnumKey = (typeof enumNullableMemberEnum)[keyof typeof enumNullableMemberEnum]
 
-export type enumNullableMember = EnumNullableMemberEnum | null
+export type enumNullableMember = EnumNullableMemberEnumKey | null

@@ -8,11 +8,11 @@ export const enumInObjectReasonEnum = {
   description: 'description',
 } as const
 
-export type EnumInObjectReasonEnum = (typeof enumInObjectReasonEnum)[keyof typeof enumInObjectReasonEnum]
+export type EnumInObjectReasonEnumKey = (typeof enumInObjectReasonEnum)[keyof typeof enumInObjectReasonEnum]
 
 export type enumInObject = {
   /**
    * @type string | undefined
    */
-  reason?: EnumInObjectReasonEnum
+  reason?: EnumInObjectReasonEnumKey
 }

@@ -1,13 +1,13 @@
-import path from "node:path";
-import type { Plugin } from "@kubb/core";
-import { createMockedPluginManager, matchFiles } from "@kubb/core/mocks";
-import type { HttpMethod } from "@kubb/oas";
-import { parse } from "@kubb/oas";
-import { OperationGenerator, SchemaGenerator } from "@kubb/plugin-oas";
-import { getSchemas } from "@kubb/plugin-oas/utils";
-import ts, { factory } from "typescript";
-import type { PluginTs } from "../types.ts";
-import { typeGenerator } from "./typeGenerator.tsx";
+import path from 'node:path'
+import type { Plugin } from '@kubb/core'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas'
+import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
+import { getSchemas } from '@kubb/plugin-oas/utils'
+import type { PluginTs } from '../types.ts'
+import { typeGenerator } from './typeGenerator.tsx'
+import ts, { factory } from 'typescript'
 
 describe("typeGenerator schema", async () => {
   const testData = [
@@ -156,9 +156,18 @@ describe("typeGenerator schema", async () => {
       },
     },
     {
-      name: "EnumNamesType",
-      input: "../../mocks/enums.yaml",
-      path: "enumNames.Type",
+      name: 'PascalEnum',
+      input: '../../mocks/enums.yaml',
+      path: 'PASCALEnums.Type',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'EnumNamesType',
+      input: '../../mocks/enums.yaml',
+      path: 'enumNames.Type',
       options: {
         enumType: "asConst",
         optionalType: "questionToken",
