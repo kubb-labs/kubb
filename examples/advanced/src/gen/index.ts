@@ -180,9 +180,9 @@ export { getLoginUserUrl, loginUser } from './clients/axios/userService/loginUse
 export { getLogoutUserUrl, logoutUser } from './clients/axios/userService/logoutUser.ts'
 export { getUpdateUserUrl, updateUser } from './clients/axios/userService/updateUser.ts'
 export { userService } from './clients/axios/userService/userService.ts'
-export { addFilesMutationKey, useAddFiles } from './clients/hooks/petController/useAddFiles.ts'
-export { addPetMutationKey, useAddPet } from './clients/hooks/petController/useAddPet.ts'
-export { deletePetMutationKey, useDeletePet } from './clients/hooks/petController/useDeletePet.ts'
+export { addFilesMutationKey, addFilesMutationOptions, useAddFiles } from './clients/hooks/petController/useAddFiles.ts'
+export { addPetMutationKey, addPetMutationOptions, useAddPet } from './clients/hooks/petController/useAddPet.ts'
+export { deletePetMutationKey, deletePetMutationOptions, useDeletePet } from './clients/hooks/petController/useDeletePet.ts'
 export { findPetsByStatusQueryKey, findPetsByStatusQueryOptions, useFindPetsByStatus } from './clients/hooks/petController/useFindPetsByStatus.ts'
 export { findPetsByTagsQueryKey, findPetsByTagsQueryOptions, useFindPetsByTags } from './clients/hooks/petController/useFindPetsByTags.ts'
 export {
@@ -191,17 +191,21 @@ export {
   useFindPetsByTagsInfinite,
 } from './clients/hooks/petController/useFindPetsByTagsInfinite.ts'
 export { getPetByIdQueryKey, getPetByIdQueryOptions, useGetPetById } from './clients/hooks/petController/useGetPetById.ts'
-export { updatePetMutationKey, useUpdatePet } from './clients/hooks/petController/useUpdatePet.ts'
-export { updatePetWithFormMutationKey, useUpdatePetWithForm } from './clients/hooks/petController/useUpdatePetWithForm.ts'
-export { uploadFileMutationKey, useUploadFile } from './clients/hooks/petController/useUploadFile.ts'
-export { createPetsMutationKey, useCreatePets } from './clients/hooks/petsController/useCreatePets.ts'
-export { createUserMutationKey, useCreateUser } from './clients/hooks/userController/useCreateUser.ts'
-export { createUsersWithListInputMutationKey, useCreateUsersWithListInput } from './clients/hooks/userController/useCreateUsersWithListInput.ts'
-export { deleteUserMutationKey, useDeleteUser } from './clients/hooks/userController/useDeleteUser.ts'
+export { updatePetMutationKey, updatePetMutationOptions, useUpdatePet } from './clients/hooks/petController/useUpdatePet.ts'
+export { updatePetWithFormMutationKey, updatePetWithFormMutationOptions, useUpdatePetWithForm } from './clients/hooks/petController/useUpdatePetWithForm.ts'
+export { uploadFileMutationKey, uploadFileMutationOptions, useUploadFile } from './clients/hooks/petController/useUploadFile.ts'
+export { createPetsMutationKey, createPetsMutationOptions, useCreatePets } from './clients/hooks/petsController/useCreatePets.ts'
+export { createUserMutationKey, createUserMutationOptions, useCreateUser } from './clients/hooks/userController/useCreateUser.ts'
+export {
+  createUsersWithListInputMutationKey,
+  createUsersWithListInputMutationOptions,
+  useCreateUsersWithListInput,
+} from './clients/hooks/userController/useCreateUsersWithListInput.ts'
+export { deleteUserMutationKey, deleteUserMutationOptions, useDeleteUser } from './clients/hooks/userController/useDeleteUser.ts'
 export { getUserByNameQueryKey, getUserByNameQueryOptions, useGetUserByName } from './clients/hooks/userController/useGetUserByName.ts'
 export { loginUserQueryKey, loginUserQueryOptions, useLoginUser } from './clients/hooks/userController/useLoginUser.ts'
 export { logoutUserQueryKey, logoutUserQueryOptions, useLogoutUser } from './clients/hooks/userController/useLogoutUser.ts'
-export { updateUserMutationKey, useUpdateUser } from './clients/hooks/userController/useUpdateUser.ts'
+export { updateUserMutationKey, updateUserMutationOptions, useUpdateUser } from './clients/hooks/userController/useUpdateUser.ts'
 export { addFilesMutationKeySWR, useAddFilesSWR } from './clients/swr/petController/useAddFilesSWR.ts'
 export { addPetMutationKeySWR, useAddPetSWR } from './clients/swr/petController/useAddPetSWR.ts'
 export { deletePetMutationKeySWR, useDeletePetSWR } from './clients/swr/petController/useDeletePetSWR.ts'

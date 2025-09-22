@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../../models/UploadFile.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const uploadFileMutationKey = () => [{ url: '/pet/:petId/uploadImage' }] as const
 
@@ -38,6 +38,21 @@ export async function uploadFileHook(
   return res.data
 }
 
+export function uploadFileMutationOptionsHook(config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch } = {}) {
+  const mutationKey = uploadFileMutationKey()
+  return mutationOptions<
+    UploadFileMutationResponse,
+    ResponseErrorConfig<Error>,
+    { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+    typeof mutationKey
+  >({
+    mutationKey,
+    mutationFn: async ({ petId, data, params }) => {
+      return uploadFileHook({ petId }, data, params, config)
+    },
+  })
+}
+
 /**
  * @summary uploads an image
  * {@link /pet/:petId/uploadImage}
@@ -57,19 +72,17 @@ export function useUploadFileHook<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? uploadFileMutationKey()
 
-  return useMutation<
+  return useMutation(
+    {
+      ...uploadFileMutationOptionsHook(config),
+      mutationKey,
+      ...mutationOptions,
+    } as unknown as UseMutationOptions,
+    queryClient,
+  ) as UseMutationOptions<
     UploadFileMutationResponse,
     ResponseErrorConfig<Error>,
     { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
     TContext
-  >(
-    {
-      mutationFn: async ({ petId, data, params }) => {
-        return uploadFileHook({ petId }, data, params, config)
-      },
-      mutationKey,
-      ...mutationOptions,
-    },
-    queryClient,
-  )
+  >
 }

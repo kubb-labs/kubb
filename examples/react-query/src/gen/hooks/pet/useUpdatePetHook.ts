@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../../models/UpdatePet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const
 
@@ -32,6 +32,21 @@ export async function updatePetHook(data: UpdatePetMutationRequest, config: Part
   return res.data
 }
 
+export function updatePetMutationOptionsHook(config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch } = {}) {
+  const mutationKey = updatePetMutationKey()
+  return mutationOptions<
+    UpdatePetMutationResponse,
+    ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
+    { data: UpdatePetMutationRequest },
+    typeof mutationKey
+  >({
+    mutationKey,
+    mutationFn: async ({ data }) => {
+      return updatePetHook(data, config)
+    },
+  })
+}
+
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
@@ -52,14 +67,17 @@ export function useUpdatePetHook<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? updatePetMutationKey()
 
-  return useMutation<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, { data: UpdatePetMutationRequest }, TContext>(
+  return useMutation(
     {
-      mutationFn: async ({ data }) => {
-        return updatePetHook(data, config)
-      },
+      ...updatePetMutationOptionsHook(config),
       mutationKey,
       ...mutationOptions,
-    },
+    } as unknown as UseMutationOptions,
     queryClient,
-  )
+  ) as UseMutationOptions<
+    UpdatePetMutationResponse,
+    ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
+    { data: UpdatePetMutationRequest },
+    TContext
+  >
 }

@@ -8,11 +8,26 @@ import type {
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { updatePetWithForm } from '../../axios/petService/updatePetWithForm.ts'
-import { useMutation } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId:search' }] as const
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
+
+export function updatePetWithFormMutationOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const mutationKey = updatePetWithFormMutationKey()
+  return mutationOptions<
+    ResponseConfig<UpdatePetWithFormMutationResponse>,
+    ResponseErrorConfig<UpdatePetWithForm405>,
+    { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
+    typeof mutationKey
+  >({
+    mutationKey,
+    mutationFn: async ({ petId, params }) => {
+      return updatePetWithForm({ petId, params }, config)
+    },
+  })
+}
 
 /**
  * @summary Updates a pet in the store with form data
@@ -33,19 +48,17 @@ export function useUpdatePetWithForm<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? updatePetWithFormMutationKey()
 
-  return useMutation<
+  return useMutation(
+    {
+      ...updatePetWithFormMutationOptions(config),
+      mutationKey,
+      ...mutationOptions,
+    } as unknown as UseMutationOptions,
+    queryClient,
+  ) as UseMutationOptions<
     ResponseConfig<UpdatePetWithFormMutationResponse>,
     ResponseErrorConfig<UpdatePetWithForm405>,
     { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
     TContext
-  >(
-    {
-      mutationFn: async ({ petId, params }) => {
-        return updatePetWithForm({ petId, params }, config)
-      },
-      mutationKey,
-      ...mutationOptions,
-    },
-    queryClient,
-  )
+  >
 }

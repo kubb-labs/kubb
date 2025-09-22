@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../../models/PlaceOrderPatch.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const placeOrderPatchMutationKey = () => [{ url: '/store/order' }] as const
 
@@ -35,6 +35,21 @@ export async function placeOrderPatchHook(
   return res.data
 }
 
+export function placeOrderPatchMutationOptionsHook(config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof fetch } = {}) {
+  const mutationKey = placeOrderPatchMutationKey()
+  return mutationOptions<
+    PlaceOrderPatchMutationResponse,
+    ResponseErrorConfig<PlaceOrderPatch405>,
+    { data?: PlaceOrderPatchMutationRequest },
+    typeof mutationKey
+  >({
+    mutationKey,
+    mutationFn: async ({ data }) => {
+      return placeOrderPatchHook(data, config)
+    },
+  })
+}
+
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
@@ -55,14 +70,12 @@ export function usePlaceOrderPatchHook<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? placeOrderPatchMutationKey()
 
-  return useMutation<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>(
+  return useMutation(
     {
-      mutationFn: async ({ data }) => {
-        return placeOrderPatchHook(data, config)
-      },
+      ...placeOrderPatchMutationOptionsHook(config),
       mutationKey,
       ...mutationOptions,
-    },
+    } as unknown as UseMutationOptions,
     queryClient,
-  )
+  ) as UseMutationOptions<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>
 }

@@ -7,7 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../models/DeleteUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const
 
@@ -32,6 +32,21 @@ export async function deleteUserHook(
   return res.data
 }
 
+export function deleteUserMutationOptionsHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const mutationKey = deleteUserMutationKey()
+  return mutationOptions<
+    DeleteUserMutationResponse,
+    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    { username: DeleteUserPathParams['username'] },
+    typeof mutationKey
+  >({
+    mutationKey,
+    mutationFn: async ({ username }) => {
+      return deleteUserHook({ username }, config)
+    },
+  })
+}
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
@@ -52,14 +67,17 @@ export function useDeleteUserHook<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? deleteUserMutationKey()
 
-  return useMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, { username: DeleteUserPathParams['username'] }, TContext>(
+  return useMutation(
     {
-      mutationFn: async ({ username }) => {
-        return deleteUserHook({ username }, config)
-      },
+      ...deleteUserMutationOptionsHook(config),
       mutationKey,
       ...mutationOptions,
-    },
+    } as unknown as UseMutationOptions,
     queryClient,
-  )
+  ) as UseMutationOptions<
+    DeleteUserMutationResponse,
+    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    { username: DeleteUserPathParams['username'] },
+    TContext
+  >
 }

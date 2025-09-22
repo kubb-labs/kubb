@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.1.0
+- [`plugin-react-query`](/plugins/plugin-react-query/): Add mutationOptions to react-query
+
 # 4.0.2
 - [`plugin-zod`](/plugins/plugin-zod): Escape omit keys correctly with `'`
 - [`plugin-client`](/plugins/plugin-client): Support stringify when using `multipart/form-data`

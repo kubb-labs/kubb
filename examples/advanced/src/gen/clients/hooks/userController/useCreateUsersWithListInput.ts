@@ -6,11 +6,28 @@ import type {
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
 import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
 import { createUsersWithListInput } from '../../axios/userService/createUsersWithListInput.ts'
-import { useMutation } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
 
 export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersWithListInputMutationKey>
+
+export function createUsersWithListInputMutationOptions(
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch } = {},
+) {
+  const mutationKey = createUsersWithListInputMutationKey()
+  return mutationOptions<
+    ResponseConfig<CreateUsersWithListInputMutationResponse>,
+    ResponseErrorConfig<Error>,
+    { data?: CreateUsersWithListInputMutationRequest },
+    typeof mutationKey
+  >({
+    mutationKey,
+    mutationFn: async ({ data }) => {
+      return createUsersWithListInput({ data }, config)
+    },
+  })
+}
 
 /**
  * @description Creates list of users with given input array
@@ -32,19 +49,17 @@ export function useCreateUsersWithListInput<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? createUsersWithListInputMutationKey()
 
-  return useMutation<
+  return useMutation(
+    {
+      ...createUsersWithListInputMutationOptions(config),
+      mutationKey,
+      ...mutationOptions,
+    } as unknown as UseMutationOptions,
+    queryClient,
+  ) as UseMutationOptions<
     ResponseConfig<CreateUsersWithListInputMutationResponse>,
     ResponseErrorConfig<Error>,
     { data?: CreateUsersWithListInputMutationRequest },
     TContext
-  >(
-    {
-      mutationFn: async ({ data }) => {
-        return createUsersWithListInput({ data }, config)
-      },
-      mutationKey,
-      ...mutationOptions,
-    },
-    queryClient,
-  )
+  >
 }
