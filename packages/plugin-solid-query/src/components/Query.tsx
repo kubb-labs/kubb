@@ -165,7 +165,7 @@ export function Query({
        const { client: queryClient, ...queryOptions } = queryConfig
        const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
 
-       const query = createQuery(() => ({
+       const query = useQuery(() => ({
         ...${queryOptions},
         queryKey,
         initialData: null,

@@ -12,7 +12,7 @@ import type {
 } from '../models/UpdatePetWithForm.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, UseBaseQueryOptions, UseQueryResult } from '@tanstack/solid-query'
-import { queryOptions, createQuery } from '@tanstack/solid-query'
+import { queryOptions, useQuery } from '@tanstack/solid-query'
 
 export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
   [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const
@@ -77,7 +77,7 @@ export function createUpdatePetWithForm<
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, params)
 
-  const query = createQuery(
+  const query = useQuery(
     () => ({
       ...(updatePetWithFormQueryOptions(petId, params, config) as unknown as UseBaseQueryOptions),
       queryKey,

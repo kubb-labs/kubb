@@ -5,7 +5,7 @@
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, UseBaseQueryOptions, UseQueryResult } from 'custom-query'
-import { queryOptions, createQuery } from 'custom-query'
+import { queryOptions, useQuery } from 'custom-query'
 
 export const updatePetWithFormQueryKey = (
   petId: UpdatePetWithFormPathParams['petId'],
@@ -79,7 +79,7 @@ export function createUpdatePetWithForm<
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, data, params)
 
-  const query = createQuery(
+  const query = useQuery(
     () => ({
       ...(updatePetWithFormQueryOptions(petId, data, params, config) as unknown as UseBaseQueryOptions),
       queryKey,

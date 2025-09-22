@@ -5,7 +5,7 @@
 import fetch from 'axios'
 import type { QueryKey, QueryClient, UseBaseQueryOptions, UseQueryResult } from '@tanstack/svelte-query'
 import type { RequestConfig, ResponseErrorConfig } from 'axios'
-import { queryOptions, createQuery } from '@tanstack/svelte-query'
+import { queryOptions, useQuery } from '@tanstack/svelte-query'
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
@@ -71,7 +71,7 @@ export function createFindPetsByTags<
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
 
-  const query = createQuery(
+  const query = useQuery(
     () => ({
       ...(findPetsByTagsQueryOptions(headers, params, config) as unknown as UseBaseQueryOptions),
       queryKey,

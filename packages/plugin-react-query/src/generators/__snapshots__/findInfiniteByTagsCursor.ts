@@ -39,7 +39,13 @@ export function findPetsByTagsInfiniteQueryOptions(
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
-  return infiniteQueryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey, number>({
+  return infiniteQueryOptions<
+    FindPetsByTagsQueryResponse,
+    ResponseErrorConfig<FindPetsByTags400>,
+    InfiniteData<FindPetsByTagsQueryResponse>,
+    typeof queryKey,
+    NonNullable<FindPetsByTagsQueryParams['pageSize']>
+  >({
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
       config.signal = signal
@@ -62,16 +68,16 @@ export function findPetsByTagsInfiniteQueryOptions(
  * {@link /pet/findByTags}
  */
 export function useFindPetsByTagsInfinite<
-  TData = InfiniteData<FindPetsByTagsQueryResponse>,
-  TQueryData = FindPetsByTagsQueryResponse,
+  TQueryFnData = FindPetsByTagsQueryResponse,
+  TError = ResponseErrorConfig<FindPetsByTags400>,
+  TData = InfiniteData<TQueryFnData>,
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
+  TPageParam = NonNullable<FindPetsByTagsQueryParams['pageSize']>,
 >(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: Partial<InfiniteQueryObserverOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TQueryData, TQueryKey, TQueryData>> & {
-      client?: QueryClient
-    }
+    query?: Partial<InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
@@ -84,9 +90,9 @@ export function useFindPetsByTagsInfinite<
       ...findPetsByTagsInfiniteQueryOptions(headers, params, config),
       queryKey,
       ...queryOptions,
-    } as unknown as InfiniteQueryObserverOptions,
+    } as unknown as InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
     queryClient,
-  ) as UseInfiniteQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
+  ) as UseInfiniteQueryResult<TData, TError> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 
