@@ -3,6 +3,8 @@
  * Do not edit manually.
  */
 
+import type { PetType } from '../ts/PetType.ts'
+import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from '../../zod.ts'
 import { categorySchema } from './categorySchema.gen.ts'
 import { tagSchema } from './tagSchema.gen.ts'
@@ -15,6 +17,6 @@ export const petSchema = z.object({
   photoUrls: z.array(z.string()),
   tags: z.optional(z.array(z.lazy(() => tagSchema))),
   status: z.optional(z.enum(['available', 'pending', 'sold']).describe('pet status in the store')),
-})
+}) as unknown as ToZod<PetType>
 
-export type PetSchema = z.infer<typeof petSchema>
+export type PetSchema = PetType

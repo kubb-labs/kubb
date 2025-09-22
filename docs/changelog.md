@@ -6,6 +6,7 @@ title: Changelog
 
 # 4.1.0
 - [`plugin-react-query`](/plugins/plugin-react-query/): Add mutationOptions to react-query
+- [`plugin-zod`](/plugins/plugin-zod): use of `z.ZodType` when using Zod v4
 
 # 4.0.2
 - [`plugin-zod`](/plugins/plugin-zod): Escape omit keys correctly with `'`

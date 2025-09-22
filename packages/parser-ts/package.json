@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser-ts",
-  "version": "4.0.2",
+  "version": "4.1.0",
   "description": "TypeScript parsing and manipulation utilities for Kubb, enabling code generation with proper TypeScript syntax and formatting.",
   "keywords": [
     "typescript",

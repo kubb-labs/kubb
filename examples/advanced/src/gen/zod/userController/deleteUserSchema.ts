@@ -1,27 +1,25 @@
-import type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse } from '../../models/ts/userController/DeleteUser.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils/v4'
 import { z } from 'zod/v4'
 
 export const deleteUserPathParamsSchema = z.object({
   username: z.string().describe('The name that needs to be deleted'),
-}) as unknown as ToZod<DeleteUserPathParams>
+})
 
-export type DeleteUserPathParamsSchema = DeleteUserPathParams
+export type DeleteUserPathParamsSchema = z.infer<typeof deleteUserPathParamsSchema>
 
 /**
  * @description Invalid username supplied
  */
-export const deleteUser400Schema = z.any() as unknown as ToZod<DeleteUser400>
+export const deleteUser400Schema = z.any()
 
-export type DeleteUser400Schema = DeleteUser400
+export type DeleteUser400Schema = z.infer<typeof deleteUser400Schema>
 
 /**
  * @description User not found
  */
-export const deleteUser404Schema = z.any() as unknown as ToZod<DeleteUser404>
+export const deleteUser404Schema = z.any()
 
-export type DeleteUser404Schema = DeleteUser404
+export type DeleteUser404Schema = z.infer<typeof deleteUser404Schema>
 
-export const deleteUserMutationResponseSchema = z.any() as unknown as ToZod<DeleteUserMutationResponse>
+export const deleteUserMutationResponseSchema = z.any()
 
-export type DeleteUserMutationResponseSchema = DeleteUserMutationResponse
+export type DeleteUserMutationResponseSchema = z.infer<typeof deleteUserMutationResponseSchema>
