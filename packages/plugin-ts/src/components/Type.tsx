@@ -162,7 +162,11 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
           }
         </Fragment>
       ))}
-      <File.Source name={name}>{print(typeNodes)}</File.Source>
+      {enums.every((item) => item.typeName !== name) && (
+        <File.Source name={typedName} isTypeOnly isExportable isIndexable>
+          {print(typeNodes)}
+        </File.Source>
+      )}
     </Fragment>
   )
 }

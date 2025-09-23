@@ -597,6 +597,7 @@ export const flyMachineGuestSchema = z.object({
   host_dedication_id: z.optional(z.string()),
   kernel_args: z.optional(z.array(z.string())),
   memory_mb: z.optional(z.number().int()),
+  persist_rootfs: z.optional(z.enum(['never', 'always', 'restart'])),
 })
 
 /**

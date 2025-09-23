@@ -60,7 +60,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@redocly/openapi-core": "^2.1.5",
+    "@redocly/openapi-core": "^2.2.0",
     "hotscript": "^1.0.13",
     "json-schema-to-ts": "^3.1.1",
     "jsonpointer": "^5.0.1",

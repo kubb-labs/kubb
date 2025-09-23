@@ -58,7 +58,7 @@
 		"rimraf": "^6.0.1",
 		"taze": "^19.7.0",
 		"ts-node": "^10.9.2",
-		"turbo": "^2.5.6",
+		"turbo": "^2.5.7",
 		"typescript": "catalog:",
 		"vite-tsconfig-paths": "^5.1.4",
 		"vitest": "^3.2.4"

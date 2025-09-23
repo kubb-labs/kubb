@@ -5,6 +5,7 @@ import * as factory from '@kubb/parser-ts/factory'
 import { createReactGenerator, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
+import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File, useApp } from '@kubb/react'
 import type ts from 'typescript'
@@ -190,6 +191,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
     const { getName, getImports, getFile } = useSchemaManager()
     const imports = getImports(schema.tree)
+    const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
 
     if (enumType === 'asPascalConst') {
       console.warn(`enumType '${enumType}' is deprecated`)
@@ -197,7 +199,9 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
     let typedName = getName(schema.name, { type: 'type' })
 
-    if (enumType === 'asConst') typedName = typedName += 'Key' // Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
+    if (enumType === 'asConst' && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
+      typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
+    }
 
     const type = {
       name: getName(schema.name, { type: 'function' }),

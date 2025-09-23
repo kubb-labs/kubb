@@ -101,7 +101,7 @@
 		"@nuxt/schema": "^3.19.2",
 		"@types/node": "catalog:",
 		"rimraf": "^6.0.1",
-		"rollup": "^4.52.0",
+		"rollup": "^4.52.2",
 		"tsdown": "catalog:",
 		"typescript": "catalog:",
 		"vite": "^6.3.6",
