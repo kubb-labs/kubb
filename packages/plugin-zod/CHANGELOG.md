@@ -1,5 +1,19 @@
 # @kubb/plugin-zod
 
+## 4.1.1
+
+### Patch Changes
+
+- [#1901](https://github.com/kubb-labs/kubb/pull/1901) [`2c8882b`](https://github.com/kubb-labs/kubb/commit/2c8882ba3652dabc662660578072d9c0b9abd071) Thanks [@lambdank](https://github.com/lambdank)! - Recursive fields now use string literals
+
+- Updated dependencies []:
+  - @kubb/core@4.1.1
+  - @kubb/oas@4.1.1
+  - @kubb/parser-ts@4.1.1
+  - @kubb/plugin-oas@4.1.1
+  - @kubb/plugin-ts@4.1.1
+  - @kubb/react@4.1.1
+
 ## 4.1.0
 
 ### Patch Changes
