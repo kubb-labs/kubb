@@ -21,6 +21,7 @@ type Props = {
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
+  initialPageParam: Infinite['initialPageParam']
   queryParam?: Infinite['queryParam']
 }
 
@@ -126,12 +127,27 @@ export function InfiniteQuery({
   dataReturnType,
   typeSchemas,
   operation,
+  initialPageParam,
   queryParam,
 }: Props): ReactNode {
   const responseType = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const errorType = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
-  const explicitPageParamType = queryParam && typeSchemas.queryParams?.name ? `NonNullable<${typeSchemas.queryParams?.name}['${queryParam}']>` : undefined
-  const pageParamType = explicitPageParamType ?? 'number'
+  const isInitialPageParamDefined = initialPageParam !== undefined && initialPageParam !== null
+  const fallbackPageParamType =
+    typeof initialPageParam === 'number'
+      ? 'number'
+      : typeof initialPageParam === 'string'
+        ? initialPageParam.includes(' as ')
+          ? (() => {
+              const parts = initialPageParam.split(' as ')
+              return parts[parts.length - 1] ?? 'unknown'
+            })()
+          : 'string'
+        : typeof initialPageParam === 'boolean'
+          ? 'boolean'
+          : 'unknown'
+  const queryParamType = queryParam && typeSchemas.queryParams?.name ? `${typeSchemas.queryParams?.name}['${queryParam}']` : undefined
+  const pageParamType = queryParamType ? (isInitialPageParamDefined ? `NonNullable<${queryParamType}>` : queryParamType) : fallbackPageParamType
   const returnType = 'UseInfiniteQueryResult<TData, TError> & { queryKey: TQueryKey }'
   const generics = [
     `TQueryFnData = ${responseType}`,
