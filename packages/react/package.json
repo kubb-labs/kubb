@@ -1,6 +1,6 @@
 {
   "name": "@kubb/react",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "React integration for Kubb, providing JSX runtime support and React component generation capabilities for code generation plugins.",
   "keywords": [
     "react",

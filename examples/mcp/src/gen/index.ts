@@ -1,27 +1,106 @@
-export type { AddFilesMutation } from './models/ts/AddFiles.js'
-export type { AddPetMutation } from './models/ts/AddPet.js'
-export type { AddPetRequestStatusEnumKey } from './models/ts/AddPetRequest.js'
-export type { CreatePetsHeaderParamsXEXAMPLEEnumKey, CreatePetsMutation } from './models/ts/CreatePets.js'
-export type { CreateUserMutation } from './models/ts/CreateUser.js'
-export type { CreateUsersWithListInputMutation } from './models/ts/CreateUsersWithListInput.js'
-export type { DeleteOrderMutation } from './models/ts/DeleteOrder.js'
-export type { DeletePetMutation } from './models/ts/DeletePet.js'
-export type { DeleteUserMutation } from './models/ts/DeleteUser.js'
-export type { FindPetsByStatusQuery } from './models/ts/FindPetsByStatus.js'
-export type { FindPetsByTagsHeaderParamsXEXAMPLEEnumKey, FindPetsByTagsQuery } from './models/ts/FindPetsByTags.js'
-export type { GetInventoryQuery } from './models/ts/GetInventory.js'
-export type { GetOrderByIdQuery } from './models/ts/GetOrderById.js'
-export type { GetPetByIdQuery } from './models/ts/GetPetById.js'
-export type { GetUserByNameQuery } from './models/ts/GetUserByName.js'
-export type { LoginUserQuery } from './models/ts/LoginUser.js'
-export type { LogoutUserQuery } from './models/ts/LogoutUser.js'
-export type { OrderOrderTypeEnumKey, OrderStatusEnumKey, OrderHttpStatusEnumKey } from './models/ts/Order.js'
-export type { PetStatusEnumKey } from './models/ts/Pet.js'
-export type { PlaceOrderMutation } from './models/ts/PlaceOrder.js'
-export type { PlaceOrderPatchMutation } from './models/ts/PlaceOrderPatch.js'
-export type { UpdatePetMutation } from './models/ts/UpdatePet.js'
-export type { UpdatePetWithFormMutation } from './models/ts/UpdatePetWithForm.js'
-export type { UpdateUserMutation } from './models/ts/UpdateUser.js'
+export type { AddFiles200, AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse, AddFilesMutation } from './models/ts/AddFiles.js'
+export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './models/ts/AddPet.js'
+export type { AddPetRequestStatusEnumKey, AddPetRequest } from './models/ts/AddPetRequest.js'
+export type { Address } from './models/ts/Address.js'
+export type { ApiResponse } from './models/ts/ApiResponse.js'
+export type { Category } from './models/ts/Category.js'
+export type {
+  CreatePetsPathParams,
+  CreatePetsQueryParams,
+  CreatePetsHeaderParamsXEXAMPLEEnumKey,
+  CreatePetsHeaderParams,
+  CreatePets201,
+  CreatePetsError,
+  CreatePetsMutationRequest,
+  CreatePetsMutationResponse,
+  CreatePetsMutation,
+} from './models/ts/CreatePets.js'
+export type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse, CreateUserMutation } from './models/ts/CreateUser.js'
+export type {
+  CreateUsersWithListInput200,
+  CreateUsersWithListInputError,
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
+  CreateUsersWithListInputMutation,
+} from './models/ts/CreateUsersWithListInput.js'
+export type { Customer } from './models/ts/Customer.js'
+export type { DeleteOrderPathParams, DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderMutation } from './models/ts/DeleteOrder.js'
+export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './models/ts/DeletePet.js'
+export type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserMutation } from './models/ts/DeleteUser.js'
+export type {
+  FindPetsByStatusPathParams,
+  FindPetsByStatus200,
+  FindPetsByStatus400,
+  FindPetsByStatusQueryResponse,
+  FindPetsByStatusQuery,
+} from './models/ts/FindPetsByStatus.js'
+export type {
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTags200,
+  FindPetsByTags400,
+  FindPetsByTagsQueryResponse,
+  FindPetsByTagsQuery,
+} from './models/ts/FindPetsByTags.js'
+export type { GetInventory200, GetInventoryQueryResponse, GetInventoryQuery } from './models/ts/GetInventory.js'
+export type {
+  GetOrderByIdPathParams,
+  GetOrderById200,
+  GetOrderById400,
+  GetOrderById404,
+  GetOrderByIdQueryResponse,
+  GetOrderByIdQuery,
+} from './models/ts/GetOrderById.js'
+export type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse, GetPetByIdQuery } from './models/ts/GetPetById.js'
+export type {
+  GetUserByNamePathParams,
+  GetUserByName200,
+  GetUserByName400,
+  GetUserByName404,
+  GetUserByNameQueryResponse,
+  GetUserByNameQuery,
+} from './models/ts/GetUserByName.js'
+export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './models/ts/LoginUser.js'
+export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './models/ts/LogoutUser.js'
+export type { OrderOrderTypeEnumKey, OrderStatusEnumKey, OrderHttpStatusEnumKey, Order } from './models/ts/Order.js'
+export type { PetStatusEnumKey, Pet } from './models/ts/Pet.js'
+export type { PetNotFound } from './models/ts/PetNotFound.js'
+export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrderMutation } from './models/ts/PlaceOrder.js'
+export type {
+  PlaceOrderPatch200,
+  PlaceOrderPatch405,
+  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchMutationResponse,
+  PlaceOrderPatchMutation,
+} from './models/ts/PlaceOrderPatch.js'
+export type { TagTag } from './models/ts/tag/Tag.js'
+export type {
+  UpdatePet200,
+  UpdatePet202,
+  UpdatePet400,
+  UpdatePet404,
+  UpdatePet405,
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
+  UpdatePetMutation,
+} from './models/ts/UpdatePet.js'
+export type {
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithFormMutation,
+} from './models/ts/UpdatePetWithForm.js'
+export type {
+  UpdateUserPathParams,
+  UpdateUserError,
+  UpdateUserMutationRequest,
+  UpdateUserMutationResponse,
+  UpdateUserMutation,
+} from './models/ts/UpdateUser.js'
+export type { User } from './models/ts/User.js'
+export type { UserArray } from './models/ts/UserArray.js'
 export { addFilesHandler } from './mcp/addFiles.js'
 export { addPetHandler } from './mcp/addPet.js'
 export { createPetsHandler } from './mcp/createPets.js'

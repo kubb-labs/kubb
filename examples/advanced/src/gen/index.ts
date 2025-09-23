@@ -33,31 +33,152 @@ export type { GetUserByNameQueryKeySWR } from './clients/swr/userController/useG
 export type { LoginUserQueryKeySWR } from './clients/swr/userController/useLoginUserSWR.ts'
 export type { LogoutUserQueryKeySWR } from './clients/swr/userController/useLogoutUserSWR.ts'
 export type { UpdateUserMutationKeySWR } from './clients/swr/userController/useUpdateUserSWR.ts'
-export type { AddPetRequestStatusEnumKey } from './models/ts/AddPetRequest.ts'
-export type { OrderOrderTypeEnumKey, OrderStatusEnumKey, OrderHttpStatusEnumKey } from './models/ts/Order.ts'
-export type { PetStatusEnumKey } from './models/ts/Pet.ts'
-export type { AddFilesMutation } from './models/ts/petController/AddFiles.ts'
-export type { AddPetMutation } from './models/ts/petController/AddPet.ts'
-export type { DeletePetMutation } from './models/ts/petController/DeletePet.ts'
-export type { FindPetsByStatusQuery } from './models/ts/petController/FindPetsByStatus.ts'
-export type { FindPetsByTagsHeaderParamsXEXAMPLEEnumKey, FindPetsByTagsQuery } from './models/ts/petController/FindPetsByTags.ts'
-export type { GetPetByIdQuery } from './models/ts/petController/GetPetById.ts'
-export type { UpdatePetMutation } from './models/ts/petController/UpdatePet.ts'
-export type { UpdatePetWithFormMutation } from './models/ts/petController/UpdatePetWithForm.ts'
-export type { UploadFileMutation } from './models/ts/petController/UploadFile.ts'
-export type { CreatePetsQueryParamsBoolParamEnumKey, CreatePetsHeaderParamsXEXAMPLEEnumKey, CreatePetsMutation } from './models/ts/petsController/CreatePets.ts'
-export type { DeleteOrderMutation } from './models/ts/storeController/DeleteOrder.ts'
-export type { GetInventoryQuery } from './models/ts/storeController/GetInventory.ts'
-export type { GetOrderByIdQuery } from './models/ts/storeController/GetOrderById.ts'
-export type { PlaceOrderMutation } from './models/ts/storeController/PlaceOrder.ts'
-export type { PlaceOrderPatchMutation } from './models/ts/storeController/PlaceOrderPatch.ts'
-export type { CreateUserMutation } from './models/ts/userController/CreateUser.ts'
-export type { CreateUsersWithListInputMutation } from './models/ts/userController/CreateUsersWithListInput.ts'
-export type { DeleteUserMutation } from './models/ts/userController/DeleteUser.ts'
-export type { GetUserByNameQuery } from './models/ts/userController/GetUserByName.ts'
-export type { LoginUserQuery } from './models/ts/userController/LoginUser.ts'
-export type { LogoutUserQuery } from './models/ts/userController/LogoutUser.ts'
-export type { UpdateUserMutation } from './models/ts/userController/UpdateUser.ts'
+export type { AddPetRequestStatusEnumKey, AddPetRequest } from './models/ts/AddPetRequest.ts'
+export type { Address } from './models/ts/Address.ts'
+export type { Animal } from './models/ts/Animal.ts'
+export type { ApiResponse } from './models/ts/ApiResponse.ts'
+export type { Cat } from './models/ts/Cat.ts'
+export type { Category } from './models/ts/Category.ts'
+export type { Customer } from './models/ts/Customer.ts'
+export type { Dog } from './models/ts/Dog.ts'
+export type { OrderOrderTypeEnumKey, OrderStatusEnumKey, OrderHttpStatusEnumKey, Order } from './models/ts/Order.ts'
+export type { PetStatusEnumKey, Pet } from './models/ts/Pet.ts'
+export type { AddFiles200, AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse, AddFilesMutation } from './models/ts/petController/AddFiles.ts'
+export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './models/ts/petController/AddPet.ts'
+export type {
+  DeletePetPathParams,
+  DeletePetHeaderParams,
+  DeletePet400,
+  DeletePetMutationResponse,
+  DeletePetMutation,
+} from './models/ts/petController/DeletePet.ts'
+export type {
+  FindPetsByStatusPathParams,
+  FindPetsByStatus200,
+  FindPetsByStatus400,
+  FindPetsByStatusQueryResponse,
+  FindPetsByStatusQuery,
+} from './models/ts/petController/FindPetsByStatus.ts'
+export type {
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTags200,
+  FindPetsByTags400,
+  FindPetsByTagsQueryResponse,
+  FindPetsByTagsQuery,
+} from './models/ts/petController/FindPetsByTags.ts'
+export type {
+  GetPetByIdPathParams,
+  GetPetById200,
+  GetPetById400,
+  GetPetById404,
+  GetPetByIdQueryResponse,
+  GetPetByIdQuery,
+} from './models/ts/petController/GetPetById.ts'
+export type {
+  UpdatePet200,
+  UpdatePet202,
+  UpdatePet400,
+  UpdatePet404,
+  UpdatePet405,
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
+  UpdatePetMutation,
+} from './models/ts/petController/UpdatePet.ts'
+export type {
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithFormMutation,
+} from './models/ts/petController/UpdatePetWithForm.ts'
+export type {
+  UploadFilePathParams,
+  UploadFileQueryParams,
+  UploadFile200,
+  UploadFileMutationRequest,
+  UploadFileMutationResponse,
+  UploadFileMutation,
+} from './models/ts/petController/UploadFile.ts'
+export type { PetNotFound } from './models/ts/PetNotFound.ts'
+export type {
+  CreatePetsPathParams,
+  CreatePetsQueryParamsBoolParamEnumKey,
+  CreatePetsQueryParams,
+  CreatePetsHeaderParamsXEXAMPLEEnumKey,
+  CreatePetsHeaderParams,
+  CreatePets201,
+  CreatePetsError,
+  CreatePetsMutationRequest,
+  CreatePetsMutationResponse,
+  CreatePetsMutation,
+} from './models/ts/petsController/CreatePets.ts'
+export type {
+  DeleteOrderPathParams,
+  DeleteOrder400,
+  DeleteOrder404,
+  DeleteOrderMutationResponse,
+  DeleteOrderMutation,
+} from './models/ts/storeController/DeleteOrder.ts'
+export type { GetInventory200, GetInventoryQueryResponse, GetInventoryQuery } from './models/ts/storeController/GetInventory.ts'
+export type {
+  GetOrderByIdPathParams,
+  GetOrderById200,
+  GetOrderById400,
+  GetOrderById404,
+  GetOrderByIdQueryResponse,
+  GetOrderByIdQuery,
+} from './models/ts/storeController/GetOrderById.ts'
+export type {
+  PlaceOrder200,
+  PlaceOrder405,
+  PlaceOrderMutationRequest,
+  PlaceOrderMutationResponse,
+  PlaceOrderMutation,
+} from './models/ts/storeController/PlaceOrder.ts'
+export type {
+  PlaceOrderPatch200,
+  PlaceOrderPatch405,
+  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchMutationResponse,
+  PlaceOrderPatchMutation,
+} from './models/ts/storeController/PlaceOrderPatch.ts'
+export type { TagTag } from './models/ts/tag/Tag.ts'
+export type { User } from './models/ts/User.ts'
+export type { UserArray } from './models/ts/UserArray.ts'
+export type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse, CreateUserMutation } from './models/ts/userController/CreateUser.ts'
+export type {
+  CreateUsersWithListInput200,
+  CreateUsersWithListInputError,
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
+  CreateUsersWithListInputMutation,
+} from './models/ts/userController/CreateUsersWithListInput.ts'
+export type {
+  DeleteUserPathParams,
+  DeleteUser400,
+  DeleteUser404,
+  DeleteUserMutationResponse,
+  DeleteUserMutation,
+} from './models/ts/userController/DeleteUser.ts'
+export type {
+  GetUserByNamePathParams,
+  GetUserByName200,
+  GetUserByName400,
+  GetUserByName404,
+  GetUserByNameQueryResponse,
+  GetUserByNameQuery,
+} from './models/ts/userController/GetUserByName.ts'
+export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './models/ts/userController/LoginUser.ts'
+export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './models/ts/userController/LogoutUser.ts'
+export type {
+  UpdateUserPathParams,
+  UpdateUserError,
+  UpdateUserMutationRequest,
+  UpdateUserMutationResponse,
+  UpdateUserMutation,
+} from './models/ts/userController/UpdateUser.ts'
 export type { AddPetRequestSchema } from './zod/addPetRequestSchema.ts'
 export type { AddressSchema } from './zod/addressSchema.ts'
 export type { AnimalSchema } from './zod/animalSchema.ts'
