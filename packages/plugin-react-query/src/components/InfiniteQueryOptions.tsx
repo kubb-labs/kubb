@@ -120,7 +120,22 @@ export function InfiniteQueryOptions({
 }: Props): ReactNode {
   const queryFnDataType = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const errorType = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
-  const pageParamType = queryParam && typeSchemas.queryParams?.name ? `NonNullable<${typeSchemas.queryParams?.name}['${queryParam}']>` : 'number'
+  const isInitialPageParamDefined = initialPageParam !== undefined && initialPageParam !== null
+  const fallbackPageParamType =
+    typeof initialPageParam === 'number'
+      ? 'number'
+      : typeof initialPageParam === 'string'
+        ? initialPageParam.includes(' as ')
+          ? (() => {
+              const parts = initialPageParam.split(' as ')
+              return parts[parts.length - 1] ?? 'unknown'
+            })()
+          : 'string'
+        : typeof initialPageParam === 'boolean'
+          ? 'boolean'
+          : 'unknown'
+  const queryParamType = queryParam && typeSchemas.queryParams?.name ? `${typeSchemas.queryParams?.name}['${queryParam}']` : undefined
+  const pageParamType = queryParamType ? (isInitialPageParamDefined ? `NonNullable<${queryParamType}>` : queryParamType) : fallbackPageParamType
 
   const params = getParams({
     paramsType,
@@ -157,10 +172,10 @@ export function InfiniteQueryOptions({
   const infiniteOverrideParams =
     queryParam && typeSchemas.queryParams?.name
       ? `
-          if (!params) {
-           params = { }
-          }
-          params['${queryParam}'] = pageParam as unknown as ${typeSchemas.queryParams?.name}['${queryParam}']`
+          params = {
+            ...(params ?? {}),
+            ['${queryParam}']: pageParam as unknown as ${typeSchemas.queryParams?.name}['${queryParam}'],
+          } as ${typeSchemas.queryParams?.name}`
       : ''
 
   const enabled = Object.entries(queryKeyParams.flatParams)
