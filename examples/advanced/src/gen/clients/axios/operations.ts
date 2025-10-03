@@ -67,4 +67,4 @@ export const operations = {
     path: '/user/:username',
     method: 'delete',
   },
-} as const
+}

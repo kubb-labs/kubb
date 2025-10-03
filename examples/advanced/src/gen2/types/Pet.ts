@@ -24,6 +24,11 @@ export type Pet = {
    */
   name: string
   /**
+   * @maxLength 255
+   * @type string | undefined, uri
+   */
+  url?: string
+  /**
    * @type object | undefined
    */
   category?: Category

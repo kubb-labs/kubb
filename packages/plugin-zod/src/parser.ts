@@ -133,10 +133,24 @@ const zodKeywordMapper = {
 
     return 'z.date()'
   },
-  uuid: (coercion?: boolean, version: '3' | '4' = '3') =>
-    version === '4' ? (coercion ? 'z.coerce.string().uuid()' : 'z.uuid()') : coercion ? 'z.coerce.string().uuid()' : 'z.string().uuid()',
-  url: (coercion?: boolean, version: '3' | '4' = '3') =>
-    version === '4' ? (coercion ? 'z.coerce.string().url()' : 'z.url()') : coercion ? 'z.coerce.string().url()' : 'z.string().url()',
+  uuid: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number) => {
+    return [
+      coercion ? 'z.coerce.string().uuid()' : version === '4' ? 'z.uuid()' : 'z.string().uuid()',
+      min !== undefined ? `.min(${min})` : undefined,
+      max !== undefined ? `.max(${max})` : undefined,
+    ]
+      .filter(Boolean)
+      .join('')
+  },
+  url: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number) => {
+    return [
+      coercion ? 'z.coerce.string().url()' : version === '4' ? 'z.url()' : 'z.string().url()',
+      min !== undefined ? `.min(${min})` : undefined,
+      max !== undefined ? `.max(${max})` : undefined,
+    ]
+      .filter(Boolean)
+      .join('')
+  },
   default: (value?: string | number | true | object) => {
     if (typeof value === 'object') {
       return '.default({})'
@@ -154,8 +168,15 @@ const zodKeywordMapper = {
     return '.optional()'
   },
   matches: (value = '', coercion?: boolean) => (coercion ? `z.coerce.string().regex(${value})` : `z.string().regex(${value})`),
-  email: (coercion?: boolean, version: '3' | '4' = '3') =>
-    version === '4' ? (coercion ? 'z.coerce.string().email()' : 'z.email()') : coercion ? 'z.coerce.string().email()' : 'z.string().email()',
+  email: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number) => {
+    return [
+      coercion ? 'z.coerce.string().email()' : version === '4' ? 'z.email()' : 'z.string().email()',
+      min !== undefined ? `.min(${min})` : undefined,
+      max !== undefined ? `.max(${max})` : undefined,
+    ]
+      .filter(Boolean)
+      .join('')
+  },
   firstName: undefined,
   lastName: undefined,
   password: undefined,
@@ -472,11 +493,17 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
   }
 
   if (isKeyword(current, schemaKeywords.email)) {
-    return zodKeywordMapper.email(shouldCoerce(options.coercion, 'strings'), options.version)
+    const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
+    const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
+
+    return zodKeywordMapper.email(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args)
   }
 
   if (isKeyword(current, schemaKeywords.url)) {
-    return zodKeywordMapper.url(shouldCoerce(options.coercion, 'strings'), options.version)
+    const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
+    const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
+
+    return zodKeywordMapper.url(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args)
   }
 
   if (isKeyword(current, schemaKeywords.number)) {

@@ -7,6 +7,7 @@ title: Changelog
 # 4.1.1
 - [`plugin-react-query`](/plugins/plugin-react-query/): guard infinite hooks and streamline mutation typings
 - [`core`](/plugins/core): Generation fails when using regexes that contain flags
+- [`plugin-zod`](/plugins/plugin-zod): url should also set min and max when defined
 
 # 4.1.0
 - [`plugin-react-query`](/plugins/plugin-react-query/): Add mutationOptions to react-query

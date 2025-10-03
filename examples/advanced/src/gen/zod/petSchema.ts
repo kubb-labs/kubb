@@ -6,6 +6,7 @@ export const petSchema = z.object({
   id: z.optional(z.int()),
   signature: z.optional(z.string().regex(/^data:image\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$/)),
   name: z.string(),
+  url: z.optional(z.url().max(255)),
   get category() {
     return z.optional(categorySchema)
   },

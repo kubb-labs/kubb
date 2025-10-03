@@ -1,7 +1,6 @@
 import { URLPath } from '@kubb/core/utils'
-import { Const, File } from '@kubb/react'
-
 import type { HttpMethod, Operation } from '@kubb/oas'
+import { Const, File } from '@kubb/react'
 
 type OperationsProps = {
   name: string
@@ -20,7 +19,7 @@ export function Operations({ name, operations }: OperationsProps) {
 
   return (
     <File.Source name={name} isExportable isIndexable>
-      <Const name={name} export asConst>
+      <Const name={name} export>
         {JSON.stringify(operationsObject, undefined, 2)}
       </Const>
     </File.Source>

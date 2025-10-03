@@ -913,6 +913,10 @@ components:
           type: string
           example: doggie
           writeOnly: true
+        url:
+          type: string
+          format: uri
+          maxLength: 255
         category:
           $ref: "#/components/schemas/Category"
         photoUrls:
