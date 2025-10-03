@@ -7,7 +7,7 @@ import type {
   UpdatePet404,
   UpdatePet405,
 } from '../../../models/ts/petController/UpdatePet.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
 import { updatePet } from '../../axios/petService/updatePet.ts'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 
@@ -50,14 +50,26 @@ export function useUpdatePet<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? updatePetMutationKey()
 
-  return useMutation(
+  const baseOptions = updatePetMutationOptions(config) as UseMutationOptions<
+    ResponseConfig<UpdatePetMutationResponse>,
+    ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
+    { data: UpdatePetMutationRequest },
+    TContext
+  >
+
+  return useMutation<
+    ResponseConfig<UpdatePetMutationResponse>,
+    ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
+    { data: UpdatePetMutationRequest },
+    TContext
+  >(
     {
-      ...updatePetMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<
+  ) as UseMutationResult<
     ResponseConfig<UpdatePetMutationResponse>,
     ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
     { data: UpdatePetMutationRequest },

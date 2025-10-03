@@ -13,8 +13,10 @@ export const appSchema = z.object({
 })
 
 export const appSecretSchema = z.object({
+  created_at: z.optional(z.string()),
   digest: z.optional(z.string()),
   name: z.optional(z.string()),
+  updated_at: z.optional(z.string()),
   value: z.optional(z.string()),
 })
 
@@ -27,6 +29,7 @@ export const appSecretsUpdateRequestSchema = z.object({
 })
 
 export const appSecretsUpdateRespSchema = z.object({
+  Version: z.optional(z.number().int().describe('DEPRECATED')),
   secrets: z.optional(z.array(z.lazy(() => appSecretSchema))),
   version: z.optional(z.number().int()),
 })
@@ -83,6 +86,7 @@ export const createOIDCTokenRequestSchema = z
   .describe('Optional parameters')
 
 export const createVolumeRequestSchema = z.object({
+  auto_backup_enabled: z.optional(z.boolean().describe('enable scheduled automatic snapshots. Defaults to `true`')),
   compute: z.optional(z.lazy(() => flyMachineGuestSchema)),
   compute_image: z.optional(z.string()),
   encrypted: z.optional(z.boolean()),
@@ -111,10 +115,12 @@ export const decryptSecretkeyResponseSchema = z.object({
 })
 
 export const deleteAppSecretResponseSchema = z.object({
+  Version: z.optional(z.number().int().describe('DEPRECATED')),
   version: z.optional(z.number().int()),
 })
 
 export const deleteSecretkeyResponseSchema = z.object({
+  Version: z.optional(z.number().int().describe('DEPRECATED')),
   version: z.optional(z.number().int()),
 })
 
@@ -241,9 +247,11 @@ export const processStatSchema = z.object({
 })
 
 export const secretKeySchema = z.object({
+  created_at: z.optional(z.string()),
   name: z.optional(z.string()),
   public_key: z.optional(z.array(z.number().int())),
   type: z.optional(z.string()),
+  updated_at: z.optional(z.string()),
 })
 
 export const secretKeysSchema = z.object({
@@ -255,8 +263,11 @@ export const setAppSecretRequestSchema = z.object({
 })
 
 export const setAppSecretResponseSchema = z.object({
+  Version: z.optional(z.number().int().describe('DEPRECATED')),
+  created_at: z.optional(z.string()),
   digest: z.optional(z.string()),
   name: z.optional(z.string()),
+  updated_at: z.optional(z.string()),
   value: z.optional(z.string()),
   version: z.optional(z.number().int()),
 })
@@ -267,9 +278,12 @@ export const setSecretkeyRequestSchema = z.object({
 })
 
 export const setSecretkeyResponseSchema = z.object({
+  Version: z.optional(z.number().int().describe('DEPRECATED')),
+  created_at: z.optional(z.string()),
   name: z.optional(z.string()),
   public_key: z.optional(z.array(z.number().int())),
   type: z.optional(z.string()),
+  updated_at: z.optional(z.string()),
   version: z.optional(z.number().int()),
 })
 
@@ -347,6 +361,7 @@ export const volumeSnapshotSchema = z.object({
   retention_days: z.optional(z.number().int()),
   size: z.optional(z.number().int()),
   status: z.optional(z.string()),
+  volume_size: z.optional(z.number().int()),
 })
 
 export const assignIPRequestSchema = z.object({

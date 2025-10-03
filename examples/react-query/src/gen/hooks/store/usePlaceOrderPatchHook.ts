@@ -6,7 +6,7 @@
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../../models/PlaceOrderPatch.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const placeOrderPatchMutationKey = () => [{ url: '/store/order' }] as const
@@ -70,12 +70,19 @@ export function usePlaceOrderPatchHook<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? placeOrderPatchMutationKey()
 
-  return useMutation(
+  const baseOptions = placeOrderPatchMutationOptionsHook(config) as UseMutationOptions<
+    PlaceOrderPatchMutationResponse,
+    ResponseErrorConfig<PlaceOrderPatch405>,
+    { data?: PlaceOrderPatchMutationRequest },
+    TContext
+  >
+
+  return useMutation<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>(
     {
-      ...placeOrderPatchMutationOptionsHook(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>
+  ) as UseMutationResult<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>
 }

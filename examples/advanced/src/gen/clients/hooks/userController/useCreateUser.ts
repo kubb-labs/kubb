@@ -1,7 +1,7 @@
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
 import { createUser } from '../../axios/userService/createUser.ts'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 
@@ -36,12 +36,19 @@ export function useCreateUser<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? createUserMutationKey()
 
-  return useMutation(
+  const baseOptions = createUserMutationOptions(config) as UseMutationOptions<
+    ResponseConfig<CreateUserMutationResponse>,
+    ResponseErrorConfig<Error>,
+    { data?: CreateUserMutationRequest },
+    TContext
+  >
+
+  return useMutation<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>(
     {
-      ...createUserMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>
+  ) as UseMutationResult<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>
 }

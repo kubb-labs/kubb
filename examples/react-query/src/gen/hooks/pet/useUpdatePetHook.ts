@@ -6,7 +6,7 @@
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../../models/UpdatePet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const
@@ -67,14 +67,21 @@ export function useUpdatePetHook<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? updatePetMutationKey()
 
-  return useMutation(
+  const baseOptions = updatePetMutationOptionsHook(config) as UseMutationOptions<
+    UpdatePetMutationResponse,
+    ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
+    { data: UpdatePetMutationRequest },
+    TContext
+  >
+
+  return useMutation<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, { data: UpdatePetMutationRequest }, TContext>(
     {
-      ...updatePetMutationOptionsHook(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<
+  ) as UseMutationResult<
     UpdatePetMutationResponse,
     ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
     { data: UpdatePetMutationRequest },

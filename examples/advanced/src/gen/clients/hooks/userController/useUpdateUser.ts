@@ -1,7 +1,7 @@
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
 import { updateUser } from '../../axios/userService/updateUser.ts'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 
@@ -44,14 +44,26 @@ export function useUpdateUser<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? updateUserMutationKey()
 
-  return useMutation(
+  const baseOptions = updateUserMutationOptions(config) as UseMutationOptions<
+    ResponseConfig<UpdateUserMutationResponse>,
+    ResponseErrorConfig<Error>,
+    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    TContext
+  >
+
+  return useMutation<
+    ResponseConfig<UpdateUserMutationResponse>,
+    ResponseErrorConfig<Error>,
+    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    TContext
+  >(
     {
-      ...updateUserMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<
+  ) as UseMutationResult<
     ResponseConfig<UpdateUserMutationResponse>,
     ResponseErrorConfig<Error>,
     { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },

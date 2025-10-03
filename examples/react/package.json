@@ -27,9 +27,9 @@
     "@kubb/react": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "^19.1.13",
-    "react": "^19.1.1",
-    "typescript": "^5.9.2"
+    "@types/react": "^19.2.0",
+    "react": "^19.2.0",
+    "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@9.15.5",
   "engines": {

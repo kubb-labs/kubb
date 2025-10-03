@@ -4,7 +4,7 @@ import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
 import { createUsersWithListInput } from '../../axios/userService/createUsersWithListInput.ts'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 
@@ -49,14 +49,26 @@ export function useCreateUsersWithListInput<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? createUsersWithListInputMutationKey()
 
-  return useMutation(
+  const baseOptions = createUsersWithListInputMutationOptions(config) as UseMutationOptions<
+    ResponseConfig<CreateUsersWithListInputMutationResponse>,
+    ResponseErrorConfig<Error>,
+    { data?: CreateUsersWithListInputMutationRequest },
+    TContext
+  >
+
+  return useMutation<
+    ResponseConfig<CreateUsersWithListInputMutationResponse>,
+    ResponseErrorConfig<Error>,
+    { data?: CreateUsersWithListInputMutationRequest },
+    TContext
+  >(
     {
-      ...createUsersWithListInputMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<
+  ) as UseMutationResult<
     ResponseConfig<CreateUsersWithListInputMutationResponse>,
     ResponseErrorConfig<Error>,
     { data?: CreateUsersWithListInputMutationRequest },

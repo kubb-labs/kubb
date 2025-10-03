@@ -26,8 +26,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
     const isMutation = difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some(
       (method) => operation.method === method,
     )
-    const infiniteOptions =
-      options.infinite && typeof options.infinite === 'object' ? options.infinite : undefined
+    const infiniteOptions = options.infinite && typeof options.infinite === 'object' ? options.infinite : undefined
 
     const importPath = options.query ? options.query.importPath : '@tanstack/react-query'
 
@@ -79,10 +78,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
     const queryParam = infiniteOptions.queryParam
     const cursorParam = infiniteOptions.cursorParam
     const queryParamKeys = type.schemas.queryParams?.keys ?? []
-    const responseKeys = [
-      ...(type.schemas.responses?.flatMap((item) => item.keys ?? []) ?? []),
-      ...(type.schemas.response?.keys ?? []),
-    ]
+    const responseKeys = [...(type.schemas.responses?.flatMap((item) => item.keys ?? []) ?? []), ...(type.schemas.response?.keys ?? [])]
 
     const hasQueryParam = queryParam ? queryParamKeys.some((key) => normalizeKey(key) === queryParam) : false
     const hasCursorParam = cursorParam ? responseKeys.some((key) => normalizeKey(key) === cursorParam) : true

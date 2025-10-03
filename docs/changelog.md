@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+# 4.1.1
+- [`plugin-react-query`](/plugins/plugin-react-query/): guard infinite hooks and streamline mutation typings
+- [`core`](/plugins/core): Generation fails when using regexes that contain flags
+
 # 4.1.0
 - [`plugin-react-query`](/plugins/plugin-react-query/): Add mutationOptions to react-query
 - [`plugin-zod`](/plugins/plugin-zod): use of `z.ZodType` when using Zod v4

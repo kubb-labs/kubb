@@ -3,9 +3,13 @@ import { trimQuotes } from './trim'
 export function toRegExpString(text: string, func: string | null = 'RegExp'): string {
   const raw = trimQuotes(text)
 
-  const cleaned = raw.replace(/^\\?\//, '').replace(/\\?\/$/, '')
+  const [, replacementTarget = '', matchedFlags] = raw.match(/^\^(\(\?([igmsuy]+)\))/i) ?? []
+  const cleaned = raw
+    .replace(/^\\?\//, '')
+    .replace(/\\?\/$/, '')
+    .replace(replacementTarget, '')
 
-  const regex = new RegExp(cleaned)
+  const regex = new RegExp(cleaned, matchedFlags)
   const source = regex.source
   const flags = regex.flags
 

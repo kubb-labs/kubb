@@ -79,6 +79,7 @@ import type {
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
   UseMutationOptions,
+  UseMutationResult,
 } from '@tanstack/react-query'
 import { queryOptions, useQuery, useSuspenseQuery, mutationOptions, useMutation } from '@tanstack/react-query'
 
@@ -1121,14 +1122,21 @@ export function useUpdatePet<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? updatePetMutationKey()
 
-  return useMutation(
+  const baseOptions = updatePetMutationOptions(config) as UseMutationOptions<
+    UpdatePetMutationResponse,
+    ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
+    { data: UpdatePetMutationRequest },
+    TContext
+  >
+
+  return useMutation<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, { data: UpdatePetMutationRequest }, TContext>(
     {
-      ...updatePetMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<
+  ) as UseMutationResult<
     UpdatePetMutationResponse,
     ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
     { data: UpdatePetMutationRequest },
@@ -1184,14 +1192,21 @@ export function useAddPet<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? addPetMutationKey()
 
-  return useMutation(
+  const baseOptions = addPetMutationOptions(config) as UseMutationOptions<
+    AddPetMutationResponse,
+    ResponseErrorConfig<AddPet405>,
+    { data: AddPetMutationRequest },
+    TContext
+  >
+
+  return useMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>(
     {
-      ...addPetMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>
+  ) as UseMutationResult<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>
 }
 
 export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
@@ -1252,14 +1267,26 @@ export function useUpdatePetWithForm<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? updatePetWithFormMutationKey()
 
-  return useMutation(
+  const baseOptions = updatePetWithFormMutationOptions(config) as UseMutationOptions<
+    UpdatePetWithFormMutationResponse,
+    ResponseErrorConfig<UpdatePetWithForm405>,
+    { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
+    TContext
+  >
+
+  return useMutation<
+    UpdatePetWithFormMutationResponse,
+    ResponseErrorConfig<UpdatePetWithForm405>,
+    { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
+    TContext
+  >(
     {
-      ...updatePetWithFormMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<
+  ) as UseMutationResult<
     UpdatePetWithFormMutationResponse,
     ResponseErrorConfig<UpdatePetWithForm405>,
     { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
@@ -1327,14 +1354,26 @@ export function useDeletePet<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? deletePetMutationKey()
 
-  return useMutation(
+  const baseOptions = deletePetMutationOptions(config) as UseMutationOptions<
+    DeletePetMutationResponse,
+    ResponseErrorConfig<DeletePet400>,
+    { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
+    TContext
+  >
+
+  return useMutation<
+    DeletePetMutationResponse,
+    ResponseErrorConfig<DeletePet400>,
+    { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
+    TContext
+  >(
     {
-      ...deletePetMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<
+  ) as UseMutationResult<
     DeletePetMutationResponse,
     ResponseErrorConfig<DeletePet400>,
     { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
@@ -1405,14 +1444,26 @@ export function useUploadFile<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? uploadFileMutationKey()
 
-  return useMutation(
+  const baseOptions = uploadFileMutationOptions(config) as UseMutationOptions<
+    UploadFileMutationResponse,
+    ResponseErrorConfig<Error>,
+    { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+    TContext
+  >
+
+  return useMutation<
+    UploadFileMutationResponse,
+    ResponseErrorConfig<Error>,
+    { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+    TContext
+  >(
     {
-      ...uploadFileMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<
+  ) as UseMutationResult<
     UploadFileMutationResponse,
     ResponseErrorConfig<Error>,
     { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
@@ -1470,14 +1521,21 @@ export function usePlaceOrder<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? placeOrderMutationKey()
 
-  return useMutation(
+  const baseOptions = placeOrderMutationOptions(config) as UseMutationOptions<
+    PlaceOrderMutationResponse,
+    ResponseErrorConfig<PlaceOrder405>,
+    { data?: PlaceOrderMutationRequest },
+    TContext
+  >
+
+  return useMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>(
     {
-      ...placeOrderMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>
+  ) as UseMutationResult<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>
 }
 
 export const placeOrderPatchMutationKey = () => [{ url: '/store/order' }] as const
@@ -1541,14 +1599,21 @@ export function usePlaceOrderPatch<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? placeOrderPatchMutationKey()
 
-  return useMutation(
+  const baseOptions = placeOrderPatchMutationOptions(config) as UseMutationOptions<
+    PlaceOrderPatchMutationResponse,
+    ResponseErrorConfig<PlaceOrderPatch405>,
+    { data?: PlaceOrderPatchMutationRequest },
+    TContext
+  >
+
+  return useMutation<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>(
     {
-      ...placeOrderPatchMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>
+  ) as UseMutationResult<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>
 }
 
 export const deleteOrderMutationKey = () => [{ url: '/store/order/:orderId' }] as const
@@ -1606,14 +1671,26 @@ export function useDeleteOrder<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? deleteOrderMutationKey()
 
-  return useMutation(
+  const baseOptions = deleteOrderMutationOptions(config) as UseMutationOptions<
+    DeleteOrderMutationResponse,
+    ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
+    { orderId: DeleteOrderPathParams['orderId'] },
+    TContext
+  >
+
+  return useMutation<
+    DeleteOrderMutationResponse,
+    ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
+    { orderId: DeleteOrderPathParams['orderId'] },
+    TContext
+  >(
     {
-      ...deleteOrderMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<
+  ) as UseMutationResult<
     DeleteOrderMutationResponse,
     ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
     { orderId: DeleteOrderPathParams['orderId'] },
@@ -1671,14 +1748,21 @@ export function useCreateUser<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? createUserMutationKey()
 
-  return useMutation(
+  const baseOptions = createUserMutationOptions(config) as UseMutationOptions<
+    CreateUserMutationResponse,
+    ResponseErrorConfig<Error>,
+    { data?: CreateUserMutationRequest },
+    TContext
+  >
+
+  return useMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>(
     {
-      ...createUserMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>
+  ) as UseMutationResult<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>
 }
 
 export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
@@ -1744,14 +1828,21 @@ export function useCreateUsersWithListInput<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? createUsersWithListInputMutationKey()
 
-  return useMutation(
+  const baseOptions = createUsersWithListInputMutationOptions(config) as UseMutationOptions<
+    CreateUsersWithListInputMutationResponse,
+    ResponseErrorConfig<Error>,
+    { data?: CreateUsersWithListInputMutationRequest },
+    TContext
+  >
+
+  return useMutation<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }, TContext>(
     {
-      ...createUsersWithListInputMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }, TContext>
+  ) as UseMutationResult<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }, TContext>
 }
 
 export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
@@ -1816,14 +1907,26 @@ export function useUpdateUser<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? updateUserMutationKey()
 
-  return useMutation(
+  const baseOptions = updateUserMutationOptions(config) as UseMutationOptions<
+    UpdateUserMutationResponse,
+    ResponseErrorConfig<Error>,
+    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    TContext
+  >
+
+  return useMutation<
+    UpdateUserMutationResponse,
+    ResponseErrorConfig<Error>,
+    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    TContext
+  >(
     {
-      ...updateUserMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<
+  ) as UseMutationResult<
     UpdateUserMutationResponse,
     ResponseErrorConfig<Error>,
     { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
@@ -1886,14 +1989,21 @@ export function useDeleteUser<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? deleteUserMutationKey()
 
-  return useMutation(
+  const baseOptions = deleteUserMutationOptions(config) as UseMutationOptions<
+    DeleteUserMutationResponse,
+    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    { username: DeleteUserPathParams['username'] },
+    TContext
+  >
+
+  return useMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, { username: DeleteUserPathParams['username'] }, TContext>(
     {
-      ...deleteUserMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<
+  ) as UseMutationResult<
     DeleteUserMutationResponse,
     ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
     { username: DeleteUserPathParams['username'] },

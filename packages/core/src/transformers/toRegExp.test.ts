@@ -9,6 +9,7 @@ describe('toRegExpString', () => {
     expect(toRegExpString('^data:image\\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$')).toBe(
       `new RegExp("^data:image\\\\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$")`,
     )
+    expect(toRegExpString('^(AliceBlue|AntiqueWhite)$')).toBe(`new RegExp("^(AliceBlue|AntiqueWhite)$")`)
   })
 })
 

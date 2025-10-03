@@ -25,7 +25,7 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "react": "^18.3.1",
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.3",
     "zod": "next"
   },
   "devDependencies": {

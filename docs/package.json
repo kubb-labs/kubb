@@ -26,8 +26,8 @@
     "sitemap": "^8.0.0",
     "vitepress": "^2.0.0-alpha.12",
     "vitepress-plugin-group-icons": "^1.6.3",
-    "vitepress-plugin-llms": "^1.7.5",
-    "vue": "^3.5.21"
+    "vitepress-plugin-llms": "^1.8.0",
+    "vue": "^3.5.22"
   },
   "devDependencies": {
     "@kubb/cli": "workspace:*",
@@ -45,7 +45,7 @@
     "@kubb/plugin-vue-query": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@mermaid-js/mermaid-cli": "^11.10.1",
+    "@mermaid-js/mermaid-cli": "^11.12.0",
     "@nolebase/vitepress-plugin-enhanced-readabilities": "^2.18.2",
     "@nolebase/vitepress-plugin-git-changelog": "^2.18.2",
     "@nolebase/vitepress-plugin-highlight-targeted-heading": "^2.18.2",
@@ -54,7 +54,7 @@
     "cross-env": "^7.0.3",
     "react": "catalog:",
     "unplugin-kubb": "workspace:^",
-    "vite": "^7.1.7"
+    "vite": "^7.1.9"
   },
   "packageManager": "pnpm@10.4.1",
   "engines": {

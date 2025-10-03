@@ -23,7 +23,7 @@
     "@kubb/mcp": "^3.18.3"
   },
   "devDependencies": {},
-  "packageManager": "npm@11.6.0",
+  "packageManager": "npm@11.6.1",
   "engines": {
     "node": ">=20",
     "npm": ">=11.3.0"

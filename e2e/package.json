@@ -34,7 +34,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react": "workspace:*",
     "@tanstack/react-query": "^5.90.2",
-    "@tanstack/solid-query": "^5.90.2",
+    "@tanstack/solid-query": "^5.90.3",
     "@tanstack/svelte-query": "^5.90.2",
     "@tanstack/vue-query": "^5.90.2",
     "axios": "^1.12.2",
@@ -44,7 +44,7 @@
     "solid-js": "^1.9.9",
     "svelte": "^4.2.20",
     "swr": "^2.3.6",
-    "vue": "^3.5.21",
+    "vue": "^3.5.22",
     "zod": "^3.25.76"
   },
   "devDependencies": {

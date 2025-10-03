@@ -6,7 +6,7 @@ import type {
   UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
 import { updatePetWithForm } from '../../axios/petService/updatePetWithForm.ts'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 
@@ -48,14 +48,26 @@ export function useUpdatePetWithForm<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? updatePetWithFormMutationKey()
 
-  return useMutation(
+  const baseOptions = updatePetWithFormMutationOptions(config) as UseMutationOptions<
+    ResponseConfig<UpdatePetWithFormMutationResponse>,
+    ResponseErrorConfig<UpdatePetWithForm405>,
+    { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
+    TContext
+  >
+
+  return useMutation<
+    ResponseConfig<UpdatePetWithFormMutationResponse>,
+    ResponseErrorConfig<UpdatePetWithForm405>,
+    { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
+    TContext
+  >(
     {
-      ...updatePetWithFormMutationOptions(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<
+  ) as UseMutationResult<
     ResponseConfig<UpdatePetWithFormMutationResponse>,
     ResponseErrorConfig<UpdatePetWithForm405>,
     { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },

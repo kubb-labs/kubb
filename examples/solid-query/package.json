@@ -25,12 +25,12 @@
     "@kubb/plugin-solid-query": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@tanstack/solid-query": "^5.90.2",
+    "@tanstack/solid-query": "^5.90.3",
     "axios": "^1.12.2",
     "solid-js": "^1.9.9"
   },
   "devDependencies": {
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@9.15.5",
   "engines": {

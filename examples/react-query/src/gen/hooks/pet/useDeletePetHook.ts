@@ -6,7 +6,7 @@
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../models/DeletePet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const deletePetMutationKey = () => [{ url: '/pet/:pet_id' }] as const
@@ -69,14 +69,26 @@ export function useDeletePetHook<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? deletePetMutationKey()
 
-  return useMutation(
+  const baseOptions = deletePetMutationOptionsHook(config) as UseMutationOptions<
+    DeletePetMutationResponse,
+    ResponseErrorConfig<DeletePet400>,
+    { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },
+    TContext
+  >
+
+  return useMutation<
+    DeletePetMutationResponse,
+    ResponseErrorConfig<DeletePet400>,
+    { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },
+    TContext
+  >(
     {
-      ...deletePetMutationOptionsHook(config),
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
-    } as unknown as UseMutationOptions,
+    },
     queryClient,
-  ) as UseMutationOptions<
+  ) as UseMutationResult<
     DeletePetMutationResponse,
     ResponseErrorConfig<DeletePet400>,
     { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },
