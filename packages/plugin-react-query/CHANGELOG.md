@@ -1,5 +1,20 @@
 # @kubb/plugin-react-query
 
+## 4.1.2
+
+### Patch Changes
+
+- [`acf033c`](https://github.com/kubb-labs/kubb/commit/acf033c7a2540741e57ab130c6ad94bcdbcf354c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - guard infinite hooks and streamline mutation typings
+
+- Updated dependencies [[`acf033c`](https://github.com/kubb-labs/kubb/commit/acf033c7a2540741e57ab130c6ad94bcdbcf354c)]:
+  - @kubb/core@4.1.2
+  - @kubb/plugin-client@4.1.2
+  - @kubb/plugin-oas@4.1.2
+  - @kubb/plugin-ts@4.1.2
+  - @kubb/plugin-zod@4.1.2
+  - @kubb/react@4.1.2
+  - @kubb/oas@4.1.2
+
 ## 4.1.1
 
 ### Patch Changes
