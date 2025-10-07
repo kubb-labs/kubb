@@ -12,7 +12,7 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
       pluginManager,
       plugin: {
         key: pluginKey,
-        options: { output },
+        options: { output, importPath },
       },
     } = useApp<PluginZod>()
     const oas = useOas()
@@ -21,7 +21,7 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
     const name = 'operations'
     const file = pluginManager.getFile({ name, extname: '.ts', pluginKey })
 
-    const transformedOperations = operations.map((operation) => ({ operation, data: groupSchemasByName(operation, { type: 'function' }) }))
+    const transformedOperations = operations.map((operation) => ({ operation, data: groupSchemasByName(operation, { type: 'function' }), }))
 
     const imports = Object.entries(transformedOperations)
       .map(([key, { data, operation }]) => {
@@ -39,6 +39,7 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
         banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
+        <File.Import name={['z']} path={importPath} />
         {imports}
         <Operations name={name} operations={transformedOperations} />
       </File>
