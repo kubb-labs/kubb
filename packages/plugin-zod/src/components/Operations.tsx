@@ -39,14 +39,14 @@ export function Operations({ name, operations }: Props) {
   readonly parameters: {
         readonly path: z.ZodTypeAny | undefined;
         readonly query: z.ZodTypeAny | undefined;
-        readonly header: z.ZodTypeAny | undefined;
+        readonly header: z.ZodTypeAny;
   };
   readonly responses: {
-        readonly [status: number]: z.ZodTypeAny | undefined;
-        readonly default: z.ZodTypeAny | undefined;
+        readonly [status: number]: z.ZodTypeAny;
+        readonly default: z.ZodTypeAny;
   };
   readonly errors: {
-        readonly [status: number]: z.ZodTypeAny | undefined;
+        readonly [status: number]: z.ZodTypeAny;
   };
 }`}</Type>
       </File.Source>
