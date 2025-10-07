@@ -51,10 +51,10 @@ export function Operations({ name, operations }: Props) {
 }`}</Type>
       </File.Source>
       <File.Source name='OperationsMap' isExportable isIndexable>
-        <Type name='OperationsMap' export>{`Record<string, OperationSchema>`}</Type>
+        <Type name='OperationsMap' export>{'Record<string, OperationSchema>'}</Type>
       </File.Source>
       <File.Source name={name} isExportable isIndexable>
-        <Const export name={name} type={`OperationsMap`}>
+        <Const export name={name} type={'OperationsMap'}>
           {`{${transformers.stringifyObject(operationsJSON)}}`}
         </Const>
       </File.Source>
