@@ -17,8 +17,27 @@ import {
   deletePetPathParams,
   deletePetHeaderParams,
 } from './showPetById'
+import { z } from 'zod'
 
-export const operations = {
+export type OperationSchema = {
+  readonly request: z.ZodTypeAny | undefined
+  readonly parameters: {
+    readonly path: z.ZodTypeAny | undefined
+    readonly query: z.ZodTypeAny | undefined
+    readonly header: z.ZodTypeAny | undefined
+  }
+  readonly responses: {
+    readonly [status: number]: z.ZodTypeAny
+    readonly default: z.ZodTypeAny
+  }
+  readonly errors: {
+    readonly [status: number]: z.ZodTypeAny
+  }
+}
+
+export type OperationsMap = Record<string, OperationSchema>
+
+export const operations: OperationsMap = {
   listPets: {
     request: undefined,
     parameters: {
@@ -73,7 +92,7 @@ export const operations = {
       400: deletePet400,
     },
   },
-} as const
+}
 
 export const paths = {
   '/pets': {
