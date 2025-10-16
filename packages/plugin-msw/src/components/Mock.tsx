@@ -29,7 +29,7 @@ export function Mock({ baseURL = '', name, typeName, operation }: Props): ReactN
     data: {
       type: `${typeName} | ((
         info: Parameters<Parameters<typeof http.${method}>[1]>[0],
-      ) => Response)`,
+      ) => Response | Promise<Response>)`,
       optional: true,
     },
   })
