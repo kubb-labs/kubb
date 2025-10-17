@@ -4,6 +4,6 @@
  */
 import { faker } from '@faker-js/faker'
 
-export function integer() {
-  return faker.number.int()
+export function integer(data?: number): number {
+  return data ?? faker.number.int()
 }

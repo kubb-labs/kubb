@@ -4,6 +4,6 @@
  */
 import { faker } from '@faker-js/faker'
 
-export function float() {
-  return faker.number.float()
+export function float(data?: number): number {
+  return data ?? faker.number.float()
 }
