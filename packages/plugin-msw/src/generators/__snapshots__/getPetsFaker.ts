@@ -4,7 +4,7 @@
  */
 import { http } from 'msw'
 
-export function listPets(data?: ListPetsQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response)) {
+export function listPets(data?: ListPetsQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
   return http.get('/pets', function handler(info) {
     if (typeof data === 'function') return data(info)
 

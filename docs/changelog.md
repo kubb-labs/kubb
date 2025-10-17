@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.1.3
+- [`plugin-msw`](/plugins/plugin-msw): add promise response to msw handlers
+
 # 4.1.2
 - [`plugin-react-query`](/plugins/plugin-react-query/): guard infinite hooks and streamline mutation typings
 - [`core`](/plugins/core): Generation fails when using regexes that contain flags

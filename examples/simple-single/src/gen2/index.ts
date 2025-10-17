@@ -850,6 +850,14 @@ export const mainGetPlacementsResponseSchema = z.object({
   regions: z.optional(z.array(z.lazy(() => placementRegionPlacementSchema))),
 })
 
+export const mainReclaimMemoryRequestSchema = z.object({
+  amount_mb: z.optional(z.number().int()),
+})
+
+export const mainReclaimMemoryResponseSchema = z.object({
+  actual_mb: z.optional(z.number().int()),
+})
+
 export const mainRegionResponseSchema = z.object({
   regions: z.optional(z.array(z.lazy(() => readsGetCapacityPerRegionRowSchema))),
 })
@@ -882,6 +890,7 @@ export const placementWeightsSchema = z.object({}).catchall(z.number().int())
 export const readsGetCapacityPerRegionRowSchema = z.object({
   capacity: z.optional(z.number().int()),
   code: z.optional(z.string()),
+  deprecated: z.optional(z.boolean()),
   gateway_available: z.optional(z.boolean()),
   geo_region: z.optional(z.string()),
   latitude: z.optional(z.number()),
@@ -1172,6 +1181,23 @@ export const machinesReleaseLeaseHeaderParamsSchema = z.object({
 export const machinesReleaseLease200Schema = z.any()
 
 export const machinesReleaseLeaseMutationResponseSchema = z.lazy(() => machinesReleaseLease200Schema)
+
+export const machinesReclaimMemoryPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesReclaimMemory200Schema = z.lazy(() => mainReclaimMemoryResponseSchema)
+
+/**
+ * @description Reclaim memory request
+ */
+export const machinesReclaimMemoryMutationRequestSchema = z.lazy(() => mainReclaimMemoryRequestSchema)
+
+export const machinesReclaimMemoryMutationResponseSchema = z.lazy(() => machinesReclaimMemory200Schema)
 
 export const machinesShowMetadataPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),

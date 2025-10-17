@@ -6,7 +6,7 @@
 import type { AddPetMutationResponse } from '../../../models/AddPet.ts'
 import { http } from 'msw'
 
-export function addPetHandler(data?: AddPetMutationResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response)) {
+export function addPetHandler(data?: AddPetMutationResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
   return http.post('http://localhost:3000/pet', function handler(info) {
     if (typeof data === 'function') return data(info)
 

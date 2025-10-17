@@ -6,7 +6,7 @@
 import type { LogoutUserQueryResponse } from '../../../models/LogoutUser.ts'
 import { http } from 'msw'
 
-export function logoutUserHandler(data?: LogoutUserQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response)) {
+export function logoutUserHandler(data?: LogoutUserQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
   return http.get('http://localhost:3000/user/logout', function handler(info) {
     if (typeof data === 'function') return data(info)
 

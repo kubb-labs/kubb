@@ -4,7 +4,7 @@
  */
 import { http } from 'msw'
 
-export function showPetById(data?: ShowPetByIdQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response)) {
+export function showPetById(data?: ShowPetByIdQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
   return http.get('/pets/:petId', function handler(info) {
     if (typeof data === 'function') return data(info)
 

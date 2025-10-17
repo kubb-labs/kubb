@@ -6,7 +6,9 @@
 import type { GetInventoryQueryResponse } from '../../../models/GetInventory.ts'
 import { http } from 'msw'
 
-export function getInventoryHandler(data?: GetInventoryQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response)) {
+export function getInventoryHandler(
+  data?: GetInventoryQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>),
+) {
   return http.get('http://localhost:3000/store/inventory', function handler(info) {
     if (typeof data === 'function') return data(info)
 

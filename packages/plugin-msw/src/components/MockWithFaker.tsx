@@ -30,7 +30,7 @@ export function MockWithFaker({ baseURL = '', name, fakerName, typeName, operati
     data: {
       type: `${typeName} | ((
         info: Parameters<Parameters<typeof http.${method}>[1]>[0],
-      ) => Response)`,
+      ) => Response | Promise<Response>)`,
       optional: true,
     },
   })

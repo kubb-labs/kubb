@@ -7,7 +7,7 @@ import type { OptionsFindPetsByStatusMutationResponse } from '../../../models/Op
 import { http } from 'msw'
 
 export function optionsFindPetsByStatusHandler(
-  data?: OptionsFindPetsByStatusMutationResponse | ((info: Parameters<Parameters<typeof http.options>[1]>[0]) => Response),
+  data?: OptionsFindPetsByStatusMutationResponse | ((info: Parameters<Parameters<typeof http.options>[1]>[0]) => Response | Promise<Response>),
 ) {
   return http.options('http://localhost:3000/pet/findByStatus', function handler(info) {
     if (typeof data === 'function') return data(info)
