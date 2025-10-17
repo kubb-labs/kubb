@@ -123,7 +123,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         keyword === schemaKeywords.tuple ||
         keyword === schemaKeywords.string ||
         keyword === schemaKeywords.integer ||
-        keyword === schemaKeywords.number
+        keyword === schemaKeywords.number,
     )
 
     return (

@@ -65,7 +65,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
     ]`
   }
 
-    if (canOverride && isSimpleString) {
+  if (canOverride && isSimpleString) {
     fakerTextWithOverride = 'data ?? faker.string.alpha()'
   }
 
@@ -73,20 +73,15 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
     fakerTextWithOverride = 'data ?? faker.number.int()'
   }
 
-   if (canOverride && isSimpleFloat) {
+  if (canOverride && isSimpleFloat) {
     fakerTextWithOverride = 'data ?? faker.number.float()'
   }
 
   let type = `Partial<${typeName}>`
 
-  if(isArray)
-    type = typeName
-
-  else if(isSimpleString)
-      type = name
-
-  else if(isSimpleInt || isSimpleFloat)
-      type = 'number'
+  if (isArray) type = typeName
+  else if (isSimpleString) type = name
+  else if (isSimpleInt || isSimpleFloat) type = 'number'
 
   const params = FunctionParams.factory({
     data: {
@@ -98,8 +93,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
 
   let returnType = canOverride ? typeName : undefined
 
-  if(isSimpleString || isSimpleInt || isSimpleFloat)
-      returnType = type
+  if (isSimpleString || isSimpleInt || isSimpleFloat) returnType = type
 
   return (
     <File.Source name={name} isExportable isIndexable>
