@@ -12,7 +12,7 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
       pluginManager,
       plugin: {
         key: pluginKey,
-        options: { output },
+        options: { output, importPath },
       },
     } = useApp<PluginZod>()
     const oas = useOas()
@@ -39,6 +39,7 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
         banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
+        <File.Import isTypeOnly name={['z']} path={importPath} />
         {imports}
         <Operations name={name} operations={transformedOperations} />
       </File>
