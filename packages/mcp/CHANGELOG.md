@@ -1,5 +1,43 @@
 # @kubb/mcp
 
+## 4.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`2728bb2`](https://github.com/kubb-labs/kubb/commit/2728bb287b8ea97037289ba3e9b1277cafe98a3e)]:
+  - @kubb/plugin-msw@4.1.3
+  - @kubb/core@4.1.3
+  - @kubb/plugin-client@4.1.3
+  - @kubb/plugin-cypress@4.1.3
+  - @kubb/plugin-faker@4.1.3
+  - @kubb/plugin-mcp@4.1.3
+  - @kubb/plugin-oas@4.1.3
+  - @kubb/plugin-react-query@4.1.3
+  - @kubb/plugin-redoc@4.1.3
+  - @kubb/plugin-swr@4.1.3
+  - @kubb/plugin-ts@4.1.3
+  - @kubb/plugin-zod@4.1.3
+  - @kubb/react@4.1.3
+
+## 4.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`0754cdb`](https://github.com/kubb-labs/kubb/commit/0754cdbcfba08b6de3940f26e265206a6597527a), [`acf033c`](https://github.com/kubb-labs/kubb/commit/acf033c7a2540741e57ab130c6ad94bcdbcf354c), [`acf033c`](https://github.com/kubb-labs/kubb/commit/acf033c7a2540741e57ab130c6ad94bcdbcf354c)]:
+  - @kubb/plugin-zod@4.1.2
+  - @kubb/core@4.1.2
+  - @kubb/plugin-react-query@4.1.2
+  - @kubb/plugin-client@4.1.2
+  - @kubb/plugin-mcp@4.1.2
+  - @kubb/plugin-swr@4.1.2
+  - @kubb/plugin-cypress@4.1.2
+  - @kubb/plugin-faker@4.1.2
+  - @kubb/plugin-msw@4.1.2
+  - @kubb/plugin-oas@4.1.2
+  - @kubb/plugin-redoc@4.1.2
+  - @kubb/plugin-ts@4.1.2
+  - @kubb/react@4.1.2
+
 ## 4.1.1
 
 ### Patch Changes

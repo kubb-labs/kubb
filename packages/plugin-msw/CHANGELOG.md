@@ -1,5 +1,31 @@
 # @kubb/plugin-msw
 
+## 4.1.3
+
+### Patch Changes
+
+- [#1925](https://github.com/kubb-labs/kubb/pull/1925) [`2728bb2`](https://github.com/kubb-labs/kubb/commit/2728bb287b8ea97037289ba3e9b1277cafe98a3e) Thanks [@Ericlm](https://github.com/Ericlm)! - Add Promise<Response> return type for custom handlers
+
+- Updated dependencies []:
+  - @kubb/core@4.1.3
+  - @kubb/oas@4.1.3
+  - @kubb/plugin-faker@4.1.3
+  - @kubb/plugin-oas@4.1.3
+  - @kubb/plugin-ts@4.1.3
+  - @kubb/react@4.1.3
+
+## 4.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`acf033c`](https://github.com/kubb-labs/kubb/commit/acf033c7a2540741e57ab130c6ad94bcdbcf354c)]:
+  - @kubb/core@4.1.2
+  - @kubb/plugin-faker@4.1.2
+  - @kubb/plugin-oas@4.1.2
+  - @kubb/plugin-ts@4.1.2
+  - @kubb/react@4.1.2
+  - @kubb/oas@4.1.2
+
 ## 4.1.1
 
 ### Patch Changes

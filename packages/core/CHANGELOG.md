@@ -1,5 +1,21 @@
 # @kubb/core
 
+## 4.1.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/parser-ts@4.1.3
+
+## 4.1.2
+
+### Patch Changes
+
+- [`acf033c`](https://github.com/kubb-labs/kubb/commit/acf033c7a2540741e57ab130c6ad94bcdbcf354c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Generation fails when using regexes that contain flags
+
+- Updated dependencies []:
+  - @kubb/parser-ts@4.1.2
+
 ## 4.1.1
 
 ### Patch Changes

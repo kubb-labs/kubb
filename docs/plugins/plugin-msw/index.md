@@ -47,7 +47,7 @@ Path to the output folder or file that will contain the generated code.
 |----------:|:----------|
 |     Type: | `string`  |
 | Required: | `true`    |
-|  Default: | `'mocks'` |
+|  Default: | `'handlers'` |
 
 #### output.barrelType
 
