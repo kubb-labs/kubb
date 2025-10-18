@@ -26,6 +26,24 @@ describe('fakerGenerator schema', async () => {
       },
     },
     {
+      name: 'String',
+      input: '../../mocks/petStore.yaml',
+      path: 'String',
+      options: {},
+    },
+    {
+      name: 'Integer',
+      input: '../../mocks/petStore.yaml',
+      path: 'Integer',
+      options: {},
+    },
+    {
+      name: 'Float',
+      input: '../../mocks/petStore.yaml',
+      path: 'Float',
+      options: {},
+    },
+    {
       name: 'PetWithDateString',
       input: '../../mocks/petStore.yaml',
       path: 'Pet',
