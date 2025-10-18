@@ -27,7 +27,7 @@
     "axios": "^1.12.2"
   },
   "devDependencies": {
-    "@types/react": "^19.2.0",
+    "@types/react": "^19.2.2",
     "react": "^19.2.0",
     "typescript": "^5.9.3"
   },

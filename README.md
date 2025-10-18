@@ -1,6 +1,8 @@
-<div style="text-align: center;">
+<div align="center">
+  <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
+    <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
+  </a>
 
-<img src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/banner.png" alt="logo"  height="auto" />
 
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
@@ -8,9 +10,8 @@
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
 [![smithery badge](https://smithery.ai/badge/@kubb-labs/kubb)](https://smithery.ai/server/@kubb-labs/kubb)
-
 <h4>
-    <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main//examples/typescript" target="_blank">View Demo</a>
+    <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main/examples/typescript" target="_blank">View Demo</a>
     <span> · </span>
       <a href="https://kubb.dev/" target="_blank">Documentation</a>
     <span> · </span>
