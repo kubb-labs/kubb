@@ -1,0 +1,20 @@
+openapi: 3.1.0
+info:
+  title: exclusive number test cases
+  version: 1.0.0
+
+components:
+  schemas:
+    Exclusives:
+      type: object
+      properties:
+        exclusiveMin:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+        exclusiveMax:
+          type: number
+          maximum: 10
+          exclusiveMaximum: true
+      required:
+        - bar
