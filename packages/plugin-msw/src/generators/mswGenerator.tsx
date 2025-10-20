@@ -38,17 +38,15 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
 
     const types: [statusCode: number, typeName: string][] = []
 
-    for(const code of responseStatusCodes) {
-      if(code === 'default') {
+    for (const code of responseStatusCodes) {
+      if (code === 'default') {
         types.push([200, type.schemas.response.name])
         continue
       }
 
-      const codeType = type.schemas.errors
-      ?.find((err) => err.statusCode === Number(code))
+      const codeType = type.schemas.errors?.find((err) => err.statusCode === Number(code))
 
-      if(codeType === undefined) 
-        continue
+      if (codeType === undefined) continue
 
       types.push([Number(code), codeType.name])
     }
