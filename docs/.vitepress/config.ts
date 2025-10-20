@@ -718,8 +718,8 @@ export default defineConfig({
       renderMermaidGraphsPlugin(),
       groupIconVitePlugin({
         customIcon: {
-          'kubb.config.ts': localIconLoader(import.meta.url, '../public/logo.svg'),
-          'kubb.config.js': localIconLoader(import.meta.url, '../public/logo.svg'),
+          'kubb.config.ts': localIconLoader(import.meta.url, '../public/logo.png'),
+          'kubb.config.js': localIconLoader(import.meta.url, '../public/logo.png'),
         },
       }),
       GitChangelog({
