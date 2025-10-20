@@ -4,18 +4,9 @@
  */
 import { http } from 'msw'
 
-export function createPetsHandler201(data?: 201) {
-  return new Response(JSON.stringify(data), {
-    status: 201,
-  })
-}
-
-export function createPetsHandlerdefault(data?: default) {
+export function createPetsHandlerResponse200(data: CreatePetsMutationResponse) {
   return new Response(JSON.stringify(data), {
     status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
   })
 }
 

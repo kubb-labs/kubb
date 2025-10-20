@@ -6,7 +6,7 @@ type Props = {
   typeName: string
   operation: Operation
   name: string
-  statusCode: string
+  statusCode: number
 }
 
 export function Response({ name, typeName, operation, statusCode }: Props): ReactNode {
@@ -18,16 +18,15 @@ export function Response({ name, typeName, operation, statusCode }: Props): Reac
   const params = FunctionParams.factory({
     data: {
       type: `${typeName}`,
-      optional: true,
     },
   })
 
   return (
     <File.Source isIndexable isExportable>
-      <Function name={`${name}Handler${statusCode}`} export params={params.toConstructor()}>
+      <Function name={`${name}HandlerResponse${statusCode}`} export params={params.toConstructor()}>
         {`
     return new Response(JSON.stringify(data), {
-      status: ${statusCode === 'default' ? 200 : statusCode},
+      status: ${statusCode},
       ${
         headers.length
           ? `  headers: {

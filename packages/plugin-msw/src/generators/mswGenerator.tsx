@@ -36,10 +36,22 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
 
     const responseStatusCodes = operation.getResponseStatusCodes()
 
-    const types = [
-      type.schemas.response.name,
-      ...(type.schemas.errors?.map((error) => error.name) ?? []),
-    ]
+    const types: [statusCode: number, typeName: string][] = []
+
+    for(const code of responseStatusCodes) {
+      if(code === 'default') {
+        types.push([200, type.schemas.response.name])
+        continue
+      }
+
+      const codeType = type.schemas.errors
+      ?.find((err) => err.statusCode === Number(code))
+
+      if(codeType === undefined) 
+        continue
+
+      types.push([Number(code), codeType.name])
+    }
 
     return (
       <File
@@ -51,13 +63,13 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
       >
         <File.Import name={['http']} path="msw" />
         <File.Import name={['ResponseResolver']} isTypeOnly path="msw" />
-        <File.Import name={types} path={type.file.path} root={mock.file.path} isTypeOnly />
+        <File.Import name={types.map((t) => t[1])} path={type.file.path} root={mock.file.path} isTypeOnly />
         {parser === 'faker' && faker.file && faker.schemas.response && (
           <File.Import name={[faker.schemas.response.name]} root={mock.file.path} path={faker.file.path} />
         )}
 
-        {responseStatusCodes.map((code) => (
-          <Response typeName={code} operation={operation} name={mock.name} statusCode={code} />
+        {types.map(([code, typeName]) => (
+          <Response typeName={typeName} operation={operation} name={mock.name} statusCode={code} />
         ))}
         {parser === 'faker' && (
           <MockWithFaker
