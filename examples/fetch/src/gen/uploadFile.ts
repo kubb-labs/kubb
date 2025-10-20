@@ -42,7 +42,6 @@ export async function uploadFile(
     params,
     data: formData,
     ...requestConfig,
-    headers: { 'Content-Type': 'multipart/form-data', ...requestConfig.headers },
   })
   return res.data
 }

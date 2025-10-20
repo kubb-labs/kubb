@@ -162,7 +162,7 @@ export {
 } from './getUserByNameSchema.gen.ts'
 export { loginUserQueryParamsSchema, loginUser200Schema, loginUser400Schema, loginUserQueryResponseSchema } from './loginUserSchema.gen.ts'
 export { logoutUserErrorSchema, logoutUserQueryResponseSchema } from './logoutUserSchema.gen.ts'
-export { operations, paths } from './operations.ts'
+export { OperationSchema, OperationsMap, operations, paths } from './operations.ts'
 export { orderSchema } from './orderSchema.gen.ts'
 export { petNotFoundSchema } from './petNotFoundSchema.gen.ts'
 export { petSchema } from './petSchema.gen.ts'

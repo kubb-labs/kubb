@@ -309,7 +309,7 @@ export {
 } from './zod/getUserByNameSchema.gen.ts'
 export { loginUserQueryParamsSchema, loginUser200Schema, loginUser400Schema, loginUserQueryResponseSchema } from './zod/loginUserSchema.gen.ts'
 export { logoutUserErrorSchema, logoutUserQueryResponseSchema } from './zod/logoutUserSchema.gen.ts'
-export { operations, paths } from './zod/operations.ts'
+export { OperationSchema, OperationsMap, operations, paths } from './zod/operations.ts'
 export { orderSchema } from './zod/orderSchema.gen.ts'
 export { petNotFoundSchema } from './zod/petNotFoundSchema.gen.ts'
 export { petSchema } from './zod/petSchema.gen.ts'

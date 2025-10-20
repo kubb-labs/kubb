@@ -35,7 +35,6 @@ export async function addFiles(
     url: getAddFilesUrl().url.toString(),
     data: formData,
     ...requestConfig,
-    headers: { 'Content-Type': 'multipart/form-data', ...requestConfig.headers },
   })
   return res
 }

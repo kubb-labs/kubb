@@ -33,8 +33,8 @@ export function Operations({ name, operations }: Props) {
 
   return (
     <>
-      <File.Source name='OperationSchema' isExportable isIndexable>
-        <Type name='OperationSchema' export>{`{
+      <File.Source name="OperationSchema" isExportable isIndexable>
+        <Type name="OperationSchema" export>{`{
   readonly request: z.ZodTypeAny | undefined;
   readonly parameters: {
         readonly path: z.ZodTypeAny | undefined;
@@ -50,8 +50,10 @@ export function Operations({ name, operations }: Props) {
   };
 }`}</Type>
       </File.Source>
-      <File.Source name='OperationsMap' isExportable isIndexable>
-        <Type name='OperationsMap' export>{'Record<string, OperationSchema>'}</Type>
+      <File.Source name="OperationsMap" isExportable isIndexable>
+        <Type name="OperationsMap" export>
+          {'Record<string, OperationSchema>'}
+        </Type>
       </File.Source>
       <File.Source name={name} isExportable isIndexable>
         <Const export name={name} asConst>
