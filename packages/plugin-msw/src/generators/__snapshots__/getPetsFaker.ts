@@ -4,7 +4,7 @@
  */
 import { http } from 'msw'
 
-export function listPets(data?: ListPetsQueryResponse) {
+export function listPetsHandler200(data?: 200) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -13,7 +13,13 @@ export function listPets(data?: ListPetsQueryResponse) {
   })
 }
 
-export function listPets(data?: ListPets400) {
+export function listPetsHandler400(data?: 400) {
+  return new Response(JSON.stringify(data), {
+    status: 400,
+  })
+}
+
+export function listPetsHandlerdefault(data?: default) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {

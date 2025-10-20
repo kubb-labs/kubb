@@ -34,9 +34,11 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
       schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
     }
 
+    const responseStatusCodes = operation.getResponseStatusCodes()
+
     const types = [
       type.schemas.response.name,
-      ...type.schemas.errors?.map((error) => error.name).filter(Boolean) || []
+      ...(type.schemas.errors?.map((error) => error.name) ?? []),
     ]
 
     return (
@@ -54,8 +56,8 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
           <File.Import name={[faker.schemas.response.name]} root={mock.file.path} path={faker.file.path} />
         )}
 
-{types.map((typeName) => (
-          <Response typeName={typeName} operation={operation} name={mock.name} />
+        {responseStatusCodes.map((code) => (
+          <Response typeName={code} operation={operation} name={mock.name} statusCode={code} />
         ))}
         {parser === 'faker' && (
           <MockWithFaker

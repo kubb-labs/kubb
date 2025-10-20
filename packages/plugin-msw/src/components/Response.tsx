@@ -6,12 +6,10 @@ type Props = {
   typeName: string
   operation: Operation
   name: string
+  statusCode: string
 }
 
-export function Response({ name, typeName, operation }: Props): ReactNode {
-  const successStatusCodes = operation.getResponseStatusCodes().filter((code) => code.startsWith('2'))
-  const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200
-
+export function Response({ name, typeName, operation, statusCode }: Props): ReactNode {
   const responseObject = operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject
   const contentType = Object.keys(responseObject.content || {})?.[0]
 
@@ -26,10 +24,10 @@ export function Response({ name, typeName, operation }: Props): ReactNode {
 
   return (
     <File.Source isIndexable isExportable>
-      <Function name={name} export params={params.toConstructor()}>
+      <Function name={`${name}Handler${statusCode}`} export params={params.toConstructor()}>
         {`
     return new Response(JSON.stringify(data), {
-      status: ${statusCode},
+      status: ${statusCode === 'default' ? 200 : statusCode},
       ${
         headers.length
           ? `  headers: {
