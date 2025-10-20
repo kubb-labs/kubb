@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-faker",
-  "version": "4.1.4",
+  "version": "5.0.0",
   "description": "Faker.js data generator plugin for Kubb, creating realistic mock data from OpenAPI specifications for development and testing.",
   "keywords": [
     "faker",
@@ -84,7 +84,7 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react": "^4.0.0"
+    "@kubb/react": "^5.0.0"
   },
   "engines": {
     "node": ">=20"

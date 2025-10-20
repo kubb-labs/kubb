@@ -1,6 +1,6 @@
 {
 	"name": "unplugin-kubb",
-	"version": "3.0.0",
+	"version": "4.0.0",
 	"description": "Unplugin for Kubb",
 	"keywords": [
 		"unplugin",
@@ -108,7 +108,7 @@
 		"webpack": "^5.102.1"
 	},
 	"peerDependencies": {
-		"@kubb/core": "^4.0.0",
+		"@kubb/core": "^5.0.0",
 		"@nuxt/kit": "^3",
 		"@nuxt/schema": "^3",
 		"esbuild": "*",

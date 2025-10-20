@@ -1,5 +1,17 @@
 # @kubb/plugin-msw
 
+## 5.0.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0
+  - @kubb/oas@5.0.0
+  - @kubb/plugin-faker@5.0.0
+  - @kubb/plugin-oas@5.0.0
+  - @kubb/plugin-ts@5.0.0
+  - @kubb/react@5.0.0
+
 ## 4.1.4
 
 ### Patch Changes
