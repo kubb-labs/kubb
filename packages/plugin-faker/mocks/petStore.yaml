@@ -135,6 +135,13 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Pet'
+    String:
+      type: string
+    Integer:
+      type: integer
+    Float:
+      type: number
+      format: float
     Error:
       type: object
       required:
