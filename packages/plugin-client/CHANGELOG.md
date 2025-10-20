@@ -1,5 +1,19 @@
 # @kubb/plugin-client
 
+## 4.1.4
+
+### Patch Changes
+
+- [#1931](https://github.com/kubb-labs/kubb/pull/1931) [`8d7367d`](https://github.com/kubb-labs/kubb/commit/8d7367daa86b4cf7f9907cccf7cc5331b1eceb17) Thanks [@blackravenx](https://github.com/blackravenx)! - Correct content-type header handling for multipart/form-data
+
+- Updated dependencies []:
+  - @kubb/core@4.1.4
+  - @kubb/oas@4.1.4
+  - @kubb/plugin-oas@4.1.4
+  - @kubb/plugin-ts@4.1.4
+  - @kubb/plugin-zod@4.1.4
+  - @kubb/react@4.1.4
+
 ## 4.1.3
 
 ### Patch Changes
