@@ -102,6 +102,10 @@ const mainSidebar = [
         link: '/getting-started/at-glance/',
       },
       {
+        text: 'Ecosystem',
+        link: '/getting-started/ecosystem/',
+      },
+      {
         text: 'Quick Start',
         link: '/getting-started/quick-start/',
       },

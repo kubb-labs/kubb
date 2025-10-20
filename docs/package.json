@@ -23,7 +23,7 @@
   "dependencies": {
     "@shikijs/vitepress-twoslash": "^3.13.0",
     "mermaid": "^11.12.0",
-    "sitemap": "^8.0.0",
+    "sitemap": "^8.0.1",
     "vitepress": "^2.0.0-alpha.12",
     "vitepress-plugin-group-icons": "^1.6.4",
     "vitepress-plugin-llms": "^1.8.0",
@@ -54,7 +54,7 @@
     "cross-env": "^7.0.3",
     "react": "catalog:",
     "unplugin-kubb": "workspace:^",
-    "vite": "^7.1.10"
+    "vite": "^7.1.11"
   },
   "packageManager": "pnpm@10.4.1",
   "engines": {
