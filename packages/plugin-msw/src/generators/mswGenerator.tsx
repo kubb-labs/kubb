@@ -4,7 +4,7 @@ import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File, useApp } from '@kubb/react'
-import { Mock, MockWithFaker } from '../components'
+import { Mock, MockWithFaker, Response } from '../components'
 import type { PluginMsw } from '../types'
 
 export const mswGenerator = createReactGenerator<PluginMsw>({
@@ -34,6 +34,11 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
       schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
     }
 
+    const types = [
+      type.schemas.response.name,
+      ...type.schemas.errors?.map((error) => error.name).filter(Boolean) || []
+    ]
+
     return (
       <File
         baseName={mock.file.baseName}
@@ -44,11 +49,14 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
       >
         <File.Import name={['http']} path="msw" />
         <File.Import name={['ResponseResolver']} isTypeOnly path="msw" />
-        <File.Import name={[type.schemas.response.name]} path={type.file.path} root={mock.file.path} isTypeOnly />
+        <File.Import name={types} path={type.file.path} root={mock.file.path} isTypeOnly />
         {parser === 'faker' && faker.file && faker.schemas.response && (
           <File.Import name={[faker.schemas.response.name]} root={mock.file.path} path={faker.file.path} />
         )}
 
+{types.map((typeName) => (
+          <Response typeName={typeName} operation={operation} name={mock.name} />
+        ))}
         {parser === 'faker' && (
           <MockWithFaker
             name={mock.name}

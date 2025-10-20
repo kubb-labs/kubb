@@ -4,6 +4,12 @@
  */
 import { http } from 'msw'
 
+export function deletePetsPetid(data?: DeletePetsPetidMutationResponse) {
+  return new Response(JSON.stringify(data), {
+    status: 200,
+  })
+}
+
 export function deletePetsPetid(
   data?: DeletePetsPetidMutationResponse | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Response | Promise<Response>),
 ) {
