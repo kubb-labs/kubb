@@ -13,7 +13,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "generate": "kubb generate --config kubb.config.js",
+    "generate": "kubb generate --config kubb.config.js -l info",
     "generate:bun": "bun node_modules/@kubb/cli/bin/kubb.js generate --config kubb.config.js",
     "generate:js": "kubb generate --config .kubbrc",
     "generate:json": "kubb generate --config kubb.json",

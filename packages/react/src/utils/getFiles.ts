@@ -1,12 +1,11 @@
+import type { KubbFile } from '@kubb/core/fs'
+import type { File } from '@kubb/react-fabric'
+import type React from 'react'
 import { nodeNames } from '../dom.ts'
+import type { DOMElement } from '../types.ts'
 import { squashExportNodes } from './squashExportNodes.ts'
 import { squashImportNodes } from './squashImportNodes.ts'
 import { squashSourceNodes } from './squashSourceNodes.ts'
-
-import type { KubbFile } from '@kubb/core/fs'
-import type React from 'react'
-import type { File } from '../components/File.tsx'
-import type { DOMElement } from '../types.ts'
 
 export function getFiles(node: DOMElement): Set<KubbFile.File> {
   let files = new Set<KubbFile.File>()

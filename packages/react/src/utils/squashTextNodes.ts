@@ -2,7 +2,7 @@ import { getRelativePath } from '@kubb/core/fs'
 import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
 
-import type { File } from '../components/File.tsx'
+import type { File } from '@kubb/react-fabric'
 import { nodeNames } from '../dom.ts'
 import type { DOMElement } from '../types.ts'
 

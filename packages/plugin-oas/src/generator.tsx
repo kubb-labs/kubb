@@ -78,7 +78,7 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
           </Oas>
         </App>,
       )
-      return root.files
+      return root.getFiles()
     },
     async operation({ instance, operation, options }) {
       if (!parseOptions.Operation) {
@@ -100,7 +100,7 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
           </Oas>
         </App>,
       )
-      return root.files
+      return root.getFiles()
     },
     async schema({ instance, schema, options }) {
       if (!parseOptions.Schema) {
@@ -122,7 +122,7 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
           </Oas>
         </App>,
       )
-      return root.files
+      return root.getFiles()
     },
   }
 }

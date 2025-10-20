@@ -133,6 +133,10 @@ export class ReactTemplate {
     return this.#lastRendererResult.files
   }
 
+  async getFiles(): Promise<Array<KubbFile.File>> {
+    return this.#lastRendererResult.files
+  }
+
   resolveExitPromise: (result: RendererResult) => void = () => {}
   rejectExitPromise: (reason?: Error) => void = () => {}
   unsubscribeExit: () => void = () => {}
