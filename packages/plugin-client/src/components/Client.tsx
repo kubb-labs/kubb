@@ -136,7 +136,7 @@ export function Client({
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
   const headers = [
-    contentType !== 'application/json' ? `'Content-Type': '${contentType}'` : undefined,
+    contentType !== 'application/json' && contentType !== 'multipart/form-data' ? `'Content-Type': '${contentType}'` : undefined,
     typeSchemas.headerParams?.name ? '...headers' : undefined,
   ].filter(Boolean)
 
