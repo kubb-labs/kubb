@@ -56,7 +56,7 @@
 		"bun-types": "^1.3.0",
 		"prettier": "^3.6.2",
 		"rimraf": "^6.0.1",
-		"taze": "^19.8.0",
+		"taze": "^19.8.1",
 		"ts-node": "^10.9.2",
 		"turbo": "^2.5.8",
 		"typescript": "catalog:",
