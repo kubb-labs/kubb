@@ -14,10 +14,12 @@
   "scripts": {
     "clean": "npx rimraf ./dist",
     "generate": "kubb generate --config kubb.config.ts",
+    "generate:build": "bun ./build.ts",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/fabric-core": "canary",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-client": "workspace:*",

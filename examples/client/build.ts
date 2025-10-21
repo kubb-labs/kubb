@@ -1,23 +1,32 @@
 import { build } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
+import { createFile, FileProcessor } from '@kubb/fabric-core'
+import { write } from '@kubb/core/fs'
 
 async function run() {
-  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
-  // @ts-expect-error
+  const fileProcessor = new FileProcessor()
+
   const { files } = await build({
     config: {
       root: '.',
       input: {
-        data: '',
+        path: './petStore.yaml',
       },
       output: {
-        path: './gen',
+        path: './src/gen2',
       },
       plugins: [pluginOas(), pluginClient()],
     },
   })
-  //TODO add fabric
+
+  console.log('Files: ', files.length)
+
+  for await (const file of files) {
+    const source = await fileProcessor.parse(createFile(file))
+
+    await write(source, file.path)
+  }
 }
 
 run()

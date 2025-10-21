@@ -1,5 +1,4 @@
 import { join, relative, resolve } from 'node:path'
-import { FileProcessor } from '@kubb/fabric-core'
 import pc from 'picocolors'
 import { isDeepEqual } from 'remeda'
 import { isInputPath } from './config.ts'
@@ -92,7 +91,6 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 
 export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
   const pluginManager = await setup(options)
-  const fileProcessor = new FileProcessor()
 
   const config = pluginManager.config
 
@@ -166,22 +164,22 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       await pluginManager.fileManager.add(rootFile)
     }
 
-    fileProcessor.on('start', ({ files }) => {
+    pluginManager.fileManager.processor.on('start', ({ files }) => {
       pluginManager.logger.emit('progress_start', { id: 'files', size: files.length, message: 'Writing files ...' })
     })
 
-    fileProcessor.on('file:start', ({ file }) => {
+    pluginManager.fileManager.processor.on('file:start', ({ file }) => {
       const message = file ? `Writing ${relative(config.root, file.path)}` : ''
       pluginManager.logger.emit('progressed', { id: 'files', message })
     })
 
-    fileProcessor.on('file:finish', () => {})
+    pluginManager.fileManager.processor.on('file:finish', () => {})
 
-    fileProcessor.on('finish', () => {
+    pluginManager.fileManager.processor.on('finish', () => {
       pluginManager.logger.emit('progress_stop', { id: 'files' })
     })
 
-    const files = await fileProcessor.run(pluginManager.fileManager.files, {
+    const files = await pluginManager.fileManager.write({
       extension: config.output.extension,
       dryRun: !config.output.write,
     })

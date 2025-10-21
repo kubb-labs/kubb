@@ -370,6 +370,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/fabric-core':
+        specifier: canary
+        version: 0.0.0-canary-20251021185909
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -998,7 +1001,7 @@ importers:
     dependencies:
       '@kubb/fabric-core':
         specifier: canary
-        version: 0.0.0-canary-20251021145629
+        version: 0.0.0-canary-20251021185909
       '@kubb/parser-ts':
         specifier: ^4.1.4
         version: 4.1.4
@@ -1090,7 +1093,7 @@ importers:
         version: link:../core
       '@kubb/fabric-core':
         specifier: canary
-        version: 0.0.0-canary-20251021145629
+        version: 0.0.0-canary-20251021185909
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../plugin-client
@@ -1526,7 +1529,7 @@ importers:
         version: link:../core
       '@kubb/fabric-core':
         specifier: canary
-        version: 0.0.0-canary-20251021145629
+        version: 0.0.0-canary-20251021185909
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1616,7 +1619,7 @@ importers:
     dependencies:
       '@kubb/react-fabric':
         specifier: canary
-        version: 0.0.0-canary-20251021145629
+        version: 0.0.0-canary-20251021185909
     devDependencies:
       tsdown:
         specifier: 'catalog:'
@@ -2300,8 +2303,8 @@ packages:
     resolution: {integrity: sha512-BPDMqlWJIh1e5hpKgRnbtsFN6ZwfYQtwnqUHSX6Qu1H3QTQuCd/NXheECfLAg/jOINBrMHhDMA49s0nE49RejQ==}
     engines: {node: '>=20'}
 
-  '@kubb/fabric-core@0.0.0-canary-20251021145629':
-    resolution: {integrity: sha512-WGb7QzNqn5KUbl8i8adM9/iZMwScCQJDmQ505f4300UDGxOUT13MYrSZMlR8vdm8Tn1bxGKq4yGXmmfwFn0ATg==}
+  '@kubb/fabric-core@0.0.0-canary-20251021185909':
+    resolution: {integrity: sha512-tY0G/ptFuZFBmgy3J0Tolav0FSW9HHEo+33plOzpfYHlYqNzHZNgAJJuLcCbWAjIdpZAbC/ubIUYgPlqpEt7DA==}
     engines: {node: '>=20'}
 
   '@kubb/parser-ts@4.0.0':
@@ -2312,8 +2315,8 @@ packages:
     resolution: {integrity: sha512-BRCEqrXmrVerLxJOW2OSyZrn8CsRb0pyZN1qoVQf4SkfJrD4MeZdEmSAjvknh2Ia2zP6N/uXw4UHZDwqam+fJg==}
     engines: {node: '>=20'}
 
-  '@kubb/react-fabric@0.0.0-canary-20251021145629':
-    resolution: {integrity: sha512-pjZIf8rA5xBPjug2FKgCGQ2QtjmnUUoW9EGajqSYhLJ56e5Io1Eb5aFlrJSdEbDUwb5DLMps+95Ke13MdCvnkw==}
+  '@kubb/react-fabric@0.0.0-canary-20251021185909':
+    resolution: {integrity: sha512-wsZelsKGFXkdzsp8Hohehs8QJ1xnAxCY7v7l/hmOh+OmNRbdWhYE0ouzxBpRG/joCoMRHUK14lhkOnaDIOGlcw==}
     engines: {node: '>=20'}
 
   '@kubb/react@4.0.0':
@@ -8454,7 +8457,7 @@ snapshots:
       seedrandom: 3.0.5
       semver: 7.7.3
 
-  '@kubb/fabric-core@0.0.0-canary-20251021145629':
+  '@kubb/fabric-core@0.0.0-canary-20251021185909':
     dependencies:
       fs-extra: 11.3.2
       js-runtime: 0.0.8
@@ -8475,9 +8478,9 @@ snapshots:
       remeda: 2.32.0
       typescript: 5.9.3
 
-  '@kubb/react-fabric@0.0.0-canary-20251021145629':
+  '@kubb/react-fabric@0.0.0-canary-20251021185909':
     dependencies:
-      '@kubb/fabric-core': 0.0.0-canary-20251021145629
+      '@kubb/fabric-core': 0.0.0-canary-20251021185909
       dedent: 1.7.0
       execa: 9.6.0
       indent-string: 5.0.0
