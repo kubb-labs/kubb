@@ -1,5 +1,21 @@
 # @kubb/plugin-msw
 
+## 4.2.0
+
+### Minor Changes
+
+- [#1938](https://github.com/kubb-labs/kubb/pull/1938) [`73536a7`](https://github.com/kubb-labs/kubb/commit/73536a74b9945f2d28a4f321d35e928678ffc73b) Thanks [@Ericlm](https://github.com/Ericlm)! - MSW handlers generate all their possible `Responses` along the handler.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.2.0
+  - @kubb/oas@4.2.0
+  - @kubb/plugin-faker@4.2.0
+  - @kubb/plugin-oas@4.2.0
+  - @kubb/plugin-ts@4.2.0
+  - @kubb/react@4.2.0
+
 ## 4.1.4
 
 ### Patch Changes

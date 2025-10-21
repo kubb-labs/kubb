@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-zod",
-  "version": "4.1.4",
+  "version": "4.2.0",
   "description": "Zod schema generator plugin for Kubb, creating type-safe validation schemas from OpenAPI specifications for runtime data validation.",
   "keywords": [
     "zod",

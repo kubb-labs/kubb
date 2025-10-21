@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-cypress",
-  "version": "4.1.4",
+  "version": "4.2.0",
   "description": "Cypress test generator plugin for Kubb, creating end-to-end tests from OpenAPI specifications for automated API testing.",
   "keywords": [
     "cypress",

@@ -1,5 +1,12 @@
 # @kubb/core
 
+## 4.2.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/react@4.2.0
+
 ## 4.1.4
 
 ### Patch Changes
