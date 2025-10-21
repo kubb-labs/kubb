@@ -30,7 +30,7 @@ export function createDeletePet400() {
   return undefined
 }
 
-export function createDeletePetMutationResponse(_data?: Partial<DeletePetMutationResponse>): DeletePetMutationResponse {
+export function createDeletePetMutationResponse(data?: Partial<DeletePetMutationResponse>): DeletePetMutationResponse {
   faker.seed([220])
   return undefined
 }

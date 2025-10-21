@@ -21,7 +21,7 @@ export function Response({ name, typeName, operation, statusCode }: Props): Reac
     },
   })
 
-  const responseName = `${name}HandlerResponse${statusCode}`
+  const responseName = `${name}Response${statusCode}`
 
   return (
     <File.Source name={responseName} isIndexable isExportable>

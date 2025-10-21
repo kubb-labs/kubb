@@ -30,7 +30,7 @@ export function createUpdatePetWithForm405() {
   return undefined
 }
 
-export function createUpdatePetWithFormMutationResponse(_data?: Partial<UpdatePetWithFormMutationResponse>): UpdatePetWithFormMutationResponse {
+export function createUpdatePetWithFormMutationResponse(data?: Partial<UpdatePetWithFormMutationResponse>): UpdatePetWithFormMutationResponse {
   faker.seed([220])
   return undefined
 }

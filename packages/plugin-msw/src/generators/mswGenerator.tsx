@@ -36,10 +36,13 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
 
     const responseStatusCodes = operation.getResponseStatusCodes()
 
-    const types: [statusCode: number, typeName: string][] = []
+    const types: [statusCode: number | 'default', typeName: string][] = []
 
     for (const code of responseStatusCodes) {
-      if (code === 'default') continue
+      if (code === 'default') {
+        types.push(['default', type.schemas.response.name])
+        continue
+      }
 
       if (code.startsWith('2')) {
         types.push([Number(code), type.schemas.response.name])
@@ -60,14 +63,16 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
       >
         <File.Import name={['http']} path="msw" />
         <File.Import name={['ResponseResolver']} isTypeOnly path="msw" />
-        <File.Import name={types.map((t) => t[1] ?? 'default')} path={type.file.path} root={mock.file.path} isTypeOnly />
+        <File.Import name={types.map((t) => t[1])} path={type.file.path} root={mock.file.path} isTypeOnly />
         {parser === 'faker' && faker.file && faker.schemas.response && (
           <File.Import name={[faker.schemas.response.name]} root={mock.file.path} path={faker.file.path} />
         )}
 
-        {types.map(([code, typeName]) => (
-          <Response typeName={typeName} operation={operation} name={mock.name} statusCode={code} />
-        ))}
+        {types
+          .filter(([code]) => code !== 'default')
+          .map(([code, typeName]) => (
+            <Response typeName={typeName} operation={operation} name={mock.name} statusCode={code as number} />
+          ))}
         {parser === 'faker' && (
           <MockWithFaker
             name={mock.name}

@@ -3,8 +3,14 @@
  * Do not edit manually.
  */
 
-import type { UpdatePetWithFormMutationResponse } from '../../../models/UpdatePetWithForm.ts'
+import type { UpdatePetWithForm405 } from '../../../models/UpdatePetWithForm.ts'
 import { http } from 'msw'
+
+export function updatePetWithFormHandlerResponse405(data: UpdatePetWithForm405) {
+  return new Response(JSON.stringify(data), {
+    status: 405,
+  })
+}
 
 export function updatePetWithFormHandler(
   data?: UpdatePetWithFormMutationResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>),
