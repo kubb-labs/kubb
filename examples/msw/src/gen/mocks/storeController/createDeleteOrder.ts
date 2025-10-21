@@ -30,7 +30,7 @@ export function createDeleteOrder404() {
   return undefined
 }
 
-export function createDeleteOrderMutationResponse(data?: Partial<DeleteOrderMutationResponse>): DeleteOrderMutationResponse {
+export function createDeleteOrderMutationResponse(_data?: Partial<DeleteOrderMutationResponse>): DeleteOrderMutationResponse {
   faker.seed([220])
   return undefined
 }

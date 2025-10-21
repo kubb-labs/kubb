@@ -31,7 +31,7 @@ export function createUpdateUserMutationRequest() {
   return createUser()
 }
 
-export function createUpdateUserMutationResponse(data?: Partial<UpdateUserMutationResponse>): UpdateUserMutationResponse {
+export function createUpdateUserMutationResponse(_data?: Partial<UpdateUserMutationResponse>): UpdateUserMutationResponse {
   faker.seed([220])
   return undefined
 }

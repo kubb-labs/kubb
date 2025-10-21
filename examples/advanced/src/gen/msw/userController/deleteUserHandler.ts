@@ -1,4 +1,4 @@
-import type { DeleteUser400, DeleteUser404 } from '../../models/ts/userController/DeleteUser.ts'
+import type { DeleteUserMutationResponse, DeleteUser400, DeleteUser404 } from '../../models/ts/userController/DeleteUser.ts'
 import { http } from 'msw'
 
 export function deleteUserHandlerResponse400(data: DeleteUser400) {

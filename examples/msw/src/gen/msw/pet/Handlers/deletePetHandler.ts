@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { DeletePet400 } from '../../../models/DeletePet.ts'
+import type { DeletePetMutationResponse, DeletePet400 } from '../../../models/DeletePet.ts'
 import { http } from 'msw'
 
 export function deletePetHandlerResponse400(data: DeletePet400) {

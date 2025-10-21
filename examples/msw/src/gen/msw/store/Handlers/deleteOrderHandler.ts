@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { DeleteOrder400, DeleteOrder404 } from '../../../models/DeleteOrder.ts'
+import type { DeleteOrderMutationResponse, DeleteOrder400, DeleteOrder404 } from '../../../models/DeleteOrder.ts'
 import { http } from 'msw'
 
 export function deleteOrderHandlerResponse400(data: DeleteOrder400) {

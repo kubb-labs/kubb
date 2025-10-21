@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { DeleteUser400, DeleteUser404 } from '../../../models/DeleteUser.ts'
+import type { DeleteUserMutationResponse, DeleteUser400, DeleteUser404 } from '../../../models/DeleteUser.ts'
 import { http } from 'msw'
 
 export function deleteUserHandlerResponse400(data: DeleteUser400) {
