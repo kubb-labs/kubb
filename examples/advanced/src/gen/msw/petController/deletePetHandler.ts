@@ -1,5 +1,11 @@
-import type { DeletePetMutationResponse } from '../../models/ts/petController/DeletePet.ts'
+import type { DeletePetMutationResponse, DeletePet400 } from '../../models/ts/petController/DeletePet.ts'
 import { http } from 'msw'
+
+export function deletePetHandlerResponse400(data: DeletePet400) {
+  return new Response(JSON.stringify(data), {
+    status: 400,
+  })
+}
 
 export function deletePetHandler(
   data?: DeletePetMutationResponse | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Response | Promise<Response>),

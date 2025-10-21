@@ -3,8 +3,20 @@
  * Do not edit manually.
  */
 
-import type { DeleteOrderMutationResponse } from '../../../models/DeleteOrder.ts'
+import type { DeleteOrderMutationResponse, DeleteOrder400, DeleteOrder404 } from '../../../models/DeleteOrder.ts'
 import { http } from 'msw'
+
+export function deleteOrderHandlerResponse400(data: DeleteOrder400) {
+  return new Response(JSON.stringify(data), {
+    status: 400,
+  })
+}
+
+export function deleteOrderHandlerResponse404(data: DeleteOrder404) {
+  return new Response(JSON.stringify(data), {
+    status: 404,
+  })
+}
 
 export function deleteOrderHandler(
   data?: DeleteOrderMutationResponse | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Response | Promise<Response>),
