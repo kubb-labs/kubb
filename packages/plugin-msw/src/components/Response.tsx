@@ -1,6 +1,5 @@
 import type { OasTypes, Operation } from '@kubb/oas'
 import { File, Function, FunctionParams } from '@kubb/react'
-import type { ReactNode } from 'react'
 
 type Props = {
   typeName: string
@@ -9,7 +8,7 @@ type Props = {
   statusCode: number
 }
 
-export function Response({ name, typeName, operation, statusCode }: Props): ReactNode {
+export function Response({ name, typeName, operation, statusCode }: Props) {
   const responseObject = operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject
   const contentType = Object.keys(responseObject.content || {})?.[0]
 
