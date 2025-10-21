@@ -21,9 +21,11 @@ export function Response({ name, typeName, operation, statusCode }: Props): Reac
     },
   })
 
+  const responseName = `${name}HandlerResponse${statusCode}`
+
   return (
-    <File.Source isIndexable isExportable>
-      <Function name={`${name}HandlerResponse${statusCode}`} export params={params.toConstructor()}>
+    <File.Source name={responseName} isIndexable isExportable>
+      <Function name={responseName} export params={params.toConstructor()}>
         {`
     return new Response(JSON.stringify(data), {
       status: ${statusCode},

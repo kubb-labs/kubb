@@ -39,7 +39,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
     const types: [statusCode: number, typeName: string][] = []
 
     for (const code of responseStatusCodes) {
-      if (code === 'default') {
+      if (code === 'default' || code === '200') {
         types.push([200, type.schemas.response.name])
         continue
       }
@@ -66,9 +66,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
           <File.Import name={[faker.schemas.response.name]} root={mock.file.path} path={faker.file.path} />
         )}
 
-        {types.map(([code, typeName]) => (
-          <Response typeName={typeName} operation={operation} name={mock.name} statusCode={code} />
-        ))}
+        {types.length > 0 && types.map(([code, typeName]) => <Response typeName={typeName} operation={operation} name={mock.name} statusCode={code} />)}
         {parser === 'faker' && (
           <MockWithFaker
             name={mock.name}
