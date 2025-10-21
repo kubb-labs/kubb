@@ -1,9 +1,10 @@
+import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react'
 import { Mock, MockWithFaker, Response } from '../components'
 import type { PluginMsw } from '../types'
 
@@ -11,11 +12,10 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
   name: 'msw',
   Operation({ operation }) {
     const {
-      pluginManager,
-      plugin: {
-        options: { output, parser, baseURL },
-      },
-    } = useApp<PluginMsw>()
+      options: { output, parser, baseURL },
+    } = usePlugin<PluginMsw>()
+    const pluginManager = usePluginManager()
+
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 

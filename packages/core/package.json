@@ -30,6 +30,10 @@
       "import": "./dist/fs.js",
       "require": "./dist/fs.cjs"
     },
+    "./hooks": {
+      "import": "./dist/hooks.js",
+      "require": "./dist/hooks.cjs"
+    },
     "./logger": {
       "import": "./dist/logger.js",
       "require": "./dist/logger.cjs"
@@ -65,6 +69,9 @@
       "mocks": [
         "./dist/mocks.d.ts"
       ],
+      "hooks": [
+        "./dist/hooks.d.ts"
+      ],
       "fs": [
         "./dist/fs.d.ts"
       ]
@@ -91,7 +98,9 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/parser-ts": "workspace:*",
+    "@kubb/fabric-core": "^0.1.0",
+    "@kubb/react": "workspace:*",
+    "@kubb/parser-ts": "^4.1.4",
     "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
     "fs-extra": "^11.3.2",
@@ -113,6 +122,9 @@
     "tsdown": "catalog:",
     "typescript": "catalog:",
     "zod": "^4.1.12"
+  },
+  "peerDependencies": {
+    "@kubb/react": "^4.0.0"
   },
   "engines": {
     "node": ">=20"

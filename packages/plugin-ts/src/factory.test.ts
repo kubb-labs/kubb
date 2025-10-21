@@ -1,3 +1,4 @@
+import { print } from '@kubb/fabric-core/parsers/typescript'
 import ts from 'typescript'
 import { format } from '../../core/mocks/format.ts'
 import {
@@ -14,7 +15,6 @@ import {
   createUnionDeclaration,
   modifiers,
 } from './factory.ts'
-import { print } from './print.ts'
 
 const { factory } = ts
 

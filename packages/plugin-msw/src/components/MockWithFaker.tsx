@@ -2,7 +2,6 @@ import { URLPath } from '@kubb/core/utils'
 
 import type { OasTypes, Operation } from '@kubb/oas'
 import { File, Function, FunctionParams } from '@kubb/react'
-import type { ReactNode } from 'react'
 
 type Props = {
   /**
@@ -15,7 +14,7 @@ type Props = {
   operation: Operation
 }
 
-export function MockWithFaker({ baseURL = '', name, fakerName, typeName, operation }: Props): ReactNode {
+export function MockWithFaker({ baseURL = '', name, fakerName, typeName, operation }: Props) {
   const method = operation.method
   const successStatusCodes = operation.getResponseStatusCodes().filter((code) => code.startsWith('2'))
   const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200

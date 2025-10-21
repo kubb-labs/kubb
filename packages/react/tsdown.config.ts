@@ -15,5 +15,4 @@ export default defineConfig({
   sourcemap: true,
   shims: true,
   exports: true,
-  noExternal: [/react/, /indent-string/],
 })

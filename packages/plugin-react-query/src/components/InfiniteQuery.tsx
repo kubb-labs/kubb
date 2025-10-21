@@ -2,7 +2,6 @@ import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react'
-import type { ReactNode } from 'react'
 import type { Infinite, PluginReactQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
@@ -129,7 +128,7 @@ export function InfiniteQuery({
   operation,
   initialPageParam,
   queryParam,
-}: Props): ReactNode {
+}: Props) {
   const responseType = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const errorType = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
   const isInitialPageParamDefined = initialPageParam !== undefined && initialPageParam !== null
