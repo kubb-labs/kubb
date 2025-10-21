@@ -1,12 +1,9 @@
-import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import type { ReactNode } from 'react'
-import type { PluginSwr } from '../types.ts'
-
 import { isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
+import { getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, FunctionParams } from '@kubb/react'
+import type { PluginSwr } from '../types.ts'
 
 type Props = {
   name: string
@@ -95,7 +92,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
   })
 }
 
-export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, paramsType, pathParamsType }: Props): ReactNode {
+export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, paramsType, pathParamsType }: Props) {
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
     paramsCasing,

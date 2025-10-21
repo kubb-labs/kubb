@@ -1,3 +1,4 @@
+import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
@@ -5,7 +6,7 @@ import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react'
 import { difference } from 'remeda'
 import { Query, QueryKey, QueryOptions } from '../components'
 import type { PluginVueQuery } from '../types'
@@ -14,11 +15,10 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
   name: 'vue-query',
   Operation({ options, operation }) {
     const {
-      plugin: {
-        options: { output },
-      },
-      pluginManager,
-    } = useApp<PluginVueQuery>()
+      options: { output },
+    } = usePlugin<PluginVueQuery>()
+    const pluginManager = usePluginManager()
+
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 

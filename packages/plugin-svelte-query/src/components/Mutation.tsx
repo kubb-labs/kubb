@@ -1,11 +1,9 @@
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, FunctionParams } from '@kubb/react'
 import type { Params } from '@kubb/react/types'
-import type { ReactNode } from 'react'
 import type { PluginSvelteQuery } from '../types.ts'
 import { MutationKey } from './MutationKey.tsx'
 
@@ -72,17 +70,7 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
   })
 }
 
-export function Mutation({
-  name,
-  clientName,
-  paramsCasing,
-  paramsType,
-  pathParamsType,
-  dataReturnType,
-  typeSchemas,
-  operation,
-  mutationKeyName,
-}: Props): ReactNode {
+export function Mutation({ name, clientName, paramsCasing, paramsType, pathParamsType, dataReturnType, typeSchemas, operation, mutationKeyName }: Props) {
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,
     typeSchemas,

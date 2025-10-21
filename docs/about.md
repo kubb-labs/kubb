@@ -21,12 +21,11 @@ When reading the name you would think `Kubb` means cube which also refers to tha
 <hr/>
 
 At this moment `Kubb` is a library to create clients based on a Swagger file but `Kubb` was designed to also work with something else than Swagger.
-Because everything is a plugin, it will also make it really easy for other developers to create their plugin that implements for example a generation for GraphQL.
-See [Create your plugin](/plugins/template) for more information about how to create your plugin.
+Because everything is a plugin, it will also make it really easy for other developers to create their own plugin.
 
 ## Community
 
 `Kubb` is created by [stijnvanhulle](https://stijnvanhulle.be).
-Follow [@stijnvanhulle](https://twitter.com/stijnvanhulle) on Twitter for future project updates.
+Follow [@stijnvanhulle](https://bsky.app/profile/stijnvanhulle.bsky.social) on BlueSky for future project updates.
 
 Feel free to join the [discussions on GitHub](https://github.com/kubb-labs/kubb/discussions)!

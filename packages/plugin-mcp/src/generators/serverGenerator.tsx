@@ -1,16 +1,19 @@
+import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
-import { File, useApp } from '@kubb/react'
+import { pluginTsName } from '@kubb/plugin-ts'
+import { pluginZodName } from '@kubb/plugin-zod'
+import { File } from '@kubb/react'
 import { Server } from '../components/Server'
 import type { PluginMcp } from '../types'
-import { pluginZodName } from '@kubb/plugin-zod'
-import { pluginTsName } from '@kubb/plugin-ts'
 
 export const serverGenerator = createReactGenerator<PluginMcp>({
   name: 'operations',
   Operations({ operations, options }) {
-    const { pluginManager, plugin } = useApp<PluginMcp>()
+    const plugin = usePlugin<PluginMcp>()
+    const pluginManager = usePluginManager()
+
     const oas = useOas()
     const { getFile, getName, getSchemas } = useOperationManager()
 

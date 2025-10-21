@@ -1,6 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`print > keep 
- 1`] = `Promise {}`;
-
-exports[`print > remove comments from text 1`] = `Promise {}`;

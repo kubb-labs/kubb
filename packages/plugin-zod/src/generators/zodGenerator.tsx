@@ -1,9 +1,10 @@
+import { useMode, usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { createReactGenerator, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react'
 import { Zod } from '../components'
 import type { PluginZod } from '../types'
 
@@ -12,7 +13,10 @@ export const zodGenerator = createReactGenerator<PluginZod>({
   Operation({ operation, options }) {
     const { coercion: globalCoercion, inferred, typed, mapper, wrapOutput } = options
 
-    const { plugin, pluginManager, mode } = useApp<PluginZod>()
+    const plugin = usePlugin<PluginZod>()
+    const mode = useMode()
+    const pluginManager = usePluginManager()
+
     const oas = useOas()
     const { getSchemas, getFile, getGroup } = useOperationManager()
     const schemaManager = useSchemaManager()
@@ -103,11 +107,9 @@ export const zodGenerator = createReactGenerator<PluginZod>({
 
     const { getName, getFile, getImports } = useSchemaManager()
     const {
-      pluginManager,
-      plugin: {
-        options: { output, emptySchemaType },
-      },
-    } = useApp<PluginZod>()
+      options: { output, emptySchemaType },
+    } = usePlugin<PluginZod>()
+    const pluginManager = usePluginManager()
     const oas = useOas()
 
     const imports = getImports(schema.tree)
