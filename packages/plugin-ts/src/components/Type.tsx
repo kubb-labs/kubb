@@ -1,11 +1,10 @@
 import transformers from '@kubb/core/transformers'
+import { print } from '@kubb/fabric-core/parsers/typescript'
 import type { SchemaObject } from '@kubb/oas'
-import { print } from '@kubb/parser-ts'
-import * as factory from '@kubb/parser-ts/factory'
-import { createTypeDeclaration } from '@kubb/parser-ts/factory'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { File } from '@kubb/react'
 import type ts from 'typescript'
+import * as factory from '../factory.ts'
 import { parse, typeKeywordMapper } from '../parser.ts'
 import type { PluginTs } from '../types.ts'
 
@@ -96,7 +95,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
   const useTypeGeneration = syntaxType === 'type' || [factory.syntaxKind.union].includes(type.kind as typeof factory.syntaxKind.union) || !!keysToOmit?.length
 
   typeNodes.push(
-    createTypeDeclaration({
+    factory.createTypeDeclaration({
       name,
       isExportable: true,
       type: keysToOmit?.length

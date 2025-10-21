@@ -646,7 +646,7 @@ importers:
         specifier: ^1.12.2
         version: 1.12.2
       react:
-        specifier: ' ^19.2.0'
+        specifier: ^19.2.0
         version: 19.2.0
       react-dom:
         specifier: ^19.2.0
@@ -996,9 +996,12 @@ importers:
 
   packages/core:
     dependencies:
+      '@kubb/fabric-core':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
+        specifier: ^4.1.4
+        version: 4.1.4
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
@@ -1183,22 +1186,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
-
-  packages/parser-ts:
-    dependencies:
-      prettier:
-        specifier: ^3.6.2
-        version: 3.6.2
-      remeda:
-        specifier: 'catalog:'
-        version: 2.32.0
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
-    devDependencies:
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.9(typescript@5.9.3)
 
   packages/plugin-client:
     dependencies:
@@ -1534,25 +1521,28 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/fabric-core':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../plugin-oas
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
+      remeda:
+        specifier: 'catalog:'
+        version: 2.32.0
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
     devDependencies:
       tsdown:
         specifier: 'catalog:'
         version: 0.15.9(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/plugin-vue-query:
     dependencies:
@@ -1596,9 +1586,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
       '@kubb/plugin-oas':
         specifier: workspace:*
         version: link:../plugin-oas
@@ -1610,8 +1597,8 @@ importers:
         version: link:../react
     devDependencies:
       '@asteasolutions/zod-to-openapi':
-        specifier: ^7.3.4
-        version: 7.3.4(zod@3.25.76)
+        specifier: ^8.1.0
+        version: 8.1.0(zod@3.25.76)
       '@hono/zod-openapi':
         specifier: 0.19.2
         version: 0.19.2(hono@4.9.8)(zod@3.25.76)
@@ -1625,8 +1612,8 @@ importers:
   packages/react:
     dependencies:
       '@kubb/react-fabric':
-        specifier: ^0.0.1
-        version: 0.0.1
+        specifier: ^0.1.0
+        version: 0.1.0
     devDependencies:
       tsdown:
         specifier: 'catalog:'
@@ -1706,6 +1693,11 @@ packages:
     resolution: {integrity: sha512-/2rThQ5zPi9OzVwes6U7lK1+Yvug0iXu25olp7S0XsYmOqnyMfxH7gdSQjn/+DSOHRg7wnotwGJSyL+fBKdnEA==}
     peerDependencies:
       zod: ^3.20.2
+
+  '@asteasolutions/zod-to-openapi@8.1.0':
+    resolution: {integrity: sha512-tQFxVs05J/6QXXqIzj6rTRk3nj1HFs4pe+uThwE95jL5II2JfpVXkK+CqkO7aT0Do5AYqO6LDrKpleLUFXgY+g==}
+    peerDependencies:
+      zod: ^4.0.0
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -2305,16 +2297,20 @@ packages:
     resolution: {integrity: sha512-BPDMqlWJIh1e5hpKgRnbtsFN6ZwfYQtwnqUHSX6Qu1H3QTQuCd/NXheECfLAg/jOINBrMHhDMA49s0nE49RejQ==}
     engines: {node: '>=20'}
 
-  '@kubb/fabric-core@0.0.1':
-    resolution: {integrity: sha512-T9OVJHI1C5aqNaHmoezvKxtSoHOb2lmvYQA3cNUoQNTQhwStzrsl9i9Si/dLB8/wt+jyy8GFOoObRS4ZRandSg==}
+  '@kubb/fabric-core@0.1.0':
+    resolution: {integrity: sha512-d95XAyphNPGbx4dSxt8URG5eiY4KS/e612oloWZ+2lWWVmh5YdF3tqNVRAnhaR62HZgK+i/IOQXGI/d4Lbswtg==}
     engines: {node: '>=20'}
 
   '@kubb/parser-ts@4.0.0':
     resolution: {integrity: sha512-WnnSiNsXi1xBwoEFKyMFwsuyA1bDwx/0ebBnt6G2QemEBSgL1LjPVtq+AeBYNe8aHkFCsmq00dzg67XFuB/BJQ==}
     engines: {node: '>=20'}
 
-  '@kubb/react-fabric@0.0.1':
-    resolution: {integrity: sha512-sHodc/2d4VSBdAmKdfnhLQgEwcod6Na8UwwdDwSjJEb96MJv7T6N0EqYr7U2ug3leg8sewB7qGGFF4dTTg9/+Q==}
+  '@kubb/parser-ts@4.1.4':
+    resolution: {integrity: sha512-BRCEqrXmrVerLxJOW2OSyZrn8CsRb0pyZN1qoVQf4SkfJrD4MeZdEmSAjvknh2Ia2zP6N/uXw4UHZDwqam+fJg==}
+    engines: {node: '>=20'}
+
+  '@kubb/react-fabric@0.1.0':
+    resolution: {integrity: sha512-Jq9FBQRY8xnGyshbgWwfPPK05HaZLNnbt5kRF9nspzu/t3wlhSFjSk9qlsPvi8r+Nw0cjqbbEmD1iSoggHk1bg==}
     engines: {node: '>=20'}
 
   '@kubb/react@4.0.0':
@@ -7736,6 +7732,11 @@ snapshots:
       openapi3-ts: 4.5.0
       zod: 3.25.76
 
+  '@asteasolutions/zod-to-openapi@8.1.0(zod@3.25.76)':
+    dependencies:
+      openapi3-ts: 4.5.0
+      zod: 3.25.76
+
   '@babel/code-frame@7.27.1':
     dependencies:
       '@babel/helper-validator-identifier': 7.27.1
@@ -8444,7 +8445,7 @@ snapshots:
       seedrandom: 3.0.5
       semver: 7.7.3
 
-  '@kubb/fabric-core@0.0.1':
+  '@kubb/fabric-core@0.1.0':
     dependencies:
       fs-extra: 11.3.2
       js-runtime: 0.0.8
@@ -8459,9 +8460,15 @@ snapshots:
       remeda: 2.32.0
       typescript: 5.9.2
 
-  '@kubb/react-fabric@0.0.1':
+  '@kubb/parser-ts@4.1.4':
     dependencies:
-      '@kubb/fabric-core': 0.0.1
+      prettier: 3.6.2
+      remeda: 2.32.0
+      typescript: 5.9.3
+
+  '@kubb/react-fabric@0.1.0':
+    dependencies:
+      '@kubb/fabric-core': 0.1.0
       dedent: 1.7.0
       execa: 9.6.0
       indent-string: 5.0.0

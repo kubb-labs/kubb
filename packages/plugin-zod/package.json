@@ -82,13 +82,12 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/react": "workspace:*"
   },
   "devDependencies": {
-    "@asteasolutions/zod-to-openapi": "^7.3.4",
+    "@asteasolutions/zod-to-openapi": "^8.1.0",
     "@hono/zod-openapi": "0.19.2",
     "@kubb/plugin-oas": "workspace:*",
     "tsdown": "catalog:",

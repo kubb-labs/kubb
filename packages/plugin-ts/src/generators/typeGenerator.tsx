@@ -1,8 +1,7 @@
 import type { PluginManager } from '@kubb/core'
 import { useMode, usePlugin, usePluginManager } from '@kubb/core/hooks'
 import transformers from '@kubb/core/transformers'
-import { print } from '@kubb/parser-ts'
-import * as factory from '@kubb/parser-ts/factory'
+import { print } from '@kubb/fabric-core/parsers/typescript'
 import {
   createReactGenerator,
   isKeyword,
@@ -17,6 +16,7 @@ import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react'
 import type ts from 'typescript'
 import { Type } from '../components'
+import * as factory from '../factory.ts'
 import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types'
 

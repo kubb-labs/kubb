@@ -68,11 +68,13 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/fabric-core": "^0.1.0",
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@kubb/react": "workspace:*"
+    "@kubb/react": "workspace:*",
+    "remeda": "catalog:",
+    "typescript": "5.9.3"
   },
   "devDependencies": {
     "@kubb/plugin-oas": "workspace:*",

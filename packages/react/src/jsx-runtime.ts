@@ -1,2 +1,1 @@
-// @ts-expect-error cannot find types
 export * from '@kubb/react-fabric/jsx-runtime'

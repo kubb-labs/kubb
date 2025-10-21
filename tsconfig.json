@@ -36,8 +36,6 @@
       "@kubb/react": ["packages/react/src/index.ts"],
       "@kubb/react/types": ["packages/react/src/types.ts"],
       "@kubb/react/devtools": ["packages/react/src/devtools.ts"],
-      "@kubb/parser-ts/factory": ["packages/parser-ts/src/factory.ts"],
-      "@kubb/parser-ts": ["packages/parser-ts/src/index.ts"],
       "@kubb/oas": ["packages/oas/src/index.ts"],
       "unplugin-kubb": ["packages/unplugin/src/index.ts"]
     }
