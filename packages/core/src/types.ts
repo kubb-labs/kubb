@@ -1,4 +1,4 @@
-import type { FileManager } from './FileManager.ts'
+import type { FileManager } from '@kubb/fabric-core'
 import type { KubbFile } from './fs/index.ts'
 import type { Logger } from './logger.ts'
 import type { PluginManager } from './PluginManager.ts'
@@ -300,6 +300,9 @@ export type ResolveNameParams = {
 
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: Config
+  /**
+   * @deprecated
+   */
   fileManager: FileManager
   pluginManager: PluginManager
   addFile: (...file: Array<KubbFile.File>) => Promise<Array<KubbFile.ResolvedFile>>

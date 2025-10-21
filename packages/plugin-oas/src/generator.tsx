@@ -80,7 +80,7 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
       const app = createApp(Component)
 
       app.render()
-      return app.getFiles()
+      return app.files
     },
     async operation({ instance, operation, options }) {
       if (!parseOptions.Operation) {
@@ -104,7 +104,7 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
       const app = createApp(Component)
 
       app.render()
-      return app.getFiles()
+      return app.files
     },
     async schema({ instance, schema, options }) {
       if (!parseOptions.Schema) {
@@ -129,7 +129,7 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
       const app = createApp(Component)
 
       app.render()
-      return app.getFiles()
+      return app.files
     },
   }
 }

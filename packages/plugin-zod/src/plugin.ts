@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { createPlugin, FileManager, type Group, PackageManager, type Plugin, PluginManager } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode, PackageManager, type Plugin, PluginManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
@@ -57,7 +57,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
+      const mode = pathMode ?? getMode(path.resolve(root, output.path))
 
       if (mode === 'single') {
         /**
@@ -110,7 +110,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
 
       const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = FileManager.getMode(path.resolve(root, output.path))
+      const mode = getMode(path.resolve(root, output.path))
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         oas,
@@ -140,7 +140,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       const operationFiles = await operationGenerator.build(...generators)
       await this.addFile(...operationFiles)
 
-      const barrelFiles = await this.fileManager.getBarrelFiles({
+      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
         type: output.barrelType ?? 'named',
         root,
         output,

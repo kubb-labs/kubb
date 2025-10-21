@@ -1,4 +1,4 @@
-import { FileManager } from '../FileManager.ts'
+import { getMode } from '../FileManager.ts'
 import type { KubbFile } from '../fs/index.ts'
 
 type BarrelData = {
@@ -124,7 +124,7 @@ export class TreeNode {
         name: filteredTree.name,
         path: filteredTree.path,
         file: filteredTree.file,
-        type: FileManager.getMode(filteredTree.path),
+        type: getMode(filteredTree.path),
       })
 
       const recurse = (node: typeof treeNode, item: DirectoryTree) => {
@@ -132,7 +132,7 @@ export class TreeNode {
           name: item.name,
           path: item.path,
           file: item.file,
-          type: FileManager.getMode(item.path),
+          type: getMode(item.path),
         })
 
         if (item.children?.length) {

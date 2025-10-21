@@ -59,6 +59,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/fabric-core": "canary",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-cypress": "workspace:*",
