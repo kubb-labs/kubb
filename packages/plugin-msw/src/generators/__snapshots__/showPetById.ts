@@ -4,7 +4,7 @@
  */
 import { http } from 'msw'
 
-export function showPetByIdHandlerResponse200(data: ShowPetByIdQueryResponse) {
+export function showPetByIdResponse200(data: ShowPetByIdQueryResponse) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
