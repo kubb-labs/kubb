@@ -1,7 +1,6 @@
-import { useApp } from '@kubb/react'
-
 import type { FileMetaBase, Plugin, ResolveNameParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/core/fs'
+import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { SchemaGenerator } from '../SchemaGenerator.ts'
 import { type Schema, schemaKeywords } from '../SchemaMapper'
 
@@ -35,7 +34,8 @@ type UseSchemaManagerResult = {
  * `useSchemaManager` will return some helper functions that can be used to get the schema file, get the schema name.
  */
 export function useSchemaManager(): UseSchemaManagerResult {
-  const { plugin, pluginManager } = useApp()
+  const plugin = usePlugin()
+  const pluginManager = usePluginManager()
 
   const getName: UseSchemaManagerResult['getName'] = (name, { pluginKey = plugin.key, type }) => {
     return pluginManager.resolveName({

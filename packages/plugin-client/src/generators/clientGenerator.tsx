@@ -1,9 +1,10 @@
+import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react'
 import { Client } from '../components/Client'
 import { Url } from '../components/Url.tsx'
 import type { PluginClient } from '../types'
@@ -11,12 +12,10 @@ import type { PluginClient } from '../types'
 export const clientGenerator = createReactGenerator<PluginClient>({
   name: 'client',
   Operation({ options, operation }) {
+    const pluginManager = usePluginManager()
     const {
-      plugin: {
-        options: { output, urlType },
-      },
-      pluginManager,
-    } = useApp<PluginClient>()
+      options: { output, urlType },
+    } = usePlugin<PluginClient>()
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 

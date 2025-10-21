@@ -5,7 +5,6 @@ import * as factory from '@kubb/parser-ts/factory'
 import { createTypeDeclaration } from '@kubb/parser-ts/factory'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { File } from '@kubb/react'
-import { Fragment, type ReactNode } from 'react'
 import type ts from 'typescript'
 import { parse, typeKeywordMapper } from '../parser.ts'
 import type { PluginTs } from '../types.ts'
@@ -23,7 +22,7 @@ type Props = {
   keysToOmit?: string[]
 }
 
-export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, syntaxType, enumType, mapper, description }: Props): ReactNode {
+export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, syntaxType, enumType, mapper, description }: Props) {
   const typeNodes: ts.Node[] = []
 
   if (!tree.length) {
@@ -142,9 +141,9 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
   })
 
   return (
-    <Fragment>
+    <>
       {enums.map(({ name, nameNode, typeName, typeNode }) => (
-        <Fragment>
+        <>
           {nameNode && (
             <File.Source name={name} isExportable isIndexable>
               {print([nameNode])}
@@ -160,13 +159,13 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
               {print([typeNode])}
             </File.Source>
           }
-        </Fragment>
+        </>
       ))}
       {enums.every((item) => item.typeName !== name) && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
           {print(typeNodes)}
         </File.Source>
       )}
-    </Fragment>
+    </>
   )
 }

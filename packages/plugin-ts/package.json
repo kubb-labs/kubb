@@ -76,8 +76,6 @@
   },
   "devDependencies": {
     "@kubb/plugin-oas": "workspace:*",
-    "@types/react": "catalog:",
-    "react": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:"
   },

@@ -1,7 +1,7 @@
 import type { PluginFactoryOptions } from '@kubb/core'
 import type { KubbFile } from '@kubb/core/fs'
 import type { Operation, SchemaObject } from '@kubb/oas'
-import { App, createRoot } from '@kubb/react'
+import { App, createApp } from '@kubb/react'
 import type { KubbNode } from '@kubb/react/types'
 import { Oas } from './components/Oas.tsx'
 import type { OperationGenerator } from './OperationGenerator.ts'
@@ -66,19 +66,21 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
       }
 
       const { pluginManager, oas, plugin, mode } = instance.context
-      const root = createRoot({
-        logger: pluginManager.logger,
-      })
-      const Component = parseOptions.Operations.bind(this)
+      const Operations = parseOptions.Operations
 
-      root.render(
-        <App pluginManager={pluginManager} plugin={plugin} mode={mode}>
-          <Oas oas={oas} operations={operations} generator={instance}>
-            <Component operations={operations} instance={instance} options={options} />
-          </Oas>
-        </App>,
-      )
-      return root.getFiles()
+      function Component() {
+        return (
+          <App meta={{ pluginManager, plugin, mode }}>
+            <Oas oas={oas} operations={operations} generator={instance}>
+              <Operations operations={operations} instance={instance} options={options} />
+            </Oas>
+          </App>
+        )
+      }
+      const app = createApp(Component)
+
+      app.render()
+      return app.getFiles()
     },
     async operation({ instance, operation, options }) {
       if (!parseOptions.Operation) {
@@ -86,21 +88,23 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
       }
 
       const { pluginManager, oas, plugin, mode } = instance.context
-      const root = createRoot({
-        logger: pluginManager.logger,
-      })
-      const Component = parseOptions.Operation.bind(this)
+      const Operation = parseOptions.Operation
 
-      root.render(
-        <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
-          <Oas oas={oas} operations={[operation]} generator={instance}>
-            <Oas.Operation operation={operation}>
-              <Component operation={operation} options={options} instance={instance} />
-            </Oas.Operation>
-          </Oas>
-        </App>,
-      )
-      return root.getFiles()
+      function Component() {
+        return (
+          <App meta={{ pluginManager, plugin: { ...plugin, options }, mode }}>
+            <Oas oas={oas} operations={[operation]} generator={instance}>
+              <Oas.Operation operation={operation}>
+                <Operation operation={operation} options={options} instance={instance} />
+              </Oas.Operation>
+            </Oas>
+          </App>
+        )
+      }
+      const app = createApp(Component)
+
+      app.render()
+      return app.getFiles()
     },
     async schema({ instance, schema, options }) {
       if (!parseOptions.Schema) {
@@ -109,20 +113,23 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
 
       const { pluginManager, oas, plugin, mode } = instance.context
 
-      const Component = parseOptions.Schema.bind(this)
-      const root = createRoot({
-        logger: pluginManager.logger,
-      })
-      root.render(
-        <App pluginManager={pluginManager} plugin={{ ...plugin, options }} mode={mode}>
-          <Oas oas={oas}>
-            <Oas.Schema name={schema.name} schemaObject={schema.value} tree={schema.tree}>
-              <Component schema={schema} options={options} instance={instance} />
-            </Oas.Schema>
-          </Oas>
-        </App>,
-      )
-      return root.getFiles()
+      const Schema = parseOptions.Schema
+
+      function Component() {
+        return (
+          <App meta={{ pluginManager, plugin: { ...plugin, options }, mode }}>
+            <Oas oas={oas}>
+              <Oas.Schema name={schema.name} schemaObject={schema.value} tree={schema.tree}>
+                <Schema schema={schema} options={options} instance={instance} />
+              </Oas.Schema>
+            </Oas>
+          </App>
+        )
+      }
+      const app = createApp(Component)
+
+      app.render()
+      return app.getFiles()
     },
   }
 }

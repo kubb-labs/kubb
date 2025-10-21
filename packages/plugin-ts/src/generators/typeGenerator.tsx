@@ -1,13 +1,20 @@
 import type { PluginManager } from '@kubb/core'
+import { useMode, usePlugin, usePluginManager } from '@kubb/core/hooks'
 import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser-ts'
 import * as factory from '@kubb/parser-ts/factory'
-import { createReactGenerator, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator } from '@kubb/plugin-oas'
+import {
+  createReactGenerator,
+  isKeyword,
+  type OperationSchemas,
+  type OperationSchema as OperationSchemaType,
+  SchemaGenerator,
+  schemaKeywords,
+} from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react'
 import type ts from 'typescript'
 import { Type } from '../components'
 import { pluginTsName } from '../plugin.ts'
@@ -108,7 +115,10 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   Operation({ operation, options }) {
     const { mapper, enumType, syntaxType, optionalType } = options
 
-    const { plugin, pluginManager, mode } = useApp<PluginTs>()
+    const plugin = usePlugin<PluginTs>()
+    const mode = useMode()
+    const pluginManager = usePluginManager()
+
     const oas = useOas()
     const { getSchemas, getFile, getName, getGroup } = useOperationManager()
     const schemaManager = useSchemaManager()
@@ -181,13 +191,12 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   Schema({ schema, options }) {
     const { mapper, enumType, syntaxType, optionalType } = options
     const {
-      mode,
-      plugin: {
-        options: { output },
-      },
-      pluginManager,
-    } = useApp<PluginTs>()
+      options: { output },
+    } = usePlugin<PluginTs>()
+    const mode = useMode()
+
     const oas = useOas()
+    const pluginManager = usePluginManager()
 
     const { getName, getImports, getFile } = useSchemaManager()
     const imports = getImports(schema.tree)

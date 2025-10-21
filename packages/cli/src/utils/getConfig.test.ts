@@ -1,9 +1,14 @@
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
+import { createPlugin, defineConfig } from '@kubb/core'
 
 import { getConfig } from './getConfig.ts'
 
 import type { CosmiconfigResult } from './getCosmiConfig.ts'
+
+const plugin = createPlugin(() => {
+  return {
+    name: 'test',
+  } as any
+})
 
 describe('getConfig', () => {
   test('return Config when config is set with defineConfig', async () => {
@@ -141,7 +146,7 @@ describe('getConfig', () => {
         output: {
           path: './dist',
         },
-        plugins: [pluginOas()],
+        plugins: [plugin()],
       }
     })
     const kubbUserConfig = await getConfig(
@@ -153,7 +158,7 @@ describe('getConfig', () => {
       {} as any,
     )
     if (!Array.isArray(kubbUserConfig)) {
-      expect(kubbUserConfig.plugins?.[0]?.name).toEqual(pluginOas().name)
+      expect(kubbUserConfig.plugins?.[0]?.name).toEqual(plugin().name)
     }
   })
 })

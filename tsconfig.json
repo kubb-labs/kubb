@@ -4,6 +4,7 @@
     "baseUrl": ".",
     "types": ["vitest/globals", "bun-types"],
     "paths": {
+      "@kubb/core/hooks": ["packages/core/src/hooks/index.ts"],
       "@kubb/core/utils": ["packages/core/src/utils/index.ts"],
       "@kubb/core/logger": ["packages/core/src/logger.ts"],
       "@kubb/core/transformers": ["packages/core/src/transformers/index.ts"],

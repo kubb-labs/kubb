@@ -5,30 +5,8 @@ packages:
   - e2e
 
 catalog:
-  '@types/node': ^20.19.22
-  '@types/react': ^18.3.26
-  '@types/react-dom': ^18.3.7
-  '@types/react-reconciler': 0.32.0
+  '@types/node': ^20.19.23
   p-limit: ^7.2.0
-  react: ^18.3.1
-  react-dom: ^18.3.1
-  react-reconciler: 0.32.0
   remeda: ^2.32.0
-  tsdown: ^0.14.2
+  tsdown: ^0.15.9
   typescript: ^5.9.3
-
-catalogs:
-  react18:
-    '@types/react': ^18.3.26
-    '@types/react-dom': ^18.3.7
-    '@types/react-reconciler': 0.28.9
-    react: ^18.3.1
-    react-dom: ^18.3.1
-    react-reconciler: 0.29.2
-  react19:
-    '@types/react': ^19.2.2
-    '@types/react-dom': ^19.2.2
-    '@types/react-reconciler': 0.32.0
-    react: ^19.2.0
-    react-dom: ^19.2.0
-    react-reconciler: 0.32.0

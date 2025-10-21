@@ -40,7 +40,7 @@
     "axios": "^1.12.2",
     "cypress": "~14.2.1",
     "msw": "^2.11.6",
-    "react": "catalog:",
+    "react": "^18.3.1",
     "solid-js": "^1.9.9",
     "svelte": "^4.2.20",
     "swr": "^2.3.6",
@@ -50,9 +50,9 @@
   "devDependencies": {
     "typescript": "catalog:"
   },
-  "packageManager": "pnpm@9.15.5",
+  "packageManager": "pnpm@10.18.3",
   "engines": {
     "node": ">=20",
-    "pnpm": ">=8.3.0"
+    "pnpm": ">=10.18.0"
   }
 }

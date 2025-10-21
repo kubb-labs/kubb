@@ -87,23 +87,9 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/react-fabric": "canary",
-    "@kubb/core": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
-    "dedent": "^1.7.0",
-    "execa": "^9.6.0",
-    "indent-string": "^5.0.0",
-    "natural-orderby": "^5.0.0",
-    "react": "catalog:react19",
-    "react-devtools-core": "^6.1.5",
-    "react-reconciler": "catalog:react19",
-    "signal-exit": "^4.1.0",
-    "ws": "^8.18.3"
+    "@kubb/react-fabric": "^0.0.1"
   },
   "devDependencies": {
-    "@types/react": "catalog:react19",
-    "@types/react-reconciler": "catalog:react19",
-    "@types/ws": "^8.18.1",
     "tsdown": "catalog:",
     "typescript": "catalog:"
   },

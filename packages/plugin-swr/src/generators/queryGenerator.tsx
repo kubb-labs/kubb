@@ -1,3 +1,4 @@
+import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
@@ -5,21 +6,19 @@ import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react'
 import { difference } from 'remeda'
-import { Query, QueryOptions } from '../components'
-import { QueryKey } from '../components'
+import { Query, QueryKey, QueryOptions } from '../components'
 import type { PluginSwr } from '../types'
 
 export const queryGenerator = createReactGenerator<PluginSwr>({
   name: 'swr-query',
   Operation({ options, operation }) {
     const {
-      plugin: {
-        options: { output },
-      },
-      pluginManager,
-    } = useApp<PluginSwr>()
+      options: { output },
+    } = usePlugin<PluginSwr>()
+    const pluginManager = usePluginManager()
+
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 

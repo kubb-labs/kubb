@@ -71,7 +71,6 @@
   "devDependencies": {
     "@kubb/mcp": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
     "@types/cli-progress": "^3.11.6",
     "@types/node": "catalog:",
     "@types/semver": "^7.7.1",

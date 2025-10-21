@@ -81,8 +81,6 @@
     "remeda": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "catalog:",
-    "react": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:"
   },
