@@ -1,9 +1,10 @@
-import { build, getSource } from '@kubb/core'
-import { write } from '@kubb/core/fs'
+import { build } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
 
 async function run() {
+  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
+  // @ts-expect-error
   const { files } = await build({
     config: {
       root: '.',
@@ -16,12 +17,7 @@ async function run() {
       plugins: [pluginOas(), pluginClient()],
     },
   })
-
-  for (const file of files) {
-    const source = await getSource(file)
-
-    await write(source, file.path)
-  }
+  //TODO add fabric
 }
 
 run()

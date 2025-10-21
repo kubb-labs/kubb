@@ -98,7 +98,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/fabric-core": "^0.1.0",
+    "@kubb/fabric-core": "canary",
     "@kubb/react": "workspace:*",
     "@kubb/parser-ts": "^4.1.4",
     "camelcase": "^8.0.0",

@@ -1,12 +1,11 @@
 import path from 'node:path'
+import { createFile, FileProcessor } from '@kubb/fabric-core'
 import { format } from '../../mocks/format.ts'
-import { getSource } from '../FileManager'
 import type { File, ResolvedFile } from '../fs/types.ts'
 import type { Logger } from '../logger'
 import type { PluginManager } from '../PluginManager.ts'
 import { camelCase, pascalCase } from '../transformers/casing.ts'
 import type { Plugin } from '../types.ts'
-import { createFile } from '../utils'
 
 export const mockedLogger = {
   emit(_type, _message) {},
@@ -67,8 +66,10 @@ export async function matchFiles(files: Array<ResolvedFile | File> | undefined, 
     return undefined
   }
 
+  const fileProcessor = new FileProcessor()
+
   for await (const file of files) {
-    const source = await getSource(createFile(file), { logger: mockedLogger })
+    const source = await fileProcessor.parse(createFile(file))
     let code = source
     if (!file.baseName.endsWith('.json')) {
       code = await format(source)

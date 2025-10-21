@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import type { FileManager } from './FileManager.ts'
+import type { FileManager } from '@kubb/fabric-core'
 import type { PluginManager } from './PluginManager.ts'
 import type { Plugin, PluginContext, PluginFactoryOptions, UserPluginWithLifeCycle } from './types.ts'
 

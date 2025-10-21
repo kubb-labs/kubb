@@ -2,10 +2,11 @@ import { pluginTs } from '@kubb/plugin-ts'
 import { type Include, pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-import { type Config, safeBuild, type Plugin, getSource } from '@kubb/core'
+import { type Config, safeBuild, type Plugin } from '@kubb/core'
 import type { generateSchema } from '../schemas/generateSchema.ts'
 import type { z } from 'zod'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.d.ts'
+import { createFile, FileProcessor } from '@kubb/fabric-core'
 
 export async function generate({ plugin, openApi, operationId }: z.infer<typeof generateSchema>): Promise<CallToolResult> {
   try {
@@ -36,6 +37,7 @@ export async function generate({ plugin, openApi, operationId }: z.infer<typeof 
       }),
     ].filter(Boolean) as Plugin[]
 
+    const fileProcessor = new FileProcessor()
     const definedConfig: Config = {
       root: process.cwd(),
       input: {
@@ -65,7 +67,9 @@ export async function generate({ plugin, openApi, operationId }: z.infer<typeof 
       }
     }
 
-    const promises = files.map((file) => getSource(file, { extname: '.ts' }))
+    const promises = files.map(async (file) => {
+      return fileProcessor.parse(createFile(file), { extname: '.ts' })
+    })
 
     const sources = await Promise.all(promises)
 
