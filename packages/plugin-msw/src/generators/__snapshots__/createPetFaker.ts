@@ -4,9 +4,9 @@
  */
 import { http } from 'msw'
 
-export function createPetsHandlerResponse200(data: CreatePetsMutationResponse) {
+export function createPetsHandlerResponse201(data: CreatePetsMutationResponse) {
   return new Response(JSON.stringify(data), {
-    status: 200,
+    status: 201,
   })
 }
 

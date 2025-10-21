@@ -4,18 +4,18 @@
  */
 import { http } from 'msw'
 
-export function listPetsHandlerResponse400(data: ListPets400) {
-  return new Response(JSON.stringify(data), {
-    status: 400,
-  })
-}
-
 export function listPetsHandlerResponse200(data: ListPetsQueryResponse) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
     },
+  })
+}
+
+export function listPetsHandlerResponse400(data: ListPets400) {
+  return new Response(JSON.stringify(data), {
+    status: 400,
   })
 }
 
