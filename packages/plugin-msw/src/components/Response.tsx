@@ -19,7 +19,7 @@ export function Response({ name, typeName, operation, statusCode }: Props) {
   const params = FunctionParams.factory({
     data: {
       type: `${typeName}`,
-      optional: !hasResponseSchema
+      optional: !hasResponseSchema,
     },
   })
 
