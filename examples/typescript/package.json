@@ -33,7 +33,7 @@
   "packageManager": "pnpm@10.18.3",
   "engines": {
     "node": ">=20",
-    "pnpm": ">=10.18.0"
+    "pnpm": ">=10.0.0"
   },
   "msw": {
     "workerDirectory": "public"
