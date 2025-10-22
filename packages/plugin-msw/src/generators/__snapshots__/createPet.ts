@@ -4,13 +4,15 @@
  */
 import { http } from 'msw'
 
-export function createPetsResponse201(data: CreatePetsMutationResponse) {
+export function createPetsResponse201(data?: CreatePetsMutationResponse) {
   return new Response(JSON.stringify(data), {
     status: 201,
   })
 }
 
-export function createPets(data?: CreatePetsMutationResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
+export function createPets(
+  data?: string | number | boolean | null | object | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>),
+) {
   return http.post('/pets', function handler(info) {
     if (typeof data === 'function') return data(info)
 
