@@ -13,7 +13,7 @@ export function listPetsResponse200(data: ListPetsQueryResponse) {
   })
 }
 
-export function listPetsResponse400(data: ListPets400) {
+export function listPetsResponse400(data?: ListPets400) {
   return new Response(JSON.stringify(data), {
     status: 400,
   })

@@ -15,13 +15,13 @@ export function getUserByNameHandlerResponse200(data: GetUserByNameQueryResponse
   })
 }
 
-export function getUserByNameHandlerResponse400(data: GetUserByName400) {
+export function getUserByNameHandlerResponse400(data?: GetUserByName400) {
   return new Response(JSON.stringify(data), {
     status: 400,
   })
 }
 
-export function getUserByNameHandlerResponse404(data: GetUserByName404) {
+export function getUserByNameHandlerResponse404(data?: GetUserByName404) {
   return new Response(JSON.stringify(data), {
     status: 404,
   })

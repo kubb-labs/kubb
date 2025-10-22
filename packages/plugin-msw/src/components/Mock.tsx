@@ -24,9 +24,14 @@ export function Mock({ baseURL = '', name, typeName, operation }: Props) {
 
   const headers = [contentType ? `'Content-Type': '${contentType}'` : undefined].filter(Boolean)
 
+  const hasResponseSchema = contentType && responseObject?.content?.[contentType]?.schema !== undefined
+
+  // If no response schema, uses any type but function to avoid overriding callback
+  const dataType = hasResponseSchema ? typeName : 'string | number | boolean | null | object'
+
   const params = FunctionParams.factory({
     data: {
-      type: `${typeName} | ((
+      type: `${dataType} | ((
         info: Parameters<Parameters<typeof http.${method}>[1]>[0],
       ) => Response | Promise<Response>)`,
       optional: true,

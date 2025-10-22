@@ -19,19 +19,19 @@ export function updatePetHandlerResponse202(data: UpdatePetMutationResponse) {
   })
 }
 
-export function updatePetHandlerResponse400(data: UpdatePet400) {
+export function updatePetHandlerResponse400(data?: UpdatePet400) {
   return new Response(JSON.stringify(data), {
     status: 400,
   })
 }
 
-export function updatePetHandlerResponse404(data: UpdatePet404) {
+export function updatePetHandlerResponse404(data?: UpdatePet404) {
   return new Response(JSON.stringify(data), {
     status: 404,
   })
 }
 
-export function updatePetHandlerResponse405(data: UpdatePet405) {
+export function updatePetHandlerResponse405(data?: UpdatePet405) {
   return new Response(JSON.stringify(data), {
     status: 405,
   })

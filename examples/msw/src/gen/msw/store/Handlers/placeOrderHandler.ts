@@ -15,7 +15,7 @@ export function placeOrderHandlerResponse200(data: PlaceOrderMutationResponse) {
   })
 }
 
-export function placeOrderHandlerResponse405(data: PlaceOrder405) {
+export function placeOrderHandlerResponse405(data?: PlaceOrder405) {
   return new Response(JSON.stringify(data), {
     status: 405,
   })

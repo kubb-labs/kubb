@@ -15,7 +15,7 @@ export function findPetsByTagsHandlerResponse200(data: FindPetsByTagsQueryRespon
   })
 }
 
-export function findPetsByTagsHandlerResponse400(data: FindPetsByTags400) {
+export function findPetsByTagsHandlerResponse400(data?: FindPetsByTags400) {
   return new Response(JSON.stringify(data), {
     status: 400,
   })

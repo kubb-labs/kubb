@@ -15,7 +15,7 @@ export function placeOrderPatchHandlerResponse200(data: PlaceOrderPatchMutationR
   })
 }
 
-export function placeOrderPatchHandlerResponse405(data: PlaceOrderPatch405) {
+export function placeOrderPatchHandlerResponse405(data?: PlaceOrderPatch405) {
   return new Response(JSON.stringify(data), {
     status: 405,
   })

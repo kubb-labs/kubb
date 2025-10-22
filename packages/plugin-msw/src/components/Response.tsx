@@ -14,9 +14,12 @@ export function Response({ name, typeName, operation, statusCode }: Props) {
 
   const headers = [contentType ? `'Content-Type': '${contentType}'` : undefined].filter(Boolean)
 
+  const hasResponseSchema = contentType && responseObject?.content?.[contentType]?.schema !== undefined
+
   const params = FunctionParams.factory({
     data: {
       type: `${typeName}`,
+      optional: !hasResponseSchema,
     },
   })
 
