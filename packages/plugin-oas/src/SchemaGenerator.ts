@@ -518,6 +518,10 @@ export class SchemaGenerator<
     ]
     const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
     const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
+
+    const exclusiveMinimum: boolean = !!schemaObject.exclusiveMinimum
+    const exclusiveMaximum: boolean = !!schemaObject.exclusiveMaximum
+
     const nullable = isNullable(schemaObject)
     const defaultNullAndNullable = schemaObject.default === null && nullable
 
@@ -554,11 +558,15 @@ export class SchemaGenerator<
     }
 
     if (max !== undefined) {
-      baseItems.unshift({ keyword: schemaKeywords.max, args: max })
+      if (exclusiveMaximum) {
+        baseItems.unshift({ keyword: schemaKeywords.exclusiveMaximum, args: max })
+      } else baseItems.unshift({ keyword: schemaKeywords.max, args: max })
     }
 
     if (min !== undefined) {
-      baseItems.unshift({ keyword: schemaKeywords.min, args: min })
+      if (exclusiveMinimum) {
+        baseItems.unshift({ keyword: schemaKeywords.exclusiveMinimum, args: min })
+      } else baseItems.unshift({ keyword: schemaKeywords.min, args: min })
     }
 
     if (nullable) {
