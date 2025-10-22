@@ -371,8 +371,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/core
       '@kubb/fabric-core':
-        specifier: canary
-        version: 0.0.0-canary-20251022151827
+        specifier: 0.1.2
+        version: 0.1.2
+
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -2304,10 +2305,6 @@ packages:
 
   '@kubb/core@4.0.0':
     resolution: {integrity: sha512-BPDMqlWJIh1e5hpKgRnbtsFN6ZwfYQtwnqUHSX6Qu1H3QTQuCd/NXheECfLAg/jOINBrMHhDMA49s0nE49RejQ==}
-    engines: {node: '>=20'}
-
-  '@kubb/fabric-core@0.0.0-canary-20251022151827':
-    resolution: {integrity: sha512-m8uiS1ckUfsNuveqBUge6u8ivBxbSWFwbzjLFIbRseM15Xc+AzCTsOg0HLCR/K5b4M+9bK/HdljVVA7TDdfJUQ==}
     engines: {node: '>=20'}
 
   '@kubb/fabric-core@0.1.2':
@@ -8457,15 +8454,6 @@ snapshots:
       remeda: 2.32.0
       seedrandom: 3.0.5
       semver: 7.7.3
-
-  '@kubb/fabric-core@0.0.0-canary-20251022151827':
-    dependencies:
-      fs-extra: 11.3.2
-      js-runtime: 0.0.8
-      natural-orderby: 5.0.0
-      p-limit: 7.2.0
-      remeda: 2.32.0
-      typescript: 5.9.3
 
   '@kubb/fabric-core@0.1.2':
     dependencies:
