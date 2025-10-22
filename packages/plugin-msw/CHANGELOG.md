@@ -1,5 +1,19 @@
 # @kubb/plugin-msw
 
+## 4.2.2
+
+### Patch Changes
+
+- [#1943](https://github.com/kubb-labs/kubb/pull/1943) [`0bb014d`](https://github.com/kubb-labs/kubb/commit/0bb014d7962d339d50b2574c4852a6a7e938a60c) Thanks [@Ericlm](https://github.com/Ericlm)! - Handlers without explicit data types exclude function type. The data attributes on responses without data is now optional.
+
+- Updated dependencies []:
+  - @kubb/core@4.2.2
+  - @kubb/oas@4.2.2
+  - @kubb/plugin-faker@4.2.2
+  - @kubb/plugin-oas@4.2.2
+  - @kubb/plugin-ts@4.2.2
+  - @kubb/react@4.2.2
+
 ## 4.2.1
 
 ### Patch Changes
