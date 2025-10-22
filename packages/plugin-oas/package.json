@@ -90,6 +90,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/fabric-core": "0.1.3",
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/react": "workspace:*",

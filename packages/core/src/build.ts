@@ -2,7 +2,7 @@ import { join, relative, resolve } from 'node:path'
 import pc from 'picocolors'
 import { isDeepEqual } from 'remeda'
 import { isInputPath } from './config.ts'
-import type { KubbFile } from './fs/index.ts'
+import { type KubbFile, write } from './fs/index.ts'
 import { clean, exists, getRelativePath } from './fs/index.ts'
 import type { Logger } from './logger.ts'
 import { createLogger } from './logger.ts'
@@ -164,18 +164,18 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       await pluginManager.fileManager.add(rootFile)
     }
 
-    pluginManager.fileManager.processor.on('start', ({ files }) => {
+    pluginManager.fileManager.processor.events.on('process:start', ({ files }) => {
       pluginManager.logger.emit('progress_start', { id: 'files', size: files.length, message: 'Writing files ...' })
     })
 
-    pluginManager.fileManager.processor.on('file:start', ({ file }) => {
+    pluginManager.fileManager.processor.events.on('process:progress', async ({ file, source }) => {
       const message = file ? `Writing ${relative(config.root, file.path)}` : ''
       pluginManager.logger.emit('progressed', { id: 'files', message })
+
+      await write(file.path, source, { sanity: false })
     })
 
-    pluginManager.fileManager.processor.on('file:finish', () => {})
-
-    pluginManager.fileManager.processor.on('finish', () => {
+    pluginManager.fileManager.processor.events.on('process:end', () => {
       pluginManager.logger.emit('progress_stop', { id: 'files' })
     })
 
