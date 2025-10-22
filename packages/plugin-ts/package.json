@@ -68,8 +68,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/fabric-core": "canary",
     "@kubb/core": "workspace:*",
+    "@kubb/fabric-core": "0.0.0-canary-20251021185909",
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
