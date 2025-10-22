@@ -249,7 +249,13 @@ describe('zodGenerator schema', async () => {
     },
     {
       name: 'ExclusiveNumbers',
-      input: '../../mocks/exclusiveNumbers.yaml',
+      input: '../../mocks/exclusiveNumbers-v3_1_0.yaml',
+      path: 'ExclusiveNumbers',
+      options: {},
+    },
+    {
+      name: 'ExclusiveNumbers',
+      input: '../../mocks/exclusiveNumbers-v3_0_x.yaml',
       path: 'ExclusiveNumbers',
       options: {},
     },
