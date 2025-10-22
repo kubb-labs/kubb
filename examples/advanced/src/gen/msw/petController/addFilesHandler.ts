@@ -10,7 +10,7 @@ export function addFilesHandlerResponse200(data: AddFilesMutationResponse) {
   })
 }
 
-export function addFilesHandlerResponse405(data: AddFiles405) {
+export function addFilesHandlerResponse405(data?: AddFiles405) {
   return new Response(JSON.stringify(data), {
     status: 405,
   })

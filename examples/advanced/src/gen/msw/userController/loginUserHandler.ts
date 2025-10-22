@@ -10,7 +10,7 @@ export function loginUserHandlerResponse200(data: LoginUserQueryResponse) {
   })
 }
 
-export function loginUserHandlerResponse400(data: LoginUser400) {
+export function loginUserHandlerResponse400(data?: LoginUser400) {
   return new Response(JSON.stringify(data), {
     status: 400,
   })

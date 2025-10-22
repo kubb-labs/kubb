@@ -15,13 +15,13 @@ export function getOrderByIdHandlerResponse200(data: GetOrderByIdQueryResponse) 
   })
 }
 
-export function getOrderByIdHandlerResponse400(data: GetOrderById400) {
+export function getOrderByIdHandlerResponse400(data?: GetOrderById400) {
   return new Response(JSON.stringify(data), {
     status: 400,
   })
 }
 
-export function getOrderByIdHandlerResponse404(data: GetOrderById404) {
+export function getOrderByIdHandlerResponse404(data?: GetOrderById404) {
   return new Response(JSON.stringify(data), {
     status: 404,
   })

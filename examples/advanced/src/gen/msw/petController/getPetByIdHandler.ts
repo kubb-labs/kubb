@@ -10,13 +10,13 @@ export function getPetByIdHandlerResponse200(data: GetPetByIdQueryResponse) {
   })
 }
 
-export function getPetByIdHandlerResponse400(data: GetPetById400) {
+export function getPetByIdHandlerResponse400(data?: GetPetById400) {
   return new Response(JSON.stringify(data), {
     status: 400,
   })
 }
 
-export function getPetByIdHandlerResponse404(data: GetPetById404) {
+export function getPetByIdHandlerResponse404(data?: GetPetById404) {
   return new Response(JSON.stringify(data), {
     status: 404,
   })
