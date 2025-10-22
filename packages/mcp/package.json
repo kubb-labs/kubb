@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/fabric-core": "0.1.2",
+    "@kubb/fabric-core": "0.1.3",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-cypress": "workspace:*",
     "@kubb/plugin-faker": "workspace:*",

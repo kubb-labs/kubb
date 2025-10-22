@@ -7,8 +7,6 @@ import { Oas } from './components/Oas.tsx'
 import type { OperationGenerator } from './OperationGenerator.ts'
 import type { SchemaGenerator, SchemaGeneratorOptions } from './SchemaGenerator.ts'
 import type { Schema } from './SchemaMapper.ts'
-import { fsPlugin } from '@kubb/fabric-core/plugins'
-
 
 type OperationsProps<TOptions extends PluginFactoryOptions> = {
   instance: Omit<OperationGenerator<TOptions>, 'build'>
@@ -80,7 +78,6 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
         )
       }
       const app = createApp(Component)
-      app.use(fsPlugin)
 
       app.render()
       return app.files
@@ -105,7 +102,6 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
         )
       }
       const app = createApp(Component)
-      app.use(fsPlugin)
 
       app.render()
       return app.files
@@ -131,7 +127,6 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
         )
       }
       const app = createApp(Component)
-      app.use(fsPlugin)
 
       app.render()
       return app.files
