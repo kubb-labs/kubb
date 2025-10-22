@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "4.1.3",
+  "version": "4.2.2",
   "description": "Core functionality for Kubb's plugin-based code generation system, providing the foundation for transforming OpenAPI specifications.",
   "keywords": [
     "typescript",
@@ -29,6 +29,10 @@
     "./fs": {
       "import": "./dist/fs.js",
       "require": "./dist/fs.cjs"
+    },
+    "./hooks": {
+      "import": "./dist/hooks.js",
+      "require": "./dist/hooks.cjs"
     },
     "./logger": {
       "import": "./dist/logger.js",
@@ -65,6 +69,9 @@
       "mocks": [
         "./dist/mocks.d.ts"
       ],
+      "hooks": [
+        "./dist/hooks.d.ts"
+      ],
       "fs": [
         "./dist/fs.d.ts"
       ]
@@ -91,7 +98,9 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/parser-ts": "workspace:*",
+    "@kubb/fabric-core": "0.0.0-canary-20251021185909",
+    "@kubb/parser-ts": "^4.1.4",
+    "@kubb/react": "workspace:*",
     "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
     "fs-extra": "^11.3.2",
@@ -113,6 +122,9 @@
     "tsdown": "catalog:",
     "typescript": "catalog:",
     "zod": "^4.1.12"
+  },
+  "peerDependencies": {
+    "@kubb/react": "^4.0.0"
   },
   "engines": {
     "node": ">=20"

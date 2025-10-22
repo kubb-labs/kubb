@@ -1,4 +1,4 @@
-import { join, resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 import pc from 'picocolors'
 import { isDeepEqual } from 'remeda'
 import { isInputPath } from './config.ts'
@@ -91,6 +91,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 
 export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
   const pluginManager = await setup(options)
+
   const config = pluginManager.config
 
   try {
@@ -117,7 +118,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       const rootPath = resolve(root, config.output.path, 'index.ts')
 
       //TODO find clean method without loading all files
-      const files = await pluginManager.fileManager.getFiles()
+      const files = await pluginManager.fileManager.files
 
       const barrelFiles = files.filter((file) => {
         return file.sources.some((source) => source.isIndexable)
@@ -163,11 +164,24 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       await pluginManager.fileManager.add(rootFile)
     }
 
-    const files = await pluginManager.fileManager.processFiles({
-      root: config.root,
+    pluginManager.fileManager.processor.on('start', ({ files }) => {
+      pluginManager.logger.emit('progress_start', { id: 'files', size: files.length, message: 'Writing files ...' })
+    })
+
+    pluginManager.fileManager.processor.on('file:start', ({ file }) => {
+      const message = file ? `Writing ${relative(config.root, file.path)}` : ''
+      pluginManager.logger.emit('progressed', { id: 'files', message })
+    })
+
+    pluginManager.fileManager.processor.on('file:finish', () => {})
+
+    pluginManager.fileManager.processor.on('finish', () => {
+      pluginManager.logger.emit('progress_stop', { id: 'files' })
+    })
+
+    const files = await pluginManager.fileManager.write({
       extension: config.output.extension,
       dryRun: !config.output.write,
-      logger: pluginManager.logger,
     })
 
     await pluginManager.hookParallel({ hookName: 'buildEnd', message: `Build stopped for ${config.name}` })

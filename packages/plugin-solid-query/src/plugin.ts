@@ -1,6 +1,5 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
-import { createPlugin, FileManager, type Group, PluginManager } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import type { PluginOas } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
@@ -66,7 +65,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
+      const mode = pathMode ?? getMode(path.resolve(root, output.path))
 
       if (mode === 'single') {
         /**
@@ -121,7 +120,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
 
       const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = FileManager.getMode(path.resolve(root, output.path))
+      const mode = getMode(path.resolve(root, output.path))
       const baseURL = await swaggerPlugin.context.getBaseURL()
 
       if (baseURL) {
@@ -142,7 +141,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
-      const barrelFiles = await this.fileManager.getBarrelFiles({
+      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
         type: output.barrelType ?? 'named',
         root,
         output,

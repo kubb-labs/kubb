@@ -1,5 +1,57 @@
 # @kubb/plugin-swr
 
+## 4.2.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.2.2
+  - @kubb/oas@4.2.2
+  - @kubb/plugin-client@4.2.2
+  - @kubb/plugin-oas@4.2.2
+  - @kubb/plugin-ts@4.2.2
+  - @kubb/plugin-zod@4.2.2
+  - @kubb/react@4.2.2
+
+## 4.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`945f689`](https://github.com/kubb-labs/kubb/commit/945f689c64371fa06aaa5772974420d712f17619)]:
+  - @kubb/core@4.2.1
+  - @kubb/plugin-client@4.2.1
+  - @kubb/plugin-oas@4.2.1
+  - @kubb/plugin-ts@4.2.1
+  - @kubb/plugin-zod@4.2.1
+  - @kubb/oas@4.2.1
+  - @kubb/react@4.2.1
+
+## 4.2.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.2.0
+  - @kubb/oas@4.2.0
+  - @kubb/plugin-client@4.2.0
+  - @kubb/plugin-oas@4.2.0
+  - @kubb/plugin-ts@4.2.0
+  - @kubb/plugin-zod@4.2.0
+  - @kubb/react@4.2.0
+
+## 4.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`8d7367d`](https://github.com/kubb-labs/kubb/commit/8d7367daa86b4cf7f9907cccf7cc5331b1eceb17)]:
+  - @kubb/plugin-client@4.1.4
+  - @kubb/core@4.1.4
+  - @kubb/oas@4.1.4
+  - @kubb/plugin-oas@4.1.4
+  - @kubb/plugin-ts@4.1.4
+  - @kubb/plugin-zod@4.1.4
+  - @kubb/react@4.1.4
+
 ## 4.1.3
 
 ### Patch Changes

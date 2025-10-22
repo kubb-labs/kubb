@@ -1,5 +1,81 @@
 # @kubb/mcp
 
+## 4.2.2
+
+### Patch Changes
+
+- Updated dependencies [[`0bb014d`](https://github.com/kubb-labs/kubb/commit/0bb014d7962d339d50b2574c4852a6a7e938a60c)]:
+  - @kubb/plugin-msw@4.2.2
+  - @kubb/core@4.2.2
+  - @kubb/plugin-client@4.2.2
+  - @kubb/plugin-cypress@4.2.2
+  - @kubb/plugin-faker@4.2.2
+  - @kubb/plugin-mcp@4.2.2
+  - @kubb/plugin-oas@4.2.2
+  - @kubb/plugin-react-query@4.2.2
+  - @kubb/plugin-redoc@4.2.2
+  - @kubb/plugin-swr@4.2.2
+  - @kubb/plugin-ts@4.2.2
+  - @kubb/plugin-zod@4.2.2
+  - @kubb/react@4.2.2
+
+## 4.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`945f689`](https://github.com/kubb-labs/kubb/commit/945f689c64371fa06aaa5772974420d712f17619)]:
+  - @kubb/core@4.2.1
+  - @kubb/plugin-client@4.2.1
+  - @kubb/plugin-cypress@4.2.1
+  - @kubb/plugin-faker@4.2.1
+  - @kubb/plugin-mcp@4.2.1
+  - @kubb/plugin-msw@4.2.1
+  - @kubb/plugin-oas@4.2.1
+  - @kubb/plugin-react-query@4.2.1
+  - @kubb/plugin-redoc@4.2.1
+  - @kubb/plugin-swr@4.2.1
+  - @kubb/plugin-ts@4.2.1
+  - @kubb/plugin-zod@4.2.1
+  - @kubb/react@4.2.1
+
+## 4.2.0
+
+### Patch Changes
+
+- Updated dependencies [[`73536a7`](https://github.com/kubb-labs/kubb/commit/73536a74b9945f2d28a4f321d35e928678ffc73b)]:
+  - @kubb/plugin-msw@4.2.0
+  - @kubb/core@4.2.0
+  - @kubb/plugin-client@4.2.0
+  - @kubb/plugin-cypress@4.2.0
+  - @kubb/plugin-faker@4.2.0
+  - @kubb/plugin-mcp@4.2.0
+  - @kubb/plugin-oas@4.2.0
+  - @kubb/plugin-react-query@4.2.0
+  - @kubb/plugin-redoc@4.2.0
+  - @kubb/plugin-swr@4.2.0
+  - @kubb/plugin-ts@4.2.0
+  - @kubb/plugin-zod@4.2.0
+  - @kubb/react@4.2.0
+
+## 4.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`7026041`](https://github.com/kubb-labs/kubb/commit/7026041062d98d9d330d8c3a858e298a5de0d04d), [`8d7367d`](https://github.com/kubb-labs/kubb/commit/8d7367daa86b4cf7f9907cccf7cc5331b1eceb17)]:
+  - @kubb/plugin-faker@4.1.4
+  - @kubb/plugin-client@4.1.4
+  - @kubb/plugin-msw@4.1.4
+  - @kubb/plugin-mcp@4.1.4
+  - @kubb/plugin-react-query@4.1.4
+  - @kubb/plugin-swr@4.1.4
+  - @kubb/core@4.1.4
+  - @kubb/plugin-cypress@4.1.4
+  - @kubb/plugin-oas@4.1.4
+  - @kubb/plugin-redoc@4.1.4
+  - @kubb/plugin-ts@4.1.4
+  - @kubb/plugin-zod@4.1.4
+  - @kubb/react@4.1.4
+
 ## 4.1.3
 
 ### Patch Changes

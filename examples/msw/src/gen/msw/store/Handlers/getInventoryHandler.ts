@@ -6,6 +6,15 @@
 import type { GetInventoryQueryResponse } from '../../../models/GetInventory.ts'
 import { http } from 'msw'
 
+export function getInventoryHandlerResponse200(data: GetInventoryQueryResponse) {
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
 export function getInventoryHandler(
   data?: GetInventoryQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>),
 ) {

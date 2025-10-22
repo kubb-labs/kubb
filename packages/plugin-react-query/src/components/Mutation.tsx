@@ -2,7 +2,6 @@ import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react'
-import type { ReactNode } from 'react'
 import type { PluginReactQuery } from '../types.ts'
 import { MutationKey } from './MutationKey.tsx'
 import { MutationOptions } from './MutationOptions.tsx'
@@ -69,16 +68,7 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
   })
 }
 
-export function Mutation({
-  name,
-  mutationOptionsName,
-  paramsCasing,
-  pathParamsType,
-  dataReturnType,
-  typeSchemas,
-  operation,
-  mutationKeyName,
-}: Props): ReactNode {
+export function Mutation({ name, mutationOptionsName, paramsCasing, pathParamsType, dataReturnType, typeSchemas, operation, mutationKeyName }: Props) {
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,
     typeSchemas,

@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 
+import type { z } from '../../zod.ts'
 import { addPetMutationRequestSchema, addPet200Schema, addPet405Schema, addPetMutationResponseSchema } from './addPetSchema.gen.ts'
 import {
   createPetsMutationRequestSchema,
@@ -87,6 +88,24 @@ import {
   uploadFilePathParamsSchema,
   uploadFileQueryParamsSchema,
 } from './uploadFileSchema.gen.ts'
+
+export type OperationSchema = {
+  readonly request: z.ZodTypeAny | undefined
+  readonly parameters: {
+    readonly path: z.ZodTypeAny | undefined
+    readonly query: z.ZodTypeAny | undefined
+    readonly header: z.ZodTypeAny | undefined
+  }
+  readonly responses: {
+    readonly [status: number]: z.ZodTypeAny
+    readonly default: z.ZodTypeAny
+  }
+  readonly errors: {
+    readonly [status: number]: z.ZodTypeAny
+  }
+}
+
+export type OperationsMap = Record<string, OperationSchema>
 
 export const operations = {
   createPets: {

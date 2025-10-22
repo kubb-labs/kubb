@@ -1,5 +1,59 @@
 # @kubb/plugin-msw
 
+## 4.2.2
+
+### Patch Changes
+
+- [#1943](https://github.com/kubb-labs/kubb/pull/1943) [`0bb014d`](https://github.com/kubb-labs/kubb/commit/0bb014d7962d339d50b2574c4852a6a7e938a60c) Thanks [@Ericlm](https://github.com/Ericlm)! - Handlers without explicit data types exclude function type. The data attributes on responses without data is now optional.
+
+- Updated dependencies []:
+  - @kubb/core@4.2.2
+  - @kubb/oas@4.2.2
+  - @kubb/plugin-faker@4.2.2
+  - @kubb/plugin-oas@4.2.2
+  - @kubb/plugin-ts@4.2.2
+  - @kubb/react@4.2.2
+
+## 4.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`945f689`](https://github.com/kubb-labs/kubb/commit/945f689c64371fa06aaa5772974420d712f17619)]:
+  - @kubb/core@4.2.1
+  - @kubb/plugin-faker@4.2.1
+  - @kubb/plugin-oas@4.2.1
+  - @kubb/plugin-ts@4.2.1
+  - @kubb/oas@4.2.1
+  - @kubb/react@4.2.1
+
+## 4.2.0
+
+### Minor Changes
+
+- [#1938](https://github.com/kubb-labs/kubb/pull/1938) [`73536a7`](https://github.com/kubb-labs/kubb/commit/73536a74b9945f2d28a4f321d35e928678ffc73b) Thanks [@Ericlm](https://github.com/Ericlm)! - MSW handlers generate all their possible `Responses` along the handler.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.2.0
+  - @kubb/oas@4.2.0
+  - @kubb/plugin-faker@4.2.0
+  - @kubb/plugin-oas@4.2.0
+  - @kubb/plugin-ts@4.2.0
+  - @kubb/react@4.2.0
+
+## 4.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`7026041`](https://github.com/kubb-labs/kubb/commit/7026041062d98d9d330d8c3a858e298a5de0d04d)]:
+  - @kubb/plugin-faker@4.1.4
+  - @kubb/core@4.1.4
+  - @kubb/oas@4.1.4
+  - @kubb/plugin-oas@4.1.4
+  - @kubb/plugin-ts@4.1.4
+  - @kubb/react@4.1.4
+
 ## 4.1.3
 
 ### Patch Changes

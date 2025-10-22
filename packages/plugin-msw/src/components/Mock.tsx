@@ -1,7 +1,6 @@
 import { URLPath } from '@kubb/core/utils'
 import type { OasTypes, Operation } from '@kubb/oas'
 import { File, Function, FunctionParams } from '@kubb/react'
-import type { ReactNode } from 'react'
 
 type Props = {
   /**
@@ -14,7 +13,7 @@ type Props = {
   operation: Operation
 }
 
-export function Mock({ baseURL = '', name, typeName, operation }: Props): ReactNode {
+export function Mock({ baseURL = '', name, typeName, operation }: Props) {
   const method = operation.method
   const successStatusCodes = operation.getResponseStatusCodes().filter((code) => code.startsWith('2'))
   const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200
@@ -25,9 +24,14 @@ export function Mock({ baseURL = '', name, typeName, operation }: Props): ReactN
 
   const headers = [contentType ? `'Content-Type': '${contentType}'` : undefined].filter(Boolean)
 
+  const hasResponseSchema = contentType && responseObject?.content?.[contentType]?.schema !== undefined
+
+  // If no response schema, uses any type but function to avoid overriding callback
+  const dataType = hasResponseSchema ? typeName : 'string | number | boolean | null | object'
+
   const params = FunctionParams.factory({
     data: {
-      type: `${typeName} | ((
+      type: `${dataType} | ((
         info: Parameters<Parameters<typeof http.${method}>[1]>[0],
       ) => Response | Promise<Response>)`,
       optional: true,

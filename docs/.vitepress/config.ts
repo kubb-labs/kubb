@@ -102,22 +102,16 @@ const mainSidebar = [
         link: '/getting-started/at-glance/',
       },
       {
+        text: 'Ecosystem',
+        link: '/getting-started/ecosystem/',
+      },
+      {
         text: 'Quick Start',
         link: '/getting-started/quick-start/',
       },
       {
         text: 'Configure',
         link: '/getting-started/configure/',
-      },
-    ],
-  },
-  {
-    text: 'Parsers',
-    collapsed: false,
-    items: [
-      {
-        text: '@kubb/parser-ts',
-        link: '/parsers/parser-ts/',
       },
     ],
   },
@@ -369,16 +363,6 @@ const documentationMenu = [
     link: '/getting-started/at-glance/',
   },
   {
-    text: 'Parsers',
-    items: [
-      {
-        text: '@kubb/parser-ts',
-        link: '/parsers/parser-ts/',
-        activeMatch: 'parser-ts',
-      },
-    ],
-  },
-  {
     text: 'Helpers',
     items: [
       {
@@ -560,7 +544,6 @@ export default defineConfig({
               '@kubb/plugin-ts': ['../packages/plugin-ts/src/index.ts'],
               '@kubb/plugin-zod': ['../packages/plugin-zod/src/index.ts'],
               '@kubb/plugin-zod/components': ['../packages/plugin-zod/src/components/index.ts'],
-              '@kubb/parser-ts': ['../packages/parser-ts/src/index.ts'],
               '@kubb/oas': ['../packages/oas/src/index.ts'],
               '@kubb/react': ['../packages/react/src/index.ts'],
               'unplugin-kubb': ['../packages/unplugin-kubb/src/index.ts'],

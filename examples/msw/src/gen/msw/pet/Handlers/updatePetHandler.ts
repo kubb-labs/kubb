@@ -3,8 +3,35 @@
  * Do not edit manually.
  */
 
-import type { UpdatePetMutationResponse } from '../../../models/UpdatePet.ts'
+import type { UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../../../models/UpdatePet.ts'
 import { http } from 'msw'
+
+export function updatePetHandlerResponse200(data: UpdatePetMutationResponse) {
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
+export function updatePetHandlerResponse400(data?: UpdatePet400) {
+  return new Response(JSON.stringify(data), {
+    status: 400,
+  })
+}
+
+export function updatePetHandlerResponse404(data?: UpdatePet404) {
+  return new Response(JSON.stringify(data), {
+    status: 404,
+  })
+}
+
+export function updatePetHandlerResponse405(data?: UpdatePet405) {
+  return new Response(JSON.stringify(data), {
+    status: 405,
+  })
+}
 
 export function updatePetHandler(data?: UpdatePetMutationResponse | ((info: Parameters<Parameters<typeof http.put>[1]>[0]) => Response | Promise<Response>)) {
   return http.put('http://localhost:3000/pet', function handler(info) {

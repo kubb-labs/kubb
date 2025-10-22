@@ -1,15 +1,11 @@
-import { FileManager } from './FileManager.ts'
-import { isPromiseRejectedResult } from './PromiseManager.ts'
-import { PromiseManager } from './PromiseManager.ts'
+import { FileManager } from '@kubb/fabric-core'
 import { ValidationPluginError } from './errors.ts'
-import { pluginCore } from './plugin.ts'
-import { transformReservedWord } from './transformers/transformReservedWord.ts'
-import { EventEmitter } from './utils/EventEmitter.ts'
-import { setUniqueName } from './utils/uniqueName.ts'
-
 import type { KubbFile } from './fs/index.ts'
 import type { Logger } from './logger.ts'
+import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
 import type { PluginCore } from './plugin.ts'
+import { pluginCore } from './plugin.ts'
+import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { trim } from './transformers/trim.ts'
 import type {
   Config,
@@ -25,6 +21,8 @@ import type {
   UserPlugin,
   UserPluginWithLifeCycle,
 } from './types.ts'
+import { EventEmitter } from './utils/EventEmitter.ts'
+import { setUniqueName } from './utils/uniqueName.ts'
 
 type RequiredPluginLifecycle = Required<PluginLifecycle>
 
@@ -72,6 +70,9 @@ type GetFileProps<TOptions = object> = {
 
 export class PluginManager {
   readonly plugins = new Set<Plugin<GetPluginFactoryOptions<any>>>()
+  /**
+   * @deprecated do not use from pluginManager
+   */
   readonly fileManager: FileManager
   readonly events: EventEmitter<Events> = new EventEmitter()
 

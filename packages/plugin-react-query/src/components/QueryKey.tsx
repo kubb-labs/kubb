@@ -1,10 +1,8 @@
 import { URLPath } from '@kubb/core/utils'
+import { isOptional, type Operation } from '@kubb/oas'
+import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams, Type } from '@kubb/react'
-
-import { type Operation, isOptional } from '@kubb/oas'
-import type { OperationSchemas } from '@kubb/plugin-oas'
-import type { ReactNode } from 'react'
 import type { PluginReactQuery, Transformer } from '../types'
 
 type Props = {
@@ -58,7 +56,7 @@ const getTransformer: Transformer = ({ operation, schemas, casing }) => {
   return keys
 }
 
-export function QueryKey({ name, typeSchemas, paramsCasing, pathParamsType, operation, typeName, transformer = getTransformer }: Props): ReactNode {
+export function QueryKey({ name, typeSchemas, paramsCasing, pathParamsType, operation, typeName, transformer = getTransformer }: Props) {
   const params = getParams({ pathParamsType, typeSchemas, paramsCasing })
   const keys = transformer({
     operation,

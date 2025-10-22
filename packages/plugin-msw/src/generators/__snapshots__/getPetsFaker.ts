@@ -4,6 +4,21 @@
  */
 import { http } from 'msw'
 
+export function listPetsResponse200(data: ListPetsQueryResponse) {
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
+export function listPetsResponse400(data?: ListPets400) {
+  return new Response(JSON.stringify(data), {
+    status: 400,
+  })
+}
+
 export function listPets(data?: ListPetsQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
   return http.get('/pets', function handler(info) {
     if (typeof data === 'function') return data(info)

@@ -3,8 +3,23 @@
  * Do not edit manually.
  */
 
-import type { PlaceOrderMutationResponse } from '../../../models/PlaceOrder.ts'
+import type { PlaceOrderMutationResponse, PlaceOrder405 } from '../../../models/PlaceOrder.ts'
 import { http } from 'msw'
+
+export function placeOrderHandlerResponse200(data: PlaceOrderMutationResponse) {
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
+export function placeOrderHandlerResponse405(data?: PlaceOrder405) {
+  return new Response(JSON.stringify(data), {
+    status: 405,
+  })
+}
 
 export function placeOrderHandler(
   data?: PlaceOrderMutationResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>),

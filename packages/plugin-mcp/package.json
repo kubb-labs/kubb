@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-mcp",
-  "version": "4.1.3",
+  "version": "4.2.2",
   "description": "Generator mcp",
   "keywords": [
     "typescript",
@@ -82,8 +82,6 @@
     "@kubb/react": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "catalog:",
-    "react": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:"
   },

@@ -1,5 +1,51 @@
 # @kubb/plugin-faker
 
+## 4.2.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.2.2
+  - @kubb/oas@4.2.2
+  - @kubb/plugin-oas@4.2.2
+  - @kubb/plugin-ts@4.2.2
+  - @kubb/react@4.2.2
+
+## 4.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`945f689`](https://github.com/kubb-labs/kubb/commit/945f689c64371fa06aaa5772974420d712f17619)]:
+  - @kubb/core@4.2.1
+  - @kubb/plugin-oas@4.2.1
+  - @kubb/plugin-ts@4.2.1
+  - @kubb/oas@4.2.1
+  - @kubb/react@4.2.1
+
+## 4.2.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.2.0
+  - @kubb/oas@4.2.0
+  - @kubb/plugin-oas@4.2.0
+  - @kubb/plugin-ts@4.2.0
+  - @kubb/react@4.2.0
+
+## 4.1.4
+
+### Patch Changes
+
+- [#1932](https://github.com/kubb-labs/kubb/pull/1932) [`7026041`](https://github.com/kubb-labs/kubb/commit/7026041062d98d9d330d8c3a858e298a5de0d04d) Thanks [@Ericlm](https://github.com/Ericlm)! - Add optional data parameter to override default faker generated strings and numbers
+
+- Updated dependencies []:
+  - @kubb/core@4.1.4
+  - @kubb/oas@4.1.4
+  - @kubb/plugin-oas@4.1.4
+  - @kubb/plugin-ts@4.1.4
+  - @kubb/react@4.1.4
+
 ## 4.1.3
 
 ### Patch Changes

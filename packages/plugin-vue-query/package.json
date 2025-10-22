@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-vue-query",
-  "version": "4.1.3",
+  "version": "4.2.2",
   "description": "Vue Query hooks generator plugin for Kubb, creating type-safe API client hooks from OpenAPI specifications for Vue.js applications.",
   "keywords": [
     "vue-query",
@@ -82,8 +82,6 @@
     "remeda": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "catalog:",
-    "react": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:"
   },
