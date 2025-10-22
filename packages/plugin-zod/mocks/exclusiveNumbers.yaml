@@ -5,7 +5,7 @@ info:
 
 components:
   schemas:
-    Exclusives:
+    ExclusiveNumbers:
       type: object
       properties:
         exclusiveMin:
@@ -16,5 +16,29 @@ components:
           type: number
           maximum: 10
           exclusiveMaximum: true
+        exclusiveRange: 
+          type: number
+          maximum: 9.99
+          minimum: 0.01
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        strictMinExclusiveMaxRange: 
+          type: number
+          maximum: 1000
+          minimum: 0
+          exclusiveMaximum: true
+          exclusiveMinimum: false
+        strictMaxExclusiveMinRange: 
+          type: number
+          maximum: 1000
+          minimum: 0
+          exclusiveMaximum: false
+          exclusiveMinimum: true
+        exclusiveIntRange:
+          type: integer
+          maximum: 9
+          minimum: 0
+          exclusiveMaximum: true
+          exclusiveMinimum: true
       required:
-        - bar
+        - exclusiveRange
