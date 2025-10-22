@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/fabric-core": "0.0.0-canary-20251021185909",
+    "@kubb/fabric-core": "0.1.2",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-cypress": "workspace:*",
     "@kubb/plugin-faker": "workspace:*",

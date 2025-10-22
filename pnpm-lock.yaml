@@ -372,7 +372,7 @@ importers:
         version: link:../../packages/core
       '@kubb/fabric-core':
         specifier: canary
-        version: 0.0.0-canary-20251021185909
+        version: 0.0.0-canary-20251022151827
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -1000,8 +1000,8 @@ importers:
   packages/core:
     dependencies:
       '@kubb/fabric-core':
-        specifier: 0.0.0-canary-20251021185909
-        version: 0.0.0-canary-20251021185909
+        specifier: 0.1.2
+        version: 0.1.2
       '@kubb/parser-ts':
         specifier: ^4.1.4
         version: 4.1.4
@@ -1092,8 +1092,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@kubb/fabric-core':
-        specifier: 0.0.0-canary-20251021185909
-        version: 0.0.0-canary-20251021185909
+        specifier: 0.1.2
+        version: 0.1.2
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../plugin-client
@@ -1338,6 +1338,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/fabric-core':
+        specifier: 0.1.2
+        version: 0.1.2
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1528,8 +1531,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@kubb/fabric-core':
-        specifier: 0.0.0-canary-20251021185909
-        version: 0.0.0-canary-20251021185909
+        specifier: 0.1.2
+        version: 0.1.2
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1618,8 +1621,8 @@ importers:
   packages/react:
     dependencies:
       '@kubb/react-fabric':
-        specifier: canary
-        version: 0.0.0-canary-20251021185909
+        specifier: 0.1.2
+        version: 0.1.2
     devDependencies:
       tsdown:
         specifier: 'catalog:'
@@ -2303,8 +2306,12 @@ packages:
     resolution: {integrity: sha512-BPDMqlWJIh1e5hpKgRnbtsFN6ZwfYQtwnqUHSX6Qu1H3QTQuCd/NXheECfLAg/jOINBrMHhDMA49s0nE49RejQ==}
     engines: {node: '>=20'}
 
-  '@kubb/fabric-core@0.0.0-canary-20251021185909':
-    resolution: {integrity: sha512-tY0G/ptFuZFBmgy3J0Tolav0FSW9HHEo+33plOzpfYHlYqNzHZNgAJJuLcCbWAjIdpZAbC/ubIUYgPlqpEt7DA==}
+  '@kubb/fabric-core@0.0.0-canary-20251022151827':
+    resolution: {integrity: sha512-m8uiS1ckUfsNuveqBUge6u8ivBxbSWFwbzjLFIbRseM15Xc+AzCTsOg0HLCR/K5b4M+9bK/HdljVVA7TDdfJUQ==}
+    engines: {node: '>=20'}
+
+  '@kubb/fabric-core@0.1.2':
+    resolution: {integrity: sha512-43cplF+V0GIFusrWOtCRZ/lDbCFbfyWBWvTvUmUSsNoxGdUvict8zZFoJX/qF+QXJssXDG786p63JbZrmbuciA==}
     engines: {node: '>=20'}
 
   '@kubb/parser-ts@4.0.0':
@@ -2315,8 +2322,8 @@ packages:
     resolution: {integrity: sha512-BRCEqrXmrVerLxJOW2OSyZrn8CsRb0pyZN1qoVQf4SkfJrD4MeZdEmSAjvknh2Ia2zP6N/uXw4UHZDwqam+fJg==}
     engines: {node: '>=20'}
 
-  '@kubb/react-fabric@0.0.0-canary-20251021185909':
-    resolution: {integrity: sha512-wsZelsKGFXkdzsp8Hohehs8QJ1xnAxCY7v7l/hmOh+OmNRbdWhYE0ouzxBpRG/joCoMRHUK14lhkOnaDIOGlcw==}
+  '@kubb/react-fabric@0.1.2':
+    resolution: {integrity: sha512-ZT6vtatr/tOQHyxn0bpfUSdYzoixVhuQPxYgKhD3E/QKoQFSFTr+5/UJZLu9dM5pE13SXijYRogwK1Dj2gfJPw==}
     engines: {node: '>=20'}
 
   '@kubb/react@4.0.0':
@@ -3063,9 +3070,6 @@ packages:
 
   '@types/node@20.19.23':
     resolution: {integrity: sha512-yIdlVVVHXpmqRhtyovZAcSy0MiPcYWGkoO4CGe/+jpP0hmNuihm4XhHbADpK++MsiLHP5MVlv+bcgdF99kSiFQ==}
-
-  '@types/node@24.5.1':
-    resolution: {integrity: sha512-/SQdmUP2xa+1rdx7VwB9yPq8PaKej8TD5cQ+XfKDPWWC+VDJU4rvVVagXqKUzhKjtFoNA8rXDJAkCxQPAe00+Q==}
 
   '@types/node@24.9.1':
     resolution: {integrity: sha512-QoiaXANRkSXK6p0Duvt56W208du4P9Uye9hWLWgGMDTEoKPhuenzNcC4vGUmrNkiOKTlIrBoyNQYNpSwfEZXSg==}
@@ -7225,9 +7229,6 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
-  undici-types@7.12.0:
-    resolution: {integrity: sha512-goOacqME2GYyOZZfb5Lgtu+1IDmAlAEu5xnD3+xTzS10hT0vzpf0SPjkXwAw9Jm+4n/mQGDP3LO8CPbYROeBfQ==}
-
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
@@ -8457,7 +8458,16 @@ snapshots:
       seedrandom: 3.0.5
       semver: 7.7.3
 
-  '@kubb/fabric-core@0.0.0-canary-20251021185909':
+  '@kubb/fabric-core@0.0.0-canary-20251022151827':
+    dependencies:
+      fs-extra: 11.3.2
+      js-runtime: 0.0.8
+      natural-orderby: 5.0.0
+      p-limit: 7.2.0
+      remeda: 2.32.0
+      typescript: 5.9.3
+
+  '@kubb/fabric-core@0.1.2':
     dependencies:
       fs-extra: 11.3.2
       js-runtime: 0.0.8
@@ -8478,9 +8488,9 @@ snapshots:
       remeda: 2.32.0
       typescript: 5.9.3
 
-  '@kubb/react-fabric@0.0.0-canary-20251021185909':
+  '@kubb/react-fabric@0.1.2':
     dependencies:
-      '@kubb/fabric-core': 0.0.0-canary-20251021185909
+      '@kubb/fabric-core': 0.1.2
       dedent: 1.7.0
       execa: 9.6.0
       indent-string: 5.0.0
@@ -9191,7 +9201,7 @@ snapshots:
 
   '@types/cli-progress@3.11.6':
     dependencies:
-      '@types/node': 24.5.1
+      '@types/node': 24.9.1
 
   '@types/connect@3.4.38':
     dependencies:
@@ -9351,7 +9361,7 @@ snapshots:
   '@types/fs-extra@11.0.4':
     dependencies:
       '@types/jsonfile': 6.1.4
-      '@types/node': 24.5.1
+      '@types/node': 24.9.1
 
   '@types/geojson@7946.0.16': {}
 
@@ -9367,7 +9377,7 @@ snapshots:
 
   '@types/jsonfile@6.1.4':
     dependencies:
-      '@types/node': 24.5.1
+      '@types/node': 24.9.1
 
   '@types/linkify-it@5.0.0': {}
 
@@ -9394,10 +9404,6 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@types/node@24.5.1':
-    dependencies:
-      undici-types: 7.12.0
-
   '@types/node@24.9.1':
     dependencies:
       undici-types: 7.16.0
@@ -9418,7 +9424,7 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 24.9.1
 
   '@types/seedrandom@3.0.8': {}
 
@@ -9447,7 +9453,7 @@ snapshots:
 
   '@types/swagger2openapi@7.0.4':
     dependencies:
-      '@types/node': 24.5.1
+      '@types/node': 24.9.1
       openapi-types: 12.1.3
 
   '@types/tinycolor2@1.4.6': {}
@@ -14177,8 +14183,6 @@ snapshots:
       unplugin: 2.3.10
 
   undici-types@6.21.0: {}
-
-  undici-types@7.12.0: {}
 
   undici-types@7.16.0: {}
 
