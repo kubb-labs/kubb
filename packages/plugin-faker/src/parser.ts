@@ -151,6 +151,8 @@ const fakerKeywordMapper = {
   catchall: undefined,
   name: undefined,
   interface: undefined,
+  exclusiveMaximum: undefined,
+  exclusiveMinimum: undefined,
 } satisfies SchemaMapper<string | null | undefined>
 
 /**
