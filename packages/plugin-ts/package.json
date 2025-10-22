@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-ts",
-  "version": "4.2.0",
+  "version": "4.2.1",
   "description": "TypeScript code generation plugin for Kubb, transforming OpenAPI schemas into TypeScript interfaces, types, and utility functions.",
   "keywords": [
     "typescript",
@@ -68,8 +68,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/fabric-core": "canary",
     "@kubb/core": "workspace:*",
+    "@kubb/fabric-core": "0.0.0-canary-20251021185909",
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",

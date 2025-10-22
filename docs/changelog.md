@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.2.0
+- [`plugin-msw`](/plugins/plugin-msw): generating responses for status codes
+
 # 4.1.4
 - [`plugin-faker`](/plugins/plugin-faker): Add optional data parameter to override default faker generated strings and numbers
 - [`plugin-client`](/plugins/plugin-client): Correct content-type header handling for multipart/form-data
