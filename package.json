@@ -72,7 +72,7 @@
 			"@babel/runtime": "^7.28.4",
 			"dompurify": "^3.3.0",
 			"esbuild": "^0.25.11"
-		},
+    },
 		"onlyBuiltDependencies": [
 			"esbuild"
 		]

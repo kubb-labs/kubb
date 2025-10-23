@@ -54,7 +54,7 @@
     "cross-env": "^7.0.3",
     "react": "^19.2.0",
     "unplugin-kubb": "workspace:^",
-    "vite": "^7.1.11"
+    "vite": "^7.1.12"
   },
   "packageManager": "pnpm@10.18.3",
   "engines": {

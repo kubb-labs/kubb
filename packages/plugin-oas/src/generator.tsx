@@ -1,7 +1,7 @@
 import type { PluginFactoryOptions } from '@kubb/core'
 import type { KubbFile } from '@kubb/core/fs'
 import type { Operation, SchemaObject } from '@kubb/oas'
-import { App, createApp } from '@kubb/react'
+import { App, createApp, reactPlugin } from '@kubb/react'
 import type { KubbNode } from '@kubb/react/types'
 import { Oas } from './components/Oas.tsx'
 import type { OperationGenerator } from './OperationGenerator.ts'
@@ -77,9 +77,10 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
           </App>
         )
       }
-      const app = createApp(Component)
+      const app = createApp()
+      app.use(reactPlugin)
 
-      app.render()
+      app.render(Component)
       return app.files
     },
     async operation({ instance, operation, options }) {
@@ -101,9 +102,11 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
           </App>
         )
       }
-      const app = createApp(Component)
+      const app = createApp()
+      app.use(reactPlugin)
 
-      app.render()
+      app.render(Component)
+
       return app.files
     },
     async schema({ instance, schema, options }) {
@@ -126,9 +129,10 @@ export function createReactGenerator<TOptions extends PluginFactoryOptions>(pars
           </App>
         )
       }
-      const app = createApp(Component)
+      const app = createApp()
+      app.use(reactPlugin)
 
-      app.render()
+      app.render(Component)
       return app.files
     },
   }
