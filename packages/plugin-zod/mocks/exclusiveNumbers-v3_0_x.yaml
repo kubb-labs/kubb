@@ -1,0 +1,44 @@
+openapi: 3.0.0
+info:
+  title: exclusive number test cases for 3.0.0
+  version: 1.0.0
+
+components:
+  schemas:
+    ExclusiveNumbers:
+      type: object
+      properties:
+        exclusiveMin:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+        exclusiveMax:
+          type: number
+          maximum: 10
+          exclusiveMaximum: true
+        exclusiveRange: 
+          type: number
+          maximum: 9.99
+          minimum: 0.01
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        strictMinExclusiveMaxRange: 
+          type: number
+          maximum: 1000
+          minimum: 0
+          exclusiveMaximum: true
+          exclusiveMinimum: false
+        strictMaxExclusiveMinRange: 
+          type: number
+          maximum: 1000
+          minimum: 0
+          exclusiveMaximum: false
+          exclusiveMinimum: true
+        exclusiveIntRange:
+          type: integer
+          maximum: 9
+          minimum: 0
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+      required:
+        - exclusiveRange

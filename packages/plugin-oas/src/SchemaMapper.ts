@@ -73,6 +73,8 @@ export type SchemaKeywordMapper = {
   number: { keyword: 'number' }
   max: { keyword: 'max'; args: number }
   min: { keyword: 'min'; args: number }
+  exclusiveMaximum: { keyword: 'exclusiveMaximum'; args: number }
+  exclusiveMinimum: { keyword: 'exclusiveMinimum'; args: number }
   describe: { keyword: 'describe'; args: string }
   example: { keyword: 'example'; args: string }
   deprecated: { keyword: 'deprecated' }
@@ -119,6 +121,8 @@ export const schemaKeywords = {
   describe: 'describe',
   min: 'min',
   max: 'max',
+  exclusiveMinimum: 'exclusiveMinimum',
+  exclusiveMaximum: 'exclusiveMaximum',
   optional: 'optional',
   readOnly: 'readOnly',
   writeOnly: 'writeOnly',
