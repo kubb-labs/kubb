@@ -4,7 +4,7 @@ title: Changelog
 
 # Changelog
 
-# 4.2.3
+# 4.3.0
 - [`plugin-zod`](/plugins/plugin-zod): Add exclusive minimum and maximum support with `z.number().gt(5);` and `z.number().lt(5);`
 
 # 4.2.2
