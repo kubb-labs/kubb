@@ -6,6 +6,7 @@ import type { Logger } from '../logger'
 import type { PluginManager } from '../PluginManager.ts'
 import { camelCase, pascalCase } from '../transformers/casing.ts'
 import type { Plugin } from '../types.ts'
+import { typescriptParser } from '@kubb/fabric-core/parsers/typescript'
 
 export const mockedLogger = {
   emit(_type, _message) {},
@@ -67,9 +68,10 @@ export async function matchFiles(files: Array<ResolvedFile | File> | undefined, 
   }
 
   const fileProcessor = new FileProcessor()
+  const parsers = new Set<any>([typescriptParser])
 
   for await (const file of files) {
-    const source = await fileProcessor.parse(createFile(file))
+    const source = await fileProcessor.parse(createFile(file), { parsers })
     let code = source
     if (!file.baseName.endsWith('.json')) {
       code = await format(source)

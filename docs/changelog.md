@@ -4,6 +4,15 @@ title: Changelog
 
 # Changelog
 
+# 4.2.3
+- [`plugin-zod`](/plugins/plugin-zod): Add exclusive minimum and maximum support with `z.number().gt(5);` and `z.number().lt(5);`
+
+# 4.2.2
+- [`core`](/plugins/core): resolve crash with incorrect Fabric patch version
+
+# 4.2.1
+- Update packages
+
 # 4.2.0
 - [`plugin-msw`](/plugins/plugin-msw): generating responses for status codes
 

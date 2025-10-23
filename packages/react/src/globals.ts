@@ -24,6 +24,8 @@ declare module '@kubb/react/jsx-runtime' {
       }
       'kubb-import': KubbFile.Import
       'kubb-export': KubbFile.Export
+      // biome-ignore lint/suspicious/noTsIgnore: ignore for now
+      // @ts-ignore
       br: React.DetailedHTMLProps<React.HTMLAttributes<HTMLBRElement>, HTMLBRElement>
     }
   }

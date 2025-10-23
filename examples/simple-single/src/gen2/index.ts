@@ -530,6 +530,7 @@ export const flyHTTPOptionsSchema = z.object({
   h2_backend: z.optional(z.boolean()),
   headers_read_timeout: z.optional(z.number().int()),
   idle_timeout: z.optional(z.number().int()),
+  replay_cache: z.optional(z.array(z.lazy(() => flyReplayCacheSchema))),
   response: z.optional(z.lazy(() => flyHTTPResponseOptionsSchema)),
 })
 
@@ -781,6 +782,14 @@ export const flyMachineServiceConcurrencySchema = z.object({
 
 export const flyProxyProtoOptionsSchema = z.object({
   version: z.optional(z.string()),
+})
+
+export const flyReplayCacheSchema = z.object({
+  allow_bypass: z.optional(z.boolean()),
+  name: z.optional(z.string().describe('Name of the cookie or header to key the cache on')),
+  path_prefix: z.optional(z.string()),
+  ttl_seconds: z.optional(z.number().int()),
+  type: z.optional(z.enum(['cookie', 'header']).describe('Currently either "cookie" or "header"')),
 })
 
 export const flyStaticSchema = z.object({

@@ -9,6 +9,7 @@ import { createLogger } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
 import type { Config, Output, UserConfig } from './types.ts'
 import { URLPath } from './utils/URLPath.ts'
+import { typescriptParser } from '@kubb/react'
 
 type BuildOptions = {
   config: UserConfig
@@ -179,9 +180,12 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       pluginManager.logger.emit('progress_stop', { id: 'files' })
     })
 
+    const parsers = new Set<any>([typescriptParser])
+
     const files = await pluginManager.fileManager.write({
       extension: config.output.extension,
       dryRun: !config.output.write,
+      parsers,
     })
 
     await pluginManager.hookParallel({ hookName: 'buildEnd', message: `Build stopped for ${config.name}` })
