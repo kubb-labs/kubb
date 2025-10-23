@@ -90,10 +90,10 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/react-fabric": "0.1.5",
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/react": "workspace:*",
+    "@kubb/react-fabric": "0.1.5",
     "@stoplight/yaml": "^4.3.0",
     "p-limit": "catalog:",
     "remeda": "catalog:"
