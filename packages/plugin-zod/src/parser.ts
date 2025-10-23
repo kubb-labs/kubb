@@ -11,16 +11,24 @@ const zodKeywordMapper = {
   any: () => 'z.any()',
   unknown: () => 'z.unknown()',
   void: () => 'z.void()',
-  number: (coercion?: boolean, min?: number, max?: number) => {
-    return [coercion ? 'z.coerce.number()' : 'z.number()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
+  number: (coercion?: boolean, min?: number, max?: number, exclusiveMinimum?: number, exclusiveMaximum?: number) => {
+    return [
+      coercion ? 'z.coerce.number()' : 'z.number()',
+      min !== undefined ? `.min(${min})` : undefined,
+      max !== undefined ? `.max(${max})` : undefined,
+      exclusiveMinimum !== undefined ? `.gt(${exclusiveMinimum})` : undefined,
+      exclusiveMaximum !== undefined ? `.lt(${exclusiveMaximum})` : undefined,
+    ]
       .filter(Boolean)
       .join('')
   },
-  integer: (coercion?: boolean, min?: number, max?: number, version: '3' | '4' = '3') => {
+  integer: (coercion?: boolean, min?: number, max?: number, version: '3' | '4' = '3', exclusiveMinimum?: number, exclusiveMaximum?: number) => {
     return [
       coercion ? 'z.coerce.number().int()' : version === '4' ? 'z.int()' : 'z.number().int()',
       min !== undefined ? `.min(${min})` : undefined,
       max !== undefined ? `.max(${max})` : undefined,
+      exclusiveMinimum !== undefined ? `.gt(${exclusiveMinimum})` : undefined,
+      exclusiveMaximum !== undefined ? `.lt(${exclusiveMaximum})` : undefined,
     ]
       .filter(Boolean)
       .join('')
@@ -196,6 +204,8 @@ const zodKeywordMapper = {
   schema: undefined,
   catchall: (value?: string) => (value ? `.catchall(${value})` : undefined),
   name: undefined,
+  exclusiveMinimum: undefined,
+  exclusiveMaximum: undefined,
 } satisfies SchemaMapper<string | null | undefined>
 
 /**
@@ -510,14 +520,31 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
     const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
     const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
 
-    return zodKeywordMapper.number(shouldCoerce(options.coercion, 'numbers'), minSchema?.args, maxSchema?.args)
+    const exclusiveMinimumSchema = SchemaGenerator.find(siblings, schemaKeywords.exclusiveMinimum)
+    const exclusiveMaximumSchema = SchemaGenerator.find(siblings, schemaKeywords.exclusiveMaximum)
+    return zodKeywordMapper.number(
+      shouldCoerce(options.coercion, 'numbers'),
+      minSchema?.args,
+      maxSchema?.args,
+      exclusiveMinimumSchema?.args,
+      exclusiveMaximumSchema?.args,
+    )
   }
 
   if (isKeyword(current, schemaKeywords.integer)) {
     const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
     const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
 
-    return zodKeywordMapper.integer(shouldCoerce(options.coercion, 'numbers'), minSchema?.args, maxSchema?.args, options.version)
+    const exclusiveMinimumSchema = SchemaGenerator.find(siblings, schemaKeywords.exclusiveMinimum)
+    const exclusiveMaximumSchema = SchemaGenerator.find(siblings, schemaKeywords.exclusiveMaximum)
+    return zodKeywordMapper.integer(
+      shouldCoerce(options.coercion, 'numbers'),
+      minSchema?.args,
+      maxSchema?.args,
+      options.version,
+      exclusiveMinimumSchema?.args,
+      exclusiveMaximumSchema?.args,
+    )
   }
 
   if (isKeyword(current, schemaKeywords.datetime)) {

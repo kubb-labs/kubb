@@ -518,6 +518,10 @@ export class SchemaGenerator<
     ]
     const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
     const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
+
+    const exclusiveMinimum = schemaObject.exclusiveMinimum
+    const exclusiveMaximum = schemaObject.exclusiveMaximum
+
     const nullable = isNullable(schemaObject)
     const defaultNullAndNullable = schemaObject.default === null && nullable
 
@@ -554,13 +558,25 @@ export class SchemaGenerator<
     }
 
     if (max !== undefined) {
-      baseItems.unshift({ keyword: schemaKeywords.max, args: max })
+      if (exclusiveMaximum) {
+        baseItems.unshift({ keyword: schemaKeywords.exclusiveMaximum, args: max })
+      } else baseItems.unshift({ keyword: schemaKeywords.max, args: max })
     }
 
     if (min !== undefined) {
-      baseItems.unshift({ keyword: schemaKeywords.min, args: min })
+      if (exclusiveMinimum) {
+        baseItems.unshift({ keyword: schemaKeywords.exclusiveMinimum, args: min })
+      } else baseItems.unshift({ keyword: schemaKeywords.min, args: min })
     }
 
+    if (typeof exclusiveMaximum === 'number') {
+      //OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
+      baseItems.unshift({ keyword: schemaKeywords.exclusiveMaximum, args: exclusiveMaximum })
+    }
+    if (typeof exclusiveMinimum === 'number') {
+      //OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
+      baseItems.unshift({ keyword: schemaKeywords.exclusiveMinimum, args: exclusiveMinimum })
+    }
     if (nullable) {
       baseItems.push({ keyword: schemaKeywords.nullable })
     }

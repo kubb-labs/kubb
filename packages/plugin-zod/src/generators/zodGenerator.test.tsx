@@ -247,6 +247,18 @@ describe('zodGenerator schema', async () => {
       path: 'Nullable',
       options: {},
     },
+    {
+      name: 'ExclusiveNumbers',
+      input: '../../mocks/exclusiveNumbers-v3_1_0.yaml',
+      path: 'ExclusiveNumbers',
+      options: {},
+    },
+    {
+      name: 'ExclusiveNumbers',
+      input: '../../mocks/exclusiveNumbers-v3_0_x.yaml',
+      path: 'ExclusiveNumbers',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string

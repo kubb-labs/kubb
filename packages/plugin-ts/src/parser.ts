@@ -133,6 +133,8 @@ export const typeKeywordMapper = {
   catchall: undefined,
   name: undefined,
   interface: undefined,
+  exclusiveMaximum: undefined,
+  exclusiveMinimum: undefined,
 } satisfies SchemaMapper<ts.TypeNode | null | undefined>
 
 type ParserOptions = {
