@@ -98,7 +98,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/fabric-core": "0.1.5",
+    "@kubb/fabric-core": "0.1.8",
     "@kubb/parser-ts": "^4.1.4",
     "@kubb/react": "workspace:*",
     "camelcase": "^8.0.0",
@@ -124,7 +124,7 @@
     "zod": "^4.1.12"
   },
   "peerDependencies": {
-    "@kubb/react": "^4.0.0"
+    "@kubb/react": "^4.3.0"
   },
   "engines": {
     "node": ">=20"

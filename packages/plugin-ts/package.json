@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/fabric-core": "0.1.5",
+    "@kubb/fabric-core": "0.1.8",
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",
@@ -82,7 +82,7 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react": "^4.0.0"
+    "@kubb/react": "^4.3.0"
   },
   "engines": {
     "node": ">=20"

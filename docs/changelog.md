@@ -4,6 +4,8 @@ title: Changelog
 
 # Changelog
 
+# 4.3.1
+- [`react`](/helpers/react/): update peerdeps `@kubb/react`
 # 4.3.0
 - [`plugin-zod`](/plugins/plugin-zod): Add exclusive minimum and maximum support with `z.number().gt(5);` and `z.number().lt(5);`
 
