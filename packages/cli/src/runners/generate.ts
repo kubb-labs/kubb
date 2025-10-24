@@ -81,18 +81,20 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     },
   }
 
-  const pluginManager = await setup({
+  const { pluginManager, fileManager } = await setup({
     config: definedConfig,
     logger,
   })
 
   logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
-  const { files, error } = await safeBuild({
-    config: definedConfig,
-    pluginManager,
-    logger,
-  })
+  const { files, error } = await safeBuild(
+    {
+      config: definedConfig,
+      logger,
+    },
+    { pluginManager, fileManager },
+  )
 
   if (logger.logLevel === LogMapper.debug) {
     logger.consola?.start('Writing logs')
