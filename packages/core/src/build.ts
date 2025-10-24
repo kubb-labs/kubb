@@ -1,4 +1,5 @@
 import { join, relative, resolve } from 'node:path'
+import { FileManager } from '@kubb/fabric-core'
 import { typescriptParser } from '@kubb/react'
 import pc from 'picocolors'
 import { isDeepEqual } from 'remeda'
@@ -16,7 +17,6 @@ type BuildOptions = {
    * @default Logger without the spinner
    */
   logger?: Logger
-  pluginManager?: PluginManager
 }
 
 type BuildOutput = {
@@ -28,11 +28,12 @@ type BuildOutput = {
   error?: Error
 }
 
-export async function setup(options: BuildOptions): Promise<PluginManager> {
-  if (options.pluginManager) {
-    return options.pluginManager
-  }
+type SetupResult = {
+  pluginManager: PluginManager
+  fileManager: FileManager
+}
 
+export async function setup(options: BuildOptions): Promise<SetupResult> {
   const { config: userConfig, logger = createLogger() } = options
 
   if (Array.isArray(userConfig.input)) {
@@ -74,13 +75,21 @@ export async function setup(options: BuildOptions): Promise<PluginManager> {
     await clean(join(definedConfig.root, '.kubb'))
   }
 
-  return new PluginManager(definedConfig, { logger, concurrency: 5 })
+  const fileManager = new FileManager()
+  const pluginManager = new PluginManager(definedConfig, { logger, fileManager, concurrency: 5 })
+
+  return {
+    pluginManager,
+    fileManager,
+  }
 }
 
-export async function build(options: BuildOptions): Promise<BuildOutput> {
-  const { files, pluginManager, error } = await safeBuild(options)
+export async function build(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
+  const { files, pluginManager, error } = await safeBuild(options, overrides)
 
-  if (error) throw error
+  if (error) {
+    throw error
+  }
 
   return {
     files,
@@ -89,8 +98,8 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   }
 }
 
-export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
-  const pluginManager = await setup(options)
+export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
+  const { pluginManager, fileManager } = overrides ? overrides : await setup(options)
 
   const config = pluginManager.config
 
@@ -118,7 +127,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       const rootPath = resolve(root, config.output.path, 'index.ts')
 
       //TODO find clean method without loading all files
-      const files = await pluginManager.fileManager.files
+      const files = await fileManager.files
 
       const barrelFiles = files.filter((file) => {
         return file.sources.some((source) => source.isIndexable)
@@ -161,14 +170,14 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
         meta: {},
       }
 
-      await pluginManager.fileManager.add(rootFile)
+      await fileManager.add(rootFile)
     }
 
-    pluginManager.fileManager.processor.events.on('process:start', ({ files }) => {
+    fileManager.processor.events.on('process:start', ({ files }) => {
       pluginManager.logger.emit('progress_start', { id: 'files', size: files.length, message: 'Writing files ...' })
     })
 
-    pluginManager.fileManager.processor.events.on('process:progress', async ({ file, source }) => {
+    fileManager.processor.events.on('process:progress', async ({ file, source }) => {
       const message = file ? `Writing ${relative(config.root, file.path)}` : ''
       pluginManager.logger.emit('progressed', { id: 'files', message })
 
@@ -177,13 +186,13 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       }
     })
 
-    pluginManager.fileManager.processor.events.on('process:end', () => {
+    fileManager.processor.events.on('process:end', () => {
       pluginManager.logger.emit('progress_stop', { id: 'files' })
     })
 
     const parsers = new Set<any>([typescriptParser])
 
-    const files = await pluginManager.fileManager.write({
+    const files = await fileManager.write({
       extension: config.output.extension,
       dryRun: !config.output.write,
       parsers,
@@ -191,7 +200,7 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
 
     await pluginManager.hookParallel({ hookName: 'buildEnd', message: `Build stopped for ${config.name}` })
 
-    await pluginManager.fileManager.clear()
+    await fileManager.clear()
 
     return {
       files,
