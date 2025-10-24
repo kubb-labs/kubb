@@ -1,15 +1,14 @@
 import { join, relative, resolve } from 'node:path'
+import { typescriptParser } from '@kubb/react'
 import pc from 'picocolors'
 import { isDeepEqual } from 'remeda'
 import { isInputPath } from './config.ts'
-import { type KubbFile, write } from './fs/index.ts'
-import { clean, exists, getRelativePath } from './fs/index.ts'
+import { clean, exists, getRelativePath, type KubbFile, write } from './fs/index.ts'
 import type { Logger } from './logger.ts'
 import { createLogger } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
 import type { Config, Output, UserConfig } from './types.ts'
 import { URLPath } from './utils/URLPath.ts'
-import { typescriptParser } from '@kubb/react'
 
 type BuildOptions = {
   config: UserConfig
@@ -173,7 +172,9 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
       const message = file ? `Writing ${relative(config.root, file.path)}` : ''
       pluginManager.logger.emit('progressed', { id: 'files', message })
 
-      await write(file.path, source, { sanity: false })
+      if (source) {
+        await write(file.path, source, { sanity: false })
+      }
     })
 
     pluginManager.fileManager.processor.events.on('process:end', () => {
