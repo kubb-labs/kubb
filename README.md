@@ -24,11 +24,6 @@
 <br />
 
 ## Features
-
-<div align="center">
-  <img src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/features.png" alt="features"  height="auto" />
-</div>
-
 - Works with Node.js 20+.
 - Convert Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 to TypeScript, Zod, React-Query, ...
 - Plugin ecosystem to extend beyond the default plugins we provide.
