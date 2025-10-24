@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 4.3.1
+
+### Patch Changes
+
+- [#1953](https://github.com/kubb-labs/kubb/pull/1953) [`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - update peerdeps @kubb/react
+
+- Updated dependencies []:
+  - @kubb/react@4.3.1
+
 ## 4.3.0
 
 ### Patch Changes
