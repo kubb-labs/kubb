@@ -1410,8 +1410,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-oas
       '@kubb/react':
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: ^4.3.0
+        version: 4.3.0
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
@@ -2298,16 +2298,8 @@ packages:
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
 
-  '@kubb/core@4.0.0':
-    resolution: {integrity: sha512-BPDMqlWJIh1e5hpKgRnbtsFN6ZwfYQtwnqUHSX6Qu1H3QTQuCd/NXheECfLAg/jOINBrMHhDMA49s0nE49RejQ==}
-    engines: {node: '>=20'}
-
   '@kubb/fabric-core@0.1.5':
     resolution: {integrity: sha512-JM6/++uT+vWEF3WQLyNijfp4Jw5mzgVEWswqAcSXtdNifl2qT1eZuqMhI6aB6/Qc4KlaE7k7QXfs8CUjuLs8GQ==}
-    engines: {node: '>=20'}
-
-  '@kubb/parser-ts@4.0.0':
-    resolution: {integrity: sha512-WnnSiNsXi1xBwoEFKyMFwsuyA1bDwx/0ebBnt6G2QemEBSgL1LjPVtq+AeBYNe8aHkFCsmq00dzg67XFuB/BJQ==}
     engines: {node: '>=20'}
 
   '@kubb/parser-ts@4.1.4':
@@ -2318,8 +2310,8 @@ packages:
     resolution: {integrity: sha512-70rmNabvi8kwTRUAGwKeqq7DxYKfAFouedhf+zGU8wifUTcgRnzoXCRXKQKS8kE5ADmv8lggUwNoQcS5TMQJ0w==}
     engines: {node: '>=20'}
 
-  '@kubb/react@4.0.0':
-    resolution: {integrity: sha512-fVasYD0YgvAzb4c5PvBCpdUrpmPSGnaJUK2YP14eJuEA8v1wqcnHsS9UBasyjTBO/TUP+IPNzzwLA7D7Hmw7Yw==}
+  '@kubb/react@4.3.0':
+    resolution: {integrity: sha512-kctRvSviLV+d785mnCQdcPaOpCecsxPZ8UPnIQc8AuhdD68eCG/9v7HkjQ9ve5zd2ln7WMmnOLrk9x9m1pk0OQ==}
     engines: {node: '>=20'}
 
   '@manypkg/find-root@1.1.0':
@@ -6378,9 +6370,6 @@ packages:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
 
-  react-devtools-core@6.1.5:
-    resolution: {integrity: sha512-ePrwPfxAnB+7hgnEr8vpKxL9cmnp7F322t8oqcPshbIQQhDKgFDW4tjhF2wjVbdXF9O/nyuy3sQWd9JGpiLPvA==}
-
   react-devtools-inline@7.0.1:
     resolution: {integrity: sha512-sOcLqXE5lgq/trUiqIuf8UtPWeI7WA8K7lM/xBrF3QfhaOZraIkOAbTS8gnOoKnQrF0MByXnU/PD1N4ffKog3Q==}
 
@@ -6686,10 +6675,6 @@ packages:
   shebang-regex@3.0.0:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
-
-  shell-quote@1.8.3:
-    resolution: {integrity: sha512-ObmnIF4hXNg1BqhnHmgbDETF8dLPCggZWBjkQfhZpbszZnYur5DUljTcCHii5LC3J5E0yeO/1LIMyH+UvHQgyw==}
-    engines: {node: '>= 0.4'}
 
   shiki@3.13.0:
     resolution: {integrity: sha512-aZW4l8Og16CokuCLf8CF8kq+KK2yOygapU5m3+hoGw0Mdosc6fPitjM+ujYarppj5ZIKGyPDPP1vqmQhr+5/0g==}
@@ -7237,11 +7222,6 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typescript@5.9.2:
-    resolution: {integrity: sha512-CWBzXQrc/qOkhidw1OzBTQuYRbfyxDXJMVJ1XNwUHGROVmuaeiEm3OslpZ1RV96d7SKKjZKrSJu3+t/xlw3R9A==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
@@ -7670,18 +7650,6 @@ packages:
 
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
-
-  ws@7.5.10:
-    resolution: {integrity: sha512-+dbF1tHwZpXcbOJdVOkzLDxZP1ailvSxM6ZweXTegylPny803bFhA+vqBYw4s31NSAk4S2Qz+AKXK9a4wkdjcQ==}
-    engines: {node: '>=8.3.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: ^5.0.2
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
 
   ws@8.18.3:
     resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
@@ -8491,21 +8459,6 @@ snapshots:
     dependencies:
       jsep: 1.4.0
 
-  '@kubb/core@4.0.0':
-    dependencies:
-      '@kubb/parser-ts': 4.0.0
-      camelcase: 8.0.0
-      find-up: 7.0.0
-      fs-extra: 11.3.2
-      js-runtime: 0.0.8
-      natural-orderby: 5.0.0
-      object-hash: 3.0.0
-      p-limit: 7.2.0
-      picocolors: 1.1.1
-      remeda: 2.32.0
-      seedrandom: 3.0.5
-      semver: 7.7.3
-
   '@kubb/fabric-core@0.1.5':
     dependencies:
       fs-extra: 11.3.2
@@ -8514,12 +8467,6 @@ snapshots:
       p-limit: 7.2.0
       remeda: 2.32.0
       typescript: 5.9.3
-
-  '@kubb/parser-ts@4.0.0':
-    dependencies:
-      prettier: 3.6.2
-      remeda: 2.32.0
-      typescript: 5.9.2
 
   '@kubb/parser-ts@4.1.4':
     dependencies:
@@ -8544,19 +8491,9 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@kubb/react@4.0.0':
+  '@kubb/react@4.3.0':
     dependencies:
-      '@kubb/core': 4.0.0
-      '@kubb/parser-ts': 4.0.0
-      dedent: 1.7.0
-      execa: 9.6.0
-      indent-string: 5.0.0
-      natural-orderby: 5.0.0
-      react: 19.2.0
-      react-devtools-core: 6.1.5
-      react-reconciler: 0.32.0(react@19.2.0)
-      signal-exit: 4.1.0
-      ws: 8.18.3
+      '@kubb/react-fabric': 0.1.5
     transitivePeerDependencies:
       - babel-plugin-macros
       - bufferutil
@@ -13259,14 +13196,6 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  react-devtools-core@6.1.5:
-    dependencies:
-      shell-quote: 1.8.3
-      ws: 7.5.10
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
   react-devtools-inline@7.0.1:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -13670,8 +13599,6 @@ snapshots:
       shebang-regex: 3.0.0
 
   shebang-regex@3.0.0: {}
-
-  shell-quote@1.8.3: {}
 
   shiki@3.13.0:
     dependencies:
@@ -14293,8 +14220,6 @@ snapshots:
 
   typescript@5.2.2: {}
 
-  typescript@5.9.2: {}
-
   typescript@5.9.3: {}
 
   uc.micro@2.1.0: {}
@@ -14825,8 +14750,6 @@ snapshots:
       strip-ansi: 7.1.2
 
   wrappy@1.0.2: {}
-
-  ws@7.5.10: {}
 
   ws@8.18.3: {}
 

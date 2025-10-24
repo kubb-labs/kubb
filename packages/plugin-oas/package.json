@@ -93,7 +93,7 @@
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@kubb/react-fabric": "0.1.5",
+    "@kubb/react-fabric": "0.1.8",
     "@stoplight/yaml": "^4.3.0",
     "p-limit": "catalog:",
     "remeda": "catalog:"
@@ -103,7 +103,7 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react": "^4.0.0"
+    "@kubb/react": "^4.3.0"
   },
   "engines": {
     "node": ">=20"
