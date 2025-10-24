@@ -1,5 +1,4 @@
 import { NolebaseEnhancedReadabilitiesMenu, NolebaseEnhancedReadabilitiesScreenMenu } from '@nolebase/vitepress-plugin-enhanced-readabilities/client'
-import { NolebaseGitChangelogPlugin } from '@nolebase/vitepress-plugin-git-changelog/client'
 import { NolebaseHighlightTargetedHeading } from '@nolebase/vitepress-plugin-highlight-targeted-heading/client'
 import TwoslashFloatingVue from '@shikijs/vitepress-twoslash/client'
 import type { EnhanceAppContext, Theme } from 'vitepress'
@@ -36,7 +35,6 @@ export default {
   enhanceApp(ctx: EnhanceAppContext) {
     DefaultTheme.enhanceApp(ctx)
     ctx.app.use(TwoslashFloatingVue)
-    ctx.app.use(NolebaseGitChangelogPlugin)
     ctx.app.component('CopyOrDownloadAsMarkdownButtons', CopyOrDownloadAsMarkdownButtons)
   },
 } satisfies Theme

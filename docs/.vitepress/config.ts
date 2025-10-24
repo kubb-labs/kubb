@@ -1,4 +1,5 @@
-import { GitChangelog, GitChangelogMarkdownSection } from '@nolebase/vitepress-plugin-git-changelog/vite'
+import { buildEndGenerateOpenGraphImages } from '@nolebase/vitepress-plugin-og-image/vitepress'
+
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { defineConfig } from 'vitepress'
 import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepress-plugin-group-icons'
@@ -460,6 +461,9 @@ export default defineConfig({
   lang: 'en-UK',
   title: 'Kubb',
   description: title,
+  buildEnd: async (siteConfig) => {
+    await buildEndGenerateOpenGraphImages(siteConfig)
+  },
   head: [
     ['meta', { property: 'og:title', content: `Kubb: ${title}` }],
     ['meta', { property: 'og:image', content: ogImage }],
@@ -705,18 +709,6 @@ export default defineConfig({
           'kubb.config.js': localIconLoader(import.meta.url, '../public/logo.png'),
         },
       }),
-      GitChangelog({
-        repoURL: () => 'https://github.com/kubb-labs/kubb',
-        mapAuthors: [
-          {
-            name: 'Stijn Van Hulle',
-            username: 'stijnvanhulle',
-            mapByEmailAliases: ['stijn@stijnvanhulle.be'],
-          },
-        ],
-        maxGitLogCount: 100,
-      }),
-      GitChangelogMarkdownSection(),
     ] as any,
   },
 })
