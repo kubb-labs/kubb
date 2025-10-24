@@ -105,8 +105,6 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
   const config = pluginManager.config
 
   try {
-    await app.context.fileManager.clear()
-
     await pluginManager.hookParallel({
       hookName: 'buildStart',
       parameters: [config],
