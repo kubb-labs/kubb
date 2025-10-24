@@ -1,4 +1,4 @@
-import type { FileManager } from '@kubb/fabric-core'
+import type { App } from '@kubb/fabric-core'
 import { ValidationPluginError } from './errors.ts'
 import type { KubbFile } from './fs/index.ts'
 import type { Logger } from './logger.ts'
@@ -21,7 +21,6 @@ import type {
   UserPlugin,
   UserPluginWithLifeCycle,
 } from './types.ts'
-import { EventEmitter } from './utils/EventEmitter.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
 
 type RequiredPluginLifecycle = Required<PluginLifecycle>
@@ -47,18 +46,12 @@ type SafeParseResult<H extends PluginLifecycleHooks, Result = ReturnType<ParseRe
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
 type Options = {
-  fileManager: FileManager
+  app: App
   logger: Logger
   /**
    * @default Number.POSITIVE_INFINITY
    */
   concurrency?: number
-}
-
-type Events = {
-  executing: [executer: Executer]
-  executed: [executer: Executer]
-  error: [error: Error]
 }
 
 type GetFileProps<TOptions = object> = {
@@ -71,31 +64,28 @@ type GetFileProps<TOptions = object> = {
 
 export class PluginManager {
   readonly plugins = new Set<Plugin<GetPluginFactoryOptions<any>>>()
-  readonly events: EventEmitter<Events> = new EventEmitter()
-
   readonly config: Config
-
   readonly executed: Array<Executer> = []
   readonly logger: Logger
-  readonly options: Options
-  readonly #core: Plugin<PluginCore>
 
+  readonly #concurrency: number
+  readonly #core: Plugin<PluginCore>
   readonly #usedPluginNames: Record<string, number> = {}
   readonly #promiseManager: PromiseManager
 
   constructor(config: Config, options: Options) {
     this.config = config
-    this.options = options
+    this.#concurrency = options.concurrency || Number.POSITIVE_INFINITY
     this.logger = options.logger
     this.#promiseManager = new PromiseManager({
       nullCheck: (state: SafeParseResult<'resolveName'> | null) => !!state?.result,
     })
 
     const core = pluginCore({
+      app: options.app,
       config,
       logger: this.logger,
       pluginManager: this,
-      fileManager: options.fileManager,
       resolvePath: this.resolvePath.bind(this),
       resolveName: this.resolveName.bind(this),
       getPlugins: this.#getSortedPlugins.bind(this),
@@ -189,13 +179,6 @@ export class PluginManager {
     }).result
 
     return transformReservedWord(name)
-  }
-
-  /**
-   * Instead of calling `pluginManager.events.on` you can use `pluginManager.on`. This one also has better types.
-   */
-  on<TEventName extends keyof Events & string>(eventName: TEventName, handler: (...eventArg: Events[TEventName]) => void): void {
-    this.events.on(eventName, handler as any)
   }
 
   /**
@@ -377,7 +360,7 @@ export class PluginManager {
         }) as Promise<TOuput>
     })
 
-    const results = await this.#promiseManager.run('parallel', promises, { concurrency: this.options.concurrency })
+    const results = await this.#promiseManager.run('parallel', promises, { concurrency: this.#concurrency })
 
     results.forEach((result, index) => {
       if (isPromiseRejectedResult<Error>(result)) {
@@ -508,7 +491,6 @@ export class PluginManager {
 
   #addExecutedToCallStack(executer: Executer | undefined) {
     if (executer) {
-      this.events.emit('executed', executer)
       this.executed.push(executer)
 
       this.logger.emit('progressed', { id: executer.hookName, message: `${executer.plugin.name}: ${executer.message}` })
@@ -541,8 +523,6 @@ export class PluginManager {
     if (!hook) {
       return null
     }
-
-    this.events.emit('executing', { strategy, hookName, parameters, plugin, message })
 
     const task = (async () => {
       try {
@@ -611,8 +591,6 @@ export class PluginManager {
       return null
     }
 
-    this.events.emit('executing', { strategy, hookName, parameters, plugin, message })
-
     try {
       if (typeof hook === 'function') {
         const fn = (hook as Function).apply({ ...this.#core.context, plugin }, parameters) as ReturnType<ParseResult<H>>
@@ -654,7 +632,6 @@ export class PluginManager {
     const text = `${cause.message} (plugin: ${plugin?.name || 'unknown'}, hook: ${hookName || 'unknown'})`
 
     this.logger.emit('error', text, cause)
-    this.events.emit('error', cause)
   }
 
   #parse<TPlugin extends UserPluginWithLifeCycle>(

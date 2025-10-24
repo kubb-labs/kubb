@@ -81,19 +81,19 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     },
   }
 
-  const { pluginManager, fileManager } = await setup({
+  const { app, pluginManager } = await setup({
     config: definedConfig,
     logger,
   })
 
   logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
-  const { files, error } = await safeBuild(
+  const { error } = await safeBuild(
     {
       config: definedConfig,
       logger,
     },
-    { pluginManager, fileManager },
+    { app, pluginManager },
   )
 
   if (logger.logLevel === LogMapper.debug) {
@@ -105,7 +105,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
   }
 
   const summary = getSummary({
-    filesCreated: files.length,
+    filesCreated: app.files.length,
     pluginManager,
     config: definedConfig,
     status: error ? 'failed' : 'success',
