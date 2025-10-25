@@ -1,4 +1,4 @@
-import { FileManager } from '@kubb/fabric-core'
+import { createApp } from '@kubb/fabric-core'
 import { createLogger } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
 import { createPlugin } from './plugin.ts'
@@ -84,8 +84,8 @@ describe('PluginManager', () => {
     plugins: [pluginA({}), pluginB({}), pluginBBis({})] as Plugin[],
   } satisfies Config
   const pluginManager = new PluginManager(config, {
+    app: createApp(),
     logger: createLogger({ logLevel: 3 }),
-    fileManager: new FileManager(),
   })
 
   afterEach(() => {

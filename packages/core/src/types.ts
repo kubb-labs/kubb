@@ -1,4 +1,4 @@
-import type { FileManager } from '@kubb/fabric-core'
+import type { App, FileManager } from '@kubb/fabric-core'
 import type { KubbFile } from './fs/index.ts'
 import type { Logger } from './logger.ts'
 import type { PluginManager } from './PluginManager.ts'
@@ -299,6 +299,7 @@ export type ResolveNameParams = {
 }
 
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+  app: App
   config: Config
   /**
    * @deprecated

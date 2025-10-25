@@ -1,7 +1,6 @@
 import { build } from './build.ts'
-import { createPlugin } from './plugin.ts'
-
 import type { KubbFile } from './fs/index.ts'
+import { createPlugin } from './plugin.ts'
 import type { Config, Plugin } from './types.ts'
 
 describe('build', () => {
@@ -54,21 +53,25 @@ describe('build', () => {
   })
 
   test('if build can run and return created files and the pluginManager', async () => {
-    const { files, pluginManager } = await build({
+    const { app, pluginManager } = await build({
       config,
     })
 
-    expect(files).toBeDefined()
+    await app.addFile(file)
+
+    expect(app.files).toBeDefined()
     expect(pluginManager).toBeDefined()
-    expect(files.length).toBe(2)
+    expect(app.files.length).toBe(1)
   })
 
   test('if build with one plugin is running the different hooks in the correct order', async () => {
-    const { files } = await build({
+    const { app } = await build({
       config,
     })
 
-    expect(files.map((file) => ({ ...file, id: undefined, path: undefined }))).toMatchInlineSnapshot(`
+    await app.addFile(file)
+
+    expect(app.files.map((file) => ({ ...file, id: undefined, path: undefined }))).toMatchInlineSnapshot(`
       [
         {
           "baseName": "world.json",
@@ -84,17 +87,6 @@ describe('build', () => {
               "value": "{ "hello": "world" }",
             },
           ],
-        },
-        {
-          "baseName": "index.ts",
-          "exports": [],
-          "extname": ".ts",
-          "id": undefined,
-          "imports": [],
-          "meta": {},
-          "name": "index",
-          "path": undefined,
-          "sources": [],
         },
       ]
     `)

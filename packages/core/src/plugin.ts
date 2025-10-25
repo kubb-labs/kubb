@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import type { FileManager } from '@kubb/fabric-core'
+import type { App } from '@kubb/fabric-core'
 import type { PluginManager } from './PluginManager.ts'
 import type { Plugin, PluginContext, PluginFactoryOptions, UserPluginWithLifeCycle } from './types.ts'
 
@@ -15,8 +15,8 @@ export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptio
 }
 
 type Options = {
+  app: App
   config: PluginContext['config']
-  fileManager: FileManager
   pluginManager: PluginManager
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
@@ -29,7 +29,7 @@ type Options = {
 export type PluginCore = PluginFactoryOptions<'core', Options, Options, PluginContext, never>
 
 export const pluginCore = createPlugin<PluginCore>((options) => {
-  const { fileManager, pluginManager, resolvePath, resolveName, logger } = options
+  const { app, pluginManager, resolvePath, resolveName, logger } = options
 
   return {
     name: 'core',
@@ -37,6 +37,9 @@ export const pluginCore = createPlugin<PluginCore>((options) => {
     key: ['core'],
     context() {
       return {
+        get app() {
+          return app
+        },
         get config() {
           return options.config
         },
@@ -48,10 +51,12 @@ export const pluginCore = createPlugin<PluginCore>((options) => {
           return options.plugin as NonNullable<Options['plugin']>
         },
         logger,
-        fileManager,
+        get fileManager() {
+          return app.context.fileManager
+        },
         pluginManager,
         async addFile(...files) {
-          const resolvedFiles = await fileManager.add(...files)
+          const resolvedFiles = await app.context.fileManager.add(...files)
 
           if (!Array.isArray(resolvedFiles)) {
             return [resolvedFiles]
