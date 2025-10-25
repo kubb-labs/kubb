@@ -77,6 +77,9 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   }
 
   const app = createApp()
+  app.use(fsPlugin, { dryRun: !config.output.write })
+  app.use(typescriptParser)
+
   const pluginManager = new PluginManager(definedConfig, { logger, app, concurrency: 5 })
 
   return {
@@ -179,8 +182,6 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       pluginManager.logger.emit('progress_stop', { id: 'files' })
     })
 
-    app.use(fsPlugin, { dryRun: !config.output.write })
-    app.use(typescriptParser)
 
     await app.write({ extension: config.output.extension })
 
