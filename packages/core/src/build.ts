@@ -77,7 +77,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   }
 
   const app = createApp()
-  app.use(fsPlugin, { dryRun: !config.output.write })
+  app.use(fsPlugin, { dryRun: !definedConfig.output.write })
   app.use(typescriptParser)
 
   const pluginManager = new PluginManager(definedConfig, { logger, app, concurrency: 5 })
