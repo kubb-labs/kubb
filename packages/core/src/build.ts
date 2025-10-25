@@ -22,6 +22,7 @@ type BuildOptions = {
 
 type BuildOutput = {
   app: App
+  files: Array<KubbFile.ResolvedFile>
   pluginManager: PluginManager
   /**
    * Only for safeBuild
@@ -89,7 +90,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 }
 
 export async function build(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { app, pluginManager, error } = await safeBuild(options, overrides)
+  const { app, files, pluginManager, error } = await safeBuild(options, overrides)
 
   if (error) {
     throw error
@@ -97,6 +98,7 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
 
   return {
     app,
+    files,
     pluginManager,
     error,
   }
@@ -181,6 +183,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
     app.context.events.on('process:end', () => {
       pluginManager.logger.emit('progress_stop', { id: 'files' })
     })
+    const files = [...app.files]
 
     await app.write({ extension: config.output.extension })
 
@@ -188,11 +191,13 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
     return {
       app,
+      files,
       pluginManager,
     }
   } catch (e) {
     return {
       app,
+      files: [],
       pluginManager,
       error: e as Error,
     }
