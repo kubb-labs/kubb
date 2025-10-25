@@ -81,7 +81,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     },
   }
 
-  const { pluginManager, fileManager } = await setup({
+  const { app, pluginManager } = await setup({
     config: definedConfig,
     logger,
   })
@@ -93,7 +93,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
       config: definedConfig,
       logger,
     },
-    { pluginManager, fileManager },
+    { pluginManager, app },
   )
 
   if (logger.logLevel === LogMapper.debug) {

@@ -1,6 +1,7 @@
 import { join, relative, resolve } from 'node:path'
-import { FileManager } from '@kubb/fabric-core'
-import { typescriptParser } from '@kubb/react'
+import { type App, createApp } from '@kubb/fabric-core'
+import { typescriptParser } from '@kubb/fabric-core/parsers'
+import { fsPlugin } from '@kubb/fabric-core/plugins'
 import pc from 'picocolors'
 import { isDeepEqual } from 'remeda'
 import { isInputPath } from './config.ts'
@@ -20,6 +21,7 @@ type BuildOptions = {
 }
 
 type BuildOutput = {
+  app: App
   files: Array<KubbFile.ResolvedFile>
   pluginManager: PluginManager
   /**
@@ -29,8 +31,8 @@ type BuildOutput = {
 }
 
 type SetupResult = {
+  app: App
   pluginManager: PluginManager
-  fileManager: FileManager
 }
 
 export async function setup(options: BuildOptions): Promise<SetupResult> {
@@ -75,23 +77,27 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     await clean(join(definedConfig.root, '.kubb'))
   }
 
-  const fileManager = new FileManager()
-  const pluginManager = new PluginManager(definedConfig, { logger, fileManager, concurrency: 5 })
+  const app = createApp()
+  app.use(fsPlugin, { dryRun: !definedConfig.output.write })
+  app.use(typescriptParser)
+
+  const pluginManager = new PluginManager(definedConfig, { app, logger, concurrency: 5 })
 
   return {
+    app,
     pluginManager,
-    fileManager,
   }
 }
 
 export async function build(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { files, pluginManager, error } = await safeBuild(options, overrides)
+  const { app, files, pluginManager, error } = await safeBuild(options, overrides)
 
   if (error) {
     throw error
   }
 
   return {
+    app,
     files,
     pluginManager,
     error,
@@ -99,22 +105,11 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
 }
 
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { pluginManager, fileManager } = overrides ? overrides : await setup(options)
+  const { app, pluginManager } = overrides ? overrides : await setup(options)
 
   const config = pluginManager.config
 
   try {
-    pluginManager.events.on('executing', ({ plugin, message }) => {
-      pluginManager.logger.emit('debug', { date: new Date(), logs: [`Executing pluginKey ${plugin.key?.join('.')} | ${message}`] })
-    })
-
-    pluginManager.events.on('executed', ({ plugin, message, output }) => {
-      pluginManager.logger.emit('debug', {
-        date: new Date(),
-        logs: [`Executed pluginKey ${plugin.key?.join('.')} | ${message} |  ${JSON.stringify(output, undefined, 2)}`],
-      })
-    })
-
     await pluginManager.hookParallel({
       hookName: 'buildStart',
       parameters: [config],
@@ -122,12 +117,11 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
     })
 
     if (config.output.barrelType) {
-      // create root barrel file
       const root = resolve(config.root)
       const rootPath = resolve(root, config.output.path, 'index.ts')
 
       //TODO find clean method without loading all files
-      const files = await fileManager.files
+      const files = await app.files
 
       const barrelFiles = files.filter((file) => {
         return file.sources.some((source) => source.isIndexable)
@@ -170,14 +164,14 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         meta: {},
       }
 
-      await fileManager.add(rootFile)
+      await app.addFile(rootFile)
     }
 
-    fileManager.processor.events.on('process:start', ({ files }) => {
+    app.context.events.on('process:start', ({ files }) => {
       pluginManager.logger.emit('progress_start', { id: 'files', size: files.length, message: 'Writing files ...' })
     })
 
-    fileManager.processor.events.on('process:progress', async ({ file, source }) => {
+    app.context.events.on('process:progress', async ({ file, source }) => {
       const message = file ? `Writing ${relative(config.root, file.path)}` : ''
       pluginManager.logger.emit('progressed', { id: 'files', message })
 
@@ -186,28 +180,23 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       }
     })
 
-    fileManager.processor.events.on('process:end', () => {
+    app.context.events.on('process:end', () => {
       pluginManager.logger.emit('progress_stop', { id: 'files' })
     })
+    const files = [...app.files]
 
-    const parsers = new Set<any>([typescriptParser])
-
-    const files = await fileManager.write({
-      extension: config.output.extension,
-      dryRun: !config.output.write,
-      parsers,
-    })
+    await app.write({ extension: config.output.extension })
 
     await pluginManager.hookParallel({ hookName: 'buildEnd', message: `Build stopped for ${config.name}` })
 
-    await fileManager.clear()
-
     return {
+      app,
       files,
       pluginManager,
     }
   } catch (e) {
     return {
+      app,
       files: [],
       pluginManager,
       error: e as Error,
