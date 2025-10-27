@@ -107,6 +107,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
             }
           : this.plugin.options,
         {
+          fabric: this.fabric,
           oas,
           pluginManager: this.pluginManager,
           plugin: this.plugin,

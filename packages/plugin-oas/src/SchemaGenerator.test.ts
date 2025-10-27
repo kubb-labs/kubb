@@ -2,6 +2,7 @@ import path from 'node:path'
 import type { Plugin } from '@kubb/core'
 import { mockedPluginManager } from '@kubb/core/mocks'
 import { parse } from '@kubb/oas'
+import { createReactFabric } from '@kubb/react'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from './SchemaGenerator.ts'
 
 describe('SchemaGenerator core', async () => {
@@ -79,7 +80,10 @@ describe('SchemaGenerator core', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<any>
+    const fabric = createReactFabric()
+
     const generator = new SchemaGenerator(options, {
+      fabric,
       oas,
       include: undefined,
       pluginManager: mockedPluginManager,

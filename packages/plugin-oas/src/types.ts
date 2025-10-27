@@ -2,7 +2,7 @@ import type { Group, Output, Plugin, PluginFactoryOptions, ResolveNameParams } f
 import type { KubbFile } from '@kubb/core/fs'
 
 import type { contentType, HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
-import type { Generator } from './generator.tsx'
+import type { Generator } from './generators/types.ts'
 
 export type ResolvePathOptions = {
   pluginKey?: Plugin['key']

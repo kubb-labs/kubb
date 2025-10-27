@@ -3,7 +3,8 @@ import type { Plugin } from '@kubb/core'
 import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { OperationGenerator } from '@kubb/plugin-oas'
+import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginSolidQuery } from '../types.ts'
 import { mutationGenerator } from './mutationGenerator.tsx'
@@ -104,7 +105,9 @@ describe('mutationGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginSolidQuery>
+    const fabric = createReactFabric()
     const instance = new OperationGenerator(options, {
+      fabric,
       oas,
       include: undefined,
       pluginManager: createMockedPluginManager(props.name),
@@ -117,12 +120,13 @@ describe('mutationGenerator operation', async () => {
     await instance.build(mutationGenerator)
 
     const operation = oas.operation(props.path, props.method)
-    const files = await mutationGenerator.operation?.({
-      operation,
-      options,
+    await buildOperation(operation, {
+      fabric,
       instance,
+      generator: mutationGenerator,
+      options,
     })
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })

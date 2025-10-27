@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/fabric-core": "0.1.8",
+    "@kubb/fabric-core": "0.2.3",
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react": "workspace:*",

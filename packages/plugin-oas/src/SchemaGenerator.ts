@@ -5,9 +5,11 @@ import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 import type { contentType, Oas, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference } from '@kubb/oas'
+import type { Fabric } from '@kubb/react'
 import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
-import type { Generator } from './generator.tsx'
+import type { Generator } from './generators/types.ts'
+import { buildSchema } from './generators/utils.tsx'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
@@ -19,6 +21,7 @@ export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> 
 export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
+  fabric: Fabric
   oas: Oas
   pluginManager: PluginManager
   /**
@@ -1115,6 +1118,27 @@ export class SchemaGenerator<
           schemaLimit(async () => {
             const options = this.#getOptions({ name })
             const tree = this.parse({ name, schemaObject })
+
+            if (generator.type === 'react') {
+              await buildSchema(
+                {
+                  name,
+                  value: schemaObject,
+                  tree,
+                },
+                {
+                  fabric: this.context.fabric,
+                  generator,
+                  instance: this,
+                  options: {
+                    ...this.options,
+                    ...options,
+                  },
+                },
+              )
+
+              return []
+            }
 
             const result = await generator.schema?.({
               instance: this,

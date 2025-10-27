@@ -3,8 +3,9 @@ import type { Plugin } from '@kubb/core'
 import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
+import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
+import { createReactFabric } from '@kubb/react'
 import type { PluginFaker } from '../types.ts'
 import { fakerGenerator } from './fakerGenerator.tsx'
 
@@ -116,7 +117,10 @@ describe('fakerGenerator schema', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>
+    const fabric = createReactFabric()
+
     const instance = new SchemaGenerator(options, {
+      fabric,
       oas,
       pluginManager: createMockedPluginManager(props.name),
       plugin,
@@ -133,17 +137,21 @@ describe('fakerGenerator schema', async () => {
     const schema = schemas[name]!
     const tree = instance.parse({ schemaObject: schema, name })
 
-    const files = await fakerGenerator.schema?.({
-      schema: {
+    await buildSchema(
+      {
         name,
         tree,
         value: schema,
       },
-      options,
-      instance,
-    })
+      {
+        fabric,
+        instance,
+        generator: fakerGenerator,
+        options,
+      },
+    )
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })
 
@@ -223,7 +231,10 @@ describe('fakerGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>
+    const fabric = createReactFabric()
+
     const instance = new OperationGenerator(options, {
+      fabric,
       oas,
       include: undefined,
       pluginManager: createMockedPluginManager(props.name),
@@ -234,12 +245,14 @@ describe('fakerGenerator operation', async () => {
       exclude: [],
     })
     const operation = oas.operation(props.path, props.method)
-    const files = await fakerGenerator.operation?.({
-      operation,
-      options,
+
+    await buildOperation(operation, {
+      fabric,
       instance,
+      generator: fakerGenerator,
+      options,
     })
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })

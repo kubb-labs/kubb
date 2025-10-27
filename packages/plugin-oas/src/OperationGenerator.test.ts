@@ -1,10 +1,8 @@
+import path from 'node:path'
+import type { Plugin, PluginManager } from '@kubb/core'
+import { createReactFabric } from '@kubb/react'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { parseFromConfig } from './utils/parseFromConfig.ts'
-
-import type { PluginManager } from '@kubb/core'
-
-import path from 'node:path'
-import type { Plugin } from '@kubb/core'
 
 describe('OperationGenerator core', async () => {
   const oas = await parseFromConfig({
@@ -14,9 +12,12 @@ describe('OperationGenerator core', async () => {
   })
 
   test('if pathParams return undefined when there are no params in path', async () => {
+    const fabric = createReactFabric()
+
     const og = new OperationGenerator(
       {},
       {
+        fabric,
         oas,
         contentType: undefined,
         pluginManager: undefined as unknown as PluginManager,
@@ -40,9 +41,12 @@ describe('OperationGenerator exclude', async () => {
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
   })
   test('if exclude is filtered out for tag', async () => {
+    const fabric = createReactFabric()
+
     const og = new OperationGenerator(
       {},
       {
+        fabric,
         oas,
         exclude: [
           {
@@ -65,9 +69,12 @@ describe('OperationGenerator exclude', async () => {
   })
 
   test('if exclude is filtered out for operationId', async () => {
+    const fabric = createReactFabric()
+
     const og = new OperationGenerator(
       {},
       {
+        fabric,
         oas,
         exclude: [
           {
@@ -90,9 +97,12 @@ describe('OperationGenerator exclude', async () => {
   })
 
   test('if exclude is filtered out for path', async () => {
+    const fabric = createReactFabric()
+
     const og = new OperationGenerator(
       {},
       {
+        fabric,
         oas,
         exclude: [
           {
@@ -115,9 +125,12 @@ describe('OperationGenerator exclude', async () => {
   })
 
   test('if exclude is filtered out for method', async () => {
+    const fabric = createReactFabric()
+
     const og = new OperationGenerator(
       {},
       {
+        fabric,
         oas,
         exclude: [
           {
@@ -140,9 +153,12 @@ describe('OperationGenerator exclude', async () => {
   })
 
   test('if exclude is filtered out for path and operationId', async () => {
+    const fabric = createReactFabric()
+
     const og = new OperationGenerator(
       {},
       {
+        fabric,
         oas,
         exclude: [
           {
@@ -177,9 +193,12 @@ describe('OperationGenerator include', async () => {
   })
 
   test('if include is only selecting tag', async () => {
+    const fabric = createReactFabric()
+
     const og = new OperationGenerator(
       {},
       {
+        fabric,
         oas,
         include: [
           {
@@ -202,9 +221,12 @@ describe('OperationGenerator include', async () => {
   })
 
   test('if include is only selecting for operationId', async () => {
+    const fabric = createReactFabric()
+
     const og = new OperationGenerator(
       {},
       {
+        fabric,
         oas,
         include: [
           {
@@ -227,9 +249,12 @@ describe('OperationGenerator include', async () => {
   })
 
   test('if include is only selecting for path', async () => {
+    const fabric = createReactFabric()
+
     const og = new OperationGenerator(
       {},
       {
+        fabric,
         oas,
         include: [
           {
@@ -252,9 +277,12 @@ describe('OperationGenerator include', async () => {
   })
 
   test('if include is only selecting for method', async () => {
+    const fabric = createReactFabric()
+
     const og = new OperationGenerator(
       {},
       {
+        fabric,
         oas,
         include: [
           {
@@ -277,9 +305,12 @@ describe('OperationGenerator include', async () => {
   })
 
   test('if include is only selecting path and operationId', async () => {
+    const fabric = createReactFabric()
+
     const og = new OperationGenerator(
       {},
       {
+        fabric,
         oas,
         include: [
           {
@@ -314,9 +345,12 @@ describe('OperationGenerator include and exclude', async () => {
   })
 
   test('if include is only selecting path and exclude is removing the GET calls', async () => {
+    const fabric = createReactFabric()
+
     const og = new OperationGenerator(
       {},
       {
+        fabric,
         oas,
         include: [
           {

@@ -8,5 +8,5 @@ catalog:
   '@types/node': ^20.19.23
   p-limit: ^7.2.0
   remeda: ^2.32.0
-  tsdown: ^0.15.9
+  tsdown: ^0.15.10
   typescript: ^5.9.3

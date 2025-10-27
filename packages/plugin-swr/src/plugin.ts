@@ -128,6 +128,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
         this.plugin.options.client.baseURL = baseURL
       }
       const operationGenerator = new OperationGenerator(this.plugin.options, {
+        fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,

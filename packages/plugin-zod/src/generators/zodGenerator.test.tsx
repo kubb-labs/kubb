@@ -4,8 +4,9 @@ import type { Plugin } from '@kubb/core'
 import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
+import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
+import { createReactFabric } from '@kubb/react'
 import type { PluginZod } from '../types.ts'
 import { zodGenerator } from './zodGenerator.tsx'
 
@@ -290,7 +291,9 @@ describe('zodGenerator schema', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
+    const fabric = createReactFabric()
     const instance = new SchemaGenerator(options, {
+      fabric,
       oas,
       pluginManager: createMockedPluginManager(props.name),
       plugin,
@@ -307,17 +310,21 @@ describe('zodGenerator schema', async () => {
     const schema = schemas[name]!
     const tree = instance.parse({ schemaObject: schema, name })
 
-    const files = await zodGenerator.schema?.({
-      schema: {
+    await buildSchema(
+      {
         name,
         tree,
         value: schema,
       },
-      options,
-      instance,
-    })
+      {
+        fabric,
+        instance,
+        generator: zodGenerator,
+        options,
+      },
+    )
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })
 
@@ -399,7 +406,9 @@ describe('zodGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
+    const fabric = createReactFabric()
     const instance = new OperationGenerator(options, {
+      fabric,
       oas,
       include: undefined,
       pluginManager: createMockedPluginManager(props.name),
@@ -410,13 +419,14 @@ describe('zodGenerator operation', async () => {
       exclude: [],
     })
     const operation = oas.operation(props.path, props.method)
-    const files = await zodGenerator.operation?.({
-      operation,
-      options,
+    await buildOperation(operation, {
+      fabric,
       instance,
+      generator: zodGenerator,
+      options,
     })
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 
   describe('wrapOutput', () => {
@@ -464,7 +474,9 @@ describe('zodGenerator operation', async () => {
         ...props.options,
       }
       const plugin = { options } as Plugin<PluginZod>
+      const fabric = createReactFabric()
       const instance = new OperationGenerator(options, {
+        fabric,
         oas,
         include: undefined,
         pluginManager: createMockedPluginManager(props.name),
@@ -475,11 +487,15 @@ describe('zodGenerator operation', async () => {
         exclude: [],
       })
       const operation = oas.operation(props.path, props.method)
-      let files = await zodGenerator.operation?.({
-        operation,
-        options,
+
+      await buildOperation(operation, {
+        fabric,
         instance,
+        generator: zodGenerator,
+        options,
       })
+
+      let files = fabric.files
       files = files?.map((file) => {
         const [operation, extension] = file.path.split('.')
         file.path = `${operation}_wrapOutput.${extension}`
@@ -548,7 +564,9 @@ describe('zodGenerator operation', async () => {
         ...entry.options,
       }
       const plugin = { options } as Plugin<PluginZod>
+      const fabric = createReactFabric()
       const instance = new OperationGenerator(options, {
+        fabric,
         oas,
         include: undefined,
         pluginManager: createMockedPluginManager(entry.name),
@@ -559,16 +577,22 @@ describe('zodGenerator operation', async () => {
         exclude: [],
       })
       const operation = oas.operation(entry.path, entry.method)
-      let files = await zodGenerator.operation?.({
-        operation,
-        options,
+
+      await buildOperation(operation, {
+        fabric,
         instance,
+        generator: zodGenerator,
+        options,
       })
+
+      let files = fabric.files
       files = files?.map((file) => {
         const [operation, extension] = file.path.split('.')
         file.path = `${operation}_wrapOutput_entire_.${extension}`
         return file
       })
+
+      await matchFiles(files)
 
       await matchFiles(files)
     })

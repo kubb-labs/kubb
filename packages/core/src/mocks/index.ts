@@ -1,12 +1,12 @@
 import path from 'node:path'
-import { createFile, FileProcessor } from '@kubb/fabric-core'
+import { typescriptParser } from '@kubb/fabric-core/parsers/typescript'
+import { createFile, FileProcessor } from '@kubb/react'
 import { format } from '../../mocks/format.ts'
 import type { File, ResolvedFile } from '../fs/types.ts'
 import type { Logger } from '../logger'
 import type { PluginManager } from '../PluginManager.ts'
 import { camelCase, pascalCase } from '../transformers/casing.ts'
 import type { Plugin } from '../types.ts'
-import { typescriptParser } from '@kubb/fabric-core/parsers/typescript'
 
 export const mockedLogger = {
   emit(_type, _message) {},

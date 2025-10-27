@@ -1,17 +1,18 @@
+import type { Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import { BaseGenerator, type FileMetaBase } from '@kubb/core'
-import transformers from '@kubb/core/transformers'
-
-import type { PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { KubbFile } from '@kubb/core/fs'
-import type { Plugin } from '@kubb/core'
-import type { HttpMethod, Oas, OasTypes, Operation, SchemaObject, contentType } from '@kubb/oas'
-import type { Generator } from './generator.tsx'
-import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
+import transformers from '@kubb/core/transformers'
+import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
+import type { Fabric } from '@kubb/react'
 import pLimit from 'p-limit'
+import type { Generator } from './generators/types.ts'
+import { buildOperation, buildOperations } from './generators/utils.tsx'
+import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
 
 export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
+  fabric: Fabric
   oas: Oas
   exclude: Array<Exclude> | undefined
   include: Array<Include> | undefined
@@ -226,6 +227,20 @@ export class OperationGenerator<
           operationLimit(async () => {
             const options = this.#getOptions(operation, method)
 
+            if (generator.type === 'react') {
+              await buildOperation(operation, {
+                fabric: this.context.fabric,
+                generator,
+                instance: this,
+                options: {
+                  ...this.options,
+                  ...options,
+                },
+              })
+
+              return []
+            }
+
             const result = await generator.operation?.({
               instance: this,
               operation,
@@ -238,6 +253,20 @@ export class OperationGenerator<
 
         const operationResults = await Promise.all(operationTasks)
         const opResultsFlat = operationResults.flat()
+
+        if (generator.type === 'react') {
+          await buildOperations(
+            operations.map((op) => op.operation),
+            {
+              fabric: this.context.fabric,
+              generator,
+              instance: this,
+              options: this.options,
+            },
+          )
+
+          return []
+        }
 
         const operationsResult = await generator.operations?.({
           instance: this,
