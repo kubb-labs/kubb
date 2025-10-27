@@ -1,0 +1,1 @@
+- `'tag'`: использование operation.getTags().at(0)?.name

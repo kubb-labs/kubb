@@ -89,6 +89,56 @@ const knowledgeBaseSidebar = [
   // },
 ]
 
+const knowledgeBaseSidebarRu = [
+  {
+    text: 'Базовый',
+    items: [
+      {
+        text: 'Пользовательский HTTP-клиент',
+        link: '/ru/knowledge-base/fetch/',
+      },
+      {
+        text: 'Использование собственного baseUrl',
+        link: '/ru/knowledge-base/base-url/',
+      },
+      {
+        text: 'Фильтрация и сортировка',
+        link: '/ru/knowledge-base/filter-and-sort/',
+      },
+    ],
+  },
+  {
+    text: 'Средний',
+    items: [
+      {
+        text: 'Отладка Kubb',
+        link: '/ru/knowledge-base/debugging/',
+      },
+      {
+        text: 'Настройка Claude с Kubb',
+        link: '/ru/knowledge-base/claude/',
+      },
+    ],
+  },
+  {
+    text: 'Продвинутый',
+    items: [
+      {
+        text: 'Использование JSX в Kubb',
+        link: '/ru/knowledge-base/react/',
+      },
+      {
+        text: 'Генераторы',
+        link: '/ru/knowledge-base/generators/',
+      },
+      {
+        text: 'Плагины Kubb',
+        link: '/ru/knowledge-base/plugins/',
+      },
+    ],
+  },
+]
+
 const mainSidebar = [
   {
     text: 'Getting started',
@@ -222,6 +272,177 @@ const mainSidebar = [
   },
 ]
 
+const mainSidebarRu = [
+  {
+    text: 'Начало работы',
+    collapsed: false,
+    items: [
+      {
+        text: 'Краткий обзор',
+        link: '/ru/getting-started/at-glance/',
+      },
+      {
+        text: 'Экосистема',
+        link: '/ru/getting-started/ecosystem/',
+      },
+      {
+        text: 'Быстрый старт',
+        link: '/ru/getting-started/quick-start/',
+      },
+      {
+        text: 'Конфигурация',
+        link: '/ru/getting-started/configure/',
+      },
+    ],
+  },
+  {
+    text: 'Помощники',
+    collapsed: false,
+    items: [
+      {
+        text: '@kubb/cli',
+        link: '/ru/helpers/cli/',
+      },
+      {
+        text: '@kubb/oas',
+        link: '/ru/helpers/oas/',
+      },
+      {
+        text: '@kubb/react',
+        link: '/ru/helpers/react/',
+        collapsed: true,
+        items: [
+          {
+            text: 'Компоненты',
+            link: '/ru/helpers/react/components/',
+            items: [
+              {
+                text: 'Text',
+                link: '/ru/helpers/react/components/text/',
+              },
+              {
+                text: 'Function',
+                link: '/ru/helpers/react/components/function/',
+              },
+              {
+                text: 'Type',
+                link: '/ru/helpers/react/components/type/',
+              },
+              {
+                text: 'Const',
+                link: '/ru/helpers/react/components/const/',
+              },
+              {
+                text: 'File',
+                link: '/ru/helpers/react/components/file/',
+              },
+            ],
+          },
+          {
+            text: 'Хуки',
+            link: '/ru/helpers/react/hooks/',
+            items: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    text: 'Плагины',
+    collapsed: false,
+    items: [
+      {
+        text: '@kubb/core',
+        collapsed: true,
+        link: '/ru/plugins/core/',
+      },
+      {
+        text: '@kubb/plugin-oas',
+        link: '/ru/plugins/plugin-oas/',
+        collapsed: true,
+        items: [
+          {
+            text: 'Хуки',
+            link: '/ru/plugins/plugin-oas/hooks/',
+          },
+        ],
+      },
+      {
+        text: '@kubb/plugin-cypress <span class="new">новое в 3.7.0</span>',
+        link: '/ru/plugins/plugin-cypress/',
+      },
+      {
+        text: '@kubb/plugin-mcp <span class="new">новое в 3.9.0</span>',
+        link: '/ru/plugins/plugin-mcp/',
+      },
+      {
+        text: '@kubb/plugin-client',
+        link: '/ru/plugins/plugin-client/',
+        collapsed: true,
+      },
+      {
+        text: '@kubb/plugin-ts',
+        link: '/ru/plugins/plugin-ts/',
+      },
+      {
+        text: '@kubb/plugin-zod',
+        link: '/ru/plugins/plugin-zod/',
+      },
+      {
+        text: '@kubb/plugin-react-query',
+        link: '/ru/plugins/plugin-react-query/',
+      },
+      {
+        text: '@kubb/plugin-vue-query',
+        link: '/ru/plugins/plugin-vue-query/',
+      },
+      {
+        text: '@kubb/plugin-solid-query',
+        link: '/ru/plugins/plugin-solid-query/',
+      },
+      {
+        text: '@kubb/plugin-svelte-query',
+        link: '/ru/plugins/plugin-svelte-query/',
+      },
+      {
+        text: '@kubb/plugin-swr',
+        link: '/ru/plugins/plugin-swr/',
+      },
+      {
+        text: '@kubb/plugin-faker',
+        link: '/ru/plugins/plugin-faker/',
+      },
+      {
+        text: '@kubb/plugin-msw',
+        link: '/ru/plugins/plugin-msw/',
+      },
+      {
+        text: '@kubb/plugin-redoc',
+        link: '/ru/plugins/plugin-redoc/',
+      },
+    ],
+  },
+  {
+    text: 'Инструменты сборки',
+    collapsed: false,
+    items: [
+      {
+        text: 'unplugin-kubb',
+        collapsed: false,
+        link: '/ru/builders/unplugin/',
+      },
+    ],
+  },
+  {
+    text: 'Руководство по миграции',
+    link: '/ru/migration-guide/',
+  },
+  {
+    text: 'История изменений',
+    link: '/ru/changelog/',
+  },
+]
+
 const examplesSidebar = [
   {
     text: 'TypeScript',
@@ -294,6 +515,82 @@ const examplesSidebar = [
   },
 ]
 
+const examplesSidebarRu = [
+  {
+    text: 'TypeScript',
+    link: '/ru/examples/typescript/',
+  },
+  {
+    text: 'Tanstack-Query',
+    items: [
+      {
+        text: 'React-Query',
+        link: '/ru/examples/tanstack-query/react-query/',
+      },
+      {
+        text: 'Vue-Query',
+        link: '/ru/examples/tanstack-query/vue-query/',
+      },
+      {
+        text: 'Svelte-Query',
+        link: '/ru/examples/tanstack-query/svelte-query/',
+      },
+      {
+        text: 'Solid-Query',
+        link: '/ru/examples/tanstack-query/solid-query/',
+      },
+    ],
+  },
+  {
+    text: 'SWR-Query',
+    link: '/ru/examples/swr/',
+  },
+  {
+    text: 'Zod',
+    link: '/ru/examples/zod/',
+  },
+  {
+    text: 'Faker',
+    link: '/ru/examples/faker/',
+  },
+  {
+    text: 'MSW',
+    link: '/ru/examples/msw/',
+  },
+  {
+    text: 'Простой',
+    link: '/ru/examples/simple/',
+  },
+  {
+    text: 'Client',
+    link: '/ru/examples/client/',
+  },
+  {
+    text: 'Fetch',
+    link: '/ru/examples/fetch/',
+  },
+  {
+    text: 'Cypress <span class="new">новое в 3.7.0</span>',
+    link: '/ru/examples/cypress/',
+  },
+  {
+    text: 'MCP <span class="new">новое в 3.9.0</span>',
+    link: '/ru/examples/mcp/',
+  },
+  {
+    text: 'Продвинутый',
+    link: '/ru/examples/advanced/',
+  },
+  {
+    text: 'Генераторы <span class="new">новое</span>',
+    link: '/ru/examples/generators/',
+  },
+  {
+    text: 'React <span class="new">новое</span>',
+    link: '/ru/examples/react/',
+  },
+]
+
 const blogSidebar = [
   {
     text: 'Introducing Fabric',
@@ -309,10 +606,28 @@ const blogSidebar = [
   },
 ]
 
+const blogSidebarRu = [
+  {
+    text: 'Релиз Kubb 3.0',
+    link: '/ru/blog/v3/',
+  },
+  {
+    text: 'Релиз Kubb 4.0',
+    link: '/ru/blog/v4/',
+  },
+]
+
 const tutorialsSidebar = [
   {
     text: 'Basic',
     link: '/tutorials/basic/',
+  },
+]
+
+const tutorialsSidebarRu = [
+  {
+    text: 'Базовый',
+    link: '/ru/tutorials/basic/',
   },
 ]
 
@@ -410,11 +725,257 @@ const documentationMenu = [
   },
 ]
 
+const documentationMenuRu = [
+  {
+    text: 'Начало работы',
+    link: '/ru/getting-started/at-glance/',
+  },
+  {
+    text: 'Помощники',
+    items: [
+      {
+        text: '@kubb/cli',
+        link: '/ru/helpers/cli/',
+      },
+      {
+        text: '@kubb/oas',
+        link: '/ru/helpers/oas/',
+      },
+      {
+        text: '@kubb/react',
+        link: '/ru/helpers/react/',
+      },
+    ],
+  },
+  {
+    text: 'Плагины',
+    items: [
+      {
+        text: '@kubb/core',
+        link: '/ru/plugins/core/',
+      },
+      {
+        text: '@kubb/plugin-oas',
+        link: '/ru/plugins/plugin-oas/',
+      },
+      {
+        text: '@kubb/plugin-cypress',
+        link: '/ru/plugins/plugin-cypress/',
+      },
+      {
+        text: '@kubb/plugin-mcp',
+        link: '/ru/plugins/plugin-mcp/',
+      },
+      {
+        text: '@kubb/plugin-client',
+        link: '/ru/plugins/plugin-client/',
+      },
+      {
+        text: '@kubb/plugin-ts',
+        link: '/ru/plugins/plugin-ts/',
+      },
+      {
+        text: '@kubb/plugin-zod',
+        link: '/ru/plugins/plugin-zod/',
+      },
+      {
+        text: '@kubb/plugin-react-query',
+        link: '/ru/plugins/plugin-react-query/',
+      },
+      {
+        text: '@kubb/plugin-vue-query',
+        link: '/ru/plugins/plugin-vue-query/',
+      },
+      {
+        text: '@kubb/plugin-solid-query',
+        link: '/ru/plugins/plugin-solid-query/',
+      },
+      {
+        text: '@kubb/plugin-svelte-query',
+        link: '/ru/plugins/plugin-svelte-query/',
+      },
+      {
+        text: '@kubb/plugin-swr',
+        link: '/ru/plugins/plugin-swr/',
+      },
+      {
+        text: '@kubb/plugin-faker',
+        link: '/ru/plugins/plugin-faker/',
+      },
+      {
+        text: '@kubb/plugin-msw',
+        link: '/ru/plugins/plugin-msw/',
+      },
+      {
+        text: '@kubb/plugin-redoc',
+        link: '/ru/plugins/plugin-redoc/',
+      },
+    ],
+  },
+  {
+    text: 'Инструменты сборки',
+    items: [
+      {
+        text: 'unplugin-kubb',
+        link: '/ru/builders/unplugin/',
+      },
+    ],
+  },
+]
+
 // https://vitepress.dev/knowledge-base/site-config
 export default defineConfig({
-  lang: 'en-UK',
   title: 'Kubb',
   description: title,
+  locales: {
+    root: {
+      label: 'English',
+      lang: 'en-UK',
+    },
+    ru: {
+      label: 'Русский',
+      lang: 'ru-RU',
+      title: 'Kubb',
+      description: 'Генерация SDK для всех ваших API',
+      themeConfig: {
+        nav: [
+          {
+            text: 'Документация',
+            items: [...(documentationMenuRu as any)],
+          },
+          {
+            text: 'База знаний',
+            link: '/ru/knowledge-base/fetch/',
+            activeMatch: 'knowledge-base',
+          },
+          {
+            text: 'Попробовать',
+            items: [
+              {
+                text: 'Примеры',
+                link: '/ru/examples/typescript/',
+                activeMatch: 'examples',
+              },
+              {
+                text: 'Уроки',
+                items: [
+                  {
+                    text: 'Базовый',
+                    link: '/ru/tutorials/basic/',
+                  },
+                ],
+              },
+              { text: 'Песочница', link: '/ru/playground/' },
+            ],
+          },
+          {
+            text: `v${version}`,
+            items: [
+              {
+                text: 'История изменений',
+                link: '/ru/changelog/',
+              },
+              {
+                text: 'Руководство по миграции',
+                link: '/ru/migration-guide/',
+              },
+              {
+                text: 'Релизы',
+                link: 'https://github.com/kubb-labs/kubb/releases',
+                target: '_blank',
+              },
+              {
+                text: 'Версии',
+                items: [
+                  {
+                    text: 'v1',
+                    link: 'https://v1.kubb.dev',
+                    target: '_blank',
+                  },
+                  {
+                    text: 'v2',
+                    link: 'https://v2.kubb.dev',
+                    target: '_blank',
+                  },
+                ],
+              },
+              {
+                text: 'Ещё',
+                items: [
+                  {
+                    text: 'Спонсоры',
+                    link: '/ru/sponsors/',
+                  },
+                  {
+                    text: 'Участники',
+                    link: '/ru/contributers/',
+                  },
+                  {
+                    text: 'Блог',
+                    link: '/ru/blog/v3/',
+                  },
+                  {
+                    text: 'О Kubb',
+                    link: '/ru/about/',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            text: `<a
+      class="fancy-sponsor"
+      href="https://github.com/sponsors/stijnvanhulle"
+      target="_blank"
+      rel="noreferrer"
+    >
+      Поддержать нас
+    </a>`,
+            link: '',
+          },
+        ],
+        editLink: {
+          pattern: 'https://github.com/kubb-labs/kubb/edit/main/docs/:path',
+          text: 'Редактировать эту страницу на GitHub',
+        },
+        sidebar: {
+          '/ru/getting-started': mainSidebarRu,
+          '/ru/plugins': mainSidebarRu,
+          '/ru/parsers': mainSidebarRu,
+          '/ru/helpers': mainSidebarRu,
+          '/ru/build': mainSidebarRu,
+          '/ru/changelog': mainSidebarRu,
+          '/ru/knowledge-base': knowledgeBaseSidebarRu,
+          '/ru/examples': examplesSidebarRu,
+          '/ru/blog': blogSidebarRu,
+          '/ru/tutorials': tutorialsSidebarRu,
+        },
+        socialLinks: [
+          { icon: 'github', link: 'https://github.com/kubb-labs/kubb' },
+          { icon: 'discord', link: 'https://discord.gg/shfBFeczrm' },
+        ],
+        footer: {
+          message: 'Выпущено под лицензией MIT.',
+          copyright: `Авторские права © 2022-${new Date().getFullYear()} Stijn Van Hulle`,
+        },
+        docFooter: {
+          prev: 'Предыдущая страница',
+          next: 'Следующая страница',
+        },
+        outline: {
+          label: 'На этой странице',
+        },
+        lastUpdated: {
+          text: 'Последнее обновление',
+        },
+        returnToTopLabel: 'Вернуться наверх',
+        sidebarMenuLabel: 'Меню',
+        darkModeSwitchLabel: 'Тема',
+        lightModeSwitchTitle: 'Переключить на светлую тему',
+        darkModeSwitchTitle: 'Переключить на тёмную тему',
+      },
+    },
+  },
   buildEnd: async (siteConfig) => {
     await buildEndGenerateOpenGraphImages(siteConfig)
   },
