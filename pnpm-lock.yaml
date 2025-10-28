@@ -319,7 +319,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@kubb/react-fabric':
-        specifier: 'catalog:'
+        specifier: 0.2.8
         version: 0.2.8
       '@modelcontextprotocol/sdk':
         specifier: ^1.20.2
@@ -392,7 +392,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 'catalog:'
+        specifier: 0.2.8
         version: 0.2.8
       axios:
         specifier: ^1.13.0
@@ -460,7 +460,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 'catalog:'
+        specifier: 0.2.8
         version: 0.2.8
       dayjs:
         specifier: ^1.11.18
@@ -516,7 +516,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 'catalog:'
+        specifier: 0.2.8
         version: 0.2.8
       axios:
         specifier: ^1.13.0
@@ -630,7 +630,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 'catalog:'
+        specifier: 0.2.8
         version: 0.2.8
       '@tanstack/react-query':
         specifier: ^5.90.5
