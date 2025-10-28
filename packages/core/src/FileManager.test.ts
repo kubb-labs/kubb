@@ -1,7 +1,7 @@
 import path from 'node:path'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import { FileManager } from '@kubb/react-fabric'
 import { getBarrelFiles, getMode } from './FileManager.ts'
-import type { KubbFile } from './fs/index.ts'
 
 describe('FileManager', () => {
   const mocksPath = path.resolve(__dirname, '../../mocks')

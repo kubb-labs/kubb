@@ -1,4 +1,4 @@
-import type { KubbFile } from '@kubb/core/fs'
+import type { KubbFile } from '@kubb/fabric-core/types'
 
 export type SchemaKeywordMapper = {
   object: {

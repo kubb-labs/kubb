@@ -1,7 +1,7 @@
 import type { Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import { BaseGenerator, type FileMetaBase } from '@kubb/core'
-import type { KubbFile } from '@kubb/core/fs'
 import transformers from '@kubb/core/transformers'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
 import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'

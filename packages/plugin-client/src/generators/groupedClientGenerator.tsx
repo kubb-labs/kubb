@@ -1,6 +1,6 @@
-import type { KubbFile } from '@kubb/core/fs'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { camelCase } from '@kubb/core/transformers'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'

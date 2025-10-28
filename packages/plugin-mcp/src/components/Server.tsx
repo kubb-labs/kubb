@@ -1,11 +1,10 @@
-import type { KubbFile } from '@kubb/core/fs'
-import type { KubbNode } from '@kubb/react-fabric/types'
-
-import { Const, File, FunctionParams } from '@kubb/react-fabric'
+import { camelCase } from '@kubb/core/transformers'
+import type { KubbFile } from '@kubb/fabric-core/types'
+import { isNullable, isReference } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams, isOptional } from '@kubb/plugin-oas/utils'
-import { isNullable, isReference } from '@kubb/oas'
-import { camelCase } from '@kubb/core/transformers'
+import { Const, File, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 
 type Props = {
   name: string

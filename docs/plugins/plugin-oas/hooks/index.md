@@ -40,21 +40,6 @@ function Component() {
 }
 ```
 
-## useOperations
-
-`useOperations` will return all the Operations.<br/>
-
-```tsx
-import { useOperations } from '@kubb/plugin-oas/hooks'
-
-function Component() {
-  const operations = useOperations()
-
-  return null
-}
-```
-
-
 ## useOperationManager
 
 `useOperationManager` will return some helper functions that can be used to get the operation file, get the operation name.<br/>

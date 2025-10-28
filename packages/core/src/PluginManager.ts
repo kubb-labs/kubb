@@ -1,6 +1,6 @@
+import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import { ValidationPluginError } from './errors.ts'
-import type { KubbFile } from './fs/index.ts'
 import type { Logger } from './logger.ts'
 import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
 import type { PluginCore } from './plugin.ts'

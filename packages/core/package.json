@@ -26,10 +26,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./fs": {
-      "import": "./dist/fs.js",
-      "require": "./dist/fs.cjs"
-    },
     "./hooks": {
       "import": "./dist/hooks.js",
       "require": "./dist/hooks.cjs"

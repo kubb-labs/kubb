@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { KubbFile } from '../fs/index.ts'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import { TreeNode } from './TreeNode.ts'
 
 describe('TreeNode', () => {

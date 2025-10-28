@@ -1,5 +1,5 @@
+import type { KubbFile } from '@kubb/fabric-core/types'
 import { getMode } from '../FileManager.ts'
-import type { KubbFile } from '../fs/index.ts'
 
 type BarrelData = {
   file?: KubbFile.File

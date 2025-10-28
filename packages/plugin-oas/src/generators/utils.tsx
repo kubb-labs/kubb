@@ -29,8 +29,8 @@ export async function buildOperations<TOptions extends PluginFactoryOptions>(
 
   function Component() {
     return (
-      <App meta={{ pluginManager, plugin, mode }}>
-        <Oas oas={oas} operations={operations} generator={instance}>
+      <App meta={{ pluginManager, plugin, mode, oas }}>
+        <Oas generator={instance}>
           <generator.Operations operations={operations} instance={instance} options={options} />
         </Oas>
       </App>
@@ -57,8 +57,8 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
 
   function Component() {
     return (
-      <App meta={{ pluginManager, plugin: { ...plugin, options }, mode }}>
-        <Oas oas={oas} operations={[operation]} generator={instance}>
+      <App meta={{ pluginManager, plugin: { ...plugin, options }, mode, oas }}>
+        <Oas generator={instance}>
           <Oas.Operation operation={operation}>
             <generator.Operation operation={operation} options={options} instance={instance} />
           </Oas.Operation>
@@ -98,8 +98,8 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
 
   function Component() {
     return (
-      <App meta={{ pluginManager, plugin: { ...plugin, options }, mode }}>
-        <Oas oas={oas}>
+      <App meta={{ pluginManager, plugin: { ...plugin, options }, mode, oas }}>
+        <Oas>
           <Oas.Schema name={schema.name} schemaObject={schema.value} tree={schema.tree}>
             <generator.Schema schema={schema} options={options} instance={instance} />
           </Oas.Schema>

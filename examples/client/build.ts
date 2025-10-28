@@ -1,32 +1,33 @@
+import path from 'node:path'
 import { build } from '@kubb/core'
-import { write } from '@kubb/core/fs'
-import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
-import { createFile, FileProcessor } from '@kubb/react-fabric'
+import { createFabric } from '@kubb/react-fabric'
+import { typescriptParser } from '@kubb/react-fabric/parsers'
+import { fsPlugin } from '@kubb/react-fabric/plugins'
 
 async function run() {
-  const fileProcessor = new FileProcessor()
+  const fabric = createFabric()
 
   const { files } = await build({
     config: {
-      root: '.',
       input: {
         path: './petStore.yaml',
       },
       output: {
         path: './src/gen2',
       },
-      plugins: [pluginOas(), pluginClient()],
+      plugins: [pluginOas()],
     },
   })
 
-  console.log('Files: ', files.length)
+  fabric.addFile(...files)
 
-  for await (const file of files) {
-    const source = await fileProcessor.parse(createFile(file))
+  fabric.use(fsPlugin, { clean: { path: path.join(process.cwd(), './src/gen2') } })
+  fabric.use(typescriptParser)
 
-    await write(source, file.path)
-  }
+  console.log('Files: ', fabric.files.length)
+
+  await fabric.write()
 }
 
 run()

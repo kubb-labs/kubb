@@ -1,5 +1,5 @@
 import type { Group, Output, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { KubbFile } from '@kubb/core/fs'
+import type { KubbFile } from '@kubb/fabric-core/types'
 
 import type { contentType, HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
 import type { Generator } from './generators/types.ts'
