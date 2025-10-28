@@ -473,7 +473,6 @@ export default defineConfig({
               '@kubb/core/utils': ['../packages/core/src/utils/index.ts'],
               '@kubb/core/logger': ['../packages/core/src/logger.ts'],
               '@kubb/core/transformers': ['../packages/core/src/transformers/index.ts'],
-              '@kubb/core/fs': ['../packages/core/src/fs/index.ts'],
               '@kubb/plugin-cypress': ['../packages/plugin-cypress/src/index.ts'],
               '@kubb/plugin-mcp': ['../packages/plugin-mcp/src/index.ts'],
               '@kubb/plugin-oas': ['../packages/plugin-oas/src/index.ts'],

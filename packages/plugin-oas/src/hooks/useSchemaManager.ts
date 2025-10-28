@@ -1,6 +1,6 @@
 import type { FileMetaBase, Plugin, ResolveNameParams } from '@kubb/core'
-import type { KubbFile } from '@kubb/core/fs'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import { SchemaGenerator } from '../SchemaGenerator.ts'
 import { type Schema, schemaKeywords } from '../SchemaMapper'
 

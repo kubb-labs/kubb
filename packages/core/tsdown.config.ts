@@ -6,7 +6,6 @@ export default defineConfig({
     transformers: 'src/transformers/index.ts',
     hooks: 'src/hooks/index.ts',
     utils: 'src/utils/index.ts',
-    fs: 'src/fs/index.ts',
     logger: 'src/logger.ts',
   },
   dts: true,

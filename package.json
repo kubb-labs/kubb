@@ -59,8 +59,11 @@
 		"rimraf": "^6.0.1",
 		"taze": "^19.8.1",
 		"ts-node": "^10.9.2",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "@size-limit/file": "catalog:",
+    "size-limit": "catalog:",
 		"turbo": "^2.5.8",
-		"typescript": "catalog:",
 		"vite-tsconfig-paths": "^5.1.4",
 		"vitest": "^4.0.4"
 	},
@@ -70,11 +73,6 @@
 		"pnpm": ">=10.0.0"
 	},
 	"pnpm": {
-		"overrides": {
-			"@babel/runtime": "^7.28.4",
-			"dompurify": "^3.3.0",
-			"esbuild": "^0.25.11"
-		},
 		"onlyBuiltDependencies": [
 			"esbuild"
 		]

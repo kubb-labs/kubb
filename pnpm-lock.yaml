@@ -7,11 +7,14 @@ settings:
 catalogs:
   default:
     '@kubb/fabric-core':
-      specifier: 0.2.8
-      version: 0.2.8
+      specifier: 0.2.10
+      version: 0.2.10
     '@kubb/react-fabric':
-      specifier: 0.2.8
-      version: 0.2.8
+      specifier: 0.2.10
+      version: 0.2.10
+    '@size-limit/file':
+      specifier: ^11.2.0
+      version: 11.2.0
     '@types/node':
       specifier: ^20.19.23
       version: 20.19.23
@@ -21,17 +24,15 @@ catalogs:
     remeda:
       specifier: ^2.32.0
       version: 2.32.0
+    size-limit:
+      specifier: ^11.2.0
+      version: 11.2.0
     tsdown:
       specifier: ^0.15.11
       version: 0.15.11
     typescript:
       specifier: ^5.9.3
       version: 5.9.3
-
-overrides:
-  '@babel/runtime': ^7.28.4
-  dompurify: ^3.3.0
-  esbuild: ^0.25.11
 
 importers:
 
@@ -48,10 +49,13 @@ importers:
         version: 2.29.7(@types/node@20.19.23)
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
+      '@size-limit/file':
+        specifier: 'catalog:'
+        version: 11.2.0(size-limit@11.2.0)
       '@types/node':
         specifier: 'catalog:'
         version: 20.19.23
@@ -70,12 +74,18 @@ importers:
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
+      size-limit:
+        specifier: 'catalog:'
+        version: 11.2.0
       taze:
         specifier: ^19.8.1
         version: 19.8.1
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@20.19.23)(typescript@5.9.3)
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.15.11(typescript@5.9.3)
       turbo:
         specifier: ^2.5.8
         version: 2.5.8
@@ -157,7 +167,7 @@ importers:
         version: link:../packages/plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       '@mermaid-js/mermaid-cli':
         specifier: ^11.12.0
         version: 11.12.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@19.2.2)(puppeteer@23.11.1(typescript@5.9.3))(yaml@2.8.1)
@@ -229,7 +239,7 @@ importers:
         version: link:../packages/plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       '@tanstack/react-query':
         specifier: ^5.90.5
         version: 5.90.5(react@18.3.1)
@@ -978,27 +988,18 @@ importers:
       '@types/cli-progress':
         specifier: ^3.11.6
         version: 3.11.6
-      '@types/node':
-        specifier: 'catalog:'
-        version: 20.19.23
       '@types/semver':
         specifier: ^7.7.1
         version: 7.7.1
       source-map-support:
         specifier: ^0.5.21
         version: 0.5.21
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/core:
     dependencies:
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       camelcase:
         specifier: ^8.0.0
         version: 8.0.0
@@ -1048,19 +1049,13 @@ importers:
       consola:
         specifier: ^3.4.2
         version: 3.4.2
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
       zod:
         specifier: ^4.1.12
         version: 4.1.12
     optionalDependencies:
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
 
   packages/kubb:
     dependencies:
@@ -1070,16 +1065,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 20.19.23
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/mcp:
     dependencies:
@@ -1121,23 +1106,13 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       '@modelcontextprotocol/sdk':
         specifier: ^1.20.2
         version: 1.20.2
       zod:
         specifier: ^3.25.76
         version: 3.25.76
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 20.19.23
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/oas:
     dependencies:
@@ -1178,12 +1153,6 @@ importers:
       '@types/swagger2openapi':
         specifier: ^7.0.4
         version: 7.0.4
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/plugin-client:
     dependencies:
@@ -1204,17 +1173,11 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
     devDependencies:
       axios:
         specifier: ^1.13.0
         version: 1.13.0
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/plugin-cypress:
     dependencies:
@@ -1232,14 +1195,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
-    devDependencies:
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
+        version: 0.2.10
 
   packages/plugin-faker:
     dependencies:
@@ -1257,14 +1213,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
-    devDependencies:
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
+        version: 0.2.10
 
   packages/plugin-mcp:
     dependencies:
@@ -1288,14 +1237,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
-    devDependencies:
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
+        version: 0.2.10
 
   packages/plugin-msw:
     dependencies:
@@ -1316,14 +1258,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
-    devDependencies:
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
+        version: 0.2.10
 
   packages/plugin-oas:
     dependencies:
@@ -1335,7 +1270,7 @@ importers:
         version: link:../oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       '@stoplight/yaml':
         specifier: ^4.3.0
         version: 4.3.0
@@ -1345,13 +1280,6 @@ importers:
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
-    devDependencies:
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/plugin-react-query:
     dependencies:
@@ -1375,17 +1303,10 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
-    devDependencies:
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/plugin-redoc:
     dependencies:
@@ -1400,17 +1321,10 @@ importers:
         version: link:../plugin-oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
-    devDependencies:
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/plugin-solid-query:
     dependencies:
@@ -1434,17 +1348,10 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
-    devDependencies:
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/plugin-svelte-query:
     dependencies:
@@ -1468,17 +1375,10 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
-    devDependencies:
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/plugin-swr:
     dependencies:
@@ -1502,17 +1402,10 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
-    devDependencies:
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/plugin-ts:
     dependencies:
@@ -1521,7 +1414,7 @@ importers:
         version: link:../core
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1530,17 +1423,13 @@ importers:
         version: link:../plugin-oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
       typescript:
         specifier: 5.9.3
         version: 5.9.3
-    devDependencies:
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
 
   packages/plugin-vue-query:
     dependencies:
@@ -1564,17 +1453,10 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
-    devDependencies:
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/plugin-zod:
     dependencies:
@@ -1592,7 +1474,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.8
+        version: 0.2.10
     devDependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.1.0
@@ -1600,9 +1482,6 @@ importers:
       '@hono/zod-openapi':
         specifier: 0.19.2
         version: 0.19.2(hono@4.9.8)(zod@3.25.76)
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -1610,7 +1489,7 @@ importers:
   packages/unplugin-kubb:
     dependencies:
       esbuild:
-        specifier: ^0.25.11
+        specifier: '*'
         version: 0.25.11
       unplugin:
         specifier: ^2.3.10
@@ -1625,24 +1504,15 @@ importers:
       '@nuxt/schema':
         specifier: ^3.20.0
         version: 3.20.0
-      '@types/node':
-        specifier: 'catalog:'
-        version: 20.19.23
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
       rollup:
         specifier: ^4.52.5
         version: 4.52.5
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.15.11(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
       vite:
         specifier: ^6.4.1
-        version: 6.4.1(@types/node@20.19.23)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(yaml@2.8.1)
+        version: 6.4.1(@types/node@24.9.1)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(yaml@2.8.1)
       webpack:
         specifier: ^5.102.1
         version: 5.102.1(esbuild@0.25.11)
@@ -2291,8 +2161,16 @@ packages:
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
 
+  '@kubb/fabric-core@0.2.10':
+    resolution: {integrity: sha512-BPK4twzQ7DwsRaCUUWqQsmKdd3AFLVF+T4G+XrdyK60yCpe5LbFunEnWq8PQALw1l4SpX/OGpZzqVzGbCea1Vg==}
+    engines: {node: '>=20'}
+
   '@kubb/fabric-core@0.2.8':
     resolution: {integrity: sha512-9Qe1w6jk0oVKBB4y5dHz48rYdJ+VXbVOk1lb+5ssn8oYOHabQmjH7Q3OoVGeO4UGwhogu/yku5kjbHlw/cvT0w==}
+    engines: {node: '>=20'}
+
+  '@kubb/react-fabric@0.2.10':
+    resolution: {integrity: sha512-gLHSoI/yLa5yAe0ZFOXlRqGXYuoZz/lkVKh1XE5x0qZ0XCdpJTgIgF5NmcQzSnR05RvVi6Kz4giKErm8VbcBnw==}
     engines: {node: '>=20'}
 
   '@kubb/react-fabric@0.2.8':
@@ -2854,6 +2732,12 @@ packages:
   '@sindresorhus/merge-streams@4.0.0':
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
+
+  '@size-limit/file@11.2.0':
+    resolution: {integrity: sha512-OZHE3putEkQ/fgzz3Tp/0hSmfVo3wyTpOJSRNm6AmcwX4Nm9YtTfbQQ/hZRwbBFR23S7x2Sd9EbqYzngKwbRoA==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    peerDependencies:
+      size-limit: 11.2.0
 
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
@@ -3774,6 +3658,10 @@ packages:
     resolution: {integrity: sha512-NMrcy7smratanWJ2mMXdpatalovtxVggkj11bScuWuiOoXTiKIu2eVS1/7qbyI/4yHedtsn175n4Sm4JcdHLXw==}
     peerDependencies:
       '@types/react': ^19
+
+  bytes-iec@3.1.1:
+    resolution: {integrity: sha512-fey6+4jDK7TFtFg/klGSvNKJctyU7n2aQdnM+CO0ruLPbqqMOM8Tio0Pc+deqUeVKX1tL5DQep1zQ7+37aTAsA==}
+    engines: {node: '>= 0.8'}
 
   bytes@3.0.0:
     resolution: {integrity: sha512-pMhOfFDPiv9t5jjIXkHosWmkSyQbvsgEVNkz0ERHbuLh2T/7j4Mqqpz523Fe8MVY89KC6Sh/QfS2sM+SjgFDcw==}
@@ -5962,6 +5850,9 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nanospinner@1.2.2:
+    resolution: {integrity: sha512-Zt/AmG6qRU3e+WnzGGLuMCEAO/dAu45stNbHY223tUxldaDAeE+FxSPsd9Q+j+paejmm0ZbrNVs5Sraqy3dRxA==}
+
   natural-orderby@5.0.0:
     resolution: {integrity: sha512-kKHJhxwpR/Okycz4HhQKKlhWe4ASEfPgkSWNmKFHd7+ezuQlxkA5cM3+XkBPvm1gmHen3w53qsYAv+8GwRrBlg==}
     engines: {node: '>=18'}
@@ -6880,6 +6771,11 @@ packages:
   sitemap@8.0.1:
     resolution: {integrity: sha512-4Y8ynSMFAy/DadeAeio8Kx4zfC8/0VcKi7TH0I1SazvBcrU2fpJaGoeWsX1FMRaHoe3VGMA53DqVoLErZrtG9Q==}
     engines: {node: '>=14.0.0', npm: '>=6.0.0'}
+    hasBin: true
+
+  size-limit@11.2.0:
+    resolution: {integrity: sha512-2kpQq2DD/pRpx3Tal/qRW1SYwcIeQ0iq8li5CJHQgOC+FtPn2BVmuDtzUCgNnpCrbgtfEHqh+iWzxK+Tq6C+RQ==}
+    engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
 
   slash@3.0.0:
@@ -8646,6 +8542,15 @@ snapshots:
     dependencies:
       jsep: 1.4.0
 
+  '@kubb/fabric-core@0.2.10':
+    dependencies:
+      cli-progress: 3.12.0
+      fs-extra: 11.3.2
+      natural-orderby: 5.0.0
+      p-limit: 7.2.0
+      serve-handler: 6.1.6
+      typescript: 5.9.3
+
   '@kubb/fabric-core@0.2.8':
     dependencies:
       cli-progress: 3.12.0
@@ -8654,6 +8559,23 @@ snapshots:
       p-limit: 7.2.0
       serve-handler: 6.1.6
       typescript: 5.9.3
+
+  '@kubb/react-fabric@0.2.10':
+    dependencies:
+      '@kubb/fabric-core': 0.2.10
+      dedent: 1.7.0
+      execa: 9.6.0
+      indent-string: 5.0.0
+      natural-orderby: 5.0.0
+      react: 19.2.0
+      react-devtools-core: 6.1.2
+      react-reconciler: 0.32.0(react@19.2.0)
+      signal-exit: 4.1.0
+      ws: 8.18.0
+    transitivePeerDependencies:
+      - babel-plugin-macros
+      - bufferutil
+      - utf-8-validate
 
   '@kubb/react-fabric@0.2.8':
     dependencies:
@@ -9290,6 +9212,10 @@ snapshots:
   '@shikijs/vscode-textmate@10.0.2': {}
 
   '@sindresorhus/merge-streams@4.0.0': {}
+
+  '@size-limit/file@11.2.0(size-limit@11.2.0)':
+    dependencies:
+      size-limit: 11.2.0
 
   '@standard-schema/spec@1.0.0': {}
 
@@ -10331,6 +10257,8 @@ snapshots:
     dependencies:
       '@types/node': 24.9.1
       '@types/react': 19.2.2
+
+  bytes-iec@3.1.1: {}
 
   bytes@3.0.0: {}
 
@@ -12912,6 +12840,10 @@ snapshots:
 
   nanoid@3.3.11: {}
 
+  nanospinner@1.2.2:
+    dependencies:
+      picocolors: 1.1.1
+
   natural-orderby@5.0.0: {}
 
   needle@3.3.1:
@@ -14011,6 +13943,16 @@ snapshots:
       arg: 5.0.2
       sax: 1.4.1
 
+  size-limit@11.2.0:
+    dependencies:
+      bytes-iec: 3.1.1
+      chokidar: 4.0.3
+      jiti: 2.6.1
+      lilconfig: 3.1.3
+      nanospinner: 1.2.2
+      picocolors: 1.1.1
+      tinyglobby: 0.2.15
+
   slash@3.0.0: {}
 
   slice-ansi@3.0.0:
@@ -14741,7 +14683,7 @@ snapshots:
       - supports-color
       - typescript
 
-  vite@6.4.1(@types/node@20.19.23)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(yaml@2.8.1):
+  vite@6.4.1(@types/node@24.9.1)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(yaml@2.8.1):
     dependencies:
       esbuild: 0.25.11
       fdir: 6.5.0(picomatch@4.0.3)
@@ -14750,7 +14692,7 @@ snapshots:
       rollup: 4.52.5
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 20.19.23
+      '@types/node': 24.9.1
       fsevents: 2.3.3
       jiti: 2.6.1
       less: 4.4.2

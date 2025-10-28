@@ -26,10 +26,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./fs": {
-      "import": "./dist/fs.js",
-      "require": "./dist/fs.cjs"
-    },
     "./hooks": {
       "import": "./dist/hooks.js",
       "require": "./dist/hooks.cjs"
@@ -79,8 +75,15 @@
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && size-limit",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --fix --unsafe .",
@@ -110,8 +113,6 @@
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.7.1",
     "consola": "^3.4.2",
-    "tsdown": "catalog:",
-    "typescript": "catalog:",
     "zod": "^4.1.12"
   },
   "optionalDependencies": {

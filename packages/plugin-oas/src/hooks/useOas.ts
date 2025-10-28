@@ -1,15 +1,9 @@
-import { useContext } from '@kubb/react-fabric'
+import type { Oas } from '@kubb/oas'
 
-import { Oas } from '../components/Oas.tsx'
+import { useApp } from '@kubb/react-fabric'
 
-import type { Oas as OasType } from '@kubb/oas'
+export function useOas(): Oas {
+  const { meta } = useApp<{ oas: Oas }>()
 
-export function useOas(): OasType {
-  const { oas } = useContext(Oas.Context)
-
-  if (!oas) {
-    throw new Error('Oas is not defined')
-  }
-
-  return oas
+  return meta.oas
 }

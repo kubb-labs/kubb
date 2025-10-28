@@ -42,8 +42,15 @@
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && size-limit",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --fix --unsafe .",
@@ -72,11 +79,8 @@
     "@kubb/mcp": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@types/cli-progress": "^3.11.6",
-    "@types/node": "catalog:",
     "@types/semver": "^7.7.1",
-    "source-map-support": "^0.5.21",
-    "tsdown": "catalog:",
-    "typescript": "catalog:"
+    "source-map-support": "^0.5.21"
   },
   "engines": {
     "node": ">=20"

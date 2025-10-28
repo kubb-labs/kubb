@@ -1,5 +1,5 @@
+import type { KubbFile } from '@kubb/fabric-core/types'
 import { build } from './build.ts'
-import type { KubbFile } from './fs/index.ts'
 import { createPlugin } from './plugin.ts'
 import type { Config, Plugin } from './types.ts'
 

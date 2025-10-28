@@ -4,6 +4,12 @@ title: Changelog
 
 # Changelog
 
+# 4.4.1
+- Update Fabric packages
+
+# 4.4.0
+- Add Fabric suport
+
 # 4.3.1
 - [`react`](/helpers/react/): update peerdeps `@kubb/react`
 # 4.3.0

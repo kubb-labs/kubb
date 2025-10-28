@@ -1,7 +1,6 @@
 import { extname, join } from 'node:path'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import { BarrelManager } from './BarrelManager.ts'
-import type { KubbFile } from './fs/index.ts'
-import { trimExtName } from './fs/index.ts'
 import type { Logger } from './logger.ts'
 import type { BarrelType, Plugin } from './types.ts'
 
@@ -35,6 +34,10 @@ export function getMode(path: string | undefined | null): KubbFile.Mode {
     return 'split'
   }
   return extname(path) ? 'single' : 'split'
+}
+
+function trimExtName(text: string): string {
+  return text.replace(/\.[^/.]+$/, '')
 }
 
 export async function getBarrelFiles(

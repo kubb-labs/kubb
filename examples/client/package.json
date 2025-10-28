@@ -13,7 +13,7 @@
   "sideEffects": false,
   "scripts": {
     "clean": "npx rimraf ./dist",
-    "generate": "kubb generate --config kubb.config.ts",
+    "generate": "kubb generate --config kubb.config.ts && bun ./build.ts",
     "generate:build": "bun ./build.ts",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"

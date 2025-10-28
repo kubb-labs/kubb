@@ -61,8 +61,15 @@
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && size-limit",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --fix --unsafe .",
@@ -81,10 +88,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react-fabric": "catalog:"
   },
-  "devDependencies": {
-    "tsdown": "catalog:",
-    "typescript": "catalog:"
-  },
+  "devDependencies": {},
   "peerDependencies": {
     "@kubb/react-fabric": "catalog:"
   },
