@@ -1,5 +1,11 @@
 # @kubb/oas
 
+## 4.4.1
+
+### Patch Changes
+
+- [#1963](https://github.com/kubb-labs/kubb/pull/1963) [`75d0730`](https://github.com/kubb-labs/kubb/commit/75d0730ac261332442a70ee056a0b91acc56db6d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update Fabric to get latest changes
+
 ## 4.4.0
 
 ### Minor Changes

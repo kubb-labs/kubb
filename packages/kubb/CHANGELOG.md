@@ -1,5 +1,15 @@
 # kubb
 
+## 3.0.120
+
+### Patch Changes
+
+- [#1963](https://github.com/kubb-labs/kubb/pull/1963) [`75d0730`](https://github.com/kubb-labs/kubb/commit/75d0730ac261332442a70ee056a0b91acc56db6d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update Fabric to get latest changes
+
+- Updated dependencies [[`75d0730`](https://github.com/kubb-labs/kubb/commit/75d0730ac261332442a70ee056a0b91acc56db6d)]:
+  - @kubb/core@4.4.1
+  - @kubb/cli@4.4.1
+
 ## 3.0.119
 
 ### Patch Changes
