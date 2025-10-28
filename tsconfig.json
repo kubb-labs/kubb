@@ -4,12 +4,12 @@
     "baseUrl": ".",
     "types": ["vitest/globals", "bun-types"],
     "paths": {
+      "#mocks": ["configs/mocks.ts"],
       "@kubb/core/hooks": ["packages/core/src/hooks/index.ts"],
       "@kubb/core/utils": ["packages/core/src/utils/index.ts"],
       "@kubb/core/logger": ["packages/core/src/logger.ts"],
       "@kubb/core/transformers": ["packages/core/src/transformers/index.ts"],
       "@kubb/core/fs": ["packages/core/src/fs/index.ts"],
-      "@kubb/core/mocks": ["packages/core/src/mocks/index.ts"],
       "@kubb/core": ["packages/core/src/index.ts"],
       "@kubb/cypress": ["packages/cypress/src/index.ts"],
       "@kubb/mcp": ["packages/mcp/src/index.ts"],

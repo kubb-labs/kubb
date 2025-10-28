@@ -46,6 +46,12 @@ importers:
       '@changesets/cli':
         specifier: ^2.29.7
         version: 2.29.7(@types/node@20.19.23)
+      '@kubb/fabric-core':
+        specifier: 'catalog:'
+        version: 0.2.8
+      '@kubb/react-fabric':
+        specifier: 'catalog:'
+        version: 0.2.8
       '@types/node':
         specifier: 'catalog:'
         version: 20.19.23
@@ -1027,9 +1033,6 @@ importers:
         specifier: ^7.7.3
         version: 7.7.3
     devDependencies:
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.2.8
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4
@@ -1054,6 +1057,10 @@ importers:
       zod:
         specifier: ^4.1.12
         version: 4.1.12
+    optionalDependencies:
+      '@kubb/fabric-core':
+        specifier: 'catalog:'
+        version: 0.2.8
 
   packages/kubb:
     dependencies:

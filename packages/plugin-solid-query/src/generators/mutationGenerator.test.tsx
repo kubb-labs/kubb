@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
-import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
