@@ -48,8 +48,15 @@
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && size-limit",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --fix --unsafe .",
@@ -73,9 +80,7 @@
   },
   "devDependencies": {
     "@stoplight/yaml": "^4.3.0",
-    "@types/swagger2openapi": "^7.0.4",
-    "tsdown": "catalog:",
-    "typescript": "catalog:"
+    "@types/swagger2openapi": "^7.0.4"
   },
   "engines": {
     "node": ">=20"

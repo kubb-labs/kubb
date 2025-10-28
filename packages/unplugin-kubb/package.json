@@ -99,11 +99,8 @@
 		"@kubb/core": "workspace:*",
 		"@nuxt/kit": "^3.20.0",
 		"@nuxt/schema": "^3.20.0",
-		"@types/node": "catalog:",
 		"rimraf": "^6.0.1",
 		"rollup": "^4.52.5",
-		"tsdown": "catalog:",
-		"typescript": "catalog:",
 		"vite": "^6.4.1",
 		"webpack": "^5.102.1"
 	},

@@ -45,8 +45,15 @@
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && size-limit",
     "start:mcp": "bun --watch ./src/server.ts",
     "debug:mcp": "npx -y @modelcontextprotocol/inspector node ./dist/server.js",
     "clean": "npx rimraf ./dist",
@@ -76,10 +83,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@kubb/plugin-oas": "workspace:*",
-    "@types/node": "catalog:",
-    "tsdown": "catalog:",
-    "typescript": "catalog:"
+    "@kubb/plugin-oas": "workspace:*"
   },
   "peerDependencies": {
     "@kubb/react-fabric": "catalog:"

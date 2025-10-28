@@ -81,6 +81,26 @@ jobs:
         continue-on-error: true
         run: bun run test:bun --coverage
 
+  size:
+    name: Size
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup
+        uses: ./.github/setup
+
+      - name: Build
+        run: bun run build
+
+      - uses: andresz1/size-limit-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
   linting:
     name: Linting
     timeout-minutes: 15

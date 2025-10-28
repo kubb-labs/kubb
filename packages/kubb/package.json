@@ -53,11 +53,7 @@
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*"
   },
-  "devDependencies": {
-    "@types/node": "catalog:",
-    "tsdown": "catalog:",
-    "typescript": "catalog:"
-  },
+  "devDependencies": {},
   "engines": {
     "node": ">=20"
   },

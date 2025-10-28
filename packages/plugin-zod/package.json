@@ -68,8 +68,15 @@
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && size-limit",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --fix --unsafe .",
@@ -90,7 +97,6 @@
     "@asteasolutions/zod-to-openapi": "^8.1.0",
     "@hono/zod-openapi": "0.19.2",
     "@kubb/plugin-oas": "workspace:*",
-    "tsdown": "catalog:",
     "zod": "^3.25.76"
   },
   "peerDependencies": {
