@@ -1,5 +1,15 @@
 # @kubb/core
 
+## 4.4.0
+
+### Minor Changes
+
+- [#1961](https://github.com/kubb-labs/kubb/pull/1961) [`bed6f9c`](https://github.com/kubb-labs/kubb/commit/bed6f9cf482ad4bbd2119c9de38f1184227b82cc) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - removal of Kubb react in favor of using `@kubb/react-fabric`
+
+### Patch Changes
+
+- [#1961](https://github.com/kubb-labs/kubb/pull/1961) [`25bf2e7`](https://github.com/kubb-labs/kubb/commit/25bf2e7f54feeaf2341701fee2a2a819ae8d143d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - reduce bundle size by removing ``@kubb/core/mocks`
+
 ## 4.3.1
 
 ### Patch Changes

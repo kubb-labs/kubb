@@ -1,5 +1,11 @@
 # unplugin-kubb
 
+## 3.1.0
+
+### Minor Changes
+
+- [#1961](https://github.com/kubb-labs/kubb/pull/1961) [`bed6f9c`](https://github.com/kubb-labs/kubb/commit/bed6f9cf482ad4bbd2119c9de38f1184227b82cc) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - removal of Kubb react in favor of using `@kubb/react-fabric`
+
 ## 3.0.0
 
 ### Patch Changes
