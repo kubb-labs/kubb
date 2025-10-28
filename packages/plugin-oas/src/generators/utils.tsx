@@ -1,6 +1,6 @@
 import type { PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
-import { App, createReactFabric, type Fabric } from '@kubb/react'
+import { App, createReactFabric, type Fabric } from '@kubb/react-fabric'
 import { Oas } from '../components/Oas.tsx'
 import type { OperationGenerator } from '../OperationGenerator.ts'
 import type { SchemaGenerator, SchemaGeneratorOptions } from '../SchemaGenerator.ts'

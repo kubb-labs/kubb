@@ -53,6 +53,7 @@
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
+    "@kubb/react-fabric": "catalog:",
     "handlebars": "^4.7.8"
   },
   "devDependencies": {
@@ -60,7 +61,7 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react": "^4.3.0"
+    "@kubb/react-fabric": "catalog:"
   },
   "engines": {
     "node": ">=20"

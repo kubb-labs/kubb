@@ -3,7 +3,7 @@ import { isParameterObject } from '@kubb/oas'
 import { camelCase, isValidVarName } from '@kubb/core/transformers'
 import type { FunctionParamsAST } from '@kubb/core/utils'
 import type { OasTypes } from '@kubb/oas'
-import type { Params } from '@kubb/react/types'
+import type { Params } from '@kubb/react-fabric/types'
 import type { OperationSchema } from '../types.ts'
 /**
  *

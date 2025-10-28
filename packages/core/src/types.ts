@@ -1,4 +1,4 @@
-import type { Fabric, FileManager } from '@kubb/react'
+import type { Fabric, FileManager } from '@kubb/react-fabric'
 import type { KubbFile } from './fs/index.ts'
 import type { Logger } from './logger.ts'
 import type { PluginManager } from './PluginManager.ts'

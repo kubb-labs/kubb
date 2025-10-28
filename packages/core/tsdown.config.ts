@@ -8,7 +8,6 @@ export default defineConfig({
     utils: 'src/utils/index.ts',
     fs: 'src/fs/index.ts',
     logger: 'src/logger.ts',
-    mocks: 'src/mocks/index.ts',
   },
   dts: true,
   format: ['esm', 'cjs'],
@@ -16,5 +15,6 @@ export default defineConfig({
   sourcemap: true,
   shims: true,
   exports: true,
-  noExternal: [/p-limit/, /find-up/, /natural-orderby/, /camelcase/],
+  external: [/@kubb\/fabric-core/],
+  noExternal: [/p-limit/, /find-up/, /camelcase/],
 })

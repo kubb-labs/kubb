@@ -80,7 +80,7 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@kubb/react": "workspace:*",
+    "@kubb/react-fabric": "catalog:",
     "remeda": "catalog:"
   },
   "devDependencies": {
@@ -88,7 +88,7 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react": "^4.3.0"
+    "@kubb/react-fabric": "catalog:"
   },
   "engines": {
     "node": ">=20"

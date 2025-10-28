@@ -1,5 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type { KubbNode } from '@kubb/react/types'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { OperationProps, OperationsProps, SchemaProps } from './types.ts'
 
 type UserGenerator<TOptions extends PluginFactoryOptions> = {

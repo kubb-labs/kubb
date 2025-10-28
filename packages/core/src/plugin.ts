@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import type { Fabric } from '@kubb/react'
+import type { Fabric } from '@kubb/react-fabric'
 import type { PluginManager } from './PluginManager.ts'
 import type { Plugin, PluginContext, PluginFactoryOptions, UserPluginWithLifeCycle } from './types.ts'
 

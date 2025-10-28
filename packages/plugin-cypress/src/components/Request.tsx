@@ -1,8 +1,8 @@
 import { URLPath } from '@kubb/core/utils'
-
 import { type HttpMethod, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { File, Function, FunctionParams } from '@kubb/react'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginCypress } from '../types.ts'
 
 type Props = {
@@ -17,7 +17,7 @@ type Props = {
   method: HttpMethod
 }
 
-export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, method }: Props) {
+export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, method }: Props): KubbNode {
   const params = FunctionParams.factory({
     data: typeSchemas.request?.name
       ? {

@@ -1,18 +1,34 @@
 import path from 'node:path'
-import { typescriptParser } from '@kubb/fabric-core/parsers/typescript'
-import { createFile, FileProcessor } from '@kubb/react'
-import { format } from '../../mocks/format.ts'
-import type { File, ResolvedFile } from '../fs/types.ts'
-import type { Logger } from '../logger'
-import type { PluginManager } from '../PluginManager.ts'
-import { camelCase, pascalCase } from '../transformers/casing.ts'
-import type { Plugin } from '../types.ts'
+import type { KubbFile } from '@kubb/fabric-core/types'
+import { createFile, FileProcessor } from '@kubb/react-fabric'
+import { typescriptParser } from '@kubb/react-fabric/parsers'
+import type { Options } from 'prettier'
+import { format as prettierFormat } from 'prettier'
+import pluginTypescript from 'prettier/plugins/typescript'
+import type { Plugin, PluginManager } from '../packages/core/src'
+import { camelCase, pascalCase } from '../packages/core/src/transformers'
 
-export const mockedLogger = {
-  emit(_type, _message) {},
-  on(_type, _message) {},
-  consola: {},
-} as Logger
+const formatOptions: Options = {
+  tabWidth: 2,
+  printWidth: 160,
+  parser: 'typescript',
+  singleQuote: true,
+  semi: false,
+  bracketSameLine: false,
+  endOfLine: 'auto',
+  plugins: [pluginTypescript],
+}
+export function format(source?: string): Promise<string> {
+  if (!source) {
+    return Promise.resolve('')
+  }
+
+  try {
+    return prettierFormat(source, formatOptions)
+  } catch (_e) {
+    return Promise.resolve(source)
+  }
+}
 
 export const createMockedPluginManager = (name?: string) =>
   ({
@@ -62,7 +78,7 @@ export const createMockedPluginManager = (name?: string) =>
 
 export const mockedPluginManager = createMockedPluginManager('')
 
-export async function matchFiles(files: Array<ResolvedFile | File> | undefined, pre?: string) {
+export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.File> | undefined, pre?: string) {
   if (!files) {
     return undefined
   }
@@ -77,6 +93,6 @@ export async function matchFiles(files: Array<ResolvedFile | File> | undefined, 
       code = await format(source)
     }
 
-    await expect(code).toMatchFileSnapshot(path.join(...['__snapshots__', pre, file.path].filter(Boolean)))
+    await expect(code).toMatchFileSnapshot(path.join(...(['__snapshots__', pre, file.path].filter(Boolean) as string[])))
   }
 }

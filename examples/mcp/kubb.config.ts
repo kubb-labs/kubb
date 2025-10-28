@@ -1,9 +1,9 @@
-// import '@kubb/react/devtools' // enable/disable devtools
+// import '@kubb/react-fabric/devtools' // enable/disable devtools
 
 import { defineConfig } from '@kubb/core'
+import { pluginMcp } from '@kubb/plugin-mcp'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
-import { pluginMcp } from '@kubb/plugin-mcp'
 import { pluginZod } from '@kubb/plugin-zod'
 
 export default defineConfig(() => {

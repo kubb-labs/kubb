@@ -38,10 +38,6 @@
       "import": "./dist/logger.js",
       "require": "./dist/logger.cjs"
     },
-    "./mocks": {
-      "import": "./dist/mocks.js",
-      "require": "./dist/mocks.cjs"
-    },
     "./transformers": {
       "import": "./dist/transformers.js",
       "require": "./dist/transformers.cjs"
@@ -65,9 +61,6 @@
       ],
       "logger": [
         "./dist/logger.d.ts"
-      ],
-      "mocks": [
-        "./dist/mocks.d.ts"
       ],
       "hooks": [
         "./dist/hooks.d.ts"
@@ -98,8 +91,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/parser-ts": "^4.1.4",
-    "@kubb/react": "workspace:*",
+    "@kubb/react-fabric": "catalog:",
     "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
     "fs-extra": "^11.3.2",
@@ -113,7 +105,6 @@
     "semver": "^7.7.3"
   },
   "devDependencies": {
-    "@kubb/fabric-core": "0.2.3",
     "@types/fs-extra": "^11.0.4",
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",
@@ -123,8 +114,11 @@
     "typescript": "catalog:",
     "zod": "^4.1.12"
   },
+  "optionalDependencies": {
+    "@kubb/fabric-core": "catalog:"
+  },
   "peerDependencies": {
-    "@kubb/react": "^4.3.0"
+    "@kubb/react-fabric": "catalog:"
   },
   "engines": {
     "node": ">=20"

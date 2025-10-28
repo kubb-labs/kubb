@@ -47,10 +47,6 @@ const knowledgeBaseSidebar = [
     text: 'Advanced',
     items: [
       {
-        text: 'Use JSX in Kubb',
-        link: '/knowledge-base/react/',
-      },
-      {
         text: 'Generators',
         link: '/knowledge-base/generators/',
       },
@@ -127,44 +123,6 @@ const mainSidebar = [
       {
         text: '@kubb/oas',
         link: '/helpers/oas/',
-      },
-      {
-        text: '@kubb/react',
-        link: '/helpers/react/',
-        collapsed: true,
-        items: [
-          {
-            text: 'Components',
-            link: '/helpers/react/components/',
-            items: [
-              {
-                text: 'Text',
-                link: '/helpers/react/components/text/',
-              },
-              {
-                text: 'Function',
-                link: '/helpers/react/components/function/',
-              },
-              {
-                text: 'Type',
-                link: '/helpers/react/components/type/',
-              },
-              {
-                text: 'Const',
-                link: '/helpers/react/components/const/',
-              },
-              {
-                text: 'File',
-                link: '/helpers/react/components/file/',
-              },
-            ],
-          },
-          {
-            text: 'Hooks',
-            link: '/helpers/react/hooks/',
-            items: [],
-          },
-        ],
       },
     ],
   },
@@ -334,10 +292,6 @@ const examplesSidebar = [
     text: 'Generators <span class="new">new</span>',
     link: '/examples/generators/',
   },
-  {
-    text: 'React <span class="new">new</span>',
-    link: '/examples/react/',
-  },
 ]
 
 const blogSidebar = [
@@ -373,10 +327,6 @@ const documentationMenu = [
       {
         text: '@kubb/oas',
         link: '/helpers/oas/',
-      },
-      {
-        text: '@kubb/react',
-        link: '/helpers/react/',
       },
     ],
   },
@@ -549,7 +499,6 @@ export default defineConfig({
               '@kubb/plugin-zod': ['../packages/plugin-zod/src/index.ts'],
               '@kubb/plugin-zod/components': ['../packages/plugin-zod/src/components/index.ts'],
               '@kubb/oas': ['../packages/oas/src/index.ts'],
-              '@kubb/react': ['../packages/react/src/index.ts'],
               'unplugin-kubb': ['../packages/unplugin-kubb/src/index.ts'],
               'unplugin-kubb/vite': ['../packages/unplugin-kubb/src/vite.ts'],
             },
@@ -668,7 +617,6 @@ export default defineConfig({
     sidebar: {
       '/getting-started': mainSidebar,
       '/plugins': mainSidebar,
-      '/parsers': mainSidebar,
       '/helpers': mainSidebar,
       '/build': mainSidebar,
       '/changelog': mainSidebar,

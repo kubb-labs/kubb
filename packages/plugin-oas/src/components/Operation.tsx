@@ -1,6 +1,6 @@
 import type { Operation as OperationType } from '@kubb/oas'
-import { createContext } from '@kubb/react'
-import type { KubbNode } from '@kubb/react/types'
+import { createContext } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 
 type Props = {
   operation: OperationType
@@ -13,7 +13,7 @@ type OperationContextProps = {
 
 const OperationContext = createContext<OperationContextProps>({})
 
-export function Operation({ operation, children }: Props) {
+export function Operation({ operation, children }: Props): KubbNode {
   return <OperationContext.Provider value={{ operation }}>{children}</OperationContext.Provider>
 }
 

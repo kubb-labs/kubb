@@ -1,6 +1,7 @@
 import { URLPath } from '@kubb/core/utils'
 import type { OasTypes, Operation } from '@kubb/oas'
-import { File, Function, FunctionParams } from '@kubb/react'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 
 type Props = {
   /**
@@ -13,7 +14,7 @@ type Props = {
   operation: Operation
 }
 
-export function Mock({ baseURL = '', name, typeName, operation }: Props) {
+export function Mock({ baseURL = '', name, typeName, operation }: Props): KubbNode {
   const method = operation.method
   const successStatusCodes = operation.getResponseStatusCodes().filter((code) => code.startsWith('2'))
   const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200

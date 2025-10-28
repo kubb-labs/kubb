@@ -3,8 +3,8 @@ import { URLPath } from '@kubb/core/utils'
 import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react'
-import type { KubbNode } from '@kubb/react/types'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
 import { Url } from './Url.tsx'
 
@@ -131,7 +131,7 @@ export function Client({
   urlName,
   children,
   isConfigurable = true,
-}: Props) {
+}: Props): KubbNode {
   const path = new URLPath(operation.path, { casing: paramsCasing })
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'

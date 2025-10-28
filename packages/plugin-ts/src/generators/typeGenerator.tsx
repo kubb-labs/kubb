@@ -13,7 +13,7 @@ import {
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
-import { File } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
 import type ts from 'typescript'
 import { Type } from '../components'
 import * as factory from '../factory.ts'

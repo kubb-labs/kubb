@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { Plugin, PluginManager } from '@kubb/core'
-import { createReactFabric } from '@kubb/react'
+import { createReactFabric } from '@kubb/react-fabric'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { parseFromConfig } from './utils/parseFromConfig.ts'
 

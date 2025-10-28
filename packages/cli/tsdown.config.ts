@@ -8,5 +8,4 @@ export default defineConfig({
   sourcemap: true,
   shims: true,
   exports: true,
-  noExternal: [/p-limit/, /execa/],
 })

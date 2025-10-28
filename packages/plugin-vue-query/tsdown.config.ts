@@ -12,4 +12,5 @@ export default defineConfig({
   sourcemap: true,
   shims: true,
   exports: true,
+  external: ['@types/react'],
 })

@@ -1,4 +1,4 @@
-import type { Fabric } from '@kubb/react'
+import type { Fabric } from '@kubb/react-fabric'
 import { ValidationPluginError } from './errors.ts'
 import type { KubbFile } from './fs/index.ts'
 import type { Logger } from './logger.ts'
