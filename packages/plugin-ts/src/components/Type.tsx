@@ -2,7 +2,8 @@ import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/fabric-core/parsers/typescript'
 import type { SchemaObject } from '@kubb/oas'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
-import { File } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type ts from 'typescript'
 import * as factory from '../factory.ts'
 import { parse, typeKeywordMapper } from '../parser.ts'
@@ -21,7 +22,7 @@ type Props = {
   keysToOmit?: string[]
 }
 
-export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, syntaxType, enumType, mapper, description }: Props) {
+export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, syntaxType, enumType, mapper, description }: Props): KubbNode {
   const typeNodes: ts.Node[] = []
 
   if (!tree.length) {

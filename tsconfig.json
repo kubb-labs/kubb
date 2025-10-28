@@ -22,7 +22,6 @@
       "@kubb/plugin-oas": ["packages/plugin-oas/src/index.ts"],
       "@kubb/plugin-ts/hooks": ["packages/plugin-ts/src/hooks/index.ts"],
       "@kubb/plugin-ts": ["packages/plugin-ts/src/index.ts"],
-      "@kubb/react/jsx-runtime": ["packages/react/src/jsx-runtime.ts"],
       "@kubb/plugin-client/clients/axios": ["packages/plugin-client/src/client.ts"],
       "@kubb/plugin-client/components": ["packages/plugin-client/src/components/index.ts"],
       "@kubb/plugin-client": ["packages/plugin-client/src/index.ts"],
@@ -34,9 +33,6 @@
       "@kubb/plugin-faker": ["packages/plugin-faker/src/index.ts"],
       "@kubb/plugin-zod/utils": ["packages/plugin-zod/src/utils/index.ts"],
       "@kubb/plugin-zod": ["packages/plugin-zod/src/index.ts"],
-      "@kubb/react": ["packages/react/src/index.ts"],
-      "@kubb/react/types": ["packages/react/src/types.ts"],
-      "@kubb/react/devtools": ["packages/react/src/devtools.ts"],
       "@kubb/oas": ["packages/oas/src/index.ts"],
       "unplugin-kubb": ["packages/unplugin/src/index.ts"]
     }

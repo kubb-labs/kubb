@@ -23,7 +23,7 @@
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react": "workspace:*",
+    "@kubb/react-fabric": "catalog:",
     "axios": "^1.13.0"
   },
   "devDependencies": {

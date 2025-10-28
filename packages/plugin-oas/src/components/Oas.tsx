@@ -1,11 +1,9 @@
-import { createContext } from '@kubb/react'
-
+import type { Oas as OasType, Operation as OperationType } from '@kubb/oas'
+import { createContext } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
+import type { OperationGenerator } from '../OperationGenerator.ts'
 import { Operation } from './Operation.tsx'
 import { Schema } from './Schema.tsx'
-
-import type { Oas as OasType, Operation as OperationType } from '@kubb/oas'
-import type { KubbNode } from '@kubb/react/types'
-import type { OperationGenerator } from '../OperationGenerator.ts'
 
 type Props = {
   oas: OasType
@@ -28,7 +26,7 @@ type OasContextProps = {
 
 const OasContext = createContext<OasContextProps>({})
 
-export function Oas({ oas, children, operations, generator }: Props) {
+export function Oas({ oas, children, operations, generator }: Props): KubbNode {
   return <OasContext.Provider value={{ oas, generator, operations }}>{children}</OasContext.Provider>
 }
 

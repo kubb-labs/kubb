@@ -98,8 +98,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/parser-ts": "^4.1.4",
-    "@kubb/react": "workspace:*",
+    "@kubb/react-fabric": "catalog:",
     "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
     "fs-extra": "^11.3.2",
@@ -113,7 +112,7 @@
     "semver": "^7.7.3"
   },
   "devDependencies": {
-    "@kubb/fabric-core": "0.2.3",
+    "@kubb/fabric-core": "catalog:",
     "@types/fs-extra": "^11.0.4",
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",
@@ -124,7 +123,7 @@
     "zod": "^4.1.12"
   },
   "peerDependencies": {
-    "@kubb/react": "^4.3.0"
+    "@kubb/react-fabric": "catalog:"
   },
   "engines": {
     "node": ">=20"

@@ -2,7 +2,7 @@ import type { FileMetaBase, Plugin, ResolveNameParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/core/fs'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
-import { useContext } from '@kubb/react'
+import { useContext } from '@kubb/react-fabric'
 import { Oas } from '../components/Oas.tsx'
 import type { OperationSchemas } from '../types.ts'
 

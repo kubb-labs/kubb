@@ -6,6 +6,8 @@ packages:
 
 catalog:
   '@types/node': ^20.19.23
+  '@kubb/fabric-core': 0.2.8
+  '@kubb/react-fabric': 0.2.8
   p-limit: ^7.2.0
   remeda: ^2.32.0
   tsdown: ^0.15.11

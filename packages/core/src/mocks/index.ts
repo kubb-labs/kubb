@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { typescriptParser } from '@kubb/fabric-core/parsers/typescript'
-import { createFile, FileProcessor } from '@kubb/react'
+import { createFile, FileProcessor } from '@kubb/react-fabric'
 import { format } from '../../mocks/format.ts'
 import type { File, ResolvedFile } from '../fs/types.ts'
 import type { Logger } from '../logger'

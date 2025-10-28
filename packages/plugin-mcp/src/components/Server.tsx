@@ -1,6 +1,7 @@
 import type { KubbFile } from '@kubb/core/fs'
+import type { KubbNode } from '@kubb/react-fabric/types'
 
-import { Const, File, FunctionParams } from '@kubb/react'
+import { Const, File, FunctionParams } from '@kubb/react-fabric'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams, isOptional } from '@kubb/plugin-oas/utils'
 import { isNullable, isReference } from '@kubb/oas'
@@ -90,7 +91,7 @@ function getParams({ schemas }: GetParamsProps) {
   })
 }
 
-export function Server({ name, serverName, serverVersion, operations }: Props) {
+export function Server({ name, serverName, serverVersion, operations }: Props): KubbNode {
   return (
     <File.Source name={name} isExportable isIndexable>
       <Const name={'server'} export>

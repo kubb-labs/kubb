@@ -12,7 +12,7 @@ const tsLoader = async (configFile: string) => {
   const jiti = createJiti(import.meta.url, {
     jsx: {
       runtime: 'automatic',
-      importSource: '@kubb/react',
+      importSource: '@kubb/react-fabric',
     },
     sourceMaps: true,
   })

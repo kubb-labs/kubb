@@ -2,7 +2,7 @@ import { build } from '@kubb/core'
 import { write } from '@kubb/core/fs'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
-import { createFile, FileProcessor } from '@kubb/react'
+import { createFile, FileProcessor } from '@kubb/react-fabric'
 
 async function run() {
   const fileProcessor = new FileProcessor()

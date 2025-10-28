@@ -84,7 +84,7 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react": "workspace:*"
+    "@kubb/react-fabric": "catalog:"
   },
   "devDependencies": {
     "@asteasolutions/zod-to-openapi": "^8.1.0",
@@ -94,7 +94,7 @@
     "zod": "^3.25.76"
   },
   "peerDependencies": {
-    "@kubb/react": "^4.3.0"
+    "@kubb/react-fabric": "catalog:"
   },
   "engines": {
     "node": ">=20"

@@ -4,7 +4,7 @@ import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { File } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
 import { Server } from '../components/Server'
 import type { PluginMcp } from '../types'
 

@@ -2,8 +2,8 @@ import { isOptional, type Operation } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react'
-import type { Params } from '@kubb/react/types'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode, Params } from '@kubb/react-fabric/types'
 import type { PluginSolidQuery } from '../types.ts'
 import { MutationKey } from './MutationKey.tsx'
 
@@ -70,7 +70,17 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
   })
 }
 
-export function Mutation({ name, clientName, paramsCasing, paramsType, pathParamsType, dataReturnType, typeSchemas, operation, mutationKeyName }: Props) {
+export function Mutation({
+  name,
+  clientName,
+  paramsCasing,
+  paramsType,
+  pathParamsType,
+  dataReturnType,
+  typeSchemas,
+  operation,
+  mutationKeyName,
+}: Props): KubbNode {
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,
     typeSchemas,

@@ -4,7 +4,7 @@ import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
 import { Mock, MockWithFaker, Response } from '../components'
 import type { PluginMsw } from '../types'
 

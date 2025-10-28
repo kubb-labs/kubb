@@ -1,4 +1,4 @@
-// require('@kubb/react/devtools') // enable/disable devtools
+// require('@kubb/react-fabric/devtools') // enable/disable devtools
 
 const { defineConfig } = require('@kubb/core')
 

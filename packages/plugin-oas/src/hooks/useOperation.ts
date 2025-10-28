@@ -1,4 +1,4 @@
-import { useContext } from '@kubb/react'
+import { useContext } from '@kubb/react-fabric'
 
 import { Operation } from '../components/Operation.tsx'
 

@@ -1,4 +1,4 @@
-import { createFabric } from '@kubb/react'
+import { createFabric } from '@kubb/react-fabric'
 import { createLogger } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
 import { createPlugin } from './plugin.ts'

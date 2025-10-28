@@ -4,7 +4,7 @@ import { camelCase } from '@kubb/core/transformers'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
-import { File, Function } from '@kubb/react'
+import { File, Function } from '@kubb/react-fabric'
 import type { PluginClient } from '../types'
 
 export const groupedClientGenerator = createReactGenerator<PluginClient>({

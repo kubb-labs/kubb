@@ -4,7 +4,7 @@ import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
 import { Faker } from '../components'
 import type { PluginFaker } from '../types'
 

@@ -2,7 +2,7 @@ import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
-import { File } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
 import { Operations } from '../components/Operations'
 import type { PluginClient } from '../types'
 

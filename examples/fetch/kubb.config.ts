@@ -1,4 +1,4 @@
-// import '@kubb/react/devtools' // enable/disable devtools
+// import '@kubb/react-fabric/devtools' // enable/disable devtools
 
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
