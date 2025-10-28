@@ -435,7 +435,6 @@ describe('typeGenerator schema', async () => {
       mode: 'split',
       output: './gen',
     })
-    await instance.build(typeGenerator)
 
     const schemas = getSchemas({ oas })
     const name = props.path

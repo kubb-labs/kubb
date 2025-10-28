@@ -72,7 +72,6 @@ describe('cypressGenerator operation', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(cypressGenerator)
 
     const operation = oas.operation(props.path, props.method)
 

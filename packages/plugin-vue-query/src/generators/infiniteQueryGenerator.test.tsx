@@ -87,7 +87,6 @@ describe('infiniteQueryGenerator operation', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(infiniteQueryGenerator)
 
     const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {

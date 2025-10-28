@@ -76,7 +76,6 @@ describe('mcpGenerator operation', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(mcpGenerator)
 
     const operation = oas.operation(props.path, props.method)
 

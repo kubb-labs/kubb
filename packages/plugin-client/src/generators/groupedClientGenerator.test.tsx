@@ -56,7 +56,6 @@ describe('groupedClientsGenerators operations', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(groupedClientGenerator)
 
     const operations = await instance.getOperations()
 

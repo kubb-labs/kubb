@@ -132,7 +132,6 @@ describe('queryGenerator operation', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(queryGenerator)
 
     const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {

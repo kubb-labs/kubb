@@ -130,7 +130,6 @@ describe('fakerGenerator schema', async () => {
       mode: 'split',
       output: './gen',
     })
-    await instance.build(fakerGenerator)
 
     const schemas = getSchemas({ oas })
     const name = props.path

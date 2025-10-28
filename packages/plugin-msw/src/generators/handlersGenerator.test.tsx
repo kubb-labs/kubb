@@ -50,7 +50,6 @@ describe('handlersGenerator operations', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(handlersGenerator)
 
     const operations = await instance.getOperations()
 

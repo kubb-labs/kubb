@@ -303,7 +303,6 @@ describe('zodGenerator schema', async () => {
       mode: 'split',
       output: './gen',
     })
-    await instance.build(zodGenerator)
 
     const schemas = getSchemas({ oas })
     const name = props.path
@@ -591,8 +590,6 @@ describe('zodGenerator operation', async () => {
         file.path = `${operation}_wrapOutput_entire_.${extension}`
         return file
       })
-
-      await matchFiles(files)
 
       await matchFiles(files)
     })

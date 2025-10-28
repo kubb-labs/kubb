@@ -55,8 +55,6 @@ describe('operationsGenerator operations', async () => {
       exclude: [],
     })
 
-    await instance.build(serverGenerator)
-
     const operations = await instance.getOperations()
 
     await buildOperations(

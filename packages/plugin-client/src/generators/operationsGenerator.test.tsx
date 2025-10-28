@@ -56,7 +56,6 @@ describe('operationsGenerator operations', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(operationsGenerator)
 
     const operations = await instance.getOperations()
 

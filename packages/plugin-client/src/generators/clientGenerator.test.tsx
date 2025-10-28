@@ -136,7 +136,6 @@ describe('clientGenerator operation', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(clientGenerator)
 
     const operation = oas.operation(props.path, props.method)
 

@@ -90,7 +90,6 @@ describe('mswGenerator operation', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(mswGenerator)
 
     const operation = oas.operation(props.path, props.method)
 
