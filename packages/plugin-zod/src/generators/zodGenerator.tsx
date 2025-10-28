@@ -10,7 +10,7 @@ import type { PluginZod } from '../types'
 
 export const zodGenerator = createReactGenerator<PluginZod>({
   name: 'zod',
-  Operation({ operation, options }) {
+  Operation({ operation, options, instance }) {
     const { coercion: globalCoercion, inferred, typed, mapper, wrapOutput } = options
 
     const plugin = usePlugin<PluginZod>()
@@ -24,6 +24,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     const file = getFile(operation)
     const schemas = getSchemas(operation)
     const schemaGenerator = new SchemaGenerator(options, {
+      fabric: instance.context.fabric,
       oas,
       plugin,
       pluginManager,

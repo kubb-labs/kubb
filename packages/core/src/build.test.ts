@@ -53,25 +53,25 @@ describe('build', () => {
   })
 
   test('if build can run and return created files and the pluginManager', async () => {
-    const { app, pluginManager } = await build({
+    const { fabric, pluginManager } = await build({
       config,
     })
 
-    await app.addFile(file)
+    await fabric.addFile(file)
 
-    expect(app.files).toBeDefined()
+    expect(fabric.files).toBeDefined()
     expect(pluginManager).toBeDefined()
-    expect(app.files.length).toBe(1)
+    expect(fabric.files.length).toBe(1)
   })
 
   test('if build with one plugin is running the different hooks in the correct order', async () => {
-    const { app } = await build({
+    const { fabric } = await build({
       config,
     })
 
-    await app.addFile(file)
+    await fabric.addFile(file)
 
-    expect(app.files.map((file) => ({ ...file, id: undefined, path: undefined }))).toMatchInlineSnapshot(`
+    expect(fabric.files.map((file) => ({ ...file, id: undefined, path: undefined }))).toMatchInlineSnapshot(`
       [
         {
           "baseName": "world.json",

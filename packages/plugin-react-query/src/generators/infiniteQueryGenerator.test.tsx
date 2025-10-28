@@ -1,10 +1,10 @@
-import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
-
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { OperationGenerator } from '@kubb/plugin-oas'
+import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
 import { infiniteQueryGenerator } from './infiniteQueryGenerator.tsx'
@@ -75,7 +75,10 @@ describe('infiniteQueryGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginReactQuery>
+    const fabric = createReactFabric()
+
     const instance = new OperationGenerator(options, {
+      fabric,
       oas,
       include: undefined,
       pluginManager: createMockedPluginManager(props.name),
@@ -85,15 +88,15 @@ describe('infiniteQueryGenerator operation', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(infiniteQueryGenerator)
 
     const operation = oas.operation(props.path, props.method)
-    const files = await infiniteQueryGenerator.operation?.({
-      operation,
-      options,
+    await buildOperation(operation, {
+      fabric,
       instance,
+      generator: infiniteQueryGenerator,
+      options,
     })
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })

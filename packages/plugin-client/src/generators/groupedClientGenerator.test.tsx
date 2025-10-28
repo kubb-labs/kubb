@@ -1,10 +1,10 @@
-import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
-
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
+import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { OperationGenerator } from '@kubb/plugin-oas'
+import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react'
 import type { PluginClient } from '../types.ts'
 import { groupedClientGenerator } from './groupedClientGenerator.tsx'
 
@@ -44,7 +44,9 @@ describe('groupedClientsGenerators operations', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>
+    const fabric = createReactFabric()
     const instance = new OperationGenerator(options, {
+      fabric,
       oas,
       include: undefined,
       pluginManager: createMockedPluginManager(props.name),
@@ -54,16 +56,19 @@ describe('groupedClientsGenerators operations', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(groupedClientGenerator)
 
     const operations = await instance.getOperations()
 
-    const files = await groupedClientGenerator.operations?.({
-      operations: operations.map((item) => item.operation),
-      options,
-      instance,
-    })
+    await buildOperations(
+      operations.map((item) => item.operation),
+      {
+        fabric,
+        instance,
+        generator: groupedClientGenerator,
+        options,
+      },
+    )
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })

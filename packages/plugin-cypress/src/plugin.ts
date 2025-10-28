@@ -85,6 +85,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
       const mode = getMode(path.resolve(root, output.path))
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
+        fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,

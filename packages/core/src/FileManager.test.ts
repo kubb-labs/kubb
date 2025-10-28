@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { FileManager } from '@kubb/fabric-core'
+import { FileManager } from '@kubb/react'
 import { getBarrelFiles, getMode } from './FileManager.ts'
 import type { KubbFile } from './fs/index.ts'
 

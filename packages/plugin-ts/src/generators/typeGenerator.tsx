@@ -112,7 +112,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
 
 export const typeGenerator = createReactGenerator<PluginTs>({
   name: 'typescript',
-  Operation({ operation, options }) {
+  Operation({ operation, options, instance }) {
     const { mapper, enumType, syntaxType, optionalType } = options
 
     const plugin = usePlugin<PluginTs>()
@@ -128,6 +128,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const type = getName(operation, { type: 'function', pluginKey: [pluginTsName] })
     const combinedSchemaName = operation.method === 'get' ? `${type}Query` : `${type}Mutation`
     const schemaGenerator = new SchemaGenerator(options, {
+      fabric: instance.context.fabric,
       oas,
       plugin,
       pluginManager,

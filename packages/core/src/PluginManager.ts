@@ -1,4 +1,4 @@
-import type { App } from '@kubb/fabric-core'
+import type { Fabric } from '@kubb/react'
 import { ValidationPluginError } from './errors.ts'
 import type { KubbFile } from './fs/index.ts'
 import type { Logger } from './logger.ts'
@@ -47,7 +47,7 @@ type SafeParseResult<H extends PluginLifecycleHooks, Result = ReturnType<ParseRe
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
 type Options = {
-  app: App
+  fabric: Fabric
   logger: Logger
   /**
    * @default Number.POSITIVE_INFINITY
@@ -92,7 +92,7 @@ export class PluginManager {
     })
 
     const core = pluginCore({
-      app: options.app,
+      fabric: options.fabric,
       config,
       logger: this.logger,
       pluginManager: this,

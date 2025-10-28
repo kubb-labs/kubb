@@ -103,6 +103,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       const mode = getMode(path.resolve(root, output.path))
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
+        fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
@@ -117,6 +118,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       await this.addFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
+        fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,

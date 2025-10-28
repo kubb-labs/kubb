@@ -128,6 +128,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
       }
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
+        fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,

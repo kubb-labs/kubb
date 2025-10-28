@@ -87,7 +87,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/react-fabric": "0.1.5"
+    "@kubb/react-fabric": "0.2.3"
   },
   "devDependencies": {
     "tsdown": "catalog:",

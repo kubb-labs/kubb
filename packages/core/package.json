@@ -98,7 +98,6 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/fabric-core": "0.1.8",
     "@kubb/parser-ts": "^4.1.4",
     "@kubb/react": "workspace:*",
     "camelcase": "^8.0.0",
@@ -114,6 +113,7 @@
     "semver": "^7.7.3"
   },
   "devDependencies": {
+    "@kubb/fabric-core": "0.2.3",
     "@types/fs-extra": "^11.0.4",
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",

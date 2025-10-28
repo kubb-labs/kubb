@@ -1,8 +1,8 @@
 import { type Config, type Plugin, safeBuild } from '@kubb/core'
-import { createFile, FileProcessor } from '@kubb/fabric-core'
 import { type Include, pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginTs } from '@kubb/plugin-ts'
+import { createFile, FileProcessor } from '@kubb/react'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.d.ts'
 import type { z } from 'zod'
 import type { generateSchema } from '../schemas/generateSchema.ts'
@@ -50,7 +50,7 @@ export async function generate({ plugin, openApi, operationId }: z.infer<typeof 
       plugins,
     }
 
-    const { app, error } = await safeBuild({
+    const { fabric, error } = await safeBuild({
       config: definedConfig,
     })
 
@@ -66,7 +66,7 @@ export async function generate({ plugin, openApi, operationId }: z.infer<typeof 
       }
     }
 
-    const promises = app.files.map(async (file) => {
+    const promises = fabric.files.map(async (file) => {
       return fileProcessor.parse(createFile(file))
     })
 

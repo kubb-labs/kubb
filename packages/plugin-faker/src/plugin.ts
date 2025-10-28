@@ -98,6 +98,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       const mode = getMode(path.resolve(root, output.path))
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
+        fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
@@ -112,6 +113,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       await this.addFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
+        fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,

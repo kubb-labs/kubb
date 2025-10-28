@@ -3,11 +3,12 @@ import type { Plugin } from '@kubb/core'
 import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
+import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
+import { createReactFabric } from '@kubb/react'
+import ts, { factory } from 'typescript'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
-import ts, { factory } from 'typescript'
 
 describe('typeGenerator schema', async () => {
   const testData = [
@@ -421,7 +422,10 @@ describe('typeGenerator schema', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
+    const fabric = createReactFabric()
+
     const instance = new SchemaGenerator(options, {
+      fabric,
       oas,
       pluginManager: createMockedPluginManager(props.name),
       plugin,
@@ -431,24 +435,27 @@ describe('typeGenerator schema', async () => {
       mode: 'split',
       output: './gen',
     })
-    await instance.build(typeGenerator)
 
     const schemas = getSchemas({ oas })
     const name = props.path
     const schema = schemas[name]!
     const tree = instance.parse({ schemaObject: schema, name })
 
-    const files = await typeGenerator.schema?.({
-      schema: {
+    await buildSchema(
+      {
         name,
         tree,
         value: schema,
       },
-      options,
-      instance,
-    })
+      {
+        fabric,
+        instance,
+        generator: typeGenerator,
+        options,
+      },
+    )
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })
 
@@ -548,7 +555,9 @@ describe('typeGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
+    const fabric = createReactFabric()
     const instance = new OperationGenerator(options, {
+      fabric,
       oas,
       include: undefined,
       pluginManager: createMockedPluginManager(props.name),
@@ -559,12 +568,13 @@ describe('typeGenerator operation', async () => {
       exclude: [],
     })
     const operation = oas.operation(props.path, props.method)
-    const files = await typeGenerator.operation?.({
-      operation,
-      options,
+    await buildOperation(operation, {
+      fabric,
       instance,
+      generator: typeGenerator,
+      options,
     })
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })

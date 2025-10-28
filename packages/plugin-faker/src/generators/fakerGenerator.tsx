@@ -10,7 +10,7 @@ import type { PluginFaker } from '../types'
 
 export const fakerGenerator = createReactGenerator<PluginFaker>({
   name: 'faker',
-  Operation({ operation, options }) {
+  Operation({ operation, options, instance }) {
     const { dateParser, regexGenerator, seed, mapper } = options
 
     const plugin = usePlugin<PluginFaker>()
@@ -24,6 +24,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     const file = getFile(operation)
     const schemas = getSchemas(operation)
     const schemaGenerator = new SchemaGenerator(options, {
+      fabric: instance.context.fabric,
       oas,
       plugin,
       pluginManager,

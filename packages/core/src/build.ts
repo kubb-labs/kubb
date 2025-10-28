@@ -1,7 +1,6 @@
 import { join, relative, resolve } from 'node:path'
-import { type App, createApp } from '@kubb/fabric-core'
-import { typescriptParser } from '@kubb/fabric-core/parsers'
-import { fsPlugin } from '@kubb/fabric-core/plugins'
+import type { Fabric } from '@kubb/react'
+import { createFabric, fsPlugin, typescriptParser } from '@kubb/react'
 import pc from 'picocolors'
 import { isDeepEqual } from 'remeda'
 import { isInputPath } from './config.ts'
@@ -21,7 +20,7 @@ type BuildOptions = {
 }
 
 type BuildOutput = {
-  app: App
+  fabric: Fabric
   files: Array<KubbFile.ResolvedFile>
   pluginManager: PluginManager
   /**
@@ -31,7 +30,7 @@ type BuildOutput = {
 }
 
 type SetupResult = {
-  app: App
+  fabric: Fabric
   pluginManager: PluginManager
 }
 
@@ -77,27 +76,27 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     await clean(join(definedConfig.root, '.kubb'))
   }
 
-  const app = createApp()
-  app.use(fsPlugin, { dryRun: !definedConfig.output.write })
-  app.use(typescriptParser)
+  const fabric = createFabric()
+  fabric.use(fsPlugin, { dryRun: !definedConfig.output.write })
+  fabric.use(typescriptParser)
 
-  const pluginManager = new PluginManager(definedConfig, { app, logger, concurrency: 5 })
+  const pluginManager = new PluginManager(definedConfig, { fabric, logger, concurrency: 5 })
 
   return {
-    app,
+    fabric,
     pluginManager,
   }
 }
 
 export async function build(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { app, files, pluginManager, error } = await safeBuild(options, overrides)
+  const { fabric, files, pluginManager, error } = await safeBuild(options, overrides)
 
   if (error) {
     throw error
   }
 
   return {
-    app,
+    fabric,
     files,
     pluginManager,
     error,
@@ -105,7 +104,7 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
 }
 
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { app, pluginManager } = overrides ? overrides : await setup(options)
+  const { fabric, pluginManager } = overrides ? overrides : await setup(options)
 
   const config = pluginManager.config
 
@@ -120,10 +119,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       const root = resolve(config.root)
       const rootPath = resolve(root, config.output.path, 'index.ts')
 
-      //TODO find clean method without loading all files
-      const files = await app.files
-
-      const barrelFiles = files.filter((file) => {
+      const barrelFiles = fabric.files.filter((file) => {
         return file.sources.some((source) => source.isIndexable)
       })
 
@@ -164,14 +160,14 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         meta: {},
       }
 
-      await app.addFile(rootFile)
+      await fabric.addFile(rootFile)
     }
 
-    app.context.events.on('process:start', ({ files }) => {
+    fabric.context.events.on('process:start', ({ files }) => {
       pluginManager.logger.emit('progress_start', { id: 'files', size: files.length, message: 'Writing files ...' })
     })
 
-    app.context.events.on('process:progress', async ({ file, source }) => {
+    fabric.context.events.on('process:progress', async ({ file, source }) => {
       const message = file ? `Writing ${relative(config.root, file.path)}` : ''
       pluginManager.logger.emit('progressed', { id: 'files', message })
 
@@ -180,23 +176,23 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       }
     })
 
-    app.context.events.on('process:end', () => {
+    fabric.context.events.on('process:end', () => {
       pluginManager.logger.emit('progress_stop', { id: 'files' })
     })
-    const files = [...app.files]
+    const files = [...fabric.files]
 
-    await app.write({ extension: config.output.extension })
+    await fabric.write({ extension: config.output.extension })
 
     await pluginManager.hookParallel({ hookName: 'buildEnd', message: `Build stopped for ${config.name}` })
 
     return {
-      app,
+      fabric,
       files,
       pluginManager,
     }
   } catch (e) {
     return {
-      app,
+      fabric,
       files: [],
       pluginManager,
       error: e as Error,

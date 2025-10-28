@@ -30,7 +30,7 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/react-query": "^5.90.5",
-    "axios": "^1.12.2",
+    "axios": "^1.13.0",
     "react": "^18.3.1",
     "typescript": "^5.9.3",
     "zod": "^3.25.76"
