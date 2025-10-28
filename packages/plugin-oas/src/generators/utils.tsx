@@ -49,7 +49,7 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
   operation: Operation,
   { fabric, options, instance, generator }: BuildOperationOptions<TOptions>,
 ): Promise<void> {
-  if (!generator.Operations) {
+  if (!generator.Operation) {
     return undefined
   }
 
@@ -90,7 +90,7 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
   },
   { fabric, options, instance, generator }: BuildSchemaOptions<TOptions>,
 ): Promise<void> {
-  if (!generator.Operations) {
+  if (!generator.Schema) {
     return undefined
   }
 

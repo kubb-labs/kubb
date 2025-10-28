@@ -7,7 +7,6 @@ import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react'
 import type { PluginMcp } from '../types.ts'
 import { mcpGenerator } from './mcpGenerator.tsx'
-import { serverGenerator } from './serverGenerator.tsx'
 
 describe('mcpGenerator operation', async () => {
   const testData = [
@@ -82,7 +81,7 @@ describe('mcpGenerator operation', async () => {
     await buildOperation(operation, {
       fabric,
       instance,
-      generator: serverGenerator,
+      generator: mcpGenerator,
       options,
     })
 

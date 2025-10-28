@@ -113,8 +113,8 @@
     "semver": "^7.7.3"
   },
   "devDependencies": {
-    "@types/fs-extra": "^11.0.4",
     "@kubb/fabric-core": "0.2.3",
+    "@types/fs-extra": "^11.0.4",
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.7.1",

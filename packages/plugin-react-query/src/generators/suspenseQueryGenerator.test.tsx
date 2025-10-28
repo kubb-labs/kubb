@@ -7,7 +7,6 @@ import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
-import { infiniteQueryGenerator } from './infiniteQueryGenerator.tsx'
 import { suspenseQueryGenerator } from './suspenseQueryGenerator.tsx'
 
 describe('suspenseQueryGenerator operation', async () => {

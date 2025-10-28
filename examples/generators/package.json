@@ -24,7 +24,7 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/react": "workspace:*",
-    "axios": "^1.12.2"
+    "axios": "^1.13.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",
