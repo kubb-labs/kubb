@@ -9,7 +9,7 @@ catalog:
   '@kubb/fabric-core': 0.2.8
   '@kubb/react-fabric': 0.2.8
   '@size-limit/file': ^11.2.0
-  '@size-limit/preset-big-lib': ^11.2.0
+  '@size-limit/preset-small-lib': ^11.2.0
   'size-limit': ^11.2.0
   p-limit: ^7.2.0
   remeda: ^2.32.0
