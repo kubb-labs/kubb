@@ -1,13 +1,28 @@
-import type client from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
 import { deleteUser } from '../../axios/userService/deleteUser.ts'
-import { useMutation } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
-export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
+export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
+
+export function deleteUserMutationOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const mutationKey = deleteUserMutationKey()
+  return mutationOptions<
+    ResponseConfig<DeleteUserMutationResponse>,
+    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    { username: DeleteUserPathParams['username'] },
+    typeof mutationKey
+  >({
+    mutationKey,
+    mutationFn: async ({ username }) => {
+      return deleteUser({ username }, config)
+    },
+  })
+}
 
 /**
  * @description This can only be done by the logged in user.
@@ -22,12 +37,19 @@ export function useDeleteUser<TContext>(
       { username: DeleteUserPathParams['username'] },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? deleteUserMutationKey()
+
+  const baseOptions = deleteUserMutationOptions(config) as UseMutationOptions<
+    ResponseConfig<DeleteUserMutationResponse>,
+    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    { username: DeleteUserPathParams['username'] },
+    TContext
+  >
 
   return useMutation<
     ResponseConfig<DeleteUserMutationResponse>,
@@ -36,12 +58,15 @@ export function useDeleteUser<TContext>(
     TContext
   >(
     {
-      mutationFn: async ({ username }) => {
-        return deleteUser({ username }, config)
-      },
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
     },
     queryClient,
-  )
+  ) as UseMutationResult<
+    ResponseConfig<DeleteUserMutationResponse>,
+    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    { username: DeleteUserPathParams['username'] },
+    TContext
+  >
 }

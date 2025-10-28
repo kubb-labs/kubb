@@ -3,14 +3,14 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
-export const updateUserMutationKey = () => [{ url: '/user/{username}' }] as const
+export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 
@@ -22,14 +22,16 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 export async function updateUser(
   { username }: { username: UpdateUserPathParams['username'] },
   data?: UpdateUserMutationRequest,
-  config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
+
+  const requestData = data
 
   const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
     url: `/user/${username}`,
-    data,
+    data: requestData,
     ...requestConfig,
   })
   return res.data
@@ -45,10 +47,10 @@ export function useUpdateUser<TContext>(
     mutation?: MutationObserverOptions<
       UpdateUserMutationResponse,
       ResponseErrorConfig<Error>,
-      { username: MaybeRef<UpdateUserPathParams['username']>; data?: MaybeRef<UpdateUserMutationRequest> },
+      { username: MaybeRefOrGetter<UpdateUserPathParams['username']>; data?: MaybeRefOrGetter<UpdateUserMutationRequest> },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client }
+    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

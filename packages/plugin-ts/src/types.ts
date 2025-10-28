@@ -1,5 +1,5 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { Oas, contentType } from '@kubb/oas'
+import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 
@@ -57,6 +57,11 @@ export type Options = {
    */
   unknownType?: 'any' | 'unknown' | 'void'
   /**
+   * Which type to use for empty schema values
+   * @default `unknownType`
+   */
+  emptySchemaType?: 'any' | 'unknown' | 'void'
+  /**
    * Choose what to use as mode for an optional value.
    * @examples 'questionToken': type?: string
    * @examples 'undefined': type: string | undefined
@@ -99,12 +104,12 @@ type ResolvedOptions = {
   enumSuffix: NonNullable<Options['enumSuffix']>
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
+  emptySchemaType: NonNullable<Options['emptySchemaType']>
   optionalType: NonNullable<Options['optionalType']>
   transformers: NonNullable<Options['transformers']>
   oasType: NonNullable<Options['oasType']>
   syntaxType: NonNullable<Options['syntaxType']>
-  usedEnumNames: Record<string, number>
   mapper: Record<string, any>
 }
 
-export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, { usedEnumNames: Record<string, number> }, ResolvePathOptions>

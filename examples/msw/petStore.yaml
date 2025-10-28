@@ -207,7 +207,7 @@ paths:
         - petstore_auth:
             - write:pets
             - read:pets
-  /pet/{petId}:
+  /pet/{petId}:search:
     get:
       tags:
         - pet

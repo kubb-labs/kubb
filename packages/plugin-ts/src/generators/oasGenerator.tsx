@@ -1,7 +1,8 @@
+import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
 import { OasType } from '../components'
 import type { PluginTs } from '../types.ts'
 
@@ -9,12 +10,10 @@ export const oasGenerator = createReactGenerator<PluginTs>({
   name: 'oas',
   Operations() {
     const {
-      pluginManager,
-      plugin: {
-        options: { output },
-        key: pluginKey,
-      },
-    } = useApp<PluginTs>()
+      options: { output },
+      key: pluginKey,
+    } = usePlugin<PluginTs>()
+    const pluginManager = usePluginManager()
     const oas = useOas()
 
     const file = pluginManager.getFile({ name: 'oas', extname: '.ts', pluginKey })

@@ -1,12 +1,9 @@
 import path from 'node:path'
-
-import { FileManager, type Group, PluginManager, createPlugin } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
+import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
-
-import type { Plugin } from '@kubb/core'
-import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { cypressGenerator } from './generators'
 import type { PluginCypress } from './types.ts'
 
@@ -37,7 +34,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     pre: [pluginOasName, pluginTsName].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
+      const mode = pathMode ?? getMode(path.resolve(root, output.path))
 
       if (mode === 'single') {
         /**
@@ -85,9 +82,10 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
 
       const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = FileManager.getMode(path.resolve(root, output.path))
+      const mode = getMode(path.resolve(root, output.path))
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
+        fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
@@ -101,11 +99,10 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
-      const barrelFiles = await this.fileManager.getBarrelFiles({
+      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
         type: output.barrelType ?? 'named',
         root,
         output,
-        files: this.fileManager.files,
         meta: {
           pluginKey: this.plugin.key,
         },

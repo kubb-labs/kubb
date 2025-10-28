@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: Swagger Petstore - OpenAPI 3.0
   description: |-
@@ -364,6 +364,8 @@ paths:
         content:
           application/json:
             schema:
+              description: Order description
+              pattern: "^[a-zA-Z0-9]{1,13}$"
               $ref: '#/components/schemas/Order'
           application/xml:
             schema:
@@ -660,13 +662,12 @@ components:
           type: string
           format: date-time
         status:
-          type: string
           description: Order Status
-          example: approved
-          enum:
-            - placed
-            - approved
-            - delivered
+          anyOf:
+            - type: string
+              const: ''
+            - type: string
+              format: email
         http_status:
           type: number
           description: HTTP Status
@@ -698,6 +699,24 @@ components:
             $ref: '#/components/schemas/Address'
       xml:
         name: customer
+    HappyCustomer:
+      allOf:
+        - $ref: '#/components/schemas/Customer'
+        - type: object
+          properties:
+            isHappy:
+              type: boolean
+              const: true
+    UnhappyCustomer:
+      allOf:
+        - $ref: '#/components/schemas/Customer'
+        - type: object
+          properties:
+            reasonToBeUnhappy:
+              type: string
+            isHappy:
+              type: boolean
+              const: false
     Address:
       type: object
       properties:

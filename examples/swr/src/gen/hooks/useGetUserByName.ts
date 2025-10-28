@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
@@ -16,8 +16,8 @@ export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
  * @summary Get user by user name
  * {@link /user/:username}
  */
-export async function getUserByName(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function getUserByName(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
     method: 'GET',
@@ -27,7 +27,7 @@ export async function getUserByName(username: GetUserByNamePathParams['username'
   return res.data
 }
 
-export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   return {
     fetcher: async () => {
       return getUserByName(username, config)
@@ -43,11 +43,12 @@ export function useGetUserByName(
   username: GetUserByNamePathParams['username'],
   options: {
     query?: Parameters<typeof useSWR<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>>>[2]
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
+    immutable?: boolean
   } = {},
 ) {
-  const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
   const queryKey = getUserByNameQueryKey(username)
 
@@ -55,6 +56,13 @@ export function useGetUserByName(
     shouldFetch ? queryKey : null,
     {
       ...getUserByNameQueryOptions(username, config),
+      ...(immutable
+        ? {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+          }
+        : {}),
       ...queryOptions,
     },
   )

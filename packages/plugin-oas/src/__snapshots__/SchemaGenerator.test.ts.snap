@@ -15,6 +15,20 @@ exports[`SchemaGenerator core > 'FullAddress' 1`] = `
       },
       {
         "args": {
+          "format": undefined,
+          "type": undefined,
+        },
+        "keyword": "schema",
+      },
+      {
+        "args": {
+          "format": undefined,
+          "type": undefined,
+        },
+        "keyword": "schema",
+      },
+      {
+        "args": {
           "additionalProperties": [],
           "properties": {
             "streetName": [
@@ -33,21 +47,6 @@ exports[`SchemaGenerator core > 'FullAddress' 1`] = `
                 "keyword": "name",
               },
             ],
-          },
-        },
-        "keyword": "object",
-      },
-      {
-        "args": {
-          "format": undefined,
-          "type": "object",
-        },
-        "keyword": "schema",
-      },
-      {
-        "args": {
-          "additionalProperties": [],
-          "properties": {
             "streetNumber": [
               {
                 "keyword": "string",
@@ -67,13 +66,6 @@ exports[`SchemaGenerator core > 'FullAddress' 1`] = `
           },
         },
         "keyword": "object",
-      },
-      {
-        "args": {
-          "format": undefined,
-          "type": "object",
-        },
-        "keyword": "schema",
       },
     ],
     "keyword": "and",
@@ -435,6 +427,123 @@ exports[`SchemaGenerator core > 'Toy' 1`] = `
   {
     "args": null,
     "keyword": "default",
+  },
+]
+`;
+
+exports[`SchemaGenerator core > combineObjects 1`] = `
+[
+  {
+    "args": [
+      {
+        "args": {
+          "$ref": "#/components/schemas/EventBase",
+          "isImportable": true,
+          "name": "EventBase",
+          "path": "/Users/stijnvanhullem/Git/external/kubb/examples/typescript/src/gen/models.ts",
+        },
+        "keyword": "ref",
+      },
+      {
+        "args": {
+          "type": "object",
+        },
+        "keyword": "schema",
+      },
+      {
+        "args": {
+          "type": "object",
+        },
+        "keyword": "schema",
+      },
+      {
+        "args": {
+          "type": "object",
+        },
+        "keyword": "schema",
+      },
+      {
+        "args": {
+          "additionalProperties": [],
+          "properties": {
+            "id": [
+              {
+                "keyword": "uuid",
+              },
+              {
+                "args": {
+                  "format": "uuid",
+                  "type": "string",
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "id",
+                "keyword": "name",
+              },
+            ],
+            "text": [
+              {
+                "keyword": "string",
+              },
+              {
+                "args": {
+                  "type": "string",
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "text",
+                "keyword": "name",
+              },
+            ],
+            "ts": [
+              {
+                "args": {
+                  "offset": false,
+                },
+                "keyword": "datetime",
+              },
+              {
+                "args": {
+                  "format": "date-time",
+                  "type": "string",
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "ts",
+                "keyword": "name",
+              },
+            ],
+            "verified": [
+              {
+                "keyword": "boolean",
+              },
+              {
+                "args": {
+                  "type": "boolean",
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "verified",
+                "keyword": "name",
+              },
+              {
+                "keyword": "optional",
+              },
+            ],
+          },
+        },
+        "keyword": "object",
+      },
+    ],
+    "keyword": "and",
+  },
+  {
+    "args": {},
+    "keyword": "schema",
   },
 ]
 `;

@@ -3,15 +3,15 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { queryOptions, useQuery } from '@tanstack/vue-query'
-import { unref } from 'vue'
+import { toValue } from 'vue'
 
-export const getOrderByIdQueryKey = ({ orderId }: { orderId: MaybeRef<GetOrderByIdPathParams['orderId']> }) =>
+export const getOrderByIdQueryKey = ({ orderId }: { orderId: MaybeRefOrGetter<GetOrderByIdPathParams['orderId']> }) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
@@ -23,9 +23,9 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
  */
 export async function getOrderById(
   { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
     method: 'GET',
@@ -36,8 +36,8 @@ export async function getOrderById(
 }
 
 export function getOrderByIdQueryOptions(
-  { orderId }: { orderId: MaybeRef<GetOrderByIdPathParams['orderId']> },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  { orderId }: { orderId: MaybeRefOrGetter<GetOrderByIdPathParams['orderId']> },
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = getOrderByIdQueryKey({ orderId })
   return queryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, GetOrderByIdQueryResponse, typeof queryKey>({
@@ -45,7 +45,7 @@ export function getOrderByIdQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getOrderById(unref({ orderId: unref(orderId) }), unref(config))
+      return getOrderById(toValue({ orderId: toValue(orderId) }), toValue(config))
     },
   })
 }
@@ -56,23 +56,24 @@ export function getOrderByIdQueryOptions(
  * {@link /store/order/:orderId}
  */
 export function useGetOrderById<TData = GetOrderByIdQueryResponse, TQueryData = GetOrderByIdQueryResponse, TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
-  { orderId }: { orderId: MaybeRef<GetOrderByIdPathParams['orderId']> },
+  { orderId }: { orderId: MaybeRefOrGetter<GetOrderByIdPathParams['orderId']> },
   options: {
     query?: Partial<QueryObserverOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey({ orderId })
 
   const query = useQuery(
     {
-      ...(getOrderByIdQueryOptions({ orderId }, config) as unknown as QueryObserverOptions),
-      queryKey: queryKey as QueryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...getOrderByIdQueryOptions({ orderId }, config),
+      queryKey,
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryReturnType<TData, ResponseErrorConfig<GetOrderById400 | GetOrderById404>> & { queryKey: TQueryKey }
 

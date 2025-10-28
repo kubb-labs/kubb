@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   FindPetsByTagsQueryResponse,
@@ -8,8 +8,9 @@ import type {
 } from '../../../models/ts/petController/FindPetsByTags.ts'
 import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 
-function getFindPetsByTagsUrl() {
-  return 'https://petstore3.swagger.io/api/v3/pet/findByTags' as const
+export function getFindPetsByTagsUrl() {
+  const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/pet/findByTags' as const }
+  return res
 }
 
 /**
@@ -19,13 +20,13 @@ function getFindPetsByTagsUrl() {
  */
 export async function findPetsByTags(
   { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
-    url: getFindPetsByTagsUrl().toString(),
+    url: getFindPetsByTagsUrl().url.toString(),
     params,
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },

@@ -1,7 +1,6 @@
 import path from 'node:path'
-
+import type { KubbFile } from '@kubb/fabric-core/types'
 import { TreeNode } from './TreeNode.ts'
-import type { KubbFile } from '../fs/index.ts'
 
 describe('TreeNode', () => {
   const files: KubbFile.File[] = [
@@ -24,77 +23,68 @@ describe('TreeNode', () => {
       meta: {},
     },
   ]
-  const tree = TreeNode.build(files)
+  const tree = TreeNode.build(files, 'src/')
+  const treeWindows = TreeNode.build(files, 'src\\')
 
   test('if schemas folder contains x files and y folders', () => {
     expect(tree).toBeDefined()
+    expect(treeWindows).toBeDefined()
 
     expect(tree).toMatchInlineSnapshot(`
       TreeNode {
         "children": [
+          TreeNode {
+            "children": [],
+            "data": {
+              "file": {
+                "baseName": "test.ts",
+                "meta": {},
+                "path": "src/test.ts",
+                "sources": [],
+              },
+              "name": "test.ts",
+              "path": "src/test.ts",
+              "type": "single",
+            },
+            "parent": [Circular],
+          },
           TreeNode {
             "children": [
               TreeNode {
                 "children": [],
                 "data": {
                   "file": {
-                    "baseName": "test.ts",
+                    "baseName": "hello.ts",
                     "meta": {},
-                    "path": "src/test.ts",
+                    "path": "src/sub/hello.ts",
                     "sources": [],
                   },
-                  "name": "test.ts",
-                  "path": "src/test.ts",
+                  "name": "hello.ts",
+                  "path": "src/sub/hello.ts",
                   "type": "single",
                 },
                 "parent": [Circular],
               },
               TreeNode {
-                "children": [
-                  TreeNode {
-                    "children": [],
-                    "data": {
-                      "file": {
-                        "baseName": "hello.ts",
-                        "meta": {},
-                        "path": "src/sub/hello.ts",
-                        "sources": [],
-                      },
-                      "name": "hello.ts",
-                      "path": "src/sub/hello.ts",
-                      "type": "single",
-                    },
-                    "parent": [Circular],
-                  },
-                  TreeNode {
-                    "children": [],
-                    "data": {
-                      "file": {
-                        "baseName": "world.ts",
-                        "meta": {},
-                        "path": "src/sub/world.ts",
-                        "sources": [],
-                      },
-                      "name": "world.ts",
-                      "path": "src/sub/world.ts",
-                      "type": "single",
-                    },
-                    "parent": [Circular],
-                  },
-                ],
+                "children": [],
                 "data": {
-                  "file": undefined,
-                  "name": "sub",
-                  "path": "src/sub",
-                  "type": "split",
+                  "file": {
+                    "baseName": "world.ts",
+                    "meta": {},
+                    "path": "src/sub/world.ts",
+                    "sources": [],
+                  },
+                  "name": "world.ts",
+                  "path": "src/sub/world.ts",
+                  "type": "single",
                 },
                 "parent": [Circular],
               },
             ],
             "data": {
               "file": undefined,
-              "name": "src",
-              "path": "src",
+              "name": "sub",
+              "path": "src/sub",
               "type": "split",
             },
             "parent": [Circular],
@@ -102,8 +92,77 @@ describe('TreeNode', () => {
         ],
         "data": {
           "file": undefined,
-          "name": "",
-          "path": "",
+          "name": "src/",
+          "path": "src/",
+          "type": "split",
+        },
+        "parent": undefined,
+      }
+    `)
+    expect(tree).toMatchInlineSnapshot(`
+      TreeNode {
+        "children": [
+          TreeNode {
+            "children": [],
+            "data": {
+              "file": {
+                "baseName": "test.ts",
+                "meta": {},
+                "path": "src/test.ts",
+                "sources": [],
+              },
+              "name": "test.ts",
+              "path": "src/test.ts",
+              "type": "single",
+            },
+            "parent": [Circular],
+          },
+          TreeNode {
+            "children": [
+              TreeNode {
+                "children": [],
+                "data": {
+                  "file": {
+                    "baseName": "hello.ts",
+                    "meta": {},
+                    "path": "src/sub/hello.ts",
+                    "sources": [],
+                  },
+                  "name": "hello.ts",
+                  "path": "src/sub/hello.ts",
+                  "type": "single",
+                },
+                "parent": [Circular],
+              },
+              TreeNode {
+                "children": [],
+                "data": {
+                  "file": {
+                    "baseName": "world.ts",
+                    "meta": {},
+                    "path": "src/sub/world.ts",
+                    "sources": [],
+                  },
+                  "name": "world.ts",
+                  "path": "src/sub/world.ts",
+                  "type": "single",
+                },
+                "parent": [Circular],
+              },
+            ],
+            "data": {
+              "file": undefined,
+              "name": "sub",
+              "path": "src/sub",
+              "type": "split",
+            },
+            "parent": [Circular],
+          },
+        ],
+        "data": {
+          "file": undefined,
+          "name": "src/",
+          "path": "src/",
           "type": "split",
         },
         "parent": undefined,
@@ -146,11 +205,10 @@ describe('TreeNode', () => {
     })
     const names = items.map((item) => item.name)
 
-    expect(items.length).toBe(6)
+    expect(items.length).toBe(5)
     expect(names).toMatchInlineSnapshot(`
       [
-        "",
-        "src",
+        "src/",
         "test.ts",
         "sub",
         "hello.ts",

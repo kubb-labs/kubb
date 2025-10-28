@@ -1,12 +1,15 @@
 import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import { BaseGenerator, type FileMetaBase } from '@kubb/core'
-import type { KubbFile } from '@kubb/core/fs'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference } from '@kubb/oas'
+import type { Fabric } from '@kubb/react-fabric'
+import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
-import type { Generator } from './generator.tsx'
+import type { Generator } from './generators/types.ts'
+import { buildSchema } from './generators/utils.tsx'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
@@ -18,6 +21,7 @@ export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> 
 export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
+  fabric: Fabric
   oas: Oas
   pluginManager: PluginManager
   /**
@@ -34,6 +38,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
 export type SchemaGeneratorOptions = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   unknownType: 'any' | 'unknown' | 'void'
+  emptySchemaType: 'any' | 'unknown' | 'void'
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   enumSuffix?: string
   usedEnumNames?: Record<string, number>
@@ -210,10 +215,56 @@ export class SchemaGenerator<
     return foundItem
   }
 
-  #getUsedEnumNames(props: SchemaProps) {
-    const options = this.#getOptions(props)
+  static combineObjects(tree: Schema[] | undefined): Schema[] {
+    if (!tree) {
+      return []
+    }
 
-    return options.usedEnumNames || {}
+    return tree.map((schema) => {
+      if (!isKeyword(schema, schemaKeywords.and)) {
+        return schema
+      }
+
+      let mergedProperties: Record<string, Schema[]> | null = null
+      let mergedAdditionalProps: Schema[] = []
+
+      const newArgs: Schema[] = []
+
+      for (const subSchema of schema.args) {
+        if (isKeyword(subSchema, schemaKeywords.object)) {
+          const { properties = {}, additionalProperties = [] } = subSchema.args ?? {}
+
+          if (!mergedProperties) {
+            mergedProperties = {}
+          }
+
+          for (const [key, value] of Object.entries(properties)) {
+            mergedProperties[key] = value
+          }
+
+          if (additionalProperties.length > 0) {
+            mergedAdditionalProps = additionalProperties
+          }
+        } else {
+          newArgs.push(subSchema)
+        }
+      }
+
+      if (mergedProperties) {
+        newArgs.push({
+          keyword: schemaKeywords.object,
+          args: {
+            properties: mergedProperties,
+            additionalProperties: mergedAdditionalProps,
+          },
+        })
+      }
+
+      return {
+        keyword: schemaKeywords.and,
+        args: newArgs,
+      }
+    })
   }
 
   #getOptions({ name }: SchemaProps): Partial<TOptions> {
@@ -231,13 +282,26 @@ export class SchemaGenerator<
     }
   }
 
-  #getUnknownReturn(props: SchemaProps) {
+  #getUnknownType(props: SchemaProps) {
     const options = this.#getOptions(props)
 
     if (options.unknownType === 'any') {
       return schemaKeywords.any
     }
     if (options.unknownType === 'void') {
+      return schemaKeywords.void
+    }
+
+    return schemaKeywords.unknown
+  }
+
+  #getEmptyType(props: SchemaProps) {
+    const options = this.#getOptions(props)
+
+    if (options.emptySchemaType === 'any') {
+      return schemaKeywords.any
+    }
+    if (options.emptySchemaType === 'void') {
       return schemaKeywords.void
     }
 
@@ -283,7 +347,7 @@ export class SchemaGenerator<
     if (additionalProperties) {
       additionalPropertiesSchemas =
         additionalProperties === true || !Object.keys(additionalProperties).length
-          ? [{ keyword: this.#getUnknownReturn({ schemaObject, name }) }]
+          ? [{ keyword: this.#getUnknownType({ schemaObject, name }) }]
           : this.parse({ schemaObject: additionalProperties as SchemaObject, parentName: name })
     }
 
@@ -440,10 +504,10 @@ export class SchemaGenerator<
     const { schemaObject, version } = this.#getParsedSchemaObject(_schemaObject)
 
     const options = this.#getOptions({ schemaObject, name })
-    const unknownReturn = this.#getUnknownReturn({ schemaObject, name })
+    const emptyType = this.#getEmptyType({ schemaObject, name })
 
     if (!schemaObject) {
-      return [{ keyword: unknownReturn }]
+      return [{ keyword: emptyType }]
     }
 
     const baseItems: Schema[] = [
@@ -457,6 +521,10 @@ export class SchemaGenerator<
     ]
     const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
     const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
+
+    const exclusiveMinimum = schemaObject.exclusiveMinimum
+    const exclusiveMaximum = schemaObject.exclusiveMaximum
+
     const nullable = isNullable(schemaObject)
     const defaultNullAndNullable = schemaObject.default === null && nullable
 
@@ -493,13 +561,25 @@ export class SchemaGenerator<
     }
 
     if (max !== undefined) {
-      baseItems.unshift({ keyword: schemaKeywords.max, args: max })
+      if (exclusiveMaximum) {
+        baseItems.unshift({ keyword: schemaKeywords.exclusiveMaximum, args: max })
+      } else baseItems.unshift({ keyword: schemaKeywords.max, args: max })
     }
 
     if (min !== undefined) {
-      baseItems.unshift({ keyword: schemaKeywords.min, args: min })
+      if (exclusiveMinimum) {
+        baseItems.unshift({ keyword: schemaKeywords.exclusiveMinimum, args: min })
+      } else baseItems.unshift({ keyword: schemaKeywords.min, args: min })
     }
 
+    if (typeof exclusiveMaximum === 'number') {
+      //OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
+      baseItems.unshift({ keyword: schemaKeywords.exclusiveMaximum, args: exclusiveMaximum })
+    }
+    if (typeof exclusiveMinimum === 'number') {
+      //OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
+      baseItems.unshift({ keyword: schemaKeywords.exclusiveMinimum, args: exclusiveMinimum })
+    }
     if (nullable) {
       baseItems.push({ keyword: schemaKeywords.nullable })
     }
@@ -551,6 +631,11 @@ export class SchemaGenerator<
           keyword: schemaKeywords.describe,
           args: schemaObject.description,
         },
+        schemaObject.pattern &&
+          schemaObject.type === 'string' && {
+            keyword: schemaKeywords.matches,
+            args: schemaObject.pattern,
+          },
         nullable && { keyword: schemaKeywords.nullable },
         schemaObject.readOnly && { keyword: schemaKeywords.readOnly },
         schemaObject.writeOnly && { keyword: schemaKeywords.writeOnly },
@@ -616,49 +701,54 @@ export class SchemaGenerator<
           .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
       }
 
-      if (schemaWithoutAllOf.required) {
-        // TODO use of Required ts helper instead
-        const schemas = schemaObject.allOf
-          .map((item) => {
-            if (isReference(item)) {
-              return this.context.oas.get(item.$ref) as SchemaObject
-            }
-          })
-          .filter(Boolean)
+      if (schemaWithoutAllOf.required?.length) {
+        const allOfItems = schemaObject.allOf
+        const resolvedSchemas: SchemaObject[] = []
 
-        const items = schemaWithoutAllOf.required
-          .filter((key) => {
-            // filter out keys that are already part of the properties(reduce duplicated keys(https://github.com/kubb-labs/kubb/issues/1492)
-            if (schemaWithoutAllOf.properties) {
-              return !Object.keys(schemaWithoutAllOf.properties).includes(key)
-            }
+        for (const item of allOfItems) {
+          const resolved = isReference(item) ? (this.context.oas.get(item.$ref) as SchemaObject) : item
 
-            // schema should include required fields when necessary https://github.com/kubb-labs/kubb/issues/1522
-            return true
-          })
-          .map((key) => {
-            const schema = schemas.find((item) => item.properties && Object.keys(item.properties).find((propertyKey) => propertyKey === key))
+          if (resolved) {
+            resolvedSchemas.push(resolved)
+          }
+        }
 
-            if (schema?.properties?.[key]) {
-              return {
-                ...schema,
+        const existingKeys = schemaWithoutAllOf.properties ? new Set(Object.keys(schemaWithoutAllOf.properties)) : null
+
+        const parsedItems: SchemaObject[] = []
+
+        for (const key of schemaWithoutAllOf.required) {
+          if (existingKeys?.has(key)) {
+            continue
+          }
+
+          for (const schema of resolvedSchemas) {
+            if (schema.properties?.[key]) {
+              parsedItems.push({
                 properties: {
                   [key]: schema.properties[key],
                 },
                 required: [key],
-              }
+              } as SchemaObject)
+              break
             }
-          })
-          .filter(Boolean)
+          }
+        }
 
-        and.args = [...(and.args || []), ...items.flatMap((item) => this.parse({ schemaObject: item as SchemaObject, name, parentName }))]
+        for (const item of parsedItems) {
+          const parsed = this.parse({ schemaObject: item, name, parentName })
+
+          if (Array.isArray(parsed)) {
+            and.args = and.args ? and.args.concat(parsed) : parsed
+          }
+        }
       }
 
       if (schemaWithoutAllOf.properties) {
         and.args = [...(and.args || []), ...this.parse({ schemaObject: schemaWithoutAllOf, name, parentName })]
       }
 
-      return [and, ...baseItems]
+      return SchemaGenerator.combineObjects([and, ...baseItems])
     }
 
     if (schemaObject.enum) {
@@ -666,7 +756,7 @@ export class SchemaGenerator<
         this.context.pluginManager.logger.emit('info', 'EnumSuffix set to an empty string does not work')
       }
 
-      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.#getUsedEnumNames({ schemaObject, name }))
+      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.context.plugin.context?.usedEnumNames || {})
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,
         pluginKey: this.context.plugin.key,
@@ -813,20 +903,30 @@ export class SchemaGenerator<
 
     if (version === '3.1' && 'const' in schemaObject) {
       // const keyword takes precendence over the actual type.
-      if (schemaObject['const']) {
-        return [
-          {
-            keyword: schemaKeywords.const,
-            args: {
-              name: schemaObject['const'],
-              format: typeof schemaObject['const'] === 'number' ? 'number' : 'string',
-              value: schemaObject['const'],
-            },
-          },
-          ...baseItems,
-        ]
+
+      if (schemaObject['const'] === null) {
+        return [{ keyword: schemaKeywords.null }]
       }
-      return [{ keyword: schemaKeywords.null }]
+      if (schemaObject['const'] === undefined) {
+        return [{ keyword: schemaKeywords.undefined }]
+      }
+
+      let format = typeof schemaObject['const']
+      if (format !== 'number' && format !== 'boolean') {
+        format = 'string'
+      }
+
+      return [
+        {
+          keyword: schemaKeywords.const,
+          args: {
+            name: schemaObject['const'],
+            format,
+            value: schemaObject['const'],
+          },
+        },
+        ...baseItems,
+      ]
     }
 
     /**
@@ -1001,63 +1101,69 @@ export class SchemaGenerator<
       return [{ keyword: type }, ...baseItems]
     }
 
-    return [{ keyword: unknownReturn }]
+    return [{ keyword: emptyType }]
   }
 
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
-
     const schemas = getSchemas({ oas, contentType, includes: include })
+    const schemaEntries = Object.entries(schemas)
 
-    const promises = Object.entries(schemas).reduce((acc, [name, value]) => {
-      if (!value) {
-        return acc
-      }
+    const generatorLimit = pLimit(1)
+    const schemaLimit = pLimit(10)
 
-      const options = this.#getOptions({ name })
-      const promiseOperation = this.schema.call(this, name, value, {
-        ...this.options,
-        ...options,
-      })
+    const writeTasks = generators.map((generator) =>
+      generatorLimit(async () => {
+        const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
+          schemaLimit(async () => {
+            const options = this.#getOptions({ name })
+            const tree = this.parse({ name, schemaObject })
 
-      if (promiseOperation) {
-        acc.push(promiseOperation)
-      }
+            if (generator.type === 'react') {
+              await buildSchema(
+                {
+                  name,
+                  value: schemaObject,
+                  tree,
+                },
+                {
+                  fabric: this.context.fabric,
+                  generator,
+                  instance: this,
+                  options: {
+                    ...this.options,
+                    ...options,
+                  },
+                },
+              )
 
-      generators?.forEach((generator) => {
-        const tree = this.parse({ schemaObject: value, name: name })
+              return []
+            }
 
-        const promise = generator.schema?.({
-          instance: this,
-          schema: {
-            name,
-            value,
-            tree,
-          },
-          options: {
-            ...this.options,
-            ...options,
-          },
-        } as any) as Promise<Array<KubbFile.File<TFileMeta>>>
+            const result = await generator.schema?.({
+              instance: this,
+              schema: {
+                name,
+                value: schemaObject,
+                tree,
+              },
+              options: {
+                ...this.options,
+                ...options,
+              },
+            })
 
-        if (promise) {
-          acc.push(promise)
-        }
-      })
+            return result ?? []
+          }),
+        )
 
-      return acc
-    }, [] as SchemaMethodResult<TFileMeta>[])
+        const schemaResults = await Promise.all(schemaTasks)
+        return schemaResults.flat() as unknown as KubbFile.File<TFileMeta>
+      }),
+    )
 
-    const files = await Promise.all(promises)
+    const nestedResults = await Promise.all(writeTasks)
 
-    // using .flat because schemaGenerator[method] can return an array of files or just one file
-    return files.flat().filter(Boolean)
-  }
-
-  /**
-   * Schema
-   */
-  async schema(_name: string, _object: SchemaObject, _options: TOptions): SchemaMethodResult<TFileMeta> {
-    return []
+    return nestedResults.flat()
   }
 }

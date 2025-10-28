@@ -1,4 +1,4 @@
-import client from '../../client.js'
+import fetch from '../../client.js'
 import type { ResponseErrorConfig } from '../../client.js'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTagsHeaderParams, FindPetsByTags400 } from '../models/ts/FindPetsByTags.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
@@ -15,7 +15,7 @@ export async function findPetsByTagsHandler({
   headers: FindPetsByTagsHeaderParams
   params?: FindPetsByTagsQueryParams
 }): Promise<Promise<CallToolResult>> {
-  const res = await client<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+  const res = await fetch<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: '/pet/findByTags',
     baseURL: 'https://petstore.swagger.io/v2',

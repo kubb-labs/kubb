@@ -1,9 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["tsconfig.json"],
+  "globalEnv": ["NODE_ENV"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", "*.d.ts", "*.d.cts"],
+      "inputs": ["src/**/*.ts", "src/**/*.tsx", "tsdown.config.ts", "package.json", "tsconfig.json"]
     },
     "clean": {
       "dependsOn": ["^clean"],
@@ -19,19 +22,25 @@
     },
     "test": {
       "dependsOn": ["^build"],
-      "outputs": ["coverage/**"]
+      "outputs": ["coverage/**"],
+      "inputs": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx", "vitest.config.ts"]
     },
     "lint": {
       "outputs": [],
+      "inputs": ["src/**/*.ts", "src/**/*.tsx", "package.json"],
       "cache": false
     },
     "lint-fix": {
       "outputs": ["src/**"],
+      "inputs": ["src/**/*.ts", "src/**/*.tsx", "package.json"],
       "cache": false,
       "outputLogs": "new-only"
     },
     "typecheck": {
-      "dependsOn": ["build"]
+      "dependsOn": [],
+      "inputs": ["src/**/*.ts", "src/**/*.tsx", "tsconfig.json"],
+      "outputs": [],
+      "cache": false
     },
     "release": {
       "dependsOn": ["build"],
@@ -40,6 +49,7 @@
     "generate": {
       "dependsOn": [],
       "outputs": ["src/gen/**"],
+      "inputs": ["kubb.config.ts", "package.json"],
       "cache": false
     },
     "release:canary": {

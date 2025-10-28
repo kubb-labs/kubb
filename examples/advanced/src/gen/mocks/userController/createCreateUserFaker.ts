@@ -1,3 +1,4 @@
+import type { CreateUserMutationResponse } from '../../models/ts/userController/CreateUser.ts'
 import { createUserFaker } from '../createUserFaker.ts'
 
 /**
@@ -14,6 +15,6 @@ export function createCreateUserMutationRequestFaker() {
   return createUserFaker()
 }
 
-export function createCreateUserMutationResponseFaker() {
+export function createCreateUserMutationResponseFaker(data?: Partial<CreateUserMutationResponse>): CreateUserMutationResponse {
   return undefined
 }

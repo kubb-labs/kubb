@@ -1,7 +1,7 @@
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './AddPet.js'
 export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './DeletePet.js'
 export type {
-  FindPetsByStatusQueryParamsStatusEnum,
+  FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryParams,
   FindPetsByStatus200,
   FindPetsByStatus400,

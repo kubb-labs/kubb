@@ -1,6 +1,5 @@
 import path from 'node:path'
-import type { Config } from '@kubb/core'
-import { createPlugin, FileManager, type Group } from '@kubb/core'
+import { type Config, createPlugin, type Group, getMode } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import { camelCase } from '@kubb/core/transformers'
 import type { Oas } from '@kubb/oas'
@@ -76,7 +75,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     },
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
+      const mode = pathMode ?? getMode(path.resolve(root, output.path))
 
       if (mode === 'single') {
         /**
@@ -122,11 +121,13 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       const schemaGenerator = new SchemaGenerator(
         {
           unknownType: 'unknown',
+          emptySchemaType: 'unknown',
           dateType: 'date',
           transformers: {},
           ...this.plugin.options,
         },
         {
+          fabric: this.fabric,
           oas,
           pluginManager: this.pluginManager,
           plugin: this.plugin,
@@ -142,6 +143,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       await this.addFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
+        fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,

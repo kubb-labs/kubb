@@ -1,17 +1,21 @@
 {
   "name": "@kubb/plugin-faker",
-  "version": "3.11.1",
-  "description": "Generator plugin-faker",
+  "version": "4.4.1",
+  "description": "Faker.js data generator plugin for Kubb, creating realistic mock data from OpenAPI specifications for development and testing.",
   "keywords": [
     "faker",
     "faker.js",
-    "mock",
-    "mocking",
-    "plugins",
-    "kubb",
-    "codegen",
+    "mock-data",
+    "data-generation",
+    "testing",
+    "development",
+    "typescript",
+    "openapi",
     "swagger",
-    "openapi"
+    "code-generator",
+    "codegen",
+    "plugins",
+    "kubb"
   ],
   "repository": {
     "type": "git",
@@ -25,25 +29,21 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
-    },
-    "./generators": {
-      "import": "./dist/generators.js",
-      "require": "./dist/generators.cjs",
-      "default": "./dist/generators.cjs"
+      "require": "./dist/index.cjs"
     },
     "./components": {
       "import": "./dist/components.js",
-      "require": "./dist/components.cjs",
-      "default": "./dist/components.cjs"
+      "require": "./dist/components.cjs"
     },
-    "./package.json": "./package.json",
-    "./*": "./*"
+    "./generators": {
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs"
+    },
+    "./package.json": "./package.json"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
       "components": [
@@ -60,14 +60,21 @@
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown && size-limit",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint--fix --unsafe .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsup --watch",
+    "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -76,17 +83,13 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react": "workspace:*"
+    "@kubb/react-fabric": "catalog:"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
-    "@kubb/config-tsup": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
-    "tsup": "catalog:",
-    "typescript": "catalog:"
+    "@kubb/plugin-oas": "workspace:*"
   },
   "peerDependencies": {
-    "@kubb/react": "^3.0.0"
+    "@kubb/react-fabric": "catalog:"
   },
   "engines": {
     "node": ">=20"

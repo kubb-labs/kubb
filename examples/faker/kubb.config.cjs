@@ -1,4 +1,4 @@
-// require('@kubb/react/devtools') // enable/disable devtools
+// require('@kubb/react-fabric/devtools') // enable/disable devtools
 
 const { defineConfig } = require('@kubb/core')
 
@@ -66,7 +66,7 @@ module.exports = defineConfig(() => {
             path: './faker',
           },
           transformers: {
-            schema({ schema, name, parentName }, defaultSchemas) {
+            schema({ schema: _schema, name, parentName }, defaultSchemas) {
               /* override a property with name 'name'
                Pet:
                   required:

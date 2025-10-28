@@ -1,18 +1,14 @@
-import { defineCommand, showUsage } from 'citty'
+import path from 'node:path'
+import * as process from 'node:process'
+import { isInputPath, PromiseManager } from '@kubb/core'
+import { createLogger, LogMapper } from '@kubb/core/logger'
 import type { ArgsDef, ParsedArgs } from 'citty'
-import { colors } from 'consola/utils'
-
+import { defineCommand, showUsage } from 'citty'
+import type { SingleBar } from 'cli-progress'
+import pc from 'picocolors'
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { startWatcher } from '../utils/watcher.ts'
-
-import path from 'node:path'
-import * as process from 'node:process'
-import { PromiseManager, isInputPath } from '@kubb/core'
-import { LogMapper, createLogger } from '@kubb/core/logger'
-
-import open from 'open'
-import type { SingleBar } from 'cli-progress'
 
 declare global {
   var isDevtoolsEnabled: any
@@ -43,12 +39,6 @@ const args = {
     alias: 'd',
     default: false,
   },
-  ui: {
-    type: 'boolean',
-    description: 'Open ui',
-    alias: 'u',
-    default: false,
-  },
   help: {
     type: 'boolean',
     description: 'Show help',
@@ -66,7 +56,6 @@ const command = defineCommand({
   },
   args,
   async run(commandContext) {
-    let name = ''
     const progressCache = new Map<string, SingleBar>()
 
     const { args } = commandContext
@@ -90,7 +79,7 @@ const command = defineCommand({
     logger.emit('start', 'Loading config')
 
     const result = await getCosmiConfig('kubb', args.config)
-    logger.emit('success', `Config loaded(${colors.dim(path.relative(process.cwd(), result.filepath))})`)
+    logger.emit('success', `Config loaded(${pc.dim(path.relative(process.cwd(), result.filepath))})`)
 
     const config = await getConfig(result, args)
 
@@ -98,7 +87,6 @@ const command = defineCommand({
       if (Array.isArray(config)) {
         const promiseManager = new PromiseManager()
         const promises = config.map((c) => () => {
-          name = c.name || ''
           progressCache.clear()
 
           return generate({
@@ -125,40 +113,6 @@ const command = defineCommand({
       return
     }
 
-    if (args.ui) {
-      const { startServer } = await import('@kubb/ui')
-
-      await startServer(
-        {
-          stop: () => process.exit(1),
-          restart: () => start(),
-          getMeta: () => {
-            const entries = [...progressCache.entries()]
-
-            const percentages = entries.reduce(
-              (acc, [key, singleBar]) => {
-                acc[key] = singleBar.getProgress()
-
-                return acc
-              },
-              {} as Record<string, number>,
-            )
-
-            return {
-              name,
-              percentages,
-            }
-          },
-        },
-        (info) => {
-          const url = `${info.address}:${info.port}`.replace('::', 'http://localhost')
-          logger.consola?.start(`Starting ui on ${url}`)
-
-          open(url)
-        },
-      )
-    }
-
     if (args.watch) {
       if (Array.isArray(config)) {
         throw new Error('Cannot use watcher with multiple Configs(array)')
@@ -167,7 +121,7 @@ const command = defineCommand({
       if (isInputPath(config)) {
         return startWatcher([input || config.input.path], async (paths) => {
           await start()
-          logger.emit('start', colors.yellow(colors.bold(`Watching for changes in ${paths.join(' and ')}`)))
+          logger.emit('start', pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
         })
       }
     }

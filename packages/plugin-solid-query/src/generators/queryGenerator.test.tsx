@@ -1,10 +1,10 @@
-import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
-
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { OperationGenerator } from '@kubb/plugin-oas'
+import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react-fabric'
 import { QueryKey } from '../components'
 import type { PluginSolidQuery } from '../types.ts'
 import { queryGenerator } from './queryGenerator.tsx'
@@ -123,6 +123,8 @@ describe('queryGenerator operation', async () => {
         importPath: '@tanstack/svelte-query',
         methods: ['get'],
       },
+      mutation: false,
+      mutationKey: undefined,
       output: {
         path: '.',
       },
@@ -130,7 +132,9 @@ describe('queryGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginSolidQuery>
+    const fabric = createReactFabric()
     const instance = new OperationGenerator(options, {
+      fabric,
       oas,
       include: undefined,
       pluginManager: createMockedPluginManager(props.name),
@@ -140,15 +144,16 @@ describe('queryGenerator operation', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(queryGenerator)
 
     const operation = oas.operation(props.path, props.method)
-    const files = await queryGenerator.operation?.({
-      operation,
-      options,
+
+    await buildOperation(operation, {
+      fabric,
       instance,
+      generator: queryGenerator,
+      options,
     })
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })

@@ -1,9 +1,8 @@
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import type { ReactNode } from 'react'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginSolidQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
@@ -65,8 +64,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       options: {
         type: `
 {
-  query?: Partial<CreateBaseQueryOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
+  query?: Partial<UseBaseQueryOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
         default: '{}',
@@ -103,8 +102,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
     options: {
       type: `
 {
-  query?: Partial<CreateBaseQueryOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
+  query?: Partial<UseBaseQueryOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
       default: '{}',
@@ -123,10 +122,10 @@ export function Query({
   dataReturnType,
   typeSchemas,
   operation,
-}: Props): ReactNode {
+}: Props): KubbNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
-  const returnType = `CreateQueryResult<${['TData', TError].join(', ')}> & { queryKey: TQueryKey }`
+  const returnType = `UseQueryResult<${['TData', TError].join(', ')}> & { queryKey: TQueryKey }`
   const generics = [`TData = ${TData}`, `TQueryData = ${TData}`, `TQueryKey extends QueryKey = ${queryKeyTypeName}`]
 
   const queryKeyParams = QueryKey.getParams({
@@ -148,7 +147,7 @@ export function Query({
     typeSchemas,
   })
 
-  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()}) as unknown as CreateBaseQueryOptions`
+  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()}) as unknown as UseBaseQueryOptions`
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -162,14 +161,15 @@ export function Query({
         }}
       >
         {`
-       const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+       const { query: queryConfig = {}, client: config = {} } = options ?? {}
+       const { client: queryClient, ...queryOptions } = queryConfig
        const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
 
-       const query = createQuery(() => ({
+       const query = useQuery(() => ({
         ...${queryOptions},
         queryKey,
         initialData: null,
-        ...queryOptions as unknown as Omit<CreateBaseQueryOptions, "queryKey">
+        ...queryOptions as unknown as Omit<UseBaseQueryOptions, "queryKey">
        }), queryClient? () => queryClient: undefined) as ${returnType}
 
        return query

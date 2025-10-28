@@ -1,14 +1,22 @@
 import type { PluginManager } from '@kubb/core'
+import { useMode, usePlugin, usePluginManager } from '@kubb/core/hooks'
 import transformers from '@kubb/core/transformers'
-import { print } from '@kubb/parser-ts'
-import * as factory from '@kubb/parser-ts/factory'
-import { createReactGenerator, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator } from '@kubb/plugin-oas'
+import { print } from '@kubb/fabric-core/parsers/typescript'
+import {
+  createReactGenerator,
+  isKeyword,
+  type OperationSchemas,
+  type OperationSchema as OperationSchemaType,
+  SchemaGenerator,
+  schemaKeywords,
+} from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
 import type ts from 'typescript'
 import { Type } from '../components'
+import * as factory from '../factory.ts'
 import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types'
 
@@ -104,10 +112,13 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
 
 export const typeGenerator = createReactGenerator<PluginTs>({
   name: 'typescript',
-  Operation({ operation, options }) {
+  Operation({ operation, options, instance }) {
     const { mapper, enumType, syntaxType, optionalType } = options
 
-    const { plugin, pluginManager, mode } = useApp<PluginTs>()
+    const plugin = usePlugin<PluginTs>()
+    const mode = useMode()
+    const pluginManager = usePluginManager()
+
     const oas = useOas()
     const { getSchemas, getFile, getName, getGroup } = useOperationManager()
     const schemaManager = useSchemaManager()
@@ -117,6 +128,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const type = getName(operation, { type: 'function', pluginKey: [pluginTsName] })
     const combinedSchemaName = operation.method === 'get' ? `${type}Query` : `${type}Mutation`
     const schemaGenerator = new SchemaGenerator(options, {
+      fabric: instance.context.fabric,
       oas,
       plugin,
       pluginManager,
@@ -128,7 +140,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       .flat()
       .filter(Boolean)
 
-    const mapOperationSchema = ({ name, schema: schemaObject, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
+    const mapOperationSchema = ({ name, schema: schemaObject, description, keysToOmit, ...options }: OperationSchemaType) => {
       const tree = schemaGenerator.parse({ schemaObject, name })
       const imports = schemaManager.getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
@@ -140,10 +152,10 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       }
 
       return (
-        <Oas.Schema key={i} name={name} schemaObject={schemaObject} tree={tree}>
+        <Oas.Schema key={[name, schemaObject.$ref].join('-')} name={name} schemaObject={schemaObject} tree={tree}>
           {mode === 'split' &&
             imports.map((imp) => (
-              <File.Import key={[imp.name, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />
+              <File.Import key={[name, imp.name, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />
             ))}
           <Type
             name={type.name}
@@ -180,24 +192,30 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   Schema({ schema, options }) {
     const { mapper, enumType, syntaxType, optionalType } = options
     const {
-      mode,
-      plugin: {
-        options: { output },
-      },
-      pluginManager,
-    } = useApp<PluginTs>()
+      options: { output },
+    } = usePlugin<PluginTs>()
+    const mode = useMode()
+
     const oas = useOas()
+    const pluginManager = usePluginManager()
 
     const { getName, getImports, getFile } = useSchemaManager()
     const imports = getImports(schema.tree)
+    const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
 
     if (enumType === 'asPascalConst') {
       console.warn(`enumType '${enumType}' is deprecated`)
     }
 
+    let typedName = getName(schema.name, { type: 'type' })
+
+    if (enumType === 'asConst' && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
+      typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
+    }
+
     const type = {
       name: getName(schema.name, { type: 'function' }),
-      typedName: getName(schema.name, { type: 'type' }),
+      typedName,
       file: getFile(schema.name),
     }
 
@@ -211,7 +229,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       >
         {mode === 'split' &&
           imports.map((imp) => (
-            <File.Import key={[imp.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
+            <File.Import key={[schema.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
           ))}
         <Type
           name={type.name}

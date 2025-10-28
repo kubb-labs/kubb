@@ -14,7 +14,7 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
@@ -29,16 +29,15 @@ export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
  * @summary Place an order for a pet
  * {@link /store/order}
  */
-export async function placeOrder(
-  data?: PlaceOrderMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof client } = {},
-) {
-  const { client: request = client, ...requestConfig } = config
+export async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
+
+  const requestData = data
 
   const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
     url: '/store/order',
-    data,
+    data: requestData,
     ...requestConfig,
   })
   return res.data
@@ -54,7 +53,7 @@ export function createPlaceOrder<TContext>(
     mutation?: CreateMutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof client }
+    client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

@@ -7,6 +7,7 @@
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react-jsx",
+    "jsxImportSource": "@kubb/react-fabric",
     "outDir": "es",
     "experimentalDecorators": true,
     "skipLibCheck": true,

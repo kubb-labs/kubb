@@ -44,11 +44,6 @@ Kubb is trying to resolve that with a plugin system where we already provide you
 ## Sponsoring
 Kubb is open source and build by the community, help us building Kubb by [sponsoring](https://github.com/sponsors/stijnvanhulle) us.
 
-## Projects Build With Kubb
-
-- [KOPER](https://github.com/dxloop/koper): a modern tech stack design for creating full-stack application powered by Kubb.
-
-
 ## Our Community
 Come and chat with us on [Discord](https://discord.gg/shfBFeczrm)!
 

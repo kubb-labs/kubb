@@ -1,17 +1,17 @@
 import { userSchema } from '../userSchema.ts'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 /**
  * @description successful operation
  */
-export const createUserErrorSchema = z.lazy(() => userSchema)
+export const createUserErrorSchema = userSchema
 
 export type CreateUserErrorSchema = z.infer<typeof createUserErrorSchema>
 
 /**
  * @description Created user object
  */
-export const createUserMutationRequestSchema = z.lazy(() => userSchema).schema.omit({ tag: true })
+export const createUserMutationRequestSchema = userSchema.omit({ tag: true })
 
 export type CreateUserMutationRequestSchema = z.infer<typeof createUserMutationRequestSchema>
 

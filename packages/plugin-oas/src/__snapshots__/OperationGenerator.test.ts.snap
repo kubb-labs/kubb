@@ -3,10 +3,8 @@
 exports[`OperationGenerator exclude > if exclude is filtered out for method 1`] = `
 [
   {
-    "baseName": "createPets.ts",
-    "meta": {},
-    "path": "createPets.ts",
-    "sources": [],
+    "method": "post",
+    "path": "/pets",
   },
 ]
 `;
@@ -14,16 +12,12 @@ exports[`OperationGenerator exclude > if exclude is filtered out for method 1`] 
 exports[`OperationGenerator exclude > if exclude is filtered out for operationId 1`] = `
 [
   {
-    "baseName": "createPets.ts",
-    "meta": {},
-    "path": "createPets.ts",
-    "sources": [],
+    "method": "post",
+    "path": "/pets",
   },
   {
-    "baseName": "showPetById.ts",
-    "meta": {},
-    "path": "showPetById.ts",
-    "sources": [],
+    "method": "get",
+    "path": "/pets/{petId}",
   },
 ]
 `;
@@ -31,16 +25,12 @@ exports[`OperationGenerator exclude > if exclude is filtered out for operationId
 exports[`OperationGenerator exclude > if exclude is filtered out for path 1`] = `
 [
   {
-    "baseName": "listPets.ts",
-    "meta": {},
-    "path": "listPets.ts",
-    "sources": [],
+    "method": "get",
+    "path": "/pets",
   },
   {
-    "baseName": "createPets.ts",
-    "meta": {},
-    "path": "createPets.ts",
-    "sources": [],
+    "method": "post",
+    "path": "/pets",
   },
 ]
 `;
@@ -48,10 +38,8 @@ exports[`OperationGenerator exclude > if exclude is filtered out for path 1`] = 
 exports[`OperationGenerator exclude > if exclude is filtered out for path and operationId 1`] = `
 [
   {
-    "baseName": "createPets.ts",
-    "meta": {},
-    "path": "createPets.ts",
-    "sources": [],
+    "method": "post",
+    "path": "/pets",
   },
 ]
 `;
@@ -61,16 +49,12 @@ exports[`OperationGenerator exclude > if exclude is filtered out for tag 1`] = `
 exports[`OperationGenerator include > if include is only selecting for method 1`] = `
 [
   {
-    "baseName": "listPets.ts",
-    "meta": {},
-    "path": "listPets.ts",
-    "sources": [],
+    "method": "get",
+    "path": "/pets",
   },
   {
-    "baseName": "showPetById.ts",
-    "meta": {},
-    "path": "showPetById.ts",
-    "sources": [],
+    "method": "get",
+    "path": "/pets/{petId}",
   },
 ]
 `;
@@ -78,10 +62,8 @@ exports[`OperationGenerator include > if include is only selecting for method 1`
 exports[`OperationGenerator include > if include is only selecting for operationId 1`] = `
 [
   {
-    "baseName": "listPets.ts",
-    "meta": {},
-    "path": "listPets.ts",
-    "sources": [],
+    "method": "get",
+    "path": "/pets",
   },
 ]
 `;
@@ -89,10 +71,8 @@ exports[`OperationGenerator include > if include is only selecting for operation
 exports[`OperationGenerator include > if include is only selecting for path 1`] = `
 [
   {
-    "baseName": "showPetById.ts",
-    "meta": {},
-    "path": "showPetById.ts",
-    "sources": [],
+    "method": "get",
+    "path": "/pets/{petId}",
   },
 ]
 `;
@@ -100,16 +80,12 @@ exports[`OperationGenerator include > if include is only selecting for path 1`] 
 exports[`OperationGenerator include > if include is only selecting path and operationId 1`] = `
 [
   {
-    "baseName": "listPets.ts",
-    "meta": {},
-    "path": "listPets.ts",
-    "sources": [],
+    "method": "get",
+    "path": "/pets",
   },
   {
-    "baseName": "showPetById.ts",
-    "meta": {},
-    "path": "showPetById.ts",
-    "sources": [],
+    "method": "get",
+    "path": "/pets/{petId}",
   },
 ]
 `;
@@ -117,22 +93,16 @@ exports[`OperationGenerator include > if include is only selecting path and oper
 exports[`OperationGenerator include > if include is only selecting tag 1`] = `
 [
   {
-    "baseName": "listPets.ts",
-    "meta": {},
-    "path": "listPets.ts",
-    "sources": [],
+    "method": "get",
+    "path": "/pets",
   },
   {
-    "baseName": "createPets.ts",
-    "meta": {},
-    "path": "createPets.ts",
-    "sources": [],
+    "method": "post",
+    "path": "/pets",
   },
   {
-    "baseName": "showPetById.ts",
-    "meta": {},
-    "path": "showPetById.ts",
-    "sources": [],
+    "method": "get",
+    "path": "/pets/{petId}",
   },
 ]
 `;
@@ -140,10 +110,8 @@ exports[`OperationGenerator include > if include is only selecting tag 1`] = `
 exports[`OperationGenerator include and exclude > if include is only selecting path and exclude is removing the GET calls 1`] = `
 [
   {
-    "baseName": "listPets.ts",
-    "meta": {},
-    "path": "listPets.ts",
-    "sources": [],
+    "method": "get",
+    "path": "/pets",
   },
 ]
 `;

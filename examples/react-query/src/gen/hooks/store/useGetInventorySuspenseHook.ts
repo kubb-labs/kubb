@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { GetInventoryQueryResponse } from '../../models/GetInventory.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
@@ -18,14 +18,14 @@ export type GetInventorySuspenseQueryKey = ReturnType<typeof getInventorySuspens
  * @summary Returns pet inventories by status
  * {@link /store/inventory}
  */
-export async function getInventorySuspenseHook(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function getInventorySuspenseHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...requestConfig })
   return res.data
 }
 
-export function getInventorySuspenseQueryOptionsHook(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+export function getInventorySuspenseQueryOptionsHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = getInventorySuspenseQueryKey()
   return queryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,
@@ -44,18 +44,19 @@ export function getInventorySuspenseQueryOptionsHook(config: Partial<RequestConf
 export function useGetInventorySuspenseHook<TData = GetInventoryQueryResponse, TQueryKey extends QueryKey = GetInventorySuspenseQueryKey>(
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, TData, TQueryKey>> & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getInventorySuspenseQueryKey()
 
   const query = useSuspenseQuery(
     {
-      ...(getInventorySuspenseQueryOptionsHook(config) as unknown as UseSuspenseQueryOptions),
+      ...getInventorySuspenseQueryOptionsHook(config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 

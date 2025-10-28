@@ -231,6 +231,43 @@ type Pet = {
   name: unknown
 }
 ```
+
+```typescript ['void']
+type Pet = {
+  name: void
+}
+```
+:::
+
+### emptySchemaType
+
+Which type to use for empty schema values.
+
+|           |                                |
+|----------:|:-------------------------------|
+|     Type: | `'any' \| 'unknown' \| 'void'` |
+| Required: | `false`                        |
+|  Default: | `unknownType`                  |
+
+::: code-group
+
+```typescript ['any']
+type Pet = {
+  name: any
+}
+```
+
+```typescript ['unknown']
+type Pet = {
+  name: unknown
+}
+```
+
+```typescript ['void']
+type Pet = {
+  name: void
+}
+```
 :::
 
 ### optionalType
@@ -337,7 +374,7 @@ export default defineConfig({
       ],
       group: {
         type: 'tag',
-        name: ({ group }) => `'${group}Controller`
+        name: ({ group }) => `${group}Controller`
       },
       enumType: "asConst",
       enumSuffix: 'Enum',

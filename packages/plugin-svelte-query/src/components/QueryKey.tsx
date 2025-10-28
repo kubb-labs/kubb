@@ -1,11 +1,10 @@
 import { URLPath } from '@kubb/core/utils'
-import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams, Type } from '@kubb/react'
-
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import type { ReactNode } from 'react'
+import { getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, FunctionParams, Type } from '@kubb/react-fabric'
 import type { PluginSvelteQuery, Transformer } from '../types'
+import type { KubbNode } from '@kubb/react-fabric/types'
 
 type Props = {
   name: string
@@ -58,7 +57,7 @@ const getTransformer: Transformer = ({ operation, schemas, casing }) => {
   return keys
 }
 
-export function QueryKey({ name, typeSchemas, paramsCasing, pathParamsType, operation, typeName, transformer = getTransformer }: Props): ReactNode {
+export function QueryKey({ name, typeSchemas, paramsCasing, pathParamsType, operation, typeName, transformer = getTransformer }: Props): KubbNode {
   const params = getParams({ pathParamsType, paramsCasing, typeSchemas })
   const keys = transformer({
     operation,

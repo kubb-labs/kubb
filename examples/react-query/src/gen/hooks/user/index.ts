@@ -8,9 +8,14 @@ export type { LoginUserSuspenseQueryKey } from './useLoginUserSuspenseHook.ts'
 export type { LogoutUserQueryKey } from './useLogoutUserHook.ts'
 export type { LogoutUserSuspenseQueryKey } from './useLogoutUserSuspenseHook.ts'
 export type { UpdateUserMutationKey } from './useUpdateUserHook.ts'
-export { createUserMutationKey, createUserHook, useCreateUserHook } from './useCreateUserHook.ts'
-export { createUsersWithListInputMutationKey, createUsersWithListInputHook, useCreateUsersWithListInputHook } from './useCreateUsersWithListInputHook.ts'
-export { deleteUserMutationKey, deleteUserHook, useDeleteUserHook } from './useDeleteUserHook.ts'
+export { createUserMutationKey, createUserHook, createUserMutationOptionsHook, useCreateUserHook } from './useCreateUserHook.ts'
+export {
+  createUsersWithListInputMutationKey,
+  createUsersWithListInputHook,
+  createUsersWithListInputMutationOptionsHook,
+  useCreateUsersWithListInputHook,
+} from './useCreateUsersWithListInputHook.ts'
+export { deleteUserMutationKey, deleteUserHook, deleteUserMutationOptionsHook, useDeleteUserHook } from './useDeleteUserHook.ts'
 export { getUserByNameQueryKey, getUserByNameHook, getUserByNameQueryOptionsHook, useGetUserByNameHook } from './useGetUserByNameHook.ts'
 export {
   getUserByNameSuspenseQueryKey,
@@ -27,4 +32,4 @@ export {
   logoutUserSuspenseQueryOptionsHook,
   useLogoutUserSuspenseHook,
 } from './useLogoutUserSuspenseHook.ts'
-export { updateUserMutationKey, updateUserHook, useUpdateUserHook } from './useUpdateUserHook.ts'
+export { updateUserMutationKey, updateUserHook, updateUserMutationOptionsHook, useUpdateUserHook } from './useUpdateUserHook.ts'

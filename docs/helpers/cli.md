@@ -42,13 +42,15 @@ kubb --config kubb.config.js
 USAGE kubb generate
 
 COMMANDS
-
   generate    [input] Generate files based on a 'kubb.config.ts' file
+  validate    Validate a Swagger/OpenAPI file
+  mcp         Start the server to enable the MCP client to interact with the LLM.
 
 Use kubb <command> --help for more information about a command.
 ```
 
-## Generate
+## `kubb generate`
+Generate files based on a `kubb.config.ts` file
 
 > [!TIP]
 > `kubb generate` and `kubb` will call the same generate functionality.
@@ -62,7 +64,6 @@ OPTIONS
   -l, --logLevel=<silent|info|debug>    Info, silent or debug
                          -w, --watch    Watch mode based on the input file
                          -d, --debug    Override logLevel to debug
-                            -u, --ui    Open ui
                           -h, --help    Show help
 ```
 
@@ -110,13 +111,6 @@ Watch mode based on the input file.
 kubb --watch
 ```
 
-#### --ui (-u)  <img src="/icons/experimental.svg"/> <Badge type="tip" text="beta" />
-
-Open Kubb's ui in the default browser
-```shell [node]
-kubb --watch
-```
-
 #### --version (-v)
 
 Output the version number.
@@ -131,3 +125,39 @@ Display the help.
 ```shell [node]
 kubb --help
 ```
+
+## `kubb validate`
+The command will check for syntax and structural errors in your Swagger/OpenAPI file, and provide clear feedback (errors/warnings).
+
+Useful for CI pipelines, pre-commit hooks, and early feedback in development
+
+> [!IMPORTANT]
+> `@kubb/oas` should be installed
+
+
+> [!TIP]
+> Behind the scenes we are using `oas-normalize` to validate your Swagger/OpenAPI file.
+
+```mdx
+USAGE kubb validate [OPTIONS]
+
+OPTIONS
+
+  -i, --input    Path to Swagger/OpenAPI file
+   -h, --help    Show help
+```
+
+### Options
+
+#### --input (-i)
+
+Path to your Swagger/OpenAPI file
+```shell [node]
+kubb generate --input
+```
+
+## `kubb mcp`
+Start a MCP server to make Kubb work together with a LLM like Claude.
+
+> [!IMPORTANT]
+> `@kubb/mcp` should be installed

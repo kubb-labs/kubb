@@ -1,7 +1,8 @@
 import transformers from '@kubb/core/transformers'
 import type { SchemaObject } from '@kubb/oas'
-import { isKeyword, type Schema, schemaKeywords } from '@kubb/plugin-oas'
-import { Const, File, Type } from '@kubb/react'
+import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { Const, File, Type } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import * as parserZod from '../parser.ts'
 import type { PluginZod } from '../types.ts'
 
@@ -17,10 +18,25 @@ type Props = {
   keysToOmit?: string[]
   wrapOutput?: PluginZod['resolvedOptions']['wrapOutput']
   version: '3' | '4'
+  emptySchemaType: PluginZod['resolvedOptions']['emptySchemaType']
 }
 
-export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, coercion, keysToOmit, description, wrapOutput, version }: Props) {
-  const hasTuple = tree.some((item) => isKeyword(item, schemaKeywords.tuple))
+export function Zod({
+  name,
+  typeName,
+  tree,
+  rawSchema,
+  inferTypeName,
+  mapper,
+  coercion,
+  keysToOmit,
+  description,
+  wrapOutput,
+  version,
+  emptySchemaType,
+}: Props): KubbNode {
+  const hasTuple = !!SchemaGenerator.deepSearch(tree, schemaKeywords.tuple)
+
   const schemas = parserZod.sort(tree).filter((item) => {
     if (hasTuple && (isKeyword(item, schemaKeywords.min) || isKeyword(item, schemaKeywords.max))) {
       return false
@@ -30,12 +46,14 @@ export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, co
   })
 
   const output = schemas
-    .map((schema, _index, siblings) =>
-      parserZod.parse(
+    .map((schema, index) => {
+      const siblings = schemas.filter((_, i) => i !== index)
+
+      return parserZod.parse(
         { parent: undefined, current: schema, siblings },
         { name, keysToOmit, typeName, description, mapper, coercion, wrapOutput, rawSchema, version },
-      ),
-    )
+      )
+    })
     .filter(Boolean)
     .join('')
 
@@ -45,21 +63,37 @@ export function Zod({ name, typeName, tree, rawSchema, inferTypeName, mapper, co
 
   if (lastSchema && isKeyword(lastSchema, schemaKeywords.nullable)) {
     if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref)) {
-      suffix = '.unwrap().schema.unwrap()'
+      if (version === '3') {
+        suffix = '.unwrap().schema.unwrap()'
+      } else {
+        suffix = '.unwrap().unwrap()'
+      }
     } else {
       suffix = '.unwrap()'
     }
   } else {
-    if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref)) {
+    if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref) && version === '3') {
       suffix = '.schema'
     }
   }
 
+  const emptyValue = parserZod.parse(
+    {
+      parent: undefined,
+      current: {
+        keyword: schemaKeywords[emptySchemaType],
+      },
+      siblings: [],
+    },
+    { name, keysToOmit, typeName, description, mapper, coercion, wrapOutput, rawSchema, version },
+  )
+
   const baseSchemaOutput =
-    [output, keysToOmit?.length ? `${suffix}.omit({ ${keysToOmit.map((key) => `${key}: true`).join(',')} })` : undefined].filter(Boolean).join('') ||
-    'z.undefined()'
+    [output, keysToOmit?.length ? `${suffix}.omit({ ${keysToOmit.map((key) => `'${key}': true`).join(',')} })` : undefined].filter(Boolean).join('') ||
+    emptyValue ||
+    ''
   const wrappedSchemaOutput = wrapOutput ? wrapOutput({ output: baseSchemaOutput, schema: rawSchema }) || baseSchemaOutput : baseSchemaOutput
-  const finalOutput = typeName ? `${wrappedSchemaOutput} as unknown as ToZod<${typeName}>` : wrappedSchemaOutput
+  const finalOutput = typeName ? `${wrappedSchemaOutput} as unknown as ${version === '4' ? 'z.ZodType' : 'ToZod'}<${typeName}>` : wrappedSchemaOutput
 
   return (
     <>

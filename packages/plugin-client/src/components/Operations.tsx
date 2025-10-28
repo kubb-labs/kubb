@@ -1,14 +1,14 @@
 import { URLPath } from '@kubb/core/utils'
-import { Const, File } from '@kubb/react'
-
 import type { HttpMethod, Operation } from '@kubb/oas'
+import { Const, File } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 
 type OperationsProps = {
   name: string
   operations: Array<Operation>
 }
 
-export function Operations({ name, operations }: OperationsProps) {
+export function Operations({ name, operations }: OperationsProps): KubbNode {
   const operationsObject: Record<string, { path: string; method: HttpMethod }> = {}
 
   operations.forEach((operation) => {
@@ -20,7 +20,7 @@ export function Operations({ name, operations }: OperationsProps) {
 
   return (
     <File.Source name={name} isExportable isIndexable>
-      <Const name={name} export asConst>
+      <Const name={name} export>
         {JSON.stringify(operationsObject, undefined, 2)}
       </Const>
     </File.Source>

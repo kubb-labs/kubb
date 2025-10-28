@@ -14,13 +14,13 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
-export const deleteOrderMutationKey = () => [{ url: '/store/order/{orderId}' }] as const
+export const deleteOrderMutationKey = () => [{ url: '/store/order/:orderId' }] as const
 
 export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
 
@@ -29,8 +29,8 @@ export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
  * @summary Delete purchase order by ID
  * {@link /store/order/:orderId}
  */
-export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
     method: 'DELETE',
@@ -53,7 +53,7 @@ export function createDeleteOrder<TContext>(
       { orderId: DeleteOrderPathParams['orderId'] },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

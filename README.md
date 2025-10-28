@@ -1,6 +1,8 @@
-<div style="text-align: center;">
+<div align="center">
+  <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
+    <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
+  </a>
 
-<img src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/banner.png" alt="logo"  height="auto" />
 
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
@@ -8,9 +10,8 @@
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
 [![smithery badge](https://smithery.ai/badge/@kubb-labs/kubb)](https://smithery.ai/server/@kubb-labs/kubb)
-
 <h4>
-    <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main//examples/typescript" target="_blank">View Demo</a>
+    <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main/examples/typescript" target="_blank">View Demo</a>
     <span> · </span>
       <a href="https://kubb.dev/" target="_blank">Documentation</a>
     <span> · </span>
@@ -23,10 +24,13 @@
 <br />
 
 ## Features
-
-<div align="center">
-  <img src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/features.png" alt="features"  height="auto" />
-</div>
+- Works with Node.js 20+.
+- Convert Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 to TypeScript, Zod, React-Query, ...
+- Plugin ecosystem to extend beyond the default plugins we provide.
+- CLI support with progress bar and detailed logs.
+- Debug tools with React DevTools.
+- Generates barrel files (index.ts).
+- And so much more ...
 
 ## Supporting Kubb
 
@@ -92,6 +96,14 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
       <td align="center" valign="top" width="14.28%"><a href="https://hugofelippe.github.io/"><img src="https://avatars.githubusercontent.com/u/19368365?v=4?s=100" width="100px;" alt="Hugo Felippe de Souza Cruz"/><br /><sub><b>Hugo Felippe de Souza Cruz</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=hugoFelippe" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/belgattitude"><img src="https://avatars.githubusercontent.com/u/259798?v=4?s=100" width="100px;" alt="Sébastien Vanvelthem"/><br /><sub><b>Sébastien Vanvelthem</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=belgattitude" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://bento.me/vitalygashkov"><img src="https://avatars.githubusercontent.com/u/30000398?v=4?s=100" width="100px;" alt="Vitaly Gashkov"/><br /><sub><b>Vitaly Gashkov</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=vitalygashkov" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://ducduc.nl"><img src="https://avatars.githubusercontent.com/u/9675738?v=4?s=100" width="100px;" alt="Duco Drupsteen"/><br /><sub><b>Duco Drupsteen</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=ducodrupsteen" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/th3l0g4n"><img src="https://avatars.githubusercontent.com/u/326306?v=4?s=100" width="100px;" alt="th3l0g4n"/><br /><sub><b>th3l0g4n</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=th3l0g4n" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://rxliuli.com"><img src="https://avatars.githubusercontent.com/u/24560368?v=4?s=100" width="100px;" alt="rxliuli"/><br /><sub><b>rxliuli</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=rxliuli" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/humarkx"><img src="https://avatars.githubusercontent.com/u/13049940?v=4?s=100" width="100px;" alt="humarkx"/><br /><sub><b>humarkx</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=humarkx" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Jakub-Cerovsky"><img src="https://avatars.githubusercontent.com/u/141134227?v=4?s=100" width="100px;" alt="Jakub Cerovsky"/><br /><sub><b>Jakub Cerovsky</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=Jakub-Cerovsky" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
@@ -132,7 +144,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
 [minified-href]: https://www.npmjs.com/package/@kubb/core
 [coverage-src]: https://img.shields.io/codecov/c/github/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517
 [coverage-href]: https://www.npmjs.com/package/@kubb/core
-[contributors-src]: https://img.shields.io/github/contributors/stijnvanhulle/kubb?style=flat&colorA=18181B&colorB=f58517&label=%20
+[contributors-src]: https://img.shields.io/github/contributors/kubb-labs/kubb?style=flat&colorA=18181B&colorB=f58517&label=%20
 [contributors-href]: #contributors-
 [sponsors-src]: https://img.shields.io/github/sponsors/stijnvanhulle?style=flat&colorA=18181B&colorB=f58517
 [sponsors-href]: https://github.com/sponsors/stijnvanhulle/

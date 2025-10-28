@@ -1,1 +1,0 @@
-const _hello = 'World!'

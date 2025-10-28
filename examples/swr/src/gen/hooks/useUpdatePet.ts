@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
@@ -17,13 +17,15 @@ export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
  * @summary Update an existing pet
  * {@link /pet}
  */
-export async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
+
+  const requestData = data
 
   const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
     url: '/pet',
-    data,
+    data: requestData,
     ...requestConfig,
   })
   return res.data
@@ -44,7 +46,7 @@ export function useUpdatePet(
         UpdatePetMutationRequest
       >
     >[2]
-    client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client }
+    client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {

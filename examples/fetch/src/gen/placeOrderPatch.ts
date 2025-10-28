@@ -3,12 +3,13 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getPlaceOrderPatchUrl() {
-  return '/store/order' as const
+  const res = { method: 'PATCH', url: '/store/order' as const }
+  return res
 }
 
 /**
@@ -18,14 +19,16 @@ function getPlaceOrderPatchUrl() {
  */
 export async function placeOrderPatch(
   data?: PlaceOrderPatchMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
+
+  const requestData = data
 
   const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
-    url: getPlaceOrderPatchUrl().toString(),
-    data,
+    url: getPlaceOrderPatchUrl().url.toString(),
+    data: requestData,
     ...requestConfig,
   })
   return res.data

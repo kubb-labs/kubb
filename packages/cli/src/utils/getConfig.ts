@@ -25,14 +25,18 @@ export async function getConfig(result: CosmiconfigResult, args: Args): Promise<
   let JSONConfig = await kubbUserConfig
 
   if (Array.isArray(JSONConfig)) {
-    const promises = JSONConfig.map(async (item) => {
-      return {
-        ...item,
-        plugins: item.plugins ? await getPlugins(item.plugins) : undefined,
-      }
-    }) as unknown as Array<Promise<Config>>
+    const results: Array<Config> = []
 
-    return Promise.all(promises)
+    for (const item of JSONConfig) {
+      const plugins = item.plugins ? await getPlugins(item.plugins) : undefined
+
+      results.push({
+        ...item,
+        plugins,
+      } as Config)
+    }
+
+    return results
   }
 
   JSONConfig = {

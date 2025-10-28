@@ -5,9 +5,9 @@
 import { z } from 'zod'
 
 export const optionalPet = z.object({
-  id: z.number().int().optional(),
-  name: z.string().optional(),
-  tag: z.string().optional(),
+  id: z.optional(z.number().int()),
+  name: z.optional(z.string()),
+  tag: z.optional(z.string()),
 })
 
 export type OptionalPet = z.infer<typeof optionalPet>

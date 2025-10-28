@@ -8,7 +8,7 @@ import { faker } from '@faker-js/faker'
  * @description Null response
  */
 export function createPets201() {
-  return unknown
+  return undefined
 }
 
 /**

@@ -14,7 +14,7 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
@@ -29,8 +29,8 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
  * @summary Find pet by ID
  * {@link /pet/:pet_id}
  */
-export async function getPetById(pet_id: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function getPetById(pet_id: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
     method: 'GET',
@@ -40,7 +40,7 @@ export async function getPetById(pet_id: GetPetByIdPathParams['pet_id'], config:
   return res.data
 }
 
-export function getPetByIdQueryOptions(pet_id: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+export function getPetByIdQueryOptions(pet_id: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = getPetByIdQueryKey(pet_id)
   return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!pet_id,
@@ -63,18 +63,19 @@ export function createGetPetById<TData = GetPetByIdQueryResponse, TQueryData = G
     query?: Partial<CreateBaseQueryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(pet_id)
 
   const query = createQuery(
     {
-      ...(getPetByIdQueryOptions(pet_id, config) as unknown as CreateBaseQueryOptions),
+      ...getPetByIdQueryOptions(pet_id, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<GetPetById400 | GetPetById404>> & { queryKey: TQueryKey }
 

@@ -1,10 +1,10 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const addressSchema = z.object({
-  street: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  zip: z.string().optional(),
+  street: z.optional(z.string()),
+  city: z.optional(z.string()),
+  state: z.optional(z.string()),
+  zip: z.optional(z.string()),
 })
 
 export type AddressSchema = z.infer<typeof addressSchema>

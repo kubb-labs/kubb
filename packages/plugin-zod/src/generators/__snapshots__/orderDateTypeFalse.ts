@@ -5,10 +5,10 @@
 import { z } from 'zod'
 
 export const order = z.object({
-  id: z.number().int().optional(),
-  petId: z.number().int().optional(),
-  quantity: z.number().int().optional(),
-  shipDate: z.string().optional(),
-  status: z.enum(['placed', 'approved', 'delivered']).describe('Order Status').optional(),
-  complete: z.boolean().optional(),
+  id: z.optional(z.number().int()),
+  petId: z.optional(z.number().int()),
+  quantity: z.optional(z.number().int()),
+  shipDate: z.optional(z.string()),
+  status: z.optional(z.enum(['placed', 'approved', 'delivered']).describe('Order Status')),
+  complete: z.optional(z.boolean()),
 })

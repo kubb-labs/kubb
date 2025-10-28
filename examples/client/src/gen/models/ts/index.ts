@@ -1,14 +1,14 @@
-export type { AddPetRequestStatusEnum, AddPetRequest } from './AddPetRequest.js'
+export type { AddPetRequestStatusEnumKey, AddPetRequest } from './AddPetRequest.js'
 export type { Address } from './Address.js'
 export type { ApiResponse } from './ApiResponse.js'
 export type { Category } from './Category.js'
 export type { Customer } from './Customer.js'
-export type { OrderStatusEnum, OrderHttpStatusEnum, Order } from './Order.js'
-export type { PetStatusEnum, Pet } from './Pet.js'
+export type { OrderStatusEnumKey, OrderHttpStatusEnumKey, Order } from './Order.js'
+export type { PetStatusEnumKey, Pet } from './Pet.js'
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './petController/AddPet.js'
 export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './petController/DeletePet.js'
 export type {
-  FindPetsByStatusQueryParamsStatusEnum,
+  FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryParams,
   FindPetsByStatus200,
   FindPetsByStatus400,

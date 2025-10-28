@@ -27,14 +27,14 @@ export const createPetsHeaderParamsXEXAMPLEEnum = {
   THREE: 'THREE',
 } as const
 
-export type CreatePetsHeaderParamsXEXAMPLEEnumType = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
+export type CreatePetsHeaderParamsXEXAMPLEEnumTypeKey = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
 
 export type CreatePetsHeaderParamsType = {
   /**
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumType
+  'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumTypeKey
 }
 
 /**

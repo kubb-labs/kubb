@@ -6,7 +6,7 @@ import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
 
 export const optionalPet = z.object({
-  id: z.number().int().optional(),
-  name: z.string().optional(),
-  tag: z.string().optional(),
+  id: z.optional(z.number().int()),
+  name: z.optional(z.string()),
+  tag: z.optional(z.string()),
 }) as unknown as ToZod<OptionalPet>

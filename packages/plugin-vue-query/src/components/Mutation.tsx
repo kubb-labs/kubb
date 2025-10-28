@@ -1,11 +1,9 @@
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import type { Params } from '@kubb/react/types'
-import type { ReactNode } from 'react'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode, Params } from '@kubb/react-fabric/types'
 import type { PluginVueQuery } from '../types.ts'
 import { MutationKey } from './MutationKey.tsx'
 
@@ -43,25 +41,25 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
       override(item) {
         return {
           ...item,
-          type: `MaybeRef<${item.type}>`,
+          type: `MaybeRefOrGetter<${item.type}>`,
         }
       },
     }),
     data: typeSchemas.request?.name
       ? {
-          type: `MaybeRef<${typeSchemas.request?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
           optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
-          type: `MaybeRef<${typeSchemas.queryParams?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
           optional: isOptional(typeSchemas.queryParams?.schema),
         }
       : undefined,
     headers: typeSchemas.headerParams?.name
       ? {
-          type: `MaybeRef<${typeSchemas.headerParams?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.headerParams?.name}>`,
           optional: isOptional(typeSchemas.headerParams?.schema),
         }
       : undefined,
@@ -73,7 +71,7 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
       type: `
 {
   mutation?: MutationObserverOptions<${[TData, TError, TRequest ? `{${TRequest}}` : 'void', 'TContext'].join(', ')}> & { client?: QueryClient },
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'},
 }
 `,
       default: '{}',
@@ -91,7 +89,7 @@ export function Mutation({
   typeSchemas,
   operation,
   mutationKeyName,
-}: Props): ReactNode {
+}: Props): KubbNode {
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,
     typeSchemas,

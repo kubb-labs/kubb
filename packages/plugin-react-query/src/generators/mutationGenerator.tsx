@@ -1,3 +1,4 @@
+import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
@@ -5,20 +6,20 @@ import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
 import { difference } from 'remeda'
 import { Mutation, MutationKey } from '../components'
+import { MutationOptions } from '../components/MutationOptions.tsx'
 import type { PluginReactQuery } from '../types'
 
 export const mutationGenerator = createReactGenerator<PluginReactQuery>({
   name: 'react-query',
   Operation({ options, operation }) {
     const {
-      plugin: {
-        options: { output },
-      },
-      pluginManager,
-    } = useApp<PluginReactQuery>()
+      options: { output },
+    } = usePlugin<PluginReactQuery>()
+    const pluginManager = usePluginManager()
+
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 
@@ -59,6 +60,10 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
       file: getFile(operation, { pluginKey: [pluginClientName] }),
     }
 
+    const mutationOptions = {
+      name: getName(operation, { type: 'function', suffix: 'MutationOptions' }),
+    }
+
     const mutationKey = {
       name: getName(operation, { type: 'const', suffix: 'MutationKey' }),
       typeName: getName(operation, { type: 'type', suffix: 'MutationKey' }),
@@ -79,7 +84,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
         {options.parser === 'zod' && (
           <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={mutation.file.path} path={zod.file.path} />
         )}
-        <File.Import name={'client'} path={options.client.importPath} />
+        <File.Import name={'fetch'} path={options.client.importPath} />
         {!!hasClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
         <File.Import name={['RequestConfig', 'ResponseConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
@@ -120,19 +125,30 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
             parser={options.parser}
           />
         )}
+        <File.Import name={['mutationOptions']} path={importPath} />
+
+        <MutationOptions
+          name={mutationOptions.name}
+          clientName={client.name}
+          mutationKeyName={mutationKey.name}
+          typeSchemas={type.schemas}
+          paramsCasing={options.paramsCasing}
+          paramsType={options.paramsType}
+          pathParamsType={options.pathParamsType}
+          dataReturnType={options.client.dataReturnType}
+        />
         {options.mutation && (
           <>
             <File.Import name={['useMutation']} path={importPath} />
-            <File.Import name={['UseMutationOptions', 'QueryClient']} path={importPath} isTypeOnly />
+            <File.Import name={['UseMutationOptions', 'UseMutationResult', 'QueryClient']} path={importPath} isTypeOnly />
             <Mutation
               name={mutation.name}
-              clientName={client.name}
+              mutationOptionsName={mutationOptions.name}
               typeName={mutation.typeName}
               typeSchemas={type.schemas}
               operation={operation}
               dataReturnType={options.client.dataReturnType}
               paramsCasing={options.paramsCasing}
-              paramsType={options.paramsType}
               pathParamsType={options.pathParamsType}
               mutationKeyName={mutationKey.name}
             />

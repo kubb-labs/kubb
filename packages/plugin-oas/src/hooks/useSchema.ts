@@ -1,4 +1,4 @@
-import { useContext } from '@kubb/react'
+import { useContext } from '@kubb/react-fabric'
 
 import { Schema } from '../components/Schema.tsx'
 

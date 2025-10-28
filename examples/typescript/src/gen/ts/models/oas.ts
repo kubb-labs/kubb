@@ -6,7 +6,7 @@
 import type { Infer } from '@kubb/oas'
 
 export const oas = {
-  openapi: '3.0.3',
+  openapi: '3.1.0',
   info: {
     title: 'Swagger Petstore - OpenAPI 3.0',
     description:
@@ -534,6 +534,8 @@ export const oas = {
           content: {
             'application/json': {
               schema: {
+                description: 'Order description',
+                pattern: '^[a-zA-Z0-9]{1,13}$',
                 $ref: '#/components/schemas/Order',
               },
             },
@@ -974,10 +976,17 @@ export const oas = {
             format: 'date-time',
           },
           status: {
-            type: 'string',
             description: 'Order Status',
-            example: 'approved',
-            enum: ['placed', 'approved', 'delivered'],
+            anyOf: [
+              {
+                type: 'string',
+                const: '',
+              },
+              {
+                type: 'string',
+                format: 'email',
+              },
+            ],
           },
           http_status: {
             type: 'number',
@@ -1019,6 +1028,41 @@ export const oas = {
         xml: {
           name: 'customer',
         },
+      },
+      HappyCustomer: {
+        allOf: [
+          {
+            $ref: '#/components/schemas/Customer',
+          },
+          {
+            type: 'object',
+            properties: {
+              isHappy: {
+                type: 'boolean',
+                const: true,
+              },
+            },
+          },
+        ],
+      },
+      UnhappyCustomer: {
+        allOf: [
+          {
+            $ref: '#/components/schemas/Customer',
+          },
+          {
+            type: 'object',
+            properties: {
+              reasonToBeUnhappy: {
+                type: 'string',
+              },
+              isHappy: {
+                type: 'boolean',
+                const: false,
+              },
+            },
+          },
+        ],
       },
       Address: {
         type: 'object',

@@ -1,10 +1,10 @@
-import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
-
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { OperationGenerator } from '@kubb/plugin-oas'
+import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react-fabric'
 import type { PluginMsw } from '../types.ts'
 import { mswGenerator } from './mswGenerator.tsx'
 
@@ -47,6 +47,15 @@ describe('mswGenerator operation', async () => {
       method: 'delete',
       options: {},
     },
+    {
+      name: 'createPetFaker',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        parser: 'faker',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -68,7 +77,10 @@ describe('mswGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginMsw>
+    const fabric = createReactFabric()
+
     const instance = new OperationGenerator(options, {
+      fabric,
       oas,
       include: undefined,
       pluginManager: createMockedPluginManager(props.name),
@@ -78,15 +90,16 @@ describe('mswGenerator operation', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(mswGenerator)
 
     const operation = oas.operation(props.path, props.method)
-    const files = await mswGenerator.operation?.({
-      operation,
-      options,
+
+    await buildOperation(operation, {
+      fabric,
       instance,
+      generator: mswGenerator,
+      options,
     })
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })

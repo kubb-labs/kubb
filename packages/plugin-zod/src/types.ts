@@ -1,6 +1,7 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { contentType, Oas, SchemaObject } from '@kubb/oas'
-import type { Exclude, Generator, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
+import type { Exclude, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
+import type { Generator } from '@kubb/plugin-oas/generators'
 
 export type Options = {
   /**
@@ -48,6 +49,11 @@ export type Options = {
    * @default 'any'
    */
   unknownType?: 'any' | 'unknown' | 'void'
+  /**
+   * Which type to use for empty schema values
+   * @default `unknownType`
+   */
+  emptySchemaType?: 'any' | 'unknown' | 'void'
   /**
    * Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
    */
@@ -114,6 +120,7 @@ type ResolvedOptions = {
   transformers: NonNullable<Options['transformers']>
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
+  emptySchemaType: NonNullable<Options['emptySchemaType']>
   typed: NonNullable<Options['typed']>
   inferred: NonNullable<Options['inferred']>
   mapper: NonNullable<Options['mapper']>

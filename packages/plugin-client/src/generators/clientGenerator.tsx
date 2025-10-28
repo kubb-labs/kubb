@@ -1,9 +1,10 @@
+import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
 import { Client } from '../components/Client'
 import { Url } from '../components/Url.tsx'
 import type { PluginClient } from '../types'
@@ -11,12 +12,10 @@ import type { PluginClient } from '../types'
 export const clientGenerator = createReactGenerator<PluginClient>({
   name: 'client',
   Operation({ options, operation }) {
+    const pluginManager = usePluginManager()
     const {
-      plugin: {
-        options: { output, urlType },
-      },
-      pluginManager,
-    } = useApp<PluginClient>()
+      options: { output, urlType },
+    } = usePlugin<PluginClient>()
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 
@@ -48,7 +47,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
         banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
-        <File.Import name={'client'} path={options.importPath} />
+        <File.Import name={'fetch'} path={options.importPath} />
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
         {options.parser === 'zod' && (
           <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={client.file.path} path={zod.file.path} />

@@ -1,6 +1,9 @@
+import { buildEndGenerateOpenGraphImages } from '@nolebase/vitepress-plugin-og-image/vitepress'
+
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { defineConfig } from 'vitepress'
 import { groupIconMdPlugin, groupIconVitePlugin, localIconLoader } from 'vitepress-plugin-group-icons'
+import llmstxt, { copyOrDownloadAsMarkdownButtons } from 'vitepress-plugin-llms'
 import { version } from '../../packages/core/package.json'
 import { renderMermaidGraphsPlugin } from './mermaid'
 import { transposeTables } from './transposeTables'
@@ -8,8 +11,6 @@ import { transposeTables } from './transposeTables'
 const ogImage = 'https://kubb.dev/og.png'
 const title = 'Generate SDKs for all your APIs'
 const description = 'OpenAPI to TypeScript, React-Query, Zod, Faker.js, MSW, MCP and Axios. '
-
-const links: Array<{ url: string; lastmod: number | undefined }> = []
 
 const knowledgeBaseSidebar = [
   {
@@ -45,10 +46,6 @@ const knowledgeBaseSidebar = [
   {
     text: 'Advanced',
     items: [
-      {
-        text: 'Use JSX in Kubb',
-        link: '/knowledge-base/react/',
-      },
       {
         text: 'Generators',
         link: '/knowledge-base/generators/',
@@ -102,22 +99,16 @@ const mainSidebar = [
         link: '/getting-started/at-glance/',
       },
       {
+        text: 'Ecosystem',
+        link: '/getting-started/ecosystem/',
+      },
+      {
         text: 'Quick Start',
         link: '/getting-started/quick-start/',
       },
       {
         text: 'Configure',
         link: '/getting-started/configure/',
-      },
-    ],
-  },
-  {
-    text: 'Parsers',
-    collapsed: false,
-    items: [
-      {
-        text: '@kubb/parser-ts',
-        link: '/parsers/parser-ts/',
       },
     ],
   },
@@ -132,44 +123,6 @@ const mainSidebar = [
       {
         text: '@kubb/oas',
         link: '/helpers/oas/',
-      },
-      {
-        text: '@kubb/react',
-        link: '/helpers/react/',
-        collapsed: true,
-        items: [
-          {
-            text: 'Components',
-            link: '/helpers/react/components/',
-            items: [
-              {
-                text: 'Text',
-                link: '/helpers/react/components/text/',
-              },
-              {
-                text: 'Function',
-                link: '/helpers/react/components/function/',
-              },
-              {
-                text: 'Type',
-                link: '/helpers/react/components/type/',
-              },
-              {
-                text: 'Const',
-                link: '/helpers/react/components/const/',
-              },
-              {
-                text: 'File',
-                link: '/helpers/react/components/file/',
-              },
-            ],
-          },
-          {
-            text: 'Hooks',
-            link: '/helpers/react/hooks/',
-            items: [],
-          },
-        ],
       },
     ],
   },
@@ -339,16 +292,16 @@ const examplesSidebar = [
     text: 'Generators <span class="new">new</span>',
     link: '/examples/generators/',
   },
-  {
-    text: 'React <span class="new">new</span>',
-    link: '/examples/react/',
-  },
 ]
 
 const blogSidebar = [
   {
     text: 'Release of Kubb 3.0',
     link: '/blog/v3/',
+  },
+  {
+    text: 'Release of Kubb 4.0',
+    link: '/blog/v4/',
   },
 ]
 
@@ -365,16 +318,6 @@ const documentationMenu = [
     link: '/getting-started/at-glance/',
   },
   {
-    text: 'Parsers',
-    items: [
-      {
-        text: '@kubb/parser-ts',
-        link: '/parsers/parser-ts/',
-        activeMatch: 'parser-ts',
-      },
-    ],
-  },
-  {
     text: 'Helpers',
     items: [
       {
@@ -384,10 +327,6 @@ const documentationMenu = [
       {
         text: '@kubb/oas',
         link: '/helpers/oas/',
-      },
-      {
-        text: '@kubb/react',
-        link: '/helpers/react/',
       },
     ],
   },
@@ -472,6 +411,9 @@ export default defineConfig({
   lang: 'en-UK',
   title: 'Kubb',
   description: title,
+  buildEnd: async (siteConfig) => {
+    await buildEndGenerateOpenGraphImages(siteConfig)
+  },
   head: [
     ['meta', { property: 'og:title', content: `Kubb: ${title}` }],
     ['meta', { property: 'og:image', content: ogImage }],
@@ -517,6 +459,7 @@ export default defineConfig({
     config(md) {
       transposeTables(md)
       md.use(groupIconMdPlugin)
+      md.use(copyOrDownloadAsMarkdownButtons)
     },
     lineNumbers: false,
     codeTransformers: [
@@ -525,14 +468,11 @@ export default defineConfig({
           compilerOptions: {
             paths: {
               '@kubb/cli': ['../packages/cli/src/index.ts'],
-              '@kubb/config-tsup': ['../packages/config/config-tsup/src/index.ts'],
-              '@kubb/config-ts': ['../packages/config/config-ts/src/index.ts'],
               '@kubb/core': ['../packages/core/src/index.ts'],
               '@kubb/types': ['../packages/types/src/index.ts'],
               '@kubb/core/utils': ['../packages/core/src/utils/index.ts'],
               '@kubb/core/logger': ['../packages/core/src/logger.ts'],
               '@kubb/core/transformers': ['../packages/core/src/transformers/index.ts'],
-              '@kubb/core/fs': ['../packages/core/src/fs/index.ts'],
               '@kubb/plugin-cypress': ['../packages/plugin-cypress/src/index.ts'],
               '@kubb/plugin-mcp': ['../packages/plugin-mcp/src/index.ts'],
               '@kubb/plugin-oas': ['../packages/plugin-oas/src/index.ts'],
@@ -557,9 +497,7 @@ export default defineConfig({
               '@kubb/plugin-ts': ['../packages/plugin-ts/src/index.ts'],
               '@kubb/plugin-zod': ['../packages/plugin-zod/src/index.ts'],
               '@kubb/plugin-zod/components': ['../packages/plugin-zod/src/components/index.ts'],
-              '@kubb/parser-ts': ['../packages/parser-ts/src/index.ts'],
               '@kubb/oas': ['../packages/oas/src/index.ts'],
-              '@kubb/react': ['../packages/react/src/index.ts'],
               'unplugin-kubb': ['../packages/unplugin-kubb/src/index.ts'],
               'unplugin-kubb/vite': ['../packages/unplugin-kubb/src/vite.ts'],
             },
@@ -678,7 +616,6 @@ export default defineConfig({
     sidebar: {
       '/getting-started': mainSidebar,
       '/plugins': mainSidebar,
-      '/parsers': mainSidebar,
       '/helpers': mainSidebar,
       '/build': mainSidebar,
       '/changelog': mainSidebar,
@@ -704,14 +641,21 @@ export default defineConfig({
     // },
   },
   vite: {
+    optimizeDeps: {
+      exclude: ['@nolebase/vitepress-plugin-enhanced-readabilities/client', 'vitepress', '@nolebase/ui'],
+    },
+    ssr: {
+      noExternal: ['@nolebase/vitepress-plugin-highlight-targeted-heading', '@nolebase/vitepress-plugin-enhanced-readabilities', '@nolebase/ui'],
+    },
     plugins: [
+      llmstxt(),
       renderMermaidGraphsPlugin(),
       groupIconVitePlugin({
         customIcon: {
-          'kubb.config.ts': localIconLoader(import.meta.url, '../public/logo.svg'),
-          'kubb.config.js': localIconLoader(import.meta.url, '../public/logo.svg'),
+          'kubb.config.ts': localIconLoader(import.meta.url, '../public/logo.png'),
+          'kubb.config.js': localIconLoader(import.meta.url, '../public/logo.png'),
         },
       }),
-    ],
+    ] as any,
   },
 })

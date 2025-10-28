@@ -3,12 +3,13 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getUpdatePetUrl() {
-  return '/pet' as const
+  const res = { method: 'PUT', url: '/pet' as const }
+  return res
 }
 
 /**
@@ -16,13 +17,15 @@ function getUpdatePetUrl() {
  * @summary Update an existing pet
  * {@link /pet}
  */
-export async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
+
+  const requestData = data
 
   const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
-    url: getUpdatePetUrl().toString(),
-    data,
+    url: getUpdatePetUrl().url.toString(),
+    data: requestData,
     ...requestConfig,
   })
   return res.data

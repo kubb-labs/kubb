@@ -6,16 +6,14 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/examples/mcp"
+    "directory": "examples/mcp"
   },
   "license": "MIT",
   "author": "stijnvanhulle",
   "sideEffects": false,
   "scripts": {
-    "build": "tsup",
     "clean": "npx rimraf ./dist",
     "generate": "kubb generate --config kubb.config.ts",
-    "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -26,18 +24,16 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.13.2",
-    "axios": "^1.10.0",
-    "zod": "^3.25.67"
+    "@modelcontextprotocol/sdk": "^1.20.2",
+    "axios": "^1.13.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
-    "tsup": "^8.5.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.3"
   },
-  "packageManager": "pnpm@9.15.5",
+  "packageManager": "pnpm@10.18.3",
   "engines": {
     "node": ">=20",
-    "pnpm": ">=8.15.0"
+    "pnpm": ">=10.0.0"
   }
 }

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -26,9 +26,9 @@ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQuery
 export async function updatePetWithFormHook(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
@@ -42,7 +42,7 @@ export async function updatePetWithFormHook(
 export function updatePetWithFormQueryOptionsHook(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(pet_id, params)
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
@@ -70,18 +70,19 @@ export function useUpdatePetWithFormHook<
     query?: Partial<QueryObserverOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(pet_id, params)
 
   const query = useQuery(
     {
-      ...(updatePetWithFormQueryOptionsHook(pet_id, params, config) as unknown as QueryObserverOptions),
+      ...updatePetWithFormQueryOptionsHook(pet_id, params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 

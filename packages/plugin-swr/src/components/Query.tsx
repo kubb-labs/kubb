@@ -1,9 +1,8 @@
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import type { ReactNode } from 'react'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginSwr } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
@@ -66,8 +65,9 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
         type: `
 {
   query?: Parameters<typeof useSWR<${[TData, TError].join(', ')}>>[2],
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'},
   shouldFetch?: boolean,
+  immutable?: boolean
 }
 `,
         default: '{}',
@@ -105,8 +105,9 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       type: `
 {
   query?: Parameters<typeof useSWR<${[TData, TError].join(', ')}>>[2],
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'},
   shouldFetch?: boolean,
+  immutable?: boolean
 }
 `,
       default: '{}',
@@ -125,7 +126,7 @@ export function Query({
   paramsType,
   paramsCasing,
   pathParamsType,
-}: Props): ReactNode {
+}: Props): KubbNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
   const generics = [TData, TError, `${queryKeyTypeName} | null`]
@@ -161,7 +162,7 @@ export function Query({
         }}
       >
         {`
-       const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+       const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
        const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
 
@@ -169,6 +170,11 @@ export function Query({
         shouldFetch ? queryKey : null,
         {
           ...${queryOptionsName}(${queryOptionsParams.toCall()}),
+          ...(immutable ? {
+              revalidateIfStale: false,
+              revalidateOnFocus: false,
+              revalidateOnReconnect: false
+            } : { }),
           ...queryOptions
         }
        )

@@ -18,6 +18,8 @@ export default defineConfig({
         output: {
           path: './src/gen',
           clean: true,
+          format: 'biome',
+          lint: 'biome',
         },
         plugins: [
           pluginOas({

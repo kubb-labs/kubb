@@ -17,6 +17,11 @@ export type Transformer = (props: TransformerProps) => unknown[]
  */
 type QueryKey = Transformer
 
+/**
+ * Customize the mutationKey
+ */
+type MutationKey = Transformer
+
 type Query = {
   /**
    * Define which HttpMethods can be used for queries
@@ -29,6 +34,22 @@ type Query = {
    * It allows both relative and absolute path.
    * the path will be applied as is, so relative path should be based on the file being generated.
    * @default '@tanstack/svelte-query'
+   */
+  importPath?: string
+}
+
+type Mutation = {
+  /**
+   * Define which HttpMethods can be used for mutations
+   * @default ['post', 'put', 'delete']
+   */
+  methods: Array<HttpMethod>
+  /**
+   * Path to the useQuery that will be used to do the useQuery functionality.
+   * It will be used as `import { useQuery } from '${importPath}'`.
+   * It allows both relative and absolute path.
+   * the path will be applied as is, so relative path should be based on the file being generated.
+   * @default '@tanstack/solid-query'
    */
   importPath?: string
 }
@@ -90,6 +111,11 @@ export type Options = {
    * Which parser should be used before returning the data to `@tanstack/query`.
    * `'zod'` will use `@kubb/plugin-zod` to parse the data.
    */
+  mutationKey?: MutationKey
+  /**
+   * Override some useMutation behaviours.
+   */
+  mutation?: Partial<Mutation> | false
   parser?: PluginClient['options']['parser']
   transformers?: {
     /**
@@ -113,6 +139,8 @@ type ResolvedOptions = {
   pathParamsType: NonNullable<Options['pathParamsType']>
   queryKey: QueryKey | undefined
   query: NonNullable<Required<Query>> | false
+  mutationKey: MutationKey | undefined
+  mutation: NonNullable<Required<Mutation>> | false
 }
 
 export type PluginSolidQuery = PluginFactoryOptions<'plugin-solid-query', Options, ResolvedOptions, never, ResolvePathOptions>

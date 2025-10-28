@@ -2,7 +2,7 @@ import { URLPath } from '@kubb/core/utils'
 import type { PluginOas } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
-import { File } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
 
 export const example2 = createReactGenerator<PluginOas>({
   name: 'client-operation',

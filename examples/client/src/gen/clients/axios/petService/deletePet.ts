@@ -4,12 +4,13 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
-  return `/pet/${petId}` as const
+  const res = { method: 'DELETE', url: `/pet/${petId}` as const }
+  return res
 }
 
 /**
@@ -20,13 +21,13 @@ function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
 export async function deletePet(
   { petId }: { petId: DeletePetPathParams['petId'] },
   headers?: DeletePetHeaderParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
-    url: getDeletePetUrl({ petId }).toString(),
+    url: getDeletePetUrl({ petId }).url.toString(),
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })

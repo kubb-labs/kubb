@@ -6,21 +6,22 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/examples/advanced"
+    "directory": "examples/advanced"
   },
   "license": "MIT",
   "author": "stijnvanhulle",
   "sideEffects": false,
   "scripts": {
-    "build": "tsup",
     "clean": "npx rimraf ./dist",
     "generate": "kubb generate",
+    "validate": "kubb validate --input petStore.yaml",
+    "mcp": "kubb mcp",
+    "generate:watch": "kubb generate --watch",
     "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
     "generate:bun": "kubb generate --bun",
     "generate:js": "kubb generate --config .kubbrc.js",
     "generate:json": "kubb generate --config kubb.json",
     "generate:ts": "kubb generate --config configs/kubb.config.ts",
-    "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -39,32 +40,30 @@
     "@kubb/plugin-swr": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@kubb/react": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.13.2",
-    "@tanstack/query-core": "^5.81.2",
-    "@tanstack/react-query": "^5.81.2",
-    "@tanstack/solid-query": "^5.81.2",
-    "@tanstack/svelte-query": "^5.81.3",
-    "@tanstack/vue-query": "^5.81.3",
-    "@types/react": "^19.1.8",
-    "axios": "^1.10.0",
+    "@kubb/react-fabric": "0.2.8",
+    "@modelcontextprotocol/sdk": "^1.20.2",
+    "@tanstack/query-core": "^5.90.5",
+    "@tanstack/react-query": "^5.90.5",
+    "@tanstack/solid-query": "^5.90.6",
+    "@tanstack/svelte-query": "^5.90.2",
+    "@tanstack/vue-query": "^5.90.5",
+    "@types/react": "^19.2.2",
+    "axios": "^1.13.0",
     "cypress": "~14.3.3",
-    "msw": "^2.10.2",
-    "react": "^19.1.0",
-    "solid-js": "^1.9.7",
+    "msw": "^2.11.6",
+    "react": "^19.2.0",
+    "solid-js": "^1.9.10",
     "svelte": "^4.2.20",
-    "swr": "^2.3.3",
-    "vue": "^3.5.17",
-    "zod": "^3.25.67"
+    "swr": "^2.3.6",
+    "vue": "^3.5.22",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
-    "tsup": "^8.5.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.3"
   },
-  "packageManager": "pnpm@9.15.5",
+  "packageManager": "pnpm@10.18.3",
   "engines": {
     "node": ">=20",
-    "pnpm": ">=8.15.0"
+    "pnpm": ">=10.0.0"
   }
 }

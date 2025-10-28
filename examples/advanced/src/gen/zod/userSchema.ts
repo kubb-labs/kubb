@@ -1,20 +1,19 @@
 import { tagTagSchema } from './tag/tagSchema.ts'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const userSchema = z.object({
-  id: z.number().int().optional(),
-  username: z.string().optional(),
-  uuid: z.string().uuid().optional(),
-  tag: z
-    .lazy(() => tagTagSchema)
-    .describe('The active tag')
-    .optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  email: z.string().email().optional(),
-  password: z.string().optional(),
-  phone: z.string().optional(),
-  userStatus: z.number().int().describe('User Status').optional(),
+  id: z.optional(z.int()),
+  username: z.optional(z.string()),
+  uuid: z.optional(z.uuid()),
+  get tag() {
+    return z.optional(tagTagSchema.describe('The active tag'))
+  },
+  firstName: z.optional(z.string()),
+  lastName: z.optional(z.string()),
+  email: z.optional(z.email()),
+  password: z.optional(z.string()),
+  phone: z.optional(z.string()),
+  userStatus: z.optional(z.int().describe('User Status')),
 })
 
 export type UserSchema = z.infer<typeof userSchema>

@@ -32,6 +32,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pets'
+        '400':
+          description: Invalid
         default:
           description: unexpected error
           content:

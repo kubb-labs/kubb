@@ -1,13 +1,14 @@
 import path from 'node:path'
-
-import { PluginManager, createPlugin } from '@kubb/core'
-import { pluginOasName } from '@kubb/plugin-oas'
-
 import type { Plugin } from '@kubb/core'
-import { trimExtName } from '@kubb/core/fs'
+import { createPlugin, PluginManager } from '@kubb/core'
 import type { PluginOas } from '@kubb/plugin-oas'
+import { pluginOasName } from '@kubb/plugin-oas'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
+
+function trimExtName(text: string): string {
+  return text.replace(/\.[^/.]+$/, '')
+}
 
 export const pluginRedocName = 'plugin-redoc' satisfies PluginRedoc['name']
 
@@ -30,7 +31,16 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const pageHTML = await getPageHTML(oas.api)
 
-      await this.fileManager.write(path.resolve(root, output.path || './docs.html'), pageHTML)
+      await this.addFile({
+        baseName: 'docs.html',
+        path: path.resolve(root, output.path || './docs.html'),
+        sources: [
+          {
+            name: 'docs.html',
+            value: pageHTML,
+          },
+        ],
+      })
     },
   }
 })

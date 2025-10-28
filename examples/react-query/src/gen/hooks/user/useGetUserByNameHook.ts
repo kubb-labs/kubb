@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../models/GetUserByName.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
@@ -20,9 +20,9 @@ export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
  */
 export async function getUserByNameHook(
   { username }: { username: GetUserByNamePathParams['username'] },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
     method: 'GET',
@@ -34,7 +34,7 @@ export async function getUserByNameHook(
 
 export function getUserByNameQueryOptionsHook(
   { username }: { username: GetUserByNamePathParams['username'] },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = getUserByNameQueryKey({ username })
   return queryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryResponse, typeof queryKey>({
@@ -61,18 +61,19 @@ export function useGetUserByNameHook<
     query?: Partial<
       QueryObserverOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey({ username })
 
   const query = useQuery(
     {
-      ...(getUserByNameQueryOptionsHook({ username }, config) as unknown as QueryObserverOptions),
+      ...getUserByNameQueryOptionsHook({ username }, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }
 

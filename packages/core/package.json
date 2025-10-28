@@ -1,12 +1,16 @@
 {
   "name": "@kubb/core",
-  "version": "3.11.1",
-  "description": "Generator core",
+  "version": "4.4.1",
+  "description": "Core functionality for Kubb's plugin-based code generation system, providing the foundation for transforming OpenAPI specifications.",
   "keywords": [
     "typescript",
     "plugins",
-    "kubb",
-    "codegen"
+    "plugin-system",
+    "code-generator",
+    "codegen",
+    "openapi",
+    "swagger",
+    "kubb"
   ],
   "repository": {
     "type": "git",
@@ -20,40 +24,29 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
+      "require": "./dist/index.cjs"
     },
-    "./utils": {
-      "import": "./dist/utils.js",
-      "require": "./dist/utils.cjs",
-      "default": "./dist/utils.cjs"
-    },
-    "./transformers": {
-      "import": "./dist/transformers.js",
-      "require": "./dist/transformers.cjs",
-      "default": "./dist/transformers.cjs"
-    },
-    "./fs": {
-      "import": "./dist/fs.js",
-      "require": "./dist/fs.cjs",
-      "default": "./dist/fs.cjs"
+    "./hooks": {
+      "import": "./dist/hooks.js",
+      "require": "./dist/hooks.cjs"
     },
     "./logger": {
       "import": "./dist/logger.js",
-      "require": "./dist/logger.cjs",
-      "default": "./dist/logger.cjs"
+      "require": "./dist/logger.cjs"
     },
-    "./mocks": {
-      "import": "./dist/mocks.js",
-      "require": "./dist/mocks.cjs",
-      "default": "./dist/mocks.cjs"
+    "./transformers": {
+      "import": "./dist/transformers.js",
+      "require": "./dist/transformers.cjs"
     },
-    "./package.json": "./package.json",
-    "./*": "./*"
+    "./utils": {
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs"
+    },
+    "./package.json": "./package.json"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
       "utils": [
@@ -65,8 +58,8 @@
       "logger": [
         "./dist/logger.d.ts"
       ],
-      "mocks": [
-        "./dist/mocks.d.ts"
+      "hooks": [
+        "./dist/hooks.d.ts"
       ],
       "fs": [
         "./dist/fs.d.ts"
@@ -82,41 +75,51 @@
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown && size-limit",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint--fix --unsafe .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsup --watch",
+    "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/parser-ts": "workspace:*",
+    "@kubb/react-fabric": "catalog:",
     "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
-    "fs-extra": "^11.3.0",
+    "fs-extra": "^11.3.2",
     "js-runtime": "^0.0.8",
     "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",
-    "p-queue": "^8.1.0",
+    "p-limit": "catalog:",
+    "picocolors": "^1.1.1",
     "remeda": "catalog:",
     "seedrandom": "^3.0.5",
-    "semver": "^7.7.2"
+    "semver": "^7.7.3"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
-    "@kubb/config-tsup": "workspace:*",
     "@types/fs-extra": "^11.0.4",
     "@types/object-hash": "^3.0.6",
     "@types/seedrandom": "^3.0.8",
-    "@types/semver": "^7.7.0",
+    "@types/semver": "^7.7.1",
     "consola": "^3.4.2",
-    "prettier": "^3.6.2",
-    "tsup": "catalog:",
-    "typescript": "catalog:"
+    "zod": "^4.1.12"
+  },
+  "optionalDependencies": {
+    "@kubb/fabric-core": "catalog:"
+  },
+  "peerDependencies": {
+    "@kubb/react-fabric": "catalog:"
   },
   "engines": {
     "node": ">=20"

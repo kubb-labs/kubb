@@ -3,21 +3,13 @@
  * Do not edit manually.
  */
 
-export const orderStatusEnum = {
-  placed: 'placed',
-  approved: 'approved',
-  delivered: 'delivered',
-} as const
-
-export type OrderStatusEnum = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
-
 export const orderHttpStatusEnum = {
   '200': 200,
   '400': 400,
   '500': 500,
 } as const
 
-export type OrderHttpStatusEnum = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
+export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
 export type Order = {
   /**
@@ -38,14 +30,13 @@ export type Order = {
   shipDate?: string
   /**
    * @description Order Status
-   * @type string | undefined
    */
-  status?: OrderStatusEnum
+  status?: string
   /**
    * @description HTTP Status
    * @type number | undefined
    */
-  http_status?: OrderHttpStatusEnum
+  http_status?: OrderHttpStatusEnumKey
   /**
    * @type boolean | undefined
    */
@@ -65,6 +56,24 @@ export type Customer = {
    * @type array | undefined
    */
   address?: Address[]
+}
+
+export type HappyCustomer = Customer & {
+  /**
+   * @type boolean | undefined
+   */
+  isHappy?: true
+}
+
+export type UnhappyCustomer = Customer & {
+  /**
+   * @type string | undefined
+   */
+  reasonToBeUnhappy?: string
+  /**
+   * @type boolean | undefined
+   */
+  isHappy?: false
 }
 
 export type Address = {
@@ -154,7 +163,7 @@ export const statusEnum = {
   sold: 'sold',
 } as const
 
-export type StatusEnum = (typeof statusEnum)[keyof typeof statusEnum]
+export type StatusEnumKey = (typeof statusEnum)[keyof typeof statusEnum]
 
 export type Pet =
   | (Dog & {
@@ -186,7 +195,7 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: StatusEnum
+      status?: StatusEnumKey
     })
   | (Cat & {
       /**
@@ -217,7 +226,7 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: StatusEnum
+      status?: StatusEnumKey
     })
 
 export type Cat = {
@@ -249,7 +258,6 @@ export type FullAddress = Address & {
    * @type string
    */
   streetNumber: string
-} & {
   /**
    * @type string
    */
@@ -263,7 +271,7 @@ export const addPetRequestStatusEnum = {
   'in store': 'in store',
 } as const
 
-export type AddPetRequestStatusEnum = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
+export type AddPetRequestStatusEnumKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
 
 export type AddPetRequest = {
   /**
@@ -290,7 +298,7 @@ export type AddPetRequest = {
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: AddPetRequestStatusEnum
+  status?: AddPetRequestStatusEnumKey
 }
 
 export type ApiResponse = {
@@ -392,7 +400,7 @@ export const findPetsByStatusQueryParamsStatusEnum = {
   sold: 'sold',
 } as const
 
-export type FindPetsByStatusQueryParamsStatusEnum = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
+export type FindPetsByStatusQueryParamsStatusEnumKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
 
 export type FindPetsByStatusQueryParams = {
   /**
@@ -400,7 +408,7 @@ export type FindPetsByStatusQueryParams = {
    * @default "available"
    * @type string | undefined
    */
-  status?: FindPetsByStatusQueryParamsStatusEnum
+  status?: FindPetsByStatusQueryParamsStatusEnumKey
 }
 
 /**
@@ -544,12 +552,12 @@ export const deletePet200Enum = {
   TYPE3: 'TYPE3',
 } as const
 
-export type DeletePet200Enum = (typeof deletePet200Enum)[keyof typeof deletePet200Enum]
+export type DeletePet200EnumKey = (typeof deletePet200Enum)[keyof typeof deletePet200Enum]
 
 /**
  * @description items
  */
-export type DeletePet200 = DeletePet200Enum[]
+export type DeletePet200 = DeletePet200EnumKey[]
 
 /**
  * @description Invalid pet value
@@ -622,6 +630,9 @@ export type PlaceOrder200 = Order
  */
 export type PlaceOrder405 = any
 
+/**
+ * @pattern ^[a-zA-Z0-9]{1,13}$
+ */
 export type PlaceOrderMutationRequest = Order
 
 export type PlaceOrderMutationResponse = PlaceOrder200

@@ -1,18 +1,15 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const orderSchema = z.object({
-  id: z.number().int().min(3).max(100).optional(),
-  petId: z.number().int().optional(),
-  quantity: z.number().int().optional(),
-  orderType: z.enum(['foo', 'bar']).optional(),
-  type: z.string().describe('Order Status').optional(),
-  shipDate: z.string().datetime({ offset: true }).optional(),
-  status: z.enum(['placed', 'approved', 'delivered']).describe('Order Status').optional(),
-  http_status: z
-    .union([z.literal(200), z.literal(400)])
-    .describe('HTTP Status')
-    .optional(),
-  complete: z.boolean().optional(),
+  id: z.optional(z.int().min(3).max(100)),
+  petId: z.optional(z.int()),
+  quantity: z.optional(z.int()),
+  orderType: z.optional(z.enum(['foo', 'bar'])),
+  type: z.optional(z.string().describe('Order Status')),
+  shipDate: z.optional(z.iso.datetime({ offset: true })),
+  status: z.optional(z.enum(['placed', 'approved', 'delivered']).describe('Order Status')),
+  http_status: z.optional(z.union([z.literal(200), z.literal(400)]).describe('HTTP Status')),
+  complete: z.optional(z.boolean()),
 })
 
 export type OrderSchema = z.infer<typeof orderSchema>

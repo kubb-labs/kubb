@@ -4,12 +4,13 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../../../models/ts/petController/FindPetsByTags.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getFindPetsByTagsUrl() {
-  return '/pet/findByTags' as const
+  const res = { method: 'GET', url: '/pet/findByTags' as const }
+  return res
 }
 
 /**
@@ -17,12 +18,12 @@ function getFindPetsByTagsUrl() {
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
-    url: getFindPetsByTagsUrl().toString(),
+    url: getFindPetsByTagsUrl().url.toString(),
     params,
     ...requestConfig,
   })

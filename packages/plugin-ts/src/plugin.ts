@@ -1,11 +1,8 @@
 import path from 'node:path'
-
-import { FileManager, type Group, PluginManager, createPlugin } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
-import { OperationGenerator, SchemaGenerator, pluginOasName } from '@kubb/plugin-oas'
-
-import type { Plugin } from '@kubb/core'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { oasGenerator, typeGenerator } from './generators'
 import type { PluginTs } from './types.ts'
 
@@ -23,6 +20,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     dateType = 'string',
     unknownType = 'any',
     optionalType = 'questionToken',
+    emptySchemaType = unknownType,
     syntaxType = 'type',
     transformers = {},
     oasType = false,
@@ -41,18 +39,22 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       oasType,
       enumType,
       enumSuffix,
-      // keep the used enumnames between SchemaGenerator and OperationGenerator per plugin(pluginKey)
-      usedEnumNames: {},
       unknownType,
+      emptySchemaType,
       syntaxType,
       group,
       override,
       mapper,
     },
+    context() {
+      return {
+        usedEnumNames: {} as Record<string, number>,
+      }
+    },
     pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
+      const mode = pathMode ?? getMode(path.resolve(root, output.path))
 
       if (mode === 'single') {
         /**
@@ -98,9 +100,10 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
       const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = FileManager.getMode(path.resolve(root, output.path))
+      const mode = getMode(path.resolve(root, output.path))
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
+        fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
@@ -115,6 +118,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       await this.addFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
+        fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
         plugin: this.plugin,
@@ -128,11 +132,10 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       const operationFiles = await operationGenerator.build(...generators)
       await this.addFile(...operationFiles)
 
-      const barrelFiles = await this.fileManager.getBarrelFiles({
+      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
         type: output.barrelType ?? 'named',
         root,
         output,
-        files: this.fileManager.files,
         meta: {
           pluginKey: this.plugin.key,
         },

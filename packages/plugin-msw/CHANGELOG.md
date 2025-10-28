@@ -1,5 +1,479 @@
 # @kubb/plugin-msw
 
+## 4.4.1
+
+### Patch Changes
+
+- [#1963](https://github.com/kubb-labs/kubb/pull/1963) [`75d0730`](https://github.com/kubb-labs/kubb/commit/75d0730ac261332442a70ee056a0b91acc56db6d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update Fabric to get latest changes
+
+- Updated dependencies [[`75d0730`](https://github.com/kubb-labs/kubb/commit/75d0730ac261332442a70ee056a0b91acc56db6d)]:
+  - @kubb/plugin-faker@4.4.1
+  - @kubb/plugin-oas@4.4.1
+  - @kubb/plugin-ts@4.4.1
+  - @kubb/core@4.4.1
+  - @kubb/oas@4.4.1
+
+## 4.4.0
+
+### Minor Changes
+
+- [#1961](https://github.com/kubb-labs/kubb/pull/1961) [`bed6f9c`](https://github.com/kubb-labs/kubb/commit/bed6f9cf482ad4bbd2119c9de38f1184227b82cc) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - removal of Kubb react in favor of using `@kubb/react-fabric`
+
+### Patch Changes
+
+- Updated dependencies [[`25bf2e7`](https://github.com/kubb-labs/kubb/commit/25bf2e7f54feeaf2341701fee2a2a819ae8d143d), [`bed6f9c`](https://github.com/kubb-labs/kubb/commit/bed6f9cf482ad4bbd2119c9de38f1184227b82cc)]:
+  - @kubb/core@4.4.0
+  - @kubb/plugin-faker@4.4.0
+  - @kubb/plugin-oas@4.4.0
+  - @kubb/plugin-ts@4.4.0
+  - @kubb/oas@4.4.0
+
+## 4.3.1
+
+### Patch Changes
+
+- [#1953](https://github.com/kubb-labs/kubb/pull/1953) [`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - update peerdeps @kubb/react
+
+- Updated dependencies [[`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92)]:
+  - @kubb/plugin-faker@4.3.1
+  - @kubb/plugin-oas@4.3.1
+  - @kubb/plugin-ts@4.3.1
+  - @kubb/core@4.3.1
+  - @kubb/oas@4.3.1
+  - @kubb/react@4.3.1
+
+## 4.3.0
+
+### Patch Changes
+
+- Updated dependencies [[`1a3e1d9`](https://github.com/kubb-labs/kubb/commit/1a3e1d98015ec768c0d5e563888003047fda351c), [`1a3e1d9`](https://github.com/kubb-labs/kubb/commit/1a3e1d98015ec768c0d5e563888003047fda351c)]:
+  - @kubb/plugin-oas@4.3.0
+  - @kubb/plugin-faker@4.3.0
+  - @kubb/plugin-ts@4.3.0
+  - @kubb/core@4.3.0
+  - @kubb/oas@4.3.0
+  - @kubb/react@4.3.0
+
+## 4.2.2
+
+### Patch Changes
+
+- [#1943](https://github.com/kubb-labs/kubb/pull/1943) [`0bb014d`](https://github.com/kubb-labs/kubb/commit/0bb014d7962d339d50b2574c4852a6a7e938a60c) Thanks [@Ericlm](https://github.com/Ericlm)! - Handlers without explicit data types exclude function type. The data attributes on responses without data is now optional.
+
+- Updated dependencies []:
+  - @kubb/core@4.2.2
+  - @kubb/oas@4.2.2
+  - @kubb/plugin-faker@4.2.2
+  - @kubb/plugin-oas@4.2.2
+  - @kubb/plugin-ts@4.2.2
+  - @kubb/react@4.2.2
+
+## 4.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`945f689`](https://github.com/kubb-labs/kubb/commit/945f689c64371fa06aaa5772974420d712f17619)]:
+  - @kubb/core@4.2.1
+  - @kubb/plugin-faker@4.2.1
+  - @kubb/plugin-oas@4.2.1
+  - @kubb/plugin-ts@4.2.1
+  - @kubb/oas@4.2.1
+  - @kubb/react@4.2.1
+
+## 4.2.0
+
+### Minor Changes
+
+- [#1938](https://github.com/kubb-labs/kubb/pull/1938) [`73536a7`](https://github.com/kubb-labs/kubb/commit/73536a74b9945f2d28a4f321d35e928678ffc73b) Thanks [@Ericlm](https://github.com/Ericlm)! - MSW handlers generate all their possible `Responses` along the handler.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.2.0
+  - @kubb/oas@4.2.0
+  - @kubb/plugin-faker@4.2.0
+  - @kubb/plugin-oas@4.2.0
+  - @kubb/plugin-ts@4.2.0
+  - @kubb/react@4.2.0
+
+## 4.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`7026041`](https://github.com/kubb-labs/kubb/commit/7026041062d98d9d330d8c3a858e298a5de0d04d)]:
+  - @kubb/plugin-faker@4.1.4
+  - @kubb/core@4.1.4
+  - @kubb/oas@4.1.4
+  - @kubb/plugin-oas@4.1.4
+  - @kubb/plugin-ts@4.1.4
+  - @kubb/react@4.1.4
+
+## 4.1.3
+
+### Patch Changes
+
+- [#1925](https://github.com/kubb-labs/kubb/pull/1925) [`2728bb2`](https://github.com/kubb-labs/kubb/commit/2728bb287b8ea97037289ba3e9b1277cafe98a3e) Thanks [@Ericlm](https://github.com/Ericlm)! - Add Promise<Response> return type for custom handlers
+
+- Updated dependencies []:
+  - @kubb/core@4.1.3
+  - @kubb/oas@4.1.3
+  - @kubb/plugin-faker@4.1.3
+  - @kubb/plugin-oas@4.1.3
+  - @kubb/plugin-ts@4.1.3
+  - @kubb/react@4.1.3
+
+## 4.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`acf033c`](https://github.com/kubb-labs/kubb/commit/acf033c7a2540741e57ab130c6ad94bcdbcf354c)]:
+  - @kubb/core@4.1.2
+  - @kubb/plugin-faker@4.1.2
+  - @kubb/plugin-oas@4.1.2
+  - @kubb/plugin-ts@4.1.2
+  - @kubb/react@4.1.2
+  - @kubb/oas@4.1.2
+
+## 4.1.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.1.1
+  - @kubb/oas@4.1.1
+  - @kubb/plugin-faker@4.1.1
+  - @kubb/plugin-oas@4.1.1
+  - @kubb/plugin-ts@4.1.1
+  - @kubb/react@4.1.1
+
+## 4.1.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.1.0
+  - @kubb/oas@4.1.0
+  - @kubb/plugin-faker@4.1.0
+  - @kubb/plugin-oas@4.1.0
+  - @kubb/plugin-ts@4.1.0
+  - @kubb/react@4.1.0
+
+## 4.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.0.2
+  - @kubb/oas@4.0.2
+  - @kubb/plugin-faker@4.0.2
+  - @kubb/plugin-oas@4.0.2
+  - @kubb/plugin-ts@4.0.2
+  - @kubb/react@4.0.2
+
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`c531bb9`](https://github.com/kubb-labs/kubb/commit/c531bb9c898c8974c74a80e3c65ac3ea7229538b)]:
+  - @kubb/plugin-ts@4.0.1
+  - @kubb/plugin-faker@4.0.1
+  - @kubb/core@4.0.1
+  - @kubb/oas@4.0.1
+  - @kubb/plugin-oas@4.0.1
+  - @kubb/react@4.0.1
+
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`1468999`](https://github.com/kubb-labs/kubb/commit/1468999cbf23df2d4e7ab6debcaa9a7421b88bbb)]:
+  - @kubb/core@4.0.0
+  - @kubb/plugin-ts@4.0.0
+  - @kubb/plugin-faker@4.0.0
+  - @kubb/plugin-oas@4.0.0
+  - @kubb/react@4.0.0
+  - @kubb/oas@4.0.0
+
+## 3.18.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.18.3
+  - @kubb/oas@3.18.3
+  - @kubb/plugin-faker@3.18.3
+  - @kubb/plugin-oas@3.18.3
+  - @kubb/plugin-ts@3.18.3
+  - @kubb/react@3.18.3
+
+## 3.18.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.18.2
+  - @kubb/oas@3.18.2
+  - @kubb/plugin-faker@3.18.2
+  - @kubb/plugin-oas@3.18.2
+  - @kubb/plugin-ts@3.18.2
+  - @kubb/react@3.18.2
+
+## 3.18.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.18.1
+  - @kubb/plugin-ts@3.18.1
+  - @kubb/react@3.18.1
+  - @kubb/plugin-faker@3.18.1
+  - @kubb/plugin-oas@3.18.1
+  - @kubb/oas@3.18.1
+
+## 3.17.1
+
+### Patch Changes
+
+- Updated dependencies [[`5362b0f`](https://github.com/kubb-labs/kubb/commit/5362b0f93ee9fa2ca68d58de57c03d3573d2cdfb)]:
+  - @kubb/plugin-faker@3.17.1
+  - @kubb/core@3.17.1
+  - @kubb/plugin-oas@3.17.1
+  - @kubb/plugin-ts@3.17.1
+  - @kubb/react@3.17.1
+  - @kubb/oas@3.17.1
+
+## 3.17.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.17.0
+  - @kubb/oas@3.17.0
+  - @kubb/plugin-faker@3.17.0
+  - @kubb/plugin-oas@3.17.0
+  - @kubb/plugin-ts@3.17.0
+  - @kubb/react@3.17.0
+
+## 3.16.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.16.4
+  - @kubb/oas@3.16.4
+  - @kubb/plugin-faker@3.16.4
+  - @kubb/plugin-oas@3.16.4
+  - @kubb/plugin-ts@3.16.4
+  - @kubb/react@3.16.4
+
+## 3.16.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.16.3
+  - @kubb/oas@3.16.3
+  - @kubb/plugin-faker@3.16.3
+  - @kubb/plugin-oas@3.16.3
+  - @kubb/plugin-ts@3.16.3
+  - @kubb/react@3.16.3
+
+## 3.16.2
+
+### Patch Changes
+
+- Updated dependencies [[`9f386f7`](https://github.com/kubb-labs/kubb/commit/9f386f763728119c1baef4ee50733e6dc2079ac7), [`9f386f7`](https://github.com/kubb-labs/kubb/commit/9f386f763728119c1baef4ee50733e6dc2079ac7)]:
+  - @kubb/plugin-ts@3.16.2
+  - @kubb/plugin-faker@3.16.2
+  - @kubb/core@3.16.2
+  - @kubb/oas@3.16.2
+  - @kubb/plugin-oas@3.16.2
+  - @kubb/react@3.16.2
+
+## 3.16.1
+
+### Patch Changes
+
+- Updated dependencies [[`e51db4c`](https://github.com/kubb-labs/kubb/commit/e51db4c77b3bb7e044382d2b19400262e927cd3a)]:
+  - @kubb/plugin-oas@3.16.1
+  - @kubb/plugin-ts@3.16.1
+  - @kubb/plugin-faker@3.16.1
+  - @kubb/core@3.16.1
+  - @kubb/oas@3.16.1
+  - @kubb/react@3.16.1
+
+## 3.16.0
+
+### Patch Changes
+
+- Updated dependencies [[`c7360e8`](https://github.com/kubb-labs/kubb/commit/c7360e879436d035229ade7afc2f2870e0538a89)]:
+  - @kubb/core@3.16.0
+  - @kubb/oas@3.16.0
+  - @kubb/plugin-oas@3.16.0
+  - @kubb/plugin-faker@3.16.0
+  - @kubb/plugin-ts@3.16.0
+  - @kubb/react@3.16.0
+
+## 3.15.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.15.1
+  - @kubb/oas@3.15.1
+  - @kubb/plugin-faker@3.15.1
+  - @kubb/plugin-oas@3.15.1
+  - @kubb/plugin-ts@3.15.1
+  - @kubb/react@3.15.1
+
+## 3.15.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.15.0
+  - @kubb/oas@3.15.0
+  - @kubb/plugin-faker@3.15.0
+  - @kubb/plugin-oas@3.15.0
+  - @kubb/plugin-ts@3.15.0
+  - @kubb/react@3.15.0
+
+## 3.14.4
+
+### Patch Changes
+
+- Updated dependencies [[`18572ff`](https://github.com/kubb-labs/kubb/commit/18572ff28378e8ac9bee5157a71ab2cc7d89d612)]:
+  - @kubb/plugin-oas@3.14.4
+  - @kubb/plugin-faker@3.14.4
+  - @kubb/plugin-ts@3.14.4
+  - @kubb/core@3.14.4
+  - @kubb/oas@3.14.4
+  - @kubb/react@3.14.4
+
+## 3.14.3
+
+### Patch Changes
+
+- [`991249c`](https://github.com/kubb-labs/kubb/commit/991249c18e86c6ebdfef3912de44cbfaa81b6891) Thanks [@stijnvanhullem](https://github.com/stijnvanhullem)! - Support Google api format, for example: `my-api/foo/v1/bar/{id}:search`
+
+- Updated dependencies [[`2376899`](https://github.com/kubb-labs/kubb/commit/2376899898e92483945e48c7bbca2398d3b8ac9c), [`2376899`](https://github.com/kubb-labs/kubb/commit/2376899898e92483945e48c7bbca2398d3b8ac9c), [`991249c`](https://github.com/kubb-labs/kubb/commit/991249c18e86c6ebdfef3912de44cbfaa81b6891)]:
+  - @kubb/plugin-oas@3.14.3
+  - @kubb/core@3.14.3
+  - @kubb/plugin-faker@3.14.3
+  - @kubb/plugin-ts@3.14.3
+  - @kubb/react@3.14.3
+  - @kubb/oas@3.14.3
+
+## 3.14.2
+
+### Patch Changes
+
+- [#1795](https://github.com/kubb-labs/kubb/pull/1795) [`9314a0f`](https://github.com/kubb-labs/kubb/commit/9314a0f53b98e2b8fefbc68642c5754094097182) Thanks [@ducodrupsteen](https://github.com/ducodrupsteen)! - Mocked responses now include 2xx status codes from the OpenAPI specification
+
+- Updated dependencies []:
+  - @kubb/core@3.14.2
+  - @kubb/oas@3.14.2
+  - @kubb/plugin-faker@3.14.2
+  - @kubb/plugin-oas@3.14.2
+  - @kubb/plugin-ts@3.14.2
+  - @kubb/react@3.14.2
+
+## 3.14.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.14.1
+  - @kubb/plugin-ts@3.14.1
+  - @kubb/react@3.14.1
+  - @kubb/plugin-faker@3.14.1
+  - @kubb/plugin-oas@3.14.1
+  - @kubb/oas@3.14.1
+
+## 3.14.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.14.0
+  - @kubb/oas@3.14.0
+  - @kubb/plugin-faker@3.14.0
+  - @kubb/plugin-oas@3.14.0
+  - @kubb/plugin-ts@3.14.0
+  - @kubb/react@3.14.0
+
+## 3.13.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.13.2
+  - @kubb/plugin-faker@3.13.2
+  - @kubb/plugin-oas@3.13.2
+  - @kubb/plugin-ts@3.13.2
+  - @kubb/react@3.13.2
+  - @kubb/oas@3.13.2
+
+## 3.13.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.13.1
+  - @kubb/oas@3.13.1
+  - @kubb/plugin-faker@3.13.1
+  - @kubb/plugin-oas@3.13.1
+  - @kubb/plugin-ts@3.13.1
+  - @kubb/react@3.13.1
+
+## 3.13.0
+
+### Patch Changes
+
+- Updated dependencies [[`d875cd8`](https://github.com/kubb-labs/kubb/commit/d875cd81d443cb6258011b7f5fd918e220deaf53)]:
+  - @kubb/plugin-faker@3.13.0
+  - @kubb/plugin-ts@3.13.0
+  - @kubb/core@3.13.0
+  - @kubb/oas@3.13.0
+  - @kubb/plugin-oas@3.13.0
+  - @kubb/react@3.13.0
+
+## 3.12.2
+
+### Patch Changes
+
+- Updated dependencies [[`74e2203`](https://github.com/kubb-labs/kubb/commit/74e2203a91becf5728b18c979247075332dcb660)]:
+  - @kubb/core@3.12.2
+  - @kubb/plugin-faker@3.12.2
+  - @kubb/plugin-oas@3.12.2
+  - @kubb/plugin-ts@3.12.2
+  - @kubb/react@3.12.2
+  - @kubb/oas@3.12.2
+
+## 3.12.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.12.1
+  - @kubb/oas@3.12.1
+  - @kubb/plugin-faker@3.12.1
+  - @kubb/plugin-oas@3.12.1
+  - @kubb/plugin-ts@3.12.1
+  - @kubb/react@3.12.1
+
+## 3.12.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@3.12.0
+  - @kubb/oas@3.12.0
+  - @kubb/plugin-faker@3.12.0
+  - @kubb/plugin-oas@3.12.0
+  - @kubb/plugin-ts@3.12.0
+  - @kubb/react@3.12.0
+
 ## 3.11.1
 
 ### Patch Changes

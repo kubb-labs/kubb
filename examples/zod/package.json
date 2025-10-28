@@ -6,16 +6,14 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/examples/zod"
+    "directory": "examples/zod"
   },
   "license": "MIT",
   "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "tsup",
     "generate": "kubb --config kubb.config.js",
-    "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -27,17 +25,15 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "react": "^18.3.1",
-    "tsup": "^8.5.0",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.3",
     "zod": "next"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
     "typescript": "catalog:"
   },
-  "packageManager": "pnpm@9.15.5",
+  "packageManager": "pnpm@10.18.3",
   "engines": {
     "node": ">=20",
-    "pnpm": ">=8.15.0"
+    "pnpm": ">=10.0.0"
   }
 }

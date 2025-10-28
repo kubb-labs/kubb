@@ -19,7 +19,7 @@ export type { UpdatePetWithFormQueryKey } from './hooks/createUpdatePetWithForm.
 export type { UpdateUserMutationKey } from './hooks/createUpdateUser.ts'
 export type { UploadFileMutationKey } from './hooks/createUploadFile.ts'
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './models/AddPet.ts'
-export type { AddPetRequestStatusEnum, AddPetRequest } from './models/AddPetRequest.ts'
+export type { AddPetRequestStatusEnumKey, AddPetRequest } from './models/AddPetRequest.ts'
 export type { Address } from './models/Address.ts'
 export type { ApiResponse } from './models/ApiResponse.ts'
 export type { Category } from './models/Category.ts'
@@ -36,7 +36,7 @@ export type { DeleteOrderPathParams, DeleteOrder400, DeleteOrder404, DeleteOrder
 export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './models/DeletePet.ts'
 export type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserMutation } from './models/DeleteUser.ts'
 export type {
-  FindPetsByStatusQueryParamsStatusEnum,
+  FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryParams,
   FindPetsByStatus200,
   FindPetsByStatus400,
@@ -70,8 +70,8 @@ export type {
 } from './models/GetUserByName.ts'
 export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './models/LoginUser.ts'
 export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './models/LogoutUser.ts'
-export type { OrderStatusEnum, OrderHttpStatusEnum, Order } from './models/Order.ts'
-export type { PetStatusEnum, Pet } from './models/Pet.ts'
+export type { OrderStatusEnumKey, OrderHttpStatusEnumKey, Order } from './models/Order.ts'
+export type { PetStatusEnumKey, Pet } from './models/Pet.ts'
 export type { PetNotFound } from './models/PetNotFound.ts'
 export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrderMutation } from './models/PlaceOrder.ts'
 export type {

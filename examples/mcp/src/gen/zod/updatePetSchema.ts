@@ -15,7 +15,7 @@ export const updatePet200Schema = z.lazy(() => petSchema).schema.omit({ name: tr
  * @description accepted operation
  */
 export const updatePet202Schema = z.object({
-  id: z.number().int().optional(),
+  id: z.optional(z.number().int()),
 })
 
 /**

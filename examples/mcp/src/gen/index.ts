@@ -1,13 +1,13 @@
 export type { AddFiles200, AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse, AddFilesMutation } from './models/ts/AddFiles.js'
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './models/ts/AddPet.js'
-export type { AddPetRequestStatusEnum, AddPetRequest } from './models/ts/AddPetRequest.js'
+export type { AddPetRequestStatusEnumKey, AddPetRequest } from './models/ts/AddPetRequest.js'
 export type { Address } from './models/ts/Address.js'
 export type { ApiResponse } from './models/ts/ApiResponse.js'
 export type { Category } from './models/ts/Category.js'
 export type {
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsHeaderParamsXEXAMPLEEnum,
+  CreatePetsHeaderParamsXEXAMPLEEnumKey,
   CreatePetsHeaderParams,
   CreatePets201,
   CreatePetsError,
@@ -36,7 +36,7 @@ export type {
 } from './models/ts/FindPetsByStatus.js'
 export type {
   FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParamsXEXAMPLEEnum,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
   FindPetsByTagsHeaderParams,
   FindPetsByTags200,
   FindPetsByTags400,
@@ -63,8 +63,8 @@ export type {
 } from './models/ts/GetUserByName.js'
 export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './models/ts/LoginUser.js'
 export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './models/ts/LogoutUser.js'
-export type { OrderOrderTypeEnum, OrderStatusEnum, OrderHttpStatusEnum, Order } from './models/ts/Order.js'
-export type { PetStatusEnum, Pet } from './models/ts/Pet.js'
+export type { OrderOrderTypeEnumKey, OrderStatusEnumKey, OrderHttpStatusEnumKey, Order } from './models/ts/Order.js'
+export type { PetStatusEnumKey, Pet } from './models/ts/Pet.js'
 export type { PetNotFound } from './models/ts/PetNotFound.js'
 export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrderMutation } from './models/ts/PlaceOrder.js'
 export type {

@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../models/DeleteUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
-export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
+export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
 
@@ -20,9 +20,9 @@ export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
  */
 export async function deleteUserHook(
   { username }: { username: DeleteUserPathParams['username'] },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
@@ -30,6 +30,21 @@ export async function deleteUserHook(
     ...requestConfig,
   })
   return res.data
+}
+
+export function deleteUserMutationOptionsHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const mutationKey = deleteUserMutationKey()
+  return mutationOptions<
+    DeleteUserMutationResponse,
+    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    { username: DeleteUserPathParams['username'] },
+    typeof mutationKey
+  >({
+    mutationKey,
+    mutationFn: async ({ username }) => {
+      return deleteUserHook({ username }, config)
+    },
+  })
 }
 
 /**
@@ -45,21 +60,31 @@ export function useDeleteUserHook<TContext>(
       { username: DeleteUserPathParams['username'] },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? deleteUserMutationKey()
 
+  const baseOptions = deleteUserMutationOptionsHook(config) as UseMutationOptions<
+    DeleteUserMutationResponse,
+    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    { username: DeleteUserPathParams['username'] },
+    TContext
+  >
+
   return useMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, { username: DeleteUserPathParams['username'] }, TContext>(
     {
-      mutationFn: async ({ username }) => {
-        return deleteUserHook({ username }, config)
-      },
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
     },
     queryClient,
-  )
+  ) as UseMutationResult<
+    DeleteUserMutationResponse,
+    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    { username: DeleteUserPathParams['username'] },
+    TContext
+  >
 }

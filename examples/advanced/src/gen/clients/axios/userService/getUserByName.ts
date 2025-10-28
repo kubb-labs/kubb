@@ -1,4 +1,4 @@
-import client from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   GetUserByNameQueryResponse,
@@ -8,8 +8,9 @@ import type {
 } from '../../../models/ts/userController/GetUserByName.ts'
 import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
 
-function getGetUserByNameUrl({ username }: { username: GetUserByNamePathParams['username'] }) {
-  return `https://petstore3.swagger.io/api/v3/user/${username}` as const
+export function getGetUserByNameUrl({ username }: { username: GetUserByNamePathParams['username'] }) {
+  const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
+  return res
 }
 
 /**
@@ -18,13 +19,13 @@ function getGetUserByNameUrl({ username }: { username: GetUserByNamePathParams['
  */
 export async function getUserByName(
   { username }: { username: GetUserByNamePathParams['username'] },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
     method: 'GET',
-    url: getGetUserByNameUrl({ username }).toString(),
+    url: getGetUserByNameUrl({ username }).url.toString(),
     ...requestConfig,
   })
   return { ...res, data: getUserByNameQueryResponseSchema.parse(res.data) }

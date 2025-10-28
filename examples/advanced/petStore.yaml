@@ -278,7 +278,7 @@ paths:
         - petstore_auth:
             - write:pets
             - read:pets
-  /pet/{petId}:
+  /pet/{petId}:search:
     get:
       tags:
         - pet
@@ -906,10 +906,17 @@ components:
           format: int64
           example: 10
           readOnly: true
+        signature:
+          type: string
+          pattern: "^data:image\\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$"
         name:
           type: string
           example: doggie
           writeOnly: true
+        url:
+          type: string
+          format: uri
+          maxLength: 255
         category:
           $ref: "#/components/schemas/Category"
         photoUrls:
@@ -1085,7 +1092,7 @@ components:
       name: pageSize
       required: false
       schema:
-        type: string
+        type: number
   responses:
     PetNotFound:
       content:

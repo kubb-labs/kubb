@@ -3,14 +3,36 @@
  * Do not edit manually.
  */
 
-import type { GetPetByIdQueryResponse } from '../../../models/GetPetById.ts'
+import type { GetPetByIdQueryResponse, GetPetById400, GetPetById404 } from '../../../models/GetPetById.ts'
 import { http } from 'msw'
 
-export function getPetByIdHandler(data?: GetPetByIdQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response)) {
-  return http.get('http://localhost:3000/pet/:petId', function handler(info) {
+export function getPetByIdHandlerResponse200(data: GetPetByIdQueryResponse) {
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
+export function getPetByIdHandlerResponse400(data?: GetPetById400) {
+  return new Response(JSON.stringify(data), {
+    status: 400,
+  })
+}
+
+export function getPetByIdHandlerResponse404(data?: GetPetById404) {
+  return new Response(JSON.stringify(data), {
+    status: 404,
+  })
+}
+
+export function getPetByIdHandler(data?: GetPetByIdQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
+  return http.get('http://localhost:3000/pet/:petId\\\\:search', function handler(info) {
     if (typeof data === 'function') return data(info)
 
     return new Response(JSON.stringify(data), {
+      status: 200,
       headers: {
         'Content-Type': 'application/json',
       },

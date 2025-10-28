@@ -3,12 +3,13 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getUpdateUserUrl(username: UpdateUserPathParams['username']) {
-  return `/user/${username}` as const
+  const res = { method: 'PUT', url: `/user/${username}` as const }
+  return res
 }
 
 /**
@@ -19,14 +20,16 @@ function getUpdateUserUrl(username: UpdateUserPathParams['username']) {
 export async function updateUser(
   username: UpdateUserPathParams['username'],
   data?: UpdateUserMutationRequest,
-  config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
+
+  const requestData = data
 
   const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
-    url: getUpdateUserUrl(username).toString(),
-    data,
+    url: getUpdateUserUrl(username).url.toString(),
+    data: requestData,
     ...requestConfig,
   })
   return res.data

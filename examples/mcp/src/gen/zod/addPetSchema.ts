@@ -16,8 +16,8 @@ export const addPet200Schema = z.lazy(() => petSchema).schema.omit({ name: true 
  * @description Pet not found
  */
 export const addPet405Schema = z.object({
-  code: z.number().int().optional(),
-  message: z.string().optional(),
+  code: z.optional(z.number().int()),
+  message: z.optional(z.string()),
 })
 
 /**

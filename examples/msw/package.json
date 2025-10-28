@@ -6,19 +6,17 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/examples/msw"
+    "directory": "examples/msw"
   },
   "license": "MIT",
   "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "tsup",
     "generate": "kubb generate",
     "generate:js": "kubb generate --config .kubbrc",
     "generate:json": "kubb generate --config kubb.json",
     "generate:ts": "kubb generate --config kubb.config.js",
-    "start": "tsup --watch",
     "start:server": "bun ./src/server.ts",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
@@ -33,18 +31,16 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@mswjs/http-middleware": "^0.9.2",
-    "msw": "^2.10.2",
-    "react": "^18.3.1",
-    "tsup": "^8.5.0"
+    "msw": "^2.11.6",
+    "react": "^18.3.1"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
-    "@types/express": "^4.17.23",
+    "@types/express": "^4.17.25",
     "typescript": "~5.2.2"
   },
-  "packageManager": "pnpm@9.15.5",
+  "packageManager": "pnpm@10.18.3",
   "engines": {
     "node": ">=20",
-    "pnpm": ">=8.15.0"
+    "pnpm": ">=10.0.0"
   }
 }

@@ -1,4 +1,4 @@
-import client from '../../client.js'
+import fetch from '../../client.js'
 import type { ResponseErrorConfig } from '../../client.js'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/ts/DeleteOrder.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
@@ -9,7 +9,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
  * {@link /store/order/:orderId}
  */
 export async function deleteOrderHandler({ orderId }: { orderId: DeleteOrderPathParams['orderId'] }): Promise<Promise<CallToolResult>> {
-  const res = await client<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
+  const res = await fetch<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,
     baseURL: 'https://petstore.swagger.io/v2',

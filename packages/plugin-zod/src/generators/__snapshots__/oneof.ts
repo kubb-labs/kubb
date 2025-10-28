@@ -6,9 +6,9 @@ import { z } from 'zod'
 
 export const test = z.union([
   z.object({
-    propertyA: z.string().optional(),
+    propertyA: z.optional(z.string()),
   }),
   z.object({
-    propertyA: z.string().optional(),
+    propertyA: z.optional(z.string()),
   }),
 ])

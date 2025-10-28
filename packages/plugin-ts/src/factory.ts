@@ -1,0 +1,578 @@
+import { isNumber } from 'remeda'
+import ts from 'typescript'
+
+const { SyntaxKind, factory } = ts
+
+// https://ts-ast-viewer.com/
+
+export const modifiers = {
+  async: factory.createModifier(ts.SyntaxKind.AsyncKeyword),
+  export: factory.createModifier(ts.SyntaxKind.ExportKeyword),
+  const: factory.createModifier(ts.SyntaxKind.ConstKeyword),
+  static: factory.createModifier(ts.SyntaxKind.StaticKeyword),
+} as const
+
+export const syntaxKind = {
+  union: SyntaxKind.UnionType as 192,
+} as const
+
+function isValidIdentifier(str: string): boolean {
+  if (!str.length || str.trim() !== str) {
+    return false
+  }
+  const node = ts.parseIsolatedEntityName(str, ts.ScriptTarget.Latest)
+
+  return !!node && node.kind === ts.SyntaxKind.Identifier && ts.identifierToKeywordKind(node.kind as unknown as ts.Identifier) === undefined
+}
+
+function propertyName(name: string | ts.PropertyName): ts.PropertyName {
+  if (typeof name === 'string') {
+    return isValidIdentifier(name) ? factory.createIdentifier(name) : factory.createStringLiteral(name)
+  }
+  return name
+}
+
+const questionToken = factory.createToken(ts.SyntaxKind.QuestionToken)
+
+export function createQuestionToken(token?: boolean | ts.QuestionToken) {
+  if (!token) {
+    return undefined
+  }
+  if (token === true) {
+    return questionToken
+  }
+  return token
+}
+
+export function createIntersectionDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
+  if (!nodes.length) {
+    return null
+  }
+
+  if (nodes.length === 1) {
+    return nodes[0] || null
+  }
+
+  const node = factory.createIntersectionTypeNode(nodes)
+
+  if (withParentheses) {
+    return factory.createParenthesizedType(node)
+  }
+
+  return node
+}
+
+/**
+ * Minimum nodes length of 2
+ * @example `string & number`
+ */
+export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
+  if (!nodes.length) {
+    return null
+  }
+
+  if (nodes.length === 1) {
+    return nodes[0] || null
+  }
+
+  const node = factory.createTupleTypeNode(nodes)
+
+  if (withParentheses) {
+    return factory.createParenthesizedType(node)
+  }
+
+  return node
+}
+
+export function createArrayDeclaration({ nodes }: { nodes: Array<ts.TypeNode> }): ts.TypeNode | null {
+  if (!nodes.length) {
+    return factory.createTupleTypeNode([])
+  }
+
+  if (nodes.length === 1) {
+    return factory.createArrayTypeNode(nodes.at(0)!)
+  }
+
+  return factory.createExpressionWithTypeArguments(factory.createIdentifier('Array'), [factory.createUnionTypeNode(nodes)])
+}
+
+/**
+ * Minimum nodes length of 2
+ * @example `string | number`
+ */
+export function createUnionDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode {
+  if (!nodes.length) {
+    return keywordTypeNodes.any
+  }
+
+  if (nodes.length === 1) {
+    return nodes[0] as ts.TypeNode
+  }
+
+  const node = factory.createUnionTypeNode(nodes)
+
+  if (withParentheses) {
+    return factory.createParenthesizedType(node)
+  }
+
+  return node
+}
+
+export function createPropertySignature({
+  readOnly,
+  modifiers = [],
+  name,
+  questionToken,
+  type,
+}: {
+  readOnly?: boolean
+  modifiers?: Array<ts.Modifier>
+  name: ts.PropertyName | string
+  questionToken?: ts.QuestionToken | boolean
+  type?: ts.TypeNode
+}) {
+  return factory.createPropertySignature(
+    [...modifiers, readOnly ? factory.createToken(ts.SyntaxKind.ReadonlyKeyword) : undefined].filter(Boolean),
+    propertyName(name),
+    createQuestionToken(questionToken),
+    type,
+  )
+}
+
+export function createParameterSignature(
+  name: string | ts.BindingName,
+  {
+    modifiers,
+    dotDotDotToken,
+    questionToken,
+    type,
+    initializer,
+  }: {
+    decorators?: Array<ts.Decorator>
+    modifiers?: Array<ts.Modifier>
+    dotDotDotToken?: ts.DotDotDotToken
+    questionToken?: ts.QuestionToken | boolean
+    type?: ts.TypeNode
+    initializer?: ts.Expression
+  },
+): ts.ParameterDeclaration {
+  return factory.createParameterDeclaration(modifiers, dotDotDotToken, name, createQuestionToken(questionToken), type, initializer)
+}
+
+export function createJSDoc({ comments }: { comments: string[] }) {
+  if (!comments.length) {
+    return null
+  }
+  return factory.createJSDocComment(
+    factory.createNodeArray(
+      comments.map((comment, i) => {
+        if (i === comments.length - 1) {
+          return factory.createJSDocText(comment)
+        }
+
+        return factory.createJSDocText(`${comment}\n`)
+      }),
+    ),
+  )
+}
+
+/**
+ * @link https://github.com/microsoft/TypeScript/issues/44151
+ */
+export function appendJSDocToNode<TNode extends ts.Node>({ node, comments }: { node: TNode; comments: Array<string | undefined> }) {
+  const filteredComments = comments.filter(Boolean)
+
+  if (!filteredComments.length) {
+    return node
+  }
+
+  const text = filteredComments.reduce((acc = '', comment = '') => {
+    return `${acc}\n * ${comment.replaceAll('*/', '*\\/')}`
+  }, '*')
+
+  // node: {...node}, with that ts.addSyntheticLeadingComment is appending
+  return ts.addSyntheticLeadingComment({ ...node }, ts.SyntaxKind.MultiLineCommentTrivia, `${text || '*'}\n`, true)
+}
+
+export function createIndexSignature(
+  type: ts.TypeNode,
+  {
+    modifiers,
+    indexName = 'key',
+    indexType = factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+  }: {
+    indexName?: string
+    indexType?: ts.TypeNode
+    decorators?: Array<ts.Decorator>
+    modifiers?: Array<ts.Modifier>
+  } = {},
+) {
+  return factory.createIndexSignature(modifiers, [createParameterSignature(indexName, { type: indexType })], type)
+}
+
+export function createTypeAliasDeclaration({
+  modifiers,
+  name,
+  typeParameters,
+  type,
+}: {
+  modifiers?: Array<ts.Modifier>
+  name: string | ts.Identifier
+  typeParameters?: Array<ts.TypeParameterDeclaration>
+  type: ts.TypeNode
+}) {
+  return factory.createTypeAliasDeclaration(modifiers, name, typeParameters, type)
+}
+
+export function createInterfaceDeclaration({
+  modifiers,
+  name,
+  typeParameters,
+  members,
+}: {
+  modifiers?: Array<ts.Modifier>
+  name: string | ts.Identifier
+  typeParameters?: Array<ts.TypeParameterDeclaration>
+  members: Array<ts.TypeElement>
+}) {
+  return factory.createInterfaceDeclaration(modifiers, name, typeParameters, undefined, members)
+}
+
+export function createTypeDeclaration({
+  syntax,
+  isExportable,
+  comments,
+  name,
+  type,
+}: {
+  syntax: 'type' | 'interface'
+  comments: Array<string | undefined>
+  isExportable?: boolean
+  name: string | ts.Identifier
+  type: ts.TypeNode
+}) {
+  if (syntax === 'interface' && 'members' in type) {
+    const node = createInterfaceDeclaration({
+      members: type.members as Array<ts.TypeElement>,
+      modifiers: isExportable ? [modifiers.export] : [],
+      name,
+      typeParameters: undefined,
+    })
+
+    return appendJSDocToNode({
+      node,
+      comments,
+    })
+  }
+
+  const node = createTypeAliasDeclaration({
+    type,
+    modifiers: isExportable ? [modifiers.export] : [],
+    name,
+    typeParameters: undefined,
+  })
+
+  return appendJSDocToNode({
+    node,
+    comments,
+  })
+}
+
+export function createNamespaceDeclaration({ statements, name }: { name: string; statements: ts.Statement[] }) {
+  return factory.createModuleDeclaration(
+    [factory.createToken(ts.SyntaxKind.ExportKeyword)],
+    factory.createIdentifier(name),
+    factory.createModuleBlock(statements),
+    ts.NodeFlags.Namespace,
+  )
+}
+
+/**
+ * In { propertyName: string; name?: string } is `name` being used to make the type more unique when multiple same names are used.
+ * @example `import { Pet as Cat } from './Pet'`
+ */
+export function createImportDeclaration({
+  name,
+  path,
+  isTypeOnly = false,
+  isNameSpace = false,
+}: {
+  name: string | Array<string | { propertyName: string; name?: string }>
+  path: string
+  isTypeOnly?: boolean
+  isNameSpace?: boolean
+}) {
+  if (!Array.isArray(name)) {
+    let importPropertyName: ts.Identifier | undefined = factory.createIdentifier(name)
+    let importName: ts.NamedImportBindings | undefined
+
+    if (isNameSpace) {
+      importPropertyName = undefined
+      importName = factory.createNamespaceImport(factory.createIdentifier(name))
+    }
+
+    return factory.createImportDeclaration(
+      undefined,
+      factory.createImportClause(isTypeOnly, importPropertyName, importName),
+      factory.createStringLiteral(path),
+      undefined,
+    )
+  }
+
+  return factory.createImportDeclaration(
+    undefined,
+    factory.createImportClause(
+      isTypeOnly,
+      undefined,
+      factory.createNamedImports(
+        name.map((item) => {
+          if (typeof item === 'object') {
+            const obj = item as { propertyName: string; name?: string }
+            if (obj.name) {
+              return factory.createImportSpecifier(false, factory.createIdentifier(obj.propertyName), factory.createIdentifier(obj.name))
+            }
+
+            return factory.createImportSpecifier(false, undefined, factory.createIdentifier(obj.propertyName))
+          }
+
+          return factory.createImportSpecifier(false, undefined, factory.createIdentifier(item))
+        }),
+      ),
+    ),
+    factory.createStringLiteral(path),
+    undefined,
+  )
+}
+
+export function createExportDeclaration({
+  path,
+  asAlias,
+  isTypeOnly = false,
+  name,
+}: {
+  path: string
+  asAlias?: boolean
+  isTypeOnly?: boolean
+  name?: string | Array<ts.Identifier | string>
+}) {
+  if (name && !Array.isArray(name) && !asAlias) {
+    console.warn(`When using name as string, asAlias should be true ${name}`)
+  }
+
+  if (!Array.isArray(name)) {
+    const parsedName = name?.match(/^\d/) ? `_${name?.slice(1)}` : name
+
+    return factory.createExportDeclaration(
+      undefined,
+      isTypeOnly,
+      asAlias && parsedName ? factory.createNamespaceExport(factory.createIdentifier(parsedName)) : undefined,
+      factory.createStringLiteral(path),
+      undefined,
+    )
+  }
+
+  return factory.createExportDeclaration(
+    undefined,
+    isTypeOnly,
+    factory.createNamedExports(
+      name.map((propertyName) => {
+        return factory.createExportSpecifier(false, undefined, typeof propertyName === 'string' ? factory.createIdentifier(propertyName) : propertyName)
+      }),
+    ),
+    factory.createStringLiteral(path),
+    undefined,
+  )
+}
+
+export function createEnumDeclaration({
+  type = 'enum',
+  name,
+  typeName,
+  enums,
+}: {
+  /**
+   * @default `'enum'`
+   */
+  type?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
+  /**
+   * Enum name in camelCase.
+   */
+  name: string
+  /**
+   * Enum name in PascalCase.
+   */
+  typeName: string
+  enums: [key: string | number, value: string | number | boolean][]
+}): [name: ts.Node | undefined, type: ts.Node] {
+  if (type === 'literal') {
+    return [
+      undefined,
+      factory.createTypeAliasDeclaration(
+        [factory.createToken(ts.SyntaxKind.ExportKeyword)],
+        factory.createIdentifier(typeName),
+        undefined,
+        factory.createUnionTypeNode(
+          enums
+            .map(([_key, value]) => {
+              if (isNumber(value)) {
+                return factory.createLiteralTypeNode(factory.createNumericLiteral(value?.toString()))
+              }
+
+              if (typeof value === 'boolean') {
+                return factory.createLiteralTypeNode(value ? factory.createTrue() : factory.createFalse())
+              }
+              if (value) {
+                return factory.createLiteralTypeNode(factory.createStringLiteral(value.toString()))
+              }
+
+              return undefined
+            })
+            .filter(Boolean),
+        ),
+      ),
+    ]
+  }
+
+  if (type === 'enum' || type === 'constEnum') {
+    return [
+      undefined,
+      factory.createEnumDeclaration(
+        [factory.createToken(ts.SyntaxKind.ExportKeyword), type === 'constEnum' ? factory.createToken(ts.SyntaxKind.ConstKeyword) : undefined].filter(Boolean),
+        factory.createIdentifier(typeName),
+        enums
+          .map(([key, value]) => {
+            let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
+            const isExactNumber = Number.parseInt(value.toString(), 10) === value
+
+            if (isExactNumber && isNumber(Number.parseInt(value.toString(), 10))) {
+              initializer = factory.createNumericLiteral(value as number)
+            }
+
+            if (typeof value === 'boolean') {
+              initializer = value ? factory.createTrue() : factory.createFalse()
+            }
+
+            if (isNumber(Number.parseInt(key.toString(), 10))) {
+              return factory.createEnumMember(factory.createStringLiteral(`${typeName}_${key}`), initializer)
+            }
+
+            if (key) {
+              return factory.createEnumMember(factory.createStringLiteral(`${key}`), initializer)
+            }
+
+            return undefined
+          })
+          .filter(Boolean),
+      ),
+    ]
+  }
+
+  // used when using `as const` instead of an TypeScript enum.
+  const identifierName = type === 'asPascalConst' ? typeName : name
+
+  return [
+    factory.createVariableStatement(
+      [factory.createToken(ts.SyntaxKind.ExportKeyword)],
+      factory.createVariableDeclarationList(
+        [
+          factory.createVariableDeclaration(
+            factory.createIdentifier(identifierName),
+            undefined,
+            undefined,
+            factory.createAsExpression(
+              factory.createObjectLiteralExpression(
+                enums
+                  .map(([key, value]) => {
+                    let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
+
+                    if (isNumber(value)) {
+                      // Error: Negative numbers should be created in combination with createPrefixUnaryExpression factory.
+                      // The method createNumericLiteral only accepts positive numbers
+                      // or those combined with createPrefixUnaryExpression.
+                      // Therefore, we need to ensure that the number is not negative.
+                      if (value < 0) {
+                        initializer = factory.createPrefixUnaryExpression(ts.SyntaxKind.MinusToken, factory.createNumericLiteral(Math.abs(value)))
+                      } else {
+                        initializer = factory.createNumericLiteral(value)
+                      }
+                    }
+
+                    if (typeof value === 'boolean') {
+                      initializer = value ? factory.createTrue() : factory.createFalse()
+                    }
+
+                    if (key) {
+                      return factory.createPropertyAssignment(factory.createStringLiteral(`${key}`), initializer)
+                    }
+
+                    return undefined
+                  })
+                  .filter(Boolean),
+                true,
+              ),
+              factory.createTypeReferenceNode(factory.createIdentifier('const'), undefined),
+            ),
+          ),
+        ],
+        ts.NodeFlags.Const,
+      ),
+    ),
+    factory.createTypeAliasDeclaration(
+      type === 'asPascalConst' ? [] : [factory.createToken(ts.SyntaxKind.ExportKeyword)],
+      factory.createIdentifier(typeName),
+      undefined,
+      factory.createIndexedAccessTypeNode(
+        factory.createParenthesizedType(factory.createTypeQueryNode(factory.createIdentifier(identifierName), undefined)),
+        factory.createTypeOperatorNode(ts.SyntaxKind.KeyOfKeyword, factory.createTypeQueryNode(factory.createIdentifier(identifierName), undefined)),
+      ),
+    ),
+  ]
+}
+
+export function createOmitDeclaration({ keys, type, nonNullable }: { keys: Array<string> | string; type: ts.TypeNode; nonNullable?: boolean }) {
+  const node = nonNullable ? factory.createTypeReferenceNode(factory.createIdentifier('NonNullable'), [type]) : type
+
+  if (Array.isArray(keys)) {
+    return factory.createTypeReferenceNode(factory.createIdentifier('Omit'), [
+      node,
+      factory.createUnionTypeNode(
+        keys.map((key) => {
+          return factory.createLiteralTypeNode(factory.createStringLiteral(key))
+        }),
+      ),
+    ])
+  }
+
+  return factory.createTypeReferenceNode(factory.createIdentifier('Omit'), [node, factory.createLiteralTypeNode(factory.createStringLiteral(keys))])
+}
+
+export const keywordTypeNodes = {
+  any: factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
+  unknown: factory.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword),
+  void: factory.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword),
+  number: factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
+  integer: factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
+  object: factory.createKeywordTypeNode(ts.SyntaxKind.ObjectKeyword),
+  string: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+  boolean: factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword),
+  undefined: factory.createKeywordTypeNode(ts.SyntaxKind.UndefinedKeyword),
+  null: factory.createLiteralTypeNode(factory.createToken(ts.SyntaxKind.NullKeyword)),
+} as const
+
+export const createTypeLiteralNode = factory.createTypeLiteralNode
+
+export const createTypeReferenceNode = factory.createTypeReferenceNode
+export const createNumericLiteral = factory.createNumericLiteral
+export const createStringLiteral = factory.createStringLiteral
+
+export const createArrayTypeNode = factory.createArrayTypeNode
+
+export const createLiteralTypeNode = factory.createLiteralTypeNode
+export const createNull = factory.createNull
+export const createIdentifier = factory.createIdentifier
+
+export const createOptionalTypeNode = factory.createOptionalTypeNode
+export const createTupleTypeNode = factory.createTupleTypeNode
+export const createRestTypeNode = factory.createRestTypeNode
+export const createTrue = factory.createTrue
+export const createFalse = factory.createFalse

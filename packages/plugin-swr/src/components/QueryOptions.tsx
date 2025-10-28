@@ -1,12 +1,10 @@
-import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import type { ReactNode } from 'react'
-import type { PluginSwr } from '../types.ts'
-
 import { isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
+import { getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
+import type { PluginSwr } from '../types.ts'
 
 type Props = {
   name: string
@@ -53,8 +51,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       },
       config: {
         type: typeSchemas.request?.name
-          ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
-          : 'Partial<RequestConfig> & { client?: typeof client }',
+          ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
+          : 'Partial<RequestConfig> & { client?: typeof fetch }',
         default: '{}',
       },
     })
@@ -88,14 +86,14 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       : undefined,
     config: {
       type: typeSchemas.request?.name
-        ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
-        : 'Partial<RequestConfig> & { client?: typeof client }',
+        ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
+        : 'Partial<RequestConfig> & { client?: typeof fetch }',
       default: '{}',
     },
   })
 }
 
-export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, paramsType, pathParamsType }: Props): ReactNode {
+export function QueryOptions({ name, clientName, typeSchemas, paramsCasing, paramsType, pathParamsType }: Props): KubbNode {
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
     paramsCasing,

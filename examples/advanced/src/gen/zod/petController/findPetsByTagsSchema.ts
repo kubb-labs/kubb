@@ -1,11 +1,11 @@
 import { petSchema } from '../petSchema.ts'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const findPetsByTagsQueryParamsSchema = z
   .object({
-    tags: z.array(z.string()).describe('Tags to filter by').optional(),
-    page: z.string().describe('to request with required page number or pagination').optional(),
-    pageSize: z.string().describe('to request with required page size').optional(),
+    tags: z.optional(z.array(z.string()).describe('Tags to filter by')),
+    page: z.optional(z.string().describe('to request with required page number or pagination')),
+    pageSize: z.optional(z.coerce.number().describe('to request with required page size')),
   })
   .optional()
 
@@ -20,7 +20,7 @@ export type FindPetsByTagsHeaderParamsSchema = z.infer<typeof findPetsByTagsHead
 /**
  * @description successful operation
  */
-export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema))
+export const findPetsByTags200Schema = z.array(petSchema)
 
 export type FindPetsByTags200Schema = z.infer<typeof findPetsByTags200Schema>
 
@@ -31,6 +31,6 @@ export const findPetsByTags400Schema = z.any()
 
 export type FindPetsByTags400Schema = z.infer<typeof findPetsByTags400Schema>
 
-export const findPetsByTagsQueryResponseSchema = z.lazy(() => findPetsByTags200Schema)
+export const findPetsByTagsQueryResponseSchema = findPetsByTags200Schema
 
 export type FindPetsByTagsQueryResponseSchema = z.infer<typeof findPetsByTagsQueryResponseSchema>

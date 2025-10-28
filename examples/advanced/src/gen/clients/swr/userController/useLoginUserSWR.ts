@@ -1,4 +1,4 @@
-import type client from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
 import useSWR from 'swr'
 import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
@@ -8,7 +8,7 @@ export const loginUserQueryKeySWR = (params?: LoginUserQueryParams) => [{ url: '
 
 export type LoginUserQueryKeySWR = ReturnType<typeof loginUserQueryKeySWR>
 
-export function loginUserQueryOptionsSWR({ params }: { params?: LoginUserQueryParams }, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+export function loginUserQueryOptionsSWR({ params }: { params?: LoginUserQueryParams }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   return {
     fetcher: async () => {
       return loginUser({ params }, config)
@@ -24,16 +24,24 @@ export function useLoginUserSWR(
   { params }: { params?: LoginUserQueryParams },
   options: {
     query?: Parameters<typeof useSWR<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>>>[2]
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
+    immutable?: boolean
   } = {},
 ) {
-  const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
   const queryKey = loginUserQueryKeySWR(params)
 
   return useSWR<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>, LoginUserQueryKeySWR | null>(shouldFetch ? queryKey : null, {
     ...loginUserQueryOptionsSWR({ params }, config),
+    ...(immutable
+      ? {
+          revalidateIfStale: false,
+          revalidateOnFocus: false,
+          revalidateOnReconnect: false,
+        }
+      : {}),
     ...queryOptions,
   })
 }

@@ -3,12 +3,13 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getUploadFileUrl(petId: UploadFilePathParams['petId']) {
-  return `/pet/${petId}/uploadImage` as const
+  const res = { method: 'POST', url: `/pet/${petId}/uploadImage` as const }
+  return res
 }
 
 /**
@@ -19,26 +20,28 @@ export async function uploadFile(
   petId: UploadFilePathParams['petId'],
   data: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof client } = {},
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
+  const requestData = data
   const formData = new FormData()
-  if (data) {
-    Object.keys(data).forEach((key) => {
-      const value = data[key as keyof typeof data]
+  if (requestData) {
+    Object.keys(requestData).forEach((key) => {
+      const value = requestData[key as keyof typeof requestData]
       if (typeof value === 'string' || (value as unknown) instanceof Blob) {
         formData.append(key, value as unknown as string | Blob)
+      } else {
+        formData.append(key, JSON.stringify(value))
       }
     })
   }
   const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
-    url: getUploadFileUrl(petId).toString(),
+    url: getUploadFileUrl(petId).url.toString(),
     params,
     data: formData,
     ...requestConfig,
-    headers: { 'Content-Type': 'multipart/form-data', ...requestConfig.headers },
   })
   return res.data
 }

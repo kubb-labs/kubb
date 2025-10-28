@@ -1,8 +1,8 @@
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 export const categorySchema = z.object({
-  id: z.number().int().optional(),
-  name: z.string().optional(),
+  id: z.optional(z.int()),
+  name: z.optional(z.string()),
 })
 
 export type CategorySchema = z.infer<typeof categorySchema>

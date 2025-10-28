@@ -29,14 +29,14 @@ export const findPetsByTagsHeaderParamsXEXAMPLEEnum = {
   THREE: 'THREE',
 } as const
 
-export type FindPetsByTagsHeaderParamsXEXAMPLEEnum = (typeof findPetsByTagsHeaderParamsXEXAMPLEEnum)[keyof typeof findPetsByTagsHeaderParamsXEXAMPLEEnum]
+export type FindPetsByTagsHeaderParamsXEXAMPLEEnumKey = (typeof findPetsByTagsHeaderParamsXEXAMPLEEnum)[keyof typeof findPetsByTagsHeaderParamsXEXAMPLEEnum]
 
 export type FindPetsByTagsHeaderParams = {
   /**
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': FindPetsByTagsHeaderParamsXEXAMPLEEnum
+  'X-EXAMPLE': FindPetsByTagsHeaderParamsXEXAMPLEEnumKey
 }
 
 /**

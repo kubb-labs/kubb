@@ -5,7 +5,8 @@
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
-    "paths": {}
+    "paths": {},
+    "types": ["vitest/globals", "bun-types", "../../reset.d.ts"]
   },
-  "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"]
+  "include": ["src/**/*", "./package.json", "./tsdown.config.ts", "./vitest.config.ts"]
 }

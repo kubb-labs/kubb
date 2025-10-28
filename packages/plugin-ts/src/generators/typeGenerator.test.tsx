@@ -1,11 +1,12 @@
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
-import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
+import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
+import { createReactFabric } from '@kubb/react-fabric'
 import ts, { factory } from 'typescript'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
 
@@ -150,6 +151,15 @@ describe('typeGenerator schema', async () => {
       name: 'EnumVarNamesType',
       input: '../../mocks/enums.yaml',
       path: 'enumVarNames.Type',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'PascalEnum',
+      input: '../../mocks/enums.yaml',
+      path: 'PASCALEnums.Type',
       options: {
         enumType: 'asConst',
         optionalType: 'questionToken',
@@ -394,7 +404,6 @@ describe('typeGenerator schema', async () => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginTs['resolvedOptions'] = {
-      usedEnumNames: {},
       enumType: 'asConst',
       enumSuffix: 'enum',
       dateType: 'string',
@@ -405,6 +414,7 @@ describe('typeGenerator schema', async () => {
       override: [],
       mapper: {},
       syntaxType: 'type',
+      emptySchemaType: 'unknown',
       output: {
         path: '.',
       },
@@ -412,7 +422,10 @@ describe('typeGenerator schema', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
+    const fabric = createReactFabric()
+
     const instance = new SchemaGenerator(options, {
+      fabric,
       oas,
       pluginManager: createMockedPluginManager(props.name),
       plugin,
@@ -422,24 +435,27 @@ describe('typeGenerator schema', async () => {
       mode: 'split',
       output: './gen',
     })
-    await instance.build(typeGenerator)
 
     const schemas = getSchemas({ oas })
     const name = props.path
     const schema = schemas[name]!
     const tree = instance.parse({ schemaObject: schema, name })
 
-    const files = await typeGenerator.schema?.({
-      schema: {
+    await buildSchema(
+      {
         name,
         tree,
         value: schema,
       },
-      options,
-      instance,
-    })
+      {
+        fabric,
+        instance,
+        generator: typeGenerator,
+        options,
+      },
+    )
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })
 
@@ -491,6 +507,24 @@ describe('typeGenerator operation', async () => {
       method: 'delete',
       options: {},
     },
+    {
+      name: 'createPet with emptySchemaType unknown',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        emptySchemaType: 'unknown',
+      },
+    },
+    {
+      name: 'createPet with emptySchemaType void',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        emptySchemaType: 'void',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -507,7 +541,6 @@ describe('typeGenerator operation', async () => {
       enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
-      usedEnumNames: {},
       transformers: {},
       oasType: false,
       unknownType: 'any',
@@ -518,10 +551,13 @@ describe('typeGenerator operation', async () => {
         path: '.',
       },
       group: undefined,
+      emptySchemaType: 'unknown',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
+    const fabric = createReactFabric()
     const instance = new OperationGenerator(options, {
+      fabric,
       oas,
       include: undefined,
       pluginManager: createMockedPluginManager(props.name),
@@ -532,12 +568,13 @@ describe('typeGenerator operation', async () => {
       exclude: [],
     })
     const operation = oas.operation(props.path, props.method)
-    const files = await typeGenerator.operation?.({
-      operation,
-      options,
+    await buildOperation(operation, {
+      fabric,
       instance,
+      generator: typeGenerator,
+      options,
     })
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })

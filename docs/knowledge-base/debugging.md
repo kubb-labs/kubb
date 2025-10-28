@@ -5,7 +5,7 @@ title: Debugging Kubb
 outline: deep
 ---
 
-# Debugging Kubb <a href="/plugins/react"><Badge type="info" text="@kubb/react" /></a>
+# Debugging Kubb <a href="/plugins/react"><Badge type="info" text="@kubb/react-fabric" /></a>
 
 ## React DevTools
 
@@ -14,7 +14,7 @@ Kubb supports React DevTools out-of-the-box. To enable integration with React De
 ![React-DevTools](/screenshots/react-devtools.png)
 
 > [!NOTE]
-> Kubb will already run `npx react-devtools` as part of the `@kubb/react/devtools` import.
+> Kubb will already run `npx react-devtools` as part of the `@kubb/react-fabric/devtools` import.
 
 ### Installation
 Before you can use the React DevTools, install the React package.
@@ -25,26 +25,26 @@ Before you can use the React DevTools, install the React package.
 ::: code-group
 
 ```shell [bun]
-bun add -d @kubb/react
+bun add -d @kubb/react-fabric
 ```
 
 ```shell [pnpm]
-pnpm add -D @kubb/react
+pnpm add -D @kubb/react-fabric
 ```
 
 ```shell [npm]
-npm install --save-dev @kubb/react
+npm install --save-dev @kubb/react-fabric
 ```
 
 ```shell [yarn]
-yarn add -D @kubb/react
+yarn add -D @kubb/react-fabric
 ```
 
 ### Update `kubb.config.ts`
 :::
 
 ```typescript{1} twoslash
-import '@kubb/react/devtools' // [!code ++]
+import '@kubb/react-fabric/devtools' // [!code ++]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'

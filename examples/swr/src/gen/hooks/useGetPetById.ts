@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
@@ -17,8 +17,8 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
  * @summary Find pet by ID
  * {@link /pet/:petId}
  */
-export async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
     method: 'GET',
@@ -28,7 +28,7 @@ export async function getPetById(petId: GetPetByIdPathParams['petId'], config: P
   return res.data
 }
 
-export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   return {
     fetcher: async () => {
       return getPetById(petId, config)
@@ -45,16 +45,24 @@ export function useGetPetById(
   petId: GetPetByIdPathParams['petId'],
   options: {
     query?: Parameters<typeof useSWR<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>>>[2]
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
+    immutable?: boolean
   } = {},
 ) {
-  const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
   const queryKey = getPetByIdQueryKey(petId)
 
   return useSWR<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryKey | null>(shouldFetch ? queryKey : null, {
     ...getPetByIdQueryOptions(petId, config),
+    ...(immutable
+      ? {
+          revalidateIfStale: false,
+          revalidateOnFocus: false,
+          revalidateOnReconnect: false,
+        }
+      : {}),
     ...queryOptions,
   })
 }

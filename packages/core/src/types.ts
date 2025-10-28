@@ -1,8 +1,8 @@
-import type { KubbFile } from './fs/index.ts'
-import type { PossiblePromise } from './utils/types.ts'
-import type { FileManager } from './FileManager.ts'
-import type { PluginManager } from './PluginManager.ts'
+import type { KubbFile } from '@kubb/fabric-core/types'
+import type { Fabric, FileManager } from '@kubb/react-fabric'
 import type { Logger } from './logger.ts'
+import type { PluginManager } from './PluginManager.ts'
+import type { PossiblePromise } from './utils/types.ts'
 
 /**
  * Config used in `kubb.config.ts`
@@ -39,7 +39,7 @@ export type InputData = {
   data: string | unknown
 }
 
-type Input = InputPath | InputData
+type Input = InputPath | InputData | Array<InputPath>
 
 export type BarrelType = 'all' | 'named' | 'propagate'
 
@@ -75,7 +75,27 @@ export type Config<TInput = Input> = {
      * @default true
      */
     write?: boolean
-
+    /**
+     * Specifies the formatting tool to be used.
+     * @default prettier
+     *
+     * Possible values:
+     * - 'prettier': Uses Prettier for code formatting.
+     * - 'biome': Uses Biome for code formatting.
+     *
+     */
+    format?: 'prettier' | 'biome' | false
+    /**
+     * Specifies the linter that should be used to analyze the code.
+     * The accepted values indicate different linting tools.
+     *
+     * Possible values:
+     * - 'eslint': Represents the use of ESLint, a widely used JavaScript linter.
+     * - 'biome': Represents the Biome linter, a modern tool for code scanning.
+     * - 'oxlint': Represents the Oxlint tool for linting purposes.
+     *
+     */
+    lint?: 'eslint' | 'biome' | 'oxlint' | false
     /**
      * Override the extension to the generated imports and exports, by default each plugin will add an extension
      * @default { '.ts': '.ts'}
@@ -279,7 +299,11 @@ export type ResolveNameParams = {
 }
 
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+  fabric: Fabric
   config: Config
+  /**
+   * @deprecated
+   */
   fileManager: FileManager
   pluginManager: PluginManager
   addFile: (...file: Array<KubbFile.File>) => Promise<Array<KubbFile.ResolvedFile>>

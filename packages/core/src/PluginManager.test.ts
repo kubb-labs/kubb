@@ -1,5 +1,6 @@
-import { PluginManager } from './PluginManager.ts'
+import { createFabric } from '@kubb/react-fabric'
 import { createLogger } from './logger.ts'
+import { PluginManager } from './PluginManager.ts'
 import { createPlugin } from './plugin.ts'
 
 import type { Config, Plugin } from './types.ts'
@@ -83,6 +84,7 @@ describe('PluginManager', () => {
     plugins: [pluginA({}), pluginB({}), pluginBBis({})] as Plugin[],
   } satisfies Config
   const pluginManager = new PluginManager(config, {
+    fabric: createFabric(),
     logger: createLogger({ logLevel: 3 }),
   })
 
@@ -91,7 +93,6 @@ describe('PluginManager', () => {
   })
 
   test('if pluginManager can be created', () => {
-    expect(pluginManager.fileManager).toBeDefined()
     expect(pluginManager.plugins.size).toBe(config.plugins.length + 1)
     expect(PluginManager.hooks).toStrictEqual(['buildStart', 'resolvePath', 'resolveName', 'buildEnd'])
     expect(pluginManager.getPluginsByKey('buildStart', ['pluginB'])?.[0]?.name).toBe('pluginB')

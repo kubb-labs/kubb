@@ -1,11 +1,9 @@
-import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import type { ReactNode } from 'react'
-
 import { isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
+import { getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { Infinite, PluginVueQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 
@@ -42,25 +40,25 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
             override(item) {
               return {
                 ...item,
-                type: `MaybeRef<${item.type}>`,
+                type: `MaybeRefOrGetter<${item.type}>`,
               }
             },
           }),
           data: typeSchemas.request?.name
             ? {
-                type: `MaybeRef<${typeSchemas.request?.name}>`,
+                type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
                 optional: isOptional(typeSchemas.request?.schema),
               }
             : undefined,
           params: typeSchemas.queryParams?.name
             ? {
-                type: `MaybeRef<${typeSchemas.queryParams?.name}>`,
+                type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
                 optional: isOptional(typeSchemas.queryParams?.schema),
               }
             : undefined,
           headers: typeSchemas.headerParams?.name
             ? {
-                type: `MaybeRef<${typeSchemas.queryParams?.name}>`,
+                type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
                 optional: isOptional(typeSchemas.headerParams?.schema),
               }
             : undefined,
@@ -68,8 +66,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       },
       config: {
         type: typeSchemas.request?.name
-          ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
-          : 'Partial<RequestConfig> & { client?: typeof client }',
+          ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
+          : 'Partial<RequestConfig> & { client?: typeof fetch }',
         default: '{}',
       },
     })
@@ -85,33 +83,33 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
         override(item) {
           return {
             ...item,
-            type: `MaybeRef<${item.type}>`,
+            type: `MaybeRefOrGetter<${item.type}>`,
           }
         },
       }),
     },
     data: typeSchemas.request?.name
       ? {
-          type: `MaybeRef<${typeSchemas.request?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
           optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
-          type: `MaybeRef<${typeSchemas.queryParams?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
           optional: isOptional(typeSchemas.queryParams?.schema),
         }
       : undefined,
     headers: typeSchemas.headerParams?.name
       ? {
-          type: `MaybeRef<${typeSchemas.headerParams?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.headerParams?.name}>`,
           optional: isOptional(typeSchemas.headerParams?.schema),
         }
       : undefined,
     config: {
       type: typeSchemas.request?.name
-        ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
-        : 'Partial<RequestConfig> & { client?: typeof client }',
+        ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
+        : 'Partial<RequestConfig> & { client?: typeof fetch }',
       default: '{}',
     },
   })
@@ -129,7 +127,7 @@ export function InfiniteQueryOptions({
   pathParamsType,
   queryParam,
   queryKeyName,
-}: Props): ReactNode {
+}: Props): KubbNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
@@ -163,9 +161,10 @@ export function InfiniteQueryOptions({
   const infiniteOverrideParams =
     queryParam && typeSchemas.queryParams?.name
       ? `
-          if(params) {
-           params['${queryParam}'] = pageParam as unknown as ${typeSchemas.queryParams?.name}['${queryParam}']
-          }`
+          if (!params) {
+           params = { }
+          }
+          params['${queryParam}'] = pageParam as unknown as ${typeSchemas.queryParams?.name}['${queryParam}']`
       : ''
 
   const enabled = Object.entries(queryKeyParams.flatParams)
@@ -186,7 +185,11 @@ export function InfiniteQueryOptions({
        queryFn: async ({ signal, pageParam }) => {
           config.signal = signal
           ${infiniteOverrideParams}
-          return ${clientName}(${clientParams.toCall()})
+          return ${clientName}(${clientParams.toCall({
+            transformName(name) {
+              return `toValue(${name})`
+            },
+          })})
        },
        ${queryOptions.join(',\n')}
       })

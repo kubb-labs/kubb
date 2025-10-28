@@ -1,5 +1,93 @@
 # @kubb/oas
 
+## 4.4.1
+
+### Patch Changes
+
+- [#1963](https://github.com/kubb-labs/kubb/pull/1963) [`75d0730`](https://github.com/kubb-labs/kubb/commit/75d0730ac261332442a70ee056a0b91acc56db6d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update Fabric to get latest changes
+
+## 4.4.0
+
+### Minor Changes
+
+- [#1961](https://github.com/kubb-labs/kubb/pull/1961) [`bed6f9c`](https://github.com/kubb-labs/kubb/commit/bed6f9cf482ad4bbd2119c9de38f1184227b82cc) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - removal of Kubb react in favor of using `@kubb/react-fabric`
+
+## 4.3.1
+
+## 4.3.0
+
+## 4.2.2
+
+## 4.2.1
+
+## 4.2.0
+
+## 4.1.4
+
+## 4.1.3
+
+## 4.1.2
+
+## 4.1.1
+
+## 4.1.0
+
+## 4.0.2
+
+## 4.0.1
+
+## 4.0.0
+
+## 3.18.3
+
+## 3.18.2
+
+## 3.18.1
+
+## 3.17.1
+
+## 3.17.0
+
+## 3.16.4
+
+## 3.16.3
+
+## 3.16.2
+
+## 3.16.1
+
+## 3.16.0
+
+### Minor Changes
+
+- [`c7360e8`](https://github.com/kubb-labs/kubb/commit/c7360e879436d035229ade7afc2f2870e0538a89) Thanks [@stijnvanhullem](https://github.com/stijnvanhullem)! - Improve memory usage by using concurrency
+
+## 3.15.1
+
+## 3.15.0
+
+## 3.14.4
+
+## 3.14.3
+
+## 3.14.2
+
+## 3.14.1
+
+## 3.14.0
+
+## 3.13.2
+
+## 3.13.1
+
+## 3.13.0
+
+## 3.12.2
+
+## 3.12.1
+
+## 3.12.0
+
 ## 3.11.1
 
 ## 3.11.0

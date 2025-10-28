@@ -16,15 +16,6 @@
       ]
     },
     {
-      "login": "xPhentom",
-      "name": "Wouter Roozeleer",
-      "avatar_url": "https://avatars.githubusercontent.com/u/5096867?v=4",
-      "profile": "https://fosstodon.org/@xphentom",
-      "contributions": [
-        "code"
-      ]
-    },
-    {
       "login": "b6pzeusbc54tvhw5jgpyw8pwz2x6gs",
       "name": "Alfred",
       "avatar_url": "https://avatars.githubusercontent.com/u/15520015?v=4",
@@ -317,6 +308,60 @@
       "name": "Sébastien Vanvelthem",
       "avatar_url": "https://avatars.githubusercontent.com/u/259798?v=4",
       "profile": "https://github.com/belgattitude",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "vitalygashkov",
+      "name": "Vitaly Gashkov",
+      "avatar_url": "https://avatars.githubusercontent.com/u/30000398?v=4",
+      "profile": "http://bento.me/vitalygashkov",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "ducodrupsteen",
+      "name": "Duco Drupsteen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9675738?v=4",
+      "profile": "https://ducduc.nl",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "th3l0g4n",
+      "name": "th3l0g4n",
+      "avatar_url": "https://avatars.githubusercontent.com/u/326306?v=4",
+      "profile": "https://github.com/th3l0g4n",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "rxliuli",
+      "name": "rxliuli",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24560368?v=4",
+      "profile": "https://rxliuli.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "humarkx",
+      "name": "humarkx",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13049940?v=4",
+      "profile": "https://github.com/humarkx",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Jakub-Cerovsky",
+      "name": "Jakub Cerovsky",
+      "avatar_url": "https://avatars.githubusercontent.com/u/141134227?v=4",
+      "profile": "https://github.com/Jakub-Cerovsky",
       "contributions": [
         "code"
       ]

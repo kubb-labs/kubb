@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
@@ -16,14 +16,14 @@ export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
  * @summary Logs out current logged in user session
  * {@link /user/logout}
  */
-export async function logoutUser(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function logoutUser(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
   return res.data
 }
 
-export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   return {
     fetcher: async () => {
       return logoutUser(config)
@@ -38,16 +38,24 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client
 export function useLogoutUser(
   options: {
     query?: Parameters<typeof useSWR<LogoutUserQueryResponse, ResponseErrorConfig<Error>>>[2]
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
+    immutable?: boolean
   } = {},
 ) {
-  const { query: queryOptions, client: config = {}, shouldFetch = true } = options ?? {}
+  const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
   const queryKey = logoutUserQueryKey()
 
   return useSWR<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryKey | null>(shouldFetch ? queryKey : null, {
     ...logoutUserQueryOptions(config),
+    ...(immutable
+      ? {
+          revalidateIfStale: false,
+          revalidateOnFocus: false,
+          revalidateOnReconnect: false,
+        }
+      : {}),
     ...queryOptions,
   })
 }

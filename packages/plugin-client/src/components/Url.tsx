@@ -1,9 +1,10 @@
 import { URLPath } from '@kubb/core/utils'
 
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react'
+import { Const, File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
 
 type Props = {
@@ -52,14 +53,26 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
   })
 }
 
-export function Url({ name, isExportable = true, isIndexable = true, typeSchemas, baseURL, paramsType, paramsCasing, pathParamsType, operation }: Props) {
+export function Url({
+  name,
+  isExportable = true,
+  isIndexable = true,
+  typeSchemas,
+  baseURL,
+  paramsType,
+  paramsCasing,
+  pathParamsType,
+  operation,
+}: Props): KubbNode {
   const path = new URLPath(operation.path, { casing: paramsCasing })
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
 
   return (
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
       <Function name={name} export={isExportable} params={params.toConstructor()}>
-        {`return ${path.toTemplateString({ prefix: baseURL })} as const`}
+        <Const name={'res'}>{`{ method: '${operation.method.toUpperCase()}', url: ${path.toTemplateString({ prefix: baseURL })} as const }`}</Const>
+        <br />
+        return res
       </Function>
     </File.Source>
   )

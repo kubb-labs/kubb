@@ -33,7 +33,7 @@ export type { GetUserByNameQueryKeySWR } from './clients/swr/userController/useG
 export type { LoginUserQueryKeySWR } from './clients/swr/userController/useLoginUserSWR.ts'
 export type { LogoutUserQueryKeySWR } from './clients/swr/userController/useLogoutUserSWR.ts'
 export type { UpdateUserMutationKeySWR } from './clients/swr/userController/useUpdateUserSWR.ts'
-export type { AddPetRequestStatusEnum, AddPetRequest } from './models/ts/AddPetRequest.ts'
+export type { AddPetRequestStatusEnumKey, AddPetRequest } from './models/ts/AddPetRequest.ts'
 export type { Address } from './models/ts/Address.ts'
 export type { Animal } from './models/ts/Animal.ts'
 export type { ApiResponse } from './models/ts/ApiResponse.ts'
@@ -41,8 +41,8 @@ export type { Cat } from './models/ts/Cat.ts'
 export type { Category } from './models/ts/Category.ts'
 export type { Customer } from './models/ts/Customer.ts'
 export type { Dog } from './models/ts/Dog.ts'
-export type { OrderOrderTypeEnum, OrderStatusEnum, OrderHttpStatusEnum, Order } from './models/ts/Order.ts'
-export type { PetStatusEnum, Pet } from './models/ts/Pet.ts'
+export type { OrderOrderTypeEnumKey, OrderStatusEnumKey, OrderHttpStatusEnumKey, Order } from './models/ts/Order.ts'
+export type { PetStatusEnumKey, Pet } from './models/ts/Pet.ts'
 export type { AddFiles200, AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse, AddFilesMutation } from './models/ts/petController/AddFiles.ts'
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './models/ts/petController/AddPet.ts'
 export type {
@@ -61,7 +61,7 @@ export type {
 } from './models/ts/petController/FindPetsByStatus.ts'
 export type {
   FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParamsXEXAMPLEEnum,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
   FindPetsByTagsHeaderParams,
   FindPetsByTags200,
   FindPetsByTags400,
@@ -104,9 +104,9 @@ export type {
 export type { PetNotFound } from './models/ts/PetNotFound.ts'
 export type {
   CreatePetsPathParams,
-  CreatePetsQueryParamsBoolParamEnum,
+  CreatePetsQueryParamsBoolParamEnumKey,
   CreatePetsQueryParams,
-  CreatePetsHeaderParamsXEXAMPLEEnum,
+  CreatePetsHeaderParamsXEXAMPLEEnumKey,
   CreatePetsHeaderParams,
   CreatePets201,
   CreatePetsError,
@@ -281,29 +281,29 @@ export type {
 } from './zod/userController/updateUserSchema.ts'
 export type { UserSchema } from './zod/userSchema.ts'
 export { operations } from './clients/axios/operations.ts'
-export { addFiles } from './clients/axios/petService/addFiles.ts'
-export { addPet } from './clients/axios/petService/addPet.ts'
-export { deletePet } from './clients/axios/petService/deletePet.ts'
-export { findPetsByStatus } from './clients/axios/petService/findPetsByStatus.ts'
-export { findPetsByTags } from './clients/axios/petService/findPetsByTags.ts'
-export { getPetById } from './clients/axios/petService/getPetById.ts'
+export { getAddFilesUrl, addFiles } from './clients/axios/petService/addFiles.ts'
+export { getAddPetUrl, addPet } from './clients/axios/petService/addPet.ts'
+export { getDeletePetUrl, deletePet } from './clients/axios/petService/deletePet.ts'
+export { getFindPetsByStatusUrl, findPetsByStatus } from './clients/axios/petService/findPetsByStatus.ts'
+export { getFindPetsByTagsUrl, findPetsByTags } from './clients/axios/petService/findPetsByTags.ts'
+export { getGetPetByIdUrl, getPetById } from './clients/axios/petService/getPetById.ts'
 export { petService } from './clients/axios/petService/petService.ts'
-export { updatePet } from './clients/axios/petService/updatePet.ts'
-export { updatePetWithForm } from './clients/axios/petService/updatePetWithForm.ts'
-export { uploadFile } from './clients/axios/petService/uploadFile.ts'
-export { createPets } from './clients/axios/petsService/createPets.ts'
+export { getUpdatePetUrl, updatePet } from './clients/axios/petService/updatePet.ts'
+export { getUpdatePetWithFormUrl, updatePetWithForm } from './clients/axios/petService/updatePetWithForm.ts'
+export { getUploadFileUrl, uploadFile } from './clients/axios/petService/uploadFile.ts'
+export { getCreatePetsUrl, createPets } from './clients/axios/petsService/createPets.ts'
 export { petsService } from './clients/axios/petsService/petsService.ts'
-export { createUser } from './clients/axios/userService/createUser.ts'
-export { createUsersWithListInput } from './clients/axios/userService/createUsersWithListInput.ts'
-export { deleteUser } from './clients/axios/userService/deleteUser.ts'
-export { getUserByName } from './clients/axios/userService/getUserByName.ts'
-export { loginUser } from './clients/axios/userService/loginUser.ts'
-export { logoutUser } from './clients/axios/userService/logoutUser.ts'
-export { updateUser } from './clients/axios/userService/updateUser.ts'
+export { getCreateUserUrl, createUser } from './clients/axios/userService/createUser.ts'
+export { getCreateUsersWithListInputUrl, createUsersWithListInput } from './clients/axios/userService/createUsersWithListInput.ts'
+export { getDeleteUserUrl, deleteUser } from './clients/axios/userService/deleteUser.ts'
+export { getGetUserByNameUrl, getUserByName } from './clients/axios/userService/getUserByName.ts'
+export { getLoginUserUrl, loginUser } from './clients/axios/userService/loginUser.ts'
+export { getLogoutUserUrl, logoutUser } from './clients/axios/userService/logoutUser.ts'
+export { getUpdateUserUrl, updateUser } from './clients/axios/userService/updateUser.ts'
 export { userService } from './clients/axios/userService/userService.ts'
-export { addFilesMutationKey, useAddFiles } from './clients/hooks/petController/useAddFiles.ts'
-export { addPetMutationKey, useAddPet } from './clients/hooks/petController/useAddPet.ts'
-export { deletePetMutationKey, useDeletePet } from './clients/hooks/petController/useDeletePet.ts'
+export { addFilesMutationKey, addFilesMutationOptions, useAddFiles } from './clients/hooks/petController/useAddFiles.ts'
+export { addPetMutationKey, addPetMutationOptions, useAddPet } from './clients/hooks/petController/useAddPet.ts'
+export { deletePetMutationKey, deletePetMutationOptions, useDeletePet } from './clients/hooks/petController/useDeletePet.ts'
 export { findPetsByStatusQueryKey, findPetsByStatusQueryOptions, useFindPetsByStatus } from './clients/hooks/petController/useFindPetsByStatus.ts'
 export { findPetsByTagsQueryKey, findPetsByTagsQueryOptions, useFindPetsByTags } from './clients/hooks/petController/useFindPetsByTags.ts'
 export {
@@ -312,17 +312,21 @@ export {
   useFindPetsByTagsInfinite,
 } from './clients/hooks/petController/useFindPetsByTagsInfinite.ts'
 export { getPetByIdQueryKey, getPetByIdQueryOptions, useGetPetById } from './clients/hooks/petController/useGetPetById.ts'
-export { updatePetMutationKey, useUpdatePet } from './clients/hooks/petController/useUpdatePet.ts'
-export { updatePetWithFormMutationKey, useUpdatePetWithForm } from './clients/hooks/petController/useUpdatePetWithForm.ts'
-export { uploadFileMutationKey, useUploadFile } from './clients/hooks/petController/useUploadFile.ts'
-export { createPetsMutationKey, useCreatePets } from './clients/hooks/petsController/useCreatePets.ts'
-export { createUserMutationKey, useCreateUser } from './clients/hooks/userController/useCreateUser.ts'
-export { createUsersWithListInputMutationKey, useCreateUsersWithListInput } from './clients/hooks/userController/useCreateUsersWithListInput.ts'
-export { deleteUserMutationKey, useDeleteUser } from './clients/hooks/userController/useDeleteUser.ts'
+export { updatePetMutationKey, updatePetMutationOptions, useUpdatePet } from './clients/hooks/petController/useUpdatePet.ts'
+export { updatePetWithFormMutationKey, updatePetWithFormMutationOptions, useUpdatePetWithForm } from './clients/hooks/petController/useUpdatePetWithForm.ts'
+export { uploadFileMutationKey, uploadFileMutationOptions, useUploadFile } from './clients/hooks/petController/useUploadFile.ts'
+export { createPetsMutationKey, createPetsMutationOptions, useCreatePets } from './clients/hooks/petsController/useCreatePets.ts'
+export { createUserMutationKey, createUserMutationOptions, useCreateUser } from './clients/hooks/userController/useCreateUser.ts'
+export {
+  createUsersWithListInputMutationKey,
+  createUsersWithListInputMutationOptions,
+  useCreateUsersWithListInput,
+} from './clients/hooks/userController/useCreateUsersWithListInput.ts'
+export { deleteUserMutationKey, deleteUserMutationOptions, useDeleteUser } from './clients/hooks/userController/useDeleteUser.ts'
 export { getUserByNameQueryKey, getUserByNameQueryOptions, useGetUserByName } from './clients/hooks/userController/useGetUserByName.ts'
 export { loginUserQueryKey, loginUserQueryOptions, useLoginUser } from './clients/hooks/userController/useLoginUser.ts'
 export { logoutUserQueryKey, logoutUserQueryOptions, useLogoutUser } from './clients/hooks/userController/useLogoutUser.ts'
-export { updateUserMutationKey, useUpdateUser } from './clients/hooks/userController/useUpdateUser.ts'
+export { updateUserMutationKey, updateUserMutationOptions, useUpdateUser } from './clients/hooks/userController/useUpdateUser.ts'
 export { addFilesMutationKeySWR, useAddFilesSWR } from './clients/swr/petController/useAddFilesSWR.ts'
 export { addPetMutationKeySWR, useAddPetSWR } from './clients/swr/petController/useAddPetSWR.ts'
 export { deletePetMutationKeySWR, useDeletePetSWR } from './clients/swr/petController/useDeletePetSWR.ts'
@@ -466,21 +470,38 @@ export { petStatusEnum } from './models/ts/Pet.ts'
 export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './models/ts/petController/FindPetsByTags.ts'
 export { createPetsQueryParamsBoolParamEnum, createPetsHeaderParamsXEXAMPLEEnum } from './models/ts/petsController/CreatePets.ts'
 export { handlers } from './msw/handlers.ts'
-export { addFilesHandler } from './msw/petController/addFilesHandler.ts'
-export { addPetHandler } from './msw/petController/addPetHandler.ts'
-export { deletePetHandler } from './msw/petController/deletePetHandler.ts'
-export { findPetsByStatusHandler } from './msw/petController/findPetsByStatusHandler.ts'
-export { findPetsByTagsHandler } from './msw/petController/findPetsByTagsHandler.ts'
-export { getPetByIdHandler } from './msw/petController/getPetByIdHandler.ts'
-export { updatePetHandler } from './msw/petController/updatePetHandler.ts'
-export { updatePetWithFormHandler } from './msw/petController/updatePetWithFormHandler.ts'
-export { uploadFileHandler } from './msw/petController/uploadFileHandler.ts'
-export { createPetsHandler } from './msw/petsController/createPetsHandler.ts'
+export { addFilesHandlerResponse200, addFilesHandlerResponse405, addFilesHandler } from './msw/petController/addFilesHandler.ts'
+export { addPetHandlerResponse200, addPetHandlerResponse405, addPetHandler } from './msw/petController/addPetHandler.ts'
+export { deletePetHandlerResponse400, deletePetHandler } from './msw/petController/deletePetHandler.ts'
+export { findPetsByStatusHandlerResponse200, findPetsByStatusHandlerResponse400, findPetsByStatusHandler } from './msw/petController/findPetsByStatusHandler.ts'
+export { findPetsByTagsHandlerResponse200, findPetsByTagsHandlerResponse400, findPetsByTagsHandler } from './msw/petController/findPetsByTagsHandler.ts'
+export {
+  getPetByIdHandlerResponse200,
+  getPetByIdHandlerResponse400,
+  getPetByIdHandlerResponse404,
+  getPetByIdHandler,
+} from './msw/petController/getPetByIdHandler.ts'
+export {
+  updatePetHandlerResponse200,
+  updatePetHandlerResponse202,
+  updatePetHandlerResponse400,
+  updatePetHandlerResponse404,
+  updatePetHandlerResponse405,
+  updatePetHandler,
+} from './msw/petController/updatePetHandler.ts'
+export { updatePetWithFormHandlerResponse405, updatePetWithFormHandler } from './msw/petController/updatePetWithFormHandler.ts'
+export { uploadFileHandlerResponse200, uploadFileHandler } from './msw/petController/uploadFileHandler.ts'
+export { createPetsHandlerResponse201, createPetsHandler } from './msw/petsController/createPetsHandler.ts'
 export { createUserHandler } from './msw/userController/createUserHandler.ts'
-export { createUsersWithListInputHandler } from './msw/userController/createUsersWithListInputHandler.ts'
-export { deleteUserHandler } from './msw/userController/deleteUserHandler.ts'
-export { getUserByNameHandler } from './msw/userController/getUserByNameHandler.ts'
-export { loginUserHandler } from './msw/userController/loginUserHandler.ts'
+export { createUsersWithListInputHandlerResponse200, createUsersWithListInputHandler } from './msw/userController/createUsersWithListInputHandler.ts'
+export { deleteUserHandlerResponse400, deleteUserHandlerResponse404, deleteUserHandler } from './msw/userController/deleteUserHandler.ts'
+export {
+  getUserByNameHandlerResponse200,
+  getUserByNameHandlerResponse400,
+  getUserByNameHandlerResponse404,
+  getUserByNameHandler,
+} from './msw/userController/getUserByNameHandler.ts'
+export { loginUserHandlerResponse200, loginUserHandlerResponse400, loginUserHandler } from './msw/userController/loginUserHandler.ts'
 export { logoutUserHandler } from './msw/userController/logoutUserHandler.ts'
 export { updateUserHandler } from './msw/userController/updateUserHandler.ts'
 export { addPetRequestSchema } from './zod/addPetRequestSchema.ts'

@@ -6,20 +6,18 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/examples/faker"
+    "directory": "examples/faker"
   },
   "license": "MIT",
   "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "commonjs",
   "scripts": {
-    "build": "tsup",
     "generate": "kubb generate",
     "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
     "generate:js": "kubb generate --config .kubbrc",
     "generate:json": "kubb generate --config kubb.json",
     "generate:ts": "kubb generate --config kubb.config.js",
-    "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -31,18 +29,16 @@
     "@kubb/plugin-faker": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react": "workspace:*",
-    "dayjs": "^1.11.13",
-    "react": "^18.3.1",
-    "tsup": "^8.5.0"
+    "@kubb/react-fabric": "0.2.8",
+    "dayjs": "^1.11.18",
+    "react": "^18.3.1"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
     "typescript": "catalog:"
   },
-  "packageManager": "pnpm@9.15.5",
+  "packageManager": "pnpm@10.18.3",
   "engines": {
     "node": ">=20",
-    "pnpm": ">=8.15.0"
+    "pnpm": ">=10.0.0"
   }
 }

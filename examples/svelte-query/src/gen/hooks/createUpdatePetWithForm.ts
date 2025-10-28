@@ -14,7 +14,7 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -37,9 +37,9 @@ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQuery
 export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
@@ -53,7 +53,7 @@ export async function updatePetWithForm(
 export function updatePetWithFormQueryOptions(
   petId: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, params)
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
@@ -81,18 +81,19 @@ export function createUpdatePetWithForm<
     query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, params)
 
   const query = createQuery(
     {
-      ...(updatePetWithFormQueryOptions(petId, params, config) as unknown as CreateBaseQueryOptions),
+      ...updatePetWithFormQueryOptions(petId, params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 

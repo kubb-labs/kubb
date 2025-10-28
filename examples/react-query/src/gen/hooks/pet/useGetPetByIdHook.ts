@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../models/GetPetById.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
@@ -19,8 +19,8 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
  * @summary Find pet by ID
  * {@link /pet/:pet_id}
  */
-export async function getPetByIdHook({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] }, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function getPetByIdHook({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
     method: 'GET',
@@ -32,7 +32,7 @@ export async function getPetByIdHook({ pet_id }: { pet_id: GetPetByIdPathParams[
 
 export function getPetByIdQueryOptionsHook(
   { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = getPetByIdQueryKey({ pet_id })
   return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
@@ -56,18 +56,19 @@ export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TQueryData = 
     query?: Partial<QueryObserverOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey({ pet_id })
 
   const query = useQuery(
     {
-      ...(getPetByIdQueryOptionsHook({ pet_id }, config) as unknown as QueryObserverOptions),
+      ...getPetByIdQueryOptionsHook({ pet_id }, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<GetPetById400 | GetPetById404>> & { queryKey: TQueryKey }
 

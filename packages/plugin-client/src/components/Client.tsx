@@ -1,12 +1,12 @@
 import { URLPath } from '@kubb/core/utils'
 
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
 import { Url } from './Url.tsx'
-import type { KubbNode } from '@kubb/react/types'
 
 type Props = {
   /**
@@ -69,8 +69,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
       config: isConfigurable
         ? {
             type: typeSchemas.request?.name
-              ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
-              : 'Partial<RequestConfig> & { client?: typeof client }',
+              ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
+              : 'Partial<RequestConfig> & { client?: typeof fetch }',
             default: '{}',
           }
         : undefined,
@@ -106,8 +106,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
     config: isConfigurable
       ? {
           type: typeSchemas.request?.name
-            ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
-            : 'Partial<RequestConfig> & { client?: typeof client }',
+            ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
+            : 'Partial<RequestConfig> & { client?: typeof fetch }',
           default: '{}',
         }
       : undefined,
@@ -131,12 +131,12 @@ export function Client({
   urlName,
   children,
   isConfigurable = true,
-}: Props) {
+}: Props): KubbNode {
   const path = new URLPath(operation.path, { casing: paramsCasing })
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
   const headers = [
-    contentType !== 'application/json' ? `'Content-Type': '${contentType}'` : undefined,
+    contentType !== 'application/json' && contentType !== 'multipart/form-data' ? `'Content-Type': '${contentType}'` : undefined,
     typeSchemas.headerParams?.name ? '...headers' : undefined,
   ].filter(Boolean)
 
@@ -158,7 +158,7 @@ export function Client({
           value: JSON.stringify(operation.method.toUpperCase()),
         },
         url: {
-          value: urlName ? `${urlName}(${urlParams.toCall()}).toString()` : path.template,
+          value: urlName ? `${urlName}(${urlParams.toCall()}).url.toString()` : path.template,
         },
         baseURL:
           baseURL && !urlName
@@ -169,8 +169,7 @@ export function Client({
         params: typeSchemas.queryParams?.name ? {} : undefined,
         data: typeSchemas.request?.name
           ? {
-              value:
-                parser === 'zod' && zodSchemas ? `${zodSchemas.request?.name}.parse(${isFormData ? 'formData' : 'data'})` : isFormData ? 'formData' : undefined,
+              value: isFormData ? 'formData' : 'requestData',
             }
           : undefined,
         requestConfig: isConfigurable
@@ -190,16 +189,18 @@ export function Client({
   const formData = isFormData
     ? `
    const formData = new FormData()
-   if(data) {
-    Object.keys(data).forEach((key) => {
-      const value = data[key as keyof typeof data];
+   if (requestData) {
+    Object.keys(requestData).forEach((key) => {
+      const value = requestData[key as keyof typeof requestData];
       if (typeof value === 'string' || (value as unknown) instanceof Blob) {
         formData.append(key, value as unknown as string | Blob);
+      } else {
+        formData.append(key, JSON.stringify(value));
       }
     })
    }
   `
-    : ''
+    : undefined
 
   const childrenElement = children ? (
     children
@@ -224,13 +225,17 @@ export function Client({
         }}
         returnType={returnType}
       >
-        {isConfigurable ? 'const { client:request = client, ...requestConfig } = config' : ''}
+        {isConfigurable ? 'const { client: request = fetch, ...requestConfig } = config' : ''}
         <br />
+        <br />
+        {parser === 'zod' && zodSchemas?.request?.name && `const requestData = ${zodSchemas.request.name}.parse(data)`}
+        {parser === 'client' && typeSchemas?.request?.name && 'const requestData = data'}
         <br />
         {formData}
+        <br />
         {isConfigurable
           ? `const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`
-          : `const res = await client<${generics.join(', ')}>(${clientParams.toCall()})`}
+          : `const res = await fetch<${generics.join(', ')}>(${clientParams.toCall()})`}
         <br />
         {childrenElement}
       </Function>

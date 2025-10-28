@@ -1,8 +1,8 @@
 import type { Group, Output, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { KubbFile } from '@kubb/core/fs'
+import type { KubbFile } from '@kubb/fabric-core/types'
 
 import type { contentType, HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
-import type { Generator } from './generator.tsx'
+import type { Generator } from './generators/types.ts'
 
 export type ResolvePathOptions = {
   pluginKey?: Plugin['key']
@@ -122,7 +122,6 @@ export type OperationSchemas = {
   errors?: Array<OperationSchema>
 }
 
-export type OperationsByMethod = Record<string, Record<HttpMethod, { operation: Operation; schemas: OperationSchemas }>>
 type ByTag = {
   type: 'tag'
   pattern: string | RegExp

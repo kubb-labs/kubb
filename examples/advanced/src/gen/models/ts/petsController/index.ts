@@ -1,8 +1,8 @@
 export type {
   CreatePetsPathParams,
-  CreatePetsQueryParamsBoolParamEnum,
+  CreatePetsQueryParamsBoolParamEnumKey,
   CreatePetsQueryParams,
-  CreatePetsHeaderParamsXEXAMPLEEnum,
+  CreatePetsHeaderParamsXEXAMPLEEnumKey,
   CreatePetsHeaderParams,
   CreatePets201,
   CreatePetsError,

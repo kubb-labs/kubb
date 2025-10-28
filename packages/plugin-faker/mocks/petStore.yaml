@@ -122,10 +122,26 @@ components:
         shipTime:
           type: string
           format: time
+        info:
+          type: object
+          properties:
+            animal:
+              type: string
+              enum:
+              - dog
+              - cat
+              - ant
     Pets:
       type: array
       items:
         $ref: '#/components/schemas/Pet'
+    String:
+      type: string
+    Integer:
+      type: integer
+    Float:
+      type: number
+      format: float
     Error:
       type: object
       required:

@@ -1,10 +1,9 @@
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import type { ReactNode } from 'react'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginSwr } from '../types.ts'
 import { MutationKey } from './MutationKey.tsx'
 
@@ -57,8 +56,8 @@ function getParams({ pathParamsType, paramsCasing, dataReturnType, typeSchemas, 
     options: {
       type: `
 {
-  mutation?: Parameters<typeof useSWRMutation<${[TData, TError, mutationKeyTypeName, typeSchemas.request?.name].join(', ')}>>[2],
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
+  mutation?: Parameters<typeof useSWRMutation<${[TData, TError, mutationKeyTypeName, typeSchemas.request?.name].filter(Boolean).join(', ')}>>[2],
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'},
   shouldFetch?: boolean,
 }
 `,
@@ -78,7 +77,7 @@ export function Mutation({
   dataReturnType,
   typeSchemas,
   operation,
-}: Props): ReactNode {
+}: Props): KubbNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
@@ -124,7 +123,7 @@ export function Mutation({
         const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
         const mutationKey = ${mutationKeyName}(${mutationKeyParams.toCall()})
 
-        return useSWRMutation<${generics}>(
+        return useSWRMutation<${generics.join(', ')}>(
           shouldFetch ? mutationKey : null,
           async (_url${typeSchemas.request?.name ? ', { arg: data }' : ''}) => {
             return ${clientName}(${clientParams.toCall()})

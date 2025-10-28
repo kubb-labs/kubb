@@ -1,4 +1,4 @@
-import type client from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
 import useSWRMutation from 'swr/mutation'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
@@ -9,13 +9,13 @@ import type {
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import { updatePetWithForm } from '../../axios/petService/updatePetWithForm.ts'
 
-export const updatePetWithFormMutationKeySWR = () => [{ url: '/pet/{petId}' }] as const
+export const updatePetWithFormMutationKeySWR = () => [{ url: '/pet/:petId:search' }] as const
 
 export type UpdatePetWithFormMutationKeySWR = ReturnType<typeof updatePetWithFormMutationKeySWR>
 
 /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export function useUpdatePetWithFormSWR(
   { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
@@ -24,7 +24,7 @@ export function useUpdatePetWithFormSWR(
     mutation?: Parameters<
       typeof useSWRMutation<ResponseConfig<UpdatePetWithFormMutationResponse>, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationKeySWR>
     >[2]
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {

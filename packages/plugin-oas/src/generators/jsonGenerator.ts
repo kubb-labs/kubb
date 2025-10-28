@@ -1,8 +1,8 @@
 import { camelCase } from '@kubb/core/transformers'
-import { createGenerator } from '../generator.tsx'
 import type { PluginOas } from '../types.ts'
 import { getBanner } from '../utils/getBanner.ts'
 import { getFooter } from '../utils/getFooter.ts'
+import { createGenerator } from './createGenerator.ts'
 
 export const jsonGenerator = createGenerator<PluginOas>({
   name: 'plugin-oas',

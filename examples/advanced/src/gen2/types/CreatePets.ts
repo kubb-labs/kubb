@@ -12,13 +12,13 @@ export const createPetsQueryParamsBoolParamEnum = {
   true: true,
 } as const
 
-export type CreatePetsQueryParamsBoolParamEnum = (typeof createPetsQueryParamsBoolParamEnum)[keyof typeof createPetsQueryParamsBoolParamEnum]
+export type CreatePetsQueryParamsBoolParamEnumKey = (typeof createPetsQueryParamsBoolParamEnum)[keyof typeof createPetsQueryParamsBoolParamEnum]
 
 export type CreatePetsQueryParams = {
   /**
    * @type boolean | undefined
    */
-  bool_param?: CreatePetsQueryParamsBoolParamEnum
+  bool_param?: CreatePetsQueryParamsBoolParamEnumKey
   /**
    * @description Offset *\/
    * @type integer | undefined
@@ -32,14 +32,14 @@ export const createPetsHeaderParamsXEXAMPLEEnum = {
   THREE: 'THREE',
 } as const
 
-export type CreatePetsHeaderParamsXEXAMPLEEnum = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
+export type CreatePetsHeaderParamsXEXAMPLEEnumKey = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
 
 export type CreatePetsHeaderParams = {
   /**
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnum
+  'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumKey
 }
 
 /**

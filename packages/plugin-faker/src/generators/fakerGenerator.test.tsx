@@ -1,11 +1,11 @@
-import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
-
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
+import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
+import { createReactFabric } from '@kubb/react-fabric'
 import type { PluginFaker } from '../types.ts'
 import { fakerGenerator } from './fakerGenerator.tsx'
 
@@ -25,6 +25,24 @@ describe('fakerGenerator schema', async () => {
         dateType: 'string',
         dateParser: 'dayjs',
       },
+    },
+    {
+      name: 'String',
+      input: '../../mocks/petStore.yaml',
+      path: 'String',
+      options: {},
+    },
+    {
+      name: 'Integer',
+      input: '../../mocks/petStore.yaml',
+      path: 'Integer',
+      options: {},
+    },
+    {
+      name: 'Float',
+      input: '../../mocks/petStore.yaml',
+      path: 'Float',
+      options: {},
     },
     {
       name: 'PetWithDateString',
@@ -95,10 +113,14 @@ describe('fakerGenerator schema', async () => {
         path: '.',
       },
       group: undefined,
+      emptySchemaType: 'unknown',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>
+    const fabric = createReactFabric()
+
     const instance = new SchemaGenerator(options, {
+      fabric,
       oas,
       pluginManager: createMockedPluginManager(props.name),
       plugin,
@@ -108,24 +130,27 @@ describe('fakerGenerator schema', async () => {
       mode: 'split',
       output: './gen',
     })
-    await instance.build(fakerGenerator)
 
     const schemas = getSchemas({ oas })
     const name = props.path
     const schema = schemas[name]!
     const tree = instance.parse({ schemaObject: schema, name })
 
-    const files = await fakerGenerator.schema?.({
-      schema: {
+    await buildSchema(
+      {
         name,
         tree,
         value: schema,
       },
-      options,
-      instance,
-    })
+      {
+        fabric,
+        instance,
+        generator: fakerGenerator,
+        options,
+      },
+    )
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })
 
@@ -201,10 +226,14 @@ describe('fakerGenerator operation', async () => {
         path: '.',
       },
       group: undefined,
+      emptySchemaType: 'unknown',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginFaker>
+    const fabric = createReactFabric()
+
     const instance = new OperationGenerator(options, {
+      fabric,
       oas,
       include: undefined,
       pluginManager: createMockedPluginManager(props.name),
@@ -215,12 +244,14 @@ describe('fakerGenerator operation', async () => {
       exclude: [],
     })
     const operation = oas.operation(props.path, props.method)
-    const files = await fakerGenerator.operation?.({
-      operation,
-      options,
+
+    await buildOperation(operation, {
+      fabric,
       instance,
+      generator: fakerGenerator,
+      options,
     })
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })

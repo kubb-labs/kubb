@@ -1,12 +1,13 @@
 import path from 'node:path'
 
 import { clean } from './clean.ts'
-import { getRelativePath, read } from './read.ts'
+import { read } from './read.ts'
+import { getRelativePath } from './utils.ts'
 import { write } from './write.ts'
 
 describe('read', () => {
   const mocksPath = path.resolve(__dirname, '../../mocks')
-  const filePath = path.resolve(mocksPath, './hellowWorld.js')
+  const filePath = path.resolve(mocksPath, './helloWorld.js')
   const folderPath = path.resolve(mocksPath, './folder')
 
   afterEach(async () => {

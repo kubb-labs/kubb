@@ -1,7 +1,7 @@
-import { File, Function, FunctionParams } from '@kubb/react'
-
 import transformers from '@kubb/core/transformers'
 import type { Schema } from '@kubb/plugin-oas'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import * as parserFaker from '../parser.ts'
 import type { PluginFaker } from '../types.ts'
 
@@ -17,7 +17,7 @@ type Props = {
   canOverride: boolean
 }
 
-export function Faker({ tree, description, name, typeName, seed, regexGenerator, canOverride, mapper, dateParser }: Props) {
+export function Faker({ tree, description, name, typeName, seed, regexGenerator, canOverride, mapper, dateParser }: Props): KubbNode {
   const fakerText = parserFaker.joinItems(
     tree
       .map((schema, _index, siblings) =>
@@ -41,6 +41,10 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
   const isObject = fakerText.startsWith('{')
   const isTuple = fakerText.startsWith('faker.helpers.arrayElement')
 
+  const isSimpleString = name === 'string'
+  const isSimpleInt = name === 'integer'
+  const isSimpleFloat = name === 'float'
+
   let fakerTextWithOverride = fakerText
 
   if (canOverride && isObject) {
@@ -61,13 +65,35 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
     ]`
   }
 
+  if (canOverride && isSimpleString) {
+    fakerTextWithOverride = 'data ?? faker.string.alpha()'
+  }
+
+  if (canOverride && isSimpleInt) {
+    fakerTextWithOverride = 'data ?? faker.number.int()'
+  }
+
+  if (canOverride && isSimpleFloat) {
+    fakerTextWithOverride = 'data ?? faker.number.float()'
+  }
+
+  let type = `Partial<${typeName}>`
+
+  if (isArray) type = typeName
+  else if (isSimpleString) type = name
+  else if (isSimpleInt || isSimpleFloat) type = 'number'
+
   const params = FunctionParams.factory({
     data: {
       // making a partial out of an array does not make sense
-      type: isArray ? typeName : `Partial<${typeName}>`,
+      type,
       optional: true,
     },
   })
+
+  let returnType = canOverride ? typeName : undefined
+
+  if (isSimpleString || isSimpleInt || isSimpleFloat) returnType = type
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -76,7 +102,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
         name={name}
         JSDoc={{ comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean) }}
         params={canOverride ? params.toConstructor() : undefined}
-        returnType={canOverride ? typeName : undefined}
+        returnType={returnType}
       >
         {seed ? `faker.seed(${JSON.stringify(seed)})` : undefined}
         <br />

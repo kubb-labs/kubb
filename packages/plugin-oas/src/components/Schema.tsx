@@ -1,7 +1,6 @@
-import { createContext } from '@kubb/react'
-
 import type { SchemaObject } from '@kubb/oas'
-import type { Key, KubbNode } from '@kubb/react/types'
+import { createContext } from '@kubb/react-fabric'
+import type { Key, KubbNode } from '@kubb/react-fabric/types'
 import type { Schema as SchemaType } from '../SchemaMapper.ts'
 
 export type SchemaContextProps = {
@@ -32,7 +31,7 @@ const SchemaContext = createContext<SchemaContextProps>({
  * @param schemaObject - The schema object to provide in context, if available.
  * @param tree - An array representing the schema type hierarchy.
  */
-export function Schema({ name, schemaObject, tree = [], children }: Props) {
+export function Schema({ name, schemaObject, tree = [], children }: Props): KubbNode {
   return <SchemaContext.Provider value={{ name, schemaObject, tree }}>{children}</SchemaContext.Provider>
 }
 

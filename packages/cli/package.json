@@ -1,13 +1,17 @@
 {
   "name": "@kubb/cli",
-  "version": "3.11.1",
-  "description": "Generator cli",
+  "version": "4.4.1",
+  "description": "Command-line interface for Kubb, enabling easy generation of TypeScript, React-Query, Zod, and other code from OpenAPI specifications.",
   "keywords": [
+    "cli",
+    "command-line",
     "typescript",
-    "plugins",
-    "kubb",
+    "openapi",
+    "swagger",
+    "code-generator",
     "codegen",
-    "cli"
+    "plugins",
+    "kubb"
   ],
   "repository": {
     "type": "git",
@@ -21,13 +25,13 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
-    }
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
   "bin": {
     "kubb": "bin/kubb.cjs"
   },
@@ -38,20 +42,26 @@
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown && size-limit",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint--fix --unsafe .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsup --watch",
+    "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/ui": "workspace:*",
     "chokidar": "^4.0.3",
     "citty": "^0.1.6",
     "cli-progress": "^3.12.0",
@@ -59,24 +69,18 @@
     "cosmiconfig": "^9.0.0",
     "execa": "^9.6.0",
     "gradient-string": "^3.0.0",
-    "jiti": "^2.4.2",
+    "jiti": "^2.6.1",
     "latest-version": "^9.0.0",
-    "open": "^10.1.2",
-    "p-queue": "^8.1.0",
-    "semver": "^7.7.2",
+    "picocolors": "^1.1.1",
+    "semver": "^7.7.3",
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
-    "@kubb/config-tsup": "workspace:*",
     "@kubb/mcp": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
+    "@kubb/oas": "workspace:*",
     "@types/cli-progress": "^3.11.6",
-    "@types/node": "catalog:",
-    "@types/semver": "^7.7.0",
-    "source-map-support": "^0.5.21",
-    "tsup": "catalog:",
-    "typescript": "catalog:"
+    "@types/semver": "^7.7.1",
+    "source-map-support": "^0.5.21"
   },
   "engines": {
     "node": ">=20"

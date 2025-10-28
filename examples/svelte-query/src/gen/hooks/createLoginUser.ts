@@ -14,7 +14,7 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
@@ -28,14 +28,14 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
  * @summary Logs user into the system
  * {@link /user/login}
  */
-export async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...requestConfig })
   return res.data
 }
 
-export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
+export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = loginUserQueryKey(params)
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
@@ -54,18 +54,19 @@ export function createLoginUser<TData = LoginUserQueryResponse, TQueryData = Log
   params?: LoginUserQueryParams,
   options: {
     query?: Partial<CreateBaseQueryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, TData, TQueryData, TQueryKey>> & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
 
   const query = createQuery(
     {
-      ...(loginUserQueryOptions(params, config) as unknown as CreateBaseQueryOptions),
+      ...loginUserQueryOptions(params, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<CreateBaseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<LoginUser400>> & { queryKey: TQueryKey }
 

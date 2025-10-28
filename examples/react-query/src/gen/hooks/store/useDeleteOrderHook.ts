@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../../models/DeleteOrder.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { UseMutationOptions, QueryClient } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
-export const deleteOrderMutationKey = () => [{ url: '/store/order/{orderId}' }] as const
+export const deleteOrderMutationKey = () => [{ url: '/store/order/:orderId' }] as const
 
 export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
 
@@ -20,9 +20,9 @@ export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
  */
 export async function deleteOrderHook(
   { orderId }: { orderId: DeleteOrderPathParams['orderId'] },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
     method: 'DELETE',
@@ -30,6 +30,21 @@ export async function deleteOrderHook(
     ...requestConfig,
   })
   return res.data
+}
+
+export function deleteOrderMutationOptionsHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const mutationKey = deleteOrderMutationKey()
+  return mutationOptions<
+    DeleteOrderMutationResponse,
+    ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
+    { orderId: DeleteOrderPathParams['orderId'] },
+    typeof mutationKey
+  >({
+    mutationKey,
+    mutationFn: async ({ orderId }) => {
+      return deleteOrderHook({ orderId }, config)
+    },
+  })
 }
 
 /**
@@ -45,12 +60,19 @@ export function useDeleteOrderHook<TContext>(
       { orderId: DeleteOrderPathParams['orderId'] },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? deleteOrderMutationKey()
+
+  const baseOptions = deleteOrderMutationOptionsHook(config) as UseMutationOptions<
+    DeleteOrderMutationResponse,
+    ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
+    { orderId: DeleteOrderPathParams['orderId'] },
+    TContext
+  >
 
   return useMutation<
     DeleteOrderMutationResponse,
@@ -59,12 +81,15 @@ export function useDeleteOrderHook<TContext>(
     TContext
   >(
     {
-      mutationFn: async ({ orderId }) => {
-        return deleteOrderHook({ orderId }, config)
-      },
+      ...baseOptions,
       mutationKey,
       ...mutationOptions,
     },
     queryClient,
-  )
+  ) as UseMutationResult<
+    DeleteOrderMutationResponse,
+    ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
+    { orderId: DeleteOrderPathParams['orderId'] },
+    TContext
+  >
 }

@@ -1,15 +1,15 @@
-import type { SchemaNames } from '@kubb/plugin-oas/hooks'
-import { Const, File } from '@kubb/react'
-
 import transformers from '@kubb/core/transformers'
 import type { HttpMethod, Operation } from '@kubb/oas'
+import type { SchemaNames } from '@kubb/plugin-oas/hooks'
+import { Const, File, Type } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 
 type Props = {
   name: string
   operations: Array<{ operation: Operation; data: SchemaNames }>
 }
 
-export function Operations({ name, operations }: Props) {
+export function Operations({ name, operations }: Props): KubbNode {
   const operationsJSON = operations.reduce(
     (prev, acc) => {
       prev[`"${acc.operation.getOperationId()}"`] = acc.data
@@ -33,6 +33,28 @@ export function Operations({ name, operations }: Props) {
 
   return (
     <>
+      <File.Source name="OperationSchema" isExportable isIndexable>
+        <Type name="OperationSchema" export>{`{
+  readonly request: z.ZodTypeAny | undefined;
+  readonly parameters: {
+        readonly path: z.ZodTypeAny | undefined;
+        readonly query: z.ZodTypeAny | undefined;
+        readonly header: z.ZodTypeAny | undefined;
+  };
+  readonly responses: {
+        readonly [status: number]: z.ZodTypeAny;
+        readonly default: z.ZodTypeAny;
+  };
+  readonly errors: {
+        readonly [status: number]: z.ZodTypeAny;
+  };
+}`}</Type>
+      </File.Source>
+      <File.Source name="OperationsMap" isExportable isIndexable>
+        <Type name="OperationsMap" export>
+          {'Record<string, OperationSchema>'}
+        </Type>
+      </File.Source>
       <File.Source name={name} isExportable isIndexable>
         <Const export name={name} asConst>
           {`{${transformers.stringifyObject(operationsJSON)}}`}

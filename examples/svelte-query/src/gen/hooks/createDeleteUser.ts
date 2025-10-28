@@ -14,13 +14,13 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 
-export const deleteUserMutationKey = () => [{ url: '/user/{username}' }] as const
+export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
 
@@ -29,8 +29,8 @@ export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
  * @summary Delete user
  * {@link /user/:username}
  */
-export async function deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
@@ -53,7 +53,7 @@ export function createDeleteUser<TContext>(
       { username: DeleteUserPathParams['username'] },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

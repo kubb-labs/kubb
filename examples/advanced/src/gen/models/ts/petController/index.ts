@@ -10,7 +10,7 @@ export type {
 } from './FindPetsByStatus.ts'
 export type {
   FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParamsXEXAMPLEEnum,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
   FindPetsByTagsHeaderParams,
   FindPetsByTags200,
   FindPetsByTags400,

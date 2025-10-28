@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
@@ -17,13 +17,15 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
  * @summary Add a new pet to the store
  * {@link /pet}
  */
-export async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
+
+  const requestData = data
 
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
     url: '/pet',
-    data,
+    data: requestData,
     ...requestConfig,
   })
   return res.data
@@ -37,7 +39,7 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
 export function useAddPet(
   options: {
     mutation?: Parameters<typeof useSWRMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationKey, AddPetMutationRequest>>[2]
-    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof client }
+    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {

@@ -6,9 +6,9 @@
 import { z } from '../../zod.ts'
 
 export const apiResponseSchema = z.object({
-  code: z.number().int().optional(),
-  type: z.string().optional(),
-  message: z.string().optional(),
+  code: z.optional(z.number().int()),
+  type: z.optional(z.string()),
+  message: z.optional(z.string()),
 })
 
 export type ApiResponseSchema = z.infer<typeof apiResponseSchema>

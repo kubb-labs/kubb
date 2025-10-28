@@ -1,10 +1,9 @@
 import { URLPath } from '@kubb/core/utils'
-import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams, Type } from '@kubb/react'
-
-import { type Operation, isOptional } from '@kubb/oas'
+import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import type { ReactNode } from 'react'
+import { getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, FunctionParams, Type } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginVueQuery, Transformer } from '../types'
 
 type Props = {
@@ -33,20 +32,20 @@ function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps
         override(item) {
           return {
             ...item,
-            type: `MaybeRef<${item.type}>`,
+            type: `MaybeRefOrGetter<${item.type}>`,
           }
         },
       }),
     },
     data: typeSchemas.request?.name
       ? {
-          type: `MaybeRef<${typeSchemas.request?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
           optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
-          type: `MaybeRef<${typeSchemas.queryParams?.name}>`,
+          type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
           optional: isOptional(typeSchemas.queryParams?.schema),
         }
       : undefined,
@@ -67,7 +66,7 @@ const getTransformer: Transformer = ({ operation, schemas, casing }) => {
   return keys
 }
 
-export function QueryKey({ name, typeSchemas, paramsCasing, pathParamsType, operation, typeName, transformer = getTransformer }: Props): ReactNode {
+export function QueryKey({ name, typeSchemas, paramsCasing, pathParamsType, operation, typeName, transformer = getTransformer }: Props): KubbNode {
   const params = getParams({ pathParamsType, typeSchemas, paramsCasing })
   const keys = transformer({
     operation,

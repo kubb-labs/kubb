@@ -3,12 +3,13 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getPlaceOrderUrl() {
-  return '/store/order' as const
+  const res = { method: 'POST', url: '/store/order' as const }
+  return res
 }
 
 /**
@@ -16,16 +17,15 @@ function getPlaceOrderUrl() {
  * @summary Place an order for a pet
  * {@link /store/order}
  */
-export async function placeOrder(
-  data?: PlaceOrderMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof client } = {},
-) {
-  const { client: request = client, ...requestConfig } = config
+export async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
+
+  const requestData = data
 
   const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
     method: 'POST',
-    url: getPlaceOrderUrl().toString(),
-    data,
+    url: getPlaceOrderUrl().url.toString(),
+    data: requestData,
     ...requestConfig,
   })
   return res.data

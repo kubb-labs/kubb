@@ -1,0 +1,14 @@
+[phases.setup]
+nixPkgs = ["git", "nodejs_20", "pnpm"]
+
+[phases.install]
+cmds = [
+  "git init && git remote add origin https://github.com/kubb-labs/kubb.git",
+  "git fetch origin main && git reset --hard origin/main",
+  "pnpm install --no-frozen-lockfile"
+]
+
+[phases.build]
+cmds = [
+  "pnpm build:docs"
+]

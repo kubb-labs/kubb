@@ -1,10 +1,11 @@
-import { createMockedPluginManager, matchFiles } from '@kubb/core/mocks'
-
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { OperationGenerator } from '@kubb/plugin-oas'
+import { buildOperations } from '@kubb/plugin-oas/generators'
+import { createReactFabric } from '@kubb/react-fabric'
 import type { PluginMcp } from '../types.ts'
 import { serverGenerator } from './serverGenerator.tsx'
 
@@ -41,7 +42,9 @@ describe('operationsGenerator operations', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginMcp>
+    const fabric = createReactFabric()
     const instance = new OperationGenerator(options, {
+      fabric,
       oas,
       include: undefined,
       pluginManager: createMockedPluginManager(props.name),
@@ -51,17 +54,19 @@ describe('operationsGenerator operations', async () => {
       mode: 'split',
       exclude: [],
     })
-    await instance.build(serverGenerator)
 
-    const operations = Object.values(instance.operationsByMethod).map((item) => Object.values(item).map((item) => item.operation))
+    const operations = await instance.getOperations()
 
-    const files = await serverGenerator.operations?.({
-      operations: operations.flat().filter(Boolean),
-      operationsByMethod: instance.operationsByMethod,
-      options,
-      instance,
-    })
+    await buildOperations(
+      operations.map((item) => item.operation),
+      {
+        fabric,
+        instance,
+        generator: serverGenerator,
+        options,
+      },
+    )
 
-    await matchFiles(files)
+    await matchFiles(fabric.files)
   })
 })

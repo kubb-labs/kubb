@@ -177,11 +177,64 @@ It will be used as `import { useQuery } from '${hook.importPath}'`.
 It allows both relative and absolute path.
 the path will be applied as is, so relative path should be based on the file being generated.
 
+|           |                        |
+|----------:|:-----------------------|
+|     Type: | `string`               |
+| Required: | `false`                |
+|  Default: | `'@tanstack/solid-query'` |
+
+### mutation
+
+Override some useMutation behaviours. <br/>
+To disable queries pass `false`.
+
+|           |            |
+|----------:|:-----------|
+|     Type: | `Mutation` |
+| Required: | `false`    |
+
+```typescript [Query]
+type Mutation = {
+  methods: Array<HttpMethod>
+  importPath?: string
+} | false
+```
+
+#### mutationKey
+
+Customize the mutationKey.
+
+::: warning
+When using a string you need to use `JSON.stringify`.
+:::
+
+|           |                                                                             |
+|----------:|:----------------------------------------------------------------------------|
+|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
+| Required: | `false`                                                                     |
+
+#### mutation.methods
+
+Define which HttpMethods can be used for mutations
+
+|           |                     |
+|----------:|:--------------------|
+|     Type: | `Array<HttpMethod>` |
+| Required: | `['get']`           |
+
+
+#### mutation.importPath
+
+Path to the useQuery that will be used to do the useQuery functionality.
+It will be used as `import { useMutation } from '${hook.importPath}'`.
+It allows both relative and absolute path.
+the path will be applied as is, so relative path should be based on the file being generated.
+
 |           |                           |
 |----------:|:--------------------------|
 |     Type: | `string`                  |
 | Required: | `false`                   |
-|  Default: | `'@tanstack/react-query'` |
+|  Default: | `'@tanstack/solid-query'` |
 
 ### include
 <!--@include: ../core/include.md-->

@@ -1,4 +1,4 @@
-export type { AddPetRequestStatusEnumType, AddPetRequestType } from './AddPetRequestType.ts'
+export type { AddPetRequestStatusEnumTypeKey, AddPetRequestType } from './AddPetRequestType.ts'
 export type { AddPet200Type, AddPet405Type, AddPetMutationRequestType, AddPetMutationResponseType, AddPetTypeMutation } from './AddPetType.ts'
 export type { AddressType } from './AddressType.ts'
 export type { ApiResponseType } from './ApiResponseType.ts'
@@ -6,7 +6,7 @@ export type { CategoryType } from './CategoryType.ts'
 export type {
   CreatePetsPathParamsType,
   CreatePetsQueryParamsType,
-  CreatePetsHeaderParamsXEXAMPLEEnumType,
+  CreatePetsHeaderParamsXEXAMPLEEnumTypeKey,
   CreatePetsHeaderParamsType,
   CreatePets201Type,
   CreatePetsErrorType,
@@ -45,7 +45,7 @@ export type {
   DeleteUserTypeMutation,
 } from './DeleteUserType.ts'
 export type {
-  FindPetsByStatusQueryParamsStatusEnumType,
+  FindPetsByStatusQueryParamsStatusEnumTypeKey,
   FindPetsByStatusQueryParamsType,
   FindPetsByStatus200Type,
   FindPetsByStatus400Type,
@@ -54,7 +54,7 @@ export type {
 } from './FindPetsByStatusType.ts'
 export type {
   FindPetsByTagsQueryParamsType,
-  FindPetsByTagsHeaderParamsXEXAMPLEEnumType,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumTypeKey,
   FindPetsByTagsHeaderParamsType,
   FindPetsByTags200Type,
   FindPetsByTags400Type,
@@ -88,9 +88,9 @@ export type {
 } from './GetUserByNameType.ts'
 export type { LoginUserQueryParamsType, LoginUser200Type, LoginUser400Type, LoginUserQueryResponseType, LoginUserTypeQuery } from './LoginUserType.ts'
 export type { LogoutUserErrorType, LogoutUserQueryResponseType, LogoutUserTypeQuery } from './LogoutUserType.ts'
-export type { OrderStatusEnumType, OrderHttpStatusEnumType, OrderValueEnumType, OrderType } from './OrderType.ts'
+export type { OrderStatusEnumTypeKey, OrderHttpStatusEnumTypeKey, OrderValueEnumTypeKey, OrderType } from './OrderType.ts'
 export type { PetNotFoundType } from './PetNotFoundType.ts'
-export type { PetStatusEnumType, PetType } from './PetType.ts'
+export type { PetStatusEnumTypeKey, PetType } from './PetType.ts'
 export type {
   PlaceOrderPatch200Type,
   PlaceOrderPatch405Type,

@@ -1,3 +1,4 @@
+import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
@@ -5,21 +6,19 @@ import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
 import { difference } from 'remeda'
-import { MutationKey } from '../components'
-import { Mutation } from '../components'
+import { Mutation, MutationKey } from '../components'
 import type { PluginSwr } from '../types'
 
 export const mutationGenerator = createReactGenerator<PluginSwr>({
   name: 'swr-mutation',
   Operation({ options, operation }) {
     const {
-      plugin: {
-        options: { output },
-      },
-      pluginManager,
-    } = useApp<PluginSwr>()
+      options: { output },
+    } = usePlugin<PluginSwr>()
+    const pluginManager = usePluginManager()
+
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 
@@ -82,7 +81,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
         )}
         <File.Import name="useSWRMutation" path={importPath} />
         <File.Import name={['SWRMutationResponse']} path={importPath} isTypeOnly />
-        {<File.Import name={'client'} path={options.client.importPath} />}
+        {<File.Import name={'fetch'} path={options.client.importPath} />}
         {!!hasClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
         <File.Import name={['RequestConfig', 'ResponseConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import

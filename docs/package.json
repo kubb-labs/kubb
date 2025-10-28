@@ -21,12 +21,13 @@
     "serve": "vitepress serve"
   },
   "dependencies": {
-    "@shikijs/vitepress-twoslash": "^3.7.0",
-    "mermaid": "^11.7.0",
-    "sitemap": "^8.0.0",
-    "vitepress": "^2.0.0-alpha.7",
-    "vitepress-plugin-group-icons": "^1.6.0",
-    "vue": "^3.5.17"
+    "@shikijs/vitepress-twoslash": "^3.14.0",
+    "mermaid": "^11.12.1",
+    "sitemap": "^8.0.1",
+    "vitepress": "2.0.0-alpha.12",
+    "vitepress-plugin-group-icons": "^1.6.5",
+    "vitepress-plugin-llms": "^1.8.1",
+    "vue": "^3.5.22"
   },
   "devDependencies": {
     "@kubb/cli": "workspace:*",
@@ -43,18 +44,21 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-vue-query": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@kubb/react": "workspace:*",
-    "@mermaid-js/mermaid-cli": "^11.6.0",
+    "@kubb/react-fabric": "catalog:",
+    "@mermaid-js/mermaid-cli": "^11.12.0",
+    "@nolebase/vitepress-plugin-enhanced-readabilities": "^2.18.2",
+    "@nolebase/vitepress-plugin-highlight-targeted-heading": "^2.18.2",
+    "@nolebase/vitepress-plugin-og-image": "^2.18.2",
     "@types/node": "catalog:",
-    "@types/react": "catalog:",
+    "@types/react": "^19.2.2",
     "cross-env": "^7.0.3",
-    "react": "catalog:",
+    "react": "^19.2.0",
     "unplugin-kubb": "workspace:^",
-    "vite": "^6.3.5"
+    "vite": "^7.1.12"
   },
-  "packageManager": "pnpm@10.4.1",
+  "packageManager": "pnpm@10.18.3",
   "engines": {
     "node": ">=20",
-    "pnpm": ">=8.15.0"
+    "pnpm": ">=10.0.0"
   }
 }

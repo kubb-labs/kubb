@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../../models/GetOrderById.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
@@ -21,9 +21,9 @@ export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspens
  */
 export async function getOrderByIdSuspenseHook(
   { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
     method: 'GET',
@@ -35,7 +35,7 @@ export async function getOrderByIdSuspenseHook(
 
 export function getOrderByIdSuspenseQueryOptionsHook(
   { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = getOrderByIdSuspenseQueryKey({ orderId })
   return queryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, GetOrderByIdQueryResponse, typeof queryKey>({
@@ -59,18 +59,19 @@ export function useGetOrderByIdSuspenseHook<TData = GetOrderByIdQueryResponse, T
     query?: Partial<UseSuspenseQueryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof client }
+    client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
-  const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getOrderByIdSuspenseQueryKey({ orderId })
 
   const query = useSuspenseQuery(
     {
-      ...(getOrderByIdSuspenseQueryOptionsHook({ orderId }, config) as unknown as UseSuspenseQueryOptions),
+      ...getOrderByIdSuspenseQueryOptionsHook({ orderId }, config),
       queryKey,
-      ...(queryOptions as unknown as Omit<UseSuspenseQueryOptions, 'queryKey'>),
-    },
+      ...queryOptions,
+    } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetOrderById400 | GetOrderById404>> & { queryKey: TQueryKey }
 

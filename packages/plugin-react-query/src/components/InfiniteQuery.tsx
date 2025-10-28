@@ -1,9 +1,9 @@
 import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react'
-import type { ReactNode } from 'react'
-import type { PluginReactQuery } from '../types.ts'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
+import type { Infinite, PluginReactQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
 
@@ -21,20 +21,19 @@ type Props = {
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
+  initialPageParam: Infinite['initialPageParam']
+  queryParam?: Infinite['queryParam']
 }
 
 type GetParamsProps = {
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
-  dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
   typeSchemas: OperationSchemas
+  pageParamGeneric: string
 }
 
-function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
-  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
-
+function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, pageParamGeneric }: GetParamsProps) {
   if (paramsType === 'object') {
     return FunctionParams.factory({
       data: {
@@ -67,8 +66,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       options: {
         type: `
 {
-  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
+  query?: Partial<InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, ${pageParamGeneric}>> & { client?: QueryClient },
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
         default: '{}',
@@ -108,8 +107,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
     options: {
       type: `
 {
-  query?: Partial<InfiniteQueryObserverOptions<${[TData, TError, 'TData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'}
+  query?: Partial<InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, ${pageParamGeneric}>> & { client?: QueryClient },
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
       default: '{}',
@@ -128,11 +127,35 @@ export function InfiniteQuery({
   dataReturnType,
   typeSchemas,
   operation,
-}: Props): ReactNode {
-  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
-  const returnType = `UseInfiniteQueryResult<${['TData', TError].join(', ')}> & { queryKey: TQueryKey }`
-  const generics = [`TData = InfiniteData<${TData}>`, `TQueryData = ${TData}`, `TQueryKey extends QueryKey = ${queryKeyTypeName}`]
+  initialPageParam,
+  queryParam,
+}: Props): KubbNode {
+  const responseType = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const errorType = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const isInitialPageParamDefined = initialPageParam !== undefined && initialPageParam !== null
+  const fallbackPageParamType =
+    typeof initialPageParam === 'number'
+      ? 'number'
+      : typeof initialPageParam === 'string'
+        ? initialPageParam.includes(' as ')
+          ? (() => {
+              const parts = initialPageParam.split(' as ')
+              return parts[parts.length - 1] ?? 'unknown'
+            })()
+          : 'string'
+        : typeof initialPageParam === 'boolean'
+          ? 'boolean'
+          : 'unknown'
+  const queryParamType = queryParam && typeSchemas.queryParams?.name ? `${typeSchemas.queryParams?.name}['${queryParam}']` : undefined
+  const pageParamType = queryParamType ? (isInitialPageParamDefined ? `NonNullable<${queryParamType}>` : queryParamType) : fallbackPageParamType
+  const returnType = 'UseInfiniteQueryResult<TData, TError> & { queryKey: TQueryKey }'
+  const generics = [
+    `TQueryFnData = ${responseType}`,
+    `TError = ${errorType}`,
+    'TData = InfiniteData<TQueryFnData>',
+    `TQueryKey extends QueryKey = ${queryKeyTypeName}`,
+    `TPageParam = ${pageParamType}`,
+  ]
 
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,
@@ -149,11 +172,11 @@ export function InfiniteQuery({
     paramsCasing,
     paramsType,
     pathParamsType,
-    dataReturnType,
     typeSchemas,
+    pageParamGeneric: 'TPageParam',
   })
 
-  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()}) as unknown as InfiniteQueryObserverOptions`
+  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()})`
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -167,14 +190,15 @@ export function InfiniteQuery({
         }}
       >
         {`
-       const { query: { client: queryClient, ...queryOptions } = {}, client: config = {} } = options ?? {}
+       const { query: queryConfig = {}, client: config = {} } = options ?? {}
+       const { client: queryClient, ...queryOptions } = queryConfig
        const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
 
        const query = useInfiniteQuery({
         ...${queryOptions},
         queryKey,
-        ...queryOptions as unknown as Omit<InfiniteQueryObserverOptions, "queryKey">
-       }, queryClient) as ${returnType}
+        ...queryOptions
+       } as unknown as InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>, queryClient) as ${returnType}
 
        query.queryKey = queryKey as TQueryKey
 

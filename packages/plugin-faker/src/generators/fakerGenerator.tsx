@@ -1,18 +1,22 @@
+import { useMode, usePlugin, usePluginManager } from '@kubb/core/hooks'
 import { createReactGenerator, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Oas } from '@kubb/plugin-oas/components'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
 import { Faker } from '../components'
 import type { PluginFaker } from '../types'
 
 export const fakerGenerator = createReactGenerator<PluginFaker>({
   name: 'faker',
-  Operation({ operation, options }) {
+  Operation({ operation, options, instance }) {
     const { dateParser, regexGenerator, seed, mapper } = options
 
-    const { plugin, pluginManager, mode } = useApp<PluginFaker>()
+    const plugin = usePlugin<PluginFaker>()
+    const mode = useMode()
+    const pluginManager = usePluginManager()
+
     const oas = useOas()
     const { getSchemas, getFile, getGroup } = useOperationManager()
     const schemaManager = useSchemaManager()
@@ -20,6 +24,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     const file = getFile(operation)
     const schemas = getSchemas(operation)
     const schemaGenerator = new SchemaGenerator(options, {
+      fabric: instance.context.fabric,
       oas,
       plugin,
       pluginManager,
@@ -96,11 +101,9 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
 
     const { getName, getFile, getImports } = useSchemaManager()
     const {
-      pluginManager,
-      plugin: {
-        options: { output },
-      },
-    } = useApp<PluginFaker>()
+      options: { output },
+    } = usePlugin<PluginFaker>()
+    const pluginManager = usePluginManager()
     const oas = useOas()
     const imports = getImports(schema.tree)
 
@@ -120,7 +123,10 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         keyword === schemaKeywords.and ||
         keyword === schemaKeywords.object ||
         keyword === schemaKeywords.union ||
-        keyword === schemaKeywords.tuple,
+        keyword === schemaKeywords.tuple ||
+        keyword === schemaKeywords.string ||
+        keyword === schemaKeywords.integer ||
+        keyword === schemaKeywords.number,
     )
 
     return (

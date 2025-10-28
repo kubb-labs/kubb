@@ -1,16 +1,16 @@
 export type { AddFiles200, AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse, AddFilesMutation } from './AddFiles.ts'
 export type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse, AddPetMutation } from './AddPet.ts'
-export type { AddPetRequestStatusEnum, AddPetRequest } from './AddPetRequest.ts'
+export type { AddPetRequestStatusEnumKey, AddPetRequest } from './AddPetRequest.ts'
 export type { Address } from './Address.ts'
 export type { Animal } from './Animal.ts'
 export type { ApiResponse } from './ApiResponse.ts'
-export type { CatTypeEnum, Cat } from './Cat.ts'
+export type { CatTypeEnumKey, Cat } from './Cat.ts'
 export type { Category } from './Category.ts'
 export type {
   CreatePetsPathParams,
-  CreatePetsQueryParamsBoolParamEnum,
+  CreatePetsQueryParamsBoolParamEnumKey,
   CreatePetsQueryParams,
-  CreatePetsHeaderParamsXEXAMPLEEnum,
+  CreatePetsHeaderParamsXEXAMPLEEnumKey,
   CreatePetsHeaderParams,
   CreatePets201,
   CreatePetsError,
@@ -30,7 +30,7 @@ export type { Customer } from './Customer.ts'
 export type { DeleteOrderPathParams, DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderMutation } from './DeleteOrder.ts'
 export type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse, DeletePetMutation } from './DeletePet.ts'
 export type { DeleteUserPathParams, DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserMutation } from './DeleteUser.ts'
-export type { DogTypeEnum, Dog } from './Dog.ts'
+export type { DogTypeEnumKey, Dog } from './Dog.ts'
 export type {
   FindPetsByStatusPathParams,
   FindPetsByStatus200,
@@ -40,7 +40,7 @@ export type {
 } from './FindPetsByStatus.ts'
 export type {
   FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParamsXEXAMPLEEnum,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
   FindPetsByTagsHeaderParams,
   FindPetsByTags200,
   FindPetsByTags400,
@@ -60,8 +60,8 @@ export type {
 } from './GetUserByName.ts'
 export type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse, LoginUserQuery } from './LoginUser.ts'
 export type { LogoutUserError, LogoutUserQueryResponse, LogoutUserQuery } from './LogoutUser.ts'
-export type { OrderOrderTypeEnum, OrderStatusEnum, OrderHttpStatusEnum, Order } from './Order.ts'
-export type { PetStatusEnum, Pet } from './Pet.ts'
+export type { OrderOrderTypeEnumKey, OrderStatusEnumKey, OrderHttpStatusEnumKey, Order } from './Order.ts'
+export type { PetStatusEnumKey, Pet } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'
 export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrderMutation } from './PlaceOrder.ts'
 export type {

@@ -1,13 +1,11 @@
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import { type Operation, isOptional } from '@kubb/oas'
-import { Client } from '@kubb/plugin-client/components'
+import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import type { Params } from '@kubb/react/types'
-import type { ReactNode } from 'react'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginReactQuery } from '../types.ts'
 import { MutationKey } from './MutationKey.tsx'
+import { MutationOptions } from './MutationOptions.tsx'
 
 type Props = {
   /**
@@ -15,13 +13,12 @@ type Props = {
    */
   name: string
   typeName: string
-  clientName: string
+  mutationOptionsName: string
   mutationKeyName: string
   typeSchemas: OperationSchemas
   operation: Operation
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
   paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
-  paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
 }
 
@@ -64,7 +61,7 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
       type: `
 {
   mutation?: UseMutationOptions<${generics}> & { client?: QueryClient },
-  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }` : 'Partial<RequestConfig> & { client?: typeof client }'},
+  client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'},
 }
 `,
       default: '{}',
@@ -74,15 +71,14 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
 
 export function Mutation({
   name,
-  clientName,
+  mutationOptionsName,
   paramsCasing,
-  paramsType,
   pathParamsType,
   dataReturnType,
   typeSchemas,
   operation,
   mutationKeyName,
-}: Props): ReactNode {
+}: Props): KubbNode {
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,
     typeSchemas,
@@ -93,14 +89,6 @@ export function Mutation({
     pathParamsType,
     dataReturnType,
     typeSchemas,
-  })
-
-  const clientParams = Client.getParams({
-    paramsCasing,
-    paramsType,
-    typeSchemas,
-    pathParamsType,
-    isConfigurable: true,
   })
 
   const mutationParams = FunctionParams.factory({
@@ -125,28 +113,15 @@ export function Mutation({
       : undefined,
   })
 
-  const dataParams = FunctionParams.factory({
-    data: {
-      // No use of pathParams because useMutation can only take one argument in object form,
-      // see https://tanstack.com/query/latest/docs/framework/react/reference/useMutation#usemutation
-      mode: 'object',
-      children: Object.entries(mutationParams.params).reduce((acc, [key, value]) => {
-        if (value) {
-          acc[key] = {
-            ...value,
-            type: undefined,
-          }
-        }
-
-        return acc
-      }, {} as Params),
-    },
-  })
+  const mutationOptionsParams = MutationOptions.getParams({ typeSchemas })
 
   const TRequest = mutationParams.toConstructor()
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
   const generics = [TData, TError, TRequest ? `{${TRequest}}` : 'void', 'TContext'].join(', ')
+  const returnType = `UseMutationResult<${generics}>`
+
+  const mutationOptions = `${mutationOptionsName}(${mutationOptionsParams.toCall()})`
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -164,13 +139,13 @@ export function Mutation({
         const { client: queryClient, ...mutationOptions } = mutation;
         const mutationKey = mutationOptions.mutationKey ?? ${mutationKeyName}(${mutationKeyParams.toCall()})
 
+        const baseOptions = ${mutationOptions} as UseMutationOptions<${generics}>
+
         return useMutation<${generics}>({
-          mutationFn: async(${dataParams.toConstructor()}) => {
-            return ${clientName}(${clientParams.toCall()})
-          },
+          ...baseOptions,
           mutationKey,
-          ...mutationOptions
-        }, queryClient)
+          ...mutationOptions,
+        }, queryClient) as ${returnType}
     `}
       </Function>
     </File.Source>

@@ -6,16 +6,14 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/examples/fetch"
+    "directory": "examples/fetch"
   },
   "license": "MIT",
   "author": "stijnvanhulle",
   "sideEffects": false,
   "scripts": {
-    "build": "tsup",
     "clean": "npx rimraf ./dist",
     "generate": "kubb generate --config kubb.config.ts",
-    "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -27,14 +25,12 @@
     "@kubb/plugin-ts": "workspace:*"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
     "react": "^18.3.1",
-    "tsup": "^8.5.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.3"
   },
-  "packageManager": "pnpm@9.15.5",
+  "packageManager": "pnpm@10.18.3",
   "engines": {
     "node": ">=20",
-    "pnpm": ">=8.15.0"
+    "pnpm": ">=10.0.0"
   }
 }

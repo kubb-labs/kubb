@@ -1,14 +1,17 @@
 {
   "name": "@kubb/plugin-ts",
-  "version": "3.11.1",
-  "description": "Generator plugin-ts",
+  "version": "4.4.1",
+  "description": "TypeScript code generation plugin for Kubb, transforming OpenAPI schemas into TypeScript interfaces, types, and utility functions.",
   "keywords": [
-    "zod",
-    "plugins",
-    "kubb",
-    "codegen",
+    "typescript",
+    "types",
+    "interfaces",
+    "openapi",
     "swagger",
-    "openapi"
+    "code-generator",
+    "codegen",
+    "plugins",
+    "kubb"
   ],
   "repository": {
     "type": "git",
@@ -22,25 +25,21 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
-    },
-    "./generators": {
-      "import": "./dist/generators.js",
-      "require": "./dist/generators.cjs",
-      "default": "./dist/generators.cjs"
+      "require": "./dist/index.cjs"
     },
     "./components": {
       "import": "./dist/components.js",
-      "require": "./dist/components.cjs",
-      "default": "./dist/components.cjs"
+      "require": "./dist/components.cjs"
     },
-    "./package.json": "./package.json",
-    "./*": "./*"
+    "./generators": {
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs"
+    },
+    "./package.json": "./package.json"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
   "typesVersions": {
     "*": {
       "components": [
@@ -57,35 +56,38 @@
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown && size-limit",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint--fix --unsafe .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsup --watch",
+    "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "@kubb/fabric-core": "catalog:",
     "@kubb/oas": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
-    "@kubb/react": "workspace:*"
+    "@kubb/react-fabric": "catalog:",
+    "remeda": "catalog:",
+    "typescript": "5.9.3"
   },
   "devDependencies": {
-    "@kubb/config-ts": "workspace:*",
-    "@kubb/config-tsup": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
-    "@types/react": "catalog:",
-    "react": "catalog:",
-    "tsup": "catalog:",
-    "typescript": "catalog:"
+    "@kubb/plugin-oas": "workspace:*"
   },
   "peerDependencies": {
-    "@kubb/react": "^3.0.0"
+    "@kubb/react-fabric": "catalog:"
   },
   "engines": {
     "node": ">=20"

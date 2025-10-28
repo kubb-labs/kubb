@@ -1,9 +1,8 @@
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import { type HttpMethod, isOptional } from '@kubb/oas'
-import type { ReactNode } from 'react'
 import { URLPath } from '@kubb/core/utils'
+import { type HttpMethod, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginCypress } from '../types.ts'
 
 type Props = {
@@ -18,7 +17,7 @@ type Props = {
   method: HttpMethod
 }
 
-export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, method }: Props): ReactNode {
+export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, method }: Props): KubbNode {
   const params = FunctionParams.factory({
     data: typeSchemas.request?.name
       ? {
@@ -37,7 +36,7 @@ export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, 
     <File.Source name={name} isIndexable isExportable>
       <Function name={name} export params={params.toConstructor()} returnType={returnType}>
         {dataReturnType === 'data' &&
-          `return cy.request('${method}', '${new URLPath(`${baseURL ?? ''}${url}`).toURLPath()}', ${body}).then((res: Cypress.Response<${typeSchemas.response.name}>) => res.body)`}
+          `return cy.request('${method}', '${baseURL ?? ''}${new URLPath(url).toURLPath().replace(/([^/]):/g, '$1\\\\:')}', ${body}).then((res: Cypress.Response<${typeSchemas.response.name}>) => res.body)`}
         {dataReturnType === 'full' && `return cy.request('${method}', '${new URLPath(`${baseURL ?? ''}${url}`).toURLPath()}', ${body})`}
       </Function>
     </File.Source>

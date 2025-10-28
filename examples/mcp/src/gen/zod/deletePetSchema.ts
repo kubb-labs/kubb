@@ -11,7 +11,7 @@ export const deletePetPathParamsSchema = z.object({
 
 export const deletePetHeaderParamsSchema = z
   .object({
-    api_key: z.string().optional(),
+    api_key: z.optional(z.string()),
   })
   .optional()
 

@@ -1,17 +1,16 @@
+import { usePlugin } from '@kubb/core/hooks'
+import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File, useApp } from '@kubb/react'
+import { File } from '@kubb/react-fabric'
 import type { PluginMcp } from '../types'
-import { Client } from '@kubb/plugin-client/components'
 
 export const mcpGenerator = createReactGenerator<PluginMcp>({
   name: 'mcp',
   Operation({ operation }) {
-    const {
-      plugin: { options },
-    } = useApp<PluginMcp>()
+    const { options } = usePlugin<PluginMcp>()
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager()
 
@@ -34,7 +33,7 @@ export const mcpGenerator = createReactGenerator<PluginMcp>({
         footer={getFooter({ oas, output: options.output })}
       >
         <File.Import name={['CallToolResult']} path={'@modelcontextprotocol/sdk/types'} isTypeOnly />
-        <File.Import name={'client'} path={options.client.importPath} />
+        <File.Import name={'fetch'} path={options.client.importPath} />
         <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
           name={[

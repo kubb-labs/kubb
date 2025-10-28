@@ -4,7 +4,7 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -14,7 +14,8 @@ import type {
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) {
-  return `/pet/${petId}` as const
+  const res = { method: 'POST', url: `/pet/${petId}` as const }
+  return res
 }
 
 /**
@@ -24,13 +25,13 @@ function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams
 export async function updatePetWithForm(
   { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof client } = {},
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const { client: request = client, ...requestConfig } = config
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
-    url: getUpdatePetWithFormUrl({ petId }).toString(),
+    url: getUpdatePetWithFormUrl({ petId }).url.toString(),
     params,
     ...requestConfig,
   })

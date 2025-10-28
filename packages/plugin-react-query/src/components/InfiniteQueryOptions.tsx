@@ -1,11 +1,9 @@
-import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react'
-
-import type { ReactNode } from 'react'
-
 import { isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
+import { getPathParams } from '@kubb/plugin-oas/utils'
+import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { Infinite, PluginReactQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 
@@ -36,7 +34,10 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       data: {
         mode: 'object',
         children: {
-          ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+          ...getPathParams(typeSchemas.pathParams, {
+            typed: true,
+            casing: paramsCasing,
+          }),
           data: typeSchemas.request?.name
             ? {
                 type: typeSchemas.request?.name,
@@ -59,8 +60,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       },
       config: {
         type: typeSchemas.request?.name
-          ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
-          : 'Partial<RequestConfig> & { client?: typeof client }',
+          ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
+          : 'Partial<RequestConfig> & { client?: typeof fetch }',
         default: '{}',
       },
     })
@@ -70,7 +71,10 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+          children: getPathParams(typeSchemas.pathParams, {
+            typed: true,
+            casing: paramsCasing,
+          }),
           optional: isOptional(typeSchemas.pathParams?.schema),
         }
       : undefined,
@@ -94,8 +98,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       : undefined,
     config: {
       type: typeSchemas.request?.name
-        ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof client }`
-        : 'Partial<RequestConfig> & { client?: typeof client }',
+        ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
+        : 'Partial<RequestConfig> & { client?: typeof fetch }',
       default: '{}',
     },
   })
@@ -113,11 +117,32 @@ export function InfiniteQueryOptions({
   pathParamsType,
   queryParam,
   queryKeyName,
-}: Props): ReactNode {
-  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+}: Props): KubbNode {
+  const queryFnDataType = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
+  const errorType = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const isInitialPageParamDefined = initialPageParam !== undefined && initialPageParam !== null
+  const fallbackPageParamType =
+    typeof initialPageParam === 'number'
+      ? 'number'
+      : typeof initialPageParam === 'string'
+        ? initialPageParam.includes(' as ')
+          ? (() => {
+              const parts = initialPageParam.split(' as ')
+              return parts[parts.length - 1] ?? 'unknown'
+            })()
+          : 'string'
+        : typeof initialPageParam === 'boolean'
+          ? 'boolean'
+          : 'unknown'
+  const queryParamType = queryParam && typeSchemas.queryParams?.name ? `${typeSchemas.queryParams?.name}['${queryParam}']` : undefined
+  const pageParamType = queryParamType ? (isInitialPageParamDefined ? `NonNullable<${queryParamType}>` : queryParamType) : fallbackPageParamType
 
-  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
+  const params = getParams({
+    paramsType,
+    paramsCasing,
+    pathParamsType,
+    typeSchemas,
+  })
   const clientParams = Client.getParams({
     paramsCasing,
     typeSchemas,
@@ -147,9 +172,10 @@ export function InfiniteQueryOptions({
   const infiniteOverrideParams =
     queryParam && typeSchemas.queryParams?.name
       ? `
-          if(params) {
-           params['${queryParam}'] = pageParam as unknown as ${typeSchemas.queryParams?.name}['${queryParam}']
-          }`
+          params = {
+            ...(params ?? {}),
+            ['${queryParam}']: pageParam as unknown as ${typeSchemas.queryParams?.name}['${queryParam}'],
+          } as ${typeSchemas.queryParams?.name}`
       : ''
 
   const enabled = Object.entries(queryKeyParams.flatParams)
@@ -165,7 +191,7 @@ export function InfiniteQueryOptions({
         <Function name={name} export params={params.toConstructor()}>
           {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return infiniteQueryOptions<${TData}, ${TError}, ${TData}, typeof queryKey, number>({
+      return infiniteQueryOptions<${queryFnDataType}, ${errorType}, InfiniteData<${queryFnDataType}>, typeof queryKey, ${pageParamType}>({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal, pageParam }) => {
@@ -186,7 +212,7 @@ export function InfiniteQueryOptions({
       <Function name={name} export params={params.toConstructor()}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
-      return infiniteQueryOptions<${TData}, ${TError}, ${TData}, typeof queryKey>({
+      return infiniteQueryOptions<${queryFnDataType}, ${errorType}, InfiniteData<${queryFnDataType}>, typeof queryKey, ${pageParamType}>({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {

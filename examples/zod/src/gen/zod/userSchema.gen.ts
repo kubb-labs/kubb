@@ -6,14 +6,14 @@
 import { z } from '../../zod.ts'
 
 export const userSchema = z.object({
-  id: z.number().int().optional(),
-  username: z.string().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  email: z.string().optional(),
-  password: z.string().optional(),
-  phone: z.string().optional(),
-  userStatus: z.number().int().describe('User Status').optional(),
+  id: z.optional(z.number().int()),
+  username: z.optional(z.string()),
+  firstName: z.optional(z.string()),
+  lastName: z.optional(z.string()),
+  email: z.optional(z.string()),
+  password: z.optional(z.string()),
+  phone: z.optional(z.string()),
+  userStatus: z.optional(z.number().int().describe('User Status')),
 })
 
 export type UserSchema = z.infer<typeof userSchema>

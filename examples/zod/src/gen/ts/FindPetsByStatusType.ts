@@ -11,7 +11,7 @@ export const findPetsByStatusQueryParamsStatusEnum = {
   sold: 'sold',
 } as const
 
-export type FindPetsByStatusQueryParamsStatusEnumType = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
+export type FindPetsByStatusQueryParamsStatusEnumTypeKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
 
 export type FindPetsByStatusQueryParamsType = {
   /**
@@ -19,7 +19,7 @@ export type FindPetsByStatusQueryParamsType = {
    * @default "available"
    * @type string | undefined
    */
-  status?: FindPetsByStatusQueryParamsStatusEnumType
+  status?: FindPetsByStatusQueryParamsStatusEnumTypeKey
 }
 
 /**

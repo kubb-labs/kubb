@@ -4,12 +4,13 @@
  * Do not edit manually.
  */
 
-import client from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
-  return `/pet/${petId}` as const
+  const res = { method: 'GET', url: `/pet/${petId}` as const }
+  return res
 }
 
 /**
@@ -17,12 +18,12 @@ function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
  * @summary Find pet by ID
  * {@link /pet/:petId}
  */
-export async function getPetById({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: typeof client } = {}) {
-  const { client: request = client, ...requestConfig } = config
+export async function getPetById({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
     method: 'GET',
-    url: getGetPetByIdUrl({ petId }).toString(),
+    url: getGetPetByIdUrl({ petId }).url.toString(),
     ...requestConfig,
   })
   return res.data

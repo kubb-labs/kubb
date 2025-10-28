@@ -1,8 +1,8 @@
 import transformers from '@kubb/core/transformers'
-import * as factory from '@kubb/parser-ts/factory'
 import type { SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 import { isKeyword, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
 import type ts from 'typescript'
+import * as factory from './factory.ts'
 
 export const typeKeywordMapper = {
   any: () => factory.keywordTypeNodes.any,
@@ -71,7 +71,7 @@ export const typeKeywordMapper = {
     })
   },
   const: (name?: string | number | boolean, format?: 'string' | 'number' | 'boolean') => {
-    if (!name) {
+    if (name === null || name === undefined || name === '') {
       return undefined
     }
 
@@ -133,7 +133,9 @@ export const typeKeywordMapper = {
   catchall: undefined,
   name: undefined,
   interface: undefined,
-} satisfies SchemaMapper<ts.Node | null | undefined>
+  exclusiveMaximum: undefined,
+  exclusiveMinimum: undefined,
+} satisfies SchemaMapper<ts.TypeNode | null | undefined>
 
 type ParserOptions = {
   name: string
@@ -190,7 +192,8 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
   }
 
   if (isKeyword(current, schemaKeywords.enum)) {
-    return typeKeywordMapper.enum(current.args.typeName)
+    // Adding suffix to enum (see https://github.com/kubb-labs/kubb/issues/1873)
+    return typeKeywordMapper.enum(options.enumType === 'asConst' ? `${current.args.typeName}Key` : current.args.typeName)
   }
 
   if (isKeyword(current, schemaKeywords.ref)) {
@@ -274,7 +277,7 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
           }) as ts.TypeNode
         }
 
-        const propertySignature = factory.createPropertySignature({
+        const propertyNode = factory.createPropertySignature({
           questionToken: isOptional || isNullish ? ['questionToken', 'questionTokenAndUndefined'].includes(options.optionalType as string) : false,
           name: mappedName,
           type,
@@ -282,7 +285,7 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
         })
 
         return factory.appendJSDocToNode({
-          node: propertySignature,
+          node: propertyNode,
           comments: [
             describeSchema ? `@description ${transformers.jsStringEscape(describeSchema.args)}` : undefined,
             deprecatedSchema ? '@deprecated' : undefined,
