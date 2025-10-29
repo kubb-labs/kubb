@@ -424,7 +424,7 @@ describe('typeGenerator schema', async () => {
     const plugin = { options } as Plugin<PluginTs>
     const fabric = createReactFabric()
 
-    const instance = new SchemaGenerator(options, {
+    const generator = new SchemaGenerator(options, {
       fabric,
       oas,
       pluginManager: createMockedPluginManager(props.name),
@@ -439,7 +439,7 @@ describe('typeGenerator schema', async () => {
     const schemas = getSchemas({ oas })
     const name = props.path
     const schema = schemas[name]!
-    const tree = instance.parse({ schemaObject: schema, name })
+    const tree = generator.parse({ schemaObject: schema, name })
 
     await buildSchema(
       {
@@ -449,9 +449,9 @@ describe('typeGenerator schema', async () => {
       },
       {
         fabric,
-        instance,
-        generator: typeGenerator,
-        options,
+        generator,
+        Component: typeGenerator.Schema,
+        plugin,
       },
     )
 
@@ -556,7 +556,7 @@ describe('typeGenerator operation', async () => {
     }
     const plugin = { options } as Plugin<PluginTs>
     const fabric = createReactFabric()
-    const instance = new OperationGenerator(options, {
+    const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
@@ -570,9 +570,9 @@ describe('typeGenerator operation', async () => {
     const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {
       fabric,
-      instance,
-      generator: typeGenerator,
-      options,
+      generator,
+      Component: typeGenerator.Operation,
+      plugin,
     })
 
     await matchFiles(fabric.files)

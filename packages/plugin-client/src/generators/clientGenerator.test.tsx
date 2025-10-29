@@ -1,10 +1,10 @@
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
-import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
 import { clientGenerator } from './clientGenerator.tsx'
 
@@ -125,7 +125,7 @@ describe('clientGenerator operation', async () => {
     }
     const plugin = { options } as Plugin<PluginClient>
     const fabric = createReactFabric()
-    const instance = new OperationGenerator(options, {
+    const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
@@ -141,9 +141,9 @@ describe('clientGenerator operation', async () => {
 
     await buildOperation(operation, {
       fabric,
-      instance,
-      generator: clientGenerator,
-      options,
+      generator,
+      Component: clientGenerator.Operation,
+      plugin,
     })
 
     await matchFiles(fabric.files)

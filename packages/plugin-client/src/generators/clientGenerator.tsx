@@ -1,5 +1,5 @@
-import { usePlugin, usePluginManager } from '@kubb/core/hooks'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import { usePluginManager } from '@kubb/core/hooks'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -11,13 +11,15 @@ import type { PluginClient } from '../types'
 
 export const clientGenerator = createReactGenerator<PluginClient>({
   name: 'client',
-  Operation({ options, operation }) {
+  Operation({ plugin, operation, generator }) {
     const pluginManager = usePluginManager()
     const {
+      options,
       options: { output, urlType },
-    } = usePlugin<PluginClient>()
+    } = plugin
+
     const oas = useOas()
-    const { getSchemas, getName, getFile } = useOperationManager()
+    const { getSchemas, getName, getFile } = useOperationManager(generator)
 
     const client = {
       name: getName(operation, { type: 'function' }),

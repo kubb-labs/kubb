@@ -5,7 +5,6 @@ export default defineConfig({
     index: 'src/index.ts',
     mocks: 'src/mocks/index.ts',
     utils: 'src/utils/index.ts',
-    components: 'src/components/index.ts',
     generators: 'src/generators/index.ts',
     hooks: 'src/hooks/index.ts',
   },

@@ -1,6 +1,6 @@
-import { usePlugin, usePluginManager } from '@kubb/core/hooks'
+import { usePluginManager } from '@kubb/core/hooks'
 import { URLPath } from '@kubb/core/utils'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -10,14 +10,14 @@ import type { PluginCypress } from '../types'
 
 export const cypressGenerator = createReactGenerator<PluginCypress>({
   name: 'cypress',
-  Operation({ operation }) {
+  Operation({ operation, generator, plugin }) {
     const {
       options: { output, baseURL, dataReturnType },
-    } = usePlugin<PluginCypress>()
+    } = plugin
     const pluginManager = usePluginManager()
 
     const oas = useOas()
-    const { getSchemas, getName, getFile } = useOperationManager()
+    const { getSchemas, getName, getFile } = useOperationManager(generator)
 
     const request = {
       name: getName(operation, { type: 'function' }),

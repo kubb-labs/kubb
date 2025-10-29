@@ -24,22 +24,6 @@ function Component() {
 }
 ```
 
-## useOperation
-
-`useOperation` will return the current `Operation`.<br/>
-
-```tsx
-import { useOperation } from '@kubb/plugin-oas/hooks'
-
-function Component() {
-  const operation = useOperation()
-
-  const { path, method, schema, contentType, getRequestBody, getOperationId } = operation;
-
-  return null
-}
-```
-
 ## useOperationManager
 
 `useOperationManager` will return some helper functions that can be used to get the operation file, get the operation name.<br/>
@@ -49,21 +33,7 @@ function Component() {
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 
 function Component() {
-  const { getName, getFile, getSchemas, groupSchemasByByName } = useOperationManager()
-
-  return null
-}
-```
-
-## useSchema
-
-`useSchema` will return the current `Schema`.<br/>
-
-```tsx
-import { useOperationManager } from '@kubb/plugin-oas/hooks'
-
-function Component() {
-  const { name, schema, tree } = useSchema()
+  const { getName, getFile, getSchemas, groupSchemasByByName } = useOperationManager(generator)
 
   return null
 }

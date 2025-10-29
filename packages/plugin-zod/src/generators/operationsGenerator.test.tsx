@@ -1,10 +1,10 @@
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
-import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginZod } from '../types.ts'
 import { operationsGenerator } from './operationsGenerator.tsx'
 
@@ -50,7 +50,7 @@ describe('operationsGenerator operations', async () => {
     }
     const plugin = { options } as Plugin<PluginZod>
     const fabric = createReactFabric()
-    const instance = new OperationGenerator(options, {
+    const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
@@ -62,15 +62,15 @@ describe('operationsGenerator operations', async () => {
       exclude: [],
     })
 
-    const operations = await instance.getOperations()
+    const operations = await generator.getOperations()
 
     await buildOperations(
       operations.map((item) => item.operation),
       {
         fabric,
-        instance,
-        generator: operationsGenerator,
-        options,
+        generator,
+        Component: operationsGenerator.Operations,
+        plugin,
       },
     )
 

@@ -1,6 +1,5 @@
-import { usePlugin } from '@kubb/core/hooks'
 import { Client } from '@kubb/plugin-client/components'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -9,10 +8,10 @@ import type { PluginMcp } from '../types'
 
 export const mcpGenerator = createReactGenerator<PluginMcp>({
   name: 'mcp',
-  Operation({ operation }) {
-    const { options } = usePlugin<PluginMcp>()
+  Operation({ operation, generator, plugin }) {
+    const { options } = plugin
     const oas = useOas()
-    const { getSchemas, getName, getFile } = useOperationManager()
+    const { getSchemas, getName, getFile } = useOperationManager(generator)
 
     const mcp = {
       name: getName(operation, { type: 'function', suffix: 'handler' }),

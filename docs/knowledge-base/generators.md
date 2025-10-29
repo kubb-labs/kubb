@@ -257,8 +257,8 @@ import React from 'react'
 
 export const clientOperationGenerator = createReactGenerator({
   name: 'client-operation',
-  Operation({ operation }) {
-    const { getName, getFile } = useOperationManager()
+  Operation({ operation, instance }) {
+    const { getName, getFile } = useOperationManager(generator)
 
     const client = {
       name: getName(operation, { type: 'function' }),

@@ -1,7 +1,7 @@
-import { usePlugin, usePluginManager } from '@kubb/core/hooks'
+import { usePluginManager } from '@kubb/core/hooks'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -13,14 +13,15 @@ import type { PluginSvelteQuery } from '../types'
 
 export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
   name: 'svelte-query',
-  Operation({ options, operation }) {
+  Operation({ operation, generator, plugin }) {
     const {
+      options,
       options: { output },
-    } = usePlugin<PluginSvelteQuery>()
+    } = plugin
     const pluginManager = usePluginManager()
 
     const oas = useOas()
-    const { getSchemas, getName, getFile } = useOperationManager()
+    const { getSchemas, getName, getFile } = useOperationManager(generator)
 
     const isQuery = !!options.query && options.query?.methods.some((method) => operation.method === method)
     const isMutation =

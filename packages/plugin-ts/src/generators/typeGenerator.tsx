@@ -1,16 +1,9 @@
 import type { PluginManager } from '@kubb/core'
-import { useMode, usePlugin, usePluginManager } from '@kubb/core/hooks'
+import { useMode, usePluginManager } from '@kubb/core/hooks'
 import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/fabric-core/parsers/typescript'
-import {
-  createReactGenerator,
-  isKeyword,
-  type OperationSchemas,
-  type OperationSchema as OperationSchemaType,
-  SchemaGenerator,
-  schemaKeywords,
-} from '@kubb/plugin-oas'
-import { Oas } from '@kubb/plugin-oas/components'
+import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
@@ -112,15 +105,17 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
 
 export const typeGenerator = createReactGenerator<PluginTs>({
   name: 'typescript',
-  Operation({ operation, options, instance }) {
-    const { mapper, enumType, syntaxType, optionalType } = options
+  Operation({ operation, generator, plugin }) {
+    const {
+      options,
+      options: { mapper, enumType, syntaxType, optionalType },
+    } = plugin
 
-    const plugin = usePlugin<PluginTs>()
     const mode = useMode()
     const pluginManager = usePluginManager()
 
     const oas = useOas()
-    const { getSchemas, getFile, getName, getGroup } = useOperationManager()
+    const { getSchemas, getFile, getName, getGroup } = useOperationManager(generator)
     const schemaManager = useSchemaManager()
 
     const file = getFile(operation)
@@ -128,7 +123,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const type = getName(operation, { type: 'function', pluginKey: [pluginTsName] })
     const combinedSchemaName = operation.method === 'get' ? `${type}Query` : `${type}Mutation`
     const schemaGenerator = new SchemaGenerator(options, {
-      fabric: instance.context.fabric,
+      fabric: generator.context.fabric,
       oas,
       plugin,
       pluginManager,
@@ -152,7 +147,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       }
 
       return (
-        <Oas.Schema key={[name, schemaObject.$ref].join('-')} name={name} schemaObject={schemaObject} tree={tree}>
+        <>
           {mode === 'split' &&
             imports.map((imp) => (
               <File.Import key={[name, imp.name, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />
@@ -169,7 +164,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
             keysToOmit={keysToOmit}
             syntaxType={syntaxType}
           />
-        </Oas.Schema>
+        </>
       )
     }
 
@@ -189,11 +184,10 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       </File>
     )
   },
-  Schema({ schema, options }) {
-    const { mapper, enumType, syntaxType, optionalType } = options
+  Schema({ schema, plugin }) {
     const {
-      options: { output },
-    } = usePlugin<PluginTs>()
+      options: { mapper, enumType, syntaxType, optionalType, output },
+    } = plugin
     const mode = useMode()
 
     const oas = useOas()
