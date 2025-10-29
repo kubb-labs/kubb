@@ -250,7 +250,7 @@ Create your generator with `@kubb/react-fabric`:
 
 ```tsx twoslash
 import { URLPath } from '@kubb/core/utils'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { File } from '@kubb/react-fabric'
 import React from 'react'
