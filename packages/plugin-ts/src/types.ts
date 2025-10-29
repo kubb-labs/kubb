@@ -1,6 +1,7 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { contentType, Oas } from '@kubb/oas'
-import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Generator } from '@kubb/plugin-oas/generators'
 import type ts from 'typescript'
 
 export type Options = {

@@ -1,6 +1,4 @@
 export { useOas } from './useOas.ts'
-export { useOperation } from './useOperation.ts'
 export type { SchemaNames } from './useOperationManager.ts'
 export { useOperationManager } from './useOperationManager.ts'
-export { useSchema } from './useSchema.ts'
 export { useSchemaManager } from './useSchemaManager.ts'

@@ -9,12 +9,12 @@ import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { Generator } from './generators/types.ts'
-import { buildSchema } from './generators/utils.tsx'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
+import { buildSchema } from './utils.tsx'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
@@ -1128,11 +1128,14 @@ export class SchemaGenerator<
                 },
                 {
                   fabric: this.context.fabric,
-                  generator,
-                  instance: this,
-                  options: {
-                    ...this.options,
-                    ...options,
+                  Component: generator.Schema,
+                  generator: this,
+                  plugin: {
+                    ...this.context.plugin,
+                    options: {
+                      ...this.options,
+                      ...options,
+                    },
                   },
                 },
               )
@@ -1141,15 +1144,18 @@ export class SchemaGenerator<
             }
 
             const result = await generator.schema?.({
-              instance: this,
+              generator: this,
               schema: {
                 name,
                 value: schemaObject,
                 tree,
               },
-              options: {
-                ...this.options,
-                ...options,
+              plugin: {
+                ...this.context.plugin,
+                options: {
+                  ...this.options,
+                  ...options,
+                },
               },
             })
 

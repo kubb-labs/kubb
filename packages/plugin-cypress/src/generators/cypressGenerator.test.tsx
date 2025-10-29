@@ -1,10 +1,10 @@
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
-import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginCypress } from '../types.ts'
 import { cypressGenerator } from './cypressGenerator.tsx'
 
@@ -61,7 +61,7 @@ describe('cypressGenerator operation', async () => {
     const plugin = { options } as Plugin<PluginCypress>
     const fabric = createReactFabric()
 
-    const instance = new OperationGenerator(options, {
+    const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
@@ -77,9 +77,9 @@ describe('cypressGenerator operation', async () => {
 
     await buildOperation(operation, {
       fabric,
-      instance,
-      generator: cypressGenerator,
-      options,
+      generator,
+      Component: cypressGenerator.Operation,
+      plugin,
     })
 
     await matchFiles(fabric.files)

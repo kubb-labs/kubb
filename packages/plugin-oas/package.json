@@ -28,10 +28,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./components": {
-      "import": "./dist/components.js",
-      "require": "./dist/components.cjs"
-    },
     "./generators": {
       "import": "./dist/generators.js",
       "require": "./dist/generators.cjs"
@@ -60,9 +56,6 @@
       ],
       "hooks": [
         "./dist/hooks.d.ts"
-      ],
-      "components": [
-        "./dist/components.d.ts"
       ],
       "mocks": [
         "./dist/mocks.d.ts"

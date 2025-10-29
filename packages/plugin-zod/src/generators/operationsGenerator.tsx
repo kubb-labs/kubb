@@ -1,5 +1,5 @@
-import { usePlugin, usePluginManager } from '@kubb/core/hooks'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import { usePluginManager } from '@kubb/core/hooks'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
@@ -8,15 +8,15 @@ import type { PluginZod } from '../types'
 
 export const operationsGenerator = createReactGenerator<PluginZod>({
   name: 'operations',
-  Operations({ operations }) {
+  Operations({ operations, generator, plugin }) {
     const {
       key: pluginKey,
       options: { output, importPath },
-    } = usePlugin<PluginZod>()
+    } = plugin
     const pluginManager = usePluginManager()
 
     const oas = useOas()
-    const { getFile, groupSchemasByName } = useOperationManager()
+    const { getFile, groupSchemasByName } = useOperationManager(generator)
 
     const name = 'operations'
     const file = pluginManager.getFile({ name, extname: '.ts', pluginKey })

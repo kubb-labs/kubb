@@ -1,30 +1,26 @@
-import type { PluginFactoryOptions } from '@kubb/core'
+import type { Plugin, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
-import type { OperationGenerator, Schema, SchemaGenerator, SchemaGeneratorOptions } from '@kubb/plugin-oas'
+import type { OperationGenerator } from '../OperationGenerator.ts'
+import type { SchemaGenerator, SchemaGeneratorOptions } from '../SchemaGenerator.ts'
+import type { Schema } from '../SchemaMapper.ts'
 import type { CoreGenerator } from './createGenerator.ts'
 import type { ReactGenerator } from './createReactGenerator.ts'
 
 export type OperationsProps<TOptions extends PluginFactoryOptions> = {
-  /**
-   * @deprecated
-   */
-  instance: Omit<OperationGenerator<TOptions>, 'build'>
-  options: TOptions['resolvedOptions']
+  generator: Omit<OperationGenerator<TOptions>, 'build'>
+  plugin: Plugin<TOptions>
   operations: Array<Operation>
 }
 
 export type OperationProps<TOptions extends PluginFactoryOptions> = {
-  /**
-   * @deprecated
-   */
-  instance: Omit<OperationGenerator<TOptions>, 'build'>
-  options: TOptions['resolvedOptions']
+  generator: Omit<OperationGenerator<TOptions>, 'build'>
+  plugin: Plugin<TOptions>
   operation: Operation
 }
 
 export type SchemaProps<TOptions extends PluginFactoryOptions> = {
-  instance: Omit<SchemaGenerator<SchemaGeneratorOptions, TOptions>, 'build'>
-  options: TOptions['resolvedOptions']
+  generator: Omit<SchemaGenerator<SchemaGeneratorOptions, TOptions>, 'build'>
+  plugin: Plugin<TOptions>
   schema: {
     name: string
     tree: Array<Schema>

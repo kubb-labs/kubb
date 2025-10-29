@@ -2,7 +2,8 @@ import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@ku
 
 import type { contentType, HttpMethod, Oas, Operation } from '@kubb/oas'
 import type { PluginClient } from '@kubb/plugin-client'
-import type { Exclude, Generator, Include, OperationSchemas, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Include, OperationSchemas, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Generator } from '@kubb/plugin-oas/generators'
 
 type TransformerProps = {
   operation: Operation

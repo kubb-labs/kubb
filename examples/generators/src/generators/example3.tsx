@@ -1,14 +1,14 @@
 import transformers from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
 import type { PluginOas } from '@kubb/plugin-oas'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { Const, File, Function } from '@kubb/react-fabric'
 
 export const example3 = createReactGenerator<PluginOas>({
   name: 'client-operation',
-  Operation({ operation }) {
-    const { getName, getFile } = useOperationManager()
+  Operation({ operation, generator }) {
+    const { getName, getFile } = useOperationManager(generator)
 
     const client = {
       name: getName(operation, { type: 'function' }),

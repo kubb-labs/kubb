@@ -1,4 +1,3 @@
-export * from './generators/index.ts'
 export type { OperationMethodResult } from './OperationGenerator.ts'
 export { OperationGenerator } from './OperationGenerator.ts'
 export { pluginOas, pluginOasName } from './plugin.ts'
@@ -19,3 +18,4 @@ export type {
 } from './SchemaMapper.ts'
 export { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 export type * from './types.ts'
+export { buildOperation, buildOperations, buildSchema } from './utils.tsx'
