@@ -45,6 +45,7 @@
     "@kubb/plugin-vue-query": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react-fabric": "catalog:",
+    "@kubb/fabric-core": "catalog:",
     "@mermaid-js/mermaid-cli": "^11.12.0",
     "@nolebase/vitepress-plugin-enhanced-readabilities": "^2.18.2",
     "@nolebase/vitepress-plugin-highlight-targeted-heading": "^2.18.2",

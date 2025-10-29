@@ -129,6 +129,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../packages/core
+      '@kubb/fabric-core':
+        specifier: 'catalog:'
+        version: 0.2.11
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../packages/plugin-client

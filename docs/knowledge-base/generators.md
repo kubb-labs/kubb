@@ -167,16 +167,16 @@ export const createPets = {
 
 Create your generator:
 
-```tsx twoslash
+```tsx
 import { URLPath } from '@kubb/core/utils'
 import type { PluginClient } from '@kubb/plugin-client'
-import { createGenerator } from '@kubb/plugin-oas'
+import { createGenerator } from '@kubb/plugin-oas/generators'
 
 export const clientOperationGenerator = createGenerator<PluginClient>({
   name: 'client-operation',
-  async operation({ operation, instance }) {
-    const pluginKey = instance.context.plugin.key
-    const name = instance.context.pluginManager.resolveName({
+  async operation({ operation, generator }) {
+    const pluginKey = generator.context.plugin.key
+    const name = generator.context.pluginManager.resolveName({
       name: operation.getOperationId(),
       pluginKey,
       type: 'function',
@@ -184,7 +184,7 @@ export const clientOperationGenerator = createGenerator<PluginClient>({
 
     const client = {
       name,
-      file: instance.context.pluginManager.getFile({
+      file: generator.context.pluginManager.getFile({
         name,
         extname: '.ts',
         pluginKey,
@@ -248,7 +248,7 @@ export const createPets = {
 
 Create your generator with `@kubb/react-fabric`:
 
-```tsx twoslash
+```tsx
 import { URLPath } from '@kubb/core/utils'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'

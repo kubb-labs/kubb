@@ -296,12 +296,16 @@ const examplesSidebar = [
 
 const blogSidebar = [
   {
-    text: 'Release of Kubb 3.0',
-    link: '/blog/v3/',
+    text: 'Introducing Fabric',
+    link: '/blog/fabric/',
   },
   {
     text: 'Release of Kubb 4.0',
     link: '/blog/v4/',
+  },
+  {
+    text: 'Release of Kubb 3.0',
+    link: '/blog/v3/',
   },
 ]
 
@@ -476,6 +480,7 @@ export default defineConfig({
               '@kubb/plugin-cypress': ['../packages/plugin-cypress/src/index.ts'],
               '@kubb/plugin-mcp': ['../packages/plugin-mcp/src/index.ts'],
               '@kubb/plugin-oas': ['../packages/plugin-oas/src/index.ts'],
+              '@kubb/plugin-oas/generators': ['../packages/plugin-oas/generators/index.ts'],
               '@kubb/plugin-oas/hooks': ['../packages/plugin-oas/src/hooks/index.ts'],
               '@kubb/plugin-client': ['../packages/plugin-client/src/index.ts'],
               '@kubb/plugin-client/client': ['../packages/plugin-client/client.ts'],
@@ -588,7 +593,7 @@ export default defineConfig({
               },
               {
                 text: 'Blog',
-                link: '/blog/v3/',
+                link: '/blog/fabric/',
               },
               {
                 text: 'About Kubb',
