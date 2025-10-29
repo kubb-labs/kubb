@@ -12,7 +12,7 @@ import { Query, QueryKey, QueryOptions } from '../components'
 import type { PluginSolidQuery } from '../types'
 
 export const queryGenerator = createReactGenerator<PluginSolidQuery>({
-  name: 'svelte-query',
+  name: 'solid-query',
   Operation({ operation, generator, plugin }) {
     const {
       options,
