@@ -21,6 +21,7 @@
       "!**/artifacts",
       "!**/.next",
       "!**/.github",
+      "!**/gen",
       "!**/.codesandbox",
       "!**/.devcontainer",
       "!**/docs/.vitepress",
