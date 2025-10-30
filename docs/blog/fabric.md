@@ -60,8 +60,11 @@ yarn add -D @kubb/fabric-core
 :::
 
 Create a simple script that generates a couple of files:
+::: code-group
+```ts [build.ts]
+import path from "node:path"
+import process from "node:process"
 
-```ts [scripts/build.ts]
 import { createFabric, createFile } from '@kubb/fabric-core'
 import { fsPlugin } from '@kubb/fabric-core/plugins'
 
@@ -74,10 +77,10 @@ async function main() {
   // Create a file with one or more sources
   const readme = createFile({
     baseName: 'README.md',
-    path: 'dist/README.md',
+    path: path.join(process.cwd(), 'dist/README.md'),
     sources: [
-      { name: 'intro', value: '# Hello from Fabric\n' },
-      { name: 'usage', value: 'Generated with Fabric.\n' },
+      { name: 'intro', value: '# Hello from Fabric' },
+      { name: 'usage', value: 'Generated with Fabric.' },
     ],
   })
 
@@ -90,6 +93,12 @@ async function main() {
 
 main()
 ```
+```markdown [dist/README.md]
+# Hello from Fabric
+
+Generated with Fabric.
+```
+:::
 Run it and you’ll find your generated `dist/README.md`.
 
 ### A practical walkthrough: composing files like Lego
@@ -104,21 +113,28 @@ We’ll generate:
 ::: code-group
 ```ts [build.ts]
 import path from 'node:path'
+import process from 'node:process'
+
 import { createFabric, createFile } from '@kubb/fabric-core'
 import { barrelPlugin, graphPlugin, fsPlugin } from '@kubb/fabric-core/plugins'
+import { typescriptParser } from '@kubb/fabric-core/parsers'
 
 async function build() {
-  const outDir = path.resolve('gen')
+  const root = path.join(process.cwd())
+  const outDir = path.join(root, 'gen')
   const fabric = createFabric()
+
+  // use TypeScript
+  fabric.use(typescriptParser)
 
   // Write to disk
   fabric.use(fsPlugin)
 
   // Optional: generate an index barrel when files are written
-  fabric.use(barrelPlugin)
+  fabric.use(barrelPlugin, { root, mode: 'named' })
 
   // Optional: generate a file graph and open it in the browser
-  fabric.use(graphPlugin, { root: 'src', open: false })
+  fabric.use(graphPlugin, { root, open: false })
 
   const requestFile = createFile({
     baseName: 'request.ts',
@@ -143,13 +159,13 @@ async function build() {
     path: path.join(outDir, 'api.ts'),
     imports: [
       {
-        name: 'request',
-        path: './request'
+        name: ['request'],
+        path: './request',
       }
     ],
     sources: [
       {
-        name: 'api',
+        name: 'getTodos',
         value: `export type Todo = { id: number; title: string; completed: boolean }
 
 export async function getTodos() {
@@ -162,11 +178,9 @@ export async function getTodos() {
     ],
   })
 
-  await app.addFile(requestFile, apiFile)
+  await fabric.addFile(requestFile, apiFile)
 
-  await app.write()
-
-  console.log('Client generated at', outDir)
+  await fabric.write()
 }
 
 build()
@@ -212,23 +226,29 @@ Here’s a tiny example that uses React components to create files.
 
 ::: code-group
 
-```tsx [scripts/generateComponent.tsx]
+```tsx [build.tsx]
 import path from 'node:path'
-import { fsPlugin } from '@kubb/react-fabric/plugins'
-import { createReactFabric, createFile } from '@kubb/react-fabric'
+import process from 'node:process'
 
+import { fsPlugin } from '@kubb/react-fabric/plugins'
+import { createReactFabric, File, Const } from '@kubb/react-fabric'
+import { typescriptParser } from "@kubb/react-fabric/parsers"
 
 async function build() {
-  const namesPath = path.resolve(__dirname, 'gen/name.ts')
+  const root = path.join(process.cwd())
+  const outDir = path.join(root, 'gen')
 
-  // Standard Fabric Fract
   const fabric = createReactFabric()
+
+  // use TypeScript
+  fabric.use(typescriptParser)
+  // Write to disk
   fabric.use(fsPlugin)
 
   // Render React templates to strings and wrap as files
   const component = () => {
     return (
-      <File path={namesPath} baseName={'name.ts'}>
+      <File path={path.resolve(outDir, 'name.ts')} baseName={'name.ts'}>
         <File.Source>
           <Const export asConst name={'name'}>
             "fabric"

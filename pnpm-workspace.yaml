@@ -6,8 +6,8 @@ packages:
 
 catalog:
   '@types/node': ^20.19.24
-  '@kubb/fabric-core': 0.2.12
-  '@kubb/react-fabric': 0.2.12
+  '@kubb/fabric-core': 0.2.14
+  '@kubb/react-fabric': 0.2.14
   '@size-limit/file': ^11.2.0
   'size-limit': ^11.2.0
   p-limit: ^7.2.0
