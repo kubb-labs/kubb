@@ -53,19 +53,19 @@
 		"@kubb/react-fabric": "catalog:",
 		"@size-limit/file": "catalog:",
 		"@types/node": "catalog:",
-		"@vitest/coverage-v8": "^4.0.4",
-		"@vitest/ui": "^4.0.4",
+		"@vitest/coverage-v8": "^4.0.5",
+		"@vitest/ui": "^4.0.5",
 		"bun-types": "^1.3.1",
 		"prettier": "^3.6.2",
 		"rimraf": "^6.0.1",
 		"size-limit": "catalog:",
-		"taze": "^19.8.1",
+		"taze": "^19.9.0",
 		"ts-node": "^10.9.2",
 		"tsdown": "catalog:",
 		"turbo": "^2.5.8",
 		"typescript": "catalog:",
 		"vite-tsconfig-paths": "^5.1.4",
-		"vitest": "^4.0.4"
+		"vitest": "^4.0.5"
 	},
 	"packageManager": "pnpm@10.19.0",
 	"engines": {

@@ -4,7 +4,7 @@ layout: doc
 title: Introducing Fabric — a flexible way to create and shape files
 outline: deep
 date: 2025-11-01
-summary: Fabric is a lightweight, plugin‑first library for generating, transforming, and organizing files.
+summary: Fabric is a language-agnostic toolkit for generating code and files using JSX and TypeScript.
 ---
 
 Published: 2025-11-01
@@ -13,25 +13,29 @@ Published: 2025-11-01
 
 Fabric is a new library from the `Kubb` ecosystem that focuses on easily creating files.
 
-Where `Kubb` popularized “code generation as a workflow,” `Fabric` narrows the core to a small, composable runtime that:
-- Treats every output as a file (with metadata and sources)
-- Lets you transform and write files
-- Stays framework‑agnostic, with integrations (e.g. `React`)
+While `Kubb` popularized the idea of “code generation as a workflow,” `Fabric` focuses on making file creation effortless:
+- The core of Fabric orchestrates file generation, combining multiple files into one, managing files (with a queue), and intelligently merging or deduplicating imports and exports.
+- Extensible through custom plugins and parsers, with built-in support for `TypeScript`, `JavaScript`, and `JSX/TSX`.
+- Transform and write files to the filesystem seamlessly using the `fsPlugin`.
+- Use `React` to define files through JSX components, offering a declarative and composable approach to file generation.
+```tsx
+<File path={'/gen/name.ts'} baseName={'name.ts'}>
+  <File.Source>
+    <Const export name={'name'}>"fabric"</Const>
+  </File.Source>
+</File>
+```
 
 ### Core concepts
 
 At the heart of `Fabric` are a few simple ideas.
 
-- A Fabric file contains a `path`, a `baseName`, and one or more `sources`. You can create files anywhere in your working tree and compose their content from multiple sources.
-
-- A `Fabric` instance holds the context for a single run: the files you add, the plugins you install, and the write flow. Plugins hook into lifecycle events like `write:start` to analyze or emit extra files.
-
+- A `Fabric` instance holds the context: the files you add, the plugins and parsers you install. Plugins can hook into lifecycle events like `write:start` to analyze or emit extra files.
 - Fabric is intentionally small, with plugins to extend Fabric's functionalities. For example:
   - `fsPlugin` writes files to disk
   - `barrelPlugin` can produce index barrels (`.index.ts`)
   - `graphPlugin` emits a `graph.json` + `graph.html` so you can visualize relationships between files
-  - React integration (`react-fabric`) powers use cases like component scaffolding
-
+  - React integration (`react-fabric`) to easily create files with JSX components
 
 ### Quick start
 
@@ -77,6 +81,7 @@ async function main() {
     ],
   })
 
+  // add file to the FileManager queue
   await fabric.addFile(readme)
 
   // Trigger write flow
@@ -92,24 +97,25 @@ Run it and you’ll find your generated `dist/README.md`.
 Let’s step through a more complete example that shows how Fabric’s core and plugins work together.
 
 We’ll generate:
-- A small client folder (`client/`) with a request utility and a typed API file
+- A generated folder (`gen/`) with a request utility and a typed API file
 - An optional barrel file to export public APIs
 - A file graph you can open in the browser to visualize the output
 
-```ts
+::: code-group
+```ts [build.ts]
 import path from 'node:path'
 import { createFabric, createFile } from '@kubb/fabric-core'
 import { barrelPlugin, graphPlugin, fsPlugin } from '@kubb/fabric-core/plugins'
 
-async function buildClient() {
-  const outDir = path.resolve('dist/client')
-  const app = createFabric()
+async function build() {
+  const outDir = path.resolve('gen')
+  const fabric = createFabric()
 
   // Write to disk
-  app.use(fsPlugin)
+  fabric.use(fsPlugin)
 
   // Optional: generate an index barrel when files are written
-  app.use(barrelPlugin)
+  fabric.use(barrelPlugin)
 
   // Optional: generate a file graph and open it in the browser
   fabric.use(graphPlugin, { root: 'src', open: false })
@@ -126,6 +132,8 @@ async function buildClient() {
   return res.json() as Promise<T>
 }
 `,
+        isExportable: true,
+        isIndexable: true,
       },
     ],
   })
@@ -133,17 +141,23 @@ async function buildClient() {
   const apiFile = createFile({
     baseName: 'api.ts',
     path: path.join(outDir, 'api.ts'),
+    imports: [
+      {
+        name: 'request',
+        path: './request'
+      }
+    ],
     sources: [
       {
         name: 'api',
-        value: `import { request } from './request'
-
-export type Todo = { id: number; title: string; completed: boolean }
+        value: `export type Todo = { id: number; title: string; completed: boolean }
 
 export async function getTodos() {
   return request<Todo[]>('/api/todos')
 }
 `,
+        isExportable: true,
+        isIndexable: true,
       },
     ],
   })
@@ -155,8 +169,30 @@ export async function getTodos() {
   console.log('Client generated at', outDir)
 }
 
-buildClient()
+build()
 ```
+```ts [gen/index.ts]
+export { request } from "./request.ts"
+export { getTodos } from "./api.ts"
+```
+```ts [gen/request.ts]
+export async function request<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
+  const res = await fetch(input, init)
+  if (!res.ok) throw new Error('Request failed')
+  return res.json() as Promise<T>
+}
+```
+
+```ts [gen/api.ts]
+import { request } from './request'
+
+export type Todo = { id: number; title: string; completed: boolean }
+
+export async function getTodos() {
+  return request<Todo[]>('/api/todos')
+}
+```
+:::
 
 When the `write` lifecycle runs, each plugin gets a chance to:
 - Inspect the files
@@ -168,28 +204,22 @@ The `graphPlugin` can drop a `graph.html` page next to your output. Open it to v
 
 ### React integration: react‑fabric
 
-Fabric is runtime‑agnostic, but we provide an optional `react-fabric` package to make UI‑centric generation feel natural. It gives you:
-- A `createReactFabric` helper to bootstrap React based generation
-- A `reactPlugin` that understands React‑specific conventions
-- A friendly way to compose UI templates as components and emit them as files
+Fabric also contains a package called `react-fabric` so you can use JSX components and syntax to create files.
+- A `createReactFabric` helper to replace `createFabric` creator
+- A `reactPlugin` that will add `fabric.render` and `fabric.renderToString`
 
-Here’s a tiny example that scaffolds a React component and its story:
+Here’s a tiny example that uses React components to create files.
+
+::: code-group
 
 ```tsx [scripts/generateComponent.tsx]
 import path from 'node:path'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
 import { createReactFabric, createFile } from '@kubb/react-fabric'
 
-function ComponentTemplate({ name }: { name: string }) {
-  return (
-    <>
-      {`import React from 'react'\n\nexport type ${name}Props = { label: string }\n\nexport function ${name}({ label }: ${name}Props) {\n  return <div>{label}</div>\n}\n`}
-    </>
-  )
-}
 
-async function main() {
-  const outDir = path.resolve('dist/components/Button')
+async function build() {
+  const namesPath = path.resolve(__dirname, 'gen/name.ts')
 
   // Standard Fabric Fract
   const fabric = createReactFabric()
@@ -197,7 +227,15 @@ async function main() {
 
   // Render React templates to strings and wrap as files
   const component = () => {
-    return <ComponentTemplate name={"test"} />
+    return (
+      <File path={namesPath} baseName={'name.ts'}>
+        <File.Source>
+          <Const export asConst name={'name'}>
+            "fabric"
+          </Const>
+        </File.Source>
+      </File>
+    )
   }
 
   fabric.render(component)
@@ -205,34 +243,35 @@ async function main() {
   await fabric.write()
 }
 
-main()
+build()
 ```
+
+```ts [gen/name.ts]
+export const name = 'fabric' as const
+```
+:::
 
 A few nice properties of this approach:
 - You can reuse React components as code templates without a custom template language
-- Composition is just composition — props control variants, and you can nest templates
-- You still get the same Fabric lifecycle and plugins for organization and output
+- Easy to read code with a lot of out of the box components like `<File/>`, `<Const/>`, `<Const/>`, `<Type/>`, ...
+- You still get the same Fabric lifecycle and plugins
 
 
 ### Why Fabric?
-
-- Composable first: small primitives to build exactly what you need
-- Observable: inspect files before they hit disk, visualize with the graph plugin
-- Extensible: add plugins for your team’s conventions
-- Framework‑agnostic: bring your own rendering (React, plain strings, or anything else)
-
+- Easy to use: Fabric orchestrates file creation and automatically queues tasks when needed.
+- Runtime-aware: Fabric automatically uses the correct runtime code for `Bun` or `Node`.
+- Extensible: Extend Fabric’s capabilities with plugins and parsers to support new features or languages.
+- Framework-agnostic: Use your own renderer (like `React`) or stick to plain JavaScript with `createFile`.
 
 ### What’s next
-
 Fabric is young, and we’re actively collecting feedback. If you try it:
 - Share what you built and which plugins you used
 - Suggest integrations you’d love to see next
 
-
 ### TL;DR
 - Fabric is a focused library for creating and organizing files
 - It uses a plugin lifecycle to transform and write output
-- React integration (`react-fabric`) makes UI codegen ergonomic
+- React integration (`react-fabric`) makes it possible to use JSX components to create files
 - The graph plugin helps you understand complex outputs at a glance
 
 Give it a spin, and let us know what you generate!
