@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
-import type { MaybeRefOrGetter } from 'vue'
+import fetch from '@kubb/plugin-client/clients/axios'
+import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import { queryOptions, useQuery } from '@tanstack/vue-query'
+import type { MaybeRefOrGetter } from 'vue'
 import { toValue } from 'vue'
+import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/GetPetById.ts'
 
 export const getPetByIdQueryKey = ({ petId }: { petId: MaybeRefOrGetter<GetPetByIdPathParams['petId']> }) =>
   [{ url: '/pet/:petId', params: { petId: petId } }] as const

@@ -1,6 +1,6 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
+import fetch from '../../../../axios-client.ts'
+import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet.ts'
 import { deletePetMutationResponseSchema } from '../../../zod/petController/deletePetSchema.ts'
 
 export function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {

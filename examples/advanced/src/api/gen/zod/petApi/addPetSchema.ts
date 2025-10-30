@@ -5,11 +5,11 @@
  * Do not edit manually.
  */
 
-import type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../types/petApi/AddPet.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
+import { z } from 'zod'
+import type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../types/petApi/AddPet.ts'
 import { addPetRequestSchema } from '../addPetRequestSchema.ts'
 import { petSchema } from '../petSchema.ts'
-import { z } from 'zod'
 
 /**
  * @description Successful operation

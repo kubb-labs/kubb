@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import type { Address } from '../types/Address.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
+import type { Address } from '../types/Address.ts'
 
 export const addressSchema = z.object({
   street: z.string().optional(),

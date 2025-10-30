@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse } from '../../types/userApi/LoginUser.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
+import type { LoginUser200, LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../types/userApi/LoginUser.ts'
 
 export const loginUserQueryParamsSchema = z
   .object({

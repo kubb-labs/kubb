@@ -1,12 +1,8 @@
 import path from 'node:path'
-
-import { randomCliColour } from '@kubb/core/logger'
-
-import pc from 'picocolors'
-
-import { parseHrtimeToSeconds } from './parseHrtimeToSeconds.ts'
-
 import type { Config, PluginManager } from '@kubb/core'
+import { randomCliColour } from '@kubb/core/logger'
+import pc from 'picocolors'
+import { parseHrtimeToSeconds } from './parseHrtimeToSeconds.ts'
 
 type SummaryProps = {
   pluginManager: PluginManager

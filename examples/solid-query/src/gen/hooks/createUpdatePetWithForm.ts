@@ -3,16 +3,16 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
+import type { QueryClient, QueryKey, UseBaseQueryOptions, UseQueryResult } from '@tanstack/solid-query'
+import { queryOptions, useQuery } from '@tanstack/solid-query'
 import type {
+  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm.ts'
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { QueryKey, QueryClient, UseBaseQueryOptions, UseQueryResult } from '@tanstack/solid-query'
-import { queryOptions, useQuery } from '@tanstack/solid-query'
 
 export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
   [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const

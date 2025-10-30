@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { UseMutationOptions, QueryClient } from '@tanstack/solid-query'
+import fetch from '@kubb/plugin-client/clients/axios'
+import type { QueryClient, UseMutationOptions } from '@tanstack/solid-query'
 import { useMutation } from '@tanstack/solid-query'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
 
 export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 

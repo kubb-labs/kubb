@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import type { LogoutUserError, LogoutUserQueryResponse } from '../../types/userApi/LogoutUser.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
+import type { LogoutUserError, LogoutUserQueryResponse } from '../../types/userApi/LogoutUser.ts'
 
 /**
  * @description successful operation

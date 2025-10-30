@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { userSchema } from './userSchema.js'
 import { z } from 'zod'
+import { userSchema } from './userSchema.js'
 
 export const getUserByNamePathParamsSchema = z.object({
   username: z.string().describe('The name that needs to be fetched. Use user1 for testing. '),

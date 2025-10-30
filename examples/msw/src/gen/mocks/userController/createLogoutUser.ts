@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { LogoutUserQueryResponse } from '../../models/LogoutUser.ts'
 import { faker } from '@faker-js/faker'
+import type { LogoutUserQueryResponse } from '../../models/LogoutUser.ts'
 
 /**
  * @description successful operation

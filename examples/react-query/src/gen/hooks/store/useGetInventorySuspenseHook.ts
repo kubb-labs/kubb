@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { GetInventoryQueryResponse } from '../../models/GetInventory.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import fetch from '@kubb/plugin-client/clients/axios'
+import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import type { GetInventoryQueryResponse } from '../../models/GetInventory.ts'
 
 export const getInventorySuspenseQueryKey = () => ['v5', { url: '/store/inventory' }] as const
 

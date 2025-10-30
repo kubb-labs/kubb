@@ -14,11 +14,11 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
-import { queryOptions, createQuery } from '@tanstack/svelte-query'
+import fetch from '@kubb/plugin-client/clients/axios'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryClient, QueryKey } from '@tanstack/svelte-query'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser.ts'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 

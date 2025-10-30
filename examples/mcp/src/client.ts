@@ -1,6 +1,5 @@
-import axios from 'axios'
-
 import type { AxiosError, AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios from 'axios'
 
 declare const AXIOS_BASE: string
 declare const AXIOS_HEADERS: string

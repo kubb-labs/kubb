@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
-import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
+import type { MaybeRefOrGetter } from 'vue'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/AddPet.ts'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
 
@@ -26,7 +26,7 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
 
   const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
-    url: `/pet`,
+    url: '/pet',
     data: requestData,
     ...requestConfig,
   })

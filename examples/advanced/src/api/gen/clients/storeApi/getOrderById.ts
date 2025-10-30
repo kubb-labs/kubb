@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import client from '@/lib/axios-client'
-import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../../types/storeApi/GetOrderById.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
+import client from '@/lib/axios-client'
+import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../types/storeApi/GetOrderById.ts'
 
 export function getGetOrderByIdUrl({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }) {
   return `/store/order/${orderId}` as const

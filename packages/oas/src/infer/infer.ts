@@ -1,5 +1,6 @@
 import type { Booleans, Call, Objects, Strings, Tuples } from 'hotscript'
 import type { Object } from 'ts-toolbelt'
+
 type Checks = {
   AllOFf: { allOf: any[] }
   Object: {

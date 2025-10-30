@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 import client from '@/lib/axios-client'
 import type { LogoutUserQueryResponse } from '../../types/userApi/LogoutUser.ts'
-import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 
 export function getLogoutUserUrl() {
   return '/user/logout' as const

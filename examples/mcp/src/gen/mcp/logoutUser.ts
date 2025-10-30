@@ -1,7 +1,7 @@
-import fetch from '../../client.js'
-import type { ResponseErrorConfig } from '../../client.js'
-import type { LogoutUserQueryResponse } from '../models/ts/LogoutUser.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
+import type { ResponseErrorConfig } from '../../client.js'
+import fetch from '../../client.js'
+import type { LogoutUserQueryResponse } from '../models/ts/LogoutUser.js'
 
 /**
  * @summary Logs out current logged in user session

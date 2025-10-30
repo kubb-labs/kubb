@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
+import { z } from 'zod'
 import { categorySchema } from './categorySchema.js'
 import { tagTagSchema } from './tag/tagSchema.js'
-import { z } from 'zod'
 
 export const addPetRequestSchema = z.object({
   id: z.optional(z.number().int()),

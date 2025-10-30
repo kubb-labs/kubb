@@ -5,15 +5,15 @@
  * Do not edit manually.
  */
 
+import type { ToZod } from '@kubb/plugin-zod/utils'
+import { z } from 'zod'
 import type {
-  FindPetsByStatusPathParams,
   FindPetsByStatus200,
   FindPetsByStatus400,
+  FindPetsByStatusPathParams,
   FindPetsByStatusQueryResponse,
 } from '../../types/petApi/FindPetsByStatus.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { petSchema } from '../petSchema.ts'
-import { z } from 'zod'
 
 export const findPetsByStatusPathParamsSchema = z.object({
   step_id: z.string(),

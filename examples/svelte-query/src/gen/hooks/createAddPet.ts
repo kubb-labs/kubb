@@ -14,11 +14,11 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/AddPet.ts'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
 

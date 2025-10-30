@@ -1,10 +1,8 @@
+import type { Config } from '@kubb/core'
 import { safeBuild } from '@kubb/core'
 import { createLogger } from '@kubb/core/logger'
-
-import { createUnplugin } from 'unplugin'
-
-import type { Config } from '@kubb/core'
 import type { UnpluginFactory } from 'unplugin'
+import { createUnplugin } from 'unplugin'
 import type { Options } from './types.ts'
 
 export const unpluginFactory: UnpluginFactory<Options | undefined> = (options) => {

@@ -1,5 +1,5 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema.ts'
 

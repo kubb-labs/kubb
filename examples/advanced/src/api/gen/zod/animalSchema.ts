@@ -5,11 +5,11 @@
  * Do not edit manually.
  */
 
-import type { Animal } from '../types/Animal.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
+import { z } from 'zod'
+import type { Animal } from '../types/Animal.ts'
 import { catSchema } from './catSchema.ts'
 import { dogSchema } from './dogSchema.ts'
-import { z } from 'zod'
 
 export const animalSchema = z.union([
   z

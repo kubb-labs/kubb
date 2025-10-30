@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
-import type { MaybeRefOrGetter } from 'vue'
+import fetch from '@kubb/plugin-client/clients/axios'
+import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import { queryOptions, useQuery } from '@tanstack/vue-query'
+import type { MaybeRefOrGetter } from 'vue'
 import { toValue } from 'vue'
+import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName.ts'
 
 export const getUserByNameQueryKey = ({ username }: { username: MaybeRefOrGetter<GetUserByNamePathParams['username']> }) =>
   [{ url: '/user/:username', params: { username: username } }] as const

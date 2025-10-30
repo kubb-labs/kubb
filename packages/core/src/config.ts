@@ -1,5 +1,5 @@
-import type { PossiblePromise } from './utils/types.ts'
 import type { InputPath, UserConfig } from './types.ts'
+import type { PossiblePromise } from './utils/types.ts'
 
 type Args = {
   /**

@@ -5,10 +5,10 @@
  * Do not edit manually.
  */
 
-import type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse } from '../../types/petApi/GetPetById.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
-import { petSchema } from '../petSchema.ts'
 import { z } from 'zod'
+import type { GetPetById200, GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../types/petApi/GetPetById.ts'
+import { petSchema } from '../petSchema.ts'
 
 export const getPetByIdPathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet to return'),

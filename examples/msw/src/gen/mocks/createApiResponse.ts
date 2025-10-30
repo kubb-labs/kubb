@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { ApiResponse } from '../models/ApiResponse.ts'
 import { faker } from '@faker-js/faker'
+import type { ApiResponse } from '../models/ApiResponse.ts'
 
 export function createApiResponse(data?: Partial<ApiResponse>): ApiResponse {
   faker.seed([220])

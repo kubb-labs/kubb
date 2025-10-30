@@ -1,4 +1,4 @@
-import type { Oas, OasTypes, contentType } from '@kubb/oas'
+import type { contentType, Oas, OasTypes } from '@kubb/oas'
 
 type Mode = 'schemas' | 'responses' | 'requestBodies'
 

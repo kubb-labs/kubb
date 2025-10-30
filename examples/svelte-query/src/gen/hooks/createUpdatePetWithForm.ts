@@ -14,16 +14,16 @@
  * OpenAPI spec version: 1.0.11
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryClient, QueryKey } from '@tanstack/svelte-query'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type {
+  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm.ts'
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
-import { queryOptions, createQuery } from '@tanstack/svelte-query'
 
 export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['pet_id'], params?: UpdatePetWithFormQueryParams) =>
   [{ url: '/pet/:pet_id', params: { petId: petId } }, ...(params ? [params] : [])] as const

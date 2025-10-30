@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import type { Dog } from '../types/Dog.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
+import type { Dog } from '../types/Dog.ts'
 
 export const dogSchema = z.object({
   type: z.string().min(1),

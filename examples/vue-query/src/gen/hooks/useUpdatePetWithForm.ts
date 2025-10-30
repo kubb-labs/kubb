@@ -3,17 +3,17 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
+import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
+import type { MaybeRefOrGetter } from 'vue'
 import type {
+  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm.ts'
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
-import type { MaybeRefOrGetter } from 'vue'
-import { useMutation } from '@tanstack/vue-query'
 
 export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
 

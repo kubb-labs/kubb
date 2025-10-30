@@ -14,11 +14,11 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
-import { queryOptions, createQuery } from '@tanstack/svelte-query'
+import fetch from '@kubb/plugin-client/clients/axios'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryClient, QueryKey } from '@tanstack/svelte-query'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName.ts'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 

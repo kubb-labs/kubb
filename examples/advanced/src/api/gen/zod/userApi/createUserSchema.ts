@@ -5,10 +5,10 @@
  * Do not edit manually.
  */
 
-import type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse } from '../../types/userApi/CreateUser.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
-import { userSchema } from '../userSchema.ts'
 import { z } from 'zod'
+import type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse } from '../../types/userApi/CreateUser.ts'
+import { userSchema } from '../userSchema.ts'
 
 /**
  * @description successful operation

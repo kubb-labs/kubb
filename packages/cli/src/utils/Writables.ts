@@ -1,10 +1,8 @@
-import { Writable } from 'node:stream'
-
-import pc from 'picocolors'
-
 import * as process from 'node:process'
 import type { WritableOptions } from 'node:stream'
+import { Writable } from 'node:stream'
 import type { ConsolaInstance } from 'consola'
+import pc from 'picocolors'
 
 export class ConsolaWritable extends Writable {
   consola: ConsolaInstance | undefined

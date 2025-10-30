@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import type { Cat } from '../types/Cat.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
+import type { Cat } from '../types/Cat.ts'
 
 export const catSchema = z.object({
   type: z.string().min(1),

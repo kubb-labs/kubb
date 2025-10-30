@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { Item } from '../models/Item.ts'
 import { faker } from '@faker-js/faker'
+import type { Item } from '../models/Item.ts'
 
 export function createItem(data?: Partial<Item>): Item {
   return {

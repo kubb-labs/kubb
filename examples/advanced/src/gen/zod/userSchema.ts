@@ -1,5 +1,5 @@
-import { tagTagSchema } from './tag/tagSchema.ts'
 import { z } from 'zod/v4'
+import { tagTagSchema } from './tag/tagSchema.ts'
 
 export const userSchema = z.object({
   id: z.optional(z.int()),

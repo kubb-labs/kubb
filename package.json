@@ -26,7 +26,7 @@
 		"build:examples": "turbo run build --filter=./examples/*",
 		"changeset": "changeset",
 		"clean": "turbo run clean",
-		"format": "biome format --write ./",
+    "format": "biome format --write ./ && biome check --fix --unsafe",
 		"generate": "turbo run generate --filter=./examples/* --continue",
 		"postgenerate": "bun run lint:fix && bun run format",
 		"graph": "npx nx graph ",

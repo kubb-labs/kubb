@@ -5,11 +5,11 @@
  * Do not edit manually.
  */
 
-import type { AddPetRequest } from '../types/AddPetRequest.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
+import { z } from 'zod'
+import type { AddPetRequest } from '../types/AddPetRequest.ts'
 import { categorySchema } from './categorySchema.ts'
 import { tagTagSchema } from './tag/tagSchema.ts'
-import { z } from 'zod'
 
 export const addPetRequestSchema = z.object({
   id: z.coerce.number().int().optional(),

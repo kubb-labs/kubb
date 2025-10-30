@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../../../models/PlaceOrderPatch.ts'
 import { http } from 'msw'
+import type { PlaceOrderPatch405, PlaceOrderPatchMutationResponse } from '../../../models/PlaceOrderPatch.ts'
 
 export function placeOrderPatchHandlerResponse200(data: PlaceOrderPatchMutationResponse) {
   return new Response(JSON.stringify(data), {

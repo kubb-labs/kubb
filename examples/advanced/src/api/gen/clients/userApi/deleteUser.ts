@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import client from '@/lib/axios-client'
-import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../types/userApi/DeleteUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
+import client from '@/lib/axios-client'
+import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../types/userApi/DeleteUser.ts'
 
 export function getDeleteUserUrl({ username }: { username: DeleteUserPathParams['username'] }) {
   return `/user/${username}` as const

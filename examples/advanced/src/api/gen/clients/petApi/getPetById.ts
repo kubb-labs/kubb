@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import client from '@/lib/axios-client'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../types/petApi/GetPetById.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
+import client from '@/lib/axios-client'
+import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../types/petApi/GetPetById.ts'
 
 export function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
   return `/pet/${petId}` as const

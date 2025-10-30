@@ -1,12 +1,12 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
 import {
-  createUsersWithListInputMutationResponseSchema,
   createUsersWithListInputMutationRequestSchema,
+  createUsersWithListInputMutationResponseSchema,
 } from '../../../zod/userController/createUsersWithListInputSchema.ts'
 
 export function getCreateUsersWithListInputUrl() {

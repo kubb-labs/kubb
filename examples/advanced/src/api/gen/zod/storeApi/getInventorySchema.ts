@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import type { GetInventory200, GetInventoryQueryResponse } from '../../types/storeApi/GetInventory.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
+import type { GetInventory200, GetInventoryQueryResponse } from '../../types/storeApi/GetInventory.ts'
 
 /**
  * @description successful operation

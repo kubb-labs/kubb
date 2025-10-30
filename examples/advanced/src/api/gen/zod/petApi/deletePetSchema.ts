@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import type { DeletePetPathParams, DeletePetHeaderParams, DeletePet400, DeletePetMutationResponse } from '../../types/petApi/DeletePet.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
+import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../types/petApi/DeletePet.ts'
 
 export const deletePetPathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('Pet id to delete'),

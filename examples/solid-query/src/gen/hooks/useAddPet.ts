@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { UseMutationOptions, QueryClient } from '@tanstack/solid-query'
+import fetch from '@kubb/plugin-client/clients/axios'
+import type { QueryClient, UseMutationOptions } from '@tanstack/solid-query'
 import { useMutation } from '@tanstack/solid-query'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/AddPet.ts'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
 

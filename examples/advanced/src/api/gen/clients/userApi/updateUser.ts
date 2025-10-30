@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 import client from '@/lib/axios-client'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../types/userApi/UpdateUser.ts'
-import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 
 export function getUpdateUserUrl({ username }: { username: UpdateUserPathParams['username'] }) {
   return `/user/${username}` as const

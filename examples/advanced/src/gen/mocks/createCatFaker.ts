@@ -1,5 +1,5 @@
-import type { Cat } from '../models/ts/Cat.ts'
 import { faker } from '@faker-js/faker'
+import type { Cat } from '../models/ts/Cat.ts'
 
 export function createCatFaker(data?: Partial<Cat>): Cat {
   return {

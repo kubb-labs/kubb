@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 import client from '@/lib/axios-client'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../../types/userApi/CreateUsersWithListInput.ts'
-import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 
 export function getCreateUsersWithListInputUrl() {
   return '/user/createWithList' as const

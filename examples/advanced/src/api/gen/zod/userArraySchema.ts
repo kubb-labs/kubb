@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import type { UserArray } from '../types/UserArray.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
-import { userSchema } from './userSchema.ts'
 import { z } from 'zod'
+import type { UserArray } from '../types/UserArray.ts'
+import { userSchema } from './userSchema.ts'
 
 export const userArraySchema = z.array(z.lazy(() => userSchema)) as unknown as ToZod<UserArray>

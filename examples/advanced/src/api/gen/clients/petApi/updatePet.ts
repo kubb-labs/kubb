@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import client from '@/lib/axios-client'
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../../types/petApi/UpdatePet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
+import client from '@/lib/axios-client'
+import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../types/petApi/UpdatePet.ts'
 
 export function getUpdatePetUrl() {
   return '/pet' as const

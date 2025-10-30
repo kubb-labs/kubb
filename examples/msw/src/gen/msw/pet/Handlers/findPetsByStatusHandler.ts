@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { FindPetsByStatusQueryResponse, FindPetsByStatus400 } from '../../../models/FindPetsByStatus.ts'
 import { http } from 'msw'
+import type { FindPetsByStatus400, FindPetsByStatusQueryResponse } from '../../../models/FindPetsByStatus.ts'
 
 export function findPetsByStatusHandlerResponse200(data: FindPetsByStatusQueryResponse) {
   return new Response(JSON.stringify(data), {

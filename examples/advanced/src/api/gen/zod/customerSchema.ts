@@ -5,10 +5,10 @@
  * Do not edit manually.
  */
 
-import type { Customer } from '../types/Customer.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
-import { addressSchema } from './addressSchema.ts'
 import { z } from 'zod'
+import type { Customer } from '../types/Customer.ts'
+import { addressSchema } from './addressSchema.ts'
 
 export const customerSchema = z.object({
   id: z.coerce.number().int().optional(),

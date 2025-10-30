@@ -1,2 +1,2 @@
-export { getCreatePetsUrl, createPets } from './createPets.ts'
+export { createPets, getCreatePetsUrl } from './createPets.ts'
 export { petsService } from './petsService.ts'

@@ -3,10 +3,10 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import { queryOptions } from '@tanstack/solid-query'
+import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 

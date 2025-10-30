@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 import client from '@/lib/axios-client'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../../types/petApi/UploadFile.ts'
-import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 
 export function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
   return `/pet/${petId}/uploadImage` as const

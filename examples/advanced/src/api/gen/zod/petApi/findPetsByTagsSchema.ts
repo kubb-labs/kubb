@@ -5,16 +5,16 @@
  * Do not edit manually.
  */
 
+import type { ToZod } from '@kubb/plugin-zod/utils'
+import { z } from 'zod'
 import type {
-  FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParams,
   FindPetsByTags200,
   FindPetsByTags400,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTagsQueryParams,
   FindPetsByTagsQueryResponse,
 } from '../../types/petApi/FindPetsByTags.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { petSchema } from '../petSchema.ts'
-import { z } from 'zod'
 
 export const findPetsByTagsQueryParamsSchema = z
   .object({

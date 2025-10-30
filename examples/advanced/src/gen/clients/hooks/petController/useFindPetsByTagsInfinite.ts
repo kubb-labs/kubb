@@ -1,13 +1,13 @@
 import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { InfiniteData, QueryKey, QueryClient, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '../../../../tanstack-query-hook'
-import type {
-  FindPetsByTagsQueryResponse,
-  FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParams,
-  FindPetsByTags400,
-} from '../../../models/ts/petController/FindPetsByTags.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { InfiniteData, InfiniteQueryObserverOptions, QueryClient, QueryKey, UseInfiniteQueryResult } from '../../../../tanstack-query-hook'
 import { infiniteQueryOptions, useInfiniteQuery } from '../../../../tanstack-query-hook'
+import type {
+  FindPetsByTags400,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsQueryResponse,
+} from '../../../models/ts/petController/FindPetsByTags.ts'
 import { findPetsByTags } from '../../axios/petService/findPetsByTags.ts'
 
 export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const

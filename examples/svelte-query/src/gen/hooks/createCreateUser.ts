@@ -14,11 +14,11 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
 

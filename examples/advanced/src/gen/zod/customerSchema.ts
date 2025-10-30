@@ -1,5 +1,5 @@
-import { addressSchema } from './addressSchema.ts'
 import { z } from 'zod/v4'
+import { addressSchema } from './addressSchema.ts'
 
 export const customerSchema = z.object({
   id: z.optional(z.int()),
