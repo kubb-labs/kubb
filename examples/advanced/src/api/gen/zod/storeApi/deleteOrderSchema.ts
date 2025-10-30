@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import type { DeleteOrderPathParams, DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse } from '../../types/storeApi/DeleteOrder.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
+import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../types/storeApi/DeleteOrder.ts'
 
 export const deleteOrderPathParamsSchema = z.object({
   orderId: z.coerce.number().int().describe('ID of the order that needs to be deleted'),

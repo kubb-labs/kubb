@@ -1,5 +1,5 @@
-import { userSchema } from '../userSchema.ts'
 import { z } from 'zod/v4'
+import { userSchema } from '../userSchema.ts'
 
 /**
  * @description successful operation

@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import client from '@/lib/axios-client'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../types/petApi/AddPet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
+import client from '@/lib/axios-client'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../types/petApi/AddPet.ts'
 
 export function getAddPetUrl() {
   return '/pet' as const

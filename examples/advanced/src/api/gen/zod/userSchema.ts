@@ -5,10 +5,10 @@
  * Do not edit manually.
  */
 
-import type { User } from '../types/User.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
-import { tagTagSchema } from './tag/tagSchema.ts'
 import { z } from 'zod'
+import type { User } from '../types/User.ts'
+import { tagTagSchema } from './tag/tagSchema.ts'
 
 export const userSchema = z.object({
   id: z.coerce.number().int().optional(),

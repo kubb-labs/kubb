@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/fetch'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
+import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from './models.ts'
 
 function getLoginUserUrl() {
   const res = { method: 'GET', url: '/user/login' as const }

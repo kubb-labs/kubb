@@ -3,6 +3,32 @@
  * Do not edit manually.
  */
 
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
+import { addFilesMutationRequestSchema } from '../zod/addFilesSchema.js'
+import { addPetMutationRequestSchema } from '../zod/addPetSchema.js'
+import {
+  createPetsHeaderParamsSchema,
+  createPetsMutationRequestSchema,
+  createPetsPathParamsSchema,
+  createPetsQueryParamsSchema,
+} from '../zod/createPetsSchema.js'
+import { createUserMutationRequestSchema } from '../zod/createUserSchema.js'
+import { createUsersWithListInputMutationRequestSchema } from '../zod/createUsersWithListInputSchema.js'
+import { deleteOrderPathParamsSchema } from '../zod/deleteOrderSchema.js'
+import { deletePetHeaderParamsSchema, deletePetPathParamsSchema } from '../zod/deletePetSchema.js'
+import { deleteUserPathParamsSchema } from '../zod/deleteUserSchema.js'
+import { findPetsByStatusPathParamsSchema } from '../zod/findPetsByStatusSchema.js'
+import { findPetsByTagsHeaderParamsSchema, findPetsByTagsQueryParamsSchema } from '../zod/findPetsByTagsSchema.js'
+import { getOrderByIdPathParamsSchema } from '../zod/getOrderByIdSchema.js'
+import { getPetByIdPathParamsSchema } from '../zod/getPetByIdSchema.js'
+import { getUserByNamePathParamsSchema } from '../zod/getUserByNameSchema.js'
+import { loginUserQueryParamsSchema } from '../zod/loginUserSchema.js'
+import { placeOrderPatchMutationRequestSchema } from '../zod/placeOrderPatchSchema.js'
+import { placeOrderMutationRequestSchema } from '../zod/placeOrderSchema.js'
+import { updatePetMutationRequestSchema } from '../zod/updatePetSchema.js'
+import { updatePetWithFormPathParamsSchema, updatePetWithFormQueryParamsSchema } from '../zod/updatePetWithFormSchema.js'
+import { updateUserMutationRequestSchema, updateUserPathParamsSchema } from '../zod/updateUserSchema.js'
 import { addFilesHandler } from './addFiles.js'
 import { addPetHandler } from './addPet.js'
 import { createPetsHandler } from './createPets.js'
@@ -24,32 +50,6 @@ import { placeOrderPatchHandler } from './placeOrderPatch.js'
 import { updatePetHandler } from './updatePet.js'
 import { updatePetWithFormHandler } from './updatePetWithForm.js'
 import { updateUserHandler } from './updateUser.js'
-import { addFilesMutationRequestSchema } from '../zod/addFilesSchema.js'
-import { addPetMutationRequestSchema } from '../zod/addPetSchema.js'
-import {
-  createPetsMutationRequestSchema,
-  createPetsPathParamsSchema,
-  createPetsQueryParamsSchema,
-  createPetsHeaderParamsSchema,
-} from '../zod/createPetsSchema.js'
-import { createUserMutationRequestSchema } from '../zod/createUserSchema.js'
-import { createUsersWithListInputMutationRequestSchema } from '../zod/createUsersWithListInputSchema.js'
-import { deleteOrderPathParamsSchema } from '../zod/deleteOrderSchema.js'
-import { deletePetPathParamsSchema, deletePetHeaderParamsSchema } from '../zod/deletePetSchema.js'
-import { deleteUserPathParamsSchema } from '../zod/deleteUserSchema.js'
-import { findPetsByStatusPathParamsSchema } from '../zod/findPetsByStatusSchema.js'
-import { findPetsByTagsQueryParamsSchema, findPetsByTagsHeaderParamsSchema } from '../zod/findPetsByTagsSchema.js'
-import { getOrderByIdPathParamsSchema } from '../zod/getOrderByIdSchema.js'
-import { getPetByIdPathParamsSchema } from '../zod/getPetByIdSchema.js'
-import { getUserByNamePathParamsSchema } from '../zod/getUserByNameSchema.js'
-import { loginUserQueryParamsSchema } from '../zod/loginUserSchema.js'
-import { placeOrderPatchMutationRequestSchema } from '../zod/placeOrderPatchSchema.js'
-import { placeOrderMutationRequestSchema } from '../zod/placeOrderSchema.js'
-import { updatePetMutationRequestSchema } from '../zod/updatePetSchema.js'
-import { updatePetWithFormPathParamsSchema, updatePetWithFormQueryParamsSchema } from '../zod/updatePetWithFormSchema.js'
-import { updateUserMutationRequestSchema, updateUserPathParamsSchema } from '../zod/updateUserSchema.js'
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
 
 export const server = new McpServer({
   name: 'Swagger Petstore - OpenAPI 3.0',

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
-import { readdir, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { run } from '@mermaid-js/mermaid-cli'
 
 import type { Plugin } from 'vite'

@@ -5,15 +5,15 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 import client from '@/lib/axios-client'
 import type {
+  CreatePetsHeaderParams,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsHeaderParams,
 } from '../../types/petsApi/CreatePets.ts'
-import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 
 export function getCreatePetsUrl({ uuid }: { uuid: CreatePetsPathParams['uuid'] }) {
   return `/pets/${uuid}` as const

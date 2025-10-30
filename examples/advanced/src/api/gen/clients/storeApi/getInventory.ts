@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 import client from '@/lib/axios-client'
 import type { GetInventoryQueryResponse } from '../../types/storeApi/GetInventory.ts'
-import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 
 export function getGetInventoryUrl() {
   return '/store/inventory' as const

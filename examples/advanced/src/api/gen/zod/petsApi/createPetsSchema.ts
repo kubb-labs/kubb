@@ -5,18 +5,18 @@
  * Do not edit manually.
  */
 
+import type { ToZod } from '@kubb/plugin-zod/utils'
+import { z } from 'zod'
 import type {
-  CreatePetsPathParams,
-  CreatePetsQueryParams,
-  CreatePetsHeaderParams,
   CreatePets201,
   CreatePetsError,
+  CreatePetsHeaderParams,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
+  CreatePetsPathParams,
+  CreatePetsQueryParams,
 } from '../../types/petsApi/CreatePets.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { petNotFoundSchema } from '../petNotFoundSchema.ts'
-import { z } from 'zod'
 
 export const createPetsPathParamsSchema = z.object({
   uuid: z.string().describe('UUID'),

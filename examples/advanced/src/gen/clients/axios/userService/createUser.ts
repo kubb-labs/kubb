@@ -1,7 +1,7 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
-import { createUserMutationResponseSchema, createUserMutationRequestSchema } from '../../../zod/userController/createUserSchema.ts'
+import { createUserMutationRequestSchema, createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.ts'
 
 export function getCreateUserUrl() {
   const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/user' as const }

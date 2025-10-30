@@ -1,7 +1,7 @@
-import fetch from '../../client.js'
-import type { ResponseErrorConfig } from '../../client.js'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/ts/AddPet.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
+import type { ResponseErrorConfig } from '../../client.js'
+import fetch from '../../client.js'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/ts/AddPet.js'
 
 /**
  * @description Add a new pet to the store

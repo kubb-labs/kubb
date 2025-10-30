@@ -5,10 +5,10 @@
  * Do not edit manually.
  */
 
-import type { AddFiles200, AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../types/petApi/AddFiles.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
-import { petSchema } from '../petSchema.ts'
 import { z } from 'zod'
+import type { AddFiles200, AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../types/petApi/AddFiles.ts'
+import { petSchema } from '../petSchema.ts'
 
 /**
  * @description successful operation

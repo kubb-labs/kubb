@@ -4,9 +4,8 @@ import yaml from '@stoplight/yaml'
 import { expectTypeOf } from 'vitest'
 
 import { petStore } from '../mocks/petStore.ts'
-
-import { Oas } from './Oas.ts'
 import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './infer/index.ts'
+import { Oas } from './Oas.ts'
 import { parse } from './utils.ts'
 
 describe('swagger Infer', () => {

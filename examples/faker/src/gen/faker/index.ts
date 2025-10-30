@@ -15,10 +15,10 @@ export {
   createUpdatePetMutationResponse,
 } from './createUpdatePet.ts'
 export {
-  createUpdatePetWithFormPathParams,
-  createUpdatePetWithFormQueryParams,
   createUpdatePetWithForm405,
   createUpdatePetWithFormMutationResponse,
+  createUpdatePetWithFormPathParams,
+  createUpdatePetWithFormQueryParams,
 } from './createUpdatePetWithForm.ts'
 export { createUser } from './createUser.ts'
 export { createUserArray } from './createUserArray.ts'

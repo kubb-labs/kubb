@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
+import { faker } from '@faker-js/faker'
 import type { CreateUserMutationResponse } from '../../models/CreateUser.ts'
 import { createUser } from '../createUser.ts'
-import { faker } from '@faker-js/faker'
 
 /**
  * @description successful operation

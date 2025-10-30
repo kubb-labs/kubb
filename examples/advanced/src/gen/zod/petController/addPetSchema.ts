@@ -1,6 +1,6 @@
+import { z } from 'zod/v4'
 import { addPetRequestSchema } from '../addPetRequestSchema.ts'
 import { petSchema } from '../petSchema.ts'
-import { z } from 'zod/v4'
 
 /**
  * @description Successful operation

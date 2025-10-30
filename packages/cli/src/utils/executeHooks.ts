@@ -1,12 +1,10 @@
-import type { Logger } from '@kubb/core/logger'
-import { execa } from 'execa'
-import { parseArgsStringToArgv } from 'string-argv'
-import pc from 'picocolors'
-
-import { ConsolaWritable } from './Writables.ts'
-
 import type { Config } from '@kubb/core'
+import type { Logger } from '@kubb/core/logger'
 import { LogMapper } from '@kubb/core/logger'
+import { execa } from 'execa'
+import pc from 'picocolors'
+import { parseArgsStringToArgv } from 'string-argv'
+import { ConsolaWritable } from './Writables.ts'
 
 type ExecutingHooksProps = {
   hooks: NonNullable<Config['hooks']>

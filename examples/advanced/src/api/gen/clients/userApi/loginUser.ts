@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import client from '@/lib/axios-client'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../types/userApi/LoginUser.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
+import client from '@/lib/axios-client'
+import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../types/userApi/LoginUser.ts'
 
 export function getLoginUserUrl() {
   return '/user/login' as const

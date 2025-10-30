@@ -5,10 +5,10 @@
  * Do not edit manually.
  */
 
-import type { GetOrderByIdPathParams, GetOrderById200, GetOrderById400, GetOrderById404, GetOrderByIdQueryResponse } from '../../types/storeApi/GetOrderById.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
-import { orderSchema } from '../orderSchema.ts'
 import { z } from 'zod'
+import type { GetOrderById200, GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../types/storeApi/GetOrderById.ts'
+import { orderSchema } from '../orderSchema.ts'
 
 export const getOrderByIdPathParamsSchema = z.object({
   orderId: z.coerce.number().int().describe('ID of order that needs to be fetched'),

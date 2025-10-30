@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import type { PetNotFound } from '../types/PetNotFound.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
+import type { PetNotFound } from '../types/PetNotFound.ts'
 
 export const petNotFoundSchema = z.object({
   code: z.coerce.number().int().optional(),

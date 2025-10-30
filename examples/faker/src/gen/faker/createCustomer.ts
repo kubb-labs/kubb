@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
+import { faker } from '@faker-js/faker'
 import type { Customer } from '../models/Customer.ts'
 import { createAddress } from './createAddress.ts'
-import { faker } from '@faker-js/faker'
 
 export function createCustomer(data?: Partial<Customer>): Customer {
   return {

@@ -1,5 +1,5 @@
-import type { Address } from '../models/ts/Address.ts'
 import { faker } from '@faker-js/faker'
+import type { Address } from '../models/ts/Address.ts'
 
 export function createAddressFaker(data?: Partial<Address>): Address {
   return {

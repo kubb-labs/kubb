@@ -1,6 +1,6 @@
+import { z } from 'zod/v4'
 import { categorySchema } from './categorySchema.ts'
 import { tagTagSchema } from './tag/tagSchema.ts'
-import { z } from 'zod/v4'
 
 export const addPetRequestSchema = z.object({
   id: z.optional(z.int()),

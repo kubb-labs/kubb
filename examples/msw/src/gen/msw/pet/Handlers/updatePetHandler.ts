@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../../../models/UpdatePet.ts'
 import { http } from 'msw'
+import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationResponse } from '../../../models/UpdatePet.ts'
 
 export function updatePetHandlerResponse200(data: UpdatePetMutationResponse) {
   return new Response(JSON.stringify(data), {

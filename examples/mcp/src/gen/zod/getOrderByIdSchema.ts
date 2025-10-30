@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { orderSchema } from './orderSchema.js'
 import { z } from 'zod'
+import { orderSchema } from './orderSchema.js'
 
 export const getOrderByIdPathParamsSchema = z.object({
   orderId: z.coerce.number().int().describe('ID of order that needs to be fetched'),

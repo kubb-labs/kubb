@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { LoginUserQueryParams, LoginUserQueryResponse } from '../../models/LoginUser.ts'
 import { faker } from '@faker-js/faker'
+import type { LoginUserQueryParams, LoginUserQueryResponse } from '../../models/LoginUser.ts'
 
 export function createLoginUserQueryParams(data?: Partial<LoginUserQueryParams>): LoginUserQueryParams {
   faker.seed([220])

@@ -5,15 +5,15 @@
  * Do not edit manually.
  */
 
+import type { ToZod } from '@kubb/plugin-zod/utils'
+import { z } from 'zod'
 import type {
   PlaceOrderPatch200,
   PlaceOrderPatch405,
   PlaceOrderPatchMutationRequest,
   PlaceOrderPatchMutationResponse,
 } from '../../types/storeApi/PlaceOrderPatch.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { orderSchema } from '../orderSchema.ts'
-import { z } from 'zod'
 
 /**
  * @description successful operation

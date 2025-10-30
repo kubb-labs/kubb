@@ -1,10 +1,8 @@
-import { isPromise } from '@kubb/core/utils'
-
-import { getPlugins } from './getPlugins.ts'
-
 import type { Config, UserConfig } from '@kubb/core'
+import { isPromise } from '@kubb/core/utils'
 import type { Args } from '../commands/generate.ts'
 import type { CosmiconfigResult } from './getCosmiConfig.ts'
+import { getPlugins } from './getPlugins.ts'
 
 /**
  * Converting UserConfig to Config without a change in the object beside the JSON convert.

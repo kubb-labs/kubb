@@ -1,6 +1,6 @@
+import { z } from 'zod/v4'
 import { catSchema } from './catSchema.ts'
 import { dogSchema } from './dogSchema.ts'
-import { z } from 'zod/v4'
 
 export const animalSchema = z.union([
   catSchema.and(

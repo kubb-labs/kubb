@@ -5,10 +5,10 @@
  * Do not edit manually.
  */
 
-import type { UpdateUserPathParams, UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse } from '../../types/userApi/UpdateUser.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
-import { userSchema } from '../userSchema.ts'
 import { z } from 'zod'
+import type { UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../types/userApi/UpdateUser.ts'
+import { userSchema } from '../userSchema.ts'
 
 export const updateUserPathParamsSchema = z.object({
   username: z.string().describe('name that need to be deleted'),

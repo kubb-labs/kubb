@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import type { Order } from '../types/Order.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
+import type { Order } from '../types/Order.ts'
 
 export const orderSchema = z.object({
   id: z.coerce.number().int().min(3).max(100).optional(),

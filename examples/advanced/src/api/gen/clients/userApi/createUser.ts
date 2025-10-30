@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 import client from '@/lib/axios-client'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../types/userApi/CreateUser.ts'
-import type { RequestConfig, ResponseErrorConfig } from '@/lib/axios-client'
 
 export function getCreateUserUrl() {
   return '/user' as const

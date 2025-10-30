@@ -5,15 +5,15 @@
  * Do not edit manually.
  */
 
+import type { ToZod } from '@kubb/plugin-zod/utils'
+import { z } from 'zod'
 import type {
   CreateUsersWithListInput200,
   CreateUsersWithListInputError,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../types/userApi/CreateUsersWithListInput.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { userSchema } from '../userSchema.ts'
-import { z } from 'zod'
 
 /**
  * @description Successful operation

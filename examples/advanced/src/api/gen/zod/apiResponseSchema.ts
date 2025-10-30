@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import type { ApiResponse } from '../types/ApiResponse.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
+import type { ApiResponse } from '../types/ApiResponse.ts'
 
 export const apiResponseSchema = z.object({
   code: z.coerce.number().int().optional(),

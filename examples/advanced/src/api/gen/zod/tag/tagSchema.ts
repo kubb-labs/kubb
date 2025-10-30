@@ -5,9 +5,9 @@
  * Do not edit manually.
  */
 
-import type { TagTag } from '../../types/tag/Tag.ts'
 import type { ToZod } from '@kubb/plugin-zod/utils'
 import { z } from 'zod'
+import type { TagTag } from '../../types/tag/Tag.ts'
 
 export const tagTagSchema = z.object({
   id: z.coerce.number().int().min(5).max(7).default(1),

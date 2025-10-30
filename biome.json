@@ -1,6 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/latest/schema.json",
   "assist": {
+    "enabled": true,
     "actions": {
       "source": {
         "organizeImports": "on"
@@ -22,6 +23,7 @@
       "!**/.github",
       "!**/.codesandbox",
       "!**/.devcontainer",
+      "!**/docs/.vitepress",
       "!.nx"
     ]
   },

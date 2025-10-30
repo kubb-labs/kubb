@@ -5,16 +5,16 @@
  * Do not edit manually.
  */
 
+import type { ToZod } from '@kubb/plugin-zod/utils'
+import { z } from 'zod'
 import type {
-  UploadFilePathParams,
-  UploadFileQueryParams,
   UploadFile200,
   UploadFileMutationRequest,
   UploadFileMutationResponse,
+  UploadFilePathParams,
+  UploadFileQueryParams,
 } from '../../types/petApi/UploadFile.ts'
-import type { ToZod } from '@kubb/plugin-zod/utils'
 import { apiResponseSchema } from '../apiResponseSchema.ts'
-import { z } from 'zod'
 
 export const uploadFilePathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet to update'),
