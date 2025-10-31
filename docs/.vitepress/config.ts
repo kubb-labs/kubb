@@ -124,10 +124,6 @@ const knowledgeBaseSidebarRu = [
     text: 'Продвинутый',
     items: [
       {
-        text: 'Использование JSX в Kubb',
-        link: '/ru/knowledge-base/react/',
-      },
-      {
         text: 'Генераторы',
         link: '/ru/knowledge-base/generators/',
       },
@@ -306,44 +302,6 @@ const mainSidebarRu = [
       {
         text: '@kubb/oas',
         link: '/ru/helpers/oas/',
-      },
-      {
-        text: '@kubb/react',
-        link: '/ru/helpers/react/',
-        collapsed: true,
-        items: [
-          {
-            text: 'Компоненты',
-            link: '/ru/helpers/react/components/',
-            items: [
-              {
-                text: 'Text',
-                link: '/ru/helpers/react/components/text/',
-              },
-              {
-                text: 'Function',
-                link: '/ru/helpers/react/components/function/',
-              },
-              {
-                text: 'Type',
-                link: '/ru/helpers/react/components/type/',
-              },
-              {
-                text: 'Const',
-                link: '/ru/helpers/react/components/const/',
-              },
-              {
-                text: 'File',
-                link: '/ru/helpers/react/components/file/',
-              },
-            ],
-          },
-          {
-            text: 'Хуки',
-            link: '/ru/helpers/react/hooks/',
-            items: [],
-          },
-        ],
       },
     ],
   },
@@ -585,10 +543,6 @@ const examplesSidebarRu = [
     text: 'Генераторы <span class="new">новое</span>',
     link: '/ru/examples/generators/',
   },
-  {
-    text: 'React <span class="new">новое</span>',
-    link: '/ru/examples/react/',
-  },
 ]
 
 const blogSidebar = [
@@ -608,12 +562,16 @@ const blogSidebar = [
 
 const blogSidebarRu = [
   {
-    text: 'Релиз Kubb 3.0',
-    link: '/ru/blog/v3/',
+    text: 'Представляем Fabric',
+    link: '/ru/blog/fabric/',
   },
   {
     text: 'Релиз Kubb 4.0',
     link: '/ru/blog/v4/',
+  },
+  {
+    text: 'Релиз Kubb 3.0',
+    link: '/ru/blog/v3/',
   },
 ]
 
@@ -740,10 +698,6 @@ const documentationMenuRu = [
       {
         text: '@kubb/oas',
         link: '/ru/helpers/oas/',
-      },
-      {
-        text: '@kubb/react',
-        link: '/ru/helpers/react/',
       },
     ],
   },
