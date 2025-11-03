@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { usePluginManager } from '@kubb/core/hooks'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
@@ -13,7 +14,7 @@ import type { PluginVueQuery } from '../types'
 
 export const queryGenerator = createReactGenerator<PluginVueQuery>({
   name: 'vue-query',
-  Operation({ operation, generator, plugin }) {
+  Operation({ config, operation, generator, plugin }) {
     const {
       options,
       options: { output },
@@ -83,12 +84,34 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
         {options.parser === 'zod' && (
           <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={query.file.path} path={zod.file.path} />
         )}
+        {options.client.importPath ? (
+          <>
+            <File.Import name={'fetch'} path={options.client.importPath} />
+            <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
+            {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
+          </>
+        ) : (
+          <>
+            <File.Import name={'fetch'} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')} />
+            <File.Import
+              name={['RequestConfig', 'ResponseErrorConfig']}
+              root={query.file.path}
+              path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
+              isTypeOnly
+            />
+            {options.client.dataReturnType === 'full' && (
+              <File.Import
+                name={['ResponseConfig']}
+                root={query.file.path}
+                path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
+                isTypeOnly
+              />
+            )}
+          </>
+        )}
         <File.Import name={['toValue']} path="vue" />
         <File.Import name={['MaybeRefOrGetter']} path="vue" isTypeOnly />
-        <File.Import name={'fetch'} path={options.client.importPath} />
         {!!hasClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
-        <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
-        {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
         <File.Import
           name={[
             type.schemas.request?.name,
@@ -118,7 +141,7 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
             operation={operation}
             typeSchemas={type.schemas}
             zodSchemas={zod.schemas}
-            dataReturnType={options.client.dataReturnType}
+            dataReturnType={options.client.dataReturnType || 'data'}
             paramsCasing={options.paramsCasing}
             paramsType={options.paramsType}
             pathParamsType={options.pathParamsType}
@@ -134,7 +157,7 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
           typeSchemas={type.schemas}
           paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
-          dataReturnType={options.client.dataReturnType}
+          dataReturnType={options.client.dataReturnType || 'data'}
         />
         {options.query && (
           <>
@@ -148,7 +171,7 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
               paramsType={options.paramsType}
               pathParamsType={options.pathParamsType}
               operation={operation}
-              dataReturnType={options.client.dataReturnType}
+              dataReturnType={options.client.dataReturnType || 'data'}
               queryKeyName={queryKey.name}
               queryKeyTypeName={queryKey.typeName}
             />

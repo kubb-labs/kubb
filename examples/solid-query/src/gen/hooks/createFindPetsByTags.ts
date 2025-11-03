@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import fetch from '@kubb/plugin-client/clients/axios'
 import { queryOptions } from '@tanstack/solid-query'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../.kubb/fetcher.ts'
+import fetch from '../.kubb/fetcher.ts'
 import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/FindPetsByTags.ts'
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const

@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
+import { resolveModuleSource } from '@kubb/core/utils'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -29,13 +30,14 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     generators = [clientGenerator, group ? groupedClientGenerator : undefined, operations ? operationsGenerator : undefined].filter(Boolean),
     parser = 'client',
     client = 'axios',
-    importPath = client === 'fetch' ? '@kubb/plugin-client/clients/fetch' : '@kubb/plugin-client/clients/axios',
+    importPath,
     contentType,
   } = options
 
   return {
     name: pluginClientName,
     options: {
+      client,
       output,
       group,
       parser,
@@ -98,6 +100,24 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
       const baseURL = await swaggerPlugin.context.getBaseURL()
+
+      // pre add bundled fetcher
+      const containsFetcher = this.fileManager.files.some((file) => file.baseName === 'fetcher.ts')
+
+      if (!this.plugin.options.importPath && !containsFetcher) {
+        await this.addFile({
+          baseName: 'fetcher.ts',
+          path: path.resolve(root, '.kubb/fetcher.ts'),
+          sources: [
+            {
+              name: 'fetcher',
+              value: resolveModuleSource(
+                this.plugin.options.client === 'fetch' ? '@kubb/plugin-client/templates/clients/fetch' : '@kubb/plugin-client/templates/clients/axios',
+              ).source,
+            },
+          ],
+        })
+      }
 
       const operationGenerator = new OperationGenerator(
         baseURL

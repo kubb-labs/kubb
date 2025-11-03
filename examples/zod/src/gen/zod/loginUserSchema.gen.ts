@@ -28,6 +28,6 @@ export const loginUser400Schema = z.any()
 
 export type LoginUser400Schema = z.infer<typeof loginUser400Schema>
 
-export const loginUserQueryResponseSchema = z.lazy(() => loginUser200Schema)
+export const loginUserQueryResponseSchema = loginUser200Schema
 
 export type LoginUserQueryResponseSchema = z.infer<typeof loginUserQueryResponseSchema>

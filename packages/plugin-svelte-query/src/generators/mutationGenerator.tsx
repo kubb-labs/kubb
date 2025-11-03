@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { usePluginManager } from '@kubb/core/hooks'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
@@ -13,7 +14,7 @@ import type { PluginSvelteQuery } from '../types'
 
 export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
   name: 'svelte-query',
-  Operation({ operation, generator, plugin }) {
+  Operation({ config, operation, generator, plugin }) {
     const {
       options,
       options: { output },
@@ -80,9 +81,32 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
         {options.parser === 'zod' && (
           <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={mutation.file.path} path={zod.file.path} />
         )}
-        <File.Import name={'fetch'} path={options.client.importPath} />
+        {options.client.importPath ? (
+          <>
+            <File.Import name={'fetch'} path={options.client.importPath} />
+            <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
+            {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
+          </>
+        ) : (
+          <>
+            <File.Import name={'fetch'} root={mutation.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')} />
+            <File.Import
+              name={['RequestConfig', 'ResponseErrorConfig']}
+              root={mutation.file.path}
+              path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
+              isTypeOnly
+            />
+            {options.client.dataReturnType === 'full' && (
+              <File.Import
+                name={['ResponseConfig']}
+                root={mutation.file.path}
+                path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
+                isTypeOnly
+              />
+            )}
+          </>
+        )}
         {!!hasClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
-        <File.Import name={['RequestConfig', 'ResponseConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
         <File.Import
           name={[
             type.schemas.request?.name,
@@ -113,7 +137,7 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
             operation={operation}
             typeSchemas={type.schemas}
             zodSchemas={zod.schemas}
-            dataReturnType={options.client.dataReturnType}
+            dataReturnType={options.client.dataReturnType || 'data'}
             paramsCasing={options.paramsCasing}
             paramsType={options.paramsType}
             pathParamsType={options.pathParamsType}
@@ -131,7 +155,7 @@ export const mutationGenerator = createReactGenerator<PluginSvelteQuery>({
               typeSchemas={type.schemas}
               operation={operation}
               paramsCasing={options.paramsCasing}
-              dataReturnType={options.client.dataReturnType}
+              dataReturnType={options.client.dataReturnType || 'data'}
               paramsType={options.paramsType}
               pathParamsType={options.pathParamsType}
               mutationKeyName={mutationKey.name}

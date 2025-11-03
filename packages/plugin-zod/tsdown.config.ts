@@ -4,7 +4,6 @@ export default defineConfig({
   entry: {
     index: 'src/index.ts',
     components: 'src/components/index.ts',
-    utils: 'src/utils/index.ts',
     generators: 'src/generators/index.ts',
   },
   dts: true,
@@ -12,5 +11,5 @@ export default defineConfig({
   platform: 'node',
   sourcemap: true,
   shims: true,
-  exports: true,
+  exports: false,
 })

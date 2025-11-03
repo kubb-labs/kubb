@@ -7,6 +7,7 @@ export {
   isPromiseRejectedResult,
 } from './promise.ts'
 export { renderTemplate } from './renderTemplate.ts'
+export { resolveModuleSource } from './resolveModuleSource.ts'
 export { timeout } from './timeout.ts'
 export type { URLObject } from './URLPath.ts'
 export { URLPath } from './URLPath.ts'

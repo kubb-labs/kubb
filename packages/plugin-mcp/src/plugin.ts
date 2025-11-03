@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
+import { resolveModuleSource } from '@kubb/core/utils'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -28,7 +29,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
       output,
       group,
       client: {
-        importPath: '@kubb/plugin-client/clients/axios',
+        client: 'axios',
         dataReturnType: 'data',
         ...options.client,
       },
@@ -85,6 +86,29 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
       const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
+      const baseURL = await swaggerPlugin.context.getBaseURL()
+
+      if (baseURL) {
+        this.plugin.options.client.baseURL = baseURL
+      }
+
+      const containsFetcher = this.fileManager.files.some((file) => file.baseName === 'fetcher.ts')
+
+      if (!this.plugin.options.client.importPath && !containsFetcher) {
+        // pre add bundled fetcher
+        await this.addFile({
+          baseName: 'fetcher.ts',
+          path: path.resolve(root, '.kubb/fetcher.ts'),
+          sources: [
+            {
+              name: 'fetcher',
+              value: resolveModuleSource(
+                this.plugin.options.client.client === 'fetch' ? '@kubb/plugin-client/templates/clients/fetch' : '@kubb/plugin-client/templates/clients/axios',
+              ).source,
+            },
+          ],
+        })
+      }
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,

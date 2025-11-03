@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
+import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
@@ -30,7 +30,7 @@ describe('operationsGenerator operations', async () => {
 
     const options: PluginMcp['resolvedOptions'] = {
       client: {
-        importPath: '@kubb/plugin-client/clients/axios',
+        client: 'axios',
         baseURL: '',
         dataReturnType: 'data',
       },
@@ -59,6 +59,7 @@ describe('operationsGenerator operations', async () => {
     await buildOperations(
       operations.map((item) => item.operation),
       {
+        config: {} as Config,
         fabric,
         generator,
         Component: serverGenerator.Operations,

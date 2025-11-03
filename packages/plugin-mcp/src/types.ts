@@ -16,7 +16,7 @@ export type Options = {
    * By default, the first JSON valid mediaType will be used
    */
   contentType?: contentType
-  client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath' | 'baseURL'>
+  client?: Pick<PluginClient['options'], 'client' | 'dataReturnType' | 'importPath' | 'baseURL'>
 
   /**
    * Group the mcp requests based on the provided name.
@@ -49,7 +49,7 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
-  client: Required<Omit<NonNullable<PluginMcp['options']['client']>, 'baseURL'>> & { baseURL?: string }
+  client: NonNullable<PluginMcp['options']['client']>
 }
 
 export type PluginMcp = PluginFactoryOptions<'plugin-mcp', Options, ResolvedOptions, never, ResolvePathOptions>

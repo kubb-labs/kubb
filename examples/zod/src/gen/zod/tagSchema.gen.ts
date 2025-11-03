@@ -6,7 +6,7 @@
 import { z } from '../../zod.ts'
 
 export const tagSchema = z.object({
-  id: z.optional(z.number().int()),
+  id: z.optional(z.int()),
   name: z.optional(z.string()),
 })
 

@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
+import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetcher.ts'
+import fetch from '../.kubb/fetcher.ts'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const

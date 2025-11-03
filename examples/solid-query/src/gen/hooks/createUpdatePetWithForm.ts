@@ -3,10 +3,10 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import fetch from '@kubb/plugin-client/clients/axios'
 import type { QueryClient, QueryKey, UseBaseQueryOptions, UseQueryResult } from '@tanstack/solid-query'
 import { queryOptions, useQuery } from '@tanstack/solid-query'
+import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetcher.ts'
+import fetch from '../.kubb/fetcher.ts'
 import type {
   UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,

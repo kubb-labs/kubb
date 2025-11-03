@@ -6,9 +6,11 @@
 import { z } from '../../zod.ts'
 
 export const categorySchema = z.object({
-  id: z.optional(z.number().int()),
+  id: z.optional(z.int()),
   name: z.optional(z.string()),
-  parent: z.optional(z.lazy(() => categorySchema)),
+  get parent() {
+    return z.optional(categorySchema)
+  },
 })
 
 export type CategorySchema = z.infer<typeof categorySchema>

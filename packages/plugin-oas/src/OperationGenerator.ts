@@ -229,6 +229,7 @@ export class OperationGenerator<
 
             if (generator.type === 'react') {
               await buildOperation(operation, {
+                config: this.context.pluginManager.config,
                 fabric: this.context.fabric,
                 Component: generator.Operation,
                 generator: this,
@@ -246,6 +247,7 @@ export class OperationGenerator<
 
             const result = await generator.operation?.({
               generator: this,
+              config: this.context.pluginManager.config,
               operation,
               plugin: {
                 ...this.context.plugin,
@@ -268,6 +270,7 @@ export class OperationGenerator<
             operations.map((op) => op.operation),
             {
               fabric: this.context.fabric,
+              config: this.context.pluginManager.config,
               Component: generator.Operations,
               generator: this,
               plugin: this.context.plugin,
@@ -279,6 +282,7 @@ export class OperationGenerator<
 
         const operationsResult = await generator.operations?.({
           generator: this,
+          config: this.context.pluginManager.config,
           operations: operations.map((op) => op.operation),
           plugin: this.context.plugin,
         })

@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
-import fetch from '@kubb/plugin-client/clients/fetch'
+import type { RequestConfig, ResponseErrorConfig } from './.kubb/fetcher.ts'
+import fetch from './.kubb/fetcher.ts'
 import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from './models.ts'
 
 function getUpdatePetUrl() {

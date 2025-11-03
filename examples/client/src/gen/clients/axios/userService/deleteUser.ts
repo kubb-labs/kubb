@@ -4,8 +4,8 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import fetch from '@kubb/plugin-client/clients/axios'
+import type { RequestConfig, ResponseErrorConfig } from '../../../.kubb/fetcher.js'
+import fetch from '../../../.kubb/fetcher.js'
 import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser.js'
 
 function getDeleteUserUrl({ username }: { username: DeleteUserPathParams['username'] }) {

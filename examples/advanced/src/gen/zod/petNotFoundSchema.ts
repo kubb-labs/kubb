@@ -1,8 +1,10 @@
-import { z } from 'zod/v4'
+import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { PetNotFound } from '../models/ts/PetNotFound.ts'
 
 export const petNotFoundSchema = z.object({
-  code: z.optional(z.int()),
+  code: z.optional(z.number().int()),
   message: z.optional(z.string()),
-})
+}) as unknown as ToZod<PetNotFound>
 
-export type PetNotFoundSchema = z.infer<typeof petNotFoundSchema>
+export type PetNotFoundSchema = PetNotFound

@@ -193,9 +193,9 @@ export default defineConfig(() => {
           group: { type: 'tag' },
           dateType: 'stringOffset',
           inferred: true,
-          typed: false,
+          typed: true,
           operations: false,
-          version: '4',
+          version: '3',
         }),
         pluginMcp({
           output: {

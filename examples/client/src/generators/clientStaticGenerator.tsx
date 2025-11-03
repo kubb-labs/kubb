@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { usePluginManager } from '@kubb/core/hooks'
 import { URLPath } from '@kubb/core/utils'
 import type { PluginClient } from '@kubb/plugin-client'
@@ -10,7 +11,7 @@ import { File } from '@kubb/react-fabric'
 
 export const clientStaticGenerator = createReactGenerator<PluginClient>({
   name: 'client',
-  Operation({ plugin, operation, generator }) {
+  Operation({ config, plugin, operation, generator }) {
     const pluginManager = usePluginManager()
     const {
       options,
@@ -38,8 +39,23 @@ export const clientStaticGenerator = createReactGenerator<PluginClient>({
         banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
-        <File.Import name={'fetch'} path={options.importPath} />
-        <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
+        {options.importPath ? (
+          <>
+            <File.Import name={'fetch'} path={options.importPath} />
+            <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
+          </>
+        ) : (
+          <>
+            <File.Import name={'fetch'} root={client.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')} />
+            <File.Import
+              name={['RequestConfig', 'ResponseErrorConfig']}
+              root={client.file.path}
+              path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
+              isTypeOnly
+            />
+          </>
+        )}
+
         <File.Import
           name={
             [

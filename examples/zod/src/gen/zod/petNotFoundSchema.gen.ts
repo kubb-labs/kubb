@@ -6,7 +6,7 @@
 import { z } from '../../zod.ts'
 
 export const petNotFoundSchema = z.object({
-  code: z.optional(z.number().int()),
+  code: z.optional(z.int()),
   message: z.optional(z.string()),
 })
 

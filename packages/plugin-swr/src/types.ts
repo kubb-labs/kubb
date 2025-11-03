@@ -81,7 +81,7 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
-  client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath' | 'baseURL'>
+  client?: Pick<PluginClient['options'], 'client' | 'dataReturnType' | 'importPath' | 'baseURL'>
   queryKey?: QueryKey
   query?: Query | false
   mutationKey?: MutationKey
@@ -124,7 +124,7 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output<Oas>
-  client: Required<Omit<NonNullable<PluginSwr['options']['client']>, 'baseURL'>> & { baseURL?: string }
+  client: NonNullable<PluginSwr['options']['client']>
   parser: Required<NonNullable<Options['parser']>>
   queryKey: QueryKey | undefined
   query: NonNullable<Required<Query>> | false

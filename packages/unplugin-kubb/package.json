@@ -99,7 +99,7 @@
 		"@kubb/core": "workspace:*",
 		"@nuxt/kit": "^3.20.0",
 		"@nuxt/schema": "^3.20.0",
-		"rimraf": "^6.0.1",
+		"rimraf": "^6.1.0",
 		"rollup": "^4.52.5",
 		"vite": "^6.4.1",
 		"webpack": "^5.102.1"

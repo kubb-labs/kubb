@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
+import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
@@ -448,6 +448,7 @@ describe('typeGenerator schema', async () => {
         value: schema,
       },
       {
+        config: {} as Config,
         fabric,
         generator,
         Component: typeGenerator.Schema,
@@ -569,6 +570,7 @@ describe('typeGenerator operation', async () => {
     })
     const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {
+      config: {} as Config,
       fabric,
       generator,
       Component: typeGenerator.Operation,

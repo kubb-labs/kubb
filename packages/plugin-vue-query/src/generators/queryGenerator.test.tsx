@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
+import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 
@@ -73,7 +73,7 @@ describe('queryGenerator operation', async () => {
       options: {
         client: {
           dataReturnType: 'full',
-          importPath: '@kubb/plugin-client/clients/axios',
+          client: 'axios',
         },
       },
     },
@@ -113,7 +113,8 @@ describe('queryGenerator operation', async () => {
     const options: PluginVueQuery['resolvedOptions'] = {
       client: {
         dataReturnType: 'data',
-        importPath: '@kubb/plugin-client/clients/axios',
+        client: 'axios',
+        importPath: undefined,
       },
       parser: 'zod',
       paramsType: 'inline',
@@ -153,6 +154,7 @@ describe('queryGenerator operation', async () => {
 
     const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {
+      config: {} as Config,
       fabric,
       generator,
       Component: queryGenerator.Operation,

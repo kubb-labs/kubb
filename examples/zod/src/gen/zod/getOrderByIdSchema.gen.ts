@@ -15,7 +15,7 @@ export type GetOrderByIdPathParamsSchema = z.infer<typeof getOrderByIdPathParams
 /**
  * @description successful operation
  */
-export const getOrderById200Schema = z.lazy(() => orderSchema)
+export const getOrderById200Schema = orderSchema
 
 export type GetOrderById200Schema = z.infer<typeof getOrderById200Schema>
 
@@ -33,6 +33,6 @@ export const getOrderById404Schema = z.any()
 
 export type GetOrderById404Schema = z.infer<typeof getOrderById404Schema>
 
-export const getOrderByIdQueryResponseSchema = z.lazy(() => getOrderById200Schema)
+export const getOrderByIdQueryResponseSchema = getOrderById200Schema
 
 export type GetOrderByIdQueryResponseSchema = z.infer<typeof getOrderByIdQueryResponseSchema>

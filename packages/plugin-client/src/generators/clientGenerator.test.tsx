@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
+import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
@@ -112,7 +112,8 @@ describe('clientGenerator operation', async () => {
       paramsCasing: undefined,
       paramsType: 'inline',
       pathParamsType: 'inline',
-      importPath: '@kubb/plugin-client/clients/axios',
+      client: 'axios',
+      importPath: undefined,
       baseURL: '',
       parser: 'client',
       output: {
@@ -140,6 +141,7 @@ describe('clientGenerator operation', async () => {
     const operation = oas.operation(props.path, props.method)
 
     await buildOperation(operation, {
+      config: {} as Config,
       fabric,
       generator,
       Component: clientGenerator.Operation,
