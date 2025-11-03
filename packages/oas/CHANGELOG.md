@@ -1,5 +1,7 @@
 # @kubb/oas
 
+## 4.5.1
+
 ## 4.5.0
 
 ### Minor Changes
