@@ -1,8 +1,8 @@
-import useSWRMutation from 'swr/mutation'
-import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
-import { createUser } from '../../axios/userService/createUser.ts'
+import fetch from "../../../../axios-client.ts";
+import useSWRMutation from "swr/mutation";
+import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from "../../../../axios-client.ts";
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from "../../../models/ts/userController/CreateUser.ts";
+import { createUser } from "../../axios/userService/createUser.ts";
 
 export const createUserMutationKeySWR = () => [{ url: '/user' }] as const
 
@@ -13,15 +13,13 @@ export type CreateUserMutationKeySWR = ReturnType<typeof createUserMutationKeySW
  * @summary Create user
  * {@link /user}
  */
-export function useCreateUserSWR(
-  options: {
-    mutation?: Parameters<
-      typeof useSWRMutation<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, CreateUserMutationKeySWR, CreateUserMutationRequest>
-    >[2]
-    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch }
-    shouldFetch?: boolean
-  } = {},
-) {
+export function useCreateUserSWR(options: 
+{
+  mutation?: Parameters<typeof useSWRMutation<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, CreateUserMutationKeySWR, CreateUserMutationRequest>>[2],
+  client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch },
+  shouldFetch?: boolean,
+}
+ = {}) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createUserMutationKeySWR()
 
@@ -30,6 +28,6 @@ export function useCreateUserSWR(
     async (_url, { arg: data }) => {
       return createUser({ data }, config)
     },
-    mutationOptions,
+    mutationOptions
   )
 }

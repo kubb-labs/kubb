@@ -1127,6 +1127,7 @@ export class SchemaGenerator<
                   tree,
                 },
                 {
+                  config: this.context.pluginManager.config,
                   fabric: this.context.fabric,
                   Component: generator.Schema,
                   generator: this,
@@ -1144,6 +1145,7 @@ export class SchemaGenerator<
             }
 
             const result = await generator.schema?.({
+              config: this.context.pluginManager.config,
               generator: this,
               schema: {
                 name,

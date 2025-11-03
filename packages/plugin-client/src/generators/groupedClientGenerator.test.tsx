@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
+import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
@@ -33,7 +33,8 @@ describe('groupedClientsGenerators operations', async () => {
       paramsType: 'inline',
       paramsCasing: undefined,
       pathParamsType: 'inline',
-      importPath: '@kubb/plugin-client/clients/axios',
+      client: 'axios',
+      importPath: undefined,
       baseURL: '',
       parser: 'client',
       output: {
@@ -62,6 +63,7 @@ describe('groupedClientsGenerators operations', async () => {
     await buildOperations(
       operations.map((item) => item.operation),
       {
+        config: {} as Config,
         fabric,
         generator,
         Component: groupedClientGenerator.Operations,

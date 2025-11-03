@@ -1,9 +1,9 @@
-import { z } from 'zod/v4'
-import { userSchema } from '../userSchema.ts'
+import { userSchema } from "../userSchema.ts";
+import { z } from "zod/v4";
 
 export const getUserByNamePathParamsSchema = z.object({
-  username: z.string().describe('The name that needs to be fetched. Use user1 for testing. '),
-})
+    "username": z.string().describe("The name that needs to be fetched. Use user1 for testing. ")
+    })
 
 export type GetUserByNamePathParamsSchema = z.infer<typeof getUserByNamePathParamsSchema>
 

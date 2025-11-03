@@ -1,6 +1,8 @@
 import path from 'node:path'
 import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
+import { resolveModuleSource } from '@kubb/core/utils'
+import { pluginClientName } from '@kubb/plugin-client'
 import type { PluginOas } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -39,7 +41,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     options: {
       output,
       client: {
-        importPath: '@kubb/plugin-client/clients/axios',
+        client: 'axios',
         dataReturnType: 'data',
         pathParamsType,
         ...options.client,
@@ -137,6 +139,25 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
 
       if (baseURL) {
         this.plugin.options.client.baseURL = baseURL
+      }
+
+      const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
+      const containsFetcher = this.fileManager.files.some((file) => file.baseName === 'fetcher.ts')
+
+      if (!hasClientPlugin && !this.plugin.options.client.importPath && !containsFetcher) {
+        // pre add bundled fetcher
+        await this.addFile({
+          baseName: 'fetcher.ts',
+          path: path.resolve(root, '.kubb/fetcher.ts'),
+          sources: [
+            {
+              name: 'fetcher',
+              value: resolveModuleSource(
+                this.plugin.options.client.client === 'fetch' ? '@kubb/plugin-client/templates/clients/fetch' : '@kubb/plugin-client/templates/clients/axios',
+              ).source,
+            },
+          ],
+        })
       }
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {

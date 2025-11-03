@@ -1,8 +1,8 @@
-import { z } from 'zod/v4'
+import { z } from "zod/v4";
 
 export const deleteUserPathParamsSchema = z.object({
-  username: z.string().describe('The name that needs to be deleted'),
-})
+    "username": z.string().describe("The name that needs to be deleted")
+    })
 
 export type DeleteUserPathParamsSchema = z.infer<typeof deleteUserPathParamsSchema>
 

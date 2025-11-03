@@ -47,7 +47,6 @@ export type Options = {
    * Path to the client import path that will be used to do the API calls.
    * It will be used as `import client from '${client.importPath}'`.
    * It allows both relative and absolute path but be aware that we will not change the path.
-   * @default '@kubb/plugin-client/clients/axios'
    */
   importPath?: string
   /**
@@ -88,8 +87,8 @@ export type Options = {
   parser?: 'client' | 'zod'
   /**
    * Which client should be used to do the HTTP calls
-   * - 'axios' will use `@kubb/plugin-client/clients/axios` to fetch data.
-   * - 'fetch' will use `@kubb/plugin-client/clients/fetch` to fetch data.
+   * - 'axios' will use `@kubb/plugin-client/templates/axios` to fetch data.
+   * - 'fetch' will use `@kubb/plugin-client/templates/fetch` to fetch data.
    * @default 'axios'
    */
   client?: 'axios' | 'fetch'
@@ -109,9 +108,10 @@ type ResolvedOptions = {
   output: Output<Oas>
   group?: Options['group']
   baseURL: string | undefined
+  client: Options['client']
   parser: NonNullable<Options['parser']>
   urlType: NonNullable<Options['urlType']>
-  importPath: NonNullable<Options['importPath']>
+  importPath: Options['importPath']
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   paramsType: NonNullable<Options['paramsType']>

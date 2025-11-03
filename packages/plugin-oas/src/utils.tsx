@@ -1,4 +1,4 @@
-import type { Plugin, PluginFactoryOptions } from '@kubb/core'
+import type { Config, Plugin, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { App, createReactFabric, type Fabric } from '@kubb/react-fabric'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
@@ -7,6 +7,7 @@ import type { SchemaGenerator, SchemaGeneratorOptions } from './SchemaGenerator.
 import type { Schema } from './SchemaMapper.ts'
 
 type BuildOperationsOptions<TOptions extends PluginFactoryOptions> = {
+  config: Config
   fabric: Fabric
   Component: ReactGenerator<any>['Operations']
   generator: Omit<OperationGenerator<TOptions>, 'build'>
@@ -15,7 +16,7 @@ type BuildOperationsOptions<TOptions extends PluginFactoryOptions> = {
 
 export async function buildOperations<TOptions extends PluginFactoryOptions>(
   operations: Array<Operation>,
-  { fabric, plugin, generator, Component }: BuildOperationsOptions<TOptions>,
+  { config, fabric, plugin, generator, Component }: BuildOperationsOptions<TOptions>,
 ): Promise<void> {
   if (!Component) {
     return undefined
@@ -27,7 +28,7 @@ export async function buildOperations<TOptions extends PluginFactoryOptions>(
   fabricChild.render(() => {
     return (
       <App meta={{ pluginManager, plugin, mode, oas }}>
-        <Component operations={operations} generator={generator} plugin={plugin} />
+        <Component config={config} operations={operations} generator={generator} plugin={plugin} />
       </App>
     )
   })
@@ -36,6 +37,7 @@ export async function buildOperations<TOptions extends PluginFactoryOptions>(
 }
 
 type BuildOperationOptions<TOptions extends PluginFactoryOptions> = {
+  config: Config
   fabric: Fabric
   Component: ReactGenerator<any>['Operation']
   generator: Omit<OperationGenerator<TOptions>, 'build'>
@@ -44,7 +46,7 @@ type BuildOperationOptions<TOptions extends PluginFactoryOptions> = {
 
 export async function buildOperation<TOptions extends PluginFactoryOptions>(
   operation: Operation,
-  { fabric, plugin, generator, Component }: BuildOperationOptions<TOptions>,
+  { config, fabric, plugin, generator, Component }: BuildOperationOptions<TOptions>,
 ): Promise<void> {
   if (!Component) {
     return undefined
@@ -56,7 +58,7 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
   fabricChild.render(() => {
     return (
       <App meta={{ pluginManager, plugin, mode, oas }}>
-        <Component operation={operation} plugin={plugin} generator={generator} />
+        <Component config={config} operation={operation} plugin={plugin} generator={generator} />
       </App>
     )
   })
@@ -65,6 +67,7 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
 }
 
 type BuildSchemaOptions<TOptions extends PluginFactoryOptions> = {
+  config: Config
   fabric: Fabric
   Component: ReactGenerator<any>['Schema']
   generator: Omit<SchemaGenerator<SchemaGeneratorOptions, TOptions>, 'build'>
@@ -77,7 +80,7 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
     tree: Array<Schema>
     value: SchemaObject
   },
-  { fabric, plugin, Component, generator }: BuildSchemaOptions<TOptions>,
+  { config, fabric, plugin, Component, generator }: BuildSchemaOptions<TOptions>,
 ): Promise<void> {
   if (!Component) {
     return undefined
@@ -89,7 +92,7 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
   fabricChild.render(() => {
     return (
       <App meta={{ pluginManager, plugin, mode, oas }}>
-        <Component schema={schema} plugin={plugin} generator={generator} />
+        <Component config={config} schema={schema} plugin={plugin} generator={generator} />
       </App>
     )
   })

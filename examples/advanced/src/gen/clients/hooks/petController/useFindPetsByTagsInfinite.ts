@@ -1,44 +1,31 @@
-import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { InfiniteData, InfiniteQueryObserverOptions, QueryClient, QueryKey, UseInfiniteQueryResult } from '../../../../tanstack-query-hook'
-import { infiniteQueryOptions, useInfiniteQuery } from '../../../../tanstack-query-hook'
-import type {
-  FindPetsByTags400,
-  FindPetsByTagsHeaderParams,
-  FindPetsByTagsQueryParams,
-  FindPetsByTagsQueryResponse,
-} from '../../../models/ts/petController/FindPetsByTags.ts'
-import { findPetsByTags } from '../../axios/petService/findPetsByTags.ts'
+import fetch from "../../../../axios-client.ts";
+import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from "../../../../axios-client.ts";
+import type { InfiniteData, QueryKey, QueryClient, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from "../../../../tanstack-query-hook";
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTagsHeaderParams, FindPetsByTags400 } from "../../../models/ts/petController/FindPetsByTags.ts";
+import { infiniteQueryOptions, useInfiniteQuery } from "../../../../tanstack-query-hook";
+import { findPetsByTags } from "../../axios/petService/findPetsByTags.ts";
 
 export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
 
-export function findPetsByTagsInfiniteQueryOptions(
-  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
-) {
+export function findPetsByTagsInfiniteQueryOptions({ headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
-  return infiniteQueryOptions<
-    ResponseConfig<FindPetsByTagsQueryResponse>,
-    ResponseErrorConfig<FindPetsByTags400>,
-    InfiniteData<ResponseConfig<FindPetsByTagsQueryResponse>>,
-    typeof queryKey,
-    NonNullable<FindPetsByTagsQueryParams['pageSize']>
-  >({
-    queryKey,
-    queryFn: async ({ signal, pageParam }) => {
+  return infiniteQueryOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, InfiniteData<ResponseConfig<FindPetsByTagsQueryResponse>>, typeof queryKey, NonNullable<FindPetsByTagsQueryParams['pageSize']>>({
+ 
+   queryKey,
+   queryFn: async ({ signal, pageParam }) => {
       config.signal = signal
-
+    
       params = {
         ...(params ?? {}),
         ['pageSize']: pageParam as unknown as FindPetsByTagsQueryParams['pageSize'],
       } as FindPetsByTagsQueryParams
       return findPetsByTags({ headers, params }, config)
-    },
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1),
-    getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => (firstPageParam <= 1 ? undefined : firstPageParam - 1),
+   },
+   initialPageParam: 0,
+  getNextPageParam: (lastPage, _allPages, lastPageParam) => Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1,
+  getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => firstPageParam <= 1 ? undefined : firstPageParam - 1
   })
 }
 
@@ -47,31 +34,21 @@ export function findPetsByTagsInfiniteQueryOptions(
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export function useFindPetsByTagsInfinite<
-  TQueryFnData = ResponseConfig<FindPetsByTagsQueryResponse>,
-  TError = ResponseErrorConfig<FindPetsByTags400>,
-  TData = InfiniteData<TQueryFnData>,
-  TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
-  TPageParam = NonNullable<FindPetsByTagsQueryParams['pageSize']>,
->(
-  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
-  options: {
-    query?: Partial<InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>> & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
-  } = {},
-) {
+export function useFindPetsByTagsInfinite<TQueryFnData = ResponseConfig<FindPetsByTagsQueryResponse>, TError = ResponseErrorConfig<FindPetsByTags400>, TData = InfiniteData<TQueryFnData>, TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey, TPageParam = NonNullable<FindPetsByTagsQueryParams['pageSize']>>({ headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams }, options: 
+{
+  query?: Partial<InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>> & { client?: QueryClient },
+  client?: Partial<RequestConfig> & { client?: typeof fetch }
+}
+ = {}) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
 
-  const query = useInfiniteQuery(
-    {
-      ...findPetsByTagsInfiniteQueryOptions({ headers, params }, config),
-      queryKey,
-      ...queryOptions,
-    } as unknown as InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
-    queryClient,
-  ) as UseInfiniteQueryResult<TData, TError> & { queryKey: TQueryKey }
+  const query = useInfiniteQuery({
+   ...findPetsByTagsInfiniteQueryOptions({ headers, params }, config),
+   queryKey,
+   ...queryOptions
+  } as unknown as InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>, queryClient) as UseInfiniteQueryResult<TData, TError> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

@@ -1,10 +1,10 @@
-export { addFiles, getAddFilesUrl } from './addFiles.ts'
-export { addPet, getAddPetUrl } from './addPet.ts'
-export { deletePet, getDeletePetUrl } from './deletePet.ts'
-export { findPetsByStatus, getFindPetsByStatusUrl } from './findPetsByStatus.ts'
-export { findPetsByTags, getFindPetsByTagsUrl } from './findPetsByTags.ts'
-export { getGetPetByIdUrl, getPetById } from './getPetById.ts'
-export { petService } from './petService.ts'
-export { getUpdatePetUrl, updatePet } from './updatePet.ts'
-export { getUpdatePetWithFormUrl, updatePetWithForm } from './updatePetWithForm.ts'
-export { getUploadFileUrl, uploadFile } from './uploadFile.ts'
+export { getAddFilesUrl, addFiles } from "./addFiles.ts";
+export { getAddPetUrl, addPet } from "./addPet.ts";
+export { getDeletePetUrl, deletePet } from "./deletePet.ts";
+export { getFindPetsByStatusUrl, findPetsByStatus } from "./findPetsByStatus.ts";
+export { getFindPetsByTagsUrl, findPetsByTags } from "./findPetsByTags.ts";
+export { getGetPetByIdUrl, getPetById } from "./getPetById.ts";
+export { petService } from "./petService.ts";
+export { getUpdatePetUrl, updatePet } from "./updatePet.ts";
+export { getUpdatePetWithFormUrl, updatePetWithForm } from "./updatePetWithForm.ts";
+export { getUploadFileUrl, uploadFile } from "./uploadFile.ts";

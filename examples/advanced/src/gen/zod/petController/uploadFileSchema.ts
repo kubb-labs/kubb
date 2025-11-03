@@ -1,17 +1,15 @@
-import { z } from 'zod/v4'
-import { apiResponseSchema } from '../apiResponseSchema.ts'
+import { apiResponseSchema } from "../apiResponseSchema.ts";
+import { z } from "zod/v4";
 
 export const uploadFilePathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe('ID of pet to update'),
-})
+    "petId": z.coerce.number().int().describe("ID of pet to update")
+    })
 
 export type UploadFilePathParamsSchema = z.infer<typeof uploadFilePathParamsSchema>
 
-export const uploadFileQueryParamsSchema = z
-  .object({
-    additionalMetadata: z.optional(z.string().describe('Additional Metadata')),
-  })
-  .optional()
+export const uploadFileQueryParamsSchema = z.object({
+    "additionalMetadata": z.optional(z.string().describe("Additional Metadata"))
+    }).optional()
 
 export type UploadFileQueryParamsSchema = z.infer<typeof uploadFileQueryParamsSchema>
 

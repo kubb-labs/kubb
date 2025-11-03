@@ -1,4 +1,4 @@
-import { createPets } from './createPets.ts'
+import { createPets } from "./createPets.ts";
 
 export function petsService() {
   return { createPets }

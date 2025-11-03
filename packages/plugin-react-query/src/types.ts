@@ -90,7 +90,7 @@ export type Options = {
    */
   group?: Group
 
-  client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath' | 'baseURL'>
+  client?: Pick<PluginClient['options'], 'client' | 'dataReturnType' | 'importPath' | 'baseURL'>
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
@@ -161,7 +161,7 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
-  client: Required<Omit<NonNullable<PluginReactQuery['options']['client']>, 'baseURL'>> & { baseURL?: string }
+  client: NonNullable<PluginReactQuery['options']['client']>
   parser: Required<NonNullable<Options['parser']>>
   pathParamsType: NonNullable<Options['pathParamsType']>
   paramsCasing: Options['paramsCasing']

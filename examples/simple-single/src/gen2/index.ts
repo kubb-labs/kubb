@@ -868,6 +868,7 @@ export const mainReclaimMemoryResponseSchema = z.object({
 })
 
 export const mainRegionResponseSchema = z.object({
+  nearest: z.optional(z.string()),
   regions: z.optional(z.array(z.lazy(() => readsGetCapacityPerRegionRowSchema))),
 })
 

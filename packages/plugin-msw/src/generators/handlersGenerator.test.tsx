@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
+import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
@@ -56,6 +56,7 @@ describe('handlersGenerator operations', async () => {
     await buildOperations(
       operations.map((item) => item.operation),
       {
+        config: {} as Config,
         fabric,
         generator,
         Component: handlersGenerator.Operations,

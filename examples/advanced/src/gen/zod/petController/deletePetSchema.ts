@@ -1,16 +1,14 @@
-import { z } from 'zod/v4'
+import { z } from "zod/v4";
 
 export const deletePetPathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe('Pet id to delete'),
-})
+    "petId": z.coerce.number().int().describe("Pet id to delete")
+    })
 
 export type DeletePetPathParamsSchema = z.infer<typeof deletePetPathParamsSchema>
 
-export const deletePetHeaderParamsSchema = z
-  .object({
-    api_key: z.optional(z.string()),
-  })
-  .optional()
+export const deletePetHeaderParamsSchema = z.object({
+    "api_key": z.optional(z.string())
+    }).optional()
 
 export type DeletePetHeaderParamsSchema = z.infer<typeof deletePetHeaderParamsSchema>
 

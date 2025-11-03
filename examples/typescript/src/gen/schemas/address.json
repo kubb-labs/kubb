@@ -1,12 +1,1 @@
-{
-  "type": "object",
-  "properties": {
-    "streetName": { "type": "string" },
-    "streetNumber": { "type": "string" },
-    "city": { "type": "string", "example": "Palo Alto" },
-    "state": { "type": "string", "example": "CA" },
-    "zip": { "type": "string", "example": "94301" }
-  },
-  "xml": { "name": "address" },
-  "x-readme-ref-name": "Address"
-}
+{"type":"object","properties":{"streetName":{"type":"string"},"streetNumber":{"type":"string"},"city":{"type":"string","example":"Palo Alto"},"state":{"type":"string","example":"CA"},"zip":{"type":"string","example":"94301"}},"xml":{"name":"address"},"x-readme-ref-name":"Address"}

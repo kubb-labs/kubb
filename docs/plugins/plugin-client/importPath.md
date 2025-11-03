@@ -5,8 +5,8 @@ It allows both relative and absolute path but be aware that we will not change t
 > [!TIP]
 > Use of default exports as `export const client = ()=>{}`
 
-|           |                                |
-|----------:|:-------------------------------|
-|     Type: | `string`                       |
-| Required: | `false`                         |
-|  Default: | `'@kubb/plugin-client/clients/axios'` |
+|           |                                         |
+|----------:|:----------------------------------------|
+|     Type: | `string`                                |
+| Required: | `false`                                 |
+|  Default: | `'@kubb/plugin-client/templates/axios'` |

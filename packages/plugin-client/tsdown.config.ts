@@ -3,8 +3,6 @@ import { defineConfig } from 'tsdown'
 export default defineConfig({
   entry: {
     index: 'src/index.ts',
-    'clients/axios': 'src/clients/axios.ts',
-    'clients/fetch': 'src/clients/fetch.ts',
     components: 'src/components/index.ts',
     generators: 'src/generators/index.ts',
   },
@@ -13,5 +11,5 @@ export default defineConfig({
   platform: 'node',
   sourcemap: true,
   shims: true,
-  exports: true,
+  exports: false,
 })

@@ -1,10 +1,10 @@
-import { z } from 'zod/v4'
-import { petSchema } from '../petSchema.ts'
+import { petSchema } from "../petSchema.ts";
+import { z } from "zod/v4";
 
 /**
  * @description successful operation
  */
-export const addFiles200Schema = petSchema.omit({ name: true })
+export const addFiles200Schema = petSchema.omit({ 'name': true })
 
 export type AddFiles200Schema = z.infer<typeof addFiles200Schema>
 
@@ -15,7 +15,7 @@ export const addFiles405Schema = z.any()
 
 export type AddFiles405Schema = z.infer<typeof addFiles405Schema>
 
-export const addFilesMutationRequestSchema = petSchema.omit({ id: true })
+export const addFilesMutationRequestSchema = petSchema.omit({ 'id': true })
 
 export type AddFilesMutationRequestSchema = z.infer<typeof addFilesMutationRequestSchema>
 

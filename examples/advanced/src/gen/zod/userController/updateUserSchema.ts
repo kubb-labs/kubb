@@ -1,9 +1,9 @@
-import { z } from 'zod/v4'
-import { userSchema } from '../userSchema.ts'
+import { userSchema } from "../userSchema.ts";
+import { z } from "zod/v4";
 
 export const updateUserPathParamsSchema = z.object({
-  username: z.string().describe('name that need to be deleted'),
-})
+    "username": z.string().describe("name that need to be deleted")
+    })
 
 export type UpdateUserPathParamsSchema = z.infer<typeof updateUserPathParamsSchema>
 
@@ -17,7 +17,7 @@ export type UpdateUserErrorSchema = z.infer<typeof updateUserErrorSchema>
 /**
  * @description Update an existent user in the store
  */
-export const updateUserMutationRequestSchema = userSchema.omit({ tag: true })
+export const updateUserMutationRequestSchema = userSchema.omit({ 'tag': true })
 
 export type UpdateUserMutationRequestSchema = z.infer<typeof updateUserMutationRequestSchema>
 

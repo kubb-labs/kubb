@@ -34,7 +34,7 @@ export default defineConfig({
           options: {
             client: {
               dataReturnType: 'full',
-              importPath: '@kubb/plugin-client/clients/axios',
+              client: 'axios',
             },
             infinite: {
               queryParam: 'pageSize',

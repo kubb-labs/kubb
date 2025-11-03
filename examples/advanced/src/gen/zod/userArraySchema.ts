@@ -1,5 +1,5 @@
-import { z } from 'zod/v4'
-import { userSchema } from './userSchema.ts'
+import { userSchema } from "./userSchema.ts";
+import { z } from "zod/v4";
 
 export const userArraySchema = z.array(userSchema)
 
