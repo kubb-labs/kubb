@@ -716,35 +716,37 @@ components:
       xml:
         name: category
     User:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
-        username:
-          type: string
-          example: theUser
-        firstName:
-          type: string
-          example: John
-        lastName:
-          type: string
-          example: James
-        email:
-          type: string
-          example: john@email.com
-        password:
-          type: string
-          example: '12345'
-        phone:
-          type: string
-          example: '12345'
-        userStatus:
-          type: integer
-          description: User Status
-          format: int32
-          example: 1
+      allOf:
+        - $ref: '#/components/schemas/Person'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 10
+            username:
+              type: string
+              example: theUser
+            firstName:
+              type: string
+              example: John
+            lastName:
+              type: string
+              example: James
+            email:
+              type: string
+              example: john@email.com
+            password:
+              type: string
+              example: '12345'
+            phone:
+              type: string
+              example: '12345'
+            userStatus:
+              type: integer
+              description: User Status
+              format: int32
+              example: 1
       xml:
         name: user
     Tag:
@@ -757,7 +759,11 @@ components:
           type: string
       xml:
         name: tag
-
+    Person:
+      type: object
+      properties:
+        name:
+          type: string
     Pet:
       required:
         - name

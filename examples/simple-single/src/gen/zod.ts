@@ -33,19 +33,27 @@ export const categorySchema = z.object({
   name: z.optional(z.string()),
 })
 
-export const userSchema = z.object({
-  id: z.optional(z.number().int()),
-  username: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  lastName: z.optional(z.string()),
-  email: z.optional(z.string()),
-  password: z.optional(z.string()),
-  phone: z.optional(z.string()),
-  userStatus: z.optional(z.number().int().describe('User Status')),
-})
+export const userSchema = z
+  .lazy(() => personSchema)
+  .and(
+    z.object({
+      id: z.optional(z.number().int()),
+      username: z.optional(z.string()),
+      firstName: z.optional(z.string()),
+      lastName: z.optional(z.string()),
+      email: z.optional(z.string()),
+      password: z.optional(z.string()),
+      phone: z.optional(z.string()),
+      userStatus: z.optional(z.number().int().describe('User Status')),
+    }),
+  )
 
 export const tagSchema = z.object({
   id: z.optional(z.number().int()),
+  name: z.optional(z.string()),
+})
+
+export const personSchema = z.object({
   name: z.optional(z.string()),
 })
 

@@ -1,0 +1,248 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`getSchemas > should handle circular references gracefully 1`] = `
+{
+  "A": {
+    "properties": {
+      "b": {
+        "$ref": "#/components/schemas/B",
+      },
+    },
+  },
+  "B": {
+    "properties": {
+      "a": {
+        "$ref": "#/components/schemas/A",
+      },
+    },
+  },
+}
+`;
+
+exports[`getSchemas > should include schemas from requestBodies when enabled 1`] = `
+{
+  "CreateUserRequest": {
+    "properties": {
+      "username": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+}
+`;
+
+exports[`getSchemas > should include schemas from responses when enabled 1`] = `
+{
+  "GetUserResponse": {
+    "properties": {
+      "id": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+}
+`;
+
+exports[`getSchemas > should respect custom contentType when multiple exist 1`] = `
+{
+  "TestResponse": {
+    "properties": {
+      "xml": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+}
+`;
+
+exports[`getSchemas > should return schemas from components.schemas 1`] = `
+{
+  "Address": {
+    "properties": {
+      "city": {
+        "type": "string",
+      },
+      "countryCode": {
+        "type": "string",
+      },
+      "postalCode": {
+        "type": "string",
+      },
+      "streetName": {
+        "type": "string",
+      },
+      "streetNumber": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "countryCode",
+      "postalCode",
+      "city",
+    ],
+    "type": "object",
+  },
+  "Error": {
+    "properties": {
+      "code": {
+        "format": "int32",
+        "type": "integer",
+      },
+      "message": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "code",
+      "message",
+    ],
+    "type": "object",
+  },
+  "FullAddress": {
+    "allOf": [
+      {
+        "$ref": "#/components/schemas/Address",
+      },
+    ],
+    "required": [
+      "streetName",
+      "streetNumber",
+    ],
+  },
+  "Owner": {
+    "properties": {
+      "email": {
+        "format": "email",
+        "type": "string",
+      },
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "PageSize": {
+    "default": 20,
+    "maximum": 10,
+    "minimum": 1,
+    "type": "integer",
+  },
+  "Person": {
+    "properties": {
+      "name": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "Pet": {
+    "properties": {
+      "enumLiteral": {
+        "enum": [
+          true,
+          false,
+        ],
+        "type": "boolean",
+      },
+      "id": {
+        "format": "int64",
+        "type": "integer",
+      },
+      "name": {
+        "type": "string",
+      },
+      "schema": {
+        "additionalProperties": {
+          "type": "string",
+          "x-nullable": true,
+        },
+        "type": "object",
+      },
+      "tag": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+      "name",
+    ],
+    "type": "object",
+  },
+  "Pets": {
+    "items": {
+      "$ref": "#/components/schemas/Pet",
+    },
+    "readOnly": true,
+    "type": "array",
+  },
+  "Toy": {
+    "default": null,
+    "nullble": true,
+    "properties": {
+      "description": {
+        "default": null,
+        "nullable": true,
+        "type": "string",
+      },
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "name": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "User": {
+    "allOf": [
+      {
+        "$ref": "#/components/schemas/Person",
+      },
+      {
+        "properties": {
+          "username": {
+            "type": "string",
+          },
+        },
+        "type": "object",
+      },
+    ],
+  },
+}
+`;
+
+exports[`getSchemas > should use dependency order for schemas (Person before User) 1`] = `
+{
+  "Person": {
+    "properties": {
+      "name": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "User": {
+    "allOf": [
+      {
+        "$ref": "#/components/schemas/Person",
+      },
+      {
+        "properties": {
+          "username": {
+            "type": "string",
+          },
+        },
+        "type": "object",
+      },
+    ],
+  },
+}
+`;

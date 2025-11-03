@@ -97,7 +97,7 @@ export type Category = {
   name?: string
 }
 
-export type User = {
+export type User = Person & {
   /**
    * @type integer | undefined, int64
    */
@@ -138,6 +138,13 @@ export type Tag = {
    * @type integer | undefined, int64
    */
   id?: number
+  /**
+   * @type string | undefined
+   */
+  name?: string
+}
+
+export type Person = {
   /**
    * @type string | undefined
    */
