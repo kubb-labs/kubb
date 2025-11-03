@@ -82,6 +82,7 @@ export type {
   GetPetByIdQueryResponseType,
   GetPetByIdTypeQuery,
 } from './ts/GetPetByIdType.ts'
+export type { GetThings201Type, GetThingsErrorType, GetThingsQueryParamsType, GetThingsQueryResponseType, GetThingsTypeQuery } from './ts/GetThingsType.ts'
 export type {
   GetUserByName200Type,
   GetUserByName400Type,
@@ -251,6 +252,8 @@ export {
   getPetByIdPathParamsSchema,
   getPetByIdQueryResponseSchema,
 } from './zod/getPetByIdSchema.gen.ts'
+export type { GetThings201Schema, GetThingsErrorSchema, GetThingsQueryParamsSchema, GetThingsQueryResponseSchema } from './zod/getThingsSchema.gen.ts'
+export { getThings201Schema, getThingsErrorSchema, getThingsQueryParamsSchema, getThingsQueryResponseSchema } from './zod/getThingsSchema.gen.ts'
 export type {
   GetUserByName200Schema,
   GetUserByName400Schema,
