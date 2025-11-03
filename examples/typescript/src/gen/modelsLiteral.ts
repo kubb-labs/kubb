@@ -37,6 +37,29 @@ export type Order = {
   complete?: boolean
 }
 
+export type Address = {
+  /**
+   * @type string | undefined
+   */
+  streetName?: string
+  /**
+   * @type string | undefined
+   */
+  streetNumber?: string
+  /**
+   * @type string | undefined
+   */
+  city?: string
+  /**
+   * @type string | undefined
+   */
+  state?: string
+  /**
+   * @type string | undefined
+   */
+  zip?: string
+}
+
 export type Customer = {
   /**
    * @type integer | undefined, int64
@@ -68,29 +91,6 @@ export type UnhappyCustomer = Customer & {
    * @type boolean | undefined
    */
   isHappy?: false
-}
-
-export type Address = {
-  /**
-   * @type string | undefined
-   */
-  streetName?: string
-  /**
-   * @type string | undefined
-   */
-  streetNumber?: string
-  /**
-   * @type string | undefined
-   */
-  city?: string
-  /**
-   * @type string | undefined
-   */
-  state?: string
-  /**
-   * @type string | undefined
-   */
-  zip?: string
 }
 
 export type Category = {
@@ -145,6 +145,30 @@ export type Tag = {
    * @type integer | undefined, int64
    */
   id?: number
+  /**
+   * @type string | undefined
+   */
+  name?: string
+}
+
+export type Dog = {
+  /**
+   * @minLength 1
+   * @type string | undefined
+   */
+  readonly type?: string
+  /**
+   * @type string | undefined
+   */
+  bark?: string
+}
+
+export type Cat = {
+  /**
+   * @minLength 1
+   * @type string | undefined
+   */
+  readonly type?: string
   /**
    * @type string | undefined
    */
@@ -216,30 +240,6 @@ export type Pet =
        */
       status?: StatusEnum
     })
-
-export type Cat = {
-  /**
-   * @minLength 1
-   * @type string | undefined
-   */
-  readonly type?: string
-  /**
-   * @type string | undefined
-   */
-  name?: string
-}
-
-export type Dog = {
-  /**
-   * @minLength 1
-   * @type string | undefined
-   */
-  readonly type?: string
-  /**
-   * @type string | undefined
-   */
-  bark?: string
-}
 
 export type FullAddress = Address & {
   /**

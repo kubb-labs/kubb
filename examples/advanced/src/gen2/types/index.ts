@@ -5,8 +5,7 @@ export { addPetRequestStatusEnum } from './AddPetRequest.ts'
 export type { Address } from './Address.ts'
 export type { Animal } from './Animal.ts'
 export type { ApiResponse } from './ApiResponse.ts'
-export type { Cat, CatTypeEnumKey } from './Cat.ts'
-export { catTypeEnum } from './Cat.ts'
+export type { Cat } from './Cat.ts'
 export type { Category } from './Category.ts'
 export type {
   CreatePets201,
@@ -33,8 +32,7 @@ export type { Customer } from './Customer.ts'
 export type { DeleteOrder400, DeleteOrder404, DeleteOrderMutation, DeleteOrderMutationResponse, DeleteOrderPathParams } from './DeleteOrder.ts'
 export type { DeletePet400, DeletePetHeaderParams, DeletePetMutation, DeletePetMutationResponse, DeletePetPathParams } from './DeletePet.ts'
 export type { DeleteUser400, DeleteUser404, DeleteUserMutation, DeleteUserMutationResponse, DeleteUserPathParams } from './DeleteUser.ts'
-export type { Dog, DogTypeEnumKey } from './Dog.ts'
-export { dogTypeEnum } from './Dog.ts'
+export type { Dog } from './Dog.ts'
 export type {
   FindPetsByStatus200,
   FindPetsByStatus400,

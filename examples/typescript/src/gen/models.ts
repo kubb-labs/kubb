@@ -41,6 +41,29 @@ export interface Order {
   complete?: boolean
 }
 
+export interface Address {
+  /**
+   * @type string | undefined
+   */
+  streetName?: string
+  /**
+   * @type string | undefined
+   */
+  streetNumber?: string
+  /**
+   * @type string | undefined
+   */
+  city?: string
+  /**
+   * @type string | undefined
+   */
+  state?: string
+  /**
+   * @type string | undefined
+   */
+  zip?: string
+}
+
 export interface Customer {
   /**
    * @type integer | undefined, int64
@@ -72,29 +95,6 @@ export type UnhappyCustomer = Customer & {
    * @type boolean | undefined
    */
   isHappy?: false
-}
-
-export interface Address {
-  /**
-   * @type string | undefined
-   */
-  streetName?: string
-  /**
-   * @type string | undefined
-   */
-  streetNumber?: string
-  /**
-   * @type string | undefined
-   */
-  city?: string
-  /**
-   * @type string | undefined
-   */
-  state?: string
-  /**
-   * @type string | undefined
-   */
-  zip?: string
 }
 
 export interface Category {
@@ -149,6 +149,30 @@ export interface Tag {
    * @type integer | undefined, int64
    */
   id?: number
+  /**
+   * @type string | undefined
+   */
+  name?: string
+}
+
+export interface Dog {
+  /**
+   * @minLength 1
+   * @type string | undefined
+   */
+  readonly type?: string
+  /**
+   * @type string | undefined
+   */
+  bark?: string
+}
+
+export interface Cat {
+  /**
+   * @minLength 1
+   * @type string | undefined
+   */
+  readonly type?: string
   /**
    * @type string | undefined
    */
@@ -224,30 +248,6 @@ export type Pet =
        */
       status?: StatusEnum
     })
-
-export interface Cat {
-  /**
-   * @minLength 1
-   * @type string | undefined
-   */
-  readonly type?: string
-  /**
-   * @type string | undefined
-   */
-  name?: string
-}
-
-export interface Dog {
-  /**
-   * @minLength 1
-   * @type string | undefined
-   */
-  readonly type?: string
-  /**
-   * @type string | undefined
-   */
-  bark?: string
-}
 
 export type FullAddress = Address & {
   /**
