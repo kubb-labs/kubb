@@ -170,19 +170,19 @@ export function parse({ schema, current, siblings, name }: SchemaTree, options: 
 
   if (isKeyword(current, schemaKeywords.union)) {
     return typeKeywordMapper.union(
-      current.args.map((it) => parse({ schema, parent: current, name: name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+      current.args.map((it) => parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
     )
   }
 
   if (isKeyword(current, schemaKeywords.and)) {
     return typeKeywordMapper.and(
-      current.args.map((it) => parse({ schema, parent: current, name: name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+      current.args.map((it) => parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
     )
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
     return typeKeywordMapper.array(
-      current.args.items.map((it) => parse({ schema, parent: current, name: name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+      current.args.items.map((it) => parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
     )
   }
 
@@ -246,7 +246,7 @@ export function parse({ schema, current, siblings, name }: SchemaTree, options: 
               {
                 schema,
                 parent: current,
-                name: name,
+                name,
                 current: it,
                 siblings: schemas,
               },
@@ -301,7 +301,7 @@ export function parse({ schema, current, siblings, name }: SchemaTree, options: 
 
     if (current.args?.additionalProperties?.length) {
       additionalProperties = current.args.additionalProperties
-        .map((it) => parse({ schema, parent: current, name: name, current: it, siblings }, options))
+        .map((it) => parse({ schema, parent: current, name, current: it, siblings }, options))
         .filter(Boolean)
         .at(0) as ts.TypeNode
 
