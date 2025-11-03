@@ -52,21 +52,6 @@ export type Order = {
   complete?: boolean
 }
 
-export type Customer = {
-  /**
-   * @type integer | undefined, int64
-   */
-  id?: number
-  /**
-   * @type string | undefined
-   */
-  username?: string
-  /**
-   * @type array | undefined
-   */
-  address?: Address[]
-}
-
 export type Address = {
   /**
    * @type string | undefined
@@ -86,11 +71,33 @@ export type Address = {
   zip?: string
 }
 
+export type Customer = {
+  /**
+   * @type integer | undefined, int64
+   */
+  id?: number
+  /**
+   * @type string | undefined
+   */
+  username?: string
+  /**
+   * @type array | undefined
+   */
+  address?: Address[]
+}
+
 export type Category = {
   /**
    * @type integer | undefined, int64
    */
   id?: number
+  /**
+   * @type string | undefined
+   */
+  name?: string
+}
+
+export type Person = {
   /**
    * @type string | undefined
    */
@@ -138,13 +145,6 @@ export type Tag = {
    * @type integer | undefined, int64
    */
   id?: number
-  /**
-   * @type string | undefined
-   */
-  name?: string
-}
-
-export type Person = {
   /**
    * @type string | undefined
    */

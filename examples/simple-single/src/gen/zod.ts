@@ -15,12 +15,6 @@ export const orderSchema = z.object({
   complete: z.optional(z.boolean()),
 })
 
-export const customerSchema = z.object({
-  id: z.optional(z.number().int()),
-  username: z.optional(z.string()),
-  address: z.optional(z.array(z.lazy(() => addressSchema))),
-})
-
 export const addressSchema = z.object({
   street: z.optional(z.string()),
   city: z.optional(z.string()),
@@ -28,8 +22,18 @@ export const addressSchema = z.object({
   zip: z.optional(z.string()),
 })
 
+export const customerSchema = z.object({
+  id: z.optional(z.number().int()),
+  username: z.optional(z.string()),
+  address: z.optional(z.array(z.lazy(() => addressSchema))),
+})
+
 export const categorySchema = z.object({
   id: z.optional(z.number().int()),
+  name: z.optional(z.string()),
+})
+
+export const personSchema = z.object({
   name: z.optional(z.string()),
 })
 
@@ -50,10 +54,6 @@ export const userSchema = z
 
 export const tagSchema = z.object({
   id: z.optional(z.number().int()),
-  name: z.optional(z.string()),
-})
-
-export const personSchema = z.object({
   name: z.optional(z.string()),
 })
 
