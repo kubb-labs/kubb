@@ -100,6 +100,18 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
+    User:
+      allOf:
+        - $ref: '#/components/schemas/Person'
+        - type: object
+          properties:
+            username:
+              type: string
+    Person:
+      type: object
+      properties:
+        name:
+          type: string
     Owner:
       type: object
       properties:

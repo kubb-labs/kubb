@@ -4,6 +4,15 @@ title: Changelog
 
 # Changelog
 
+# 4.5.0
+- [`plugin-react-query`](/plugins/plugin-react-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
+- [`plugin-client`](/plugins/plugin-client): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
+- [`plugin-zod`](/plugins/plugin-zod): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the `ToZod` helper
+- [`plugin-oas`](/plugins/plugin-oas/): Sort OpenApi Schemas
+
 # 4.4.1
 - Update Fabric packages
 
