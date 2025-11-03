@@ -82,6 +82,7 @@ export type {
   GetPetByIdQueryResponseType,
   GetPetByIdTypeQuery,
 } from './GetPetByIdType.ts'
+export type { GetThings201Type, GetThingsErrorType, GetThingsQueryParamsType, GetThingsQueryResponseType, GetThingsTypeQuery } from './GetThingsType.ts'
 export type {
   GetUserByName200Type,
   GetUserByName400Type,

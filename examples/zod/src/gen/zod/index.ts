@@ -104,6 +104,8 @@ export {
   getPetByIdPathParamsSchema,
   getPetByIdQueryResponseSchema,
 } from './getPetByIdSchema.gen.ts'
+export type { GetThings201Schema, GetThingsErrorSchema, GetThingsQueryParamsSchema, GetThingsQueryResponseSchema } from './getThingsSchema.gen.ts'
+export { getThings201Schema, getThingsErrorSchema, getThingsQueryParamsSchema, getThingsQueryResponseSchema } from './getThingsSchema.gen.ts'
 export type {
   GetUserByName200Schema,
   GetUserByName400Schema,

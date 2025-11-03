@@ -38,6 +38,35 @@ tags:
     description: Operations about user
 paths:
   /pets/{uuid}:
+    get:
+      operationId: getThings
+      summary: Get a list of things
+
+      parameters:
+        - in: query
+          name: limit
+          description: Maximum number of things to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 100
+        - in: query
+          name: skip
+          description: Number of things to skip
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "201":
+          description: Null response
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/responses/PetNotFound"
     post:
       summary: Create a pet
       operationId: createPets

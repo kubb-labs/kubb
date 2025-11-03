@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.5.1
+- [`plugin-zod`](/plugins/plugin-zod): Query parameter object with all parameters defaulting incorrectly marked as optional in Zod
+
 # 4.5.0
 - [`plugin-react-query`](/plugins/plugin-react-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
@@ -12,9 +15,9 @@ title: Changelog
 - [`plugin-client`](/plugins/plugin-client): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
 - [`plugin-zod`](/plugins/plugin-zod):
   - Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the `ToZod` helper
-  - Zod schema is not adding `.max` anymore
+  - Zod schema was not adding `.max`, revert previous changes to bring back this feature
   -  Add `z.lazy` for every reference but when used in Zod v4 with `get(){}` syntax remove the `z.lazy`
-- [`plugin-oas`](/plugins/plugin-oas/): Sort OpenApi Schemas
+- [`plugin-oas`](/plugins/plugin-oas/): Sort OpenApi Schemas so references are having a correct order when generated
 
 # 4.4.1
 - Update Fabric packages

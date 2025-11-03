@@ -50,6 +50,7 @@ import {
   getPetByIdPathParamsSchema,
   getPetByIdQueryResponseSchema,
 } from './getPetByIdSchema.gen.ts'
+import { getThings201Schema, getThingsQueryParamsSchema, getThingsQueryResponseSchema } from './getThingsSchema.gen.ts'
 import {
   getUserByName200Schema,
   getUserByName400Schema,
@@ -108,6 +109,19 @@ export type OperationSchema = {
 export type OperationsMap = Record<string, OperationSchema>
 
 export const operations = {
+  getThings: {
+    request: undefined,
+    parameters: {
+      path: undefined,
+      query: getThingsQueryParamsSchema,
+      header: undefined,
+    },
+    responses: {
+      201: getThings201Schema,
+      default: getThingsQueryResponseSchema,
+    },
+    errors: {},
+  },
   createPets: {
     request: createPetsMutationRequestSchema,
     parameters: {
@@ -434,6 +448,7 @@ export const operations = {
 
 export const paths = {
   '/pets/{uuid}': {
+    get: operations['getThings'],
     post: operations['createPets'],
   },
   '/pet': {
