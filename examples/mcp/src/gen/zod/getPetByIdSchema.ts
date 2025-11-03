@@ -13,7 +13,7 @@ export const getPetByIdPathParamsSchema = z.object({
 /**
  * @description successful operation
  */
-export const getPetById200Schema = z.lazy(() => petSchema).schema.omit({ name: true })
+export const getPetById200Schema = petSchema.omit({ name: true })
 
 /**
  * @description Invalid ID supplied
@@ -25,4 +25,4 @@ export const getPetById400Schema = z.any()
  */
 export const getPetById404Schema = z.any()
 
-export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema)
+export const getPetByIdQueryResponseSchema = getPetById200Schema

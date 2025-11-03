@@ -7,7 +7,7 @@ import { petSchema } from '../petSchema.ts'
 /**
  * @description Successful operation
  */
-export const addPet200Schema = z.lazy(() => petSchema).schema.omit({ name: true }) as unknown as ToZod<AddPet200>
+export const addPet200Schema = petSchema.omit({ name: true }) as unknown as ToZod<AddPet200>
 
 export type AddPet200Schema = AddPet200
 
@@ -24,10 +24,10 @@ export type AddPet405Schema = AddPet405
 /**
  * @description Create a new pet in the store
  */
-export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema) as unknown as ToZod<AddPetMutationRequest>
+export const addPetMutationRequestSchema = addPetRequestSchema as unknown as ToZod<AddPetMutationRequest>
 
 export type AddPetMutationRequestSchema = AddPetMutationRequest
 
-export const addPetMutationResponseSchema = z.lazy(() => addPet200Schema) as unknown as ToZod<AddPetMutationResponse>
+export const addPetMutationResponseSchema = addPet200Schema as unknown as ToZod<AddPetMutationResponse>
 
 export type AddPetMutationResponseSchema = AddPetMutationResponse

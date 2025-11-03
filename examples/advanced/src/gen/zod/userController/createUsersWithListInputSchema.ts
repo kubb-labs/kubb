@@ -11,7 +11,7 @@ import { userSchema } from '../userSchema.ts'
 /**
  * @description Successful operation
  */
-export const createUsersWithListInput200Schema = z.lazy(() => userSchema) as unknown as ToZod<CreateUsersWithListInput200>
+export const createUsersWithListInput200Schema = userSchema as unknown as ToZod<CreateUsersWithListInput200>
 
 export type CreateUsersWithListInput200Schema = CreateUsersWithListInput200
 
@@ -22,12 +22,10 @@ export const createUsersWithListInputErrorSchema = z.any() as unknown as ToZod<C
 
 export type CreateUsersWithListInputErrorSchema = CreateUsersWithListInputError
 
-export const createUsersWithListInputMutationRequestSchema = z.array(z.lazy(() => userSchema)) as unknown as ToZod<CreateUsersWithListInputMutationRequest>
+export const createUsersWithListInputMutationRequestSchema = z.array(userSchema) as unknown as ToZod<CreateUsersWithListInputMutationRequest>
 
 export type CreateUsersWithListInputMutationRequestSchema = CreateUsersWithListInputMutationRequest
 
-export const createUsersWithListInputMutationResponseSchema = z.lazy(
-  () => createUsersWithListInput200Schema,
-) as unknown as ToZod<CreateUsersWithListInputMutationResponse>
+export const createUsersWithListInputMutationResponseSchema = createUsersWithListInput200Schema as unknown as ToZod<CreateUsersWithListInputMutationResponse>
 
 export type CreateUsersWithListInputMutationResponseSchema = CreateUsersWithListInputMutationResponse

@@ -22,11 +22,9 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
     tree
       .map((schema, _index, siblings) =>
         parserFaker.parse(
-          { parent: undefined, current: schema, siblings },
+          { name, schema, parent: undefined, current: schema, siblings },
           {
-            name,
             typeName,
-            seed,
             regexGenerator,
             mapper,
             canOverride,

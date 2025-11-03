@@ -851,6 +851,10 @@ components:
           type: integer
           format: int64
           example: 10
+        parent:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pet'
         internalId:
             type: string
             example: 10

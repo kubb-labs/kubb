@@ -18,7 +18,7 @@ export type GetUserByNamePathParamsSchema = GetUserByNamePathParams
 /**
  * @description successful operation
  */
-export const getUserByName200Schema = z.lazy(() => userSchema) as unknown as ToZod<GetUserByName200>
+export const getUserByName200Schema = userSchema as unknown as ToZod<GetUserByName200>
 
 export type GetUserByName200Schema = GetUserByName200
 
@@ -36,6 +36,6 @@ export const getUserByName404Schema = z.any() as unknown as ToZod<GetUserByName4
 
 export type GetUserByName404Schema = GetUserByName404
 
-export const getUserByNameQueryResponseSchema = z.lazy(() => getUserByName200Schema) as unknown as ToZod<GetUserByNameQueryResponse>
+export const getUserByNameQueryResponseSchema = getUserByName200Schema as unknown as ToZod<GetUserByNameQueryResponse>
 
 export type GetUserByNameQueryResponseSchema = GetUserByNameQueryResponse

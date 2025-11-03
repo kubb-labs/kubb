@@ -9,7 +9,7 @@ export const categorySchema = z.object({
   id: z.optional(z.int()),
   name: z.optional(z.string()),
   get parent() {
-    return z.optional(categorySchema)
+    return categorySchema.optional()
   },
 })
 

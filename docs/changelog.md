@@ -13,6 +13,7 @@ title: Changelog
 - [`plugin-zod`](/plugins/plugin-zod):
   - Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the `ToZod` helper
   - Zod schema is not adding `.max` anymore
+  -  Add `z.lazy` for every reference but when used in Zod v4 with `get(){}` syntax remove the `z.lazy`
 - [`plugin-oas`](/plugins/plugin-oas/): Sort OpenApi Schemas
 
 # 4.4.1

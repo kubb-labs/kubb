@@ -14,7 +14,7 @@ import { petSchema } from '../petSchema.ts'
 /**
  * @description Successful operation
  */
-export const updatePet200Schema = z.lazy(() => petSchema).schema.omit({ name: true }) as unknown as ToZod<UpdatePet200>
+export const updatePet200Schema = petSchema.omit({ name: true }) as unknown as ToZod<UpdatePet200>
 
 export type UpdatePet200Schema = UpdatePet200
 
@@ -51,13 +51,10 @@ export type UpdatePet405Schema = UpdatePet405
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetMutationRequestSchema = z.lazy(() => petSchema).schema.omit({ id: true }) as unknown as ToZod<UpdatePetMutationRequest>
+export const updatePetMutationRequestSchema = petSchema.omit({ id: true }) as unknown as ToZod<UpdatePetMutationRequest>
 
 export type UpdatePetMutationRequestSchema = UpdatePetMutationRequest
 
-export const updatePetMutationResponseSchema = z.union([
-  z.lazy(() => updatePet200Schema),
-  z.lazy(() => updatePet202Schema),
-]) as unknown as ToZod<UpdatePetMutationResponse>
+export const updatePetMutationResponseSchema = z.union([updatePet200Schema, updatePet202Schema]) as unknown as ToZod<UpdatePetMutationResponse>
 
 export type UpdatePetMutationResponseSchema = UpdatePetMutationResponse

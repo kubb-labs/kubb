@@ -1,4 +1,5 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
+import type { SchemaObject } from '@kubb/oas'
 
 export type SchemaKeywordMapper = {
   object: {
@@ -161,6 +162,7 @@ export type SchemaKeywordBase<T> = {
 export type Schema = { keyword: string } | SchemaKeywordMapper[keyof SchemaKeywordMapper]
 
 export type SchemaTree = {
+  schema: SchemaObject
   parent: Schema | undefined
   current: Schema
   siblings: Schema[]

@@ -12,7 +12,7 @@ export type GetPetByIdPathParamsSchema = GetPetByIdPathParams
 /**
  * @description successful operation
  */
-export const getPetById200Schema = z.lazy(() => petSchema).schema.omit({ name: true }) as unknown as ToZod<GetPetById200>
+export const getPetById200Schema = petSchema.omit({ name: true }) as unknown as ToZod<GetPetById200>
 
 export type GetPetById200Schema = GetPetById200
 
@@ -30,6 +30,6 @@ export const getPetById404Schema = z.any() as unknown as ToZod<GetPetById404>
 
 export type GetPetById404Schema = GetPetById404
 
-export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema) as unknown as ToZod<GetPetByIdQueryResponse>
+export const getPetByIdQueryResponseSchema = getPetById200Schema as unknown as ToZod<GetPetByIdQueryResponse>
 
 export type GetPetByIdQueryResponseSchema = GetPetByIdQueryResponse

@@ -28,7 +28,7 @@ export type FindPetsByTagsHeaderParamsSchema = FindPetsByTagsHeaderParams
 /**
  * @description successful operation
  */
-export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema)) as unknown as ToZod<FindPetsByTags200>
+export const findPetsByTags200Schema = z.array(petSchema) as unknown as ToZod<FindPetsByTags200>
 
 export type FindPetsByTags200Schema = FindPetsByTags200
 
@@ -39,6 +39,6 @@ export const findPetsByTags400Schema = z.any() as unknown as ToZod<FindPetsByTag
 
 export type FindPetsByTags400Schema = FindPetsByTags400
 
-export const findPetsByTagsQueryResponseSchema = z.lazy(() => findPetsByTags200Schema) as unknown as ToZod<FindPetsByTagsQueryResponse>
+export const findPetsByTagsQueryResponseSchema = findPetsByTags200Schema as unknown as ToZod<FindPetsByTagsQueryResponse>
 
 export type FindPetsByTagsQueryResponseSchema = FindPetsByTagsQueryResponse

@@ -36,16 +36,11 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
     (tree
       .map((current, _index, siblings) =>
         parse(
-          { parent: undefined, current, siblings },
+          { name, schema, parent: undefined, current, siblings },
           {
-            name,
-            typedName,
-            description,
-            keysToOmit,
             optionalType,
             enumType,
             mapper,
-            syntaxType,
           },
         ),
       )
