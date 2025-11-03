@@ -1,5 +1,15 @@
 # @kubb/core
 
+## 4.5.0
+
+### Minor Changes
+
+- [#1970](https://github.com/kubb-labs/kubb/pull/1970) [`7152039`](https://github.com/kubb-labs/kubb/commit/71520392cde27ff58bcbead3930e8f3e38b3be86) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove @kubb dependencies
+
+### Patch Changes
+
+- [#1972](https://github.com/kubb-labs/kubb/pull/1972) [`2fc52bb`](https://github.com/kubb-labs/kubb/commit/2fc52bba8d537d8a50de1fd57656cdcf4aadbda1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Sort OpenApi Schemas
+
 ## 4.4.1
 
 ### Patch Changes
