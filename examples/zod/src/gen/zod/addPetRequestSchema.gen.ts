@@ -11,11 +11,11 @@ export const addPetRequestSchema = z.object({
   id: z.optional(z.int()),
   name: z.string(),
   get category() {
-    return z.optional(categorySchema)
+    return categorySchema.optional()
   },
   photoUrls: z.array(z.string()),
   get tags() {
-    return z.optional(z.array(tagSchema))
+    return z.array(tagSchema).optional()
   },
   status: z.optional(z.enum(['available', 'pending', 'sold']).describe('pet status in the store')),
 })

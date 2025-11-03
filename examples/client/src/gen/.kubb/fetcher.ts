@@ -1,11 +1,10 @@
-import type { AxiosError, AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios'
-import axios from 'axios'
-
-declare const AXIOS_BASE: string
-declare const AXIOS_HEADERS: string
+/**
+ * RequestCredentials
+ */
+export type RequestCredentials = 'omit' | 'same-origin' | 'include'
 
 /**
- * Subset of AxiosRequestConfig
+ * Subset of FetchRequestConfig
  */
 export type RequestConfig<TData = unknown> = {
   baseURL?: string
@@ -15,51 +14,65 @@ export type RequestConfig<TData = unknown> = {
   data?: TData | FormData
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
   signal?: AbortSignal
-  validateStatus?: (status: number) => boolean
-  headers?: AxiosRequestConfig['headers']
+  headers?: [string, string][] | Record<string, string>
+  credentials?: RequestCredentials
 }
 
 /**
- * Subset of AxiosResponse
+ * Subset of FetchResponse
  */
 export type ResponseConfig<TData = unknown> = {
   data: TData
   status: number
   statusText: string
-  headers: AxiosResponse['headers']
+  headers: Headers
 }
 
-export type ResponseErrorConfig<TError = unknown> = AxiosError<TError>
-
-let _config: Partial<RequestConfig> = {
-  baseURL: typeof AXIOS_BASE !== 'undefined' ? AXIOS_BASE : undefined,
-  headers: typeof AXIOS_HEADERS !== 'undefined' ? (JSON.parse(AXIOS_HEADERS) as AxiosHeaders) : undefined,
-}
+let _config: Partial<RequestConfig> = {}
 
 export const getConfig = () => _config
 
-export const setConfig = (config: RequestConfig) => {
+export const setConfig = (config: Partial<RequestConfig>) => {
   _config = config
   return getConfig()
 }
 
-export const axiosInstance = axios.create(getConfig())
+export type ResponseErrorConfig<TError = unknown> = TError
 
-export const client = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
+export const client = async <TData, _TError = unknown, TVariables = unknown>(paramsConfig: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
+  const normalizedParams = new URLSearchParams()
+
   const globalConfig = getConfig()
+  const config = { ...globalConfig, ...paramsConfig }
 
-  return axiosInstance
-    .request<TData, ResponseConfig<TData>>({
-      ...globalConfig,
-      ...config,
-      headers: {
-        ...globalConfig.headers,
-        ...config.headers,
-      },
-    })
-    .catch((e: AxiosError<TError>) => {
-      throw e
-    })
+  Object.entries(config.params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  })
+
+  let targetUrl = [config.baseURL, config.url].filter(Boolean).join('')
+
+  if (config.params) {
+    targetUrl += `?${normalizedParams}`
+  }
+
+  const response = await fetch(targetUrl, {
+    credentials: config.credentials || 'same-origin',
+    method: config.method?.toUpperCase(),
+    body: JSON.stringify(config.data),
+    signal: config.signal,
+    headers: config.headers,
+  })
+
+  const data = [204, 205, 304].includes(response.status) || !response.body ? {} : await response.json()
+
+  return {
+    data: data as TData,
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers as Headers,
+  }
 }
 
 client.getConfig = getConfig

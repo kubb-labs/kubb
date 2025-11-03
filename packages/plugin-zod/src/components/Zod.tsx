@@ -11,7 +11,7 @@ type Props = {
   typeName?: string
   inferTypeName?: string
   tree: Array<Schema>
-  rawSchema: SchemaObject
+  schema: SchemaObject
   description?: string
   coercion: PluginZod['resolvedOptions']['coercion']
   mapper: PluginZod['resolvedOptions']['mapper']
@@ -25,7 +25,7 @@ export function Zod({
   name,
   typeName,
   tree,
-  rawSchema,
+  schema,
   inferTypeName,
   mapper,
   coercion,
@@ -49,10 +49,7 @@ export function Zod({
     .map((schema, index) => {
       const siblings = schemas.filter((_, i) => i !== index)
 
-      return parserZod.parse(
-        { parent: undefined, current: schema, siblings },
-        { name, keysToOmit, typeName, description, mapper, coercion, wrapOutput, rawSchema, version },
-      )
+      return parserZod.parse({ schema, parent: undefined, current: schema, siblings, name }, { mapper, coercion, wrapOutput, version })
     })
     .filter(Boolean)
     .join('')
@@ -71,28 +68,25 @@ export function Zod({
     } else {
       suffix = '.unwrap()'
     }
-  } else {
-    if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref) && version === '3') {
-      suffix = '.schema'
-    }
   }
 
   const emptyValue = parserZod.parse(
     {
+      schema,
       parent: undefined,
       current: {
         keyword: schemaKeywords[emptySchemaType],
       },
       siblings: [],
     },
-    { name, keysToOmit, typeName, description, mapper, coercion, wrapOutput, rawSchema, version },
+    { mapper, coercion, wrapOutput, version },
   )
 
   const baseSchemaOutput =
     [output, keysToOmit?.length ? `${suffix}.omit({ ${keysToOmit.map((key) => `'${key}': true`).join(',')} })` : undefined].filter(Boolean).join('') ||
     emptyValue ||
     ''
-  const wrappedSchemaOutput = wrapOutput ? wrapOutput({ output: baseSchemaOutput, schema: rawSchema }) || baseSchemaOutput : baseSchemaOutput
+  const wrappedSchemaOutput = wrapOutput ? wrapOutput({ output: baseSchemaOutput, schema }) || baseSchemaOutput : baseSchemaOutput
   const finalOutput = typeName ? `${wrappedSchemaOutput} as unknown as ${version === '4' ? 'z.ZodType' : 'ToZod'}<${typeName}>` : wrappedSchemaOutput
 
   return (

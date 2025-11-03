@@ -6,14 +6,14 @@ import { userSchema } from '../userSchema.ts'
 /**
  * @description successful operation
  */
-export const createUserErrorSchema = z.lazy(() => userSchema) as unknown as ToZod<CreateUserError>
+export const createUserErrorSchema = userSchema as unknown as ToZod<CreateUserError>
 
 export type CreateUserErrorSchema = CreateUserError
 
 /**
  * @description Created user object
  */
-export const createUserMutationRequestSchema = z.lazy(() => userSchema).schema.omit({ tag: true }) as unknown as ToZod<CreateUserMutationRequest>
+export const createUserMutationRequestSchema = userSchema.omit({ tag: true }) as unknown as ToZod<CreateUserMutationRequest>
 
 export type CreateUserMutationRequestSchema = CreateUserMutationRequest
 

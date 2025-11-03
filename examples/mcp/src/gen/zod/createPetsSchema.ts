@@ -28,11 +28,11 @@ export const createPets201Schema = z.any()
 /**
  * @description unexpected error
  */
-export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found')
+export const createPetsErrorSchema = petNotFoundSchema.describe('Pet not found')
 
 export const createPetsMutationRequestSchema = z.object({
   name: z.string(),
   tag: z.string(),
 })
 
-export const createPetsMutationResponseSchema = z.lazy(() => createPets201Schema)
+export const createPetsMutationResponseSchema = createPets201Schema

@@ -5,32 +5,24 @@
 import { z } from 'zod'
 
 export const advanced = z.union([
-  z
-    .lazy(() => enumerationValueSpecificationDto)
-    .and(
-      z.object({
-        type: z.literal('enum'),
-      }),
-    ),
-  z
-    .lazy(() => rangeValueSpecificationDto)
-    .and(
-      z.object({
-        type: z.literal('range'),
-      }),
-    ),
-  z
-    .lazy(() => regexValueSpecificationDto)
-    .and(
-      z.object({
-        type: z.literal('regex'),
-      }),
-    ),
-  z
-    .lazy(() => sliderValueSpecificationDto)
-    .and(
-      z.object({
-        type: z.literal('slider'),
-      }),
-    ),
+  enumerationValueSpecificationDto.and(
+    z.object({
+      type: z.literal('enum'),
+    }),
+  ),
+  rangeValueSpecificationDto.and(
+    z.object({
+      type: z.literal('range'),
+    }),
+  ),
+  regexValueSpecificationDto.and(
+    z.object({
+      type: z.literal('regex'),
+    }),
+  ),
+  sliderValueSpecificationDto.and(
+    z.object({
+      type: z.literal('slider'),
+    }),
+  ),
 ])

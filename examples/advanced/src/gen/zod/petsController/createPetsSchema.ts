@@ -42,7 +42,7 @@ export type CreatePets201Schema = CreatePets201
 /**
  * @description unexpected error
  */
-export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found') as unknown as ToZod<CreatePetsError>
+export const createPetsErrorSchema = petNotFoundSchema.describe('Pet not found') as unknown as ToZod<CreatePetsError>
 
 export type CreatePetsErrorSchema = CreatePetsError
 
@@ -53,6 +53,6 @@ export const createPetsMutationRequestSchema = z.object({
 
 export type CreatePetsMutationRequestSchema = CreatePetsMutationRequest
 
-export const createPetsMutationResponseSchema = z.lazy(() => createPets201Schema) as unknown as ToZod<CreatePetsMutationResponse>
+export const createPetsMutationResponseSchema = createPets201Schema as unknown as ToZod<CreatePetsMutationResponse>
 
 export type CreatePetsMutationResponseSchema = CreatePetsMutationResponse

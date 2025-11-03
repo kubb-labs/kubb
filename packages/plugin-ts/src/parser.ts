@@ -138,9 +138,6 @@ export const typeKeywordMapper = {
 } satisfies SchemaMapper<ts.TypeNode | null | undefined>
 
 type ParserOptions = {
-  name: string
-  typedName?: string
-  description?: string
   /**
    * @default `'questionToken'`
    */
@@ -150,8 +147,6 @@ type ParserOptions = {
    * asPascalConst is deprecated
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
-  syntaxType: 'type' | 'interface'
-  keysToOmit?: string[]
   mapper?: Record<string, ts.PropertySignature>
 }
 
@@ -166,7 +161,7 @@ type ParserOptions = {
  * @param options - Parsing options controlling output style, property handling, and custom mappers.
  * @returns The generated TypeScript AST node, or `undefined` if the schema keyword is not mapped.
  */
-export function parse({ current, siblings, name }: SchemaTree, options: ParserOptions): ts.Node | null | undefined {
+export function parse({ schema, current, siblings, name }: SchemaTree, options: ParserOptions): ts.Node | null | undefined {
   const value = typeKeywordMapper[current.keyword as keyof typeof typeKeywordMapper]
 
   if (!value) {
@@ -175,19 +170,19 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
 
   if (isKeyword(current, schemaKeywords.union)) {
     return typeKeywordMapper.union(
-      current.args.map((schema) => parse({ parent: current, name: name, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+      current.args.map((it) => parse({ schema, parent: current, name: name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
     )
   }
 
   if (isKeyword(current, schemaKeywords.and)) {
     return typeKeywordMapper.and(
-      current.args.map((schema) => parse({ parent: current, name: name, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+      current.args.map((it) => parse({ schema, parent: current, name: name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
     )
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
     return typeKeywordMapper.array(
-      current.args.items.map((schema) => parse({ parent: current, name: name, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+      current.args.items.map((it) => parse({ schema, parent: current, name: name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
     )
   }
 
@@ -206,8 +201,8 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
 
   if (isKeyword(current, schemaKeywords.tuple)) {
     return typeKeywordMapper.tuple(
-      current.args.items.map((schema) => parse({ parent: current, name: name, current: schema, siblings }, options)).filter(Boolean) as ts.TypeNode[],
-      current.args.rest && ((parse({ parent: current, name: name, current: current.args.rest, siblings }, options) ?? undefined) as ts.TypeNode | undefined),
+      current.args.items.map((it) => parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
+      current.args.rest && ((parse({ schema, parent: current, name, current: current.args.rest, siblings }, options) ?? undefined) as ts.TypeNode | undefined),
       current.args.min,
       current.args.max,
     )
@@ -246,12 +241,13 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
         const matchesSchema = schemas.find((schema) => schema.keyword === schemaKeywords.matches) as SchemaKeywordMapper['matches'] | undefined
 
         let type = schemas
-          .map((schema) =>
+          .map((it) =>
             parse(
               {
+                schema,
                 parent: current,
                 name: name,
-                current: schema,
+                current: it,
                 siblings: schemas,
               },
               options,
@@ -305,7 +301,7 @@ export function parse({ current, siblings, name }: SchemaTree, options: ParserOp
 
     if (current.args?.additionalProperties?.length) {
       additionalProperties = current.args.additionalProperties
-        .map((schema) => parse({ parent: current, name: name, current: schema, siblings }, options))
+        .map((it) => parse({ schema, parent: current, name: name, current: it, siblings }, options))
         .filter(Boolean)
         .at(0) as ts.TypeNode
 

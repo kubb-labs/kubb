@@ -13,7 +13,7 @@ export const getThingsQueryParams = z.object({
  * @description A list of things
  */
 export const getThings200 = z.object({
-  items: z.array(z.lazy(() => thing)),
+  items: z.array(thing),
 })
 
-export const getThingsQueryResponse = z.lazy(() => getThings200)
+export const getThingsQueryResponse = getThings200

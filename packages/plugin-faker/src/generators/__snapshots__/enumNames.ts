@@ -5,5 +5,5 @@
 import { faker } from '@faker-js/faker'
 
 export function enumNamesType() {
-  return faker.helpers.arrayElement<any>([0, 1])
+  return faker.helpers.arrayElement<EnumNamesType>([0, 1])
 }

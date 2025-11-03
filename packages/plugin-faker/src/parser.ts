@@ -179,18 +179,14 @@ export function joinItems(items: string[]): string {
 }
 
 type ParserOptions = {
-  name: string
   typeName?: string
-  description?: string
-
-  seed?: number | number[]
   regexGenerator?: 'faker' | 'randexp'
   canOverride?: boolean
   dateParser?: Options['dateParser']
   mapper?: Record<string, string>
 }
 
-export function parse({ current, parent, name, siblings }: SchemaTree, options: ParserOptions): string | null | undefined {
+export function parse({ schema, current, parent, name, siblings }: SchemaTree, options: ParserOptions): string | null | undefined {
   const value = fakerKeywordMapper[current.keyword as keyof typeof fakerKeywordMapper]
 
   if (!value) {
@@ -203,22 +199,22 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
     }
 
     return fakerKeywordMapper.union(
-      current.args.map((schema) => parse({ parent: current, current: schema, siblings }, { ...options, canOverride: false })).filter(Boolean),
+      current.args.map((it) => parse({ schema, parent: current, name, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
     )
   }
 
   if (isKeyword(current, schemaKeywords.and)) {
     return fakerKeywordMapper.and(
-      current.args.map((schema) => parse({ parent: current, current: schema, siblings }, { ...options, canOverride: false })).filter(Boolean),
+      current.args.map((it) => parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
     )
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
     return fakerKeywordMapper.array(
       current.args.items
-        .map((schema) =>
+        .map((it) =>
           parse(
-            { parent: current, current: schema, siblings },
+            { schema, parent: current, current: it, siblings },
             {
               ...options,
               typeName: `NonNullable<${options.typeName}>[number]`,
@@ -295,9 +291,9 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
         return `"${name}": ${joinItems(
           schemas
             .sort(schemaKeywordSorter)
-            .map((schema) =>
+            .map((it) =>
               parse(
-                { name, parent: current, current: schema, siblings: schemas },
+                { schema, name, parent: current, current: it, siblings: schemas },
                 {
                   ...options,
                   typeName: `NonNullable<${options.typeName}>[${JSON.stringify(name)}]`,
@@ -316,11 +312,11 @@ export function parse({ current, parent, name, siblings }: SchemaTree, options: 
   if (isKeyword(current, schemaKeywords.tuple)) {
     if (Array.isArray(current.args.items)) {
       return fakerKeywordMapper.tuple(
-        current.args.items.map((schema) => parse({ parent: current, current: schema, siblings }, { ...options, canOverride: false })).filter(Boolean),
+        current.args.items.map((it) => parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
       )
     }
 
-    return parse({ parent: current, current: current.args.items, siblings }, { ...options, canOverride: false })
+    return parse({ schema, parent: current, current: current.args.items, siblings }, { ...options, canOverride: false })
   }
 
   if (isKeyword(current, schemaKeywords.const)) {

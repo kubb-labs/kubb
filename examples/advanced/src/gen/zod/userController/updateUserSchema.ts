@@ -19,7 +19,7 @@ export type UpdateUserErrorSchema = UpdateUserError
 /**
  * @description Update an existent user in the store
  */
-export const updateUserMutationRequestSchema = z.lazy(() => userSchema).schema.omit({ tag: true }) as unknown as ToZod<UpdateUserMutationRequest>
+export const updateUserMutationRequestSchema = userSchema.omit({ tag: true }) as unknown as ToZod<UpdateUserMutationRequest>
 
 export type UpdateUserMutationRequestSchema = UpdateUserMutationRequest
 

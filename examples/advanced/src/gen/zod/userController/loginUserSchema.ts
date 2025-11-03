@@ -25,6 +25,6 @@ export const loginUser400Schema = z.any() as unknown as ToZod<LoginUser400>
 
 export type LoginUser400Schema = LoginUser400
 
-export const loginUserQueryResponseSchema = z.lazy(() => loginUser200Schema) as unknown as ToZod<LoginUserQueryResponse>
+export const loginUserQueryResponseSchema = loginUser200Schema as unknown as ToZod<LoginUserQueryResponse>
 
 export type LoginUserQueryResponseSchema = LoginUserQueryResponse

@@ -26,7 +26,7 @@ export type UploadFileQueryParamsSchema = UploadFileQueryParams
 /**
  * @description successful operation
  */
-export const uploadFile200Schema = z.lazy(() => apiResponseSchema) as unknown as ToZod<UploadFile200>
+export const uploadFile200Schema = apiResponseSchema as unknown as ToZod<UploadFile200>
 
 export type UploadFile200Schema = UploadFile200
 
@@ -34,6 +34,6 @@ export const uploadFileMutationRequestSchema = z.instanceof(File) as unknown as 
 
 export type UploadFileMutationRequestSchema = UploadFileMutationRequest
 
-export const uploadFileMutationResponseSchema = z.lazy(() => uploadFile200Schema) as unknown as ToZod<UploadFileMutationResponse>
+export const uploadFileMutationResponseSchema = uploadFile200Schema as unknown as ToZod<UploadFileMutationResponse>
 
 export type UploadFileMutationResponseSchema = UploadFileMutationResponse
