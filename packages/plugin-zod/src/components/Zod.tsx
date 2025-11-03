@@ -35,7 +35,7 @@ export function Zod({
   version,
   emptySchemaType,
 }: Props): KubbNode {
-  const hasTuple = !!SchemaGenerator.deepSearch(tree, schemaKeywords.tuple)
+  const hasTuple = !!SchemaGenerator.find(tree, schemaKeywords.tuple)
 
   const schemas = parserZod.sort(tree).filter((item) => {
     if (hasTuple && (isKeyword(item, schemaKeywords.min) || isKeyword(item, schemaKeywords.max))) {

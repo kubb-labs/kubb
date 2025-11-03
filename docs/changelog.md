@@ -10,7 +10,9 @@ title: Changelog
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
 - [`plugin-client`](/plugins/plugin-client): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
-- [`plugin-zod`](/plugins/plugin-zod): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the `ToZod` helper
+- [`plugin-zod`](/plugins/plugin-zod):
+  - Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the `ToZod` helper
+  - Zod schema is not adding `.max` anymore
 - [`plugin-oas`](/plugins/plugin-oas/): Sort OpenApi Schemas
 
 # 4.4.1

@@ -91,14 +91,6 @@ export class SchemaGenerator<
     return uniqueWith(schemas, isDeepEqual)
   }
 
-  deepSearch<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): Array<SchemaKeywordMapper[T]> {
-    return SchemaGenerator.deepSearch<T>(tree, keyword)
-  }
-
-  find<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T] | undefined {
-    return SchemaGenerator.find<T>(tree, keyword)
-  }
-
   static deepSearch<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): Array<SchemaKeywordMapper[T]> {
     const foundItems: SchemaKeywordMapper[T][] = []
 
@@ -143,32 +135,6 @@ export class SchemaGenerator<
     })
 
     return foundItems
-  }
-
-  static findInObject<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T] | undefined {
-    let foundItem: SchemaKeywordMapper[T] | undefined
-
-    tree?.forEach((schema) => {
-      if (!foundItem && schema.keyword === keyword) {
-        foundItem = schema as SchemaKeywordMapper[T]
-      }
-
-      if (isKeyword(schema, schemaKeywords.object)) {
-        Object.values(schema.args?.properties || {}).forEach((entrySchema) => {
-          if (!foundItem) {
-            foundItem = SchemaGenerator.find<T>(entrySchema, keyword)
-          }
-        })
-
-        Object.values(schema.args?.additionalProperties || {}).forEach((entrySchema) => {
-          if (!foundItem) {
-            foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
-          }
-        })
-      }
-    })
-
-    return foundItem
   }
 
   static find<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T] | undefined {
@@ -563,13 +529,17 @@ export class SchemaGenerator<
     if (max !== undefined) {
       if (exclusiveMaximum) {
         baseItems.unshift({ keyword: schemaKeywords.exclusiveMaximum, args: max })
-      } else baseItems.unshift({ keyword: schemaKeywords.max, args: max })
+      } else {
+        baseItems.unshift({ keyword: schemaKeywords.max, args: max })
+      }
     }
 
     if (min !== undefined) {
       if (exclusiveMinimum) {
         baseItems.unshift({ keyword: schemaKeywords.exclusiveMinimum, args: min })
-      } else baseItems.unshift({ keyword: schemaKeywords.min, args: min })
+      } else {
+        baseItems.unshift({ keyword: schemaKeywords.min, args: min })
+      }
     }
 
     if (typeof exclusiveMaximum === 'number') {
