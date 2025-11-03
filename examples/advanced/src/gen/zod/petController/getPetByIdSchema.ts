@@ -1,16 +1,16 @@
-import { petSchema } from "../petSchema.ts";
-import { z } from "zod/v4";
+import { z } from 'zod/v4'
+import { petSchema } from '../petSchema.ts'
 
 export const getPetByIdPathParamsSchema = z.object({
-    "petId": z.coerce.number().int().describe("ID of pet to return")
-    })
+  petId: z.coerce.number().int().describe('ID of pet to return'),
+})
 
 export type GetPetByIdPathParamsSchema = z.infer<typeof getPetByIdPathParamsSchema>
 
 /**
  * @description successful operation
  */
-export const getPetById200Schema = petSchema.omit({ 'name': true })
+export const getPetById200Schema = petSchema.omit({ name: true })
 
 export type GetPetById200Schema = z.infer<typeof getPetById200Schema>
 

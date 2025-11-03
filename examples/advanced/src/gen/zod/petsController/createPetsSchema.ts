@@ -1,22 +1,24 @@
-import { petNotFoundSchema } from "../petNotFoundSchema.ts";
-import { z } from "zod/v4";
+import { z } from 'zod/v4'
+import { petNotFoundSchema } from '../petNotFoundSchema.ts'
 
 export const createPetsPathParamsSchema = z.object({
-    "uuid": z.string().describe("UUID")
-    })
+  uuid: z.string().describe('UUID'),
+})
 
 export type CreatePetsPathParamsSchema = z.infer<typeof createPetsPathParamsSchema>
 
-export const createPetsQueryParamsSchema = z.object({
-    "bool_param": z.optional(z.literal(true)),
-"offset": z.optional(z.coerce.number().int().describe("Offset */"))
-    }).optional()
+export const createPetsQueryParamsSchema = z
+  .object({
+    bool_param: z.optional(z.literal(true)),
+    offset: z.optional(z.coerce.number().int().describe('Offset */')),
+  })
+  .optional()
 
 export type CreatePetsQueryParamsSchema = z.infer<typeof createPetsQueryParamsSchema>
 
 export const createPetsHeaderParamsSchema = z.object({
-    "X-EXAMPLE": z.enum(["ONE", "TWO", "THREE"]).describe("Header parameters")
-    })
+  'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters'),
+})
 
 export type CreatePetsHeaderParamsSchema = z.infer<typeof createPetsHeaderParamsSchema>
 
@@ -30,14 +32,14 @@ export type CreatePets201Schema = z.infer<typeof createPets201Schema>
 /**
  * @description unexpected error
  */
-export const createPetsErrorSchema = petNotFoundSchema.describe("Pet not found")
+export const createPetsErrorSchema = petNotFoundSchema.describe('Pet not found')
 
 export type CreatePetsErrorSchema = z.infer<typeof createPetsErrorSchema>
 
 export const createPetsMutationRequestSchema = z.object({
-    "name": z.string(),
-"tag": z.string()
-    })
+  name: z.string(),
+  tag: z.string(),
+})
 
 export type CreatePetsMutationRequestSchema = z.infer<typeof createPetsMutationRequestSchema>
 

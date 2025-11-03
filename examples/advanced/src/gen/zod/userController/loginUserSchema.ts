@@ -1,9 +1,11 @@
-import { z } from "zod/v4";
+import { z } from 'zod/v4'
 
-export const loginUserQueryParamsSchema = z.object({
-    "username": z.optional(z.string().describe("The user name for login")),
-"password": z.optional(z.string().describe("The password for login in clear text"))
-    }).optional()
+export const loginUserQueryParamsSchema = z
+  .object({
+    username: z.optional(z.string().describe('The user name for login')),
+    password: z.optional(z.string().describe('The password for login in clear text')),
+  })
+  .optional()
 
 export type LoginUserQueryParamsSchema = z.infer<typeof loginUserQueryParamsSchema>
 

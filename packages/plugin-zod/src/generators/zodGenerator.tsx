@@ -70,7 +70,6 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       return (
         <Fragment>
           {typed && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
-          {typed && plugin.options.version === '3' && <File.Import isTypeOnly path={'@kubb/plugin-zod/utils'} name={['ToZod']} />}
           {imports.map((imp) => (
             <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} />
           ))}
@@ -108,7 +107,6 @@ export const zodGenerator = createReactGenerator<PluginZod>({
   Schema({ schema, plugin }) {
     const { getName, getFile, getImports } = useSchemaManager()
     const {
-      options,
       options: { output, emptySchemaType, coercion, inferred, typed, mapper, importPath, wrapOutput, version },
     } = plugin
     const pluginManager = usePluginManager()
@@ -137,7 +135,6 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       >
         <File.Import name={['z']} path={importPath} />
         {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
-        {typed && <File.Import isTypeOnly path={options.version === '4' ? '@kubb/plugin-zod/utils/v4' : '@kubb/plugin-zod/utils'} name={['ToZod']} />}
         {imports.map((imp) => (
           <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={zod.file.path} path={imp.path} name={imp.name} />
         ))}

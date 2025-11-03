@@ -58,6 +58,7 @@
   "files": [
     "src",
     "dist",
+    "templates",
     "*.d.ts",
     "*.d.cts",
     "!/**/**.test.**",

@@ -1,1 +1,1 @@
-export { tagTagSchema } from "./tagSchema.js";
+export { tagTagSchema } from './tagSchema.js'

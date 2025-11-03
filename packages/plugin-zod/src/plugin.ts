@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { createPlugin, type Group, getBarrelFiles, getMode, PackageManager, type Plugin, PluginManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
+import { resolveModuleSource } from '@kubb/core/utils'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -111,6 +112,20 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
+
+      if (this.plugin.options.typed && this.plugin.options.version === '3') {
+        // pre add bundled fetcher
+        await this.addFile({
+          baseName: 'ToZod.ts',
+          path: path.resolve(root, '.kubb/ToZod.ts'),
+          sources: [
+            {
+              name: 'ToZod',
+              value: resolveModuleSource('@kubb/plugin-zod/templates/ToZod').source,
+            },
+          ],
+        })
+      }
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         fabric: this.fabric,

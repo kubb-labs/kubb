@@ -37,10 +37,6 @@
       "import": "./dist/generators.js",
       "require": "./dist/generators.cjs"
     },
-    "./utils": {
-      "import": "./dist/utils.js",
-      "require": "./dist/utils.cjs"
-    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
@@ -53,17 +49,12 @@
       ],
       "generators": [
         "./dist/generators.d.ts"
-      ],
-      "utils": [
-        "./dist/utils.d.ts"
-      ],
-      "utils/v4": [
-        "./dist/utils/v4.d.ts"
       ]
     }
   },
   "files": [
     "src",
+    "templates",
     "dist",
     "!/**/**.test.**",
     "!/**/__tests__/**"

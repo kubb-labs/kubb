@@ -1,28 +1,31 @@
-import type { CreatePetsPathParams, CreatePetsQueryParams, CreatePetsHeaderParams, CreatePetsMutationRequest, CreatePetsMutationResponse } from "../../models/ts/petsController/CreatePets.ts";
-import { createPetNotFoundFaker } from "../createPetNotFoundFaker.ts";
-import { faker } from "@faker-js/faker";
+import { faker } from '@faker-js/faker'
+import type {
+  CreatePetsHeaderParams,
+  CreatePetsMutationRequest,
+  CreatePetsMutationResponse,
+  CreatePetsPathParams,
+  CreatePetsQueryParams,
+} from '../../models/ts/petsController/CreatePets.ts'
+import { createPetNotFoundFaker } from '../createPetNotFoundFaker.ts'
 
 export function createCreatePetsPathParamsFaker(data?: Partial<CreatePetsPathParams>): CreatePetsPathParams {
-  
   return {
-  ...{"uuid": faker.string.alpha()},
-  ...data || {}
+    ...{ uuid: faker.string.alpha() },
+    ...(data || {}),
   }
 }
 
 export function createCreatePetsQueryParamsFaker(data?: Partial<CreatePetsQueryParams>): CreatePetsQueryParams {
-  
   return {
-  ...{"bool_param": faker.helpers.arrayElement<NonNullable<CreatePetsQueryParams>["bool_param"]>([true]),"offset": faker.number.int()},
-  ...data || {}
+    ...{ bool_param: faker.helpers.arrayElement<NonNullable<CreatePetsQueryParams>['bool_param']>([true]), offset: faker.number.int() },
+    ...(data || {}),
   }
 }
 
 export function createCreatePetsHeaderParamsFaker(data?: Partial<CreatePetsHeaderParams>): CreatePetsHeaderParams {
-  
   return {
-  ...{"X-EXAMPLE": faker.helpers.arrayElement<NonNullable<CreatePetsHeaderParams>["X-EXAMPLE"]>(["ONE", "TWO", "THREE"])},
-  ...data || {}
+    ...{ 'X-EXAMPLE': faker.helpers.arrayElement<NonNullable<CreatePetsHeaderParams>['X-EXAMPLE']>(['ONE', 'TWO', 'THREE']) },
+    ...(data || {}),
   }
 }
 
@@ -30,7 +33,6 @@ export function createCreatePetsHeaderParamsFaker(data?: Partial<CreatePetsHeade
  * @description Null response
  */
 export function createCreatePets201Faker() {
-  
   return undefined
 }
 
@@ -38,19 +40,16 @@ export function createCreatePets201Faker() {
  * @description unexpected error
  */
 export function createCreatePetsErrorFaker() {
-  
   return createPetNotFoundFaker()
 }
 
 export function createCreatePetsMutationRequestFaker(data?: Partial<CreatePetsMutationRequest>): CreatePetsMutationRequest {
-  
   return {
-  ...{"name": faker.string.alpha(),"tag": faker.string.alpha()},
-  ...data || {}
+    ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
+    ...(data || {}),
   }
 }
 
 export function createCreatePetsMutationResponseFaker(data?: Partial<CreatePetsMutationResponse>): CreatePetsMutationResponse {
-  
   return data || faker.helpers.arrayElement<any>([createCreatePets201Faker()])
 }

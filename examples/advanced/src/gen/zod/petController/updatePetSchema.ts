@@ -1,10 +1,10 @@
-import { petSchema } from "../petSchema.ts";
-import { z } from "zod/v4";
+import { z } from 'zod/v4'
+import { petSchema } from '../petSchema.ts'
 
 /**
  * @description Successful operation
  */
-export const updatePet200Schema = petSchema.omit({ 'name': true })
+export const updatePet200Schema = petSchema.omit({ name: true })
 
 export type UpdatePet200Schema = z.infer<typeof updatePet200Schema>
 
@@ -12,8 +12,8 @@ export type UpdatePet200Schema = z.infer<typeof updatePet200Schema>
  * @description accepted operation
  */
 export const updatePet202Schema = z.object({
-    "id": z.optional(z.int())
-    })
+  id: z.optional(z.int()),
+})
 
 export type UpdatePet202Schema = z.infer<typeof updatePet202Schema>
 
@@ -41,7 +41,7 @@ export type UpdatePet405Schema = z.infer<typeof updatePet405Schema>
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetMutationRequestSchema = petSchema.omit({ 'id': true })
+export const updatePetMutationRequestSchema = petSchema.omit({ id: true })
 
 export type UpdatePetMutationRequestSchema = z.infer<typeof updatePetMutationRequestSchema>
 

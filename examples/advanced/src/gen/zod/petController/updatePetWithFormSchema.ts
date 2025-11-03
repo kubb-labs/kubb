@@ -1,15 +1,17 @@
-import { z } from "zod/v4";
+import { z } from 'zod/v4'
 
 export const updatePetWithFormPathParamsSchema = z.object({
-    "petId": z.coerce.number().int().describe("ID of pet that needs to be updated")
-    })
+  petId: z.coerce.number().int().describe('ID of pet that needs to be updated'),
+})
 
 export type UpdatePetWithFormPathParamsSchema = z.infer<typeof updatePetWithFormPathParamsSchema>
 
-export const updatePetWithFormQueryParamsSchema = z.object({
-    "name": z.optional(z.string().describe("Name of pet that needs to be updated")),
-"status": z.optional(z.string().describe("Status of pet that needs to be updated"))
-    }).optional()
+export const updatePetWithFormQueryParamsSchema = z
+  .object({
+    name: z.optional(z.string().describe('Name of pet that needs to be updated')),
+    status: z.optional(z.string().describe('Status of pet that needs to be updated')),
+  })
+  .optional()
 
 export type UpdatePetWithFormQueryParamsSchema = z.infer<typeof updatePetWithFormQueryParamsSchema>
 

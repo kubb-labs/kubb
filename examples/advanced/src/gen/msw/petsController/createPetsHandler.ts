@@ -1,22 +1,20 @@
-import type { CreatePetsMutationResponse } from "../../models/ts/petsController/CreatePets.ts";
-import { http } from "msw";
+import { http } from 'msw'
+import type { CreatePetsMutationResponse } from '../../models/ts/petsController/CreatePets.ts'
 
 export function createPetsHandlerResponse201(data?: CreatePetsMutationResponse) {
   return new Response(JSON.stringify(data), {
     status: 201,
-  
   })
 }
 
-export function createPetsHandler(data?: string | number | boolean | null | object | ((
-        info: Parameters<Parameters<typeof http.post>[1]>[0],
-      ) => Response | Promise<Response>)) {
+export function createPetsHandler(
+  data?: string | number | boolean | null | object | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>),
+) {
   return http.post('/pets/:uuid', function handler(info) {
-    if(typeof data === 'function') return data(info)
+    if (typeof data === 'function') return data(info)
 
     return new Response(JSON.stringify(data), {
       status: 201,
-    
     })
   })
 }

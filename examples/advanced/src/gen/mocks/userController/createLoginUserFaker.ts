@@ -1,11 +1,10 @@
-import type { LoginUserQueryParams, LoginUserQueryResponse } from "../../models/ts/userController/LoginUser.ts";
-import { faker } from "@faker-js/faker";
+import { faker } from '@faker-js/faker'
+import type { LoginUserQueryParams, LoginUserQueryResponse } from '../../models/ts/userController/LoginUser.ts'
 
 export function createLoginUserQueryParamsFaker(data?: Partial<LoginUserQueryParams>): LoginUserQueryParams {
-  
   return {
-  ...{"username": faker.string.alpha(),"password": faker.string.alpha()},
-  ...data || {}
+    ...{ username: faker.string.alpha(), password: faker.string.alpha() },
+    ...(data || {}),
   }
 }
 
@@ -13,7 +12,6 @@ export function createLoginUserQueryParamsFaker(data?: Partial<LoginUserQueryPar
  * @description successful operation
  */
 export function createLoginUser200Faker() {
-  
   return faker.string.alpha()
 }
 
@@ -21,11 +19,9 @@ export function createLoginUser200Faker() {
  * @description Invalid username/password supplied
  */
 export function createLoginUser400Faker() {
-  
   return undefined
 }
 
 export function createLoginUserQueryResponseFaker(data?: Partial<LoginUserQueryResponse>): LoginUserQueryResponse {
-  
   return data || faker.helpers.arrayElement<any>([createLoginUser200Faker()])
 }

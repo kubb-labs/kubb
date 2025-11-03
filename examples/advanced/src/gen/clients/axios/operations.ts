@@ -1,70 +1,70 @@
 export const operations = {
-  "createPets": {
-    "path": "/pets/:uuid",
-    "method": "post"
+  createPets: {
+    path: '/pets/:uuid',
+    method: 'post',
   },
-  "updatePet": {
-    "path": "/pet",
-    "method": "put"
+  updatePet: {
+    path: '/pet',
+    method: 'put',
   },
-  "addPet": {
-    "path": "/pet",
-    "method": "post"
+  addPet: {
+    path: '/pet',
+    method: 'post',
   },
-  "findPetsByStatus": {
-    "path": "/pet/findByStatus/:step_id",
-    "method": "get"
+  findPetsByStatus: {
+    path: '/pet/findByStatus/:step_id',
+    method: 'get',
   },
-  "findPetsByTags": {
-    "path": "/pet/findByTags",
-    "method": "get"
+  findPetsByTags: {
+    path: '/pet/findByTags',
+    method: 'get',
   },
-  "getPetById": {
-    "path": "/pet/:petId:search",
-    "method": "get"
+  getPetById: {
+    path: '/pet/:petId:search',
+    method: 'get',
   },
-  "updatePetWithForm": {
-    "path": "/pet/:petId:search",
-    "method": "post"
+  updatePetWithForm: {
+    path: '/pet/:petId:search',
+    method: 'post',
   },
-  "deletePet": {
-    "path": "/pet/:petId:search",
-    "method": "delete"
+  deletePet: {
+    path: '/pet/:petId:search',
+    method: 'delete',
   },
-  "addFiles": {
-    "path": "/pet/files",
-    "method": "post"
+  addFiles: {
+    path: '/pet/files',
+    method: 'post',
   },
-  "uploadFile": {
-    "path": "/pet/:petId/uploadImage",
-    "method": "post"
+  uploadFile: {
+    path: '/pet/:petId/uploadImage',
+    method: 'post',
   },
-  "createUser": {
-    "path": "/user",
-    "method": "post"
+  createUser: {
+    path: '/user',
+    method: 'post',
   },
-  "createUsersWithListInput": {
-    "path": "/user/createWithList",
-    "method": "post"
+  createUsersWithListInput: {
+    path: '/user/createWithList',
+    method: 'post',
   },
-  "loginUser": {
-    "path": "/user/login",
-    "method": "get"
+  loginUser: {
+    path: '/user/login',
+    method: 'get',
   },
-  "logoutUser": {
-    "path": "/user/logout",
-    "method": "get"
+  logoutUser: {
+    path: '/user/logout',
+    method: 'get',
   },
-  "getUserByName": {
-    "path": "/user/:username",
-    "method": "get"
+  getUserByName: {
+    path: '/user/:username',
+    method: 'get',
   },
-  "updateUser": {
-    "path": "/user/:username",
-    "method": "put"
+  updateUser: {
+    path: '/user/:username',
+    method: 'put',
   },
-  "deleteUser": {
-    "path": "/user/:username",
-    "method": "delete"
-  }
+  deleteUser: {
+    path: '/user/:username',
+    method: 'delete',
+  },
 }

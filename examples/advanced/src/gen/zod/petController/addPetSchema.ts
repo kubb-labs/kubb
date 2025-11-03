@@ -1,11 +1,11 @@
-import { addPetRequestSchema } from "../addPetRequestSchema.ts";
-import { petSchema } from "../petSchema.ts";
-import { z } from "zod/v4";
+import { z } from 'zod/v4'
+import { addPetRequestSchema } from '../addPetRequestSchema.ts'
+import { petSchema } from '../petSchema.ts'
 
 /**
  * @description Successful operation
  */
-export const addPet200Schema = petSchema.omit({ 'name': true })
+export const addPet200Schema = petSchema.omit({ name: true })
 
 export type AddPet200Schema = z.infer<typeof addPet200Schema>
 
@@ -13,9 +13,9 @@ export type AddPet200Schema = z.infer<typeof addPet200Schema>
  * @description Pet not found
  */
 export const addPet405Schema = z.object({
-    "code": z.optional(z.int()),
-"message": z.optional(z.string())
-    })
+  code: z.optional(z.int()),
+  message: z.optional(z.string()),
+})
 
 export type AddPet405Schema = z.infer<typeof addPet405Schema>
 

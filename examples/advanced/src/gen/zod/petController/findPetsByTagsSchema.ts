@@ -1,17 +1,19 @@
-import { petSchema } from "../petSchema.ts";
-import { z } from "zod/v4";
+import { z } from 'zod/v4'
+import { petSchema } from '../petSchema.ts'
 
-export const findPetsByTagsQueryParamsSchema = z.object({
-    "tags": z.optional(z.array(z.string()).describe("Tags to filter by")),
-"page": z.optional(z.string().describe("to request with required page number or pagination")),
-"pageSize": z.optional(z.coerce.number().describe("to request with required page size"))
-    }).optional()
+export const findPetsByTagsQueryParamsSchema = z
+  .object({
+    tags: z.optional(z.array(z.string()).describe('Tags to filter by')),
+    page: z.optional(z.string().describe('to request with required page number or pagination')),
+    pageSize: z.optional(z.coerce.number().describe('to request with required page size')),
+  })
+  .optional()
 
 export type FindPetsByTagsQueryParamsSchema = z.infer<typeof findPetsByTagsQueryParamsSchema>
 
 export const findPetsByTagsHeaderParamsSchema = z.object({
-    "X-EXAMPLE": z.enum(["ONE", "TWO", "THREE"]).describe("Header parameters")
-    })
+  'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters'),
+})
 
 export type FindPetsByTagsHeaderParamsSchema = z.infer<typeof findPetsByTagsHeaderParamsSchema>
 

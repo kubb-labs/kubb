@@ -1,12 +1,11 @@
-import type { GetPetByIdPathParams, GetPetByIdQueryResponse } from "../../models/ts/petController/GetPetById.ts";
-import { createPetFaker } from "../createPetFaker.ts";
-import { faker } from "@faker-js/faker";
+import { faker } from '@faker-js/faker'
+import type { GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById.ts'
+import { createPetFaker } from '../createPetFaker.ts'
 
 export function createGetPetByIdPathParamsFaker(data?: Partial<GetPetByIdPathParams>): GetPetByIdPathParams {
-  
   return {
-  ...{"petId": faker.number.int()},
-  ...data || {}
+    ...{ petId: faker.number.int() },
+    ...(data || {}),
   }
 }
 
@@ -14,7 +13,6 @@ export function createGetPetByIdPathParamsFaker(data?: Partial<GetPetByIdPathPar
  * @description successful operation
  */
 export function createGetPetById200Faker() {
-  
   return createPetFaker()
 }
 
@@ -22,7 +20,6 @@ export function createGetPetById200Faker() {
  * @description Invalid ID supplied
  */
 export function createGetPetById400Faker() {
-  
   return undefined
 }
 
@@ -30,11 +27,9 @@ export function createGetPetById400Faker() {
  * @description Pet not found
  */
 export function createGetPetById404Faker() {
-  
   return undefined
 }
 
 export function createGetPetByIdQueryResponseFaker(data?: Partial<GetPetByIdQueryResponse>): GetPetByIdQueryResponse {
-  
   return data || faker.helpers.arrayElement<any>([createGetPetById200Faker()])
 }
