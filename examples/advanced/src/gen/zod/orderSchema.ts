@@ -1,15 +1,17 @@
-import { z } from 'zod/v4'
+import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { Order } from '../models/ts/Order.ts'
 
 export const orderSchema = z.object({
-  id: z.optional(z.int().min(3).max(100)),
-  petId: z.optional(z.int()),
-  quantity: z.optional(z.int()),
+  id: z.optional(z.number().int().min(3).max(100)),
+  petId: z.optional(z.number().int()),
+  quantity: z.optional(z.number().int()),
   orderType: z.optional(z.enum(['foo', 'bar'])),
   type: z.optional(z.string().describe('Order Status')),
-  shipDate: z.optional(z.iso.datetime({ offset: true })),
+  shipDate: z.optional(z.string().datetime({ offset: true })),
   status: z.optional(z.enum(['placed', 'approved', 'delivered']).describe('Order Status')),
   http_status: z.optional(z.union([z.literal(200), z.literal(400)]).describe('HTTP Status')),
   complete: z.optional(z.boolean()),
-})
+}) as unknown as ToZod<Order>
 
-export type OrderSchema = z.infer<typeof orderSchema>
+export type OrderSchema = Order

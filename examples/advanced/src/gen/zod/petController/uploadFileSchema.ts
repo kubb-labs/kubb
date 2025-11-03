@@ -1,31 +1,39 @@
-import { z } from 'zod/v4'
+import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
+import type {
+  UploadFile200,
+  UploadFileMutationRequest,
+  UploadFileMutationResponse,
+  UploadFilePathParams,
+  UploadFileQueryParams,
+} from '../../models/ts/petController/UploadFile.ts'
 import { apiResponseSchema } from '../apiResponseSchema.ts'
 
 export const uploadFilePathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet to update'),
-})
+}) as unknown as ToZod<UploadFilePathParams>
 
-export type UploadFilePathParamsSchema = z.infer<typeof uploadFilePathParamsSchema>
+export type UploadFilePathParamsSchema = UploadFilePathParams
 
 export const uploadFileQueryParamsSchema = z
   .object({
     additionalMetadata: z.optional(z.string().describe('Additional Metadata')),
   })
-  .optional()
+  .optional() as unknown as ToZod<UploadFileQueryParams>
 
-export type UploadFileQueryParamsSchema = z.infer<typeof uploadFileQueryParamsSchema>
+export type UploadFileQueryParamsSchema = UploadFileQueryParams
 
 /**
  * @description successful operation
  */
-export const uploadFile200Schema = apiResponseSchema
+export const uploadFile200Schema = z.lazy(() => apiResponseSchema) as unknown as ToZod<UploadFile200>
 
-export type UploadFile200Schema = z.infer<typeof uploadFile200Schema>
+export type UploadFile200Schema = UploadFile200
 
-export const uploadFileMutationRequestSchema = z.instanceof(File)
+export const uploadFileMutationRequestSchema = z.instanceof(File) as unknown as ToZod<UploadFileMutationRequest>
 
-export type UploadFileMutationRequestSchema = z.infer<typeof uploadFileMutationRequestSchema>
+export type UploadFileMutationRequestSchema = UploadFileMutationRequest
 
-export const uploadFileMutationResponseSchema = uploadFile200Schema
+export const uploadFileMutationResponseSchema = z.lazy(() => uploadFile200Schema) as unknown as ToZod<UploadFileMutationResponse>
 
-export type UploadFileMutationResponseSchema = z.infer<typeof uploadFileMutationResponseSchema>
+export type UploadFileMutationResponseSchema = UploadFileMutationResponse

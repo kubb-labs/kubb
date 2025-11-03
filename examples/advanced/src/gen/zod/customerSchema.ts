@@ -1,12 +1,12 @@
-import { z } from 'zod/v4'
+import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { Customer } from '../models/ts/Customer.ts'
 import { addressSchema } from './addressSchema.ts'
 
 export const customerSchema = z.object({
-  id: z.optional(z.int()),
+  id: z.optional(z.number().int()),
   username: z.optional(z.string()),
-  get address() {
-    return z.optional(z.array(addressSchema))
-  },
-})
+  address: z.optional(z.array(z.lazy(() => addressSchema))),
+}) as unknown as ToZod<Customer>
 
-export type CustomerSchema = z.infer<typeof customerSchema>
+export type CustomerSchema = Customer

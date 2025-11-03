@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
 import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
@@ -10,10 +11,10 @@ import type { PluginZod } from '../types'
 
 export const zodGenerator = createReactGenerator<PluginZod>({
   name: 'zod',
-  Operation({ operation, generator, plugin }) {
+  Operation({ config, operation, generator, plugin }) {
     const {
       options,
-      options: { coercion: globalCoercion, inferred, typed, mapper, wrapOutput },
+      options: { coercion: globalCoercion, inferred, typed, mapper, wrapOutput, version },
     } = plugin
 
     const mode = useMode()
@@ -70,6 +71,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       return (
         <Fragment>
           {typed && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
+          {typed && version === '3' && <File.Import name={['ToZod']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')} />}
           {imports.map((imp) => (
             <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} />
           ))}
@@ -104,7 +106,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       </File>
     )
   },
-  Schema({ schema, plugin }) {
+  Schema({ config, schema, plugin }) {
     const { getName, getFile, getImports } = useSchemaManager()
     const {
       options: { output, emptySchemaType, coercion, inferred, typed, mapper, importPath, wrapOutput, version },
@@ -135,6 +137,9 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       >
         <File.Import name={['z']} path={importPath} />
         {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
+        {typed && version === '3' && (
+          <File.Import name={['ToZod']} root={zod.file.path} path={path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')} />
+        )}
         {imports.map((imp) => (
           <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={zod.file.path} path={imp.path} name={imp.name} />
         ))}

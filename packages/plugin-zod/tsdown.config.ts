@@ -11,5 +11,5 @@ export default defineConfig({
   platform: 'node',
   sourcemap: true,
   shims: true,
-  exports: true,
+  exports: false,
 })

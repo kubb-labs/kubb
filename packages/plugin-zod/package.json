@@ -37,6 +37,7 @@
       "import": "./dist/generators.js",
       "require": "./dist/generators.cjs"
     },
+    "./templates/*": "./templates/*",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",

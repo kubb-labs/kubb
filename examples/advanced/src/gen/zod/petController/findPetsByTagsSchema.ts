@@ -1,4 +1,12 @@
-import { z } from 'zod/v4'
+import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
+import type {
+  FindPetsByTags200,
+  FindPetsByTags400,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsQueryResponse,
+} from '../../models/ts/petController/FindPetsByTags.ts'
 import { petSchema } from '../petSchema.ts'
 
 export const findPetsByTagsQueryParamsSchema = z
@@ -7,30 +15,30 @@ export const findPetsByTagsQueryParamsSchema = z
     page: z.optional(z.string().describe('to request with required page number or pagination')),
     pageSize: z.optional(z.coerce.number().describe('to request with required page size')),
   })
-  .optional()
+  .optional() as unknown as ToZod<FindPetsByTagsQueryParams>
 
-export type FindPetsByTagsQueryParamsSchema = z.infer<typeof findPetsByTagsQueryParamsSchema>
+export type FindPetsByTagsQueryParamsSchema = FindPetsByTagsQueryParams
 
 export const findPetsByTagsHeaderParamsSchema = z.object({
   'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters'),
-})
+}) as unknown as ToZod<FindPetsByTagsHeaderParams>
 
-export type FindPetsByTagsHeaderParamsSchema = z.infer<typeof findPetsByTagsHeaderParamsSchema>
+export type FindPetsByTagsHeaderParamsSchema = FindPetsByTagsHeaderParams
 
 /**
  * @description successful operation
  */
-export const findPetsByTags200Schema = z.array(petSchema)
+export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema)) as unknown as ToZod<FindPetsByTags200>
 
-export type FindPetsByTags200Schema = z.infer<typeof findPetsByTags200Schema>
+export type FindPetsByTags200Schema = FindPetsByTags200
 
 /**
  * @description Invalid tag value
  */
-export const findPetsByTags400Schema = z.any()
+export const findPetsByTags400Schema = z.any() as unknown as ToZod<FindPetsByTags400>
 
-export type FindPetsByTags400Schema = z.infer<typeof findPetsByTags400Schema>
+export type FindPetsByTags400Schema = FindPetsByTags400
 
-export const findPetsByTagsQueryResponseSchema = findPetsByTags200Schema
+export const findPetsByTagsQueryResponseSchema = z.lazy(() => findPetsByTags200Schema) as unknown as ToZod<FindPetsByTagsQueryResponse>
 
-export type FindPetsByTagsQueryResponseSchema = z.infer<typeof findPetsByTagsQueryResponseSchema>
+export type FindPetsByTagsQueryResponseSchema = FindPetsByTagsQueryResponse
