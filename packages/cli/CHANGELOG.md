@@ -1,5 +1,12 @@
 # @kubb/cli
 
+## 4.5.0
+
+### Patch Changes
+
+- Updated dependencies [[`7152039`](https://github.com/kubb-labs/kubb/commit/71520392cde27ff58bcbead3930e8f3e38b3be86)]:
+  - @kubb/core@4.5.0
+
 ## 4.4.1
 
 ### Patch Changes

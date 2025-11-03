@@ -1,5 +1,21 @@
 # @kubb/plugin-react-query
 
+## 4.5.0
+
+### Minor Changes
+
+- [#1970](https://github.com/kubb-labs/kubb/pull/1970) [`7152039`](https://github.com/kubb-labs/kubb/commit/71520392cde27ff58bcbead3930e8f3e38b3be86) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove @kubb dependencies
+
+### Patch Changes
+
+- Updated dependencies [[`7152039`](https://github.com/kubb-labs/kubb/commit/71520392cde27ff58bcbead3930e8f3e38b3be86)]:
+  - @kubb/plugin-client@4.5.0
+  - @kubb/plugin-oas@4.5.0
+  - @kubb/plugin-zod@4.5.0
+  - @kubb/plugin-ts@4.5.0
+  - @kubb/core@4.5.0
+  - @kubb/oas@4.5.0
+
 ## 4.4.1
 
 ### Patch Changes
