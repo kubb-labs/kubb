@@ -1,5 +1,4 @@
 import path from 'node:path'
-import { usePluginManager } from '@kubb/core/hooks'
 import { URLPath } from '@kubb/core/utils'
 import type { PluginClient } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
@@ -12,7 +11,6 @@ import { File } from '@kubb/react-fabric'
 export const clientStaticGenerator = createReactGenerator<PluginClient>({
   name: 'client',
   Operation({ config, plugin, operation, generator }) {
-    const _pluginManager = usePluginManager()
     const {
       options,
       options: { output },

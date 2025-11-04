@@ -29,7 +29,7 @@
     "@kubb/plugin-faker": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "~0.2.15",
+    "@kubb/react-fabric": "~0.2.16",
     "dayjs": "^1.11.19",
     "react": "^18.3.1"
   },

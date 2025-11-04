@@ -158,7 +158,7 @@ export function parseFromConfig(config: Config, oasClass: typeof Oas = Oas): Pro
 
   if (Array.isArray(config.input)) {
     return merge(
-      config.input.map((input) => input.path),
+      config.input.map((input) => path.resolve(config.root, input.path)),
       { oasClass },
     )
   }

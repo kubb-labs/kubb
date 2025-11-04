@@ -134,6 +134,7 @@ components:
     const data = await import(petStoreV2)
 
     const oas = await parseFromConfig({
+      root: process.cwd(),
       input: {
         data,
       },
@@ -145,6 +146,7 @@ components:
 
   test('check if oas and title is defined based on a Swagger(v3) JSON string', async () => {
     const oas = await parseFromConfig({
+      root: process.cwd(),
       input: {
         data: JSON.stringify(petStoreObject),
       },
@@ -156,6 +158,7 @@ components:
 
   test('check if oas and title is defined based on a Swagger(v3) JSON object', async () => {
     const oas = await parseFromConfig({
+      root: process.cwd(),
       input: {
         data: petStoreObject,
       },
@@ -167,6 +170,7 @@ components:
 
   test('check if oas and title is defined based on a Swagger(v3) YAML', async () => {
     const oas = await parseFromConfig({
+      root: process.cwd(),
       input: {
         data: yamlPetStoreString,
       },

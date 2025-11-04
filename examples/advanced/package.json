@@ -40,7 +40,7 @@
     "@kubb/plugin-swr": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@kubb/react-fabric": "~0.2.15",
+    "@kubb/react-fabric": "~0.2.16",
     "@modelcontextprotocol/sdk": "^1.21.0",
     "@tanstack/query-core": "^5.90.6",
     "@tanstack/react-query": "^5.90.6",

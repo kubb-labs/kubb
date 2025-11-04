@@ -143,7 +143,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
         footer={getFooter({ oas, output })}
       >
         <File.Import name={['z']} path={importPath} />
-        {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file!.path} name={[type.name]} />}
+        {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
         {typed && version === '3' && (
           <File.Import name={['ToZod']} root={zod.file.path} path={path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')} />
         )}

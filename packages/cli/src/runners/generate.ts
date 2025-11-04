@@ -108,7 +108,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     failedPlugins,
     filesCreated: files.length,
     config: definedConfig,
-    status: error ? 'failed' : 'success',
+    status: failedPlugins.size > 0 || error ? 'failed' : 'success',
     hrStart,
   })
 

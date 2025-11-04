@@ -41,6 +41,7 @@ export const pluginFaker = definePlugin<PluginFaker>((options) => {
       override,
       regexGenerator,
       group,
+      usedEnumNames: {},
     },
     pre: [pluginOasName, pluginTsName],
     resolvePath(baseName, pathMode, options) {

@@ -17,7 +17,7 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
   const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrStart))
 
   const pluginsCount = config.plugins?.length || 0
-  const successCount = failedPlugins.size === 0 ? pluginsCount : pluginsCount - failedPlugins.size - 1
+  const successCount = pluginsCount - failedPlugins.size
 
   const meta = {
     plugins:

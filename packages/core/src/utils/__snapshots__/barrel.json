@@ -10,7 +10,7 @@
         "isIndexable": true
       }
     ],
-    "id": "24be171099f802b26a7c97f02b0017ea44a6f9147e7fbe8c3ad6bc45283d4903",
+    "id": "81188fa6e8155e286766a6f3ca74e3eaf1e65e4aca7c0c2788e588b32c591288",
     "name": "test",
     "extname": ".ts",
     "imports": [],
@@ -51,7 +51,7 @@
         "isIndexable": false
       }
     ],
-    "id": "be25f3f85c5b85e95514080872ba0bca69acd8e1cec464b632945e79fed1d5b6",
+    "id": "a2a171449d862fe29692ce031981047d7ab755ae7f84c707aef80701b3ea0c80",
     "name": "index",
     "extname": ".ts",
     "imports": [],
@@ -68,7 +68,7 @@
         "isIndexable": true
       }
     ],
-    "id": "2605e7687b17f9a3fbc22bb108d789832b4d51be66f9250e1b08baffec006a71",
+    "id": "9e2eb758d04ed285d5eb44154f8ce82fafc1a45f3454ec50e776a6ad2923bdbc",
     "name": "hello",
     "extname": ".ts",
     "imports": [],
@@ -86,7 +86,7 @@
         "isIndexable": true
       }
     ],
-    "id": "9522fa0378a8d8ecb5a5c54aac78b9a8644518860de49cf71ced4e6fe9c6e940",
+    "id": "8875e1f9f216417bf0cd05cf4a1a49f430094b0700574b1db6e4e2406feeb850",
     "name": "world",
     "extname": ".ts",
     "imports": [],
@@ -138,7 +138,7 @@
         "path": "./sub/world.ts"
       }
     ],
-    "id": "216ca4d733d9d347d0ef4ec8865f8209e6ebab829cde4bbfef25e7a40e839b9f",
+    "id": "00d9bb747968e55db50fa82465b2f0678d957e9befeaff84a70e431486a8a132",
     "name": "index",
     "extname": ".ts",
     "imports": [],

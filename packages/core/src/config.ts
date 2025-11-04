@@ -49,5 +49,5 @@ export function defineConfig(
  * Type guard to check if a given config has an `input.path`.
  */
 export function isInputPath(config: UserConfig | undefined): config is UserConfig<InputPath> {
-  return !!config && 'path' in (config.input as any)
+  return typeof config?.input === 'object' && config.input !== null && 'path' in config.input
 }

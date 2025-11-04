@@ -1,6 +1,6 @@
 import path from 'node:path'
+import type { OasTypes } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import type { OASDocument } from 'oas/types'
 import { describe, expect, it } from 'vitest'
 import { getSchemas } from './getSchemas.ts'
 
@@ -26,7 +26,7 @@ describe('getSchemas', () => {
           },
         },
       },
-    } as unknown as OASDocument)
+    } as unknown as OasTypes.OASDocument)
 
     const result = getSchemas({ oas, includes: ['responses'] })
     expect(result).toMatchSnapshot()
@@ -46,7 +46,7 @@ describe('getSchemas', () => {
           },
         },
       },
-    } as unknown as OASDocument)
+    } as unknown as OasTypes.OASDocument)
 
     const result = getSchemas({ oas, includes: ['requestBodies'] })
     expect(result).toMatchSnapshot()
@@ -63,7 +63,7 @@ describe('getSchemas', () => {
           Person: { type: 'object', properties: { name: { type: 'string' } } },
         },
       },
-    } as unknown as OASDocument)
+    } as unknown as OasTypes.OASDocument)
 
     const result = getSchemas({ oas })
     const keys = Object.keys(result)
@@ -89,7 +89,7 @@ describe('getSchemas', () => {
           },
         },
       },
-    } as unknown as OASDocument)
+    } as unknown as OasTypes.OASDocument)
 
     const result = getSchemas({ oas })
     const keys = Object.keys(result)
@@ -115,7 +115,7 @@ describe('getSchemas', () => {
           },
         },
       },
-    } as unknown as OASDocument)
+    } as unknown as OasTypes.OASDocument)
 
     const result = getSchemas({
       oas,
@@ -127,7 +127,7 @@ describe('getSchemas', () => {
   })
 
   it('should skip missing components', async () => {
-    const oas = await parse({ openapi: '3.0.0', components: {} } as unknown as OASDocument)
+    const oas = await parse({ openapi: '3.0.0', components: {} } as unknown as OasTypes.OASDocument)
     const result = getSchemas({ oas })
 
     expect(result).toEqual({})
