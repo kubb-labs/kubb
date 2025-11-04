@@ -6,7 +6,6 @@ import type { Config, Plugin } from './types.ts'
 describe('build', () => {
   const pluginMocks = {
     buildStart: vi.fn(),
-    buildEnd: vi.fn(),
     resolvePath: vi.fn(),
   } as const
 
@@ -25,9 +24,6 @@ describe('build', () => {
         pluginMocks.buildStart(...params)
 
         await this.addFile(file)
-      },
-      buildEnd(...params) {
-        pluginMocks.buildEnd(...params)
       },
     }
   })
@@ -92,6 +88,5 @@ describe('build', () => {
     `)
 
     expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
-    expect(pluginMocks.buildEnd).toHaveBeenCalledTimes(1)
   })
 })

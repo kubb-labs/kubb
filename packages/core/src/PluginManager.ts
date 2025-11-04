@@ -705,6 +705,6 @@ export class PluginManager {
   }
 
   static get hooks() {
-    return ['buildStart', 'resolvePath', 'resolveName', 'buildEnd'] as const
+    return ['buildStart', 'resolvePath', 'resolveName'] as const
   }
 }

@@ -79,7 +79,7 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react-fabric": "catalog:",
-    "@modelcontextprotocol/sdk": "^1.20.2",
+    "@modelcontextprotocol/sdk": "^1.21.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {

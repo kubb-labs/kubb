@@ -166,11 +166,11 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       await fabric.addFile(rootFile)
     }
 
-    fabric.context.events.on('process:start', ({ files }) => {
+    fabric.context.on('process:start', ({ files }) => {
       pluginManager.logger.emit('progress_start', { id: 'files', size: files.length, message: 'Writing files ...' })
     })
 
-    fabric.context.events.on('process:progress', async ({ file, source }) => {
+    fabric.context.on('process:progress', async ({ file, source }) => {
       const message = file ? `Writing ${relative(config.root, file.path)}` : ''
       pluginManager.logger.emit('progressed', { id: 'files', message })
 
@@ -179,14 +179,12 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       }
     })
 
-    fabric.context.events.on('process:end', () => {
+    fabric.context.on('process:end', () => {
       pluginManager.logger.emit('progress_stop', { id: 'files' })
     })
     const files = [...fabric.files]
 
     await fabric.write({ extension: config.output.extension })
-
-    await pluginManager.hookParallel({ hookName: 'buildEnd', message: `Build stopped for ${config.name}` })
 
     return {
       fabric,

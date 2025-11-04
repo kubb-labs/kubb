@@ -1,6 +1,5 @@
 import path from 'node:path'
 import { parse } from '@kubb/oas'
-// @ts-expect-error cannot find type
 import type { OASDocument } from 'oas/types'
 import { describe, expect, it } from 'vitest'
 import { getSchemas } from './getSchemas.ts'
@@ -27,7 +26,7 @@ describe('getSchemas', () => {
           },
         },
       },
-    } as OASDocument)
+    } as unknown as OASDocument)
 
     const result = getSchemas({ oas, includes: ['responses'] })
     expect(result).toMatchSnapshot()
@@ -47,7 +46,7 @@ describe('getSchemas', () => {
           },
         },
       },
-    } as OASDocument)
+    } as unknown as OASDocument)
 
     const result = getSchemas({ oas, includes: ['requestBodies'] })
     expect(result).toMatchSnapshot()
@@ -64,7 +63,7 @@ describe('getSchemas', () => {
           Person: { type: 'object', properties: { name: { type: 'string' } } },
         },
       },
-    } as OASDocument)
+    } as unknown as OASDocument)
 
     const result = getSchemas({ oas })
     const keys = Object.keys(result)
@@ -90,7 +89,7 @@ describe('getSchemas', () => {
           },
         },
       },
-    } as OASDocument)
+    } as unknown as OASDocument)
 
     const result = getSchemas({ oas })
     const keys = Object.keys(result)
@@ -116,7 +115,7 @@ describe('getSchemas', () => {
           },
         },
       },
-    } as OASDocument)
+    } as unknown as OASDocument)
 
     const result = getSchemas({
       oas,
@@ -128,7 +127,7 @@ describe('getSchemas', () => {
   })
 
   it('should skip missing components', async () => {
-    const oas = await parse({ openapi: '3.0.0', components: {} } as OASDocument)
+    const oas = await parse({ openapi: '3.0.0', components: {} } as unknown as OASDocument)
     const result = getSchemas({ oas })
 
     expect(result).toEqual({})
