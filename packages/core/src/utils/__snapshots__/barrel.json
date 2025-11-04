@@ -1,0 +1,147 @@
+[
+  {
+    "path": "src/test.ts",
+    "baseName": "test.ts",
+    "sources": [
+      {
+        "name": "test",
+        "value": "export const test = 2;",
+        "isExportable": true,
+        "isIndexable": true
+      }
+    ],
+    "id": "24be171099f802b26a7c97f02b0017ea44a6f9147e7fbe8c3ad6bc45283d4903",
+    "name": "test",
+    "extname": ".ts",
+    "imports": [],
+    "exports": [],
+    "meta": {}
+  },
+  {
+    "path": "src/index.ts",
+    "baseName": "index.ts",
+    "exports": [
+      {
+        "path": "./sub/hello.ts"
+      },
+      {
+        "path": "./sub/world.ts"
+      },
+      {
+        "path": "./test.ts"
+      }
+    ],
+    "sources": [
+      {
+        "name": "test",
+        "value": "",
+        "isExportable": false,
+        "isIndexable": false
+      },
+      {
+        "name": "hello",
+        "value": "",
+        "isExportable": false,
+        "isIndexable": false
+      },
+      {
+        "name": "world",
+        "value": "",
+        "isExportable": false,
+        "isIndexable": false
+      }
+    ],
+    "id": "be25f3f85c5b85e95514080872ba0bca69acd8e1cec464b632945e79fed1d5b6",
+    "name": "index",
+    "extname": ".ts",
+    "imports": [],
+    "meta": {}
+  },
+  {
+    "path": "src/sub/hello.ts",
+    "baseName": "hello.ts",
+    "sources": [
+      {
+        "name": "hello",
+        "value": "export const hello = 2;",
+        "isExportable": true,
+        "isIndexable": true
+      }
+    ],
+    "id": "2605e7687b17f9a3fbc22bb108d789832b4d51be66f9250e1b08baffec006a71",
+    "name": "hello",
+    "extname": ".ts",
+    "imports": [],
+    "exports": [],
+    "meta": {}
+  },
+  {
+    "path": "src/sub/world.ts",
+    "baseName": "world.ts",
+    "sources": [
+      {
+        "name": "world",
+        "value": "export const world = 2;",
+        "isExportable": true,
+        "isIndexable": true
+      }
+    ],
+    "id": "9522fa0378a8d8ecb5a5c54aac78b9a8644518860de49cf71ced4e6fe9c6e940",
+    "name": "world",
+    "extname": ".ts",
+    "imports": [],
+    "exports": [],
+    "meta": {}
+  },
+  {
+    "path": "src/sub/index.ts",
+    "baseName": "index.ts",
+    "sources": [
+      {
+        "name": "hello",
+        "value": ""
+      },
+      {
+        "name": "world",
+        "value": ""
+      },
+      {
+        "name": "hello",
+        "value": "",
+        "isExportable": false,
+        "isIndexable": false
+      },
+      {
+        "name": "world",
+        "value": "",
+        "isExportable": false,
+        "isIndexable": false
+      }
+    ],
+    "exports": [
+      {
+        "path": "./hello.ts"
+      },
+      {
+        "path": "./world.ts"
+      },
+      {
+        "name": [
+          "hello"
+        ],
+        "path": "./sub/hello.ts"
+      },
+      {
+        "name": [
+          "world"
+        ],
+        "path": "./sub/world.ts"
+      }
+    ],
+    "id": "216ca4d733d9d347d0ef4ec8865f8209e6ebab829cde4bbfef25e7a40e839b9f",
+    "name": "index",
+    "extname": ".ts",
+    "imports": [],
+    "meta": {}
+  }
+]
