@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.5.2
+- Update Fabric packages
+
 # 4.5.1
 - [`plugin-zod`](/plugins/plugin-zod): Query parameter object with all parameters defaulting incorrectly marked as optional in Zod
 
@@ -23,7 +26,7 @@ title: Changelog
 - Update Fabric packages
 
 # 4.4.0
-- Add Fabric suport
+- Add Fabric support
 
 # 4.3.1
 - [`react`](/helpers/react/): update peerdeps `@kubb/react`

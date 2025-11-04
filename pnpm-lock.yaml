@@ -7,11 +7,11 @@ settings:
 catalogs:
   default:
     '@kubb/fabric-core':
-      specifier: 0.2.16
-      version: 0.2.16
+      specifier: 0.2.19
+      version: 0.2.19
     '@kubb/react-fabric':
-      specifier: 0.2.16
-      version: 0.2.16
+      specifier: 0.2.19
+      version: 0.2.19
     '@size-limit/file':
       specifier: ^11.2.0
       version: 11.2.0
@@ -49,10 +49,10 @@ importers:
         version: 2.29.7(@types/node@20.19.24)
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       '@size-limit/file':
         specifier: 'catalog:'
         version: 11.2.0(size-limit@11.2.0)
@@ -112,7 +112,7 @@ importers:
         version: 8.0.2
       vitepress:
         specifier: 2.0.0-alpha.12
-        version: 2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1)
+        version: 2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1)
       vitepress-plugin-group-icons:
         specifier: ^1.6.5
         version: 1.6.5(vite@7.1.12(@types/node@20.19.24)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(yaml@2.8.1))
@@ -131,7 +131,7 @@ importers:
         version: link:../packages/core
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../packages/plugin-client
@@ -170,19 +170,19 @@ importers:
         version: link:../packages/plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       '@mermaid-js/mermaid-cli':
         specifier: ^11.12.0
         version: 11.12.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@19.2.2)(puppeteer@23.11.1(typescript@5.9.3))(yaml@2.8.1)
       '@nolebase/vitepress-plugin-enhanced-readabilities':
         specifier: ^2.18.2
-        version: 2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))
+        version: 2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))
       '@nolebase/vitepress-plugin-highlight-targeted-heading':
         specifier: ^2.18.2
-        version: 2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))
+        version: 2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))
       '@nolebase/vitepress-plugin-og-image':
         specifier: ^2.18.2
-        version: 2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))
+        version: 2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))
       '@types/node':
         specifier: 'catalog:'
         version: 20.19.24
@@ -242,7 +242,7 @@ importers:
         version: link:../packages/plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       '@tanstack/react-query':
         specifier: ^5.90.6
         version: 5.90.6(react@18.3.1)
@@ -256,8 +256,8 @@ importers:
         specifier: ^5.90.6
         version: 5.90.6(vue@3.5.22(typescript@5.9.3))
       axios:
-        specifier: ^1.13.1
-        version: 1.13.1
+        specifier: ^1.13.2
+        version: 1.13.2
       cypress:
         specifier: ~14.2.1
         version: 14.2.1
@@ -332,8 +332,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@kubb/react-fabric':
-        specifier: ~0.2.16
-        version: 0.2.16
+        specifier: ~0.2.19
+        version: 0.2.19
       '@modelcontextprotocol/sdk':
         specifier: ^1.21.0
         version: 1.21.0
@@ -357,7 +357,7 @@ importers:
         version: 19.2.2
       axios:
         specifier: ^1.13.1
-        version: 1.13.1
+        version: 1.13.2
       cypress:
         specifier: ~14.3.3
         version: 14.3.3
@@ -405,11 +405,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: ~0.2.16
-        version: 0.2.16
+        specifier: ~0.2.19
+        version: 0.2.19
       axios:
         specifier: ^1.13.1
-        version: 1.13.1
+        version: 1.13.2
     devDependencies:
       '@types/react':
         specifier: ^19.2.2
@@ -473,8 +473,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: ~0.2.16
-        version: 0.2.16
+        specifier: ~0.2.19
+        version: 0.2.19
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
@@ -529,11 +529,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: ~0.2.16
-        version: 0.2.16
+        specifier: ~0.2.19
+        version: 0.2.19
       axios:
         specifier: ^1.13.1
-        version: 1.13.1
+        version: 1.13.2
     devDependencies:
       '@types/react':
         specifier: ^19.2.2
@@ -570,7 +570,7 @@ importers:
         version: 1.21.0
       axios:
         specifier: ^1.13.1
-        version: 1.13.1
+        version: 1.13.2
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -643,8 +643,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: ~0.2.16
-        version: 0.2.16
+        specifier: ~0.2.19
+        version: 0.2.19
       '@tanstack/react-query':
         specifier: ^5.90.6
         version: 5.90.6(react@19.2.0)
@@ -653,7 +653,7 @@ importers:
         version: 5.90.2(@tanstack/react-query@5.90.6(react@19.2.0))(react@19.2.0)
       axios:
         specifier: ^1.13.1
-        version: 1.13.1
+        version: 1.13.2
       react:
         specifier: ^19.2.0
         version: 19.2.0
@@ -714,7 +714,7 @@ importers:
         version: 5.90.6(react@18.3.1)
       axios:
         specifier: ^1.13.1
-        version: 1.13.1
+        version: 1.13.2
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -753,7 +753,7 @@ importers:
         version: 5.90.9(solid-js@1.9.10)
       axios:
         specifier: ^1.13.1
-        version: 1.13.1
+        version: 1.13.2
       solid-js:
         specifier: ^1.9.10
         version: 1.9.10
@@ -790,7 +790,7 @@ importers:
         version: 5.62.7(svelte@4.2.20)
       axios:
         specifier: ^1.13.1
-        version: 1.13.1
+        version: 1.13.2
       svelte:
         specifier: ^4.2.20
         version: 4.2.20
@@ -824,7 +824,7 @@ importers:
         version: link:../../packages/plugin-zod
       axios:
         specifier: ^1.13.1
-        version: 1.13.1
+        version: 1.13.2
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -855,7 +855,7 @@ importers:
         version: link:../../packages/plugin-ts
       axios:
         specifier: ^1.13.1
-        version: 1.13.1
+        version: 1.13.2
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -889,7 +889,7 @@ importers:
         version: 5.81.5(vue@3.5.22(typescript@5.9.3))
       axios:
         specifier: ^1.13.1
-        version: 1.13.1
+        version: 1.13.2
       unplugin-kubb:
         specifier: workspace:*
         version: link:../../packages/unplugin-kubb
@@ -932,7 +932,7 @@ importers:
         version: link:../../packages/plugin-zod
       axios:
         specifier: ^1.13.1
-        version: 1.13.1
+        version: 1.13.2
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1005,7 +1005,7 @@ importers:
     dependencies:
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       camelcase:
         specifier: ^8.0.0
         version: 8.0.0
@@ -1064,7 +1064,7 @@ importers:
     optionalDependencies:
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
 
   packages/kubb:
     dependencies:
@@ -1115,7 +1115,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       '@modelcontextprotocol/sdk':
         specifier: ^1.21.0
         version: 1.21.0
@@ -1182,14 +1182,14 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
     devDependencies:
       axios:
-        specifier: ^1.13.1
-        version: 1.13.1
+        specifier: ^1.13.2
+        version: 1.13.2
 
   packages/plugin-cypress:
     dependencies:
@@ -1207,7 +1207,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
 
   packages/plugin-faker:
     dependencies:
@@ -1225,7 +1225,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
 
   packages/plugin-mcp:
     dependencies:
@@ -1249,7 +1249,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
 
   packages/plugin-msw:
     dependencies:
@@ -1270,7 +1270,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
 
   packages/plugin-oas:
     dependencies:
@@ -1282,7 +1282,7 @@ importers:
         version: link:../oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       '@stoplight/yaml':
         specifier: ^4.3.0
         version: 4.3.0
@@ -1315,7 +1315,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
@@ -1333,7 +1333,7 @@ importers:
         version: link:../plugin-oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
@@ -1360,7 +1360,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
@@ -1387,7 +1387,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
@@ -1414,7 +1414,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
@@ -1426,7 +1426,7 @@ importers:
         version: link:../core
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1435,7 +1435,7 @@ importers:
         version: link:../plugin-oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
@@ -1465,7 +1465,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
@@ -1486,7 +1486,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.2.16
+        version: 0.2.19
     devDependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.1.0
@@ -2160,12 +2160,12 @@ packages:
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
 
-  '@kubb/fabric-core@0.2.16':
-    resolution: {integrity: sha512-Cky06ymWvyRSDDEmJiV14tec5nLXOk45RMEumBZvKPcx/wMs+GP8Ln3dqDJ1oP5SnlMowjq4ZVQteaKW+Ea8UA==}
+  '@kubb/fabric-core@0.2.19':
+    resolution: {integrity: sha512-739uSKy1PsT9bvp7L8KICoWGXXsDfY0AZAk5AN+/RDn7H00119H8cgcnzqHBLeBXBohCvHkmZvqKDcouOOuIzA==}
     engines: {node: '>=20'}
 
-  '@kubb/react-fabric@0.2.16':
-    resolution: {integrity: sha512-McF/nqrN+9kb/W9JXuSR2EaOmIlNdfrzsYF2k9+LfPdCMHirIXfp5ljolMx3MrZoCKL25htDXx+9a5F6n9DlKg==}
+  '@kubb/react-fabric@0.2.19':
+    resolution: {integrity: sha512-QWC/jnngzbGKI8fSub96msxp4UMO4lBgdDA9/+pzZd6VjTtlBjHEHLIzZ4SizQmCAw/KZ+NSBP8fXkBwusKsKw==}
     engines: {node: '>=20'}
 
   '@manypkg/find-root@1.1.0':
@@ -3427,8 +3427,8 @@ packages:
   aws4@1.13.2:
     resolution: {integrity: sha512-lHe62zvbTB5eEABUVi/AwVh0ZKY9rMMDhmm+eeyuuUQbQ3+J+fONVQOZyj+DdrvD4BY33uYniyRJ4UJIaSKAfw==}
 
-  axios@1.13.1:
-    resolution: {integrity: sha512-hU4EGxxt+j7TQijx1oYdAjw4xuIp1wRQSsbMFwSthCWeBQur1eF+qJ5iQ5sN3Tw8YRzQNKb8jszgBdMDVqwJcw==}
+  axios@1.13.2:
+    resolution: {integrity: sha512-VPk9ebNqPcy5lRGuSlKx752IlDatOjT9paPlm8A7yOuW2Fbvp4X3JznJtT4f0GzGLLiWE9W8onz51SqLYwzGaA==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -8414,7 +8414,7 @@ snapshots:
     dependencies:
       jsep: 1.4.0
 
-  '@kubb/fabric-core@0.2.16':
+  '@kubb/fabric-core@0.2.19':
     dependencies:
       cli-progress: 3.12.0
       fs-extra: 11.3.2
@@ -8423,9 +8423,9 @@ snapshots:
       serve-handler: 6.1.6
       typescript: 5.9.3
 
-  '@kubb/react-fabric@0.2.16':
+  '@kubb/react-fabric@0.2.19':
     dependencies:
-      '@kubb/fabric-core': 0.2.16
+      '@kubb/fabric-core': 0.2.19
       dedent: 1.7.0
       execa: 9.6.0
       indent-string: 5.0.0
@@ -8559,29 +8559,29 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@nolebase/ui@2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))':
+  '@nolebase/ui@2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))':
     dependencies:
       '@iconify-json/octicon': 1.2.16
       less: 4.4.2
-      vitepress: 2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1)
+      vitepress: 2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1)
       vue: 3.5.22(typescript@5.9.3)
 
-  '@nolebase/vitepress-plugin-enhanced-readabilities@2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))':
+  '@nolebase/vitepress-plugin-enhanced-readabilities@2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))':
     dependencies:
       '@iconify-json/carbon': 1.2.14
       '@iconify-json/icon-park-outline': 1.2.4
-      '@nolebase/ui': 2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))
+      '@nolebase/ui': 2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))
       less: 4.4.2
-      vitepress: 2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1)
+      vitepress: 2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1)
     transitivePeerDependencies:
       - vue
 
-  '@nolebase/vitepress-plugin-highlight-targeted-heading@2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))':
+  '@nolebase/vitepress-plugin-highlight-targeted-heading@2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))':
     dependencies:
       less: 4.4.2
-      vitepress: 2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1)
+      vitepress: 2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1)
 
-  '@nolebase/vitepress-plugin-og-image@2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))':
+  '@nolebase/vitepress-plugin-og-image@2.18.2(vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1))':
     dependencies:
       '@resvg/resvg-wasm': 2.6.2
       colorette: 2.0.20
@@ -8597,7 +8597,7 @@ snapshots:
       tinyglobby: 0.2.15
       unified: 11.0.5
       unist-util-visit: 5.0.0
-      vitepress: 2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1)
+      vitepress: 2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1)
 
   '@nuxt/kit@3.20.0(magicast@0.3.5)':
     dependencies:
@@ -9622,13 +9622,13 @@ snapshots:
       '@vueuse/shared': 13.9.0(vue@3.5.22(typescript@5.9.3))
       vue: 3.5.22(typescript@5.9.3)
 
-  '@vueuse/integrations@13.9.0(axios@1.13.1)(focus-trap@7.6.5)(vue@3.5.22(typescript@5.9.3))':
+  '@vueuse/integrations@13.9.0(axios@1.13.2)(focus-trap@7.6.5)(vue@3.5.22(typescript@5.9.3))':
     dependencies:
       '@vueuse/core': 13.9.0(vue@3.5.22(typescript@5.9.3))
       '@vueuse/shared': 13.9.0(vue@3.5.22(typescript@5.9.3))
       vue: 3.5.22(typescript@5.9.3)
     optionalDependencies:
-      axios: 1.13.1
+      axios: 1.13.2
       focus-trap: 7.6.5
 
   '@vueuse/metadata@13.9.0': {}
@@ -9896,7 +9896,7 @@ snapshots:
 
   aws4@1.13.2: {}
 
-  axios@1.13.1:
+  axios@1.13.2:
     dependencies:
       follow-redirects: 1.15.11
       form-data: 4.0.4
@@ -14536,7 +14536,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.1)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1):
+  vitepress@2.0.0-alpha.12(@types/node@20.19.24)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(lightningcss@1.30.1)(postcss@8.5.6)(terser@5.44.0)(typescript@5.9.3)(yaml@2.8.1):
     dependencies:
       '@docsearch/css': 4.2.0
       '@docsearch/js': 4.2.0
@@ -14549,7 +14549,7 @@ snapshots:
       '@vue/devtools-api': 8.0.3
       '@vue/shared': 3.5.22
       '@vueuse/core': 13.9.0(vue@3.5.22(typescript@5.9.3))
-      '@vueuse/integrations': 13.9.0(axios@1.13.1)(focus-trap@7.6.5)(vue@3.5.22(typescript@5.9.3))
+      '@vueuse/integrations': 13.9.0(axios@1.13.2)(focus-trap@7.6.5)(vue@3.5.22(typescript@5.9.3))
       focus-trap: 7.6.5
       mark.js: 8.11.1
       minisearch: 7.2.0

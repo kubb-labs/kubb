@@ -25,7 +25,7 @@ export async function buildOperations<TOptions extends PluginFactoryOptions>(
   const { pluginManager, oas, mode } = generator.context
 
   const fabricChild = createReactFabric()
-  fabricChild.render(() => {
+  await fabricChild.render(() => {
     return (
       <App meta={{ pluginManager, plugin, mode, oas }}>
         <Component config={config} operations={operations} generator={generator} plugin={plugin} />
@@ -55,7 +55,7 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
   const { pluginManager, oas, mode } = generator.context
 
   const fabricChild = createReactFabric()
-  fabricChild.render(() => {
+  await fabricChild.render(() => {
     return (
       <App meta={{ pluginManager, plugin, mode, oas }}>
         <Component config={config} operation={operation} plugin={plugin} generator={generator} />
@@ -89,7 +89,7 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
   const { pluginManager, oas, mode } = generator.context
 
   const fabricChild = createReactFabric()
-  fabricChild.render(() => {
+  await fabricChild.render(() => {
     return (
       <App meta={{ pluginManager, plugin, mode, oas }}>
         <Component config={config} schema={schema} plugin={plugin} generator={generator} />

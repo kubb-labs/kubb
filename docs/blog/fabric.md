@@ -258,7 +258,7 @@ async function build() {
     )
   }
 
-  fabric.render(component)
+  await fabric.render(component)
 
   await fabric.write()
 }
