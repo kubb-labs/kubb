@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
@@ -93,8 +93,8 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
       return resolvedName
     },
-    async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
+    async install() {
+      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = this.pluginManager.getDependedPlugins<SwaggerPluginOptions>([pluginOasName])
 
       const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
@@ -154,6 +154,8 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       })
 
       await this.addFile(...barrelFiles)
+
+      throw new Error('AI AI AI')
     },
   }
 })

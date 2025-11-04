@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import { pluginClientName } from '@kubb/plugin-client'
@@ -127,8 +127,8 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
 
       return resolvedName
     },
-    async buildStart() {
-      const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
+    async install() {
+      const [swaggerPlugin]: [Plugin<PluginOas>] = this.pluginManager.getDependedPlugins<PluginOas>([pluginOasName])
 
       const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)

@@ -34,7 +34,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options) =
       },
     },
 
-    async buildStart() {
+    async install() {
       if (!options?.config) {
         throw new Error('Config is not set')
       }

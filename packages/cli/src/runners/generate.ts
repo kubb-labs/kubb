@@ -88,7 +88,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
-  const { files, error } = await safeBuild(
+  const { files, failedPlugins, error } = await safeBuild(
     {
       config: definedConfig,
       logger,
@@ -105,8 +105,8 @@ export async function generate({ input, config, progressCache, args }: GenerateP
   }
 
   const summary = getSummary({
+    failedPlugins,
     filesCreated: files.length,
-    pluginManager,
     config: definedConfig,
     status: error ? 'failed' : 'success',
     hrStart,

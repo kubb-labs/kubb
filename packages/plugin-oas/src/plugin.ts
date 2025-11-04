@@ -107,7 +107,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
 
       return path.resolve(root, output.path, baseName)
     },
-    async buildStart() {
+    async install() {
       if (!output) {
         return
       }

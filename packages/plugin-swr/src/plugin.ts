@@ -1,9 +1,9 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import { pluginClientName } from '@kubb/plugin-client'
-import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import type { PluginOas } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -119,8 +119,8 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
 
       return resolvedName
     },
-    async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
+    async install() {
+      const [swaggerPlugin]: [Plugin<PluginOas>] = this.pluginManager.getDependedPlugins<PluginOas>([pluginOasName])
 
       const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)

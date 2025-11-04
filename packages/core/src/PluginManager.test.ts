@@ -7,11 +7,11 @@ import type { Config, Plugin } from './types.ts'
 
 describe('PluginManager', () => {
   const pluginAMocks = {
-    buildStart: vi.fn(),
+    install: vi.fn(),
     resolvePath: vi.fn(),
   } as const
   const pluginBMocks = {
-    buildStart: vi.fn(),
+    install: vi.fn(),
     resolvePath: vi.fn(),
   } as const
   const pluginA = createPlugin(() => {
@@ -21,8 +21,8 @@ describe('PluginManager', () => {
       context: undefined as never,
 
       key: ['pluginA'],
-      buildStart() {
-        pluginAMocks.buildStart()
+      install() {
+        pluginAMocks.install()
       },
       resolvePath() {
         pluginAMocks.resolvePath()
@@ -38,8 +38,8 @@ describe('PluginManager', () => {
       options: undefined as any,
       context: undefined as never,
       key: ['pluginB', 1],
-      buildStart() {
-        pluginBMocks.buildStart()
+      install() {
+        pluginBMocks.install()
       },
       resolvePath() {
         pluginBMocks.resolvePath()
@@ -58,8 +58,8 @@ describe('PluginManager', () => {
       options: undefined as any,
       context: undefined as never,
       key: ['pluginB', 2],
-      buildStart() {
-        pluginBMocks.buildStart()
+      install() {
+        pluginBMocks.install()
       },
       resolvePath() {
         pluginBMocks.resolvePath()
@@ -93,9 +93,8 @@ describe('PluginManager', () => {
   })
 
   test('if pluginManager can be created', () => {
-    expect(pluginManager.plugins.size).toBe(config.plugins.length + 1)
-    expect(PluginManager.hooks).toStrictEqual(['buildStart', 'resolvePath', 'resolveName'])
-    expect(pluginManager.getPluginsByKey('buildStart', ['pluginB'])?.[0]?.name).toBe('pluginB')
+    expect(pluginManager.plugins.length).toBe(config.plugins.length)
+    expect(pluginManager.getPluginsByKey('install', ['pluginB'])?.[0]?.name).toBe('pluginB')
   })
 
   test('hookFirst', async () => {
@@ -202,11 +201,21 @@ describe('PluginManager', () => {
   })
 
   test('if validatePlugins works with 2 plugins', () => {
-    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], 'pluginA')).toBeTruthy()
-    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], 'pluginB')).toBeTruthy()
-    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], ['pluginA', 'pluginC'])).toBeTruthy()
+    const pluginManager = new PluginManager(config, {
+      fabric: createFabric(),
+      logger: createLogger({ logLevel: 3 }),
+    })
+
+    Object.defineProperty(pluginManager, 'plugins', {
+      value: [{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[],
+      writable: true,
+    })
+
+    expect(pluginManager.getDependedPlugins('pluginA')).toBeTruthy()
+    expect(pluginManager.getDependedPlugins('pluginB')).toBeTruthy()
+    expect(pluginManager.getDependedPlugins(['pluginA', 'pluginC'])).toBeTruthy()
     try {
-      PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], ['pluginA', 'pluginD'])
+      pluginManager.getDependedPlugins(['pluginA', 'pluginD'])
     } catch (e) {
       expect(e).toBeDefined()
     }

@@ -86,7 +86,7 @@ export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.F
   const fileProcessor = new FileProcessor()
   const parsers = new Set<any>([typescriptParser])
 
-  for await (const file of files) {
+  for (const file of files) {
     const source = await fileProcessor.parse(createFile(file), { parsers })
     let code = source
     if (!file.baseName.endsWith('.json')) {

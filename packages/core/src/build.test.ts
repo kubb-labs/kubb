@@ -5,7 +5,7 @@ import type { Config, Plugin } from './types.ts'
 
 describe('build', () => {
   const pluginMocks = {
-    buildStart: vi.fn(),
+    install: vi.fn(),
     resolvePath: vi.fn(),
   } as const
 
@@ -20,8 +20,8 @@ describe('build', () => {
       options: undefined as any,
       context: undefined as never,
       key: ['plugin'],
-      async buildStart(...params) {
-        pluginMocks.buildStart(...params)
+      async install(...params) {
+        pluginMocks.install(...params)
 
         await this.addFile(file)
       },
@@ -87,6 +87,6 @@ describe('build', () => {
       ]
     `)
 
-    expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
+    expect(pluginMocks.install).toHaveBeenCalledTimes(1)
   })
 })

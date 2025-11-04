@@ -79,7 +79,7 @@ export type Options = {
 export type Ref = {
   propertyName: string
   originalName: string
-  path: KubbFile.OptionalPath
+  path: KubbFile.Path
   pluginKey?: Plugin['key']
 }
 export type Refs = Record<string, Ref>

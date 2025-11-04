@@ -12,7 +12,7 @@ import { File } from '@kubb/react-fabric'
 export const clientStaticGenerator = createReactGenerator<PluginClient>({
   name: 'client',
   Operation({ config, plugin, operation, generator }) {
-    const pluginManager = usePluginManager()
+    const _pluginManager = usePluginManager()
     const {
       options,
       options: { output },
@@ -36,7 +36,7 @@ export const clientStaticGenerator = createReactGenerator<PluginClient>({
         baseName={client.file.baseName}
         path={client.file.path}
         meta={client.file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
+        banner={getBanner({ oas, output, config })}
         footer={getFooter({ oas, output })}
       >
         {options.importPath ? (
