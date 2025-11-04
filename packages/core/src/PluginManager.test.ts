@@ -199,25 +199,4 @@ describe('PluginManager', () => {
     expect(pluginAMocks.resolvePath).toHaveBeenCalled()
     expect(pluginBMocks.resolvePath).toHaveBeenCalled()
   })
-
-  test('if validatePlugins works with 2 plugins', () => {
-    const pluginManager = new PluginManager(config, {
-      fabric: createFabric(),
-      logger: createLogger({ logLevel: 3 }),
-    })
-
-    Object.defineProperty(pluginManager, 'plugins', {
-      value: [{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[],
-      writable: true,
-    })
-
-    expect(pluginManager.getDependedPlugins('pluginA')).toBeTruthy()
-    expect(pluginManager.getDependedPlugins('pluginB')).toBeTruthy()
-    expect(pluginManager.getDependedPlugins(['pluginA', 'pluginC'])).toBeTruthy()
-    try {
-      pluginManager.getDependedPlugins(['pluginA', 'pluginD'])
-    } catch (e) {
-      expect(e).toBeDefined()
-    }
-  })
 })

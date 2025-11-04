@@ -697,26 +697,4 @@ export class PluginManager {
       key: [plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.name, string],
     } as unknown as Plugin
   }
-
-  getDependedPlugins<
-    T1 extends PluginFactoryOptions,
-    T2 extends PluginFactoryOptions = never,
-    T3 extends PluginFactoryOptions = never,
-    TOutput = T3 extends never ? (T2 extends never ? [T1: Plugin<T1>] : [T1: Plugin<T1>, T2: Plugin<T2>]) : [T1: Plugin<T1>, T2: Plugin<T2>, T3: Plugin<T3>],
-  >(dependedPluginNames: string | string[]): TOutput {
-    let pluginNames: string[] = []
-    if (typeof dependedPluginNames === 'string') {
-      pluginNames = [dependedPluginNames]
-    } else {
-      pluginNames = dependedPluginNames
-    }
-
-    return pluginNames.map((pluginName) => {
-      const plugin = this.plugins.find((plugin) => plugin.name === pluginName)
-      if (!plugin) {
-        throw new ValidationPluginError(`This plugin depends on the ${pluginName} plugin.`)
-      }
-      return plugin
-    }) as TOutput
-  }
 }
