@@ -1,3 +1,4 @@
+export { Generator } from './Generator.ts'
 export type { OperationMethodResult } from './OperationGenerator.ts'
 export { OperationGenerator } from './OperationGenerator.ts'
 export { pluginOas, pluginOasName } from './plugin.ts'

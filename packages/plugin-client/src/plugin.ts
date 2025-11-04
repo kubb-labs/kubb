@@ -2,7 +2,7 @@ import path from 'node:path'
 import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
-import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
+import { Generator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { operationsGenerator } from './generators'
 import { clientGenerator } from './generators/clientGenerator.tsx'
@@ -116,7 +116,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         })
       }
 
-      const operationGenerator = new OperationGenerator(
+      const generator = new Generator(
         baseURL
           ? {
               ...this.plugin.options,
@@ -136,7 +136,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(...generators)
+      const files = await generator.build(...generators)
 
       await this.addFile(...files)
 

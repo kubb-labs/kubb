@@ -3,9 +3,8 @@ import { type Config, createPlugin, type Group, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import type { Oas } from '@kubb/oas'
 import { parseFromConfig } from '@kubb/oas'
+import { Generator } from './Generator.ts'
 import { jsonGenerator } from './generators'
-import { OperationGenerator } from './OperationGenerator.ts'
-import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { PluginOas } from './types.ts'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
@@ -118,7 +117,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       const oas = await this.getOas()
       await oas.dereference()
 
-      const schemaGenerator = new SchemaGenerator(
+      const generator = new Generator(
         {
           unknownType: 'unknown',
           emptySchemaType: 'unknown',
@@ -132,6 +131,8 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
           pluginManager: this.pluginManager,
           plugin: this.plugin,
           contentType,
+          // for plugin-oas, we always run split mode and include schema output
+          exclude: undefined,
           include: undefined,
           override: undefined,
           mode: 'split',
@@ -139,24 +140,8 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
         },
       )
 
-      const schemaFiles = await schemaGenerator.build(...generators)
-      await this.addFile(...schemaFiles)
-
-      const operationGenerator = new OperationGenerator(this.plugin.options, {
-        fabric: this.fabric,
-        oas,
-        pluginManager: this.pluginManager,
-        plugin: this.plugin,
-        contentType,
-        exclude: undefined,
-        include: undefined,
-        override: undefined,
-        mode: 'split',
-      })
-
-      const operationFiles = await operationGenerator.build(...generators)
-
-      await this.addFile(...operationFiles)
+      const files = await generator.build(...generators)
+      await this.addFile(...files)
     },
   }
 })

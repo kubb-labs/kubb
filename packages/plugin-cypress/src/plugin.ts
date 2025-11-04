@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
-import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
+import { Generator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { cypressGenerator } from './generators'
 import type { PluginCypress } from './types.ts'
@@ -81,7 +81,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
       const mode = getMode(path.resolve(root, output.path))
       const oas = await this.getOas()
 
-      const operationGenerator = new OperationGenerator(this.plugin.options, {
+      const generator = new Generator(this.plugin.options, {
         fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
@@ -93,7 +93,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
         mode,
       })
 
-      const files = await operationGenerator.build(...generators)
+      const files = await generator.build(...generators)
       await this.addFile(...files)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {

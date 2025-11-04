@@ -2,7 +2,7 @@ import path from 'node:path'
 import { createPlugin, type Group, getBarrelFiles, getMode, PackageManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
-import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
+import { Generator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { operationsGenerator } from './generators'
 import { zodGenerator } from './generators/zodGenerator.tsx'
@@ -124,22 +124,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         })
       }
 
-      const schemaGenerator = new SchemaGenerator(this.plugin.options, {
-        fabric: this.fabric,
-        oas,
-        pluginManager: this.pluginManager,
-        plugin: this.plugin,
-        contentType,
-        include: undefined,
-        override,
-        mode,
-        output: output.path,
-      })
-
-      const schemaFiles = await schemaGenerator.build(...generators)
-      await this.addFile(...schemaFiles)
-
-      const operationGenerator = new OperationGenerator(this.plugin.options, {
+      const generator = new Generator(this.plugin.options, {
         fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
@@ -149,10 +134,11 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         include,
         override,
         mode,
+        output: output.path,
       })
 
-      const operationFiles = await operationGenerator.build(...generators)
-      await this.addFile(...operationFiles)
+      const files = await generator.build(...generators)
+      await this.addFile(...files)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',

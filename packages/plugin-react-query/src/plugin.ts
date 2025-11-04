@@ -3,7 +3,7 @@ import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import { pluginClientName } from '@kubb/plugin-client'
-import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
+import { Generator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { MutationKey } from './components'
@@ -157,7 +157,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         })
       }
 
-      const operationGenerator = new OperationGenerator(this.plugin.options, {
+      const generator = new Generator(this.plugin.options, {
         fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
@@ -169,7 +169,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         mode,
       })
 
-      const files = await operationGenerator.build(...generators)
+      const files = await generator.build(...generators)
       await this.addFile(...files)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {

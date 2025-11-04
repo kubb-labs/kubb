@@ -2,7 +2,7 @@ import path from 'node:path'
 import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
-import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
+import { Generator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { mcpGenerator, serverGenerator } from './generators'
@@ -107,7 +107,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
         })
       }
 
-      const operationGenerator = new OperationGenerator(this.plugin.options, {
+      const generator = new Generator(this.plugin.options, {
         fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
@@ -119,7 +119,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
         mode,
       })
 
-      const files = await operationGenerator.build(...generators)
+      const files = await generator.build(...generators)
       await this.addFile(...files)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
