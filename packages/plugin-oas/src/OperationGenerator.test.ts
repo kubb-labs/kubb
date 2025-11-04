@@ -1,8 +1,8 @@
 import path from 'node:path'
 import type { Plugin, PluginManager } from '@kubb/core'
+import { parseFromConfig } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { OperationGenerator } from './OperationGenerator.ts'
-import { parseFromConfig } from './utils/parseFromConfig.ts'
 
 describe('OperationGenerator core', async () => {
   const oas = await parseFromConfig({

@@ -1,7 +1,5 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
-import { createPlugin, PluginManager } from '@kubb/core'
-import type { PluginOas } from '@kubb/plugin-oas'
+import { definePlugin } from '@kubb/core'
 import { pluginOasName } from '@kubb/plugin-oas'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
@@ -12,7 +10,7 @@ function trimExtName(text: string): string {
 
 export const pluginRedocName = 'plugin-redoc' satisfies PluginRedoc['name']
 
-export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
+export const pluginRedoc = definePlugin<PluginRedoc>((options) => {
   const { output = { path: 'docs.html' } } = options
 
   return {
@@ -22,10 +20,8 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
       name: trimExtName(output.path),
     },
     pre: [pluginOasName],
-    async buildStart() {
-      const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
-      const oas = await swaggerPlugin.context.getOas()
-
+    async install() {
+      const oas = await this.getOas()
       await oas.dereference()
 
       const root = path.resolve(this.config.root, this.config.output.path)

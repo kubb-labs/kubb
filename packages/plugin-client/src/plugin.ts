@@ -1,8 +1,7 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
-import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { operationsGenerator } from './generators'
@@ -12,7 +11,7 @@ import type { PluginClient } from './types.ts'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 
-export const pluginClient = createPlugin<PluginClient>((options) => {
+export const pluginClient = definePlugin<PluginClient>((options) => {
   const {
     output = { path: 'clients', barrelType: 'named' },
     group,
@@ -93,16 +92,14 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
       return resolvedName
     },
-    async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
-
-      const oas = await swaggerPlugin.context.getOas()
+    async install() {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
-      const baseURL = await swaggerPlugin.context.getBaseURL()
+      const oas = await this.getOas()
+      const baseURL = await this.getBaseURL()
 
       // pre add bundled fetcher
-      const containsFetcher = this.fileManager.files.some((file) => file.baseName === 'fetcher.ts')
+      const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
 
       if (!this.plugin.options.importPath && !containsFetcher) {
         await this.addFile({
@@ -143,7 +140,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
       await this.addFile(...files)
 
-      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
+      const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
         root,
         output,

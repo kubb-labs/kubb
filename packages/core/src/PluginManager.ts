@@ -1,16 +1,16 @@
+import path from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import { ValidationPluginError } from './errors.ts'
 import type { Logger } from './logger.ts'
 import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
-import type { PluginCore } from './plugin.ts'
-import { pluginCore } from './plugin.ts'
 import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { trim } from './transformers/trim.ts'
 import type {
   Config,
   GetPluginFactoryOptions,
   Plugin,
+  PluginContext,
   PluginFactoryOptions,
   PluginLifecycle,
   PluginLifecycleHooks,
@@ -19,7 +19,6 @@ import type {
   ResolveNameParams,
   ResolvePathParams,
   UserPlugin,
-  UserPluginWithLifeCycle,
 } from './types.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
@@ -69,8 +68,14 @@ type GetFileProps<TOptions = object> = {
   options?: TOptions
 }
 
+export function getMode(fileOrFolder: string | undefined | null): KubbFile.Mode {
+  if (!fileOrFolder) {
+    return 'split'
+  }
+  return path.extname(fileOrFolder) ? 'single' : 'split'
+}
+
 export class PluginManager {
-  readonly plugins = new Set<Plugin<GetPluginFactoryOptions<any>>>()
   readonly events: EventEmitter<Events> = new EventEmitter()
 
   readonly config: Config
@@ -78,8 +83,8 @@ export class PluginManager {
   readonly executed: Array<Executer> = []
   readonly logger: Logger
   readonly options: Options
-  readonly #core: Plugin<PluginCore>
 
+  readonly #plugins = new Set<Plugin<GetPluginFactoryOptions<any>>>()
   readonly #usedPluginNames: Record<string, number> = {}
   readonly #promiseManager: PromiseManager
 
@@ -91,25 +96,49 @@ export class PluginManager {
       nullCheck: (state: SafeParseResult<'resolveName'> | null) => !!state?.result,
     })
 
-    const core = pluginCore({
-      fabric: options.fabric,
-      config,
-      logger: this.logger,
-      pluginManager: this,
-      resolvePath: this.resolvePath.bind(this),
-      resolveName: this.resolveName.bind(this),
-      getPlugins: this.#getSortedPlugins.bind(this),
-    })
+    ;[...(config.plugins || [])].forEach((plugin) => {
+      const parsedPlugin = this.#parse(plugin as UserPlugin)
 
-    // call core.context.call with empty context so we can transform `context()` to `context: {}`
-    this.#core = this.#parse(core as unknown as UserPlugin, this as any, core.context.call(null as any)) as Plugin<PluginCore>
-    ;[this.#core, ...(config.plugins || [])].forEach((plugin) => {
-      const parsedPlugin = this.#parse(plugin as UserPlugin, this, this.#core.context)
-
-      this.plugins.add(parsedPlugin)
+      this.#plugins.add(parsedPlugin)
     })
 
     return this
+  }
+
+  getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, any> {
+    const plugins = [...this.#plugins]
+    const baseContext = {
+      fabric: this.options.fabric,
+      config: this.config,
+      plugin,
+      logger: this.options.logger,
+      pluginManager: this,
+      mode: getMode(path.resolve(this.config.root, this.config.output.path)),
+      addFile: async (...files: Array<KubbFile.File>) => {
+        await this.options.fabric.addFile(...files)
+      },
+    } as unknown as PluginContext<TOptions>
+
+    let mergedExtras: Record<string, any> = {}
+    for (const p of plugins) {
+      if (typeof p.inject === 'function') {
+        const injector = p.inject.bind(baseContext as any) as any
+
+        const result = injector(baseContext)
+        if (result && typeof result === 'object') {
+          mergedExtras = { ...mergedExtras, ...result }
+        }
+      }
+    }
+
+    return {
+      ...baseContext,
+      ...mergedExtras,
+    }
+  }
+
+  get plugins(): Array<Plugin> {
+    return this.#getSortedPlugins()
   }
 
   getFile<TOptions = object>({ name, mode, extname, pluginKey, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
@@ -130,7 +159,10 @@ export class PluginManager {
     }
   }
 
-  resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): KubbFile.OptionalPath => {
+  resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): KubbFile.Path => {
+    const root = path.resolve(this.config.root, this.config.output.path)
+    const defaultPath = path.resolve(root, params.baseName)
+
     if (params.pluginKey) {
       const paths = this.hookForPluginSync({
         pluginKey: params.pluginKey,
@@ -150,13 +182,16 @@ export class PluginManager {
         })
       }
 
-      return paths?.at(0)
+      return paths?.at(0) || defaultPath
     }
-    return this.hookFirstSync({
+
+    const firstResult = this.hookFirstSync({
       hookName: 'resolvePath',
       parameters: [params.baseName, params.mode, params.options as object],
       message: `Resolving path '${params.baseName}'`,
-    }).result
+    })
+
+    return firstResult?.result || defaultPath
   }
   //TODO refactor by using the order of plugins and the cache of the fileManager instead of guessing and recreating the name/path
   resolveName = (params: ResolveNameParams): string => {
@@ -423,8 +458,8 @@ export class PluginManager {
     this.logger.emit('progress_stop', { id: hookName })
   }
 
-  #getSortedPlugins(hookName?: keyof PluginLifecycle): Plugin[] {
-    const plugins = [...this.plugins].filter((plugin) => plugin.name !== 'core')
+  #getSortedPlugins(hookName?: keyof PluginLifecycle): Array<Plugin> {
+    const plugins = [...this.#plugins]
 
     if (hookName) {
       return plugins.filter((plugin) => hookName in plugin)
@@ -434,10 +469,10 @@ export class PluginManager {
     return plugins
       .map((plugin) => {
         if (plugin.pre) {
-          const isValid = plugin.pre.every((pluginName) => plugins.find((pluginToFind) => pluginToFind.name === pluginName))
+          const missingPlugins = plugin.pre.filter((pluginName) => !plugins.find((pluginToFind) => pluginToFind.name === pluginName))
 
-          if (!isValid) {
-            throw new ValidationPluginError(`This plugin has a pre set that is not valid(${JSON.stringify(plugin.pre, undefined, 2)})`)
+          if (missingPlugins.length > 0) {
+            throw new ValidationPluginError(`The plugin '${plugin.name}' has a pre set that references missing plugins for '${missingPlugins.join(', ')}'`)
           }
         }
 
@@ -455,7 +490,7 @@ export class PluginManager {
   }
 
   getPluginByKey(pluginKey: Plugin['key']): Plugin | undefined {
-    const plugins = [...this.plugins]
+    const plugins = [...this.#plugins]
     const [searchPluginName] = pluginKey
 
     return plugins.find((item) => {
@@ -547,7 +582,8 @@ export class PluginManager {
     const task = (async () => {
       try {
         if (typeof hook === 'function') {
-          const result = await Promise.resolve((hook as Function).apply({ ...this.#core.context, plugin }, parameters))
+          const context = this.getContext(plugin)
+          const result = await Promise.resolve((hook as Function).apply(context, parameters))
 
           output = result
 
@@ -615,7 +651,8 @@ export class PluginManager {
 
     try {
       if (typeof hook === 'function') {
-        const fn = (hook as Function).apply({ ...this.#core.context, plugin }, parameters) as ReturnType<ParseResult<H>>
+        const context = this.getContext(plugin)
+        const fn = (hook as Function).apply(context, parameters) as ReturnType<ParseResult<H>>
 
         output = fn
 
@@ -657,54 +694,15 @@ export class PluginManager {
     this.events.emit('error', cause)
   }
 
-  #parse<TPlugin extends UserPluginWithLifeCycle>(
-    plugin: TPlugin,
-    pluginManager: PluginManager,
-    context: PluginCore['context'] | undefined,
-  ): Plugin<GetPluginFactoryOptions<TPlugin>> {
-    const usedPluginNames = pluginManager.#usedPluginNames
+  #parse(plugin: UserPlugin): Plugin {
+    const usedPluginNames = this.#usedPluginNames
 
     setUniqueName(plugin.name, usedPluginNames)
 
-    const key = [plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.name, string]
-
-    if (plugin.context && typeof plugin.context === 'function') {
-      return {
-        ...plugin,
-        key,
-        context: (plugin.context as Function).call(context) as typeof plugin.context,
-      } as unknown as Plugin<GetPluginFactoryOptions<TPlugin>>
-    }
-
     return {
+      install() {},
       ...plugin,
-      key,
-    } as unknown as Plugin<GetPluginFactoryOptions<TPlugin>>
-  }
-
-  static getDependedPlugins<
-    T1 extends PluginFactoryOptions,
-    T2 extends PluginFactoryOptions = never,
-    T3 extends PluginFactoryOptions = never,
-    TOutput = T3 extends never ? (T2 extends never ? [T1: Plugin<T1>] : [T1: Plugin<T1>, T2: Plugin<T2>]) : [T1: Plugin<T1>, T2: Plugin<T2>, T3: Plugin<T3>],
-  >(plugins: Array<Plugin>, dependedPluginNames: string | string[]): TOutput {
-    let pluginNames: string[] = []
-    if (typeof dependedPluginNames === 'string') {
-      pluginNames = [dependedPluginNames]
-    } else {
-      pluginNames = dependedPluginNames
-    }
-
-    return pluginNames.map((pluginName) => {
-      const plugin = plugins.find((plugin) => plugin.name === pluginName)
-      if (!plugin) {
-        throw new ValidationPluginError(`This plugin depends on the ${pluginName} plugin.`)
-      }
-      return plugin
-    }) as TOutput
-  }
-
-  static get hooks() {
-    return ['buildStart', 'resolvePath', 'resolveName'] as const
+      key: [plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.name, string],
+    } as unknown as Plugin
   }
 }

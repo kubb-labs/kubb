@@ -1,28 +1,28 @@
 import { createFabric } from '@kubb/react-fabric'
+import { definePlugin } from './definePlugin.ts'
 import { createLogger } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
-import { createPlugin } from './plugin.ts'
 
 import type { Config, Plugin } from './types.ts'
 
 describe('PluginManager', () => {
   const pluginAMocks = {
-    buildStart: vi.fn(),
+    install: vi.fn(),
     resolvePath: vi.fn(),
   } as const
   const pluginBMocks = {
-    buildStart: vi.fn(),
+    install: vi.fn(),
     resolvePath: vi.fn(),
   } as const
-  const pluginA = createPlugin(() => {
+  const pluginA = definePlugin(() => {
     return {
       name: 'pluginA',
       options: undefined as any,
       context: undefined as never,
 
       key: ['pluginA'],
-      buildStart() {
-        pluginAMocks.buildStart()
+      install() {
+        pluginAMocks.install()
       },
       resolvePath() {
         pluginAMocks.resolvePath()
@@ -32,14 +32,14 @@ describe('PluginManager', () => {
     }
   })
 
-  const pluginB = createPlugin(() => {
+  const pluginB = definePlugin(() => {
     return {
       name: 'pluginB',
       options: undefined as any,
       context: undefined as never,
       key: ['pluginB', 1],
-      buildStart() {
-        pluginBMocks.buildStart()
+      install() {
+        pluginBMocks.install()
       },
       resolvePath() {
         pluginBMocks.resolvePath()
@@ -52,14 +52,14 @@ describe('PluginManager', () => {
     }
   })
 
-  const pluginBBis = createPlugin(() => {
+  const pluginBBis = definePlugin(() => {
     return {
       name: 'pluginB',
       options: undefined as any,
       context: undefined as never,
       key: ['pluginB', 2],
-      buildStart() {
-        pluginBMocks.buildStart()
+      install() {
+        pluginBMocks.install()
       },
       resolvePath() {
         pluginBMocks.resolvePath()
@@ -93,9 +93,8 @@ describe('PluginManager', () => {
   })
 
   test('if pluginManager can be created', () => {
-    expect(pluginManager.plugins.size).toBe(config.plugins.length + 1)
-    expect(PluginManager.hooks).toStrictEqual(['buildStart', 'resolvePath', 'resolveName'])
-    expect(pluginManager.getPluginsByKey('buildStart', ['pluginB'])?.[0]?.name).toBe('pluginB')
+    expect(pluginManager.plugins.length).toBe(config.plugins.length)
+    expect(pluginManager.getPluginsByKey('install', ['pluginB'])?.[0]?.name).toBe('pluginB')
   })
 
   test('hookFirst', async () => {
@@ -199,16 +198,5 @@ describe('PluginManager', () => {
 
     expect(pluginAMocks.resolvePath).toHaveBeenCalled()
     expect(pluginBMocks.resolvePath).toHaveBeenCalled()
-  })
-
-  test('if validatePlugins works with 2 plugins', () => {
-    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], 'pluginA')).toBeTruthy()
-    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], 'pluginB')).toBeTruthy()
-    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], ['pluginA', 'pluginC'])).toBeTruthy()
-    try {
-      PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], ['pluginA', 'pluginD'])
-    } catch (e) {
-      expect(e).toBeDefined()
-    }
   })
 })

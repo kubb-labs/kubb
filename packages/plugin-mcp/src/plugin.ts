@@ -1,8 +1,7 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
-import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -11,7 +10,7 @@ import type { PluginMcp } from './types.ts'
 
 export const pluginMcpName = 'plugin-mcp' satisfies PluginMcp['name']
 
-export const pluginMcp = createPlugin<PluginMcp>((options) => {
+export const pluginMcp = definePlugin<PluginMcp>((options) => {
   const {
     output = { path: 'mcp', barrelType: 'named' },
     group,
@@ -80,19 +79,17 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
 
       return resolvedName
     },
-    async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
-
-      const oas = await swaggerPlugin.context.getOas()
+    async install() {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
-      const baseURL = await swaggerPlugin.context.getBaseURL()
+      const oas = await this.getOas()
+      const baseURL = await this.getBaseURL()
 
       if (baseURL) {
         this.plugin.options.client.baseURL = baseURL
       }
 
-      const containsFetcher = this.fileManager.files.some((file) => file.baseName === 'fetcher.ts')
+      const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
 
       if (!this.plugin.options.client.importPath && !containsFetcher) {
         // pre add bundled fetcher
@@ -125,7 +122,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
-      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
+      const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
         root,
         output,

@@ -58,7 +58,7 @@ export type SchemaKeywordMapper = {
       /**
        * Full qualified path.
        */
-      path: KubbFile.OptionalPath
+      path: KubbFile.Path
       /**
        * When true `File.Import` will be used.
        * When false a reference will be used inside the current file.

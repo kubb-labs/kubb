@@ -1,9 +1,8 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import { pluginClientName } from '@kubb/plugin-client'
-import type { PluginOas } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -13,7 +12,7 @@ import type { PluginSvelteQuery } from './types.ts'
 
 export const pluginSvelteQueryName = 'plugin-svelte-query' satisfies PluginSvelteQuery['name']
 
-export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
+export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,
@@ -117,20 +116,18 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
 
       return resolvedName
     },
-    async buildStart() {
-      const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
-
-      const oas = await swaggerPlugin.context.getOas()
+    async install() {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
-      const baseURL = await swaggerPlugin.context.getBaseURL()
+      const oas = await this.getOas()
+      const baseURL = await this.getBaseURL()
 
       if (baseURL) {
         this.plugin.options.client.baseURL = baseURL
       }
 
       const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
-      const containsFetcher = this.fileManager.files.some((file) => file.baseName === 'fetcher.ts')
+      const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
 
       if (!hasClientPlugin && !this.plugin.options.client.importPath && !containsFetcher) {
         // pre add bundled fetcher
@@ -163,7 +160,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
-      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
+      const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
         root,
         output,

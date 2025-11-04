@@ -11,7 +11,7 @@ import { clean, exists, getRelativePath, write } from './fs/index.ts'
 import type { Logger } from './logger.ts'
 import { createLogger } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
-import type { Config, Output, UserConfig } from './types.ts'
+import type { Config, Output, Plugin, UserConfig } from './types.ts'
 import { URLPath } from './utils/URLPath.ts'
 
 type BuildOptions = {
@@ -23,11 +23,14 @@ type BuildOptions = {
 }
 
 type BuildOutput = {
+  failedPlugins: Set<{ plugin: Plugin; error: Error }>
   fabric: Fabric
   files: Array<KubbFile.ResolvedFile>
   pluginManager: PluginManager
+  // TODO check if we can remove error
   /**
-   * Only for safeBuild
+   * Only for safeBuild,
+   * @deprecated
    */
   error?: Error
 }
@@ -92,13 +95,14 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 }
 
 export async function build(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { fabric, files, pluginManager, error } = await safeBuild(options, overrides)
+  const { fabric, files, pluginManager, failedPlugins, error } = await safeBuild(options, overrides)
 
   if (error) {
     throw error
   }
 
   return {
+    failedPlugins,
     fabric,
     files,
     pluginManager,
@@ -109,14 +113,21 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
   const { fabric, pluginManager } = overrides ? overrides : await setup(options)
 
+  const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   const config = pluginManager.config
 
   try {
-    await pluginManager.hookParallel({
-      hookName: 'buildStart',
-      parameters: [config],
-      message: 'buildStart',
-    })
+    for (const plugin of pluginManager.plugins) {
+      const context = pluginManager.getContext(plugin)
+
+      const installer = plugin.install.bind(context)
+
+      try {
+        await installer(context)
+      } catch (e) {
+        failedPlugins.add({ plugin, error: e as Error })
+      }
+    }
 
     if (config.output.barrelType) {
       const root = resolve(config.root)
@@ -187,12 +198,14 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
     await fabric.write({ extension: config.output.extension })
 
     return {
+      failedPlugins,
       fabric,
       files,
       pluginManager,
     }
   } catch (e) {
     return {
+      failedPlugins,
       fabric,
       files: [],
       pluginManager,

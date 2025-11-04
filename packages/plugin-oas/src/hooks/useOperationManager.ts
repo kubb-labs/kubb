@@ -1,4 +1,4 @@
-import type { FileMetaBase, Plugin, ResolveNameParams } from '@kubb/core'
+import type { FileMetaBase, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
@@ -62,7 +62,9 @@ type UseOperationManagerResult = {
 /**
  * `useOperationManager` will return some helper functions that can be used to get the operation file, get the operation name.
  */
-export function useOperationManager(generator: Omit<OperationGenerator, 'build'>): UseOperationManagerResult {
+export function useOperationManager<TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions>(
+  generator: Omit<OperationGenerator<TPluginOptions>, 'build'>,
+): UseOperationManagerResult {
   const plugin = usePlugin()
   const pluginManager = usePluginManager()
 

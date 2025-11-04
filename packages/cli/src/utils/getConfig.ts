@@ -1,4 +1,4 @@
-import type { Config, UserConfig } from '@kubb/core'
+import type { CLIOptions, Config, UserConfig } from '@kubb/core'
 import { isPromise } from '@kubb/core/utils'
 import type { Args } from '../commands/generate.ts'
 import type { CosmiconfigResult } from './getCosmiConfig.ts'
@@ -13,7 +13,7 @@ export async function getConfig(result: CosmiconfigResult, args: Args): Promise<
 
   // for ts or js files
   if (typeof config === 'function') {
-    const possiblePromise = config(args)
+    const possiblePromise = config(args as CLIOptions)
     if (isPromise(possiblePromise)) {
       kubbUserConfig = possiblePromise
     }

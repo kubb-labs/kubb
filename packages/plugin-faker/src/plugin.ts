@@ -1,7 +1,6 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
-import type { PluginOas } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { fakerGenerator } from './generators/fakerGenerator.tsx'
@@ -9,7 +8,7 @@ import type { PluginFaker } from './types.ts'
 
 export const pluginFakerName = 'plugin-faker' satisfies PluginFaker['name']
 
-export const pluginFaker = createPlugin<PluginFaker>((options) => {
+export const pluginFaker = definePlugin<PluginFaker>((options) => {
   const {
     output = { path: 'mocks', barrelType: 'named' },
     seed,
@@ -42,6 +41,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       override,
       regexGenerator,
       group,
+      usedEnumNames: {},
     },
     pre: [pluginOasName, pluginTsName],
     resolvePath(baseName, pathMode, options) {
@@ -90,12 +90,10 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
 
       return resolvedName
     },
-    async buildStart() {
-      const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
-
-      const oas = await swaggerPlugin.context.getOas()
+    async install() {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
+      const oas = await this.getOas()
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         fabric: this.fabric,
@@ -127,7 +125,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       const operationFiles = await operationGenerator.build(...generators)
       await this.addFile(...operationFiles)
 
-      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
+      const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
         root,
         output,

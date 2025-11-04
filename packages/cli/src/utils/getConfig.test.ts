@@ -1,10 +1,10 @@
-import { createPlugin, defineConfig } from '@kubb/core'
+import { defineConfig, definePlugin } from '@kubb/core'
 
 import { getConfig } from './getConfig.ts'
 
 import type { CosmiconfigResult } from './getCosmiConfig.ts'
 
-const plugin = createPlugin(() => {
+const plugin = definePlugin(() => {
   return {
     name: 'test',
   } as any

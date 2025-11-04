@@ -1,8 +1,14 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
-import type { Fabric, FileManager } from '@kubb/react-fabric'
+import type { Fabric } from '@kubb/react-fabric'
 import type { Logger } from './logger.ts'
 import type { PluginManager } from './PluginManager.ts'
 import type { PossiblePromise } from './utils/types.ts'
+
+declare global {
+  namespace Kubb {
+    interface PluginContext {}
+  }
+}
 
 /**
  * Config used in `kubb.config.ts`
@@ -191,13 +197,8 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
    */
   post?: Array<string>
-} & (TOptions['context'] extends never
-  ? {
-      context?: never
-    }
-  : {
-      context: (this: TOptions['name'] extends 'core' ? null : Omit<PluginContext<TOptions>, 'addFile'>) => TOptions['context']
-    })
+  inject?: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => TOptions['context']
+}
 
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
@@ -227,16 +228,13 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */
   options: TOptions['resolvedOptions']
+
+  install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
-   * Define a context that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `createPlugin`).
+   * Define a context that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `definePlugin`).
    */
-} & (TOptions['context'] extends never
-  ? {
-      context?: never
-    }
-  : {
-      context: TOptions['context']
-    })
+  inject: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => TOptions['context']
+}
 
 export type PluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TOptions> & PluginLifecycle<TOptions>
 
@@ -245,19 +243,14 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Start of the lifecycle of a plugin.
    * @type hookParallel
    */
-  buildStart?: (this: PluginContext<TOptions>, Config: Config) => PossiblePromise<void>
+  install?: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
    * Resolve to a Path based on a baseName(example: `./Pet.ts`) and directory(example: `./models`).
    * Options can als be included.
    * @type hookFirst
    * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
    */
-  resolvePath?: (
-    this: PluginContext<TOptions>,
-    baseName: KubbFile.BaseName,
-    mode?: KubbFile.Mode,
-    options?: TOptions['resolvePathOptions'],
-  ) => KubbFile.OptionalPath
+  resolvePath?: (this: PluginContext<TOptions>, baseName: KubbFile.BaseName, mode?: KubbFile.Mode, options?: TOptions['resolvePathOptions']) => KubbFile.Path
   /**
    * Resolve to a name based on a string.
    * Useful when converting to PascalCase or camelCase.
@@ -265,11 +258,6 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * @example ('pet') => 'Pet'
    */
   resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
-  /**
-   * End of the plugin lifecycle.
-   * @type hookParallel
-   */
-  buildEnd?: (this: PluginContext<TOptions>) => PossiblePromise<void>
 }
 
 export type PluginLifecycleHooks = keyof PluginLifecycle
@@ -301,24 +289,15 @@ export type ResolveNameParams = {
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   fabric: Fabric
   config: Config
-  /**
-   * @deprecated
-   */
-  fileManager: FileManager
   pluginManager: PluginManager
-  addFile: (...file: Array<KubbFile.File>) => Promise<Array<KubbFile.ResolvedFile>>
-  resolvePath: (params: ResolvePathParams<TOptions['resolvePathOptions']>) => KubbFile.OptionalPath
-  resolveName: (params: ResolveNameParams) => string
+  addFile: (...file: Array<KubbFile.File>) => Promise<void>
   logger: Logger
-  /**
-   * All plugins
-   */
-  plugins: Plugin[]
+  mode: KubbFile.Mode
   /**
    * Current plugin
    */
   plugin: Plugin<TOptions>
-}
+} & Kubb.PluginContext
 /**
  * Specify the export location for the files and define the behavior of the output
  */

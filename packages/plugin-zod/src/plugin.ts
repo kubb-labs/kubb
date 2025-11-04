@@ -1,8 +1,7 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, PackageManager, type Plugin, PluginManager } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode, PackageManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
-import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { operationsGenerator } from './generators'
@@ -11,7 +10,7 @@ import type { PluginZod } from './types.ts'
 
 export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
 
-export const pluginZod = createPlugin<PluginZod>((options) => {
+export const pluginZod = definePlugin<PluginZod>((options) => {
   const {
     output = { path: 'zod', barrelType: 'named' },
     group,
@@ -54,6 +53,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       group,
       wrapOutput,
       version,
+      usedEnumNames: {},
     },
     pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
@@ -106,12 +106,10 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
 
       return resolvedName
     },
-    async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
-
-      const oas = await swaggerPlugin.context.getOas()
+    async install() {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
+      const oas = await this.getOas()
 
       if (this.plugin.options.typed && this.plugin.options.version === '3') {
         // pre add bundled fetcher
@@ -157,7 +155,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       const operationFiles = await operationGenerator.build(...generators)
       await this.addFile(...operationFiles)
 
-      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
+      const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
         root,
         output,
