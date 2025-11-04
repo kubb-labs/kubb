@@ -92,7 +92,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
         this.plugin.options.client.baseURL = baseURL
       }
 
-      const containsFetcher = this.fileManager.files.some((file) => file.baseName === 'fetcher.ts')
+      const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
 
       if (!this.plugin.options.client.importPath && !containsFetcher) {
         // pre add bundled fetcher
@@ -125,7 +125,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
-      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
+      const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
         root,
         output,

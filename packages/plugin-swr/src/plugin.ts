@@ -132,7 +132,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
       }
 
       const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
-      const containsFetcher = this.fileManager.files.some((file) => file.baseName === 'fetcher.ts')
+      const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
 
       if (!hasClientPlugin && !this.plugin.options.client.importPath && !containsFetcher) {
         // pre add bundled fetcher
@@ -165,7 +165,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
-      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
+      const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
         root,
         output,

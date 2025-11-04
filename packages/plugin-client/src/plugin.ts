@@ -102,7 +102,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       const baseURL = await swaggerPlugin.context.getBaseURL()
 
       // pre add bundled fetcher
-      const containsFetcher = this.fileManager.files.some((file) => file.baseName === 'fetcher.ts')
+      const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
 
       if (!this.plugin.options.importPath && !containsFetcher) {
         await this.addFile({
@@ -143,7 +143,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
       await this.addFile(...files)
 
-      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
+      const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
         root,
         output,

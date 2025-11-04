@@ -1,5 +1,5 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
-import type { Fabric, FileManager } from '@kubb/react-fabric'
+import type { Fabric } from '@kubb/react-fabric'
 import type { Logger } from './logger.ts'
 import type { PluginManager } from './PluginManager.ts'
 import type { PossiblePromise } from './utils/types.ts'
@@ -293,14 +293,8 @@ export type ResolveNameParams = {
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   fabric: Fabric
   config: Config
-  /**
-   * @deprecated
-   */
-  fileManager: FileManager
   pluginManager: PluginManager
-  addFile: (...file: Array<KubbFile.File>) => Promise<Array<KubbFile.ResolvedFile>>
-  resolvePath: (params: ResolvePathParams<TOptions['resolvePathOptions']>) => KubbFile.Path
-  resolveName: (params: ResolveNameParams) => string
+  addFile: (...file: Array<KubbFile.File>) => Promise<void>
   logger: Logger
   /**
    * Current plugin

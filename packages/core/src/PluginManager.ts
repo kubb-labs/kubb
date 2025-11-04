@@ -91,7 +91,7 @@ export class PluginManager {
     })
 
     ;[...(config.plugins || [])].forEach((plugin) => {
-      const parsedPlugin = this.#parse(plugin as UserPlugin, this, this.getContext(plugin))
+      const parsedPlugin = this.#parse(plugin as UserPlugin, this.getContext(plugin))
 
       this.#plugins.add(parsedPlugin)
     })
@@ -105,19 +105,10 @@ export class PluginManager {
       config: this.config,
       plugin,
       logger: this.options.logger,
-      fileManager: this.options.fabric.context.fileManager,
       pluginManager: this,
-      addFile: async (...files: Array<KubbFile.File>): Promise<Array<KubbFile.ResolvedFile>> => {
-        const resolvedFiles = await this.options.fabric.context.fileManager.add(...files)
-
-        if (!Array.isArray(resolvedFiles)) {
-          return [resolvedFiles]
-        }
-
-        return resolvedFiles
+      addFile: async (...files) => {
+        await this.options.fabric.addFile(...files)
       },
-      resolvePath: this.resolvePath.bind(this),
-      resolveName: this.resolveName.bind(this),
     }
   }
 
@@ -676,12 +667,8 @@ export class PluginManager {
     this.events.emit('error', cause)
   }
 
-  #parse<TPlugin extends UserPluginWithLifeCycle>(
-    plugin: TPlugin,
-    pluginManager: PluginManager,
-    context: PluginContext | undefined,
-  ): Plugin<GetPluginFactoryOptions<TPlugin>> {
-    const usedPluginNames = pluginManager.#usedPluginNames
+  #parse<TPlugin extends UserPluginWithLifeCycle>(plugin: TPlugin, context: PluginContext | undefined): Plugin<GetPluginFactoryOptions<TPlugin>> {
+    const usedPluginNames = this.#usedPluginNames
 
     setUniqueName(plugin.name, usedPluginNames)
 
@@ -696,6 +683,7 @@ export class PluginManager {
     }
 
     return {
+      install() {},
       ...plugin,
       key,
     } as unknown as Plugin<GetPluginFactoryOptions<TPlugin>>
@@ -721,9 +709,5 @@ export class PluginManager {
       }
       return plugin
     }) as TOutput
-  }
-
-  static get hooks() {
-    return ['install', 'resolvePath', 'resolveName'] as const
   }
 }
