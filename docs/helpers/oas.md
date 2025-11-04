@@ -40,78 +40,51 @@ This gives you TypeScript power with autocompletion of specific paths, methods a
 
 ### Prepare
 
-Start by creating a TypeScript file that exports your OpenAPI document. Due to limitations in TypeScript, importing types directly from JSON files isn't currently supported. To work around this, simply copy and paste the content of your Swagger/OpenAPI file into the TypeScript file and then export it with the `as const` modifier.
+Start by creating a TypeScript file that exports your OpenAPI document. Due to limitations in TypeScript, importing types directly from JSON files isn't currently supported. To work around this, simply copy and paste the relevant parts of your Swagger/OpenAPI file into a TypeScript module and export it with the `as const` modifier.
 
-::: code-group
-
-```typescript [oas.ts]
-export default { openapi: '3.0.0' /* ... */ } as const
-```
-
-```typescript [oas.ts]
-const oas = {
-  'openapi': '3.0.1',
-  'info': {
-  },
-  'servers': [
-    {
-      'url': 'http://petstore.swagger.io/api',
-    },
-  ],
-  'paths': {
+```typescript
+// oas.ts
+export const oas = {
+  openapi: '3.0.1',
+  paths: {
     '/pets': {
-      'get': {
-        'description': 'Returns all pets from the system that the user has access to',
-        'operationId': 'findPets',
-        'parameters': [
+      get: {
+        operationId: 'findPets',
+        parameters: [
           {
-            'name': 'limit',
-            'in': 'query',
-            'description': 'maximum number of results to return',
-            'schema': {
-              'type': 'integer',
-              'format': 'int32',
-            },
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer' },
           },
         ],
-        'responses': {
-          '200': {
-            'description': 'pet response',
-            'content': {
+        responses: {
+          200: {
+            content: {
               'application/json': {
-                'schema': {
-                  'type': 'array',
-                  'items': {
-                    '$ref': '#/components/schemas/Pet',
-                  },
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Pet' },
                 },
               },
             },
           },
         },
       },
-      'post': {
-        'description': 'Creates a new pet in the store.  Duplicates are allowed',
-        'operationId': 'addPet',
-        'requestBody': {
-          'description': 'Pet to add to the store',
-          'content': {
+      post: {
+        operationId: 'addPet',
+        requestBody: {
+          required: true,
+          content: {
             'application/json': {
-              'schema': {
-                '$ref': '#/components/schemas/NewPet',
-              },
+              schema: { $ref: '#/components/schemas/NewPet' },
             },
           },
-          'required': true,
         },
-        'responses': {
-          '200': {
-            'description': 'pet response',
-            'content': {
+        responses: {
+          200: {
+            content: {
               'application/json': {
-                'schema': {
-                  '$ref': '#/components/schemas/Pet',
-                },
+                schema: { $ref: '#/components/schemas/Pet' },
               },
             },
           },
@@ -119,413 +92,52 @@ const oas = {
       },
     },
   },
-  'components': {
-    'schemas': {
-      'Pet': {
-        'allOf': [
-          {
-            '$ref': '#/components/schemas/NewPet',
-          },
-          {
-            'required': [
-              'id',
-            ],
-            'type': 'object',
-            'properties': {
-              'id': {
-                'type': 'integer',
-                'format': 'int64',
-              },
-            },
-          },
-        ],
+  components: {
+    schemas: {
+      Pet: {
+        type: 'object',
+        required: ['id', 'name'],
+        properties: {
+          id: { type: 'integer' },
+          name: { type: 'string' },
+        },
       },
-      'NewPet': {
-        'required': [
-          'name',
-        ],
-        'type': 'object',
-        'properties': {
-          'name': {
-            'type': 'string',
-          },
-          'tag': {
-            'type': 'string',
-          },
+      NewPet: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+          tag: { type: 'string' },
         },
       },
     },
   },
-} as const // [!code ++]
+} as const
 ```
 
-:::
+For the examples below, keep this file minimal—unrelated operations can be omitted to reduce editor noise and bundle size.
 
 ### Inferring OAS Schema Types
 
 #### Model
 
-To infer models from an OpenAPI document, use the Model type.
+Use the Model type to infer models from an OpenAPI document.
 
-```typescript twoslash
-import type { Infer, Model } from '@kubb/oas'
+```typescript
+import type { Infer, Model, RequestParams, Response } from '@kubb/oas'
+import { oas } from './oas'
 
-const oas = {
-  'openapi': '3.0.1',
-  'info': {
-  },
-  'servers': [
-    {
-      'url': 'http://petstore.swagger.io/api',
-    },
-  ],
-  'paths': {
-    '/pets': {
-      'get': {
-        'description': 'Returns all pets from the system that the user has access to',
-        'operationId': 'findPets',
-        'parameters': [
-          {
-            'name': 'limit',
-            'in': 'query',
-            'description': 'maximum number of results to return',
-            'schema': {
-              'type': 'integer',
-              'format': 'int32',
-            },
-          },
-        ],
-        'responses': {
-          '200': {
-            'description': 'pet response',
-            'content': {
-              'application/json': {
-                'schema': {
-                  'type': 'array',
-                  'items': {
-                    '$ref': '#/components/schemas/Pet',
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      'post': {
-        'description': 'Creates a new pet in the store.  Duplicates are allowed',
-        'operationId': 'addPet',
-        'requestBody': {
-          'description': 'Pet to add to the store',
-          'content': {
-            'application/json': {
-              'schema': {
-                '$ref': '#/components/schemas/NewPet',
-              },
-            },
-          },
-          'required': true,
-        },
-        'responses': {
-          '200': {
-            'description': 'pet response',
-            'content': {
-              'application/json': {
-                'schema': {
-                  '$ref': '#/components/schemas/Pet',
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-  'components': {
-    'schemas': {
-      'Pet': {
-        'allOf': [
-          {
-            '$ref': '#/components/schemas/NewPet',
-          },
-          {
-            'required': [
-              'id',
-            ],
-            'type': 'object',
-            'properties': {
-              'id': {
-                'type': 'integer',
-                'format': 'int64',
-              },
-            },
-          },
-        ],
-      },
-      'NewPet': {
-        'required': [
-          'name',
-        ],
-        'type': 'object',
-        'properties': {
-          'name': {
-            'type': 'string',
-          },
-          'tag': {
-            'type': 'string',
-          },
-        },
-      },
-    },
-  },
-} as const
-
-export type Oas = Infer<typeof oas>
-
-export type Pet = Model<Oas, 'Pet'>
-//          ^?
+type Oas = Infer<typeof oas>
+type Pet = Model<Oas, 'Pet'>
+type AddPetParams = RequestParams<Oas, '/pets', 'post'>
+type ListPetsParams = RequestParams<Oas, '/pets', 'get'>
+type AddPetResponse = Response<Oas, '/pets', 'post'>
 ```
 
 #### RequestParams
 
-To infer request body parameters from an OpenAPI document, utilize the RequestParams type
-
-```typescript twoslash
-import type { Infer, RequestParams } from '@kubb/oas'
-
-const oas = {
-  'openapi': '3.0.1',
-  'info': {
-  },
-  'servers': [
-    {
-      'url': 'http://petstore.swagger.io/api',
-    },
-  ],
-  'paths': {
-    '/pets': {
-      'get': {
-        'description': 'Returns all pets from the system that the user has access to',
-        'operationId': 'findPets',
-        'parameters': [
-          {
-            'name': 'limit',
-            'in': 'query',
-            'description': 'maximum number of results to return',
-            'schema': {
-              'type': 'integer',
-              'format': 'int32',
-            },
-          },
-        ],
-        'responses': {
-          '200': {
-            'description': 'pet response',
-            'content': {
-              'application/json': {
-                'schema': {
-                  'type': 'array',
-                  'items': {
-                    '$ref': '#/components/schemas/Pet',
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      'post': {
-        'description': 'Creates a new pet in the store.  Duplicates are allowed',
-        'operationId': 'addPet',
-        'requestBody': {
-          'description': 'Pet to add to the store',
-          'content': {
-            'application/json': {
-              'schema': {
-                '$ref': '#/components/schemas/NewPet',
-              },
-            },
-          },
-          'required': true,
-        },
-        'responses': {
-          '200': {
-            'description': 'pet response',
-            'content': {
-              'application/json': {
-                'schema': {
-                  '$ref': '#/components/schemas/Pet',
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-  'components': {
-    'schemas': {
-      'Pet': {
-        'allOf': [
-          {
-            '$ref': '#/components/schemas/NewPet',
-          },
-          {
-            'required': [
-              'id',
-            ],
-            'type': 'object',
-            'properties': {
-              'id': {
-                'type': 'integer',
-                'format': 'int64',
-              },
-            },
-          },
-        ],
-      },
-      'NewPet': {
-        'required': [
-          'name',
-        ],
-        'type': 'object',
-        'properties': {
-          'name': {
-            'type': 'string',
-          },
-          'tag': {
-            'type': 'string',
-          },
-        },
-      },
-    },
-  },
-} as const
-
-export type Oas = Infer<typeof oas>
-
-export type AddPet = RequestParams<Oas, '/pets', 'post'>
-export type GetPet = RequestParams<Oas, '/pets', 'get'>
-//          ^?
-```
+Use `RequestParams` to infer the request body or query parameters, as shown by `AddPetParams` and `ListPetsParams` above.
 
 #### Response
 
-To infer the response body of an OpenAPI document, utilize the Response type
-
-```typescript twoslash
-import type { Infer, Response } from '@kubb/oas'
-
-const oas = {
-  'openapi': '3.0.1',
-  'info': {
-  },
-  'servers': [
-    {
-      'url': 'http://petstore.swagger.io/api',
-    },
-  ],
-  'paths': {
-    '/pets': {
-      'get': {
-        'description': 'Returns all pets from the system that the user has access to',
-        'operationId': 'findPets',
-        'parameters': [
-          {
-            'name': 'limit',
-            'in': 'query',
-            'description': 'maximum number of results to return',
-            'schema': {
-              'type': 'integer',
-              'format': 'int32',
-            },
-          },
-        ],
-        'responses': {
-          '200': {
-            'description': 'pet response',
-            'content': {
-              'application/json': {
-                'schema': {
-                  'type': 'array',
-                  'items': {
-                    '$ref': '#/components/schemas/Pet',
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      'post': {
-        'description': 'Creates a new pet in the store.  Duplicates are allowed',
-        'operationId': 'addPet',
-        'requestBody': {
-          'description': 'Pet to add to the store',
-          'content': {
-            'application/json': {
-              'schema': {
-                '$ref': '#/components/schemas/NewPet',
-              },
-            },
-          },
-          'required': true,
-        },
-        'responses': {
-          '200': {
-            'description': 'pet response',
-            'content': {
-              'application/json': {
-                'schema': {
-                  '$ref': '#/components/schemas/Pet',
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-  'components': {
-    'schemas': {
-      'Pet': {
-        'allOf': [
-          {
-            '$ref': '#/components/schemas/NewPet',
-          },
-          {
-            'required': [
-              'id',
-            ],
-            'type': 'object',
-            'properties': {
-              'id': {
-                'type': 'integer',
-                'format': 'int64',
-              },
-            },
-          },
-        ],
-      },
-      'NewPet': {
-        'required': [
-          'name',
-        ],
-        'type': 'object',
-        'properties': {
-          'name': {
-            'type': 'string',
-          },
-          'tag': {
-            'type': 'string',
-          },
-        },
-      },
-    },
-  },
-} as const
-
-export type Oas = Infer<typeof oas>
-
-export type AddPetResponse = Response<Oas, '/pets', 'post'>
-//            ^?
-```
+`Response` extracts the typed response payload from a specific status code—in this case `AddPetResponse` resolves to the success payload of the `POST /pets` operation.

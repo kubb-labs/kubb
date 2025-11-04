@@ -104,6 +104,9 @@ importers:
       '@shikijs/vitepress-twoslash':
         specifier: ^3.14.0
         version: 3.14.0(@nuxt/kit@3.20.0(magicast@0.3.5))(typescript@5.9.3)
+      canvas-confetti:
+        specifier: ^1.9.3
+        version: 1.9.4
       mermaid:
         specifier: ^11.12.1
         version: 11.12.1
@@ -3641,6 +3644,9 @@ packages:
   caniuse-lite@1.0.30001751:
     resolution: {integrity: sha512-A0QJhug0Ly64Ii3eIqHu5X51ebln3k4yTUkY1j8drqpWHVreg/VLijN48cZ1bYPiqOQuqpkIKnzr/Ul8V+p6Cw==}
 
+  canvas-confetti@1.9.4:
+    resolution: {integrity: sha512-yxQbJkAVrFXWNbTUjPqjF7G+g6pDotOUHGbkZq2NELZUMDpiJ85rIEazVb8GTaAptNW2miJAXbs1BtioA251Pw==}
+
   caseless@0.12.0:
     resolution: {integrity: sha512-4tYFyifaFfGacoiObjJegolkwSU4xQNGbVgUiNYVUxbQ2x2lUsFvY4hVgVzGiIe6WLOPqycWXA40l+PWsxthUw==}
 
@@ -6260,7 +6266,7 @@ packages:
   puppeteer@23.11.1:
     resolution: {integrity: sha512-53uIX3KR5en8l7Vd8n5DUv90Ae9QDQsyIthaUFVzwV6yU750RjqRznEtNMBT20VthqAdemnJN+hxVdmMHKt7Zw==}
     engines: {node: '>=18'}
-    deprecated: < 24.10.2 is no longer supported
+    deprecated: < 24.15.0 is no longer supported
     hasBin: true
 
   qs@6.13.0:
@@ -10154,6 +10160,8 @@ snapshots:
   camelcase@8.0.0: {}
 
   caniuse-lite@1.0.30001751: {}
+
+  canvas-confetti@1.9.4: {}
 
   caseless@0.12.0: {}
 

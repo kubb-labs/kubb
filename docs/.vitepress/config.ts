@@ -432,12 +432,6 @@ export default defineConfig({
     ['meta', { property: 'twitter:description', content: description }],
     ['link', { rel: 'icon', href: '/logo.png', type: 'image/png' }],
     ['link', { rel: 'mask-icon', href: '/logo.png', color: '#ffffff' }],
-    [
-      'script',
-      {
-        src: 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js',
-      },
-    ],
   ],
   // transformHtml: (code, id, { pageData }) => {
   //   if (!/[\\/]404\.html$/.test(id)) {
