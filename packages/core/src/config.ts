@@ -4,7 +4,7 @@ import type { PossiblePromise } from './utils/types.ts'
 /**
  * CLI options derived from command-line flags.
  */
-type CLIOptions = {
+export type CLIOptions = {
   /** Path to `kubb.config.js` */
   config?: string
 
