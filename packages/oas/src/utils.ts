@@ -143,17 +143,14 @@ export function parseFromConfig(config: Config, oasClass: typeof Oas = Oas): Pro
       return parse(api, { oasClass })
     }
 
+    // data is a string - try YAML first, then fall back to passing to parse()
     try {
       const api = yaml.parse(config.input.data as string)
-
       return parse(api, { oasClass })
-    } catch (_e) {
-      /* empty */
+    } catch (e) {
+      // YAML parse failed, let parse() handle it (supports JSON strings and more)
+      return parse(config.input.data as string, { oasClass })
     }
-
-    const api: OasTypes.OASDocument = JSON.parse(JSON.stringify(config.input.data)) as OasTypes.OASDocument
-
-    return parse(api, { oasClass })
   }
 
   if (Array.isArray(config.input)) {
