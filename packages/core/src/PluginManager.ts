@@ -432,17 +432,21 @@ export class PluginManager {
     // TODO add test case for sorting with pre/post
 
     return plugins
-      .map((plugin) => {
-        if (plugin.pre) {
-          const isValid = plugin.pre.every((pluginName) => plugins.find((pluginToFind) => pluginToFind.name === pluginName))
+        .map((plugin) => {
+          if (plugin.pre) {
+            const missingPlugins = plugin.pre.filter(
+              (pluginName) => !plugins.find((pluginToFind) => pluginToFind.name === pluginName),
+            )
 
-          if (!isValid) {
-            throw new ValidationPluginError(`This plugin has a pre set that is not valid(${JSON.stringify(plugin.pre, undefined, 2)})`)
+            if (missingPlugins.length > 0) {
+              throw new ValidationPluginError(
+                `This plugin ${plugin.name} has a pre set that references missing plugins: ${missingPlugins.join(', ')}`,
+              )
+            }
           }
-        }
 
-        return plugin
-      })
+          return plugin
+        })
       .sort((a, b) => {
         if (b.pre?.includes(a.name)) {
           return 1
