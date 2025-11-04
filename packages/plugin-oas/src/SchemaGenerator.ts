@@ -726,7 +726,7 @@ export class SchemaGenerator<
         this.context.pluginManager.logger.emit('info', 'EnumSuffix set to an empty string does not work')
       }
 
-      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.context.plugin.context?.usedEnumNames || {})
+      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.options.usedEnumNames || {})
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,
         pluginKey: this.context.plugin.key,

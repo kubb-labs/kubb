@@ -27,8 +27,10 @@ type BuildOutput = {
   fabric: Fabric
   files: Array<KubbFile.ResolvedFile>
   pluginManager: PluginManager
+  // TODO check if we can remove error
   /**
-   * Only for safeBuild
+   * Only for safeBuild,
+   * @deprecated
    */
   error?: Error
 }
@@ -116,10 +118,12 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
   try {
     for (const plugin of pluginManager.plugins) {
-      const installer = plugin.install.bind(pluginManager.getContext(plugin))
+      const context = pluginManager.getContext(plugin)
+
+      const installer = plugin.install.bind(context)
 
       try {
-        await installer(pluginManager.getContext(plugin))
+        await installer(context)
       } catch (e) {
         failedPlugins.add({ plugin, error: e as Error })
       }

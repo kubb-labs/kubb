@@ -1,7 +1,5 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
 import { createPlugin } from '@kubb/core'
-import type { PluginOas } from '@kubb/plugin-oas'
 import { pluginOasName } from '@kubb/plugin-oas'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
@@ -23,9 +21,7 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
     },
     pre: [pluginOasName],
     async install() {
-      const [swaggerPlugin]: [Plugin<PluginOas>] = this.pluginManager.getDependedPlugins<PluginOas>([pluginOasName])
-      const oas = await swaggerPlugin.context.getOas()
-
+      const oas = await this.getOas()
       await oas.dereference()
 
       const root = path.resolve(this.config.root, this.config.output.path)

@@ -1,8 +1,7 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
-import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -81,12 +80,10 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
       return resolvedName
     },
     async install() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = this.pluginManager.getDependedPlugins<SwaggerPluginOptions>([pluginOasName])
-
-      const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
-      const baseURL = await swaggerPlugin.context.getBaseURL()
+      const oas = await this.getOas()
+      const baseURL = await this.getBaseURL()
 
       if (baseURL) {
         this.plugin.options.client.baseURL = baseURL

@@ -4,6 +4,17 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
 import type { Generator } from './generators/types.ts'
 
+type Context = {
+  getOas(): Promise<Oas>
+  getBaseURL(): Promise<string | undefined>
+}
+
+declare global {
+  namespace Kubb {
+    interface PluginContext extends Context {}
+  }
+}
+
 export type ResolvePathOptions = {
   pluginKey?: Plugin['key']
   group?: {
@@ -11,11 +22,6 @@ export type ResolvePathOptions = {
     path?: string
   }
   type?: ResolveNameParams['type']
-}
-
-export type API = {
-  getOas: () => Promise<Oas>
-  getBaseURL: () => Promise<string | undefined>
 }
 
 export type Options = {
@@ -168,4 +174,4 @@ type ResolvedOptions = Options & {
   output: Output<Oas>
 }
 
-export type PluginOas = PluginFactoryOptions<'plugin-oas', Options, ResolvedOptions, API, ResolvePathOptions>
+export type PluginOas = PluginFactoryOptions<'plugin-oas', Options, ResolvedOptions, Context, ResolvePathOptions>

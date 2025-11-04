@@ -1,7 +1,6 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
-import type { PluginOas } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { fakerGenerator } from './generators/fakerGenerator.tsx'
@@ -91,11 +90,9 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       return resolvedName
     },
     async install() {
-      const [swaggerPlugin]: [Plugin<PluginOas>] = this.pluginManager.getDependedPlugins<PluginOas>([pluginOasName])
-
-      const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
+      const oas = await this.getOas()
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         fabric: this.fabric,

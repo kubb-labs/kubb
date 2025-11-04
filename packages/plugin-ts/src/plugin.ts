@@ -1,7 +1,6 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
-import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { oasGenerator, typeGenerator } from './generators'
 import type { PluginTs } from './types.ts'
@@ -45,11 +44,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       group,
       override,
       mapper,
-    },
-    context() {
-      return {
-        usedEnumNames: {} as Record<string, number>,
-      }
+      usedEnumNames: {},
     },
     pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {
@@ -96,11 +91,9 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       return resolvedName
     },
     async install() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = this.pluginManager.getDependedPlugins<SwaggerPluginOptions>([pluginOasName])
-
-      const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
+      const oas = await this.getOas()
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         fabric: this.fabric,

@@ -1,8 +1,7 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, PackageManager, type Plugin } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode, PackageManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
-import type { PluginOas } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { operationsGenerator } from './generators'
@@ -107,11 +106,9 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       return resolvedName
     },
     async install() {
-      const [swaggerPlugin]: [Plugin<PluginOas>] = this.pluginManager.getDependedPlugins<PluginOas>([pluginOasName])
-
-      const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
+      const oas = await this.getOas()
 
       if (this.plugin.options.typed && this.plugin.options.version === '3') {
         // pre add bundled fetcher

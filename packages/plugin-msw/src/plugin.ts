@@ -1,9 +1,8 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 
 import { pluginFakerName } from '@kubb/plugin-faker'
-import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { handlersGenerator, mswGenerator } from './generators'
@@ -82,11 +81,9 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
       return resolvedName
     },
     async install() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = this.pluginManager.getDependedPlugins<SwaggerPluginOptions>([pluginOasName])
-
-      const oas = await swaggerPlugin.context.getOas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
+      const oas = await this.getOas()
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,

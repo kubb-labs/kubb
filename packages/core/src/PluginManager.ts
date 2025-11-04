@@ -19,7 +19,6 @@ import type {
   ResolveNameParams,
   ResolvePathParams,
   UserPlugin,
-  UserPluginWithLifeCycle,
 } from './types.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
@@ -91,7 +90,7 @@ export class PluginManager {
     })
 
     ;[...(config.plugins || [])].forEach((plugin) => {
-      const parsedPlugin = this.#parse(plugin as UserPlugin, this.getContext(plugin))
+      const parsedPlugin = this.#parse(plugin as UserPlugin)
 
       this.#plugins.add(parsedPlugin)
     })
@@ -99,16 +98,34 @@ export class PluginManager {
     return this
   }
 
-  getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> {
-    return {
+  getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, any> {
+    const plugins = [...this.#plugins]
+    const baseContext = {
       fabric: this.options.fabric,
       config: this.config,
       plugin,
       logger: this.options.logger,
       pluginManager: this,
-      addFile: async (...files) => {
+      addFile: async (...files: Array<KubbFile.File>) => {
         await this.options.fabric.addFile(...files)
       },
+    } as unknown as PluginContext<TOptions>
+
+    let mergedExtras: Record<string, any> = {}
+    for (const p of plugins) {
+      if (typeof p.inject === 'function') {
+        const injector = p.inject.bind(baseContext as any) as any
+
+        const result = injector(baseContext)
+        if (result && typeof result === 'object') {
+          mergedExtras = { ...mergedExtras, ...result }
+        }
+      }
+    }
+
+    return {
+      ...baseContext,
+      ...mergedExtras,
     }
   }
 
@@ -557,7 +574,8 @@ export class PluginManager {
     const task = (async () => {
       try {
         if (typeof hook === 'function') {
-          const result = await Promise.resolve((hook as Function).apply(this.getContext(plugin), parameters))
+          const context = this.getContext(plugin)
+          const result = await Promise.resolve((hook as Function).apply(context, parameters))
 
           output = result
 
@@ -625,7 +643,8 @@ export class PluginManager {
 
     try {
       if (typeof hook === 'function') {
-        const fn = (hook as Function).apply(this.getContext(plugin), parameters) as ReturnType<ParseResult<H>>
+        const context = this.getContext(plugin)
+        const fn = (hook as Function).apply(context, parameters) as ReturnType<ParseResult<H>>
 
         output = fn
 
@@ -667,26 +686,16 @@ export class PluginManager {
     this.events.emit('error', cause)
   }
 
-  #parse<TPlugin extends UserPluginWithLifeCycle>(plugin: TPlugin, context: PluginContext | undefined): Plugin<GetPluginFactoryOptions<TPlugin>> {
+  #parse(plugin: UserPlugin): Plugin {
     const usedPluginNames = this.#usedPluginNames
 
     setUniqueName(plugin.name, usedPluginNames)
 
-    const key = [plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.name, string]
-
-    if (plugin.context && typeof plugin.context === 'function') {
-      return {
-        ...plugin,
-        key,
-        context: (plugin.context as Function).call(context) as typeof plugin.context,
-      } as unknown as Plugin<GetPluginFactoryOptions<TPlugin>>
-    }
-
     return {
       install() {},
       ...plugin,
-      key,
-    } as unknown as Plugin<GetPluginFactoryOptions<TPlugin>>
+      key: [plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.name, string],
+    } as unknown as Plugin
   }
 
   getDependedPlugins<

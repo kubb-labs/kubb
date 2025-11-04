@@ -4,6 +4,12 @@ import type { Logger } from './logger.ts'
 import type { PluginManager } from './PluginManager.ts'
 import type { PossiblePromise } from './utils/types.ts'
 
+declare global {
+  namespace Kubb {
+    interface PluginContext {}
+  }
+}
+
 /**
  * Config used in `kubb.config.ts`
  *
@@ -191,13 +197,8 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
    */
   post?: Array<string>
-} & (TOptions['context'] extends never
-  ? {
-      context?: never
-    }
-  : {
-      context: (this: TOptions['name'] extends 'core' ? null : Omit<PluginContext<TOptions>, 'addFile'>) => TOptions['context']
-    })
+  inject?: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => TOptions['context']
+}
 
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
@@ -232,13 +233,8 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
   /**
    * Define a context that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `createPlugin`).
    */
-} & (TOptions['context'] extends never
-  ? {
-      context?: never
-    }
-  : {
-      context: TOptions['context']
-    })
+  inject: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => TOptions['context']
+}
 
 export type PluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TOptions> & PluginLifecycle<TOptions>
 
@@ -290,6 +286,7 @@ export type ResolveNameParams = {
   type?: 'file' | 'function' | 'type' | 'const'
 }
 
+//@ts-expect-error cannot find type
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   fabric: Fabric
   config: Config
@@ -300,7 +297,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * Current plugin
    */
   plugin: Plugin<TOptions>
-}
+} & Kubb.PluginContext
 /**
  * Specify the export location for the files and define the behavior of the output
  */
