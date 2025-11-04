@@ -292,6 +292,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   pluginManager: PluginManager
   addFile: (...file: Array<KubbFile.File>) => Promise<void>
   logger: Logger
+  mode: KubbFile.Mode
   /**
    * Current plugin
    */

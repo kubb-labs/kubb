@@ -1,8 +1,8 @@
-import { extname, join } from 'node:path'
+import { join } from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { BarrelManager } from './BarrelManager.ts'
-import type { Logger } from './logger.ts'
-import type { BarrelType, Plugin } from './types.ts'
+import { BarrelManager } from '../BarrelManager.ts'
+import type { Logger } from '../logger.ts'
+import type { BarrelType, Plugin } from '../types.ts'
 
 export type FileMetaBase = {
   pluginKey?: Plugin['key']
@@ -27,13 +27,6 @@ type AddIndexesProps = {
   logger?: Logger
 
   meta?: FileMetaBase
-}
-
-export function getMode(path: string | undefined | null): KubbFile.Mode {
-  if (!path) {
-    return 'split'
-  }
-  return extname(path) ? 'single' : 'split'
 }
 
 function trimExtName(text: string): string {

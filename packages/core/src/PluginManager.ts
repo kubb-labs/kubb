@@ -68,6 +68,13 @@ type GetFileProps<TOptions = object> = {
   options?: TOptions
 }
 
+export function getMode(fileOrFolder: string | undefined | null): KubbFile.Mode {
+  if (!fileOrFolder) {
+    return 'split'
+  }
+  return path.extname(fileOrFolder) ? 'single' : 'split'
+}
+
 export class PluginManager {
   readonly events: EventEmitter<Events> = new EventEmitter()
 
@@ -106,6 +113,7 @@ export class PluginManager {
       plugin,
       logger: this.options.logger,
       pluginManager: this,
+      mode: getMode(path.resolve(this.config.root, this.config.output.path)),
       addFile: async (...files: Array<KubbFile.File>) => {
         await this.options.fabric.addFile(...files)
       },

@@ -1,7 +1,7 @@
 import { createFabric } from '@kubb/react-fabric'
+import { definePlugin } from './definePlugin.ts'
 import { createLogger } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
-import { definePlugin } from './definePlugin.ts'
 
 import type { Config, Plugin } from './types.ts'
 

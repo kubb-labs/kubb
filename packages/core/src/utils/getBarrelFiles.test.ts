@@ -1,21 +1,10 @@
 import path from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { FileManager } from '@kubb/react-fabric'
-import { getBarrelFiles, getMode } from './FileManager.ts'
+import { getBarrelFiles } from './getBarrelFiles.ts'
 
-describe('FileManager', () => {
-  const mocksPath = path.resolve(__dirname, '../../mocks')
-  const filePath = path.resolve(mocksPath, './hellowWorld.js')
-  const folderPath = path.resolve(mocksPath, './folder')
-
-  test('if getMode returns correct mode (single or split)', () => {
-    expect(getMode(filePath)).toBe('single')
-    expect(getMode(folderPath)).toBe('split')
-    expect(getMode(undefined)).toBe('split')
-    expect(getMode(null)).toBe('split')
-  })
-
-  test('getBarrelFiles', async () => {
+describe('getBarrelFiles', () => {
+  test('if generation works', async () => {
     const fileManager = new FileManager()
     const files: KubbFile.File[] = [
       {
