@@ -1,5 +1,11 @@
 # @kubb/core
 
+## 4.5.2
+
+### Patch Changes
+
+- [`56207b9`](https://github.com/kubb-labs/kubb/commit/56207b9b36cad9ccef190fe68716c3d78bb257c8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update Fabric package
+
 ## 4.5.1
 
 ## 4.5.0
