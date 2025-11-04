@@ -186,14 +186,12 @@ export class PluginManager {
     }
 
     const firstResult = this.hookFirstSync({
-        hookName: 'resolvePath',
-        parameters: [params.baseName, params.mode, params.options as object],
-        message: `Resolving path '${params.baseName}'`,
-      })
-
+      hookName: 'resolvePath',
+      parameters: [params.baseName, params.mode, params.options as object],
+      message: `Resolving path '${params.baseName}'`,
+    })
 
     return firstResult?.result || defaultPath
-
   }
   //TODO refactor by using the order of plugins and the cache of the fileManager instead of guessing and recreating the name/path
   resolveName = (params: ResolveNameParams): string => {
