@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 
 import { pluginFakerName } from '@kubb/plugin-faker'
@@ -10,7 +10,7 @@ import type { PluginMsw } from './types.ts'
 
 export const pluginMswName = 'plugin-msw' satisfies PluginMsw['name']
 
-export const pluginMsw = createPlugin<PluginMsw>((options) => {
+export const pluginMsw = definePlugin<PluginMsw>((options) => {
   const {
     output = { path: 'handlers', barrelType: 'named' },
     group,

@@ -1,6 +1,6 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { build } from './build.ts'
-import { createPlugin } from './plugin.ts'
+import { definePlugin } from './definePlugin.ts'
 import type { Config, Plugin } from './types.ts'
 
 describe('build', () => {
@@ -14,7 +14,7 @@ describe('build', () => {
     baseName: 'world.json',
     sources: [{ value: `{ "hello": "world" }` }],
   }
-  const plugin = createPlugin(() => {
+  const plugin = definePlugin(() => {
     return {
       name: 'plugin',
       options: undefined as any,

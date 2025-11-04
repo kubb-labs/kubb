@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, PackageManager } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode, PackageManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import { Generator, pluginOasName } from '@kubb/plugin-oas'
@@ -10,7 +10,7 @@ import type { PluginZod } from './types.ts'
 
 export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
 
-export const pluginZod = createPlugin<PluginZod>((options) => {
+export const pluginZod = definePlugin<PluginZod>((options) => {
   const {
     output = { path: 'zod', barrelType: 'named' },
     group,

@@ -1,47 +1,53 @@
 import type { InputPath, UserConfig } from './types.ts'
 import type { PossiblePromise } from './utils/types.ts'
 
-type Args = {
-  /**
-   * Path to `kubb.config.js`
-   */
+/**
+ * CLI options derived from command-line flags.
+ */
+export interface CLIOptions {
+  /** Path to `kubb.config.js` */
   config?: string
-  /**
-   * Watch changes on input
-   */
+
+  /** Enable watch mode for input files */
   watch?: boolean
 
   /**
-   * Log level to report when using the CLI
+   * Logging verbosity for CLI usage.
    *
-   * `silent` will hide all information that is not relevant
-   *
-   * `info` will show all information possible(not related to the PluginManager)
-   *
-   * `debug` will show all information possible(related to the PluginManager), handy for seeing logs
-   * @default `silent`
+   * - `silent`: hide non-essential logs
+   * - `info`: show general logs (non-plugin-related)
+   * - `debug`: include detailed plugin lifecycle logs
+   * @default 'silent'
    */
-  logLevel?: string
-  /**
-   * Run Kubb with Bun
-   */
+  logLevel?: 'silent' | 'info' | 'debug'
+
+  /** Run Kubb with Bun */
   bun?: boolean
 }
 
 /**
- * Type helper to make it easier to use vite.config.ts accepts a direct UserConfig object, or a function that returns it. The function receives a ConfigEnv object.
+ * Helper for defining a Kubb configuration.
+ *
+ * Accepts either:
+ * - A config object or array of configs
+ * - A function returning the config(s), optionally async,
+ *   receiving the CLI options as argument
+ *
+ * @example
+ * export default defineConfig(({ logLevel }) => ({
+ *   root: 'src',
+ *   plugins: [myPlugin()],
+ * }))
  */
 export function defineConfig(
-  options:
-    | PossiblePromise<UserConfig | Array<UserConfig>>
-    | ((
-        /** The options derived from the CLI flags */
-        args: Args,
-      ) => PossiblePromise<UserConfig | Array<UserConfig>>),
-): typeof options {
-  return options
+  config: PossiblePromise<UserConfig | UserConfig[]> | ((cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>),
+): typeof config {
+  return config
 }
 
-export function isInputPath(result: UserConfig | undefined): result is UserConfig<InputPath> {
-  return !!result && 'path' in (result?.input as any)
+/**
+ * Type guard to check if a given config has an `input.path`.
+ */
+export function isInputPath(config: UserConfig | undefined): config is UserConfig<InputPath> {
+  return !!config && 'path' in (config.input as any)
 }

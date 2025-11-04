@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { Generator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -8,7 +8,7 @@ import type { PluginCypress } from './types.ts'
 
 export const pluginCypressName = 'plugin-cypress' satisfies PluginCypress['name']
 
-export const pluginCypress = createPlugin<PluginCypress>((options) => {
+export const pluginCypress = definePlugin<PluginCypress>((options) => {
   const {
     output = { path: 'cypress', barrelType: 'named' },
     group,

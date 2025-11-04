@@ -231,7 +231,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
 
   install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
-   * Define a context that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `createPlugin`).
+   * Define a context that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `definePlugin`).
    */
   inject: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => TOptions['context']
 }
@@ -286,7 +286,6 @@ export type ResolveNameParams = {
   type?: 'file' | 'function' | 'type' | 'const'
 }
 
-//@ts-expect-error cannot find type
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   fabric: Fabric
   config: Config

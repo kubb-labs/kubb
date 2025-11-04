@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import { Generator, pluginOasName } from '@kubb/plugin-oas'
@@ -11,7 +11,7 @@ import type { PluginClient } from './types.ts'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 
-export const pluginClient = createPlugin<PluginClient>((options) => {
+export const pluginClient = definePlugin<PluginClient>((options) => {
   const {
     output = { path: 'clients', barrelType: 'named' },
     group,

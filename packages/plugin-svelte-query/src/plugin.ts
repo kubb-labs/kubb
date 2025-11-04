@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import { pluginClientName } from '@kubb/plugin-client'
@@ -12,7 +12,7 @@ import type { PluginSvelteQuery } from './types.ts'
 
 export const pluginSvelteQueryName = 'plugin-svelte-query' satisfies PluginSvelteQuery['name']
 
-export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
+export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,

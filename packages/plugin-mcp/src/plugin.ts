@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import { Generator, pluginOasName } from '@kubb/plugin-oas'
@@ -10,7 +10,7 @@ import type { PluginMcp } from './types.ts'
 
 export const pluginMcpName = 'plugin-mcp' satisfies PluginMcp['name']
 
-export const pluginMcp = createPlugin<PluginMcp>((options) => {
+export const pluginMcp = definePlugin<PluginMcp>((options) => {
   const {
     output = { path: 'mcp', barrelType: 'named' },
     group,

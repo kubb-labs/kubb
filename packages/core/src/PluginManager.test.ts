@@ -1,7 +1,7 @@
 import { createFabric } from '@kubb/react-fabric'
 import { createLogger } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
-import { createPlugin } from './plugin.ts'
+import { definePlugin } from './definePlugin.ts'
 
 import type { Config, Plugin } from './types.ts'
 
@@ -14,7 +14,7 @@ describe('PluginManager', () => {
     install: vi.fn(),
     resolvePath: vi.fn(),
   } as const
-  const pluginA = createPlugin(() => {
+  const pluginA = definePlugin(() => {
     return {
       name: 'pluginA',
       options: undefined as any,
@@ -32,7 +32,7 @@ describe('PluginManager', () => {
     }
   })
 
-  const pluginB = createPlugin(() => {
+  const pluginB = definePlugin(() => {
     return {
       name: 'pluginB',
       options: undefined as any,
@@ -52,7 +52,7 @@ describe('PluginManager', () => {
     }
   })
 
-  const pluginBBis = createPlugin(() => {
+  const pluginBBis = definePlugin(() => {
     return {
       name: 'pluginB',
       options: undefined as any,

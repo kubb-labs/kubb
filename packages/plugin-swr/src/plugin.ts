@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import { pluginClientName } from '@kubb/plugin-client'
@@ -12,7 +12,7 @@ import type { PluginSwr } from './types.ts'
 
 export const pluginSwrName = 'plugin-swr' satisfies PluginSwr['name']
 
-export const pluginSwr = createPlugin<PluginSwr>((options) => {
+export const pluginSwr = definePlugin<PluginSwr>((options) => {
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,

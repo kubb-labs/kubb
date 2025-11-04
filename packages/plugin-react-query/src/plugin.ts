@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import { pluginClientName } from '@kubb/plugin-client'
@@ -13,7 +13,7 @@ import type { PluginReactQuery } from './types.ts'
 
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
 
-export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
+export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,

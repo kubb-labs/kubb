@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { Generator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -8,7 +8,7 @@ import type { PluginFaker } from './types.ts'
 
 export const pluginFakerName = 'plugin-faker' satisfies PluginFaker['name']
 
-export const pluginFaker = createPlugin<PluginFaker>((options) => {
+export const pluginFaker = definePlugin<PluginFaker>((options) => {
   const {
     output = { path: 'mocks', barrelType: 'named' },
     seed,

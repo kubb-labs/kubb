@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { type Config, createPlugin, type Group, getMode } from '@kubb/core'
+import { type Config, definePlugin, type Group, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import type { Oas } from '@kubb/oas'
 import { parseFromConfig } from '@kubb/oas'
@@ -9,7 +9,7 @@ import type { PluginOas } from './types.ts'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 
-export const pluginOas = createPlugin<PluginOas>((options) => {
+export const pluginOas = definePlugin<PluginOas>((options) => {
   const {
     output = {
       path: 'schemas',
