@@ -16,4 +16,5 @@ export default defineConfig({
   exports: true,
   external: [/@kubb\/fabric-core/],
   noExternal: [/p-limit/, /find-up/, /camelcase/],
+  fixedExtension: false,
 })

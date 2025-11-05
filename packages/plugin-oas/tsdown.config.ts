@@ -9,7 +9,6 @@ export default defineConfig({
     hooks: 'src/hooks/index.ts',
   },
   dts: true,
-
   format: ['esm', 'cjs'],
   platform: 'node',
   sourcemap: true,
@@ -17,4 +16,5 @@ export default defineConfig({
   exports: true,
   noExternal: [/p-limit/],
   external: ['@types/react'],
+  fixedExtension: false,
 })

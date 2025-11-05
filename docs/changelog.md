@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.5.6
+- [`core`](/plugins/core): Correct type for Plugins
+
 # 4.5.3
 - [`plugin-oas`](/plugins/plugin-oas/): expose generators helpers again in main barrel of plugin-oas
 
