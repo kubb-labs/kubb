@@ -1,5 +1,23 @@
 # @kubb/mcp
 
+## 4.5.5
+
+### Patch Changes
+
+- Updated dependencies [[`ec21400`](https://github.com/kubb-labs/kubb/commit/ec21400d90c7e6cdf93485db30ca23624d652ec8)]:
+  - @kubb/core@4.5.5
+  - @kubb/plugin-client@4.5.5
+  - @kubb/plugin-cypress@4.5.5
+  - @kubb/plugin-faker@4.5.5
+  - @kubb/plugin-mcp@4.5.5
+  - @kubb/plugin-msw@4.5.5
+  - @kubb/plugin-oas@4.5.5
+  - @kubb/plugin-react-query@4.5.5
+  - @kubb/plugin-redoc@4.5.5
+  - @kubb/plugin-swr@4.5.5
+  - @kubb/plugin-ts@4.5.5
+  - @kubb/plugin-zod@4.5.5
+
 ## 4.5.4
 
 ### Patch Changes

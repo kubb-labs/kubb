@@ -1,5 +1,11 @@
 # @kubb/core
 
+## 4.5.5
+
+### Patch Changes
+
+- [`ec21400`](https://github.com/kubb-labs/kubb/commit/ec21400d90c7e6cdf93485db30ca23624d652ec8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - another try
+
 ## 4.5.4
 
 ### Patch Changes
