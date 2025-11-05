@@ -30,7 +30,7 @@
     "@kubb/react-fabric": "~0.2.19",
     "@tanstack/react-query": "^5.90.6",
     "@tanstack/react-query-devtools": "^5.90.2",
-    "axios": "^1.13.1",
+    "axios": "^1.13.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "unplugin-kubb": "workspace:*"
