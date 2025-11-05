@@ -202,7 +202,7 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
-type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<any, any, any, any, any>>
+type UnknownUserPlugin = UserPlugin<any>
 
 export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**

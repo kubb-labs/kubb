@@ -16,7 +16,7 @@ This section describes the core plugin types and APIs.
 
 When calling `this.` in a plugin, the `api` of the core plugin will be used.
 ::: details plugin.ts
-<<< @/../packages/core/src/plugin.ts
+<<< @/../packages/core/src/definePlugin.ts
 :::
 
 ### this.config
