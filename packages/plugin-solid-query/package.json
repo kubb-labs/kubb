@@ -88,7 +88,9 @@
     "@kubb/react-fabric": "catalog:",
     "remeda": "catalog:"
   },
-  "devDependencies": {},
+  "peerDependencies": {
+    "@kubb/react-fabric": "0.2.19"
+  },
   "engines": {
     "node": ">=20"
   },
