@@ -91,9 +91,6 @@
     "@kubb/plugin-oas": "workspace:*",
     "zod": "^3.25.76"
   },
-  "peerDependencies": {
-    "@kubb/react-fabric": "catalog:"
-  },
   "engines": {
     "node": ">=20"
   },

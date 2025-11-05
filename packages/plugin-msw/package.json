@@ -92,9 +92,6 @@
     "@kubb/react-fabric": "catalog:"
   },
   "devDependencies": {},
-  "peerDependencies": {
-    "@kubb/react-fabric": "catalog:"
-  },
   "engines": {
     "node": ">=20"
   },

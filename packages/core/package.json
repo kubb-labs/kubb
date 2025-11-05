@@ -116,12 +116,6 @@
     "consola": "^3.4.2",
     "zod": "^4.1.12"
   },
-  "optionalDependencies": {
-    "@kubb/fabric-core": "catalog:"
-  },
-  "peerDependencies": {
-    "@kubb/react-fabric": "catalog:"
-  },
   "engines": {
     "node": ">=20"
   },
