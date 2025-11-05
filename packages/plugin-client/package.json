@@ -39,10 +39,6 @@
       "import": "./dist/generators.js",
       "require": "./dist/generators.cjs"
     },
-    "./clients": {
-      "import": "./dist/clients/index.js",
-      "require": "./dist/clients/index.cjs"
-    },
     "./clients/axios": {
       "import": "./dist/clients/axios.js",
       "require": "./dist/clients/axios.cjs"
@@ -64,9 +60,6 @@
       ],
       "generators": [
         "./dist/generators.d.ts"
-      ],
-      "clients": [
-        "./dist/clients/index.d.ts"
       ],
       "clients/axios": [
         "./dist/clients/axios.d.ts"

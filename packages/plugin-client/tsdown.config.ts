@@ -5,7 +5,6 @@ export default defineConfig({
     index: 'src/index.ts',
     components: 'src/components/index.ts',
     generators: 'src/generators/index.ts',
-    'clients/index': 'src/clients/index.ts',
     'clients/axios': 'src/clients/axios.ts',
     'clients/fetch': 'src/clients/fetch.ts',
   },
