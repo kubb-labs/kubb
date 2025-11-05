@@ -54,15 +54,6 @@ describe('clientGenerator operation', async () => {
         importPath: 'axios',
       },
     },
-      {
-        name: 'bundleDisabled',
-        input: '../../mocks/petStore.yaml',
-        path: '/pet/findByTags',
-        method: 'get',
-        options: {
-          bundle: false,
-        },
-      },
     {
       name: 'findByTagsObject',
       input: '../../mocks/petStore.yaml',
@@ -113,27 +104,27 @@ describe('clientGenerator operation', async () => {
     options: Partial<PluginClient['resolvedOptions']>
   }>
 
-    test.each(testData)('$name', async (props) => {
-      const oas = await parse(path.resolve(__dirname, props.input))
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-      const options: PluginClient['resolvedOptions'] = {
-        dataReturnType: 'data',
-        paramsCasing: undefined,
-        paramsType: 'inline',
-        pathParamsType: 'inline',
-        client: 'axios',
-        importPath: undefined,
-        bundle: true,
-        baseURL: '',
-        parser: 'client',
-        output: {
-          path: '.',
-          banner: '/* eslint-disable no-alert, no-console */',
-        },
-        group: undefined,
-        urlType: 'export',
-        ...props.options,
-      }
+    const options: PluginClient['resolvedOptions'] = {
+      dataReturnType: 'data',
+      paramsCasing: undefined,
+      paramsType: 'inline',
+      pathParamsType: 'inline',
+      client: 'axios',
+      importPath: undefined,
+      bundle: false,
+      baseURL: '',
+      parser: 'client',
+      output: {
+        path: '.',
+        banner: '/* eslint-disable no-alert, no-console */',
+      },
+      group: undefined,
+      urlType: 'export',
+      ...props.options,
+    }
     const plugin = { options } as Plugin<PluginClient>
     const fabric = createReactFabric()
     const generator = new OperationGenerator(options, {

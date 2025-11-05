@@ -35,7 +35,7 @@ describe('operationsGenerator operations', async () => {
       pathParamsType: 'inline',
       client: 'axios',
       importPath: undefined,
-      bundle: true,
+      bundle: false,
       baseURL: '',
       parser: 'client',
       output: {
