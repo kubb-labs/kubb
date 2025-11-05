@@ -28,7 +28,7 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
   /**
    * An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Refer to “pre” for more details.
    */
-  plugins?: Array<Omit<UnknownUserPlugin, 'context'>>
+  plugins?: Array<UnknownUserPlugin>
 }
 
 export type InputPath = {
@@ -202,7 +202,7 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
-type UnknownUserPlugin = UserPlugin<any>
+type UnknownUserPlugin = UserPluginWithLifeCycle<any>
 
 export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
