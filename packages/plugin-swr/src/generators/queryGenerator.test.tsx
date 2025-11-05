@@ -100,6 +100,7 @@ describe('queryGenerator operation', async () => {
         client: 'axios',
         importPath: undefined,
       },
+        bundle: false,
       paramsCasing: undefined,
       queryKey: QueryKey.getTransformer,
       mutationKey: MutationKey.getTransformer,

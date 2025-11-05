@@ -13,6 +13,7 @@ import type { PluginSvelteQuery } from './types.ts'
 export const pluginSvelteQueryName = 'plugin-svelte-query' satisfies PluginSvelteQuery['name']
 
 export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
+  const bundle = options.bundle ?? false
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,
@@ -32,15 +33,20 @@ export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
     contentType,
   } = options
 
+  const clientType = options.client?.client ?? 'axios'
+  const clientImportPath = options.client?.importPath ?? (!bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
+
   return {
     name: pluginSvelteQueryName,
     options: {
+      bundle,
       output,
       client: {
-        client: 'axios',
-        dataReturnType: 'data',
+        client: clientType,
+        dataReturnType: options.client?.dataReturnType ?? 'data',
         pathParamsType,
-        ...options.client,
+        baseURL: options.client?.baseURL,
+        importPath: clientImportPath,
       },
       queryKey,
       query:
@@ -122,16 +128,16 @@ export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
       const oas = await this.getOas()
       const baseURL = await this.getBaseURL()
 
-      if (baseURL) {
-        this.plugin.options.client.baseURL = baseURL
-      }
+        if (baseURL) {
+          this.plugin.options.client.baseURL = baseURL
+        }
 
-      const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
-      const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
+        const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
+        const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
 
-      if (!hasClientPlugin && !this.plugin.options.client.importPath && !containsFetcher) {
-        // pre add bundled fetcher
-        await this.addFile({
+        if (bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetcher) {
+          // pre add bundled fetcher
+          await this.addFile({
           baseName: 'fetcher.ts',
           path: path.resolve(root, '.kubb/fetcher.ts'),
           sources: [

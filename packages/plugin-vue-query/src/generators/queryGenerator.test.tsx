@@ -116,6 +116,7 @@ describe('queryGenerator operation', async () => {
         client: 'axios',
         importPath: undefined,
       },
+        bundle: false,
       parser: 'zod',
       paramsType: 'inline',
       paramsCasing: undefined,

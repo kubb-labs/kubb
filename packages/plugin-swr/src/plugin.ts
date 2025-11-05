@@ -13,6 +13,7 @@ import type { PluginSwr } from './types.ts'
 export const pluginSwrName = 'plugin-swr' satisfies PluginSwr['name']
 
 export const pluginSwr = definePlugin<PluginSwr>((options) => {
+  const bundle = options.bundle ?? false
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,
@@ -33,15 +34,19 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
     contentType,
   } = options
 
+  const clientType = client?.client ?? 'axios'
+  const clientImportPath = client?.importPath ?? (!bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
+
   return {
     name: pluginSwrName,
     options: {
+      bundle,
       output,
       client: {
-        client: 'axios',
-        importPath: undefined,
-        dataReturnType: 'data',
-        ...client,
+        client: clientType,
+        importPath: clientImportPath,
+        dataReturnType: client?.dataReturnType ?? 'data',
+        baseURL: client?.baseURL,
       },
       queryKey,
       query:
@@ -124,16 +129,16 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
       const oas = await this.getOas()
       const baseURL = await this.getBaseURL()
 
-      if (baseURL) {
-        this.plugin.options.client.baseURL = baseURL
-      }
+        if (baseURL) {
+          this.plugin.options.client.baseURL = baseURL
+        }
 
-      const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
-      const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
+        const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
+        const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
 
-      if (!hasClientPlugin && !this.plugin.options.client.importPath && !containsFetcher) {
-        // pre add bundled fetcher
-        await this.addFile({
+        if (bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetcher) {
+          // pre add bundled fetcher
+          await this.addFile({
           baseName: 'fetcher.ts',
           path: path.resolve(root, '.kubb/fetcher.ts'),
           sources: [

@@ -77,36 +77,37 @@ describe('mutationGenerator operation', async () => {
     options: Partial<PluginReactQuery['resolvedOptions']>
   }>
 
-  test.each(testData)('$name', async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input))
+    test.each(testData)('$name', async (props) => {
+      const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginReactQuery['resolvedOptions'] = {
-      client: {
-        dataReturnType: 'data',
-        client: 'axios',
-      },
-      parser: 'zod',
-      paramsType: 'inline',
-      paramsCasing: undefined,
-      pathParamsType: 'inline',
-      queryKey: QueryKey.getTransformer,
-      mutationKey: MutationKey.getTransformer,
-      query: {
-        importPath: '@tanstack/react-query',
-        methods: ['get'],
-      },
-      mutation: {
-        methods: ['post'],
-        importPath: '@tanstack/react-query',
-      },
-      suspense: false,
-      infinite: false,
-      output: {
-        path: '.',
-      },
-      group: undefined,
-      ...props.options,
-    }
+      const options: PluginReactQuery['resolvedOptions'] = {
+        client: {
+          dataReturnType: 'data',
+          client: 'axios',
+        },
+        bundle: false,
+        parser: 'zod',
+        paramsType: 'inline',
+        paramsCasing: undefined,
+        pathParamsType: 'inline',
+        queryKey: QueryKey.getTransformer,
+        mutationKey: MutationKey.getTransformer,
+        query: {
+          importPath: '@tanstack/react-query',
+          methods: ['get'],
+        },
+        mutation: {
+          methods: ['post'],
+          importPath: '@tanstack/react-query',
+        },
+        suspense: false,
+        infinite: false,
+        output: {
+          path: '.',
+        },
+        group: undefined,
+        ...props.options,
+      }
     const plugin = { options } as Plugin<PluginReactQuery>
     const fabric = createReactFabric()
     const generator = new OperationGenerator(options, {

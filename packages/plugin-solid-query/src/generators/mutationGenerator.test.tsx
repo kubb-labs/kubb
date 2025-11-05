@@ -85,6 +85,7 @@ describe('mutationGenerator operation', async () => {
         dataReturnType: 'data',
         importPath: '@kubb/plugin-client/clients/axios',
       },
+        bundle: false,
       parser: 'zod',
       paramsType: 'inline',
       paramsCasing: undefined,

@@ -14,6 +14,7 @@ import type { PluginReactQuery } from './types.ts'
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
 
 export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
+  const bundle = options.bundle ?? false
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,
@@ -35,15 +36,20 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
     contentType,
   } = options
 
+  const clientType = options.client?.client ?? 'axios'
+  const clientImportPath = options.client?.importPath ?? (!bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
+
   return {
     name: pluginReactQueryName,
     options: {
+      bundle,
       output,
       client: {
-        client: 'axios',
-        dataReturnType: 'data',
+        client: clientType,
+        dataReturnType: options.client?.dataReturnType ?? 'data',
         pathParamsType,
-        ...options.client,
+        baseURL: options.client?.baseURL,
+        importPath: clientImportPath,
       },
       infinite: infinite
         ? {
@@ -128,22 +134,22 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
 
       return resolvedName
     },
-    async install() {
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = getMode(path.resolve(root, output.path))
-      const oas = await this.getOas()
-      const baseURL = await this.getBaseURL()
+      async install() {
+        const root = path.resolve(this.config.root, this.config.output.path)
+        const mode = getMode(path.resolve(root, output.path))
+        const oas = await this.getOas()
+        const baseURL = await this.getBaseURL()
 
-      if (baseURL) {
-        this.plugin.options.client.baseURL = baseURL
-      }
+        if (baseURL) {
+          this.plugin.options.client.baseURL = baseURL
+        }
 
-      const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
-      const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
+        const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
+        const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
 
-      if (!hasClientPlugin && !this.plugin.options.client.importPath && !containsFetcher) {
-        // pre add bundled fetcher
-        await this.addFile({
+        if (bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetcher) {
+          // pre add bundled fetcher
+          await this.addFile({
           baseName: 'fetcher.ts',
           path: path.resolve(root, '.kubb/fetcher.ts'),
           sources: [
