@@ -1,10 +1,10 @@
 ---
-'@kubb/plugin-client': minor
-'@kubb/plugin-react-query': minor
-'@kubb/plugin-vue-query': minor
-'@kubb/plugin-solid-query': minor
-'@kubb/plugin-svelte-query': minor
-'@kubb/plugin-swr': minor
+'@kubb/plugin-client': patch
+'@kubb/plugin-react-query': patch
+'@kubb/plugin-vue-query': patch
+'@kubb/plugin-solid-query': patch
+'@kubb/plugin-svelte-query': patch
+'@kubb/plugin-swr': patch
 ---
 
 - add configurable `bundle` option defaulting to false so generated clients re-use `@kubb/plugin-client/clients/*` by default
