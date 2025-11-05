@@ -12,6 +12,7 @@ import type { PluginClient } from './types.ts'
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 
 export const pluginClient = definePlugin<PluginClient>((options) => {
+  const bundle = options.bundle ?? options.bunde ?? true
   const {
     output = { path: 'clients', barrelType: 'named' },
     group,
@@ -29,19 +30,22 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
     generators = [clientGenerator, group ? groupedClientGenerator : undefined, operations ? operationsGenerator : undefined].filter(Boolean),
     parser = 'client',
     client = 'axios',
-    importPath,
+      importPath,
     contentType,
   } = options
+
+  const resolvedImportPath = importPath ?? (!bundle ? `@kubb/plugin-client/clients/${client}` : undefined)
 
   return {
     name: pluginClientName,
     options: {
       client,
+      bundle,
       output,
       group,
       parser,
       dataReturnType,
-      importPath,
+      importPath: resolvedImportPath,
       paramsType,
       paramsCasing,
       pathParamsType,
@@ -101,7 +105,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
       // pre add bundled fetcher
       const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
 
-      if (!this.plugin.options.importPath && !containsFetcher) {
+      if (bundle && !this.plugin.options.importPath && !containsFetcher) {
         await this.addFile({
           baseName: 'fetcher.ts',
           path: path.resolve(root, '.kubb/fetcher.ts'),

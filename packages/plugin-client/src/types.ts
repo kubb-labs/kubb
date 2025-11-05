@@ -92,6 +92,16 @@ export type Options = {
    * @default 'axios'
    */
   client?: 'axios' | 'fetch'
+  /**
+   * Bundle the selected client into the generated `.kubb` directory.
+   * When disabled the generated clients will import the shared runtime from `@kubb/plugin-client/clients/*`.
+   * @default true
+   */
+  bundle?: boolean
+  /**
+   * @deprecated Use `bundle` instead.
+   */
+  bunde?: boolean
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -109,6 +119,7 @@ type ResolvedOptions = {
   group?: Options['group']
   baseURL: string | undefined
   client: Options['client']
+  bundle: boolean
   parser: NonNullable<Options['parser']>
   urlType: NonNullable<Options['urlType']>
   importPath: Options['importPath']
