@@ -1,5 +1,19 @@
 # @kubb/plugin-solid-query
 
+## 4.5.7
+
+### Patch Changes
+
+- [`40e29ca`](https://github.com/kubb-labs/kubb/commit/40e29ca67ab79e15523cfda8ae648cb0aa2712f9) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of fixed fabric version
+
+- Updated dependencies [[`40e29ca`](https://github.com/kubb-labs/kubb/commit/40e29ca67ab79e15523cfda8ae648cb0aa2712f9)]:
+  - @kubb/plugin-client@4.5.7
+  - @kubb/plugin-oas@4.5.7
+  - @kubb/plugin-zod@4.5.7
+  - @kubb/plugin-ts@4.5.7
+  - @kubb/core@4.5.7
+  - @kubb/oas@4.5.7
+
 ## 4.5.6
 
 ### Patch Changes
