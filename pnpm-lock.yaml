@@ -1061,10 +1061,6 @@ importers:
       zod:
         specifier: ^4.1.12
         version: 4.1.12
-    optionalDependencies:
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.2.19
 
   packages/kubb:
     dependencies:
