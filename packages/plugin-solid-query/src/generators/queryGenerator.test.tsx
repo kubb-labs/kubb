@@ -110,13 +110,13 @@ describe('queryGenerator operation', async () => {
   test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
-      const options: PluginSolidQuery['resolvedOptions'] = {
-        client: {
-          dataReturnType: 'data',
-          importPath: '@kubb/plugin-client/clients/axios',
-        },
-        bundle: false,
-        parser: 'zod',
+    const options: PluginSolidQuery['resolvedOptions'] = {
+      client: {
+        dataReturnType: 'data',
+        importPath: '@kubb/plugin-client/clients/axios',
+      },
+      bundle: false,
+      parser: 'zod',
       paramsType: 'inline',
       paramsCasing: undefined,
       pathParamsType: 'inline',

@@ -30,7 +30,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
     generators = [clientGenerator, group ? groupedClientGenerator : undefined, operations ? operationsGenerator : undefined].filter(Boolean),
     parser = 'client',
     client = 'axios',
-      importPath,
+    importPath,
     contentType,
   } = options
 

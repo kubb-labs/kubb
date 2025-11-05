@@ -86,7 +86,7 @@ describe('mutationGenerator operation', async () => {
         client: 'axios',
         importPath: undefined,
       },
-        bundle: false,
+      bundle: false,
       paramsCasing: undefined,
       parser: 'client',
       queryKey: QueryKey.getTransformer,

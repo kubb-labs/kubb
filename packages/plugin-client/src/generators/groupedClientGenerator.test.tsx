@@ -25,39 +25,39 @@ describe('groupedClientsGenerators operations', async () => {
     options: Partial<PluginClient['resolvedOptions']>
   }>
 
-    test.each(testData)('$name', async (props) => {
-      const oas = await parse(path.resolve(__dirname, props.input))
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-      const options: PluginClient['resolvedOptions'] = {
-        dataReturnType: 'data',
-        paramsType: 'inline',
-        paramsCasing: undefined,
-        pathParamsType: 'inline',
-        client: 'axios',
-        importPath: undefined,
-        bundle: false,
-        baseURL: '',
-        parser: 'client',
-        output: {
-          path: '.',
-        },
-        group: undefined,
-        urlType: 'export',
-        ...props.options,
-      }
-      const plugin = { options } as Plugin<PluginClient>
-      const fabric = createReactFabric()
-      const generator = new OperationGenerator(options, {
-        fabric,
-        oas,
-        include: undefined,
-        pluginManager: createMockedPluginManager(props.name),
-        plugin,
-        contentType: undefined,
-        override: undefined,
-        mode: 'split',
-        exclude: [],
-      })
+    const options: PluginClient['resolvedOptions'] = {
+      dataReturnType: 'data',
+      paramsType: 'inline',
+      paramsCasing: undefined,
+      pathParamsType: 'inline',
+      client: 'axios',
+      importPath: undefined,
+      bundle: false,
+      baseURL: '',
+      parser: 'client',
+      output: {
+        path: '.',
+      },
+      group: undefined,
+      urlType: 'export',
+      ...props.options,
+    }
+    const plugin = { options } as Plugin<PluginClient>
+    const fabric = createReactFabric()
+    const generator = new OperationGenerator(options, {
+      fabric,
+      oas,
+      include: undefined,
+      pluginManager: createMockedPluginManager(props.name),
+      plugin,
+      contentType: undefined,
+      override: undefined,
+      mode: 'split',
+      exclude: [],
+    })
 
     const operations = await generator.getOperations()
 

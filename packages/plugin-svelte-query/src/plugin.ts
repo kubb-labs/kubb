@@ -128,16 +128,16 @@ export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
       const oas = await this.getOas()
       const baseURL = await this.getBaseURL()
 
-        if (baseURL) {
-          this.plugin.options.client.baseURL = baseURL
-        }
+      if (baseURL) {
+        this.plugin.options.client.baseURL = baseURL
+      }
 
-        const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
-        const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
+      const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
+      const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
 
-        if (bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetcher) {
-          // pre add bundled fetcher
-          await this.addFile({
+      if (bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetcher) {
+        // pre add bundled fetcher
+        await this.addFile({
           baseName: 'fetcher.ts',
           path: path.resolve(root, '.kubb/fetcher.ts'),
           sources: [

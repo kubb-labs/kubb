@@ -115,7 +115,7 @@ describe('queryGenerator operation', async () => {
         dataReturnType: 'data',
         importPath: '@kubb/plugin-client/clients/axios',
       },
-        bundle: false,
+      bundle: false,
       parser: 'zod',
       paramsType: 'inline',
       pathParamsType: 'inline',
