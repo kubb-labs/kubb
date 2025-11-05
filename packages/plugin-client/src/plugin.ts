@@ -12,7 +12,7 @@ import type { PluginClient } from './types.ts'
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 
 export const pluginClient = definePlugin<PluginClient>((options) => {
-  const bundle = options.bundle ?? options.bunde ?? true
+  const bundle = options.bundle ?? true
   const {
     output = { path: 'clients', barrelType: 'named' },
     group,

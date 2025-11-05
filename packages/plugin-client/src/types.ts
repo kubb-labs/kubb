@@ -98,10 +98,6 @@ export type Options = {
    * @default true
    */
   bundle?: boolean
-  /**
-   * @deprecated Use `bundle` instead.
-   */
-  bunde?: boolean
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
