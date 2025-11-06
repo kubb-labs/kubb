@@ -28,6 +28,8 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     contentType,
   } = options
 
+  const usedEnumNames = {}
+
   return {
     name: pluginTsName,
     options: {
@@ -44,7 +46,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       group,
       override,
       mapper,
-      usedEnumNames: {},
+      usedEnumNames,
     },
     pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {

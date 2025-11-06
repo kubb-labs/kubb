@@ -33,6 +33,8 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
     contentType,
   } = options
 
+  const usedEnumNames = {}
+
   return {
     name: pluginZodName,
     options: {
@@ -53,7 +55,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
       group,
       wrapOutput,
       version,
-      usedEnumNames: {},
+      usedEnumNames,
     },
     pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
