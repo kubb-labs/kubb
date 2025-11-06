@@ -61,6 +61,134 @@ export const createAppResponseSchema = z.object({
   token: z.optional(z.string()),
 })
 
+export const appsListQueryParamsSchema = z.object({
+  org_slug: z.string().describe("The org slug, or 'personal', to filter apps"),
+})
+
+/**
+ * @description OK
+ */
+export const appsList200Schema = listAppsResponseSchema
+
+export const appsListQueryResponseSchema = appsList200Schema
+
+/**
+ * @description Created
+ */
+export const appsCreate201Schema = z.any()
+
+/**
+ * @description Bad Request
+ */
+export const appsCreate400Schema = errorResponseSchema
+
+/**
+ * @description App body
+ */
+export const appsCreateMutationRequestSchema = createAppRequestSchema
+
+export const appsCreateMutationResponseSchema = appsCreate201Schema
+
+export const appsShowPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+})
+
+/**
+ * @description OK
+ */
+export const appsShow200Schema = appSchema
+
+export const appsShowQueryResponseSchema = appsShow200Schema
+
+export const appsDeletePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+})
+
+/**
+ * @description Accepted
+ */
+export const appsDelete202Schema = z.any()
+
+export const appsDeleteMutationResponseSchema = appsDelete202Schema
+
+export const appCreateDeployTokenPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+})
+
+/**
+ * @description OK
+ */
+export const appCreateDeployToken200Schema = createAppResponseSchema
+
+/**
+ * @description Request body
+ */
+export const appCreateDeployTokenMutationRequestSchema = createAppDeployTokenRequestSchema
+
+export const appCreateDeployTokenMutationResponseSchema = appCreateDeployToken200Schema
+
+/**
+ * @description OK
+ */
+export const appIPAssignmentsList200Schema = listIPAssignmentsResponseSchema
+
+export const appIPAssignmentsListQueryResponseSchema = appIPAssignmentsList200Schema
+
+/**
+ * @description OK
+ */
+export const appIPAssignmentsCreate200Schema = IPAssignmentSchema
+
+/**
+ * @description Assign IP request
+ */
+export const appIPAssignmentsCreateMutationRequestSchema = assignIPRequestSchema
+
+export const appIPAssignmentsCreateMutationResponseSchema = appIPAssignmentsCreate200Schema
+
+/**
+ * @description No Content
+ */
+export const appIPAssignmentsDelete204Schema = z.any()
+
+export const appIPAssignmentsDeleteMutationResponseSchema = appIPAssignmentsDelete204Schema
+
+export const machinesListPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+})
+
+export const machinesListQueryParamsSchema = z
+  .object({
+    include_deleted: z.optional(z.boolean().describe('Include deleted machines')),
+    region: z.optional(z.string().describe('Region filter')),
+    state: z.optional(z.string().describe('comma separated list of states to filter (created, started, stopped, suspended)')),
+    summary: z.optional(z.boolean().describe('Only return summary info about machines (omit config, checks, events, host_status, nonce, etc.)')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const machinesList200Schema = z.array(machineSchema)
+
+export const machinesListQueryResponseSchema = machinesList200Schema
+
+export const machinesCreatePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesCreate200Schema = machineSchema
+
+/**
+ * @description Create machine request
+ */
+export const machinesCreateMutationRequestSchema = createMachineRequestSchema
+
+export const machinesCreateMutationResponseSchema = machinesCreate200Schema
+
 export const createLeaseRequestSchema = z.object({
   description: z.optional(z.string()),
   ttl: z.optional(z.number().int().describe('seconds lease will be valid')),
@@ -154,6 +282,178 @@ export const flyExecHealthcheckSchema = z.object({
 })
 
 export const flyContainerHealthcheckSchemeSchema = z.enum(['http', 'https'])
+
+export const machinesShowPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesShow200Schema = machineSchema
+
+export const machinesShowQueryResponseSchema = machinesShow200Schema
+
+export const machinesUpdatePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesUpdate200Schema = machineSchema
+
+/**
+ * @description Bad Request
+ */
+export const machinesUpdate400Schema = errorResponseSchema
+
+/**
+ * @description Request body
+ */
+export const machinesUpdateMutationRequestSchema = updateMachineRequestSchema
+
+export const machinesUpdateMutationResponseSchema = machinesUpdate200Schema
+
+export const machinesDeletePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+export const machinesDeleteQueryParamsSchema = z
+  .object({
+    force: z.optional(z.boolean().describe("Force kill the machine if it's running")),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const machinesDelete200Schema = z.any()
+
+export const machinesDeleteMutationResponseSchema = machinesDelete200Schema
+
+export const machinesCordonPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesCordon200Schema = z.any()
+
+export const machinesCordonMutationResponseSchema = machinesCordon200Schema
+
+export const machinesListEventsPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+export const machinesListEventsQueryParamsSchema = z
+  .object({
+    limit: z.optional(z.coerce.number().int().describe('The number of events to fetch (max of 50). If omitted, this is set to 20 by default.')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const machinesListEvents200Schema = z.array(machineEventSchema)
+
+export const machinesListEventsQueryResponseSchema = machinesListEvents200Schema
+
+export const machinesExecPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description stdout, stderr, exit code, and exit signal are returned
+ */
+export const machinesExec200Schema = flydv1ExecResponseSchema
+
+/**
+ * @description Bad Request
+ */
+export const machinesExec400Schema = errorResponseSchema
+
+/**
+ * @description Request body
+ */
+export const machinesExecMutationRequestSchema = machineExecRequestSchema
+
+export const machinesExecMutationResponseSchema = machinesExec200Schema
+
+export const machinesShowLeasePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesShowLease200Schema = leaseSchema
+
+export const machinesShowLeaseQueryResponseSchema = machinesShowLease200Schema
+
+export const machinesCreateLeasePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+export const machinesCreateLeaseHeaderParamsSchema = z
+  .object({
+    'fly-machine-lease-nonce': z.optional(z.string().describe('Existing lease nonce to refresh by ttl, empty or non-existent to create a new lease')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const machinesCreateLease200Schema = leaseSchema
+
+/**
+ * @description Request body
+ */
+export const machinesCreateLeaseMutationRequestSchema = createLeaseRequestSchema
+
+export const machinesCreateLeaseMutationResponseSchema = machinesCreateLease200Schema
+
+export const machinesReleaseLeasePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+export const machinesReleaseLeaseHeaderParamsSchema = z.object({
+  'fly-machine-lease-nonce': z.string().describe('Existing lease nonce'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesReleaseLease200Schema = z.any()
+
+export const machinesReleaseLeaseMutationResponseSchema = machinesReleaseLease200Schema
+
+export const machinesReclaimMemoryPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesReclaimMemory200Schema = mainReclaimMemoryResponseSchema
+
+/**
+ * @description Reclaim memory request
+ */
+export const machinesReclaimMemoryMutationRequestSchema = mainReclaimMemoryRequestSchema
+
+export const machinesReclaimMemoryMutationResponseSchema = machinesReclaimMemory200Schema
 
 export const flyHTTPHealthcheckSchema = z.object({
   headers: z.optional(
@@ -301,6 +601,177 @@ export const flyDnsForwardRuleSchema = z.object({
   basename: z.optional(z.string()),
 })
 
+export const machinesShowMetadataPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesShowMetadata200Schema = z.object({}).catchall(z.string())
+
+export const machinesShowMetadataQueryResponseSchema = machinesShowMetadata200Schema
+
+export const machinesUpdateMetadataPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+  key: z.string().describe('Metadata Key'),
+})
+
+/**
+ * @description No Content
+ */
+export const machinesUpdateMetadata204Schema = z.any()
+
+/**
+ * @description Bad Request
+ */
+export const machinesUpdateMetadata400Schema = errorResponseSchema
+
+export const machinesUpdateMetadataMutationResponseSchema = machinesUpdateMetadata204Schema
+
+export const machinesDeleteMetadataPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+  key: z.string().describe('Metadata Key'),
+})
+
+/**
+ * @description No Content
+ */
+export const machinesDeleteMetadata204Schema = z.any()
+
+export const machinesDeleteMetadataMutationResponseSchema = machinesDeleteMetadata204Schema
+
+export const machinesListProcessesPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+export const machinesListProcessesQueryParamsSchema = z
+  .object({
+    sort_by: z.optional(z.string().describe('Sort by')),
+    order: z.optional(z.string().describe('Order')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const machinesListProcesses200Schema = z.array(processStatSchema)
+
+/**
+ * @description Bad Request
+ */
+export const machinesListProcesses400Schema = errorResponseSchema
+
+export const machinesListProcessesQueryResponseSchema = machinesListProcesses200Schema
+
+export const machinesRestartPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+export const machinesRestartQueryParamsSchema = z
+  .object({
+    timeout: z.optional(z.string().describe('Restart timeout as a Go duration string or number of seconds')),
+    signal: z.optional(z.string().describe('Unix signal name')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const machinesRestart200Schema = z.any()
+
+/**
+ * @description Bad Request
+ */
+export const machinesRestart400Schema = errorResponseSchema
+
+export const machinesRestartMutationResponseSchema = machinesRestart200Schema
+
+export const machinesSignalPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesSignal200Schema = z.any()
+
+/**
+ * @description Bad Request
+ */
+export const machinesSignal400Schema = errorResponseSchema
+
+/**
+ * @description Request body
+ */
+export const machinesSignalMutationRequestSchema = signalRequestSchema
+
+export const machinesSignalMutationResponseSchema = machinesSignal200Schema
+
+export const machinesStartPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesStart200Schema = z.any()
+
+export const machinesStartMutationResponseSchema = machinesStart200Schema
+
+export const machinesStopPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesStop200Schema = z.any()
+
+/**
+ * @description Bad Request
+ */
+export const machinesStop400Schema = errorResponseSchema
+
+/**
+ * @description Optional request body
+ */
+export const machinesStopMutationRequestSchema = stopRequestSchema
+
+export const machinesStopMutationResponseSchema = machinesStop200Schema
+
+export const machinesSuspendPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesSuspend200Schema = z.any()
+
+export const machinesSuspendMutationResponseSchema = machinesSuspend200Schema
+
+export const machinesUncordonPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesUncordon200Schema = z.any()
+
+export const machinesUncordonMutationResponseSchema = machinesUncordon200Schema
+
 export const flyDnsOptionSchema = z.object({
   name: z.optional(z.string()),
   value: z.optional(z.string()),
@@ -415,6 +886,219 @@ export const flyReplayCacheSchema = z.object({
   ttl_seconds: z.optional(z.number().int()),
   type: z.optional(z.enum(['cookie', 'header']).describe('Currently either "cookie" or "header"')),
 })
+
+export const machinesListVersionsPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description OK
+ */
+export const machinesListVersions200Schema = z.array(machineVersionSchema)
+
+export const machinesListVersionsQueryResponseSchema = machinesListVersions200Schema
+
+export const machinesWaitPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+export const machinesWaitQueryParamsSchema = z
+  .object({
+    instance_id: z.optional(z.string().describe('26-character Machine version ID')),
+    timeout: z.optional(z.coerce.number().int().describe('wait timeout. default 60s')),
+    state: z.optional(z.enum(['started', 'stopped', 'suspended', 'destroyed']).describe('desired state')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const machinesWait200Schema = z.any()
+
+/**
+ * @description Bad Request
+ */
+export const machinesWait400Schema = errorResponseSchema
+
+export const machinesWaitQueryResponseSchema = machinesWait200Schema
+
+export const secretkeysListPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+})
+
+export const secretkeysListQueryParamsSchema = z
+  .object({
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
+    types: z.optional(z.string().describe('Comma-seperated list of secret keys to list')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const secretkeysList200Schema = secretKeysSchema
+
+export const secretkeysListQueryResponseSchema = secretkeysList200Schema
+
+export const secretkeyGetPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+export const secretkeyGetQueryParamsSchema = z
+  .object({
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const secretkeyGet200Schema = secretKeySchema
+
+export const secretkeyGetQueryResponseSchema = secretkeyGet200Schema
+
+export const secretkeySetPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+/**
+ * @description Created
+ */
+export const secretkeySet201Schema = setSecretkeyResponseSchema
+
+/**
+ * @description Bad Request
+ */
+export const secretkeySet400Schema = errorResponseSchema
+
+/**
+ * @description Create secret key request
+ */
+export const secretkeySetMutationRequestSchema = setSecretkeyRequestSchema
+
+export const secretkeySetMutationResponseSchema = secretkeySet201Schema
+
+export const secretkeyDeletePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+/**
+ * @description OK
+ */
+export const secretkeyDelete200Schema = deleteSecretkeyResponseSchema
+
+export const secretkeyDeleteMutationResponseSchema = secretkeyDelete200Schema
+
+export const secretkeyDecryptPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+export const secretkeyDecryptQueryParamsSchema = z
+  .object({
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const secretkeyDecrypt200Schema = decryptSecretkeyResponseSchema
+
+/**
+ * @description Bad Request
+ */
+export const secretkeyDecrypt400Schema = errorResponseSchema
+
+/**
+ * @description Decrypt with secret key request
+ */
+export const secretkeyDecryptMutationRequestSchema = decryptSecretkeyRequestSchema
+
+export const secretkeyDecryptMutationResponseSchema = secretkeyDecrypt200Schema
+
+export const secretkeyEncryptPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+export const secretkeyEncryptQueryParamsSchema = z
+  .object({
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const secretkeyEncrypt200Schema = encryptSecretkeyResponseSchema
+
+/**
+ * @description Bad Request
+ */
+export const secretkeyEncrypt400Schema = errorResponseSchema
+
+/**
+ * @description Encrypt with secret key request
+ */
+export const secretkeyEncryptMutationRequestSchema = encryptSecretkeyRequestSchema
+
+export const secretkeyEncryptMutationResponseSchema = secretkeyEncrypt200Schema
+
+export const secretkeyGeneratePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+/**
+ * @description Created
+ */
+export const secretkeyGenerate201Schema = setSecretkeyResponseSchema
+
+/**
+ * @description Bad Request
+ */
+export const secretkeyGenerate400Schema = errorResponseSchema
+
+/**
+ * @description generate secret key request
+ */
+export const secretkeyGenerateMutationRequestSchema = setSecretkeyRequestSchema
+
+export const secretkeyGenerateMutationResponseSchema = secretkeyGenerate201Schema
+
+export const secretkeySignPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+export const secretkeySignQueryParamsSchema = z
+  .object({
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const secretkeySign200Schema = signSecretkeyResponseSchema
+
+/**
+ * @description Bad Request
+ */
+export const secretkeySign400Schema = errorResponseSchema
+
+/**
+ * @description Sign with secret key request
+ */
+export const secretkeySignMutationRequestSchema = signSecretkeyRequestSchema
+
+export const secretkeySignMutationResponseSchema = secretkeySign200Schema
 
 export const flyHTTPResponseOptionsSchema = z.object({
   headers: z.optional(z.object({}).catchall(z.object({}))),
@@ -544,6 +1228,193 @@ export const createOIDCTokenRequestSchema = z
   })
   .describe('Optional parameters')
 
+export const secretkeyVerifyPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('Secret key name'),
+})
+
+export const secretkeyVerifyQueryParamsSchema = z
+  .object({
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
+  })
+  .optional()
+
+/**
+ * @description No Content
+ */
+export const secretkeyVerify204Schema = z.any()
+
+/**
+ * @description Bad Request
+ */
+export const secretkeyVerify400Schema = errorResponseSchema
+
+/**
+ * @description Verify with secret key request
+ */
+export const secretkeyVerifyMutationRequestSchema = verifySecretkeyRequestSchema
+
+export const secretkeyVerifyMutationResponseSchema = secretkeyVerify204Schema
+
+export const secretsListPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+})
+
+export const secretsListQueryParamsSchema = z
+  .object({
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
+    show_secrets: z.optional(z.boolean().describe('Show the secret values.')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const secretsList200Schema = appSecretsSchema
+
+export const secretsListQueryResponseSchema = secretsList200Schema
+
+export const secretsUpdatePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+})
+
+/**
+ * @description OK
+ */
+export const secretsUpdate200Schema = appSecretsUpdateRespSchema
+
+/**
+ * @description Bad Request
+ */
+export const secretsUpdate400Schema = errorResponseSchema
+
+/**
+ * @description Update app secret request, with values to set, or nil to unset
+ */
+export const secretsUpdateMutationRequestSchema = appSecretsUpdateRequestSchema
+
+export const secretsUpdateMutationResponseSchema = secretsUpdate200Schema
+
+export const secretGetPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('App secret name'),
+})
+
+export const secretGetQueryParamsSchema = z
+  .object({
+    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
+    show_secrets: z.optional(z.boolean().describe('Show the secret value.')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const secretGet200Schema = appSecretSchema
+
+export const secretGetQueryResponseSchema = secretGet200Schema
+
+export const secretCreatePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('App secret name'),
+})
+
+/**
+ * @description Created
+ */
+export const secretCreate201Schema = setAppSecretResponseSchema
+
+/**
+ * @description Bad Request
+ */
+export const secretCreate400Schema = errorResponseSchema
+
+/**
+ * @description Create app secret request
+ */
+export const secretCreateMutationRequestSchema = setAppSecretRequestSchema
+
+export const secretCreateMutationResponseSchema = secretCreate201Schema
+
+export const secretDeletePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  secret_name: z.string().describe('App secret name'),
+})
+
+/**
+ * @description OK
+ */
+export const secretDelete200Schema = deleteAppSecretResponseSchema
+
+export const secretDeleteMutationResponseSchema = secretDelete200Schema
+
+export const volumesListPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+})
+
+export const volumesListQueryParamsSchema = z
+  .object({
+    summary: z.optional(z.boolean().describe('Only return summary info about volumes (omit blocks, block size, etc)')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const volumesList200Schema = z.array(volumeSchema)
+
+export const volumesListQueryResponseSchema = volumesList200Schema
+
+export const volumesCreatePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+})
+
+/**
+ * @description OK
+ */
+export const volumesCreate200Schema = volumeSchema
+
+/**
+ * @description Request body
+ */
+export const volumesCreateMutationRequestSchema = createVolumeRequestSchema
+
+export const volumesCreateMutationResponseSchema = volumesCreate200Schema
+
+export const volumesGetByIdPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  volume_id: z.string().describe('Volume ID'),
+})
+
+/**
+ * @description OK
+ */
+export const volumesGetById200Schema = volumeSchema
+
+export const volumesGetByIdQueryResponseSchema = volumesGetById200Schema
+
+export const volumesUpdatePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  volume_id: z.string().describe('Volume ID'),
+})
+
+/**
+ * @description OK
+ */
+export const volumesUpdate200Schema = volumeSchema
+
+/**
+ * @description Bad Request
+ */
+export const volumesUpdate400Schema = errorResponseSchema
+
+/**
+ * @description Request body
+ */
+export const volumesUpdateMutationRequestSchema = updateVolumeRequestSchema
+
+export const volumesUpdateMutationResponseSchema = volumesUpdate200Schema
+
 export const createVolumeRequestSchema = z.object({
   auto_backup_enabled: z.optional(z.boolean().describe('enable scheduled automatic snapshots. Defaults to `true`')),
   compute: z.optional(z.lazy(() => flyMachineGuestSchema)),
@@ -603,6 +1474,130 @@ export const encryptSecretkeyResponseSchema = z.object({
 })
 
 export const mainStatusCodeSchema = z.enum(['unknown', 'insufficient_capacity'])
+
+export const volumeDeletePathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  volume_id: z.string().describe('Volume ID'),
+})
+
+/**
+ * @description OK
+ */
+export const volumeDelete200Schema = volumeSchema
+
+export const volumeDeleteMutationResponseSchema = volumeDelete200Schema
+
+export const volumesExtendPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  volume_id: z.string().describe('Volume ID'),
+})
+
+/**
+ * @description OK
+ */
+export const volumesExtend200Schema = extendVolumeResponseSchema
+
+/**
+ * @description Request body
+ */
+export const volumesExtendMutationRequestSchema = extendVolumeRequestSchema
+
+export const volumesExtendMutationResponseSchema = volumesExtend200Schema
+
+export const volumesListSnapshotsPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  volume_id: z.string().describe('Volume ID'),
+})
+
+/**
+ * @description OK
+ */
+export const volumesListSnapshots200Schema = z.array(volumeSnapshotSchema)
+
+export const volumesListSnapshotsQueryResponseSchema = volumesListSnapshots200Schema
+
+export const createVolumeSnapshotPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  volume_id: z.string().describe('Volume ID'),
+})
+
+/**
+ * @description OK
+ */
+export const createVolumeSnapshot200Schema = z.any()
+
+export const createVolumeSnapshotMutationResponseSchema = createVolumeSnapshot200Schema
+
+/**
+ * @description OK
+ */
+export const platformPlacementsPost200Schema = mainGetPlacementsResponseSchema
+
+/**
+ * @description Get placements request
+ */
+export const platformPlacementsPostMutationRequestSchema = mainGetPlacementsRequestSchema
+
+export const platformPlacementsPostMutationResponseSchema = platformPlacementsPost200Schema
+
+export const platformRegionsGetQueryParamsSchema = z
+  .object({
+    size: z.optional(z.string().describe('guest machine size preset. default performance-1x')),
+    cpu_kind: z.optional(z.string().describe('guest CPU kind')),
+    memory_mb: z.optional(z.coerce.number().int().describe('guest memory in megabytes')),
+    cpus: z.optional(z.coerce.number().int().describe('guest CPU count')),
+    gpus: z.optional(z.coerce.number().int().describe('guest GPU count')),
+    gpu_kind: z.optional(z.string().describe('guest GPU kind')),
+  })
+  .optional()
+
+/**
+ * @description OK
+ */
+export const platformRegionsGet200Schema = mainRegionResponseSchema
+
+export const platformRegionsGetQueryResponseSchema = platformRegionsGet200Schema
+
+/**
+ * @description KMS token
+ */
+export const tokensRequestKms200Schema = z.string()
+
+export const tokensRequestKmsMutationResponseSchema = tokensRequestKms200Schema
+
+/**
+ * @description OIDC token
+ */
+export const tokensRequestOIDC200Schema = z.string()
+
+/**
+ * @description Bad Request
+ */
+export const tokensRequestOIDC400Schema = errorResponseSchema
+
+/**
+ * @description Optional request body
+ */
+export const tokensRequestOIDCMutationRequestSchema = createOIDCTokenRequestSchema.describe('Optional parameters')
+
+export const tokensRequestOIDCMutationResponseSchema = tokensRequestOIDC200Schema
+
+/**
+ * @description OK
+ */
+export const currentTokenShow200Schema = currentTokenResponseSchema
+
+/**
+ * @description Unauthorized
+ */
+export const currentTokenShow401Schema = errorResponseSchema
+
+/**
+ * @description Internal Server Error
+ */
+export const currentTokenShow500Schema = errorResponseSchema
+
+export const currentTokenShowQueryResponseSchema = currentTokenShow200Schema
 
 export const errorResponseSchema = z.object({
   details: z.optional(z.object({}).describe('Deprecated')),
@@ -908,998 +1903,3 @@ export const mainRegionResponseSchema = z.object({
   nearest: z.optional(z.string()),
   regions: z.optional(z.array(z.lazy(() => readsGetCapacityPerRegionRowSchema))),
 })
-
-export const appsListQueryParamsSchema = z.object({
-  org_slug: z.string().describe("The org slug, or 'personal', to filter apps"),
-})
-
-/**
- * @description OK
- */
-export const appsList200Schema = listAppsResponseSchema
-
-export const appsListQueryResponseSchema = appsList200Schema
-
-/**
- * @description Created
- */
-export const appsCreate201Schema = z.any()
-
-/**
- * @description Bad Request
- */
-export const appsCreate400Schema = errorResponseSchema
-
-/**
- * @description App body
- */
-export const appsCreateMutationRequestSchema = createAppRequestSchema
-
-export const appsCreateMutationResponseSchema = appsCreate201Schema
-
-export const appsShowPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-})
-
-/**
- * @description OK
- */
-export const appsShow200Schema = appSchema
-
-export const appsShowQueryResponseSchema = appsShow200Schema
-
-export const appsDeletePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-})
-
-/**
- * @description Accepted
- */
-export const appsDelete202Schema = z.any()
-
-export const appsDeleteMutationResponseSchema = appsDelete202Schema
-
-export const appCreateDeployTokenPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-})
-
-/**
- * @description OK
- */
-export const appCreateDeployToken200Schema = createAppResponseSchema
-
-/**
- * @description Request body
- */
-export const appCreateDeployTokenMutationRequestSchema = createAppDeployTokenRequestSchema
-
-export const appCreateDeployTokenMutationResponseSchema = appCreateDeployToken200Schema
-
-/**
- * @description OK
- */
-export const appIPAssignmentsList200Schema = listIPAssignmentsResponseSchema
-
-export const appIPAssignmentsListQueryResponseSchema = appIPAssignmentsList200Schema
-
-/**
- * @description OK
- */
-export const appIPAssignmentsCreate200Schema = IPAssignmentSchema
-
-/**
- * @description Assign IP request
- */
-export const appIPAssignmentsCreateMutationRequestSchema = assignIPRequestSchema
-
-export const appIPAssignmentsCreateMutationResponseSchema = appIPAssignmentsCreate200Schema
-
-/**
- * @description No Content
- */
-export const appIPAssignmentsDelete204Schema = z.any()
-
-export const appIPAssignmentsDeleteMutationResponseSchema = appIPAssignmentsDelete204Schema
-
-export const machinesListPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-})
-
-export const machinesListQueryParamsSchema = z
-  .object({
-    include_deleted: z.optional(z.boolean().describe('Include deleted machines')),
-    region: z.optional(z.string().describe('Region filter')),
-    state: z.optional(z.string().describe('comma separated list of states to filter (created, started, stopped, suspended)')),
-    summary: z.optional(z.boolean().describe('Only return summary info about machines (omit config, checks, events, host_status, nonce, etc.)')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const machinesList200Schema = z.array(machineSchema)
-
-export const machinesListQueryResponseSchema = machinesList200Schema
-
-export const machinesCreatePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-})
-
-/**
- * @description OK
- */
-export const machinesCreate200Schema = machineSchema
-
-/**
- * @description Create machine request
- */
-export const machinesCreateMutationRequestSchema = createMachineRequestSchema
-
-export const machinesCreateMutationResponseSchema = machinesCreate200Schema
-
-export const machinesShowPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-/**
- * @description OK
- */
-export const machinesShow200Schema = machineSchema
-
-export const machinesShowQueryResponseSchema = machinesShow200Schema
-
-export const machinesUpdatePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-/**
- * @description OK
- */
-export const machinesUpdate200Schema = machineSchema
-
-/**
- * @description Bad Request
- */
-export const machinesUpdate400Schema = errorResponseSchema
-
-/**
- * @description Request body
- */
-export const machinesUpdateMutationRequestSchema = updateMachineRequestSchema
-
-export const machinesUpdateMutationResponseSchema = machinesUpdate200Schema
-
-export const machinesDeletePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-export const machinesDeleteQueryParamsSchema = z
-  .object({
-    force: z.optional(z.boolean().describe("Force kill the machine if it's running")),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const machinesDelete200Schema = z.any()
-
-export const machinesDeleteMutationResponseSchema = machinesDelete200Schema
-
-export const machinesCordonPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-/**
- * @description OK
- */
-export const machinesCordon200Schema = z.any()
-
-export const machinesCordonMutationResponseSchema = machinesCordon200Schema
-
-export const machinesListEventsPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-export const machinesListEventsQueryParamsSchema = z
-  .object({
-    limit: z.optional(z.coerce.number().int().describe('The number of events to fetch (max of 50). If omitted, this is set to 20 by default.')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const machinesListEvents200Schema = z.array(machineEventSchema)
-
-export const machinesListEventsQueryResponseSchema = machinesListEvents200Schema
-
-export const machinesExecPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-/**
- * @description stdout, stderr, exit code, and exit signal are returned
- */
-export const machinesExec200Schema = flydv1ExecResponseSchema
-
-/**
- * @description Bad Request
- */
-export const machinesExec400Schema = errorResponseSchema
-
-/**
- * @description Request body
- */
-export const machinesExecMutationRequestSchema = machineExecRequestSchema
-
-export const machinesExecMutationResponseSchema = machinesExec200Schema
-
-export const machinesShowLeasePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-/**
- * @description OK
- */
-export const machinesShowLease200Schema = leaseSchema
-
-export const machinesShowLeaseQueryResponseSchema = machinesShowLease200Schema
-
-export const machinesCreateLeasePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-export const machinesCreateLeaseHeaderParamsSchema = z
-  .object({
-    'fly-machine-lease-nonce': z.optional(z.string().describe('Existing lease nonce to refresh by ttl, empty or non-existent to create a new lease')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const machinesCreateLease200Schema = leaseSchema
-
-/**
- * @description Request body
- */
-export const machinesCreateLeaseMutationRequestSchema = createLeaseRequestSchema
-
-export const machinesCreateLeaseMutationResponseSchema = machinesCreateLease200Schema
-
-export const machinesReleaseLeasePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-export const machinesReleaseLeaseHeaderParamsSchema = z.object({
-  'fly-machine-lease-nonce': z.string().describe('Existing lease nonce'),
-})
-
-/**
- * @description OK
- */
-export const machinesReleaseLease200Schema = z.any()
-
-export const machinesReleaseLeaseMutationResponseSchema = machinesReleaseLease200Schema
-
-export const machinesReclaimMemoryPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-/**
- * @description OK
- */
-export const machinesReclaimMemory200Schema = mainReclaimMemoryResponseSchema
-
-/**
- * @description Reclaim memory request
- */
-export const machinesReclaimMemoryMutationRequestSchema = mainReclaimMemoryRequestSchema
-
-export const machinesReclaimMemoryMutationResponseSchema = machinesReclaimMemory200Schema
-
-export const machinesShowMetadataPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-/**
- * @description OK
- */
-export const machinesShowMetadata200Schema = z.object({}).catchall(z.string())
-
-export const machinesShowMetadataQueryResponseSchema = machinesShowMetadata200Schema
-
-export const machinesUpdateMetadataPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-  key: z.string().describe('Metadata Key'),
-})
-
-/**
- * @description No Content
- */
-export const machinesUpdateMetadata204Schema = z.any()
-
-/**
- * @description Bad Request
- */
-export const machinesUpdateMetadata400Schema = errorResponseSchema
-
-export const machinesUpdateMetadataMutationResponseSchema = machinesUpdateMetadata204Schema
-
-export const machinesDeleteMetadataPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-  key: z.string().describe('Metadata Key'),
-})
-
-/**
- * @description No Content
- */
-export const machinesDeleteMetadata204Schema = z.any()
-
-export const machinesDeleteMetadataMutationResponseSchema = machinesDeleteMetadata204Schema
-
-export const machinesListProcessesPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-export const machinesListProcessesQueryParamsSchema = z
-  .object({
-    sort_by: z.optional(z.string().describe('Sort by')),
-    order: z.optional(z.string().describe('Order')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const machinesListProcesses200Schema = z.array(processStatSchema)
-
-/**
- * @description Bad Request
- */
-export const machinesListProcesses400Schema = errorResponseSchema
-
-export const machinesListProcessesQueryResponseSchema = machinesListProcesses200Schema
-
-export const machinesRestartPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-export const machinesRestartQueryParamsSchema = z
-  .object({
-    timeout: z.optional(z.string().describe('Restart timeout as a Go duration string or number of seconds')),
-    signal: z.optional(z.string().describe('Unix signal name')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const machinesRestart200Schema = z.any()
-
-/**
- * @description Bad Request
- */
-export const machinesRestart400Schema = errorResponseSchema
-
-export const machinesRestartMutationResponseSchema = machinesRestart200Schema
-
-export const machinesSignalPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-/**
- * @description OK
- */
-export const machinesSignal200Schema = z.any()
-
-/**
- * @description Bad Request
- */
-export const machinesSignal400Schema = errorResponseSchema
-
-/**
- * @description Request body
- */
-export const machinesSignalMutationRequestSchema = signalRequestSchema
-
-export const machinesSignalMutationResponseSchema = machinesSignal200Schema
-
-export const machinesStartPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-/**
- * @description OK
- */
-export const machinesStart200Schema = z.any()
-
-export const machinesStartMutationResponseSchema = machinesStart200Schema
-
-export const machinesStopPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-/**
- * @description OK
- */
-export const machinesStop200Schema = z.any()
-
-/**
- * @description Bad Request
- */
-export const machinesStop400Schema = errorResponseSchema
-
-/**
- * @description Optional request body
- */
-export const machinesStopMutationRequestSchema = stopRequestSchema
-
-export const machinesStopMutationResponseSchema = machinesStop200Schema
-
-export const machinesSuspendPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-/**
- * @description OK
- */
-export const machinesSuspend200Schema = z.any()
-
-export const machinesSuspendMutationResponseSchema = machinesSuspend200Schema
-
-export const machinesUncordonPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-/**
- * @description OK
- */
-export const machinesUncordon200Schema = z.any()
-
-export const machinesUncordonMutationResponseSchema = machinesUncordon200Schema
-
-export const machinesListVersionsPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-/**
- * @description OK
- */
-export const machinesListVersions200Schema = z.array(machineVersionSchema)
-
-export const machinesListVersionsQueryResponseSchema = machinesListVersions200Schema
-
-export const machinesWaitPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  machine_id: z.string().describe('Machine ID'),
-})
-
-export const machinesWaitQueryParamsSchema = z
-  .object({
-    instance_id: z.optional(z.string().describe('26-character Machine version ID')),
-    timeout: z.optional(z.coerce.number().int().describe('wait timeout. default 60s')),
-    state: z.optional(z.enum(['started', 'stopped', 'suspended', 'destroyed']).describe('desired state')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const machinesWait200Schema = z.any()
-
-/**
- * @description Bad Request
- */
-export const machinesWait400Schema = errorResponseSchema
-
-export const machinesWaitQueryResponseSchema = machinesWait200Schema
-
-export const secretkeysListPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-})
-
-export const secretkeysListQueryParamsSchema = z
-  .object({
-    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
-    types: z.optional(z.string().describe('Comma-seperated list of secret keys to list')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const secretkeysList200Schema = secretKeysSchema
-
-export const secretkeysListQueryResponseSchema = secretkeysList200Schema
-
-export const secretkeyGetPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  secret_name: z.string().describe('Secret key name'),
-})
-
-export const secretkeyGetQueryParamsSchema = z
-  .object({
-    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const secretkeyGet200Schema = secretKeySchema
-
-export const secretkeyGetQueryResponseSchema = secretkeyGet200Schema
-
-export const secretkeySetPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  secret_name: z.string().describe('Secret key name'),
-})
-
-/**
- * @description Created
- */
-export const secretkeySet201Schema = setSecretkeyResponseSchema
-
-/**
- * @description Bad Request
- */
-export const secretkeySet400Schema = errorResponseSchema
-
-/**
- * @description Create secret key request
- */
-export const secretkeySetMutationRequestSchema = setSecretkeyRequestSchema
-
-export const secretkeySetMutationResponseSchema = secretkeySet201Schema
-
-export const secretkeyDeletePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  secret_name: z.string().describe('Secret key name'),
-})
-
-/**
- * @description OK
- */
-export const secretkeyDelete200Schema = deleteSecretkeyResponseSchema
-
-export const secretkeyDeleteMutationResponseSchema = secretkeyDelete200Schema
-
-export const secretkeyDecryptPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  secret_name: z.string().describe('Secret key name'),
-})
-
-export const secretkeyDecryptQueryParamsSchema = z
-  .object({
-    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const secretkeyDecrypt200Schema = decryptSecretkeyResponseSchema
-
-/**
- * @description Bad Request
- */
-export const secretkeyDecrypt400Schema = errorResponseSchema
-
-/**
- * @description Decrypt with secret key request
- */
-export const secretkeyDecryptMutationRequestSchema = decryptSecretkeyRequestSchema
-
-export const secretkeyDecryptMutationResponseSchema = secretkeyDecrypt200Schema
-
-export const secretkeyEncryptPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  secret_name: z.string().describe('Secret key name'),
-})
-
-export const secretkeyEncryptQueryParamsSchema = z
-  .object({
-    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const secretkeyEncrypt200Schema = encryptSecretkeyResponseSchema
-
-/**
- * @description Bad Request
- */
-export const secretkeyEncrypt400Schema = errorResponseSchema
-
-/**
- * @description Encrypt with secret key request
- */
-export const secretkeyEncryptMutationRequestSchema = encryptSecretkeyRequestSchema
-
-export const secretkeyEncryptMutationResponseSchema = secretkeyEncrypt200Schema
-
-export const secretkeyGeneratePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  secret_name: z.string().describe('Secret key name'),
-})
-
-/**
- * @description Created
- */
-export const secretkeyGenerate201Schema = setSecretkeyResponseSchema
-
-/**
- * @description Bad Request
- */
-export const secretkeyGenerate400Schema = errorResponseSchema
-
-/**
- * @description generate secret key request
- */
-export const secretkeyGenerateMutationRequestSchema = setSecretkeyRequestSchema
-
-export const secretkeyGenerateMutationResponseSchema = secretkeyGenerate201Schema
-
-export const secretkeySignPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  secret_name: z.string().describe('Secret key name'),
-})
-
-export const secretkeySignQueryParamsSchema = z
-  .object({
-    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const secretkeySign200Schema = signSecretkeyResponseSchema
-
-/**
- * @description Bad Request
- */
-export const secretkeySign400Schema = errorResponseSchema
-
-/**
- * @description Sign with secret key request
- */
-export const secretkeySignMutationRequestSchema = signSecretkeyRequestSchema
-
-export const secretkeySignMutationResponseSchema = secretkeySign200Schema
-
-export const secretkeyVerifyPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  secret_name: z.string().describe('Secret key name'),
-})
-
-export const secretkeyVerifyQueryParamsSchema = z
-  .object({
-    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
-  })
-  .optional()
-
-/**
- * @description No Content
- */
-export const secretkeyVerify204Schema = z.any()
-
-/**
- * @description Bad Request
- */
-export const secretkeyVerify400Schema = errorResponseSchema
-
-/**
- * @description Verify with secret key request
- */
-export const secretkeyVerifyMutationRequestSchema = verifySecretkeyRequestSchema
-
-export const secretkeyVerifyMutationResponseSchema = secretkeyVerify204Schema
-
-export const secretsListPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-})
-
-export const secretsListQueryParamsSchema = z
-  .object({
-    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
-    show_secrets: z.optional(z.boolean().describe('Show the secret values.')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const secretsList200Schema = appSecretsSchema
-
-export const secretsListQueryResponseSchema = secretsList200Schema
-
-export const secretsUpdatePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-})
-
-/**
- * @description OK
- */
-export const secretsUpdate200Schema = appSecretsUpdateRespSchema
-
-/**
- * @description Bad Request
- */
-export const secretsUpdate400Schema = errorResponseSchema
-
-/**
- * @description Update app secret request, with values to set, or nil to unset
- */
-export const secretsUpdateMutationRequestSchema = appSecretsUpdateRequestSchema
-
-export const secretsUpdateMutationResponseSchema = secretsUpdate200Schema
-
-export const secretGetPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  secret_name: z.string().describe('App secret name'),
-})
-
-export const secretGetQueryParamsSchema = z
-  .object({
-    min_version: z.optional(z.string().describe('Minimum secrets version to return. Returned when setting a new secret')),
-    show_secrets: z.optional(z.boolean().describe('Show the secret value.')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const secretGet200Schema = appSecretSchema
-
-export const secretGetQueryResponseSchema = secretGet200Schema
-
-export const secretCreatePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  secret_name: z.string().describe('App secret name'),
-})
-
-/**
- * @description Created
- */
-export const secretCreate201Schema = setAppSecretResponseSchema
-
-/**
- * @description Bad Request
- */
-export const secretCreate400Schema = errorResponseSchema
-
-/**
- * @description Create app secret request
- */
-export const secretCreateMutationRequestSchema = setAppSecretRequestSchema
-
-export const secretCreateMutationResponseSchema = secretCreate201Schema
-
-export const secretDeletePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  secret_name: z.string().describe('App secret name'),
-})
-
-/**
- * @description OK
- */
-export const secretDelete200Schema = deleteAppSecretResponseSchema
-
-export const secretDeleteMutationResponseSchema = secretDelete200Schema
-
-export const volumesListPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-})
-
-export const volumesListQueryParamsSchema = z
-  .object({
-    summary: z.optional(z.boolean().describe('Only return summary info about volumes (omit blocks, block size, etc)')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const volumesList200Schema = z.array(volumeSchema)
-
-export const volumesListQueryResponseSchema = volumesList200Schema
-
-export const volumesCreatePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-})
-
-/**
- * @description OK
- */
-export const volumesCreate200Schema = volumeSchema
-
-/**
- * @description Request body
- */
-export const volumesCreateMutationRequestSchema = createVolumeRequestSchema
-
-export const volumesCreateMutationResponseSchema = volumesCreate200Schema
-
-export const volumesGetByIdPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  volume_id: z.string().describe('Volume ID'),
-})
-
-/**
- * @description OK
- */
-export const volumesGetById200Schema = volumeSchema
-
-export const volumesGetByIdQueryResponseSchema = volumesGetById200Schema
-
-export const volumesUpdatePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  volume_id: z.string().describe('Volume ID'),
-})
-
-/**
- * @description OK
- */
-export const volumesUpdate200Schema = volumeSchema
-
-/**
- * @description Bad Request
- */
-export const volumesUpdate400Schema = errorResponseSchema
-
-/**
- * @description Request body
- */
-export const volumesUpdateMutationRequestSchema = updateVolumeRequestSchema
-
-export const volumesUpdateMutationResponseSchema = volumesUpdate200Schema
-
-export const volumeDeletePathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  volume_id: z.string().describe('Volume ID'),
-})
-
-/**
- * @description OK
- */
-export const volumeDelete200Schema = volumeSchema
-
-export const volumeDeleteMutationResponseSchema = volumeDelete200Schema
-
-export const volumesExtendPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  volume_id: z.string().describe('Volume ID'),
-})
-
-/**
- * @description OK
- */
-export const volumesExtend200Schema = extendVolumeResponseSchema
-
-/**
- * @description Request body
- */
-export const volumesExtendMutationRequestSchema = extendVolumeRequestSchema
-
-export const volumesExtendMutationResponseSchema = volumesExtend200Schema
-
-export const volumesListSnapshotsPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  volume_id: z.string().describe('Volume ID'),
-})
-
-/**
- * @description OK
- */
-export const volumesListSnapshots200Schema = z.array(volumeSnapshotSchema)
-
-export const volumesListSnapshotsQueryResponseSchema = volumesListSnapshots200Schema
-
-export const createVolumeSnapshotPathParamsSchema = z.object({
-  app_name: z.string().describe('Fly App Name'),
-  volume_id: z.string().describe('Volume ID'),
-})
-
-/**
- * @description OK
- */
-export const createVolumeSnapshot200Schema = z.any()
-
-export const createVolumeSnapshotMutationResponseSchema = createVolumeSnapshot200Schema
-
-/**
- * @description OK
- */
-export const platformPlacementsPost200Schema = mainGetPlacementsResponseSchema
-
-/**
- * @description Get placements request
- */
-export const platformPlacementsPostMutationRequestSchema = mainGetPlacementsRequestSchema
-
-export const platformPlacementsPostMutationResponseSchema = platformPlacementsPost200Schema
-
-export const platformRegionsGetQueryParamsSchema = z
-  .object({
-    size: z.optional(z.string().describe('guest machine size preset. default performance-1x')),
-    cpu_kind: z.optional(z.string().describe('guest CPU kind')),
-    memory_mb: z.optional(z.coerce.number().int().describe('guest memory in megabytes')),
-    cpus: z.optional(z.coerce.number().int().describe('guest CPU count')),
-    gpus: z.optional(z.coerce.number().int().describe('guest GPU count')),
-    gpu_kind: z.optional(z.string().describe('guest GPU kind')),
-  })
-  .optional()
-
-/**
- * @description OK
- */
-export const platformRegionsGet200Schema = mainRegionResponseSchema
-
-export const platformRegionsGetQueryResponseSchema = platformRegionsGet200Schema
-
-/**
- * @description KMS token
- */
-export const tokensRequestKms200Schema = z.string()
-
-export const tokensRequestKmsMutationResponseSchema = tokensRequestKms200Schema
-
-/**
- * @description OIDC token
- */
-export const tokensRequestOIDC200Schema = z.string()
-
-/**
- * @description Bad Request
- */
-export const tokensRequestOIDC400Schema = errorResponseSchema
-
-/**
- * @description Optional request body
- */
-export const tokensRequestOIDCMutationRequestSchema = createOIDCTokenRequestSchema.describe('Optional parameters')
-
-export const tokensRequestOIDCMutationResponseSchema = tokensRequestOIDC200Schema
-
-/**
- * @description OK
- */
-export const currentTokenShow200Schema = currentTokenResponseSchema
-
-/**
- * @description Unauthorized
- */
-export const currentTokenShow401Schema = errorResponseSchema
-
-/**
- * @description Internal Server Error
- */
-export const currentTokenShow500Schema = errorResponseSchema
-
-export const currentTokenShowQueryResponseSchema = currentTokenShow200Schema

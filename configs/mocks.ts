@@ -5,7 +5,7 @@ import { typescriptParser } from '@kubb/react-fabric/parsers'
 import type { Options } from 'prettier'
 import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
-import type { Plugin, PluginManager } from '../packages/core/src'
+import type { PluginManager } from '../packages/core/src'
 import { camelCase, pascalCase } from '../packages/core/src/transformers'
 
 const formatOptions: Options = {
@@ -18,34 +18,28 @@ const formatOptions: Options = {
   endOfLine: 'auto',
   plugins: [pluginTypescript],
 }
-export function format(source?: string): Promise<string> {
-  if (!source) {
-    return Promise.resolve('')
-  }
 
+export async function format(source?: string): Promise<string> {
+  if (!source) return ''
   try {
     return prettierFormat(source, formatOptions)
-  } catch (_e) {
-    return Promise.resolve(source)
+  } catch {
+    return source
   }
 }
 
 export const createMockedPluginManager = (name?: string) =>
   ({
     resolveName: (result) => {
-      if (result.type === 'file') {
-        return camelCase(name || result.name)
+      switch (result.type) {
+        case 'file':
+        case 'function':
+          return camelCase(name || result.name)
+        case 'type':
+          return pascalCase(result.name)
+        default:
+          return camelCase(result.name)
       }
-
-      if (result.type === 'type') {
-        return pascalCase(result.name)
-      }
-
-      if (result.type === 'function') {
-        return camelCase(result.name)
-      }
-
-      return camelCase(result.name)
     },
     config: {
       output: {
@@ -57,42 +51,48 @@ export const createMockedPluginManager = (name?: string) =>
       emit(message) {
         console.log(message)
       },
-      on(_eventName, _args) {},
+      on() {},
       logLevel: 3,
     },
-    getPluginByKey: (_pluginKey: Plugin['key']) => {
-      return undefined
-    },
+    getPluginByKey: () => undefined,
     getFile: ({ name, extname, pluginKey }) => {
       const baseName = `${name}${extname}`
 
       return {
         path: baseName,
         baseName,
-        meta: {
-          pluginKey,
-        },
+        meta: { pluginKey },
       }
     },
-  }) as PluginManager
+  }) as unknown as PluginManager
 
 export const mockedPluginManager = createMockedPluginManager('')
 
 export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.File> | undefined, pre?: string) {
-  if (!files) {
-    return undefined
-  }
+  if (!files?.length) return
 
   const fileProcessor = new FileProcessor()
   const parsers = new Set<any>([typescriptParser])
 
+  const processed = new Map<string, string>()
+
   for (const file of files) {
-    const source = await fileProcessor.parse(createFile(file), { parsers })
-    let code = source
-    if (!file.baseName.endsWith('.json')) {
-      code = await format(source)
+    if (!file?.path) {
+      continue
     }
 
-    await expect(code).toMatchFileSnapshot(path.join(...(['__snapshots__', pre, file.path].filter(Boolean) as string[])))
+    if (processed.has(file.path)) {
+      continue
+    }
+
+    const parsed = await fileProcessor.parse(createFile(file), { parsers })
+    const code = file.baseName.endsWith('.json') ? parsed : await format(parsed)
+
+    processed.set(file.path, code)
+
+    const snapshotPath = path.join('__snapshots__', ...(pre ? [pre] : []), file.path)
+    await expect(code).toMatchFileSnapshot(snapshotPath)
   }
+
+  return processed
 }

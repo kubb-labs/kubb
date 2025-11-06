@@ -79,13 +79,6 @@ export const apiResponseSchema = z.object({
   message: z.optional(z.string()),
 })
 
-export const petNotFoundSchema = z.object({
-  code: z.optional(z.number().int()),
-  message: z.optional(z.string()),
-})
-
-export const userArraySchema = z.array(userSchema)
-
 /**
  * @description Successful operation
  */
@@ -264,6 +257,13 @@ export const placeOrder405Schema = z.any()
 export const placeOrderMutationRequestSchema = orderSchema
 
 export const placeOrderMutationResponseSchema = placeOrder200Schema
+
+export const petNotFoundSchema = z.object({
+  code: z.optional(z.number().int()),
+  message: z.optional(z.string()),
+})
+
+export const userArraySchema = z.array(userSchema)
 
 /**
  * @description successful operation
