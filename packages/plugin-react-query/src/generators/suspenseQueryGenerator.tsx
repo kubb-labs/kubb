@@ -34,7 +34,11 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
     const importPath = options.query ? options.query.importPath : '@tanstack/react-query'
 
     const query = {
-      name: getName(operation, { type: 'function', prefix: 'use', suffix: 'suspense' }),
+      name: getName(operation, {
+        type: 'function',
+        prefix: 'use',
+        suffix: 'suspense',
+      }),
       typeName: getName(operation, { type: 'type' }),
       file: getFile(operation, { prefix: 'use', suffix: 'suspense' }),
     }
@@ -54,23 +58,35 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     const queryOptions = {
-      name: getName(operation, { type: 'function', suffix: 'SuspenseQueryOptions' }),
+      name: getName(operation, {
+        type: 'function',
+        suffix: 'SuspenseQueryOptions',
+      }),
     }
 
     const queryKey = {
       name: getName(operation, { type: 'const', suffix: 'SuspenseQueryKey' }),
-      typeName: getName(operation, { type: 'type', suffix: 'SuspenseQueryKey' }),
+      typeName: getName(operation, {
+        type: 'type',
+        suffix: 'SuspenseQueryKey',
+      }),
     }
 
     const type = {
       file: getFile(operation, { pluginKey: [pluginTsName] }),
       //todo remove type?
-      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      schemas: getSchemas(operation, {
+        pluginKey: [pluginTsName],
+        type: 'type',
+      }),
     }
 
     const zod = {
       file: getFile(operation, { pluginKey: [pluginZodName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+      schemas: getSchemas(operation, {
+        pluginKey: [pluginZodName],
+        type: 'function',
+      }),
     }
 
     if (!isQuery || isMutation || !isSuspense) {
@@ -96,20 +112,15 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
           </>
         ) : (
           <>
-            <File.Import name={'fetch'} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')} />
+            <File.Import name={['fetch']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
             <File.Import
               name={['RequestConfig', 'ResponseErrorConfig']}
               root={query.file.path}
-              path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
+              path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
               isTypeOnly
             />
             {options.client.dataReturnType === 'full' && (
-              <File.Import
-                name={['ResponseConfig']}
-                root={query.file.path}
-                path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
-                isTypeOnly
-              />
+              <File.Import name={['ResponseConfig']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} isTypeOnly />
             )}
           </>
         )}

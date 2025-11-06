@@ -112,7 +112,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
       const oas = await this.getOas()
 
       if (this.plugin.options.typed && this.plugin.options.version === '3') {
-        // pre add bundled fetcher
+        // pre add bundled
         await this.addFile({
           baseName: 'ToZod.ts',
           path: path.resolve(root, '.kubb/ToZod.ts'),

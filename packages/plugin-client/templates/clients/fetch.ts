@@ -39,7 +39,7 @@ export const setConfig = (config: Partial<RequestConfig>) => {
 
 export type ResponseErrorConfig<TError = unknown> = TError
 
-export const client = async <TData, _TError = unknown, TVariables = unknown>(paramsConfig: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
+export const fetch = async <TData, _TError = unknown, TVariables = unknown>(paramsConfig: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
   const normalizedParams = new URLSearchParams()
 
   const globalConfig = getConfig()
@@ -57,7 +57,7 @@ export const client = async <TData, _TError = unknown, TVariables = unknown>(par
     targetUrl += `?${normalizedParams}`
   }
 
-  const response = await fetch(targetUrl, {
+  const response = await globalThis.fetch(targetUrl, {
     credentials: config.credentials || 'same-origin',
     method: config.method?.toUpperCase(),
     body: JSON.stringify(config.data),
@@ -75,7 +75,5 @@ export const client = async <TData, _TError = unknown, TVariables = unknown>(par
   }
 }
 
-client.getConfig = getConfig
-client.setConfig = setConfig
-
-export default client
+fetch.getConfig = getConfig
+fetch.setConfig = setConfig

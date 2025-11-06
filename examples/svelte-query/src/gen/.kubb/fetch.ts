@@ -45,7 +45,7 @@ export const setConfig = (config: RequestConfig) => {
 
 export const axiosInstance = axios.create(getConfig())
 
-export const client = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
+export const fetch = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
   const globalConfig = getConfig()
 
   return axiosInstance
@@ -62,7 +62,5 @@ export const client = async <TData, TError = unknown, TVariables = unknown>(conf
     })
 }
 
-client.getConfig = getConfig
-client.setConfig = setConfig
-
-export default client
+fetch.getConfig = getConfig
+fetch.setConfig = setConfig

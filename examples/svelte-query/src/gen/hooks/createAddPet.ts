@@ -16,8 +16,8 @@
 
 import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
-import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetcher.ts'
-import fetch from '../.kubb/fetcher.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import { fetch } from '../.kubb/fetch.ts'
 import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/AddPet.ts'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const

@@ -178,6 +178,7 @@ export default defineConfig(() => {
               pattern: 'store',
             },
           ],
+          bundle: true,
           parser: 'zod',
           group: { type: 'tag', name: ({ group }) => `${group}Service` },
           importPath: '../../../../axios-client.ts',

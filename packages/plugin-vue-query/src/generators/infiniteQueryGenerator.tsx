@@ -32,7 +32,11 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
     const importPath = options.query ? options.query.importPath : '@tanstack/vue-query'
 
     const query = {
-      name: getName(operation, { type: 'function', prefix: 'use', suffix: 'infinite' }),
+      name: getName(operation, {
+        type: 'function',
+        prefix: 'use',
+        suffix: 'infinite',
+      }),
       typeName: getName(operation, { type: 'type' }),
       file: getFile(operation, { prefix: 'use', suffix: 'infinite' }),
     }
@@ -52,23 +56,35 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
     }
 
     const queryOptions = {
-      name: getName(operation, { type: 'function', suffix: 'InfiniteQueryOptions' }),
+      name: getName(operation, {
+        type: 'function',
+        suffix: 'InfiniteQueryOptions',
+      }),
     }
 
     const queryKey = {
       name: getName(operation, { type: 'const', suffix: 'InfiniteQueryKey' }),
-      typeName: getName(operation, { type: 'type', suffix: 'InfiniteQueryKey' }),
+      typeName: getName(operation, {
+        type: 'type',
+        suffix: 'InfiniteQueryKey',
+      }),
     }
 
     const type = {
       file: getFile(operation, { pluginKey: [pluginTsName] }),
       //todo remove type?
-      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      schemas: getSchemas(operation, {
+        pluginKey: [pluginTsName],
+        type: 'type',
+      }),
     }
 
     const zod = {
       file: getFile(operation, { pluginKey: [pluginZodName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+      schemas: getSchemas(operation, {
+        pluginKey: [pluginZodName],
+        type: 'function',
+      }),
     }
 
     if (!isQuery || isMutation || !isInfinite) {
@@ -94,20 +110,15 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
           </>
         ) : (
           <>
-            <File.Import name={'fetch'} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')} />
+            <File.Import name={['fetch']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
             <File.Import
               name={['RequestConfig', 'ResponseErrorConfig']}
               root={query.file.path}
-              path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
+              path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
               isTypeOnly
             />
             {options.client.dataReturnType === 'full' && (
-              <File.Import
-                name={['ResponseConfig']}
-                root={query.file.path}
-                path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
-                isTypeOnly
-              />
+              <File.Import name={['ResponseConfig']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} isTypeOnly />
             )}
           </>
         )}

@@ -102,19 +102,21 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
       const oas = await this.getOas()
       const baseURL = await this.getBaseURL()
 
-      // pre add bundled fetcher
-      const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
+      // pre add bundled fetch
+      const containsFetch = this.fabric.files.some((file) => file.baseName === 'fetch.ts')
 
-      if (bundle && !this.plugin.options.importPath && !containsFetcher) {
+      if (bundle && !this.plugin.options.importPath && !containsFetch) {
         await this.addFile({
-          baseName: 'fetcher.ts',
-          path: path.resolve(root, '.kubb/fetcher.ts'),
+          baseName: 'fetch.ts',
+          path: path.resolve(root, '.kubb/fetch.ts'),
           sources: [
             {
-              name: 'fetcher',
+              name: 'fetch',
               value: resolveModuleSource(
                 this.plugin.options.client === 'fetch' ? '@kubb/plugin-client/templates/clients/fetch' : '@kubb/plugin-client/templates/clients/axios',
               ).source,
+              isExportable: true,
+              isIndexable: true,
             },
           ],
         })

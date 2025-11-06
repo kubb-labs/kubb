@@ -5,8 +5,8 @@
 
 import type { QueryClient, QueryKey, UseBaseQueryOptions, UseQueryResult } from '@tanstack/solid-query'
 import { queryOptions, useQuery } from '@tanstack/solid-query'
-import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetcher.ts'
-import fetch from '../.kubb/fetcher.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import { fetch } from '../.kubb/fetch.ts'
 import type {
   UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,

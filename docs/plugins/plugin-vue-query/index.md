@@ -128,7 +128,7 @@ Control whether the generated hooks import a shared HTTP client runtime or bundl
 | Required: | `false`   |
 |  Default: | `false`   |
 
-- `true` creates `.kubb/fetcher.ts` with the configured client template (fetch or axios) when a client plugin is not present.
+- `true` creates `.kubb/fetch.ts` with the configured client template (fetch or axios) when a client plugin is not present.
 - `false` keeps imports pointing at `@kubb/plugin-client/clients/{client}`, matching the behaviour from Kubb v4.4.
 - Passing `client.importPath` still overrides the import entirely.
 
