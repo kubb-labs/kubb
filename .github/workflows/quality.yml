@@ -104,6 +104,31 @@ jobs:
         continue-on-error: true
         run: bun run lint:ci
 
+
+  performance:
+    name: Performance analysis (Ceviz)
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        uses: ./.github/setup
+
+      - name: Run Ceviz performance analysis
+        continue-on-error: true
+        run: bun run perf
+
+      - name: Upload Ceviz report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ceviz-report
+          path: ceviz-report.html
+
   prerelease:
     name: Prerelease
     timeout-minutes: 15
