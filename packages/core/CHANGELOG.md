@@ -1,5 +1,7 @@
 # @kubb/core
 
+## 4.5.8
+
 ## 4.5.7
 
 ### Patch Changes

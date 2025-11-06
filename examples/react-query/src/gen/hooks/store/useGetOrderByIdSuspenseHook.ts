@@ -5,8 +5,8 @@
 
 import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetcher.ts'
-import fetch from '../../.kubb/fetcher.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
+import { fetch } from '../../.kubb/fetch.ts'
 import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../models/GetOrderById.ts'
 
 export const getOrderByIdSuspenseQueryKey = ({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }) =>

@@ -16,8 +16,8 @@
 
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryClient, QueryKey } from '@tanstack/svelte-query'
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetcher.ts'
-import fetch from '../.kubb/fetcher.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import { fetch } from '../.kubb/fetch.ts'
 import type {
   UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,

@@ -54,6 +54,7 @@ describe('infiniteQueryGenerator operation', async () => {
         dataReturnType: 'data',
         client: 'axios',
       },
+      bundle: false,
       parser: 'zod',
       paramsCasing: undefined,
       paramsType: 'inline',

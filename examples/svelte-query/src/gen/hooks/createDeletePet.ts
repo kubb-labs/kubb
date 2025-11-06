@@ -16,8 +16,8 @@
 
 import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
-import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetcher.ts'
-import fetch from '../.kubb/fetcher.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import { fetch } from '../.kubb/fetch.ts'
 import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../models/DeletePet.ts'
 
 export const deletePetMutationKey = () => [{ url: '/pet/:pet_id' }] as const

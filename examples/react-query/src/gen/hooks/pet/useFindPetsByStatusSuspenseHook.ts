@@ -5,8 +5,8 @@
 
 import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetcher.ts'
-import fetch from '../../.kubb/fetcher.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
+import { fetch } from '../../.kubb/fetch.ts'
 import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus.ts'
 
 export const findPetsByStatusSuspenseQueryKey = (params?: FindPetsByStatusQueryParams) =>

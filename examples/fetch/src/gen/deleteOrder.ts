@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from './.kubb/fetcher.ts'
-import fetch from './.kubb/fetcher.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
 import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderPathParams } from './models.ts'
 
 function getDeleteOrderUrl(orderId: DeleteOrderPathParams['orderId']) {

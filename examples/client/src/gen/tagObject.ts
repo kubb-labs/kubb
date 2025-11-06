@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from './.kubb/fetcher.js'
-import fetch from './.kubb/fetcher.js'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderPathParams } from './models/ts/storeController/DeleteOrder.js'
 import type { GetInventoryQueryResponse } from './models/ts/storeController/GetInventory.js'
 import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from './models/ts/storeController/GetOrderById.js'

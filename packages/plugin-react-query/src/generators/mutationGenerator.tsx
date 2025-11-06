@@ -94,18 +94,18 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
           </>
         ) : (
           <>
-            <File.Import name={'fetch'} root={mutation.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')} />
+            <File.Import name={['fetch']} root={mutation.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
             <File.Import
               name={['RequestConfig', 'ResponseErrorConfig']}
               root={mutation.file.path}
-              path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
+              path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
               isTypeOnly
             />
             {options.client.dataReturnType === 'full' && (
               <File.Import
                 name={['ResponseConfig']}
                 root={mutation.file.path}
-                path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
+                path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
                 isTypeOnly
               />
             )}

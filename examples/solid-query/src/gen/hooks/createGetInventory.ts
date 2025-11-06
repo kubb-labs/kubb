@@ -4,8 +4,8 @@
  */
 
 import { queryOptions } from '@tanstack/solid-query'
-import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetcher.ts'
-import fetch from '../.kubb/fetcher.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import { fetch } from '../.kubb/fetch.ts'
 import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
 
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const

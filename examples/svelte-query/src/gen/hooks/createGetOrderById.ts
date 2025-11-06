@@ -16,8 +16,8 @@
 
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryClient, QueryKey } from '@tanstack/svelte-query'
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetcher.ts'
-import fetch from '../.kubb/fetcher.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import { fetch } from '../.kubb/fetch.ts'
 import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById.ts'
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const

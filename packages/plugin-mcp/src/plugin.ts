@@ -89,19 +89,21 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
         this.plugin.options.client.baseURL = baseURL
       }
 
-      const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
+      const containsFetch = this.fabric.files.some((file) => file.baseName === 'fetch.ts')
 
-      if (!this.plugin.options.client.importPath && !containsFetcher) {
-        // pre add bundled fetcher
+      if (!this.plugin.options.client.importPath && !containsFetch) {
+        // pre add bundled fetch
         await this.addFile({
-          baseName: 'fetcher.ts',
-          path: path.resolve(root, '.kubb/fetcher.ts'),
+          baseName: 'fetch.ts',
+          path: path.resolve(root, '.kubb/fetch.ts'),
           sources: [
             {
-              name: 'fetcher',
+              name: 'fetch',
               value: resolveModuleSource(
                 this.plugin.options.client.client === 'fetch' ? '@kubb/plugin-client/templates/clients/fetch' : '@kubb/plugin-client/templates/clients/axios',
               ).source,
+              isExportable: true,
+              isIndexable: true,
             },
           ],
         })

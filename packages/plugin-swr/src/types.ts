@@ -82,6 +82,12 @@ export type Options = {
    */
   override?: Array<Override<ResolvedOptions>>
   client?: Pick<PluginClient['options'], 'client' | 'dataReturnType' | 'importPath' | 'baseURL'>
+  /**
+   * Bundle the selected client into the generated `.kubb` directory.
+   * When disabled the generated hooks will import the shared runtime from `@kubb/plugin-client/clients/*`.
+   * @default false
+   */
+  bundle?: boolean
   queryKey?: QueryKey
   query?: Query | false
   mutationKey?: MutationKey
@@ -125,6 +131,7 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   client: NonNullable<PluginSwr['options']['client']>
+  bundle: boolean
   parser: Required<NonNullable<Options['parser']>>
   queryKey: QueryKey | undefined
   query: NonNullable<Required<Query>> | false
