@@ -5,7 +5,13 @@
 import { http } from 'msw'
 
 export function deletePetsPetid(
-  data?: string | number | boolean | null | object | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Response | Promise<Response>),
+  data?:
+    | string
+    | number
+    | boolean
+    | null
+    | object
+    | ((info: Parameters<Parameters<typeof http.delete<never, never, DeletePetsPetidMutationResponse>>[1]>[0]) => Response | Promise<Response>),
 ) {
   return http.delete('/pets/:petId', function handler(info) {
     if (typeof data === 'function') return data(info)

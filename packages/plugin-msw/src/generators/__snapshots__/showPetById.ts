@@ -13,7 +13,11 @@ export function showPetByIdResponse200(data: ShowPetByIdQueryResponse) {
   })
 }
 
-export function showPetById(data?: ShowPetByIdQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
+export function showPetById(
+  data?:
+    | ShowPetByIdQueryResponse
+    | ((info: Parameters<Parameters<typeof http.get<ShowPetByIdPathParams, never, ShowPetByIdQueryResponse>>[1]>[0]) => Response | Promise<Response>),
+) {
   return http.get('/pets/:petId', function handler(info) {
     if (typeof data === 'function') return data(info)
 

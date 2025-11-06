@@ -12,9 +12,20 @@ type Props = {
   fakerName: string
   baseURL: string | undefined
   operation: Operation
+
+  pathParamsType?: string
+  requestBodyType?: string
 }
 
-export function Mock({ baseURL = '', name, typeName, operation }: Props): KubbNode {
+export function Mock({
+  baseURL = '',
+  name,
+  typeName,
+  operation,
+
+  pathParamsType,
+  requestBodyType,
+}: Props): KubbNode {
   const method = operation.method
   const successStatusCodes = operation.getResponseStatusCodes().filter((code) => code.startsWith('2'))
   const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200
@@ -33,7 +44,7 @@ export function Mock({ baseURL = '', name, typeName, operation }: Props): KubbNo
   const params = FunctionParams.factory({
     data: {
       type: `${dataType} | ((
-        info: Parameters<Parameters<typeof http.${method}>[1]>[0],
+        info: Parameters<Parameters<typeof http.${method}<${pathParamsType || 'never'}, ${requestBodyType || 'never'}, ${typeName}>>[1]>[0]
       ) => Response | Promise<Response>)`,
       optional: true,
     },
