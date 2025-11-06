@@ -1,6 +1,6 @@
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import type { ResponseErrorConfig } from '../../.kubb/fetcher.ts'
-import fetch from '../../.kubb/fetcher.ts'
+import type { ResponseErrorConfig } from '../../.kubb/fetch.ts'
+import { fetch } from '../../.kubb/fetch.ts'
 import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/ts/userController/DeleteUser.ts'
 
 /**

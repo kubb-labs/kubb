@@ -57,11 +57,11 @@ export const clientGenerator = createReactGenerator<PluginClient>({
           </>
         ) : (
           <>
-            <File.Import name={'fetch'} root={client.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')} />
+            <File.Import name={['fetch']} root={client.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
             <File.Import
               name={['RequestConfig', 'ResponseErrorConfig']}
               root={client.file.path}
-              path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
+              path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
               isTypeOnly
             />
           </>

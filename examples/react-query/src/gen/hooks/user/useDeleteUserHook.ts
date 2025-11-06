@@ -5,8 +5,8 @@
 
 import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
-import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetcher.ts'
-import fetch from '../../.kubb/fetcher.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
+import { fetch } from '../../.kubb/fetch.ts'
 import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/DeleteUser.ts'
 
 export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const

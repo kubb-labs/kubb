@@ -5,8 +5,8 @@
 
 import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
-import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetcher.ts'
-import fetch from '../../.kubb/fetcher.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
+import { fetch } from '../../.kubb/fetch.ts'
 import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/GetUserByName.ts'
 
 export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) =>

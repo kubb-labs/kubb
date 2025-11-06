@@ -14,6 +14,7 @@ import type { PluginReactQuery } from './types.ts'
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
 
 export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
+  const bundle = options.bundle ?? false
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,
@@ -35,15 +36,20 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
     contentType,
   } = options
 
+  const clientType = options.client?.client ?? 'axios'
+  const clientImportPath = options.client?.importPath ?? (!bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
+
   return {
     name: pluginReactQueryName,
     options: {
+      bundle,
       output,
       client: {
-        client: 'axios',
-        dataReturnType: 'data',
+        client: clientType,
+        dataReturnType: options.client?.dataReturnType ?? 'data',
         pathParamsType,
-        ...options.client,
+        baseURL: options.client?.baseURL,
+        importPath: clientImportPath,
       },
       infinite: infinite
         ? {
@@ -139,19 +145,21 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
       }
 
       const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
-      const containsFetcher = this.fabric.files.some((file) => file.baseName === 'fetcher.ts')
+      const containsFetch = this.fabric.files.some((file) => file.baseName === 'fetch.ts')
 
-      if (!hasClientPlugin && !this.plugin.options.client.importPath && !containsFetcher) {
-        // pre add bundled fetcher
+      if (bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetch) {
+        // pre add bundled fetch
         await this.addFile({
-          baseName: 'fetcher.ts',
-          path: path.resolve(root, '.kubb/fetcher.ts'),
+          baseName: 'fetch.ts',
+          path: path.resolve(root, '.kubb/fetch.ts'),
           sources: [
             {
-              name: 'fetcher',
+              name: 'fetch',
               value: resolveModuleSource(
                 this.plugin.options.client.client === 'fetch' ? '@kubb/plugin-client/templates/clients/fetch' : '@kubb/plugin-client/templates/clients/axios',
               ).source,
+              isExportable: true,
+              isIndexable: true,
             },
           ],
         })

@@ -59,12 +59,18 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
     const type = {
       file: getFile(operation, { pluginKey: [pluginTsName] }),
       //todo remove type?
-      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      schemas: getSchemas(operation, {
+        pluginKey: [pluginTsName],
+        type: 'type',
+      }),
     }
 
     const zod = {
       file: getFile(operation, { pluginKey: [pluginZodName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+      schemas: getSchemas(operation, {
+        pluginKey: [pluginZodName],
+        type: 'function',
+      }),
     }
 
     if (!isQuery || isMutation) {
@@ -90,20 +96,15 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
           </>
         ) : (
           <>
-            <File.Import name={'fetch'} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')} />
+            <File.Import name={['fetch']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
             <File.Import
               name={['RequestConfig', 'ResponseErrorConfig']}
               root={query.file.path}
-              path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
+              path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
               isTypeOnly
             />
             {options.client.dataReturnType === 'full' && (
-              <File.Import
-                name={['ResponseConfig']}
-                root={query.file.path}
-                path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
-                isTypeOnly
-              />
+              <File.Import name={['ResponseConfig']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} isTypeOnly />
             )}
           </>
         )}

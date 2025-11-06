@@ -3,6 +3,8 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type {
   QueryClient,
   QueryKey,
@@ -14,8 +16,6 @@ import type {
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
 import { mutationOptions, queryOptions, useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
-import type { RequestConfig, ResponseErrorConfig } from './.kubb/fetcher'
-import fetch from './.kubb/fetcher'
 import type {
   AddPet405,
   AddPetMutationRequest,

@@ -85,6 +85,7 @@ describe('mutationGenerator operation', async () => {
         dataReturnType: 'data',
         client: 'axios',
       },
+      bundle: false,
       parser: 'zod',
       paramsType: 'inline',
       paramsCasing: undefined,

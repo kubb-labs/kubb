@@ -134,6 +134,12 @@ export class FunctionParams {
     }
   }
 
+  toObject(): FunctionParamsAST {
+    const items = FunctionParams.#orderItems(this.#items).flat()
+
+    return FunctionParams.toObject(items)
+  }
+
   static toString(items: (FunctionParamsAST | FunctionParamsAST[])[]): string {
     const sortedData = FunctionParams.#orderItems(items)
 
@@ -152,12 +158,6 @@ export class FunctionParams {
         return FunctionParams.#addParams(acc, item)
       }, [] as string[])
       .join(', ')
-  }
-
-  toObject(): FunctionParamsAST {
-    const items = FunctionParams.#orderItems(this.#items).flat()
-
-    return FunctionParams.toObject(items)
   }
 
   toString(): string {

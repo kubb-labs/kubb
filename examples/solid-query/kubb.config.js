@@ -23,6 +23,7 @@ export default defineConfig({
       output: { path: 'models' },
     }),
     pluginSolidQuery({
+      bundle: true,
       output: {
         path: './hooks',
       },

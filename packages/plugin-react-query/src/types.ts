@@ -92,6 +92,12 @@ export type Options = {
 
   client?: Pick<PluginClient['options'], 'client' | 'dataReturnType' | 'importPath' | 'baseURL'>
   /**
+   * Bundle the selected client into the generated `.kubb` directory.
+   * When disabled the generated hooks will import the shared runtime from `@kubb/plugin-client/clients/*`.
+   * @default false
+   */
+  bundle?: boolean
+  /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
   exclude?: Array<Exclude>
@@ -162,6 +168,7 @@ type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
   client: NonNullable<PluginReactQuery['options']['client']>
+  bundle: boolean
   parser: Required<NonNullable<Options['parser']>>
   pathParamsType: NonNullable<Options['pathParamsType']>
   paramsCasing: Options['paramsCasing']
