@@ -168,8 +168,6 @@ Control whether the HTTP client runtime is copied into the generated `.kubb` dir
 - `false` keeps the generated clients slim by importing the shared runtime from `@kubb/plugin-client/clients/{client}`.
 - You can still override the behaviour by providing a custom `client.importPath`.
 
-> [!NOTE]
-> Starting with Kubb v4.6 the default changed from `true` to `false` to match the behaviour from v4.4 and keep backwards compatibility for consumers that relied on the package runtime.
 
 ### baseURL
 <!--@include: ../plugin-client/baseURL.md-->

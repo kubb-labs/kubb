@@ -132,9 +132,6 @@ Control whether the generated hooks import a shared HTTP client runtime or bundl
 - `false` keeps imports pointing at `@kubb/plugin-client/clients/{client}`, matching the behaviour from Kubb v4.4.
 - Passing `client.importPath` still overrides the import entirely.
 
-> [!NOTE]
-> Kubb v4.6 switches the default from `true` to `false` so generated hooks keep importing the shared runtime unless you explicitly enable bundling.
-
 ### paramsType
 <!--@include: ../plugin-client/paramsType.md-->
 
