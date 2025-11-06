@@ -1,5 +1,20 @@
 # @kubb/plugin-solid-query
 
+## 4.5.8
+
+### Patch Changes
+
+- [#1997](https://github.com/kubb-labs/kubb/pull/1997) [`3fb940e`](https://github.com/kubb-labs/kubb/commit/3fb940e71db28d548fe60bbcb1d5282276098129) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - - add configurable `bundle` option defaulting to false so generated clients re-use `@kubb/plugin-client/clients/*` by default
+  - keep `.kubb/fetch.ts` bundling available when explicitly enabling the option for Kubb v4.5 compatibility
+  - align `@kubb/plugin-{react,vue,solid,svelte}-query` and `@kubb/plugin-swr` defaults to the shared runtime while exposing the same opt-in bundling flag
+- Updated dependencies [[`3fb940e`](https://github.com/kubb-labs/kubb/commit/3fb940e71db28d548fe60bbcb1d5282276098129)]:
+  - @kubb/plugin-client@4.5.8
+  - @kubb/core@4.5.8
+  - @kubb/oas@4.5.8
+  - @kubb/plugin-oas@4.5.8
+  - @kubb/plugin-ts@4.5.8
+  - @kubb/plugin-zod@4.5.8
+
 ## 4.5.7
 
 ### Patch Changes
