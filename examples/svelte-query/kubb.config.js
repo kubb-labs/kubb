@@ -24,7 +24,9 @@ export default defineConfig({
       output: { path: 'models' },
     }),
     pluginSvelteQuery({
-      bundle: true,
+      client: {
+        bundle: true,
+      },
       output: {
         path: './hooks',
       },

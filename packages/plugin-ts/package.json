@@ -87,7 +87,7 @@
     "@kubb/plugin-oas": "workspace:*"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.2.19"
+    "@kubb/react-fabric": "0.0.0-canary-20251107102106"
   },
   "engines": {
     "node": ">=20"

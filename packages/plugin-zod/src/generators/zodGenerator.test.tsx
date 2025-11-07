@@ -316,7 +316,7 @@ describe('zodGenerator schema', async () => {
         value: schema,
       },
       {
-        config: {} as Config,
+        config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
         generator,
         Component: zodGenerator.Schema,
@@ -420,7 +420,7 @@ describe('zodGenerator operation', async () => {
     })
     const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {
-      config: {} as Config,
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
       Component: zodGenerator.Operation,
@@ -454,11 +454,11 @@ describe('zodGenerator operation', async () => {
         wrapOutput: ({ output, schema }) => {
           const metadata: ZodOpenAPIMetadata = {}
 
-          if (schema.example) {
+          if (schema?.example) {
             metadata.example = schema.example
           }
 
-          if (schema.examples) {
+          if (schema?.examples) {
             if (Array.isArray(schema.examples)) {
               metadata.examples = schema.examples
             } else if (typeof schema.examples === 'object') {
@@ -490,7 +490,7 @@ describe('zodGenerator operation', async () => {
       const operation = oas.operation(props.path, props.method)
 
       await buildOperation(operation, {
-        config: {} as Config,
+        config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
         generator,
         Component: zodGenerator.Operation,
@@ -581,7 +581,7 @@ describe('zodGenerator operation', async () => {
       const operation = oas.operation(entry.path, entry.method)
 
       await buildOperation(operation, {
-        config: {} as Config,
+        config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
         generator,
         Component: zodGenerator.Operation,

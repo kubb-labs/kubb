@@ -142,7 +142,7 @@ describe('clientGenerator operation', async () => {
     const operation = oas.operation(props.path, props.method)
 
     await buildOperation(operation, {
-      config: {} as Config,
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
       Component: clientGenerator.Operation,

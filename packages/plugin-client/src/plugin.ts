@@ -12,7 +12,6 @@ import type { PluginClient } from './types.ts'
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 
 export const pluginClient = definePlugin<PluginClient>((options) => {
-  const bundle = options.bundle ?? false
   const {
     output = { path: 'clients', barrelType: 'named' },
     group,
@@ -32,6 +31,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
     client = 'axios',
     importPath,
     contentType,
+    bundle = false,
   } = options
 
   const resolvedImportPath = importPath ?? (!bundle ? `@kubb/plugin-client/clients/${client}` : undefined)
