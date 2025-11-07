@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
-import type { SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
-import { isKeyword, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
+import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
+import { createSchemaKeywordMap, createSchemaKeywordSet, getSchemaByKeyword, hasKeyword, isKeyword, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 import * as factory from './factory.ts'
 
@@ -213,89 +213,97 @@ export function parse({ schema, current, siblings, name }: SchemaTree, options: 
   }
 
   if (isKeyword(current, schemaKeywords.object)) {
-    const properties = Object.entries(current.args?.properties || {})
-      .filter((item) => {
-        const schemas = item[1]
-        return schemas && typeof schemas.map === 'function'
+    const propertiesObj = current.args?.properties || {}
+    const filteredProperties: Array<[string, Schema[]]> = []
+
+    for (const name of Object.keys(propertiesObj)) {
+      const schemas = propertiesObj[name]
+      if (schemas && typeof schemas.map === 'function') {
+        filteredProperties.push([name, schemas])
+      }
+    }
+
+    const properties = filteredProperties.map(([name, schemas]) => {
+      // Create Map and Set once per property instead of multiple .find()/.some() calls
+      const schemasKeywordMap = createSchemaKeywordMap(schemas)
+      const schemasKeywordSet = createSchemaKeywordSet(schemas)
+      const nameSchema = getSchemaByKeyword(schemasKeywordMap, schemaKeywords.name) as SchemaKeywordMapper['name']
+      const mappedName = nameSchema?.args || name
+
+      // custom mapper(pluginOptions)
+      if (options.mapper?.[mappedName]) {
+        return options.mapper?.[mappedName]
+      }
+
+      const isNullish = hasKeyword(schemasKeywordSet, schemaKeywords.nullish)
+      const isNullable = hasKeyword(schemasKeywordSet, schemaKeywords.nullable)
+      const isOptional = hasKeyword(schemasKeywordSet, schemaKeywords.optional)
+      const isReadonly = hasKeyword(schemasKeywordSet, schemaKeywords.readOnly)
+      const describeSchema = getSchemaByKeyword(schemasKeywordMap, schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
+      const deprecatedSchema = getSchemaByKeyword(schemasKeywordMap, schemaKeywords.deprecated) as SchemaKeywordMapper['deprecated'] | undefined
+      const defaultSchema = getSchemaByKeyword(schemasKeywordMap, schemaKeywords.default) as SchemaKeywordMapper['default'] | undefined
+      const exampleSchema = getSchemaByKeyword(schemasKeywordMap, schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
+      const schemaSchema = getSchemaByKeyword(schemasKeywordMap, schemaKeywords.schema) as SchemaKeywordMapper['schema'] | undefined
+      const minSchema = getSchemaByKeyword(schemasKeywordMap, schemaKeywords.min) as SchemaKeywordMapper['min'] | undefined
+      const maxSchema = getSchemaByKeyword(schemasKeywordMap, schemaKeywords.max) as SchemaKeywordMapper['max'] | undefined
+      const matchesSchema = getSchemaByKeyword(schemasKeywordMap, schemaKeywords.matches) as SchemaKeywordMapper['matches'] | undefined
+
+      let type = schemas
+        .map((it) =>
+          parse(
+            {
+              schema,
+              parent: current,
+              name,
+              current: it,
+              siblings: schemas,
+            },
+            options,
+          ),
+        )
+        .filter(Boolean)[0] as ts.TypeNode
+
+      if (isNullable) {
+        type = factory.createUnionDeclaration({
+          nodes: [type, factory.keywordTypeNodes.null],
+        }) as ts.TypeNode
+      }
+
+      if (isNullish && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
+        type = factory.createUnionDeclaration({
+          nodes: [type, factory.keywordTypeNodes.undefined],
+        }) as ts.TypeNode
+      }
+
+      if (isOptional && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
+        type = factory.createUnionDeclaration({
+          nodes: [type, factory.keywordTypeNodes.undefined],
+        }) as ts.TypeNode
+      }
+
+      const propertyNode = factory.createPropertySignature({
+        questionToken: isOptional || isNullish ? ['questionToken', 'questionTokenAndUndefined'].includes(options.optionalType as string) : false,
+        name: mappedName,
+        type,
+        readOnly: isReadonly,
       })
-      .map(([name, schemas]) => {
-        const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
-        const mappedName = nameSchema?.args || name
 
-        // custom mapper(pluginOptions)
-        if (options.mapper?.[mappedName]) {
-          return options.mapper?.[mappedName]
-        }
-
-        const isNullish = schemas.some((schema) => schema.keyword === schemaKeywords.nullish)
-        const isNullable = schemas.some((schema) => schema.keyword === schemaKeywords.nullable)
-        const isOptional = schemas.some((schema) => schema.keyword === schemaKeywords.optional)
-        const isReadonly = schemas.some((schema) => schema.keyword === schemaKeywords.readOnly)
-        const describeSchema = schemas.find((schema) => schema.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
-        const deprecatedSchema = schemas.find((schema) => schema.keyword === schemaKeywords.deprecated) as SchemaKeywordMapper['deprecated'] | undefined
-        const defaultSchema = schemas.find((schema) => schema.keyword === schemaKeywords.default) as SchemaKeywordMapper['default'] | undefined
-        const exampleSchema = schemas.find((schema) => schema.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
-        const schemaSchema = schemas.find((schema) => schema.keyword === schemaKeywords.schema) as SchemaKeywordMapper['schema'] | undefined
-        const minSchema = schemas.find((schema) => schema.keyword === schemaKeywords.min) as SchemaKeywordMapper['min'] | undefined
-        const maxSchema = schemas.find((schema) => schema.keyword === schemaKeywords.max) as SchemaKeywordMapper['max'] | undefined
-        const matchesSchema = schemas.find((schema) => schema.keyword === schemaKeywords.matches) as SchemaKeywordMapper['matches'] | undefined
-
-        let type = schemas
-          .map((it) =>
-            parse(
-              {
-                schema,
-                parent: current,
-                name,
-                current: it,
-                siblings: schemas,
-              },
-              options,
-            ),
-          )
-          .filter(Boolean)[0] as ts.TypeNode
-
-        if (isNullable) {
-          type = factory.createUnionDeclaration({
-            nodes: [type, factory.keywordTypeNodes.null],
-          }) as ts.TypeNode
-        }
-
-        if (isNullish && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
-          type = factory.createUnionDeclaration({
-            nodes: [type, factory.keywordTypeNodes.undefined],
-          }) as ts.TypeNode
-        }
-
-        if (isOptional && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
-          type = factory.createUnionDeclaration({
-            nodes: [type, factory.keywordTypeNodes.undefined],
-          }) as ts.TypeNode
-        }
-
-        const propertyNode = factory.createPropertySignature({
-          questionToken: isOptional || isNullish ? ['questionToken', 'questionTokenAndUndefined'].includes(options.optionalType as string) : false,
-          name: mappedName,
-          type,
-          readOnly: isReadonly,
-        })
-
-        return factory.appendJSDocToNode({
-          node: propertyNode,
-          comments: [
-            describeSchema ? `@description ${transformers.jsStringEscape(describeSchema.args)}` : undefined,
-            deprecatedSchema ? '@deprecated' : undefined,
-            minSchema ? `@minLength ${minSchema.args}` : undefined,
-            maxSchema ? `@maxLength ${maxSchema.args}` : undefined,
-            matchesSchema ? `@pattern ${matchesSchema.args}` : undefined,
-            defaultSchema ? `@default ${defaultSchema.args}` : undefined,
-            exampleSchema ? `@example ${exampleSchema.args}` : undefined,
-            schemaSchema?.args?.type || schemaSchema?.args?.format
-              ? [`@type ${schemaSchema?.args?.type || 'unknown'}${!isOptional ? '' : ' | undefined'}`, schemaSchema?.args?.format].filter(Boolean).join(', ')
-              : undefined,
-          ].filter(Boolean),
-        })
+      return factory.appendJSDocToNode({
+        node: propertyNode,
+        comments: [
+          describeSchema ? `@description ${transformers.jsStringEscape(describeSchema.args)}` : undefined,
+          deprecatedSchema ? '@deprecated' : undefined,
+          minSchema ? `@minLength ${minSchema.args}` : undefined,
+          maxSchema ? `@maxLength ${maxSchema.args}` : undefined,
+          matchesSchema ? `@pattern ${matchesSchema.args}` : undefined,
+          defaultSchema ? `@default ${defaultSchema.args}` : undefined,
+          exampleSchema ? `@example ${exampleSchema.args}` : undefined,
+          schemaSchema?.args?.type || schemaSchema?.args?.format
+            ? [`@type ${schemaSchema?.args?.type || 'unknown'}${!isOptional ? '' : ' | undefined'}`, schemaSchema?.args?.format].filter(Boolean).join(', ')
+            : undefined,
+        ].filter(Boolean),
       })
+    })
 
     let additionalProperties: any
 

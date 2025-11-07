@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
-import { isKeyword, SchemaGenerator, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
+import { createSchemaKeywordMap, getSchemaByKeyword, isKeyword, SchemaGenerator, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
 import type { Options } from './types.ts'
 
 const fakerKeywordMapper = {
@@ -274,13 +274,20 @@ export function parse({ schema, current, parent, name, siblings }: SchemaTree, o
   }
 
   if (isKeyword(current, schemaKeywords.object)) {
-    const argsObject = Object.entries(current.args?.properties || {})
-      .filter((item) => {
-        const schema = item[1]
-        return schema && typeof schema.map === 'function'
-      })
+    const propertiesObj = current.args?.properties || {}
+    const filteredProperties: Array<[string, Schema[]]> = []
+
+    for (const name of Object.keys(propertiesObj)) {
+      const schemas = propertiesObj[name]
+      if (schemas && typeof schemas.map === 'function') {
+        filteredProperties.push([name, schemas])
+      }
+    }
+
+    const argsObject = filteredProperties
       .map(([name, schemas]) => {
-        const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
+        const schemasKeywordMap = createSchemaKeywordMap(schemas)
+        const nameSchema = getSchemaByKeyword(schemasKeywordMap, schemaKeywords.name) as SchemaKeywordMapper['name']
         const mappedName = nameSchema?.args || name
 
         // custom mapper(pluginOptions)
