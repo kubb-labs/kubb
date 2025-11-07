@@ -20,7 +20,11 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
     transformers = {},
     generators = [mcpGenerator, serverGenerator].filter(Boolean),
     contentType,
+    client,
   } = options
+
+  const clientType = client?.client ?? 'axios'
+  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
 
   return {
     name: pluginMcpName,
@@ -28,7 +32,8 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
       output,
       group,
       client: {
-        client: 'axios',
+        client: clientType,
+        importPath: clientImportPath,
         dataReturnType: 'data',
         ...options.client,
       },
@@ -91,7 +96,7 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
 
       const containsFetch = this.fabric.files.some((file) => file.baseName === 'fetch.ts')
 
-      if (!this.plugin.options.client.importPath && !containsFetch) {
+      if (this.plugin.options.client.bundle && !this.plugin.options.client.importPath && !containsFetch) {
         // pre add bundled fetch
         await this.addFile({
           baseName: 'fetch.ts',

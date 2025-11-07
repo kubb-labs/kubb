@@ -70,14 +70,7 @@ export type Options = {
    * Group the @tanstack/query hooks based on the provided name.
    */
   group?: Group
-
-  client?: Pick<PluginClient['options'], 'client' | 'dataReturnType' | 'importPath' | 'baseURL'>
-  /**
-   * Bundle the selected client into the generated `.kubb` directory.
-   * When disabled the generated hooks will import the shared runtime from `@kubb/plugin-client/clients/*`.
-   * @default false
-   */
-  bundle?: boolean
+  client?: Pick<PluginClient['options'], 'client' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle'>
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
@@ -140,7 +133,6 @@ type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
   client: NonNullable<PluginSolidQuery['options']['client']>
-  bundle: boolean
   parser: Required<NonNullable<Options['parser']>>
   paramsCasing: Options['paramsCasing']
   paramsType: NonNullable<Options['paramsType']>

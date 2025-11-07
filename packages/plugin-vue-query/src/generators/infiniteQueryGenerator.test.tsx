@@ -54,8 +54,8 @@ describe('infiniteQueryGenerator operation', async () => {
         dataReturnType: 'data',
         client: 'axios',
         importPath: undefined,
+        bundle: false,
       },
-      bundle: false,
       parser: 'zod',
       paramsType: 'inline',
       paramsCasing: undefined,
@@ -93,7 +93,7 @@ describe('infiniteQueryGenerator operation', async () => {
 
     const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {
-      config: {} as Config,
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
       Component: infiniteQueryGenerator.Operation,
