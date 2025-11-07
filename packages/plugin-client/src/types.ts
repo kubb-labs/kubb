@@ -115,7 +115,7 @@ type ResolvedOptions = {
   group?: Options['group']
   baseURL: string | undefined
   client: Options['client']
-  bundle: boolean
+  bundle: NonNullable<Options['bundle']>
   parser: NonNullable<Options['parser']>
   urlType: NonNullable<Options['urlType']>
   importPath: Options['importPath']

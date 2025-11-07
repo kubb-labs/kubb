@@ -1,6 +1,6 @@
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import type { ResponseErrorConfig } from '../../.kubb/fetch.ts'
-import { fetch } from '../../.kubb/fetch.ts'
 import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../models/ts/petController/AddFiles.ts'
 
 /**

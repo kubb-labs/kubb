@@ -29,7 +29,9 @@ export const config = {
       },
     }),
     pluginReactQuery({
-      bundle: true,
+      client: {
+        bundle: true,
+      },
       transformers: {
         name: (name, type) => {
           if (type === 'file' || type === 'function') {

@@ -100,7 +100,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
     modifiers: [factory.modifiers.export],
   })
 
-  return print([namespaceNode])
+  return print(namespaceNode)
 }
 
 export const typeGenerator = createReactGenerator<PluginTs>({

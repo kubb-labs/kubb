@@ -84,8 +84,8 @@ describe('mutationGenerator operation', async () => {
       client: {
         dataReturnType: 'data',
         importPath: '@kubb/plugin-client/clients/axios',
+        bundle: false,
       },
-      bundle: false,
       parser: 'zod',
       paramsCasing: undefined,
       paramsType: 'inline',
@@ -122,7 +122,7 @@ describe('mutationGenerator operation', async () => {
 
     const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {
-      config: {} as Config,
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
       Component: mutationGenerator.Operation,

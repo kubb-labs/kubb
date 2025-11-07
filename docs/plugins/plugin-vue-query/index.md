@@ -118,19 +118,8 @@ Return the name of a group based on the group name, this will be used for the fi
 #### client.baseURL
 <!--@include: ../plugin-client/baseURL.md-->
 
-### bundle
-
-Control whether the generated hooks import a shared HTTP client runtime or bundle a dedicated copy inside `.kubb`.
-
-|           |           |
-|----------:|:----------|
-|     Type: | `boolean` |
-| Required: | `false`   |
-|  Default: | `false`   |
-
-- `true` creates `.kubb/fetch.ts` with the configured client template (fetch or axios) when a client plugin is not present.
-- `false` keeps imports pointing at `@kubb/plugin-client/clients/{client}`, matching the behaviour from Kubb v4.4.
-- Passing `client.importPath` still overrides the import entirely.
+#### client.bundle
+<!--@include: ../plugin-client/bundle.md-->
 
 ### paramsType
 <!--@include: ../plugin-client/paramsType.md-->

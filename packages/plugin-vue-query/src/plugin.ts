@@ -13,7 +13,6 @@ import type { PluginVueQuery } from './types.ts'
 export const pluginVueQueryName = 'plugin-vue-query' satisfies PluginVueQuery['name']
 
 export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
-  const bundle = options.bundle ?? false
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,
@@ -32,21 +31,21 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
     queryKey = QueryKey.getTransformer,
     generators = [queryGenerator, infiniteQueryGenerator, mutationGenerator].filter(Boolean),
     contentType,
+    client,
   } = options
 
-  const clientType = options.client?.client ?? 'axios'
-  const clientImportPath = options.client?.importPath ?? (!bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
+  const clientType = client?.client ?? 'axios'
+  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
 
   return {
     name: pluginVueQueryName,
     options: {
-      bundle,
       output,
       client: {
+        ...options.client,
         client: clientType,
-        dataReturnType: options.client?.dataReturnType ?? 'data',
+        dataReturnType: client?.dataReturnType ?? 'data',
         pathParamsType,
-        baseURL: options.client?.baseURL,
         importPath: clientImportPath,
       },
       infinite: infinite
@@ -144,7 +143,7 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
       const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
       const containsFetch = this.fabric.files.some((file) => file.baseName === 'fetch.ts')
 
-      if (bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetch) {
+      if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetch) {
         // pre add bundled
         await this.addFile({
           baseName: 'fetch.ts',

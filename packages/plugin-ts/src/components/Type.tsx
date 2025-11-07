@@ -141,7 +141,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
         <>
           {nameNode && (
             <File.Source name={name} isExportable isIndexable>
-              {print([nameNode])}
+              {print(nameNode)}
             </File.Source>
           )}
           {
@@ -151,14 +151,14 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
               isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
               isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
             >
-              {print([typeNode])}
+              {print(typeNode)}
             </File.Source>
           }
         </>
       ))}
       {enums.every((item) => item.typeName !== name) && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
-          {print(typeNodes)}
+          {print(...typeNodes)}
         </File.Source>
       )}
     </>

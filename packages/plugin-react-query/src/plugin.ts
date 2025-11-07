@@ -14,7 +14,6 @@ import type { PluginReactQuery } from './types.ts'
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
 
 export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
-  const bundle = options.bundle ?? false
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,
@@ -34,21 +33,21 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
     queryKey = QueryKey.getTransformer,
     paramsCasing,
     contentType,
+    client,
   } = options
 
-  const clientType = options.client?.client ?? 'axios'
-  const clientImportPath = options.client?.importPath ?? (!bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
+  const clientType = client?.client ?? 'axios'
+  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
 
   return {
     name: pluginReactQueryName,
     options: {
-      bundle,
       output,
       client: {
+        ...options.client,
         client: clientType,
-        dataReturnType: options.client?.dataReturnType ?? 'data',
+        dataReturnType: client?.dataReturnType ?? 'data',
         pathParamsType,
-        baseURL: options.client?.baseURL,
         importPath: clientImportPath,
       },
       infinite: infinite
@@ -147,7 +146,7 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
       const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
       const containsFetch = this.fabric.files.some((file) => file.baseName === 'fetch.ts')
 
-      if (bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetch) {
+      if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetch) {
         // pre add bundled fetch
         await this.addFile({
           baseName: 'fetch.ts',

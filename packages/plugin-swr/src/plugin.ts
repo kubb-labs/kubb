@@ -13,7 +13,6 @@ import type { PluginSwr } from './types.ts'
 export const pluginSwrName = 'plugin-swr' satisfies PluginSwr['name']
 
 export const pluginSwr = definePlugin<PluginSwr>((options) => {
-  const bundle = options.bundle ?? false
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,
@@ -35,18 +34,17 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
   } = options
 
   const clientType = client?.client ?? 'axios'
-  const clientImportPath = client?.importPath ?? (!bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
+  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
 
   return {
     name: pluginSwrName,
     options: {
-      bundle,
       output,
       client: {
+        ...options.client,
         client: clientType,
         importPath: clientImportPath,
         dataReturnType: client?.dataReturnType ?? 'data',
-        baseURL: client?.baseURL,
       },
       queryKey,
       query:
@@ -136,7 +134,7 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
       const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
       const containsFetch = this.fabric.files.some((file) => file.baseName === 'fetch.ts')
 
-      if (bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetch) {
+      if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetch) {
         // pre add bundled fetch
         await this.addFile({
           baseName: 'fetch.ts',
