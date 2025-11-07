@@ -117,9 +117,8 @@ Return the name of a group based on the group name, this will be used for the fi
 #### client.baseURL
 <!--@include: ../plugin-client/baseURL.md-->
 
-### bundle
-
-<!--@include: ../plugin-client/baseURL.md-->
+#### client.bundle
+<!--@include: ../plugin-client/bundle.md-->
 
 ### paramsType
 <!--@include: ../plugin-client/paramsType.md-->
