@@ -41,11 +41,11 @@ export function Mock({
   // If no response schema, uses any type but function to avoid overriding callback
   const dataType = hasResponseSchema ? typeName : 'string | number | boolean | null | object'
 
+  const resolver = `${pathParamsType || 'never'}, ${requestBodyType || 'never'}, ${typeName || 'never'}`
+
   const params = FunctionParams.factory({
     data: {
-      type: `${dataType} | ((
-        info: Parameters<Parameters<typeof http.${method}<${pathParamsType || 'never'}, ${requestBodyType || 'never'}, ${typeName}>>[1]>[0]
-      ) => Response | Promise<Response>)`,
+      type: `${dataType} | HttpResponseResolver<${resolver}>`,
       optional: true,
     },
   })
@@ -53,7 +53,7 @@ export function Mock({
   return (
     <File.Source name={name} isIndexable isExportable>
       <Function name={name} export params={params.toConstructor()}>
-        {`return http.${method}('${baseURL}${url.replace(/([^/]):/g, '$1\\\\:')}', function handler(info) {
+        {`return http.${method}<${resolver}>('${baseURL}${url.replace(/([^/]):/g, '$1\\\\:')}', function handler(info) {
     if(typeof data === 'function') return data(info)
 
     return new Response(JSON.stringify(data), {
