@@ -5,16 +5,20 @@
 
 import { z } from 'zod'
 
-export const organizationSchema = z.object({
+export const appOrganizationInfoSchema = z.object({
   name: z.optional(z.string()),
   slug: z.optional(z.string()),
 })
 
 export const appSchema = z.object({
   id: z.optional(z.string()),
+  internal_numeric_id: z.optional(z.number().int()),
+  machine_count: z.optional(z.number().int()),
   name: z.optional(z.string()),
-  organization: z.optional(z.lazy(() => organizationSchema)),
+  network: z.optional(z.string()),
+  organization: z.optional(z.lazy(() => appOrganizationInfoSchema)),
   status: z.optional(z.string()),
+  volume_count: z.optional(z.number().int()),
 })
 
 export const appSecretSchema = z.object({
@@ -51,8 +55,8 @@ export const createAppDeployTokenRequestSchema = z.object({
 })
 
 export const createAppRequestSchema = z.object({
-  app_name: z.optional(z.string()),
   enable_subdomains: z.optional(z.boolean()),
+  name: z.optional(z.string()),
   network: z.optional(z.string()),
   org_slug: z.optional(z.string()),
 })
@@ -1661,16 +1665,8 @@ export const leaseSchema = z.object({
   version: z.optional(z.string().describe('Machine version')),
 })
 
-export const listAppSchema = z.object({
-  id: z.optional(z.string()),
-  machine_count: z.optional(z.number().int()),
-  name: z.optional(z.string()),
-  network: z.optional(z.object({})),
-  volume_count: z.optional(z.number().int()),
-})
-
 export const listAppsResponseSchema = z.object({
-  apps: z.optional(z.array(z.lazy(() => listAppSchema))),
+  apps: z.optional(z.array(z.lazy(() => appSchema))),
   total_apps: z.optional(z.number().int()),
 })
 

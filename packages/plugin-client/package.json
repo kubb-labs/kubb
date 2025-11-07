@@ -109,7 +109,7 @@
     "axios": "^1.13.2"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.2.19",
+    "@kubb/react-fabric": "0.3.1",
     "axios": "^1.7.2"
   },
   "peerDependenciesMeta": {

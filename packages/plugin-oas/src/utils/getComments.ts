@@ -12,4 +12,5 @@ export function getComments(operation: Operation): string[] {
   ]
     .filter(Boolean)
     .map((text) => transformers.trim(text))
+    .filter(Boolean)
 }

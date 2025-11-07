@@ -42,6 +42,7 @@ export const createMockedPluginManager = (name?: string) =>
       }
     },
     config: {
+      root: '.',
       output: {
         path: './path',
       },
@@ -72,7 +73,8 @@ export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.F
   if (!files?.length) return
 
   const fileProcessor = new FileProcessor()
-  const parsers = new Set<any>([typescriptParser])
+  const parsers = new Map<KubbFile.Extname, any>()
+  parsers.set('.ts', typescriptParser)
 
   const processed = new Map<string, string>()
 

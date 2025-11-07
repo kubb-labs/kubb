@@ -64,7 +64,7 @@ describe('groupedClientsGenerators operations', async () => {
     await buildOperations(
       operations.map((item) => item.operation),
       {
-        config: {} as Config,
+        config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
         generator,
         Component: groupedClientGenerator.Operations,

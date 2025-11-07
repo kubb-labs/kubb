@@ -24,8 +24,8 @@
 		"build": "turbo run build --filter=./packages/*",
 		"build:docs": " cd docs && pnpm run build:ci",
 		"build:examples": "turbo run build --filter=./examples/*",
-    "perf": "npx ceviz analyze --json ceviz-report.json --html ceviz-report.html",
-    "changeset": "changeset",
+		"perf": "npx ceviz analyze --json ceviz-report.json --html ceviz-report.html",
+		"changeset": "changeset",
 		"clean": "turbo run clean",
 		"format": "biome format --write ./ && biome check --fix --unsafe",
 		"generate": "turbo run generate --filter=./examples/* --continue",
@@ -47,7 +47,7 @@
 		"version:canary": "changeset version --snapshot canary"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.3.3",
+		"@biomejs/biome": "^2.3.4",
 		"@changesets/changelog-github": "^0.5.1",
 		"@changesets/cli": "^2.29.7",
 		"@kubb/fabric-core": "catalog:",

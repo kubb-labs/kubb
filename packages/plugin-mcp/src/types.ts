@@ -16,8 +16,7 @@ export type Options = {
    * By default, the first JSON valid mediaType will be used
    */
   contentType?: contentType
-  client?: Pick<PluginClient['options'], 'client' | 'dataReturnType' | 'importPath' | 'baseURL'>
-
+  client?: Pick<PluginClient['options'], 'client' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle'>
   /**
    * Group the mcp requests based on the provided name.
    */
