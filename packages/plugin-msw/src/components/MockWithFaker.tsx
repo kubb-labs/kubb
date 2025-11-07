@@ -33,7 +33,7 @@ export function MockWithFaker({ baseURL = '', name, fakerName, typeName, operati
 
   const params = FunctionParams.factory({
     data: {
-      type: `${typeName} | HttpResponseResolver<${resolver}>`,
+      type: `${typeName} | ResponseResolver<${resolver}>`,
       optional: true,
     },
   })

@@ -45,7 +45,7 @@ export function Mock({
 
   const params = FunctionParams.factory({
     data: {
-      type: `${dataType} | HttpResponseResolver<${resolver}>`,
+      type: `${dataType} | ResponseResolver<${resolver}>`,
       optional: true,
     },
   })

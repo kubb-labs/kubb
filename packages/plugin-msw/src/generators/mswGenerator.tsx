@@ -65,7 +65,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
         footer={getFooter({ oas, output })}
       >
         <File.Import name={['http']} path="msw" />
-        <File.Import name={['HttpResponseResolver']} isTypeOnly path="msw" />
+        <File.Import name={['ResponseResolver']} isTypeOnly path="msw" />
         <File.Import
           name={Array.from(new Set([type.schemas.response.name, ...types.map((t) => t.typeName)]))}
           path={type.file.path}
