@@ -1,7 +1,8 @@
 import path from 'node:path'
 
 import yaml from '@stoplight/yaml'
-import { expectTypeOf } from 'vitest'
+import type { OpenAPIV3 } from 'openapi-types'
+import { expect, expectTypeOf } from 'vitest'
 
 import { petStore } from '../mocks/petStore.ts'
 import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './infer/index.ts'
@@ -42,5 +43,21 @@ describe('Oas filter', async () => {
     const oas = await parse(petStorePath)
 
     expect(yaml.safeStringify(oas.api)).toMatchSnapshot()
+  })
+})
+
+describe('discriminator inherit', () => {
+  test('sets enum on mapped schemas before parsing', () => {
+    const oas = new Oas({ oas: petStore })
+
+    oas.setOptions({ discriminator: 'inherit' })
+
+    const catSchema = oas.get('#/components/schemas/Cat') as OpenAPIV3.SchemaObject
+    const dogSchema = oas.get('#/components/schemas/Dog') as OpenAPIV3.SchemaObject
+
+    expect(catSchema.properties?.type?.enum).toEqual(['cat'])
+    expect(dogSchema.properties?.type?.enum).toEqual(['dog'])
+    expect(catSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
+    expect(dogSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
   })
 })

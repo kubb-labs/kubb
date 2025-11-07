@@ -31,7 +31,14 @@ export class Oas<const TOAS = unknown> extends BaseOas {
   }
 
   setOptions(options: Options) {
-    this.#options = options
+    this.#options = {
+      ...this.#options,
+      ...options,
+    }
+
+    if (this.#options.discriminator === 'inherit') {
+      this.#applyDiscriminatorInheritance()
+    }
   }
 
   get options(): Options {
@@ -73,6 +80,69 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     }
   }
 
+  #applyDiscriminatorInheritance() {
+    const components = this.api.components
+    if (!components?.schemas) {
+      return
+    }
+
+    const visited = new WeakSet<object>()
+    const enqueue = (value: unknown) => {
+      if (!value) {
+        return
+      }
+
+      if (Array.isArray(value)) {
+        value.forEach((item) => enqueue(item))
+        return
+      }
+
+      if (typeof value === 'object') {
+        visit(value as SchemaObject)
+      }
+    }
+
+    const visit = (schema?: SchemaObject | OpenAPIV3.ReferenceObject | null) => {
+      if (!schema || typeof schema !== 'object') {
+        return
+      }
+
+      if (isReference(schema)) {
+        visit(this.get(schema.$ref) as SchemaObject)
+        return
+      }
+
+      const schemaObject = schema as SchemaObject
+
+      if (visited.has(schemaObject as object)) {
+        return
+      }
+
+      visited.add(schemaObject as object)
+
+      if (isDiscriminator(schemaObject)) {
+        this.getDiscriminator(schemaObject)
+      }
+
+      enqueue((schemaObject as OpenAPIV3.SchemaObject).allOf)
+      enqueue((schemaObject as OpenAPIV3.SchemaObject).oneOf)
+      enqueue((schemaObject as OpenAPIV3.SchemaObject).anyOf)
+      enqueue((schemaObject as OpenAPIV3.SchemaObject).not)
+      enqueue((schemaObject as OpenAPIV3.SchemaObject).items)
+      enqueue((schemaObject as OpenAPIV3.SchemaObject).prefixItems)
+
+      if (schemaObject.properties) {
+        enqueue(Object.values(schemaObject.properties))
+      }
+
+      if (schemaObject.additionalProperties && typeof schemaObject.additionalProperties === 'object') {
+        enqueue(schemaObject.additionalProperties)
+      }
+    }
+
+    Object.values(components.schemas).forEach((schema) => visit(schema as SchemaObject))
+  }
+
   getDiscriminator(schema: OasTypes.SchemaObject): OpenAPIV3.DiscriminatorObject | undefined {
     if (!isDiscriminator(schema)) {
       return undefined
@@ -88,18 +158,18 @@ export class Oas<const TOAS = unknown> extends BaseOas {
             childSchema.properties = {}
           }
 
-          const property = childSchema.properties[propertyName] as SchemaObject
+            const property = childSchema.properties[propertyName] as SchemaObject
 
-          if (childSchema.properties) {
-            childSchema.properties[propertyName] = {
-              ...(childSchema.properties ? childSchema.properties[propertyName] : {}),
-              enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
+            if (childSchema.properties) {
+              childSchema.properties[propertyName] = {
+                ...(childSchema.properties ? childSchema.properties[propertyName] : {}),
+                enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
+              }
+
+              childSchema.required = Array.from(new Set([...(childSchema.required ?? []), propertyName]))
+
+              this.set(mappingValue, childSchema)
             }
-
-            childSchema.required = [...(childSchema.required ?? []), propertyName]
-
-            this.set(mappingValue, childSchema)
-          }
         }
       })
     }
