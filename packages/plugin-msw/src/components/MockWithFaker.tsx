@@ -29,8 +29,7 @@ export function MockWithFaker({ baseURL = '', name, fakerName, typeName, operati
 
   const headers = [contentType ? `'Content-Type': '${contentType}'` : undefined].filter(Boolean)
 
-    const resolver = `${pathParamsType || 'never'}, ${requestBodyType || 'never'}, ${typeName || 'never'}`
-
+  const resolver = `${pathParamsType || 'never'}, ${requestBodyType || 'never'}, ${typeName || 'never'}`
 
   const params = FunctionParams.factory({
     data: {

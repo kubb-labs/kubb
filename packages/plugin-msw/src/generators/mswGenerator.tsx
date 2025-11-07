@@ -36,21 +36,24 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
 
     const responseStatusCodes = operation.getResponseStatusCodes()
 
-    const types: [statusCode: number | 'default', typeName: string][] = []
+    const types: {
+      statusCode: number | 'default'
+      typeName: string
+    }[] = []
 
     for (const code of responseStatusCodes) {
       if (code === 'default') {
-        types.push(['default', type.schemas.response.name])
+        types.push({ statusCode: 'default', typeName: type.schemas.response.name })
         continue
       }
 
       if (code.startsWith('2')) {
-        types.push([Number(code), type.schemas.response.name])
+        types.push({ statusCode: Number(code), typeName: type.schemas.response.name })
         continue
       }
 
       const codeType = type.schemas.errors?.find((err) => err.statusCode === Number(code))
-      if (codeType) types.push([Number(code), codeType.name])
+      if (codeType) types.push({ statusCode: Number(code), typeName: codeType.name })
     }
 
     return (
@@ -64,7 +67,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
         <File.Import name={['http']} path="msw" />
         <File.Import name={['HttpResponseResolver']} isTypeOnly path="msw" />
         <File.Import
-          name={Array.from(new Set([type.schemas.response.name, ...types.map((t) => t[1])]))}
+          name={Array.from(new Set([type.schemas.response.name, ...types.map((t) => t.typeName)]))}
           path={type.file.path}
           root={mock.file.path}
           isTypeOnly
@@ -74,9 +77,9 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
         )}
 
         {types
-          .filter(([code]) => code !== 'default')
-          .map(([code, typeName]) => (
-            <Response typeName={typeName} operation={operation} name={mock.name} statusCode={code as number} />
+          .filter(({ statusCode }) => statusCode !== 'default')
+          .map(({ statusCode, typeName }) => (
+            <Response typeName={typeName} operation={operation} name={mock.name} statusCode={statusCode as number} />
           ))}
         {parser === 'faker' && (
           <MockWithFaker
