@@ -117,7 +117,7 @@
     "zod": "^4.1.12"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.0.0-canary-20251107102106"
+    "@kubb/react-fabric": "0.3.1"
   },
   "engines": {
     "node": ">=20"
