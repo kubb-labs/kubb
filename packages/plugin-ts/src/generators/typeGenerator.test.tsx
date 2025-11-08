@@ -85,6 +85,15 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
+      name: 'DiscriminatorInheritCat',
+      input: '../../mocks/discriminator-inherit.yaml',
+      path: 'Cat',
+      options: {},
+      oasOptions: {
+        discriminator: 'inherit',
+      },
+    },
+    {
       name: 'FooBase',
       input: '../../mocks/discriminator.yaml',
       path: 'FooBase',
@@ -398,10 +407,17 @@ describe('typeGenerator schema', async () => {
     name: string
     path: string
     options: Partial<PluginTs['resolvedOptions']>
+    oasOptions?: {
+      discriminator?: 'strict' | 'inherit'
+    }
   }>
 
   test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
+
+    if (props.oasOptions) {
+      oas.setOptions(props.oasOptions)
+    }
 
     const options: PluginTs['resolvedOptions'] = {
       enumType: 'asConst',

@@ -1,0 +1,40 @@
+openapi: 3.0.3
+info:
+  title: Discriminator inherit
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Animal:
+      type: object
+      required:
+        - type
+      oneOf:
+        - $ref: '#/components/schemas/Cat'
+        - $ref: '#/components/schemas/Dog'
+      properties:
+        type:
+          type: string
+      discriminator:
+        propertyName: type
+        mapping:
+          cat: '#/components/schemas/Cat'
+          dog: '#/components/schemas/Dog'
+    Cat:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+    Dog:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+        bark:
+          type: boolean
