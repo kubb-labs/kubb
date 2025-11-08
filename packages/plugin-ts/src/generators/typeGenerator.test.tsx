@@ -85,6 +85,15 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
+      name: 'DiscriminatorStrictCat',
+      input: '../../mocks/discriminator-inherit.yaml',
+      path: 'Cat',
+      options: {},
+      oasOptions: {
+        discriminator: 'strict',
+      },
+    },
+    {
       name: 'DiscriminatorInheritCat',
       input: '../../mocks/discriminator-inherit.yaml',
       path: 'Cat',
@@ -415,7 +424,7 @@ describe('typeGenerator schema', async () => {
   test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
-    if (props.oasOptions) {
+    if ('oasOptions' in props && props.oasOptions) {
       oas.setOptions(props.oasOptions)
     }
 
