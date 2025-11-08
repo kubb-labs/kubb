@@ -61,6 +61,9 @@ function Pets() {
     },
   )
 
+  console.log(pagedPets)
+  //            ^?
+
   const { data: _pagedPet } = useFindPetsByTagsInfiniteHook(
     {},
     {

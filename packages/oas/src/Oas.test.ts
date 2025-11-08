@@ -48,15 +48,65 @@ describe('Oas filter', async () => {
 
 describe('discriminator inherit', () => {
   test('sets enum on mapped schemas before parsing', () => {
-    const oas = new Oas({ oas: petStore })
+    const discriminatorSpec: OpenAPIV3.Document = {
+      openapi: '3.0.3',
+      info: {
+        title: 'Discriminator inherit',
+        version: '1.0.0',
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Animal: {
+            type: 'object',
+            required: ['type'],
+            oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            properties: {
+              type: {
+                type: 'string',
+              },
+            },
+            discriminator: {
+              propertyName: 'type',
+              mapping: {
+                cat: '#/components/schemas/Cat',
+                dog: '#/components/schemas/Dog',
+              },
+            },
+          },
+          Cat: {
+            type: 'object',
+            required: ['type'],
+            properties: {
+              type: {
+                type: 'string',
+              },
+            },
+          },
+          Dog: {
+            type: 'object',
+            required: ['type'],
+            properties: {
+              type: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const oas = new Oas({ oas: discriminatorSpec })
 
     oas.setOptions({ discriminator: 'inherit' })
 
     const catSchema = oas.get('#/components/schemas/Cat') as OpenAPIV3.SchemaObject
     const dogSchema = oas.get('#/components/schemas/Dog') as OpenAPIV3.SchemaObject
+    const catTypeProperty = catSchema.properties?.type as OpenAPIV3.SchemaObject | undefined
+    const dogTypeProperty = dogSchema.properties?.type as OpenAPIV3.SchemaObject | undefined
 
-    expect(catSchema.properties?.type?.enum).toEqual(['cat'])
-    expect(dogSchema.properties?.type?.enum).toEqual(['dog'])
+    expect(catTypeProperty?.enum).toEqual(['cat'])
+    expect(dogTypeProperty?.enum).toEqual(['dog'])
     expect(catSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
     expect(dogSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
   })
