@@ -1,0 +1,28 @@
+openapi: 3.1.0
+info:
+  title: Vehicle API
+  version: 1.0.0
+
+paths: {}
+
+components:
+  schemas:
+    Vehicle:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+      discriminator:
+        propertyName: type
+        mapping:
+          car: '#/components/schemas/Car'
+      oneOf:
+        - $ref: '#/components/schemas/Car'
+    
+    Car:
+      type: object
+      properties:
+        doors:
+          type: integer
+      required: [type]
