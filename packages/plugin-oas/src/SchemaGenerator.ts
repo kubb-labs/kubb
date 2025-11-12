@@ -636,7 +636,11 @@ export class SchemaGenerator<
       }
 
       if (discriminator) {
-        if (this.context) return [this.#addDiscriminatorToSchema({ schemaObject: schemaWithoutOneOf, schema: union, discriminator }), ...baseItems]
+        // In 'inherit' mode, the discriminator property is already added to child schemas by Oas.getDiscriminator()
+        // so we should NOT add it at the union level
+        if (this.context && this.context.oas.options.discriminator !== 'inherit') {
+          return [this.#addDiscriminatorToSchema({ schemaObject: schemaWithoutOneOf, schema: union, discriminator }), ...baseItems]
+        }
       }
 
       if (schemaWithoutOneOf.properties) {

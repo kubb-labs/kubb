@@ -31,7 +31,14 @@ export class Oas<const TOAS = unknown> extends BaseOas {
   }
 
   setOptions(options: Options) {
-    this.#options = options
+    this.#options = {
+      ...this.#options,
+      ...options,
+    }
+
+    if (this.#options.discriminator === 'inherit') {
+      this.#applyDiscriminatorInheritance()
+    }
   }
 
   get options(): Options {
@@ -73,11 +80,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     }
   }
 
-  getDiscriminator(schema: OasTypes.SchemaObject): OpenAPIV3.DiscriminatorObject | undefined {
-    if (!isDiscriminator(schema)) {
-      return undefined
-    }
-
+  #setDiscriminator(schema: OasTypes.SchemaObject & { discriminator: OpenAPIV3.DiscriminatorObject }): void {
     const { mapping = {}, propertyName } = schema.discriminator
 
     if (this.#options.discriminator === 'inherit') {
@@ -96,13 +99,21 @@ export class Oas<const TOAS = unknown> extends BaseOas {
               enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
             }
 
-            childSchema.required = [...(childSchema.required ?? []), propertyName]
+            childSchema.required = [...new Set([...(childSchema.required ?? []), propertyName])]
 
             this.set(mappingValue, childSchema)
           }
         }
       })
     }
+  }
+
+  getDiscriminator(schema: OasTypes.SchemaObject): OpenAPIV3.DiscriminatorObject | undefined {
+    if (!isDiscriminator(schema)) {
+      return undefined
+    }
+
+    const { mapping = {}, propertyName } = schema.discriminator
 
     // loop over oneOf and add default mapping when none is defined
     if (schema.oneOf) {
@@ -158,6 +169,85 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     }
 
     return schema
+  }
+
+  #applyDiscriminatorInheritance() {
+    const components = this.api.components
+    if (!components?.schemas) {
+      return
+    }
+
+    const visited = new WeakSet<object>()
+    const enqueue = (value: unknown) => {
+      if (!value) {
+        return
+      }
+
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          enqueue(item)
+        }
+        return
+      }
+
+      if (typeof value === 'object') {
+        visit(value as SchemaObject)
+      }
+    }
+
+    const visit = (schema?: SchemaObject | OpenAPIV3.ReferenceObject | null) => {
+      if (!schema || typeof schema !== 'object') {
+        return
+      }
+
+      if (isReference(schema)) {
+        visit(this.get(schema.$ref) as OpenAPIV3.SchemaObject)
+        return
+      }
+
+      const schemaObject = schema as OpenAPIV3.SchemaObject
+
+      if (visited.has(schemaObject as object)) {
+        return
+      }
+
+      visited.add(schemaObject as object)
+
+      if (isDiscriminator(schemaObject)) {
+        this.#setDiscriminator(schemaObject)
+      }
+
+      if ('allOf' in schemaObject) {
+        enqueue(schemaObject.allOf)
+      }
+      if ('oneOf' in schemaObject) {
+        enqueue(schemaObject.oneOf)
+      }
+      if ('anyOf' in schemaObject) {
+        enqueue(schemaObject.anyOf)
+      }
+      if ('not' in schemaObject) {
+        enqueue(schemaObject.not)
+      }
+      if ('items' in schemaObject) {
+        enqueue(schemaObject.items)
+      }
+      if ('prefixItems' in schemaObject) {
+        enqueue(schemaObject.prefixItems)
+      }
+
+      if (schemaObject.properties) {
+        enqueue(Object.values(schemaObject.properties))
+      }
+
+      if (schemaObject.additionalProperties && typeof schemaObject.additionalProperties === 'object') {
+        enqueue(schemaObject.additionalProperties)
+      }
+    }
+
+    for (const schema of Object.values(components.schemas)) {
+      visit(schema as SchemaObject)
+    }
   }
 
   /**
