@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 4.5.9
+
+### Patch Changes
+
+- [#2010](https://github.com/kubb-labs/kubb/pull/2010) [`b334be1`](https://github.com/kubb-labs/kubb/commit/b334be118a3e54f3e76713edc6bfe6a562b10084) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - discriminator `inherit` issue, resolved by applying inherit on setOptions
+
+- Updated dependencies [[`b334be1`](https://github.com/kubb-labs/kubb/commit/b334be118a3e54f3e76713edc6bfe6a562b10084)]:
+  - @kubb/oas@4.5.9
+  - @kubb/core@4.5.9
+
 ## 4.5.8
 
 ### Patch Changes
