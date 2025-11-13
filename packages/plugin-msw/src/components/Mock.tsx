@@ -12,9 +12,20 @@ type Props = {
   fakerName: string
   baseURL: string | undefined
   operation: Operation
+
+  pathParamsType?: string
+  requestBodyType?: string
 }
 
-export function Mock({ baseURL = '', name, typeName, operation }: Props): KubbNode {
+export function Mock({
+  baseURL = '',
+  name,
+  typeName,
+  operation,
+
+  pathParamsType,
+  requestBodyType,
+}: Props): KubbNode {
   const method = operation.method
   const successStatusCodes = operation.getResponseStatusCodes().filter((code) => code.startsWith('2'))
   const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200
@@ -30,11 +41,11 @@ export function Mock({ baseURL = '', name, typeName, operation }: Props): KubbNo
   // If no response schema, uses any type but function to avoid overriding callback
   const dataType = hasResponseSchema ? typeName : 'string | number | boolean | null | object'
 
+  const resolver = `${pathParamsType || 'never'}, ${requestBodyType || 'never'}, ${typeName || 'never'}`
+
   const params = FunctionParams.factory({
     data: {
-      type: `${dataType} | ((
-        info: Parameters<Parameters<typeof http.${method}>[1]>[0],
-      ) => Response | Promise<Response>)`,
+      type: `${dataType} | ResponseResolver<${resolver}>`,
       optional: true,
     },
   })
@@ -42,7 +53,7 @@ export function Mock({ baseURL = '', name, typeName, operation }: Props): KubbNo
   return (
     <File.Source name={name} isIndexable isExportable>
       <Function name={name} export params={params.toConstructor()}>
-        {`return http.${method}('${baseURL}${url.replace(/([^/]):/g, '$1\\\\:')}', function handler(info) {
+        {`return http.${method}<${resolver}>('${baseURL}${url.replace(/([^/]):/g, '$1\\\\:')}', function handler(info) {
     if(typeof data === 'function') return data(info)
 
     return new Response(JSON.stringify(data), {
