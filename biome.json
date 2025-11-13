@@ -24,7 +24,7 @@
       "!**/.codesandbox",
       "!**/.devcontainer",
       "!**/docs/.vitepress",
-      "!**/ceviz-report.htm",
+      "!**/ceviz-report.html",
       "!.nx"
     ]
   },

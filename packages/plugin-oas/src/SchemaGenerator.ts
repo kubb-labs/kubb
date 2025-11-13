@@ -94,91 +94,135 @@ export class SchemaGenerator<
   static deepSearch<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): Array<SchemaKeywordMapper[T]> {
     const foundItems: SchemaKeywordMapper[T][] = []
 
-    tree?.forEach((schema) => {
+    if (!tree) {
+      return foundItems
+    }
+
+    for (const schema of tree) {
       if (schema.keyword === keyword) {
         foundItems.push(schema as SchemaKeywordMapper[T])
       }
 
       if (isKeyword(schema, schemaKeywords.object)) {
-        Object.values(schema.args?.properties || {}).forEach((entrySchema) => {
-          foundItems.push(...SchemaGenerator.deepSearch<T>(entrySchema, keyword))
-        })
+        const properties = schema.args?.properties
+        if (properties) {
+          for (const key of Object.keys(properties)) {
+            const entrySchema = properties[key]
+            if (entrySchema) {
+              foundItems.push(...SchemaGenerator.deepSearch<T>(entrySchema, keyword))
+            }
+          }
+        }
 
-        Object.values(schema.args?.additionalProperties || {}).forEach((entrySchema) => {
-          foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
-        })
+        const additionalProperties = schema.args?.additionalProperties
+        if (additionalProperties) {
+          for (const entrySchema of additionalProperties) {
+            foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
+          }
+        }
       }
 
       if (isKeyword(schema, schemaKeywords.array)) {
-        schema.args.items.forEach((entrySchema) => {
+        for (const entrySchema of schema.args.items) {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
-        })
+        }
       }
 
       if (isKeyword(schema, schemaKeywords.and)) {
-        schema.args.forEach((entrySchema) => {
+        for (const entrySchema of schema.args) {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
-        })
+        }
       }
 
       if (isKeyword(schema, schemaKeywords.tuple)) {
-        schema.args.items.forEach((entrySchema) => {
+        for (const entrySchema of schema.args.items) {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
-        })
+        }
       }
 
       if (isKeyword(schema, schemaKeywords.union)) {
-        schema.args.forEach((entrySchema) => {
+        for (const entrySchema of schema.args) {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
-        })
+        }
       }
-    })
+    }
 
     return foundItems
   }
 
   static find<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T] | undefined {
-    let foundItem: SchemaKeywordMapper[T] | undefined
+    if (!tree) {
+      return undefined
+    }
 
-    tree?.forEach((schema) => {
-      if (!foundItem && schema.keyword === keyword) {
-        foundItem = schema as SchemaKeywordMapper[T]
+    for (const schema of tree) {
+      if (schema.keyword === keyword) {
+        return schema as SchemaKeywordMapper[T]
+      }
+
+      if (isKeyword(schema, schemaKeywords.object)) {
+        const properties = schema.args?.properties
+        if (properties) {
+          for (const key of Object.keys(properties)) {
+            const entrySchema = properties[key]
+            if (entrySchema) {
+              const result = SchemaGenerator.find<T>(entrySchema, keyword)
+              if (result) {
+                return result
+              }
+            }
+          }
+        }
+
+        const additionalProperties = schema.args?.additionalProperties
+        if (additionalProperties) {
+          for (const entrySchema of additionalProperties) {
+            const result = SchemaGenerator.find<T>([entrySchema], keyword)
+            if (result) {
+              return result
+            }
+          }
+        }
       }
 
       if (isKeyword(schema, schemaKeywords.array)) {
-        schema.args.items.forEach((entrySchema) => {
-          if (!foundItem) {
-            foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
+        for (const entrySchema of schema.args.items) {
+          const result = SchemaGenerator.find<T>([entrySchema], keyword)
+          if (result) {
+            return result
           }
-        })
+        }
       }
 
       if (isKeyword(schema, schemaKeywords.and)) {
-        schema.args.forEach((entrySchema) => {
-          if (!foundItem) {
-            foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
+        for (const entrySchema of schema.args) {
+          const result = SchemaGenerator.find<T>([entrySchema], keyword)
+          if (result) {
+            return result
           }
-        })
+        }
       }
 
       if (isKeyword(schema, schemaKeywords.tuple)) {
-        schema.args.items.forEach((entrySchema) => {
-          if (!foundItem) {
-            foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
+        for (const entrySchema of schema.args.items) {
+          const result = SchemaGenerator.find<T>([entrySchema], keyword)
+          if (result) {
+            return result
           }
-        })
+        }
       }
 
       if (isKeyword(schema, schemaKeywords.union)) {
-        schema.args.forEach((entrySchema) => {
-          if (!foundItem) {
-            foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
+        for (const entrySchema of schema.args) {
+          const result = SchemaGenerator.find<T>([entrySchema], keyword)
+          if (result) {
+            return result
           }
-        })
+        }
       }
-    })
+    }
 
-    return foundItem
+    return undefined
   }
 
   static combineObjects(tree: Schema[] | undefined): Schema[] {

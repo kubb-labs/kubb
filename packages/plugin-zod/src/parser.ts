@@ -1,7 +1,17 @@
 import transformers from '@kubb/core/transformers'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
-import { isKeyword, SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
+import {
+  createSchemaKeywordMap,
+  createSchemaKeywordSet,
+  getSchemaByKeyword,
+  hasKeyword,
+  isKeyword,
+  SchemaGenerator,
+  type SchemaKeywordMapper,
+  type SchemaTree,
+  schemaKeywords,
+} from '@kubb/plugin-oas'
 
 //TODO add zodKeywordMapper as function that returns 3 versions: v3, v4 and v4 mini, this can also be used to have the custom mapping(see object type)
 // also include shouldCoerce
@@ -268,8 +278,9 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
   const value = zodKeywordMapper[current.keyword as keyof typeof zodKeywordMapper]
 
   // Early exit: if siblings contain both matches and ref → skip matches entirely
-  const hasMatches = siblings.some((it) => isKeyword(it, schemaKeywords.matches))
-  const hasRef = siblings.some((it) => isKeyword(it, schemaKeywords.ref))
+  const siblingsKeywordSet = createSchemaKeywordSet(siblings)
+  const hasMatches = hasKeyword(siblingsKeywordSet, schemaKeywords.matches)
+  const hasRef = hasKeyword(siblingsKeywordSet, schemaKeywords.ref)
 
   if (hasMatches && hasRef && isKeyword(current, schemaKeywords.matches)) {
     return undefined // strip matches
@@ -361,18 +372,26 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
   }
 
   if (isKeyword(current, schemaKeywords.object)) {
-    const propertyEntries = Object.entries(current.args?.properties || {}).filter((item) => {
-      const schema = item[1]
-      return schema && typeof schema.map === 'function'
-    })
+    const properties = current.args?.properties || {}
+    const filteredProperties: Array<[string, Schema[]]> = []
 
-    const properties = propertyEntries
+    for (const propertyName of Object.keys(properties)) {
+      const schemas = properties[propertyName]
+      if (schemas && typeof schemas.map === 'function') {
+        filteredProperties.push([propertyName, schemas])
+      }
+    }
+
+    const propertiesResult = filteredProperties
       .map(([propertyName, schemas]) => {
-        const nameSchema = schemas.find((it) => it.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
-        const isNullable = schemas.some((it) => isKeyword(it, schemaKeywords.nullable))
-        const isNullish = schemas.some((it) => isKeyword(it, schemaKeywords.nullish))
-        const isOptional = schemas.some((it) => isKeyword(it, schemaKeywords.optional))
-        const hasRef = !!SchemaGenerator.find(schemas, schemaKeywords.ref)
+        // Create Map and Set once per property instead of multiple .find()/.some() calls
+        const schemasKeywordMap = createSchemaKeywordMap(schemas)
+        const schemasKeywordSet = createSchemaKeywordSet(schemas)
+        const nameSchema = getSchemaByKeyword(schemasKeywordMap, schemaKeywords.name) as SchemaKeywordMapper['name']
+        const isNullable = hasKeyword(schemasKeywordSet, schemaKeywords.nullable)
+        const isNullish = hasKeyword(schemasKeywordSet, schemaKeywords.nullish)
+        const isOptional = hasKeyword(schemasKeywordSet, schemaKeywords.optional)
+        const hasRef = schemasKeywordMap.has(schemaKeywords.ref)
 
         const mappedName = nameSchema?.args || propertyName
 
@@ -381,10 +400,15 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
           return `"${propertyName}": ${options.mapper?.[mappedName]}`
         }
 
-        const baseSchemaOutput = sort(schemas)
-          .filter((schema) => {
-            return !isKeyword(schema, schemaKeywords.optional) && !isKeyword(schema, schemaKeywords.nullable) && !isKeyword(schema, schemaKeywords.nullish)
-          })
+        const filteredSchemas: Schema[] = []
+        for (const schema of schemas) {
+          const keyword = schema.keyword
+          if (keyword !== schemaKeywords.optional && keyword !== schemaKeywords.nullable && keyword !== schemaKeywords.nullish) {
+            filteredSchemas.push(schema)
+          }
+        }
+
+        const baseSchemaOutput = sort(filteredSchemas)
           .map((it) => {
             const lazy = !(options.version === '4' && hasRef)
             return parse({ schema, parent: current, name, current: it, siblings: schemas }, { ...options, lazy })
@@ -450,7 +474,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
       : undefined
 
     const text = [
-      zodKeywordMapper.object(properties, current.args?.strict, options.version),
+      zodKeywordMapper.object(propertiesResult, current.args?.strict, options.version),
       additionalProperties ? zodKeywordMapper.catchall(additionalProperties) : undefined,
     ].filter(Boolean)
 

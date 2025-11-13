@@ -5,10 +5,14 @@ import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
 export default defineConfig(async () => {
-  await setTimeout(() => {
-    // wait for 1s, async behaviour
-    return Promise.resolve(true)
-  }, 1000)
+  await new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      resolve(timeout)
+    }, 1000)
+  }).then((timeout) => {
+    clearTimeout(timeout)
+  })
+
   return {
     root: '.',
     input: {

@@ -175,3 +175,40 @@ export type SchemaTree = {
 export function isKeyword<T extends Schema, K extends keyof SchemaKeywordMapper>(meta: T, keyword: K): meta is Extract<T, SchemaKeywordMapper[K]> {
   return meta.keyword === keyword
 }
+
+/**
+ * Creates a Map of schemas indexed by keyword
+ * Note: If multiple schemas have the same keyword, the last one is kept.
+ */
+export function createSchemaKeywordMap(schemas: Schema[]): Map<string, Schema> {
+  const map = new Map<string, Schema>()
+  for (const schema of schemas) {
+    map.set(schema.keyword, schema)
+  }
+  return map
+}
+
+/**
+ * Creates a Set of keyword strings for O(1) membership checks.
+ */
+export function createSchemaKeywordSet(schemas: Schema[]): Set<string> {
+  const set = new Set<string>()
+  for (const schema of schemas) {
+    set.add(schema.keyword)
+  }
+  return set
+}
+
+/**
+ * Gets a schema by keyword
+ */
+export function getSchemaByKeyword<T extends keyof SchemaKeywordMapper>(keywordMap: Map<string, Schema>, keyword: T): SchemaKeywordMapper[T] | undefined {
+  return keywordMap.get(keyword) as SchemaKeywordMapper[T] | undefined
+}
+
+/**
+ * Checks if a keyword exists in schemas
+ */
+export function hasKeyword(keywordSet: Set<string>, keyword: string): boolean {
+  return keywordSet.has(keyword)
+}
