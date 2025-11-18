@@ -8,7 +8,7 @@ outline: deep
 # Generators <a href="/plugins/plugin-oas"><Badge type="info" text="@kubb/plugin-oas" /></a>
 
 In Kubb, generators are functions that allow developers to hook into the framework’s file generation process to create, modify, or extend code automatically.
-Generators are central to Kubb’s workflow, enabling the automated generation of code such as API clients, React-Query hooks, TypeScrip types, or other files based on specific input(Swagger and OpenAPI specifications).
+Generators are central to Kubb’s workflow, enabling the automated generation of code such as API clients, React-Query hooks, TypeScript types, or other files based on specific input(Swagger and OpenAPI specifications).
 
 Let's say you want to add some extra code after a generated client with [`@kubb/plugin-client`](/plugins/plugin-client#generators), to make that happen you can either:
 - Use the option [`footer`](/plugins/plugin-client/#output-footer)
