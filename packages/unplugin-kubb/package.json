@@ -99,10 +99,10 @@
 		"@kubb/core": "workspace:*",
 		"@nuxt/kit": "^3.20.1",
 		"@nuxt/schema": "^3.20.1",
-		"rimraf": "^6.1.0",
-		"rollup": "^4.53.2",
+		"rimraf": "^6.1.2",
+		"rollup": "^4.53.3",
 		"vite": "^6.4.1",
-		"webpack": "^5.102.1"
+		"webpack": "^5.103.0"
 	},
 	"peerDependencies": {
 		"@kubb/core": "^4.0.0",

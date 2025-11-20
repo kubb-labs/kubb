@@ -4,6 +4,12 @@ title: Changelog
 
 # Changelog
 
+# 4.5.11
+- upgrade to have latest react-fabric version
+
+# 4.5.10
+- upgrade to have latest react-fabric version
+
 # 4.5.9
 - [`plugin-oas`](/plugins/plugin-oas/): discriminator `inherit` issue, resolved by applying inherit on setOptions
 

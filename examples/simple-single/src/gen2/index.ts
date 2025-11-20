@@ -1217,6 +1217,23 @@ export const machinesShowMetadata200Schema = z.object({}).catchall(z.string())
 
 export const machinesShowMetadataQueryResponseSchema = machinesShowMetadata200Schema
 
+export const machinesPatchMetadataPathParamsSchema = z.object({
+  app_name: z.string().describe('Fly App Name'),
+  machine_id: z.string().describe('Machine ID'),
+})
+
+/**
+ * @description No Content
+ */
+export const machinesPatchMetadata204Schema = z.any()
+
+/**
+ * @description Bad Request
+ */
+export const machinesPatchMetadata400Schema = errorResponseSchema
+
+export const machinesPatchMetadataMutationResponseSchema = machinesPatchMetadata204Schema
+
 export const machinesUpdateMetadataPathParamsSchema = z.object({
   app_name: z.string().describe('Fly App Name'),
   machine_id: z.string().describe('Machine ID'),
