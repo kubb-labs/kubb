@@ -1,6 +1,6 @@
-import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
-import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../../models/ts/petController/AddFiles.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { AddFilesMutationRequest, AddFilesMutationResponse, AddFiles405 } from '../../../models/ts/petController/AddFiles.ts'
 
 export function getAddFilesUrl() {
   const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/pet/files' as const }
@@ -25,6 +25,10 @@ export async function addFiles(
       const value = requestData[key as keyof typeof requestData]
       if (typeof value === 'string' || (value as unknown) instanceof Blob) {
         formData.append(key, value as unknown as string | Blob)
+      } else if (Array.isArray(value) && value.every((item) => item instanceof Blob)) {
+        value.forEach((file) => {
+          formData.append(key, file)
+        })
       } else {
         formData.append(key, JSON.stringify(value))
       }
