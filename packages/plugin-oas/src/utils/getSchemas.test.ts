@@ -132,4 +132,67 @@ describe('getSchemas', () => {
 
     expect(result).toEqual({})
   })
+
+  it('should order schemas with oneOf circular dependencies correctly', async () => {
+    const oas = await parse({
+      openapi: '3.0.0',
+      components: {
+        schemas: {
+          TypeSchema: {
+            oneOf: [{ $ref: '#/components/schemas/ObjectSchema' }, { $ref: '#/components/schemas/StringSchema' }],
+            discriminator: {
+              propertyName: 'type',
+              mapping: {
+                object: '#/components/schemas/ObjectSchema',
+                string: '#/components/schemas/StringSchema',
+              },
+            },
+          },
+          ObjectSchema: {
+            type: 'object',
+            required: ['type', 'value'],
+            properties: {
+              type: {
+                type: 'string',
+                enum: ['object'],
+              },
+              value: {
+                type: 'object',
+                additionalProperties: {
+                  $ref: '#/components/schemas/TypeSchema',
+                },
+              },
+            },
+          },
+          StringSchema: {
+            type: 'object',
+            required: ['type', 'value'],
+            properties: {
+              type: {
+                type: 'string',
+                enum: ['string'],
+              },
+              value: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    } as unknown as OasTypes.OASDocument)
+
+    const result = getSchemas({ oas })
+    const keys = Object.keys(result)
+
+    // TypeSchema should come AFTER ObjectSchema and StringSchema
+    // because it references them in oneOf
+    const typeSchemaIndex = keys.indexOf('TypeSchema')
+    const objectSchemaIndex = keys.indexOf('ObjectSchema')
+    const stringSchemaIndex = keys.indexOf('StringSchema')
+
+    expect(typeSchemaIndex).toBeGreaterThan(objectSchemaIndex)
+    expect(typeSchemaIndex).toBeGreaterThan(stringSchemaIndex)
+
+    expect(result).toMatchSnapshot()
+  })
 })

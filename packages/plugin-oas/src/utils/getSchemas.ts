@@ -37,32 +37,73 @@ function collectRefs(schema: unknown, refs = new Set<string>()): Set<string> {
 
 /**
  * Sort schemas topologically so referenced schemas appear first.
+ * For schemas with circular dependencies, ensure that schemas referenced
+ * in oneOf/anyOf are defined before the schema that references them.
  */
 function sortSchemas(schemas: Record<string, OasTypes.SchemaObject>): Record<string, OasTypes.SchemaObject> {
   const deps = new Map<string, string[]>()
+  const oneOfDeps = new Map<string, string[]>()
 
+  // Collect all dependencies and specifically track oneOf/anyOf dependencies
   for (const [name, schema] of Object.entries(schemas)) {
-    deps.set(name, Array.from(collectRefs(schema)))
+    const allRefs = Array.from(collectRefs(schema))
+    deps.set(name, allRefs)
+
+    // Track oneOf/anyOf refs separately
+    const oneOfRefs: string[] = []
+    if (schema.oneOf) {
+      for (const item of schema.oneOf) {
+        const refs = collectRefs(item)
+        oneOfRefs.push(...Array.from(refs))
+      }
+    }
+    if (schema.anyOf) {
+      for (const item of schema.anyOf) {
+        const refs = collectRefs(item)
+        oneOfRefs.push(...Array.from(refs))
+      }
+    }
+    if (oneOfRefs.length > 0) {
+      oneOfDeps.set(name, oneOfRefs)
+    }
   }
 
   const sorted: string[] = []
   const visited = new Set<string>()
+  const inProgress = new Set<string>()
 
   function visit(name: string, stack = new Set<string>()) {
     if (visited.has(name)) {
       return
     }
     if (stack.has(name)) {
+      // Circular dependency detected
       return
-    } // circular refs, ignore
+    }
+    
     stack.add(name)
+    inProgress.add(name)
+    
     const children = deps.get(name) || []
-    for (const child of children) {
-      if (deps.has(child)) {
+    const oneOfChildren = oneOfDeps.get(name) || []
+    
+    // For schemas with oneOf/anyOf, prioritize visiting those dependencies first
+    // to ensure they are defined before the union
+    for (const child of oneOfChildren) {
+      if (deps.has(child) && !inProgress.has(child)) {
         visit(child, stack)
       }
     }
+    
+    // Then visit other dependencies
+    for (const child of children) {
+      if (deps.has(child) && !oneOfChildren.includes(child) && !inProgress.has(child)) {
+        visit(child, stack)
+      }
+    }
+    
     stack.delete(name)
+    inProgress.delete(name)
     visited.add(name)
     sorted.push(name)
   }

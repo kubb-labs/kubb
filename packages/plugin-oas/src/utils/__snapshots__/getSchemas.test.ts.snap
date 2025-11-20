@@ -45,6 +45,67 @@ exports[`getSchemas > should include schemas from responses when enabled 1`] = `
 }
 `;
 
+exports[`getSchemas > should order schemas with oneOf circular dependencies correctly 1`] = `
+{
+  "ObjectSchema": {
+    "properties": {
+      "type": {
+        "enum": [
+          "object",
+        ],
+        "type": "string",
+      },
+      "value": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/TypeSchema",
+        },
+        "type": "object",
+      },
+    },
+    "required": [
+      "type",
+      "value",
+    ],
+    "type": "object",
+  },
+  "StringSchema": {
+    "properties": {
+      "type": {
+        "enum": [
+          "string",
+        ],
+        "type": "string",
+      },
+      "value": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "type",
+      "value",
+    ],
+    "type": "object",
+  },
+  "TypeSchema": {
+    "discriminator": {
+      "mapping": {
+        "object": "#/components/schemas/ObjectSchema",
+        "string": "#/components/schemas/StringSchema",
+      },
+      "propertyName": "type",
+    },
+    "oneOf": [
+      {
+        "$ref": "#/components/schemas/ObjectSchema",
+      },
+      {
+        "$ref": "#/components/schemas/StringSchema",
+      },
+    ],
+  },
+}
+`;
+
 exports[`getSchemas > should respect custom contentType when multiple exist 1`] = `
 {
   "TestResponse": {
