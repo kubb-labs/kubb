@@ -1,12 +1,12 @@
-import { z } from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
+  FindPetsByStatusPathParams,
   FindPetsByStatus200,
   FindPetsByStatus400,
-  FindPetsByStatusPathParams,
   FindPetsByStatusQueryResponse,
 } from '../../models/ts/petController/FindPetsByStatus.ts'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import { petSchema } from '../petSchema.ts'
+import { z } from 'zod'
 
 export const findPetsByStatusPathParamsSchema = z.object({
   step_id: z.string(),
