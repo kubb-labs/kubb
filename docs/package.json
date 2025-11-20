@@ -24,7 +24,7 @@
     "@shikijs/vitepress-twoslash": "^3.15.0",
     "mermaid": "^11.12.1",
     "sitemap": "^8.0.2",
-    "vitepress": "2.0.0-alpha.12",
+    "vitepress": "2.0.0-alpha.13",
     "vitepress-plugin-group-icons": "^1.6.5",
     "vitepress-plugin-llms": "^1.9.3",
     "vue": "^3.5.24"
