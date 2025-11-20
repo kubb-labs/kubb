@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.6/schema.json",
   "assist": {
     "enabled": true,
     "actions": {
@@ -74,7 +74,8 @@
       "correctness": {
         "noEmptyPattern": "off",
         "noConstructorReturn": "off",
-        "noUnsafeOptionalChaining": "off"
+        "noUnsafeOptionalChaining": "off",
+        "noUnusedPrivateClassMembers": "off"
       },
       "performance": {
         "noAccumulatingSpread": "off"

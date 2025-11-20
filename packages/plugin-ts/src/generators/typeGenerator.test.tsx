@@ -393,15 +393,40 @@ describe('typeGenerator schema', async () => {
       path: 'Nullable',
       options: {},
     },
+    {
+      name: 'DiscriminatorStrictVehicle',
+      input: '../../mocks/discriminator.yaml',
+      path: 'Vehicle',
+      options: {},
+      oasOptions: {
+        discriminator: 'strict',
+      },
+    },
+    {
+      name: 'DiscriminatorInheritVehicle',
+      input: '../../mocks/discriminator.yaml',
+      path: 'Vehicle',
+      options: {},
+      oasOptions: {
+        discriminator: 'inherit',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
     path: string
     options: Partial<PluginTs['resolvedOptions']>
+    oasOptions?: {
+      discriminator?: 'strict' | 'inherit'
+    }
   }>
 
   test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
+
+    if ('oasOptions' in props && props.oasOptions) {
+      oas.setOptions(props.oasOptions)
+    }
 
     const options: PluginTs['resolvedOptions'] = {
       enumType: 'asConst',

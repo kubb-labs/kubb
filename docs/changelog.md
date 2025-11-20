@@ -4,6 +4,21 @@ title: Changelog
 
 # Changelog
 
+# 4.5.11
+- upgrade to have latest react-fabric version
+
+# 4.5.10
+- upgrade to have latest react-fabric version
+
+# 4.5.9
+- [`plugin-oas`](/plugins/plugin-oas/): discriminator `inherit` issue, resolved by applying inherit on setOptions
+
+# 4.5.8
+- Rebuild core packages
+
+# 4.5.7
+- Rebuild core packages
+
 # 4.5.6
 - [`core`](/plugins/core): Correct type for Plugins
 
