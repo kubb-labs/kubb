@@ -170,8 +170,8 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
           {
             name: 'config',
             value: resolveModuleSource('@kubb/plugin-client/templates/config').source,
-            isExportable: true,
-            isIndexable: true,
+            isExportable: false,
+            isIndexable: false,
           },
         ],
       })

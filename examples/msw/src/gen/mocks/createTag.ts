@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { faker } from '@faker-js/faker'
 import type { Tag } from '../models/Tag.ts'
+import { faker } from '@faker-js/faker'
 
 export function createTag(data?: Partial<Tag>): Tag {
   faker.seed([220])

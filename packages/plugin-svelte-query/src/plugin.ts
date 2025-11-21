@@ -158,8 +158,8 @@ export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
           {
             name: 'config',
             value: resolveModuleSource('@kubb/plugin-client/templates/config').source,
-            isExportable: true,
-            isIndexable: true,
+            isExportable: false,
+            isIndexable: false,
           },
         ],
       })

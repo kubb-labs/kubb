@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod'
 import { petNotFoundSchema } from './petNotFoundSchema.js'
+import { z } from 'zod'
 
 export const createPetsPathParamsSchema = z.object({
   uuid: z.string().describe('UUID'),

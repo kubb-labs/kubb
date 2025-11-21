@@ -14,11 +14,11 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation } from '@tanstack/svelte-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser.ts'
+import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { fetch } from '../.kubb/fetch.ts'
-import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../models/DeleteUser.ts'
+import { createMutation } from '@tanstack/svelte-query'
 
 export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const
 
