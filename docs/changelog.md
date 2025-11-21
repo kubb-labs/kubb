@@ -4,7 +4,10 @@ title: Changelog
 
 # Changelog
 
-# 4.5.12 (Unreleased)
+# 4.5.13
+- [`plugin-client`](/plugins/plugin-client): Type 'FormData' is missing the following properties from type at generated hooks
+
+# 4.5.12
 - [`plugin-zod`](/plugins/plugin-zod): Fix circular dependency issues by wrapping all schema references in `z.lazy()` to prevent "used before declaration" errors with `oneOf`/`anyOf` constructs
 - [`plugin-swr`](/plugins/plugin-swr/): Fix SWR mutation type issue by using `SWRMutationConfiguration` directly instead of `Parameters<typeof useSWRMutation>[2]`. This resolves type inference issues caused by SWR's function overloading based on `throwOnError`, allowing flexible definition and passing of mutation configuration options.
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): Fixed potential runtime errors when handling undefined schemas

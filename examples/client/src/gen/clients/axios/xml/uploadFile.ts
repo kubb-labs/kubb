@@ -59,7 +59,7 @@ export async function uploadFileXML(
     method: 'POST',
     url: getUploadFileUrlXML({ petId }).url.toString(),
     params,
-    data: formData,
+    data: formData as FormData,
     ...requestConfig,
   })
   return res.data

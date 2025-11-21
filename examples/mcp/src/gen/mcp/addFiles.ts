@@ -38,7 +38,7 @@ export async function addFilesHandler({ data }: { data: AddFilesMutationRequest 
     method: 'POST',
     url: '/pet/files',
     baseURL: 'https://petstore.swagger.io/v2',
-    data: formData,
+    data: formData as FormData,
   })
   return {
     content: [
