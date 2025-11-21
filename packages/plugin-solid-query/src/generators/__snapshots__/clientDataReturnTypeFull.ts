@@ -34,11 +34,11 @@ export async function findPetsByTags(
 }
 
 export function findPetsByTagsQueryOptions(
-  headers: FindPetsByTagsHeaderParams,
-  params?: FindPetsByTagsQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+  headers: () => FindPetsByTagsHeaderParams,
+  params?: () => FindPetsByTagsQueryParams,
+  config: () => Partial<RequestConfig> & { client?: typeof fetch } = () => ({}),
 ) {
-  const queryKey = findPetsByTagsQueryKey(params)
+  const queryKey = findPetsByTagsQueryKey(params?.())
   return queryOptions<
     ResponseConfig<FindPetsByTagsQueryResponse>,
     ResponseErrorConfig<FindPetsByTags400>,
@@ -47,8 +47,9 @@ export function findPetsByTagsQueryOptions(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
-      return findPetsByTags(headers, params, config)
+      const unwrappedConfig = config?.() ?? {}
+      unwrappedConfig.signal = signal
+      return findPetsByTags(headers?.(), params?.(), config?.())
     },
   })
 }
@@ -63,22 +64,22 @@ export function createFindPetsByTags<
   TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(
-  headers: FindPetsByTagsHeaderParams,
-  params?: FindPetsByTagsQueryParams,
-  options: {
+  headers: () => FindPetsByTagsHeaderParams,
+  params?: () => FindPetsByTagsQueryParams,
+  options: () => {
     query?: Partial<UseBaseQueryOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
-  } = {},
+  } = () => ({}),
 ) {
-  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options?.() ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
+  const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params?.())
 
   const query = useQuery(
     () => ({
-      ...(findPetsByTagsQueryOptions(headers, params, config) as unknown as UseBaseQueryOptions),
+      ...(findPetsByTagsQueryOptions(headers?.(), params?.(), config) as unknown as UseBaseQueryOptions),
       queryKey,
       initialData: null,
       ...(queryOptions as unknown as Omit<UseBaseQueryOptions, 'queryKey'>),

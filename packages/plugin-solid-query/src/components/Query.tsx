@@ -36,39 +36,47 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   if (paramsType === 'object') {
+    // Wrap pathParams in accessor functions for Solid reactivity
+    const pathParamsChildren = typeSchemas.pathParams 
+      ? Object.fromEntries(
+          Object.entries(getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }))
+            .map(([key, value]) => [key, value ? { ...value, type: `() => ${value.type}` } : value])
+        )
+      : {}
+    
     return FunctionParams.factory({
       data: {
         mode: 'object',
         children: {
-          ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+          ...pathParamsChildren,
           data: typeSchemas.request?.name
             ? {
-                type: typeSchemas.request?.name,
+                type: `() => ${typeSchemas.request?.name}`,
                 optional: isOptional(typeSchemas.request?.schema),
               }
             : undefined,
           params: typeSchemas.queryParams?.name
             ? {
-                type: typeSchemas.queryParams?.name,
+                type: `() => ${typeSchemas.queryParams?.name}`,
                 optional: isOptional(typeSchemas.queryParams?.schema),
               }
             : undefined,
           headers: typeSchemas.headerParams?.name
             ? {
-                type: typeSchemas.headerParams?.name,
+                type: `() => ${typeSchemas.headerParams?.name}`,
                 optional: isOptional(typeSchemas.headerParams?.schema),
               }
             : undefined,
         },
       },
       options: {
-        type: `
+        type: `() => 
 {
   query?: Partial<UseBaseQueryOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
-        default: '{}',
+        default: '() => ({})',
       },
     })
   }
@@ -83,30 +91,30 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       : undefined,
     data: typeSchemas.request?.name
       ? {
-          type: typeSchemas.request?.name,
+          type: `() => ${typeSchemas.request?.name}`,
           optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
-          type: typeSchemas.queryParams?.name,
+          type: `() => ${typeSchemas.queryParams?.name}`,
           optional: isOptional(typeSchemas.queryParams?.schema),
         }
       : undefined,
     headers: typeSchemas.headerParams?.name
       ? {
-          type: typeSchemas.headerParams?.name,
+          type: `() => ${typeSchemas.headerParams?.name}`,
           optional: isOptional(typeSchemas.headerParams?.schema),
         }
       : undefined,
     options: {
-      type: `
+      type: `() => 
 {
   query?: Partial<UseBaseQueryOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
-      default: '{}',
+      default: '() => ({})',
     },
   })
 }
@@ -147,7 +155,28 @@ export function Query({
     typeSchemas,
   })
 
-  const queryOptions = `${queryOptionsName}(${queryOptionsParams.toCall()}) as unknown as UseBaseQueryOptions`
+  // Build the unwrapped parameter calls using transformName to call accessor functions
+  const unwrappedQueryKeyCall = queryKeyParams.toCall({
+    transformName(name) {
+      const param = params.flatParams[name]
+      if (param && param.type?.startsWith('() =>')) {
+        return `${name}?.()`
+      }
+      return name
+    },
+  })
+  
+  const unwrappedQueryOptionsCall = queryOptionsParams.toCall({
+    transformName(name) {
+      const param = params.flatParams[name]
+      if (param && param.type?.startsWith('() =>')) {
+        return `${name}?.()`
+      }
+      return name
+    },
+  })
+
+  const queryOptions = `${queryOptionsName}(${unwrappedQueryOptionsCall}) as unknown as UseBaseQueryOptions`
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -160,10 +189,10 @@ export function Query({
           comments: getComments(operation),
         }}
       >
-        {`
-       const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  {`
+       const { query: queryConfig = {}, client: config = {} } = options?.() ?? {}
        const { client: queryClient, ...queryOptions } = queryConfig
-       const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
+       const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${unwrappedQueryKeyCall})
 
        const query = useQuery(() => ({
         ...${queryOptions},
