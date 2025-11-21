@@ -69,7 +69,7 @@ describe('getBarrelFiles', () => {
       },
     ]
 
-    await fileManager.add(...files)
+    await fileManager.upsert(...files)
 
     const barrelFiles = await getBarrelFiles(fileManager.files, {
       type: 'all',
@@ -79,7 +79,7 @@ describe('getBarrelFiles', () => {
       },
     })
 
-    await fileManager.add(...barrelFiles)
+    await fileManager.upsert(...barrelFiles)
 
     const processedFiles = fileManager.files
 
