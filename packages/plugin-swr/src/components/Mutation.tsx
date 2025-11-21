@@ -35,6 +35,7 @@ type GetParamsProps = {
 function getParams({ pathParamsType, paramsCasing, dataReturnType, typeSchemas, mutationKeyTypeName }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const TExtraArg = typeSchemas.request?.name || 'never'
 
   return FunctionParams.factory({
     pathParams: {
@@ -56,7 +57,7 @@ function getParams({ pathParamsType, paramsCasing, dataReturnType, typeSchemas, 
     options: {
       type: `
 {
-  mutation?: Parameters<typeof useSWRMutation<${[TData, TError, mutationKeyTypeName, typeSchemas.request?.name].filter(Boolean).join(', ')}>>[2],
+  mutation?: SWRMutationConfiguration<${TData}, ${TError}, ${mutationKeyTypeName} | null, ${TExtraArg}> & { throwOnError?: boolean },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'},
   shouldFetch?: boolean,
 }

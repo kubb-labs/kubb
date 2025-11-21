@@ -3,10 +3,11 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
-import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../models/DeleteUser.ts'
+import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
 export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const
 
@@ -36,7 +37,9 @@ export async function deleteUser(username: DeleteUserPathParams['username'], con
 export function useDeleteUser(
   username: DeleteUserPathParams['username'],
   options: {
-    mutation?: Parameters<typeof useSWRMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, DeleteUserMutationKey>>[2]
+    mutation?: SWRMutationConfiguration<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, DeleteUserMutationKey | null, never> & {
+      throwOnError?: boolean
+    }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},

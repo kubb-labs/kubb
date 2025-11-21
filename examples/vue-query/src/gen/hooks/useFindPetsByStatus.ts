@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
+import type { QueryClient, QueryKey, UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import { queryOptions, useQuery } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
 import { toValue } from 'vue'
-import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetcher.ts'
-import fetch from '../.kubb/fetcher.ts'
 import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus.ts'
 
 export const findPetsByStatusQueryKey = (params?: MaybeRefOrGetter<FindPetsByStatusQueryParams>) =>
@@ -59,7 +59,7 @@ export function useFindPetsByStatus<
 >(
   params?: MaybeRefOrGetter<FindPetsByStatusQueryParams>,
   options: {
-    query?: Partial<QueryObserverOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, TData, TQueryData, TQueryKey>> & {
+    query?: Partial<UseQueryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -67,15 +67,15 @@ export function useFindPetsByStatus<
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
+  const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? findPetsByStatusQueryKey(params)
 
   const query = useQuery(
     {
       ...findPetsByStatusQueryOptions(params, config),
-      queryKey,
       ...queryOptions,
-    } as unknown as QueryObserverOptions,
-    queryClient,
+      queryKey,
+    } as unknown as UseQueryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, TData, FindPetsByStatusQueryResponse, TQueryKey>,
+    toValue(queryClient),
   ) as UseQueryReturnType<TData, ResponseErrorConfig<FindPetsByStatus400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey

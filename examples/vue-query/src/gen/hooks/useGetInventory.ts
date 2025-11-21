@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
+import type { QueryClient, QueryKey, UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import { queryOptions, useQuery } from '@tanstack/vue-query'
 import { toValue } from 'vue'
-import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetcher.ts'
-import fetch from '../.kubb/fetcher.ts'
 import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
 
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
@@ -44,21 +44,21 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> & { clie
  */
 export function useGetInventory<TData = GetInventoryQueryResponse, TQueryData = GetInventoryQueryResponse, TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
-    query?: Partial<QueryObserverOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>> & { client?: QueryClient }
+    query?: Partial<UseQueryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
+  const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? getInventoryQueryKey()
 
   const query = useQuery(
     {
       ...getInventoryQueryOptions(config),
-      queryKey,
       ...queryOptions,
-    } as unknown as QueryObserverOptions,
-    queryClient,
+      queryKey,
+    } as unknown as UseQueryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, TData, GetInventoryQueryResponse, TQueryKey>,
+    toValue(queryClient),
   ) as UseQueryReturnType<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey

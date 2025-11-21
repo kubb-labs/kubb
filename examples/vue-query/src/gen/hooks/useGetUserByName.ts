@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
+import type { QueryClient, QueryKey, UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import { queryOptions, useQuery } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
 import { toValue } from 'vue'
-import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetcher.ts'
-import fetch from '../.kubb/fetcher.ts'
 import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName.ts'
 
 export const getUserByNameQueryKey = ({ username }: { username: MaybeRefOrGetter<GetUserByNamePathParams['username']> }) =>
@@ -60,23 +60,29 @@ export function useGetUserByName<
 >(
   { username }: { username: MaybeRefOrGetter<GetUserByNamePathParams['username']> },
   options: {
-    query?: Partial<
-      QueryObserverOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>
-    > & { client?: QueryClient }
+    query?: Partial<UseQueryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>> & {
+      client?: QueryClient
+    }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey({ username })
+  const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? getUserByNameQueryKey({ username })
 
   const query = useQuery(
     {
       ...getUserByNameQueryOptions({ username }, config),
-      queryKey,
       ...queryOptions,
-    } as unknown as QueryObserverOptions,
-    queryClient,
+      queryKey,
+    } as unknown as UseQueryOptions<
+      GetUserByNameQueryResponse,
+      ResponseErrorConfig<GetUserByName400 | GetUserByName404>,
+      TData,
+      GetUserByNameQueryResponse,
+      TQueryKey
+    >,
+    toValue(queryClient),
   ) as UseQueryReturnType<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey

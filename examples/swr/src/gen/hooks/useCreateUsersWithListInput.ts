@@ -3,10 +3,11 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
 export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
 
@@ -41,14 +42,12 @@ export async function createUsersWithListInput(
  */
 export function useCreateUsersWithListInput(
   options: {
-    mutation?: Parameters<
-      typeof useSWRMutation<
-        CreateUsersWithListInputMutationResponse,
-        ResponseErrorConfig<Error>,
-        CreateUsersWithListInputMutationKey,
-        CreateUsersWithListInputMutationRequest
-      >
-    >[2]
+    mutation?: SWRMutationConfiguration<
+      CreateUsersWithListInputMutationResponse,
+      ResponseErrorConfig<Error>,
+      CreateUsersWithListInputMutationKey | null,
+      CreateUsersWithListInputMutationRequest
+    > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},

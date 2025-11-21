@@ -1,13 +1,13 @@
 import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
+import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import type {
-  GetUserByNameQueryResponse,
-  GetUserByNamePathParams,
   GetUserByName400,
   GetUserByName404,
+  GetUserByNamePathParams,
+  GetUserByNameQueryResponse,
 } from '../../../models/ts/userController/GetUserByName.ts'
-import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { getUserByName } from '../../axios/userService/getUserByName.ts'
 
 export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) =>

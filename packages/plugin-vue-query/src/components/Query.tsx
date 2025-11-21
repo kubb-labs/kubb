@@ -73,7 +73,7 @@ function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, t
       options: {
         type: `
 {
-  query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
+  query?: Partial<UseQueryOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
@@ -118,7 +118,7 @@ function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, t
     options: {
       type: `
 {
-  query?: Partial<QueryObserverOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
+  query?: Partial<UseQueryOptions<${[TData, TError, 'TData', 'TQueryData', 'TQueryKey'].join(', ')}>> & { client?: QueryClient },
   client?: ${typeSchemas.request?.name ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }` : 'Partial<RequestConfig> & { client?: typeof fetch }'}
 }
 `,
@@ -179,13 +179,13 @@ export function Query({
         {`
        const { query: queryConfig = {}, client: config = {} } = options ?? {}
        const { client: queryClient, ...queryOptions } = queryConfig
-       const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
+       const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? ${queryKeyName}(${queryKeyParams.toCall()})
 
        const query = useQuery({
         ...${queryOptions},
-        queryKey,
-        ...queryOptions
-       } as unknown as QueryObserverOptions, queryClient) as ${returnType}
+        ...queryOptions,
+        queryKey
+       } as unknown as UseQueryOptions<${TData}, ${TError}, TData, ${TData}, TQueryKey>, toValue(queryClient)) as ${returnType}
 
        query.queryKey = queryKey as TQueryKey
 
