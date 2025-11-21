@@ -4,7 +4,8 @@ title: Changelog
 
 # Changelog
 
-# 4.5.12
+# 4.5.12 (Unreleased)
+- [`plugin-swr`](/plugins/plugin-swr/): Fix SWR mutation type issue by using `SWRMutationConfiguration` directly instead of `Parameters<typeof useSWRMutation>[2]`. This resolves type inference issues caused by SWR's function overloading based on `throwOnError`, allowing flexible definition and passing of mutation configuration options.
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): Fixed potential runtime errors when handling undefined schemas
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): Improved queryKey extraction safety with reactive value resolution
 - [`unplugin-kubb`](/builders/unplugin): Added multi-framework support (Vite and Rollup)
