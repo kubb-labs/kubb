@@ -1,13 +1,13 @@
+import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  GetUserByNamePathParams,
   GetUserByName200,
   GetUserByName400,
   GetUserByName404,
+  GetUserByNamePathParams,
   GetUserByNameQueryResponse,
 } from '../../models/ts/userController/GetUserByName.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import { userSchema } from '../userSchema.ts'
-import { z } from 'zod'
 
 export const getUserByNamePathParamsSchema = z.object({
   username: z.string().describe('The name that needs to be fetched. Use user1 for testing. '),
