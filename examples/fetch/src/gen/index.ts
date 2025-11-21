@@ -1,3 +1,4 @@
+export { config } from './.kubb/config.ts'
 export { addPet } from './addPet.ts'
 export { createUser } from './createUser.ts'
 export { createUsersWithListInput } from './createUsersWithListInput.ts'

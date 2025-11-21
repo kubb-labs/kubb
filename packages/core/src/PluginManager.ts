@@ -1,4 +1,3 @@
-import * as async_hooks from 'node:async_hooks'
 import path from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'

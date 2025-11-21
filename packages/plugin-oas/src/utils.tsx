@@ -33,7 +33,7 @@ export async function buildOperations<TOptions extends PluginFactoryOptions>(
     )
   })
 
-  await fabric.context.fileManager.add(...fabricChild.files)
+  await fabric.context.fileManager.upsert(...fabricChild.files)
 }
 
 type BuildOperationOptions<TOptions extends PluginFactoryOptions> = {
@@ -63,7 +63,7 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
     )
   })
 
-  await fabric.context.fileManager.add(...fabricChild.files)
+  await fabric.context.fileManager.upsert(...fabricChild.files)
 }
 
 type BuildSchemaOptions<TOptions extends PluginFactoryOptions> = {
@@ -97,5 +97,5 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
     )
   })
 
-  await fabric.context.fileManager.add(...fabricChild.files)
+  await fabric.context.fileManager.upsert(...fabricChild.files)
 }
