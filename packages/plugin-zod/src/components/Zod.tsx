@@ -49,9 +49,7 @@ export function Zod({
     .map((schema, index) => {
       const siblings = schemas.filter((_, i) => i !== index)
 
-      // Skip z.lazy for root-level refs to allow methods like .omit() to work
-      const skipLazyForRefs = isKeyword(schema, schemaKeywords.ref)
-      return parserZod.parse({ schema, parent: undefined, current: schema, siblings, name }, { mapper, coercion, wrapOutput, version, skipLazyForRefs })
+      return parserZod.parse({ schema, parent: undefined, current: schema, siblings, name }, { mapper, coercion, wrapOutput, version })
     })
     .filter(Boolean)
     .join('')
@@ -69,6 +67,10 @@ export function Zod({
       }
     } else {
       suffix = '.unwrap()'
+    }
+  } else {
+    if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref) && version === '3') {
+      suffix = '.schema'
     }
   }
 

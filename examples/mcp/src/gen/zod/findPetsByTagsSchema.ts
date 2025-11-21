@@ -21,11 +21,11 @@ export const findPetsByTagsHeaderParamsSchema = z.object({
 /**
  * @description successful operation
  */
-export const findPetsByTags200Schema = z.array(petSchema)
+export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema))
 
 /**
  * @description Invalid tag value
  */
 export const findPetsByTags400Schema = z.any()
 
-export const findPetsByTagsQueryResponseSchema = findPetsByTags200Schema
+export const findPetsByTagsQueryResponseSchema = z.lazy(() => findPetsByTags200Schema)
