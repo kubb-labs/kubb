@@ -18,15 +18,13 @@ const formatOptions: Options = {
   endOfLine: 'auto',
   plugins: [pluginTypescript],
 }
-export function format(source?: string): Promise<string> {
-  if (!source) {
-    return Promise.resolve('')
-  }
 
+export async function format(source?: string): Promise<string> {
+  if (!source) return ''
   try {
     return prettierFormat(source, formatOptions)
-  } catch (_e) {
-    return Promise.resolve(source)
+  } catch {
+    return source
   }
 }
 
@@ -70,9 +68,7 @@ export const createMockedPluginManager = (name?: string) =>
       return {
         path: baseName,
         baseName,
-        meta: {
-          pluginKey,
-        },
+        meta: { pluginKey },
       }
     },
   }) as PluginManager
@@ -80,21 +76,31 @@ export const createMockedPluginManager = (name?: string) =>
 export const mockedPluginManager = createMockedPluginManager('')
 
 export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.File> | undefined, pre?: string) {
-  if (!files) {
-    return undefined
-  }
+  if (!files?.length) return
 
   const fileProcessor = new FileProcessor()
   const parsers = new Map<KubbFile.Extname, any>()
   parsers.set('.ts', typescriptParser)
 
+  const processed = new Map<string, string>()
+
   for (const file of files) {
-    const source = await fileProcessor.parse(createFile(file), { parsers })
-    let code = source
-    if (!file.baseName.endsWith('.json')) {
-      code = await format(source)
+    if (!file?.path) {
+      continue
     }
 
-    await expect(code).toMatchFileSnapshot(path.join(...(['__snapshots__', pre, file.path].filter(Boolean) as string[])))
+    if (processed.has(file.path)) {
+      continue
+    }
+
+    const parsed = await fileProcessor.parse(createFile(file), { parsers })
+    const code = file.baseName.endsWith('.json') ? parsed : await format(parsed)
+
+    processed.set(file.path, code)
+
+    const snapshotPath = path.join('__snapshots__', ...(pre ? [pre] : []), file.path)
+    await expect(code).toMatchFileSnapshot(snapshotPath)
   }
+
+  return processed
 }

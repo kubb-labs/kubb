@@ -5,5 +5,7 @@ export async function timeout(ms: number): Promise<unknown> {
     }, ms)
   }).then((timeout) => {
     clearTimeout(timeout as NodeJS.Timeout)
+
+    return true
   })
 }
