@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 import type { RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
-import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryReturnType } from 'custom-query'
+import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from 'custom-query'
 import type { MaybeRefOrGetter } from 'vue'
 import { fetch } from './test/.kubb/fetch'
 import { queryOptions, useQuery } from 'custom-query'
@@ -71,7 +71,7 @@ export function useUpdatePetWithForm<
   data?: MaybeRefOrGetter<UpdatePetWithFormMutationRequest>,
   params?: MaybeRefOrGetter<UpdatePetWithFormQueryParams>,
   options: {
-    query?: Partial<QueryObserverOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
+    query?: Partial<UseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch }
@@ -79,15 +79,21 @@ export function useUpdatePetWithForm<
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, data, params)
+  const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? updatePetWithFormQueryKey(petId, data, params)
 
   const query = useQuery(
     {
       ...updatePetWithFormQueryOptions(petId, data, params, config),
-      queryKey,
       ...queryOptions,
-    } as unknown as QueryObserverOptions,
-    queryClient,
+      queryKey,
+    } as unknown as UseQueryOptions<
+      UpdatePetWithFormMutationResponse,
+      ResponseErrorConfig<UpdatePetWithForm405>,
+      TData,
+      UpdatePetWithFormMutationResponse,
+      TQueryKey
+    >,
+    toValue(queryClient),
   ) as UseQueryReturnType<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
