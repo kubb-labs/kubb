@@ -1,3 +1,4 @@
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
@@ -21,9 +22,12 @@ export function useUpdatePetWithFormSWR(
   { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
   params?: UpdatePetWithFormQueryParams,
   options: {
-    mutation?: Parameters<
-      typeof useSWRMutation<ResponseConfig<UpdatePetWithFormMutationResponse>, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationKeySWR>
-    >[2]
+    mutation?: SWRMutationConfiguration<
+      ResponseConfig<UpdatePetWithFormMutationResponse>,
+      ResponseErrorConfig<UpdatePetWithForm405>,
+      UpdatePetWithFormMutationKeySWR | null,
+      never
+    > & { throwOnError?: boolean }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},

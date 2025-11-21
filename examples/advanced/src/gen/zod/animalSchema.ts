@@ -5,16 +5,20 @@ import { catSchema } from './catSchema.ts'
 import { dogSchema } from './dogSchema.ts'
 
 export const animalSchema = z.union([
-  catSchema.and(
-    z.object({
-      type: z.literal('cat'),
-    }),
-  ),
-  dogSchema.and(
-    z.object({
-      type: z.literal('dog'),
-    }),
-  ),
+  z
+    .lazy(() => catSchema)
+    .and(
+      z.object({
+        type: z.literal('cat'),
+      }),
+    ),
+  z
+    .lazy(() => dogSchema)
+    .and(
+      z.object({
+        type: z.literal('dog'),
+      }),
+    ),
 ]) as unknown as ToZod<Animal>
 
 export type AnimalSchema = Animal

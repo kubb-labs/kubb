@@ -190,12 +190,12 @@ const zodKeywordMapper = {
   phone: undefined,
   readOnly: undefined,
   writeOnly: undefined,
-  ref: (value?: string, lazy = true) => {
+  ref: (value?: string) => {
     if (!value) {
       return undefined
     }
 
-    return lazy ? `z.lazy(() => ${value})` : value
+    return `z.lazy(() => ${value})`
   },
   blob: () => 'z.instanceof(File)',
   deprecated: undefined,
@@ -257,11 +257,11 @@ const shouldCoerce = (coercion: ParserOptions['coercion'] | undefined, type: 'da
 }
 
 type ParserOptions = {
-  lazy?: boolean
   mapper?: Record<string, string>
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
   version: '3' | '4'
+  skipLazyForRefs?: boolean
 }
 
 export function parse({ schema, parent, current, name, siblings }: SchemaTree, options: ParserOptions): string | undefined {
@@ -357,7 +357,11 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
   }
 
   if (isKeyword(current, schemaKeywords.ref)) {
-    return zodKeywordMapper.ref(current.args?.name, options.lazy ?? name === current.args.name)
+    // Skip z.lazy wrapper if skipLazyForRefs is true (e.g., inside v4 getters)
+    if (options.skipLazyForRefs) {
+      return current.args?.name
+    }
+    return zodKeywordMapper.ref(current.args?.name)
   }
 
   if (isKeyword(current, schemaKeywords.object)) {
@@ -386,8 +390,9 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
             return !isKeyword(schema, schemaKeywords.optional) && !isKeyword(schema, schemaKeywords.nullable) && !isKeyword(schema, schemaKeywords.nullish)
           })
           .map((it) => {
-            const lazy = !(options.version === '4' && hasRef)
-            return parse({ schema, parent: current, name, current: it, siblings: schemas }, { ...options, lazy })
+            // For v4 with refs, skip z.lazy wrapper since the getter provides lazy evaluation
+            const skipLazyForRefs = options.version === '4' && hasRef
+            return parse({ schema, parent: current, name, current: it, siblings: schemas }, { ...options, skipLazyForRefs })
           })
           .filter(Boolean)
           .join('')

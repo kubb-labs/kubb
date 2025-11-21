@@ -196,7 +196,7 @@ export function Client({
       if (Array.isArray(value)) {
         if (value.length && value[0] instanceof Blob) {
           value.forEach((v) => {
-            formData.append(key, v);
+            formData.append(key, v as Blob);
           });
         } else {
           formData.append(key, JSON.stringify(value));

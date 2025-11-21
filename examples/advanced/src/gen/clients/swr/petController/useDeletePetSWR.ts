@@ -1,3 +1,4 @@
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
@@ -17,7 +18,9 @@ export function useDeletePetSWR(
   { petId }: { petId: DeletePetPathParams['petId'] },
   headers?: DeletePetHeaderParams,
   options: {
-    mutation?: Parameters<typeof useSWRMutation<ResponseConfig<DeletePetMutationResponse>, ResponseErrorConfig<DeletePet400>, DeletePetMutationKeySWR>>[2]
+    mutation?: SWRMutationConfiguration<ResponseConfig<DeletePetMutationResponse>, ResponseErrorConfig<DeletePet400>, DeletePetMutationKeySWR | null, never> & {
+      throwOnError?: boolean
+    }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},

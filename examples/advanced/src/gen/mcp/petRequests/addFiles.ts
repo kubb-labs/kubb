@@ -12,15 +12,24 @@ export async function addFilesHandler({ data }: { data: AddFilesMutationRequest 
   const requestData = data
   const formData = new FormData()
   if (requestData) {
-    Object.keys(requestData).forEach((key) => {
-      const value = requestData[key as keyof typeof requestData]
-      if (typeof value === 'string' || (value as unknown) instanceof Blob) {
-        formData.append(key, value as unknown as string | Blob)
-      } else if (Array.isArray(value) && value.every((item) => item instanceof Blob)) {
-        value.forEach((file) => {
-          formData.append(key, file)
-        })
-      } else {
+    Object.entries(requestData).forEach(([key, value]) => {
+      if (value === undefined || value === null) return
+
+      if (Array.isArray(value)) {
+        if (value.length && value[0] instanceof Blob) {
+          value.forEach((v) => {
+            formData.append(key, v as Blob)
+          })
+        } else {
+          formData.append(key, JSON.stringify(value))
+        }
+      } else if (value instanceof Blob) {
+        formData.append(key, value)
+      } else if (typeof value === 'number' || typeof value === 'boolean') {
+        formData.append(key, String(value))
+      } else if (typeof value === 'string') {
+        formData.append(key, value)
+      } else if (typeof value === 'object') {
         formData.append(key, JSON.stringify(value))
       }
     })

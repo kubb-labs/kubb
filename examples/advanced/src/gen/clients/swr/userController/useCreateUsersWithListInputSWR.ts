@@ -1,3 +1,4 @@
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
@@ -18,14 +19,12 @@ export type CreateUsersWithListInputMutationKeySWR = ReturnType<typeof createUse
  */
 export function useCreateUsersWithListInputSWR(
   options: {
-    mutation?: Parameters<
-      typeof useSWRMutation<
-        ResponseConfig<CreateUsersWithListInputMutationResponse>,
-        ResponseErrorConfig<Error>,
-        CreateUsersWithListInputMutationKeySWR,
-        CreateUsersWithListInputMutationRequest
-      >
-    >[2]
+    mutation?: SWRMutationConfiguration<
+      ResponseConfig<CreateUsersWithListInputMutationResponse>,
+      ResponseErrorConfig<Error>,
+      CreateUsersWithListInputMutationKeySWR | null,
+      CreateUsersWithListInputMutationRequest
+    > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},

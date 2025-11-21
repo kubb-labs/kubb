@@ -68,6 +68,14 @@ export function Zod({
     } else {
       suffix = '.unwrap()'
     }
+  } else {
+    if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref)) {
+      if (version === '3') {
+        suffix = '.schema'
+      } else {
+        suffix = '.unwrap()'
+      }
+    }
   }
 
   const emptyValue = parserZod.parse(
