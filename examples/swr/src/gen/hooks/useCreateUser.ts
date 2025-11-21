@@ -3,10 +3,11 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
 
@@ -38,7 +39,9 @@ export async function createUser(data?: CreateUserMutationRequest, config: Parti
  */
 export function useCreateUser(
   options: {
-    mutation?: Parameters<typeof useSWRMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationKey, CreateUserMutationRequest>>[2]
+    mutation?: SWRMutationConfiguration<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationKey | null, CreateUserMutationRequest> & {
+      throwOnError?: boolean
+    }
     client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
