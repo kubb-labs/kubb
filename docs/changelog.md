@@ -4,6 +4,13 @@ title: Changelog
 
 # Changelog
 
+# 4.5.12
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Fixed potential runtime errors when handling undefined schemas
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Improved queryKey extraction safety with reactive value resolution
+- [`unplugin-kubb`](/builders/unplugin): Added multi-framework support (Vite and Rollup)
+- [`core`](/plugins/core): Fixed potential runtime errors when handling undefined schemas
+- Update development dependencies (Vite, Nuxt, Biome)
+
 # 4.5.11
 - upgrade to have latest react-fabric version
 
