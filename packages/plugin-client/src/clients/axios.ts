@@ -17,6 +17,7 @@ export type RequestConfig<TData = unknown> = {
   signal?: AbortSignal
   validateStatus?: (status: number) => boolean
   headers?: AxiosRequestConfig['headers']
+  paramsSerializer?: AxiosRequestConfig['paramsSerializer']
 }
 
 /**
