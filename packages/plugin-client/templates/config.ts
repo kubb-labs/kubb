@@ -6,6 +6,10 @@ export function buildFormData<T = unknown>(data: T): FormData {
       formData.append(key, value)
       return
     }
+    if (value instanceof Date) {
+      formData.append(key, value.toISOString())
+      return
+    }
     if (typeof value === 'number' || typeof value === 'boolean') {
       formData.append(key, String(value))
       return
@@ -26,6 +30,7 @@ export function buildFormData<T = unknown>(data: T): FormData {
 
       if (Array.isArray(value)) {
         for (const valueItem of value) {
+          if (valueItem === undefined || valueItem === null) continue
           appendData(key, valueItem)
         }
       } else {

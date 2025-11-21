@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
-import { fetch } from '../../.kubb/fetch.ts'
 import type { GetInventoryQueryResponse } from '../../models/GetInventory.ts'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import { fetch } from '../../.kubb/fetch.ts'
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 export const getInventorySuspenseQueryKey = () => ['v5', { url: '/store/inventory' }] as const
 

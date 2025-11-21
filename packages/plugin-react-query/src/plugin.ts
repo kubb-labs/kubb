@@ -163,7 +163,7 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
         })
       }
 
-      await this.addFile({
+      await this.upsertFile({
         baseName: 'config.ts',
         path: path.resolve(root, '.kubb/config.ts'),
         sources: [
