@@ -545,7 +545,7 @@ describe('zodGenerator operation', async () => {
         wrapOutput: ({ output, schema }) => {
           const metadata: ZodOpenAPIMetadata = {}
 
-          if (schema.example) {
+          if (schema?.example) {
             metadata.example = schema.example
           }
 
