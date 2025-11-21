@@ -1,5 +1,24 @@
 # @kubb/plugin-client
 
+## 4.5.12
+
+### Patch Changes
+
+- [#2025](https://github.com/kubb-labs/kubb/pull/2025) [`5018d73`](https://github.com/kubb-labs/kubb/commit/5018d73af605982bbcb76151fad560a102309a47) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Improve FormData type handling for multipart/form-data requests
+  - Fixed handling of Blob[] and File[] arrays by appending each item individually instead of JSON-stringifying
+  - Added proper conversion of numbers and booleans to strings using String()
+  - Skip null and undefined values instead of serializing them as strings
+  - Resolved biome linter error (useIterableCallbackReturn) in generated code
+
+- [#2031](https://github.com/kubb-labs/kubb/pull/2031) [`a9d1d7b`](https://github.com/kubb-labs/kubb/commit/a9d1d7be78d0d4d7d63831a287c6a13b254b6b91) Thanks [@Ericlm](https://github.com/Ericlm)! - Add paramsSerializer to config's type of axios client
+
+- Updated dependencies [[`4e54238`](https://github.com/kubb-labs/kubb/commit/4e54238868b2e44aa98e3f3ef495a130e7d259dc)]:
+  - @kubb/plugin-zod@4.5.12
+  - @kubb/core@4.5.12
+  - @kubb/oas@4.5.12
+  - @kubb/plugin-oas@4.5.12
+  - @kubb/plugin-ts@4.5.12
+
 ## 4.5.11
 
 ### Patch Changes

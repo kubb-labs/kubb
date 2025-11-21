@@ -1,5 +1,21 @@
 # @kubb/plugin-zod
 
+## 4.5.12
+
+### Patch Changes
+
+- [#2024](https://github.com/kubb-labs/kubb/pull/2024) [`4e54238`](https://github.com/kubb-labs/kubb/commit/4e54238868b2e44aa98e3f3ef495a130e7d259dc) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add z.lazy() wrapper to all schema references to resolve circular dependency issues
+
+  This change ensures that all schema references are wrapped in `z.lazy()`, deferring their evaluation until runtime. This prevents "used before declaration" errors that can occur with circular dependencies, particularly when using `oneOf`/`anyOf` constructs.
+
+  For Zod v4, refs inside object property getters skip the z.lazy() wrapper since the getter itself provides lazy evaluation.
+
+- Updated dependencies []:
+  - @kubb/core@4.5.12
+  - @kubb/oas@4.5.12
+  - @kubb/plugin-oas@4.5.12
+  - @kubb/plugin-ts@4.5.12
+
 ## 4.5.11
 
 ### Patch Changes
