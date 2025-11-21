@@ -69,8 +69,12 @@ export function Zod({
       suffix = '.unwrap()'
     }
   } else {
-    if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref) && version === '3') {
-      suffix = '.schema'
+    if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref)) {
+      if (version === '3') {
+        suffix = '.schema'
+      } else {
+        suffix = '.unwrap()'
+      }
     }
   }
 
