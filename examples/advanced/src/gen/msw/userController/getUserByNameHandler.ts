@@ -1,5 +1,5 @@
-import type { GetUserByNameQueryResponse, GetUserByName400, GetUserByName404 } from '../../models/ts/userController/GetUserByName.ts'
 import { http } from 'msw'
+import type { GetUserByName400, GetUserByName404, GetUserByNameQueryResponse } from '../../models/ts/userController/GetUserByName.ts'
 
 export function getUserByNameHandlerResponse200(data: GetUserByNameQueryResponse) {
   return new Response(JSON.stringify(data), {

@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/fetch'
-import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
+import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from './models.ts'
 
 function getPlaceOrderUrl() {
   const res = { method: 'POST', url: '/store/order' as const }
