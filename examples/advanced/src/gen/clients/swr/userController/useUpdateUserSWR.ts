@@ -1,6 +1,6 @@
-import type fetch from '../../../../axios-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 import { updateUser } from '../../axios/userService/updateUser.ts'
 

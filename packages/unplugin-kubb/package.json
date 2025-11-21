@@ -97,11 +97,11 @@
 	},
 	"devDependencies": {
 		"@kubb/core": "workspace:*",
-		"@nuxt/kit": "^3.20.1",
-		"@nuxt/schema": "^3.20.1",
+		"@nuxt/kit": "^4.2.1",
+		"@nuxt/schema": "^4.2.1",
 		"rimraf": "^6.1.2",
 		"rollup": "^4.53.3",
-		"vite": "^6.4.1",
+		"vite": "^7.2.4",
 		"webpack": "^5.103.0"
 	},
 	"peerDependencies": {

@@ -1,7 +1,7 @@
-import type { AddFiles200, AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../models/ts/petController/AddFiles.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
-import { petSchema } from '../petSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
+import type { AddFiles200, AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../models/ts/petController/AddFiles.ts'
+import { petSchema } from '../petSchema.ts'
 
 /**
  * @description successful operation

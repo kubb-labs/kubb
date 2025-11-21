@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 import fetch from 'axios'
-import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryReturnType } from '@tanstack/react-query'
+import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from 'axios'
 import type { MaybeRefOrGetter } from 'vue'
 import { queryOptions, useQuery } from '@tanstack/react-query'
@@ -64,7 +64,7 @@ export function useFindPetsByTags<
   headers: MaybeRefOrGetter<FindPetsByTagsHeaderParams>,
   params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>,
   options: {
-    query?: Partial<QueryObserverOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>> & {
+    query?: Partial<UseQueryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -72,15 +72,15 @@ export function useFindPetsByTags<
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
+  const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? findPetsByTagsQueryKey(params)
 
   const query = useQuery(
     {
       ...findPetsByTagsQueryOptions(headers, params, config),
-      queryKey,
       ...queryOptions,
-    } as unknown as QueryObserverOptions,
-    queryClient,
+      queryKey,
+    } as unknown as UseQueryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, FindPetsByTagsQueryResponse, TQueryKey>,
+    toValue(queryClient),
   ) as UseQueryReturnType<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
