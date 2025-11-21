@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.5.12
+- [`plugin-zod`](/plugins/plugin-zod): Fix circular dependency issues by wrapping all schema references in `z.lazy()` to prevent "used before declaration" errors with `oneOf`/`anyOf` constructs
+
 # 4.5.11
 - upgrade to have latest react-fabric version
 

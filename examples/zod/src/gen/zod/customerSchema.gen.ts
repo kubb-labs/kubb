@@ -10,7 +10,7 @@ export const customerSchema = z.object({
     "id": z.optional(z.int()),
 "username": z.optional(z.string()),
 get "address"(){
-                return z.array(z.lazy(() => addressSchema)).optional()
+                return z.array(addressSchema).optional()
               }
     })
 

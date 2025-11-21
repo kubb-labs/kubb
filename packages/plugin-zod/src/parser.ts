@@ -261,6 +261,10 @@ type ParserOptions = {
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
   version: '3' | '4'
+  /**
+   * Skip z.lazy wrapper for refs (used when already inside a v4 getter)
+   */
+  skipLazyForRefs?: boolean
 }
 
 export function parse({ schema, parent, current, name, siblings }: SchemaTree, options: ParserOptions): string | undefined {
@@ -356,6 +360,10 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
   }
 
   if (isKeyword(current, schemaKeywords.ref)) {
+    // Skip z.lazy wrapper if we're inside a v4 getter (which provides lazy evaluation)
+    if (options.skipLazyForRefs) {
+      return current.args?.name
+    }
     return zodKeywordMapper.ref(current.args?.name)
   }
 
@@ -385,7 +393,9 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
             return !isKeyword(schema, schemaKeywords.optional) && !isKeyword(schema, schemaKeywords.nullable) && !isKeyword(schema, schemaKeywords.nullish)
           })
           .map((it) => {
-            return parse({ schema, parent: current, name, current: it, siblings: schemas }, options)
+            // For v4 with refs, skip z.lazy wrapper since the getter provides lazy evaluation
+            const skipLazyForRefs = options.version === '4' && hasRef
+            return parse({ schema, parent: current, name, current: it, siblings: schemas }, { ...options, skipLazyForRefs })
           })
           .filter(Boolean)
           .join('')
