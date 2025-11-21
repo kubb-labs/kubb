@@ -1,5 +1,19 @@
 # @kubb/plugin-vue-query
 
+## 4.5.12
+
+### Patch Changes
+
+- [#2027](https://github.com/kubb-labs/kubb/pull/2027) [`ba69488`](https://github.com/kubb-labs/kubb/commit/ba694880a5254309e9a6ba00a0ee7669533b38d8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of UseQueryOptions for vue-query
+
+- Updated dependencies []:
+  - @kubb/core@4.5.12
+  - @kubb/oas@4.5.12
+  - @kubb/plugin-client@4.5.12
+  - @kubb/plugin-oas@4.5.12
+  - @kubb/plugin-ts@4.5.12
+  - @kubb/plugin-zod@4.5.12
+
 ## 4.5.11
 
 ### Patch Changes

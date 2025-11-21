@@ -1,5 +1,11 @@
 # unplugin-kubb
 
+## 4.0.0
+
+### Major Changes
+
+- [#2027](https://github.com/kubb-labs/kubb/pull/2027) [`ba69488`](https://github.com/kubb-labs/kubb/commit/ba694880a5254309e9a6ba00a0ee7669533b38d8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update of Vite, rollup, ...
+
 ## 3.2.1
 
 ### Patch Changes
