@@ -4,8 +4,14 @@ title: Changelog
 
 # Changelog
 
-# 4.5.12
+# 4.5.12 (Unreleased)
 - [`plugin-zod`](/plugins/plugin-zod): Fix circular dependency issues by wrapping all schema references in `z.lazy()` to prevent "used before declaration" errors with `oneOf`/`anyOf` constructs
+- [`plugin-swr`](/plugins/plugin-swr/): Fix SWR mutation type issue by using `SWRMutationConfiguration` directly instead of `Parameters<typeof useSWRMutation>[2]`. This resolves type inference issues caused by SWR's function overloading based on `throwOnError`, allowing flexible definition and passing of mutation configuration options.
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Fixed potential runtime errors when handling undefined schemas
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Improved queryKey extraction safety with reactive value resolution
+- [`unplugin-kubb`](/builders/unplugin): Added multi-framework support (Vite and Rollup)
+- [`core`](/plugins/core): Fixed potential runtime errors when handling undefined schemas
+- Update development dependencies (Vite, Nuxt, Biome)
 
 # 4.5.11
 - upgrade to have latest react-fabric version

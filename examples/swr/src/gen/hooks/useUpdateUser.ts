@@ -3,10 +3,11 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
 export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
@@ -43,7 +44,9 @@ export async function updateUser(
 export function useUpdateUser(
   username: UpdateUserPathParams['username'],
   options: {
-    mutation?: Parameters<typeof useSWRMutation<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationKey, UpdateUserMutationRequest>>[2]
+    mutation?: SWRMutationConfiguration<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationKey | null, UpdateUserMutationRequest> & {
+      throwOnError?: boolean
+    }
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},

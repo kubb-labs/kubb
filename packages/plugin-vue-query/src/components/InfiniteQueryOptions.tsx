@@ -168,9 +168,9 @@ export function InfiniteQueryOptions({
       : ''
 
   const enabled = Object.entries(queryKeyParams.flatParams)
-    .map(([key, item]) => (item && !item.optional ? key : undefined))
+    .map(([key, item]) => (item && !item.optional ? `${key}` : undefined))
     .filter(Boolean)
-    .join('&& ')
+    .join(' && ')
 
   const enabledText = enabled ? `enabled: !!(${enabled}),` : ''
 
