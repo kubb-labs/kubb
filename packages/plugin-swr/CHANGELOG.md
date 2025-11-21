@@ -1,5 +1,21 @@
 # @kubb/plugin-swr
 
+## 4.5.12
+
+### Patch Changes
+
+- [#2026](https://github.com/kubb-labs/kubb/pull/2026) [`c021c7a`](https://github.com/kubb-labs/kubb/commit/c021c7a744f3ebe4b4e1de210c37de90a0475480) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix SWR mutation type issue by using SWRMutationConfiguration directly
+
+  Changed from using `Parameters<typeof useSWRMutation>[2]` to directly using `SWRMutationConfiguration` for mutation options. This resolves type inference issues caused by SWR's function overloading based on `throwOnError`, allowing flexible definition and passing of mutation configuration options.
+
+- Updated dependencies []:
+  - @kubb/core@4.5.12
+  - @kubb/oas@4.5.12
+  - @kubb/plugin-client@4.5.12
+  - @kubb/plugin-oas@4.5.12
+  - @kubb/plugin-ts@4.5.12
+  - @kubb/plugin-zod@4.5.12
+
 ## 4.5.11
 
 ### Patch Changes
