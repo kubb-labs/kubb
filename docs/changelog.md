@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.5.12 (Unreleased)
+- [`plugin-swr`](/plugins/plugin-swr/): Fix SWR mutation type issue by using `SWRMutationConfiguration` directly instead of `Parameters<typeof useSWRMutation>[2]`. This resolves type inference issues caused by SWR's function overloading based on `throwOnError`, allowing flexible definition and passing of mutation configuration options.
+
 # 4.5.11
 - upgrade to have latest react-fabric version
 
