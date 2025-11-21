@@ -15,7 +15,7 @@ export type GetOrderByIdPathParamsSchema = z.infer<typeof getOrderByIdPathParams
 /**
  * @description successful operation
  */
-export const getOrderById200Schema = z.lazy(() => orderSchema)
+export const getOrderById200Schema = orderSchema
 
 export type GetOrderById200Schema = z.infer<typeof getOrderById200Schema>
 

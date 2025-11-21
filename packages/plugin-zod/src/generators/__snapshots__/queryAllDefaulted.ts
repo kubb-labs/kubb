@@ -16,4 +16,4 @@ export const getThings200 = z.object({
   items: z.array(z.lazy(() => thing)),
 })
 
-export const getThingsQueryResponse = z.lazy(() => getThings200)
+export const getThingsQueryResponse = getThings200

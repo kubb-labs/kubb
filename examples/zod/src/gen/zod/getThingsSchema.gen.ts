@@ -23,7 +23,7 @@ export type GetThings201Schema = z.infer<typeof getThings201Schema>
 /**
  * @description unexpected error
  */
-export const getThingsErrorSchema = z.lazy(() => petNotFoundSchema).describe("Pet not found")
+export const getThingsErrorSchema = petNotFoundSchema.describe("Pet not found")
 
 export type GetThingsErrorSchema = z.infer<typeof getThingsErrorSchema>
 

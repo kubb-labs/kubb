@@ -12,18 +12,16 @@ export const listPetsQueryParams = z.object({
 /**
  * @description A paged array of pets
  */
-export const listPets200 = z.lazy(() => pets)
+export const listPets200 = pets
 
 /**
  * @description unexpected error
  */
-export const listPetsError = z
-  .lazy(() => error)
-  .openapi({
-    examples: [
-      { sample: { summary: 'A sample error', value: { code: 1, message: 'A sample error message' } } },
-      { other_example: { summary: 'Another sample error', value: { code: 2, message: 'A totally specific message' } } },
-    ],
-  })
+export const listPetsError = error.openapi({
+  examples: [
+    { sample: { summary: 'A sample error', value: { code: 1, message: 'A sample error message' } } },
+    { other_example: { summary: 'Another sample error', value: { code: 2, message: 'A totally specific message' } } },
+  ],
+})
 
-export const listPetsQueryResponse = z.lazy(() => listPets200)
+export const listPetsQueryResponse = listPets200

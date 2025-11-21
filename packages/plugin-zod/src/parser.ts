@@ -262,7 +262,7 @@ type ParserOptions = {
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
   version: '3' | '4'
   /**
-   * Skip z.lazy wrapper for refs (used when already inside a v4 getter)
+   * Skip z.lazy wrapper for refs (used when already inside a v4 getter or at root level)
    */
   skipLazyForRefs?: boolean
 }

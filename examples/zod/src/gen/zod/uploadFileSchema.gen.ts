@@ -21,7 +21,7 @@ export type UploadFileQueryParamsSchema = z.infer<typeof uploadFileQueryParamsSc
 /**
  * @description successful operation
  */
-export const uploadFile200Schema = z.lazy(() => apiResponseSchema)
+export const uploadFile200Schema = apiResponseSchema
 
 export type UploadFile200Schema = z.infer<typeof uploadFile200Schema>
 

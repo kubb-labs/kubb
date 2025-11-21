@@ -9,7 +9,7 @@ import { userSchema } from "./userSchema.gen.ts";
 /**
  * @description Successful operation
  */
-export const createUsersWithListInput200Schema = z.lazy(() => userSchema)
+export const createUsersWithListInput200Schema = userSchema
 
 export type CreateUsersWithListInput200Schema = z.infer<typeof createUsersWithListInput200Schema>
 

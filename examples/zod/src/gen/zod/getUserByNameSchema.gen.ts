@@ -15,7 +15,7 @@ export type GetUserByNamePathParamsSchema = z.infer<typeof getUserByNamePathPara
 /**
  * @description successful operation
  */
-export const getUserByName200Schema = z.lazy(() => userSchema)
+export const getUserByName200Schema = userSchema
 
 export type GetUserByName200Schema = z.infer<typeof getUserByName200Schema>
 
