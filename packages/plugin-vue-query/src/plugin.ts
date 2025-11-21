@@ -144,7 +144,7 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled
-        await this.addFile({
+        await this.upsertFile({
           baseName: 'fetch.ts',
           path: path.resolve(root, '.kubb/fetch.ts'),
           sources: [

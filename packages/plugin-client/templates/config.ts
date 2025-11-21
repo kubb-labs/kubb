@@ -4,15 +4,19 @@ export function buildFormData<T = unknown>(data: T): FormData {
   function appendData(key: string, value: any) {
     if (value instanceof Blob) {
       formData.append(key, value)
+      return
     }
     if (typeof value === 'number' || typeof value === 'boolean') {
       formData.append(key, String(value))
+      return
     }
     if (typeof value === 'string') {
       formData.append(key, value)
+      return
     }
     if (typeof value === 'object') {
       formData.append(key, JSON.stringify(value))
+      return
     }
   }
 
@@ -21,7 +25,7 @@ export function buildFormData<T = unknown>(data: T): FormData {
       if (value === undefined || value === null) return
 
       if (Array.isArray(value)) {
-        for (const valueItem in value) {
+        for (const valueItem of value) {
           appendData(key, valueItem)
         }
       } else {

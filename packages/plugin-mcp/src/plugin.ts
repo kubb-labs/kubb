@@ -2,6 +2,7 @@ import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
+import { pluginClientName } from '@kubb/plugin-client'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -94,7 +95,9 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
         this.plugin.options.client.baseURL = baseURL
       }
 
-      if (this.plugin.options.client.bundle && !this.plugin.options.client.importPath) {
+      const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
+
+      if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled fetch
         await this.addFile({
           baseName: 'fetch.ts',
