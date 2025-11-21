@@ -79,17 +79,54 @@ function sortSchemas(schemas: Record<string, OasTypes.SchemaObject>): Record<str
 }
 
 /**
+ * Check if a name conflicts with existing names (case-insensitive)
+ */
+function hasNameConflict(name: string, existingNames: Set<string>): boolean {
+  const lowerName = name.toLowerCase()
+  for (const existing of existingNames) {
+    if (existing.toLowerCase() === lowerName && existing !== name) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Get a unique name by adding a suffix if there's a case-insensitive conflict
+ */
+function getUniqueSchemaName(name: string, existingNames: Set<string>, suffix: string): string {
+  if (!hasNameConflict(name, existingNames)) {
+    return name
+  }
+  
+  // If there's a conflict, add the suffix
+  let uniqueName = `${name}${suffix}`
+  let counter = 2
+  
+  // If the name with suffix still conflicts, add a number
+  while (hasNameConflict(uniqueName, existingNames) || existingNames.has(uniqueName)) {
+    uniqueName = `${name}${suffix}${counter}`
+    counter++
+  }
+  
+  return uniqueName
+}
+
+/**
  * Collect schemas from OpenAPI components (schemas, responses, requestBodies)
  * and return them in dependency order.
  */
 export function getSchemas({ oas, contentType, includes = ['schemas', 'requestBodies', 'responses'] }: GetSchemasProps): Record<string, OasTypes.SchemaObject> {
   const components = oas.getDefinition().components
-  let schemas: Record<string, OasTypes.SchemaObject> = {}
+  const schemas: Record<string, OasTypes.SchemaObject> = {}
+  const existingNames = new Set<string>()
 
   if (includes.includes('schemas')) {
-    schemas = {
-      ...schemas,
-      ...((components?.schemas as Record<string, OasTypes.SchemaObject>) || {}),
+    const componentSchemas = (components?.schemas as Record<string, OasTypes.SchemaObject>) || {}
+    for (const [name, schema] of Object.entries(componentSchemas)) {
+      const uniqueName = getUniqueSchemaName(name, existingNames, 'Schema')
+      schemas[uniqueName] = schema
+      existingNames.add(uniqueName)
     }
   }
 
@@ -97,9 +134,14 @@ export function getSchemas({ oas, contentType, includes = ['schemas', 'requestBo
     const responses = components?.responses || {}
     for (const [name, response] of Object.entries(responses)) {
       const r = response as OasTypes.ResponseObject
-      if (r.content && !schemas[name]) {
+      if (r.content) {
         const firstContentType = Object.keys(r.content)[0] || 'application/json'
-        schemas[name] = r.content?.[contentType || firstContentType]?.schema as OasTypes.SchemaObject
+        const schema = r.content?.[contentType || firstContentType]?.schema as OasTypes.SchemaObject
+        if (schema) {
+          const uniqueName = getUniqueSchemaName(name, existingNames, 'Response')
+          schemas[uniqueName] = schema
+          existingNames.add(uniqueName)
+        }
       }
     }
   }
@@ -108,9 +150,14 @@ export function getSchemas({ oas, contentType, includes = ['schemas', 'requestBo
     const requestBodies = components?.requestBodies || {}
     for (const [name, request] of Object.entries(requestBodies)) {
       const r = request as OasTypes.RequestBodyObject
-      if (r.content && !schemas[name]) {
+      if (r.content) {
         const firstContentType = Object.keys(r.content)[0] || 'application/json'
-        schemas[name] = r.content?.[contentType || firstContentType]?.schema as OasTypes.SchemaObject
+        const schema = r.content?.[contentType || firstContentType]?.schema as OasTypes.SchemaObject
+        if (schema) {
+          const uniqueName = getUniqueSchemaName(name, existingNames, 'RequestBody')
+          schemas[uniqueName] = schema
+          existingNames.add(uniqueName)
+        }
       }
     }
   }

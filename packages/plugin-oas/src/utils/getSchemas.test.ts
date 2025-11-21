@@ -132,4 +132,140 @@ describe('getSchemas', () => {
 
     expect(result).toEqual({})
   })
+
+  it('should handle case-insensitive duplicate names within schemas', async () => {
+    const oas = await parse({
+      openapi: '3.0.0',
+      components: {
+        schemas: {
+          Variant: {
+            type: 'object',
+            properties: { id: { type: 'string' } },
+          },
+          variant: {
+            type: 'object',
+            properties: { name: { type: 'string' } },
+          },
+        },
+      },
+    } as unknown as OasTypes.OASDocument)
+
+    const result = getSchemas({ oas })
+    const keys = Object.keys(result)
+    
+    // Both schemas should be present with unique names
+    expect(keys).toHaveLength(2)
+    expect(keys).toContain('Variant')
+    expect(keys.some(key => key.startsWith('variant'))).toBe(true)
+    
+    // The second one should have a suffix
+    expect(keys).toEqual(expect.arrayContaining(['Variant', 'variantSchema']))
+  })
+
+  it('should handle case-insensitive duplicates between schemas and responses', async () => {
+    const oas = await parse({
+      openapi: '3.0.0',
+      components: {
+        schemas: {
+          User: {
+            type: 'object',
+            properties: { id: { type: 'string' } },
+          },
+        },
+        responses: {
+          user: {
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { name: { type: 'string' } } },
+              },
+            },
+          },
+        },
+      },
+    } as unknown as OasTypes.OASDocument)
+
+    const result = getSchemas({ oas, includes: ['schemas', 'responses'] })
+    const keys = Object.keys(result)
+    
+    // Both should be present with unique names
+    expect(keys).toHaveLength(2)
+    expect(keys).toContain('User')
+    expect(keys.some(key => key.toLowerCase().includes('user') && key !== 'User')).toBe(true)
+  })
+
+  it('should handle multiple case-insensitive duplicates with number suffixes', async () => {
+    const oas = await parse({
+      openapi: '3.0.0',
+      components: {
+        schemas: {
+          Item: {
+            type: 'object',
+            properties: { id: { type: 'string' } },
+          },
+          item: {
+            type: 'object',
+            properties: { name: { type: 'string' } },
+          },
+          ITEM: {
+            type: 'object',
+            properties: { value: { type: 'number' } },
+          },
+        },
+      },
+    } as unknown as OasTypes.OASDocument)
+
+    const result = getSchemas({ oas })
+    const keys = Object.keys(result)
+    
+    // All three schemas should be present with unique names
+    expect(keys).toHaveLength(3)
+    expect(keys).toContain('Item')
+    
+    // Check that all names are unique (case-sensitive)
+    const uniqueKeys = new Set(keys)
+    expect(uniqueKeys.size).toBe(3)
+  })
+
+  it('should handle case-insensitive duplicates across all sources', async () => {
+    const oas = await parse({
+      openapi: '3.0.0',
+      components: {
+        schemas: {
+          Product: {
+            type: 'object',
+            properties: { id: { type: 'string' } },
+          },
+        },
+        responses: {
+          product: {
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { name: { type: 'string' } } },
+              },
+            },
+          },
+        },
+        requestBodies: {
+          PRODUCT: {
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { price: { type: 'number' } } },
+              },
+            },
+          },
+        },
+      },
+    } as unknown as OasTypes.OASDocument)
+
+    const result = getSchemas({ oas, includes: ['schemas', 'responses', 'requestBodies'] })
+    const keys = Object.keys(result)
+    
+    // All three should be present with unique names
+    expect(keys).toHaveLength(3)
+    expect(keys).toContain('Product')
+    
+    // Check that all names are unique
+    const uniqueKeys = new Set(keys)
+    expect(uniqueKeys.size).toBe(3)
+  })
 })
