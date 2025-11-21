@@ -1,5 +1,18 @@
 # @kubb/plugin-client
 
+## 4.5.13
+
+### Patch Changes
+
+- [`e33380f`](https://github.com/kubb-labs/kubb/commit/e33380f50fd377da057e260021261c9907269573) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Type 'FormData' is missing the following properties from type at generated hooks
+
+- Updated dependencies []:
+  - @kubb/core@4.5.13
+  - @kubb/oas@4.5.13
+  - @kubb/plugin-oas@4.5.13
+  - @kubb/plugin-ts@4.5.13
+  - @kubb/plugin-zod@4.5.13
+
 ## 4.5.12
 
 ### Patch Changes
