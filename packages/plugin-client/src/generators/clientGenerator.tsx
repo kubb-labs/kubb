@@ -67,6 +67,8 @@ export const clientGenerator = createReactGenerator<PluginClient>({
           </>
         )}
 
+        <File.Import name={['buildFormData']} root={client.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
+
         {options.parser === 'zod' && (
           <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={client.file.path} path={zod.file.path} />
         )}

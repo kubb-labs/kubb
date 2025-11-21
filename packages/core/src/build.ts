@@ -174,7 +174,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         meta: {},
       }
 
-      await fabric.addFile(rootFile)
+      await fabric.upsertFile(rootFile)
     }
 
     fabric.context.on('process:start', ({ files }) => {

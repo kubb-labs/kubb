@@ -1,3 +1,4 @@
+import * as async_hooks from 'node:async_hooks'
 import path from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
@@ -116,6 +117,9 @@ export class PluginManager {
       mode: getMode(path.resolve(this.config.root, this.config.output.path)),
       addFile: async (...files: Array<KubbFile.File>) => {
         await this.options.fabric.addFile(...files)
+      },
+      upsertFile: async (...files: Array<KubbFile.File>) => {
+        await this.options.fabric.upsertFile(...files)
       },
     } as unknown as PluginContext<TOptions>
 

@@ -140,7 +140,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
       })
 
       const schemaFiles = await schemaGenerator.build(...generators)
-      await this.addFile(...schemaFiles)
+      await this.upsertFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
@@ -155,7 +155,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
       })
 
       const operationFiles = await operationGenerator.build(...generators)
-      await this.addFile(...operationFiles)
+      await this.upsertFile(...operationFiles)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
@@ -167,7 +167,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
         logger: this.logger,
       })
 
-      await this.addFile(...barrelFiles)
+      await this.upsertFile(...barrelFiles)
     },
   }
 })

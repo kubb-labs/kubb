@@ -103,9 +103,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
       const baseURL = await this.getBaseURL()
 
       // pre add bundled fetch
-      const containsFetch = this.fabric.files.some((file) => file.baseName === 'fetch.ts')
-
-      if (bundle && !this.plugin.options.importPath && !containsFetch) {
+      if (bundle && !this.plugin.options.importPath) {
         await this.addFile({
           baseName: 'fetch.ts',
           path: path.resolve(root, '.kubb/fetch.ts'),
@@ -121,6 +119,19 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
           ],
         })
       }
+
+      await this.addFile({
+        baseName: 'config.ts',
+        path: path.resolve(root, '.kubb/config.ts'),
+        sources: [
+          {
+            name: 'config',
+            value: resolveModuleSource('@kubb/plugin-client/templates/config').source,
+            isExportable: true,
+            isIndexable: true,
+          },
+        ],
+      })
 
       const operationGenerator = new OperationGenerator(
         baseURL
@@ -144,7 +155,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
 
       const files = await operationGenerator.build(...generators)
 
-      await this.addFile(...files)
+      await this.upsertFile(...files)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
@@ -156,7 +167,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
         logger: this.logger,
       })
 
-      await this.addFile(...barrelFiles)
+      await this.upsertFile(...barrelFiles)
     },
   }
 })
