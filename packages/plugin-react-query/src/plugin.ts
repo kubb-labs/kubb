@@ -1,7 +1,8 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
-import type { PluginOas } from '@kubb/plugin-oas'
+import { resolveModuleSource } from '@kubb/core/utils'
+import { pluginClientName } from '@kubb/plugin-client'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -12,7 +13,7 @@ import type { PluginReactQuery } from './types.ts'
 
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
 
-export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
+export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,
@@ -32,17 +33,22 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     queryKey = QueryKey.getTransformer,
     paramsCasing,
     contentType,
+    client,
   } = options
+
+  const clientType = client?.client ?? 'axios'
+  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
 
   return {
     name: pluginReactQueryName,
     options: {
       output,
       client: {
-        importPath: '@kubb/plugin-client/clients/axios',
-        dataReturnType: 'data',
-        pathParamsType,
         ...options.client,
+        client: clientType,
+        dataReturnType: client?.dataReturnType ?? 'data',
+        pathParamsType,
+        importPath: clientImportPath,
       },
       infinite: infinite
         ? {
@@ -127,16 +133,35 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
 
       return resolvedName
     },
-    async buildStart() {
-      const [swaggerPlugin]: [Plugin<PluginOas>] = PluginManager.getDependedPlugins<PluginOas>(this.plugins, [pluginOasName])
-
-      const oas = await swaggerPlugin.context.getOas()
+    async install() {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
-      const baseURL = await swaggerPlugin.context.getBaseURL()
+      const oas = await this.getOas()
+      const baseURL = await this.getBaseURL()
 
       if (baseURL) {
         this.plugin.options.client.baseURL = baseURL
+      }
+
+      const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
+      const containsFetch = this.fabric.files.some((file) => file.baseName === 'fetch.ts')
+
+      if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetch) {
+        // pre add bundled fetch
+        await this.addFile({
+          baseName: 'fetch.ts',
+          path: path.resolve(root, '.kubb/fetch.ts'),
+          sources: [
+            {
+              name: 'fetch',
+              value: resolveModuleSource(
+                this.plugin.options.client.client === 'fetch' ? '@kubb/plugin-client/templates/clients/fetch' : '@kubb/plugin-client/templates/clients/axios',
+              ).source,
+              isExportable: true,
+              isIndexable: true,
+            },
+          ],
+        })
       }
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
@@ -154,7 +179,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.addFile(...files)
 
-      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
+      const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
         root,
         output,

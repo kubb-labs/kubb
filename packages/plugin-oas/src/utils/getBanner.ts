@@ -1,7 +1,7 @@
+import path from 'node:path'
 import type { Config, Output } from '@kubb/core'
 import type { Oas } from '@kubb/oas'
 import { isFunction } from 'remeda'
-import path from 'node:path'
 
 type Props<TOas extends Oas> = {
   oas: TOas

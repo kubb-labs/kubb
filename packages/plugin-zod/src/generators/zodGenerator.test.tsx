@@ -1,12 +1,12 @@
 import path from 'node:path'
 import type { ZodOpenAPIMetadata } from '@asteasolutions/zod-to-openapi'
-import type { Plugin } from '@kubb/core'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginZod } from '../types.ts'
 import { zodGenerator } from './zodGenerator.tsx'
 
@@ -292,7 +292,7 @@ describe('zodGenerator schema', async () => {
     }
     const plugin = { options } as Plugin<PluginZod>
     const fabric = createReactFabric()
-    const instance = new SchemaGenerator(options, {
+    const generator = new SchemaGenerator(options, {
       fabric,
       oas,
       pluginManager: createMockedPluginManager(props.name),
@@ -307,7 +307,7 @@ describe('zodGenerator schema', async () => {
     const schemas = getSchemas({ oas })
     const name = props.path
     const schema = schemas[name]!
-    const tree = instance.parse({ schemaObject: schema, name })
+    const tree = generator.parse({ schemaObject: schema, name })
 
     await buildSchema(
       {
@@ -316,10 +316,11 @@ describe('zodGenerator schema', async () => {
         value: schema,
       },
       {
+        config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
-        instance,
-        generator: zodGenerator,
-        options,
+        generator,
+        Component: zodGenerator.Schema,
+        plugin,
       },
     )
 
@@ -406,7 +407,7 @@ describe('zodGenerator operation', async () => {
     }
     const plugin = { options } as Plugin<PluginZod>
     const fabric = createReactFabric()
-    const instance = new OperationGenerator(options, {
+    const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
@@ -419,10 +420,11 @@ describe('zodGenerator operation', async () => {
     })
     const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
-      instance,
-      generator: zodGenerator,
-      options,
+      generator,
+      Component: zodGenerator.Operation,
+      plugin,
     })
 
     await matchFiles(fabric.files)
@@ -452,11 +454,11 @@ describe('zodGenerator operation', async () => {
         wrapOutput: ({ output, schema }) => {
           const metadata: ZodOpenAPIMetadata = {}
 
-          if (schema.example) {
+          if (schema?.example) {
             metadata.example = schema.example
           }
 
-          if (schema.examples) {
+          if (schema?.examples) {
             if (Array.isArray(schema.examples)) {
               metadata.examples = schema.examples
             } else if (typeof schema.examples === 'object') {
@@ -474,7 +476,7 @@ describe('zodGenerator operation', async () => {
       }
       const plugin = { options } as Plugin<PluginZod>
       const fabric = createReactFabric()
-      const instance = new OperationGenerator(options, {
+      const generator = new OperationGenerator(options, {
         fabric,
         oas,
         include: undefined,
@@ -488,10 +490,11 @@ describe('zodGenerator operation', async () => {
       const operation = oas.operation(props.path, props.method)
 
       await buildOperation(operation, {
+        config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
-        instance,
-        generator: zodGenerator,
-        options,
+        generator,
+        Component: zodGenerator.Operation,
+        plugin,
       })
 
       let files = fabric.files
@@ -542,7 +545,7 @@ describe('zodGenerator operation', async () => {
         wrapOutput: ({ output, schema }) => {
           const metadata: ZodOpenAPIMetadata = {}
 
-          if (schema.example) {
+          if (schema?.example) {
             metadata.example = schema.example
           }
 
@@ -564,7 +567,7 @@ describe('zodGenerator operation', async () => {
       }
       const plugin = { options } as Plugin<PluginZod>
       const fabric = createReactFabric()
-      const instance = new OperationGenerator(options, {
+      const generator = new OperationGenerator(options, {
         fabric,
         oas,
         include: undefined,
@@ -578,10 +581,11 @@ describe('zodGenerator operation', async () => {
       const operation = oas.operation(entry.path, entry.method)
 
       await buildOperation(operation, {
+        config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
-        instance,
-        generator: zodGenerator,
-        options,
+        generator,
+        Component: zodGenerator.Operation,
+        plugin,
       })
 
       let files = fabric.files

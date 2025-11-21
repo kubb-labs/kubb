@@ -1,5 +1,4 @@
 import transformers from '@kubb/core/transformers'
-import type { SchemaObject } from '@kubb/oas'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
 import { isKeyword, SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
@@ -191,12 +190,12 @@ const zodKeywordMapper = {
   phone: undefined,
   readOnly: undefined,
   writeOnly: undefined,
-  ref: (value?: string, version: '3' | '4' = '3') => {
+  ref: (value?: string, lazy = true) => {
     if (!value) {
       return undefined
     }
 
-    return version === '4' ? value : `z.lazy(() => ${value})`
+    return lazy ? `z.lazy(() => ${value})` : value
   },
   blob: () => 'z.instanceof(File)',
   deprecated: undefined,
@@ -258,18 +257,14 @@ const shouldCoerce = (coercion: ParserOptions['coercion'] | undefined, type: 'da
 }
 
 type ParserOptions = {
-  name: string
-  typeName?: string
-  description?: string
-  keysToOmit?: string[]
+  lazy?: boolean
   mapper?: Record<string, string>
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
-  rawSchema: SchemaObject
   version: '3' | '4'
 }
 
-export function parse({ parent, current, name, siblings }: SchemaTree, options: ParserOptions): string | undefined {
+export function parse({ schema, parent, current, name, siblings }: SchemaTree, options: ParserOptions): string | undefined {
   const value = zodKeywordMapper[current.keyword as keyof typeof zodKeywordMapper]
 
   // Early exit: if siblings contain both matches and ref → skip matches entirely
@@ -287,7 +282,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
   if (isKeyword(current, schemaKeywords.union)) {
     // zod union type needs at least 2 items
     if (Array.isArray(current.args) && current.args.length === 1) {
-      return parse({ parent, name: name, current: current.args[0] as Schema, siblings }, options)
+      return parse({ schema, parent, name, current: current.args[0] as Schema, siblings }, options)
     }
     if (Array.isArray(current.args) && !current.args.length) {
       return ''
@@ -295,7 +290,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
 
     return zodKeywordMapper.union(
       sort(current.args)
-        .map((schema, _index, siblings) => parse({ parent: current, name: name, current: schema, siblings }, options))
+        .map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
         .filter(Boolean),
     )
   }
@@ -305,7 +300,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
       .filter((schema: Schema) => {
         return ![schemaKeywords.optional, schemaKeywords.describe].includes(schema.keyword as typeof schemaKeywords.describe)
       })
-      .map((schema: Schema, _index, siblings) => parse({ parent: current, name: name, current: schema, siblings }, options))
+      .map((it: Schema, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
       .filter(Boolean)
 
     return `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1))}`
@@ -314,7 +309,9 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
   if (isKeyword(current, schemaKeywords.array)) {
     return zodKeywordMapper.array(
       sort(current.args.items)
-        .map((schemas, _index, siblings) => parse({ parent: current, name: name, current: schemas, siblings }, options))
+        .map((it, _index, siblings) => {
+          return parse({ schema, parent: current, name, current: it, siblings }, options)
+        })
         .filter(Boolean),
       current.args.min,
       current.args.max,
@@ -329,7 +326,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
           keyword: schemaKeywords.const,
           args: current.args.items[0],
         }
-        return parse({ parent: current, name: name, current: child, siblings: [child] }, options)
+        return parse({ schema, parent: current, name, current: child, siblings: [child] }, options)
       }
 
       return zodKeywordMapper.union(
@@ -338,8 +335,8 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
             keyword: schemaKeywords.const,
             args: schema,
           }))
-          .map((schema, _index, siblings) => {
-            return parse({ parent: current, name: name, current: schema, siblings }, options)
+          .map((it, _index, siblings) => {
+            return parse({ schema, parent: current, name, current: it, siblings }, options)
           })
           .filter(Boolean),
       )
@@ -360,7 +357,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
   }
 
   if (isKeyword(current, schemaKeywords.ref)) {
-    return zodKeywordMapper.ref(current.args?.name, options.version)
+    return zodKeywordMapper.ref(current.args?.name, options.lazy ?? name === current.args.name)
   }
 
   if (isKeyword(current, schemaKeywords.object)) {
@@ -370,80 +367,84 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
     })
 
     const properties = propertyEntries
-      .map(([name, schemas]) => {
+      .map(([propertyName, schemas]) => {
         const nameSchema = schemas.find((it) => it.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
         const isNullable = schemas.some((it) => isKeyword(it, schemaKeywords.nullable))
         const isNullish = schemas.some((it) => isKeyword(it, schemaKeywords.nullish))
         const isOptional = schemas.some((it) => isKeyword(it, schemaKeywords.optional))
+        const hasRef = !!SchemaGenerator.find(schemas, schemaKeywords.ref)
 
-        const mappedName = nameSchema?.args || name
+        const mappedName = nameSchema?.args || propertyName
 
         // custom mapper(pluginOptions)
         if (options.mapper?.[mappedName]) {
-          return `"${name}": ${options.mapper?.[mappedName]}`
+          return `"${propertyName}": ${options.mapper?.[mappedName]}`
         }
 
         const baseSchemaOutput = sort(schemas)
           .filter((schema) => {
             return !isKeyword(schema, schemaKeywords.optional) && !isKeyword(schema, schemaKeywords.nullable) && !isKeyword(schema, schemaKeywords.nullish)
           })
-          .map((schema) => parse({ parent: current, name, current: schema, siblings: schemas }, options))
+          .map((it) => {
+            const lazy = !(options.version === '4' && hasRef)
+            return parse({ schema, parent: current, name, current: it, siblings: schemas }, { ...options, lazy })
+          })
           .filter(Boolean)
           .join('')
 
         const objectValue = options.wrapOutput
-          ? options.wrapOutput({ output: baseSchemaOutput, schema: options.rawSchema?.properties?.[name] }) || baseSchemaOutput
+          ? options.wrapOutput({ output: baseSchemaOutput, schema: schema?.properties?.[propertyName] }) || baseSchemaOutput
           : baseSchemaOutput
 
-        if (options.version === '4' && SchemaGenerator.find(schemas, schemaKeywords.ref)) {
+        if (options.version === '4' && hasRef) {
           // both optional and nullable
           if (isNullish) {
-            return `get "${name}"(){
-                return ${zodKeywordMapper.nullish(objectValue)}
+            return `get "${propertyName}"(){
+                return ${objectValue}${zodKeywordMapper.nullish()}
               }`
           }
 
           // undefined
           if (isOptional) {
-            return `get "${name}"(){
-                return ${zodKeywordMapper.optional(objectValue)}
+            return `get "${propertyName}"(){
+                return ${objectValue}${zodKeywordMapper.optional()}
               }`
           }
 
           // null
           if (isNullable) {
-            return `get "${name}"(){
-                return ${zodKeywordMapper.nullable(objectValue)}
+            return `get "${propertyName}"(){
+               return ${objectValue}${zodKeywordMapper.nullable()}
               }`
           }
 
-          return `get "${name}"(){
+          return `get "${propertyName}"(){
                 return ${objectValue}
               }`
         }
 
         // both optional and nullable
         if (isNullish) {
-          return `"${name}": ${objectValue}${zodKeywordMapper.nullish()}`
+          return `"${propertyName}": ${objectValue}${zodKeywordMapper.nullish()}`
         }
 
         // undefined
         if (isOptional) {
-          return `"${name}": ${zodKeywordMapper.optional(objectValue)}`
+          return `"${propertyName}": ${zodKeywordMapper.optional(objectValue)}`
         }
 
         // null
         if (isNullable) {
-          return `"${name}": ${zodKeywordMapper.nullable(objectValue)}`
+          return `"${propertyName}": ${zodKeywordMapper.nullable(objectValue)}`
         }
 
-        return `"${name}": ${objectValue}`
+        return `"${propertyName}": ${objectValue}`
       })
       .join(',\n')
 
     const additionalProperties = current.args?.additionalProperties?.length
       ? current.args.additionalProperties
-          .map((schema, _index, siblings) => parse({ parent: current, name: name, current: schema, siblings }, options))
+          .map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
           .filter(Boolean)
           .join('')
       : undefined
@@ -458,7 +459,7 @@ export function parse({ parent, current, name, siblings }: SchemaTree, options: 
 
   if (isKeyword(current, schemaKeywords.tuple)) {
     return zodKeywordMapper.tuple(
-      current.args.items.map((schema, _index, siblings) => parse({ parent: current, name: name, current: schema, siblings }, options)).filter(Boolean),
+      current.args.items.map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean),
     )
   }
 

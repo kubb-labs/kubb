@@ -1,5 +1,61 @@
 # @kubb/core
 
+## 4.5.11
+
+### Patch Changes
+
+- [#2021](https://github.com/kubb-labs/kubb/pull/2021) [`8dd9b83`](https://github.com/kubb-labs/kubb/commit/8dd9b833a84c6984a8056f0f4170fe60360b9ca7) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - upgrade to have latest react-fabric version
+
+## 4.5.10
+
+## 4.5.9
+
+## 4.5.8
+
+## 4.5.7
+
+### Patch Changes
+
+- [`40e29ca`](https://github.com/kubb-labs/kubb/commit/40e29ca67ab79e15523cfda8ae648cb0aa2712f9) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of fixed fabric version
+
+## 4.5.6
+
+### Patch Changes
+
+- [`613ad38`](https://github.com/kubb-labs/kubb/commit/613ad381a8d73dd3815eb72d7cd32da2290d3203) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct type for plugins
+
+## 4.5.5
+
+### Patch Changes
+
+- [`ec21400`](https://github.com/kubb-labs/kubb/commit/ec21400d90c7e6cdf93485db30ca23624d652ec8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - another try
+
+## 4.5.4
+
+### Patch Changes
+
+- [`f81d4f1`](https://github.com/kubb-labs/kubb/commit/f81d4f133b302e6fbc03787fa4be40806066acc7) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update defineConfig type
+
+## 4.5.3
+
+## 4.5.2
+
+### Patch Changes
+
+- [`56207b9`](https://github.com/kubb-labs/kubb/commit/56207b9b36cad9ccef190fe68716c3d78bb257c8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update Fabric package
+
+## 4.5.1
+
+## 4.5.0
+
+### Minor Changes
+
+- [#1970](https://github.com/kubb-labs/kubb/pull/1970) [`7152039`](https://github.com/kubb-labs/kubb/commit/71520392cde27ff58bcbead3930e8f3e38b3be86) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove @kubb dependencies
+
+### Patch Changes
+
+- [#1972](https://github.com/kubb-labs/kubb/pull/1972) [`2fc52bb`](https://github.com/kubb-labs/kubb/commit/2fc52bba8d537d8a50de1fd57656cdcf4aadbda1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Sort OpenApi Schemas
+
 ## 4.4.1
 
 ### Patch Changes

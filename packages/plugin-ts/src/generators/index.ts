@@ -1,2 +1,2 @@
-export { typeGenerator } from './typeGenerator.tsx'
 export { oasGenerator } from './oasGenerator.tsx'
+export { typeGenerator } from './typeGenerator.tsx'

@@ -7,6 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
 export const placeOrderMutationKey = () => [{ url: '/store/order' }] as const
 
@@ -38,9 +39,12 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
  */
 export function usePlaceOrder(
   options: {
-    mutation?: Parameters<
-      typeof useSWRMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationKey, PlaceOrderMutationRequest>
-    >[2]
+    mutation?: SWRMutationConfiguration<
+      PlaceOrderMutationResponse,
+      ResponseErrorConfig<PlaceOrder405>,
+      PlaceOrderMutationKey | null,
+      PlaceOrderMutationRequest
+    > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},

@@ -4,9 +4,9 @@ import yaml from '@stoplight/yaml'
 import { expectTypeOf } from 'vitest'
 
 import { petStore } from '../mocks/petStore.ts'
-
-import { Oas } from './Oas.ts'
 import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './infer/index.ts'
+import { Oas } from './Oas.ts'
+import type { OpenAPIV3 } from './types.ts'
 import { parse } from './utils.ts'
 
 describe('swagger Infer', () => {
@@ -43,5 +43,134 @@ describe('Oas filter', async () => {
     const oas = await parse(petStorePath)
 
     expect(yaml.safeStringify(oas.api)).toMatchSnapshot()
+  })
+})
+describe('discriminator inherit', () => {
+  test('sets enum on mapped schemas before parsing', () => {
+    const discriminatorSpec: OpenAPIV3.Document = {
+      openapi: '3.0.3',
+      info: {
+        title: 'Discriminator inherit',
+        version: '1.0.0',
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Animal: {
+            type: 'object',
+            required: ['type'],
+            oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            properties: {
+              type: {
+                type: 'string',
+              },
+            },
+            discriminator: {
+              propertyName: 'type',
+              mapping: {
+                cat: '#/components/schemas/Cat',
+                dog: '#/components/schemas/Dog',
+              },
+            },
+          },
+          Cat: {
+            type: 'object',
+            required: ['type'],
+            properties: {
+              type: {
+                type: 'string',
+              },
+            },
+          },
+          Dog: {
+            type: 'object',
+            required: ['type'],
+            properties: {
+              type: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const oas = new Oas({ oas: discriminatorSpec })
+
+    oas.setOptions({ discriminator: 'inherit' })
+
+    const catSchema = oas.get('#/components/schemas/Cat') as OpenAPIV3.SchemaObject
+    const dogSchema = oas.get('#/components/schemas/Dog') as OpenAPIV3.SchemaObject
+    const catTypeProperty = catSchema.properties?.type as OpenAPIV3.SchemaObject | undefined
+    const dogTypeProperty = dogSchema.properties?.type as OpenAPIV3.SchemaObject | undefined
+
+    expect(catTypeProperty?.enum).toEqual(['cat'])
+    expect(dogTypeProperty?.enum).toEqual(['dog'])
+    expect(catSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
+    expect(dogSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
+  })
+
+  test('keeps original schemas when discriminator option is strict', () => {
+    const discriminatorSpec: OpenAPIV3.Document = {
+      openapi: '3.0.3',
+      info: {
+        title: 'Discriminator strict',
+        version: '1.0.0',
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Animal: {
+            type: 'object',
+            required: ['type'],
+            oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            properties: {
+              type: {
+                type: 'string',
+              },
+            },
+            discriminator: {
+              propertyName: 'type',
+              mapping: {
+                cat: '#/components/schemas/Cat',
+                dog: '#/components/schemas/Dog',
+              },
+            },
+          },
+          Cat: {
+            type: 'object',
+            required: ['type'],
+            properties: {
+              type: {
+                type: 'string',
+              },
+            },
+          },
+          Dog: {
+            type: 'object',
+            required: ['type'],
+            properties: {
+              type: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const oas = new Oas({ oas: discriminatorSpec })
+
+    oas.setOptions({ discriminator: 'strict' })
+
+    const catSchema = oas.get('#/components/schemas/Cat') as OpenAPIV3.SchemaObject
+    const dogSchema = oas.get('#/components/schemas/Dog') as OpenAPIV3.SchemaObject
+    const catTypeProperty = catSchema.properties?.type as OpenAPIV3.SchemaObject | undefined
+    const dogTypeProperty = dogSchema.properties?.type as OpenAPIV3.SchemaObject | undefined
+
+    expect(catTypeProperty?.enum).toBeUndefined()
+    expect(dogTypeProperty?.enum).toBeUndefined()
+    expect(catSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
+    expect(dogSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
   })
 })

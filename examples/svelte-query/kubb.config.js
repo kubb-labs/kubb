@@ -24,6 +24,9 @@ export default defineConfig({
       output: { path: 'models' },
     }),
     pluginSvelteQuery({
+      client: {
+        bundle: true,
+      },
       output: {
         path: './hooks',
       },
@@ -34,7 +37,7 @@ export default defineConfig({
           options: {
             client: {
               dataReturnType: 'full',
-              importPath: '@kubb/plugin-client/clients/axios',
+              client: 'axios',
             },
             infinite: {
               queryParam: 'pageSize',

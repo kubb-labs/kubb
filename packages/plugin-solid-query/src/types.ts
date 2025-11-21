@@ -2,7 +2,8 @@ import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@ku
 
 import type { contentType, HttpMethod, Oas, Operation } from '@kubb/oas'
 import type { PluginClient } from '@kubb/plugin-client'
-import type { Exclude, Generator, Include, OperationSchemas, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Include, OperationSchemas, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Generator } from '@kubb/plugin-oas/generators'
 
 type TransformerProps = {
   operation: Operation
@@ -69,8 +70,7 @@ export type Options = {
    * Group the @tanstack/query hooks based on the provided name.
    */
   group?: Group
-
-  client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath' | 'baseURL'>
+  client?: Pick<PluginClient['options'], 'client' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle'>
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
@@ -132,7 +132,7 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
-  client: Required<Omit<NonNullable<PluginSolidQuery['options']['client']>, 'baseURL'>> & { baseURL?: string }
+  client: NonNullable<PluginSolidQuery['options']['client']>
   parser: Required<NonNullable<Options['parser']>>
   paramsCasing: Options['paramsCasing']
   paramsType: NonNullable<Options['paramsType']>

@@ -17,6 +17,6 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": ["./src/**/*"],
+  "include": ["./src/**/*", "kubb.config.js"],
   "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]
 }

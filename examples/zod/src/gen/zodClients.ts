@@ -3,21 +3,21 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { DeleteOrderMutationResponseType, DeleteOrderPathParamsType, DeleteOrder400Type, DeleteOrder404Type } from './ts/DeleteOrderType.ts'
-import type { GetInventoryQueryResponseType } from './ts/GetInventoryType.ts'
-import type { GetOrderByIdQueryResponseType, GetOrderByIdPathParamsType, GetOrderById400Type, GetOrderById404Type } from './ts/GetOrderByIdType.ts'
-import type { PlaceOrderPatchMutationRequestType, PlaceOrderPatchMutationResponseType, PlaceOrderPatch405Type } from './ts/PlaceOrderPatchType.ts'
-import type { PlaceOrderMutationRequestType, PlaceOrderMutationResponseType, PlaceOrder405Type } from './ts/PlaceOrderType.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
+import type { DeleteOrder400Type, DeleteOrder404Type, DeleteOrderMutationResponseType, DeleteOrderPathParamsType } from './ts/DeleteOrderType.ts'
+import type { GetInventoryQueryResponseType } from './ts/GetInventoryType.ts'
+import type { GetOrderById400Type, GetOrderById404Type, GetOrderByIdPathParamsType, GetOrderByIdQueryResponseType } from './ts/GetOrderByIdType.ts'
+import type { PlaceOrderPatch405Type, PlaceOrderPatchMutationRequestType, PlaceOrderPatchMutationResponseType } from './ts/PlaceOrderPatchType.ts'
+import type { PlaceOrder405Type, PlaceOrderMutationRequestType, PlaceOrderMutationResponseType } from './ts/PlaceOrderType.ts'
 import { deleteOrderMutationResponseSchema } from './zod/deleteOrderSchema.gen.ts'
 import { getInventoryQueryResponseSchema } from './zod/getInventorySchema.gen.ts'
 import { getOrderByIdQueryResponseSchema } from './zod/getOrderByIdSchema.gen.ts'
-import { placeOrderPatchMutationResponseSchema, placeOrderPatchMutationRequestSchema } from './zod/placeOrderPatchSchema.gen.ts'
-import { placeOrderMutationResponseSchema, placeOrderMutationRequestSchema } from './zod/placeOrderSchema.gen.ts'
+import { placeOrderPatchMutationRequestSchema, placeOrderPatchMutationResponseSchema } from './zod/placeOrderPatchSchema.gen.ts'
+import { placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from './zod/placeOrderSchema.gen.ts'
 
 function getGetInventoryUrl() {
-  const res = { method: 'GET', url: `/store/inventory` as const }
+  const res = { method: 'GET', url: '/store/inventory' as const }
   return res
 }
 
@@ -38,7 +38,7 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: t
 }
 
 function getPlaceOrderUrl() {
-  const res = { method: 'POST', url: `/store/order` as const }
+  const res = { method: 'POST', url: '/store/order' as const }
   return res
 }
 
@@ -65,7 +65,7 @@ export async function placeOrder(
 }
 
 function getPlaceOrderPatchUrl() {
-  const res = { method: 'PATCH', url: `/store/order` as const }
+  const res = { method: 'PATCH', url: '/store/order' as const }
   return res
 }
 

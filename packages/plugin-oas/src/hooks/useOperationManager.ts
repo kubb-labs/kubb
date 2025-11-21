@@ -1,9 +1,8 @@
-import type { FileMetaBase, Plugin, ResolveNameParams } from '@kubb/core'
+import type { FileMetaBase, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
-import { useContext } from '@kubb/react-fabric'
-import { Oas } from '../components/Oas.tsx'
+import type { OperationGenerator } from '../OperationGenerator.ts'
 import type { OperationSchemas } from '../types.ts'
 
 type FileMeta = FileMetaBase & {
@@ -63,10 +62,11 @@ type UseOperationManagerResult = {
 /**
  * `useOperationManager` will return some helper functions that can be used to get the operation file, get the operation name.
  */
-export function useOperationManager(): UseOperationManagerResult {
+export function useOperationManager<TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions>(
+  generator: Omit<OperationGenerator<TPluginOptions>, 'build'>,
+): UseOperationManagerResult {
   const plugin = usePlugin()
   const pluginManager = usePluginManager()
-  const { generator } = useContext(Oas.Context)
 
   const getName: UseOperationManagerResult['getName'] = (operation, { prefix = '', suffix = '', pluginKey = plugin.key, type }) => {
     return pluginManager.resolveName({

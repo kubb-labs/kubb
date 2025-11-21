@@ -4,11 +4,58 @@ title: Changelog
 
 # Changelog
 
+# 4.5.12 (Unreleased)
+- [`plugin-swr`](/plugins/plugin-swr/): Fix SWR mutation type issue by using `SWRMutationConfiguration` directly instead of `Parameters<typeof useSWRMutation>[2]`. This resolves type inference issues caused by SWR's function overloading based on `throwOnError`, allowing flexible definition and passing of mutation configuration options.
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Fixed potential runtime errors when handling undefined schemas
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Improved queryKey extraction safety with reactive value resolution
+- [`unplugin-kubb`](/builders/unplugin): Added multi-framework support (Vite and Rollup)
+- [`core`](/plugins/core): Fixed potential runtime errors when handling undefined schemas
+- Update development dependencies (Vite, Nuxt, Biome)
+
+# 4.5.11
+- upgrade to have latest react-fabric version
+
+# 4.5.10
+- upgrade to have latest react-fabric version
+
+# 4.5.9
+- [`plugin-oas`](/plugins/plugin-oas/): discriminator `inherit` issue, resolved by applying inherit on setOptions
+
+# 4.5.8
+- Rebuild core packages
+
+# 4.5.7
+- Rebuild core packages
+
+# 4.5.6
+- [`core`](/plugins/core): Correct type for Plugins
+
+# 4.5.3
+- [`plugin-oas`](/plugins/plugin-oas/): expose generators helpers again in main barrel of plugin-oas
+
+# 4.5.2
+- Update Fabric packages
+
+# 4.5.1
+- [`plugin-zod`](/plugins/plugin-zod): Query parameter object with all parameters defaulting incorrectly marked as optional in Zod
+
+# 4.5.0
+- [`plugin-react-query`](/plugins/plugin-react-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
+- [`plugin-client`](/plugins/plugin-client): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
+- [`plugin-zod`](/plugins/plugin-zod):
+  - Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the `ToZod` helper
+  - Zod schema was not adding `.max`, revert previous changes to bring back this feature
+  -  Add `z.lazy` for every reference but when used in Zod v4 with `get(){}` syntax remove the `z.lazy`
+- [`plugin-oas`](/plugins/plugin-oas/): Sort OpenApi Schemas so references are having a correct order when generated
+
 # 4.4.1
 - Update Fabric packages
 
 # 4.4.0
-- Add Fabric suport
+- Add Fabric support
 
 # 4.3.1
 - [`react`](/helpers/react/): update peerdeps `@kubb/react`

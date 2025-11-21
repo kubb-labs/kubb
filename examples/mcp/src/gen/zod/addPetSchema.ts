@@ -3,14 +3,14 @@
  * Do not edit manually.
  */
 
+import { z } from 'zod'
 import { addPetRequestSchema } from './addPetRequestSchema.js'
 import { petSchema } from './petSchema.js'
-import { z } from 'zod'
 
 /**
  * @description Successful operation
  */
-export const addPet200Schema = z.lazy(() => petSchema).schema.omit({ name: true })
+export const addPet200Schema = petSchema.omit({ name: true })
 
 /**
  * @description Pet not found
@@ -23,6 +23,6 @@ export const addPet405Schema = z.object({
 /**
  * @description Create a new pet in the store
  */
-export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema)
+export const addPetMutationRequestSchema = addPetRequestSchema
 
-export const addPetMutationResponseSchema = z.lazy(() => addPet200Schema)
+export const addPetMutationResponseSchema = addPet200Schema

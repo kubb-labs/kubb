@@ -1,12 +1,11 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { build } from './build.ts'
-import { createPlugin } from './plugin.ts'
+import { definePlugin } from './definePlugin.ts'
 import type { Config, Plugin } from './types.ts'
 
 describe('build', () => {
   const pluginMocks = {
-    buildStart: vi.fn(),
-    buildEnd: vi.fn(),
+    install: vi.fn(),
     resolvePath: vi.fn(),
   } as const
 
@@ -15,19 +14,16 @@ describe('build', () => {
     baseName: 'world.json',
     sources: [{ value: `{ "hello": "world" }` }],
   }
-  const plugin = createPlugin(() => {
+  const plugin = definePlugin(() => {
     return {
       name: 'plugin',
       options: undefined as any,
       context: undefined as never,
       key: ['plugin'],
-      async buildStart(...params) {
-        pluginMocks.buildStart(...params)
+      async install(...params) {
+        pluginMocks.install(...params)
 
         await this.addFile(file)
-      },
-      buildEnd(...params) {
-        pluginMocks.buildEnd(...params)
       },
     }
   })
@@ -91,7 +87,6 @@ describe('build', () => {
       ]
     `)
 
-    expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
-    expect(pluginMocks.buildEnd).toHaveBeenCalledTimes(1)
+    expect(pluginMocks.install).toHaveBeenCalledTimes(1)
   })
 })

@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { userSchema } from './userSchema.js'
 import { z } from 'zod'
+import { userSchema } from './userSchema.js'
 
 export const updateUserPathParamsSchema = z.object({
   username: z.string().describe('name that need to be deleted'),
@@ -18,6 +18,6 @@ export const updateUserErrorSchema = z.any()
 /**
  * @description Update an existent user in the store
  */
-export const updateUserMutationRequestSchema = z.lazy(() => userSchema)
+export const updateUserMutationRequestSchema = userSchema
 
 export const updateUserMutationResponseSchema = z.any()

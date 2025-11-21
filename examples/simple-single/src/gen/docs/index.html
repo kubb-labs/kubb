@@ -2530,44 +2530,57 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "x-readme-ref-name": "Person"
                   },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 10
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "theUser"
+                      },
+                      "firstName": {
+                        "type": "string",
+                        "example": "John"
+                      },
+                      "lastName": {
+                        "type": "string",
+                        "example": "James"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "john@email.com"
+                      },
+                      "password": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "phone": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "userStatus": {
+                        "type": "integer",
+                        "description": "User Status",
+                        "format": "int32",
+                        "example": 1
+                      }
+                    }
                   }
-                },
+                ],
                 "xml": {
                   "name": "user"
                 },
@@ -2576,44 +2589,57 @@
             },
             "application/xml": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "x-readme-ref-name": "Person"
                   },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 10
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "theUser"
+                      },
+                      "firstName": {
+                        "type": "string",
+                        "example": "John"
+                      },
+                      "lastName": {
+                        "type": "string",
+                        "example": "James"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "john@email.com"
+                      },
+                      "password": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "phone": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "userStatus": {
+                        "type": "integer",
+                        "description": "User Status",
+                        "format": "int32",
+                        "example": 1
+                      }
+                    }
                   }
-                },
+                ],
                 "xml": {
                   "name": "user"
                 },
@@ -2622,44 +2648,57 @@
             },
             "application/x-www-form-urlencoded": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "x-readme-ref-name": "Person"
                   },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 10
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "theUser"
+                      },
+                      "firstName": {
+                        "type": "string",
+                        "example": "John"
+                      },
+                      "lastName": {
+                        "type": "string",
+                        "example": "James"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "john@email.com"
+                      },
+                      "password": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "phone": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "userStatus": {
+                        "type": "integer",
+                        "description": "User Status",
+                        "format": "int32",
+                        "example": 1
+                      }
+                    }
                   }
-                },
+                ],
                 "xml": {
                   "name": "user"
                 },
@@ -2674,44 +2713,57 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "x-readme-ref-name": "Person"
                     },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 10
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "theUser"
+                        },
+                        "firstName": {
+                          "type": "string",
+                          "example": "John"
+                        },
+                        "lastName": {
+                          "type": "string",
+                          "example": "James"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@email.com"
+                        },
+                        "password": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "userStatus": {
+                          "type": "integer",
+                          "description": "User Status",
+                          "format": "int32",
+                          "example": 1
+                        }
+                      }
                     }
-                  },
+                  ],
                   "xml": {
                     "name": "user"
                   },
@@ -2720,44 +2772,57 @@
               },
               "application/xml": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "x-readme-ref-name": "Person"
                     },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 10
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "theUser"
+                        },
+                        "firstName": {
+                          "type": "string",
+                          "example": "John"
+                        },
+                        "lastName": {
+                          "type": "string",
+                          "example": "James"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@email.com"
+                        },
+                        "password": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "userStatus": {
+                          "type": "integer",
+                          "description": "User Status",
+                          "format": "int32",
+                          "example": 1
+                        }
+                      }
                     }
-                  },
+                  ],
                   "xml": {
                     "name": "user"
                   },
@@ -2783,44 +2848,57 @@
               "schema": {
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "x-readme-ref-name": "Person"
                     },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 10
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "theUser"
+                        },
+                        "firstName": {
+                          "type": "string",
+                          "example": "John"
+                        },
+                        "lastName": {
+                          "type": "string",
+                          "example": "James"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@email.com"
+                        },
+                        "password": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "userStatus": {
+                          "type": "integer",
+                          "description": "User Status",
+                          "format": "int32",
+                          "example": 1
+                        }
+                      }
                     }
-                  },
+                  ],
                   "xml": {
                     "name": "user"
                   },
@@ -2836,44 +2914,57 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "x-readme-ref-name": "Person"
                     },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 10
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "theUser"
+                        },
+                        "firstName": {
+                          "type": "string",
+                          "example": "John"
+                        },
+                        "lastName": {
+                          "type": "string",
+                          "example": "James"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@email.com"
+                        },
+                        "password": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "userStatus": {
+                          "type": "integer",
+                          "description": "User Status",
+                          "format": "int32",
+                          "example": 1
+                        }
+                      }
                     }
-                  },
+                  ],
                   "xml": {
                     "name": "user"
                   },
@@ -2882,44 +2973,57 @@
               },
               "application/xml": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "x-readme-ref-name": "Person"
                     },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 10
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "theUser"
+                        },
+                        "firstName": {
+                          "type": "string",
+                          "example": "John"
+                        },
+                        "lastName": {
+                          "type": "string",
+                          "example": "James"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@email.com"
+                        },
+                        "password": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "userStatus": {
+                          "type": "integer",
+                          "description": "User Status",
+                          "format": "int32",
+                          "example": 1
+                        }
+                      }
                     }
-                  },
+                  ],
                   "xml": {
                     "name": "user"
                   },
@@ -3041,44 +3145,57 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "x-readme-ref-name": "Person"
                     },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 10
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "theUser"
+                        },
+                        "firstName": {
+                          "type": "string",
+                          "example": "John"
+                        },
+                        "lastName": {
+                          "type": "string",
+                          "example": "James"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@email.com"
+                        },
+                        "password": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "userStatus": {
+                          "type": "integer",
+                          "description": "User Status",
+                          "format": "int32",
+                          "example": 1
+                        }
+                      }
                     }
-                  },
+                  ],
                   "xml": {
                     "name": "user"
                   },
@@ -3087,44 +3204,57 @@
               },
               "application/xml": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "x-readme-ref-name": "Person"
                     },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 10
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "theUser"
+                        },
+                        "firstName": {
+                          "type": "string",
+                          "example": "John"
+                        },
+                        "lastName": {
+                          "type": "string",
+                          "example": "James"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@email.com"
+                        },
+                        "password": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "userStatus": {
+                          "type": "integer",
+                          "description": "User Status",
+                          "format": "int32",
+                          "example": 1
+                        }
+                      }
                     }
-                  },
+                  ],
                   "xml": {
                     "name": "user"
                   },
@@ -3164,44 +3294,57 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "x-readme-ref-name": "Person"
                   },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 10
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "theUser"
+                      },
+                      "firstName": {
+                        "type": "string",
+                        "example": "John"
+                      },
+                      "lastName": {
+                        "type": "string",
+                        "example": "James"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "john@email.com"
+                      },
+                      "password": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "phone": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "userStatus": {
+                        "type": "integer",
+                        "description": "User Status",
+                        "format": "int32",
+                        "example": 1
+                      }
+                    }
                   }
-                },
+                ],
                 "xml": {
                   "name": "user"
                 },
@@ -3210,44 +3353,57 @@
             },
             "application/xml": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "x-readme-ref-name": "Person"
                   },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 10
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "theUser"
+                      },
+                      "firstName": {
+                        "type": "string",
+                        "example": "John"
+                      },
+                      "lastName": {
+                        "type": "string",
+                        "example": "James"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "john@email.com"
+                      },
+                      "password": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "phone": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "userStatus": {
+                        "type": "integer",
+                        "description": "User Status",
+                        "format": "int32",
+                        "example": 1
+                      }
+                    }
                   }
-                },
+                ],
                 "xml": {
                   "name": "user"
                 },
@@ -3256,44 +3412,57 @@
             },
             "application/x-www-form-urlencoded": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "x-readme-ref-name": "Person"
                   },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 10
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "theUser"
+                      },
+                      "firstName": {
+                        "type": "string",
+                        "example": "John"
+                      },
+                      "lastName": {
+                        "type": "string",
+                        "example": "James"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "john@email.com"
+                      },
+                      "password": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "phone": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "userStatus": {
+                        "type": "integer",
+                        "description": "User Status",
+                        "format": "int32",
+                        "example": 1
+                      }
+                    }
                   }
-                },
+                ],
                 "xml": {
                   "name": "user"
                 },
@@ -3484,44 +3653,57 @@
         "x-readme-ref-name": "Category"
       },
       "User": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "example": 10
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            },
+            "x-readme-ref-name": "Person"
           },
-          "username": {
-            "type": "string",
-            "example": "theUser"
-          },
-          "firstName": {
-            "type": "string",
-            "example": "John"
-          },
-          "lastName": {
-            "type": "string",
-            "example": "James"
-          },
-          "email": {
-            "type": "string",
-            "example": "john@email.com"
-          },
-          "password": {
-            "type": "string",
-            "example": "12345"
-          },
-          "phone": {
-            "type": "string",
-            "example": "12345"
-          },
-          "userStatus": {
-            "type": "integer",
-            "description": "User Status",
-            "format": "int32",
-            "example": 1
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "example": 10
+              },
+              "username": {
+                "type": "string",
+                "example": "theUser"
+              },
+              "firstName": {
+                "type": "string",
+                "example": "John"
+              },
+              "lastName": {
+                "type": "string",
+                "example": "James"
+              },
+              "email": {
+                "type": "string",
+                "example": "john@email.com"
+              },
+              "password": {
+                "type": "string",
+                "example": "12345"
+              },
+              "phone": {
+                "type": "string",
+                "example": "12345"
+              },
+              "userStatus": {
+                "type": "integer",
+                "description": "User Status",
+                "format": "int32",
+                "example": 1
+              }
+            }
           }
-        },
+        ],
         "xml": {
           "name": "user"
         },
@@ -3542,6 +3724,15 @@
           "name": "tag"
         },
         "x-readme-ref-name": "Tag"
+      },
+      "Person": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "x-readme-ref-name": "Person"
       },
       "Pet": {
         "required": [
@@ -3912,44 +4103,57 @@
             "schema": {
               "type": "array",
               "items": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "x-readme-ref-name": "Person"
                   },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 10
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "theUser"
+                      },
+                      "firstName": {
+                        "type": "string",
+                        "example": "John"
+                      },
+                      "lastName": {
+                        "type": "string",
+                        "example": "James"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "john@email.com"
+                      },
+                      "password": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "phone": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "userStatus": {
+                        "type": "integer",
+                        "description": "User Status",
+                        "format": "int32",
+                        "example": 1
+                      }
+                    }
                   }
-                },
+                ],
                 "xml": {
                   "name": "user"
                 },

@@ -7,6 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
 export const deleteOrderMutationKey = () => [{ url: '/store/order/:orderId' }] as const
 
@@ -36,7 +37,12 @@ export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], con
 export function useDeleteOrder(
   orderId: DeleteOrderPathParams['orderId'],
   options: {
-    mutation?: Parameters<typeof useSWRMutation<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, DeleteOrderMutationKey>>[2]
+    mutation?: SWRMutationConfiguration<
+      DeleteOrderMutationResponse,
+      ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
+      DeleteOrderMutationKey | null,
+      never
+    > & { throwOnError?: boolean }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},

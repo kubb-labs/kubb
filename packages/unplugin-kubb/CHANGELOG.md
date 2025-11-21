@@ -1,5 +1,17 @@
 # unplugin-kubb
 
+## 3.2.1
+
+### Patch Changes
+
+- [#2021](https://github.com/kubb-labs/kubb/pull/2021) [`8dd9b83`](https://github.com/kubb-labs/kubb/commit/8dd9b833a84c6984a8056f0f4170fe60360b9ca7) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - upgrade to have latest react-fabric version
+
+## 3.2.0
+
+### Minor Changes
+
+- [#1970](https://github.com/kubb-labs/kubb/pull/1970) [`7152039`](https://github.com/kubb-labs/kubb/commit/71520392cde27ff58bcbead3930e8f3e38b3be86) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove @kubb dependencies
+
 ## 3.1.1
 
 ### Patch Changes

@@ -20,6 +20,10 @@ export type PetType = {
    */
   id?: number
   /**
+   * @type array | undefined
+   */
+  parent?: PetType[]
+  /**
    * @pattern ^[0-9]{1,19}$
    * @type string | undefined
    */

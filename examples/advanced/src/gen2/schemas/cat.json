@@ -1,7 +1,7 @@
 {
   "title": "Cat",
   "type": "object",
-  "required": ["indoor", "type", "type"],
+  "required": ["indoor", "type"],
   "properties": {
     "type": { "type": "string", "minLength": 1, "readOnly": true, "enum": ["cat"] },
     "name": { "type": "string" },

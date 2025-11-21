@@ -1,7 +1,7 @@
-import fetch from '../../client.js'
-import type { ResponseErrorConfig } from '../../client.js'
-import type { AddFilesMutationRequest, AddFilesMutationResponse, AddFiles405 } from '../models/ts/AddFiles.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
+import type { ResponseErrorConfig } from '../../client.js'
+import fetch from '../../client.js'
+import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../models/ts/AddFiles.js'
 
 /**
  * @description Place a new file in the store
@@ -16,6 +16,10 @@ export async function addFilesHandler({ data }: { data: AddFilesMutationRequest 
       const value = requestData[key as keyof typeof requestData]
       if (typeof value === 'string' || (value as unknown) instanceof Blob) {
         formData.append(key, value as unknown as string | Blob)
+      } else if (Array.isArray(value) && value.every((item) => item instanceof Blob)) {
+        value.forEach((file) => {
+          formData.append(key, file)
+        })
       } else {
         formData.append(key, JSON.stringify(value))
       }

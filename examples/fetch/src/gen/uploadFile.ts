@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from './models.ts'
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getUploadFileUrl(petId: UploadFilePathParams['petId']) {
   const res = { method: 'POST', url: `/pet/${petId}/uploadImage` as const }
@@ -31,6 +31,10 @@ export async function uploadFile(
       const value = requestData[key as keyof typeof requestData]
       if (typeof value === 'string' || (value as unknown) instanceof Blob) {
         formData.append(key, value as unknown as string | Blob)
+      } else if (Array.isArray(value) && value.every((item) => item instanceof Blob)) {
+        value.forEach((file) => {
+          formData.append(key, file)
+        })
       } else {
         formData.append(key, JSON.stringify(value))
       }

@@ -1,5 +1,5 @@
-import { usePlugin, usePluginManager } from '@kubb/core/hooks'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import { usePluginManager } from '@kubb/core/hooks'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -10,12 +10,12 @@ import type { PluginMcp } from '../types'
 
 export const serverGenerator = createReactGenerator<PluginMcp>({
   name: 'operations',
-  Operations({ operations, options }) {
-    const plugin = usePlugin<PluginMcp>()
+  Operations({ operations, generator, plugin }) {
     const pluginManager = usePluginManager()
+    const { options } = plugin
 
     const oas = useOas()
-    const { getFile, getName, getSchemas } = useOperationManager()
+    const { getFile, getName, getSchemas } = useOperationManager(generator)
 
     const name = 'server'
     const file = pluginManager.getFile({ name, extname: '.ts', pluginKey: plugin.key })

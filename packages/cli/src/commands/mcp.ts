@@ -1,8 +1,8 @@
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import consola from 'consola'
-import pc from 'picocolors'
 import { createJiti } from 'jiti'
+import pc from 'picocolors'
 
 const jiti = createJiti(import.meta.url, {
   sourceMaps: true,

@@ -1,12 +1,12 @@
-import type fetch from '../../../../axios-client.ts'
 import useSWRMutation from 'swr/mutation'
+import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
 } from '../../../models/ts/petController/UpdatePet.ts'
 import { updatePet } from '../../axios/petService/updatePet.ts'
 

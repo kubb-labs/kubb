@@ -1,11 +1,11 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginFaker } from '../types.ts'
 import { fakerGenerator } from './fakerGenerator.tsx'
 
@@ -119,7 +119,7 @@ describe('fakerGenerator schema', async () => {
     const plugin = { options } as Plugin<PluginFaker>
     const fabric = createReactFabric()
 
-    const instance = new SchemaGenerator(options, {
+    const generator = new SchemaGenerator(options, {
       fabric,
       oas,
       pluginManager: createMockedPluginManager(props.name),
@@ -134,7 +134,7 @@ describe('fakerGenerator schema', async () => {
     const schemas = getSchemas({ oas })
     const name = props.path
     const schema = schemas[name]!
-    const tree = instance.parse({ schemaObject: schema, name })
+    const tree = generator.parse({ schemaObject: schema, name })
 
     await buildSchema(
       {
@@ -143,10 +143,11 @@ describe('fakerGenerator schema', async () => {
         value: schema,
       },
       {
+        config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
-        instance,
-        generator: fakerGenerator,
-        options,
+        generator,
+        Component: fakerGenerator.Schema,
+        plugin,
       },
     )
 
@@ -232,7 +233,7 @@ describe('fakerGenerator operation', async () => {
     const plugin = { options } as Plugin<PluginFaker>
     const fabric = createReactFabric()
 
-    const instance = new OperationGenerator(options, {
+    const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
@@ -246,10 +247,11 @@ describe('fakerGenerator operation', async () => {
     const operation = oas.operation(props.path, props.method)
 
     await buildOperation(operation, {
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
-      instance,
-      generator: fakerGenerator,
-      options,
+      generator,
+      Component: fakerGenerator.Operation,
+      plugin,
     })
 
     await matchFiles(fabric.files)

@@ -3,9 +3,9 @@ import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginVueQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
-import type { KubbNode } from '@kubb/react-fabric/types'
 
 type Props = {
   name: string
@@ -131,9 +131,9 @@ export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, pa
   })
 
   const enabled = Object.entries(queryKeyParams.flatParams)
-    .map(([key, item]) => (item && !item.optional ? key : undefined))
+    .map(([key, item]) => (item && !item.optional ? `${key}` : undefined))
     .filter(Boolean)
-    .join('&& ')
+    .join(' && ')
 
   const enabledText = enabled ? `enabled: !!(${enabled}),` : ''
 

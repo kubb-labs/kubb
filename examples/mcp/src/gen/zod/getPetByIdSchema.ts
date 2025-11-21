@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { petSchema } from './petSchema.js'
 import { z } from 'zod'
+import { petSchema } from './petSchema.js'
 
 export const getPetByIdPathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet to return'),
@@ -13,7 +13,7 @@ export const getPetByIdPathParamsSchema = z.object({
 /**
  * @description successful operation
  */
-export const getPetById200Schema = z.lazy(() => petSchema).schema.omit({ name: true })
+export const getPetById200Schema = petSchema.omit({ name: true })
 
 /**
  * @description Invalid ID supplied
@@ -25,4 +25,4 @@ export const getPetById400Schema = z.any()
  */
 export const getPetById404Schema = z.any()
 
-export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema)
+export const getPetByIdQueryResponseSchema = getPetById200Schema

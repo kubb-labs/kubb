@@ -12,4 +12,5 @@ export default defineConfig({
   shims: true,
   exports: true,
   noExternal: [/p-limit/, /find-up/, /natural-orderby/, /camelcase/],
+  fixedExtension: false,
 })

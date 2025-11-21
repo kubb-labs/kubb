@@ -13,4 +13,5 @@ export default defineConfig({
   shims: true,
   exports: true,
   external: ['@types/react'],
+  fixedExtension: false,
 })

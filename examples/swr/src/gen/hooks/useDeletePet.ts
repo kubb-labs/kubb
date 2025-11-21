@@ -7,6 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
 export const deletePetMutationKey = () => [{ url: '/pet/:petId' }] as const
 
@@ -42,7 +43,9 @@ export function useDeletePet(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePetHeaderParams,
   options: {
-    mutation?: Parameters<typeof useSWRMutation<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, DeletePetMutationKey>>[2]
+    mutation?: SWRMutationConfiguration<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, DeletePetMutationKey | null, never> & {
+      throwOnError?: boolean
+    }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},

@@ -1,7 +1,8 @@
-import { usePlugin, usePluginManager } from '@kubb/core/hooks'
+import path from 'node:path'
+import { usePluginManager } from '@kubb/core/hooks'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -12,15 +13,16 @@ import { Query, QueryKey, QueryOptions } from '../components'
 import type { PluginSolidQuery } from '../types'
 
 export const queryGenerator = createReactGenerator<PluginSolidQuery>({
-  name: 'svelte-query',
-  Operation({ options, operation }) {
+  name: 'solid-query',
+  Operation({ config, operation, generator, plugin }) {
     const {
+      options,
       options: { output },
-    } = usePlugin<PluginSolidQuery>()
+    } = plugin
     const pluginManager = usePluginManager()
 
     const oas = useOas()
-    const { getSchemas, getName, getFile } = useOperationManager()
+    const { getSchemas, getName, getFile } = useOperationManager(generator)
 
     const isQuery = typeof options.query === 'boolean' ? true : options.query?.methods.some((method) => operation.method === method)
     const isMutation = difference(['post', 'put', 'delete', 'patch'], options.query ? options.query.methods : []).some((method) => operation.method === method)
@@ -57,12 +59,18 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
     const type = {
       file: getFile(operation, { pluginKey: [pluginTsName] }),
       //todo remove type?
-      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      schemas: getSchemas(operation, {
+        pluginKey: [pluginTsName],
+        type: 'type',
+      }),
     }
 
     const zod = {
       file: getFile(operation, { pluginKey: [pluginZodName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+      schemas: getSchemas(operation, {
+        pluginKey: [pluginZodName],
+        type: 'function',
+      }),
     }
 
     if (!isQuery || isMutation) {
@@ -80,10 +88,27 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
         {options.parser === 'zod' && (
           <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={query.file.path} path={zod.file.path} />
         )}
-        <File.Import name={'fetch'} path={options.client.importPath} />
+        {options.client.importPath ? (
+          <>
+            <File.Import name={'fetch'} path={options.client.importPath} />
+            <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
+            {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
+          </>
+        ) : (
+          <>
+            <File.Import name={['fetch']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
+            <File.Import
+              name={['RequestConfig', 'ResponseErrorConfig']}
+              root={query.file.path}
+              path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
+              isTypeOnly
+            />
+            {options.client.dataReturnType === 'full' && (
+              <File.Import name={['ResponseConfig']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} isTypeOnly />
+            )}
+          </>
+        )}
         {!!hasClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
-        <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
-        {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
         <File.Import
           name={[
             type.schemas.request?.name,
@@ -113,7 +138,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
             operation={operation}
             typeSchemas={type.schemas}
             zodSchemas={zod.schemas}
-            dataReturnType={options.client.dataReturnType}
+            dataReturnType={options.client.dataReturnType || 'data'}
             paramsCasing={options.paramsCasing}
             paramsType={options.paramsType}
             pathParamsType={options.pathParamsType}
@@ -129,7 +154,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
           paramsCasing={options.paramsCasing}
           paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
-          dataReturnType={options.client.dataReturnType}
+          dataReturnType={options.client.dataReturnType || 'data'}
         />
         {options.query && (
           <>
@@ -143,7 +168,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
               pathParamsType={options.pathParamsType}
               operation={operation}
               paramsCasing={options.paramsCasing}
-              dataReturnType={options.client.dataReturnType}
+              dataReturnType={options.client.dataReturnType || 'data'}
               queryKeyName={queryKey.name}
               queryKeyTypeName={queryKey.typeName}
             />

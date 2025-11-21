@@ -1,6 +1,5 @@
-import { isOpenApiV3_1Document } from '@kubb/oas'
-
 import type { Oas, OpenAPIV3, OpenAPIV3_1, SchemaObject } from '@kubb/oas'
+import { isOpenApiV3_1Document } from '@kubb/oas'
 
 /**
  * Make it possible to narrow down the schema based on a specific version(3 or 3.1)

@@ -1,7 +1,6 @@
+import type { Options } from 'prettier'
 import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
-
-import type { Options } from 'prettier'
 
 const formatOptions: Options = {
   tabWidth: 2,

@@ -1,10 +1,8 @@
+import type { CLIOptions, Config, UserConfig } from '@kubb/core'
 import { isPromise } from '@kubb/core/utils'
-
-import { getPlugins } from './getPlugins.ts'
-
-import type { Config, UserConfig } from '@kubb/core'
 import type { Args } from '../commands/generate.ts'
 import type { CosmiconfigResult } from './getCosmiConfig.ts'
+import { getPlugins } from './getPlugins.ts'
 
 /**
  * Converting UserConfig to Config without a change in the object beside the JSON convert.
@@ -15,7 +13,7 @@ export async function getConfig(result: CosmiconfigResult, args: Args): Promise<
 
   // for ts or js files
   if (typeof config === 'function') {
-    const possiblePromise = config(args)
+    const possiblePromise = config(args as CLIOptions)
     if (isPromise(possiblePromise)) {
       kubbUserConfig = possiblePromise
     }

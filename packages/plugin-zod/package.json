@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-zod",
-  "version": "4.4.1",
+  "version": "4.5.11",
   "description": "Zod schema generator plugin for Kubb, creating type-safe validation schemas from OpenAPI specifications for runtime data validation.",
   "keywords": [
     "zod",
@@ -37,10 +37,7 @@
       "import": "./dist/generators.js",
       "require": "./dist/generators.cjs"
     },
-    "./utils": {
-      "import": "./dist/utils.js",
-      "require": "./dist/utils.cjs"
-    },
+    "./templates/*": "./templates/*",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
@@ -53,17 +50,12 @@
       ],
       "generators": [
         "./dist/generators.d.ts"
-      ],
-      "utils": [
-        "./dist/utils.d.ts"
-      ],
-      "utils/v4": [
-        "./dist/utils/v4.d.ts"
       ]
     }
   },
   "files": [
     "src",
+    "templates",
     "dist",
     "!/**/**.test.**",
     "!/**/__tests__/**"
@@ -98,9 +90,6 @@
     "@hono/zod-openapi": "0.19.2",
     "@kubb/plugin-oas": "workspace:*",
     "zod": "^3.25.76"
-  },
-  "peerDependencies": {
-    "@kubb/react-fabric": "catalog:"
   },
   "engines": {
     "node": ">=20"

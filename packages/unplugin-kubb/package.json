@@ -1,6 +1,6 @@
 {
 	"name": "unplugin-kubb",
-	"version": "3.1.1",
+	"version": "3.2.1",
 	"description": "Unplugin for Kubb",
 	"keywords": [
 		"unplugin",
@@ -97,12 +97,12 @@
 	},
 	"devDependencies": {
 		"@kubb/core": "workspace:*",
-		"@nuxt/kit": "^3.20.0",
-		"@nuxt/schema": "^3.20.0",
-		"rimraf": "^6.0.1",
-		"rollup": "^4.52.5",
-		"vite": "^6.4.1",
-		"webpack": "^5.102.1"
+		"@nuxt/kit": "^4.2.1",
+		"@nuxt/schema": "^4.2.1",
+		"rimraf": "^6.1.2",
+		"rollup": "^4.53.3",
+		"vite": "^7.2.4",
+		"webpack": "^5.103.0"
 	},
 	"peerDependencies": {
 		"@kubb/core": "^4.0.0",

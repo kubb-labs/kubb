@@ -4,6 +4,7 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import type {
   UploadFileMutationRequest,
@@ -11,7 +12,6 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.js'
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 function getUploadFileUrlXML({ petId }: { petId: UploadFilePathParams['petId'] }) {
   const res = { method: 'POST', url: `/pet/${petId}/uploadImage` as const }
@@ -37,6 +37,10 @@ export async function uploadFileXML(
       const value = requestData[key as keyof typeof requestData]
       if (typeof value === 'string' || (value as unknown) instanceof Blob) {
         formData.append(key, value as unknown as string | Blob)
+      } else if (Array.isArray(value) && value.every((item) => item instanceof Blob)) {
+        value.forEach((file) => {
+          formData.append(key, file)
+        })
       } else {
         formData.append(key, JSON.stringify(value))
       }

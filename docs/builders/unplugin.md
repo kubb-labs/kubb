@@ -43,7 +43,7 @@ Define the options for Kubb.
 
 
 ::: code-group
-```typescript twoslash [Options]
+```typescript [Options]
 import type { UserConfig } from "@kubb/core"
 
 type Options = {
@@ -51,14 +51,14 @@ type Options = {
 }
 ```
 
-```typescript twoslash [vite.config.ts]
+```typescript [vite.config.ts]
 import kubb from 'unplugin-kubb/vite'
 import { defineConfig as defineViteConfig } from 'vite'
 import { defineConfig, UserConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
-export const config: UserConfig = {
+export const config = {
   root: '.',
   input: {
     path: './petStore.yaml',

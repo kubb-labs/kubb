@@ -88,7 +88,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
-  const { files, error } = await safeBuild(
+  const { files, failedPlugins, error } = await safeBuild(
     {
       config: definedConfig,
       logger,
@@ -105,13 +105,44 @@ export async function generate({ input, config, progressCache, args }: GenerateP
   }
 
   const summary = getSummary({
+    failedPlugins,
     filesCreated: files.length,
-    pluginManager,
     config: definedConfig,
-    status: error ? 'failed' : 'success',
+    status: failedPlugins.size > 0 || error ? 'failed' : 'success',
     hrStart,
   })
 
+  if (failedPlugins.size && logger.consola) {
+    logger.consola?.resumeLogs()
+    logger.consola.error(`Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+
+    logger.consola.box({
+      title: `${config.name || ''}`,
+      message: summary.join(''),
+      style: {
+        padding: 2,
+        borderColor: 'red',
+        borderStyle: 'rounded',
+      },
+    })
+
+    const errors = getErrorCauses([...failedPlugins].filter((it) => it.error).map((it) => it.error))
+    if (logger.consola && errors.length && logger.logLevel === LogMapper.debug) {
+      errors.forEach((err) => {
+        logger.consola?.error(err)
+      })
+    }
+
+    ;[...failedPlugins]
+      .filter((it) => it.error)
+      .forEach((it) => {
+        logger.consola?.error(it.error)
+      })
+
+    process.exit(1)
+  }
+
+  // TODO check if we can remove error
   if (error && logger.consola) {
     logger.consola?.resumeLogs()
     logger.consola.error(`Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)

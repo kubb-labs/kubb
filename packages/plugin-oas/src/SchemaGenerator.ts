@@ -9,12 +9,12 @@ import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { Generator } from './generators/types.ts'
-import { buildSchema } from './generators/utils.tsx'
 import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
 import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
+import { buildSchema } from './utils.tsx'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
@@ -91,14 +91,6 @@ export class SchemaGenerator<
     return uniqueWith(schemas, isDeepEqual)
   }
 
-  deepSearch<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): Array<SchemaKeywordMapper[T]> {
-    return SchemaGenerator.deepSearch<T>(tree, keyword)
-  }
-
-  find<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T] | undefined {
-    return SchemaGenerator.find<T>(tree, keyword)
-  }
-
   static deepSearch<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): Array<SchemaKeywordMapper[T]> {
     const foundItems: SchemaKeywordMapper[T][] = []
 
@@ -143,32 +135,6 @@ export class SchemaGenerator<
     })
 
     return foundItems
-  }
-
-  static findInObject<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T] | undefined {
-    let foundItem: SchemaKeywordMapper[T] | undefined
-
-    tree?.forEach((schema) => {
-      if (!foundItem && schema.keyword === keyword) {
-        foundItem = schema as SchemaKeywordMapper[T]
-      }
-
-      if (isKeyword(schema, schemaKeywords.object)) {
-        Object.values(schema.args?.properties || {}).forEach((entrySchema) => {
-          if (!foundItem) {
-            foundItem = SchemaGenerator.find<T>(entrySchema, keyword)
-          }
-        })
-
-        Object.values(schema.args?.additionalProperties || {}).forEach((entrySchema) => {
-          if (!foundItem) {
-            foundItem = SchemaGenerator.find<T>([entrySchema], keyword)
-          }
-        })
-      }
-    })
-
-    return foundItem
   }
 
   static find<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): SchemaKeywordMapper[T] | undefined {
@@ -563,13 +529,17 @@ export class SchemaGenerator<
     if (max !== undefined) {
       if (exclusiveMaximum) {
         baseItems.unshift({ keyword: schemaKeywords.exclusiveMaximum, args: max })
-      } else baseItems.unshift({ keyword: schemaKeywords.max, args: max })
+      } else {
+        baseItems.unshift({ keyword: schemaKeywords.max, args: max })
+      }
     }
 
     if (min !== undefined) {
       if (exclusiveMinimum) {
         baseItems.unshift({ keyword: schemaKeywords.exclusiveMinimum, args: min })
-      } else baseItems.unshift({ keyword: schemaKeywords.min, args: min })
+      } else {
+        baseItems.unshift({ keyword: schemaKeywords.min, args: min })
+      }
     }
 
     if (typeof exclusiveMaximum === 'number') {
@@ -666,7 +636,11 @@ export class SchemaGenerator<
       }
 
       if (discriminator) {
-        if (this.context) return [this.#addDiscriminatorToSchema({ schemaObject: schemaWithoutOneOf, schema: union, discriminator }), ...baseItems]
+        // In 'inherit' mode, the discriminator property is already added to child schemas by Oas.getDiscriminator()
+        // so we should NOT add it at the union level
+        if (this.context && this.context.oas.options.discriminator !== 'inherit') {
+          return [this.#addDiscriminatorToSchema({ schemaObject: schemaWithoutOneOf, schema: union, discriminator }), ...baseItems]
+        }
       }
 
       if (schemaWithoutOneOf.properties) {
@@ -756,7 +730,7 @@ export class SchemaGenerator<
         this.context.pluginManager.logger.emit('info', 'EnumSuffix set to an empty string does not work')
       }
 
-      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.context.plugin.context?.usedEnumNames || {})
+      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.options.usedEnumNames || {})
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,
         pluginKey: this.context.plugin.key,
@@ -1127,12 +1101,16 @@ export class SchemaGenerator<
                   tree,
                 },
                 {
+                  config: this.context.pluginManager.config,
                   fabric: this.context.fabric,
-                  generator,
-                  instance: this,
-                  options: {
-                    ...this.options,
-                    ...options,
+                  Component: generator.Schema,
+                  generator: this,
+                  plugin: {
+                    ...this.context.plugin,
+                    options: {
+                      ...this.options,
+                      ...options,
+                    },
                   },
                 },
               )
@@ -1141,15 +1119,19 @@ export class SchemaGenerator<
             }
 
             const result = await generator.schema?.({
-              instance: this,
+              config: this.context.pluginManager.config,
+              generator: this,
               schema: {
                 name,
                 value: schemaObject,
                 tree,
               },
-              options: {
-                ...this.options,
-                ...options,
+              plugin: {
+                ...this.context.plugin,
+                options: {
+                  ...this.options,
+                  ...options,
+                },
               },
             })
 

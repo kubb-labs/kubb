@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+
 const props = defineProps(['allContributors'])
 
 const contributors = computed(() => props.allContributors.contributors)

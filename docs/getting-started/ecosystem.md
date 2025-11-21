@@ -16,6 +16,9 @@ outline: deep
 - [apisyouwonthate](https://apisyouwonthate.com/newsletter/openapi-to-frontend/): OpenAPI to frontend
 - [React-Query](https://tanstack.com/query/v5/docs/framework/react/community/community-projects): React-Query
 - [Zod](https://zod.dev/ecosystem?id=x-to-zod): Ecosystem with Zod
+- [Clickhouse](https://clickhouse.com/blog/clickhouse-powered-apis-in-react-app-moosestack#bridging-to-the-frontend): Build ClickHouse-powered APIs with React and MooseStack
+- [Fiveonefour](https://docs.fiveonefour.com/moose/apis/openapi-sdk): OpenAPI SDK Generation
+- [Medium](https://medium.com/@laxman.pokhrel.101/from-headache-to-harmony-securing-auth0-api-calls-in-next-js-54fc117bfb92): From Headache to Harmony: Securing Auth0 API Calls in Next.js with Kubb, Axios, and the New App Router
 
 ## Our Community
 Come and chat with us on [Discord](https://discord.gg/shfBFeczrm)!

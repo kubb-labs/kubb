@@ -6,8 +6,8 @@ import { createGenerator } from './createGenerator.ts'
 
 export const jsonGenerator = createGenerator<PluginOas>({
   name: 'plugin-oas',
-  async schema({ schema, instance }) {
-    const { pluginManager, plugin } = instance.context
+  async schema({ schema, generator }) {
+    const { pluginManager, plugin } = generator.context
     const file = pluginManager.getFile({
       name: camelCase(schema.name),
       extname: '.json',
@@ -27,11 +27,11 @@ export const jsonGenerator = createGenerator<PluginOas>({
           },
         ],
         banner: getBanner({
-          oas: instance.context.oas,
+          oas: generator.context.oas,
           output: plugin.options.output,
           config: pluginManager.config,
         }),
-        format: getFooter({ oas: instance.context.oas, output: plugin.options.output }),
+        format: getFooter({ oas: generator.context.oas, output: plugin.options.output }),
       },
     ]
   },

@@ -1,11 +1,12 @@
 import { URLPath } from '@kubb/core/utils'
-import { type PluginOas, createGenerator } from '@kubb/plugin-oas'
+import type { PluginOas } from '@kubb/plugin-oas'
+import { createGenerator } from '@kubb/plugin-oas/generators'
 
 export const example1 = createGenerator<PluginOas>({
   name: 'client-operation',
-  async operation({ operation, instance }) {
-    const pluginKey = instance.context.plugin.key
-    const name = instance.context.pluginManager.resolveName({
+  async operation({ operation, generator }) {
+    const pluginKey = generator.context.plugin.key
+    const name = generator.context.pluginManager.resolveName({
       name: operation.getOperationId(),
       pluginKey,
       type: 'function',
@@ -13,7 +14,7 @@ export const example1 = createGenerator<PluginOas>({
 
     const client = {
       name,
-      file: instance.context.pluginManager.getFile({
+      file: generator.context.pluginManager.getFile({
         name,
         extname: '.ts',
         pluginKey,

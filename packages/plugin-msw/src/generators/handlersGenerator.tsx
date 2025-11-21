@@ -1,5 +1,5 @@
-import { usePlugin, usePluginManager } from '@kubb/core/hooks'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import { usePluginManager } from '@kubb/core/hooks'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
@@ -8,12 +8,11 @@ import type { PluginMsw } from '../types'
 
 export const handlersGenerator = createReactGenerator<PluginMsw>({
   name: 'plugin-msw',
-  Operations({ operations }) {
-    const plugin = usePlugin<PluginMsw>()
+  Operations({ operations, generator, plugin }) {
     const pluginManager = usePluginManager()
 
     const oas = useOas()
-    const { getName, getFile } = useOperationManager()
+    const { getName, getFile } = useOperationManager(generator)
 
     const file = pluginManager.getFile({ name: 'handlers', extname: '.ts', pluginKey: plugin.key })
 

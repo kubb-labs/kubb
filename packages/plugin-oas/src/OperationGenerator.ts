@@ -6,8 +6,8 @@ import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } 
 import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import type { Generator } from './generators/types.ts'
-import { buildOperation, buildOperations } from './generators/utils.tsx'
 import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
+import { buildOperation, buildOperations } from './utils.tsx'
 
 export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
@@ -229,12 +229,16 @@ export class OperationGenerator<
 
             if (generator.type === 'react') {
               await buildOperation(operation, {
+                config: this.context.pluginManager.config,
                 fabric: this.context.fabric,
-                generator,
-                instance: this,
-                options: {
-                  ...this.options,
-                  ...options,
+                Component: generator.Operation,
+                generator: this,
+                plugin: {
+                  ...this.context.plugin,
+                  options: {
+                    ...this.options,
+                    ...options,
+                  },
                 },
               })
 
@@ -242,9 +246,16 @@ export class OperationGenerator<
             }
 
             const result = await generator.operation?.({
-              instance: this,
+              generator: this,
+              config: this.context.pluginManager.config,
               operation,
-              options: { ...this.options, ...options },
+              plugin: {
+                ...this.context.plugin,
+                options: {
+                  ...this.options,
+                  ...options,
+                },
+              },
             })
 
             return result ?? []
@@ -259,9 +270,10 @@ export class OperationGenerator<
             operations.map((op) => op.operation),
             {
               fabric: this.context.fabric,
-              generator,
-              instance: this,
-              options: this.options,
+              config: this.context.pluginManager.config,
+              Component: generator.Operations,
+              generator: this,
+              plugin: this.context.plugin,
             },
           )
 
@@ -269,9 +281,10 @@ export class OperationGenerator<
         }
 
         const operationsResult = await generator.operations?.({
-          instance: this,
+          generator: this,
+          config: this.context.pluginManager.config,
           operations: operations.map((op) => op.operation),
-          options: this.options,
+          plugin: this.context.plugin,
         })
 
         return [...opResultsFlat, ...(operationsResult ?? [])] as unknown as KubbFile.File<TFileMeta>

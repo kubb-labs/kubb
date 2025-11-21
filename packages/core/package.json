@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "4.4.1",
+  "version": "4.5.11",
   "description": "Core functionality for Kubb's plugin-based code generation system, providing the foundation for transforming OpenAPI specifications.",
   "keywords": [
     "typescript",
@@ -98,6 +98,7 @@
     "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
     "fs-extra": "^11.3.2",
+    "jiti": "^2.6.1",
     "js-runtime": "^0.0.8",
     "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",
@@ -115,11 +116,8 @@
     "consola": "^3.4.2",
     "zod": "^4.1.12"
   },
-  "optionalDependencies": {
-    "@kubb/fabric-core": "catalog:"
-  },
   "peerDependencies": {
-    "@kubb/react-fabric": "catalog:"
+    "@kubb/react-fabric": "0.5.1"
   },
   "engines": {
     "node": ">=20"

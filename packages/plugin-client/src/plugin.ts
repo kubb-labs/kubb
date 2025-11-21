@@ -1,7 +1,7 @@
 import path from 'node:path'
-import { createPlugin, type Group, getBarrelFiles, getMode, type Plugin, PluginManager } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
-import type { PluginOas as SwaggerPluginOptions } from '@kubb/plugin-oas'
+import { resolveModuleSource } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { operationsGenerator } from './generators'
@@ -11,7 +11,7 @@ import type { PluginClient } from './types.ts'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 
-export const pluginClient = createPlugin<PluginClient>((options) => {
+export const pluginClient = definePlugin<PluginClient>((options) => {
   const {
     output = { path: 'clients', barrelType: 'named' },
     group,
@@ -29,18 +29,23 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     generators = [clientGenerator, group ? groupedClientGenerator : undefined, operations ? operationsGenerator : undefined].filter(Boolean),
     parser = 'client',
     client = 'axios',
-    importPath = client === 'fetch' ? '@kubb/plugin-client/clients/fetch' : '@kubb/plugin-client/clients/axios',
+    importPath,
     contentType,
+    bundle = false,
   } = options
+
+  const resolvedImportPath = importPath ?? (!bundle ? `@kubb/plugin-client/clients/${client}` : undefined)
 
   return {
     name: pluginClientName,
     options: {
+      client,
+      bundle,
       output,
       group,
       parser,
       dataReturnType,
-      importPath,
+      importPath: resolvedImportPath,
       paramsType,
       paramsCasing,
       pathParamsType,
@@ -91,13 +96,31 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
       return resolvedName
     },
-    async buildStart() {
-      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [pluginOasName])
-
-      const oas = await swaggerPlugin.context.getOas()
+    async install() {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
-      const baseURL = await swaggerPlugin.context.getBaseURL()
+      const oas = await this.getOas()
+      const baseURL = await this.getBaseURL()
+
+      // pre add bundled fetch
+      const containsFetch = this.fabric.files.some((file) => file.baseName === 'fetch.ts')
+
+      if (bundle && !this.plugin.options.importPath && !containsFetch) {
+        await this.addFile({
+          baseName: 'fetch.ts',
+          path: path.resolve(root, '.kubb/fetch.ts'),
+          sources: [
+            {
+              name: 'fetch',
+              value: resolveModuleSource(
+                this.plugin.options.client === 'fetch' ? '@kubb/plugin-client/templates/clients/fetch' : '@kubb/plugin-client/templates/clients/axios',
+              ).source,
+              isExportable: true,
+              isIndexable: true,
+            },
+          ],
+        })
+      }
 
       const operationGenerator = new OperationGenerator(
         baseURL
@@ -123,7 +146,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
       await this.addFile(...files)
 
-      const barrelFiles = await getBarrelFiles(this.fileManager.files, {
+      const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
         root,
         output,

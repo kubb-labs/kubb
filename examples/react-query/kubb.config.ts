@@ -13,7 +13,7 @@ export const config = {
   output: {
     path: './src/gen',
     clean: true,
-    defaultBanner: 'simple',
+    defaultBanner: 'simple' as const,
   },
   hooks: {
     done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
@@ -29,6 +29,9 @@ export const config = {
       },
     }),
     pluginReactQuery({
+      client: {
+        bundle: true,
+      },
       transformers: {
         name: (name, type) => {
           if (type === 'file' || type === 'function') {
@@ -57,7 +60,6 @@ export const config = {
           options: {
             client: {
               dataReturnType: 'full',
-              importPath: '@kubb/plugin-client/clients/axios',
             },
             infinite: {
               queryParam: 'pageSize',

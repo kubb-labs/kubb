@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-mcp",
-  "version": "4.4.1",
+  "version": "4.5.11",
   "description": "Generator mcp",
   "keywords": [
     "typescript",
@@ -89,9 +89,6 @@
     "@kubb/react-fabric": "catalog:"
   },
   "devDependencies": {},
-  "peerDependencies": {
-    "@kubb/react-fabric": "catalog:"
-  },
   "engines": {
     "node": ">=20"
   },

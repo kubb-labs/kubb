@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { userSchema } from './userSchema.js'
 import { z } from 'zod'
+import { userSchema } from './userSchema.js'
 
 export const getUserByNamePathParamsSchema = z.object({
   username: z.string().describe('The name that needs to be fetched. Use user1 for testing. '),
@@ -13,7 +13,7 @@ export const getUserByNamePathParamsSchema = z.object({
 /**
  * @description successful operation
  */
-export const getUserByName200Schema = z.lazy(() => userSchema)
+export const getUserByName200Schema = userSchema
 
 /**
  * @description Invalid username supplied
@@ -25,4 +25,4 @@ export const getUserByName400Schema = z.any()
  */
 export const getUserByName404Schema = z.any()
 
-export const getUserByNameQueryResponseSchema = z.lazy(() => getUserByName200Schema)
+export const getUserByNameQueryResponseSchema = getUserByName200Schema

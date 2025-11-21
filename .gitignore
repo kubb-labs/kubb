@@ -53,8 +53,8 @@ kubb-files.json
 kubb.log
 hello
 .log
-.kubb
 */mocks/hellowWorld.js
 #docs/api/**
 packages/ui/static/**
 .nx
+ceviz-report.html

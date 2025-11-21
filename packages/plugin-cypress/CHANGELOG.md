@@ -1,5 +1,131 @@
 # @kubb/plugin-cypress
 
+## 4.5.11
+
+### Patch Changes
+
+- Updated dependencies [[`8dd9b83`](https://github.com/kubb-labs/kubb/commit/8dd9b833a84c6984a8056f0f4170fe60360b9ca7)]:
+  - @kubb/plugin-oas@4.5.11
+  - @kubb/plugin-ts@4.5.11
+  - @kubb/core@4.5.11
+  - @kubb/oas@4.5.11
+
+## 4.5.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.5.10
+  - @kubb/oas@4.5.10
+  - @kubb/plugin-oas@4.5.10
+  - @kubb/plugin-ts@4.5.10
+
+## 4.5.9
+
+### Patch Changes
+
+- Updated dependencies [[`b334be1`](https://github.com/kubb-labs/kubb/commit/b334be118a3e54f3e76713edc6bfe6a562b10084)]:
+  - @kubb/plugin-oas@4.5.9
+  - @kubb/plugin-ts@4.5.9
+  - @kubb/oas@4.5.9
+  - @kubb/core@4.5.9
+
+## 4.5.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.5.8
+  - @kubb/oas@4.5.8
+  - @kubb/plugin-oas@4.5.8
+  - @kubb/plugin-ts@4.5.8
+
+## 4.5.7
+
+### Patch Changes
+
+- [`40e29ca`](https://github.com/kubb-labs/kubb/commit/40e29ca67ab79e15523cfda8ae648cb0aa2712f9) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of fixed fabric version
+
+- Updated dependencies [[`40e29ca`](https://github.com/kubb-labs/kubb/commit/40e29ca67ab79e15523cfda8ae648cb0aa2712f9)]:
+  - @kubb/plugin-oas@4.5.7
+  - @kubb/plugin-ts@4.5.7
+  - @kubb/core@4.5.7
+  - @kubb/oas@4.5.7
+
+## 4.5.6
+
+### Patch Changes
+
+- Updated dependencies [[`613ad38`](https://github.com/kubb-labs/kubb/commit/613ad381a8d73dd3815eb72d7cd32da2290d3203)]:
+  - @kubb/core@4.5.6
+  - @kubb/plugin-oas@4.5.6
+  - @kubb/plugin-ts@4.5.6
+  - @kubb/oas@4.5.6
+
+## 4.5.5
+
+### Patch Changes
+
+- Updated dependencies [[`ec21400`](https://github.com/kubb-labs/kubb/commit/ec21400d90c7e6cdf93485db30ca23624d652ec8)]:
+  - @kubb/core@4.5.5
+  - @kubb/plugin-oas@4.5.5
+  - @kubb/plugin-ts@4.5.5
+  - @kubb/oas@4.5.5
+
+## 4.5.4
+
+### Patch Changes
+
+- Updated dependencies [[`f81d4f1`](https://github.com/kubb-labs/kubb/commit/f81d4f133b302e6fbc03787fa4be40806066acc7)]:
+  - @kubb/core@4.5.4
+  - @kubb/plugin-oas@4.5.4
+  - @kubb/plugin-ts@4.5.4
+  - @kubb/oas@4.5.4
+
+## 4.5.3
+
+### Patch Changes
+
+- Updated dependencies [[`7c6235d`](https://github.com/kubb-labs/kubb/commit/7c6235da0bdd6a61091ef296f80f9bc136fcf7d2)]:
+  - @kubb/plugin-oas@4.5.3
+  - @kubb/plugin-ts@4.5.3
+  - @kubb/core@4.5.3
+  - @kubb/oas@4.5.3
+
+## 4.5.2
+
+### Patch Changes
+
+- Updated dependencies [[`56207b9`](https://github.com/kubb-labs/kubb/commit/56207b9b36cad9ccef190fe68716c3d78bb257c8)]:
+  - @kubb/core@4.5.2
+  - @kubb/plugin-oas@4.5.2
+  - @kubb/plugin-ts@4.5.2
+  - @kubb/oas@4.5.2
+
+## 4.5.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.5.1
+  - @kubb/oas@4.5.1
+  - @kubb/plugin-oas@4.5.1
+  - @kubb/plugin-ts@4.5.1
+
+## 4.5.0
+
+### Minor Changes
+
+- [#1970](https://github.com/kubb-labs/kubb/pull/1970) [`7152039`](https://github.com/kubb-labs/kubb/commit/71520392cde27ff58bcbead3930e8f3e38b3be86) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove @kubb dependencies
+
+### Patch Changes
+
+- Updated dependencies [[`2512b5f`](https://github.com/kubb-labs/kubb/commit/2512b5f8a8216e35886cf4aede9311150f6ba0e8), [`4c964fa`](https://github.com/kubb-labs/kubb/commit/4c964fa89bf0b9dceae615895a6153d4fe777974), [`2fc52bb`](https://github.com/kubb-labs/kubb/commit/2fc52bba8d537d8a50de1fd57656cdcf4aadbda1), [`7152039`](https://github.com/kubb-labs/kubb/commit/71520392cde27ff58bcbead3930e8f3e38b3be86)]:
+  - @kubb/plugin-oas@4.5.0
+  - @kubb/core@4.5.0
+  - @kubb/plugin-ts@4.5.0
+  - @kubb/oas@4.5.0
+
 ## 4.4.1
 
 ### Patch Changes

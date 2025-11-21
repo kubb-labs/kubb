@@ -1,7 +1,7 @@
-import type fetch from '../../../../axios-client.ts'
 import useSWRMutation from 'swr/mutation'
+import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
+import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser.ts'
 import { deleteUser } from '../../axios/userService/deleteUser.ts'
 
 export const deleteUserMutationKeySWR = () => [{ url: '/user/:username' }] as const

@@ -1,5 +1,6 @@
-import { usePlugin, usePluginManager } from '@kubb/core/hooks'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import path from 'node:path'
+import { usePluginManager } from '@kubb/core/hooks'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -11,13 +12,15 @@ import type { PluginClient } from '../types'
 
 export const clientGenerator = createReactGenerator<PluginClient>({
   name: 'client',
-  Operation({ options, operation }) {
+  Operation({ config, plugin, operation, generator }) {
     const pluginManager = usePluginManager()
     const {
+      options,
       options: { output, urlType },
-    } = usePlugin<PluginClient>()
+    } = plugin
+
     const oas = useOas()
-    const { getSchemas, getName, getFile } = useOperationManager()
+    const { getSchemas, getName, getFile } = useOperationManager(generator)
 
     const client = {
       name: getName(operation, { type: 'function' }),
@@ -47,8 +50,23 @@ export const clientGenerator = createReactGenerator<PluginClient>({
         banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
-        <File.Import name={'fetch'} path={options.importPath} />
-        <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
+        {options.importPath ? (
+          <>
+            <File.Import name={'fetch'} path={options.importPath} />
+            <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
+          </>
+        ) : (
+          <>
+            <File.Import name={['fetch']} root={client.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
+            <File.Import
+              name={['RequestConfig', 'ResponseErrorConfig']}
+              root={client.file.path}
+              path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
+              isTypeOnly
+            />
+          </>
+        )}
+
         {options.parser === 'zod' && (
           <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={client.file.path} path={zod.file.path} />
         )}

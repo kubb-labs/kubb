@@ -1,10 +1,10 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginMsw } from '../types.ts'
 import { mswGenerator } from './mswGenerator.tsx'
 
@@ -79,7 +79,7 @@ describe('mswGenerator operation', async () => {
     const plugin = { options } as Plugin<PluginMsw>
     const fabric = createReactFabric()
 
-    const instance = new OperationGenerator(options, {
+    const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
@@ -94,10 +94,11 @@ describe('mswGenerator operation', async () => {
     const operation = oas.operation(props.path, props.method)
 
     await buildOperation(operation, {
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
-      instance,
-      generator: mswGenerator,
-      options,
+      generator,
+      Component: mswGenerator.Operation,
+      plugin,
     })
 
     await matchFiles(fabric.files)

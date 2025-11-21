@@ -1,30 +1,31 @@
-import { useMode, usePlugin, usePluginManager } from '@kubb/core/hooks'
-import { createReactGenerator, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
-import { Oas } from '@kubb/plugin-oas/components'
+import { useMode, usePluginManager } from '@kubb/core/hooks'
+import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File } from '@kubb/react-fabric'
+import { File, Fragment } from '@kubb/react-fabric'
 import { Faker } from '../components'
 import type { PluginFaker } from '../types'
 
 export const fakerGenerator = createReactGenerator<PluginFaker>({
   name: 'faker',
-  Operation({ operation, options, instance }) {
-    const { dateParser, regexGenerator, seed, mapper } = options
-
-    const plugin = usePlugin<PluginFaker>()
+  Operation({ operation, generator, plugin }) {
+    const {
+      options,
+      options: { dateParser, regexGenerator, seed, mapper },
+    } = plugin
     const mode = useMode()
     const pluginManager = usePluginManager()
 
     const oas = useOas()
-    const { getSchemas, getFile, getGroup } = useOperationManager()
+    const { getSchemas, getFile, getGroup } = useOperationManager(generator)
     const schemaManager = useSchemaManager()
 
     const file = getFile(operation)
     const schemas = getSchemas(operation)
     const schemaGenerator = new SchemaGenerator(options, {
-      fabric: instance.context.fabric,
+      fabric: generator.context.fabric,
       oas,
       plugin,
       pluginManager,
@@ -36,7 +37,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       .flat()
       .filter(Boolean)
 
-    const mapOperationSchema = ({ name, schema: schemaObject, description, ...options }: OperationSchemaType, i: number) => {
+    const mapOperationSchema = ({ name, schema: schemaObject, description, ...options }: OperationSchemaType) => {
       const tree = schemaGenerator.parse({ schemaObject, name })
       const imports = schemaManager.getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
@@ -61,7 +62,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       )
 
       return (
-        <Oas.Schema key={i} name={name} schemaObject={schemaObject} tree={tree}>
+        <Fragment>
           {canOverride && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
           {imports.map((imp) => (
             <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} />
@@ -77,7 +78,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
             seed={seed}
             canOverride={canOverride}
           />
-        </Oas.Schema>
+        </Fragment>
       )
     }
 
@@ -96,13 +97,11 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       </File>
     )
   },
-  Schema({ schema, options }) {
-    const { dateParser, regexGenerator, seed, mapper } = options
-
+  Schema({ schema, plugin }) {
     const { getName, getFile, getImports } = useSchemaManager()
     const {
-      options: { output },
-    } = usePlugin<PluginFaker>()
+      options: { output, dateParser, regexGenerator, seed, mapper },
+    } = plugin
     const pluginManager = usePluginManager()
     const oas = useOas()
     const imports = getImports(schema.tree)

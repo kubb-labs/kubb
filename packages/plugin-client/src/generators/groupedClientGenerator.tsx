@@ -1,7 +1,7 @@
-import { usePlugin, usePluginManager } from '@kubb/core/hooks'
+import { usePluginManager } from '@kubb/core/hooks'
 import { camelCase } from '@kubb/core/transformers'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File, Function } from '@kubb/react-fabric'
@@ -9,12 +9,12 @@ import type { PluginClient } from '../types'
 
 export const groupedClientGenerator = createReactGenerator<PluginClient>({
   name: 'groupedClient',
-  Operations({ operations }) {
-    const { options, key: pluginKey } = usePlugin<PluginClient>()
+  Operations({ operations, generator, plugin }) {
+    const { options, key: pluginKey } = plugin
     const pluginManager = usePluginManager()
 
     const oas = useOas()
-    const { getName, getFile, getGroup } = useOperationManager()
+    const { getName, getFile, getGroup } = useOperationManager(generator)
 
     const controllers = operations.reduce(
       (acc, operation) => {

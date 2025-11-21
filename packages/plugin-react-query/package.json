@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-react-query",
-  "version": "4.4.1",
+  "version": "4.5.11",
   "description": "React Query hooks generator plugin for Kubb, creating type-safe API client hooks from OpenAPI specifications for React applications.",
   "keywords": [
     "react-query",
@@ -87,9 +87,8 @@
     "@kubb/react-fabric": "catalog:",
     "remeda": "catalog:"
   },
-  "devDependencies": {},
   "peerDependencies": {
-    "@kubb/react-fabric": "catalog:"
+    "@kubb/react-fabric": "0.5.1"
   },
   "engines": {
     "node": ">=20"

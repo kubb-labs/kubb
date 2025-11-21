@@ -20,7 +20,7 @@ exports[`zod parse > 'arrayEmpty' 1`] = `"z.array()"`;
 
 exports[`zod parse > 'arrayEmpty' v4 1`] = `"z.array()"`;
 
-exports[`zod parse > 'arrayRef' 1`] = `"z.array(z.lazy(() => Pet))"`;
+exports[`zod parse > 'arrayRef' 1`] = `"z.array(Pet)"`;
 
 exports[`zod parse > 'arrayRef' v4 1`] = `"z.array(Pet)"`;
 
@@ -39,7 +39,7 @@ exports[`zod parse > 'boolean' v4 1`] = `"z.boolean()"`;
 exports[`zod parse > 'catchall' 1`] = `
 "z.object({
     
-    }).catchall(z.lazy(() => Pet))"
+    }).catchall(Pet)"
 `;
 
 exports[`zod parse > 'catchall' v4 1`] = `
@@ -250,7 +250,7 @@ exports[`zod parse > 'primitiveDate' 1`] = `"z.date()"`;
 
 exports[`zod parse > 'primitiveDate' v4 1`] = `"z.date()"`;
 
-exports[`zod parse > 'ref' 1`] = `"z.lazy(() => Pet)"`;
+exports[`zod parse > 'ref' 1`] = `"Pet"`;
 
 exports[`zod parse > 'ref' v4 1`] = `"Pet"`;
 

@@ -43,6 +43,7 @@ export default defineConfig(() => {
           barrelType: 'propagate',
           banner: '/* eslint-disable no-alert, no-console */',
         },
+        client: 'fetch',
         exclude: [
           {
             type: 'tag',

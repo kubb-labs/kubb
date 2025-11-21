@@ -25,8 +25,6 @@ async function run() {
   fabric.use(fsPlugin, { clean: { path: path.join(process.cwd(), './src/gen2') } })
   fabric.use(typescriptParser)
 
-  console.log('Files: ', fabric.files.length)
-
   await fabric.write()
 }
 

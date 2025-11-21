@@ -2,7 +2,8 @@ import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@ku
 
 import type { contentType, Oas } from '@kubb/oas'
 import type { PluginClient } from '@kubb/plugin-client'
-import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Generator } from '@kubb/plugin-oas/generators'
 
 export type Options = {
   /**
@@ -15,8 +16,7 @@ export type Options = {
    * By default, the first JSON valid mediaType will be used
    */
   contentType?: contentType
-  client?: Pick<PluginClient['options'], 'dataReturnType' | 'importPath' | 'baseURL'>
-
+  client?: Pick<PluginClient['options'], 'client' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle'>
   /**
    * Group the mcp requests based on the provided name.
    */
@@ -48,7 +48,7 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
-  client: Required<Omit<NonNullable<PluginMcp['options']['client']>, 'baseURL'>> & { baseURL?: string }
+  client: NonNullable<PluginMcp['options']['client']>
 }
 
 export type PluginMcp = PluginFactoryOptions<'plugin-mcp', Options, ResolvedOptions, never, ResolvePathOptions>

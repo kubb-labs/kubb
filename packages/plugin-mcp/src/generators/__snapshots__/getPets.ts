@@ -1,6 +1,6 @@
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { ResponseErrorConfig } from './test/.kubb/fetch'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
+import { fetch } from './test/.kubb/fetch'
 
 /**
  * @description Returns all `pets` from the system \n that the user has access to

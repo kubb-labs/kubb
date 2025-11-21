@@ -8,7 +8,7 @@ outline: deep
 # Generators <a href="/plugins/plugin-oas"><Badge type="info" text="@kubb/plugin-oas" /></a>
 
 In Kubb, generators are functions that allow developers to hook into the framework’s file generation process to create, modify, or extend code automatically.
-Generators are central to Kubb’s workflow, enabling the automated generation of code such as API clients, React-Query hooks, TypeScrip types, or other files based on specific input(Swagger and OpenAPI specifications).
+Generators are central to Kubb’s workflow, enabling the automated generation of code such as API clients, React-Query hooks, TypeScript types, or other files based on specific input(Swagger and OpenAPI specifications).
 
 Let's say you want to add some extra code after a generated client with [`@kubb/plugin-client`](/plugins/plugin-client#generators), to make that happen you can either:
 - Use the option [`footer`](/plugins/plugin-client/#output-footer)
@@ -167,16 +167,16 @@ export const createPets = {
 
 Create your generator:
 
-```tsx twoslash
+```tsx
 import { URLPath } from '@kubb/core/utils'
 import type { PluginClient } from '@kubb/plugin-client'
-import { createGenerator } from '@kubb/plugin-oas'
+import { createGenerator } from '@kubb/plugin-oas/generators'
 
 export const clientOperationGenerator = createGenerator<PluginClient>({
   name: 'client-operation',
-  async operation({ operation, instance }) {
-    const pluginKey = instance.context.plugin.key
-    const name = instance.context.pluginManager.resolveName({
+  async operation({ operation, generator }) {
+    const pluginKey = generator.context.plugin.key
+    const name = generator.context.pluginManager.resolveName({
       name: operation.getOperationId(),
       pluginKey,
       type: 'function',
@@ -184,7 +184,7 @@ export const clientOperationGenerator = createGenerator<PluginClient>({
 
     const client = {
       name,
-      file: instance.context.pluginManager.getFile({
+      file: generator.context.pluginManager.getFile({
         name,
         extname: '.ts',
         pluginKey,
@@ -248,17 +248,17 @@ export const createPets = {
 
 Create your generator with `@kubb/react-fabric`:
 
-```tsx twoslash
+```tsx
 import { URLPath } from '@kubb/core/utils'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { File } from '@kubb/react-fabric'
 import React from 'react'
 
 export const clientOperationGenerator = createReactGenerator({
   name: 'client-operation',
-  Operation({ operation }) {
-    const { getName, getFile } = useOperationManager()
+  Operation({ operation, generator }) {
+    const { getName, getFile } = useOperationManager(generator)
 
     const client = {
       name: getName(operation, { type: 'function' }),

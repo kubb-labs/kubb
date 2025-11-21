@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
+import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
@@ -393,15 +393,40 @@ describe('typeGenerator schema', async () => {
       path: 'Nullable',
       options: {},
     },
+    {
+      name: 'DiscriminatorStrictVehicle',
+      input: '../../mocks/discriminator.yaml',
+      path: 'Vehicle',
+      options: {},
+      oasOptions: {
+        discriminator: 'strict',
+      },
+    },
+    {
+      name: 'DiscriminatorInheritVehicle',
+      input: '../../mocks/discriminator.yaml',
+      path: 'Vehicle',
+      options: {},
+      oasOptions: {
+        discriminator: 'inherit',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
     path: string
     options: Partial<PluginTs['resolvedOptions']>
+    oasOptions?: {
+      discriminator?: 'strict' | 'inherit'
+    }
   }>
 
   test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
+
+    if ('oasOptions' in props && props.oasOptions) {
+      oas.setOptions(props.oasOptions)
+    }
 
     const options: PluginTs['resolvedOptions'] = {
       enumType: 'asConst',
@@ -424,7 +449,7 @@ describe('typeGenerator schema', async () => {
     const plugin = { options } as Plugin<PluginTs>
     const fabric = createReactFabric()
 
-    const instance = new SchemaGenerator(options, {
+    const generator = new SchemaGenerator(options, {
       fabric,
       oas,
       pluginManager: createMockedPluginManager(props.name),
@@ -439,7 +464,7 @@ describe('typeGenerator schema', async () => {
     const schemas = getSchemas({ oas })
     const name = props.path
     const schema = schemas[name]!
-    const tree = instance.parse({ schemaObject: schema, name })
+    const tree = generator.parse({ schemaObject: schema, name })
 
     await buildSchema(
       {
@@ -448,10 +473,11 @@ describe('typeGenerator schema', async () => {
         value: schema,
       },
       {
+        config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
-        instance,
-        generator: typeGenerator,
-        options,
+        generator,
+        Component: typeGenerator.Schema,
+        plugin,
       },
     )
 
@@ -556,7 +582,7 @@ describe('typeGenerator operation', async () => {
     }
     const plugin = { options } as Plugin<PluginTs>
     const fabric = createReactFabric()
-    const instance = new OperationGenerator(options, {
+    const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
@@ -569,10 +595,11 @@ describe('typeGenerator operation', async () => {
     })
     const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
-      instance,
-      generator: typeGenerator,
-      options,
+      generator,
+      Component: typeGenerator.Operation,
+      plugin,
     })
 
     await matchFiles(fabric.files)

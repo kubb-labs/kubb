@@ -1,30 +1,33 @@
-import { useMode, usePlugin, usePluginManager } from '@kubb/core/hooks'
-import { createReactGenerator, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
-import { Oas } from '@kubb/plugin-oas/components'
+import path from 'node:path'
+import { useMode, usePluginManager } from '@kubb/core/hooks'
+import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File } from '@kubb/react-fabric'
+import { File, Fragment } from '@kubb/react-fabric'
 import { Zod } from '../components'
 import type { PluginZod } from '../types'
 
 export const zodGenerator = createReactGenerator<PluginZod>({
   name: 'zod',
-  Operation({ operation, options, instance }) {
-    const { coercion: globalCoercion, inferred, typed, mapper, wrapOutput } = options
+  Operation({ config, operation, generator, plugin }) {
+    const {
+      options,
+      options: { coercion: globalCoercion, inferred, typed, mapper, wrapOutput, version },
+    } = plugin
 
-    const plugin = usePlugin<PluginZod>()
     const mode = useMode()
     const pluginManager = usePluginManager()
 
     const oas = useOas()
-    const { getSchemas, getFile, getGroup } = useOperationManager()
+    const { getSchemas, getFile, getGroup } = useOperationManager(generator)
     const schemaManager = useSchemaManager()
 
     const file = getFile(operation)
     const schemas = getSchemas(operation)
     const schemaGenerator = new SchemaGenerator(options, {
-      fabric: instance.context.fabric,
+      fabric: generator.context.fabric,
       oas,
       plugin,
       pluginManager,
@@ -36,11 +39,18 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       .flat()
       .filter(Boolean)
 
-    const mapOperationSchema = ({ name, schema: schemaObject, description, keysToOmit, ...options }: OperationSchemaType, i: number) => {
-      // hack so Params can be optional when needed
-      const required = Array.isArray(schemaObject?.required) ? !!schemaObject.required.length : !!schemaObject?.required
-      const someDefaults = Object.values(schemaObject.properties || {}).some((property) => Object.hasOwn(property, 'default') && property.default !== undefined)
-      const optional = !required && !someDefaults && name.includes('Params')
+    const mapOperationSchema = ({ name, schema: schemaObject, description, keysToOmit, ...options }: OperationSchemaType) => {
+      const hasProperties = Object.keys(schemaObject || {}).length > 0
+      const hasDefaults = Object.values(schemaObject.properties || {}).some((prop) => prop && Object.hasOwn(prop, 'default'))
+
+      const required = Array.isArray(schemaObject?.required) ? schemaObject.required.length > 0 : !!schemaObject?.required
+      const optional = !required && !hasDefaults && hasProperties && name.includes('Params')
+
+      if (!optional && Array.isArray(schemaObject.required) && !schemaObject.required.length) {
+        schemaObject.required = Object.entries(schemaObject.properties || {})
+          .filter(([_key, value]) => value && Object.hasOwn(value, 'default'))
+          .map(([key]) => key)
+      }
 
       const tree = [...schemaGenerator.parse({ schemaObject, name }), optional ? { keyword: schemaKeywords.optional } : undefined].filter(Boolean)
       const imports = schemaManager.getImports(tree)
@@ -66,9 +76,9 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       }
 
       return (
-        <Oas.Schema key={i} name={name} schemaObject={schemaObject} tree={tree}>
+        <Fragment>
           {typed && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
-          {typed && plugin.options.version === '3' && <File.Import isTypeOnly path={'@kubb/plugin-zod/utils'} name={['ToZod']} />}
+          {typed && version === '3' && <File.Import name={['ToZod']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')} />}
           {imports.map((imp) => (
             <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} />
           ))}
@@ -78,7 +88,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
             inferTypeName={inferred ? zod.inferTypeName : undefined}
             description={description}
             tree={tree}
-            rawSchema={schemaObject}
+            schema={schemaObject}
             mapper={mapper}
             coercion={coercion}
             keysToOmit={keysToOmit}
@@ -86,7 +96,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
             version={plugin.options.version}
             emptySchemaType={plugin.options.emptySchemaType}
           />
-        </Oas.Schema>
+        </Fragment>
       )
     }
 
@@ -103,13 +113,11 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       </File>
     )
   },
-  Schema({ schema, options }) {
-    const { coercion, inferred, typed, mapper, importPath, wrapOutput, version } = options
-
+  Schema({ config, schema, plugin }) {
     const { getName, getFile, getImports } = useSchemaManager()
     const {
-      options: { output, emptySchemaType },
-    } = usePlugin<PluginZod>()
+      options: { output, emptySchemaType, coercion, inferred, typed, mapper, importPath, wrapOutput, version },
+    } = plugin
     const pluginManager = usePluginManager()
     const oas = useOas()
 
@@ -136,7 +144,9 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       >
         <File.Import name={['z']} path={importPath} />
         {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
-        {typed && <File.Import isTypeOnly path={options.version === '4' ? '@kubb/plugin-zod/utils/v4' : '@kubb/plugin-zod/utils'} name={['ToZod']} />}
+        {typed && version === '3' && (
+          <File.Import name={['ToZod']} root={zod.file.path} path={path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')} />
+        )}
         {imports.map((imp) => (
           <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={zod.file.path} path={imp.path} name={imp.name} />
         ))}
@@ -147,7 +157,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
           inferTypeName={inferred ? zod.inferTypeName : undefined}
           description={schema.value.description}
           tree={schema.tree}
-          rawSchema={schema.value}
+          schema={schema.value}
           mapper={mapper}
           coercion={coercion}
           wrapOutput={wrapOutput}

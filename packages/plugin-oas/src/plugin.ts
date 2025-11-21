@@ -1,17 +1,16 @@
 import path from 'node:path'
-import { type Config, createPlugin, type Group, getMode } from '@kubb/core'
-import type { Logger } from '@kubb/core/logger'
+import { type Config, definePlugin, type Group, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import type { Oas } from '@kubb/oas'
+import { parseFromConfig } from '@kubb/oas'
 import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { PluginOas } from './types.ts'
-import { parseFromConfig } from './utils/parseFromConfig.ts'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 
-export const pluginOas = createPlugin<PluginOas>((options) => {
+export const pluginOas = definePlugin<PluginOas>((options) => {
   const {
     output = {
       path: 'schemas',
@@ -24,11 +23,10 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     oasClass,
     discriminator = 'strict',
   } = options
-  let oas: Oas
 
-  const getOas = async ({ config, logger }: { config: Config; logger: Logger }): Promise<Oas> => {
+  const getOas = async ({ config }: { config: Config }): Promise<Oas> => {
     // needs to be in a different variable or the catch here will not work(return of a promise instead)
-    oas = await parseFromConfig(config, oasClass)
+    const oas = await parseFromConfig(config, oasClass)
 
     oas.setOptions({
       contentType,
@@ -42,7 +40,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     } catch (e) {
       const error = e as Error
 
-      logger.emit('warning', error?.message)
+      console.warn(error?.message)
     }
 
     return oas
@@ -56,17 +54,22 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       discriminator,
       ...options,
     },
-    context() {
-      const { config, logger } = this
+    inject() {
+      const config = this.config
+      let oas: Oas
 
       return {
-        getOas() {
-          return getOas({ config, logger })
+        async getOas() {
+          if (!oas) {
+            oas = await getOas({ config })
+          }
+
+          return oas
         },
         async getBaseURL() {
-          const oasInstance = await this.getOas()
+          const oas = await getOas({ config })
           if (serverIndex) {
-            return oasInstance.api.servers?.at(serverIndex)?.url
+            return oas.api.servers?.at(serverIndex)?.url
           }
 
           return undefined
@@ -107,15 +110,12 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
 
       return path.resolve(root, output.path, baseName)
     },
-    async buildStart() {
+    async install() {
       if (!output) {
         return
       }
 
-      const oas = await getOas({
-        config: this.config,
-        logger: this.logger,
-      })
+      const oas = await this.getOas()
       await oas.dereference()
 
       const schemaGenerator = new SchemaGenerator(

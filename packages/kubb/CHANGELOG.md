@@ -1,5 +1,101 @@
 # kubb
 
+## 3.0.132
+
+### Patch Changes
+
+- Updated dependencies [[`8dd9b83`](https://github.com/kubb-labs/kubb/commit/8dd9b833a84c6984a8056f0f4170fe60360b9ca7)]:
+  - @kubb/core@4.5.11
+  - @kubb/cli@4.5.11
+
+## 3.0.131
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@4.5.10
+  - @kubb/core@4.5.10
+
+## 3.0.130
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@4.5.9
+  - @kubb/core@4.5.9
+
+## 3.0.129
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@4.5.8
+  - @kubb/core@4.5.8
+
+## 3.0.128
+
+### Patch Changes
+
+- Updated dependencies [[`40e29ca`](https://github.com/kubb-labs/kubb/commit/40e29ca67ab79e15523cfda8ae648cb0aa2712f9)]:
+  - @kubb/core@4.5.7
+  - @kubb/cli@4.5.7
+
+## 3.0.127
+
+### Patch Changes
+
+- Updated dependencies [[`613ad38`](https://github.com/kubb-labs/kubb/commit/613ad381a8d73dd3815eb72d7cd32da2290d3203)]:
+  - @kubb/core@4.5.6
+  - @kubb/cli@4.5.6
+
+## 3.0.126
+
+### Patch Changes
+
+- Updated dependencies [[`ec21400`](https://github.com/kubb-labs/kubb/commit/ec21400d90c7e6cdf93485db30ca23624d652ec8)]:
+  - @kubb/core@4.5.5
+  - @kubb/cli@4.5.5
+
+## 3.0.125
+
+### Patch Changes
+
+- Updated dependencies [[`f81d4f1`](https://github.com/kubb-labs/kubb/commit/f81d4f133b302e6fbc03787fa4be40806066acc7)]:
+  - @kubb/core@4.5.4
+  - @kubb/cli@4.5.4
+
+## 3.0.124
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@4.5.3
+  - @kubb/core@4.5.3
+
+## 3.0.123
+
+### Patch Changes
+
+- Updated dependencies [[`56207b9`](https://github.com/kubb-labs/kubb/commit/56207b9b36cad9ccef190fe68716c3d78bb257c8)]:
+  - @kubb/core@4.5.2
+  - @kubb/cli@4.5.2
+
+## 3.0.122
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@4.5.1
+  - @kubb/core@4.5.1
+
+## 3.0.121
+
+### Patch Changes
+
+- Updated dependencies [[`2fc52bb`](https://github.com/kubb-labs/kubb/commit/2fc52bba8d537d8a50de1fd57656cdcf4aadbda1), [`7152039`](https://github.com/kubb-labs/kubb/commit/71520392cde27ff58bcbead3930e8f3e38b3be86)]:
+  - @kubb/core@4.5.0
+  - @kubb/cli@4.5.0
+
 ## 3.0.120
 
 ### Patch Changes

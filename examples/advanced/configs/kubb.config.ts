@@ -88,6 +88,23 @@ export default defineConfig(() => {
             },
           ],
         }),
+        pluginZod({
+          output: {
+            path: './zod',
+          },
+          exclude: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          group: { type: 'tag' },
+          dateType: 'stringOffset',
+          inferred: true,
+          typed: true,
+          operations: false,
+          version: '3',
+        }),
         pluginReactQuery({
           output: {
             path: './clients/hooks',
@@ -161,6 +178,7 @@ export default defineConfig(() => {
               pattern: 'store',
             },
           ],
+          bundle: true,
           parser: 'zod',
           group: { type: 'tag', name: ({ group }) => `${group}Service` },
           importPath: '../../../../axios-client.ts',
@@ -179,23 +197,6 @@ export default defineConfig(() => {
               },
             },
           ],
-        }),
-        pluginZod({
-          output: {
-            path: './zod',
-          },
-          exclude: [
-            {
-              type: 'tag',
-              pattern: 'store',
-            },
-          ],
-          group: { type: 'tag' },
-          dateType: 'stringOffset',
-          inferred: true,
-          typed: false,
-          operations: false,
-          version: '4',
         }),
         pluginMcp({
           output: {

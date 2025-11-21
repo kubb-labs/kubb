@@ -1,7 +1,8 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
 import type { contentType, Oas } from '@kubb/oas'
-import type { Exclude, Generator, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Generator } from '@kubb/plugin-oas/generators'
 
 export type Options = {
   /**
@@ -46,7 +47,6 @@ export type Options = {
    * Path to the client import path that will be used to do the API calls.
    * It will be used as `import client from '${client.importPath}'`.
    * It allows both relative and absolute path but be aware that we will not change the path.
-   * @default '@kubb/plugin-client/clients/axios'
    */
   importPath?: string
   /**
@@ -87,11 +87,17 @@ export type Options = {
   parser?: 'client' | 'zod'
   /**
    * Which client should be used to do the HTTP calls
-   * - 'axios' will use `@kubb/plugin-client/clients/axios` to fetch data.
-   * - 'fetch' will use `@kubb/plugin-client/clients/fetch` to fetch data.
+   * - 'axios' will use `@kubb/plugin-client/templates/axios` to fetch data.
+   * - 'fetch' will use `@kubb/plugin-client/templates/fetch` to fetch data.
    * @default 'axios'
    */
   client?: 'axios' | 'fetch'
+  /**
+   * Bundle the selected client into the generated `.kubb` directory.
+   * When disabled the generated clients will import the shared runtime from `@kubb/plugin-client/clients/*`.
+   * @default false
+   */
+  bundle?: boolean
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -108,9 +114,11 @@ type ResolvedOptions = {
   output: Output<Oas>
   group?: Options['group']
   baseURL: string | undefined
+  client: Options['client']
+  bundle: NonNullable<Options['bundle']>
   parser: NonNullable<Options['parser']>
   urlType: NonNullable<Options['urlType']>
-  importPath: NonNullable<Options['importPath']>
+  importPath: Options['importPath']
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   paramsType: NonNullable<Options['paramsType']>

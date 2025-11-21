@@ -12,4 +12,5 @@ export default defineConfig({
   shims: true,
   exports: true,
   noExternal: [/whatwg-url/],
+  fixedExtension: false,
 })

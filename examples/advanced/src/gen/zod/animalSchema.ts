@@ -1,6 +1,8 @@
+import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { Animal } from '../models/ts/Animal.ts'
 import { catSchema } from './catSchema.ts'
 import { dogSchema } from './dogSchema.ts'
-import { z } from 'zod/v4'
 
 export const animalSchema = z.union([
   catSchema.and(
@@ -13,6 +15,6 @@ export const animalSchema = z.union([
       type: z.literal('dog'),
     }),
   ),
-])
+]) as unknown as ToZod<Animal>
 
-export type AnimalSchema = z.infer<typeof animalSchema>
+export type AnimalSchema = Animal

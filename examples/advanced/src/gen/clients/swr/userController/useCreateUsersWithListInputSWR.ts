@@ -1,5 +1,5 @@
-import type fetch from '../../../../axios-client.ts'
 import useSWRMutation from 'swr/mutation'
+import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,

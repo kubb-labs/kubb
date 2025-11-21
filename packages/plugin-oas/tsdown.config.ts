@@ -5,12 +5,10 @@ export default defineConfig({
     index: 'src/index.ts',
     mocks: 'src/mocks/index.ts',
     utils: 'src/utils/index.ts',
-    components: 'src/components/index.ts',
     generators: 'src/generators/index.ts',
     hooks: 'src/hooks/index.ts',
   },
   dts: true,
-
   format: ['esm', 'cjs'],
   platform: 'node',
   sourcemap: true,
@@ -18,4 +16,5 @@ export default defineConfig({
   exports: true,
   noExternal: [/p-limit/],
   external: ['@types/react'],
+  fixedExtension: false,
 })

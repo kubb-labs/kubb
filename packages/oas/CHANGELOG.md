@@ -1,5 +1,37 @@
 # @kubb/oas
 
+## 4.5.11
+
+## 4.5.10
+
+## 4.5.9
+
+### Patch Changes
+
+- [#2010](https://github.com/kubb-labs/kubb/pull/2010) [`b334be1`](https://github.com/kubb-labs/kubb/commit/b334be118a3e54f3e76713edc6bfe6a562b10084) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - discriminator `inherit` issue, resolved by applying inherit on setOptions
+
+## 4.5.8
+
+## 4.5.7
+
+## 4.5.6
+
+## 4.5.5
+
+## 4.5.4
+
+## 4.5.3
+
+## 4.5.2
+
+## 4.5.1
+
+## 4.5.0
+
+### Minor Changes
+
+- [#1970](https://github.com/kubb-labs/kubb/pull/1970) [`7152039`](https://github.com/kubb-labs/kubb/commit/71520392cde27ff58bcbead3930e8f3e38b3be86) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove @kubb dependencies
+
 ## 4.4.1
 
 ### Patch Changes

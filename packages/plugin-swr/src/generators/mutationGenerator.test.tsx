@@ -1,10 +1,11 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
+
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginSwr } from '../types.ts'
 import { mutationGenerator } from './mutationGenerator.tsx'
@@ -82,7 +83,9 @@ describe('mutationGenerator operation', async () => {
     const options: PluginSwr['resolvedOptions'] = {
       client: {
         dataReturnType: 'data',
-        importPath: '@kubb/plugin-client/clients/axios',
+        client: 'axios',
+        importPath: undefined,
+        bundle: false,
       },
       paramsCasing: undefined,
       parser: 'client',
@@ -106,7 +109,7 @@ describe('mutationGenerator operation', async () => {
     }
     const plugin = { options } as Plugin<PluginSwr>
     const fabric = createReactFabric()
-    const instance = new OperationGenerator(options, {
+    const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
@@ -120,10 +123,11 @@ describe('mutationGenerator operation', async () => {
 
     const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
-      instance,
-      generator: mutationGenerator,
-      options,
+      generator,
+      Component: mutationGenerator.Operation,
+      plugin,
     })
 
     await matchFiles(fabric.files)

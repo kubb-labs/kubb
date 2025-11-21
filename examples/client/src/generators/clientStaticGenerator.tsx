@@ -1,8 +1,8 @@
-import { usePlugin, usePluginManager } from '@kubb/core/hooks'
+import path from 'node:path'
 import { URLPath } from '@kubb/core/utils'
 import type { PluginClient } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
-import { createReactGenerator } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -10,14 +10,14 @@ import { File } from '@kubb/react-fabric'
 
 export const clientStaticGenerator = createReactGenerator<PluginClient>({
   name: 'client',
-  Operation({ options, operation }) {
-    const pluginManager = usePluginManager()
+  Operation({ config, plugin, operation, generator }) {
     const {
+      options,
       options: { output },
-    } = usePlugin<PluginClient>()
+    } = plugin
 
     const oas = useOas()
-    const { getSchemas, getName, getFile } = useOperationManager()
+    const { getSchemas, getName, getFile } = useOperationManager(generator)
 
     const client = {
       name: getName(operation, { type: 'function' }),
@@ -34,11 +34,26 @@ export const clientStaticGenerator = createReactGenerator<PluginClient>({
         baseName={client.file.baseName}
         path={client.file.path}
         meta={client.file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
+        banner={getBanner({ oas, output, config })}
         footer={getFooter({ oas, output })}
       >
-        <File.Import name={'fetch'} path={options.importPath} />
-        <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
+        {options.importPath ? (
+          <>
+            <File.Import name={'fetch'} path={options.importPath} />
+            <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
+          </>
+        ) : (
+          <>
+            <File.Import name={'fetch'} root={client.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')} />
+            <File.Import
+              name={['RequestConfig', 'ResponseErrorConfig']}
+              root={client.file.path}
+              path={path.resolve(config.root, config.output.path, '.kubb/fetcher.ts')}
+              isTypeOnly
+            />
+          </>
+        )}
+
         <File.Import
           name={
             [

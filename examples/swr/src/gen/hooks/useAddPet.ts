@@ -7,6 +7,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import useSWRMutation from 'swr/mutation'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
 
@@ -38,7 +39,9 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
  */
 export function useAddPet(
   options: {
-    mutation?: Parameters<typeof useSWRMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationKey, AddPetMutationRequest>>[2]
+    mutation?: SWRMutationConfiguration<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationKey | null, AddPetMutationRequest> & {
+      throwOnError?: boolean
+    }
     client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},

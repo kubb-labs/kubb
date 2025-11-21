@@ -6,12 +6,12 @@ outline: deep
 ---
 
 # Use of Fetch <a href="/plugins/plugin-client"><Badge type="info" text="@kubb/plugin-client" /></a>
-By default, `@kubb/plugin-client` uses the import client from `@kubb/plugin-client/clients/axios` as its client, which is based on the Axios instance interface for making API calls.
+By default, `@kubb/plugin-client` uses the import client from `@kubb/plugin-client/templates/axios` as its client, which is based on the Axios instance interface for making API calls.
 
 However, there are cases where you might want to customize the client. For example, you might prefer to use [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch) or [Ky](https://github.com/sindresorhus/ky).
 
 ## Create a `kubb.config.ts` with the following config
-`importPath` can be a relative, import alias, or an import to another library(default `@kubb/plugin-client/clients/axios` will be used).
+`importPath` can be a relative, import alias, or an import to another library(default `@kubb/plugin-client/templates/axios` will be used).
 
 See [plugins/plugin-client](/plugins/plugin-client/#client).
 ```typescript twoslash
