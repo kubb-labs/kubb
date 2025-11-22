@@ -63,7 +63,7 @@ export default defineConfig([
       pluginOas({ validate: false, generators: [] }),
       pluginZod({
         output: {
-          path: 'index.ts',
+          path: 'zod.ts',
           barrelType: false,
         },
         operations: false,

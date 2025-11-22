@@ -3,7 +3,7 @@
     "Swagger Petstore - OpenAPI 3.0": {
       "type": "stdio",
       "command": "npx",
-      "args": ["tsx", "/Users/stijnvanhulle/GitHub/kubb/examples/advanced/src/gen/mcp/server.ts"]
+      "args": ["tsx", "/workspace/examples/advanced/src/gen/mcp/server.ts"]
     }
   }
 }

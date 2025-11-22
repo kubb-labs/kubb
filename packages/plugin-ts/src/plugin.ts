@@ -110,7 +110,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       })
 
       const schemaFiles = await schemaGenerator.build(...generators)
-      await this.addFile(...schemaFiles)
+      await this.upsertFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
@@ -125,7 +125,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       })
 
       const operationFiles = await operationGenerator.build(...generators)
-      await this.addFile(...operationFiles)
+      await this.upsertFile(...operationFiles)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
@@ -137,7 +137,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
         logger: this.logger,
       })
 
-      await this.addFile(...barrelFiles)
+      await this.upsertFile(...barrelFiles)
     },
   }
 })

@@ -140,7 +140,7 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
       )
 
       const schemaFiles = await schemaGenerator.build(...generators)
-      await this.addFile(...schemaFiles)
+      await this.upsertFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
@@ -156,7 +156,7 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
 
       const operationFiles = await operationGenerator.build(...generators)
 
-      await this.addFile(...operationFiles)
+      await this.upsertFile(...operationFiles)
     },
   }
 })

@@ -20,7 +20,7 @@ async function run() {
     },
   })
 
-  fabric.addFile(...files)
+  fabric.upsertFile(...files)
 
   fabric.use(fsPlugin, { clean: { path: path.join(process.cwd(), './src/gen2') } })
   fabric.use(typescriptParser)

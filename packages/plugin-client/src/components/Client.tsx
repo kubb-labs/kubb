@@ -186,35 +186,6 @@ export function Client({
     },
   })
 
-  const formData = isFormData
-    ? `
-   const formData = new FormData()
-   if (requestData) {
-    Object.entries(requestData).forEach(([key, value]) => {
-      if (value === undefined || value === null) return;
-
-      if (Array.isArray(value)) {
-        if (value.length && value[0] instanceof Blob) {
-          value.forEach((v) => {
-            formData.append(key, v as Blob);
-          });
-        } else {
-          formData.append(key, JSON.stringify(value));
-        }
-      } else if (value instanceof Blob) {
-        formData.append(key, value);
-      } else if (typeof value === 'number' || typeof value === 'boolean') {
-        formData.append(key, String(value));
-      } else if (typeof value === 'string') {
-        formData.append(key, value);
-      } else if (typeof value === 'object') {
-        formData.append(key, JSON.stringify(value));
-      }
-    })
-   }
-  `
-    : undefined
-
   const childrenElement = children ? (
     children
   ) : (
@@ -244,7 +215,7 @@ export function Client({
         {parser === 'zod' && zodSchemas?.request?.name && `const requestData = ${zodSchemas.request.name}.parse(data)`}
         {parser === 'client' && typeSchemas?.request?.name && 'const requestData = data'}
         <br />
-        {formData}
+        {isFormData && 'const formData = buildFormData(requestData)'}
         <br />
         {isConfigurable
           ? `const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`

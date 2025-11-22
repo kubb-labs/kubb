@@ -94,7 +94,7 @@ export const pluginCypress = definePlugin<PluginCypress>((options) => {
       })
 
       const files = await operationGenerator.build(...generators)
-      await this.addFile(...files)
+      await this.upsertFile(...files)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
@@ -106,7 +106,7 @@ export const pluginCypress = definePlugin<PluginCypress>((options) => {
         logger: this.logger,
       })
 
-      await this.addFile(...barrelFiles)
+      await this.upsertFile(...barrelFiles)
     },
   }
 })

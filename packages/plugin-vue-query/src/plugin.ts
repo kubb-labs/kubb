@@ -141,11 +141,10 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
       }
 
       const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
-      const containsFetch = this.fabric.files.some((file) => file.baseName === 'fetch.ts')
 
-      if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath && !containsFetch) {
+      if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled
-        await this.addFile({
+        await this.upsertFile({
           baseName: 'fetch.ts',
           path: path.resolve(root, '.kubb/fetch.ts'),
           sources: [
@@ -161,6 +160,19 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
         })
       }
 
+      await this.addFile({
+        baseName: 'config.ts',
+        path: path.resolve(root, '.kubb/config.ts'),
+        sources: [
+          {
+            name: 'config',
+            value: resolveModuleSource('@kubb/plugin-client/templates/config').source,
+            isExportable: false,
+            isIndexable: false,
+          },
+        ],
+      })
+
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
@@ -174,7 +186,7 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
       })
 
       const files = await operationGenerator.build(...generators)
-      await this.addFile(...files)
+      await this.upsertFile(...files)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
@@ -186,7 +198,7 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
         logger: this.logger,
       })
 
-      await this.addFile(...barrelFiles)
+      await this.upsertFile(...barrelFiles)
     },
   }
 })

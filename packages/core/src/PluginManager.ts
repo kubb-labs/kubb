@@ -117,6 +117,9 @@ export class PluginManager {
       addFile: async (...files: Array<KubbFile.File>) => {
         await this.options.fabric.addFile(...files)
       },
+      upsertFile: async (...files: Array<KubbFile.File>) => {
+        await this.options.fabric.upsertFile(...files)
+      },
     } as unknown as PluginContext<TOptions>
 
     let mergedExtras: Record<string, any> = {}

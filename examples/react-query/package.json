@@ -27,7 +27,7 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-react-query": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "~0.5.1",
+    "@kubb/react-fabric": "~0.5.2",
     "@tanstack/react-query": "^5.90.10",
     "@tanstack/react-query-devtools": "^5.90.2",
     "axios": "^1.13.2",
