@@ -1,5 +1,26 @@
 # @kubb/plugin-react-query
 
+## 4.5.14
+
+### Patch Changes
+
+- [#2035](https://github.com/kubb-labs/kubb/pull/2035) [`c09550b`](https://github.com/kubb-labs/kubb/commit/c09550bc68baf001a82df1b130f6144c665f238c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support arrays in multipart/form-data
+  - Added `buildFormData` utility function to properly handle arrays in multipart/form-data requests
+  - Fixed array iteration to use `for...of` instead of `for...in` to correctly iterate over array values
+  - Added Date object handling with automatic ISO string conversion
+  - Filter out null/undefined array elements to prevent them from becoming string literals in FormData
+  - Improved type safety with early returns in appendData function
+  - Added `upsertFile` method to PluginContext for idempotent file operations
+  - Ensured consistent use of `upsertFile` across all query plugins for better file regeneration
+
+- Updated dependencies [[`c09550b`](https://github.com/kubb-labs/kubb/commit/c09550bc68baf001a82df1b130f6144c665f238c)]:
+  - @kubb/plugin-client@4.5.14
+  - @kubb/core@4.5.14
+  - @kubb/plugin-oas@4.5.14
+  - @kubb/plugin-ts@4.5.14
+  - @kubb/plugin-zod@4.5.14
+  - @kubb/oas@4.5.14
+
 ## 4.5.13
 
 ### Patch Changes
