@@ -28,6 +28,10 @@ const knowledgeBaseSidebar = [
         text: 'Filter and sort',
         link: '/knowledge-base/filter-and-sort/',
       },
+      {
+        text: 'Multipart FormData',
+        link: '/knowledge-base/multipart-form-data',
+      }
     ],
   },
   {
