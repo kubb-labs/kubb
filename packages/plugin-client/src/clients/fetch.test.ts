@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Mock } from 'vitest'
 import { client, getConfig, setConfig } from './fetch'
 
 // Mock the global fetch
-const mockFetch = vi.fn() as unknown as typeof fetch
-global.fetch = mockFetch
+const mockFetch = vi.fn() as Mock
+global.fetch = mockFetch as any
 
 describe('fetch client', () => {
   beforeEach(() => {
