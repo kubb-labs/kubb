@@ -1,14 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Mock } from 'vitest'
 import { client, getConfig, setConfig } from './fetch'
 
 // Mock the global fetch
-const mockFetch = vi.fn() as Mock
-global.fetch = mockFetch as any
+vi.stubGlobal('fetch', vi.fn())
 
 describe('fetch client', () => {
   beforeEach(() => {
-    mockFetch.mockClear()
+    vi.mocked(fetch).mockClear()
     setConfig({})
   })
 
@@ -18,7 +16,7 @@ describe('fetch client', () => {
       formData.append('file', new Blob(['test content'], { type: 'text/plain' }))
       formData.append('name', 'test-file.txt')
 
-      mockFetch.mockResolvedValue({
+      vi.mocked(fetch).mockResolvedValue({
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
@@ -32,7 +30,7 @@ describe('fetch client', () => {
         data: formData,
       })
 
-      expect(mockFetch).toHaveBeenCalledWith(
+      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
         '/upload',
         expect.objectContaining({
           method: 'POST',
@@ -41,7 +39,7 @@ describe('fetch client', () => {
       )
 
       // Verify that the body is the actual FormData instance, not a stringified version
-      const callArgs = mockFetch.mock.calls[0]
+      const callArgs = vi.mocked(fetch).mock.calls[0]
       expect(callArgs).toBeDefined()
       expect(callArgs?.[1]?.body).toBeInstanceOf(FormData)
       expect(callArgs?.[1]?.body).toBe(formData)
@@ -50,7 +48,7 @@ describe('fetch client', () => {
     it('should JSON.stringify regular objects', async () => {
       const data = { name: 'John', age: 30 }
 
-      mockFetch.mockResolvedValue({
+      vi.mocked(fetch).mockResolvedValue({
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
@@ -64,7 +62,7 @@ describe('fetch client', () => {
         data,
       })
 
-      expect(mockFetch).toHaveBeenCalledWith(
+      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
         '/api/users',
         expect.objectContaining({
           method: 'POST',
@@ -73,7 +71,7 @@ describe('fetch client', () => {
       )
 
       // Verify that the body is a string
-      const callArgs = mockFetch.mock.calls[0]
+      const callArgs = vi.mocked(fetch).mock.calls[0]
       expect(callArgs).toBeDefined()
       expect(typeof callArgs?.[1]?.body).toBe('string')
       expect(callArgs?.[1]?.body).toBe('{"name":"John","age":30}')
@@ -87,7 +85,7 @@ describe('fetch client', () => {
       formData.append('files', file2)
       formData.append('description', 'Multiple files upload')
 
-      mockFetch.mockResolvedValue({
+      vi.mocked(fetch).mockResolvedValue({
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
@@ -101,7 +99,7 @@ describe('fetch client', () => {
         data: formData,
       })
 
-      const callArgs = mockFetch.mock.calls[0]
+      const callArgs = vi.mocked(fetch).mock.calls[0]
       expect(callArgs).toBeDefined()
       expect(callArgs?.[1]?.body).toBeInstanceOf(FormData)
       expect(callArgs?.[1]?.body).toBe(formData)
@@ -110,7 +108,7 @@ describe('fetch client', () => {
     it('should handle empty FormData', async () => {
       const formData = new FormData()
 
-      mockFetch.mockResolvedValue({
+      vi.mocked(fetch).mockResolvedValue({
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
@@ -124,7 +122,7 @@ describe('fetch client', () => {
         data: formData,
       })
 
-      const callArgs = mockFetch.mock.calls[0]
+      const callArgs = vi.mocked(fetch).mock.calls[0]
       expect(callArgs).toBeDefined()
       expect(callArgs?.[1]?.body).toBeInstanceOf(FormData)
     })
@@ -132,7 +130,7 @@ describe('fetch client', () => {
 
   describe('basic functionality', () => {
     it('should make a GET request', async () => {
-      mockFetch.mockResolvedValue({
+      vi.mocked(fetch).mockResolvedValue({
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
@@ -145,7 +143,7 @@ describe('fetch client', () => {
         method: 'GET',
       })
 
-      expect(mockFetch).toHaveBeenCalledWith(
+      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
         '/api/test',
         expect.objectContaining({
           method: 'GET',
@@ -155,7 +153,7 @@ describe('fetch client', () => {
     })
 
     it('should handle query parameters', async () => {
-      mockFetch.mockResolvedValue({
+      vi.mocked(fetch).mockResolvedValue({
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
@@ -169,14 +167,14 @@ describe('fetch client', () => {
         params: { q: 'test', page: 1 },
       })
 
-      expect(mockFetch).toHaveBeenCalledWith(
+      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
         '/api/search?q=test&page=1',
         expect.any(Object),
       )
     })
 
     it('should merge baseURL with url', async () => {
-      mockFetch.mockResolvedValue({
+      vi.mocked(fetch).mockResolvedValue({
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
@@ -190,7 +188,7 @@ describe('fetch client', () => {
         method: 'GET',
       })
 
-      expect(mockFetch).toHaveBeenCalledWith(
+      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
         'https://api.example.com/users',
         expect.any(Object),
       )
@@ -202,7 +200,7 @@ describe('fetch client', () => {
         headers: { Authorization: 'Bearer token' },
       })
 
-      mockFetch.mockResolvedValue({
+      vi.mocked(fetch).mockResolvedValue({
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
@@ -215,7 +213,7 @@ describe('fetch client', () => {
         method: 'GET',
       })
 
-      expect(mockFetch).toHaveBeenCalledWith(
+      expect(vi.mocked(fetch)).toHaveBeenCalledWith(
         'https://api.example.com/users',
         expect.objectContaining({
           headers: { Authorization: 'Bearer token' },
@@ -229,7 +227,7 @@ describe('fetch client', () => {
     })
 
     it('should handle no content responses', async () => {
-      mockFetch.mockResolvedValue({
+      vi.mocked(fetch).mockResolvedValue({
         status: 204,
         statusText: 'No Content',
         headers: new Headers(),
