@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.5.15
+- [`plugin-client`](/plugins/plugin-client): Fix FormData handling in fetch client to properly support multipart/form-data requests. FormData instances are now passed directly to the fetch API instead of being JSON.stringify-ed, allowing the browser to correctly set the Content-Type header with the multipart boundary.
+
 # 4.5.14
 - [`plugin-client`](/plugins/plugin-client): Added `buildFormData` utility function to properly handle arrays in multipart/form-data requests
 - [`plugin-mcp`](/plugins/plugin-mcp): Support for arrays in multipart/form-data with improved FormData handling
