@@ -99,6 +99,18 @@ export type Options = {
    * In version 5 of Kubb this will be by default true
    */
   bundle?: boolean
+  /**
+   * Generate a class-based client instead of standalone functions.
+   * When enabled, all operations will be methods of a class with centralized configuration.
+   * @default false
+   */
+  classMode?: boolean
+  /**
+   * Name of the generated class (only used when classMode is true).
+   * Can be a string or a function that returns a string based on context.
+   * @default 'ApiClient' or (ctx) => `${ctx.group}Client` when grouped
+   */
+  className?: string | ((context: { group?: string }) => string)
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -124,6 +136,8 @@ type ResolvedOptions = {
   pathParamsType: NonNullable<Options['pathParamsType']>
   paramsType: NonNullable<Options['paramsType']>
   paramsCasing: Options['paramsCasing']
+  classMode: NonNullable<Options['classMode']>
+  className: Options['className']
 }
 
 export type PluginClient = PluginFactoryOptions<'plugin-client', Options, ResolvedOptions, never, ResolvePathOptions>
