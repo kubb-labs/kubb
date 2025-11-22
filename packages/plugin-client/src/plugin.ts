@@ -6,6 +6,7 @@ import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { operationsGenerator } from './generators'
 import { clientGenerator } from './generators/clientGenerator.tsx'
+import { classClientGenerator } from './generators/classClientGenerator.tsx'
 import { groupedClientGenerator } from './generators/groupedClientGenerator.tsx'
 import type { PluginClient } from './types.ts'
 
@@ -26,7 +27,13 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
     operations = false,
     baseURL,
     paramsCasing,
-    generators = [clientGenerator, group ? groupedClientGenerator : undefined, operations ? operationsGenerator : undefined].filter(Boolean),
+    classMode = false,
+    className,
+    generators = [
+      classMode ? classClientGenerator : clientGenerator,
+      group && !classMode ? groupedClientGenerator : undefined,
+      operations ? operationsGenerator : undefined,
+    ].filter(Boolean),
     parser = 'client',
     client = 'axios',
     importPath,
@@ -51,6 +58,8 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
       pathParamsType,
       baseURL,
       urlType,
+      classMode,
+      className,
     },
     pre: [pluginOasName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
