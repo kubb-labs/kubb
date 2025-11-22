@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { client, getConfig, setConfig } from './fetch'
 
 // Mock the global fetch
-const mockFetch = vi.fn()
+const mockFetch = vi.fn() as unknown as typeof fetch
 global.fetch = mockFetch
 
 describe('fetch client', () => {
@@ -41,8 +41,9 @@ describe('fetch client', () => {
 
       // Verify that the body is the actual FormData instance, not a stringified version
       const callArgs = mockFetch.mock.calls[0]
-      expect(callArgs[1].body).toBeInstanceOf(FormData)
-      expect(callArgs[1].body).toBe(formData)
+      expect(callArgs).toBeDefined()
+      expect(callArgs?.[1]?.body).toBeInstanceOf(FormData)
+      expect(callArgs?.[1]?.body).toBe(formData)
     })
 
     it('should JSON.stringify regular objects', async () => {
@@ -72,8 +73,9 @@ describe('fetch client', () => {
 
       // Verify that the body is a string
       const callArgs = mockFetch.mock.calls[0]
-      expect(typeof callArgs[1].body).toBe('string')
-      expect(callArgs[1].body).toBe('{"name":"John","age":30}')
+      expect(callArgs).toBeDefined()
+      expect(typeof callArgs?.[1]?.body).toBe('string')
+      expect(callArgs?.[1]?.body).toBe('{"name":"John","age":30}')
     })
 
     it('should handle FormData with multiple files', async () => {
@@ -99,8 +101,9 @@ describe('fetch client', () => {
       })
 
       const callArgs = mockFetch.mock.calls[0]
-      expect(callArgs[1].body).toBeInstanceOf(FormData)
-      expect(callArgs[1].body).toBe(formData)
+      expect(callArgs).toBeDefined()
+      expect(callArgs?.[1]?.body).toBeInstanceOf(FormData)
+      expect(callArgs?.[1]?.body).toBe(formData)
     })
 
     it('should handle empty FormData', async () => {
@@ -121,7 +124,8 @@ describe('fetch client', () => {
       })
 
       const callArgs = mockFetch.mock.calls[0]
-      expect(callArgs[1].body).toBeInstanceOf(FormData)
+      expect(callArgs).toBeDefined()
+      expect(callArgs?.[1]?.body).toBeInstanceOf(FormData)
     })
   })
 
