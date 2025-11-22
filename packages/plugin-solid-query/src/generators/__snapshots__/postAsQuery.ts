@@ -41,17 +41,18 @@ export async function updatePetWithForm(
 
 export function updatePetWithFormQueryOptions(
   petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
-  params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
+  data?: () => UpdatePetWithFormMutationRequest,
+  params?: () => UpdatePetWithFormQueryParams,
+  config: () => Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = () => ({}),
 ) {
-  const queryKey = updatePetWithFormQueryKey(petId, data, params)
+  const queryKey = updatePetWithFormQueryKey(petId, data?.(), params?.())
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
-    enabled: !!petId,
+    enabled: !!petId?.(),
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
-      return updatePetWithForm(petId, data, params, config)
+      const unwrappedConfig = config?.() ?? {}
+      unwrappedConfig.signal = signal
+      return updatePetWithForm(petId, data?.(), params?.(), config?.())
     },
   })
 }
@@ -66,22 +67,22 @@ export function createUpdatePetWithForm<
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
 >(
   petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
-  params?: UpdatePetWithFormQueryParams,
-  options: {
+  data?: () => UpdatePetWithFormMutationRequest,
+  params?: () => UpdatePetWithFormQueryParams,
+  options: () => {
     query?: Partial<UseBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch }
-  } = {},
+  } = () => ({}),
 ) {
-  const { query: queryConfig = {}, client: config = {} } = options ?? {}
+  const { query: queryConfig = {}, client: config = {} } = options?.() ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, data, params)
+  const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, data?.(), params?.())
 
   const query = useQuery(
     () => ({
-      ...(updatePetWithFormQueryOptions(petId, data, params, config) as unknown as UseBaseQueryOptions),
+      ...(updatePetWithFormQueryOptions(petId, data?.(), params?.(), config) as unknown as UseBaseQueryOptions),
       queryKey,
       initialData: null,
       ...(queryOptions as unknown as Omit<UseBaseQueryOptions, 'queryKey'>),
