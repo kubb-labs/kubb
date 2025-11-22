@@ -60,7 +60,7 @@ export const client = async <TData, _TError = unknown, TVariables = unknown>(par
   const response = await fetch(targetUrl, {
     credentials: config.credentials || 'same-origin',
     method: config.method?.toUpperCase(),
-    body: JSON.stringify(config.data),
+    body: config.data instanceof FormData ? config.data : JSON.stringify(config.data),
     signal: config.signal,
     headers: config.headers,
   })
