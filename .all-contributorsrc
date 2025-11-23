@@ -374,6 +374,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "volodymyr-kushnir",
+      "name": "Volodymyr Kushnir",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10290626?v=4",
+      "profile": "https://volodymyrkushnir.dev/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
