@@ -47,8 +47,8 @@ export const fetch = async <TData, _TError = unknown, TVariables = unknown>(para
     ...globalConfig,
     ...paramsConfig,
     headers: {
-      ...globalConfig.headers,
-      ...paramsConfig.headers,
+      ...(Array.isArray(globalConfig.headers) ? Object.fromEntries(globalConfig.headers) : globalConfig.headers),
+      ...(Array.isArray(paramsConfig.headers) ? Object.fromEntries(paramsConfig.headers) : paramsConfig.headers),
     },
   }
 
