@@ -43,7 +43,14 @@ export const fetch = async <TData, _TError = unknown, TVariables = unknown>(para
   const normalizedParams = new URLSearchParams()
 
   const globalConfig = getConfig()
-  const config = { ...globalConfig, ...paramsConfig }
+  const config = {
+    ...globalConfig,
+    ...paramsConfig,
+    headers: {
+      ...(Array.isArray(globalConfig.headers) ? Object.fromEntries(globalConfig.headers) : globalConfig.headers),
+      ...(Array.isArray(paramsConfig.headers) ? Object.fromEntries(paramsConfig.headers) : paramsConfig.headers),
+    },
+  }
 
   Object.entries(config.params || {}).forEach(([key, value]) => {
     if (value !== undefined) {
