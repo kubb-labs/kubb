@@ -4,6 +4,13 @@ title: Changelog
 
 # Changelog
 
+# 4.6.0
+- [`plugin-react-query`](/plugins/plugin-react-query/): Add support for `useSuspenseInfiniteQuery` hook generation
+  - Generate `useSuspenseInfiniteQuery` hooks when both `suspense` and `infinite` options are enabled
+  - Support for both cursor-based and offset-based pagination with full TypeScript type safety
+  - Automatic validation of required query parameters and response fields
+  - Example: `useFindPetsByTagsSuspenseInfinite` for React Suspense with infinite queries
+
 # 4.5.15
 - [`plugin-client`](/plugins/plugin-client): Fix FormData handling in fetch client to properly support multipart/form-data requests. FormData instances are now passed directly to the fetch API instead of being JSON.stringify-ed, allowing the browser to correctly set the Content-Type header with the multipart boundary.
 
