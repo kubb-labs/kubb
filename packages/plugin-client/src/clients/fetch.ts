@@ -43,7 +43,14 @@ export const client = async <TData, _TError = unknown, TVariables = unknown>(par
   const normalizedParams = new URLSearchParams()
 
   const globalConfig = getConfig()
-  const config = { ...globalConfig, ...paramsConfig }
+  const config = {
+    ...globalConfig,
+    ...paramsConfig,
+    headers: {
+      ...(Array.isArray(globalConfig.headers) ? Object.fromEntries(globalConfig.headers) : globalConfig.headers),
+      ...(Array.isArray(paramsConfig.headers) ? Object.fromEntries(paramsConfig.headers) : paramsConfig.headers),
+    },
+  }
 
   Object.entries(config.params || {}).forEach(([key, value]) => {
     if (value !== undefined) {
@@ -60,7 +67,7 @@ export const client = async <TData, _TError = unknown, TVariables = unknown>(par
   const response = await fetch(targetUrl, {
     credentials: config.credentials || 'same-origin',
     method: config.method?.toUpperCase(),
-    body: JSON.stringify(config.data),
+    body: config.data instanceof FormData ? config.data : JSON.stringify(config.data),
     signal: config.signal,
     headers: config.headers,
   })

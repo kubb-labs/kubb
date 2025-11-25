@@ -198,7 +198,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   // linting
   if (config.output.lint === 'eslint') {
-    logger?.emit('start', `Linting with ${config.output.format}`)
+    logger?.emit('start', `Linting with ${config.output.lint}`)
 
     try {
       await execa('eslint', [path.resolve(definedConfig.root, definedConfig.output.path), '--fix'])
@@ -207,11 +207,11 @@ export async function generate({ input, config, progressCache, args }: GenerateP
       logger.consola?.error(e)
     }
 
-    logger?.emit('success', `Linted with ${config.output.format}`)
+    logger?.emit('success', `Linted with ${config.output.lint}`)
   }
 
   if (config.output.lint === 'biome') {
-    logger?.emit('start', `Linting with ${config.output.format}`)
+    logger?.emit('start', `Linting with ${config.output.lint}`)
 
     try {
       await execa('biome', ['lint', '--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
@@ -220,11 +220,11 @@ export async function generate({ input, config, progressCache, args }: GenerateP
       logger.consola?.error(e)
     }
 
-    logger?.emit('success', `Linted with ${config.output.format}`)
+    logger?.emit('success', `Linted with ${config.output.lint}`)
   }
 
   if (config.output.lint === 'oxlint') {
-    logger?.emit('start', `Linting with ${config.output.format}`)
+    logger?.emit('start', `Linting with ${config.output.lint}`)
 
     try {
       await execa('oxlint', ['--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
@@ -233,7 +233,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
       logger.consola?.error(e)
     }
 
-    logger?.emit('success', `Linted with ${config.output.format}`)
+    logger?.emit('success', `Linted with ${config.output.lint}`)
   }
 
   if (config.hooks) {

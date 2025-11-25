@@ -96,6 +96,7 @@ export type Options = {
    * Bundle the selected client into the generated `.kubb` directory.
    * When disabled the generated clients will import the shared runtime from `@kubb/plugin-client/clients/*`.
    * @default false
+   * In version 5 of Kubb this will be by default true
    */
   bundle?: boolean
   transformers?: {

@@ -11,6 +11,19 @@ title: Changelog
   - Automatic validation of required query parameters and response fields
   - Example: `useFindPetsByTagsSuspenseInfinite` for React Suspense with infinite queries
 
+# 4.5.15
+- [`plugin-client`](/plugins/plugin-client): Fix FormData handling in fetch client to properly support multipart/form-data requests. FormData instances are now passed directly to the fetch API instead of being JSON.stringify-ed, allowing the browser to correctly set the Content-Type header with the multipart boundary.
+
+# 4.5.14
+- [`plugin-client`](/plugins/plugin-client): Added `buildFormData` utility function to properly handle arrays in multipart/form-data requests
+- [`plugin-mcp`](/plugins/plugin-mcp): Support for arrays in multipart/form-data with improved FormData handling
+- [`plugin-react-query`](/plugins/plugin-react-query): Support for arrays in multipart/form-data with improved FormData handling
+- [`plugin-solid-query`](/plugins/plugin-solid-query): Support for arrays in multipart/form-data with improved FormData handling
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query): Support for arrays in multipart/form-data with improved FormData handling
+- [`plugin-swr`](/plugins/plugin-swr): Support for arrays in multipart/form-data with improved FormData handling
+- [`plugin-vue-query`](/plugins/plugin-vue-query): Support for arrays in multipart/form-data with improved FormData handling
+- [`core`](/plugins/core): Added `upsertFile` method to PluginContext for idempotent file operations
+
 # 4.5.13
 - [`plugin-client`](/plugins/plugin-client): Type 'FormData' is missing the following properties from type at generated hooks
 

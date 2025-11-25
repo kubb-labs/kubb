@@ -1,5 +1,38 @@
 # @kubb/plugin-client
 
+## 4.5.15
+
+### Patch Changes
+
+- [#2041](https://github.com/kubb-labs/kubb/pull/2041) [`ea8c36e`](https://github.com/kubb-labs/kubb/commit/ea8c36e4af652726676ff10d2bfbdc4a3b6a9a38) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix FormData handling in fetch client to properly support multipart/form-data requests. FormData instances are now passed directly to the fetch API instead of being JSON.stringify-ed, allowing the browser to correctly set the Content-Type header with the multipart boundary.
+
+- Updated dependencies []:
+  - @kubb/core@4.5.15
+  - @kubb/oas@4.5.15
+  - @kubb/plugin-oas@4.5.15
+  - @kubb/plugin-ts@4.5.15
+  - @kubb/plugin-zod@4.5.15
+
+## 4.5.14
+
+### Patch Changes
+
+- [#2035](https://github.com/kubb-labs/kubb/pull/2035) [`c09550b`](https://github.com/kubb-labs/kubb/commit/c09550bc68baf001a82df1b130f6144c665f238c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support arrays in multipart/form-data
+  - Added `buildFormData` utility function to properly handle arrays in multipart/form-data requests
+  - Fixed array iteration to use `for...of` instead of `for...in` to correctly iterate over array values
+  - Added Date object handling with automatic ISO string conversion
+  - Filter out null/undefined array elements to prevent them from becoming string literals in FormData
+  - Improved type safety with early returns in appendData function
+  - Added `upsertFile` method to PluginContext for idempotent file operations
+  - Ensured consistent use of `upsertFile` across all query plugins for better file regeneration
+
+- Updated dependencies [[`c09550b`](https://github.com/kubb-labs/kubb/commit/c09550bc68baf001a82df1b130f6144c665f238c)]:
+  - @kubb/core@4.5.14
+  - @kubb/plugin-oas@4.5.14
+  - @kubb/plugin-ts@4.5.14
+  - @kubb/plugin-zod@4.5.14
+  - @kubb/oas@4.5.14
+
 ## 4.5.13
 
 ### Patch Changes

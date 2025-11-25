@@ -2,6 +2,7 @@ import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
+import { pluginClientName } from '@kubb/plugin-client'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -94,9 +95,9 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
         this.plugin.options.client.baseURL = baseURL
       }
 
-      const containsFetch = this.fabric.files.some((file) => file.baseName === 'fetch.ts')
+      const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
 
-      if (this.plugin.options.client.bundle && !this.plugin.options.client.importPath && !containsFetch) {
+      if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled fetch
         await this.addFile({
           baseName: 'fetch.ts',
@@ -114,6 +115,19 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
         })
       }
 
+      await this.addFile({
+        baseName: 'config.ts',
+        path: path.resolve(root, '.kubb/config.ts'),
+        sources: [
+          {
+            name: 'config',
+            value: resolveModuleSource('@kubb/plugin-client/templates/config').source,
+            isExportable: false,
+            isIndexable: false,
+          },
+        ],
+      })
+
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
@@ -127,7 +141,7 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
       })
 
       const files = await operationGenerator.build(...generators)
-      await this.addFile(...files)
+      await this.upsertFile(...files)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
@@ -139,7 +153,7 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
         logger: this.logger,
       })
 
-      await this.addFile(...barrelFiles)
+      await this.upsertFile(...barrelFiles)
     },
   }
 })

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/mcp",
-  "version": "4.5.13",
+  "version": "4.5.15",
   "description": "Generator MCP",
   "keywords": [
     "typescript",
@@ -83,7 +83,7 @@
     "zod": "^3.25.76"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.5.1"
+    "@kubb/react-fabric": "0.5.2"
   },
   "devDependencies": {
     "@kubb/plugin-oas": "workspace:*"

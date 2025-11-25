@@ -14,11 +14,11 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation } from '@tanstack/svelte-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder.ts'
+import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { fetch } from '../.kubb/fetch.ts'
-import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../models/PlaceOrder.ts'
+import { createMutation } from '@tanstack/svelte-query'
 
 export const placeOrderMutationKey = () => [{ url: '/store/order' }] as const
 

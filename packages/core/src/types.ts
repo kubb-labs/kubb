@@ -291,7 +291,14 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   fabric: Fabric
   config: Config
   pluginManager: PluginManager
+  /**
+   * Only add when the file does not exist yet
+   */
   addFile: (...file: Array<KubbFile.File>) => Promise<void>
+  /**
+   * merging multiple sources into the same output file
+   */
+  upsertFile: (...file: Array<KubbFile.File>) => Promise<void>
   logger: Logger
   mode: KubbFile.Mode
   /**

@@ -103,6 +103,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/humarkx"><img src="https://avatars.githubusercontent.com/u/13049940?v=4?s=100" width="100px;" alt="humarkx"/><br /><sub><b>humarkx</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=humarkx" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Jakub-Cerovsky"><img src="https://avatars.githubusercontent.com/u/141134227?v=4?s=100" width="100px;" alt="Jakub Cerovsky"/><br /><sub><b>Jakub Cerovsky</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=Jakub-Cerovsky" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/yukikwi"><img src="https://avatars.githubusercontent.com/u/66879660?v=4?s=100" width="100px;" alt="Pachara Chantawong"/><br /><sub><b>Pachara Chantawong</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=yukikwi" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://volodymyrkushnir.dev/"><img src="https://avatars.githubusercontent.com/u/10290626?v=4?s=100" width="100px;" alt="Volodymyr Kushnir"/><br /><sub><b>Volodymyr Kushnir</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=volodymyr-kushnir" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

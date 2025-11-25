@@ -4,7 +4,6 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
 import type {
   UploadFileMutationRequest,
@@ -12,6 +11,8 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.js'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import { buildFormData } from '../../../.kubb/config.js'
 
 function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
   const res = { method: 'POST', url: `/pet/${petId}/uploadImage` as const }
@@ -31,30 +32,7 @@ export async function uploadFile(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
-  const formData = new FormData()
-  if (requestData) {
-    Object.entries(requestData).forEach(([key, value]) => {
-      if (value === undefined || value === null) return
-
-      if (Array.isArray(value)) {
-        if (value.length && value[0] instanceof Blob) {
-          value.forEach((v) => {
-            formData.append(key, v as Blob)
-          })
-        } else {
-          formData.append(key, JSON.stringify(value))
-        }
-      } else if (value instanceof Blob) {
-        formData.append(key, value)
-      } else if (typeof value === 'number' || typeof value === 'boolean') {
-        formData.append(key, String(value))
-      } else if (typeof value === 'string') {
-        formData.append(key, value)
-      } else if (typeof value === 'object') {
-        formData.append(key, JSON.stringify(value))
-      }
-    })
-  }
+  const formData = buildFormData(requestData)
   const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: getUploadFileUrl({ petId }).url.toString(),

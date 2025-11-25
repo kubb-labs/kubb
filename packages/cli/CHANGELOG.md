@@ -1,5 +1,19 @@
 # @kubb/cli
 
+## 4.5.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.5.15
+
+## 4.5.14
+
+### Patch Changes
+
+- Updated dependencies [[`c09550b`](https://github.com/kubb-labs/kubb/commit/c09550bc68baf001a82df1b130f6144c665f238c)]:
+  - @kubb/core@4.5.14
+
 ## 4.5.13
 
 ### Patch Changes
