@@ -8,7 +8,7 @@ import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { MutationKey } from './components'
 import { QueryKey } from './components/QueryKey.tsx'
-import { infiniteQueryGenerator, mutationGenerator, queryGenerator, suspenseQueryGenerator } from './generators'
+import { infiniteQueryGenerator, mutationGenerator, queryGenerator, suspenseInfiniteQueryGenerator, suspenseQueryGenerator } from './generators'
 import type { PluginReactQuery } from './types.ts'
 
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
@@ -26,7 +26,7 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
     transformers = {},
     paramsType = 'inline',
     pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
-    generators = [queryGenerator, suspenseQueryGenerator, infiniteQueryGenerator, mutationGenerator].filter(Boolean),
+    generators = [queryGenerator, suspenseQueryGenerator, infiniteQueryGenerator, suspenseInfiniteQueryGenerator, mutationGenerator].filter(Boolean),
     mutation = {},
     query = {},
     mutationKey = MutationKey.getTransformer,

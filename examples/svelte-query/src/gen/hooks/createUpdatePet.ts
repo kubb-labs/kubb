@@ -14,11 +14,11 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet.ts'
 import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
-import { fetch } from '../.kubb/fetch.ts'
 import { createMutation } from '@tanstack/svelte-query'
+import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import { fetch } from '../.kubb/fetch.ts'
+import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../models/UpdatePet.ts'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const
 

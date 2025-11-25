@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
+import { z } from 'zod'
 import { addPetRequestSchema } from './addPetRequestSchema.js'
 import { petSchema } from './petSchema.js'
-import { z } from 'zod'
 
 /**
  * @description Successful operation

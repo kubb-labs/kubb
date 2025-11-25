@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/fetch'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
+import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from './models.ts'
 
 function getGetUserByNameUrl(username: GetUserByNamePathParams['username']) {
   const res = { method: 'GET', url: `/user/${username}` as const }

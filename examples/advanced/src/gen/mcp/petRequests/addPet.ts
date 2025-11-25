@@ -1,7 +1,7 @@
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../models/ts/petController/AddPet.ts'
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/petController/AddPet.ts'
 
 /**
  * @description Add a new pet to the store

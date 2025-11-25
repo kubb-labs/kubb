@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../models/GetPetById.ts'
-import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
-import { fetch } from '../../.kubb/fetch.ts'
+import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
+import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
+import { fetch } from '../../.kubb/fetch.ts'
+import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/GetPetById.ts'
 
 export const getPetByIdQueryKey = ({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] }) =>
   ['v5', { url: '/pet/:pet_id', params: { pet_id: pet_id } }] as const

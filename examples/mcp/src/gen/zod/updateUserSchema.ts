@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { userSchema } from './userSchema.js'
 import { z } from 'zod'
+import { userSchema } from './userSchema.js'
 
 export const updateUserPathParamsSchema = z.object({
   username: z.string().describe('name that need to be deleted'),

@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { DeletePetPathParams, DeletePetHeaderParams, DeletePetMutationResponse } from '../../models/DeletePet.ts'
 import { faker } from '@faker-js/faker'
+import type { DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models/DeletePet.ts'
 
 export function createDeletePetPathParams(data?: Partial<DeletePetPathParams>): DeletePetPathParams {
   faker.seed([220])

@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { petSchema } from './petSchema.js'
 import { z } from 'zod'
+import { petSchema } from './petSchema.js'
 
 /**
  * @description Successful operation
