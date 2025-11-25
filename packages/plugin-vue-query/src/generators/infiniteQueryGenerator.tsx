@@ -175,6 +175,8 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
               pathParamsType={options.pathParamsType}
               dataReturnType={options.client.dataReturnType || 'data'}
               cursorParam={options.infinite.cursorParam}
+              nextParam={options.infinite.nextParam}
+              previousParam={options.infinite.previousParam}
               initialPageParam={options.infinite.initialPageParam}
               queryParam={options.infinite.queryParam}
             />

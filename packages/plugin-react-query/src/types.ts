@@ -65,8 +65,19 @@ export type Infinite = {
   queryParam: string
   /**
    * Which field of the data will be used, set it to undefined when no cursor is known.
+   * @deprecated Use `nextParam` and `previousParam` instead for more flexible pagination handling.
    */
   cursorParam?: string | undefined
+  /**
+   * Which field of the data will be used to get the cursor for the next page.
+   * Supports dot notation (e.g. 'pagination.next.id') or array path (e.g. ['pagination', 'next', 'id']) to access nested fields.
+   */
+  nextParam?: string | string[] | undefined
+  /**
+   * Which field of the data will be used to get the cursor for the previous page.
+   * Supports dot notation (e.g. 'pagination.prev.id') or array path (e.g. ['pagination', 'prev', 'id']) to access nested fields.
+   */
+  previousParam?: string | string[] | undefined
   /**
    * The initial value, the value of the first page.
    * @default 0

@@ -18,7 +18,20 @@ type Props = {
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
   initialPageParam: Infinite['initialPageParam']
   cursorParam: Infinite['cursorParam']
+  nextParam: Infinite['nextParam']
+  previousParam: Infinite['previousParam']
   queryParam: Infinite['queryParam']
+}
+
+/**
+ * Converts a param path (string with dot notation or array of strings) to a JavaScript accessor expression.
+ * @param param - The param path, e.g., 'pagination.next.id' or ['pagination', 'next', 'id']
+ * @param accessor - The base accessor, e.g., 'lastPage' or 'firstPage'
+ * @returns A JavaScript accessor expression, e.g., "lastPage?.['pagination']?.['next']?.['id']"
+ */
+function getNestedAccessor(param: string | string[], accessor: string): string {
+  const parts = Array.isArray(param) ? param : param.split('.')
+  return parts.reduce((acc, part) => `${acc}?.['${part}']`, accessor)
 }
 
 type GetParamsProps = {
@@ -110,6 +123,8 @@ export function InfiniteQueryOptions({
   clientName,
   initialPageParam,
   cursorParam,
+  nextParam,
+  previousParam,
   typeSchemas,
   paramsCasing,
   paramsType,
@@ -156,17 +171,38 @@ export function InfiniteQueryOptions({
     paramsCasing,
   })
 
+  // Determine if we should use the new nextParam/previousParam or fall back to legacy cursorParam behavior
+  const hasNewParams = nextParam !== undefined || previousParam !== undefined
+
+  let getNextPageParamExpr: string | undefined
+  let getPreviousPageParamExpr: string | undefined
+
+  if (hasNewParams) {
+    // Use the new nextParam and previousParam
+    if (nextParam) {
+      getNextPageParamExpr = `getNextPageParam: (lastPage) => ${getNestedAccessor(nextParam, 'lastPage')}`
+    }
+    if (previousParam) {
+      getPreviousPageParamExpr = `getPreviousPageParam: (firstPage) => ${getNestedAccessor(previousParam, 'firstPage')}`
+    }
+  } else if (cursorParam) {
+    // Legacy behavior: use cursorParam for both next and previous
+    getNextPageParamExpr = `getNextPageParam: (lastPage) => lastPage['${cursorParam}']`
+    getPreviousPageParamExpr = `getPreviousPageParam: (firstPage) => firstPage['${cursorParam}']`
+  } else {
+    // Fallback behavior: page-based pagination
+    if (dataReturnType === 'full') {
+      getNextPageParamExpr = 'getNextPageParam: (lastPage, _allPages, lastPageParam) => Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1'
+    } else {
+      getNextPageParamExpr = 'getNextPageParam: (lastPage, _allPages, lastPageParam) => Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1'
+    }
+    getPreviousPageParamExpr = 'getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => firstPageParam <= 1 ? undefined : firstPageParam - 1'
+  }
+
   const queryOptions = [
     `initialPageParam: ${typeof initialPageParam === 'string' ? JSON.stringify(initialPageParam) : initialPageParam}`,
-    cursorParam ? `getNextPageParam: (lastPage) => lastPage['${cursorParam}']` : undefined,
-    cursorParam ? `getPreviousPageParam: (firstPage) => firstPage['${cursorParam}']` : undefined,
-    !cursorParam && dataReturnType === 'full'
-      ? 'getNextPageParam: (lastPage, _allPages, lastPageParam) => Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1'
-      : undefined,
-    !cursorParam && dataReturnType === 'data'
-      ? 'getNextPageParam: (lastPage, _allPages, lastPageParam) => Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1'
-      : undefined,
-    !cursorParam ? 'getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => firstPageParam <= 1 ? undefined : firstPageParam - 1' : undefined,
+    getNextPageParamExpr,
+    getPreviousPageParamExpr,
   ].filter(Boolean)
 
   const infiniteOverrideParams =
