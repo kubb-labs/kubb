@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod'
 import { petSchema } from './petSchema.js'
+import { z } from 'zod'
 
 export const getPetByIdPathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet to return'),
