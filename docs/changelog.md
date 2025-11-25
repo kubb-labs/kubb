@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.6.2
+- [`plugin-zod`](/plugins/plugin-zod/): Fix Zod v4 uuid/url/email generation with coercion enabled. When `coercion: true` and `version: '4'` are both enabled, the plugin now correctly generates v4 syntax (e.g., `z.coerce.uuid()`) instead of v3 syntax (e.g., `z.coerce.string().uuid()`)
+
 # 4.6.1
 - [`plugin-react-query`](/plugins/plugin-react-query/): Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`
 - [`plugin-swr`](/plugins/plugin-swr/): Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`
