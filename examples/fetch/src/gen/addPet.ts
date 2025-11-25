@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/fetch'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from './models.ts'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from './models.ts'
 
 function getAddPetUrl() {
   const res = { method: 'POST', url: '/pet' as const }

@@ -1,7 +1,7 @@
-import fetch from '../../client.js'
-import type { ResponseErrorConfig } from '../../client.js'
-import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/ts/DeleteUser.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
+import type { ResponseErrorConfig } from '../../client.js'
+import fetch from '../../client.js'
+import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../models/ts/DeleteUser.js'
 
 /**
  * @description This can only be done by the logged in user.

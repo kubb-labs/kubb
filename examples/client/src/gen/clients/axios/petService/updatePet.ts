@@ -4,15 +4,15 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
 import type {
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
 } from '../../../models/ts/petController/UpdatePet.js'
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getUpdatePetUrl() {
   const res = { method: 'PUT', url: '/pet' as const }
