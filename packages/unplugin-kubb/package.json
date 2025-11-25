@@ -93,7 +93,7 @@
 		"typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"unplugin": "^2.3.10"
+		"unplugin": "^2.3.11"
 	},
 	"devDependencies": {
 		"@kubb/core": "workspace:*",

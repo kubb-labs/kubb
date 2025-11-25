@@ -114,7 +114,7 @@
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.7.1",
     "consola": "^3.4.2",
-    "zod": "^4.1.12"
+    "zod": "^4.1.13"
   },
   "peerDependencies": {
     "@kubb/react-fabric": "0.5.2"
