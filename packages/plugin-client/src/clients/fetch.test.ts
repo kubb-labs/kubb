@@ -168,10 +168,7 @@ describe('fetch client', () => {
         params: { q: 'test', page: 1 },
       })
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/search?q=test&page=1',
-        expect.any(Object),
-      )
+      expect(mockFetch).toHaveBeenCalledWith('/api/search?q=test&page=1', expect.any(Object))
     })
 
     it('should merge baseURL with url', async () => {
@@ -189,10 +186,7 @@ describe('fetch client', () => {
         method: 'GET',
       })
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.example.com/users',
-        expect.any(Object),
-      )
+      expect(mockFetch).toHaveBeenCalledWith('https://api.example.com/users', expect.any(Object))
     })
 
     it('should use global config', async () => {

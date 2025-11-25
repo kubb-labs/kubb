@@ -77,19 +77,6 @@ export const suspenseInfiniteQueryGenerator = createReactGenerator<PluginReactQu
       return null
     }
 
-    const normalizeKey = (key?: string | null) => (key ?? '').replace(/\?$/, '')
-    const queryParam = infiniteOptions.queryParam
-    const cursorParam = infiniteOptions.cursorParam
-    const queryParamKeys = type.schemas.queryParams?.keys ?? []
-    const responseKeys = [...(type.schemas.responses?.flatMap((item) => item.keys ?? []) ?? []), ...(type.schemas.response?.keys ?? [])]
-
-    const hasQueryParam = queryParam ? queryParamKeys.some((key) => normalizeKey(key) === queryParam) : false
-    const hasCursorParam = cursorParam ? responseKeys.some((key) => normalizeKey(key) === cursorParam) : true
-
-    if (!hasQueryParam || !hasCursorParam) {
-      return null
-    }
-
     return (
       <File
         baseName={query.file.baseName}

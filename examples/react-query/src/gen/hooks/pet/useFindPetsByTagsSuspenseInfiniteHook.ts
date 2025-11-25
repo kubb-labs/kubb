@@ -3,22 +3,23 @@
  * Do not edit manually.
  */
 
-import type { InfiniteData, InfiniteQueryObserverOptions, QueryClient, QueryKey, UseInfiniteQueryResult } from '@tanstack/react-query'
-import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
+import type { InfiniteData, QueryClient, QueryKey, UseSuspenseInfiniteQueryOptions, UseSuspenseInfiniteQueryResult } from '@tanstack/react-query'
+import { infiniteQueryOptions, useSuspenseInfiniteQuery } from '@tanstack/react-query'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
 
-export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTagsQueryParams) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsSuspenseInfiniteQueryKey = (params?: FindPetsByTagsQueryParams) =>
+  ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
-export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
+export type FindPetsByTagsSuspenseInfiniteQueryKey = ReturnType<typeof findPetsByTagsSuspenseInfiniteQueryKey>
 
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTagsInfiniteHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findPetsByTagsSuspenseInfiniteHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
@@ -30,8 +31,11 @@ export async function findPetsByTagsInfiniteHook(params?: FindPetsByTagsQueryPar
   return res
 }
 
-export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-  const queryKey = findPetsByTagsInfiniteQueryKey(params)
+export function findPetsByTagsSuspenseInfiniteQueryOptionsHook(
+  params?: FindPetsByTagsQueryParams,
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+) {
+  const queryKey = findPetsByTagsSuspenseInfiniteQueryKey(params)
   return infiniteQueryOptions<
     ResponseConfig<FindPetsByTagsQueryResponse>,
     ResponseErrorConfig<FindPetsByTags400>,
@@ -47,7 +51,7 @@ export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQu
         ...(params ?? {}),
         ['pageSize']: pageParam as unknown as FindPetsByTagsQueryParams['pageSize'],
       } as FindPetsByTagsQueryParams
-      return findPetsByTagsInfiniteHook(params, config)
+      return findPetsByTagsSuspenseInfiniteHook(params, config)
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1),
@@ -60,31 +64,31 @@ export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQu
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export function useFindPetsByTagsInfiniteHook<
+export function useFindPetsByTagsSuspenseInfiniteHook<
   TQueryFnData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TError = ResponseErrorConfig<FindPetsByTags400>,
   TData = InfiniteData<TQueryFnData>,
-  TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
+  TQueryKey extends QueryKey = FindPetsByTagsSuspenseInfiniteQueryKey,
   TPageParam = NonNullable<FindPetsByTagsQueryParams['pageSize']>,
 >(
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: Partial<InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>> & { client?: QueryClient }
+    query?: Partial<UseSuspenseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
+  const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseInfiniteQueryKey(params)
 
-  const query = useInfiniteQuery(
+  const query = useSuspenseInfiniteQuery(
     {
-      ...findPetsByTagsInfiniteQueryOptionsHook(params, config),
+      ...findPetsByTagsSuspenseInfiniteQueryOptionsHook(params, config),
       queryKey,
       ...queryOptions,
-    } as unknown as InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
+    } as unknown as UseSuspenseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
     queryClient,
-  ) as UseInfiniteQueryResult<TData, TError> & { queryKey: TQueryKey }
+  ) as UseSuspenseInfiniteQueryResult<TData, TError> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 
