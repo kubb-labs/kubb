@@ -1,5 +1,44 @@
 # @kubb/plugin-react-query
 
+## 4.6.0
+
+### Minor Changes
+
+- [#2036](https://github.com/kubb-labs/kubb/pull/2036) [`c3e34b7`](https://github.com/kubb-labs/kubb/commit/c3e34b753761beb2a328726341120de361647020) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add support for `useSuspenseInfiniteQuery` hook generation
+
+  This release adds support for generating `useSuspenseInfiniteQuery` hooks, enabling React Suspense with infinite queries in TanStack Query v5+.
+
+  **New Features:**
+  - Generate `useSuspenseInfiniteQuery` hooks when both `suspense` and `infinite` options are enabled
+  - Support for both cursor-based and offset-based pagination
+  - Full TypeScript type safety with proper generics
+  - Automatic validation of required query parameters and response fields
+
+  **Usage:**
+
+  ```typescript
+  pluginReactQuery({
+    suspense: {},
+    infinite: {
+      queryParam: "pageSize",
+      initialPageParam: 0,
+      cursorParam: "nextCursor", // optional
+    },
+  });
+  ```
+
+  This will generate hooks like `useFindPetsByTagsSuspenseInfinite` alongside the existing query hooks.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.6.0
+  - @kubb/oas@4.6.0
+  - @kubb/plugin-client@4.6.0
+  - @kubb/plugin-oas@4.6.0
+  - @kubb/plugin-ts@4.6.0
+  - @kubb/plugin-zod@4.6.0
+
 ## 4.5.15
 
 ### Patch Changes
