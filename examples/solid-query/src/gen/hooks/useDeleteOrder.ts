@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, UseMutationOptions } from '@tanstack/solid-query'
-import { useMutation } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder.ts'
+import type { UseMutationOptions, QueryClient } from '@tanstack/solid-query'
 import { fetch } from '../.kubb/fetch.ts'
-import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderPathParams } from '../models/DeleteOrder.ts'
+import { useMutation } from '@tanstack/solid-query'
 
 export const deleteOrderMutationKey = () => [{ url: '/store/order/:orderId' }] as const
 
