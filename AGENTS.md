@@ -17,6 +17,12 @@ How we treat agent contributions
 - For dependency updates (Dependabot): verify CI passes, review changelog / release notes for breaking changes, and run a local smoke test if necessary.
 - For AI-assisted code or docs: ensure a human reviewer validates the changes. Do not accept changes that introduce unclear intent, security issues, or licensing problems.
 
+Changelog and documentation requirements
+
+- Always update changelog.md after a major/minor/patch version.
+- Always use pnpm changeset to create a changelog.
+- Update docs after a change in the plugins.
+
 Review checklist for agent-created PRs
 
 - Does CI pass? (unit tests, linters, type checks)
