@@ -1,5 +1,19 @@
 # @kubb/plugin-svelte-query
 
+## 4.6.1
+
+### Patch Changes
+
+- [#2052](https://github.com/kubb-labs/kubb/pull/2052) [`e344258`](https://github.com/kubb-labs/kubb/commit/e3442583f2272d1ca2bf5e3dd1cc438d19b33879) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix missing `buildFormData` import in query plugin generators when using `multipart/form-data` operations without `plugin-client`
+
+- Updated dependencies []:
+  - @kubb/core@4.6.1
+  - @kubb/oas@4.6.1
+  - @kubb/plugin-client@4.6.1
+  - @kubb/plugin-oas@4.6.1
+  - @kubb/plugin-ts@4.6.1
+  - @kubb/plugin-zod@4.6.1
+
 ## 4.6.0
 
 ### Patch Changes
