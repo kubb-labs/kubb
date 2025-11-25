@@ -59,7 +59,10 @@ Test files named `*.test.ts` or `*.test.tsx` in `src` folders.
 - **Title format**: `[<plugin-name>] <Title>`
 - **Before committing**: Run `pnpm format && pnpm lint:fix`, `pnpm typecheck`, and `pnpm test`
 - **Before committing**: Run `pnpm generate` and `pnpm typecheck:examples` in a separate commit
-- Always use `pnpm changeset` to create changelog entries
+
+### Required for every PR with code changes:
+- Create a changeset using `pnpm changeset` to specify version bump (major/minor/patch) for affected packages
+- Update `docs/changelog.md` with the new version entry describing the changes
 - Update docs in the same PR as code changes
 
 ## Architecture

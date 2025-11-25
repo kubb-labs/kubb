@@ -142,7 +142,7 @@ const zodKeywordMapper = {
   },
   uuid: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number) => {
     return [
-      coercion ? 'z.coerce.string().uuid()' : version === '4' ? 'z.uuid()' : 'z.string().uuid()',
+      coercion ? (version === '4' ? 'z.coerce.uuid()' : 'z.coerce.string().uuid()') : version === '4' ? 'z.uuid()' : 'z.string().uuid()',
       min !== undefined ? `.min(${min})` : undefined,
       max !== undefined ? `.max(${max})` : undefined,
     ]
@@ -151,7 +151,7 @@ const zodKeywordMapper = {
   },
   url: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number) => {
     return [
-      coercion ? 'z.coerce.string().url()' : version === '4' ? 'z.url()' : 'z.string().url()',
+      coercion ? (version === '4' ? 'z.coerce.url()' : 'z.coerce.string().url()') : version === '4' ? 'z.url()' : 'z.string().url()',
       min !== undefined ? `.min(${min})` : undefined,
       max !== undefined ? `.max(${max})` : undefined,
     ]
@@ -177,7 +177,7 @@ const zodKeywordMapper = {
   matches: (value = '', coercion?: boolean) => (coercion ? `z.coerce.string().regex(${value})` : `z.string().regex(${value})`),
   email: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number) => {
     return [
-      coercion ? 'z.coerce.string().email()' : version === '4' ? 'z.email()' : 'z.string().email()',
+      coercion ? (version === '4' ? 'z.coerce.email()' : 'z.coerce.string().email()') : version === '4' ? 'z.email()' : 'z.string().email()',
       min !== undefined ? `.min(${min})` : undefined,
       max !== undefined ? `.max(${max})` : undefined,
     ]
