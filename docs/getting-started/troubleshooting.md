@@ -65,10 +65,10 @@ yarn install
 **Error**: `Cannot find kubb config file`
 
 **Solution**: Ensure your config file exists in the project root with one of these names:
-- `kubb.config.ts`
-- `kubb.config.js`
-- `kubb.config.mjs`
-- `kubb.config.cjs`
+- `kubb.config.ts` - TypeScript (recommended)
+- `kubb.config.js` - JavaScript (requires `"type": "module"` in package.json)
+- `kubb.config.mjs` - ESM JavaScript
+- `kubb.config.cjs` - CommonJS JavaScript
 
 You can also specify a custom config path:
 
@@ -192,7 +192,7 @@ pluginTs({
 
 **Error**: `JavaScript heap out of memory`
 
-**Solution**: Increase Node.js memory limit:
+**Solution**: Increase Node.js memory limit (4096 = 4GB, adjust based on available system memory):
 
 ```shell
 NODE_OPTIONS="--max-old-space-size=4096" kubb generate
