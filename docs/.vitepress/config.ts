@@ -14,7 +14,7 @@ const description = 'OpenAPI to TypeScript, React-Query, Zod, Faker.js, MSW, MCP
 
 const knowledgeBaseSidebar = [
   {
-    text: 'Basic',
+    text: 'Configuration',
     items: [
       {
         text: 'Custom HTTP client',
@@ -31,25 +31,16 @@ const knowledgeBaseSidebar = [
       {
         text: 'Multipart FormData',
         link: '/knowledge-base/multipart-form-data',
-      }
+      },
     ],
   },
   {
-    text: 'Intermediate',
+    text: 'Development',
     items: [
       {
         text: 'Debugging Kubb',
         link: '/knowledge-base/debugging/',
       },
-      {
-        text: 'Setup Claude with Kubb',
-        link: '/knowledge-base/claude/',
-      },
-    ],
-  },
-  {
-    text: 'Advanced',
-    items: [
       {
         text: 'Generators',
         link: '/knowledge-base/generators/',
@@ -60,37 +51,15 @@ const knowledgeBaseSidebar = [
       },
     ],
   },
-
-  // {
-  //   text: 'Plugins',
-  //   collapsed: false,
-  //   link: '/knowledge-base/plugins/',
-  //   items: [
-  //     {
-  //       text: 'Plugin system',
-  //       link: '/knowledge-base/plugins/system',
-  //     },
-  //     {
-  //       text: 'Plugin core',
-  //       link: '/knowledge-base/plugins/core',
-  //     },
-  //   ],
-  // },
-  // {
-  //   text: 'FileManager',
-  //   link: '/knowledge-base/fileManager',
-  // },
-  // {
-  //   text: 'PluginManager',
-  //   link: '/knowledge-base/pluginManager/',
-  //   collapsed: false,
-  //   items: [
-  //     {
-  //       text: 'Lifecycle',
-  //       link: '/knowledge-base/pluginManager/lifecycle',
-  //     },
-  //   ],
-  // },
+  {
+    text: 'Integrations',
+    items: [
+      {
+        text: 'Setup Claude with Kubb',
+        link: '/knowledge-base/claude/',
+      },
+    ],
+  },
 ]
 
 const mainSidebar = [
@@ -113,6 +82,10 @@ const mainSidebar = [
       {
         text: 'Configure',
         link: '/getting-started/configure/',
+      },
+      {
+        text: 'Troubleshooting',
+        link: '/getting-started/troubleshooting/',
       },
     ],
   },
@@ -228,73 +201,104 @@ const mainSidebar = [
 
 const examplesSidebar = [
   {
-    text: 'TypeScript',
-    link: '/examples/typescript/',
-  },
-  {
-    text: 'Tanstack-Query',
+    text: 'Getting Started',
     items: [
       {
-        text: 'React-Query',
-        link: '/examples/tanstack-query/react-query/',
+        text: 'Simple',
+        link: '/examples/simple/',
       },
       {
-        text: 'Vue-Query',
-        link: '/examples/tanstack-query/vue-query/',
-      },
-      {
-        text: 'Svelte-Query',
-        link: '/examples/tanstack-query/svelte-query/',
-      },
-      {
-        text: 'Solid-Query',
-        link: '/examples/tanstack-query/solid-query/',
+        text: 'TypeScript',
+        link: '/examples/typescript/',
       },
     ],
   },
   {
-    text: 'SWR-Query',
-    link: '/examples/swr/',
+    text: 'API Clients',
+    items: [
+      {
+        text: 'Axios Client',
+        link: '/examples/client/',
+      },
+      {
+        text: 'Fetch Client',
+        link: '/examples/fetch/',
+      },
+      {
+        text: 'Cypress <span class="new">new in 3.7.0</span>',
+        link: '/examples/cypress/',
+      },
+    ],
   },
   {
-    text: 'Zod',
-    link: '/examples/zod/',
+    text: 'Data Fetching Hooks',
+    items: [
+      {
+        text: 'Tanstack Query',
+        collapsed: false,
+        items: [
+          {
+            text: 'React Query',
+            link: '/examples/tanstack-query/react-query/',
+          },
+          {
+            text: 'Vue Query',
+            link: '/examples/tanstack-query/vue-query/',
+          },
+          {
+            text: 'Svelte Query',
+            link: '/examples/tanstack-query/svelte-query/',
+          },
+          {
+            text: 'Solid Query',
+            link: '/examples/tanstack-query/solid-query/',
+          },
+        ],
+      },
+      {
+        text: 'SWR',
+        link: '/examples/swr/',
+      },
+    ],
   },
   {
-    text: 'Faker',
-    link: '/examples/faker/',
+    text: 'Validation & Mocking',
+    items: [
+      {
+        text: 'Zod Schemas',
+        link: '/examples/zod/',
+      },
+      {
+        text: 'Faker Data',
+        link: '/examples/faker/',
+      },
+      {
+        text: 'MSW Mocks',
+        link: '/examples/msw/',
+      },
+    ],
   },
   {
-    text: 'MSW',
-    link: '/examples/msw/',
-  },
-  {
-    text: 'Simple',
-    link: '/examples/simple/',
-  },
-  {
-    text: 'Client',
-    link: '/examples/client/',
-  },
-  {
-    text: 'Fetch',
-    link: '/examples/fetch/',
-  },
-  {
-    text: 'Cypress <span class="new">new in 3.7.0</span>',
-    link: '/examples/cypress/',
-  },
-  {
-    text: 'MCP <span class="new">new in 3.9.0</span>',
-    link: '/examples/mcp/',
+    text: 'AI & Extensions',
+    items: [
+      {
+        text: 'MCP (Claude) <span class="new">new in 3.9.0</span>',
+        link: '/examples/mcp/',
+      },
+    ],
   },
   {
     text: 'Advanced',
-    link: '/examples/advanced/',
-  },
-  {
-    text: 'Generators <span class="new">new</span>',
-    link: '/examples/generators/',
+    items: [
+      {
+        text: 'Custom Generators <span class="new">new</span>',
+        link: '/examples/generators/',
+      },
+      {
+        text: 'Advanced Configuration',
+        link: '/examples/advanced/',
+      },
+    ],
   },
 ]
 
@@ -592,8 +596,8 @@ export default defineConfig({
                 link: '/sponsors/',
               },
               {
-                text: 'Contributers',
-                link: '/contributers/',
+                text: 'Contributors',
+                link: '/contributors/',
               },
               {
                 text: 'Blog',
