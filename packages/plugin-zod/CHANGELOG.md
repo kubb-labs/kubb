@@ -1,5 +1,17 @@
 # @kubb/plugin-zod
 
+## 4.6.2
+
+### Patch Changes
+
+- [#2059](https://github.com/kubb-labs/kubb/pull/2059) [`7c8da51`](https://github.com/kubb-labs/kubb/commit/7c8da51bc7ecea48a839aeaff5d3a9848b5c568f) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix Zod v4 uuid/url/email generation with coercion enabled. When coercion is true and version is set to '4', the plugin now correctly generates v4 syntax (e.g., `z.coerce.uuid()`) instead of v3 syntax (e.g., `z.coerce.string().uuid()`).
+
+- Updated dependencies []:
+  - @kubb/core@4.6.2
+  - @kubb/oas@4.6.2
+  - @kubb/plugin-oas@4.6.2
+  - @kubb/plugin-ts@4.6.2
+
 ## 4.6.1
 
 ### Patch Changes
