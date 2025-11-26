@@ -1,5 +1,41 @@
 # @kubb/plugin-mcp
 
+## 4.6.3
+
+### Patch Changes
+
+- Updated dependencies [[`28bc3f0`](https://github.com/kubb-labs/kubb/commit/28bc3f09198de696ee660a79f03841ad987b0c1d)]:
+  - @kubb/plugin-client@4.6.3
+  - @kubb/core@4.6.3
+  - @kubb/oas@4.6.3
+  - @kubb/plugin-oas@4.6.3
+  - @kubb/plugin-ts@4.6.3
+  - @kubb/plugin-zod@4.6.3
+
+## 4.6.2
+
+### Patch Changes
+
+- Updated dependencies [[`7c8da51`](https://github.com/kubb-labs/kubb/commit/7c8da51bc7ecea48a839aeaff5d3a9848b5c568f)]:
+  - @kubb/plugin-zod@4.6.2
+  - @kubb/plugin-client@4.6.2
+  - @kubb/core@4.6.2
+  - @kubb/oas@4.6.2
+  - @kubb/plugin-oas@4.6.2
+  - @kubb/plugin-ts@4.6.2
+
+## 4.6.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.6.1
+  - @kubb/oas@4.6.1
+  - @kubb/plugin-client@4.6.1
+  - @kubb/plugin-oas@4.6.1
+  - @kubb/plugin-ts@4.6.1
+  - @kubb/plugin-zod@4.6.1
+
 ## 4.6.0
 
 ### Patch Changes

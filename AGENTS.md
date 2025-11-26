@@ -69,15 +69,17 @@ pnpm run upgrade && pnpm i   # Upgrade dependencies
 
 ### Changelog and documentation
 
-- Always update `changelog.md` after major/minor/patch version
-- Always use `pnpm changeset` to create changelog
+**Required for every PR with code changes:**
+- Always create a changeset using `pnpm changeset` to specify the version bump (major/minor/patch) for affected packages
+- Always update `docs/changelog.md` with the new version entry describing the changes
 - **Update docs in the same PR as code changes** (unless it's a docs-only PR)
-- Update docs when:
-  - Adding a new plugin or feature
-  - Changing plugin options or behavior
-  - Fixing bugs that affect user-facing behavior
-  - Adding new examples or tutorials
-  - Updating API signatures or types
+
+**Update docs when:**
+- Adding a new plugin or feature
+- Changing plugin options or behavior
+- Fixing bugs that affect user-facing behavior
+- Adding new examples or tutorials
+- Updating API signatures or types
 - When fixing bugs: update relevant docs if the fix changes behavior, add notes if it affects user workflow, update examples if they were incorrect
 
 ### Review checklist for agent-created PRs

@@ -4,6 +4,19 @@ title: Changelog
 
 # Changelog
 
+# 4.6.3
+- [`plugin-client`](/plugins/plugin-client/): Fix formData not being used in generated client when request schema is missing for multipart/form-data endpoints
+
+# 4.6.2
+- [`plugin-zod`](/plugins/plugin-zod/): Skip coercion for email, url, uuid with Zod 4. In Zod 4, coerce does not support `z.uuid()`, `z.email()` or `z.url()` and coercion does not make sense with these specific string subtypes. When `coercion: true` and `version: '4'` are both enabled, the plugin now correctly generates `z.uuid()`, `z.email()`, or `z.url()` without coercion, instead of attempting to use unsupported coercion syntax.
+
+# 4.6.1
+- [`plugin-react-query`](/plugins/plugin-react-query/): Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`
+- [`plugin-swr`](/plugins/plugin-swr/): Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`
+- [`plugin-vue-query`](/plugins/plugin-vue-query/): Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`
+- [`plugin-solid-query`](/plugins/plugin-solid-query/): Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`
+
 # 4.6.0
 - [`plugin-react-query`](/plugins/plugin-react-query/): Add support for `useSuspenseInfiniteQuery` hook generation
   - Generate `useSuspenseInfiniteQuery` hooks when both `suspense` and `infinite` options are enabled
