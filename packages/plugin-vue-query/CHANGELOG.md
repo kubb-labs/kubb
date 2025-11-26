@@ -1,5 +1,21 @@
 # @kubb/plugin-vue-query
 
+## 4.7.0
+
+### Minor Changes
+
+- [#2049](https://github.com/kubb-labs/kubb/pull/2049) [`e7c2ab9`](https://github.com/kubb-labs/kubb/commit/e7c2ab90297aa62fb723acf432b43c7330798a62) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add support for `nextParam` and `previousParam` in infinite queries with nested field access. This enables independent cursor extraction for bidirectional pagination using dot notation (e.g., `'pagination.next.id'`) or array paths (e.g., `['pagination', 'next', 'id']`). The existing `cursorParam` option is deprecated but remains functional for backward compatibility.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.7.0
+  - @kubb/oas@4.7.0
+  - @kubb/plugin-client@4.7.0
+  - @kubb/plugin-oas@4.7.0
+  - @kubb/plugin-ts@4.7.0
+  - @kubb/plugin-zod@4.7.0
+
 ## 4.6.4
 
 ### Patch Changes
