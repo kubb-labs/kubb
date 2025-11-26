@@ -1,5 +1,17 @@
 # @kubb/plugin-zod
 
+## 4.6.4
+
+### Patch Changes
+
+- [#2065](https://github.com/kubb-labs/kubb/pull/2065) [`a4de0c4`](https://github.com/kubb-labs/kubb/commit/a4de0c4613fdaff3562e63ba591bc3de465b6e46) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Skip coercion for email, url, uuid with Zod 4. In Zod 4, coerce does not support `z.uuid()`, `z.email()` or `z.url()` and coercion does not make sense with these specific string subtypes. You could coerce a number to string, but you can't coerce a non-string to a valid uuid, url or email.
+
+- Updated dependencies []:
+  - @kubb/core@4.6.4
+  - @kubb/oas@4.6.4
+  - @kubb/plugin-oas@4.6.4
+  - @kubb/plugin-ts@4.6.4
+
 ## 4.6.3
 
 ### Patch Changes
