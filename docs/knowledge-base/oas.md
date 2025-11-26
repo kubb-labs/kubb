@@ -95,15 +95,191 @@ For advanced filtering and sorting of your OpenAPI specification, you can use [o
 
 See [Filter and Sort](/knowledge-base/filter-and-sort/) for more details on filtering operations.
 
+### Working with Large OpenAPI Specifications
+
+For large APIs with many endpoints (100+ operations), consider these strategies:
+
+**Split by Domain or Microservice**
+
+Divide your OpenAPI specification into multiple files by domain:
+
+```
+specs/
+├── pets-api.yaml
+├── users-api.yaml
+└── orders-api.yaml
+```
+
+Then use separate Kubb configurations for each:
+
+```typescript [kubb.config.pets.ts]
+export default defineConfig({
+  input: { path: './specs/pets-api.yaml' },
+  output: { path: './src/gen/pets' },
+})
+```
+
+**Use $ref for Reusability**
+
+Reference shared schemas across your specification:
+
+```yaml
+components:
+  schemas:
+    Pet:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+```
+
+**Organize with Tags**
+
+Use tags to logically group operations, which Kubb will use for code organization:
+
+```yaml
+paths:
+  /pets:
+    get:
+      tags: ['pets']
+      operationId: listPets
+  /pets/{id}:
+    get:
+      tags: ['pets']
+      operationId: getPetById
+```
+
+See [Best Practices](/knowledge-base/best-practices/) for how to leverage tags in your Kubb configuration.
+
+### Creating OpenAPI Specifications
+
+If you don't have an OpenAPI specification yet, you have several options:
+
+1. **Manual Creation**: Use the [Swagger Editor](https://editor.swagger.io/) for an interactive editing experience
+2. **Code-First Tools**: Generate specs from your existing code:
+   - [tsoa](https://github.com/lukeautry/tsoa) for TypeScript/Node.js
+   - [NestJS OpenAPI](https://docs.nestjs.com/openapi/introduction) for NestJS applications
+   - [FastAPI](https://fastapi.tiangolo.com/) for Python (auto-generates OpenAPI)
+3. **API-First Tools**: Design your API visually:
+   - [Stoplight Studio](https://stoplight.io/studio)
+   - [Postman](https://www.postman.com/)
+4. **Reverse Engineering**: Generate from API requests:
+   - [Hoppscotch](https://hoppscotch.io/)
+   - [openapi-generator](https://openapi-generator.tech/)
+
 ## Best Practices
 
-1. **Use operationId**: Always define unique `operationId` values for each operation. Kubb uses these to generate function names.
+### Naming Conventions
 
-2. **Define schemas in components**: Place reusable schemas in `components/schemas` for better code reuse.
+1. **Use descriptive operationId**: Always define unique, descriptive `operationId` values for each operation. Kubb uses these to generate function names.
 
-3. **Use tags consistently**: Group related operations with tags for organized code generation.
+```yaml
+# ❌ Avoid
+operationId: get1
 
-4. **Include descriptions**: Add descriptions to schemas and operations for better generated documentation.
+# ✅ Good
+operationId: getPetById
+```
+
+2. **Use consistent naming patterns**: Follow a consistent pattern across your API for predictable generated code:
+   - `getPets`, `getPetById`, `createPet`, `updatePet`, `deletePet`
+   - `listUsers`, `getUser`, `createUser`, `updateUser`, `deleteUser`
+
+### Schema Design
+
+3. **Define schemas in components**: Place reusable schemas in `components/schemas` for better code reuse and to avoid duplication.
+
+```yaml
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+    
+    Pet:
+      type: object
+      required: ['id', 'name']
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+```
+
+4. **Use discriminators for polymorphism**: When working with inheritance or union types, use discriminators for better type generation:
+
+```yaml
+components:
+  schemas:
+    Pet:
+      type: object
+      discriminator:
+        propertyName: petType
+      properties:
+        petType:
+          type: string
+```
+
+### Organization
+
+5. **Use tags consistently**: Group related operations with tags for organized code generation. This helps Kubb create logical folder structures.
+
+```yaml
+tags:
+  - name: pets
+    description: Pet operations
+  - name: users
+    description: User operations
+```
+
+6. **Include descriptions**: Add descriptions to schemas, operations, and parameters for better generated documentation and code comments.
+
+```yaml
+paths:
+  /pets:
+    get:
+      summary: List all pets
+      description: Returns a paginated list of pets with optional filtering
+      operationId: listPets
+```
+
+### Versioning
+
+7. **Version your API**: Use semantic versioning in your API paths or headers:
+
+```yaml
+servers:
+  - url: https://api.example.com/v1
+    description: Production API v1
+```
+
+8. **Document breaking changes**: Clearly mark deprecated endpoints and provide migration paths:
+
+```yaml
+paths:
+  /legacy/pets:
+    get:
+      deprecated: true
+      description: Use /pets instead
+```
 
 ## Related Resources
 

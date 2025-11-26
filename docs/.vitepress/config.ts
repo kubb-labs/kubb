@@ -14,6 +14,15 @@ const description = 'OpenAPI to TypeScript, React-Query, Zod, Faker.js, MSW, MCP
 
 const knowledgeBaseSidebar = [
   {
+    text: 'Getting Started',
+    items: [
+      {
+        text: 'Best Practices',
+        link: '/knowledge-base/best-practices/',
+      },
+    ],
+  },
+  {
     text: 'Configuration',
     items: [
       {
