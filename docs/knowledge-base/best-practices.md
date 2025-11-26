@@ -503,24 +503,80 @@ This lets you:
 
 ### Working with Multiple APIs
 
-```typescript [kubb.config.ts]
-// pets-api.config.ts
-export default defineConfig({
-  input: { path: './specs/pets-api.yaml' },
-  output: { path: './src/gen/pets' },
-})
+Use an array in `defineConfig` to handle multiple API specifications in a single configuration file:
 
-// users-api.config.ts
-export default defineConfig({
-  input: { path: './specs/users-api.yaml' },
-  output: { path: './src/gen/users' },
+```typescript [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginClient } from '@kubb/plugin-client'
+
+export default defineConfig([
+  {
+    name: 'petStore',
+    input: {
+      path: './specs/petStore.yaml',
+    },
+    output: {
+      path: './src/gen/petStore',
+      clean: true,
+    },
+    plugins: [
+      pluginOas(),
+      pluginTs(),
+      pluginClient(),
+    ],
+  },
+  {
+    name: 'userService',
+    input: {
+      path: './specs/users-api.yaml',
+    },
+    output: {
+      path: './src/gen/users',
+      clean: true,
+    },
+    plugins: [
+      pluginOas(),
+      pluginTs(),
+      pluginClient(),
+    ],
+  },
+])
+```
+
+You can also dynamically generate configs from a list of schemas:
+
+```typescript [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+
+const schemas = [
+  { name: 'petStore', path: './specs/petStore.yaml' },
+  { name: 'inventory', path: './specs/inventory.json' },
+  { name: 'payments', path: 'https://api.example.com/openapi.json' },
+]
+
+export default defineConfig(() => {
+  return schemas.map(({ name, path }) => ({
+    name,
+    input: { path },
+    output: {
+      path: `./src/gen/${name}`,
+      clean: true,
+    },
+    plugins: [
+      pluginOas(),
+      pluginTs(),
+    ],
+  }))
 })
 ```
 
-Run separately:
+Run once to generate all APIs:
 ```shell
-kubb generate --config ./kubb.config.pets.ts
-kubb generate --config ./kubb.config.users.ts
+kubb generate
 ```
 
 ### Extending Generated Types
