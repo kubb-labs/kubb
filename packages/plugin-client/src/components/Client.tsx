@@ -215,7 +215,7 @@ export function Client({
         {parser === 'zod' && zodSchemas?.request?.name && `const requestData = ${zodSchemas.request.name}.parse(data)`}
         {parser === 'client' && typeSchemas?.request?.name && 'const requestData = data'}
         <br />
-        {isFormData && 'const formData = buildFormData(requestData)'}
+        {isFormData && typeSchemas?.request?.name && 'const formData = buildFormData(requestData)'}
         <br />
         {isConfigurable
           ? `const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`
