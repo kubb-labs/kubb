@@ -14,10 +14,10 @@ describe('zod parse', () => {
   })
 
   describe('coercion with version 4', () => {
-    test('uuid with coercion=true and version=4 should use z.coerce.uuid()', () => {
+    test('uuid with coercion=true and version=4 should skip coercion', () => {
       const schema = { keyword: schemaKeywords.uuid, args: undefined }
       const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] }, { version: '4', coercion: true })
-      expect(text).toBe('z.coerce.uuid()')
+      expect(text).toBe('z.uuid()')
     })
 
     test('uuid with coercion=true and version=3 should use z.coerce.string().uuid()', () => {
@@ -26,10 +26,10 @@ describe('zod parse', () => {
       expect(text).toBe('z.coerce.string().uuid()')
     })
 
-    test('url with coercion=true and version=4 should use z.coerce.url()', () => {
+    test('url with coercion=true and version=4 should skip coercion', () => {
       const schema = { keyword: schemaKeywords.url, args: undefined }
       const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] }, { version: '4', coercion: true })
-      expect(text).toBe('z.coerce.url()')
+      expect(text).toBe('z.url()')
     })
 
     test('url with coercion=true and version=3 should use z.coerce.string().url()', () => {
@@ -38,10 +38,10 @@ describe('zod parse', () => {
       expect(text).toBe('z.coerce.string().url()')
     })
 
-    test('email with coercion=true and version=4 should use z.coerce.email()', () => {
+    test('email with coercion=true and version=4 should skip coercion', () => {
       const schema = { keyword: schemaKeywords.email, args: undefined }
       const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] }, { version: '4', coercion: true })
-      expect(text).toBe('z.coerce.email()')
+      expect(text).toBe('z.email()')
     })
 
     test('email with coercion=true and version=3 should use z.coerce.string().email()', () => {
