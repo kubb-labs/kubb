@@ -110,6 +110,9 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
           </>
         )}
         {!!hasClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
+        {!hasClientPlugin && (
+          <File.Import name={['buildFormData']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
+        )}
 
         <File.Import
           name={[

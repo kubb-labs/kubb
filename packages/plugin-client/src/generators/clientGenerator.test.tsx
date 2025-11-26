@@ -96,6 +96,13 @@ describe('clientGenerator operation', async () => {
         urlType: false,
       },
     },
+    {
+      name: 'uploadFile',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}/uploadImage',
+      method: 'post',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string
