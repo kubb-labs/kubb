@@ -1,8 +1,7 @@
-import type { Plugin } from '@kubb/core'
+import type { Plugin, PluginManager } from '@kubb/core'
 import type { OasTypes } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
-import type { PluginManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { describe, expect, it } from 'vitest'
 import { SchemaGenerator, type GetSchemaGeneratorOptions } from '../SchemaGenerator.ts'
@@ -30,7 +29,7 @@ const createMockedPluginManager = () =>
       logLevel: 3,
     },
     getPluginByKey: () => undefined,
-    getFile: ({ name, extname, pluginKey }: { name: string; extname: string; pluginKey: any }) => {
+    getFile: ({ name, extname, pluginKey }: { name: string; extname: string; pluginKey: Plugin['key'] | undefined }) => {
       const baseName = `${name}${extname}`
       return { path: baseName, baseName, meta: { pluginKey } }
     },

@@ -337,6 +337,11 @@ export class SchemaGenerator<
    * In this case, we should skip adding the discriminator constraint to avoid:
    * ChildType = (ParentType & { type: 'child' }) & { ... }
    * Where ParentType = ChildType | OtherType (circular!)
+   *
+   * @param childSchemaName - Name of the child schema being processed (e.g., "ACHDetailsResponse")
+   * @param parentRef - Reference path to the parent schema (e.g., "#/components/schemas/PaymentAccountDetailsResponse")
+   * @param parentSchema - The resolved parent schema object
+   * @returns true if adding discriminator constraint would create a circular reference
    */
   #wouldCreateCircularReference(childSchemaName: string | undefined, parentRef: string, parentSchema: SchemaObject): boolean {
     if (!childSchemaName) {
@@ -361,11 +366,11 @@ export class SchemaGenerator<
     }
 
     // Check if the parent has oneOf/anyOf that could create a circular reference
-    // The parent's oneOf/anyOf would reference the child, creating a cycle
+    // Without oneOf/anyOf, the parent is a simple base type (not a union), so there's
+    // no circular structure possible. A base type with discriminator but no oneOf/anyOf
+    // defines inheritance via allOf without creating a union that would include the child.
     const parentOneOf = parentSchema.oneOf || parentSchema.anyOf
     if (!parentOneOf) {
-      // Parent doesn't have oneOf/anyOf, so no circular reference possible
-      // This is the case where parent is just a base type with discriminator
       return false
     }
 
