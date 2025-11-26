@@ -115,18 +115,20 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
         })
       }
 
-      await this.addFile({
-        baseName: 'config.ts',
-        path: path.resolve(root, '.kubb/config.ts'),
-        sources: [
-          {
-            name: 'config',
-            value: resolveModuleSource('@kubb/plugin-client/templates/config').source,
-            isExportable: false,
-            isIndexable: false,
-          },
-        ],
-      })
+      if (!hasClientPlugin) {
+        await this.addFile({
+          baseName: 'config.ts',
+          path: path.resolve(root, '.kubb/config.ts'),
+          sources: [
+            {
+              name: 'config',
+              value: resolveModuleSource('@kubb/plugin-client/templates/config').source,
+              isExportable: false,
+              isIndexable: false,
+            },
+          ],
+        })
+      }
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
