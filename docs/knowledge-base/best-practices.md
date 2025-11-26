@@ -9,6 +9,10 @@ outline: deep
 
 This guide covers recommended practices for using Kubb effectively in your projects, from small APIs to large-scale applications.
 
+::: tip
+For best practices on structuring your OpenAPI specification itself, see [OpenAPI/Swagger Best Practices](/knowledge-base/oas/#best-practices).
+:::
+
 ## How to Scale
 
 ### Project Structure
@@ -384,12 +388,11 @@ While Kubb is powerful, it's not always the right choice:
 
 **1. You Don't Have an OpenAPI Specification**
 
-Kubb requires a valid OpenAPI/Swagger file. If you're working with a REST API that doesn't have one, you'll need to:
-- Create an OpenAPI spec manually (time-consuming)
-- Use a different tool designed for spec-less APIs
-- Write API clients manually
+Kubb requires a valid OpenAPI/Swagger file. If you're working with a REST API that doesn't have one, you'll need to create one first.
 
-**Alternative**: Consider [tRPC](https://trpc.io/) for end-to-end typesafety without OpenAPI, or use [Hoppscotch](https://hoppscotch.io/) to generate OpenAPI from requests.
+See [Creating OpenAPI Specifications](/knowledge-base/oas/#creating-openapi-specifications) for tools and approaches to generate specs from existing APIs or code.
+
+**Alternative**: Consider [tRPC](https://trpc.io/) for end-to-end typesafety without OpenAPI.
 
 **2. Your API Changes Constantly**
 
