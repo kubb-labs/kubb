@@ -1,7 +1,7 @@
-import { z } from 'zod'
-import type { ToZod } from '../.kubb/ToZod.ts'
 import type { User } from '../models/ts/User.ts'
+import type { ToZod } from '../.kubb/ToZod.ts'
 import { tagTagSchema } from './tag/tagSchema.ts'
+import { z } from 'zod'
 
 export const userSchema = z.object({
   id: z.optional(z.number().int()),
