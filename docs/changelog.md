@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.6.3
+- [`plugin-client`](/plugins/plugin-client/): Fix formData not being used in generated client when request schema is missing for multipart/form-data endpoints
+
 # 4.6.2
 - [`plugin-zod`](/plugins/plugin-zod/): Fix Zod v4 uuid/url/email generation with coercion enabled. When `coercion: true` and `version: '4'` are both enabled, the plugin now correctly generates v4 syntax (e.g., `z.coerce.uuid()`) instead of v3 syntax (e.g., `z.coerce.string().uuid()`)
 
