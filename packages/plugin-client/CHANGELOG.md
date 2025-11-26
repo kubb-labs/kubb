@@ -1,5 +1,16 @@
 # @kubb/plugin-client
 
+## 4.7.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.7.1
+  - @kubb/oas@4.7.1
+  - @kubb/plugin-oas@4.7.1
+  - @kubb/plugin-ts@4.7.1
+  - @kubb/plugin-zod@4.7.1
+
 ## 4.7.0
 
 ### Patch Changes

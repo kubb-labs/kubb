@@ -1,5 +1,19 @@
 # @kubb/plugin-react-query
 
+## 4.7.1
+
+### Patch Changes
+
+- [#2069](https://github.com/kubb-labs/kubb/pull/2069) [`fc25294`](https://github.com/kubb-labs/kubb/commit/fc252940ff249bbd201cd620761af56598b021ef) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix `buildFormData` being generated twice in config.ts when using query plugins together with plugin-client. Query plugins now check for plugin-client presence before adding config.ts file to avoid duplication.
+
+- Updated dependencies []:
+  - @kubb/core@4.7.1
+  - @kubb/oas@4.7.1
+  - @kubb/plugin-client@4.7.1
+  - @kubb/plugin-oas@4.7.1
+  - @kubb/plugin-ts@4.7.1
+  - @kubb/plugin-zod@4.7.1
+
 ## 4.7.0
 
 ### Minor Changes
