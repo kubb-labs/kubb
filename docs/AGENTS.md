@@ -99,7 +99,7 @@ Brief description of what this option does.
 
 **Always include working examples** at the bottom of plugin docs:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
