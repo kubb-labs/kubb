@@ -29,12 +29,12 @@
 		"clean": "turbo run clean",
 		"format": "biome format --write ./ && biome check --fix --unsafe",
 		"generate": "turbo run generate --filter=./examples/* --continue",
-		"postgenerate": "bun run lint:fix && bun run format",
+		"postgenerate": "pnpm run lint:fix && pnpm run format",
 		"graph": "npx nx graph ",
 		"lint": "biome lint ./packages",
 		"lint:case": "npx case-police --ignore **/plugin-client/** --fix",
 		"lint:ci": "biome lint ./packages",
-		"lint:fix": "biome lint --write --unsafe ./packages  && bun run lint:case",
+		"lint:fix": "biome lint --write --unsafe ./packages  && pnpm run lint:case",
 		"release": "changeset publish",
 		"release:canary": "changeset publish --no-git-tag",
 		"start": "turbo run start --filter=./packages/*",
@@ -55,7 +55,7 @@
 		"@size-limit/file": "catalog:",
 		"@types/node": "catalog:",
 		"@vitest/coverage-v8": "^4.0.13",
-		"@vitest/ui": "^4.0.13",
+		"@vitest/ui": "^4.0.14",
 		"bun-types": "^1.3.3",
 		"ceviz": "^0.0.3",
 		"prettier": "^3.6.2",
@@ -67,7 +67,7 @@
 		"turbo": "^2.6.1",
 		"typescript": "catalog:",
 		"vite-tsconfig-paths": "^5.1.4",
-		"vitest": "^4.0.13"
+		"vitest": "^4.0.14"
 	},
 	"packageManager": "pnpm@10.19.0",
 	"engines": {

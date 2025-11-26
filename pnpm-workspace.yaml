@@ -5,12 +5,12 @@ packages:
   - e2e
 
 catalog:
-  '@types/node': ^20.19.25
-  '@kubb/fabric-core': 0.5.2
-  '@kubb/react-fabric': 0.5.2
-  '@size-limit/file': ^11.2.0
-  'size-limit': ^11.2.0
+  "@types/node": ^20.19.25
+  "@kubb/fabric-core": 0.5.3
+  "@kubb/react-fabric": 0.5.3
+  "@size-limit/file": ^11.2.0
+  "size-limit": ^11.2.0
   p-limit: ^7.2.0
   remeda: ^2.32.0
-  tsdown: ^0.16.6
+  tsdown: ^0.16.7
   typescript: ^5.9.3
