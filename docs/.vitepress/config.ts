@@ -20,6 +20,10 @@ const knowledgeBaseSidebar = [
         text: 'Custom HTTP client',
         link: '/knowledge-base/fetch/',
       },
+        {
+        text: 'Oas',
+        link: '/knowledge-base/oas/',
+      },
       {
         text: 'Use of your own baseUrl',
         link: '/knowledge-base/base-url/',
