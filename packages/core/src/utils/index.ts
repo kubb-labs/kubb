@@ -2,6 +2,7 @@ export { Cache } from './Cache.ts'
 export type { FunctionParamsAST } from './FunctionParams.ts'
 export { FunctionParams } from './FunctionParams.ts'
 export { getBarrelFiles } from './getBarrelFiles.ts'
+export { getNestedAccessor } from './getNestedAccessor.ts'
 export {
   isPromise,
   isPromiseFulfilledResult,

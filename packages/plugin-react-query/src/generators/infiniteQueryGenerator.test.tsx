@@ -38,6 +38,33 @@ describe('infiniteQueryGenerator operation', async () => {
         },
       },
     },
+    {
+      name: 'findInfiniteByTagsNextParam',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        infinite: {
+          queryParam: 'pageSize',
+          initialPageParam: 0,
+          nextParam: 'pagination.next.cursor',
+        },
+      },
+    },
+    {
+      name: 'findInfiniteByTagsNextAndPreviousParam',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        infinite: {
+          queryParam: 'pageSize',
+          initialPageParam: 0,
+          nextParam: ['pagination', 'next', 'id'],
+          previousParam: ['pagination', 'prev', 'id'],
+        },
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

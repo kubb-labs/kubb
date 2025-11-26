@@ -163,6 +163,8 @@ export const suspenseInfiniteQueryGenerator = createReactGenerator<PluginReactQu
               pathParamsType={options.pathParamsType}
               dataReturnType={options.client.dataReturnType || 'data'}
               cursorParam={infiniteOptions.cursorParam}
+              nextParam={infiniteOptions.nextParam}
+              previousParam={infiniteOptions.previousParam}
               initialPageParam={infiniteOptions.initialPageParam}
               queryParam={infiniteOptions.queryParam}
             />

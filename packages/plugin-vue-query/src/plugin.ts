@@ -53,6 +53,8 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
             queryParam: 'id',
             initialPageParam: 0,
             cursorParam: undefined,
+            nextParam: undefined,
+            previousParam: undefined,
             ...infinite,
           }
         : false,

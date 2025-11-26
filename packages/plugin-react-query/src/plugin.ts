@@ -55,6 +55,8 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
             queryParam: 'id',
             initialPageParam: 0,
             cursorParam: undefined,
+            nextParam: undefined,
+            previousParam: undefined,
             ...infinite,
           }
         : false,
