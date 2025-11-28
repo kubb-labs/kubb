@@ -329,58 +329,6 @@ export class SchemaGenerator<
   }
 
   /**
-   * Checks if extending a discriminator parent would create a circular reference.
-   * This happens when:
-   * 1. The child schema extends the parent via allOf
-   * 2. The parent has a oneOf/anyOf that references the child (creating a circular structure)
-   *
-   * In this case, we should skip adding the discriminator constraint to avoid:
-   * ChildType = (ParentType & { type: 'child' }) & { ... }
-   * Where ParentType = ChildType | OtherType (circular!)
-   *
-   * @param childSchemaName - Name of the child schema being processed (e.g., "ACHDetailsResponse")
-   * @param parentRef - Reference path to the parent schema (e.g., "#/components/schemas/PaymentAccountDetailsResponse")
-   * @param parentSchema - The resolved parent schema object
-   * @returns true if adding discriminator constraint would create a circular reference
-   */
-  #wouldCreateCircularReference(childSchemaName: string | undefined, parentRef: string, parentSchema: SchemaObject): boolean {
-    if (!childSchemaName) {
-      return false
-    }
-
-    // Get the child schema from the OAS document
-    const childRef = `#/components/schemas/${childSchemaName}`
-    const childSchema = this.context.oas.get(childRef) as SchemaObject | null
-
-    if (!childSchema || !childSchema.allOf) {
-      return false
-    }
-
-    // Check if the child extends the parent via allOf
-    const extendsParent = childSchema.allOf.some((item) => {
-      return isReference(item) && item.$ref === parentRef
-    })
-
-    if (!extendsParent) {
-      return false
-    }
-
-    // Check if the parent has oneOf/anyOf that could create a circular reference
-    // Without oneOf/anyOf, the parent is a simple base type (not a union), so there's
-    // no circular structure possible. A base type with discriminator but no oneOf/anyOf
-    // defines inheritance via allOf without creating a union that would include the child.
-    const parentOneOf = parentSchema.oneOf || parentSchema.anyOf
-    if (!parentOneOf) {
-      return false
-    }
-
-    // Check if any of the parent's oneOf/anyOf items reference the child
-    return parentOneOf.some((item) => {
-      return isReference(item) && item.$ref === childRef
-    })
-  }
-
-  /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
   #getRefAlias(schemaObject: OpenAPIV3.ReferenceObject, name: string | undefined): Schema[] {
@@ -395,18 +343,6 @@ export class SchemaGenerator<
         const [key] = Object.entries(dereferencedSchema.discriminator.mapping || {}).find(([_key, value]) => value.replace(/.+\//, '') === name) || []
 
         if (key) {
-          // Check if this would create a circular reference
-          // This happens when the child extends the parent via allOf and the parent's
-          // oneOf/anyOf references the child
-          if (this.#wouldCreateCircularReference(name, $ref, dereferencedSchema)) {
-            return [
-              {
-                keyword: schemaKeywords.ref,
-                args: { name: ref.propertyName, $ref, path: ref.path, isImportable: !!this.context.oas.get($ref) },
-              },
-            ]
-          }
-
           return [
             {
               keyword: schemaKeywords.and,
@@ -729,9 +665,33 @@ export class SchemaGenerator<
       // intersection/add
       const schemaWithoutAllOf = { ...schemaObject, allOf: undefined }
 
+      // Filter out allOf items that would create circular references
+      // This happens when a child schema extends a discriminator parent via allOf,
+      // and the parent's oneOf/anyOf references the child
+      const filteredAllOf = schemaObject.allOf.filter((item) => {
+        if (!isReference(item)) {
+          return true
+        }
+        // Check if including this reference would create a circular reference
+        const dereferencedSchema = this.context.oas.dereferenceWithRef(item)
+        if (dereferencedSchema && isDiscriminator(dereferencedSchema)) {
+          const parentOneOf = dereferencedSchema.oneOf || dereferencedSchema.anyOf
+          if (parentOneOf) {
+            const childRef = `#/components/schemas/${name}`
+            const wouldBeCircular = parentOneOf.some((oneOfItem) => {
+              return isReference(oneOfItem) && oneOfItem.$ref === childRef
+            })
+            if (wouldBeCircular) {
+              return false // Filter out this circular reference
+            }
+          }
+        }
+        return true
+      })
+
       const and: Schema = {
         keyword: schemaKeywords.and,
-        args: schemaObject.allOf
+        args: filteredAllOf
           .map((item) => {
             return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
           })

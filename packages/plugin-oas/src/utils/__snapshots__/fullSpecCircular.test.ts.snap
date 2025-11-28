@@ -6,15 +6,6 @@ exports[`Full Spec Circular Discriminator References > should handle full Paymen
     "args": [
       {
         "args": {
-          "$ref": "#/components/schemas/PaymentAccountDetailsResponse",
-          "isImportable": true,
-          "name": "paymentAccountDetailsResponse",
-          "path": "paymentAccountDetailsResponse.ts",
-        },
-        "keyword": "ref",
-      },
-      {
-        "args": {
           "additionalProperties": [],
           "properties": {
             "account_class": [
