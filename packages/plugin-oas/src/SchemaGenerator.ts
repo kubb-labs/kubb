@@ -669,7 +669,7 @@ export class SchemaGenerator<
       // This happens when a child schema extends a discriminator parent via allOf,
       // and the parent's oneOf/anyOf references the child
       const filteredAllOf = schemaObject.allOf.filter((item) => {
-        if (!isReference(item)) {
+        if (!isReference(item) || !name) {
           return true
         }
         // Check if including this reference would create a circular reference
