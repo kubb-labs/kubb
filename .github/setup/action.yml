@@ -13,6 +13,11 @@ runs:
         cache: "pnpm"
         registry-url: "https://registry.npmjs.org"
 
+    - script: |
+        npm i -g @aikidosec/safe-chain
+        safe-chain setup-ci
+      displayName: "Install safe chain"
+
     - name: Install bun
       uses: oven-sh/setup-bun@v1
       continue-on-error: true
@@ -26,7 +31,7 @@ runs:
     - name: Install dependencies
       shell: bash
       run: pnpm install --prefer-offline
-      
+
     - name: Setup Turbo
       uses: rharkor/caching-for-turbo@v1.8
       continue-on-error: true
