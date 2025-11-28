@@ -161,16 +161,15 @@ describe('Full Spec Circular Discriminator References', () => {
       mode: 'split',
     })
 
-    // Parse ACHDetailsResponse - check it doesn't have nested and(and(...)) structure
+    // Parse ACHDetailsResponse - should have a plain ref to parent, not nested and(and(...)) structure
+    // The fix ensures we skip adding discriminator constraints when child extends parent via allOf
     const achSchema = schemas?.['ACHDetailsResponse']
     const achTree = generator.parse({ schemaObject: achSchema, name: 'ACHDetailsResponse' })
-    console.log('ACH Tree:', JSON.stringify(achTree, null, 2))
     expect(achTree).toMatchSnapshot('ACHDetailsResponse-tree')
 
-    // Parse PaymentAccountDetailsResponse  
+    // Parse PaymentAccountDetailsResponse - union with discriminator constraints at this level
     const parentSchema = schemas?.['PaymentAccountDetailsResponse']
     const parentTree = generator.parse({ schemaObject: parentSchema, name: 'PaymentAccountDetailsResponse' })
-    console.log('Parent Tree:', JSON.stringify(parentTree, null, 2))
     expect(parentTree).toMatchSnapshot('PaymentAccountDetailsResponse-tree')
   })
 })
