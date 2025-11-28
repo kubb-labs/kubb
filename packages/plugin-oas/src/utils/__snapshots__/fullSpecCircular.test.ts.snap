@@ -1,0 +1,312 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Full Spec Circular Discriminator References > should handle full PaymentAccountDetailsResponse spec without circular refs > ACHDetailsResponse-tree 1`] = `
+[
+  {
+    "args": [
+      {
+        "args": {
+          "$ref": "#/components/schemas/PaymentAccountDetailsResponse",
+          "isImportable": true,
+          "name": "paymentAccountDetailsResponse",
+          "path": "paymentAccountDetailsResponse.ts",
+        },
+        "keyword": "ref",
+      },
+      {
+        "args": {
+          "additionalProperties": [],
+          "properties": {
+            "account_class": [
+              {
+                "args": [
+                  {
+                    "args": {
+                      "$ref": "#/components/schemas/AccountClass",
+                      "isImportable": true,
+                      "name": "accountClass",
+                      "path": "accountClass.ts",
+                    },
+                    "keyword": "ref",
+                  },
+                ],
+                "keyword": "and",
+              },
+              {
+                "args": {
+                  "format": undefined,
+                  "type": undefined,
+                },
+                "keyword": "schema",
+              },
+              {
+                "keyword": "nullable",
+              },
+              {
+                "args": "account_class",
+                "keyword": "name",
+              },
+              {
+                "keyword": "nullish",
+              },
+            ],
+            "account_number": [
+              {
+                "keyword": "string",
+              },
+              {
+                "args": {
+                  "format": undefined,
+                  "type": "string",
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "account_number",
+                "keyword": "name",
+              },
+            ],
+            "account_type": [
+              {
+                "args": [
+                  {
+                    "args": {
+                      "$ref": "#/components/schemas/AccountType",
+                      "isImportable": true,
+                      "name": "accountType",
+                      "path": "accountType.ts",
+                    },
+                    "keyword": "ref",
+                  },
+                ],
+                "keyword": "and",
+              },
+              {
+                "args": {
+                  "format": undefined,
+                  "type": undefined,
+                },
+                "keyword": "schema",
+              },
+              {
+                "keyword": "nullable",
+              },
+              {
+                "args": "account_type",
+                "keyword": "name",
+              },
+              {
+                "keyword": "nullish",
+              },
+            ],
+            "payment_instrument_id": [
+              {
+                "keyword": "string",
+              },
+              {
+                "args": {
+                  "format": undefined,
+                  "type": "string",
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "payment_instrument_id",
+                "keyword": "name",
+              },
+            ],
+            "routing_number": [
+              {
+                "keyword": "string",
+              },
+              {
+                "args": {
+                  "format": undefined,
+                  "type": "string",
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "routing_number",
+                "keyword": "name",
+              },
+            ],
+            "type": [
+              {
+                "args": {
+                  "$ref": "#/components/schemas/PaymentDetailsTypeResponse",
+                  "isImportable": true,
+                  "name": "paymentDetailsTypeResponse",
+                  "path": "paymentDetailsTypeResponse.ts",
+                },
+                "keyword": "ref",
+              },
+              {
+                "args": {
+                  "format": undefined,
+                  "type": "string",
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "type",
+                "keyword": "name",
+              },
+            ],
+          },
+        },
+        "keyword": "object",
+      },
+    ],
+    "keyword": "and",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "object",
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
+exports[`Full Spec Circular Discriminator References > should handle full PaymentAccountDetailsResponse spec without circular refs > PaymentAccountDetailsResponse-tree 1`] = `
+[
+  {
+    "args": [
+      {
+        "args": [
+          {
+            "args": {
+              "$ref": "#/components/schemas/DomesticWireDetailsResponse",
+              "isImportable": true,
+              "name": "domesticWireDetailsResponse",
+              "path": "domesticWireDetailsResponse.ts",
+            },
+            "keyword": "ref",
+          },
+          {
+            "args": {
+              "properties": {
+                "type": [
+                  {
+                    "args": {
+                      "format": "string",
+                      "name": "DOMESTIC_WIRE",
+                      "value": "DOMESTIC_WIRE",
+                    },
+                    "keyword": "const",
+                  },
+                ],
+              },
+            },
+            "keyword": "object",
+          },
+        ],
+        "keyword": "and",
+      },
+      {
+        "args": [
+          {
+            "args": {
+              "$ref": "#/components/schemas/ACHDetailsResponse",
+              "isImportable": true,
+              "name": "ACHDetailsResponse",
+              "path": "ACHDetailsResponse.ts",
+            },
+            "keyword": "ref",
+          },
+          {
+            "args": {
+              "properties": {
+                "type": [
+                  {
+                    "args": {
+                      "format": "string",
+                      "name": "ACH",
+                      "value": "ACH",
+                    },
+                    "keyword": "const",
+                  },
+                ],
+              },
+            },
+            "keyword": "object",
+          },
+        ],
+        "keyword": "and",
+      },
+      {
+        "args": [
+          {
+            "args": {
+              "$ref": "#/components/schemas/ChequeDetailsResponse",
+              "isImportable": true,
+              "name": "chequeDetailsResponse",
+              "path": "chequeDetailsResponse.ts",
+            },
+            "keyword": "ref",
+          },
+          {
+            "args": {
+              "properties": {
+                "type": [
+                  {
+                    "args": {
+                      "format": "string",
+                      "name": "CHEQUE",
+                      "value": "CHEQUE",
+                    },
+                    "keyword": "const",
+                  },
+                ],
+              },
+            },
+            "keyword": "object",
+          },
+        ],
+        "keyword": "and",
+      },
+      {
+        "args": [
+          {
+            "args": {
+              "$ref": "#/components/schemas/InternationalWireDetailsResponse",
+              "isImportable": true,
+              "name": "internationalWireDetailsResponse",
+              "path": "internationalWireDetailsResponse.ts",
+            },
+            "keyword": "ref",
+          },
+          {
+            "args": {
+              "properties": {
+                "type": [
+                  {
+                    "args": {
+                      "format": "string",
+                      "name": "INTERNATIONAL_WIRE",
+                      "value": "INTERNATIONAL_WIRE",
+                    },
+                    "keyword": "const",
+                  },
+                ],
+              },
+            },
+            "keyword": "object",
+          },
+        ],
+        "keyword": "and",
+      },
+    ],
+    "keyword": "union",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "object",
+    },
+    "keyword": "schema",
+  },
+]
+`;
