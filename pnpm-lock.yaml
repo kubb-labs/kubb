@@ -43,7 +43,7 @@ importers:
         version: 2.3.8
       '@changesets/changelog-github':
         specifier: ^0.5.2
-        version: 0.5.2
+        version: 0.5.2(encoding@0.1.13)
       '@changesets/cli':
         specifier: ^2.29.8
         version: 2.29.8(@types/node@20.19.25)
@@ -72,8 +72,8 @@ importers:
         specifier: ^0.0.6
         version: 0.0.6(magicast@0.5.1)
       prettier:
-        specifier: ^3.7.1
-        version: 3.7.1
+        specifier: ^3.7.2
+        version: 3.7.2
       rimraf:
         specifier: ^6.1.2
         version: 6.1.2
@@ -277,8 +277,8 @@ importers:
         specifier: ^4.2.20
         version: 4.2.20
       swr:
-        specifier: ^2.3.6
-        version: 2.3.6(react@18.3.1)
+        specifier: ^2.3.7
+        version: 2.3.7(react@18.3.1)
       vue:
         specifier: ^3.5.25
         version: 3.5.25(typescript@5.9.3)
@@ -377,8 +377,8 @@ importers:
         specifier: ^4.2.20
         version: 4.2.20
       swr:
-        specifier: ^2.3.6
-        version: 2.3.6(react@19.2.0)
+        specifier: ^2.3.7
+        version: 2.3.7(react@19.2.0)
       vue:
         specifier: ^3.5.25
         version: 3.5.25(typescript@5.9.3)
@@ -678,7 +678,7 @@ importers:
         version: 4.7.0(vite@7.2.4(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))
       msw:
         specifier: ^1.3.5
-        version: 1.3.5(@types/node@24.10.1)(typescript@5.9.3)
+        version: 1.3.5(@types/node@24.10.1)(encoding@0.1.13)(typescript@5.9.3)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -832,8 +832,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       swr:
-        specifier: ^2.3.6
-        version: 2.3.6(react@18.3.1)
+        specifier: ^2.3.7
+        version: 2.3.7(react@18.3.1)
     devDependencies:
       typescript:
         specifier: 'catalog:'
@@ -905,7 +905,7 @@ importers:
         version: 6.0.2(vite@7.2.4(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.25(typescript@5.9.3))
       msw:
         specifier: ^1.3.5
-        version: 1.3.5(@types/node@24.10.1)(typescript@5.9.3)
+        version: 1.3.5(@types/node@24.10.1)(encoding@0.1.13)(typescript@5.9.3)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -1141,7 +1141,7 @@ importers:
         version: 28.5.1
       oas-normalize:
         specifier: ^15.4.0
-        version: 15.4.0
+        version: 15.4.0(encoding@0.1.13)
       openapi-types:
         specifier: ^12.1.3
         version: 12.1.3
@@ -1150,7 +1150,7 @@ importers:
         version: 2.32.0
       swagger2openapi:
         specifier: ^7.0.8
-        version: 7.0.8
+        version: 7.0.8(encoding@0.1.13)
       ts-toolbelt:
         specifier: ^9.6.0
         version: 9.6.0
@@ -4663,6 +4663,9 @@ packages:
     resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
     engines: {node: '>= 0.8'}
 
+  encoding@0.1.13:
+    resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==}
+
   end-of-stream@1.4.5:
     resolution: {integrity: sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg==}
 
@@ -6532,8 +6535,8 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  prettier@3.7.1:
-    resolution: {integrity: sha512-RWKXE4qB3u5Z6yz7omJkjWwmTfLdcbv44jUVHC5NpfXwFGzvpQM798FGv/6WNK879tc+Cn0AAyherCl1KjbyZQ==}
+  prettier@3.7.2:
+    resolution: {integrity: sha512-n3HV2J6QhItCXndGa3oMWvWFAgN1ibnS7R9mt6iokScBOC0Ul9/iZORmU2IWUMcyAQaMPjTlY3uT34TqocUxMA==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -7205,8 +7208,8 @@ packages:
     resolution: {integrity: sha512-upi/0ZGkYgEcLeGieoz8gT74oWHA0E7JivX7aN9mAf+Tc7BQoRBvnIGHoPDw+f9TXTW4s6kGYCZJtauP6OYp7g==}
     hasBin: true
 
-  swr@2.3.6:
-    resolution: {integrity: sha512-wfHRmHWk/isGNMwlLGlZX5Gzz/uTgo0o2IRuTMcf4CPuPFJZlq0rDaKUx+ozB5nBOReNV1kiOyzMfj+MBMikLw==}
+  swr@2.3.7:
+    resolution: {integrity: sha512-ZEquQ82QvalqTxhBVv/DlAg2mbmUjF4UgpPg9wwk4ufb9rQnZXh1iKyyKBqV6bQGu1Ie7L1QwSYO07qFIa1p+g==}
     peerDependencies:
       react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -8237,9 +8240,9 @@ snapshots:
     dependencies:
       '@changesets/types': 6.1.0
 
-  '@changesets/changelog-github@0.5.2':
+  '@changesets/changelog-github@0.5.2(encoding@0.1.13)':
     dependencies:
-      '@changesets/get-github-info': 0.7.0
+      '@changesets/get-github-info': 0.7.0(encoding@0.1.13)
       '@changesets/types': 6.1.0
       dotenv: 8.6.0
     transitivePeerDependencies:
@@ -8299,10 +8302,10 @@ snapshots:
       picocolors: 1.1.1
       semver: 7.7.3
 
-  '@changesets/get-github-info@0.7.0':
+  '@changesets/get-github-info@0.7.0(encoding@0.1.13)':
     dependencies:
       dataloader: 1.4.0
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
     transitivePeerDependencies:
       - encoding
 
@@ -11423,6 +11426,11 @@ snapshots:
 
   encodeurl@2.0.0: {}
 
+  encoding@0.1.13:
+    dependencies:
+      iconv-lite: 0.6.3
+    optional: true
+
   end-of-stream@1.4.5:
     dependencies:
       once: 1.4.0
@@ -13099,7 +13107,7 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@1.3.5(@types/node@24.10.1)(typescript@5.9.3):
+  msw@1.3.5(@types/node@24.10.1)(encoding@0.1.13)(typescript@5.9.3):
     dependencies:
       '@mswjs/cookies': 0.2.2
       '@mswjs/interceptors': 0.17.10
@@ -13114,7 +13122,7 @@ snapshots:
       inquirer: 8.2.7(@types/node@24.10.1)
       is-node-process: 1.2.0
       js-levenshtein: 1.1.6
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       outvariant: 1.4.3
       path-to-regexp: 6.3.0
       strict-event-emitter: 0.4.6
@@ -13247,9 +13255,11 @@ snapshots:
 
   node-fetch-native@1.6.7: {}
 
-  node-fetch@2.7.0:
+  node-fetch@2.7.0(encoding@0.1.13):
     dependencies:
       whatwg-url: 5.0.0
+    optionalDependencies:
+      encoding: 0.1.13
 
   node-readfiles@0.2.0:
     dependencies:
@@ -13290,13 +13300,13 @@ snapshots:
       should: 13.2.3
       yaml: 1.10.2
 
-  oas-normalize@15.4.0:
+  oas-normalize@15.4.0(encoding@0.1.13):
     dependencies:
       '@readme/openapi-parser': 5.2.1(openapi-types@12.1.3)
       '@readme/postman-to-openapi': 4.1.0
       js-yaml: 4.1.1
       openapi-types: 12.1.3
-      swagger2openapi: 7.0.8
+      swagger2openapi: 7.0.8(encoding@0.1.13)
     transitivePeerDependencies:
       - encoding
 
@@ -13707,7 +13717,7 @@ snapshots:
 
   prettier@2.8.8: {}
 
-  prettier@3.7.1: {}
+  prettier@3.7.2: {}
 
   pretty-bytes@5.6.0: {}
 
@@ -14559,10 +14569,10 @@ snapshots:
       magic-string: 0.30.21
       periscopic: 3.1.0
 
-  swagger2openapi@7.0.8:
+  swagger2openapi@7.0.8(encoding@0.1.13):
     dependencies:
       call-me-maybe: 1.0.2
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       node-fetch-h2: 2.3.0
       node-readfiles: 0.2.0
       oas-kit-common: 1.0.8
@@ -14575,13 +14585,13 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  swr@2.3.6(react@18.3.1):
+  swr@2.3.7(react@18.3.1):
     dependencies:
       dequal: 2.0.3
       react: 18.3.1
       use-sync-external-store: 1.6.0(react@18.3.1)
 
-  swr@2.3.6(react@19.2.0):
+  swr@2.3.7(react@19.2.0):
     dependencies:
       dequal: 2.0.3
       react: 19.2.0
