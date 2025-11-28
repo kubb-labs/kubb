@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.8.0
+- [`plugin-pinia-colada`](/plugins/plugin-pinia-colada/): New plugin for generating Pinia Colada hooks from OpenAPI specifications. Supports `useQuery` and `useMutation` hooks generation for Vue.js applications using Pinia Colada.
+
 # 4.7.0
 - [`plugin-react-query`](/plugins/plugin-react-query/): Add support for `nextParam` and `previousParam` in infinite queries with nested field access. This enables independent cursor extraction for bidirectional pagination using dot notation (e.g., `'pagination.next.id'`) or array paths (e.g., `['pagination', 'next', 'id']`). The existing `cursorParam` option is deprecated but remains functional for backward compatibility.
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): Add support for `nextParam` and `previousParam` in infinite queries with nested field access. This enables independent cursor extraction for bidirectional pagination using dot notation (e.g., `'pagination.next.id'`) or array paths (e.g., `['pagination', 'next', 'id']`). The existing `cursorParam` option is deprecated but remains functional for backward compatibility.

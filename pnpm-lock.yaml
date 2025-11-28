@@ -1292,6 +1292,33 @@ importers:
         specifier: 'catalog:'
         version: 2.32.0
 
+  packages/plugin-pinia-colada:
+    dependencies:
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
+      '@kubb/plugin-client':
+        specifier: workspace:*
+        version: link:../plugin-client
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
+      '@kubb/plugin-ts':
+        specifier: workspace:*
+        version: link:../plugin-ts
+      '@kubb/plugin-zod':
+        specifier: workspace:*
+        version: link:../plugin-zod
+      '@kubb/react-fabric':
+        specifier: 'catalog:'
+        version: 0.5.2
+      remeda:
+        specifier: 'catalog:'
+        version: 2.32.0
+
   packages/plugin-react-query:
     dependencies:
       '@kubb/core':
