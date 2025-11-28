@@ -1,10 +1,7 @@
 import type { BeneficiaryBank } from './BeneficiaryBank.ts'
-import type { CounterPartyResponse } from './CounterPartyResponse.ts'
 import type { CounterPartyResponseType } from './CounterPartyResponseType.ts'
 
-export type BankAccountDetailsResponse = (CounterPartyResponse & {
-  type: 'BANK_ACCOUNT'
-}) & {
+export type BankAccountDetailsResponse = {
   /**
    * @type string
    */

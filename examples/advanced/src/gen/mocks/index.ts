@@ -21,6 +21,7 @@ export { createCounterPartyBankDetailsFaker } from './createCounterPartyBankDeta
 export { createCounterPartyFaker } from './createCounterPartyFaker.ts'
 export { createCounterPartyIncomingTransferFaker } from './createCounterPartyIncomingTransferFaker.ts'
 export { createCounterPartyIncomingTransferTypeFaker } from './createCounterPartyIncomingTransferTypeFaker.ts'
+export { createCounterPartyResponseFaker } from './createCounterPartyResponseFaker.ts'
 export { createCounterPartyResponseTypeFaker } from './createCounterPartyResponseTypeFaker.ts'
 export { createCounterPartyTypeFaker } from './createCounterPartyTypeFaker.ts'
 export { createCreateIncomingTransferRequestFaker } from './createCreateIncomingTransferRequestFaker.ts'

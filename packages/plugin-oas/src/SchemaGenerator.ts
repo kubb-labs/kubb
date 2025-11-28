@@ -430,42 +430,51 @@ export class SchemaGenerator<
 
     return {
       ...schema,
-      args: Object.entries(discriminator.mapping || {}).map(([key, value]) => {
-        const arg = schema.args.find((item) => isKeyword(item, schemaKeywords.ref) && item.args.$ref === value)
-        return {
-          keyword: schemaKeywords.and,
-          args: [
-            arg,
-            {
-              keyword: schemaKeywords.object,
-              args: {
-                properties: {
-                  ...(objectPropertySchema?.args?.properties || {}),
-                  [discriminator.propertyName]: [
-                    {
-                      keyword: schemaKeywords.const,
-                      args: {
-                        name: key,
-                        format: 'string',
-                        value: key,
+      args: Object.entries(discriminator.mapping || {})
+        .map(([key, value]) => {
+          const arg = schema.args.find((item) => isKeyword(item, schemaKeywords.ref) && item.args.$ref === value)
+          // Skip discriminator mappings that don't have a corresponding schema in the oneOf/anyOf
+          if (!arg) {
+            return undefined
+          }
+          return {
+            keyword: schemaKeywords.and,
+            args: [
+              arg,
+              {
+                keyword: schemaKeywords.object,
+                args: {
+                  properties: {
+                    ...(objectPropertySchema?.args?.properties || {}),
+                    [discriminator.propertyName]: [
+                      {
+                        keyword: schemaKeywords.const,
+                        args: {
+                          name: key,
+                          format: 'string',
+                          value: key,
+                        },
                       },
-                    },
-                    //enum and literal will conflict
-                    ...(objectPropertySchema?.args?.properties[discriminator.propertyName] || []),
-                  ].filter((item) => !isKeyword(item, schemaKeywords.enum)),
+                      //enum and literal will conflict
+                      ...(objectPropertySchema?.args?.properties[discriminator.propertyName] || []),
+                    ].filter((item) => !isKeyword(item, schemaKeywords.enum)),
+                  },
                 },
               },
-            },
-          ],
-        }
-      }),
+            ],
+          }
+        })
+        .filter(Boolean) as TSchema['args'],
     }
   }
 
   /**
    * Checks if an allOf item reference would create a circular reference.
    * This happens when a child schema extends a discriminator parent via allOf,
-   * and the parent's oneOf/anyOf references the child.
+   * and the parent has a oneOf/anyOf that references or maps to the child.
+   * 
+   * Without oneOf/anyOf, the discriminator is just for documentation/validation
+   * purposes and doesn't create a TypeScript union type that would be circular.
    *
    * @param item - The allOf item to check (typically a $ref)
    * @param childSchemaName - The name of the current schema being processed
@@ -477,12 +486,29 @@ export class SchemaGenerator<
     }
     const dereferencedSchema = this.context.oas.dereferenceWithRef(item)
     if (dereferencedSchema && isDiscriminator(dereferencedSchema)) {
+      // Only check for circular references if parent has oneOf/anyOf
+      // Without oneOf/anyOf, the discriminator doesn't create a union type
       const parentOneOf = dereferencedSchema.oneOf || dereferencedSchema.anyOf
-      if (parentOneOf) {
-        const childRef = `#/components/schemas/${childSchemaName}`
-        return parentOneOf.some((oneOfItem) => {
-          return isReference(oneOfItem) && oneOfItem.$ref === childRef
-        })
+      if (!parentOneOf) {
+        return false
+      }
+      
+      const childRef = `#/components/schemas/${childSchemaName}`
+      
+      // Check if child is in parent's oneOf/anyOf
+      const inOneOf = parentOneOf.some((oneOfItem) => {
+        return isReference(oneOfItem) && oneOfItem.$ref === childRef
+      })
+      if (inOneOf) {
+        return true
+      }
+      
+      // Check if child is in parent's discriminator mapping
+      // This handles cases where mapping and oneOf don't match
+      const mapping = dereferencedSchema.discriminator.mapping || {}
+      const inMapping = Object.values(mapping).some((value) => value === childRef)
+      if (inMapping) {
+        return true
       }
     }
     return false

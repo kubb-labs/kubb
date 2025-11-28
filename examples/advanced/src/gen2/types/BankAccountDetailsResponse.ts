@@ -1,5 +1,4 @@
 import type { BeneficiaryBank } from "./BeneficiaryBank.ts";
-import type { CounterPartyResponse } from "./CounterPartyResponse.ts";
 
 export const bankAccountDetailsResponseTypeEnum = {
     "BANK_ACCOUNT": "BANK_ACCOUNT"
@@ -7,9 +6,7 @@ export const bankAccountDetailsResponseTypeEnum = {
 
 export type BankAccountDetailsResponseTypeEnumKey = (typeof bankAccountDetailsResponseTypeEnum)[keyof typeof bankAccountDetailsResponseTypeEnum];
 
-export type BankAccountDetailsResponse = ((CounterPartyResponse & {
-    type: "BANK_ACCOUNT";
-}) & {
+export type BankAccountDetailsResponse = {
     type: BankAccountDetailsResponseTypeEnumKey;
     /**
      * @description Routing number of a bank account (or SWIFT/BIC code for international transfer). For incoming cheques, this field might be null.
@@ -37,4 +34,4 @@ export type BankAccountDetailsResponse = ((CounterPartyResponse & {
      * @type string
     */
     external_memo?: string | null;
-});
+};

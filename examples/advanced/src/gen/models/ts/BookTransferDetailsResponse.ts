@@ -1,9 +1,6 @@
-import type { CounterPartyResponse } from './CounterPartyResponse.ts'
 import type { CounterPartyResponseType } from './CounterPartyResponseType.ts'
 
-export type BookTransferDetailsResponse = (CounterPartyResponse & {
-  type: 'BOOK_TRANSFER'
-}) & {
+export type BookTransferDetailsResponse = {
   /**
    * @type string
    */
