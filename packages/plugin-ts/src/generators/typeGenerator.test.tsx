@@ -411,6 +411,40 @@ describe('typeGenerator schema', async () => {
         discriminator: 'inherit',
       },
     },
+    // https://github.com/kubb-labs/kubb/issues/2072
+    // Test circular reference: parent (PaymentAccountDetailsResponse) with discriminator and oneOf referencing children
+    // Children (ACHDetailsResponse) extending parent via allOf - should NOT create circular reference
+    {
+      name: 'CircularRefPaymentAccountDetailsResponse',
+      input: '../../mocks/discriminator.yaml',
+      path: 'PaymentAccountDetailsResponse',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    // https://github.com/kubb-labs/kubb/issues/2072
+    // Child schema extending discriminator parent - should NOT extend parent to avoid circular reference
+    {
+      name: 'CircularRefACHDetailsResponse',
+      input: '../../mocks/discriminator.yaml',
+      path: 'ACHDetailsResponse',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    // https://github.com/kubb-labs/kubb/issues/2072
+    // Another child schema extending discriminator parent - should NOT extend parent to avoid circular reference
+    {
+      name: 'CircularRefDomesticWireDetailsResponse',
+      input: '../../mocks/discriminator.yaml',
+      path: 'DomesticWireDetailsResponse',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
