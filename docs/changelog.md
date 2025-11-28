@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.7.2
+- [`plugin-client`](/plugins/plugin-client/): Fix FormData type casting issue that causes TypeScript errors. When generating code for endpoints that use `multipart/form-data`, the generated code was incorrectly casting `formData as FormData` which caused TypeScript errors because `FormData` doesn't extend the request type. Since `RequestConfig.data` already accepts `TData | FormData`, the explicit cast was unnecessary and has been removed.
+
 # 4.7.0
 - [`plugin-react-query`](/plugins/plugin-react-query/): Add support for `nextParam` and `previousParam` in infinite queries with nested field access. This enables independent cursor extraction for bidirectional pagination using dot notation (e.g., `'pagination.next.id'`) or array paths (e.g., `['pagination', 'next', 'id']`). The existing `cursorParam` option is deprecated but remains functional for backward compatibility.
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): Add support for `nextParam` and `previousParam` in infinite queries with nested field access. This enables independent cursor extraction for bidirectional pagination using dot notation (e.g., `'pagination.next.id'`) or array paths (e.g., `['pagination', 'next', 'id']`). The existing `cursorParam` option is deprecated but remains functional for backward compatibility.
