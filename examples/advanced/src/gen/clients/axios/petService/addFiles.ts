@@ -24,7 +24,7 @@ export async function addFiles(
   const res = await request<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({
     method: 'POST',
     url: getAddFilesUrl().url.toString(),
-    data: formData as FormData,
+    data: formData,
     ...requestConfig,
   })
   return res

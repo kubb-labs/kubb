@@ -30,7 +30,7 @@ export async function uploadFile(
     method: 'POST',
     url: getUploadFileUrl(petId).url.toString(),
     params,
-    data: formData as FormData,
+    data: formData,
     ...requestConfig,
   })
   return res.data

@@ -1,7 +1,7 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/ts/LoginUser.js'
+import type { ResponseErrorConfig } from '../../client.js'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/ts/LoginUser.js'
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**
  * @summary Logs user into the system

@@ -14,11 +14,11 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation } from '@tanstack/svelte-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet.ts'
+import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { fetch } from '../.kubb/fetch.ts'
-import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../models/DeletePet.ts'
+import { createMutation } from '@tanstack/svelte-query'
 
 export const deletePetMutationKey = () => [{ url: '/pet/:pet_id' }] as const
 

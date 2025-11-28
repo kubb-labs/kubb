@@ -4,15 +4,15 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import { buildFormData } from '../../../.kubb/config.js'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.js'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import { buildFormData } from '../../../.kubb/config.js'
 
 function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
   const res = { method: 'POST', url: `/pet/${petId}/uploadImage` as const }
@@ -37,7 +37,7 @@ export async function uploadFile(
     method: 'POST',
     url: getUploadFileUrl({ petId }).url.toString(),
     params,
-    data: formData as FormData,
+    data: formData,
     ...requestConfig,
   })
   return res.data

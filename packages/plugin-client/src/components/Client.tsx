@@ -169,7 +169,7 @@ export function Client({
         params: typeSchemas.queryParams?.name ? {} : undefined,
         data: typeSchemas.request?.name
           ? {
-              value: isFormData ? 'formData as FormData' : 'requestData',
+              value: isFormData ? 'formData' : 'requestData',
             }
           : undefined,
         requestConfig: isConfigurable
