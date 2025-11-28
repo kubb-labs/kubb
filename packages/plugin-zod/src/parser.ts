@@ -10,7 +10,18 @@ const zodKeywordMapper = {
   any: () => 'z.any()',
   unknown: () => 'z.unknown()',
   void: () => 'z.void()',
-  number: (coercion?: boolean, min?: number, max?: number, exclusiveMinimum?: number, exclusiveMaximum?: number) => {
+  number: (coercion?: boolean, min?: number, max?: number, exclusiveMinimum?: number, exclusiveMaximum?: number, mini?: boolean) => {
+    if (mini) {
+      const checks: string[] = []
+      if (min !== undefined) checks.push(`z.minimum(${min})`)
+      if (max !== undefined) checks.push(`z.maximum(${max})`)
+      if (exclusiveMinimum !== undefined) checks.push(`z.minimum(${exclusiveMinimum}, { exclusive: true })`)
+      if (exclusiveMaximum !== undefined) checks.push(`z.maximum(${exclusiveMaximum}, { exclusive: true })`)
+      if (checks.length > 0) {
+        return `z.number().check(${checks.join(', ')})`
+      }
+      return 'z.number()'
+    }
     return [
       coercion ? 'z.coerce.number()' : 'z.number()',
       min !== undefined ? `.min(${min})` : undefined,
@@ -21,7 +32,18 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  integer: (coercion?: boolean, min?: number, max?: number, version: '3' | '4' = '3', exclusiveMinimum?: number, exclusiveMaximum?: number) => {
+  integer: (coercion?: boolean, min?: number, max?: number, version: '3' | '4' = '3', exclusiveMinimum?: number, exclusiveMaximum?: number, mini?: boolean) => {
+    if (mini) {
+      const checks: string[] = []
+      if (min !== undefined) checks.push(`z.minimum(${min})`)
+      if (max !== undefined) checks.push(`z.maximum(${max})`)
+      if (exclusiveMinimum !== undefined) checks.push(`z.minimum(${exclusiveMinimum}, { exclusive: true })`)
+      if (exclusiveMaximum !== undefined) checks.push(`z.maximum(${exclusiveMaximum}, { exclusive: true })`)
+      if (checks.length > 0) {
+        return `z.int().check(${checks.join(', ')})`
+      }
+      return 'z.int()'
+    }
     return [
       coercion ? 'z.coerce.number().int()' : version === '4' ? 'z.int()' : 'z.number().int()',
       min !== undefined ? `.min(${min})` : undefined,
@@ -59,7 +81,16 @@ const zodKeywordMapper = {
     ${value}
     })`
   },
-  string: (coercion?: boolean, min?: number, max?: number) => {
+  string: (coercion?: boolean, min?: number, max?: number, mini?: boolean) => {
+    if (mini) {
+      const checks: string[] = []
+      if (min !== undefined) checks.push(`z.minLength(${min})`)
+      if (max !== undefined) checks.push(`z.maxLength(${max})`)
+      if (checks.length > 0) {
+        return `z.string().check(${checks.join(', ')})`
+      }
+      return 'z.string()'
+    }
     return [coercion ? 'z.coerce.string()' : 'z.string()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
       .filter(Boolean)
       .join('')
@@ -80,7 +111,17 @@ const zodKeywordMapper = {
     }
     return '.nullish()'
   },
-  array: (items: string[] = [], min?: number, max?: number, unique?: boolean) => {
+  array: (items: string[] = [], min?: number, max?: number, unique?: boolean, mini?: boolean) => {
+    if (mini) {
+      const checks: string[] = []
+      if (min !== undefined) checks.push(`z.minLength(${min})`)
+      if (max !== undefined) checks.push(`z.maxLength(${max})`)
+      if (unique) checks.push(`z.refine(items => new Set(items).size === items.length, { message: "Array entries must be unique" })`)
+      if (checks.length > 0) {
+        return `z.array(${items?.join('')}).check(${checks.join(', ')})`
+      }
+      return `z.array(${items?.join('')})`
+    }
     return [
       `z.array(${items?.join('')})`,
       min !== undefined ? `.min(${min})` : undefined,
@@ -262,6 +303,7 @@ type ParserOptions = {
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
   version: '3' | '4'
   skipLazyForRefs?: boolean
+  mini?: boolean
 }
 
 export function parse({ schema, parent, current, name, siblings }: SchemaTree, options: ParserOptions): string | undefined {
@@ -316,6 +358,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
       current.args.min,
       current.args.max,
       current.args.unique,
+      options.mini,
     )
   }
 
@@ -501,7 +544,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
     const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
     const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
 
-    return zodKeywordMapper.string(shouldCoerce(options.coercion, 'strings'), minSchema?.args, maxSchema?.args)
+    return zodKeywordMapper.string(shouldCoerce(options.coercion, 'strings'), minSchema?.args, maxSchema?.args, options.mini)
   }
 
   if (isKeyword(current, schemaKeywords.uuid)) {
@@ -534,6 +577,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
       maxSchema?.args,
       exclusiveMinimumSchema?.args,
       exclusiveMaximumSchema?.args,
+      options.mini,
     )
   }
 
@@ -550,6 +594,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
       options.version,
       exclusiveMinimumSchema?.args,
       exclusiveMaximumSchema?.args,
+      options.mini,
     )
   }
 
