@@ -329,4 +329,59 @@ components:
           type: integer
       required: [ type ]
 
+    # Issue #2072: Circular discriminator pattern (parent has oneOf referencing children, children extend parent via allOf)
+    PaymentDetailsTypeResponse:
+      type: string
+      enum:
+        - ACH
+        - DOMESTIC_WIRE
+
+    PaymentAccountDetailsResponse:
+      type: object
+      discriminator:
+        propertyName: type
+        mapping:
+          ACH: '#/components/schemas/ACHDetailsResponse'
+          DOMESTIC_WIRE: '#/components/schemas/DomesticWireDetailsResponse'
+      oneOf:
+        - $ref: '#/components/schemas/ACHDetailsResponse'
+        - $ref: '#/components/schemas/DomesticWireDetailsResponse'
+
+    ACHDetailsResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaymentAccountDetailsResponse'
+        - type: object
+          required:
+            - type
+            - routing_number
+            - account_number
+          properties:
+            type:
+              $ref: '#/components/schemas/PaymentDetailsTypeResponse'
+            routing_number:
+              type: string
+            account_number:
+              type: string
+
+    DomesticWireDetailsResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaymentAccountDetailsResponse'
+        - type: object
+          required:
+            - type
+            - routing_number
+            - account_number
+            - address
+          properties:
+            type:
+              $ref: '#/components/schemas/PaymentDetailsTypeResponse'
+            routing_number:
+              type: string
+            account_number:
+              type: string
+            address:
+              type: string
+
 paths: {}

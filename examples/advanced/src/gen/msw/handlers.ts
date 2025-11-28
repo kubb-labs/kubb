@@ -1,37 +1,23 @@
-import { addFilesHandler } from './petController/addFilesHandler.ts'
-import { addPetHandler } from './petController/addPetHandler.ts'
-import { deletePetHandler } from './petController/deletePetHandler.ts'
-import { findPetsByStatusHandler } from './petController/findPetsByStatusHandler.ts'
-import { findPetsByTagsHandler } from './petController/findPetsByTagsHandler.ts'
-import { getPetByIdHandler } from './petController/getPetByIdHandler.ts'
-import { updatePetHandler } from './petController/updatePetHandler.ts'
-import { updatePetWithFormHandler } from './petController/updatePetWithFormHandler.ts'
-import { uploadFileHandler } from './petController/uploadFileHandler.ts'
-import { createPetsHandler } from './petsController/createPetsHandler.ts'
-import { createUserHandler } from './userController/createUserHandler.ts'
-import { createUsersWithListInputHandler } from './userController/createUsersWithListInputHandler.ts'
-import { deleteUserHandler } from './userController/deleteUserHandler.ts'
-import { getUserByNameHandler } from './userController/getUserByNameHandler.ts'
-import { loginUserHandler } from './userController/loginUserHandler.ts'
-import { logoutUserHandler } from './userController/logoutUserHandler.ts'
-import { updateUserHandler } from './userController/updateUserHandler.ts'
+import { listLinkedAccountsHandler } from './linkedAccountsController/listLinkedAccountsHandler.ts'
+import { createIncomingTransferHandler } from './transfersController/createIncomingTransferHandler.ts'
+import { createTransferHandler } from './transfersController/createTransferHandler.ts'
+import { getTransfersByIdHandler } from './transfersController/getTransfersByIdHandler.ts'
+import { listTransfersHandler } from './transfersController/listTransfersHandler.ts'
+import { createVendorHandler } from './vendorsController/createVendorHandler.ts'
+import { deleteVendorHandler } from './vendorsController/deleteVendorHandler.ts'
+import { getVendorByIdHandler } from './vendorsController/getVendorByIdHandler.ts'
+import { listVendorsHandler } from './vendorsController/listVendorsHandler.ts'
+import { updateVendorHandler } from './vendorsController/updateVendorHandler.ts'
 
 export const handlers = [
-  createPetsHandler(),
-  updatePetHandler(),
-  addPetHandler(),
-  findPetsByStatusHandler(),
-  findPetsByTagsHandler(),
-  getPetByIdHandler(),
-  updatePetWithFormHandler(),
-  deletePetHandler(),
-  addFilesHandler(),
-  uploadFileHandler(),
-  createUserHandler(),
-  createUsersWithListInputHandler(),
-  loginUserHandler(),
-  logoutUserHandler(),
-  getUserByNameHandler(),
-  updateUserHandler(),
-  deleteUserHandler(),
+  createIncomingTransferHandler(),
+  listLinkedAccountsHandler(),
+  listTransfersHandler(),
+  createTransferHandler(),
+  getTransfersByIdHandler(),
+  listVendorsHandler(),
+  createVendorHandler(),
+  getVendorByIdHandler(),
+  updateVendorHandler(),
+  deleteVendorHandler(),
 ] as const

@@ -1,160 +1,112 @@
+import { listLinkedAccountsHandler } from './linkedAccountsRequests/listLinkedAccounts.ts'
+import { createIncomingTransferHandler } from './transfersRequests/createIncomingTransfer.ts'
+import { createTransferHandler } from './transfersRequests/createTransfer.ts'
+import { getTransfersByIdHandler } from './transfersRequests/getTransfersById.ts'
+import { listTransfersHandler } from './transfersRequests/listTransfers.ts'
+import { createVendorHandler } from './vendorsRequests/createVendor.ts'
+import { deleteVendorHandler } from './vendorsRequests/deleteVendor.ts'
+import { getVendorByIdHandler } from './vendorsRequests/getVendorById.ts'
+import { listVendorsHandler } from './vendorsRequests/listVendors.ts'
+import { updateVendorHandler } from './vendorsRequests/updateVendor.ts'
+import { listLinkedAccountsQueryParamsSchema } from '../zod/linkedAccountsController/listLinkedAccountsSchema.ts'
+import {
+  createIncomingTransferMutationRequestSchema,
+  createIncomingTransferHeaderParamsSchema,
+} from '../zod/transfersController/createIncomingTransferSchema.ts'
+import { createTransferMutationRequestSchema, createTransferHeaderParamsSchema } from '../zod/transfersController/createTransferSchema.ts'
+import { getTransfersByIdPathParamsSchema } from '../zod/transfersController/getTransfersByIdSchema.ts'
+import { listTransfersQueryParamsSchema } from '../zod/transfersController/listTransfersSchema.ts'
+import { createVendorMutationRequestSchema, createVendorHeaderParamsSchema } from '../zod/vendorsController/createVendorSchema.ts'
+import { deleteVendorPathParamsSchema } from '../zod/vendorsController/deleteVendorSchema.ts'
+import { getVendorByIdPathParamsSchema } from '../zod/vendorsController/getVendorByIdSchema.ts'
+import { listVendorsQueryParamsSchema } from '../zod/vendorsController/listVendorsSchema.ts'
+import { updateVendorMutationRequestSchema, updateVendorPathParamsSchema, updateVendorHeaderParamsSchema } from '../zod/vendorsController/updateVendorSchema.ts'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
-import { addFilesMutationRequestSchema } from '../zod/petController/addFilesSchema.ts'
-import { addPetMutationRequestSchema } from '../zod/petController/addPetSchema.ts'
-import { deletePetHeaderParamsSchema, deletePetPathParamsSchema } from '../zod/petController/deletePetSchema.ts'
-import { findPetsByStatusPathParamsSchema } from '../zod/petController/findPetsByStatusSchema.ts'
-import { findPetsByTagsHeaderParamsSchema, findPetsByTagsQueryParamsSchema } from '../zod/petController/findPetsByTagsSchema.ts'
-import { getPetByIdPathParamsSchema } from '../zod/petController/getPetByIdSchema.ts'
-import { updatePetMutationRequestSchema } from '../zod/petController/updatePetSchema.ts'
-import { updatePetWithFormPathParamsSchema, updatePetWithFormQueryParamsSchema } from '../zod/petController/updatePetWithFormSchema.ts'
-import { uploadFileMutationRequestSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from '../zod/petController/uploadFileSchema.ts'
-import {
-  createPetsHeaderParamsSchema,
-  createPetsMutationRequestSchema,
-  createPetsPathParamsSchema,
-  createPetsQueryParamsSchema,
-} from '../zod/petsController/createPetsSchema.ts'
-import { createUserMutationRequestSchema } from '../zod/userController/createUserSchema.ts'
-import { createUsersWithListInputMutationRequestSchema } from '../zod/userController/createUsersWithListInputSchema.ts'
-import { deleteUserPathParamsSchema } from '../zod/userController/deleteUserSchema.ts'
-import { getUserByNamePathParamsSchema } from '../zod/userController/getUserByNameSchema.ts'
-import { loginUserQueryParamsSchema } from '../zod/userController/loginUserSchema.ts'
-import { updateUserMutationRequestSchema, updateUserPathParamsSchema } from '../zod/userController/updateUserSchema.ts'
-import { addFilesHandler } from './petRequests/addFiles.ts'
-import { addPetHandler } from './petRequests/addPet.ts'
-import { deletePetHandler } from './petRequests/deletePet.ts'
-import { findPetsByStatusHandler } from './petRequests/findPetsByStatus.ts'
-import { findPetsByTagsHandler } from './petRequests/findPetsByTags.ts'
-import { getPetByIdHandler } from './petRequests/getPetById.ts'
-import { updatePetHandler } from './petRequests/updatePet.ts'
-import { updatePetWithFormHandler } from './petRequests/updatePetWithForm.ts'
-import { uploadFileHandler } from './petRequests/uploadFile.ts'
-import { createPetsHandler } from './petsRequests/createPets.ts'
-import { createUserHandler } from './userRequests/createUser.ts'
-import { createUsersWithListInputHandler } from './userRequests/createUsersWithListInput.ts'
-import { deleteUserHandler } from './userRequests/deleteUser.ts'
-import { getUserByNameHandler } from './userRequests/getUserByName.ts'
-import { loginUserHandler } from './userRequests/loginUser.ts'
-import { logoutUserHandler } from './userRequests/logoutUser.ts'
-import { updateUserHandler } from './userRequests/updateUser.ts'
 
 export const server = new McpServer({
-  name: 'Swagger Petstore - OpenAPI 3.0',
-  version: '3.0.3',
+  name: 'Payments API',
+  version: '3.0.1',
 })
 
 server.tool(
-  'createPets',
-  'Make a POST request to /pets/{uuid}',
-  {
-    uuid: createPetsPathParamsSchema.shape['uuid'],
-    data: createPetsMutationRequestSchema,
-    headers: createPetsHeaderParamsSchema,
-    params: createPetsQueryParamsSchema,
-  },
-  async ({ uuid, data, headers, params }) => {
-    return createPetsHandler({ uuid, data, headers, params })
-  },
-)
-
-server.tool('updatePet', 'Update an existing pet by Id', { data: updatePetMutationRequestSchema }, async ({ data }) => {
-  return updatePetHandler({ data })
-})
-
-server.tool('addPet', 'Add a new pet to the store', { data: addPetMutationRequestSchema }, async ({ data }) => {
-  return addPetHandler({ data })
-})
-
-server.tool(
-  'findPetsByStatus',
-  'Multiple status values can be provided with comma separated strings',
-  { stepId: findPetsByStatusPathParamsSchema.shape['step_id'] },
-  async ({ stepId }) => {
-    return findPetsByStatusHandler({ stepId })
+  'createIncomingTransfer',
+  '\nThis endpoint creates a new incoming transfer. You may use use any eligible bank account connection to fund (ACH Debit) \nany active Brex business account.\n\n**Reminder**: You may not use the Brex API for any activity that requires a license or registration from any \ngovernmental authority without Brex\'s prior review and approval. This includes but is not limited to any money services\nbusiness or money transmission activity.\n\nPlease review the <a href="https://www.brex.com/legal/developer-portal/">Brex Access Agreement</a> and contact us if \nyou have any questions.\n',
+  { data: createIncomingTransferMutationRequestSchema, headers: createIncomingTransferHeaderParamsSchema },
+  async ({ data, headers }) => {
+    return createIncomingTransferHandler({ data, headers })
   },
 )
 
 server.tool(
-  'findPetsByTags',
-  'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
-  { headers: findPetsByTagsHeaderParamsSchema, params: findPetsByTagsQueryParamsSchema },
-  async ({ headers, params }) => {
-    return findPetsByTagsHandler({ headers, params })
-  },
-)
-
-server.tool('getPetById', 'Returns a single pet', { petId: getPetByIdPathParamsSchema.shape['petId'] }, async ({ petId }) => {
-  return getPetByIdHandler({ petId })
-})
-
-server.tool(
-  'updatePetWithForm',
-  'Make a POST request to /pet/{petId}:search',
-  { petId: updatePetWithFormPathParamsSchema.shape['petId'], params: updatePetWithFormQueryParamsSchema },
-  async ({ petId, params }) => {
-    return updatePetWithFormHandler({ petId, params })
+  'listLinkedAccounts',
+  '\nThis endpoint lists all bank connections that are eligible to make ACH transfers to Brex business account\n',
+  { params: listLinkedAccountsQueryParamsSchema },
+  async ({ params }) => {
+    return listLinkedAccountsHandler({ params })
   },
 )
 
 server.tool(
-  'deletePet',
-  'delete a pet',
-  { petId: deletePetPathParamsSchema.shape['petId'], headers: deletePetHeaderParamsSchema },
-  async ({ petId, headers }) => {
-    return deletePetHandler({ petId, headers })
+  'listTransfers',
+  '\nThis endpoint lists existing transfers for an account.\n\nCurrently, the API can only return transfers for the following payment rails:\n- ACH\n- DOMESTIC_WIRE\n- CHEQUE\n- INTERNATIONAL_WIRE\n',
+  { params: listTransfersQueryParamsSchema },
+  async ({ params }) => {
+    return listTransfersHandler({ params })
   },
 )
 
-server.tool('addFiles', 'Place a new file in the store', { data: addFilesMutationRequestSchema }, async ({ data }) => {
-  return addFilesHandler({ data })
+server.tool(
+  'createTransfer',
+  '\nThis endpoint creates a new transfer.\n\nCurrently, the API can only create transfers for the following payment rails:\n- ACH\n- DOMESTIC_WIRE\n- CHEQUE\n- INTERNATIONAL_WIRES\n\n**Transaction Descriptions**\n* For outgoing check payments, a successful transfer will return a response containing a description value with a format of `Check #<check number> to <recipient_name> - <external_memo>`.\n* For book transfers (from one Brex Business account to another), the recipient value will have a format of `<customer_account.dba_name> - <external_memo>` and the sender will have a format of `<target customer account\'s dba name> - <external_memo>`.\n* For other payment rails, the format will be `<counterparty_name> - <external_memo>`, where Counterparty name is `payment_instrument.beneficiary_name` or `contact.name`\nFor vendors created from the Payments API, the `counterparty_name` will be the `company_name` [field](/openapi/payments_api/#operation/createVendor!path=company_name&t=request).\n\n**Reminder**: You may not use the Brex API for any activity that requires a license or registration from any \ngovernmental authority without Brex\'s prior review and approval. This includes but is not limited to any money services\nbusiness or money transmission activity.\n\nPlease review the <a href="https://www.brex.com/legal/developer-portal/">Brex Access Agreement</a> and contact us if \nyou have any questions.\n',
+  { data: createTransferMutationRequestSchema, headers: createTransferHeaderParamsSchema },
+  async ({ data, headers }) => {
+    return createTransferHandler({ data, headers })
+  },
+)
+
+server.tool(
+  'getTransfersById',
+  '\nThis endpoint gets a transfer by ID.\n\nCurrently, the API can only return transfers for the following payment rails:\n- ACH\n- DOMESTIC_WIRE\n- CHEQUE\n- INTERNATIONAL_WIRE\n',
+  { id: getTransfersByIdPathParamsSchema.shape['id'] },
+  async ({ id }) => {
+    return getTransfersByIdHandler({ id })
+  },
+)
+
+server.tool(
+  'listVendors',
+  '\nThis endpoint lists all existing vendors for an account.\nTakes an optional parameter to match by vendor name.\n',
+  { params: listVendorsQueryParamsSchema },
+  async ({ params }) => {
+    return listVendorsHandler({ params })
+  },
+)
+
+server.tool(
+  'createVendor',
+  '\nThis endpoint creates a new vendor.\n',
+  { data: createVendorMutationRequestSchema, headers: createVendorHeaderParamsSchema },
+  async ({ data, headers }) => {
+    return createVendorHandler({ data, headers })
+  },
+)
+
+server.tool('getVendorById', '\nThis endpoint gets a vendor by ID.\n', { id: getVendorByIdPathParamsSchema.shape['id'] }, async ({ id }) => {
+  return getVendorByIdHandler({ id })
 })
 
 server.tool(
-  'uploadFile',
-  'Make a POST request to /pet/{petId}/uploadImage',
-  { petId: uploadFilePathParamsSchema.shape['petId'], data: uploadFileMutationRequestSchema, params: uploadFileQueryParamsSchema },
-  async ({ petId, data, params }) => {
-    return uploadFileHandler({ petId, data, params })
+  'updateVendor',
+  '\n    Updates an existing vendor by ID.\n',
+  { id: updateVendorPathParamsSchema.shape['id'], data: updateVendorMutationRequestSchema, headers: updateVendorHeaderParamsSchema },
+  async ({ id, data, headers }) => {
+    return updateVendorHandler({ id, data, headers })
   },
 )
 
-server.tool('createUser', 'This can only be done by the logged in user.', { data: createUserMutationRequestSchema }, async ({ data }) => {
-  return createUserHandler({ data })
-})
-
-server.tool(
-  'createUsersWithListInput',
-  'Creates list of users with given input array',
-  { data: createUsersWithListInputMutationRequestSchema },
-  async ({ data }) => {
-    return createUsersWithListInputHandler({ data })
-  },
-)
-
-server.tool('loginUser', 'Make a GET request to /user/login', { params: loginUserQueryParamsSchema }, async ({ params }) => {
-  return loginUserHandler({ params })
-})
-
-server.tool('logoutUser', 'Make a GET request to /user/logout', async () => {
-  return logoutUserHandler()
-})
-
-server.tool('getUserByName', 'Make a GET request to /user/{username}', { username: getUserByNamePathParamsSchema.shape['username'] }, async ({ username }) => {
-  return getUserByNameHandler({ username })
-})
-
-server.tool(
-  'updateUser',
-  'This can only be done by the logged in user.',
-  { username: updateUserPathParamsSchema.shape['username'], data: updateUserMutationRequestSchema },
-  async ({ username, data }) => {
-    return updateUserHandler({ username, data })
-  },
-)
-
-server.tool('deleteUser', 'This can only be done by the logged in user.', { username: deleteUserPathParamsSchema.shape['username'] }, async ({ username }) => {
-  return deleteUserHandler({ username })
+server.tool('deleteVendor', '\nThis endpoint deletes a vendor by ID.\n', { id: deleteVendorPathParamsSchema.shape['id'] }, async ({ id }) => {
+  return deleteVendorHandler({ id })
 })
 
 async function startServer() {

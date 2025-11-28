@@ -1,0 +1,1 @@
+{ "type": "string", "enum": ["BANK"], "x-readme-ref-name": "CounterPartyIncomingTransferType" }
