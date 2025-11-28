@@ -464,7 +464,7 @@ export class SchemaGenerator<
             ],
           }
         })
-        .filter(Boolean) as TSchema['args'],
+        .filter(Boolean) as SchemaKeywordMapper['union']['args'],
     }
   }
 
