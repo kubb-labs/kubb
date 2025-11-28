@@ -665,34 +665,34 @@ export class SchemaGenerator<
       // intersection/add
       const schemaWithoutAllOf = { ...schemaObject, allOf: undefined }
 
-      // Filter out allOf items that would create circular references
+      // Helper to check if an allOf item would create a circular reference
       // This happens when a child schema extends a discriminator parent via allOf,
       // and the parent's oneOf/anyOf references the child
-      const filteredAllOf = schemaObject.allOf.filter((item) => {
+      const wouldCreateCircularReference = (item: unknown): boolean => {
         if (!isReference(item) || !name) {
-          return true
+          return false
         }
-        // Check if including this reference would create a circular reference
         const dereferencedSchema = this.context.oas.dereferenceWithRef(item)
         if (dereferencedSchema && isDiscriminator(dereferencedSchema)) {
           const parentOneOf = dereferencedSchema.oneOf || dereferencedSchema.anyOf
           if (parentOneOf) {
             const childRef = `#/components/schemas/${name}`
-            const wouldBeCircular = parentOneOf.some((oneOfItem) => {
+            return parentOneOf.some((oneOfItem) => {
               return isReference(oneOfItem) && oneOfItem.$ref === childRef
             })
-            if (wouldBeCircular) {
-              return false // Filter out this circular reference
-            }
           }
         }
-        return true
-      })
+        return false
+      }
 
       const and: Schema = {
         keyword: schemaKeywords.and,
-        args: filteredAllOf
+        args: schemaObject.allOf
           .map((item) => {
+            // Skip items that would create circular references
+            if (wouldCreateCircularReference(item)) {
+              return undefined
+            }
             return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
           })
           .filter(Boolean)
