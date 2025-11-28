@@ -100,6 +100,13 @@ export type Options = {
    */
   version?: '3' | '4'
   /**
+   * Use Zod Mini's functional API for better tree-shaking support.
+   * When enabled, generates functional syntax (e.g., `z.optional(z.string())`) instead of chainable methods (e.g., `z.string().optional()`).
+   * Requires Zod v4 or later. When `mini: true`, `version` will be set to '4' and `importPath` will default to 'zod/mini'.
+   * @default false
+   */
+  mini?: boolean
+  /**
    * Callback function to wrap the output of the generated zod schema
    *
    * This is useful for edge case scenarios where you might leverage something like `z.object({ ... }).openapi({ example: { some: "complex-example" }})`
@@ -129,6 +136,7 @@ type ResolvedOptions = {
   operations: NonNullable<Options['operations']>
   wrapOutput: Options['wrapOutput']
   version: NonNullable<Options['version']>
+  mini: NonNullable<Options['mini']>
 }
 
 export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions>

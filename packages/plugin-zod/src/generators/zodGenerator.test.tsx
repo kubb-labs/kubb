@@ -288,6 +288,7 @@ describe('zodGenerator schema', async () => {
       wrapOutput: undefined,
       version: '3',
       emptySchemaType: 'unknown',
+      mini: false,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
@@ -403,6 +404,7 @@ describe('zodGenerator operation', async () => {
       wrapOutput: undefined,
       version: '3',
       emptySchemaType: 'unknown',
+      mini: false,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
@@ -472,6 +474,7 @@ describe('zodGenerator operation', async () => {
           }
           return undefined
         },
+        mini: false,
         ...props.options,
       }
       const plugin = { options } as Plugin<PluginZod>
@@ -563,6 +566,7 @@ describe('zodGenerator operation', async () => {
           }
           return undefined
         },
+        mini: false,
         ...entry.options,
       }
       const plugin = { options } as Plugin<PluginZod>

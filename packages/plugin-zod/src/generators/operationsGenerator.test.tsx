@@ -46,6 +46,7 @@ describe('operationsGenerator operations', async () => {
       wrapOutput: undefined,
       version: '4',
       emptySchemaType: 'unknown',
+      mini: false,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
