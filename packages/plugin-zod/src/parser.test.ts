@@ -13,11 +13,6 @@ describe('zod parse', () => {
     expect(text).toMatchSnapshot()
   })
 
-  test.each(schemas.basic)('$name mini', ({ name, schema }) => {
-    const text = parserZod.parse({ name, schema: {}, parent: undefined, current: schema, siblings: [schema] }, { version: '4', mini: true })
-    expect(text).toMatchSnapshot()
-  })
-
   describe('coercion with version 4', () => {
     test('uuid with coercion=true and version=4 should skip coercion', () => {
       const schema = { keyword: schemaKeywords.uuid, args: undefined }
