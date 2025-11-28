@@ -19,7 +19,10 @@ export function buildFormData<T = unknown>(data: T): FormData {
       return
     }
     if (typeof value === 'object') {
-      formData.append(key, JSON.stringify(value))
+      // Wrap JSON data in a Blob with application/json content type to ensure
+      // servers correctly interpret the data. Without this, many servers return
+      // 415 Unsupported Media Type errors when receiving JSON in multipart requests.
+      formData.append(key, new Blob([JSON.stringify(value)], { type: 'application/json' }))
       return
     }
   }

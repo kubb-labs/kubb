@@ -58,11 +58,12 @@ describe('buildFormData', () => {
       expect(formData.get('createdAt')).toBe('2024-01-15T10:30:00.000Z')
     })
 
-    it('should handle object values', () => {
+    it('should handle object values', async () => {
       const data = { metadata: { author: 'John', version: 1 } }
       const formData = buildFormData(data)
 
-      expect(formData.get('metadata')).toBe('{"author":"John","version":1}')
+      expect(formData.get('metadata')).toBeInstanceOf(Blob)
+      expect(await (formData.get('metadata') as Blob).text()).toBe('{"author":"John","version":1}')
     })
   })
 
@@ -179,7 +180,7 @@ describe('buildFormData', () => {
   })
 
   describe('complex scenarios', () => {
-    it('should handle mixed data types', () => {
+    it('should handle mixed data types', async () => {
       const file = new File(['content'], 'test.txt', { type: 'text/plain' })
       const date = new Date('2024-01-15T10:30:00.000Z')
       const data = {
@@ -199,10 +200,11 @@ describe('buildFormData', () => {
       expect(formData.get('file')).toBe(file)
       expect(formData.get('createdAt')).toBe('2024-01-15T10:30:00.000Z')
       expect(formData.getAll('tags')).toEqual(['tag1', 'tag2'])
-      expect(formData.get('metadata')).toBe('{"author":"John"}')
+      expect(formData.get('metadata')).toBeInstanceOf(Blob)
+      expect(await (formData.get('metadata') as Blob).text()).toBe('{"author":"John"}')
     })
 
-    it('should handle nested objects in arrays', () => {
+    it('should handle nested objects in arrays', async () => {
       const data = {
         items: [
           { id: 1, name: 'Item 1' },
@@ -213,8 +215,10 @@ describe('buildFormData', () => {
 
       const items = formData.getAll('items')
       expect(items).toHaveLength(2)
-      expect(items[0]).toBe('{"id":1,"name":"Item 1"}')
-      expect(items[1]).toBe('{"id":2,"name":"Item 2"}')
+      expect(items[0]).toBeInstanceOf(Blob)
+      expect(items[1]).toBeInstanceOf(Blob)
+      expect(await (items[0] as Blob).text()).toBe('{"id":1,"name":"Item 1"}')
+      expect(await (items[1] as Blob).text()).toBe('{"id":2,"name":"Item 2"}')
     })
 
     it('should handle array of Files with metadata', () => {
@@ -439,7 +443,7 @@ describe('buildFormData', () => {
       expect(formData.get('message')).toBe('你好世界 🌍')
     })
 
-    it('should handle nested objects', () => {
+    it('should handle nested objects', async () => {
       const data = {
         user: {
           name: 'John',
@@ -451,10 +455,11 @@ describe('buildFormData', () => {
       }
       const formData = buildFormData(data)
 
-      expect(formData.get('user')).toBe('{"name":"John","address":{"city":"New York","zip":"10001"}}')
+      expect(formData.get('user')).toBeInstanceOf(Blob)
+      expect(await (formData.get('user') as Blob).text()).toBe('{"name":"John","address":{"city":"New York","zip":"10001"}}')
     })
 
-    it('should handle arrays with objects', () => {
+    it('should handle arrays with objects', async () => {
       const data = {
         users: [
           { id: 1, name: 'Alice' },
@@ -465,8 +470,10 @@ describe('buildFormData', () => {
 
       const users = formData.getAll('users')
       expect(users).toHaveLength(2)
-      expect(users[0]).toBe('{"id":1,"name":"Alice"}')
-      expect(users[1]).toBe('{"id":2,"name":"Bob"}')
+      expect(users[0]).toBeInstanceOf(Blob)
+      expect(users[1]).toBeInstanceOf(Blob)
+      expect(await (users[0] as Blob).text()).toBe('{"id":1,"name":"Alice"}')
+      expect(await (users[1] as Blob).text()).toBe('{"id":2,"name":"Bob"}')
     })
 
     it('should handle arrays with Dates', () => {
