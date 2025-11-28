@@ -26,8 +26,6 @@ describe('getNestedAccessor', () => {
   })
 
   it('should handle deeply nested paths', () => {
-    expect(getNestedAccessor('data.meta.pagination.next.cursor', 'response')).toBe(
-      "response?.['data']?.['meta']?.['pagination']?.['next']?.['cursor']",
-    )
+    expect(getNestedAccessor('data.meta.pagination.next.cursor', 'response')).toBe("response?.['data']?.['meta']?.['pagination']?.['next']?.['cursor']")
   })
 })

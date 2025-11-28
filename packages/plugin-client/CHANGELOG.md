@@ -1,5 +1,18 @@
 # @kubb/plugin-client
 
+## 4.7.2
+
+### Patch Changes
+
+- [#2075](https://github.com/kubb-labs/kubb/pull/2075) [`8ed9785`](https://github.com/kubb-labs/kubb/commit/8ed978504ba3f43494186ea9fc434c082c6558bc) Thanks [@GKNewsrooms](https://github.com/GKNewsrooms)! - Fix buildFormData to correctly include Content-Type: application/json
+
+- Updated dependencies []:
+  - @kubb/core@4.7.2
+  - @kubb/oas@4.7.2
+  - @kubb/plugin-oas@4.7.2
+  - @kubb/plugin-ts@4.7.2
+  - @kubb/plugin-zod@4.7.2
+
 ## 4.7.1
 
 ### Patch Changes
