@@ -58,7 +58,7 @@ describe('buildFormData', () => {
       expect(formData.get('createdAt')).toBe('2024-01-15T10:30:00.000Z')
     })
 
-    it('should handle object values', async() => {
+    it('should handle object values', async () => {
       const data = { metadata: { author: 'John', version: 1 } }
       const formData = buildFormData(data)
 
@@ -180,7 +180,7 @@ describe('buildFormData', () => {
   })
 
   describe('complex scenarios', () => {
-    it('should handle mixed data types', async() => {
+    it('should handle mixed data types', async () => {
       const file = new File(['content'], 'test.txt', { type: 'text/plain' })
       const date = new Date('2024-01-15T10:30:00.000Z')
       const data = {
@@ -204,7 +204,7 @@ describe('buildFormData', () => {
       expect(await (formData.get('metadata') as Blob).text()).toBe('{"author":"John"}')
     })
 
-    it('should handle nested objects in arrays', async() => {
+    it('should handle nested objects in arrays', async () => {
       const data = {
         items: [
           { id: 1, name: 'Item 1' },
@@ -443,7 +443,7 @@ describe('buildFormData', () => {
       expect(formData.get('message')).toBe('你好世界 🌍')
     })
 
-    it('should handle nested objects', async() => {
+    it('should handle nested objects', async () => {
       const data = {
         user: {
           name: 'John',
@@ -458,7 +458,7 @@ describe('buildFormData', () => {
       expect(await (formData.get('user') as Blob).text()).toBe('{"name":"John","address":{"city":"New York","zip":"10001"}}')
     })
 
-    it('should handle arrays with objects', async() => {
+    it('should handle arrays with objects', async () => {
       const data = {
         users: [
           { id: 1, name: 'Alice' },

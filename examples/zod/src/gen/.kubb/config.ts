@@ -19,7 +19,7 @@ export function buildFormData<T = unknown>(data: T): FormData {
       return
     }
     if (typeof value === 'object') {
-      formData.append(key, JSON.stringify(value))
+      formData.append(key, new Blob([JSON.stringify(value)], { type: 'application/json' }))
       return
     }
   }

@@ -34,7 +34,7 @@ import { buildFormData } from './.kubb/config'
 
 export async function uploadFile(data: UploadFileRequest) {
   const formData = buildFormData(data)
-  
+
   return client({
     method: 'post',
     url: '/upload',
@@ -70,7 +70,10 @@ export function buildFormData<T = unknown>(data: T): FormData {
       return
     }
     if (typeof value === 'object') {
-      formData.append(key, new Blob([JSON.stringify(value)], {type: 'application/json'}))
+      // Wrap JSON data in a Blob with application/json content type to ensure
+      // servers correctly interpret the data. Without this, many servers return
+      // 415 Unsupported Media Type errors when receiving JSON in multipart requests.
+      formData.append(key, new Blob([JSON.stringify(value)], { type: 'application/json' }))
       return
     }
   }
@@ -157,7 +160,7 @@ await createPost({
 ### Special Types
 - **Blob/File**: Appended directly to FormData
 - **Date**: Converted to ISO string format
-- **Objects**: JSON.stringified before appending
+- **Objects**: Wrapped in a Blob with `Content-Type: application/json` to ensure proper server-side parsing. This prevents 415 (Unsupported Media Type) errors that can occur when JSON data is sent without the correct content type in multipart requests.
 
 ### Arrays
 - Each array element is appended individually with the same key
@@ -225,6 +228,12 @@ Make sure you're passing actual `File` or `Blob` objects, not file paths or base
 ### Date Format Issues
 
 Dates are automatically converted to ISO strings. If your server expects a different format, you may need to pre-process the date before passing it to the generated function.
+
+### JSON Object Content-Type
+
+When sending JSON objects in multipart form data, Kubb automatically wraps them in a `Blob` with `Content-Type: application/json`. This ensures that web servers can correctly parse the JSON data. Without the proper content type, many servers will return a 415 (Unsupported Media Type) error.
+
+If you need to customize how objects are serialized, you can pre-process them before passing to the generated function, or provide your own implementation of `buildFormData`.
 
 ## Related Documentation
 

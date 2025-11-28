@@ -10,27 +10,28 @@ type nonoptional<T> = T extends undefined ? never : T
 type nonnullable<T> = T extends null ? never : T
 type equals<X, Y> = [X] extends [Y] ? ([Y] extends [X] ? true : false) : false
 
-type zodKey<T> = isAny<T> extends true
-  ? 'any'
-  : equals<T, boolean> extends true //[T] extends [booleanUtil.Type]
-    ? 'boolean'
-    : [undefined] extends [T]
-      ? 'optional'
-      : [null] extends [T]
-        ? 'nullable'
-        : T extends any[]
-          ? 'array'
-          : equals<T, string> extends true
-            ? 'string'
-            : equals<T, bigint> extends true //[T] extends [bigintUtil.Type]
-              ? 'bigint'
-              : equals<T, number> extends true //[T] extends [numberUtil.Type]
-                ? 'number'
-                : equals<T, Date> extends true //[T] extends [dateUtil.Type]
-                  ? 'date'
-                  : T extends { [k: string]: any } //[T] extends [structUtil.Type]
-                    ? 'object'
-                    : 'rest'
+type zodKey<T> =
+  isAny<T> extends true
+    ? 'any'
+    : equals<T, boolean> extends true //[T] extends [booleanUtil.Type]
+      ? 'boolean'
+      : [undefined] extends [T]
+        ? 'optional'
+        : [null] extends [T]
+          ? 'nullable'
+          : T extends any[]
+            ? 'array'
+            : equals<T, string> extends true
+              ? 'string'
+              : equals<T, bigint> extends true //[T] extends [bigintUtil.Type]
+                ? 'bigint'
+                : equals<T, number> extends true //[T] extends [numberUtil.Type]
+                  ? 'number'
+                  : equals<T, Date> extends true //[T] extends [dateUtil.Type]
+                    ? 'date'
+                    : T extends { [k: string]: any } //[T] extends [structUtil.Type]
+                      ? 'object'
+                      : 'rest'
 
 export type ToZod<T> = {
   any: z.ZodAny
