@@ -106,14 +106,14 @@ const zodKeywordMapper = {
   //support for discriminatedUnion
   boolean: () => 'z.boolean()',
   undefined: () => 'z.undefined()',
-  nullable: (value?: string) => {
+  nullable: (value?: string, mini?: boolean) => {
     if (value) {
       return `z.nullable(${value})`
     }
     return '.nullable()'
   },
   null: () => 'z.null()',
-  nullish: (value?: string) => {
+  nullish: (value?: string, mini?: boolean) => {
     if (value) {
       return `z.nullish(${value})`
     }
@@ -219,17 +219,26 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  default: (value?: string | number | true | object) => {
+  default: (value?: string | number | true | object, innerSchema?: string, mini?: boolean) => {
+    if (mini && innerSchema) {
+      const defaultValue = typeof value === 'object' ? '{}' : value ?? ''
+      return `z._default(${innerSchema}, ${defaultValue})`
+    }
     if (typeof value === 'object') {
       return '.default({})'
     }
     return `.default(${value ?? ''})`
   },
   and: (items: string[] = []) => items?.map((item) => `.and(${item})`).join(''),
-  describe: (value = '') => `.describe(${value})`,
+  describe: (value = '', innerSchema?: string, mini?: boolean) => {
+    if (mini && innerSchema) {
+      return `z.describe(${innerSchema}, ${value})`
+    }
+    return `.describe(${value})`
+  },
   max: undefined,
   min: undefined,
-  optional: (value?: string) => {
+  optional: (value?: string, mini?: boolean) => {
     if (value) {
       return `z.optional(${value})`
     }
@@ -316,6 +325,47 @@ export function sort(items?: Schema[]): Schema[] {
   }
 
   return transformers.orderBy(items, [(v) => order.indexOf(v.keyword)], ['asc'])
+}
+
+type MiniModifiers = {
+  hasOptional?: boolean
+  hasNullable?: boolean
+  hasNullish?: boolean
+  defaultValue?: string | number | true | object
+  describeValue?: string
+}
+
+/**
+ * Wraps an output string with Zod Mini functional modifiers
+ * Order: default (innermost) -> describe -> nullable -> optional (outermost)
+ * OR: default -> describe -> nullish
+ */
+export function wrapWithMiniModifiers(output: string, modifiers: MiniModifiers): string {
+  let result = output
+
+  // Apply default first (innermost wrapper)
+  if (modifiers.defaultValue !== undefined) {
+    result = zodKeywordMapper.default(modifiers.defaultValue, result, true)!
+  }
+
+  // Apply describe
+  if (modifiers.describeValue !== undefined) {
+    result = zodKeywordMapper.describe(transformers.stringify(String(modifiers.describeValue)), result, true)!
+  }
+
+  // Apply nullish, nullable, or optional (outer wrappers for optionality)
+  if (modifiers.hasNullish) {
+    result = zodKeywordMapper.nullish(result, true)!
+  } else {
+    if (modifiers.hasNullable) {
+      result = zodKeywordMapper.nullable(result, true)!
+    }
+    if (modifiers.hasOptional) {
+      result = zodKeywordMapper.optional(result, true)!
+    }
+  }
+
+  return result
 }
 
 const shouldCoerce = (coercion: ParserOptions['coercion'] | undefined, type: 'dates' | 'strings' | 'numbers'): boolean => {

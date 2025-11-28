@@ -105,38 +105,18 @@ export function Zod({
     emptyValue ||
     ''
 
-  // For mini mode, wrap the output with modifiers in the correct order
+  // For mini mode, wrap the output with modifiers using the parser function
   if (mini) {
-    // Find the modifiers
-    const hasOptional = schemas.some((item) => isKeyword(item, schemaKeywords.optional))
-    const hasNullable = schemas.some((item) => isKeyword(item, schemaKeywords.nullable))
-    const hasNullish = schemas.some((item) => isKeyword(item, schemaKeywords.nullish))
     const defaultSchema = schemas.find((item) => isKeyword(item, schemaKeywords.default)) as { keyword: string; args: unknown } | undefined
     const describeSchema = schemas.find((item) => isKeyword(item, schemaKeywords.describe)) as { keyword: string; args: unknown } | undefined
 
-    // Apply default first (innermost wrapper for defaults)
-    if (defaultSchema?.args !== undefined) {
-      const defaultValue = typeof defaultSchema.args === 'object' ? '{}' : defaultSchema.args
-      baseSchemaOutput = `z._default(${baseSchemaOutput}, ${defaultValue})`
-    }
-
-    // Apply describe
-    if (describeSchema?.args !== undefined) {
-      baseSchemaOutput = `z.describe(${baseSchemaOutput}, ${transformers.stringify(String(describeSchema.args))})`
-    }
-
-    // Apply nullish, nullable, or optional (outer wrappers for optionality)
-    // Order: nullable first, then optional (so z.optional(z.nullable(schema)))
-    if (hasNullish) {
-      baseSchemaOutput = `z.nullish(${baseSchemaOutput})`
-    } else {
-      if (hasNullable) {
-        baseSchemaOutput = `z.nullable(${baseSchemaOutput})`
-      }
-      if (hasOptional) {
-        baseSchemaOutput = `z.optional(${baseSchemaOutput})`
-      }
-    }
+    baseSchemaOutput = parserZod.wrapWithMiniModifiers(baseSchemaOutput, {
+      hasOptional: schemas.some((item) => isKeyword(item, schemaKeywords.optional)),
+      hasNullable: schemas.some((item) => isKeyword(item, schemaKeywords.nullable)),
+      hasNullish: schemas.some((item) => isKeyword(item, schemaKeywords.nullish)),
+      defaultValue: defaultSchema?.args as string | number | true | object | undefined,
+      describeValue: describeSchema?.args !== undefined ? String(describeSchema.args) : undefined,
+    })
   }
 
   const wrappedSchemaOutput = wrapOutput ? wrapOutput({ output: baseSchemaOutput, schema }) || baseSchemaOutput : baseSchemaOutput
