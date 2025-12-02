@@ -8,7 +8,7 @@ import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getGetUserByNameUrl(username: GetUserByNamePathParams['username']) {
-  const res = { method: 'GET', url: `/user/${username}` as const }
+  const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
   return res
 }
 

@@ -8,7 +8,7 @@ import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, Up
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getUpdatePetWithFormUrl(petId: UpdatePetWithFormPathParams['petId']) {
-  const res = { method: 'POST', url: `/pet/${petId}` as const }
+  const res = { method: 'POST', url: `https://petstore3.swagger.io/api/v3/pet/${petId}` as const }
   return res
 }
 

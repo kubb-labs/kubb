@@ -8,7 +8,7 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPe
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getFindPetsByStatusUrl() {
-  const res = { method: 'GET', url: '/pet/findByStatus' as const }
+  const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/pet/findByStatus' as const }
   return res
 }
 

@@ -8,7 +8,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getUpdateUserUrl(username: UpdateUserPathParams['username']) {
-  const res = { method: 'PUT', url: `/user/${username}` as const }
+  const res = { method: 'PUT', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
   return res
 }
 

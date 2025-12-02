@@ -8,7 +8,7 @@ import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputM
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getCreateUsersWithListInputUrl() {
-  const res = { method: 'POST', url: '/user/createWithList' as const }
+  const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/user/createWithList' as const }
   return res
 }
 
