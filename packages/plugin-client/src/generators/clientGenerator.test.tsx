@@ -103,6 +103,15 @@ describe('clientGenerator operation', async () => {
       method: 'post',
       options: {},
     },
+    {
+      name: 'findByTagsWithBaseURL',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        baseURL: 'https://petstore3.swagger.io/api/v3',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

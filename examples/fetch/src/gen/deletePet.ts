@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from './models.ts'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from './models.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getDeletePetUrl(petId: DeletePetPathParams['petId']) {
-  const res = { method: 'DELETE', url: `/pet/${petId}` as const }
+  const res = { method: 'DELETE', url: `https://petstore3.swagger.io/api/v3/pet/${petId}` as const }
   return res
 }
 
