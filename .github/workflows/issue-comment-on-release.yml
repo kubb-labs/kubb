@@ -1,3 +1,8 @@
+# This workflow automatically comments on issues that have been fixed in a release.
+# It is triggered when a new release is published and performs the following:
+# 1. Extracts PR numbers from the release notes
+# 2. For each PR, finds linked issues via keywords (fixes, closes, resolves) or timeline events
+# 3. Comments on each closed issue with release details and documentation links
 name: Comment on Issues Fixed in Release
 
 on:
@@ -46,7 +51,7 @@ jobs:
             console.log(`Found ${prNumbers.size} PRs in release notes`);
             
             // For each PR, find linked issues
-            const issuesSet = new Set();
+            const issuesMap = new Map();
             
             for (const prNumber of prNumbers) {
               try {
@@ -68,11 +73,14 @@ jobs:
                 while ((issueMatch = issuePattern.exec(prText)) !== null) {
                   const issueNumber = issueMatch[1] || issueMatch[2];
                   if (issueNumber) {
-                    issuesSet.add({
-                      number: parseInt(issueNumber),
-                      prNumber: prNumber,
-                      prTitle: pr.title
-                    });
+                    const num = parseInt(issueNumber);
+                    if (!issuesMap.has(num)) {
+                      issuesMap.set(num, {
+                        number: num,
+                        prNumber: prNumber,
+                        prTitle: pr.title
+                      });
+                    }
                   }
                 }
                 
@@ -88,11 +96,14 @@ jobs:
                     if (event.event === 'cross-referenced' && event.source?.issue) {
                       const linkedIssue = event.source.issue;
                       if (!linkedIssue.pull_request) {
-                        issuesSet.add({
-                          number: linkedIssue.number,
-                          prNumber: prNumber,
-                          prTitle: pr.title
-                        });
+                        const num = linkedIssue.number;
+                        if (!issuesMap.has(num)) {
+                          issuesMap.set(num, {
+                            number: num,
+                            prNumber: prNumber,
+                            prTitle: pr.title
+                          });
+                        }
                       }
                     }
                   }
@@ -105,13 +116,13 @@ jobs:
               }
             }
             
-            console.log(`Found ${issuesSet.size} issues to comment on`);
+            console.log(`Found ${issuesMap.size} issues to comment on`);
             
             // Comment on each issue
             const docsUrl = 'https://kubb.dev';
             const changelogUrl = `${docsUrl}/changelog`;
             
-            for (const issue of issuesSet) {
+            for (const issue of issuesMap.values()) {
               try {
                 // Check if issue is open
                 const { data: issueData } = await github.rest.issues.get({
