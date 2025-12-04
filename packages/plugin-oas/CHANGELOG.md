@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 4.7.4
+
+### Patch Changes
+
+- [#2074](https://github.com/kubb-labs/kubb/pull/2074) [`93e6d79`](https://github.com/kubb-labs/kubb/commit/93e6d797f96562c0eda33f2dd99183e861b40934) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fixed self-referential circular type references when OpenAPI schemas use `allOf` to extend a discriminator parent that has `oneOf`/`anyOf` referencing the children.
+
+  When a child schema extends a discriminator parent via `allOf` and the parent's `oneOf`/`anyOf` references the child, the generated TypeScript types would have circular references. This fix detects this pattern and skips adding redundant discriminator constraints to avoid the circular structure.
+
+- Updated dependencies []:
+  - @kubb/core@4.7.4
+  - @kubb/oas@4.7.4
+
 ## 4.7.3
 
 ### Patch Changes
