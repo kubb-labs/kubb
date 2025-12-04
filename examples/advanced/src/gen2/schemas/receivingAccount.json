@@ -1,1 +1,7 @@
-{"type":"object","description":"Receiving account details for the transfer","discriminator":{"propertyName":"type","mapping":{"BREX_CASH":"#/components/schemas/BrexCashDetails"}},"oneOf":[{"$ref":"#/components/schemas/BrexCashDetails"}],"x-readme-ref-name":"ReceivingAccount"}
+{
+  "type": "object",
+  "description": "Receiving account details for the transfer",
+  "discriminator": { "propertyName": "type", "mapping": { "BREX_CASH": "#/components/schemas/BrexCashDetails" } },
+  "oneOf": [{ "$ref": "#/components/schemas/BrexCashDetails" }],
+  "x-readme-ref-name": "ReceivingAccount"
+}

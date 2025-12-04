@@ -1,7 +1,7 @@
-import type { BankDetails } from '../models/ts/BankDetails.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { bankTypeSchema } from './bankTypeSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { BankDetails } from '../models/ts/BankDetails.ts'
+import { bankTypeSchema } from './bankTypeSchema.ts'
 
 export const bankDetailsSchema = z.object({
   name: z.string().describe('\nThe name of the bank\n'),

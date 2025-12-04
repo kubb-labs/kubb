@@ -1,12 +1,12 @@
-import type fetch from '../../../../axios-client.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
+  CreateTransferHeaderParams,
   CreateTransferMutationRequest,
   CreateTransferMutationResponse,
-  CreateTransferHeaderParams,
 } from '../../../models/ts/transfersController/CreateTransfer.ts'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import { createTransfer } from '../../axios/TransfersService/createTransfer.ts'
 
 export const createTransferMutationKeySWR = () => [{ url: '/v1/transfers' }] as const

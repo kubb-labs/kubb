@@ -1,11 +1,11 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type {
+  CreateTransferHeaderParams,
   CreateTransferMutationRequest,
   CreateTransferMutationResponse,
-  CreateTransferHeaderParams,
 } from '../../../models/ts/transfersController/CreateTransfer.ts'
-import { createTransferMutationResponseSchema, createTransferMutationRequestSchema } from '../../../zod/transfersController/createTransferSchema.ts'
+import { createTransferMutationRequestSchema, createTransferMutationResponseSchema } from '../../../zod/transfersController/createTransferSchema.ts'
 
 export function getCreateTransferUrl() {
   const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/v1/transfers' as const }

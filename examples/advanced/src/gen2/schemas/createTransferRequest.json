@@ -1,1 +1,52 @@
-{"required":["amount","counterparty","description","external_memo","originating_account"],"type":"object","properties":{"counterparty":{"$ref":"#/components/schemas/CounterParty"},"amount":{"required":["amount"],"type":"object","properties":{"amount":{"type":"integer","description":"The amount of money, in the smallest denomination of the currency indicated by currency. For example, when currency is USD, amount is in cents.","format":"int64","example":700},"currency":{"type":"string","description":"The type of currency, in ISO 4217 format.","nullable":true,"example":"USD","default":"USD"}},"description":"\nMoney fields can be signed or unsigned. Fields are signed (an unsigned value will be interpreted as positive). The amount of money will be represented in the smallest denomination\nof the currency indicated. For example, USD 7.00 will be represented in cents with an amount of 700.\n","x-readme-ref-name":"Money"},"description":{"type":"string","description":"Description of the transfer for internal use. Not exposed externally."},"external_memo":{"maxLength":90,"type":"string","description":"External memo for the transfer. `Payment Instructions` for Wires and the `Entry Description` for ACH payments. \nMust be at most 90 characters for `ACH` and `WIRE` transactions\nand at most 40 characters for `CHEQUES`\n"},"originating_account":{"allOf":[{"$ref":"#/components/schemas/OriginatingAccount"},{"description":"Brex originating account details. Account IDs are returned by the /accounts\nendpoint. This endpoint currently only supports accounts with instrument type `CASH` (Brex business accounts)\nCurrently only USD transfers are supported and amount should be positive\n"}]},"approval_type":{"nullable":true,"allOf":[{"type":"string","description":"Specifies the approval type for the transaction. \n`MANUAL` requires a cash admin to approve the transaction before disbursing funds. \nWhen not set, the default policy will apply.","enum":["MANUAL"],"x-readme-ref-name":"ApprovalType"}]},"is_ppro_enabled":{"type":"boolean","description":"When set to true, add Principal Protection (PPRO) to the transaction.\n PPRO means Brex will cover any fees charged by intemediary or receiving banks. PPRO charges will be billed separately\n in a monthly statement. PPRO is only available for international wire transactions.\n"}},"x-readme-ref-name":"CreateTransferRequest"}
+{
+  "required": ["amount", "counterparty", "description", "external_memo", "originating_account"],
+  "type": "object",
+  "properties": {
+    "counterparty": { "$ref": "#/components/schemas/CounterParty" },
+    "amount": {
+      "required": ["amount"],
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "description": "The amount of money, in the smallest denomination of the currency indicated by currency. For example, when currency is USD, amount is in cents.",
+          "format": "int64",
+          "example": 700
+        },
+        "currency": { "type": "string", "description": "The type of currency, in ISO 4217 format.", "nullable": true, "example": "USD", "default": "USD" }
+      },
+      "description": "\nMoney fields can be signed or unsigned. Fields are signed (an unsigned value will be interpreted as positive). The amount of money will be represented in the smallest denomination\nof the currency indicated. For example, USD 7.00 will be represented in cents with an amount of 700.\n",
+      "x-readme-ref-name": "Money"
+    },
+    "description": { "type": "string", "description": "Description of the transfer for internal use. Not exposed externally." },
+    "external_memo": {
+      "maxLength": 90,
+      "type": "string",
+      "description": "External memo for the transfer. `Payment Instructions` for Wires and the `Entry Description` for ACH payments. \nMust be at most 90 characters for `ACH` and `WIRE` transactions\nand at most 40 characters for `CHEQUES`\n"
+    },
+    "originating_account": {
+      "allOf": [
+        { "$ref": "#/components/schemas/OriginatingAccount" },
+        {
+          "description": "Brex originating account details. Account IDs are returned by the /accounts\nendpoint. This endpoint currently only supports accounts with instrument type `CASH` (Brex business accounts)\nCurrently only USD transfers are supported and amount should be positive\n"
+        }
+      ]
+    },
+    "approval_type": {
+      "nullable": true,
+      "allOf": [
+        {
+          "type": "string",
+          "description": "Specifies the approval type for the transaction. \n`MANUAL` requires a cash admin to approve the transaction before disbursing funds. \nWhen not set, the default policy will apply.",
+          "enum": ["MANUAL"],
+          "x-readme-ref-name": "ApprovalType"
+        }
+      ]
+    },
+    "is_ppro_enabled": {
+      "type": "boolean",
+      "description": "When set to true, add Principal Protection (PPRO) to the transaction.\n PPRO means Brex will cover any fees charged by intemediary or receiving banks. PPRO charges will be billed separately\n in a monthly statement. PPRO is only available for international wire transactions.\n"
+    }
+  },
+  "x-readme-ref-name": "CreateTransferRequest"
+}

@@ -1,6 +1,6 @@
+import { faker } from '@faker-js/faker'
 import type { OriginatingAccountResponse } from '../models/ts/OriginatingAccountResponse.ts'
 import { createBrexCashAccountDetailsResponseFaker } from './createBrexCashAccountDetailsResponseFaker.ts'
-import { faker } from '@faker-js/faker'
 
 /**
  * @description Originating account details for the transfer

@@ -1,13 +1,13 @@
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type {
-  ListLinkedAccountsQueryResponse,
-  ListLinkedAccountsQueryParams,
   ListLinkedAccounts400,
   ListLinkedAccounts401,
   ListLinkedAccounts403,
+  ListLinkedAccountsQueryParams,
+  ListLinkedAccountsQueryResponse,
 } from '../../models/ts/linkedAccountsController/ListLinkedAccounts.ts'
-import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**
  * @description This endpoint lists all bank connections that are eligible to make ACH transfers to Brex business account

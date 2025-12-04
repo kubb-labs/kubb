@@ -1,6 +1,6 @@
+import { faker } from '@faker-js/faker'
 import type { ListLinkedAccountsQueryParams, ListLinkedAccountsQueryResponse } from '../../models/ts/linkedAccountsController/ListLinkedAccounts.ts'
 import { createPageBankConnectionFaker } from '../createPageBankConnectionFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createListLinkedAccountsQueryParamsFaker(data?: Partial<ListLinkedAccountsQueryParams>): ListLinkedAccountsQueryParams {
   return {

@@ -1,13 +1,13 @@
+import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  CreateVendorHeaderParams,
   CreateVendor200,
+  CreateVendorHeaderParams,
   CreateVendorMutationRequest,
   CreateVendorMutationResponse,
 } from '../../models/ts/vendorsController/CreateVendor.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import { createVendorRequestSchema } from '../createVendorRequestSchema.ts'
 import { vendorResponseSchema } from '../vendorResponseSchema.ts'
-import { z } from 'zod'
 
 export const createVendorHeaderParamsSchema = z.object({
   'Idempotency-Key': z.string(),

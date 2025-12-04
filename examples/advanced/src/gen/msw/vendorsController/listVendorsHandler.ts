@@ -1,5 +1,5 @@
-import type { ListVendorsQueryResponse, ListVendors400, ListVendors401, ListVendors403 } from '../../models/ts/vendorsController/ListVendors.ts'
 import { http } from 'msw'
+import type { ListVendors400, ListVendors401, ListVendors403, ListVendorsQueryResponse } from '../../models/ts/vendorsController/ListVendors.ts'
 
 export function listVendorsHandlerResponse200(data: ListVendorsQueryResponse) {
   return new Response(JSON.stringify(data), {

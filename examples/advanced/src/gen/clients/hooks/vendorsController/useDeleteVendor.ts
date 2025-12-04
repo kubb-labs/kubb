@@ -1,9 +1,9 @@
-import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { DeleteVendorMutationResponse, DeleteVendorPathParams } from '../../../models/ts/vendorsController/DeleteVendor.ts'
-import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
-import { deleteVendor } from '../../axios/VendorsService/deleteVendor.ts'
+import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
+import type fetch from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { DeleteVendorMutationResponse, DeleteVendorPathParams } from '../../../models/ts/vendorsController/DeleteVendor.ts'
+import { deleteVendor } from '../../axios/VendorsService/deleteVendor.ts'
 
 export const deleteVendorMutationKey = () => [{ url: '/v1/vendors/:id' }] as const
 

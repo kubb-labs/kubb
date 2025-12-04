@@ -1,13 +1,13 @@
+import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  CreateIncomingTransferHeaderParams,
   CreateIncomingTransfer200,
+  CreateIncomingTransferHeaderParams,
   CreateIncomingTransferMutationRequest,
   CreateIncomingTransferMutationResponse,
 } from '../../models/ts/transfersController/CreateIncomingTransfer.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import { createIncomingTransferRequestSchema } from '../createIncomingTransferRequestSchema.ts'
 import { transferSchema } from '../transferSchema.ts'
-import { z } from 'zod'
 
 export const createIncomingTransferHeaderParamsSchema = z.object({
   'Idempotency-Key': z.string(),

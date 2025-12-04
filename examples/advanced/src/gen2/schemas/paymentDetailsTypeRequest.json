@@ -1,1 +1,1 @@
-{"type":"string","enum":["ACH","DOMESTIC_WIRE","CHEQUE"],"x-readme-ref-name":"PaymentDetailsTypeRequest"}
+{ "type": "string", "enum": ["ACH", "DOMESTIC_WIRE", "CHEQUE"], "x-readme-ref-name": "PaymentDetailsTypeRequest" }

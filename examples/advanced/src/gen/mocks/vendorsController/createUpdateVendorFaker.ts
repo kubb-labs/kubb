@@ -1,7 +1,7 @@
-import type { UpdateVendorPathParams, UpdateVendorHeaderParams, UpdateVendorMutationResponse } from '../../models/ts/vendorsController/UpdateVendor.ts'
+import { faker } from '@faker-js/faker'
+import type { UpdateVendorHeaderParams, UpdateVendorMutationResponse, UpdateVendorPathParams } from '../../models/ts/vendorsController/UpdateVendor.ts'
 import { createUpdateVendorRequestFaker } from '../createUpdateVendorRequestFaker.ts'
 import { createVendorResponseFaker } from '../createVendorResponseFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createUpdateVendorPathParamsFaker(data?: Partial<UpdateVendorPathParams>): UpdateVendorPathParams {
   return {

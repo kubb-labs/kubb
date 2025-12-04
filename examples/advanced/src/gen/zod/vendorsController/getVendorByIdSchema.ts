@@ -1,15 +1,15 @@
+import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  GetVendorByIdPathParams,
   GetVendorById200,
   GetVendorById400,
   GetVendorById401,
   GetVendorById403,
   GetVendorById500,
+  GetVendorByIdPathParams,
   GetVendorByIdQueryResponse,
 } from '../../models/ts/vendorsController/GetVendorById.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import { vendorResponseSchema } from '../vendorResponseSchema.ts'
-import { z } from 'zod'
 
 export const getVendorByIdPathParamsSchema = z.object({
   id: z.string(),

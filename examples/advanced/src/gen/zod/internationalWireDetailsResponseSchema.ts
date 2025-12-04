@@ -1,8 +1,8 @@
-import type { InternationalWireDetailsResponse } from '../models/ts/InternationalWireDetailsResponse.ts'
+import { z } from 'zod'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { InternationalWireDetailsResponse } from '../models/ts/InternationalWireDetailsResponse.ts'
 import { addressSchema } from './addressSchema.ts'
 import { paymentDetailsTypeResponseSchema } from './paymentDetailsTypeResponseSchema.ts'
-import { z } from 'zod'
 
 export const internationalWireDetailsResponseSchema = z.object({
   type: z.lazy(() => paymentDetailsTypeResponseSchema),

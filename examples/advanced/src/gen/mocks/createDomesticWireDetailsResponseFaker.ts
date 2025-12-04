@@ -1,9 +1,9 @@
+import { faker } from '@faker-js/faker'
 import type { DomesticWireDetailsResponse } from '../models/ts/DomesticWireDetailsResponse.ts'
 import { createAddressFaker } from './createAddressFaker.ts'
 import { createPaymentDetailsTypeResponseFaker } from './createPaymentDetailsTypeResponseFaker.ts'
-import { faker } from '@faker-js/faker'
 
-export function createDomesticWireDetailsResponseFaker(data?: Partial<DomesticWireDetailsResponse>): DomesticWireDetailsResponse {
+export function createDomesticWireDetailsResponseFaker(_data?: Partial<DomesticWireDetailsResponse>): DomesticWireDetailsResponse {
   return Object.assign(
     {},
     {

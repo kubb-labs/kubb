@@ -1,8 +1,8 @@
-import type { BankAccountDetailsResponse } from '../models/ts/BankAccountDetailsResponse.ts'
+import { z } from 'zod'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { BankAccountDetailsResponse } from '../models/ts/BankAccountDetailsResponse.ts'
 import { beneficiaryBankSchema } from './beneficiaryBankSchema.ts'
 import { counterPartyResponseTypeSchema } from './counterPartyResponseTypeSchema.ts'
-import { z } from 'zod'
 
 export const bankAccountDetailsResponseSchema = z.object({
   type: z.lazy(() => counterPartyResponseTypeSchema),

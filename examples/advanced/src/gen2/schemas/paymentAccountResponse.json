@@ -1,1 +1,6 @@
-{"required":["details"],"type":"object","properties":{"details":{"$ref":"#/components/schemas/PaymentAccountDetailsResponse"}},"x-readme-ref-name":"PaymentAccountResponse"}
+{
+  "required": ["details"],
+  "type": "object",
+  "properties": { "details": { "$ref": "#/components/schemas/PaymentAccountDetailsResponse" } },
+  "x-readme-ref-name": "PaymentAccountResponse"
+}

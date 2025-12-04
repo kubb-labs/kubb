@@ -1,7 +1,7 @@
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { CreateVendorMutationRequest, CreateVendorMutationResponse, CreateVendorHeaderParams } from '../../models/ts/vendorsController/CreateVendor.ts'
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
+import type { CreateVendorHeaderParams, CreateVendorMutationRequest, CreateVendorMutationResponse } from '../../models/ts/vendorsController/CreateVendor.ts'
 
 /**
  * @description This endpoint creates a new vendor.

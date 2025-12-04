@@ -1,14 +1,14 @@
+import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  ListVendorsQueryParams,
   ListVendors200,
   ListVendors400,
   ListVendors401,
   ListVendors403,
+  ListVendorsQueryParams,
   ListVendorsQueryResponse,
 } from '../../models/ts/vendorsController/ListVendors.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import { pageVendorResponseSchema } from '../pageVendorResponseSchema.ts'
-import { z } from 'zod'
 
 export const listVendorsQueryParamsSchema = z
   .object({

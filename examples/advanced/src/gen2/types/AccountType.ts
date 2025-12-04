@@ -1,8 +1,8 @@
 export const accountTypeEnum = {
-    "CHECKING": "CHECKING",
-    "SAVING": "SAVING"
-} as const;
+  CHECKING: 'CHECKING',
+  SAVING: 'SAVING',
+} as const
 
-export type AccountTypeEnumKey = (typeof accountTypeEnum)[keyof typeof accountTypeEnum];
+export type AccountTypeEnumKey = (typeof accountTypeEnum)[keyof typeof accountTypeEnum]
 
-export type AccountType = AccountTypeEnumKey;
+export type AccountType = AccountTypeEnumKey

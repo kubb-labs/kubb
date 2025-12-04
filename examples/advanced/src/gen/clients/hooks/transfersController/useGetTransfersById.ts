@@ -1,15 +1,15 @@
 import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
+import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import type {
-  GetTransfersByIdQueryResponse,
-  GetTransfersByIdPathParams,
   GetTransfersById400,
   GetTransfersById401,
   GetTransfersById403,
   GetTransfersById500,
+  GetTransfersByIdPathParams,
+  GetTransfersByIdQueryResponse,
 } from '../../../models/ts/transfersController/GetTransfersById.ts'
-import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { getTransfersById } from '../../axios/TransfersService/getTransfersById.ts'
 
 export const getTransfersByIdQueryKey = ({ id }: { id: GetTransfersByIdPathParams['id'] }) => [{ url: '/v1/transfers/:id', params: { id: id } }] as const

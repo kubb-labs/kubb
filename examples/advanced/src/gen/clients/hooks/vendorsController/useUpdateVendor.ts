@@ -1,14 +1,14 @@
+import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
+  UpdateVendorHeaderParams,
   UpdateVendorMutationRequest,
   UpdateVendorMutationResponse,
   UpdateVendorPathParams,
-  UpdateVendorHeaderParams,
 } from '../../../models/ts/vendorsController/UpdateVendor.ts'
-import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
 import { updateVendor } from '../../axios/VendorsService/updateVendor.ts'
-import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const updateVendorMutationKey = () => [{ url: '/v1/vendors/:id' }] as const
 

@@ -1,11 +1,11 @@
+import { http } from 'msw'
 import type {
-  GetVendorByIdQueryResponse,
   GetVendorById400,
   GetVendorById401,
   GetVendorById403,
   GetVendorById500,
+  GetVendorByIdQueryResponse,
 } from '../../models/ts/vendorsController/GetVendorById.ts'
-import { http } from 'msw'
 
 export function getVendorByIdHandlerResponse200(data: GetVendorByIdQueryResponse) {
   return new Response(JSON.stringify(data), {

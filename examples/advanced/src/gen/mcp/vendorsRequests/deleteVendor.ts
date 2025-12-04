@@ -1,7 +1,7 @@
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { DeleteVendorMutationResponse, DeleteVendorPathParams } from '../../models/ts/vendorsController/DeleteVendor.ts'
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
+import type { DeleteVendorMutationResponse, DeleteVendorPathParams } from '../../models/ts/vendorsController/DeleteVendor.ts'
 
 /**
  * @description This endpoint deletes a vendor by ID.

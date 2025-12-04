@@ -1,7 +1,7 @@
-import type { CreateVendorRequest } from '../models/ts/CreateVendorRequest.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { paymentAccountRequestSchema } from './paymentAccountRequestSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { CreateVendorRequest } from '../models/ts/CreateVendorRequest.ts'
+import { paymentAccountRequestSchema } from './paymentAccountRequestSchema.ts'
 
 export const createVendorRequestSchema = z.object({
   company_name: z.string().describe('Name for vendor. The name must be unique.'),

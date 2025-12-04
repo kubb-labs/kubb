@@ -1,10 +1,10 @@
-import type { PaymentAccountDetailsResponse } from '../models/ts/PaymentAccountDetailsResponse.ts'
+import { z } from 'zod'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { PaymentAccountDetailsResponse } from '../models/ts/PaymentAccountDetailsResponse.ts'
 import { ACHDetailsResponseSchema } from './ACHDetailsResponseSchema.ts'
 import { chequeDetailsResponseSchema } from './chequeDetailsResponseSchema.ts'
 import { domesticWireDetailsResponseSchema } from './domesticWireDetailsResponseSchema.ts'
 import { internationalWireDetailsResponseSchema } from './internationalWireDetailsResponseSchema.ts'
-import { z } from 'zod'
 
 export const paymentAccountDetailsResponseSchema = z.union([
   z

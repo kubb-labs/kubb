@@ -1,13 +1,13 @@
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type {
-  ListVendorsQueryResponse,
-  ListVendorsQueryParams,
   ListVendors400,
   ListVendors401,
   ListVendors403,
+  ListVendorsQueryParams,
+  ListVendorsQueryResponse,
 } from '../../models/ts/vendorsController/ListVendors.ts'
-import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**
  * @description This endpoint lists all existing vendors for an account.Takes an optional parameter to match by vendor name.

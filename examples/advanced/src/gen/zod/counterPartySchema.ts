@@ -1,8 +1,8 @@
-import type { CounterParty } from '../models/ts/CounterParty.ts'
+import { z } from 'zod'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { CounterParty } from '../models/ts/CounterParty.ts'
 import { bookTransferDetailsSchema } from './bookTransferDetailsSchema.ts'
 import { vendorDetailsSchema } from './vendorDetailsSchema.ts'
-import { z } from 'zod'
 
 /**
  * @description Counterparty Details for the transfer

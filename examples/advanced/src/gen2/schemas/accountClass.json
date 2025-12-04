@@ -1,1 +1,1 @@
-{"type":"string","enum":["BUSINESS","PERSONAL"],"x-readme-ref-name":"AccountClass"}
+{ "type": "string", "enum": ["BUSINESS", "PERSONAL"], "x-readme-ref-name": "AccountClass" }

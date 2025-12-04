@@ -1,6 +1,6 @@
+import { faker } from '@faker-js/faker'
 import type { GetTransfersByIdPathParams, GetTransfersByIdQueryResponse } from '../../models/ts/transfersController/GetTransfersById.ts'
 import { createTransferFaker } from '../createTransferFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createGetTransfersByIdPathParamsFaker(data?: Partial<GetTransfersByIdPathParams>): GetTransfersByIdPathParams {
   return {

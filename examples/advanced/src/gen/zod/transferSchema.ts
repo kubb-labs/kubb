@@ -1,12 +1,12 @@
-import type { Transfer } from '../models/ts/Transfer.ts'
+import { z } from 'zod'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { Transfer } from '../models/ts/Transfer.ts'
 import { counterPartyResponseSchema } from './counterPartyResponseSchema.ts'
 import { moneySchema } from './moneySchema.ts'
 import { originatingAccountResponseSchema } from './originatingAccountResponseSchema.ts'
 import { paymentTypeSchema } from './paymentTypeSchema.ts'
 import { transferCancellationReasonSchema } from './transferCancellationReasonSchema.ts'
 import { transferStatusSchema } from './transferStatusSchema.ts'
-import { z } from 'zod'
 
 export const transferSchema = z.object({
   id: z.string().describe('Unique ID associated with the transfer'),

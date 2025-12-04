@@ -1,12 +1,12 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type {
+  UpdateVendorHeaderParams,
   UpdateVendorMutationRequest,
   UpdateVendorMutationResponse,
   UpdateVendorPathParams,
-  UpdateVendorHeaderParams,
 } from '../../../models/ts/vendorsController/UpdateVendor.ts'
-import { updateVendorMutationResponseSchema, updateVendorMutationRequestSchema } from '../../../zod/vendorsController/updateVendorSchema.ts'
+import { updateVendorMutationRequestSchema, updateVendorMutationResponseSchema } from '../../../zod/vendorsController/updateVendorSchema.ts'
 
 export function getUpdateVendorUrl({ id }: { id: UpdateVendorPathParams['id'] }) {
   const res = { method: 'PUT', url: `https://petstore3.swagger.io/api/v3/v1/vendors/${id}` as const }

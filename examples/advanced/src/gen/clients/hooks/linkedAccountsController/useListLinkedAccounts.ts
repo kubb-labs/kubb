@@ -1,14 +1,14 @@
 import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
+import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import type {
-  ListLinkedAccountsQueryResponse,
-  ListLinkedAccountsQueryParams,
   ListLinkedAccounts400,
   ListLinkedAccounts401,
   ListLinkedAccounts403,
+  ListLinkedAccountsQueryParams,
+  ListLinkedAccountsQueryResponse,
 } from '../../../models/ts/linkedAccountsController/ListLinkedAccounts.ts'
-import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { listLinkedAccounts } from '../../axios/Linked AccountsService/listLinkedAccounts.ts'
 
 export const listLinkedAccountsQueryKey = (params?: ListLinkedAccountsQueryParams) => [{ url: '/v1/linked_accounts' }, ...(params ? [params] : [])] as const

@@ -1,7 +1,7 @@
-import type { BeneficiaryBank } from '../models/ts/BeneficiaryBank.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { addressSchema } from './addressSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { BeneficiaryBank } from '../models/ts/BeneficiaryBank.ts'
+import { addressSchema } from './addressSchema.ts'
 
 export const beneficiaryBankSchema = z.object({
   name: z.string().nullish(),

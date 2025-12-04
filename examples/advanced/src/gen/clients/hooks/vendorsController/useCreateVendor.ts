@@ -1,9 +1,9 @@
-import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { CreateVendorMutationRequest, CreateVendorMutationResponse, CreateVendorHeaderParams } from '../../../models/ts/vendorsController/CreateVendor.ts'
-import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
-import { createVendor } from '../../axios/VendorsService/createVendor.ts'
+import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
+import type fetch from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { CreateVendorHeaderParams, CreateVendorMutationRequest, CreateVendorMutationResponse } from '../../../models/ts/vendorsController/CreateVendor.ts'
+import { createVendor } from '../../axios/VendorsService/createVendor.ts'
 
 export const createVendorMutationKey = () => [{ url: '/v1/vendors' }] as const
 

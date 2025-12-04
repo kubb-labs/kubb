@@ -1,6 +1,6 @@
+import { faker } from '@faker-js/faker'
 import type { UpdateVendorRequest } from '../models/ts/UpdateVendorRequest.ts'
 import { createPaymentAccountRequestFaker } from './createPaymentAccountRequestFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createUpdateVendorRequestFaker(data?: Partial<UpdateVendorRequest>): UpdateVendorRequest {
   return {

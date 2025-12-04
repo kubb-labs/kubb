@@ -1,5 +1,5 @@
-import type { CreateTransferMutationResponse } from '../../models/ts/transfersController/CreateTransfer.ts'
 import { http } from 'msw'
+import type { CreateTransferMutationResponse } from '../../models/ts/transfersController/CreateTransfer.ts'
 
 export function createTransferHandlerResponse200(data: CreateTransferMutationResponse) {
   return new Response(JSON.stringify(data), {

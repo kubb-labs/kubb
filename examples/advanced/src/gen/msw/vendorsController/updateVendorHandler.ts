@@ -1,5 +1,5 @@
-import type { UpdateVendorMutationResponse } from '../../models/ts/vendorsController/UpdateVendor.ts'
 import { http } from 'msw'
+import type { UpdateVendorMutationResponse } from '../../models/ts/vendorsController/UpdateVendor.ts'
 
 export function updateVendorHandlerResponse200(data: UpdateVendorMutationResponse) {
   return new Response(JSON.stringify(data), {

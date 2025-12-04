@@ -1,5 +1,5 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type { DeleteVendorMutationResponse, DeleteVendorPathParams } from '../../../models/ts/vendorsController/DeleteVendor.ts'
 import { deleteVendorMutationResponseSchema } from '../../../zod/vendorsController/deleteVendorSchema.ts'
 

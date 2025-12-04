@@ -1,7 +1,7 @@
+import { faker } from '@faker-js/faker'
 import type { CreateTransferHeaderParams, CreateTransferMutationResponse } from '../../models/ts/transfersController/CreateTransfer.ts'
 import { createCreateTransferRequestFaker } from '../createCreateTransferRequestFaker.ts'
 import { createTransferFaker } from '../createTransferFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createCreateTransferHeaderParamsFaker(data?: Partial<CreateTransferHeaderParams>): CreateTransferHeaderParams {
   return {

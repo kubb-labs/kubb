@@ -1,13 +1,13 @@
-import type fetch from '../../../../axios-client.ts'
 import useSWR from 'swr'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
-  GetVendorByIdQueryResponse,
-  GetVendorByIdPathParams,
   GetVendorById400,
   GetVendorById401,
   GetVendorById403,
   GetVendorById500,
+  GetVendorByIdPathParams,
+  GetVendorByIdQueryResponse,
 } from '../../../models/ts/vendorsController/GetVendorById.ts'
 import { getVendorById } from '../../axios/VendorsService/getVendorById.ts'
 

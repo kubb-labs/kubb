@@ -1,6 +1,6 @@
+import { faker } from '@faker-js/faker'
 import type { CounterPartyIncomingTransfer } from '../models/ts/CounterPartyIncomingTransfer.ts'
 import { createCounterPartyBankDetailsFaker } from './createCounterPartyBankDetailsFaker.ts'
-import { faker } from '@faker-js/faker'
 
 /**
  * @description Counterparty Details for the transfer

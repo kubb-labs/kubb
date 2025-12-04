@@ -1,7 +1,7 @@
-import type { OriginatingAccount } from '../models/ts/OriginatingAccount.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { brexCashAccountDetailsSchema } from './brexCashAccountDetailsSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { OriginatingAccount } from '../models/ts/OriginatingAccount.ts'
+import { brexCashAccountDetailsSchema } from './brexCashAccountDetailsSchema.ts'
 
 /**
  * @description Originating account details for the transfer

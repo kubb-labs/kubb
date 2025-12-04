@@ -1,1 +1,10 @@
-{"type":"object","description":"Counterparty Details for the transfer","discriminator":{"propertyName":"type","mapping":{"BOOK_TRANSFER":"#/components/schemas/BookTransferDetails","VENDOR":"#/components/schemas/VendorDetails"}},"oneOf":[{"$ref":"#/components/schemas/VendorDetails"},{"$ref":"#/components/schemas/BookTransferDetails"}],"x-readme-ref-name":"CounterParty"}
+{
+  "type": "object",
+  "description": "Counterparty Details for the transfer",
+  "discriminator": {
+    "propertyName": "type",
+    "mapping": { "BOOK_TRANSFER": "#/components/schemas/BookTransferDetails", "VENDOR": "#/components/schemas/VendorDetails" }
+  },
+  "oneOf": [{ "$ref": "#/components/schemas/VendorDetails" }, { "$ref": "#/components/schemas/BookTransferDetails" }],
+  "x-readme-ref-name": "CounterParty"
+}

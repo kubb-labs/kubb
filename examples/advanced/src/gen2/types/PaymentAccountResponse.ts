@@ -1,8 +1,8 @@
-import type { PaymentAccountDetailsResponse } from "./PaymentAccountDetailsResponse.ts";
+import type { PaymentAccountDetailsResponse } from './PaymentAccountDetailsResponse.ts'
 
 export type PaymentAccountResponse = {
-    /**
-     * @type object
-    */
-    details: PaymentAccountDetailsResponse;
-};
+  /**
+   * @type object
+   */
+  details: PaymentAccountDetailsResponse
+}

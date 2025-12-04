@@ -1,7 +1,7 @@
-import type { VendorResponse } from '../models/ts/VendorResponse.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { paymentAccountResponseSchema } from './paymentAccountResponseSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { VendorResponse } from '../models/ts/VendorResponse.ts'
+import { paymentAccountResponseSchema } from './paymentAccountResponseSchema.ts'
 
 export const vendorResponseSchema = z.object({
   id: z.string().describe('Vendor ID: Can be passed to /transfers endpoint to specify counterparty.\n'),

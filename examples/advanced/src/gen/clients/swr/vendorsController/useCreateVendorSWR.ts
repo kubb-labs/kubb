@@ -1,8 +1,8 @@
-import type fetch from '../../../../axios-client.ts'
-import useSWRMutation from 'swr/mutation'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { CreateVendorMutationRequest, CreateVendorMutationResponse, CreateVendorHeaderParams } from '../../../models/ts/vendorsController/CreateVendor.ts'
 import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
+import type fetch from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { CreateVendorHeaderParams, CreateVendorMutationRequest, CreateVendorMutationResponse } from '../../../models/ts/vendorsController/CreateVendor.ts'
 import { createVendor } from '../../axios/VendorsService/createVendor.ts'
 
 export const createVendorMutationKeySWR = () => [{ url: '/v1/vendors' }] as const

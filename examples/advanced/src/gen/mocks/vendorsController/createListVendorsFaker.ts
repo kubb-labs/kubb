@@ -1,6 +1,6 @@
+import { faker } from '@faker-js/faker'
 import type { ListVendorsQueryParams, ListVendorsQueryResponse } from '../../models/ts/vendorsController/ListVendors.ts'
 import { createPageVendorResponseFaker } from '../createPageVendorResponseFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createListVendorsQueryParamsFaker(data?: Partial<ListVendorsQueryParams>): ListVendorsQueryParams {
   return {

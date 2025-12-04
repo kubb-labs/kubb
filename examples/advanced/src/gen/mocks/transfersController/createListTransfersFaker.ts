@@ -1,6 +1,6 @@
+import { faker } from '@faker-js/faker'
 import type { ListTransfersQueryParams, ListTransfersQueryResponse } from '../../models/ts/transfersController/ListTransfers.ts'
 import { createPageTransferFaker } from '../createPageTransferFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createListTransfersQueryParamsFaker(data?: Partial<ListTransfersQueryParams>): ListTransfersQueryParams {
   return {

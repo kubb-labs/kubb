@@ -1,12 +1,12 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type {
-  GetTransfersByIdQueryResponse,
-  GetTransfersByIdPathParams,
   GetTransfersById400,
   GetTransfersById401,
   GetTransfersById403,
   GetTransfersById500,
+  GetTransfersByIdPathParams,
+  GetTransfersByIdQueryResponse,
 } from '../../../models/ts/transfersController/GetTransfersById.ts'
 import { getTransfersByIdQueryResponseSchema } from '../../../zod/transfersController/getTransfersByIdSchema.ts'
 

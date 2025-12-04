@@ -1,11 +1,11 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type {
-  ListLinkedAccountsQueryResponse,
-  ListLinkedAccountsQueryParams,
   ListLinkedAccounts400,
   ListLinkedAccounts401,
   ListLinkedAccounts403,
+  ListLinkedAccountsQueryParams,
+  ListLinkedAccountsQueryResponse,
 } from '../../../models/ts/linkedAccountsController/ListLinkedAccounts.ts'
 import { listLinkedAccountsQueryResponseSchema } from '../../../zod/linkedAccountsController/listLinkedAccountsSchema.ts'
 

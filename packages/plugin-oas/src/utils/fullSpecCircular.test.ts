@@ -1,10 +1,10 @@
 import type { Plugin, PluginManager } from '@kubb/core'
+import { camelCase, pascalCase } from '@kubb/core/transformers'
 import type { OasTypes } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
-import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { describe, expect, it } from 'vitest'
-import { SchemaGenerator, type GetSchemaGeneratorOptions } from '../SchemaGenerator.ts'
+import { type GetSchemaGeneratorOptions, SchemaGenerator } from '../SchemaGenerator.ts'
 
 // Simple mocked plugin manager for testing
 const createMockedPluginManager = () =>
@@ -45,7 +45,7 @@ describe('Full Spec Circular Discriminator References', () => {
         schemas: {
           PaymentDetailsTypeResponse: {
             type: 'string',
-            enum: ['ACH', 'DOMESTIC_WIRE', 'CHEQUE', 'INTERNATIONAL_WIRE']
+            enum: ['ACH', 'DOMESTIC_WIRE', 'CHEQUE', 'INTERNATIONAL_WIRE'],
           },
           AccountType: { type: 'string', enum: ['CHECKING', 'SAVING'] },
           AccountClass: { type: 'string', enum: ['BUSINESS', 'PERSONAL'] },
@@ -58,15 +58,15 @@ describe('Full Spec Circular Discriminator References', () => {
                 DOMESTIC_WIRE: '#/components/schemas/DomesticWireDetailsResponse',
                 ACH: '#/components/schemas/ACHDetailsResponse',
                 CHEQUE: '#/components/schemas/ChequeDetailsResponse',
-                INTERNATIONAL_WIRE: '#/components/schemas/InternationalWireDetailsResponse'
-              }
+                INTERNATIONAL_WIRE: '#/components/schemas/InternationalWireDetailsResponse',
+              },
             },
             oneOf: [
               { $ref: '#/components/schemas/ACHDetailsResponse' },
               { $ref: '#/components/schemas/DomesticWireDetailsResponse' },
               { $ref: '#/components/schemas/ChequeDetailsResponse' },
-              { $ref: '#/components/schemas/InternationalWireDetailsResponse' }
-            ]
+              { $ref: '#/components/schemas/InternationalWireDetailsResponse' },
+            ],
           },
           ACHDetailsResponse: {
             type: 'object',
@@ -80,10 +80,10 @@ describe('Full Spec Circular Discriminator References', () => {
                   routing_number: { type: 'string' },
                   account_number: { type: 'string' },
                   account_type: { nullable: true, allOf: [{ $ref: '#/components/schemas/AccountType' }] },
-                  account_class: { nullable: true, allOf: [{ $ref: '#/components/schemas/AccountClass' }] }
-                }
-              }
-            ]
+                  account_class: { nullable: true, allOf: [{ $ref: '#/components/schemas/AccountClass' }] },
+                },
+              },
+            ],
           },
           DomesticWireDetailsResponse: {
             type: 'object',
@@ -96,10 +96,10 @@ describe('Full Spec Circular Discriminator References', () => {
                   payment_instrument_id: { type: 'string' },
                   routing_number: { type: 'string' },
                   account_number: { type: 'string' },
-                  address: { $ref: '#/components/schemas/Address' }
-                }
-              }
-            ]
+                  address: { $ref: '#/components/schemas/Address' },
+                },
+              },
+            ],
           },
           ChequeDetailsResponse: {
             type: 'object',
@@ -111,10 +111,10 @@ describe('Full Spec Circular Discriminator References', () => {
                   type: { $ref: '#/components/schemas/PaymentDetailsTypeResponse' },
                   payment_instrument_id: { type: 'string' },
                   mailing_address: { $ref: '#/components/schemas/Address' },
-                  recipient_name: { type: 'string' }
-                }
-              }
-            ]
+                  recipient_name: { type: 'string' },
+                },
+              },
+            ],
           },
           InternationalWireDetailsResponse: {
             type: 'object',
@@ -128,13 +128,13 @@ describe('Full Spec Circular Discriminator References', () => {
                   swift_code: { type: 'string' },
                   iban: { type: 'string' },
                   beneficiary_bank_name: { type: 'string', nullable: true },
-                  address: { $ref: '#/components/schemas/Address' }
-                }
-              }
-            ]
-          }
-        }
-      }
+                  address: { $ref: '#/components/schemas/Address' },
+                },
+              },
+            ],
+          },
+        },
+      },
     }
 
     const oas = await parse(spec)

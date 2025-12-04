@@ -1,7 +1,7 @@
-import type { OriginatingAccountResponse } from '../models/ts/OriginatingAccountResponse.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { brexCashAccountDetailsResponseSchema } from './brexCashAccountDetailsResponseSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { OriginatingAccountResponse } from '../models/ts/OriginatingAccountResponse.ts'
+import { brexCashAccountDetailsResponseSchema } from './brexCashAccountDetailsResponseSchema.ts'
 
 /**
  * @description Originating account details for the transfer

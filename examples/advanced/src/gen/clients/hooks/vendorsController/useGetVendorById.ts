@@ -1,15 +1,15 @@
 import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
+import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import type {
-  GetVendorByIdQueryResponse,
-  GetVendorByIdPathParams,
   GetVendorById400,
   GetVendorById401,
   GetVendorById403,
   GetVendorById500,
+  GetVendorByIdPathParams,
+  GetVendorByIdQueryResponse,
 } from '../../../models/ts/vendorsController/GetVendorById.ts'
-import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { getVendorById } from '../../axios/VendorsService/getVendorById.ts'
 
 export const getVendorByIdQueryKey = ({ id }: { id: GetVendorByIdPathParams['id'] }) => [{ url: '/v1/vendors/:id', params: { id: id } }] as const

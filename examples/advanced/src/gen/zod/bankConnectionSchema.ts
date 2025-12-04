@@ -1,8 +1,8 @@
-import type { BankConnection } from '../models/ts/BankConnection.ts'
+import { z } from 'zod'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { BankConnection } from '../models/ts/BankConnection.ts'
 import { balanceSchema } from './balanceSchema.ts'
 import { bankDetailsSchema } from './bankDetailsSchema.ts'
-import { z } from 'zod'
 
 export const bankConnectionSchema = z.object({
   id: z.string(),

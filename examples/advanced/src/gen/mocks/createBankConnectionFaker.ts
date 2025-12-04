@@ -1,7 +1,7 @@
+import { faker } from '@faker-js/faker'
 import type { BankConnection } from '../models/ts/BankConnection.ts'
 import { createBalanceFaker } from './createBalanceFaker.ts'
 import { createBankDetailsFaker } from './createBankDetailsFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createBankConnectionFaker(data?: Partial<BankConnection>): BankConnection {
   return {

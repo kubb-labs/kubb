@@ -1,5 +1,5 @@
-import type { DeleteVendorPathParams, DeleteVendorMutationResponse } from '../../models/ts/vendorsController/DeleteVendor.ts'
 import { faker } from '@faker-js/faker'
+import type { DeleteVendorMutationResponse, DeleteVendorPathParams } from '../../models/ts/vendorsController/DeleteVendor.ts'
 
 export function createDeleteVendorPathParamsFaker(data?: Partial<DeleteVendorPathParams>): DeleteVendorPathParams {
   return {

@@ -1,8 +1,8 @@
-import type { DomesticWireDetailsRequest } from '../models/ts/DomesticWireDetailsRequest.ts'
+import { z } from 'zod'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { DomesticWireDetailsRequest } from '../models/ts/DomesticWireDetailsRequest.ts'
 import { addressSchema } from './addressSchema.ts'
 import { paymentDetailsTypeRequestSchema } from './paymentDetailsTypeRequestSchema.ts'
-import { z } from 'zod'
 
 export const domesticWireDetailsRequestSchema = z.object({
   type: z.lazy(() => paymentDetailsTypeRequestSchema),

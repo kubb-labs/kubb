@@ -1,13 +1,13 @@
-import type fetch from '../../../../axios-client.ts'
 import useSWR from 'swr'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
-  GetTransfersByIdQueryResponse,
-  GetTransfersByIdPathParams,
   GetTransfersById400,
   GetTransfersById401,
   GetTransfersById403,
   GetTransfersById500,
+  GetTransfersByIdPathParams,
+  GetTransfersByIdQueryResponse,
 } from '../../../models/ts/transfersController/GetTransfersById.ts'
 import { getTransfersById } from '../../axios/TransfersService/getTransfersById.ts'
 

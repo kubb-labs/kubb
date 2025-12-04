@@ -1,7 +1,7 @@
-import type { UpdateVendorRequest } from '../models/ts/UpdateVendorRequest.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { paymentAccountRequestSchema } from './paymentAccountRequestSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { UpdateVendorRequest } from '../models/ts/UpdateVendorRequest.ts'
+import { paymentAccountRequestSchema } from './paymentAccountRequestSchema.ts'
 
 export const updateVendorRequestSchema = z.object({
   company_name: z.string().describe('Name for vendor').nullish(),

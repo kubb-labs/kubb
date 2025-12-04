@@ -1,6 +1,6 @@
+import { faker } from '@faker-js/faker'
 import type { PageTransfer } from '../models/ts/PageTransfer.ts'
 import { createTransferFaker } from './createTransferFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createPageTransferFaker(data?: Partial<PageTransfer>): PageTransfer {
   return {

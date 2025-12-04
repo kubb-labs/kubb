@@ -1,7 +1,7 @@
+import { faker } from '@faker-js/faker'
 import type { CreateVendorHeaderParams, CreateVendorMutationResponse } from '../../models/ts/vendorsController/CreateVendor.ts'
 import { createCreateVendorRequestFaker } from '../createCreateVendorRequestFaker.ts'
 import { createVendorResponseFaker } from '../createVendorResponseFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createCreateVendorHeaderParamsFaker(data?: Partial<CreateVendorHeaderParams>): CreateVendorHeaderParams {
   return {

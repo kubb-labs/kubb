@@ -1,14 +1,14 @@
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type {
-  GetVendorByIdQueryResponse,
-  GetVendorByIdPathParams,
   GetVendorById400,
   GetVendorById401,
   GetVendorById403,
   GetVendorById500,
+  GetVendorByIdPathParams,
+  GetVendorByIdQueryResponse,
 } from '../../models/ts/vendorsController/GetVendorById.ts'
-import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**
  * @description This endpoint gets a vendor by ID.

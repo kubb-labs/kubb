@@ -1,1 +1,7 @@
-{"type":"object","description":"Originating account details for the transfer","discriminator":{"propertyName":"type","mapping":{"BREX_CASH":"#/components/schemas/BrexCashAccountDetails"}},"oneOf":[{"$ref":"#/components/schemas/BrexCashAccountDetails"}],"x-readme-ref-name":"OriginatingAccount"}
+{
+  "type": "object",
+  "description": "Originating account details for the transfer",
+  "discriminator": { "propertyName": "type", "mapping": { "BREX_CASH": "#/components/schemas/BrexCashAccountDetails" } },
+  "oneOf": [{ "$ref": "#/components/schemas/BrexCashAccountDetails" }],
+  "x-readme-ref-name": "OriginatingAccount"
+}

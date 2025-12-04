@@ -1,7 +1,7 @@
-import type { PaymentAccountRequest } from '../models/ts/PaymentAccountRequest.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { paymentAccountDetailsSchema } from './paymentAccountDetailsSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { PaymentAccountRequest } from '../models/ts/PaymentAccountRequest.ts'
+import { paymentAccountDetailsSchema } from './paymentAccountDetailsSchema.ts'
 
 export const paymentAccountRequestSchema = z.object({
   details: z

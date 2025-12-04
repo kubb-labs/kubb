@@ -1,12 +1,12 @@
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type {
+  UpdateVendorHeaderParams,
   UpdateVendorMutationRequest,
   UpdateVendorMutationResponse,
   UpdateVendorPathParams,
-  UpdateVendorHeaderParams,
 } from '../../models/ts/vendorsController/UpdateVendor.ts'
-import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**
  * @description     Updates an existing vendor by ID.

@@ -1,7 +1,7 @@
 export const originatingAccountTypeEnum = {
-    "BREX_CASH": "BREX_CASH"
-} as const;
+  BREX_CASH: 'BREX_CASH',
+} as const
 
-export type OriginatingAccountTypeEnumKey = (typeof originatingAccountTypeEnum)[keyof typeof originatingAccountTypeEnum];
+export type OriginatingAccountTypeEnumKey = (typeof originatingAccountTypeEnum)[keyof typeof originatingAccountTypeEnum]
 
-export type OriginatingAccountType = OriginatingAccountTypeEnumKey;
+export type OriginatingAccountType = OriginatingAccountTypeEnumKey

@@ -1,14 +1,14 @@
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type {
-  ListTransfersQueryResponse,
-  ListTransfersQueryParams,
   ListTransfers400,
   ListTransfers401,
   ListTransfers403,
   ListTransfers500,
+  ListTransfersQueryParams,
+  ListTransfersQueryResponse,
 } from '../../models/ts/transfersController/ListTransfers.ts'
-import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**
  * @description This endpoint lists existing transfers for an account.Currently, the API can only return transfers for the following payment rails:- ACH- DOMESTIC_WIRE- CHEQUE- INTERNATIONAL_WIRE

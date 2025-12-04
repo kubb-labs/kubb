@@ -1,9 +1,9 @@
-import type { ACHDetailsRequest } from '../models/ts/ACHDetailsRequest.ts'
+import { z } from 'zod'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { ACHDetailsRequest } from '../models/ts/ACHDetailsRequest.ts'
 import { accountClassSchema } from './accountClassSchema.ts'
 import { accountTypeSchema } from './accountTypeSchema.ts'
 import { paymentDetailsTypeRequestSchema } from './paymentDetailsTypeRequestSchema.ts'
-import { z } from 'zod'
 
 export const ACHDetailsRequestSchema = z.object({
   type: z.lazy(() => paymentDetailsTypeRequestSchema),

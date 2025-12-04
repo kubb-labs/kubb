@@ -1,10 +1,10 @@
+import { http } from 'msw'
 import type {
-  ListLinkedAccountsQueryResponse,
   ListLinkedAccounts400,
   ListLinkedAccounts401,
   ListLinkedAccounts403,
+  ListLinkedAccountsQueryResponse,
 } from '../../models/ts/linkedAccountsController/ListLinkedAccounts.ts'
-import { http } from 'msw'
 
 export function listLinkedAccountsHandlerResponse200(data: ListLinkedAccountsQueryResponse) {
   return new Response(JSON.stringify(data), {

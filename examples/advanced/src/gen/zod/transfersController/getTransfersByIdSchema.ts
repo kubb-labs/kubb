@@ -1,15 +1,15 @@
+import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  GetTransfersByIdPathParams,
   GetTransfersById200,
   GetTransfersById400,
   GetTransfersById401,
   GetTransfersById403,
   GetTransfersById500,
+  GetTransfersByIdPathParams,
   GetTransfersByIdQueryResponse,
 } from '../../models/ts/transfersController/GetTransfersById.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import { transferSchema } from '../transferSchema.ts'
-import { z } from 'zod'
 
 export const getTransfersByIdPathParamsSchema = z.object({
   id: z.string(),

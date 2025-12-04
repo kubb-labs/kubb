@@ -1,10 +1,10 @@
+import { faker } from '@faker-js/faker'
 import type { ACHDetailsResponse } from '../models/ts/ACHDetailsResponse.ts'
 import { createAccountClassFaker } from './createAccountClassFaker.ts'
 import { createAccountTypeFaker } from './createAccountTypeFaker.ts'
 import { createPaymentDetailsTypeResponseFaker } from './createPaymentDetailsTypeResponseFaker.ts'
-import { faker } from '@faker-js/faker'
 
-export function createACHDetailsResponseFaker(data?: Partial<ACHDetailsResponse>): ACHDetailsResponse {
+export function createACHDetailsResponseFaker(_data?: Partial<ACHDetailsResponse>): ACHDetailsResponse {
   return Object.assign(
     {},
     {

@@ -1,1 +1,1 @@
-{"type":"string","enum":["BREX_CASH"],"x-readme-ref-name":"OriginatingAccountResponseType"}
+{ "type": "string", "enum": ["BREX_CASH"], "x-readme-ref-name": "OriginatingAccountResponseType" }

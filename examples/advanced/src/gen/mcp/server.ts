@@ -1,3 +1,18 @@
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
+import { listLinkedAccountsQueryParamsSchema } from '../zod/linkedAccountsController/listLinkedAccountsSchema.ts'
+import {
+  createIncomingTransferHeaderParamsSchema,
+  createIncomingTransferMutationRequestSchema,
+} from '../zod/transfersController/createIncomingTransferSchema.ts'
+import { createTransferHeaderParamsSchema, createTransferMutationRequestSchema } from '../zod/transfersController/createTransferSchema.ts'
+import { getTransfersByIdPathParamsSchema } from '../zod/transfersController/getTransfersByIdSchema.ts'
+import { listTransfersQueryParamsSchema } from '../zod/transfersController/listTransfersSchema.ts'
+import { createVendorHeaderParamsSchema, createVendorMutationRequestSchema } from '../zod/vendorsController/createVendorSchema.ts'
+import { deleteVendorPathParamsSchema } from '../zod/vendorsController/deleteVendorSchema.ts'
+import { getVendorByIdPathParamsSchema } from '../zod/vendorsController/getVendorByIdSchema.ts'
+import { listVendorsQueryParamsSchema } from '../zod/vendorsController/listVendorsSchema.ts'
+import { updateVendorHeaderParamsSchema, updateVendorMutationRequestSchema, updateVendorPathParamsSchema } from '../zod/vendorsController/updateVendorSchema.ts'
 import { listLinkedAccountsHandler } from './linkedAccountsRequests/listLinkedAccounts.ts'
 import { createIncomingTransferHandler } from './transfersRequests/createIncomingTransfer.ts'
 import { createTransferHandler } from './transfersRequests/createTransfer.ts'
@@ -8,21 +23,6 @@ import { deleteVendorHandler } from './vendorsRequests/deleteVendor.ts'
 import { getVendorByIdHandler } from './vendorsRequests/getVendorById.ts'
 import { listVendorsHandler } from './vendorsRequests/listVendors.ts'
 import { updateVendorHandler } from './vendorsRequests/updateVendor.ts'
-import { listLinkedAccountsQueryParamsSchema } from '../zod/linkedAccountsController/listLinkedAccountsSchema.ts'
-import {
-  createIncomingTransferMutationRequestSchema,
-  createIncomingTransferHeaderParamsSchema,
-} from '../zod/transfersController/createIncomingTransferSchema.ts'
-import { createTransferMutationRequestSchema, createTransferHeaderParamsSchema } from '../zod/transfersController/createTransferSchema.ts'
-import { getTransfersByIdPathParamsSchema } from '../zod/transfersController/getTransfersByIdSchema.ts'
-import { listTransfersQueryParamsSchema } from '../zod/transfersController/listTransfersSchema.ts'
-import { createVendorMutationRequestSchema, createVendorHeaderParamsSchema } from '../zod/vendorsController/createVendorSchema.ts'
-import { deleteVendorPathParamsSchema } from '../zod/vendorsController/deleteVendorSchema.ts'
-import { getVendorByIdPathParamsSchema } from '../zod/vendorsController/getVendorByIdSchema.ts'
-import { listVendorsQueryParamsSchema } from '../zod/vendorsController/listVendorsSchema.ts'
-import { updateVendorMutationRequestSchema, updateVendorPathParamsSchema, updateVendorHeaderParamsSchema } from '../zod/vendorsController/updateVendorSchema.ts'
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
 
 export const server = new McpServer({
   name: 'Payments API',

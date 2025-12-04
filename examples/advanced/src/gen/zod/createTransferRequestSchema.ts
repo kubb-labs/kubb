@@ -1,10 +1,10 @@
-import type { CreateTransferRequest } from '../models/ts/CreateTransferRequest.ts'
+import { z } from 'zod'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { CreateTransferRequest } from '../models/ts/CreateTransferRequest.ts'
 import { approvalTypeSchema } from './approvalTypeSchema.ts'
 import { counterPartySchema } from './counterPartySchema.ts'
 import { moneySchema } from './moneySchema.ts'
 import { originatingAccountSchema } from './originatingAccountSchema.ts'
-import { z } from 'zod'
 
 export const createTransferRequestSchema = z.object({
   counterparty: z.lazy(() => counterPartySchema).describe('Counterparty Details for the transfer'),

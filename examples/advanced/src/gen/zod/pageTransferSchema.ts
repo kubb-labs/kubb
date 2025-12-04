@@ -1,7 +1,7 @@
-import type { PageTransfer } from '../models/ts/PageTransfer.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { transferSchema } from './transferSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { PageTransfer } from '../models/ts/PageTransfer.ts'
+import { transferSchema } from './transferSchema.ts'
 
 export const pageTransferSchema = z.object({
   next_cursor: z.string().nullish(),

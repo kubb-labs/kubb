@@ -1,11 +1,11 @@
+import { http } from 'msw'
 import type {
-  GetTransfersByIdQueryResponse,
   GetTransfersById400,
   GetTransfersById401,
   GetTransfersById403,
   GetTransfersById500,
+  GetTransfersByIdQueryResponse,
 } from '../../models/ts/transfersController/GetTransfersById.ts'
-import { http } from 'msw'
 
 export function getTransfersByIdHandlerResponse200(data: GetTransfersByIdQueryResponse) {
   return new Response(JSON.stringify(data), {

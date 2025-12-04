@@ -1,7 +1,7 @@
 export const counterPartyIncomingTransferTypeEnum = {
-    "BANK": "BANK"
-} as const;
+  BANK: 'BANK',
+} as const
 
-export type CounterPartyIncomingTransferTypeEnumKey = (typeof counterPartyIncomingTransferTypeEnum)[keyof typeof counterPartyIncomingTransferTypeEnum];
+export type CounterPartyIncomingTransferTypeEnumKey = (typeof counterPartyIncomingTransferTypeEnum)[keyof typeof counterPartyIncomingTransferTypeEnum]
 
-export type CounterPartyIncomingTransferType = CounterPartyIncomingTransferTypeEnumKey;
+export type CounterPartyIncomingTransferType = CounterPartyIncomingTransferTypeEnumKey

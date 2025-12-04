@@ -472,19 +472,17 @@ export class SchemaGenerator<
    * Checks if an allOf item reference would create a circular reference.
    * This happens when a child schema extends a discriminator parent via allOf,
    * and the parent has a oneOf/anyOf that references or maps to the child.
-   * 
+   *
    * Without oneOf/anyOf, the discriminator is just for documentation/validation
    * purposes and doesn't create a TypeScript union type that would be circular.
-   *
-   * @param item - The allOf item to check (typically a $ref)
-   * @param childSchemaName - The name of the current schema being processed
-   * @returns true if including this reference would create a circular type
    */
   #wouldCreateCircularReference(item: unknown, childSchemaName: string | undefined): boolean {
     if (!isReference(item) || !childSchemaName) {
       return false
     }
+
     const dereferencedSchema = this.context.oas.dereferenceWithRef(item)
+
     if (dereferencedSchema && isDiscriminator(dereferencedSchema)) {
       // Only check for circular references if parent has oneOf/anyOf
       // Without oneOf/anyOf, the discriminator doesn't create a union type
@@ -492,21 +490,19 @@ export class SchemaGenerator<
       if (!parentOneOf) {
         return false
       }
-      
+
       const childRef = `#/components/schemas/${childSchemaName}`
-      
-      // Check if child is in parent's oneOf/anyOf
+
       const inOneOf = parentOneOf.some((oneOfItem) => {
         return isReference(oneOfItem) && oneOfItem.$ref === childRef
       })
       if (inOneOf) {
         return true
       }
-      
-      // Check if child is in parent's discriminator mapping
-      // This handles cases where mapping and oneOf don't match
+
       const mapping = dereferencedSchema.discriminator.mapping || {}
       const inMapping = Object.values(mapping).some((value) => value === childRef)
+
       if (inMapping) {
         return true
       }

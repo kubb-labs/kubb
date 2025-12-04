@@ -1,9 +1,9 @@
+import { faker } from '@faker-js/faker'
 import type { CreateTransferRequest } from '../models/ts/CreateTransferRequest.ts'
 import { createApprovalTypeFaker } from './createApprovalTypeFaker.ts'
 import { createCounterPartyFaker } from './createCounterPartyFaker.ts'
 import { createMoneyFaker } from './createMoneyFaker.ts'
 import { createOriginatingAccountFaker } from './createOriginatingAccountFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createCreateTransferRequestFaker(data?: Partial<CreateTransferRequest>): CreateTransferRequest {
   return {

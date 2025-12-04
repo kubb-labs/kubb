@@ -1,8 +1,8 @@
-import type { ChequeDetailsResponse } from '../models/ts/ChequeDetailsResponse.ts'
+import { z } from 'zod'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { ChequeDetailsResponse } from '../models/ts/ChequeDetailsResponse.ts'
 import { addressSchema } from './addressSchema.ts'
 import { paymentDetailsTypeResponseSchema } from './paymentDetailsTypeResponseSchema.ts'
-import { z } from 'zod'
 
 export const chequeDetailsResponseSchema = z.object({
   type: z.lazy(() => paymentDetailsTypeResponseSchema),

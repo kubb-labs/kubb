@@ -1,13 +1,13 @@
-import type fetch from '../../../../axios-client.ts'
 import useSWR from 'swr'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type fetch from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
-  ListTransfersQueryResponse,
-  ListTransfersQueryParams,
   ListTransfers400,
   ListTransfers401,
   ListTransfers403,
   ListTransfers500,
+  ListTransfersQueryParams,
+  ListTransfersQueryResponse,
 } from '../../../models/ts/transfersController/ListTransfers.ts'
 import { listTransfers } from '../../axios/TransfersService/listTransfers.ts'
 

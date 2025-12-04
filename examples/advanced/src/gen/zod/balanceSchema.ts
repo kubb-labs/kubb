@@ -1,7 +1,7 @@
-import type { Balance } from '../models/ts/Balance.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { moneySchema } from './moneySchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { Balance } from '../models/ts/Balance.ts'
+import { moneySchema } from './moneySchema.ts'
 
 export const balanceSchema = z.object({
   amount: z

@@ -1,14 +1,14 @@
+import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  UpdateVendorPathParams,
-  UpdateVendorHeaderParams,
   UpdateVendor200,
+  UpdateVendorHeaderParams,
   UpdateVendorMutationRequest,
   UpdateVendorMutationResponse,
+  UpdateVendorPathParams,
 } from '../../models/ts/vendorsController/UpdateVendor.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import { updateVendorRequestSchema } from '../updateVendorRequestSchema.ts'
 import { vendorResponseSchema } from '../vendorResponseSchema.ts'
-import { z } from 'zod'
 
 export const updateVendorPathParamsSchema = z.object({
   id: z.string(),

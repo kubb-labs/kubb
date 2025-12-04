@@ -1,6 +1,6 @@
-import type { Address } from '../models/ts/Address.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { Address } from '../models/ts/Address.ts'
 
 /**
  * @description Company business address (must be in the US; no PO box or virtual/forwarding addresses allowed).

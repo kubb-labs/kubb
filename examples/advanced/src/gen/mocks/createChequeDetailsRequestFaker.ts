@@ -1,9 +1,9 @@
+import { faker } from '@faker-js/faker'
 import type { ChequeDetailsRequest } from '../models/ts/ChequeDetailsRequest.ts'
 import { createAddressFaker } from './createAddressFaker.ts'
 import { createPaymentDetailsTypeRequestFaker } from './createPaymentDetailsTypeRequestFaker.ts'
-import { faker } from '@faker-js/faker'
 
-export function createChequeDetailsRequestFaker(data?: Partial<ChequeDetailsRequest>): ChequeDetailsRequest {
+export function createChequeDetailsRequestFaker(_data?: Partial<ChequeDetailsRequest>): ChequeDetailsRequest {
   return Object.assign(
     {},
     {

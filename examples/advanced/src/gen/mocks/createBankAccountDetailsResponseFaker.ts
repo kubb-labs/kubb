@@ -1,9 +1,9 @@
+import { faker } from '@faker-js/faker'
 import type { BankAccountDetailsResponse } from '../models/ts/BankAccountDetailsResponse.ts'
 import { createBeneficiaryBankFaker } from './createBeneficiaryBankFaker.ts'
 import { createCounterPartyResponseTypeFaker } from './createCounterPartyResponseTypeFaker.ts'
-import { faker } from '@faker-js/faker'
 
-export function createBankAccountDetailsResponseFaker(data?: Partial<BankAccountDetailsResponse>): BankAccountDetailsResponse {
+export function createBankAccountDetailsResponseFaker(_data?: Partial<BankAccountDetailsResponse>): BankAccountDetailsResponse {
   return Object.assign(
     {},
     {

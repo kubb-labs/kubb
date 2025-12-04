@@ -1,6 +1,6 @@
+import { faker } from '@faker-js/faker'
 import type { GetVendorByIdPathParams, GetVendorByIdQueryResponse } from '../../models/ts/vendorsController/GetVendorById.ts'
 import { createVendorResponseFaker } from '../createVendorResponseFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createGetVendorByIdPathParamsFaker(data?: Partial<GetVendorByIdPathParams>): GetVendorByIdPathParams {
   return {

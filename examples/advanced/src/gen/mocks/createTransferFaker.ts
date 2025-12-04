@@ -1,10 +1,10 @@
+import { faker } from '@faker-js/faker'
 import type { Transfer } from '../models/ts/Transfer.ts'
 import { createCounterPartyResponseFaker } from './createCounterPartyResponseFaker.ts'
 import { createMoneyFaker } from './createMoneyFaker.ts'
 import { createOriginatingAccountResponseFaker } from './createOriginatingAccountResponseFaker.ts'
 import { createPaymentTypeFaker } from './createPaymentTypeFaker.ts'
 import { createTransferCancellationReasonFaker } from './createTransferCancellationReasonFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createTransferFaker(data?: Partial<Transfer>): Transfer {
   return {

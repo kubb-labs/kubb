@@ -1,7 +1,7 @@
-import type { CounterPartyBankDetails } from '../models/ts/CounterPartyBankDetails.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { counterPartyIncomingTransferTypeSchema } from './counterPartyIncomingTransferTypeSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { CounterPartyBankDetails } from '../models/ts/CounterPartyBankDetails.ts'
+import { counterPartyIncomingTransferTypeSchema } from './counterPartyIncomingTransferTypeSchema.ts'
 
 export const counterPartyBankDetailsSchema = z.object({
   type: z.lazy(() => counterPartyIncomingTransferTypeSchema),

@@ -1,7 +1,7 @@
-import type { Recipient } from '../models/ts/Recipient.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { recipientTypeSchema } from './recipientTypeSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { Recipient } from '../models/ts/Recipient.ts'
+import { recipientTypeSchema } from './recipientTypeSchema.ts'
 
 export const recipientSchema = z.object({
   type: z

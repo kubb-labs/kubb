@@ -1,7 +1,7 @@
-import type { BrexCashAccountDetailsResponse } from '../models/ts/BrexCashAccountDetailsResponse.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { originatingAccountResponseTypeSchema } from './originatingAccountResponseTypeSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { BrexCashAccountDetailsResponse } from '../models/ts/BrexCashAccountDetailsResponse.ts'
+import { originatingAccountResponseTypeSchema } from './originatingAccountResponseTypeSchema.ts'
 
 export const brexCashAccountDetailsResponseSchema = z.object({
   type: z.lazy(() => originatingAccountResponseTypeSchema),

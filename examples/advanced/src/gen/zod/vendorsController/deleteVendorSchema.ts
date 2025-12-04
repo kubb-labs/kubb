@@ -1,6 +1,6 @@
-import type { DeleteVendorPathParams, DeleteVendor200, DeleteVendorMutationResponse } from '../../models/ts/vendorsController/DeleteVendor.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
+import type { DeleteVendor200, DeleteVendorMutationResponse, DeleteVendorPathParams } from '../../models/ts/vendorsController/DeleteVendor.ts'
 
 export const deleteVendorPathParamsSchema = z.object({
   id: z.string(),

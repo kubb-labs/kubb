@@ -1,1 +1,64 @@
-{"type":"object","allOf":[{"$ref":"#/components/schemas/CounterPartyResponse"},{"required":["type"],"properties":{"type":{"type":"string","enum":["VENDOR","BOOK_TRANSFER","BANK_ACCOUNT"],"x-readme-ref-name":"CounterPartyResponseType"},"routing_number":{"type":"string","description":"Routing number of a bank account (or SWIFT/BIC code for international transfer). For incoming cheques, this field might be null.","nullable":true},"account_number":{"type":"string","description":"Account number of a bank account (or IBAN code for international transfer). For incoming cheques, this field might be null.","nullable":true},"description":{"type":"string","description":"Description of the transfer.","nullable":true},"beneficiary_bank":{"nullable":true,"allOf":[{"type":"object","properties":{"name":{"type":"string","nullable":true},"address":{"nullable":true,"allOf":[{"type":"object","properties":{"line1":{"type":"string","description":"Address line 1, no PO Box.","nullable":true},"line2":{"type":"string","description":"Address line 2 (e.g., apartment, suite, unit, or building).","nullable":true},"city":{"type":"string","description":"City, district, suburb, town, or village.","nullable":true},"state":{"type":"string","description":"For US-addressed the 2-letter State abbreviation. For international-addresses the county, providence, or region.","nullable":true},"country":{"type":"string","description":"Two-letter country code (ISO 3166-1 alpha-2).","nullable":true},"postal_code":{"type":"string","description":"ZIP or postal code.","nullable":true},"phone_number":{"type":"string","description":"Phone number.","nullable":true}},"description":"Company business address (must be in the US; no PO box or virtual/forwarding addresses allowed).","x-readme-ref-name":"Address"}]}},"x-readme-ref-name":"BeneficiaryBank"},{"description":"Beneficiary Bank information"}]},"fed_reference_number":{"type":"string","description":"Fed reference number for incoming wires","nullable":true},"external_memo":{"type":"string","description":"External Memo populated by the sender","nullable":true}}}],"properties":{"type":{"enum":["BANK_ACCOUNT"]}},"required":["type"],"x-readme-ref-name":"BankAccountDetailsResponse"}
+{
+  "type": "object",
+  "allOf": [
+    { "$ref": "#/components/schemas/CounterPartyResponse" },
+    {
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string", "enum": ["VENDOR", "BOOK_TRANSFER", "BANK_ACCOUNT"], "x-readme-ref-name": "CounterPartyResponseType" },
+        "routing_number": {
+          "type": "string",
+          "description": "Routing number of a bank account (or SWIFT/BIC code for international transfer). For incoming cheques, this field might be null.",
+          "nullable": true
+        },
+        "account_number": {
+          "type": "string",
+          "description": "Account number of a bank account (or IBAN code for international transfer). For incoming cheques, this field might be null.",
+          "nullable": true
+        },
+        "description": { "type": "string", "description": "Description of the transfer.", "nullable": true },
+        "beneficiary_bank": {
+          "nullable": true,
+          "allOf": [
+            {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string", "nullable": true },
+                "address": {
+                  "nullable": true,
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "line1": { "type": "string", "description": "Address line 1, no PO Box.", "nullable": true },
+                        "line2": { "type": "string", "description": "Address line 2 (e.g., apartment, suite, unit, or building).", "nullable": true },
+                        "city": { "type": "string", "description": "City, district, suburb, town, or village.", "nullable": true },
+                        "state": {
+                          "type": "string",
+                          "description": "For US-addressed the 2-letter State abbreviation. For international-addresses the county, providence, or region.",
+                          "nullable": true
+                        },
+                        "country": { "type": "string", "description": "Two-letter country code (ISO 3166-1 alpha-2).", "nullable": true },
+                        "postal_code": { "type": "string", "description": "ZIP or postal code.", "nullable": true },
+                        "phone_number": { "type": "string", "description": "Phone number.", "nullable": true }
+                      },
+                      "description": "Company business address (must be in the US; no PO box or virtual/forwarding addresses allowed).",
+                      "x-readme-ref-name": "Address"
+                    }
+                  ]
+                }
+              },
+              "x-readme-ref-name": "BeneficiaryBank"
+            },
+            { "description": "Beneficiary Bank information" }
+          ]
+        },
+        "fed_reference_number": { "type": "string", "description": "Fed reference number for incoming wires", "nullable": true },
+        "external_memo": { "type": "string", "description": "External Memo populated by the sender", "nullable": true }
+      }
+    }
+  ],
+  "properties": { "type": { "enum": ["BANK_ACCOUNT"] } },
+  "required": ["type"],
+  "x-readme-ref-name": "BankAccountDetailsResponse"
+}

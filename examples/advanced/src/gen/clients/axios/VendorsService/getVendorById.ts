@@ -1,12 +1,12 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type {
-  GetVendorByIdQueryResponse,
-  GetVendorByIdPathParams,
   GetVendorById400,
   GetVendorById401,
   GetVendorById403,
   GetVendorById500,
+  GetVendorByIdPathParams,
+  GetVendorByIdQueryResponse,
 } from '../../../models/ts/vendorsController/GetVendorById.ts'
 import { getVendorByIdQueryResponseSchema } from '../../../zod/vendorsController/getVendorByIdSchema.ts'
 

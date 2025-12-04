@@ -1,12 +1,12 @@
-import type { BankConnection } from "./BankConnection.ts";
+import type { BankConnection } from './BankConnection.ts'
 
 export type PageBankConnection = {
-    /**
-     * @type string
-    */
-    next_cursor?: string | null;
-    /**
-     * @type array
-    */
-    items: BankConnection[];
-};
+  /**
+   * @type string
+   */
+  next_cursor?: string | null
+  /**
+   * @type array
+   */
+  items: BankConnection[]
+}

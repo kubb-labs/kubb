@@ -1,7 +1,7 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { CreateVendorMutationRequest, CreateVendorMutationResponse, CreateVendorHeaderParams } from '../../../models/ts/vendorsController/CreateVendor.ts'
-import { createVendorMutationResponseSchema, createVendorMutationRequestSchema } from '../../../zod/vendorsController/createVendorSchema.ts'
+import fetch from '../../../../axios-client.ts'
+import type { CreateVendorHeaderParams, CreateVendorMutationRequest, CreateVendorMutationResponse } from '../../../models/ts/vendorsController/CreateVendor.ts'
+import { createVendorMutationRequestSchema, createVendorMutationResponseSchema } from '../../../zod/vendorsController/createVendorSchema.ts'
 
 export function getCreateVendorUrl() {
   const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/v1/vendors' as const }

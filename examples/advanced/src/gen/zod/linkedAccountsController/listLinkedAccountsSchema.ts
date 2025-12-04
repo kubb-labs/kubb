@@ -1,14 +1,14 @@
+import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  ListLinkedAccountsQueryParams,
   ListLinkedAccounts200,
   ListLinkedAccounts400,
   ListLinkedAccounts401,
   ListLinkedAccounts403,
+  ListLinkedAccountsQueryParams,
   ListLinkedAccountsQueryResponse,
 } from '../../models/ts/linkedAccountsController/ListLinkedAccounts.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import { pageBankConnectionSchema } from '../pageBankConnectionSchema.ts'
-import { z } from 'zod'
 
 export const listLinkedAccountsQueryParamsSchema = z
   .object({

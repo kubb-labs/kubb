@@ -1,13 +1,13 @@
+import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
+  CreateTransferHeaderParams,
   CreateTransferMutationRequest,
   CreateTransferMutationResponse,
-  CreateTransferHeaderParams,
 } from '../../../models/ts/transfersController/CreateTransfer.ts'
-import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
 import { createTransfer } from '../../axios/TransfersService/createTransfer.ts'
-import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const createTransferMutationKey = () => [{ url: '/v1/transfers' }] as const
 

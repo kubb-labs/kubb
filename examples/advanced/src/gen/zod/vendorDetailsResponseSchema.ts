@@ -1,7 +1,7 @@
-import type { VendorDetailsResponse } from '../models/ts/VendorDetailsResponse.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { counterPartyResponseTypeSchema } from './counterPartyResponseTypeSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { VendorDetailsResponse } from '../models/ts/VendorDetailsResponse.ts'
+import { counterPartyResponseTypeSchema } from './counterPartyResponseTypeSchema.ts'
 
 export const vendorDetailsResponseSchema = z.object({
   type: z.lazy(() => counterPartyResponseTypeSchema),

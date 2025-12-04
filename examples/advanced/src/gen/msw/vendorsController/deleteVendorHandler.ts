@@ -1,5 +1,5 @@
-import type { DeleteVendorMutationResponse } from '../../models/ts/vendorsController/DeleteVendor.ts'
 import { http } from 'msw'
+import type { DeleteVendorMutationResponse } from '../../models/ts/vendorsController/DeleteVendor.ts'
 
 export function deleteVendorHandlerResponse200(data?: DeleteVendorMutationResponse) {
   return new Response(JSON.stringify(data), {
