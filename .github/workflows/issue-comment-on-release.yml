@@ -8,6 +8,17 @@ name: Comment on Issues Fixed in Release
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to test with (e.g., kubb@3.0.146)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Dry run mode (will not post comments, only log what would be posted)'
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   issues: write
@@ -29,14 +40,39 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const releaseTag = context.payload.release.tag_name;
-            const releaseName = context.payload.release.name || releaseTag;
-            const releaseUrl = context.payload.release.html_url;
+            // Handle both release event and manual workflow_dispatch
+            let releaseTag, releaseName, releaseUrl, releaseBody;
+            
+            if (context.payload.release) {
+              // Triggered by release event
+              releaseTag = context.payload.release.tag_name;
+              releaseName = context.payload.release.name || releaseTag;
+              releaseUrl = context.payload.release.html_url;
+              releaseBody = context.payload.release.body || '';
+            } else if (context.payload.inputs?.release_tag) {
+              // Triggered manually via workflow_dispatch
+              releaseTag = context.payload.inputs.release_tag;
+              console.log(`Manual test mode: fetching release ${releaseTag}`);
+              
+              try {
+                const { data: release } = await github.rest.repos.getReleaseByTag({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  tag: releaseTag
+                });
+                
+                releaseName = release.name || releaseTag;
+                releaseUrl = release.html_url;
+                releaseBody = release.body || '';
+              } catch (error) {
+                console.error(`Failed to fetch release: ${error.message}`);
+                throw error;
+              }
+            } else {
+              throw new Error('No release data available');
+            }
             
             console.log(`Processing release: ${releaseName} (${releaseTag})`);
-            
-            // Get the release body which contains PR information
-            const releaseBody = context.payload.release.body || '';
             
             // Extract PR numbers from the release body
             // Changesets typically format PRs as #123 or PR #123
@@ -118,6 +154,12 @@ jobs:
             
             console.log(`Found ${issuesMap.size} issues to comment on`);
             
+            // Check if in dry-run mode
+            const isDryRun = context.payload.inputs?.dry_run === true || context.payload.inputs?.dry_run === 'true';
+            if (isDryRun) {
+              console.log('🧪 DRY RUN MODE - No comments will be posted');
+            }
+            
             // Comment on each issue
             const docsUrl = 'https://kubb.dev';
             const changelogUrl = `${docsUrl}/changelog`;
@@ -149,14 +191,19 @@ jobs:
                   'Thank you for reporting this issue!'
                 ].join('\n');
                 
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issue.number,
-                  body: commentBody
-                });
-                
-                console.log(`✅ Commented on issue #${issue.number}`);
+                if (isDryRun) {
+                  console.log(`🧪 [DRY RUN] Would comment on issue #${issue.number}:`);
+                  console.log(commentBody);
+                  console.log('---');
+                } else {
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    body: commentBody
+                  });
+                  console.log(`✅ Commented on issue #${issue.number}`);
+                }
               } catch (error) {
                 console.log(`❌ Error commenting on issue #${issue.number}: ${error.message}`);
               }
