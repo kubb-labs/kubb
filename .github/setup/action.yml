@@ -13,11 +13,11 @@ runs:
         cache: "pnpm"
         registry-url: "https://registry.npmjs.org"
 
-    - name: Install safe chain
-      shell: bash
-      run: |
-        npm i -g @aikidosec/safe-chain
-        safe-chain setup-ci
+#    - name: Install safe chain
+#      shell: bash
+#      run: |
+#        npm i -g @aikidosec/safe-chain
+#        safe-chain setup-ci
 
     - name: Install bun
       uses: oven-sh/setup-bun@v1
