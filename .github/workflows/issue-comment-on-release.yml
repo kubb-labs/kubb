@@ -40,6 +40,10 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            // Configuration constants
+            const DOCS_URL = 'https://kubb.dev';
+            const CHANGELOG_URL = `${DOCS_URL}/changelog`;
+            
             // Handle both release event and manual workflow_dispatch
             let releaseTag, releaseName, releaseUrl, releaseBody;
             
@@ -76,22 +80,24 @@ jobs:
             
             // Extract PR numbers from the release body
             // Changesets typically format PRs as #123 or PR #123
+            // We extract all # references and validate them as PRs below
             const prPattern = /#(\d+)/g;
-            const prNumbers = new Set();
+            const potentialPRNumbers = new Set();
             let match;
             
             while ((match = prPattern.exec(releaseBody)) !== null) {
-              prNumbers.add(parseInt(match[1]));
+              potentialPRNumbers.add(parseInt(match[1]));
             }
             
-            console.log(`Found ${prNumbers.size} PRs in release notes`);
+            console.log(`Found ${potentialPRNumbers.size} potential PR references in release notes`);
             
-            // For each PR, find linked issues
+            // For each potential PR, validate and find linked issues
+            // Track multiple PRs that fix the same issue
             const issuesMap = new Map();
             
-            for (const prNumber of prNumbers) {
+            for (const prNumber of potentialPRNumbers) {
               try {
-                // Get PR details
+                // Get PR details - this validates it's actually a PR
                 const { data: pr } = await github.rest.pulls.get({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -101,21 +107,28 @@ jobs:
                 console.log(`Checking PR #${prNumber}: ${pr.title}`);
                 
                 // Extract issue references from PR body and title
-                // Common patterns: "fixes #123", "closes #456", "resolves #789", "#123"
-                const issuePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)|#(\d+)/gi;
+                // Only match explicit closing keywords, not bare # references
+                const issuePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
                 const prText = `${pr.title} ${pr.body || ''}`;
                 let issueMatch;
                 
                 while ((issueMatch = issuePattern.exec(prText)) !== null) {
-                  const issueNumber = issueMatch[1] || issueMatch[2];
+                  const issueNumber = issueMatch[1];
                   if (issueNumber) {
                     const num = parseInt(issueNumber);
+                    
+                    // Track all PRs that fix this issue
                     if (!issuesMap.has(num)) {
                       issuesMap.set(num, {
                         number: num,
-                        prNumber: prNumber,
-                        prTitle: pr.title
+                        prs: [{number: prNumber, title: pr.title}]
                       });
+                    } else {
+                      // Add this PR to the list if not already present
+                      const issue = issuesMap.get(num);
+                      if (!issue.prs.some(p => p.number === prNumber)) {
+                        issue.prs.push({number: prNumber, title: pr.title});
+                      }
                     }
                   }
                 }
@@ -133,12 +146,19 @@ jobs:
                       const linkedIssue = event.source.issue;
                       if (!linkedIssue.pull_request) {
                         const num = linkedIssue.number;
+                        
+                        // Track all PRs that reference this issue
                         if (!issuesMap.has(num)) {
                           issuesMap.set(num, {
                             number: num,
-                            prNumber: prNumber,
-                            prTitle: pr.title
+                            prs: [{number: prNumber, title: pr.title}]
                           });
+                        } else {
+                          // Add this PR to the list if not already present
+                          const issue = issuesMap.get(num);
+                          if (!issue.prs.some(p => p.number === prNumber)) {
+                            issue.prs.push({number: prNumber, title: pr.title});
+                          }
                         }
                       }
                     }
@@ -148,7 +168,8 @@ jobs:
                 }
                 
               } catch (error) {
-                console.log(`Error processing PR #${prNumber}: ${error.message}`);
+                // This is expected for non-PR numbers, skip silently
+                console.log(`Skipping #${prNumber}: ${error.message}`);
               }
             }
             
@@ -161,38 +182,46 @@ jobs:
             }
             
             // Comment on each issue
-            const docsUrl = 'https://kubb.dev';
-            const changelogUrl = `${docsUrl}/changelog`;
-            
             for (const issue of issuesMap.values()) {
               try {
-                // Check if issue is open
+                // Check if issue exists and get its state
                 const { data: issueData } = await github.rest.issues.get({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue.number
                 });
                 
+                // Verify it's actually an issue, not a PR
+                if (issueData.pull_request) {
+                  console.log(`Skipping PR #${issue.number}`);
+                  continue;
+                }
+                
                 if (issueData.state === 'open') {
                   console.log(`Skipping open issue #${issue.number}`);
                   continue;
                 }
                 
+                // Build PR references for the comment
+                const prReferences = issue.prs.length === 1
+                  ? `PR #${issue.prs[0].number}`
+                  : `PRs ${issue.prs.map(p => `#${p.number}`).join(', ')}`;
+                
                 const commentBody = [
                   `🎉 This issue has been resolved in version **${releaseName}**!`,
                   '',
-                  `The fix was included in PR #${issue.prNumber}.`,
+                  `The fix was included in ${prReferences}.`,
                   '',
                   'For more details, check out:',
                   `- 📦 [Release Notes](${releaseUrl})`,
-                  `- 📖 [Changelog](${changelogUrl})`,
-                  `- 📚 [Documentation](${docsUrl})`,
+                  `- 📖 [Changelog](${CHANGELOG_URL})`,
+                  `- 📚 [Documentation](${DOCS_URL})`,
                   '',
                   'Thank you for reporting this issue!'
                 ].join('\n');
                 
                 if (isDryRun) {
-                  console.log(`🧪 [DRY RUN] Would comment on issue #${issue.number}:`);
+                  console.log(`🧪 [DRY RUN] Would comment on issue #${issue.number} (fixed by ${prReferences}):`);
                   console.log(commentBody);
                   console.log('---');
                 } else {
@@ -202,10 +231,11 @@ jobs:
                     issue_number: issue.number,
                     body: commentBody
                   });
-                  console.log(`✅ Commented on issue #${issue.number}`);
+                  console.log(`✅ Commented on issue #${issue.number} (fixed by ${prReferences})`);
                 }
               } catch (error) {
-                console.log(`❌ Error commenting on issue #${issue.number}: ${error.message}`);
+                const prList = issue.prs.map(p => `#${p.number}`).join(', ');
+                console.log(`❌ Error commenting on issue #${issue.number} (from ${prList}): ${error.message}`);
               }
             }
             
