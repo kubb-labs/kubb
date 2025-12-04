@@ -4,9 +4,13 @@ title: Changelog
 
 # Changelog
 
+# 4.7.1
+- [`plugin-oas`](/plugins/plugin-oas/): Fix `serverIndex: 0` not resolving to `servers[0].url` in generated code. The condition `if (serverIndex)` was treating 0 as falsy, causing `getBaseURL()` to return undefined instead of the first server URL.
+
 # 4.7.0
 - [`plugin-react-query`](/plugins/plugin-react-query/): Add support for `nextParam` and `previousParam` in infinite queries with nested field access. This enables independent cursor extraction for bidirectional pagination using dot notation (e.g., `'pagination.next.id'`) or array paths (e.g., `['pagination', 'next', 'id']`). The existing `cursorParam` option is deprecated but remains functional for backward compatibility.
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): Add support for `nextParam` and `previousParam` in infinite queries with nested field access. This enables independent cursor extraction for bidirectional pagination using dot notation (e.g., `'pagination.next.id'`) or array paths (e.g., `['pagination', 'next', 'id']`). The existing `cursorParam` option is deprecated but remains functional for backward compatibility.
+- [`plugin-oas`](/plugins/plugin-oas/): Fixed self-referential circular type references when OpenAPI schemas use `allOf` to extend a discriminator parent that has `oneOf`/`anyOf` referencing the children. The fix detects this pattern and skips adding redundant discriminator constraints to avoid the circular structure.
 
 # 4.6.3
 - [`plugin-client`](/plugins/plugin-client/): Fix formData not being used in generated client when request schema is missing for multipart/form-data endpoints

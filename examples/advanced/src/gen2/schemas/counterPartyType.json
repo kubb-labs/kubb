@@ -1,0 +1,1 @@
+{ "type": "string", "enum": ["VENDOR", "BOOK_TRANSFER"], "x-readme-ref-name": "CounterPartyType" }

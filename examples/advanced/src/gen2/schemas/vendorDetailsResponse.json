@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "allOf": [
+    { "$ref": "#/components/schemas/CounterPartyResponse" },
+    {
+      "required": ["id", "payment_instrument_id", "type"],
+      "properties": {
+        "type": { "type": "string", "enum": ["VENDOR", "BOOK_TRANSFER", "BANK_ACCOUNT"], "x-readme-ref-name": "CounterPartyResponseType" },
+        "payment_instrument_id": { "type": "string" },
+        "id": { "type": "string", "description": "Vendor ID returned from `/vendors` endpoint" },
+        "routing_number": {
+          "type": "string",
+          "description": "Routing number of a bank account (or SWIFT/BIC code for international transfer).",
+          "nullable": true
+        },
+        "account_number": { "type": "string", "description": "Account number of a bank account (or IBAN code for international transfer).", "nullable": true }
+      }
+    }
+  ],
+  "properties": { "type": { "enum": ["VENDOR"] } },
+  "required": ["type"],
+  "x-readme-ref-name": "VendorDetailsResponse"
+}

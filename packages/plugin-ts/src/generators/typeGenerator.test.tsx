@@ -411,6 +411,29 @@ describe('typeGenerator schema', async () => {
         discriminator: 'inherit',
       },
     },
+    // https://github.com/kubb-labs/kubb/issues/2072
+    // Test circular reference avoidance: ACHDetailsResponse extends PaymentAccountDetailsResponse via allOf,
+    // but PaymentAccountDetailsResponse's oneOf includes ACHDetailsResponse - no circular ref should occur
+    {
+      name: 'ACHDetailsResponse',
+      input: '../../mocks/discriminator.yaml',
+      path: 'ACHDetailsResponse',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    // https://github.com/kubb-labs/kubb/issues/2072
+    // Test parent discriminator union - should include discriminator constraints
+    {
+      name: 'PaymentAccountDetailsResponse',
+      input: '../../mocks/discriminator.yaml',
+      path: 'PaymentAccountDetailsResponse',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

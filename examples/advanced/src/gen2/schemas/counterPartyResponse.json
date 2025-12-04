@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "description": "Counterparty Details for the transfer - Currently only supports vendors that are returned in the \nresponse from the /vendors endpoint\nBOOK_TRANSFER is a limited feature. Please reach out if you are interested.\n    ",
+  "discriminator": {
+    "propertyName": "type",
+    "mapping": {
+      "BANK_ACCOUNT": "#/components/schemas/BankAccountDetailsResponse",
+      "BOOK_TRANSFER": "#/components/schemas/BookTransferDetailsResponse",
+      "VENDOR": "#/components/schemas/VendorDetailsResponse"
+    }
+  },
+  "oneOf": [{ "$ref": "#/components/schemas/VendorDetailsResponse" }],
+  "x-readme-ref-name": "CounterPartyResponse"
+}

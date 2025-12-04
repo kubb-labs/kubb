@@ -1,0 +1,34 @@
+{
+  "type": "object",
+  "allOf": [
+    { "$ref": "#/components/schemas/PaymentAccountDetails" },
+    {
+      "required": ["account_number", "address", "routing_number", "type"],
+      "properties": {
+        "type": { "type": "string", "enum": ["ACH", "DOMESTIC_WIRE", "CHEQUE"], "x-readme-ref-name": "PaymentDetailsTypeRequest" },
+        "routing_number": { "type": "string", "description": "The routing number must follow proper format." },
+        "account_number": { "type": "string" },
+        "address": {
+          "type": "object",
+          "properties": {
+            "line1": { "type": "string", "description": "Address line 1, no PO Box.", "nullable": true },
+            "line2": { "type": "string", "description": "Address line 2 (e.g., apartment, suite, unit, or building).", "nullable": true },
+            "city": { "type": "string", "description": "City, district, suburb, town, or village.", "nullable": true },
+            "state": {
+              "type": "string",
+              "description": "For US-addressed the 2-letter State abbreviation. For international-addresses the county, providence, or region.",
+              "nullable": true
+            },
+            "country": { "type": "string", "description": "Two-letter country code (ISO 3166-1 alpha-2).", "nullable": true },
+            "postal_code": { "type": "string", "description": "ZIP or postal code.", "nullable": true },
+            "phone_number": { "type": "string", "description": "Phone number.", "nullable": true }
+          },
+          "description": "Company business address (must be in the US; no PO box or virtual/forwarding addresses allowed).",
+          "x-readme-ref-name": "Address"
+        },
+        "beneficiary_name": { "type": "string", "nullable": true }
+      }
+    }
+  ],
+  "x-readme-ref-name": "DomesticWireDetailsRequest"
+}

@@ -8,7 +8,7 @@ import fetch from '@kubb/plugin-client/clients/fetch'
 import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from './models.ts'
 
 function getDeleteUserUrl(username: DeleteUserPathParams['username']) {
-  const res = { method: 'DELETE', url: `/user/${username}` as const }
+  const res = { method: 'DELETE', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
   return res
 }
 

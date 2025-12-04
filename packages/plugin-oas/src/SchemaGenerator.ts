@@ -430,36 +430,84 @@ export class SchemaGenerator<
 
     return {
       ...schema,
-      args: Object.entries(discriminator.mapping || {}).map(([key, value]) => {
-        const arg = schema.args.find((item) => isKeyword(item, schemaKeywords.ref) && item.args.$ref === value)
-        return {
-          keyword: schemaKeywords.and,
-          args: [
-            arg,
-            {
-              keyword: schemaKeywords.object,
-              args: {
-                properties: {
-                  ...(objectPropertySchema?.args?.properties || {}),
-                  [discriminator.propertyName]: [
-                    {
-                      keyword: schemaKeywords.const,
-                      args: {
-                        name: key,
-                        format: 'string',
-                        value: key,
+      args: Object.entries(discriminator.mapping || {})
+        .map(([key, value]) => {
+          const arg = schema.args.find((item) => isKeyword(item, schemaKeywords.ref) && item.args.$ref === value)
+          // Skip discriminator mappings that don't have a corresponding schema in the oneOf/anyOf
+          if (!arg) {
+            return undefined
+          }
+          return {
+            keyword: schemaKeywords.and,
+            args: [
+              arg,
+              {
+                keyword: schemaKeywords.object,
+                args: {
+                  properties: {
+                    ...(objectPropertySchema?.args?.properties || {}),
+                    [discriminator.propertyName]: [
+                      {
+                        keyword: schemaKeywords.const,
+                        args: {
+                          name: key,
+                          format: 'string',
+                          value: key,
+                        },
                       },
-                    },
-                    //enum and literal will conflict
-                    ...(objectPropertySchema?.args?.properties[discriminator.propertyName] || []),
-                  ].filter((item) => !isKeyword(item, schemaKeywords.enum)),
+                      //enum and literal will conflict
+                      ...(objectPropertySchema?.args?.properties[discriminator.propertyName] || []),
+                    ].filter((item) => !isKeyword(item, schemaKeywords.enum)),
+                  },
                 },
               },
-            },
-          ],
-        }
-      }),
+            ],
+          }
+        })
+        .filter(Boolean) as SchemaKeywordMapper['union']['args'],
     }
+  }
+
+  /**
+   * Checks if an allOf item reference would create a circular reference.
+   * This happens when a child schema extends a discriminator parent via allOf,
+   * and the parent has a oneOf/anyOf that references or maps to the child.
+   *
+   * Without oneOf/anyOf, the discriminator is just for documentation/validation
+   * purposes and doesn't create a TypeScript union type that would be circular.
+   */
+  #wouldCreateCircularReference(item: unknown, childSchemaName: string | undefined): boolean {
+    if (!isReference(item) || !childSchemaName) {
+      return false
+    }
+
+    const dereferencedSchema = this.context.oas.dereferenceWithRef(item)
+
+    if (dereferencedSchema && isDiscriminator(dereferencedSchema)) {
+      // Only check for circular references if parent has oneOf/anyOf
+      // Without oneOf/anyOf, the discriminator doesn't create a union type
+      const parentOneOf = dereferencedSchema.oneOf || dereferencedSchema.anyOf
+      if (!parentOneOf) {
+        return false
+      }
+
+      const childRef = `#/components/schemas/${childSchemaName}`
+
+      const inOneOf = parentOneOf.some((oneOfItem) => {
+        return isReference(oneOfItem) && oneOfItem.$ref === childRef
+      })
+      if (inOneOf) {
+        return true
+      }
+
+      const mapping = dereferencedSchema.discriminator.mapping || {}
+      const inMapping = Object.values(mapping).some((value) => value === childRef)
+
+      if (inMapping) {
+        return true
+      }
+    }
+    return false
   }
 
   /**
@@ -669,6 +717,10 @@ export class SchemaGenerator<
         keyword: schemaKeywords.and,
         args: schemaObject.allOf
           .map((item) => {
+            // Skip items that would create circular references
+            if (this.#wouldCreateCircularReference(item, name)) {
+              return undefined
+            }
             return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
           })
           .filter(Boolean)

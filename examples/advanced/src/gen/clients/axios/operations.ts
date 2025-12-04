@@ -1,70 +1,42 @@
 export const operations = {
-  createPets: {
-    path: '/pets/:uuid',
+  createIncomingTransfer: {
+    path: '/v1/incoming_transfers',
     method: 'post',
   },
-  updatePet: {
-    path: '/pet',
+  listLinkedAccounts: {
+    path: '/v1/linked_accounts',
+    method: 'get',
+  },
+  listTransfers: {
+    path: '/v1/transfers',
+    method: 'get',
+  },
+  createTransfer: {
+    path: '/v1/transfers',
+    method: 'post',
+  },
+  getTransfersById: {
+    path: '/v1/transfers/:id',
+    method: 'get',
+  },
+  listVendors: {
+    path: '/v1/vendors',
+    method: 'get',
+  },
+  createVendor: {
+    path: '/v1/vendors',
+    method: 'post',
+  },
+  getVendorById: {
+    path: '/v1/vendors/:id',
+    method: 'get',
+  },
+  updateVendor: {
+    path: '/v1/vendors/:id',
     method: 'put',
   },
-  addPet: {
-    path: '/pet',
-    method: 'post',
-  },
-  findPetsByStatus: {
-    path: '/pet/findByStatus/:step_id',
-    method: 'get',
-  },
-  findPetsByTags: {
-    path: '/pet/findByTags',
-    method: 'get',
-  },
-  getPetById: {
-    path: '/pet/:petId:search',
-    method: 'get',
-  },
-  updatePetWithForm: {
-    path: '/pet/:petId:search',
-    method: 'post',
-  },
-  deletePet: {
-    path: '/pet/:petId:search',
-    method: 'delete',
-  },
-  addFiles: {
-    path: '/pet/files',
-    method: 'post',
-  },
-  uploadFile: {
-    path: '/pet/:petId/uploadImage',
-    method: 'post',
-  },
-  createUser: {
-    path: '/user',
-    method: 'post',
-  },
-  createUsersWithListInput: {
-    path: '/user/createWithList',
-    method: 'post',
-  },
-  loginUser: {
-    path: '/user/login',
-    method: 'get',
-  },
-  logoutUser: {
-    path: '/user/logout',
-    method: 'get',
-  },
-  getUserByName: {
-    path: '/user/:username',
-    method: 'get',
-  },
-  updateUser: {
-    path: '/user/:username',
-    method: 'put',
-  },
-  deleteUser: {
-    path: '/user/:username',
+  deleteVendor: {
+    path: '/v1/vendors/:id',
     method: 'delete',
   },
 }

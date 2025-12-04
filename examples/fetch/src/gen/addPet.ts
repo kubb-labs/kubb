@@ -8,7 +8,7 @@ import fetch from '@kubb/plugin-client/clients/fetch'
 import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from './models.ts'
 
 function getAddPetUrl() {
-  const res = { method: 'POST', url: '/pet' as const }
+  const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/pet' as const }
   return res
 }
 
