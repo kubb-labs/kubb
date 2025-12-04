@@ -336,6 +336,43 @@ type MiniModifiers = {
 }
 
 /**
+ * Keywords that represent modifiers for mini mode
+ * These are separated from the base schema and wrapped around it
+ */
+export const miniModifierKeywords = [
+  schemaKeywords.optional,
+  schemaKeywords.nullable,
+  schemaKeywords.nullish,
+  schemaKeywords.default,
+  schemaKeywords.describe,
+]
+
+/**
+ * Extracts mini mode modifiers from a schemas array
+ * This can be reused by other parsers (e.g., valibot) that need similar functionality
+ */
+export function extractMiniModifiers(schemas: Schema[]): MiniModifiers {
+  const defaultSchema = schemas.find((item) => isKeyword(item, schemaKeywords.default)) as { keyword: string; args: unknown } | undefined
+  const describeSchema = schemas.find((item) => isKeyword(item, schemaKeywords.describe)) as { keyword: string; args: unknown } | undefined
+
+  return {
+    hasOptional: schemas.some((item) => isKeyword(item, schemaKeywords.optional)),
+    hasNullable: schemas.some((item) => isKeyword(item, schemaKeywords.nullable)),
+    hasNullish: schemas.some((item) => isKeyword(item, schemaKeywords.nullish)),
+    defaultValue: defaultSchema?.args as string | number | true | object | undefined,
+    describeValue: describeSchema?.args !== undefined ? String(describeSchema.args) : undefined,
+  }
+}
+
+/**
+ * Filters out modifier keywords from schemas for mini mode base schema parsing
+ * This can be reused by other parsers (e.g., valibot) that need similar functionality
+ */
+export function filterMiniModifiers(schemas: Schema[]): Schema[] {
+  return schemas.filter((item) => !miniModifierKeywords.some((keyword) => isKeyword(item, keyword)))
+}
+
+/**
  * Wraps an output string with Zod Mini functional modifiers
  * Order: default (innermost) -> describe -> nullable -> optional (outermost)
  * OR: default -> describe -> nullish

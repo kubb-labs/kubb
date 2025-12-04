@@ -39,9 +39,6 @@ export function Zod({
 }: Props): KubbNode {
   const hasTuple = !!SchemaGenerator.find(tree, schemaKeywords.tuple)
 
-  // For mini mode, we need to separate modifiers from the base schema
-  const modifierKeywords = [schemaKeywords.optional, schemaKeywords.nullable, schemaKeywords.nullish, schemaKeywords.default, schemaKeywords.describe]
-
   const schemas = parserZod.sort(tree).filter((item) => {
     if (hasTuple && (isKeyword(item, schemaKeywords.min) || isKeyword(item, schemaKeywords.max))) {
       return false
@@ -51,9 +48,7 @@ export function Zod({
   })
 
   // In mini mode, filter out modifiers from the main schema parsing
-  const baseSchemas = mini
-    ? schemas.filter((item) => !modifierKeywords.some((keyword) => isKeyword(item, keyword)))
-    : schemas
+  const baseSchemas = mini ? parserZod.filterMiniModifiers(schemas) : schemas
 
   const output = baseSchemas
     .map((schema, index) => {
@@ -107,16 +102,7 @@ export function Zod({
 
   // For mini mode, wrap the output with modifiers using the parser function
   if (mini) {
-    const defaultSchema = schemas.find((item) => isKeyword(item, schemaKeywords.default)) as { keyword: string; args: unknown } | undefined
-    const describeSchema = schemas.find((item) => isKeyword(item, schemaKeywords.describe)) as { keyword: string; args: unknown } | undefined
-
-    baseSchemaOutput = parserZod.wrapWithMiniModifiers(baseSchemaOutput, {
-      hasOptional: schemas.some((item) => isKeyword(item, schemaKeywords.optional)),
-      hasNullable: schemas.some((item) => isKeyword(item, schemaKeywords.nullable)),
-      hasNullish: schemas.some((item) => isKeyword(item, schemaKeywords.nullish)),
-      defaultValue: defaultSchema?.args as string | number | true | object | undefined,
-      describeValue: describeSchema?.args !== undefined ? String(describeSchema.args) : undefined,
-    })
+    baseSchemaOutput = parserZod.wrapWithMiniModifiers(baseSchemaOutput, parserZod.extractMiniModifiers(schemas))
   }
 
   const wrappedSchemaOutput = wrapOutput ? wrapOutput({ output: baseSchemaOutput, schema }) || baseSchemaOutput : baseSchemaOutput
