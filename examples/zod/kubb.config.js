@@ -90,17 +90,11 @@ export default defineConfig([
     },
     plugins: [
       pluginOas({ generators: [] }),
-      pluginTs({
-        output: {
-          path: './ts',
-        },
-      }),
       pluginZod({
         output: {
           path: './zod',
         },
         mini: true,
-        inferred: true,
       }),
     ],
   },

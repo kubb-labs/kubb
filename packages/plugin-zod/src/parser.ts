@@ -354,13 +354,7 @@ type MiniModifiers = {
  * These are separated from the base schema and wrapped around it
  * Note: describe is included to filter it out, but won't be wrapped (Zod Mini doesn't support describe)
  */
-export const miniModifierKeywords = [
-  schemaKeywords.optional,
-  schemaKeywords.nullable,
-  schemaKeywords.nullish,
-  schemaKeywords.default,
-  schemaKeywords.describe,
-]
+export const miniModifierKeywords = [schemaKeywords.optional, schemaKeywords.nullable, schemaKeywords.nullish, schemaKeywords.default, schemaKeywords.describe]
 
 /**
  * Extracts mini mode modifiers from a schemas array
