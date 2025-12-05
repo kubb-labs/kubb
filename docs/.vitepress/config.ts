@@ -166,6 +166,10 @@ const mainSidebar = [
         link: '/plugins/plugin-vue-query/',
       },
       {
+        text: '@kubb/plugin-pinia-colada',
+        link: '/plugins/plugin-pinia-colada/',
+      },
+      {
         text: '@kubb/plugin-solid-query',
         link: '/plugins/plugin-solid-query/',
       },
@@ -395,6 +399,10 @@ const documentationMenu = [
         link: '/plugins/plugin-vue-query/',
       },
       {
+        text: '@kubb/plugin-pinia-colada',
+        link: '/plugins/plugin-pinia-colada/',
+      },
+      {
         text: '@kubb/plugin-solid-query',
         link: '/plugins/plugin-solid-query/',
       },
@@ -516,6 +524,8 @@ export default defineConfig({
               '@kubb/plugin-react-query/components': ['../packages/plugin-react-query/src/components/index.ts'],
               '@kubb/plugin-vue-query': ['../packages/plugin-vue-query/src/index.ts'],
               '@kubb/plugin-vue-query/components': ['../packages/plugin-vue-query/src/components/index.ts'],
+              '@kubb/plugin-pinia-colada': ['../packages/plugin-pinia-colada/src/index.ts'],
+              '@kubb/plugin-pinia-colada/components': ['../packages/plugin-pinia-colada/src/components/index.ts'],
               '@kubb/plugin-svelte-query': ['../packages/plugin-svelte-query/src/index.ts'],
               '@kubb/plugin-svelte-query/components': ['../packages/plugin-svelte-query/src/components/index.ts'],
               '@kubb/plugin-solid-query': ['../packages/plugin-solid-query/src/index.ts'],

@@ -5,6 +5,7 @@ title: Changelog
 # Changelog
 
 # 4.8.1
+- **NEW**: [`plugin-pinia-colada`](/plugins/plugin-pinia-colada/): Initial release of Pinia Colada plugin. Generate type-safe hooks for Vue.js applications using Pinia Colada data-fetching library. Supports `useQuery` hooks for GET requests and `useMutation` hooks for POST, PUT, PATCH, DELETE requests with full TypeScript support and Zod validation.
 - [`plugin-client`](/plugins/plugin-client/): Fix formData generation when parser is undefined or non-standard. Previously, when using multipart/form-data endpoints without setting parser to 'client' or 'zod', the generated code would attempt to call `buildFormData(requestData)` with an undefined `requestData` variable, causing a reference error.
 
 # 4.8.0
