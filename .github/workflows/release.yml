@@ -67,10 +67,10 @@ jobs:
 
       - name: Get canary release info
         id: canary_info
-        if: steps.canary.conclusion == 'success'
+        if: steps.canary.outcome == 'success'
         run: |
           # Get the version from the main kubb package
-          VERSION=$(cat packages/kubb/package.json | grep '"version"' | head -1 | sed 's/.*"version": "\(.*\)".*/\1/')
+          VERSION=$(jq -r .version packages/kubb/package.json)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=kubb@$VERSION" >> $GITHUB_OUTPUT
           echo "Canary version: $VERSION"
