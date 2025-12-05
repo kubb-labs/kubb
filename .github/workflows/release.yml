@@ -152,6 +152,10 @@ jobs:
             
             const version = corePackage.version;
             if (!version) {
+              console.log('No version found for @kubb/core');
+              return;
+            }
+            if (!version) {
               console.log('No version found for @kubb/core package');
               return;
             }
