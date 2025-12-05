@@ -1,5 +1,16 @@
 # @kubb/plugin-msw
 
+## 4.8.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.8.1
+  - @kubb/oas@4.8.1
+  - @kubb/plugin-faker@4.8.1
+  - @kubb/plugin-oas@4.8.1
+  - @kubb/plugin-ts@4.8.1
+
 ## 4.8.0
 
 ### Patch Changes
