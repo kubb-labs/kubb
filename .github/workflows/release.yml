@@ -76,6 +76,17 @@ jobs:
           echo "tag=kubb@$VERSION" >> $GITHUB_OUTPUT
           echo "Canary version: $VERSION"
 
+      - name: Get regular release info
+        id: regular_info
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          # Get the version from @kubb/core which is part of the fixed versioning group
+          # All @kubb/* packages share the same version per changeset config
+          VERSION=$(jq -r .version packages/core/package.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=kubb@$VERSION" >> $GITHUB_OUTPUT
+          echo "Regular release version: $VERSION"
+
       #        - name: Deploy to Coolify
       #          run: |
       #            curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
@@ -116,23 +127,12 @@ jobs:
             const isCanary = '${{ steps.canary_info.outputs.tag }}' !== '';
             
             if (isCanary) {
-              // Canary/prerelease
+              // Canary/prerelease - use version from @kubb/core package.json
               releaseTag = '${{ steps.canary_info.outputs.tag }}';
               console.log(`Processing canary release: ${releaseTag}`);
             } else {
-              // Regular release
-              const publishedPackages = JSON.parse('${{ steps.changesets.outputs.publishedPackages }}' || '[]');
-              console.log('Published packages:', publishedPackages);
-              
-              // Find the @kubb/core release (part of fixed versioning group)
-              const kubbRelease = publishedPackages.find(pkg => pkg.name === '@kubb/core');
-              
-              if (!kubbRelease) {
-                console.log('No @kubb/core package found in this release, skipping issue comments');
-                return;
-              }
-              
-              releaseTag = `kubb@${kubbRelease.version}`;
+              // Regular release - use version from @kubb/core package.json
+              releaseTag = '${{ steps.regular_info.outputs.tag }}';
               console.log(`Processing regular release: ${releaseTag}`);
             }
             
