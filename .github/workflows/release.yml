@@ -136,6 +136,11 @@ jobs:
               console.log(`Processing regular release: ${releaseTag}`);
             }
             
+            if (!releaseTag) {
+              console.log('No release tag available, skipping issue comments');
+              return;
+            }
+            
             console.log(`Triggering issue comment workflow for release: ${releaseTag}`);
             
             try {
