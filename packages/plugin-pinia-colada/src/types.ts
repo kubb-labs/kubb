@@ -42,7 +42,7 @@ type Query = {
 type Mutation = {
   /**
    * Define which HttpMethods can be used for mutations
-   * @default ['post', 'put', 'delete']
+   * @default ['post', 'put', 'patch', 'delete']
    */
   methods: Array<HttpMethod>
   /**
