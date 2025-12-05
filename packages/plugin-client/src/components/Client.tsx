@@ -212,8 +212,9 @@ export function Client({
         {isConfigurable ? 'const { client: request = fetch, ...requestConfig } = config' : ''}
         <br />
         <br />
-        {parser === 'zod' && zodSchemas?.request?.name && `const requestData = ${zodSchemas.request.name}.parse(data)`}
-        {parser === 'client' && typeSchemas?.request?.name && 'const requestData = data'}
+        {parser === 'zod' && zodSchemas?.request?.name
+          ? `const requestData = ${zodSchemas.request.name}.parse(data)`
+          : typeSchemas?.request?.name && 'const requestData = data'}
         <br />
         {isFormData && typeSchemas?.request?.name && 'const formData = buildFormData(requestData)'}
         <br />
