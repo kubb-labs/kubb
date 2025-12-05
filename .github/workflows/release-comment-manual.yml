@@ -109,25 +109,31 @@ jobs:
               head: coreTag.commit.sha
             });
             
-            // Find PRs for each commit
+            // Find PRs for each commit (in parallel with concurrency limit)
             const prNumbers = new Set();
-            for (const commit of comparison.commits) {
-              try {
-                const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  commit_sha: commit.sha
-                });
-                
-                for (const pr of prs) {
-                  if (pr.merged_at) {
-                    prNumbers.add(pr.number);
+            const pLimit = require('p-limit');
+            const limit = pLimit(5); // Limit to 5 concurrent requests
+            await Promise.all(
+              comparison.commits.map(commit =>
+                limit(async () => {
+                  try {
+                    const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      commit_sha: commit.sha
+                    });
+                    
+                    for (const pr of prs) {
+                      if (pr.merged_at) {
+                        prNumbers.add(pr.number);
+                      }
+                    }
+                  } catch (error) {
+                    console.log(`Error finding PRs for commit ${commit.sha}: ${error.message}`);
                   }
-                }
-              } catch (error) {
-                console.log(`Error finding PRs for commit ${commit.sha}: ${error.message}`);
-              }
-            }
+                })
+              )
+            );
             
             console.log(`Found ${prNumbers.size} PRs`);
             
