@@ -91,3 +91,41 @@ jobs:
             .catch((err) => {
               console.error('Error sending discord notification', err)
             })
+
+      - name: Comment on fixed issues
+        if: steps.changesets.outputs.published == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Get the published packages and find the main kubb release
+            const publishedPackages = JSON.parse('${{ steps.changesets.outputs.publishedPackages }}' || '[]');
+            console.log('Published packages:', publishedPackages);
+            
+            // Find the kubb@x.x.x release (main package release)
+            const kubbRelease = publishedPackages.find(pkg => pkg.name === 'kubb');
+            
+            if (!kubbRelease) {
+              console.log('No main kubb package found in this release, skipping issue comments');
+              return;
+            }
+            
+            const releaseTag = `${kubbRelease.name}@${kubbRelease.version}`;
+            console.log(`Triggering issue comment workflow for release: ${releaseTag}`);
+            
+            try {
+              await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'issue-comment-on-release.yml',
+                ref: 'main',
+                inputs: {
+                  release_tag: releaseTag,
+                  dry_run: 'false'
+                }
+              });
+              console.log(`Successfully triggered issue comment workflow for ${releaseTag}`);
+            } catch (error) {
+              console.error(`Failed to trigger workflow: ${error.message}`);
+              // Don't fail the release if commenting fails
+            }
