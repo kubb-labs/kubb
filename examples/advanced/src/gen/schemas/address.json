@@ -1,18 +1,11 @@
 {
   "type": "object",
   "properties": {
-    "line1": { "type": "string", "description": "Address line 1, no PO Box.", "nullable": true },
-    "line2": { "type": "string", "description": "Address line 2 (e.g., apartment, suite, unit, or building).", "nullable": true },
-    "city": { "type": "string", "description": "City, district, suburb, town, or village.", "nullable": true },
-    "state": {
-      "type": "string",
-      "description": "For US-addressed the 2-letter State abbreviation. For international-addresses the county, providence, or region.",
-      "nullable": true
-    },
-    "country": { "type": "string", "description": "Two-letter country code (ISO 3166-1 alpha-2).", "nullable": true },
-    "postal_code": { "type": "string", "description": "ZIP or postal code.", "nullable": true },
-    "phone_number": { "type": "string", "description": "Phone number.", "nullable": true }
+    "street": { "type": "string", "example": "437 Lytton" },
+    "city": { "type": "string", "example": "Palo Alto" },
+    "state": { "type": "string", "example": "CA" },
+    "zip": { "type": "string", "example": "94301" }
   },
-  "description": "Company business address (must be in the US; no PO box or virtual/forwarding addresses allowed).",
+  "xml": { "name": "address" },
   "x-readme-ref-name": "Address"
 }

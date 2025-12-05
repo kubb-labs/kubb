@@ -1,9 +1,0 @@
-{
-  "required": ["items"],
-  "type": "object",
-  "properties": {
-    "next_cursor": { "type": "string", "nullable": true },
-    "items": { "type": "array", "items": { "$ref": "#/components/schemas/VendorResponse" } }
-  },
-  "x-readme-ref-name": "Page_VendorResponse_"
-}

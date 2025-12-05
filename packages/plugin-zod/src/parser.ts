@@ -6,11 +6,32 @@ import { isKeyword, SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, 
 //TODO add zodKeywordMapper as function that returns 3 versions: v3, v4 and v4 mini, this can also be used to have the custom mapping(see object type)
 // also include shouldCoerce
 
+/**
+ * Helper to build string/array length constraint checks for Zod Mini mode
+ */
+function buildLengthChecks(min?: number, max?: number): string[] {
+  const checks: string[] = []
+  if (min !== undefined) checks.push(`z.minLength(${min})`)
+  if (max !== undefined) checks.push(`z.maxLength(${max})`)
+  return checks
+}
+
 const zodKeywordMapper = {
   any: () => 'z.any()',
   unknown: () => 'z.unknown()',
   void: () => 'z.void()',
-  number: (coercion?: boolean, min?: number, max?: number, exclusiveMinimum?: number, exclusiveMaximum?: number) => {
+  number: (coercion?: boolean, min?: number, max?: number, exclusiveMinimum?: number, exclusiveMaximum?: number, mini?: boolean) => {
+    if (mini) {
+      const checks: string[] = []
+      if (min !== undefined) checks.push(`z.minimum(${min})`)
+      if (max !== undefined) checks.push(`z.maximum(${max})`)
+      if (exclusiveMinimum !== undefined) checks.push(`z.minimum(${exclusiveMinimum}, { exclusive: true })`)
+      if (exclusiveMaximum !== undefined) checks.push(`z.maximum(${exclusiveMaximum}, { exclusive: true })`)
+      if (checks.length > 0) {
+        return `z.number().check(${checks.join(', ')})`
+      }
+      return 'z.number()'
+    }
     return [
       coercion ? 'z.coerce.number()' : 'z.number()',
       min !== undefined ? `.min(${min})` : undefined,
@@ -21,7 +42,18 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  integer: (coercion?: boolean, min?: number, max?: number, version: '3' | '4' = '3', exclusiveMinimum?: number, exclusiveMaximum?: number) => {
+  integer: (coercion?: boolean, min?: number, max?: number, version: '3' | '4' = '3', exclusiveMinimum?: number, exclusiveMaximum?: number, mini?: boolean) => {
+    if (mini) {
+      const checks: string[] = []
+      if (min !== undefined) checks.push(`z.minimum(${min})`)
+      if (max !== undefined) checks.push(`z.maximum(${max})`)
+      if (exclusiveMinimum !== undefined) checks.push(`z.minimum(${exclusiveMinimum}, { exclusive: true })`)
+      if (exclusiveMaximum !== undefined) checks.push(`z.maximum(${exclusiveMaximum}, { exclusive: true })`)
+      if (checks.length > 0) {
+        return `z.int().check(${checks.join(', ')})`
+      }
+      return 'z.int()'
+    }
     return [
       coercion ? 'z.coerce.number().int()' : version === '4' ? 'z.int()' : 'z.number().int()',
       min !== undefined ? `.min(${min})` : undefined,
@@ -59,7 +91,14 @@ const zodKeywordMapper = {
     ${value}
     })`
   },
-  string: (coercion?: boolean, min?: number, max?: number) => {
+  string: (coercion?: boolean, min?: number, max?: number, mini?: boolean) => {
+    if (mini) {
+      const checks = buildLengthChecks(min, max)
+      if (checks.length > 0) {
+        return `z.string().check(${checks.join(', ')})`
+      }
+      return 'z.string()'
+    }
     return [coercion ? 'z.coerce.string()' : 'z.string()', min !== undefined ? `.min(${min})` : undefined, max !== undefined ? `.max(${max})` : undefined]
       .filter(Boolean)
       .join('')
@@ -80,7 +119,15 @@ const zodKeywordMapper = {
     }
     return '.nullish()'
   },
-  array: (items: string[] = [], min?: number, max?: number, unique?: boolean) => {
+  array: (items: string[] = [], min?: number, max?: number, unique?: boolean, mini?: boolean) => {
+    if (mini) {
+      const checks = buildLengthChecks(min, max)
+      if (unique) checks.push(`z.refine(items => new Set(items).size === items.length, { message: "Array entries must be unique" })`)
+      if (checks.length > 0) {
+        return `z.array(${items?.join('')}).check(${checks.join(', ')})`
+      }
+      return `z.array(${items?.join('')})`
+    }
     return [
       `z.array(${items?.join('')})`,
       min !== undefined ? `.min(${min})` : undefined,
@@ -97,7 +144,12 @@ const zodKeywordMapper = {
   /**
    * ISO 8601
    */
-  datetime: (offset = false, local = false, version: '3' | '4' = '3') => {
+  datetime: (offset = false, local = false, version: '3' | '4' = '3', mini?: boolean) => {
+    // Zod Mini doesn't support .datetime() method, use plain string
+    if (mini) {
+      return 'z.string()'
+    }
+
     if (offset) {
       return version === '4' ? `z.iso.datetime({ offset: ${offset} })` : `z.string().datetime({ offset: ${offset} })`
     }
@@ -140,7 +192,14 @@ const zodKeywordMapper = {
 
     return 'z.date()'
   },
-  uuid: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number) => {
+  uuid: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number, mini?: boolean) => {
+    if (mini) {
+      const checks = buildLengthChecks(min, max)
+      if (checks.length > 0) {
+        return `z.uuid().check(${checks.join(', ')})`
+      }
+      return 'z.uuid()'
+    }
     return [
       coercion ? (version === '4' ? 'z.uuid()' : 'z.coerce.string().uuid()') : version === '4' ? 'z.uuid()' : 'z.string().uuid()',
       min !== undefined ? `.min(${min})` : undefined,
@@ -149,7 +208,14 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  url: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number) => {
+  url: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number, mini?: boolean) => {
+    if (mini) {
+      const checks = buildLengthChecks(min, max)
+      if (checks.length > 0) {
+        return `z.url().check(${checks.join(', ')})`
+      }
+      return 'z.url()'
+    }
     return [
       coercion ? (version === '4' ? 'z.url()' : 'z.coerce.string().url()') : version === '4' ? 'z.url()' : 'z.string().url()',
       min !== undefined ? `.min(${min})` : undefined,
@@ -158,14 +224,27 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  default: (value?: string | number | true | object) => {
+  default: (value?: string | number | true | object, innerSchema?: string, mini?: boolean) => {
+    if (mini && innerSchema) {
+      const defaultValue = typeof value === 'object' ? '{}' : (value ?? '')
+      return `z._default(${innerSchema}, ${defaultValue})`
+    }
     if (typeof value === 'object') {
       return '.default({})'
     }
     return `.default(${value ?? ''})`
   },
   and: (items: string[] = []) => items?.map((item) => `.and(${item})`).join(''),
-  describe: (value = '') => `.describe(${value})`,
+  describe: (value = '', innerSchema?: string, mini?: boolean) => {
+    if (mini) {
+      return undefined
+    }
+
+    if (innerSchema) {
+      return `z.describe(${innerSchema}, ${value})`
+    }
+    return `.describe(${value})`
+  },
   max: undefined,
   min: undefined,
   optional: (value?: string) => {
@@ -174,8 +253,20 @@ const zodKeywordMapper = {
     }
     return '.optional()'
   },
-  matches: (value = '', coercion?: boolean) => (coercion ? `z.coerce.string().regex(${value})` : `z.string().regex(${value})`),
-  email: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number) => {
+  matches: (value = '', coercion?: boolean, mini?: boolean) => {
+    if (mini) {
+      return `z.string().check(z.regex(${value}))`
+    }
+    return coercion ? `z.coerce.string().regex(${value})` : `z.string().regex(${value})`
+  },
+  email: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number, mini?: boolean) => {
+    if (mini) {
+      const checks = buildLengthChecks(min, max)
+      if (checks.length > 0) {
+        return `z.email().check(${checks.join(', ')})`
+      }
+      return 'z.email()'
+    }
     return [
       coercion ? (version === '4' ? 'z.email()' : 'z.coerce.string().email()') : version === '4' ? 'z.email()' : 'z.string().email()',
       min !== undefined ? `.min(${min})` : undefined,
@@ -201,7 +292,13 @@ const zodKeywordMapper = {
   deprecated: undefined,
   example: undefined,
   schema: undefined,
-  catchall: (value?: string) => (value ? `.catchall(${value})` : undefined),
+  catchall: (value?: string, mini?: boolean) => {
+    // Zod Mini doesn't support .catchall() method
+    if (mini) {
+      return undefined
+    }
+    return value ? `.catchall(${value})` : undefined
+  },
   name: undefined,
   exclusiveMinimum: undefined,
   exclusiveMaximum: undefined,
@@ -245,6 +342,73 @@ export function sort(items?: Schema[]): Schema[] {
   return transformers.orderBy(items, [(v) => order.indexOf(v.keyword)], ['asc'])
 }
 
+type MiniModifiers = {
+  hasOptional?: boolean
+  hasNullable?: boolean
+  hasNullish?: boolean
+  defaultValue?: string | number | true | object
+}
+
+/**
+ * Keywords that represent modifiers for mini mode
+ * These are separated from the base schema and wrapped around it
+ * Note: describe is included to filter it out, but won't be wrapped (Zod Mini doesn't support describe)
+ */
+export const miniModifierKeywords = [schemaKeywords.optional, schemaKeywords.nullable, schemaKeywords.nullish, schemaKeywords.default, schemaKeywords.describe]
+
+/**
+ * Extracts mini mode modifiers from a schemas array
+ * This can be reused by other parsers (e.g., valibot) that need similar functionality
+ * Note: describe is not included as Zod Mini doesn't support it
+ */
+export function extractMiniModifiers(schemas: Schema[]): MiniModifiers {
+  const defaultSchema = schemas.find((item) => isKeyword(item, schemaKeywords.default)) as { keyword: string; args: unknown } | undefined
+
+  return {
+    hasOptional: schemas.some((item) => isKeyword(item, schemaKeywords.optional)),
+    hasNullable: schemas.some((item) => isKeyword(item, schemaKeywords.nullable)),
+    hasNullish: schemas.some((item) => isKeyword(item, schemaKeywords.nullish)),
+    defaultValue: defaultSchema?.args as string | number | true | object | undefined,
+  }
+}
+
+/**
+ * Filters out modifier keywords from schemas for mini mode base schema parsing
+ * This can be reused by other parsers (e.g., valibot) that need similar functionality
+ */
+export function filterMiniModifiers(schemas: Schema[]): Schema[] {
+  return schemas.filter((item) => !miniModifierKeywords.some((keyword) => isKeyword(item, keyword)))
+}
+
+/**
+ * Wraps an output string with Zod Mini functional modifiers
+ * Order: default (innermost) -> nullable -> optional (outermost)
+ * OR: default -> nullish
+ * Note: describe is not supported in Zod Mini and is skipped
+ */
+export function wrapWithMiniModifiers(output: string, modifiers: MiniModifiers): string {
+  let result = output
+
+  // Apply default first (innermost wrapper)
+  if (modifiers.defaultValue !== undefined) {
+    result = zodKeywordMapper.default(modifiers.defaultValue, result, true)!
+  }
+
+  // Apply nullish, nullable, or optional (outer wrappers for optionality)
+  if (modifiers.hasNullish) {
+    result = zodKeywordMapper.nullish(result)!
+  } else {
+    if (modifiers.hasNullable) {
+      result = zodKeywordMapper.nullable(result)!
+    }
+    if (modifiers.hasOptional) {
+      result = zodKeywordMapper.optional(result)!
+    }
+  }
+
+  return result
+}
+
 const shouldCoerce = (coercion: ParserOptions['coercion'] | undefined, type: 'dates' | 'strings' | 'numbers'): boolean => {
   if (coercion === undefined) {
     return false
@@ -262,6 +426,7 @@ type ParserOptions = {
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
   version: '3' | '4'
   skipLazyForRefs?: boolean
+  mini?: boolean
 }
 
 export function parse({ schema, parent, current, name, siblings }: SchemaTree, options: ParserOptions): string | undefined {
@@ -316,6 +481,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
       current.args.min,
       current.args.max,
       current.args.unique,
+      options.mini,
     )
   }
 
@@ -402,6 +568,35 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
           : baseSchemaOutput
 
         if (options.version === '4' && hasRef) {
+          // In mini mode, use functional wrappers instead of chainable methods
+          if (options.mini) {
+            // both optional and nullable
+            if (isNullish) {
+              return `get "${propertyName}"(){
+                return ${zodKeywordMapper.nullish(objectValue)}
+              }`
+            }
+
+            // undefined
+            if (isOptional) {
+              return `get "${propertyName}"(){
+                return ${zodKeywordMapper.optional(objectValue)}
+              }`
+            }
+
+            // null
+            if (isNullable) {
+              return `get "${propertyName}"(){
+                return ${zodKeywordMapper.nullable(objectValue)}
+              }`
+            }
+
+            return `get "${propertyName}"(){
+                return ${objectValue}
+              }`
+          }
+
+          // Non-mini mode uses chainable methods
           // both optional and nullable
           if (isNullish) {
             return `get "${propertyName}"(){
@@ -456,7 +651,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
 
     const text = [
       zodKeywordMapper.object(properties, current.args?.strict, options.version),
-      additionalProperties ? zodKeywordMapper.catchall(additionalProperties) : undefined,
+      additionalProperties ? zodKeywordMapper.catchall(additionalProperties, options.mini) : undefined,
     ].filter(Boolean)
 
     return text.join('')
@@ -481,11 +676,15 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
 
   if (isKeyword(current, schemaKeywords.matches)) {
     if (current.args) {
-      return zodKeywordMapper.matches(transformers.toRegExpString(current.args, null), shouldCoerce(options.coercion, 'strings'))
+      return zodKeywordMapper.matches(transformers.toRegExpString(current.args, null), shouldCoerce(options.coercion, 'strings'), options.mini)
     }
   }
 
   if (isKeyword(current, schemaKeywords.default)) {
+    // In mini mode, default is handled by wrapWithMiniModifiers
+    if (options.mini) {
+      return undefined
+    }
     if (current.args) {
       return zodKeywordMapper.default(current.args)
     }
@@ -493,7 +692,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
 
   if (isKeyword(current, schemaKeywords.describe)) {
     if (current.args) {
-      return zodKeywordMapper.describe(transformers.stringify(current.args.toString()))
+      return zodKeywordMapper.describe(transformers.stringify(current.args.toString()), undefined, options.mini)
     }
   }
 
@@ -501,25 +700,28 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
     const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
     const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
 
-    return zodKeywordMapper.string(shouldCoerce(options.coercion, 'strings'), minSchema?.args, maxSchema?.args)
+    return zodKeywordMapper.string(shouldCoerce(options.coercion, 'strings'), minSchema?.args, maxSchema?.args, options.mini)
   }
 
   if (isKeyword(current, schemaKeywords.uuid)) {
-    return zodKeywordMapper.uuid(shouldCoerce(options.coercion, 'strings'), options.version)
+    const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
+    const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
+
+    return zodKeywordMapper.uuid(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
   }
 
   if (isKeyword(current, schemaKeywords.email)) {
     const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
     const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
 
-    return zodKeywordMapper.email(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args)
+    return zodKeywordMapper.email(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
   }
 
   if (isKeyword(current, schemaKeywords.url)) {
     const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
     const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
 
-    return zodKeywordMapper.url(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args)
+    return zodKeywordMapper.url(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
   }
 
   if (isKeyword(current, schemaKeywords.number)) {
@@ -534,6 +736,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
       maxSchema?.args,
       exclusiveMinimumSchema?.args,
       exclusiveMaximumSchema?.args,
+      options.mini,
     )
   }
 
@@ -550,11 +753,12 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
       options.version,
       exclusiveMinimumSchema?.args,
       exclusiveMaximumSchema?.args,
+      options.mini,
     )
   }
 
   if (isKeyword(current, schemaKeywords.datetime)) {
-    return zodKeywordMapper.datetime(current.args.offset, current.args.local, options.version)
+    return zodKeywordMapper.datetime(current.args.offset, current.args.local, options.version, options.mini)
   }
 
   if (isKeyword(current, schemaKeywords.date)) {

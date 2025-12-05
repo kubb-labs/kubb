@@ -1,6 +1,0 @@
-export { createVendor, getCreateVendorUrl } from './createVendor.ts'
-export { deleteVendor, getDeleteVendorUrl } from './deleteVendor.ts'
-export { getGetVendorByIdUrl, getVendorById } from './getVendorById.ts'
-export { getListVendorsUrl, listVendors } from './listVendors.ts'
-export { getUpdateVendorUrl, updateVendor } from './updateVendor.ts'
-export { vendorsService } from './vendorsService.ts'

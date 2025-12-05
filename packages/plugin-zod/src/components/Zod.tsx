@@ -19,6 +19,7 @@ type Props = {
   wrapOutput?: PluginZod['resolvedOptions']['wrapOutput']
   version: '3' | '4'
   emptySchemaType: PluginZod['resolvedOptions']['emptySchemaType']
+  mini?: boolean
 }
 
 export function Zod({
@@ -34,6 +35,7 @@ export function Zod({
   wrapOutput,
   version,
   emptySchemaType,
+  mini = false,
 }: Props): KubbNode {
   const hasTuple = !!SchemaGenerator.find(tree, schemaKeywords.tuple)
 
@@ -45,11 +47,14 @@ export function Zod({
     return true
   })
 
-  const output = schemas
-    .map((schema, index) => {
-      const siblings = schemas.filter((_, i) => i !== index)
+  // In mini mode, filter out modifiers from the main schema parsing
+  const baseSchemas = mini ? parserZod.filterMiniModifiers(schemas) : schemas
 
-      return parserZod.parse({ schema, parent: undefined, current: schema, siblings, name }, { mapper, coercion, wrapOutput, version })
+  const output = baseSchemas
+    .map((schema, index) => {
+      const siblings = baseSchemas.filter((_, i) => i !== index)
+
+      return parserZod.parse({ schema, parent: undefined, current: schema, siblings, name }, { mapper, coercion, wrapOutput, version, mini })
     })
     .filter(Boolean)
     .join('')
@@ -58,7 +63,7 @@ export function Zod({
   const firstSchema = schemas.at(0)
   const lastSchema = schemas.at(-1)
 
-  if (lastSchema && isKeyword(lastSchema, schemaKeywords.nullable)) {
+  if (!mini && lastSchema && isKeyword(lastSchema, schemaKeywords.nullable)) {
     if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref)) {
       if (version === '3') {
         suffix = '.unwrap().schema.unwrap()'
@@ -68,7 +73,7 @@ export function Zod({
     } else {
       suffix = '.unwrap()'
     }
-  } else {
+  } else if (!mini) {
     if (firstSchema && isKeyword(firstSchema, schemaKeywords.ref)) {
       if (version === '3') {
         suffix = '.schema'
@@ -87,13 +92,19 @@ export function Zod({
       },
       siblings: [],
     },
-    { mapper, coercion, wrapOutput, version },
+    { mapper, coercion, wrapOutput, version, mini },
   )
 
-  const baseSchemaOutput =
+  let baseSchemaOutput =
     [output, keysToOmit?.length ? `${suffix}.omit({ ${keysToOmit.map((key) => `'${key}': true`).join(',')} })` : undefined].filter(Boolean).join('') ||
     emptyValue ||
     ''
+
+  // For mini mode, wrap the output with modifiers using the parser function
+  if (mini) {
+    baseSchemaOutput = parserZod.wrapWithMiniModifiers(baseSchemaOutput, parserZod.extractMiniModifiers(schemas))
+  }
+
   const wrappedSchemaOutput = wrapOutput ? wrapOutput({ output: baseSchemaOutput, schema }) || baseSchemaOutput : baseSchemaOutput
   const finalOutput = typeName ? `${wrappedSchemaOutput} as unknown as ${version === '4' ? 'z.ZodType' : 'ToZod'}<${typeName}>` : wrappedSchemaOutput
 

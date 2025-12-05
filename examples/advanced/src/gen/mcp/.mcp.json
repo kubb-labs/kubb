@@ -1,9 +1,9 @@
 {
   "mcpServers": {
-    "Payments API": {
+    "Swagger Petstore - OpenAPI 3.0": {
       "type": "stdio",
       "command": "npx",
-      "args": ["tsx", "/workspaces/kubb/examples/advanced/src/gen/mcp/server.ts"]
+      "args": ["tsx", "/Users/stijnvanhulle/GitHub/kubb/examples/advanced/src/gen/mcp/server.ts"]
     }
   }
 }
