@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.8.1
+- [`plugin-client`](/plugins/plugin-client/): Fix formData generation when parser is undefined or non-standard. Previously, when using multipart/form-data endpoints without setting parser to 'client' or 'zod', the generated code would attempt to call `buildFormData(requestData)` with an undefined `requestData` variable, causing a reference error.
+
 # 4.7.1
 - [`plugin-oas`](/plugins/plugin-oas/): Fix `serverIndex: 0` not resolving to `servers[0].url` in generated code. The condition `if (serverIndex)` was treating 0 as falsy, causing `getBaseURL()` to return undefined instead of the first server URL.
 
