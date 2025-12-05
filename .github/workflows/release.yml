@@ -199,15 +199,11 @@ jobs:
     permissions:
       contents: write # enable pushing changes to the origin
       id-token: write # enable generation of an ID token for publishing
-    outputs:
-      # will be undefined if there's no release necessary
-      NEXT_VERSION: ${{ steps.version.outputs.NEXT_VERSION }}
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
         with:
           ref: main
-          # checkout using a custom token so that we can push later on
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
@@ -215,44 +211,42 @@ jobs:
         uses: ./.github/setup
 
       - name: 🕵️ Check for changes
-        id: version
+        id: check_changes
         run: |
-          SHORT_SHA=$(git rev-parse --short HEAD)
-
-          # get latest nightly tag
-          LATEST_NIGHTLY_TAG=$(git tag -l v0.0.0-nightly-\* --sort=-creatordate | head -n 1)
-
-          # check if last commit to main starts with the nightly tag we're about
-          # to create (minus the date)
-          # if it is, we'll skip the nightly creation
-          # if not, we'll create a new nightly tag
-          if [[ ${LATEST_NIGHTLY_TAG} == v0.0.0-nightly-${SHORT_SHA}-* ]]; then
-            echo "🛑 Latest nightly tag is the same as the latest commit sha, skipping nightly release"
+          # Check if there are any changes since last nightly release
+          LAST_NIGHTLY_TAG=$(git tag -l "v*-nightly-*" --sort=-creatordate | head -n 1)
+          
+          if [ -z "$LAST_NIGHTLY_TAG" ]; then
+            echo "No previous nightly tag found, will create nightly release"
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
           else
-            # yyyyMMdd format (e.g. 20221207)
-            DATE=$(date '+%Y%m%d')
-            # v0.0.0-nightly-<short sha>-<date>
-            NEXT_VERSION=0.0.0-nightly-${SHORT_SHA}-${DATE}
-            # set output so it can be used in other jobs
-            echo "NEXT_VERSION=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
+            LAST_NIGHTLY_COMMIT=$(git rev-list -n 1 "$LAST_NIGHTLY_TAG")
+            CURRENT_COMMIT=$(git rev-parse HEAD)
+            
+            if [ "$LAST_NIGHTLY_COMMIT" = "$CURRENT_COMMIT" ]; then
+              echo "🛑 No changes since last nightly release, skipping"
+              echo "should_release=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "Changes detected since last nightly, will create nightly release"
+              echo "should_release=true" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
-      - name: ⤴️ Update version
-        if: steps.version.outputs.NEXT_VERSION
+      - name: 🏗 Build
+        if: steps.check_changes.outputs.should_release == 'true'
+        run: pnpm run build
+
+      - name: 🚀 Version and Publish Nightly
+        if: steps.check_changes.outputs.should_release == 'true'
         run: |
           git config --local user.email "hello@kubb.dev"
           git config --local user.name "Kubb Bot"
-          git checkout -b nightly/${{ steps.version.outputs.NEXT_VERSION }}
-          pnpm run version "${{ steps.version.outputs.NEXT_VERSION }}"
-          git push origin --tags
-
-      - name: 🏗 Build
-        if: steps.version.outputs.NEXT_VERSION
-        run: pnpm run build
-
-      - name: 🚀 Publish
-        if: steps.version.outputs.NEXT_VERSION
-        run: pnpm run release
+          
+          # Create nightly snapshot version
+          pnpm run version:canary
+          
+          # Publish with nightly tag
+          pnpm run release:canary --tag nightly
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -270,7 +264,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch }}
-          # checkout using a custom token so that we can push later on
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
@@ -280,26 +273,21 @@ jobs:
       - name: 🏗 Build
         run: pnpm run build
 
-      - name: ⤴️ Update version and publish
+      - name: 🚀 Version and Publish
         run: |
           git config --local user.email "hello@kubb.dev"
           git config --local user.name "Kubb Bot"
-          SHORT_SHA=$(git rev-parse --short HEAD)
           
-          # Check if we're on main branch and have a custom tag
-          if [ "${{ github.event.inputs.branch }}" == "main" ] && [ "${{ github.event.inputs.tag }}" != "" ]; then
-            # Use canary versioning for main branch with custom tag
-            git checkout main
-            pnpm run version:canary
-            pnpm run release:canary --tag "${{ github.event.inputs.tag }}"
-          else
-            # Use experimental versioning for other branches
-            NEXT_VERSION="0.0.0-experimental-${SHORT_SHA}"
-            git checkout -b "experimental/${NEXT_VERSION}"
-            pnpm run version "${NEXT_VERSION}"
-            git push origin --tags
-            pnpm run release
+          # Use canary snapshot versioning
+          pnpm run version:canary
+          
+          # Publish with custom tag or default to 'experimental'
+          TAG="${{ github.event.inputs.tag }}"
+          if [ -z "$TAG" ]; then
+            TAG="experimental"
           fi
+          
+          pnpm run release:canary --tag "$TAG"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
