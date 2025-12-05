@@ -105,7 +105,7 @@ jobs:
     name: Find Package Version
     needs: [release]
     runs-on: ubuntu-latest
-    if: needs.release.outputs.published == 'true'
+    if: github.repository == 'kubb-labs/kubb' && needs.release.outputs.published == 'true'
     outputs:
       package_version: ${{ steps.find_package_version.outputs.package_version }}
     steps:
@@ -125,7 +125,7 @@ jobs:
 
   comment:
     name: Comment on related issues and pull requests
-    if: needs.find_package_version.outputs.package_version != ''
+    if: github.repository == 'kubb-labs/kubb' && needs.release.outputs.published == 'true' && needs.find_package_version.result == 'success'
     needs: [release, find_package_version]
     runs-on: ubuntu-latest
     permissions:

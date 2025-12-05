@@ -28,6 +28,11 @@ try {
     process.exit(1);
   }
 
+  if (publishedPackages.length === 0) {
+    console.error('Error: No packages were published');
+    process.exit(1);
+  }
+
   const targetPackage = publishedPackages.find(
     pkg => pkg.name === packageToFollow
   );
@@ -40,7 +45,6 @@ try {
 
   // Output just the version
   console.log(targetPackage.version);
-  process.exit(0);
 } catch (error) {
   console.error('Error parsing PUBLISHED_PACKAGES:', error.message);
   process.exit(1);

@@ -19,7 +19,6 @@ env:
 jobs:
   comment:
     name: 📝 Comment on related issues and pull requests
-    if: github.repository == 'kubb-labs/kubb'
     runs-on: ubuntu-latest
     permissions:
       issues: write # enable commenting on released issues
