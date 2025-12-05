@@ -37,3 +37,112 @@ jobs:
           DIRECTORY_TO_CHECK: "./packages"
           PACKAGE_NAME: "@kubb/core"
           ISSUE_LABELS_TO_KEEP_OPEN: "🗺 Roadmap"
+
+      - name: 📚 Add docs changelog link to comments
+        if: ${{ github.event.inputs.dryRun != 'true' }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Get the latest @kubb/core tag
+            const { data: tags } = await github.rest.repos.listTags({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 10
+            });
+            
+            const coreTag = tags.find(tag => tag.name.startsWith('@kubb/core@'));
+            if (!coreTag) {
+              console.log('No @kubb/core tag found');
+              return;
+            }
+            
+            const version = coreTag.name.replace('@kubb/core@', '');
+            const versionSlug = version.replace(/\./g, '-');
+            const docsUrl = `https://www.kubb.dev/changelog#_${versionSlug}`;
+            const docsComment = `📚 View the detailed changelog: ${docsUrl}`;
+            
+            console.log(`Version: ${version}, Docs URL: ${docsUrl}`);
+            
+            // Find the previous tag to determine the commit range
+            const currentTagIndex = tags.findIndex(tag => tag.name === coreTag.name);
+            const previousTag = tags[currentTagIndex + 1];
+            
+            if (!previousTag) {
+              console.log('No previous tag found');
+              return;
+            }
+            
+            console.log(`Comparing ${previousTag.name} to ${coreTag.name}`);
+            
+            // Get commits between tags
+            const { data: comparison } = await github.rest.repos.compareCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              base: previousTag.commit.sha,
+              head: coreTag.commit.sha
+            });
+            
+            // Find PRs for each commit
+            const prNumbers = new Set();
+            for (const commit of comparison.commits) {
+              try {
+                const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  commit_sha: commit.sha
+                });
+                
+                for (const pr of prs) {
+                  if (pr.merged_at) {
+                    prNumbers.add(pr.number);
+                  }
+                }
+              } catch (error) {
+                console.log(`Error finding PRs for commit ${commit.sha}: ${error.message}`);
+              }
+            }
+            
+            console.log(`Found ${prNumbers.size} PRs`);
+            
+            // Comment on each PR and its linked issues
+            for (const prNumber of prNumbers) {
+              try {
+                // Comment on PR
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body: docsComment
+                });
+                console.log(`Commented on PR #${prNumber}`);
+                
+                // Get linked issues from PR
+                const { data: pr } = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber
+                });
+                
+                // Extract issue numbers from PR body
+                const issueRegex = /(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)(?::)?\s+#(\d+)/gi;
+                const matches = [...(pr.body || '').matchAll(issueRegex)];
+                
+                for (const match of matches) {
+                  const issueNumber = parseInt(match[1], 10);
+                  try {
+                    await github.rest.issues.createComment({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: issueNumber,
+                      body: docsComment
+                    });
+                    console.log(`Commented on issue #${issueNumber}`);
+                  } catch (error) {
+                    console.log(`Error commenting on issue #${issueNumber}: ${error.message}`);
+                  }
+                }
+              } catch (error) {
+                console.log(`Error processing PR #${prNumber}: ${error.message}`);
+              }
+            }
