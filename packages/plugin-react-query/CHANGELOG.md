@@ -1,5 +1,17 @@
 # @kubb/plugin-react-query
 
+## 4.8.0
+
+### Patch Changes
+
+- Updated dependencies [[`9753dfa`](https://github.com/kubb-labs/kubb/commit/9753dfafc8f468d1f865896ed50341a577dfefba)]:
+  - @kubb/plugin-zod@4.8.0
+  - @kubb/plugin-client@4.8.0
+  - @kubb/core@4.8.0
+  - @kubb/oas@4.8.0
+  - @kubb/plugin-oas@4.8.0
+  - @kubb/plugin-ts@4.8.0
+
 ## 4.7.4
 
 ### Patch Changes
