@@ -105,13 +105,31 @@ jobs:
               head: coreTag.commit.sha
             });
             
+            // Concurrency limiter (like p-limit)
+            function pLimit(concurrency) {
+              let activeCount = 0
+              const queue = []
+              const next = () => {
+                if (queue.length === 0 || activeCount >= concurrency) return
+                activeCount++
+                const { fn, resolve, reject } = queue.shift()
+                fn().then(resolve, reject).finally(() => {
+                  activeCount--
+                  next()
+                })
+              }
+              return (fn) => new Promise((resolve, reject) => {
+                queue.push({ fn, resolve, reject })
+                process.nextTick(next)
+              })
+            }
+            
             // Find PRs for each commit (in parallel with concurrency limit)
             const prNumbers = new Set();
-            const pLimit = require('p-limit');
-            const limit = pLimit(5); // Limit to 5 concurrent requests
+            const commitLimit = pLimit(5); // Limit to 5 concurrent requests
             await Promise.all(
               comparison.commits.map(commit =>
-                limit(async () => {
+                commitLimit(async () => {
                   try {
                     const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
                       owner: context.repo.owner,
@@ -133,25 +151,6 @@ jobs:
             
             console.log(`Found ${prNumbers.size} PRs`);
             
-            // Concurrency limiter (like p-limit)
-            function pLimit(concurrency) {
-              let activeCount = 0
-              const queue = []
-              const next = () => {
-                if (queue.length === 0 || activeCount >= concurrency) return
-                activeCount++
-                const { fn, resolve, reject } = queue.shift()
-                fn().then(resolve, reject).finally(() => {
-                  activeCount--
-                  next()
-                })
-              }
-              return (fn) => new Promise((resolve, reject) => {
-                queue.push({ fn, resolve, reject })
-                process.nextTick(next)
-              })
-            }
-
             const prLimit = pLimit(3) // max 3 PRs in parallel
             const issueLimit = pLimit(3) // max 3 issues in parallel
 
