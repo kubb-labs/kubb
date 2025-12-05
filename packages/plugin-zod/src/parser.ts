@@ -231,7 +231,11 @@ const zodKeywordMapper = {
   },
   and: (items: string[] = []) => items?.map((item) => `.and(${item})`).join(''),
   describe: (value = '', innerSchema?: string, mini?: boolean) => {
-    if (mini && innerSchema) {
+    if (mini) {
+      return undefined
+    }
+
+    if (innerSchema) {
       return `z.describe(${innerSchema}, ${value})`
     }
     return `.describe(${value})`
@@ -332,20 +336,13 @@ type MiniModifiers = {
   hasNullable?: boolean
   hasNullish?: boolean
   defaultValue?: string | number | true | object
-  describeValue?: string
 }
 
 /**
  * Keywords that represent modifiers for mini mode
  * These are separated from the base schema and wrapped around it
  */
-export const miniModifierKeywords = [
-  schemaKeywords.optional,
-  schemaKeywords.nullable,
-  schemaKeywords.nullish,
-  schemaKeywords.default,
-  schemaKeywords.describe,
-]
+export const miniModifierKeywords = [schemaKeywords.optional, schemaKeywords.nullable, schemaKeywords.nullish, schemaKeywords.default]
 
 /**
  * Extracts mini mode modifiers from a schemas array
@@ -353,14 +350,12 @@ export const miniModifierKeywords = [
  */
 export function extractMiniModifiers(schemas: Schema[]): MiniModifiers {
   const defaultSchema = schemas.find((item) => isKeyword(item, schemaKeywords.default)) as { keyword: string; args: unknown } | undefined
-  const describeSchema = schemas.find((item) => isKeyword(item, schemaKeywords.describe)) as { keyword: string; args: unknown } | undefined
 
   return {
     hasOptional: schemas.some((item) => isKeyword(item, schemaKeywords.optional)),
     hasNullable: schemas.some((item) => isKeyword(item, schemaKeywords.nullable)),
     hasNullish: schemas.some((item) => isKeyword(item, schemaKeywords.nullish)),
     defaultValue: defaultSchema?.args as string | number | true | object | undefined,
-    describeValue: describeSchema?.args !== undefined ? String(describeSchema.args) : undefined,
   }
 }
 
@@ -383,11 +378,6 @@ export function wrapWithMiniModifiers(output: string, modifiers: MiniModifiers):
   // Apply default first (innermost wrapper)
   if (modifiers.defaultValue !== undefined) {
     result = zodKeywordMapper.default(modifiers.defaultValue, result, true)!
-  }
-
-  // Apply describe
-  if (modifiers.describeValue !== undefined) {
-    result = zodKeywordMapper.describe(transformers.stringify(String(modifiers.describeValue)), result, true)!
   }
 
   // Apply nullish, nullable, or optional (outer wrappers for optionality)
