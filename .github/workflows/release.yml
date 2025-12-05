@@ -67,7 +67,7 @@ jobs:
 
       - name: Get canary release info
         id: canary_info
-        if: steps.canary.outcome == 'success'
+        if: steps.canary.conclusion == 'success'
         run: |
           # Get the version from the main kubb package
           VERSION=$(jq -r .version packages/kubb/package.json)
