@@ -286,11 +286,14 @@ Which version of Zod should be used.
 | Required: | `false`      |
 |  Default: | `'3'`        |
 
-### mini
+### mini <Badge type="tip" text="beta" />
 
 Use Zod Mini's functional API for better tree-shaking support.
 When enabled, generates functional syntax (e.g., `z.optional(z.string())`) instead of chainable methods (e.g., `z.string().optional()`).
 Requires Zod v4 or later. When `mini: true`, `version` will be set to `'4'` and `importPath` will default to `'zod/mini'`.
+
+> [!WARNING]
+> This feature is currently in beta. The API may change in future releases.
 
 > [!TIP]
 > Zod Mini provides a smaller bundle size with better tree-shaking. See [Zod Mini documentation](https://zod.dev/packages/mini) for more details.
