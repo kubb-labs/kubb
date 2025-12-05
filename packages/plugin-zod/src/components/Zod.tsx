@@ -51,9 +51,7 @@ export function Zod({
   })
 
   // In mini mode, filter out modifiers from the main schema parsing
-  const baseSchemas = mini
-    ? schemas.filter((item) => !modifierKeywords.some((keyword) => isKeyword(item, keyword)))
-    : schemas
+  const baseSchemas = mini ? schemas.filter((item) => !modifierKeywords.some((keyword) => isKeyword(item, keyword))) : schemas
 
   const output = baseSchemas
     .map((schema, index) => {

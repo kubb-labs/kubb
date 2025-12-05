@@ -104,18 +104,6 @@
       {
         "name": "world",
         "value": ""
-      },
-      {
-        "name": "hello",
-        "value": "",
-        "isExportable": false,
-        "isIndexable": false
-      },
-      {
-        "name": "world",
-        "value": "",
-        "isExportable": false,
-        "isIndexable": false
       }
     ],
     "exports": [

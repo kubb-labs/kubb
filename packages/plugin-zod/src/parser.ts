@@ -106,14 +106,14 @@ const zodKeywordMapper = {
   //support for discriminatedUnion
   boolean: () => 'z.boolean()',
   undefined: () => 'z.undefined()',
-  nullable: (value?: string, mini?: boolean) => {
+  nullable: (value?: string, _mini?: boolean) => {
     if (value) {
       return `z.nullable(${value})`
     }
     return '.nullable()'
   },
   null: () => 'z.null()',
-  nullish: (value?: string, mini?: boolean) => {
+  nullish: (value?: string, _mini?: boolean) => {
     if (value) {
       return `z.nullish(${value})`
     }
@@ -221,7 +221,7 @@ const zodKeywordMapper = {
   },
   default: (value?: string | number | true | object, innerSchema?: string, mini?: boolean) => {
     if (mini && innerSchema) {
-      const defaultValue = typeof value === 'object' ? '{}' : value ?? ''
+      const defaultValue = typeof value === 'object' ? '{}' : (value ?? '')
       return `z._default(${innerSchema}, ${defaultValue})`
     }
     if (typeof value === 'object') {
@@ -238,7 +238,7 @@ const zodKeywordMapper = {
   },
   max: undefined,
   min: undefined,
-  optional: (value?: string, mini?: boolean) => {
+  optional: (value?: string, _mini?: boolean) => {
     if (value) {
       return `z.optional(${value})`
     }
