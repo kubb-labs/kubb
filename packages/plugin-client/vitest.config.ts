@@ -1,3 +1,4 @@
+import tsconfigPaths from 'vite-tsconfig-paths'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -5,4 +6,5 @@ export default defineConfig({
     include: ['./src/**/*.test.{ts,tsx}', './templates/**/*.test.{ts,tsx}'],
     globals: true,
   },
+  plugins: [tsconfigPaths()],
 })
