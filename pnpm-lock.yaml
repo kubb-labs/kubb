@@ -335,8 +335,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@kubb/react-fabric':
-        specifier: ~0.5.3
-        version: 0.5.3
+        specifier: ~0.5.4
+        version: 0.5.4
       '@modelcontextprotocol/sdk':
         specifier: 1.21.1
         version: 1.21.1
@@ -408,8 +408,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: ~0.5.3
-        version: 0.5.3
+        specifier: ~0.5.4
+        version: 0.5.4
       axios:
         specifier: ^1.13.2
         version: 1.13.2
@@ -476,8 +476,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: ~0.5.3
-        version: 0.5.3
+        specifier: ~0.5.4
+        version: 0.5.4
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
@@ -532,8 +532,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: ~0.5.3
-        version: 0.5.3
+        specifier: ~0.5.4
+        version: 0.5.4
       axios:
         specifier: ^1.13.2
         version: 1.13.2
@@ -646,8 +646,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: ~0.5.3
-        version: 0.5.3
+        specifier: ~0.5.4
+        version: 0.5.4
       '@tanstack/react-query':
         specifier: ^5.90.12
         version: 5.90.12(react@19.2.1)
@@ -2311,16 +2311,8 @@ packages:
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
 
-  '@kubb/fabric-core@0.5.3':
-    resolution: {integrity: sha512-+UfOwTO3kOPdvex5od5ru2maKjjSZYt9cVLvMQLK34/C4ouxZuajpTVTb5WlAeJBJzqTpX8Qpv3kfnYUQaCfog==}
-    engines: {node: '>=20'}
-
   '@kubb/fabric-core@0.5.4':
     resolution: {integrity: sha512-pc2uRu2ddMB7z5Ix882E9yP7+Rx26/do15HFeZEkbunXv2sTgZ9leKl0+tlhZVC+iVTCR9wd7uoTYUIkCiP9Tw==}
-    engines: {node: '>=20'}
-
-  '@kubb/react-fabric@0.5.3':
-    resolution: {integrity: sha512-cRT65S9Vniwo6Oda9WUd1aKk1qCXseJowEEceeb3lFgBwZah+QKB6mB2uT+ZDzqDW7SBwln6+6Cxr0U8u969Gw==}
     engines: {node: '>=20'}
 
   '@kubb/react-fabric@0.5.4':
@@ -4832,10 +4824,6 @@ packages:
   execa@4.1.0:
     resolution: {integrity: sha512-j5W0//W7f8UxAn8hXVnwG8tLwdiUy4FJLcSupCg6maBYZDpyBvTApK7KyuI4bKj8KOh1r2YH+6ucuYtJv1bTZA==}
     engines: {node: '>=10'}
-
-  execa@9.6.0:
-    resolution: {integrity: sha512-jpWzZ1ZhwUmeWRhS7Qv3mhpOhLfwI+uAX4e5fOcXqwMR7EcJ0pj2kV1CVzHVMX/LphnKWD3LObjZCoJ71lKpHw==}
-    engines: {node: ^18.19.0 || >=20.5.0}
 
   execa@9.6.1:
     resolution: {integrity: sha512-9Be3ZoN4LmYR90tUoVu2te2BsbzHfhJyfEiAVfz7N5/zv+jduIfLrV2xdQXOHbaD6KgpGdO9PRPM1Y4Q9QkPkA==}
@@ -8827,20 +8815,6 @@ snapshots:
     dependencies:
       jsep: 1.4.0
 
-  '@kubb/fabric-core@0.5.3':
-    dependencies:
-      cli-progress: 3.12.0
-      consola: 3.4.2
-      fs-extra: 11.3.2
-      natural-orderby: 5.0.0
-      p-limit: 7.2.0
-      serve-handler: 6.1.6
-      typescript: 5.9.3
-      ws: 8.18.3
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
   '@kubb/fabric-core@0.5.4':
     dependencies:
       cli-progress: 3.12.0
@@ -8852,21 +8826,6 @@ snapshots:
       typescript: 5.9.3
       ws: 8.18.3
     transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
-  '@kubb/react-fabric@0.5.3':
-    dependencies:
-      '@kubb/fabric-core': 0.5.3
-      dedent: 1.7.0
-      execa: 9.6.0
-      indent-string: 5.0.0
-      natural-orderby: 5.0.0
-      react-devtools-core: 6.1.2
-      signal-exit: 4.1.0
-      ws: 8.18.0
-    transitivePeerDependencies:
-      - babel-plugin-macros
       - bufferutil
       - utf-8-validate
 
@@ -11644,21 +11603,6 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
       strip-final-newline: 2.0.0
-
-  execa@9.6.0:
-    dependencies:
-      '@sindresorhus/merge-streams': 4.0.0
-      cross-spawn: 7.0.6
-      figures: 6.1.0
-      get-stream: 9.0.1
-      human-signals: 8.0.1
-      is-plain-obj: 4.1.0
-      is-stream: 4.0.1
-      npm-run-path: 6.0.0
-      pretty-ms: 9.3.0
-      signal-exit: 4.1.0
-      strip-final-newline: 4.0.0
-      yoctocolors: 2.1.2
 
   execa@9.6.1:
     dependencies:
