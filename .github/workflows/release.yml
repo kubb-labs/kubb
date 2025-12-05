@@ -69,9 +69,9 @@ jobs:
         id: canary_info
         if: steps.canary.conclusion == 'success'
         run: |
-          # Get the version from @kubb/core which is part of the fixed versioning group
-          # All @kubb/* packages share the same version due to the fixed config
-          VERSION=$(jq -r .version packages/core/package.json)
+          # Get the version from the kubb package to match the regular release workflow
+          # The kubb package is the main package that gets published and tagged
+          VERSION=$(jq -r .version packages/kubb/package.json)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=kubb@$VERSION" >> $GITHUB_OUTPUT
           echo "Canary version: $VERSION"
