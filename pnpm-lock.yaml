@@ -625,6 +625,58 @@ importers:
         specifier: ~5.2.2
         version: 5.2.2
 
+  examples/pinia-colada:
+    dependencies:
+      '@kubb/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@kubb/plugin-client':
+        specifier: workspace:*
+        version: link:../../packages/plugin-client
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../../packages/plugin-oas
+      '@kubb/plugin-pinia-colada':
+        specifier: workspace:*
+        version: link:../../packages/plugin-pinia-colada
+      '@kubb/plugin-ts':
+        specifier: workspace:*
+        version: link:../../packages/plugin-ts
+      '@kubb/plugin-zod':
+        specifier: workspace:*
+        version: link:../../packages/plugin-zod
+      '@pinia/colada':
+        specifier: ^0.17.4
+        version: 0.17.9(pinia@3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3)))(vue@3.5.25(typescript@5.9.3))
+      axios:
+        specifier: ^1.13.2
+        version: 1.13.2
+      pinia:
+        specifier: ^3.0.4
+        version: 3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3))
+      unplugin-kubb:
+        specifier: workspace:*
+        version: link:../../packages/unplugin-kubb
+      vue:
+        specifier: ^3.5.25
+        version: 3.5.25(typescript@5.9.3)
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.2
+        version: 6.0.2(vite@7.2.6(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.25(typescript@5.9.3))
+      msw:
+        specifier: ^1.3.5
+        version: 1.3.5(@types/node@24.10.1)(encoding@0.1.13)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.2.6
+        version: 7.2.6(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)
+
   examples/react-query:
     dependencies:
       '@kubb/cli':
@@ -2647,6 +2699,12 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@pinia/colada@0.17.9':
+    resolution: {integrity: sha512-AW3+816HMFCpwfEBinmPksNoqHW8PxVKR+iQLTg2qo7lvsVOI9M4KqUFefr9ZBIUAMItd7Tx5HO8tdB0aHJ62A==}
+    peerDependencies:
+      pinia: ^2.2.6 || ^3.0.0
+      vue: ^3.5.17
+
   '@pnpm/config.env-replace@1.1.0':
     resolution: {integrity: sha512-htyl8TWnKL7K/ESFa1oW2UB5lVDxuF5DpM7tBi6Hu2LNL3mWkIzNLG6N4zoCUP1lCKNxWy/3iu8mS8MvToGd6w==}
     engines: {node: '>=12.22.0'}
@@ -3462,11 +3520,20 @@ packages:
   '@vue/devtools-api@6.6.4':
     resolution: {integrity: sha512-sGhTPMuXqZ1rVOk32RylztWkfXTRhuS7vgAKv0zjqk8gbsHkJ7xfFf+jbySxt7tWObEJwyKaHMikV/WGDiQm8g==}
 
+  '@vue/devtools-api@7.7.9':
+    resolution: {integrity: sha512-kIE8wvwlcZ6TJTbNeU2HQNtaxLx3a84aotTITUuL/4bzfPxzajGBOoqjMhwZJ8L9qFYDU/lAYMEEm11dnZOD6g==}
+
   '@vue/devtools-api@8.0.5':
     resolution: {integrity: sha512-DgVcW8H/Nral7LgZEecYFFYXnAvGuN9C3L3DtWekAncFBedBczpNW8iHKExfaM559Zm8wQWrwtYZ9lXthEHtDw==}
 
+  '@vue/devtools-kit@7.7.9':
+    resolution: {integrity: sha512-PyQ6odHSgiDVd4hnTP+aDk2X4gl2HmLDfiyEnn3/oV+ckFDuswRs4IbBT7vacMuGdwY/XemxBoh302ctbsptuA==}
+
   '@vue/devtools-kit@8.0.5':
     resolution: {integrity: sha512-q2VV6x1U3KJMTQPUlRMyWEKVbcHuxhqJdSr6Jtjz5uAThAIrfJ6WVZdGZm5cuO63ZnSUz0RCsVwiUUb0mDV0Yg==}
+
+  '@vue/devtools-shared@7.7.9':
+    resolution: {integrity: sha512-iWAb0v2WYf0QWmxCGy0seZNDPdO3Sp5+u78ORnyeonS6MT4PC7VPrryX2BpMJrwlDeaZ6BD4vP4XKjK0SZqaeA==}
 
   '@vue/devtools-shared@8.0.5':
     resolution: {integrity: sha512-bRLn6/spxpmgLk+iwOrR29KrYnJjG9DGpHGkDFG82UM21ZpJ39ztUT9OXX3g+usW7/b2z+h46I9ZiYyB07XMXg==}
@@ -6426,6 +6493,9 @@ packages:
   pend@1.2.0:
     resolution: {integrity: sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==}
 
+  perfect-debounce@1.0.0:
+    resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
+
   perfect-debounce@2.0.0:
     resolution: {integrity: sha512-fkEH/OBiKrqqI/yIgjR92lMfs2K8105zt/VT6+7eTjNwisrsh47CeIED9z58zI7DfKdH3uHAn25ziRZn3kgAow==}
 
@@ -6453,6 +6523,15 @@ packages:
   pify@4.0.1:
     resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}
     engines: {node: '>=6'}
+
+  pinia@3.0.4:
+    resolution: {integrity: sha512-l7pqLUFTI/+ESXn6k3nu30ZIzW5E2WZF/LaHJEpoq6ElcLD+wduZoB2kBN19du6K/4FDpPMazY2wJr+IndBtQw==}
+    peerDependencies:
+      typescript: '>=4.5.0'
+      vue: ^3.5.11
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   pino-abstract-transport@1.2.0:
     resolution: {integrity: sha512-Guhh8EZfPCfH+PMXAb6rKOjGQEoy0xlAIn+irODG5kgfYV+BQ0rGYYWTIel3P5mmyXqkYkPmdIkywsn6QKUR1Q==}
@@ -9192,6 +9271,12 @@ snapshots:
   '@oxc-transform/binding-win32-x64-msvc@0.98.0':
     optional: true
 
+  '@pinia/colada@0.17.9(pinia@3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3)))(vue@3.5.25(typescript@5.9.3))':
+    dependencies:
+      '@vue/devtools-api': 8.0.5
+      pinia: 3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3))
+      vue: 3.5.25(typescript@5.9.3)
+
   '@pnpm/config.env-replace@1.1.0': {}
 
   '@pnpm/network.ca-file@1.0.2':
@@ -10108,9 +10193,23 @@ snapshots:
 
   '@vue/devtools-api@6.6.4': {}
 
+  '@vue/devtools-api@7.7.9':
+    dependencies:
+      '@vue/devtools-kit': 7.7.9
+
   '@vue/devtools-api@8.0.5':
     dependencies:
       '@vue/devtools-kit': 8.0.5
+
+  '@vue/devtools-kit@7.7.9':
+    dependencies:
+      '@vue/devtools-shared': 7.7.9
+      birpc: 2.8.0
+      hookable: 5.5.3
+      mitt: 3.0.1
+      perfect-debounce: 1.0.0
+      speakingurl: 14.0.1
+      superjson: 2.2.5
 
   '@vue/devtools-kit@8.0.5':
     dependencies:
@@ -10121,6 +10220,10 @@ snapshots:
       perfect-debounce: 2.0.0
       speakingurl: 14.0.1
       superjson: 2.2.5
+
+  '@vue/devtools-shared@7.7.9':
+    dependencies:
+      rfdc: 1.4.1
 
   '@vue/devtools-shared@8.0.5':
     dependencies:
@@ -13575,6 +13678,8 @@ snapshots:
 
   pend@1.2.0: {}
 
+  perfect-debounce@1.0.0: {}
+
   perfect-debounce@2.0.0: {}
 
   performance-now@2.1.0: {}
@@ -13594,6 +13699,13 @@ snapshots:
   pify@2.3.0: {}
 
   pify@4.0.1: {}
+
+  pinia@3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3)):
+    dependencies:
+      '@vue/devtools-api': 7.7.9
+      vue: 3.5.25(typescript@5.9.3)
+    optionalDependencies:
+      typescript: 5.9.3
 
   pino-abstract-transport@1.2.0:
     dependencies:

@@ -1,8 +1,8 @@
 # @kubb/plugin-pinia-colada
 
-## 4.8.1
+## 4.9.0
 
-### Patch Changes
+### Minor Changes
 
 - Initial release of @kubb/plugin-pinia-colada
 - Support for generating Pinia Colada hooks from OpenAPI specifications

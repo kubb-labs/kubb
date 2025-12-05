@@ -276,6 +276,10 @@ const examplesSidebar = [
         text: 'SWR',
         link: '/examples/swr/',
       },
+      {
+        text: 'Pinia Colada',
+        link: '/examples/pinia-colada/',
+      },
     ],
   },
   {
