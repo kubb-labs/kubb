@@ -1,1 +1,0 @@
-{ "type": "string", "enum": ["CHECKING", "SAVING"], "x-readme-ref-name": "BankType" }
