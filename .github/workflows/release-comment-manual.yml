@@ -131,55 +131,83 @@ jobs:
             
             console.log(`Found ${prNumbers.size} PRs`);
             
-            // Comment on each PR and its linked issues
-            for (const prNumber of prNumbers) {
-              try {
-                // Comment on PR
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: prNumber,
-                  body: docsComment
-                });
-                console.log(`Commented on PR #${prNumber}`);
-                
-                // Get linked issues from PR using GraphQL (limited to first 10 issues per PR)
-                const prHtmlUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}`;
-                const query = `
-                  query($prHtmlUrl: URI!) {
-                    resource(url: $prHtmlUrl) {
-                      ... on PullRequest {
-                        closingIssuesReferences(first: 10) {
-                          nodes {
-                            number
+            // Concurrency limiter (like p-limit)
+            function pLimit(concurrency) {
+              let activeCount = 0
+              const queue = []
+              const next = () => {
+                if (queue.length === 0 || activeCount >= concurrency) return
+                activeCount++
+                const { fn, resolve, reject } = queue.shift()
+                fn().then(resolve, reject).finally(() => {
+                  activeCount--
+                  next()
+                })
+              }
+              return (fn) => new Promise((resolve, reject) => {
+                queue.push({ fn, resolve, reject })
+                process.nextTick(next)
+              })
+            }
+
+            const prLimit = pLimit(3) // max 3 PRs in parallel
+            const issueLimit = pLimit(3) // max 3 issues in parallel
+
+            await Promise.all(
+              Array.from(prNumbers).map(prNumber =>
+                prLimit(async () => {
+                  try {
+                    // Comment on PR
+                    await github.rest.issues.createComment({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: prNumber,
+                      body: docsComment
+                    })
+                    console.log(`Commented on PR #${prNumber}`)
+
+                    // Get linked issues from PR using GraphQL
+                    const prHtmlUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}`
+                    const query = `
+                      query($prHtmlUrl: URI!) {
+                        resource(url: $prHtmlUrl) {
+                          ... on PullRequest {
+                            closingIssuesReferences(first: 10) {
+                              nodes {
+                                number
+                              }
+                            }
                           }
                         }
                       }
-                    }
-                  }
-                `;
-                
-                try {
-                  const result = await github.graphql(query, { prHtmlUrl });
-                  const issues = result.resource?.closingIssuesReferences?.nodes || [];
-                  
-                  for (const issue of issues) {
+                    `
                     try {
-                      await github.rest.issues.createComment({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        issue_number: issue.number,
-                        body: docsComment
-                      });
-                      console.log(`Commented on issue #${issue.number}`);
+                      const result = await github.graphql(query, { prHtmlUrl })
+                      const issues = result.resource?.closingIssuesReferences?.nodes || []
+
+                      await Promise.all(
+                        issues.map(issue =>
+                          issueLimit(async () => {
+                            try {
+                              await github.rest.issues.createComment({
+                                owner: context.repo.owner,
+                                repo: context.repo.repo,
+                                issue_number: issue.number,
+                                body: docsComment
+                              })
+                              console.log(`Commented on issue #${issue.number}`)
+                            } catch (error) {
+                              console.log(`Error commenting on issue #${issue.number}: ${error.message}`)
+                            }
+                          })
+                        )
+                      )
                     } catch (error) {
-                      console.log(`Error commenting on issue #${issue.number}: ${error.message}`);
+                      console.log(`Error fetching linked issues for PR #${prNumber}: ${error.message}`)
                     }
+                  } catch (error) {
+                    console.log(`Error processing PR #${prNumber}: ${error.message}`)
                   }
-                } catch (error) {
-                  console.log(`Error fetching linked issues for PR #${prNumber}: ${error.message}`);
-                }
-              } catch (error) {
-                console.log(`Error processing PR #${prNumber}: ${error.message}`);
-              }
-            }
+                })
+              )
+            )
