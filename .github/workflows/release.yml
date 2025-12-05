@@ -74,7 +74,7 @@ jobs:
           VERSION=$(jq -r .version packages/core/package.json)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=kubb@$VERSION" >> $GITHUB_OUTPUT
-          
+
           if [ "${{ steps.canary.conclusion }}" == "success" ]; then
             echo "Release type: Canary"
             echo "Canary version: $VERSION"
