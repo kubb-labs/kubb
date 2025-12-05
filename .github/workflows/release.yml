@@ -101,32 +101,10 @@ jobs:
               console.error('Error sending discord notification', err)
             })
 
-  find_package_version:
-    name: Find Package Version
-    needs: [release]
-    runs-on: ubuntu-latest
-    if: github.repository == 'kubb-labs/kubb' && needs.release.outputs.published == 'true'
-    outputs:
-      package_version: ${{ steps.find_package_version.outputs.package_version }}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup
-        uses: ./.github/setup
-
-      - id: find_package_version
-        run: |
-          package_version=$(node ./scripts/find-release-from-changeset.js)
-          echo "package_version=${package_version}" >> "$GITHUB_OUTPUT"
-        env:
-          PACKAGE_VERSION_TO_FOLLOW: "@kubb/core"
-          PUBLISHED_PACKAGES: ${{ needs.release.outputs.published_packages }}
-
   comment:
     name: Comment on related issues and pull requests
-    if: github.repository == 'kubb-labs/kubb' && needs.release.outputs.published == 'true' && needs.find_package_version.result == 'success'
-    needs: [release, find_package_version]
+    if: needs.release.outputs.published == 'true'
+    needs: [release]
     runs-on: ubuntu-latest
     permissions:
       issues: write # enable commenting on released issues

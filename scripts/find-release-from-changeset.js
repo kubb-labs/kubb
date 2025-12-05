@@ -32,6 +32,10 @@ try {
     console.error('Error: No packages were published');
     process.exit(1);
   }
+  if (publishedPackages.length === 0) {
+    console.error('Error: No packages were published');
+    process.exit(1);
+  }
 
   const targetPackage = publishedPackages.find(
     pkg => pkg.name === packageToFollow
