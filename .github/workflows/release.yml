@@ -1,96 +1,172 @@
-name: Release
+# We use this singular file for all of our releases because we can only specify
+# a singular GitHub workflow file in npm's Trusted Publishing configuration.
+# See https://docs.npmjs.com/trusted-publishers for more info.
+#
+# Specific jobs only run on the proper trigger:
+#
+# - Changesets-driven pre-releases/stable releases
+#   - Trigger: push to main/alpha/beta/rc branch
+#   - jobs: release -> find_package_version -> comment
+# - Nightly releases
+#   - Trigger: schedule/cron
+#   - jobs: release-nightly
+# - Experimental releases (from a workflow_dispatch trigger)
+#   - Trigger: workflow_dispatch
+#   - jobs: release-experimental
+
+name: 🚢 Release
 on:
-  workflow_dispatch:
+  # Changesets-driven prereleases and stable releases
   push:
     branches: ["main", "alpha", "beta", "rc"]
     paths:
       - ".changeset/**"
       - "packages/**"
-permissions:
-  actions: write
-  contents: write
-  id-token: write
-  packages: write
-  pull-requests: write
+  # Nightly releases
+  schedule:
+    - cron: "0 7 * * *" # every day at 7AM UTC
+  # Experimental Releases
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to create experimental release from'
+        required: true
+        type: string
+      tag:
+        description: 'Optional: Custom tag for canary release (only used if branch is main)'
+        required: false
+        type: string
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
 
 jobs:
   release:
-    name: Release
-    timeout-minutes: 15
+    name: 🦋 Changesets Release
+    if: github.repository == 'kubb-labs/kubb' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      published_packages: ${{ steps.changesets.outputs.publishedPackages }}
+      published: ${{ steps.changesets.outputs.published }}
+    permissions:
+      contents: write # enable pushing changes to the origin
+      id-token: write # enable generation of an ID token for publishing
+      pull-requests: write # enable opening a PR for the release
     steps:
-      - name: Check out code
+      - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup
+      - name: 📦 Setup
         uses: ./.github/setup
 
-      - name: Build
-        run: bun run build
+      - name: 🏗 Build
+        run: pnpm run build
 
-      - name: Test
-        run: bun run test
+      - name: 🧪 Test
+        run: pnpm run test
 
-      - name: Upload coverage reports to Codecov
+      - name: 📊 Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Publish
+        # This action has two responsibilities. The first time the workflow runs
+        # (initial push to a branch) it will create a new branch and
+        # then open a PR with the related changes for the new version. After the
+        # PR is merged, the workflow will run again and this action will build +
+        # publish to npm.
+      - name: 🚀 PR / Publish
         id: changesets
         uses: changesets/action@v1
-        if: ${{ github.event.inputs.tag == '' }}
         with:
-          publish: bun release
-          commit: "ci(changesets): version packages"
-          setupGitUser: false
+          version: pnpm run version
+          commit: "chore: Update version for release"
+          title: "chore: Update version for release"
+          publish: pnpm run release
+          createGithubReleases: true
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish ${{ inputs.tag || 'canary' }}
-        id: canary
-        if: steps.changesets.outputs.published != 'true'
+  find_package_version:
+    name: 🦋 Find Package Version
+    needs: [release]
+    runs-on: ubuntu-latest
+    if: github.repository == 'kubb-labs/kubb' && github.event_name == 'push' && needs.release.outputs.published == 'true'
+    outputs:
+      package_version: ${{ steps.find_package_version.outputs.package_version }}
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup
+        uses: ./.github/setup
+
+      - id: find_package_version
         run: |
-          git checkout main
-          bun version:canary
-          bun release:canary --tag ${{ inputs.tag || 'canary' }}
+          package_version=$(node ./scripts/find-release-from-changeset.js)
+          echo "package_version=${package_version}" >> "$GITHUB_OUTPUT"
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+          PACKAGE_VERSION_TO_FOLLOW: "@kubb/core"
+          PUBLISHED_PACKAGES: ${{ needs.release.outputs.published_packages }}
 
-      - name: Get release info
-        id: release_info
-        if: steps.canary.conclusion == 'success' || steps.changesets.outputs.published == 'true'
-        run: |
-          # Get the version from @kubb/core which is part of the fixed versioning group
-          # All @kubb/* packages share the same version per changeset config
-          VERSION=$(jq -r .version packages/core/package.json)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=kubb@$VERSION" >> $GITHUB_OUTPUT
+  comment:
+    name: 📝 Comment on related issues and pull requests
+    if: github.repository == 'kubb-labs/kubb' && github.event_name == 'push' && needs.find_package_version.outputs.package_version != ''
+    needs: [release, find_package_version]
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write # enable commenting on released issues
+      pull-requests: write # enable commenting on released pull requests
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-          if [ "${{ steps.canary.conclusion }}" == "success" ]; then
-            echo "Release type: Canary"
-            echo "Canary version: $VERSION"
-          else
-            echo "Release type: Regular"
-            echo "Regular release version: $VERSION"
-          fi
+      - name: 📝 Trigger issue comment workflow
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const releaseTag = 'kubb@${{ needs.find_package_version.outputs.package_version }}';
+            
+            console.log(`Triggering issue comment workflow for release: ${releaseTag}`);
+            
+            try {
+              await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'issue-comment-on-release.yml',
+                ref: 'main',
+                inputs: {
+                  release_tag: releaseTag,
+                  dry_run: 'false'
+                }
+              });
+              console.log(`Successfully triggered issue comment workflow for ${releaseTag}`);
+            } catch (error) {
+              console.error(`Failed to trigger workflow: ${error.message}`);
+              // Don't fail the release if commenting fails
+            }
 
-      #        - name: Deploy to Coolify
-      #          run: |
-      #            curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
-
-      - name: Send a discord notification
-        if: steps.changesets.outputs.published == 'true'
-        uses: actions/github-script@v6
+  discord_notification:
+    name: 💬 Send Discord Notification
+    needs: [release]
+    runs-on: ubuntu-latest
+    if: github.repository == 'kubb-labs/kubb' && github.event_name == 'push' && needs.release.outputs.published == 'true'
+    steps:
+      - name: 📢 Send a discord notification
+        uses: actions/github-script@v7
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         with:
@@ -112,35 +188,119 @@ jobs:
               console.error('Error sending discord notification', err)
             })
 
-      - name: Comment on fixed issues
-        if: steps.release_info.outputs.tag != ''
-        uses: actions/github-script@v7
+  # HEADS UP! this "nightly" job will only ever run on the `main` branch due to
+  # it being a cron job, and the last commit on main will be what github shows
+  # as the trigger however in the checkout below we specify the `main` branch,
+  # so all the scripts in this job will be ran from that, confusing i know
+  release-nightly:
+    name: 🌒 Nightly Release
+    if: github.repository == 'kubb-labs/kubb' && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # enable pushing changes to the origin
+      id-token: write # enable generation of an ID token for publishing
+    outputs:
+      # will be undefined if there's no release necessary
+      NEXT_VERSION: ${{ steps.version.outputs.NEXT_VERSION }}
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            // Use version from @kubb/core package.json (part of fixed versioning group)
-            const releaseTag = '${{ steps.release_info.outputs.tag }}';
-            
-            if (!releaseTag) {
-              console.log('No release tag available, skipping issue comments');
-              return;
-            }
-            
-            console.log(`Triggering issue comment workflow for release: ${releaseTag}`);
-            
-            try {
-              await github.rest.actions.createWorkflowDispatch({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                workflow_id: 'issue-comment-on-release.yml',
-                ref: 'main',
-                inputs: {
-                  release_tag: releaseTag,
-                  dry_run: 'false'
-                }
-              });
-              console.log(`Successfully triggered issue comment workflow for ${releaseTag}`);
-            } catch (error) {
-              console.error(`Failed to trigger workflow: ${error.message}`);
-              // Don't fail the release if commenting fails
-            }
+          ref: main
+          # checkout using a custom token so that we can push later on
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 📦 Setup
+        uses: ./.github/setup
+
+      - name: 🕵️ Check for changes
+        id: version
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+
+          # get latest nightly tag
+          LATEST_NIGHTLY_TAG=$(git tag -l v0.0.0-nightly-\* --sort=-creatordate | head -n 1)
+
+          # check if last commit to main starts with the nightly tag we're about
+          # to create (minus the date)
+          # if it is, we'll skip the nightly creation
+          # if not, we'll create a new nightly tag
+          if [[ ${LATEST_NIGHTLY_TAG} == v0.0.0-nightly-${SHORT_SHA}-* ]]; then
+            echo "🛑 Latest nightly tag is the same as the latest commit sha, skipping nightly release"
+          else
+            # yyyyMMdd format (e.g. 20221207)
+            DATE=$(date '+%Y%m%d')
+            # v0.0.0-nightly-<short sha>-<date>
+            NEXT_VERSION=0.0.0-nightly-${SHORT_SHA}-${DATE}
+            # set output so it can be used in other jobs
+            echo "NEXT_VERSION=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: ⤴️ Update version
+        if: steps.version.outputs.NEXT_VERSION
+        run: |
+          git config --local user.email "hello@kubb.dev"
+          git config --local user.name "Kubb Bot"
+          git checkout -b nightly/${{ steps.version.outputs.NEXT_VERSION }}
+          pnpm run version "${{ steps.version.outputs.NEXT_VERSION }}"
+          git push origin --tags
+
+      - name: 🏗 Build
+        if: steps.version.outputs.NEXT_VERSION
+        run: pnpm run build
+
+      - name: 🚀 Publish
+        if: steps.version.outputs.NEXT_VERSION
+        run: pnpm run release
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
+  release-experimental:
+    name: 🧪 Experimental Release
+    if: github.repository == 'kubb-labs/kubb' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # enable pushing changes to the origin
+      id-token: write # enable generation of an ID token for publishing
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          # checkout using a custom token so that we can push later on
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 📦 Setup
+        uses: ./.github/setup
+
+      - name: 🏗 Build
+        run: pnpm run build
+
+      - name: ⤴️ Update version and publish
+        run: |
+          git config --local user.email "hello@kubb.dev"
+          git config --local user.name "Kubb Bot"
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          
+          # Check if we're on main branch and have a custom tag
+          if [ "${{ github.event.inputs.branch }}" == "main" ] && [ "${{ github.event.inputs.tag }}" != "" ]; then
+            # Use canary versioning for main branch with custom tag
+            git checkout main
+            pnpm run version:canary
+            pnpm run release:canary --tag "${{ github.event.inputs.tag }}"
+          else
+            # Use experimental versioning for other branches
+            NEXT_VERSION="0.0.0-experimental-${SHORT_SHA}"
+            git checkout -b "experimental/${NEXT_VERSION}"
+            pnpm run version "${NEXT_VERSION}"
+            git push origin --tags
+            pnpm run release
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
