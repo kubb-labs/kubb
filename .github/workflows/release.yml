@@ -126,34 +126,20 @@ jobs:
     if: needs.find_package_version.outputs.package_version != ''
     needs: [release, find_package_version]
     runs-on: ubuntu-latest
+    permissions:
+      issues: write # enable commenting on released issues
+      pull-requests: write # enable commenting on released pull requests
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Trigger issue comment workflow
-        uses: actions/github-script@v7
+      # IMPORTANT: if you make changes here, also make them in release-comment-manual.yml
+      - name: Comment on related issues and pull requests
+        uses: remix-run/release-comment-action@v0.5.1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const releaseTag = 'kubb@${{ needs.find_package_version.outputs.package_version }}';
-            
-            console.log(`Triggering issue comment workflow for release: ${releaseTag}`);
-            
-            try {
-              await github.rest.actions.createWorkflowDispatch({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                workflow_id: 'issue-comment-on-release.yml',
-                ref: 'main',
-                inputs: {
-                  release_tag: releaseTag,
-                  dry_run: 'false'
-                }
-              });
-              console.log(`Successfully triggered issue comment workflow for ${releaseTag}`);
-            } catch (error) {
-              console.error(`Failed to trigger workflow: ${error.message}`);
-              // Don't fail the release if commenting fails
-            }
+          DIRECTORY_TO_CHECK: "./packages"
+          PACKAGE_NAME: "@kubb/core"
+          ISSUE_LABELS_TO_REMOVE: "awaiting release"
+          ISSUE_LABELS_TO_KEEP_OPEN: "🗺 Roadmap"
