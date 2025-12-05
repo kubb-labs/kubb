@@ -121,5 +121,4 @@ jobs:
         with:
           DIRECTORY_TO_CHECK: "./packages"
           PACKAGE_NAME: "@kubb/core"
-          ISSUE_LABELS_TO_REMOVE: "awaiting release"
           ISSUE_LABELS_TO_KEEP_OPEN: "🗺 Roadmap"
