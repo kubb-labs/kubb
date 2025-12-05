@@ -21,6 +21,10 @@ permissions:
   contents: read
   pull-requests: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build and test
@@ -80,12 +84,7 @@ jobs:
         uses: ./.github/setup
 
       - name: Build
-        if: ${{ matrix.os == 'windows-latest' }}
         run: pnpm run build
-
-      - name: Build with Bun
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: bun run build
 
       - name: Install e2e dependencies
         run: pnpm install --prefer-offline
@@ -93,16 +92,7 @@ jobs:
 
       - name: E2e
         working-directory: ./e2e
-        if: ${{ matrix.os == 'windows-latest' }}
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
         run: |
-          bun run generate
-
-      - name: E2e with Bun
-        working-directory: ./e2e
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
-        run: |
-          bun run generate
+          pnpm run generate
