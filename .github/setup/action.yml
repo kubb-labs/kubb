@@ -19,10 +19,6 @@ runs:
 #        npm i -g @aikidosec/safe-chain
 #        safe-chain setup-ci
 
-    - name: Install bun
-      uses: oven-sh/setup-bun@v1
-      continue-on-error: true
-
     - name: Setup Git User
       shell: bash
       run: |

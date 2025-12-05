@@ -1,6 +1,11 @@
 name: Release
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Optional: Custom tag for canary release'
+        required: false
+        type: string
   push:
     branches: ["main", "alpha", "beta", "rc"]
     paths:
@@ -12,14 +17,20 @@ permissions:
   id-token: write
   packages: write
   pull-requests: write
+  issues: write
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   release:
     name: Release
     timeout-minutes: 15
     runs-on: ubuntu-latest
+    outputs:
+      published_packages: ${{ steps.changesets.outputs.publishedPackages }}
+      published: ${{ steps.changesets.outputs.published }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -30,10 +41,10 @@ jobs:
         uses: ./.github/setup
 
       - name: Build
-        run: bun run build
+        run: pnpm run build
 
       - name: Test
-        run: bun run test
+        run: pnpm run test
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
@@ -45,7 +56,7 @@ jobs:
         uses: changesets/action@v1
         if: ${{ github.event.inputs.tag == '' }}
         with:
-          publish: bun release
+          publish: pnpm release
           commit: "ci(changesets): version packages"
           setupGitUser: false
         env:
@@ -59,38 +70,16 @@ jobs:
         if: steps.changesets.outputs.published != 'true'
         run: |
           git checkout main
-          bun version:canary
-          bun release:canary --tag ${{ inputs.tag || 'canary' }}
+          pnpm version:canary
+          pnpm release:canary --tag ${{ inputs.tag || 'canary' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
-      - name: Get release info
-        id: release_info
-        if: steps.canary.conclusion == 'success' || steps.changesets.outputs.published == 'true'
-        run: |
-          # Get the version from @kubb/core which is part of the fixed versioning group
-          # All @kubb/* packages share the same version per changeset config
-          VERSION=$(jq -r .version packages/core/package.json)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=kubb@$VERSION" >> $GITHUB_OUTPUT
-
-          if [ "${{ steps.canary.conclusion }}" == "success" ]; then
-            echo "Release type: Canary"
-            echo "Canary version: $VERSION"
-          else
-            echo "Release type: Regular"
-            echo "Regular release version: $VERSION"
-          fi
-
-      #        - name: Deploy to Coolify
-      #          run: |
-      #            curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
-
       - name: Send a discord notification
         if: steps.changesets.outputs.published == 'true'
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         with:
@@ -112,35 +101,25 @@ jobs:
               console.error('Error sending discord notification', err)
             })
 
-      - name: Comment on fixed issues
-        if: steps.release_info.outputs.tag != ''
-        uses: actions/github-script@v7
+  comment:
+    name: Comment on related issues and pull requests
+    if: needs.release.outputs.published == 'true'
+    needs: [release]
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write # enable commenting on released issues
+      pull-requests: write # enable commenting on released pull requests
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            // Use version from @kubb/core package.json (part of fixed versioning group)
-            const releaseTag = '${{ steps.release_info.outputs.tag }}';
-            
-            if (!releaseTag) {
-              console.log('No release tag available, skipping issue comments');
-              return;
-            }
-            
-            console.log(`Triggering issue comment workflow for release: ${releaseTag}`);
-            
-            try {
-              await github.rest.actions.createWorkflowDispatch({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                workflow_id: 'issue-comment-on-release.yml',
-                ref: 'main',
-                inputs: {
-                  release_tag: releaseTag,
-                  dry_run: 'false'
-                }
-              });
-              console.log(`Successfully triggered issue comment workflow for ${releaseTag}`);
-            } catch (error) {
-              console.error(`Failed to trigger workflow: ${error.message}`);
-              // Don't fail the release if commenting fails
-            }
+          fetch-depth: 0
+
+      # IMPORTANT: if you make changes here, also make them in release-comment-manual.yml
+      - name: Comment on related issues and pull requests
+        uses: remix-run/release-comment-action@v0.5.1
+        with:
+          DIRECTORY_TO_CHECK: "./packages"
+          PACKAGE_NAME: "@kubb/core"
+          ISSUE_LABELS_TO_REMOVE: "awaiting release"
+          ISSUE_LABELS_TO_KEEP_OPEN: "🗺 Roadmap"
