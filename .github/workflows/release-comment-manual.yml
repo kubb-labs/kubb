@@ -45,14 +45,30 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            // Get the latest @kubb/core tag
+            // Get all tags and select the latest @kubb/core tag by semantic version
             const { data: tags } = await github.rest.repos.listTags({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              per_page: 30
+              per_page: 100 // Increase to ensure we get all relevant tags
             });
             
-            const coreTag = tags.find(tag => tag.name.startsWith('@kubb/core@'));
+            // Filter tags for @kubb/core@, sort by version descending, and select the latest
+            // This ensures we always get the latest version, regardless of API ordering
+            const semverCompare = (a, b) => {
+              const parse = v => v.split('.').map(Number);
+              const [a1, a2, a3] = parse(a);
+              const [b1, b2, b3] = parse(b);
+              if (a1 !== b1) return b1 - a1;
+              if (a2 !== b2) return b2 - a2;
+              return b3 - a3;
+            };
+            const coreTags = tags
+              .filter(tag => tag.name.startsWith('@kubb/core@'))
+              .sort((a, b) => semverCompare(
+                a.name.replace('@kubb/core@', ''),
+                b.name.replace('@kubb/core@', '')
+              ));
+            const coreTag = coreTags[0];
             if (!coreTag) {
               console.log('No @kubb/core tag found');
               return;
