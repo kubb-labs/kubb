@@ -79,10 +79,6 @@ jobs:
               console.log('Invalid version extracted from tag');
               return;
             }
-            if (!version) {
-              console.log('Invalid version extracted from tag');
-              return;
-            }
             
             const versionSlug = version.replace(/\./g, '-');
             const docsUrl = `https://www.kubb.dev/changelog#_${versionSlug}`;
