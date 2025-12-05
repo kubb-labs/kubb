@@ -1,4 +1,4 @@
-name: e2e
+name: 🧪 E2E Tests
 
 on:
   pull_request:
@@ -26,8 +26,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build and test
+  e2e:
+    name: 🧪 Build and test on ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
       fail-fast: true
@@ -75,22 +75,22 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Check out code
+      - name: ⬇️ Check out code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup
+      - name: 🔧 Setup
         uses: ./.github/setup
 
-      - name: Build
+      - name: 🏗️ Build
         run: pnpm run build
 
-      - name: Install e2e dependencies
+      - name: 📦 Install e2e dependencies
         run: pnpm install --prefer-offline
         working-directory: ./e2e
 
-      - name: E2e
+      - name: 🧪 Run E2E tests
         working-directory: ./e2e
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"

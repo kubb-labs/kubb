@@ -1,6 +1,6 @@
 # Used to manually trigger the release comments workflow
 
-name: 💬 Release Comment
+name: 💬 Release Comment (Manual)
 on:
   workflow_dispatch:
     inputs:
@@ -18,7 +18,7 @@ env:
 
 jobs:
   comment:
-    name: 📝 Comment on related issues and pull requests
+    name: 💬 Comment on related issues and pull requests
     runs-on: ubuntu-latest
     permissions:
       issues: write # enable commenting on released issues
@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 0
 
       # IMPORTANT: if you make changes here, also make them in release.yml
-      - name: 📝 Comment on related issues and pull requests
+      - name: 💬 Comment on related issues and pull requests
         uses: remix-run/release-comment-action@v0.5.1
         with:
           DRY_RUN: ${{ github.event.inputs.dryRun }}
