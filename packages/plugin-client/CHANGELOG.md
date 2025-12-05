@@ -1,5 +1,18 @@
 # @kubb/plugin-client
 
+## 4.8.1
+
+### Patch Changes
+
+- [#2097](https://github.com/kubb-labs/kubb/pull/2097) [`b5a7a43`](https://github.com/kubb-labs/kubb/commit/b5a7a43d444d5b5f678a5b0231f8edfb4aa5d5b9) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix formData generation when parser is undefined or non-standard. Previously, when using multipart/form-data endpoints without setting parser to 'client' or 'zod', the generated code would attempt to call `buildFormData(requestData)` with an undefined `requestData` variable. The fix ensures `requestData` is always defined when there's a request schema by falling back to plain assignment when zod parsing is not applicable.
+
+- Updated dependencies []:
+  - @kubb/core@4.8.1
+  - @kubb/oas@4.8.1
+  - @kubb/plugin-oas@4.8.1
+  - @kubb/plugin-ts@4.8.1
+  - @kubb/plugin-zod@4.8.1
+
 ## 4.8.0
 
 ### Patch Changes
