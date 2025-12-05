@@ -151,6 +151,11 @@ jobs:
             }
             
             const version = corePackage.version;
+            if (!version) {
+              console.log('No version found for @kubb/core package');
+              return;
+            }
+            
             const versionSlug = version.replace(/\./g, '-');
             const docsUrl = `https://www.kubb.dev/changelog#_${versionSlug}`;
             const docsComment = `📚 View the detailed changelog: ${docsUrl}`;
@@ -225,7 +230,7 @@ jobs:
                 });
                 console.log(`Commented on PR #${prNumber}`);
                 
-                // Get linked issues from PR using GraphQL
+                // Get linked issues from PR using GraphQL (limited to first 10 issues per PR)
                 const prHtmlUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}`;
                 const query = `
                   query($prHtmlUrl: URI!) {
