@@ -7,6 +7,9 @@ title: Changelog
 # 4.8.1
 - [`plugin-client`](/plugins/plugin-client/): Fix formData generation when parser is undefined or non-standard. Previously, when using multipart/form-data endpoints without setting parser to 'client' or 'zod', the generated code would attempt to call `buildFormData(requestData)` with an undefined `requestData` variable, causing a reference error.
 
+# 4.8.0
+- [`plugin-zod`](/plugins/plugin-zod/): Add support for Zod Mini with the new `mini` option. When `mini: true`, generates functional syntax (e.g., `z.optional(z.string())`) instead of chainable methods for better tree-shaking. Automatically sets `version` to `'4'` and `importPath` to `'zod/mini'` when mini mode is enabled. Updated parser to support `.check()` syntax for constraints in mini mode (e.g., `z.string().check(z.minLength(5))`).
+
 # 4.7.1
 - [`plugin-oas`](/plugins/plugin-oas/): Fix `serverIndex: 0` not resolving to `servers[0].url` in generated code. The condition `if (serverIndex)` was treating 0 as falsy, causing `getBaseURL()` to return undefined instead of the first server URL.
 
