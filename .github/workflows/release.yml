@@ -69,9 +69,9 @@ jobs:
         id: canary_info
         if: steps.canary.conclusion == 'success'
         run: |
-          # Get the version from the kubb package to match the regular release workflow
-          # The kubb package is the main package that gets published and tagged
-          VERSION=$(jq -r .version packages/kubb/package.json)
+          # Get the version from @kubb/core which is part of the fixed versioning group
+          # All @kubb/* packages share the same version per changeset config
+          VERSION=$(jq -r .version packages/core/package.json)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=kubb@$VERSION" >> $GITHUB_OUTPUT
           echo "Canary version: $VERSION"
@@ -124,15 +124,15 @@ jobs:
               const publishedPackages = JSON.parse('${{ steps.changesets.outputs.publishedPackages }}' || '[]');
               console.log('Published packages:', publishedPackages);
               
-              // Find the kubb@x.x.x release (main package release)
-              const kubbRelease = publishedPackages.find(pkg => pkg.name === 'kubb');
+              // Find the @kubb/core release (part of fixed versioning group)
+              const kubbRelease = publishedPackages.find(pkg => pkg.name === '@kubb/core');
               
               if (!kubbRelease) {
-                console.log('No main kubb package found in this release, skipping issue comments');
+                console.log('No @kubb/core package found in this release, skipping issue comments');
                 return;
               }
               
-              releaseTag = `${kubbRelease.name}@${kubbRelease.version}`;
+              releaseTag = `kubb@${kubbRelease.version}`;
               console.log(`Processing regular release: ${releaseTag}`);
             }
             
