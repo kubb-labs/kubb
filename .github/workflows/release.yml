@@ -218,6 +218,7 @@ jobs:
               } catch (error) {
                 console.log(`Error finding PRs for commit ${commit.sha}: ${error.message}`);
               }
+              await new Promise(resolve => setTimeout(resolve, 100));
             }
             
             console.log(`Found ${prNumbers.size} PRs`);
