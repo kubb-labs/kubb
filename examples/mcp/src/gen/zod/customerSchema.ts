@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod'
 import { addressSchema } from './addressSchema.js'
+import { z } from 'zod'
 
 export const customerSchema = z.object({
   id: z.optional(z.number().int()),

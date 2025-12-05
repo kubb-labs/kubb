@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from './models.ts'
+import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from './models.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getPlaceOrderUrl() {
   const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/store/order' as const }

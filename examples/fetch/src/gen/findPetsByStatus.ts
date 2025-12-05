@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from './models.ts'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from './models.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getFindPetsByStatusUrl() {
   const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/pet/findByStatus' as const }

@@ -144,7 +144,12 @@ const zodKeywordMapper = {
   /**
    * ISO 8601
    */
-  datetime: (offset = false, local = false, version: '3' | '4' = '3') => {
+  datetime: (offset = false, local = false, version: '3' | '4' = '3', mini?: boolean) => {
+    // Zod Mini doesn't support .datetime() method, use plain string
+    if (mini) {
+      return 'z.string()'
+    }
+
     if (offset) {
       return version === '4' ? `z.iso.datetime({ offset: ${offset} })` : `z.string().datetime({ offset: ${offset} })`
     }
@@ -287,7 +292,13 @@ const zodKeywordMapper = {
   deprecated: undefined,
   example: undefined,
   schema: undefined,
-  catchall: (value?: string) => (value ? `.catchall(${value})` : undefined),
+  catchall: (value?: string, mini?: boolean) => {
+    // Zod Mini doesn't support .catchall() method
+    if (mini) {
+      return undefined
+    }
+    return value ? `.catchall(${value})` : undefined
+  },
   name: undefined,
   exclusiveMinimum: undefined,
   exclusiveMaximum: undefined,
@@ -341,12 +352,20 @@ type MiniModifiers = {
 /**
  * Keywords that represent modifiers for mini mode
  * These are separated from the base schema and wrapped around it
+ * Note: describe is included to filter it out, but won't be wrapped (Zod Mini doesn't support describe)
  */
-export const miniModifierKeywords = [schemaKeywords.optional, schemaKeywords.nullable, schemaKeywords.nullish, schemaKeywords.default]
+export const miniModifierKeywords = [
+  schemaKeywords.optional,
+  schemaKeywords.nullable,
+  schemaKeywords.nullish,
+  schemaKeywords.default,
+  schemaKeywords.describe,
+]
 
 /**
  * Extracts mini mode modifiers from a schemas array
  * This can be reused by other parsers (e.g., valibot) that need similar functionality
+ * Note: describe is not included as Zod Mini doesn't support it
  */
 export function extractMiniModifiers(schemas: Schema[]): MiniModifiers {
   const defaultSchema = schemas.find((item) => isKeyword(item, schemaKeywords.default)) as { keyword: string; args: unknown } | undefined
@@ -369,8 +388,9 @@ export function filterMiniModifiers(schemas: Schema[]): Schema[] {
 
 /**
  * Wraps an output string with Zod Mini functional modifiers
- * Order: default (innermost) -> describe -> nullable -> optional (outermost)
- * OR: default -> describe -> nullish
+ * Order: default (innermost) -> nullable -> optional (outermost)
+ * OR: default -> nullish
+ * Note: describe is not supported in Zod Mini and is skipped
  */
 export function wrapWithMiniModifiers(output: string, modifiers: MiniModifiers): string {
   let result = output
@@ -554,6 +574,35 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
           : baseSchemaOutput
 
         if (options.version === '4' && hasRef) {
+          // In mini mode, use functional wrappers instead of chainable methods
+          if (options.mini) {
+            // both optional and nullable
+            if (isNullish) {
+              return `get "${propertyName}"(){
+                return ${zodKeywordMapper.nullish(objectValue)}
+              }`
+            }
+
+            // undefined
+            if (isOptional) {
+              return `get "${propertyName}"(){
+                return ${zodKeywordMapper.optional(objectValue)}
+              }`
+            }
+
+            // null
+            if (isNullable) {
+              return `get "${propertyName}"(){
+                return ${zodKeywordMapper.nullable(objectValue)}
+              }`
+            }
+
+            return `get "${propertyName}"(){
+                return ${objectValue}
+              }`
+          }
+
+          // Non-mini mode uses chainable methods
           // both optional and nullable
           if (isNullish) {
             return `get "${propertyName}"(){
@@ -608,7 +657,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
 
     const text = [
       zodKeywordMapper.object(properties, current.args?.strict, options.version),
-      additionalProperties ? zodKeywordMapper.catchall(additionalProperties) : undefined,
+      additionalProperties ? zodKeywordMapper.catchall(additionalProperties, options.mini) : undefined,
     ].filter(Boolean)
 
     return text.join('')
@@ -638,6 +687,10 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
   }
 
   if (isKeyword(current, schemaKeywords.default)) {
+    // In mini mode, default is handled by wrapWithMiniModifiers
+    if (options.mini) {
+      return undefined
+    }
     if (current.args) {
       return zodKeywordMapper.default(current.args)
     }
@@ -645,7 +698,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
 
   if (isKeyword(current, schemaKeywords.describe)) {
     if (current.args) {
-      return zodKeywordMapper.describe(transformers.stringify(current.args.toString()))
+      return zodKeywordMapper.describe(transformers.stringify(current.args.toString()), undefined, options.mini)
     }
   }
 
@@ -711,7 +764,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
   }
 
   if (isKeyword(current, schemaKeywords.datetime)) {
-    return zodKeywordMapper.datetime(current.args.offset, current.args.local, options.version)
+    return zodKeywordMapper.datetime(current.args.offset, current.args.local, options.version, options.mini)
   }
 
   if (isKeyword(current, schemaKeywords.date)) {

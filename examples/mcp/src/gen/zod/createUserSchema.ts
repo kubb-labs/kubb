@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod'
 import { userSchema } from './userSchema.js'
+import { z } from 'zod'
 
 /**
  * @description successful operation

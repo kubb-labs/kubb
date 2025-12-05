@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from './models.ts'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from './models.ts'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getAddPetUrl() {
   const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/pet' as const }
