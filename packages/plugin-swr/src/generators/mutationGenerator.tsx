@@ -163,6 +163,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
             pathParamsType={options.pathParamsType}
             mutationKeyName={mutationKey.name}
             mutationKeyTypeName={mutationKey.typeName}
+            paramsToTrigger={options.mutation.paramsToTrigger}
           />
         )}
       </File>

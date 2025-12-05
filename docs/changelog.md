@@ -5,7 +5,7 @@ title: Changelog
 # Changelog
 
 # 4.7.3
-- [`plugin-swr`](/plugins/plugin-swr/): Fix SWR mutation hooks to allow passing parameters via `trigger()` instead of requiring them upfront. Path params, query params, headers, and request body are now passed through the `trigger({ petId, data, params, headers })` call rather than being required as hook function arguments. This aligns SWR mutation behavior with React Query's pattern where variables are passed when triggering the mutation.
+- [`plugin-swr`](/plugins/plugin-swr/): Add new `paramsToTrigger` option for mutations. When set to `true`, mutation parameters (path params, query params, headers, request body) are passed via `trigger({ petId, data, params, headers })` instead of requiring them as hook function arguments. This aligns with React Query's mutation pattern. **Note:** This will become the default behavior in v5. Set `mutation.paramsToTrigger: true` to opt-in early.
 
 # 4.7.0
 - [`plugin-react-query`](/plugins/plugin-react-query/): Add support for `nextParam` and `previousParam` in infinite queries with nested field access. This enables independent cursor extraction for bidirectional pagination using dot notation (e.g., `'pagination.next.id'`) or array paths (e.g., `['pagination', 'next', 'id']`). The existing `cursorParam` option is deprecated but remains functional for backward compatibility.

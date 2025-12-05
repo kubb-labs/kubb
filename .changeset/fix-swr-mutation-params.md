@@ -2,22 +2,16 @@
 "@kubb/plugin-swr": patch
 ---
 
-Fix SWR mutation hooks to allow passing parameters via `trigger()` instead of requiring them upfront.
+Add new `paramsToTrigger` option for SWR mutations.
 
-Previously, SWR mutation hooks required path params, query params, and headers as function arguments when calling the hook:
-
-```typescript
-// Old behavior - parameters required upfront
-const { trigger } = useDeletePet(petId, params, headers)
-trigger()  // No way to pass params here
-```
-
-Now the hooks follow the same pattern as React Query mutations, where parameters are passed when triggering:
+When `mutation.paramsToTrigger` is set to `true`, mutation parameters (path params, query params, headers, request body) are passed via `trigger()` instead of as hook arguments:
 
 ```typescript
-// New behavior - parameters passed via trigger
+// With paramsToTrigger: true
 const { trigger } = useDeletePet()
-trigger({ petId, data, params, headers })  // Pass all params when triggering
+trigger({ petId, data, params, headers })
 ```
 
-This is a breaking change for existing code that uses SWR mutation hooks with path params or other parameters. Update your code to pass parameters to `trigger()` instead of the hook function.
+This aligns with React Query's mutation pattern. The default behavior remains unchanged for backward compatibility.
+
+**Note:** `paramsToTrigger: true` will become the default in v5. Set it now to opt-in early.
