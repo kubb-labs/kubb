@@ -55,7 +55,12 @@ jobs:
             // Filter tags for @kubb/core@, sort by version descending, and select the latest
             // This ensures we always get the latest version, regardless of API ordering
             const semverCompare = (a, b) => {
-              const parse = v => v.split('.').map(Number);
+              const parse = v => {
+                // Extract just the numeric version parts, ignore pre-release/metadata
+                const match = v.match(/^(\d+)\.(\d+)\.(\d+)/);
+                if (!match) return [0, 0, 0];
+                return [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+              };
               const [a1, a2, a3] = parse(a);
               const [b1, b2, b3] = parse(b);
               if (a1 !== b1) return b1 - a1;
@@ -120,7 +125,7 @@ jobs:
               }
               return (fn) => new Promise((resolve, reject) => {
                 queue.push({ fn, resolve, reject })
-                process.nextTick(next)
+                setTimeout(() => next(), 0)
               })
             }
             
