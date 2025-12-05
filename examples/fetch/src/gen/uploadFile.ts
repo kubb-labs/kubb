@@ -9,7 +9,7 @@ import { buildFormData } from './.kubb/config.ts'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from './models.ts'
 
 function getUploadFileUrl(petId: UploadFilePathParams['petId']) {
-  const res = { method: 'POST', url: `/pet/${petId}/uploadImage` as const }
+  const res = { method: 'POST', url: `https://petstore3.swagger.io/api/v3/pet/${petId}/uploadImage` as const }
   return res
 }
 

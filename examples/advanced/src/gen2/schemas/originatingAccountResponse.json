@@ -1,0 +1,7 @@
+{
+  "type": "object",
+  "description": "Originating account details for the transfer",
+  "discriminator": { "propertyName": "type", "mapping": { "BREX_CASH": "#/components/schemas/BrexCashAccountDetailsResponse" } },
+  "oneOf": [{ "$ref": "#/components/schemas/BrexCashAccountDetailsResponse" }],
+  "x-readme-ref-name": "OriginatingAccountResponse"
+}
