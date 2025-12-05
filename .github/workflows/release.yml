@@ -225,30 +225,41 @@ jobs:
                 });
                 console.log(`Commented on PR #${prNumber}`);
                 
-                // Get linked issues from PR
-                const { data: pr } = await github.rest.pulls.get({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: prNumber
-                });
-                
-                // Extract issue numbers from PR body
-                const issueRegex = /(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)(?::)?\s+#(\d+)/gi;
-                const matches = [...(pr.body || '').matchAll(issueRegex)];
-                
-                for (const match of matches) {
-                  const issueNumber = parseInt(match[1], 10);
-                  try {
-                    await github.rest.issues.createComment({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      issue_number: issueNumber,
-                      body: docsComment
-                    });
-                    console.log(`Commented on issue #${issueNumber}`);
-                  } catch (error) {
-                    console.log(`Error commenting on issue #${issueNumber}: ${error.message}`);
+                // Get linked issues from PR using GraphQL
+                const prHtmlUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}`;
+                const query = `
+                  query($prHtmlUrl: URI!) {
+                    resource(url: $prHtmlUrl) {
+                      ... on PullRequest {
+                        closingIssuesReferences(first: 10) {
+                          nodes {
+                            number
+                          }
+                        }
+                      }
+                    }
                   }
+                `;
+                
+                try {
+                  const result = await github.graphql(query, { prHtmlUrl });
+                  const issues = result.resource?.closingIssuesReferences?.nodes || [];
+                  
+                  for (const issue of issues) {
+                    try {
+                      await github.rest.issues.createComment({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: issue.number,
+                        body: docsComment
+                      });
+                      console.log(`Commented on issue #${issue.number}`);
+                    } catch (error) {
+                      console.log(`Error commenting on issue #${issue.number}: ${error.message}`);
+                    }
+                  }
+                } catch (error) {
+                  console.log(`Error fetching linked issues for PR #${prNumber}: ${error.message}`);
                 }
               } catch (error) {
                 console.log(`Error processing PR #${prNumber}: ${error.message}`);
