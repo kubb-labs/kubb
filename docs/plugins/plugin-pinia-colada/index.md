@@ -5,8 +5,9 @@ title: \@kubb/plugin-pinia-colada
 outline: deep
 ---
 
-# @kubb/plugin-pinia-colada
+# @kubb/plugin-pinia-colada <Badge type="tip" text="beta" />
 
+> This feature is currently in beta. The API may change in future releases.
 
 Create Pinia Colada hooks based on an operation.
 

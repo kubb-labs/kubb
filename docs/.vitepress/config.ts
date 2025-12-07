@@ -166,7 +166,7 @@ const mainSidebar = [
         link: '/plugins/plugin-vue-query/',
       },
       {
-        text: '@kubb/plugin-pinia-colada',
+        text: '@kubb/plugin-pinia-colada <span class="new">beta</span>',
         link: '/plugins/plugin-pinia-colada/',
       },
       {
@@ -277,7 +277,7 @@ const examplesSidebar = [
         link: '/examples/swr/',
       },
       {
-        text: 'Pinia Colada',
+        text: 'Pinia Colada <span class="new">beta</span>',
         link: '/examples/pinia-colada/',
       },
     ],
@@ -403,7 +403,7 @@ const documentationMenu = [
         link: '/plugins/plugin-vue-query/',
       },
       {
-        text: '@kubb/plugin-pinia-colada',
+        text: '@kubb/plugin-pinia-colada <span class="new">beta</span>',
         link: '/plugins/plugin-pinia-colada/',
       },
       {
