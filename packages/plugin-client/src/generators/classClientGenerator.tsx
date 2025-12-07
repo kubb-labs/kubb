@@ -105,10 +105,10 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
         name: string
         file: KubbFile.File
         operations: Array<{
-          operation: any
+          operation: import('@kubb/oas').Operation
           name: string
-          typeSchemas: any
-          zodSchemas: any
+          typeSchemas: import('@kubb/plugin-oas').OperationSchemas
+          zodSchemas: import('@kubb/plugin-oas').OperationSchemas | undefined
           typeFile: KubbFile.File
           zodFile: KubbFile.File
         }>
