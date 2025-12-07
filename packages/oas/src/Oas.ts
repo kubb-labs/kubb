@@ -408,7 +408,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     }
 
     const response = operation.getResponseByStatusCode(statusCode)
-    
+
     if (!response || typeof response === 'boolean') {
       return []
     }
@@ -450,6 +450,60 @@ export class Oas<const TOAS = unknown> extends BaseOas {
   }
 
   /**
+   * Get schema for a specific content type in a response (internal helper)
+   */
+  #getResponseSchemaForContentType(operation: Operation, statusCode: string | number, contentType: string): SchemaObject | undefined {
+    if (operation.schema.responses) {
+      Object.keys(operation.schema.responses).forEach((key) => {
+        const schema = operation.schema.responses![key]
+        const $ref = isReference(schema) ? schema.$ref : undefined
+
+        if (schema && $ref) {
+          operation.schema.responses![key] = this.get($ref)
+        }
+      })
+    }
+
+    const getResponseBody = this.#getResponseBodyFactory(operation.getResponseByStatusCode(statusCode))
+    const responseBody = getResponseBody(contentType)
+
+    if (responseBody === false) {
+      return {}
+    }
+
+    const schema = Array.isArray(responseBody) ? responseBody[1].schema : responseBody.schema
+
+    if (!schema) {
+      return {}
+    }
+
+    return this.dereferenceWithRef(schema)
+  }
+
+  /**
+   * Get schema for a specific content type in a request (internal helper)
+   */
+  #getRequestSchemaForContentType(operation: Operation, contentType: string): SchemaObject | undefined {
+    if (operation.schema.requestBody) {
+      operation.schema.requestBody = this.dereferenceWithRef(operation.schema.requestBody)
+    }
+
+    const requestBody = operation.getRequestBody(contentType)
+
+    if (requestBody === false) {
+      return undefined
+    }
+
+    const schema = Array.isArray(requestBody) ? requestBody[1].schema : requestBody.schema
+
+    if (!schema) {
+      return undefined
+    }
+
+    return this.dereferenceWithRef(schema)
+  }
+
+  /**
    * Get schemas for all content types in a response
    */
   getResponseSchemasByContentType(operation: Operation, statusCode: string | number): Record<string, SchemaObject> {
@@ -457,13 +511,10 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     const schemas: Record<string, SchemaObject> = {}
 
     for (const contentType of contentTypes) {
-      const originalContentType = this.#options.contentType
-      this.#options.contentType = contentType
-      const schema = this.getResponseSchema(operation, statusCode)
+      const schema = this.#getResponseSchemaForContentType(operation, statusCode, contentType)
       if (schema && Object.keys(schema).length > 0) {
         schemas[contentType] = schema
       }
-      this.#options.contentType = originalContentType
     }
 
     return schemas
@@ -477,13 +528,10 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     const schemas: Record<string, SchemaObject> = {}
 
     for (const contentType of contentTypes) {
-      const originalContentType = this.#options.contentType
-      this.#options.contentType = contentType
-      const schema = this.getRequestSchema(operation)
+      const schema = this.#getRequestSchemaForContentType(operation, contentType)
       if (schema && Object.keys(schema).length > 0) {
         schemas[contentType] = schema
       }
-      this.#options.contentType = originalContentType
     }
 
     return schemas

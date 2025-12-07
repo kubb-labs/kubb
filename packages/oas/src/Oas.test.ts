@@ -181,12 +181,12 @@ describe('Oas multiple content types', async () => {
   test('getRequestContentTypes returns all content types', async () => {
     const oas = await parse(petStorePath)
     await oas.dereference()
-    
+
     const paths = oas.getPaths()
     const operation = paths['/pet']?.post
 
     const contentTypes = oas.getRequestContentTypes(operation)
-    
+
     expect(contentTypes).toContain('application/json')
     expect(contentTypes).toContain('application/xml')
     expect(contentTypes).toContain('application/x-www-form-urlencoded')
@@ -196,12 +196,12 @@ describe('Oas multiple content types', async () => {
   test('getResponseContentTypes returns all content types', async () => {
     const oas = await parse(petStorePath)
     await oas.dereference()
-    
+
     const paths = oas.getPaths()
     const operation = paths['/pet']?.post
 
     const contentTypes = oas.getResponseContentTypes(operation, '200')
-    
+
     expect(contentTypes).toContain('application/json')
     expect(contentTypes).toContain('application/xml')
     expect(contentTypes.length).toBeGreaterThan(0)
@@ -210,12 +210,12 @@ describe('Oas multiple content types', async () => {
   test('getRequestSchemasByContentType returns schemas for all content types', async () => {
     const oas = await parse(petStorePath)
     await oas.dereference()
-    
+
     const paths = oas.getPaths()
     const operation = paths['/pet']?.post
 
     const schemas = oas.getRequestSchemasByContentType(operation)
-    
+
     expect(schemas['application/json']).toBeDefined()
     expect(schemas['application/xml']).toBeDefined()
     expect(schemas['application/x-www-form-urlencoded']).toBeDefined()
@@ -225,12 +225,12 @@ describe('Oas multiple content types', async () => {
   test('getResponseSchemasByContentType returns schemas for all content types', async () => {
     const oas = await parse(petStorePath)
     await oas.dereference()
-    
+
     const paths = oas.getPaths()
     const operation = paths['/pet']?.post
 
     const schemas = oas.getResponseSchemasByContentType(operation, '200')
-    
+
     expect(schemas['application/json']).toBeDefined()
     expect(schemas['application/xml']).toBeDefined()
     expect(Object.keys(schemas).length).toBeGreaterThan(0)
