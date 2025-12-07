@@ -1,10 +1,12 @@
 import { URLPath } from '@kubb/core/utils'
-import { isOptional, type Operation } from '@kubb/oas'
+import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
+import { getComments } from '@kubb/plugin-oas/utils'
 import { File, FunctionParams } from '@kubb/react-fabric'
 import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
+
+import { Client } from './Client.tsx'
 
 type Props = {
   /**
@@ -28,101 +30,7 @@ type Props = {
   children?: KubbNode
 }
 
-type GetParamsProps = {
-  paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
-  paramsType: PluginClient['resolvedOptions']['paramsType']
-  pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
-  typeSchemas: OperationSchemas
-  isConfigurable: boolean
-}
-
-function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable }: GetParamsProps) {
-  if (paramsType === 'object') {
-    return FunctionParams.factory({
-      data: {
-        mode: 'object',
-        children: {
-          ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          data: typeSchemas.request?.name
-            ? {
-                type: typeSchemas.request?.name,
-                optional: isOptional(typeSchemas.request?.schema),
-              }
-            : undefined,
-          params: typeSchemas.queryParams?.name
-            ? {
-                type: typeSchemas.queryParams?.name,
-                optional: isOptional(typeSchemas.queryParams?.schema),
-              }
-            : undefined,
-          headers: typeSchemas.headerParams?.name
-            ? {
-                type: typeSchemas.headerParams?.name,
-                optional: isOptional(typeSchemas.headerParams?.schema),
-              }
-            : undefined,
-        },
-      },
-      config: isConfigurable
-        ? {
-            type: typeSchemas.request?.name
-              ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
-              : 'Partial<RequestConfig> & { client?: typeof fetch }',
-            default: '{}',
-          }
-        : undefined,
-    })
-  }
-
-  return FunctionParams.factory({
-    pathParams: typeSchemas.pathParams?.name
-      ? {
-          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          optional: isOptional(typeSchemas.pathParams?.schema),
-        }
-      : undefined,
-    data: typeSchemas.request?.name
-      ? {
-          type: typeSchemas.request?.name,
-          optional: isOptional(typeSchemas.request?.schema),
-        }
-      : undefined,
-    params: typeSchemas.queryParams?.name
-      ? {
-          type: typeSchemas.queryParams?.name,
-          optional: isOptional(typeSchemas.queryParams?.schema),
-        }
-      : undefined,
-    headers: typeSchemas.headerParams?.name
-      ? {
-          type: typeSchemas.headerParams?.name,
-          optional: isOptional(typeSchemas.headerParams?.schema),
-        }
-      : undefined,
-    config: isConfigurable
-      ? {
-          type: typeSchemas.request?.name
-            ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
-            : 'Partial<RequestConfig> & { client?: typeof fetch }',
-          default: '{}',
-        }
-      : undefined,
-  })
-}
-
-function generateMethod({
-  operation,
-  name,
-  typeSchemas,
-  zodSchemas,
-  baseURL,
-  dataReturnType,
-  parser,
-  paramsType,
-  paramsCasing,
-  pathParamsType,
-}: {
+type GenerateMethodProps = {
   operation: Operation
   name: string
   typeSchemas: OperationSchemas
@@ -133,20 +41,36 @@ function generateMethod({
   paramsType: PluginClient['resolvedOptions']['paramsType']
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
-}): string {
-  const path = new URLPath(operation.path, { casing: paramsCasing })
-  const contentType = operation.getContentType()
-  const isFormData = contentType === 'multipart/form-data'
-  const headers = [
+}
+
+function buildHeaders(contentType: string, hasHeaderParams: boolean): Array<string> {
+  return [
     contentType !== 'application/json' && contentType !== 'multipart/form-data' ? `'Content-Type': '${contentType}'` : undefined,
-    typeSchemas.headerParams?.name ? '...headers' : undefined,
-  ].filter(Boolean)
+    hasHeaderParams ? '...headers' : undefined,
+  ].filter(Boolean) as Array<string>
+}
 
+function buildGenerics(typeSchemas: OperationSchemas): Array<string> {
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
-  const generics = [typeSchemas.response.name, TError, typeSchemas.request?.name || 'unknown'].filter(Boolean)
-  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable: true })
+  return [typeSchemas.response.name, TError, typeSchemas.request?.name || 'unknown'].filter(Boolean)
+}
 
-  const clientParams = FunctionParams.factory({
+function buildClientParams({
+  operation,
+  path,
+  baseURL,
+  typeSchemas,
+  isFormData,
+  headers,
+}: {
+  operation: Operation
+  path: URLPath
+  baseURL: string | undefined
+  typeSchemas: OperationSchemas
+  isFormData: boolean
+  headers: Array<string>
+}) {
+  return FunctionParams.factory({
     config: {
       mode: 'object',
       children: {
@@ -178,27 +102,80 @@ function generateMethod({
       },
     },
   })
-
+}
+// TODO move to @kubb/core/utils
+function buildJSDoc(operation: Operation): string {
   const comments = getComments(operation)
-  const jsdoc = comments.length > 0 ? `/**\n${comments.map((c) => `   * ${c}`).join('\n')}\n   */\n  ` : '  '
+  return comments.length > 0 ? `/**\n${comments.map((c) => `   * ${c}`).join('\n')}\n   */\n  ` : '  '
+}
 
-  const requestDataLine =
-    parser === 'zod' && zodSchemas?.request?.name
-      ? `const requestData = ${zodSchemas.request.name}.parse(data)`
-      : typeSchemas?.request?.name
-        ? 'const requestData = data'
-        : ''
+function buildRequestDataLine({
+  parser,
+  zodSchemas,
+  typeSchemas,
+}: {
+  parser: PluginClient['resolvedOptions']['parser'] | undefined
+  zodSchemas: OperationSchemas | undefined
+  typeSchemas: OperationSchemas
+}): string {
+  if (parser === 'zod' && zodSchemas?.request?.name) {
+    return `const requestData = ${zodSchemas.request.name}.parse(data)`
+  }
+  if (typeSchemas?.request?.name) {
+    return 'const requestData = data'
+  }
+  return ''
+}
 
-  const formDataLine = isFormData && typeSchemas?.request?.name ? 'const formData = buildFormData(requestData)' : ''
+function buildFormDataLine(isFormData: boolean, hasRequest: boolean): string {
+  return isFormData && hasRequest ? 'const formData = buildFormData(requestData)' : ''
+}
 
-  const returnStatement =
-    dataReturnType === 'full' && parser === 'zod' && zodSchemas
-      ? `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}`
-      : dataReturnType === 'data' && parser === 'zod' && zodSchemas
-        ? `return ${zodSchemas.response.name}.parse(res.data)`
-        : dataReturnType === 'full' && parser === 'client'
-          ? 'return res'
-          : 'return res.data'
+function buildReturnStatement({
+  dataReturnType,
+  parser,
+  zodSchemas,
+}: {
+  dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
+  parser: PluginClient['resolvedOptions']['parser'] | undefined
+  zodSchemas: OperationSchemas | undefined
+}): string {
+  if (dataReturnType === 'full' && parser === 'zod' && zodSchemas) {
+    return `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}`
+  }
+  if (dataReturnType === 'data' && parser === 'zod' && zodSchemas) {
+    return `return ${zodSchemas.response.name}.parse(res.data)`
+  }
+  if (dataReturnType === 'full' && parser === 'client') {
+    return 'return res'
+  }
+  return 'return res.data'
+}
+
+function generateMethod({
+  operation,
+  name,
+  typeSchemas,
+  zodSchemas,
+  baseURL,
+  dataReturnType,
+  parser,
+  paramsType,
+  paramsCasing,
+  pathParamsType,
+}: GenerateMethodProps): string {
+  const path = new URLPath(operation.path, { casing: paramsCasing })
+  const contentType = operation.getContentType()
+  const isFormData = contentType === 'multipart/form-data'
+  const headers = buildHeaders(contentType, !!typeSchemas.headerParams?.name)
+  const generics = buildGenerics(typeSchemas)
+  const params = ClassClient.getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable: true })
+  const clientParams = buildClientParams({ operation, path, baseURL, typeSchemas, isFormData, headers })
+  const jsdoc = buildJSDoc(operation)
+
+  const requestDataLine = buildRequestDataLine({ parser, zodSchemas, typeSchemas })
+  const formDataLine = buildFormDataLine(isFormData, !!typeSchemas?.request?.name)
+  const returnStatement = buildReturnStatement({ dataReturnType, parser, zodSchemas })
 
   const methodBody = [
     'const { client: request = this.#client, ...requestConfig } = config',
@@ -260,3 +237,4 @@ ${methods.join('\n\n')}
     </File.Source>
   )
 }
+ClassClient.getParams = Client.getParams

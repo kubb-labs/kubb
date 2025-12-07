@@ -20,6 +20,42 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
     const oas = useOas()
     const { getName, getFile, getGroup, getSchemas } = useOperationManager(generator)
 
+    type OperationData = {
+      operation: import('@kubb/oas').Operation
+      name: string
+      typeSchemas: import('@kubb/plugin-oas').OperationSchemas
+      zodSchemas: import('@kubb/plugin-oas').OperationSchemas | undefined
+      typeFile: KubbFile.File
+      zodFile: KubbFile.File
+    }
+
+    type Controller = {
+      name: string
+      file: KubbFile.File
+      operations: Array<OperationData>
+    }
+
+    function buildOperationData(operation: import('@kubb/oas').Operation): OperationData {
+      const type = {
+        file: getFile(operation, { pluginKey: [pluginTsName] }),
+        schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      }
+
+      const zod = {
+        file: getFile(operation, { pluginKey: [pluginZodName] }),
+        schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+      }
+
+      return {
+        operation,
+        name: getName(operation, { type: 'function' }),
+        typeSchemas: type.schemas,
+        zodSchemas: zod.schemas,
+        typeFile: type.file,
+        zodFile: zod.file,
+      }
+    }
+
     // Group operations by tag
     const controllers = operations.reduce(
       (acc, operation) => {
@@ -35,25 +71,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
             pluginKey,
           })
 
-          const type = {
-            file: getFile(operation, { pluginKey: [pluginTsName] }),
-            schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
-          }
-
-          const zod = {
-            file: getFile(operation, { pluginKey: [pluginZodName] }),
-            schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
-          }
-
-          const operationData = {
-            operation,
-            name: getName(operation, { type: 'function' }),
-            typeSchemas: type.schemas,
-            zodSchemas: zod.schemas,
-            typeFile: type.file,
-            zodFile: zod.file,
-          }
-
+          const operationData = buildOperationData(operation)
           const previousFile = acc.find((item) => item.file.path === file.path)
 
           if (previousFile) {
@@ -71,25 +89,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
             options: { group },
           })
 
-          const type = {
-            file: getFile(operation, { pluginKey: [pluginTsName] }),
-            schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
-          }
-
-          const zod = {
-            file: getFile(operation, { pluginKey: [pluginZodName] }),
-            schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
-          }
-
-          const operationData = {
-            operation,
-            name: getName(operation, { type: 'function' }),
-            typeSchemas: type.schemas,
-            zodSchemas: zod.schemas,
-            typeFile: type.file,
-            zodFile: zod.file,
-          }
-
+          const operationData = buildOperationData(operation)
           const previousFile = acc.find((item) => item.file.path === file.path)
 
           if (previousFile) {
@@ -101,32 +101,16 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
 
         return acc
       },
-      [] as Array<{
-        name: string
-        file: KubbFile.File
-        operations: Array<{
-          operation: import('@kubb/oas').Operation
-          name: string
-          typeSchemas: import('@kubb/plugin-oas').OperationSchemas
-          zodSchemas: import('@kubb/plugin-oas').OperationSchemas | undefined
-          typeFile: KubbFile.File
-          zodFile: KubbFile.File
-        }>
-      }>,
+      [] as Array<Controller>,
     )
 
-    return controllers.map(({ name, file, operations: ops }) => {
-      // Collect imports grouped by file path
+    function collectTypeImports(ops: Array<OperationData>) {
       const typeImportsByFile = new Map<string, Set<string>>()
-      const zodImportsByFile = new Map<string, Set<string>>()
       const typeFilesByPath = new Map<string, KubbFile.File>()
-      const zodFilesByPath = new Map<string, KubbFile.File>()
-      const hasFormData = ops.some((op) => op.operation.getContentType() === 'multipart/form-data')
 
       ops.forEach((op) => {
-        const { typeSchemas, zodSchemas, typeFile, zodFile } = op
+        const { typeSchemas, typeFile } = op
 
-        // Collect type imports by file
         if (!typeImportsByFile.has(typeFile.path)) {
           typeImportsByFile.set(typeFile.path, new Set())
         }
@@ -141,19 +125,38 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
           if (item?.name) typeImports.add(item.name)
         })
         typeFilesByPath.set(typeFile.path, typeFile)
-
-        // Collect zod imports by file if parser is zod
-        if (options.parser === 'zod') {
-          if (!zodImportsByFile.has(zodFile.path)) {
-            zodImportsByFile.set(zodFile.path, new Set())
-          }
-          const zodImports = zodImportsByFile.get(zodFile.path)!
-
-          if (zodSchemas?.response?.name) zodImports.add(zodSchemas.response.name)
-          if (zodSchemas?.request?.name) zodImports.add(zodSchemas.request.name)
-          zodFilesByPath.set(zodFile.path, zodFile)
-        }
       })
+
+      return { typeImportsByFile, typeFilesByPath }
+    }
+
+    function collectZodImports(ops: Array<OperationData>) {
+      const zodImportsByFile = new Map<string, Set<string>>()
+      const zodFilesByPath = new Map<string, KubbFile.File>()
+
+      ops.forEach((op) => {
+        const { zodSchemas, zodFile } = op
+
+        if (!zodImportsByFile.has(zodFile.path)) {
+          zodImportsByFile.set(zodFile.path, new Set())
+        }
+        const zodImports = zodImportsByFile.get(zodFile.path)!
+
+        if (zodSchemas?.response?.name) zodImports.add(zodSchemas.response.name)
+        if (zodSchemas?.request?.name) zodImports.add(zodSchemas.request.name)
+        zodFilesByPath.set(zodFile.path, zodFile)
+      })
+
+      return { zodImportsByFile, zodFilesByPath }
+    }
+
+    return controllers.map(({ name, file, operations: ops }) => {
+      const { typeImportsByFile, typeFilesByPath } = collectTypeImports(ops)
+      const { zodImportsByFile, zodFilesByPath } =
+        options.parser === 'zod'
+          ? collectZodImports(ops)
+          : { zodImportsByFile: new Map<string, Set<string>>(), zodFilesByPath: new Map<string, KubbFile.File>() }
+      const hasFormData = ops.some((op) => op.operation.getContentType() === 'multipart/form-data')
 
       return (
         <File
@@ -185,18 +188,27 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
 
           {Array.from(typeImportsByFile.entries()).map(([filePath, imports]) => {
             const typeFile = typeFilesByPath.get(filePath)
-            if (!typeFile) return null
+            if (!typeFile) {
+              return null
+            }
             const importNames = Array.from(imports).filter(Boolean)
-            if (importNames.length === 0) return null
+            if (importNames.length === 0) {
+              return null
+            }
             return <File.Import key={filePath} name={importNames} root={file.path} path={typeFile.path} isTypeOnly />
           })}
 
           {options.parser === 'zod' &&
             Array.from(zodImportsByFile.entries()).map(([filePath, imports]) => {
               const zodFile = zodFilesByPath.get(filePath)
-              if (!zodFile) return null
+              if (!zodFile) {
+                return null
+              }
               const importNames = Array.from(imports).filter(Boolean)
-              if (importNames.length === 0) return null
+              if (importNames.length === 0) {
+                return null
+              }
+
               return <File.Import key={filePath} name={importNames} root={file.path} path={zodFile.path} />
             })}
 
