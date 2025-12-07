@@ -117,7 +117,7 @@ Return the name of a group based on the group name, this will be used for the fi
 #### client.baseURL
 <!--@include: ../plugin-client/baseURL.md-->
 
-### client.bundle
+#### client.bundle
 <!--@include: ../plugin-client/bundle.md-->
 
 ### paramsType
@@ -245,19 +245,6 @@ type Query = {
 } | false
 ```
 
-### queryKey
-
-Customize the queryKey.
-
-::: warning
-When using a string you need to use `JSON.stringify`.
-:::
-
-|           |                                                                             |
-|----------:|:----------------------------------------------------------------------------|
-|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
-| Required: | `false`                                                                     |
-
 #### query.methods
 
 Define which HttpMethods can be used for queries
@@ -280,6 +267,19 @@ the path will be applied as is, so relative path should be based on the file bei
 |     Type: | `string`                  |
 | Required: | `false`                   |
 |  Default: | `'@tanstack/react-query'` |
+
+### queryKey
+
+Customize the queryKey.
+
+::: warning
+When using a string you need to use `JSON.stringify`.
+:::
+
+|           |                                                                             |
+|----------:|:----------------------------------------------------------------------------|
+|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
+| Required: | `false`                                                                     |
 
 ### suspense
 
@@ -307,19 +307,6 @@ type Mutation = {
 } | false
 ```
 
-### mutationKey
-
-Customize the mutationKey.
-
-::: warning
-When using a string you need to use `JSON.stringify`.
-:::
-
-|           |                                                                             |
-|----------:|:----------------------------------------------------------------------------|
-|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
-| Required: | `false`                                                                     |
-
 #### mutation.methods
 
 Define which HttpMethods can be used for mutations
@@ -342,6 +329,19 @@ the path will be applied as is, so relative path should be based on the file bei
 |     Type: | `string`                  |
 | Required: | `false`                   |
 |  Default: | `'@tanstack/react-query'` |
+
+### mutationKey
+
+Customize the mutationKey.
+
+::: warning
+When using a string you need to use `JSON.stringify`.
+:::
+
+|           |                                                                             |
+|----------:|:----------------------------------------------------------------------------|
+|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
+| Required: | `false`                                                                     |
 
 
 ### include
