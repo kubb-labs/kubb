@@ -185,6 +185,9 @@ describe('Oas multiple content types', async () => {
     const paths = oas.getPaths()
     const operation = paths['/pet']?.post
 
+    expect(operation).toBeDefined()
+    if (!operation) return
+
     const contentTypes = oas.getRequestContentTypes(operation)
 
     expect(contentTypes).toContain('application/json')
@@ -200,6 +203,9 @@ describe('Oas multiple content types', async () => {
     const paths = oas.getPaths()
     const operation = paths['/pet']?.post
 
+    expect(operation).toBeDefined()
+    if (!operation) return
+
     const contentTypes = oas.getResponseContentTypes(operation, '200')
 
     expect(contentTypes).toContain('application/json')
@@ -213,6 +219,9 @@ describe('Oas multiple content types', async () => {
 
     const paths = oas.getPaths()
     const operation = paths['/pet']?.post
+
+    expect(operation).toBeDefined()
+    if (!operation) return
 
     const schemas = oas.getRequestSchemasByContentType(operation)
 
@@ -228,6 +237,9 @@ describe('Oas multiple content types', async () => {
 
     const paths = oas.getPaths()
     const operation = paths['/pet']?.post
+
+    expect(operation).toBeDefined()
+    if (!operation) return
 
     const schemas = oas.getResponseSchemasByContentType(operation, '200')
 
