@@ -1,21 +1,20 @@
-import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
+import path from 'node:path'
+import type { Plugin } from '@kubb/core'
 import { parse } from '@kubb/oas'
 import { OperationGenerator } from '@kubb/plugin-oas'
-import { PluginManager } from '@kubb/core'
-import path from 'node:path'
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { createReactFabric } from '@kubb/react-fabric'
-import type { Plugin } from '@kubb/core'
-import { classClientGenerator } from './classClientGenerator.tsx'
+import { describe, test } from 'vitest'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
+import { classClientGenerator } from './classClientGenerator.tsx'
 
-describe('classClientGenerator', async () => {
-  const oas = await parse(path.resolve(__dirname, '../../mocks/petStore.yaml'))
-
+describe('classClientGenerator operations', async () => {
   const testData = [
     {
       name: 'findByTags',
       input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get' as const,
       options: {
         group: {
           type: 'tag' as const,
@@ -25,6 +24,8 @@ describe('classClientGenerator', async () => {
   ] as const satisfies Array<{
     input: string
     name: string
+    path: string
+    method: 'get' | 'post' | 'put' | 'delete' | 'patch'
     options: Partial<PluginClient['resolvedOptions']>
   }>
 
@@ -58,13 +59,24 @@ describe('classClientGenerator', async () => {
       pluginManager: createMockedPluginManager(props.name),
       plugin,
       contentType: undefined,
-      exclude: undefined,
       override: undefined,
       mode: 'split',
+      exclude: [],
     })
 
-    const results = await generator.build(classClientGenerator)
+    const operations = await generator.getOperations()
 
-    await matchFiles(results)
+    await (await import('@kubb/plugin-oas')).buildOperations(
+      operations.map((item) => item.operation),
+      {
+        config: { root: '.', output: { path: 'test' } } as import('@kubb/core').Config,
+        fabric,
+        generator,
+        Component: classClientGenerator.Operations,
+        plugin,
+      },
+    )
+
+    await matchFiles(fabric.files)
   })
 })

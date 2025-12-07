@@ -2,7 +2,7 @@ import { URLPath } from '@kubb/core/utils'
 import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import { File, FunctionParams } from '@kubb/react-fabric'
 import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
 
@@ -133,7 +133,7 @@ function generateMethod({
   paramsType: PluginClient['resolvedOptions']['paramsType']
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
-}) {
+}): string {
   const path = new URLPath(operation.path, { casing: paramsCasing })
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
@@ -179,39 +179,40 @@ function generateMethod({
     },
   })
 
-  const childrenElement = (
-    <>
-      {dataReturnType === 'full' && parser === 'zod' && zodSchemas && `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}`}
-      {dataReturnType === 'data' && parser === 'zod' && zodSchemas && `return ${zodSchemas.response.name}.parse(res.data)`}
-      {dataReturnType === 'full' && parser === 'client' && 'return res'}
-      {dataReturnType === 'data' && parser === 'client' && 'return res.data'}
-    </>
-  )
+  const comments = getComments(operation)
+  const jsdoc = comments.length > 0 ? `/**\n${comments.map((c) => `   * ${c}`).join('\n')}\n   */\n  ` : '  '
 
-  return (
-    <Function
-      name={name}
-      async
-      export={false}
-      params={params.toConstructor()}
-      JSDoc={{
-        comments: getComments(operation),
-      }}
-    >
-      {'const { client: request = this.client, ...requestConfig } = config'}
-      <br />
-      <br />
-      {parser === 'zod' && zodSchemas?.request?.name
-        ? `const requestData = ${zodSchemas.request.name}.parse(data)`
-        : typeSchemas?.request?.name && 'const requestData = data'}
-      <br />
-      {isFormData && typeSchemas?.request?.name && 'const formData = buildFormData(requestData)'}
-      <br />
-      {`const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`}
-      <br />
-      {childrenElement}
-    </Function>
-  )
+  const requestDataLine =
+    parser === 'zod' && zodSchemas?.request?.name
+      ? `const requestData = ${zodSchemas.request.name}.parse(data)`
+      : typeSchemas?.request?.name
+        ? 'const requestData = data'
+        : ''
+
+  const formDataLine = isFormData && typeSchemas?.request?.name ? 'const formData = buildFormData(requestData)' : ''
+
+  const returnStatement =
+    dataReturnType === 'full' && parser === 'zod' && zodSchemas
+      ? `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}`
+      : dataReturnType === 'data' && parser === 'zod' && zodSchemas
+        ? `return ${zodSchemas.response.name}.parse(res.data)`
+        : dataReturnType === 'full' && parser === 'client'
+          ? 'return res'
+          : 'return res.data'
+
+  const methodBody = [
+    'const { client: request = this.client, ...requestConfig } = config',
+    '',
+    requestDataLine,
+    formDataLine,
+    `const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`,
+    returnStatement,
+  ]
+    .filter(Boolean)
+    .map((line) => `    ${line}`)
+    .join('\n')
+
+  return `${jsdoc}async ${name}(${params.toConstructor()}) {\n${methodBody}\n  }`
 }
 
 export function ClassClient({
@@ -227,40 +228,34 @@ export function ClassClient({
   pathParamsType,
   children,
 }: Props): KubbNode {
+  const methods = operations.map(({ operation, name: methodName, typeSchemas, zodSchemas }) =>
+    generateMethod({
+      operation,
+      name: methodName,
+      typeSchemas,
+      zodSchemas,
+      baseURL,
+      dataReturnType,
+      parser,
+      paramsType,
+      paramsCasing,
+      pathParamsType,
+    }),
+  )
+
+  const classCode = `export class ${name} {
+  private client: typeof fetch
+
+  constructor(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+    this.client = config.client || fetch
+  }
+
+${methods.join('\n\n')}
+}`
+
   return (
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
-      {`export class ${name} {`}
-      <br />
-      {'  private client: typeof fetch'}
-      <br />
-      <br />
-      {'  constructor(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {'}
-      <br />
-      {'    this.client = config.client || fetch'}
-      <br />
-      {'  }'}
-      <br />
-      <br />
-      {operations.map(({ operation, name: methodName, typeSchemas, zodSchemas }) => (
-        <>
-          {'  '}
-          {generateMethod({
-            operation,
-            name: methodName,
-            typeSchemas,
-            zodSchemas,
-            baseURL,
-            dataReturnType,
-            parser,
-            paramsType,
-            paramsCasing,
-            pathParamsType,
-          })}
-          <br />
-          <br />
-        </>
-      ))}
-      {'}'}
+      {classCode}
       {children}
     </File.Source>
   )
