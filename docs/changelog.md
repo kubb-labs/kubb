@@ -5,7 +5,7 @@ outline: deep
 
 # Changelog
 
-All notable changes to Kubb will be documented in this file. Changes are organized by version and categorized by type.
+All notable changes to Kubb are documented here. Each version is organized with clear categories (Features, Bug Fixes, Breaking Changes, Dependencies) and includes code examples where applicable. Use the outline navigation in the right sidebar to quickly jump to any version.
 
 ## Legend
 
@@ -1127,17 +1127,17 @@ export const showPetByIdError = z
   .lazy(() => error)
   .openapi({
     examples: [
-      { 
-        sample: { 
-          summary: 'A sample error', 
-          value: { code: 1, message: 'A sample error message' } 
-        } 
+      {
+        sample: {
+          summary: 'A sample error',
+          value: { code: 1, message: 'A sample error message' }
+        }
       },
-      { 
-        other_example: { 
-          summary: 'Another sample error', 
-          value: { code: 2, message: 'A totally specific message' } 
-        } 
+      {
+        other_example: {
+          summary: 'Another sample error',
+          value: { code: 2, message: 'A totally specific message' }
+        }
       },
     ],
   })
