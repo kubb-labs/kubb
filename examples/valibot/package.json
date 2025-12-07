@@ -1,0 +1,37 @@
+{
+  "name": "valibot-pet-store",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Valibot PetStore example",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubb-labs/kubb.git",
+    "directory": "examples/valibot"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "generate": "kubb --config kubb.config.js",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/cli": "workspace:*",
+    "@kubb/core": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
+    "@kubb/plugin-valibot": "workspace:*",
+    "typescript": "^5.9.3",
+    "valibot": "^1.2.0"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  },
+  "packageManager": "pnpm@10.18.3",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10.0.0"
+  }
+}

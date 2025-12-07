@@ -864,6 +864,30 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  examples/valibot:
+    dependencies:
+      '@kubb/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../../packages/plugin-oas
+      '@kubb/plugin-ts':
+        specifier: workspace:*
+        version: link:../../packages/plugin-ts
+      '@kubb/plugin-valibot':
+        specifier: workspace:*
+        version: link:../../packages/plugin-valibot
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      valibot:
+        specifier: ^1.2.0
+        version: 1.2.0(typescript@5.9.3)
+
   examples/vue-query:
     dependencies:
       '@kubb/cli':
