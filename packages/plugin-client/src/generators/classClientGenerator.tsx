@@ -137,8 +137,8 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
         if (typeSchemas.pathParams?.name) typeImports.add(typeSchemas.pathParams.name)
         if (typeSchemas.queryParams?.name) typeImports.add(typeSchemas.queryParams.name)
         if (typeSchemas.headerParams?.name) typeImports.add(typeSchemas.headerParams.name)
-        typeSchemas.statusCodes?.forEach((item: any) => {
-          if (item.name) typeImports.add(item.name)
+        typeSchemas.statusCodes?.forEach((item) => {
+          if (item?.name) typeImports.add(item.name)
         })
         typeFilesByPath.set(typeFile.path, typeFile)
 
