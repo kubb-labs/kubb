@@ -103,7 +103,11 @@ function buildClientParams({
     },
   })
 }
-// TODO move to @kubb/core/utils
+
+/**
+ * Builds JSDoc comment block with proper indentation for class methods.
+ * Returns indented JSDoc string or spaces for proper method alignment.
+ */
 function buildJSDoc(operation: Operation): string {
   const comments = getComments(operation)
   return comments.length > 0 ? `/**\n${comments.map((c) => `   * ${c}`).join('\n')}\n   */\n  ` : '  '
