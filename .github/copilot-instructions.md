@@ -102,6 +102,35 @@ Components are React components located in `packages/plugin-*/src/components/` t
 
 Generators are located in `packages/plugin-*/src/generators/`. Prefer React-based generators using `createReactGenerator`.
 
+## Client Generation Patterns
+
+The `@kubb/plugin-client` plugin supports two client generation patterns:
+
+### Function-based (default)
+
+Generates standalone functions for each operation:
+
+```typescript
+pluginClient({
+  clientType: 'function', // default
+})
+```
+
+### Class-based
+
+Generates classes with methods grouped by tag:
+
+```typescript
+pluginClient({
+  clientType: 'class',
+  group: {
+    type: 'tag',
+  },
+})
+```
+
+Class-based generation creates one class per tag (e.g., `Pet`, `Store`, `User`) with methods for each operation. Use the `classClientGenerator` which implements the `Operations` pattern to group operations.
+
 ## Additional Resources
 
 For more detailed architecture information and examples, see the `AGENTS.md` file in the repository root.
