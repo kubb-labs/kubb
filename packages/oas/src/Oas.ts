@@ -399,6 +399,96 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     )
   }
 
+  /**
+   * Get all available content types for a response
+   */
+  getResponseContentTypes(operation: Operation, statusCode: string | number): Array<string> {
+    if (!operation.schema.responses) {
+      return []
+    }
+
+    const response = operation.getResponseByStatusCode(statusCode)
+    
+    if (!response || typeof response === 'boolean') {
+      return []
+    }
+
+    if (isReference(response)) {
+      return []
+    }
+
+    if (!response.content) {
+      return []
+    }
+
+    return Object.keys(response.content)
+  }
+
+  /**
+   * Get all available content types for a request body
+   */
+  getRequestContentTypes(operation: Operation): Array<string> {
+    if (!operation.schema.requestBody) {
+      return []
+    }
+
+    const requestBody = this.dereferenceWithRef(operation.schema.requestBody)
+
+    if (!requestBody || typeof requestBody === 'boolean') {
+      return []
+    }
+
+    if (isReference(requestBody)) {
+      return []
+    }
+
+    if (!requestBody.content) {
+      return []
+    }
+
+    return Object.keys(requestBody.content)
+  }
+
+  /**
+   * Get schemas for all content types in a response
+   */
+  getResponseSchemasByContentType(operation: Operation, statusCode: string | number): Record<string, SchemaObject> {
+    const contentTypes = this.getResponseContentTypes(operation, statusCode)
+    const schemas: Record<string, SchemaObject> = {}
+
+    for (const contentType of contentTypes) {
+      const originalContentType = this.#options.contentType
+      this.#options.contentType = contentType
+      const schema = this.getResponseSchema(operation, statusCode)
+      if (schema && Object.keys(schema).length > 0) {
+        schemas[contentType] = schema
+      }
+      this.#options.contentType = originalContentType
+    }
+
+    return schemas
+  }
+
+  /**
+   * Get schemas for all content types in a request body
+   */
+  getRequestSchemasByContentType(operation: Operation): Record<string, SchemaObject> {
+    const contentTypes = this.getRequestContentTypes(operation)
+    const schemas: Record<string, SchemaObject> = {}
+
+    for (const contentType of contentTypes) {
+      const originalContentType = this.#options.contentType
+      this.#options.contentType = contentType
+      const schema = this.getRequestSchema(operation)
+      if (schema && Object.keys(schema).length > 0) {
+        schemas[contentType] = schema
+      }
+      this.#options.contentType = originalContentType
+    }
+
+    return schemas
+  }
+
   async valdiate() {
     const oasNormalize = new OASNormalize(this.api, {
       enablePaths: true,
