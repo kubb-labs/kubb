@@ -613,20 +613,46 @@ Resolve typescript error related to `queryClient` not having a default value:
 
 Export method when using `urlType` as discussed in [#1828](https://github.com/kubb-labs/kubb/discussions/1828).
 
-# 3.16.4
-- [`plugin-zod`](/plugins/plugin-zod): toZod support for Zod v4
+## 3.16.4
 
-# 3.16.3
-- [`plugin-msw`](/plugins/plugin-msw): Return contentType from response instead of request
-- [`plugin-faker`](/plugins/plugin-faker): update Faker parser to work with enums in nested objects
+### ✨ Features
 
-# 3.16.2
-- Upgrade of internal dependencies
+#### [`plugin-zod`](/plugins/plugin-zod)
 
-# 3.16.1
-- [`plugin-client`](/plugins/plugin-client): `validateStatus` as part of the axios client
-- [`plugin-ts`](/plugins/plugin-ts): ERROR Warning: Encountered two children with the same key
-- [`plugin-ts`](/plugins/plugin-ts): Does not consider pattern property for js doc
+toZod support for Zod v4.
+
+## 3.16.3
+
+### 🐛 Bug Fixes
+
+#### [`plugin-msw`](/plugins/plugin-msw)
+
+Return contentType from response instead of request.
+
+#### [`plugin-faker`](/plugins/plugin-faker)
+
+Update Faker parser to work with enums in nested objects.
+
+## 3.16.2
+
+### 📦 Dependencies
+
+Upgrade of internal dependencies.
+
+## 3.16.1
+
+### ✨ Features
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Add `validateStatus` as part of the axios client.
+
+### 🐛 Bug Fixes
+
+#### [`plugin-ts`](/plugins/plugin-ts)
+
+- Fix ERROR Warning: Encountered two children with the same key
+- Fix pattern property not considered for JSDoc
 
 ## 3.16.0
 
@@ -747,87 +773,228 @@ npx kubb mcp
 ```
 :::
 
-# 3.13.2
-- [`plugin-client`](/plugins/plugin-client): Shadowed variables error when using `client`, use of `fetch` instead when an import to `@kubb/plugin-client/clients/axios` is needed.
+## 3.13.2
 
-# 3.13.1
-- [`plugin-client`](/plugins/plugin-client): Parse and validate request data with Zod, including FormData, before forwarding it to the client.
+### 🐛 Bug Fixes
 
-# 3.13.0
-- [`plugin-ts`](/plugins/plugin-ts): Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
-- [`plugin-zod`](/plugins/plugin-zod): Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
-- [`plugin-faker`](/plugins/plugin-faker): Adds `emptySchemaType` option. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
+#### [`plugin-client`](/plugins/plugin-client)
 
-# 3.12.2
-- [`core`](/plugins/core): Better support for Windows [back slashes](https://github.com/kubb-labs/kubb/issues/1776)
+Fix shadowed variables error when using `client`, use of `fetch` instead when an import to `@kubb/plugin-client/clients/axios` is needed.
 
-# 3.12.1
-- [`plugin-zod`](/plugins/plugin-zod): Correct v4 imports when no importPath is defined
+## 3.13.1
 
-# 3.12.0
-- [`plugin-zod`](/plugins/plugin-zod): full support for Zod v4
+### ✨ Features
 
-# 3.11.1
-- [`plugin-oas`](/plugins/plugin-oas): resolve anyof when used together with allof
+#### [`plugin-client`](/plugins/plugin-client)
 
-# 3.11.0
-- [`plugin-oas`](/plugins/plugin-oas): discriminator flag that could override a schema when mapping is used(see inherit), resolves [https://github.com/kubb-labs/kubb/issues/1736](https://github.com/kubb-labs/kubb/issues/1736)
-- [`plugin-zod`](/plugins/plugin-zod): enums of type "number" are parsed to integers
-- [`plugin-faker`](/plugins/plugin-faker): Incompatible type used for true literal enum in query param
+Parse and validate request data with Zod, including FormData, before forwarding it to the client.
 
-# 3.10.16
-- [`plugin-ts`](/plugins/plugin-ts): constEnum should be treated as export * instead of export type *
+## 3.13.0
 
-# 3.10.15
-- [`plugin-ts`](/plugins/plugin-ts): Nullable response for @kubb/plugin-ts and @kubb/plugin-zod plugins inconsistency
+### ✨ Features
 
-# 3.10.14
-- [`plugin-faker`](/plugins/plugin-faker): Min and max is not applied to the faker functions when only one of them is defined
-- [`core`](/plugins/core): uniqueBy for file.sources(isExportable and name)
-- [`plugin-ts`](/plugins/plugin-ts): Duplicated enums on TypeScript types
+#### Multiple Plugins
 
-# 3.10.13
-- [`plugin-zod`](/plugins/plugin-zod): query parameter objects are no longer optional if at least one parameter is defaulted
+Add `emptySchemaType` option across plugins. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
 
-# 3.10.12
-- [`plugin-oas`](/plugins/plugin-oas): allow multiple `discriminator.mapping` with the same $ref
+- [`plugin-ts`](/plugins/plugin-ts)
+- [`plugin-zod`](/plugins/plugin-zod)
+- [`plugin-faker`](/plugins/plugin-faker)
 
-# 3.10.11
-- [`plugin-zod`](/plugins/plugin-zod): update parser to include latest v4 of Zod
+## 3.12.2
 
-# 3.10.10
-- [`plugin-react-query`](/plugins/plugin-react-query/): resolve typescript error
-- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): resolve typescript error
-- [`plugin-vue-query`](/plugins/plugin-vue-query/): resolve typescript error
-- [`plugin-solid-query`](/plugins/plugin-solid-query/): resolve typescript error
+### 🐛 Bug Fixes
 
-# 3.10.9
-- [`core`](/plugins/core): update packages
+#### [`core`](/plugins/core)
 
-# 3.10.8
-- [`plugin-oas`](/plugins/plugin-oas): Caching of oas
+Better support for Windows [back slashes](https://github.com/kubb-labs/kubb/issues/1776).
 
-# 3.10.7
-- [`core`](/plugins/core): better support for Windows
+## 3.12.1
 
-# 3.10.6
-- [`plugin-oas`](/plugins/plugin-oas): Improve tuple type generation
+### 🐛 Bug Fixes
 
-# 3.10.5
-- [`plugin-oas`](/plugins/plugin-oas): Rewrite schemas with multiple types
-- [`plugin-faker`](/plugins/plugin-faker): Fix types of enums nested in array
+#### [`plugin-zod`](/plugins/plugin-zod)
 
-# 3.10.4
-- [`plugin-mcp`](/plugins/plugin-mcp/): better use of MCP tools based on oas
+Correct v4 imports when no importPath is defined.
 
-# 3.10.3
-- [`plugin-zod`](/plugins/plugin-zod): Better convert of `discriminator`
+## 3.12.0
 
-# 3.10.2
-- [`plugin-react-query`](/plugins/plugin-react-query/): remove generic TQueryData when using suspense
+### ✨ Features
 
-# 3.10.1
-- Update of internal libraries
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Full support for Zod v4.
+
+## 3.11.1
+
+### 🐛 Bug Fixes
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Resolve anyof when used together with allof.
+
+## 3.11.0
+
+### ✨ Features
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Discriminator flag that could override a schema when mapping is used (see inherit), resolves [#1736](https://github.com/kubb-labs/kubb/issues/1736).
+
+### 🐛 Bug Fixes
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Enums of type "number" are parsed to integers.
+
+#### [`plugin-faker`](/plugins/plugin-faker)
+
+Incompatible type used for true literal enum in query param.
+
+## 3.10.16
+
+### 🐛 Bug Fixes
+
+#### [`plugin-ts`](/plugins/plugin-ts)
+
+ConstEnum should be treated as export * instead of export type *.
+
+## 3.10.15
+
+### 🐛 Bug Fixes
+
+#### [`plugin-ts`](/plugins/plugin-ts)
+
+Fix nullable response inconsistency between @kubb/plugin-ts and @kubb/plugin-zod plugins.
+
+## 3.10.14
+
+### 🐛 Bug Fixes
+
+#### [`plugin-faker`](/plugins/plugin-faker)
+
+Fix min and max not applied to the faker functions when only one of them is defined.
+
+#### [`core`](/plugins/core)
+
+Add uniqueBy for file.sources (isExportable and name).
+
+#### [`plugin-ts`](/plugins/plugin-ts)
+
+Fix duplicated enums on TypeScript types.
+
+## 3.10.13
+
+### 🐛 Bug Fixes
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Query parameter objects are no longer optional if at least one parameter is defaulted.
+
+## 3.10.12
+
+### ✨ Features
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Allow multiple `discriminator.mapping` with the same $ref.
+
+## 3.10.11
+
+### 📦 Dependencies
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Update parser to include latest v4 of Zod.
+
+## 3.10.10
+
+### 🐛 Bug Fixes
+
+#### Query Plugins
+
+Resolve TypeScript errors across all query plugins:
+
+- [`plugin-react-query`](/plugins/plugin-react-query/)
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/)
+- [`plugin-vue-query`](/plugins/plugin-vue-query/)
+- [`plugin-solid-query`](/plugins/plugin-solid-query/)
+
+## 3.10.9
+
+### 📦 Dependencies
+
+#### [`core`](/plugins/core)
+
+Update packages.
+
+## 3.10.8
+
+### ✨ Features
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Add caching of OAS.
+
+## 3.10.7
+
+### 🐛 Bug Fixes
+
+#### [`core`](/plugins/core)
+
+Better support for Windows.
+
+## 3.10.6
+
+### ✨ Features
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Improve tuple type generation.
+
+## 3.10.5
+
+### ✨ Features
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Rewrite schemas with multiple types.
+
+### 🐛 Bug Fixes
+
+#### [`plugin-faker`](/plugins/plugin-faker)
+
+Fix types of enums nested in array.
+
+## 3.10.4
+
+### ✨ Features
+
+#### [`plugin-mcp`](/plugins/plugin-mcp/)
+
+Better use of MCP tools based on OAS.
+
+## 3.10.3
+
+### ✨ Features
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Better convert of `discriminator`.
+
+## 3.10.2
+
+### 🐛 Bug Fixes
+
+#### [`plugin-react-query`](/plugins/plugin-react-query/)
+
+Remove generic TQueryData when using suspense.
+
+## 3.10.1
+
+### 📦 Dependencies
+
+Update of internal libraries.
 
 ## 3.10.0
 
@@ -839,21 +1006,46 @@ Create an [MCP](https://modelcontextprotocol.io) server based on your OpenAPI fi
 
 ![Claude interaction](/screenshots/claude-interaction.gif)
 
-# 3.9.5
-- [`plugin-ts`](/plugins/plugin-ts): openapi description tag is not put into the JSDoc
+## 3.9.5
 
-# 3.9.4
-- [`plugin-swr`](/plugins/plugin-swr/): query type inferred as any when generating SWR hooks with useSWR
+### 🐛 Bug Fixes
 
-# 3.9.3
-- [`plugin-ts`](/plugins/plugin-ts): nullable: true now generates | null union
+#### [`plugin-ts`](/plugins/plugin-ts)
 
-# 3.9.2
-- [`plugin-client`](/plugins/plugin-client): exclude baseURL when not set
+Fix OpenAPI description tag not put into the JSDoc.
 
-# 3.9.1
-- [`plugin-zod`](/plugins/plugin-zod): reduce any's being used
-- [`plugin-faker`](/plugins/plugin-faker): reduce any's being used
+## 3.9.4
+
+### 🐛 Bug Fixes
+
+#### [`plugin-swr`](/plugins/plugin-swr/)
+
+Fix query type inferred as any when generating SWR hooks with useSWR.
+
+## 3.9.3
+
+### ✨ Features
+
+#### [`plugin-ts`](/plugins/plugin-ts)
+
+`nullable: true` now generates | null union.
+
+## 3.9.2
+
+### 🐛 Bug Fixes
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Exclude baseURL when not set.
+
+## 3.9.1
+
+### 🐛 Bug Fixes
+
+Reduce any's being used:
+
+- [`plugin-zod`](/plugins/plugin-zod)
+- [`plugin-faker`](/plugins/plugin-faker)
 
 ## 3.9.0
 - [`core`](/plugins/core): add default banner feature to enhance generated file recognizability by [@akinoccc](https://github.com/akinoccc)
