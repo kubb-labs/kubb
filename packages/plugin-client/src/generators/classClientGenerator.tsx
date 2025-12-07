@@ -116,32 +116,42 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
     )
 
     return controllers.map(({ name, file, operations: ops }) => {
-      // Collect all unique imports needed for this class
-      const allTypeImports = new Set<string>()
-      const allTypeFiles = new Map<string, KubbFile.File>()
-      const allZodImports = new Set<string>()
-      const allZodFiles = new Map<string, KubbFile.File>()
+      // Collect imports grouped by file path
+      const typeImportsByFile = new Map<string, Set<string>>()
+      const zodImportsByFile = new Map<string, Set<string>>()
+      const typeFilesByPath = new Map<string, KubbFile.File>()
+      const zodFilesByPath = new Map<string, KubbFile.File>()
       const hasFormData = ops.some((op) => op.operation.getContentType() === 'multipart/form-data')
 
       ops.forEach((op) => {
         const { typeSchemas, zodSchemas, typeFile, zodFile } = op
         
-        // Collect type imports
-        if (typeSchemas.request?.name) allTypeImports.add(typeSchemas.request.name)
-        if (typeSchemas.response?.name) allTypeImports.add(typeSchemas.response.name)
-        if (typeSchemas.pathParams?.name) allTypeImports.add(typeSchemas.pathParams.name)
-        if (typeSchemas.queryParams?.name) allTypeImports.add(typeSchemas.queryParams.name)
-        if (typeSchemas.headerParams?.name) allTypeImports.add(typeSchemas.headerParams.name)
+        // Collect type imports by file
+        if (!typeImportsByFile.has(typeFile.path)) {
+          typeImportsByFile.set(typeFile.path, new Set())
+        }
+        const typeImports = typeImportsByFile.get(typeFile.path)!
+        
+        if (typeSchemas.request?.name) typeImports.add(typeSchemas.request.name)
+        if (typeSchemas.response?.name) typeImports.add(typeSchemas.response.name)
+        if (typeSchemas.pathParams?.name) typeImports.add(typeSchemas.pathParams.name)
+        if (typeSchemas.queryParams?.name) typeImports.add(typeSchemas.queryParams.name)
+        if (typeSchemas.headerParams?.name) typeImports.add(typeSchemas.headerParams.name)
         typeSchemas.statusCodes?.forEach((item: any) => {
-          if (item.name) allTypeImports.add(item.name)
+          if (item.name) typeImports.add(item.name)
         })
-        allTypeFiles.set(typeFile.path, typeFile)
+        typeFilesByPath.set(typeFile.path, typeFile)
 
-        // Collect zod imports if parser is zod
+        // Collect zod imports by file if parser is zod
         if (options.parser === 'zod') {
-          if (zodSchemas?.response?.name) allZodImports.add(zodSchemas.response.name)
-          if (zodSchemas?.request?.name) allZodImports.add(zodSchemas.request.name)
-          allZodFiles.set(zodFile.path, zodFile)
+          if (!zodImportsByFile.has(zodFile.path)) {
+            zodImportsByFile.set(zodFile.path, new Set())
+          }
+          const zodImports = zodImportsByFile.get(zodFile.path)!
+          
+          if (zodSchemas?.response?.name) zodImports.add(zodSchemas.response.name)
+          if (zodSchemas?.request?.name) zodImports.add(zodSchemas.request.name)
+          zodFilesByPath.set(zodFile.path, zodFile)
         }
       })
 
@@ -168,17 +178,21 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
 
           {hasFormData && <File.Import name={['buildFormData']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />}
 
-          {Array.from(allTypeFiles.values()).map((typeFile) => {
-            const imports = Array.from(allTypeImports).filter(Boolean)
-            if (imports.length === 0) return null
-            return <File.Import key={typeFile.path} name={imports} root={file.path} path={typeFile.path} isTypeOnly />
+          {Array.from(typeImportsByFile.entries()).map(([filePath, imports]) => {
+            const typeFile = typeFilesByPath.get(filePath)
+            if (!typeFile) return null
+            const importNames = Array.from(imports).filter(Boolean)
+            if (importNames.length === 0) return null
+            return <File.Import key={filePath} name={importNames} root={file.path} path={typeFile.path} isTypeOnly />
           })}
 
           {options.parser === 'zod' &&
-            Array.from(allZodFiles.values()).map((zodFile) => {
-              const imports = Array.from(allZodImports).filter(Boolean)
-              if (imports.length === 0) return null
-              return <File.Import key={zodFile.path} name={imports} root={file.path} path={zodFile.path} />
+            Array.from(zodImportsByFile.entries()).map(([filePath, imports]) => {
+              const zodFile = zodFilesByPath.get(filePath)
+              if (!zodFile) return null
+              const importNames = Array.from(imports).filter(Boolean)
+              if (importNames.length === 0) return null
+              return <File.Import key={filePath} name={importNames} root={file.path} path={zodFile.path} />
             })}
 
           <ClassClient
