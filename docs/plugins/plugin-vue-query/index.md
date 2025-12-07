@@ -227,7 +227,7 @@ Supports dot notation (e.g. 'pagination.prev.id') or array path (e.g. ['paginati
 |     Type: | `string \| string[] \| undefined` |
 | Required: | `false`                         |
 
-#### queryKey
+### queryKey
 
 Customize the queryKey.
 
@@ -281,7 +281,7 @@ the path will be applied as is, so relative path should be based on the file bei
 |  Default: | `'@tanstack/vue-query'` |
 
 
-#### mutationKey
+### mutationKey
 
 Customize the mutationKey.
 

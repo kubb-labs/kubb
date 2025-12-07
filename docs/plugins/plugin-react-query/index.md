@@ -245,7 +245,7 @@ type Query = {
 } | false
 ```
 
-#### queryKey
+### queryKey
 
 Customize the queryKey.
 
@@ -307,7 +307,7 @@ type Mutation = {
 } | false
 ```
 
-#### mutationKey
+### mutationKey
 
 Customize the mutationKey.
 

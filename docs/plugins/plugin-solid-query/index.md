@@ -132,7 +132,7 @@ Return the name of a group based on the group name, this will be used for the fi
 ### parser
 <!--@include: ../plugin-client/parser.md-->
 
-#### queryKey
+### queryKey
 
 Customize the queryKey.
 
@@ -203,7 +203,7 @@ type Mutation = {
 } | false
 ```
 
-#### mutationKey
+### mutationKey
 
 Customize the mutationKey.
 
