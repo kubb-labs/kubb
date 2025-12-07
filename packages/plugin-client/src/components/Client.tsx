@@ -40,19 +40,19 @@ type GetParamsProps = {
   typeSchemas: OperationSchemas
   isConfigurable: boolean
   hasMultipleContentTypes?: boolean
-  contentTypes?: string[]
+  contentTypeUnion?: string
 }
 
-function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable, hasMultipleContentTypes, contentTypes }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable, hasMultipleContentTypes, contentTypeUnion }: GetParamsProps) {
   if (paramsType === 'object') {
     return FunctionParams.factory({
       data: {
         mode: 'object',
         children: {
           ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          contentType: hasMultipleContentTypes && contentTypes
+          contentType: hasMultipleContentTypes && contentTypeUnion
             ? {
-                type: contentTypes.map((ct) => `'${ct}'`).join(' | '),
+                type: contentTypeUnion,
                 optional: false,
               }
             : undefined,
@@ -95,9 +95,9 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
           optional: isOptional(typeSchemas.pathParams?.schema),
         }
       : undefined,
-    contentType: hasMultipleContentTypes && contentTypes
+    contentType: hasMultipleContentTypes && contentTypeUnion
       ? {
-          type: contentTypes.map((ct) => `'${ct}'`).join(' | '),
+          type: contentTypeUnion,
           optional: false,
         }
       : undefined,
@@ -151,13 +151,12 @@ export function Client({
 }: Props): KubbNode {
   const oas = useOas()
   const path = new URLPath(operation.path, { casing: paramsCasing })
-  const defaultContentType = operation.getContentType()
+  const contentType = operation.getContentType()
   
   // Check if operation supports multiple content types
   const requestContentTypes = multipleContentTypes ? oas.getRequestContentTypes(operation) : []
   const hasMultipleContentTypes = requestContentTypes.length > 1
   
-  const contentType = hasMultipleContentTypes ? defaultContentType : operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
   
   // For multiple content types, we'll use the contentType parameter
@@ -172,6 +171,11 @@ export function Client({
     typeSchemas.headerParams?.name ? '...headers' : undefined,
   ].filter(Boolean)
 
+  // Create content type union string for TypeScript type
+  const contentTypeUnion = hasMultipleContentTypes 
+    ? requestContentTypes.map((ct) => `'${ct}'`).join(' | ')
+    : undefined
+
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   const generics = [typeSchemas.response.name, TError, typeSchemas.request?.name || 'unknown'].filter(Boolean)
@@ -182,7 +186,7 @@ export function Client({
     typeSchemas, 
     isConfigurable,
     hasMultipleContentTypes,
-    contentTypes: requestContentTypes,
+    contentTypeUnion,
   })
   const urlParams = Url.getParams({
     paramsType,
