@@ -134,7 +134,11 @@ Return the name of a group based on the group name, this will be used for the fi
 
 ### queryKey
 
-Customize the queryKey.
+Customize the queryKey that will be used for the query.
+
+The function receives an object with:
+- `operation`: The OpenAPI operation object with methods like `getTags()`, `getOperationId()`, etc.
+- `schemas`: An object containing operation schemas including `pathParams`, `queryParams`, `request`, `response`, etc.
 
 ::: warning
 When using a string you need to use `JSON.stringify`.
@@ -144,6 +148,111 @@ When using a string you need to use `JSON.stringify`.
 |----------:|:----------------------------------------------------------------------------|
 |     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
 | Required: | `false`                                                                     |
+
+#### Examples
+
+**Using tags and path parameters**
+
+Generate a queryKey with operation tags and path parameters:
+
+```typescript
+import { defineConfig } from '@kubb/core'
+import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
+
+export default defineConfig({
+  // ...
+  plugins: [
+    pluginSvelteQuery({
+      queryKey: ({ operation, schemas }) => {
+        const tags = operation.getTags().map(tag => JSON.stringify(tag.name))
+        const pathParams = schemas.pathParams?.keys || []
+        return [...tags, ...pathParams]
+      },
+    }),
+  ],
+})
+```
+
+For a GET operation with tags `["user"]` and path parameter `username`, this generates:
+```typescript
+export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams["username"] }) => 
+  ["user", username] as const
+```
+
+**Using the default transformer**
+
+You can extend the default queryKey transformer:
+
+```typescript
+import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
+import { QueryKey } from '@kubb/plugin-svelte-query/components'
+
+export default defineConfig({
+  // ...
+  plugins: [
+    pluginSvelteQuery({
+      queryKey: (props) => {
+        const defaultKeys = QueryKey.getTransformer(props)
+        return [JSON.stringify('v5'), ...defaultKeys]
+      },
+    }),
+  ],
+})
+```
+
+This prepends a version to the default queryKey:
+```typescript
+export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => 
+  ["v5", { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+```
+
+**Using operation ID**
+
+Create a simple queryKey using the operation ID:
+
+```typescript
+import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
+
+export default defineConfig({
+  // ...
+  plugins: [
+    pluginSvelteQuery({
+      queryKey: ({ operation }) => {
+        return [JSON.stringify(operation.getOperationId())]
+      },
+    }),
+  ],
+})
+```
+
+**Conditional keys based on parameters**
+
+Include query parameters when they exist:
+
+```typescript
+import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
+
+export default defineConfig({
+  // ...
+  plugins: [
+    pluginSvelteQuery({
+      queryKey: ({ operation, schemas }) => {
+        const keys = [JSON.stringify(operation.getOperationId())]
+        
+        if (schemas.pathParams?.keys) {
+          keys.push(...schemas.pathParams.keys)
+        }
+        
+        if (schemas.queryParams?.name) {
+          keys.push('...(params ? [params] : [])')
+        }
+        
+        return keys
+      },
+    }),
+  ],
+})
+```
 
 ### query
 
