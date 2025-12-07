@@ -144,7 +144,7 @@ components:
 
     # OpenAPI 3.1 feature: type as array (replaces nullable)
     NullableString:
-      type: [string, 'null']
+      type: [string, null]
       description: String that can be null
 
     # OpenAPI 3.1 feature: prefixItems for tuple validation

@@ -206,7 +206,7 @@ export function isOpenApiV3_1Document(doc: any): doc is OpenAPIV3_1.Document {
 | `webhooks` | ❌ | High | Alternative to paths for webhook definitions |
 | `jsonSchemaDialect` | ❌ | Medium | Specify JSON Schema dialect |
 | `$schema` in schemas | ❌ | Low | JSON Schema version declaration |
-| Multiple `examples` | ⚠️ | Medium | Needs verification (replaces single `example`) |
+| Multiple `examples` | ⚠️ Needs Verification | Medium | Needs verification (replaces single `example`) |
 
 ## Implementation Details
 

@@ -146,7 +146,7 @@ Conditional schemas allow different validation rules based on conditions, essent
 
 ### 10. Multiple examples Array (OpenAPI 3.1)
 
-**Status:** ⚠️ Unknown  
+**Status:** ⚠️ Needs Verification  
 **Priority:** Medium  
 **Complexity:** Low
 
