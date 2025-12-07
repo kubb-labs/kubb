@@ -4,15 +4,15 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
+import { buildFormData } from '../../../.kubb/config.js'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.js'
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import { buildFormData } from '../../../.kubb/config.js'
 
 function getUploadFileUrlXML({ petId }: { petId: UploadFilePathParams['petId'] }) {
   const res = { method: 'POST', url: `/pet/${petId}/uploadImage` as const }

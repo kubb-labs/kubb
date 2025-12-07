@@ -125,13 +125,13 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
 
       ops.forEach((op) => {
         const { typeSchemas, zodSchemas, typeFile, zodFile } = op
-        
+
         // Collect type imports by file
         if (!typeImportsByFile.has(typeFile.path)) {
           typeImportsByFile.set(typeFile.path, new Set())
         }
         const typeImports = typeImportsByFile.get(typeFile.path)!
-        
+
         if (typeSchemas.request?.name) typeImports.add(typeSchemas.request.name)
         if (typeSchemas.response?.name) typeImports.add(typeSchemas.response.name)
         if (typeSchemas.pathParams?.name) typeImports.add(typeSchemas.pathParams.name)
@@ -148,7 +148,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
             zodImportsByFile.set(zodFile.path, new Set())
           }
           const zodImports = zodImportsByFile.get(zodFile.path)!
-          
+
           if (zodSchemas?.response?.name) zodImports.add(zodSchemas.response.name)
           if (zodSchemas?.request?.name) zodImports.add(zodSchemas.request.name)
           zodFilesByPath.set(zodFile.path, zodFile)
@@ -172,7 +172,12 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
           ) : (
             <>
               <File.Import name={['fetch']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
-              <File.Import name={['RequestConfig', 'ResponseErrorConfig']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} isTypeOnly />
+              <File.Import
+                name={['RequestConfig', 'ResponseErrorConfig']}
+                root={file.path}
+                path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
+                isTypeOnly
+              />
             </>
           )}
 
