@@ -286,7 +286,7 @@ Which version of Zod should be used.
 | Required: | `false`      |
 |  Default: | `'3'`        |
 
-### mini <Badge type="tip" text="beta" />
+### mini <Badge type="tip" text="beta" /> <span class="new">new in 4.8.0</span>
 
 Use Zod Mini's functional API for better tree-shaking support.
 

@@ -154,7 +154,7 @@ export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
 ### client
 <!--@include: ../plugin-client/client.md-->
 
-### clientType
+### clientType <span class="new">new in 4.9.0</span>
 <!--@include: ../plugin-client/clientType.md-->
 
 ### bundle
