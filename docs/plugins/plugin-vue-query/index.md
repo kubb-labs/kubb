@@ -229,7 +229,7 @@ Supports dot notation (e.g. 'pagination.prev.id') or array path (e.g. ['paginati
 
 #### queryKey
 
-Customize the queryKey that will be used for the query hook.
+Customize the queryKey that will be used for the query composable.
 
 ::: warning
 When using a string you need to use `JSON.stringify`.
