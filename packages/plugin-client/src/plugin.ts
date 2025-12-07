@@ -4,7 +4,7 @@ import { camelCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { operationsGenerator } from './generators'
+import { classClientGenerator, operationsGenerator } from './generators'
 import { clientGenerator } from './generators/clientGenerator.tsx'
 import { groupedClientGenerator } from './generators/groupedClientGenerator.tsx'
 import type { PluginClient } from './types.ts'
@@ -26,7 +26,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
     operations = false,
     baseURL,
     paramsCasing,
-    generators = [clientGenerator, group ? groupedClientGenerator : undefined, operations ? operationsGenerator : undefined].filter(Boolean),
+    clientType = 'function',
     parser = 'client',
     client = 'axios',
     importPath,
@@ -36,10 +36,19 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
 
   const resolvedImportPath = importPath ?? (!bundle ? `@kubb/plugin-client/clients/${client}` : undefined)
 
+  // Determine which generators to use based on clientType
+  const defaultGenerators =
+    clientType === 'class'
+      ? [classClientGenerator, operations ? operationsGenerator : undefined].filter(Boolean)
+      : [clientGenerator, group ? groupedClientGenerator : undefined, operations ? operationsGenerator : undefined].filter(Boolean)
+
+  const generators = options.generators ?? defaultGenerators
+
   return {
     name: pluginClientName,
     options: {
       client,
+      clientType,
       bundle,
       output,
       group,

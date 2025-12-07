@@ -1,27 +1,30 @@
-import path from 'node:path'
-import type { Config, Plugin } from '@kubb/core'
-import type { HttpMethod } from '@kubb/oas'
+import { createMockedPluginManager, matchFiles, mockedPluginManager } from '@kubb/core/mocks'
 import { parse } from '@kubb/oas'
-import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator } from '@kubb/plugin-oas'
+import { PluginManager } from '@kubb/core'
+import path from 'node:path'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { createReactFabric } from '@kubb/react-fabric'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import type { Plugin } from '@kubb/core'
+import { classClientGenerator } from './classClientGenerator.tsx'
 import type { PluginClient } from '../types.ts'
-import { groupedClientGenerator } from './groupedClientGenerator.tsx'
 
-describe('groupedClientsGenerators operations', async () => {
+describe('classClientGenerator', async () => {
+  const oas = await parse(path.resolve(__dirname, '../../mocks/petStore.yaml'))
+
   const testData = [
     {
       name: 'findByTags',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
-      options: {},
+      options: {
+        group: {
+          type: 'tag' as const,
+        },
+      } as Partial<PluginClient['resolvedOptions']>,
     },
   ] as const satisfies Array<{
     input: string
     name: string
-    path: string
-    method: HttpMethod
     options: Partial<PluginClient['resolvedOptions']>
   }>
 
@@ -34,7 +37,7 @@ describe('groupedClientsGenerators operations', async () => {
       paramsCasing: undefined,
       pathParamsType: 'inline',
       client: 'axios',
-      clientType: 'function',
+      clientType: 'class',
       importPath: undefined,
       bundle: false,
       baseURL: '',
@@ -55,24 +58,13 @@ describe('groupedClientsGenerators operations', async () => {
       pluginManager: createMockedPluginManager(props.name),
       plugin,
       contentType: undefined,
+      exclude: undefined,
       override: undefined,
       mode: 'split',
-      exclude: [],
     })
 
-    const operations = await generator.getOperations()
+    const results = await generator.build(classClientGenerator)
 
-    await buildOperations(
-      operations.map((item) => item.operation),
-      {
-        config: { root: '.', output: { path: 'test' } } as Config,
-        fabric,
-        generator,
-        Component: groupedClientGenerator.Operations,
-        plugin,
-      },
-    )
-
-    await matchFiles(fabric.files)
+    await matchFiles(results)
   })
 })
