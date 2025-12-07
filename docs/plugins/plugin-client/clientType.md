@@ -103,10 +103,10 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export class Pet {
-  private client: typeof fetch
+  #client: typeof fetch
 
   constructor(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-    this.client = config.client || fetch
+    this.#client = config.client || fetch
   }
 
   /**
@@ -118,7 +118,7 @@ export class Pet {
     { petId }: { petId: GetPetByIdPathParams['petId'] }, 
     config: Partial<RequestConfig> & { client?: typeof fetch } = {}
   ) {
-    const { client: request = this.client, ...requestConfig } = config
+    const { client: request = this.#client, ...requestConfig } = config
     const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
       method: 'GET',
       url: `/pet/${petId}`,
@@ -136,7 +136,7 @@ export class Pet {
     data: AddPetMutationRequest, 
     config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}
   ) {
-    const { client: request = this.client, ...requestConfig } = config
+    const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
     const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
       method: 'POST',

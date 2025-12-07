@@ -23,10 +23,10 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 export class User {
-  private client: typeof fetch
+  #client: typeof fetch
 
   constructor(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-    this.client = config.client || fetch
+    this.#client = config.client || fetch
   }
 
   /**
@@ -35,7 +35,7 @@ export class User {
    * {@link /user}
    */
   async createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {}) {
-    const { client: request = this.client, ...requestConfig } = config
+    const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
     const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
       method: 'POST',
@@ -55,7 +55,7 @@ export class User {
     data?: CreateUsersWithListInputMutationRequest,
     config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch } = {},
   ) {
-    const { client: request = this.client, ...requestConfig } = config
+    const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
     const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
       method: 'POST',
@@ -71,7 +71,7 @@ export class User {
    * {@link /user/login}
    */
   async loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-    const { client: request = this.client, ...requestConfig } = config
+    const { client: request = this.#client, ...requestConfig } = config
     const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
       method: 'GET',
       url: '/user/login',
@@ -86,7 +86,7 @@ export class User {
    * {@link /user/logout}
    */
   async logoutUser(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-    const { client: request = this.client, ...requestConfig } = config
+    const { client: request = this.#client, ...requestConfig } = config
     const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
     return res.data
   }
@@ -96,7 +96,7 @@ export class User {
    * {@link /user/:username}
    */
   async getUserByName({ username }: { username: GetUserByNamePathParams['username'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-    const { client: request = this.client, ...requestConfig } = config
+    const { client: request = this.#client, ...requestConfig } = config
     const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
       method: 'GET',
       url: `/user/${username}`,
@@ -115,7 +115,7 @@ export class User {
     data?: UpdateUserMutationRequest,
     config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch } = {},
   ) {
-    const { client: request = this.client, ...requestConfig } = config
+    const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
     const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
       method: 'PUT',
@@ -132,7 +132,7 @@ export class User {
    * {@link /user/:username}
    */
   async deleteUser({ username }: { username: DeleteUserPathParams['username'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-    const { client: request = this.client, ...requestConfig } = config
+    const { client: request = this.#client, ...requestConfig } = config
     const res = await request<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
       method: 'DELETE',
       url: `/user/${username}`,

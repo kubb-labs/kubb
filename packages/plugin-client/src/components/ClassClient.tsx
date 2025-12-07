@@ -201,7 +201,7 @@ function generateMethod({
           : 'return res.data'
 
   const methodBody = [
-    'const { client: request = this.client, ...requestConfig } = config',
+    'const { client: request = this.#client, ...requestConfig } = config',
     '',
     requestDataLine,
     formDataLine,
@@ -244,10 +244,10 @@ export function ClassClient({
   )
 
   const classCode = `export class ${name} {
-  private client: typeof fetch
+  #client: typeof fetch
 
   constructor(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-    this.client = config.client || fetch
+    this.#client = config.client || fetch
   }
 
 ${methods.join('\n\n')}
