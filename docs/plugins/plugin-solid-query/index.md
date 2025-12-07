@@ -239,10 +239,12 @@ export default defineConfig({
       queryKey: ({ operation, schemas }) => {
         const keys = [JSON.stringify(operation.getOperationId())]
         
+        // Add path parameter values (without quotes, so they reference the variables)
         if (schemas.pathParams?.keys) {
           keys.push(...schemas.pathParams.keys)
         }
         
+        // Add query params conditionally (the string gets embedded as code)
         if (schemas.queryParams?.name) {
           keys.push('...(params ? [params] : [])')
         }
