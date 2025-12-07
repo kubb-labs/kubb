@@ -134,6 +134,7 @@ const valibotKeywordMapper = {
     return undefined
   },
   matches: (value = '') => {
+    // value is the regex pattern string, we need to convert it to a RegExp literal
     return `v.pipe(v.string(), v.regex(${value}))`
   },
   email: (min?: number, max?: number) => {
@@ -399,7 +400,9 @@ export function parse(context: Context, options: ParserOptions): string | undefi
   }
 
   if (isKeyword(current, schemaKeywords.matches)) {
-    return valibotKeywordMapper.matches(current.args as string)
+    if (current.args) {
+      return valibotKeywordMapper.matches(transformers.toRegExpString(current.args, null))
+    }
   }
 
   if (isKeyword(current, schemaKeywords.blob)) {

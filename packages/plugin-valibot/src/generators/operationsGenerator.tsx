@@ -39,7 +39,7 @@ export const operationsGenerator = createReactGenerator<PluginValibot>({
         banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
-        <File.Import isTypeOnly name={['* as v']} path={importPath} />
+        <File.Import isTypeOnly name={'* as v'} path={importPath} />
         {imports}
         <Operations name={name} operations={transformedOperations} />
       </File>

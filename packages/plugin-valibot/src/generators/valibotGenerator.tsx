@@ -101,7 +101,7 @@ export const valibotGenerator = createReactGenerator<PluginValibot>({
         banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
-        <File.Import name={['* as v']} path={plugin.options.importPath} />
+        <File.Import name={'* as v'} path={plugin.options.importPath} />
         {operationSchemas.map(mapOperationSchema)}
       </File>
     )
@@ -135,7 +135,7 @@ export const valibotGenerator = createReactGenerator<PluginValibot>({
         banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
-        <File.Import name={['* as v']} path={importPath} />
+        <File.Import name={'* as v'} path={importPath} />
         {typed && <File.Import isTypeOnly root={valibot.file.path} path={type.file.path} name={[type.name]} />}
         {imports.map((imp) => (
           <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={valibot.file.path} path={imp.path} name={imp.name} />
