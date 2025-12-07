@@ -48,10 +48,33 @@ export const axiosInstance = axios.create(getConfig())
 export const fetch = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
   const globalConfig = getConfig()
 
+  // Get the Content-Type header to determine how to transform the request
+  const contentType = config.headers?.['Content-Type'] || config.headers?.['content-type']
+  
+  // Transform request data based on Content-Type
+  let transformedData = config.data
+  if (config.data !== undefined && !(config.data instanceof FormData)) {
+    if (typeof config.data === 'string') {
+      // If data is already a string (e.g., XML), use it as-is
+      transformedData = config.data
+    } else if (contentType?.includes('application/x-www-form-urlencoded')) {
+      // For form-urlencoded, convert object to URLSearchParams
+      const formParams = new URLSearchParams()
+      Object.entries(config.data as Record<string, any>).forEach(([key, value]) => {
+        if (value !== undefined) {
+          formParams.append(key, value === null ? 'null' : value.toString())
+        }
+      })
+      transformedData = formParams.toString()
+    }
+    // Axios handles JSON serialization automatically for objects
+  }
+
   return axiosInstance
     .request<TData, ResponseConfig<TData>>({
       ...globalConfig,
       ...config,
+      data: transformedData,
       headers: {
         ...globalConfig.headers,
         ...config.headers,

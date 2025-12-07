@@ -129,6 +129,113 @@ describe('fetch client', () => {
     })
   })
 
+  describe('multiple content types', () => {
+    it('should send XML data as string without JSON.stringify', async () => {
+      const xmlData = '<pet><name>Fluffy</name><status>available</status></pet>'
+
+      mockFetch.mockResolvedValue({
+        status: 200,
+        statusText: 'OK',
+        headers: new Headers({ 'content-type': 'application/xml' }),
+        body: {},
+        text: async () => '<response><success>true</success></response>',
+      })
+
+      await client({
+        url: '/api/pets',
+        method: 'POST',
+        data: xmlData,
+        headers: { 'Content-Type': 'application/xml' },
+      })
+
+      const callArgs = mockFetch.mock.calls[0]
+      expect(callArgs).toBeDefined()
+      expect(callArgs?.[1]?.body).toBe(xmlData)
+      expect(typeof callArgs?.[1]?.body).toBe('string')
+    })
+
+    it('should convert object to URLSearchParams for application/x-www-form-urlencoded', async () => {
+      const formData = { name: 'Fluffy', status: 'available', age: 3 }
+
+      mockFetch.mockResolvedValue({
+        status: 200,
+        statusText: 'OK',
+        headers: new Headers(),
+        body: {},
+        json: async () => ({ success: true }),
+      })
+
+      await client({
+        url: '/api/pets',
+        method: 'POST',
+        data: formData,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      })
+
+      const callArgs = mockFetch.mock.calls[0]
+      expect(callArgs).toBeDefined()
+      expect(typeof callArgs?.[1]?.body).toBe('string')
+      expect(callArgs?.[1]?.body).toContain('name=Fluffy')
+      expect(callArgs?.[1]?.body).toContain('status=available')
+      expect(callArgs?.[1]?.body).toContain('age=3')
+    })
+
+    it('should parse XML responses', async () => {
+      const xmlResponse = '<pet><name>Fluffy</name></pet>'
+
+      mockFetch.mockResolvedValue({
+        status: 200,
+        statusText: 'OK',
+        headers: new Headers({ 'content-type': 'application/xml' }),
+        body: {},
+        text: async () => xmlResponse,
+      })
+
+      const response = await client({
+        url: '/api/pets/1',
+        method: 'GET',
+      })
+
+      expect(response.data).toBe(xmlResponse)
+    })
+
+    it('should parse text responses', async () => {
+      const textResponse = 'plain text response'
+
+      mockFetch.mockResolvedValue({
+        status: 200,
+        statusText: 'OK',
+        headers: new Headers({ 'content-type': 'text/plain' }),
+        body: {},
+        text: async () => textResponse,
+      })
+
+      const response = await client({
+        url: '/api/text',
+        method: 'GET',
+      })
+
+      expect(response.data).toBe(textResponse)
+    })
+
+    it('should default to JSON parsing for unknown content types', async () => {
+      mockFetch.mockResolvedValue({
+        status: 200,
+        statusText: 'OK',
+        headers: new Headers(),
+        body: {},
+        json: async () => ({ data: 'test' }),
+      })
+
+      const response = await client({
+        url: '/api/test',
+        method: 'GET',
+      })
+
+      expect(response.data).toEqual({ data: 'test' })
+    })
+  })
+
   describe('basic functionality', () => {
     it('should make a GET request', async () => {
       mockFetch.mockResolvedValue({

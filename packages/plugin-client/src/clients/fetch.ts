@@ -64,15 +64,58 @@ export const client = async <TData, _TError = unknown, TVariables = unknown>(par
     targetUrl += `?${normalizedParams}`
   }
 
+  // Get the Content-Type header to determine how to serialize the body
+  const headersObj = Array.isArray(config.headers) ? Object.fromEntries(config.headers) : config.headers
+  const contentType = headersObj?.['Content-Type'] || headersObj?.['content-type']
+
+  // Serialize body based on Content-Type
+  let body: BodyInit | undefined
+  if (config.data !== undefined) {
+    if (config.data instanceof FormData) {
+      body = config.data
+    } else if (typeof config.data === 'string') {
+      // If data is already a string (e.g., XML), use it as-is
+      body = config.data
+    } else if (contentType?.includes('application/x-www-form-urlencoded')) {
+      // For form-urlencoded, convert object to URLSearchParams
+      const formParams = new URLSearchParams()
+      Object.entries(config.data as Record<string, any>).forEach(([key, value]) => {
+        if (value !== undefined) {
+          formParams.append(key, value === null ? 'null' : value.toString())
+        }
+      })
+      body = formParams.toString()
+    } else {
+      // Default to JSON serialization
+      body = JSON.stringify(config.data)
+    }
+  }
+
   const response = await fetch(targetUrl, {
     credentials: config.credentials || 'same-origin',
     method: config.method?.toUpperCase(),
-    body: config.data instanceof FormData ? config.data : JSON.stringify(config.data),
+    body,
     signal: config.signal,
     headers: config.headers,
   })
 
-  const data = [204, 205, 304].includes(response.status) || !response.body ? {} : await response.json()
+  // Parse response based on Content-Type
+  let data: any
+  if ([204, 205, 304].includes(response.status) || !response.body) {
+    data = {}
+  } else {
+    const responseContentType = response.headers.get('content-type')
+    if (responseContentType?.includes('application/json')) {
+      data = await response.json()
+    } else if (responseContentType?.includes('application/xml') || responseContentType?.includes('text/xml')) {
+      data = await response.text()
+    } else if (responseContentType?.includes('text/')) {
+      data = await response.text()
+    } else {
+      // Default to JSON for backward compatibility
+      data = await response.json()
+    }
+  }
 
   return {
     data: data as TData,
