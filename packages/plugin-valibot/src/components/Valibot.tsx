@@ -1,6 +1,6 @@
 import type { SchemaObject } from '@kubb/oas'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
-import { Const, Type } from '@kubb/react-fabric'
+import { Const, File, Type } from '@kubb/react-fabric'
 import type { KubbNode } from '@kubb/react-fabric/types'
 import * as parserValibot from '../parser.ts'
 import type { PluginValibot } from '../types.ts'
@@ -77,26 +77,26 @@ export function Valibot({
 
   return (
     <>
-      <Const export name={name} asConst>
-        {baseSchemaOutput}
-      </Const>
+      <File.Source name={name} isExportable isIndexable>
+        <Const export name={name} asConst>
+          {baseSchemaOutput}
+        </Const>
+      </File.Source>
 
       {typeName && (
-        <>
-          {'\n\n'}
+        <File.Source name={typeName} isExportable isIndexable isTypeOnly>
           <Type export name={typeName}>
             {`typeof ${name}`}
           </Type>
-        </>
+        </File.Source>
       )}
 
       {inferTypeName && (
-        <>
-          {'\n\n'}
+        <File.Source name={inferTypeName} isExportable isIndexable isTypeOnly>
           <Type export name={inferTypeName}>
             {`v.InferOutput<typeof ${name}>`}
           </Type>
-        </>
+        </File.Source>
       )}
     </>
   )
