@@ -132,7 +132,7 @@ Return the name of a group based on the group name, this will be used for the fi
 ### parser
 <!--@include: ../plugin-client/parser.md-->
 
-#### queryKey
+### queryKey
 
 Customize the queryKey.
 
@@ -185,19 +185,6 @@ the path will be applied as is, so relative path should be based on the file bei
 | Required: | `false`                    |
 |  Default: | `'@tanstack/svelte-query'` |
 
-#### mutationKey
-
-Customize the mutationKey.
-
-::: warning
-When using a string you need to use `JSON.stringify`.
-:::
-
-|           |                                                                             |
-|----------:|:----------------------------------------------------------------------------|
-|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
-| Required: | `false`                                                                     |
-
 ### mutation
 
 Override some useMutation behaviours. <br/>
@@ -237,6 +224,19 @@ the path will be applied as is, so relative path should be based on the file bei
 |     Type: | `string`                   |
 | Required: | `false`                    |
 |  Default: | `'@tanstack/svelte-query'` |
+
+### mutationKey
+
+Customize the mutationKey.
+
+::: warning
+When using a string you need to use `JSON.stringify`.
+:::
+
+|           |                                                                             |
+|----------:|:----------------------------------------------------------------------------|
+|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
+| Required: | `false`                                                                     |
 
 
 ### include

@@ -227,7 +227,7 @@ Supports dot notation (e.g. 'pagination.prev.id') or array path (e.g. ['paginati
 |     Type: | `string \| string[] \| undefined` |
 | Required: | `false`                         |
 
-#### queryKey
+### queryKey
 
 Customize the queryKey.
 
@@ -280,21 +280,6 @@ the path will be applied as is, so relative path should be based on the file bei
 | Required: | `false`                 |
 |  Default: | `'@tanstack/vue-query'` |
 
-
-#### mutationKey
-
-Customize the mutationKey.
-
-::: warning
-When using a string you need to use `JSON.stringify`.
-:::
-
-|           |                                                                             |
-|----------:|:----------------------------------------------------------------------------|
-|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
-| Required: | `false`                                                                     |
-
-
 ### mutation
 
 Override some useMutation behaviours. <br/>
@@ -334,6 +319,19 @@ the path will be applied as is, so relative path should be based on the file bei
 |     Type: | `string`                |
 | Required: | `false`                 |
 |  Default: | `'@tanstack/vue-query'` |
+
+### mutationKey
+
+Customize the mutationKey.
+
+::: warning
+When using a string you need to use `JSON.stringify`.
+:::
+
+|           |                                                                             |
+|----------:|:----------------------------------------------------------------------------|
+|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
+| Required: | `false`                                                                     |
 
 ### include
 <!--@include: ../core/include.md-->
