@@ -32,6 +32,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
     importPath,
     contentType,
     bundle = false,
+    multipleContentTypes = false,
   } = options
 
   const resolvedImportPath = importPath ?? (!bundle ? `@kubb/plugin-client/clients/${client}` : undefined)
@@ -51,6 +52,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
       pathParamsType,
       baseURL,
       urlType,
+      multipleContentTypes,
     },
     pre: [pluginOasName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {

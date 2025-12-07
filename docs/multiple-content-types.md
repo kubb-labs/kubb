@@ -35,7 +35,52 @@ paths:
                 $ref: '#/components/schemas/Pet'
 ```
 
-## Approach 1: Generate Separate Clients Per Content Type
+## Approach 1: Single Client with Multiple Content Types (Recommended)
+
+The simplest approach is to enable the `multipleContentTypes` option, which generates a single client function that accepts all content types supported by the operation.
+
+```typescript
+import { defineConfig } from '@kubb/core'
+import { pluginClient } from '@kubb/plugin-client'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    pluginOas(),
+    pluginTs(),
+    pluginClient({
+      output: {
+        path: './clients',
+      },
+      multipleContentTypes: true, // Enable multiple content types support
+    }),
+  ],
+})
+```
+
+This generates a single function with a discriminated union parameter:
+```typescript
+// Generated client accepts contentType parameter
+await addPet({
+  contentType: 'application/json',
+  data: { name: 'Fluffy', status: 'available' }
+})
+
+// Or with XML
+await addPet({
+  contentType: 'application/xml',
+  data: '<pet><name>Fluffy</name></pet>'
+})
+```
+
+## Approach 2: Generate Separate Clients Per Content Type
 
 The most straightforward approach is to generate separate client functions for each content type using multiple plugin instances with different `contentType` options.
 
@@ -98,7 +143,7 @@ await addPetJson({ name: 'Fluffy', status: 'available' })
 await addPetXml('<pet><name>Fluffy</name></pet>')
 ```
 
-## Approach 2: Filter Operations by Content Type
+## Approach 3: Filter Operations by Content Type
 
 You can use the `include`/`exclude` options with `type: 'contentType'` to generate clients only for operations that support specific content types:
 
@@ -117,7 +162,7 @@ pluginClient({
 })
 ```
 
-## Approach 3: Override Options Per Content Type
+## Approach 4: Override Options Per Content Type
 
 Use the `override` option to customize behavior for specific content types:
 

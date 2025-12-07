@@ -4,9 +4,9 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet.js'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.js'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getAddPetUrl() {
   const res = { method: 'POST', url: '/pet' as const }
@@ -18,7 +18,11 @@ function getAddPetUrl() {
  * @summary Add a new pet to the store
  * {@link /pet}
  */
-export async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}) {
+export async function addPet(
+  contentType: 'application/json' | 'application/xml' | 'application/x-www-form-urlencoded',
+  data: AddPetMutationRequest,
+  config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {},
+) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
@@ -28,6 +32,7 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
     url: getAddPetUrl().url.toString(),
     data: requestData,
     ...requestConfig,
+    headers: { 'Content-Type': contentType, ...requestConfig.headers },
   })
   return res.data
 }

@@ -58,6 +58,7 @@ export default defineConfig(() => {
         },
         operations: true,
         pathParamsType: 'object',
+        multipleContentTypes: true,
       }),
       pluginClient({
         output: {

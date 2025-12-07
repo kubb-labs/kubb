@@ -16,6 +16,12 @@ export type Options = {
    */
   contentType?: contentType
   /**
+   * Generate a single client function that supports all content types for an operation.
+   * When enabled, the generated client will accept a contentType parameter to specify which content type to use.
+   * @default false
+   */
+  multipleContentTypes?: boolean
+  /**
    * Group the clients based on the provided name.
    */
   group?: Group
@@ -124,6 +130,7 @@ type ResolvedOptions = {
   pathParamsType: NonNullable<Options['pathParamsType']>
   paramsType: NonNullable<Options['paramsType']>
   paramsCasing: Options['paramsCasing']
+  multipleContentTypes: NonNullable<Options['multipleContentTypes']>
 }
 
 export type PluginClient = PluginFactoryOptions<'plugin-client', Options, ResolvedOptions, never, ResolvePathOptions>

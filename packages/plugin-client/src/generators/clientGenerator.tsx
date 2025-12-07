@@ -114,6 +114,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
           operation={operation}
           parser={options.parser}
           zodSchemas={zod.schemas}
+          multipleContentTypes={options.multipleContentTypes}
         />
       </File>
     )

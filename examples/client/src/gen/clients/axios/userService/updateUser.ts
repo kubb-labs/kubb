@@ -4,9 +4,9 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.js'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getUpdateUserUrl({ username }: { username: UpdateUserPathParams['username'] }) {
   const res = { method: 'PUT', url: `/user/${username}` as const }
@@ -20,6 +20,7 @@ function getUpdateUserUrl({ username }: { username: UpdateUserPathParams['userna
  */
 export async function updateUser(
   { username }: { username: UpdateUserPathParams['username'] },
+  contentType: 'application/json' | 'application/xml' | 'application/x-www-form-urlencoded',
   data?: UpdateUserMutationRequest,
   config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch } = {},
 ) {
@@ -32,6 +33,7 @@ export async function updateUser(
     url: getUpdateUserUrl({ username }).url.toString(),
     data: requestData,
     ...requestConfig,
+    headers: { 'Content-Type': contentType, ...requestConfig.headers },
   })
   return res.data
 }

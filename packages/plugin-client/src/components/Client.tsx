@@ -1,6 +1,7 @@
 import { URLPath } from '@kubb/core/utils'
 
 import { isOptional, type Operation } from '@kubb/oas'
+import { useOas } from '@kubb/plugin-oas/hooks'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
@@ -25,6 +26,7 @@ type Props = {
   paramsType: PluginClient['resolvedOptions']['pathParamsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   parser: PluginClient['resolvedOptions']['parser'] | undefined
+  multipleContentTypes?: PluginClient['resolvedOptions']['multipleContentTypes']
   typeSchemas: OperationSchemas
   zodSchemas: OperationSchemas | undefined
   operation: Operation
@@ -37,15 +39,23 @@ type GetParamsProps = {
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
   isConfigurable: boolean
+  hasMultipleContentTypes?: boolean
+  contentTypes?: string[]
 }
 
-function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable }: GetParamsProps) {
+function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable, hasMultipleContentTypes, contentTypes }: GetParamsProps) {
   if (paramsType === 'object') {
     return FunctionParams.factory({
       data: {
         mode: 'object',
         children: {
           ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+          contentType: hasMultipleContentTypes && contentTypes
+            ? {
+                type: contentTypes.map((ct) => `'${ct}'`).join(' | '),
+                optional: false,
+              }
+            : undefined,
           data: typeSchemas.request?.name
             ? {
                 type: typeSchemas.request?.name,
@@ -83,6 +93,12 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
           children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           optional: isOptional(typeSchemas.pathParams?.schema),
+        }
+      : undefined,
+    contentType: hasMultipleContentTypes && contentTypes
+      ? {
+          type: contentTypes.map((ct) => `'${ct}'`).join(' | '),
+          optional: false,
         }
       : undefined,
     data: typeSchemas.request?.name
@@ -131,19 +147,43 @@ export function Client({
   urlName,
   children,
   isConfigurable = true,
+  multipleContentTypes = false,
 }: Props): KubbNode {
+  const oas = useOas()
   const path = new URLPath(operation.path, { casing: paramsCasing })
-  const contentType = operation.getContentType()
+  const defaultContentType = operation.getContentType()
+  
+  // Check if operation supports multiple content types
+  const requestContentTypes = multipleContentTypes ? oas.getRequestContentTypes(operation) : []
+  const hasMultipleContentTypes = requestContentTypes.length > 1
+  
+  const contentType = hasMultipleContentTypes ? defaultContentType : operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
+  
+  // For multiple content types, we'll use the contentType parameter
+  const shouldSetContentTypeHeader = hasMultipleContentTypes || (contentType !== 'application/json' && contentType !== 'multipart/form-data')
+  
+  const contentTypeHeaderValue = hasMultipleContentTypes 
+    ? "contentType"
+    : `'${contentType}'`
+  
   const headers = [
-    contentType !== 'application/json' && contentType !== 'multipart/form-data' ? `'Content-Type': '${contentType}'` : undefined,
+    shouldSetContentTypeHeader ? `'Content-Type': ${contentTypeHeaderValue}` : undefined,
     typeSchemas.headerParams?.name ? '...headers' : undefined,
   ].filter(Boolean)
 
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   const generics = [typeSchemas.response.name, TError, typeSchemas.request?.name || 'unknown'].filter(Boolean)
-  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable })
+  const params = getParams({ 
+    paramsType, 
+    paramsCasing, 
+    pathParamsType, 
+    typeSchemas, 
+    isConfigurable,
+    hasMultipleContentTypes,
+    contentTypes: requestContentTypes,
+  })
   const urlParams = Url.getParams({
     paramsType,
     paramsCasing,

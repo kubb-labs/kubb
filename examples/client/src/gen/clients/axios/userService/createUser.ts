@@ -4,9 +4,9 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.js'
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getCreateUserUrl() {
   const res = { method: 'POST', url: '/user' as const }
@@ -18,7 +18,11 @@ function getCreateUserUrl() {
  * @summary Create user
  * {@link /user}
  */
-export async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {}) {
+export async function createUser(
+  contentType: 'application/json' | 'application/xml' | 'application/x-www-form-urlencoded',
+  data?: CreateUserMutationRequest,
+  config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {},
+) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
@@ -28,6 +32,7 @@ export async function createUser(data?: CreateUserMutationRequest, config: Parti
     url: getCreateUserUrl().url.toString(),
     data: requestData,
     ...requestConfig,
+    headers: { 'Content-Type': contentType, ...requestConfig.headers },
   })
   return res.data
 }
