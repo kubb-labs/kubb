@@ -4,6 +4,9 @@ title: Changelog
 
 # Changelog
 
+# 4.9.0
+- [`plugin-client`](/plugins/plugin-client/): Add support for class-based client generation via the new `clientType` option. Users can now generate API clients as classes with methods instead of standalone functions by setting `clientType: 'class'` in the plugin configuration. When combined with `group: { type: 'tag' }`, this generates one class per tag (e.g., `Pet`, `Store`, `User`) with methods for each operation. See the [clientType documentation](/plugins/plugin-client/#clienttype) for more details.
+
 # 4.8.1
 - [`plugin-client`](/plugins/plugin-client/): Fix formData generation when parser is undefined or non-standard. Previously, when using multipart/form-data endpoints without setting parser to 'client' or 'zod', the generated code would attempt to call `buildFormData(requestData)` with an undefined `requestData` variable, causing a reference error.
 
