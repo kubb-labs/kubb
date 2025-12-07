@@ -91,7 +91,7 @@ export const client = async <TData, _TError = unknown, TVariables = unknown>(par
     }
   }
 
-  const response = await fetch(targetUrl, {
+  const response = await globalThis.fetch(targetUrl, {
     credentials: config.credentials || 'same-origin',
     method: config.method?.toUpperCase(),
     body,
@@ -112,8 +112,12 @@ export const client = async <TData, _TError = unknown, TVariables = unknown>(par
     } else if (responseContentType?.includes('text/')) {
       data = await response.text()
     } else {
-      // Default to JSON for backward compatibility
-      data = await response.json()
+      // Default to JSON for backward compatibility, with fallback to text
+      try {
+        data = await response.json()
+      } catch {
+        data = await response.text()
+      }
     }
   }
 
