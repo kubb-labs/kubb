@@ -65,6 +65,42 @@ Test files named `*.test.ts` or `*.test.tsx` in `src` folders.
 - Update `docs/changelog.md` with the new version entry describing the changes
 - Update docs in the same PR as code changes
 
+### Changelog Format
+
+When updating `docs/changelog.md`, use this structure:
+
+```markdown
+## X.Y.Z
+
+### ✨ Features
+
+#### [`plugin-name`](/plugins/plugin-name/)
+
+Description of the change.
+
+::: code-group
+```typescript [Before]
+// Old code
+```
+
+```typescript [After]
+// New code
+```
+:::
+```
+
+**Category prefixes:**
+- ✨ Features - New functionality
+- 🐛 Bug Fixes - Bug fixes and corrections
+- 🚀 Breaking Changes - Changes requiring code updates
+- 📦 Dependencies - Package updates
+
+**Guidelines:**
+- Use `##` for versions, `###` for categories, `####` for plugin names
+- Group related plugins together
+- Add code examples with VitePress code groups
+- Use callouts (`::: warning`, `::: tip`) for important notes
+
 ## Architecture
 
 Kubb uses a plugin-based architecture where plugins generate code from OpenAPI specifications.
