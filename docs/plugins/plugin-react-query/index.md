@@ -247,7 +247,7 @@ type Query = {
 
 #### queryKey
 
-Customize the queryKey.
+Customize the queryKey that will be used for the query hook.
 
 ::: warning
 When using a string you need to use `JSON.stringify`.
@@ -257,6 +257,67 @@ When using a string you need to use `JSON.stringify`.
 |----------:|:----------------------------------------------------------------------------|
 |     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
 | Required: | `false`                                                                     |
+
+The `queryKey` function receives:
+- `operation`: The OpenAPI operation object with methods like `getTags()`, `getOperationId()`, etc.
+- `schemas`: Object containing operation schemas with properties:
+  - `pathParams`: Path parameter schema with `name`, `schema`, and `keys` properties
+  - `queryParams`: Query parameter schema
+  - `request`: Request body schema
+  - `response`: Response schema
+- `casing`: The casing setting for params (e.g., `'camelcase'` or `undefined`)
+
+**Examples:**
+
+Using operation tags and path parameters:
+```typescript
+import { defineConfig } from '@kubb/core'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
+
+export default defineConfig({
+  plugins: [
+    pluginReactQuery({
+      queryKey: ({ operation, schemas }) => {
+        // Given a GET operation with tags ["User"] and path parameter userId
+        // this will generate: ["User", userId]
+        return [
+          ...operation.getTags().map(({ name }) => JSON.stringify(name)),
+          ...(schemas.pathParams?.keys || []),
+        ]
+      },
+    }),
+  ],
+})
+```
+
+Including query parameters:
+```typescript
+queryKey: ({ operation, schemas }) => {
+  // Will include query params if they exist
+  return [
+    JSON.stringify(operation.path),
+    ...(schemas.pathParams?.keys || []),
+    ...(schemas.queryParams?.name ? ['params'] : []),
+  ]
+}
+```
+
+Using the default transformer with custom prefix:
+```typescript
+import { QueryKey } from '@kubb/plugin-react-query/components'
+
+queryKey: (props) => {
+  const keys = QueryKey.getTransformer(props)
+  return ['"v5"', ...keys]
+}
+```
+
+Simple path-based keys:
+```typescript
+queryKey: ({ operation }) => {
+  return [JSON.stringify(operation.path)]
+}
+```
 
 #### query.methods
 
