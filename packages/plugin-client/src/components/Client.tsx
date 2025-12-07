@@ -163,7 +163,7 @@ export function Client({
   const shouldSetContentTypeHeader = hasMultipleContentTypes || (contentType !== 'application/json' && contentType !== 'multipart/form-data')
   
   const contentTypeHeaderValue = hasMultipleContentTypes 
-    ? "contentType"
+    ? 'contentType'
     : `'${contentType}'`
   
   const headers = [
