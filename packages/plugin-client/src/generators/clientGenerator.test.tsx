@@ -129,6 +129,7 @@ describe('clientGenerator operation', async () => {
       paramsType: 'inline',
       pathParamsType: 'inline',
       client: 'axios',
+      clientType: 'function',
       importPath: undefined,
       bundle: false,
       baseURL: '',

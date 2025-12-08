@@ -34,6 +34,7 @@ describe('groupedClientsGenerators operations', async () => {
       paramsCasing: undefined,
       pathParamsType: 'inline',
       client: 'axios',
+      clientType: 'function',
       importPath: undefined,
       bundle: false,
       baseURL: '',

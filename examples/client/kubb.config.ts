@@ -158,6 +158,19 @@ export default defineConfig(() => {
           },
         },
       }),
+      pluginClient({
+        output: {
+          path: './clients/class',
+          barrelType: false,
+          banner: '/* eslint-disable no-alert, no-console */',
+        },
+        client: 'fetch',
+        clientType: 'class',
+        group: {
+          type: 'tag',
+        },
+        pathParamsType: 'object',
+      }),
     ],
   }
 })

@@ -93,6 +93,13 @@ export type Options = {
    */
   client?: 'axios' | 'fetch'
   /**
+   * How to generate the client code
+   * - 'function' will generate standalone functions for each operation.
+   * - 'class' will generate a class with methods for each operation.
+   * @default 'function'
+   */
+  clientType?: 'function' | 'class'
+  /**
    * Bundle the selected client into the generated `.kubb` directory.
    * When disabled the generated clients will import the shared runtime from `@kubb/plugin-client/clients/*`.
    * @default false
@@ -116,6 +123,7 @@ type ResolvedOptions = {
   group?: Options['group']
   baseURL: string | undefined
   client: Options['client']
+  clientType: NonNullable<Options['clientType']>
   bundle: NonNullable<Options['bundle']>
   parser: NonNullable<Options['parser']>
   urlType: NonNullable<Options['urlType']>

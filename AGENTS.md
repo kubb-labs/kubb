@@ -48,6 +48,8 @@ pnpm run upgrade && pnpm i   # Upgrade dependencies
 - Prefer strict typing; avoid `any`
 - Files: `.ts` for libraries, `.tsx` for React components, `.vue` for Vue components
 - DTS output managed by `tsdown`
+- **Import best practices**: Always use proper import statements at the module level instead of inline type imports (e.g., use `import type { Operation } from '@kubb/oas'` at the top rather than `import('@kubb/oas').Operation` inline). This improves code readability and follows TypeScript best practices.
+- **Type definitions**: Define types at the root level of the file, not inside functions. This improves reusability, makes types easier to find, and follows TypeScript best practices for better type inference and documentation.
 
 **Naming conventions:**
 - File/directory names: `camelCase`
@@ -73,6 +75,45 @@ pnpm run upgrade && pnpm i   # Upgrade dependencies
 - Always create a changeset using `pnpm changeset` to specify the version bump (major/minor/patch) for affected packages
 - Always update `docs/changelog.md` with the new version entry describing the changes
 - **Update docs in the same PR as code changes** (unless it's a docs-only PR)
+
+**Changelog format guidelines:**
+
+When updating `docs/changelog.md`, follow this structure:
+
+```markdown
+## X.Y.Z
+
+### ✨ Features (or 🐛 Bug Fixes, 🚀 Breaking Changes, 📦 Dependencies)
+
+#### [`plugin-name`](/plugins/plugin-name/)
+
+Description of the change.
+
+::: code-group
+```typescript [Before]
+// Old code example
+```
+
+```typescript [After]
+// New code example
+```
+:::
+```
+
+**Category prefixes:**
+- ✨ **Features** - New functionality and enhancements
+- 🐛 **Bug Fixes** - Bug fixes and corrections
+- 🚀 **Breaking Changes** - Changes that may require code updates
+- 📦 **Dependencies** - Package updates and dependency changes
+
+**Best practices:**
+- Use `##` for version headings (not `#`)
+- Use `###` for change type sections
+- Use `####` for individual plugin names
+- Group related plugin changes under single sections when applicable
+- Add code examples using VitePress code groups for before/after comparisons
+- Use VitePress callouts (`::: warning`, `::: tip`, `::: info`) for important notes
+- Include links to plugins using `[`plugin-name`](/plugins/plugin-name/)`
 
 **Update docs when:**
 - Adding a new plugin or feature
