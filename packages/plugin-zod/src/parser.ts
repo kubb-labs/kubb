@@ -234,7 +234,7 @@ const zodKeywordMapper = {
     }
     return `.default(${value ?? ''})`
   },
-  and: (items: string[] = []) => items?.map((item) => `.and(${item})`).join(''),
+  and: (items: string[] = []) => items?.filter(Boolean).map((item) => `.and(${item})`).join(''),
   describe: (value = '', innerSchema?: string, mini?: boolean) => {
     if (mini) {
       return undefined
