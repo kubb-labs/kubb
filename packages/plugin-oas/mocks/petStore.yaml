@@ -200,6 +200,19 @@ components:
       allOf:
         - $ref: '#/components/schemas/PhoneNumber'
         - maxLength: 15
+    ComplexAllOf:
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          properties:
+            metadata:
+              allOf:
+                - type: object
+                  properties:
+                    created:
+                      type: string
+                - description: Metadata information
+                - nullable: false
 
     Error:
       type: object

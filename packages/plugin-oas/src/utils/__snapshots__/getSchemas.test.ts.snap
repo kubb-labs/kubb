@@ -85,6 +85,36 @@ exports[`getSchemas > should return schemas from components.schemas 1`] = `
     ],
     "type": "object",
   },
+  "ComplexAllOf": {
+    "allOf": [
+      {
+        "$ref": "#/components/schemas/Pet",
+      },
+      {
+        "properties": {
+          "metadata": {
+            "allOf": [
+              {
+                "properties": {
+                  "created": {
+                    "type": "string",
+                  },
+                },
+                "type": "object",
+              },
+              {
+                "description": "Metadata information",
+              },
+              {
+                "nullable": false,
+              },
+            ],
+          },
+        },
+        "type": "object",
+      },
+    ],
+  },
   "Error": {
     "properties": {
       "code": {

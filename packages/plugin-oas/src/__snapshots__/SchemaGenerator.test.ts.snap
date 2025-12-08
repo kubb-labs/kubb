@@ -1,5 +1,91 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`SchemaGenerator core > 'ComplexAllOf' 1`] = `
+[
+  {
+    "args": [
+      {
+        "args": {
+          "$ref": "#/components/schemas/Pet",
+          "isImportable": true,
+          "name": "pet",
+          "path": "pet.ts",
+        },
+        "keyword": "ref",
+      },
+      {
+        "args": {
+          "additionalProperties": [],
+          "properties": {
+            "metadata": [
+              {
+                "args": [
+                  {
+                    "args": "Metadata information",
+                    "keyword": "describe",
+                  },
+                  {
+                    "args": {
+                      "additionalProperties": [],
+                      "properties": {
+                        "created": [
+                          {
+                            "keyword": "string",
+                          },
+                          {
+                            "args": {
+                              "format": undefined,
+                              "type": "string",
+                            },
+                            "keyword": "schema",
+                          },
+                          {
+                            "args": "created",
+                            "keyword": "name",
+                          },
+                          {
+                            "keyword": "optional",
+                          },
+                        ],
+                      },
+                    },
+                    "keyword": "object",
+                  },
+                ],
+                "keyword": "and",
+              },
+              {
+                "args": {
+                  "format": undefined,
+                  "type": undefined,
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "metadata",
+                "keyword": "name",
+              },
+              {
+                "keyword": "optional",
+              },
+            ],
+          },
+        },
+        "keyword": "object",
+      },
+    ],
+    "keyword": "and",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": undefined,
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
 exports[`SchemaGenerator core > 'FullAddress' 1`] = `
 [
   {
