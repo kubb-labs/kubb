@@ -33,8 +33,8 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
     contentType,
   } = options
 
-  const clientType = client?.client ?? 'axios'
-  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
+  const clientName = client?.client ?? 'axios'
+  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
 
   return {
     name: pluginSwrName,
@@ -42,7 +42,8 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
       output,
       client: {
         ...options.client,
-        client: clientType,
+        client: clientName,
+        clientType: client?.clientType ?? 'function',
         importPath: clientImportPath,
         dataReturnType: client?.dataReturnType ?? 'data',
       },
