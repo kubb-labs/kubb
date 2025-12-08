@@ -37,7 +37,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
   const resolvedImportPath = importPath ?? (!bundle ? `@kubb/plugin-client/clients/${client}` : undefined)
   const defaultGenerators = [
     clientType === 'class' ? classClientGenerator : clientGenerator,
-    group ? groupedClientGenerator : undefined,
+    group && clientType !== 'class' ? groupedClientGenerator : undefined,
     operations ? operationsGenerator : undefined,
   ].filter(Boolean)
 
