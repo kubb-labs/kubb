@@ -596,25 +596,25 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
               }`
           }
 
-          // Non-mini mode uses chainable methods
+          // V4 non-mini mode also uses wrapper functions (v4 removed chained methods)
           // both optional and nullable
           if (isNullish) {
             return `get "${propertyName}"(){
-                return ${objectValue}${zodKeywordMapper.nullish()}
+                return ${zodKeywordMapper.nullish(objectValue)}
               }`
           }
 
           // undefined
           if (isOptional) {
             return `get "${propertyName}"(){
-                return ${objectValue}${zodKeywordMapper.optional()}
+                return ${zodKeywordMapper.optional(objectValue)}
               }`
           }
 
           // null
           if (isNullable) {
             return `get "${propertyName}"(){
-               return ${objectValue}${zodKeywordMapper.nullable()}
+               return ${zodKeywordMapper.nullable(objectValue)}
               }`
           }
 
