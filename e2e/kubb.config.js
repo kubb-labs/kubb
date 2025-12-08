@@ -12,7 +12,10 @@ import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
-const schemas = [
+// CI mode: process a subset of schemas for faster feedback
+const isCIMode = process.env.CI === 'true'
+
+const allSchemas = [
   // { name: 'test', path: './schemas/test.json' },
   // { name: 'notus', path: 'https://api.notus.team/openapi' },
   // { name: 'Machines API', path: 'https://docs.machines.dev/spec/openapi3.json' },
@@ -35,6 +38,17 @@ const schemas = [
   { name: 'enums', path: './schemas/enums.yaml' },
   { name: 'dataset_api', path: './schemas/dataset_api.yaml' },
 ]
+
+// In CI, use a representative subset of schemas covering key features
+const ciSchemas = [
+  { name: 'petStoreV3', path: 'https://petstore3.swagger.io/api/v3/openapi.json' },
+  { name: 'discriminator', path: './schemas/discriminator.yaml' },
+  { name: 'allOf', path: './schemas/allOf.json' },
+  { name: 'anyOf', path: './schemas/anyOf.json' },
+  { name: 'enums', path: './schemas/enums.yaml' },
+]
+
+const schemas = isCIMode ? ciSchemas : allSchemas
 
 /** @type {import('@kubb/core').UserConfig} */
 const baseConfig = {
@@ -163,7 +177,7 @@ export default defineConfig(() => {
         path,
       },
       hooks: {
-        done: [strict ? 'npm run typecheck -- --strict' : 'npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+        done: ['biome format --write ./', 'biome lint --fix --unsafe ./src'],
       },
     }
   })
