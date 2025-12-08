@@ -7,10 +7,6 @@ How to generate the client code
 |  Default: | `'function'`            |
 
 - `'function'` will generate standalone functions for each operation.
-- `'class'` will generate a class with methods for each operation.
-
-## Function-based (default)
-
 ::: code-group
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
@@ -49,7 +45,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
  * {@link /pet/:petId}
  */
 export async function getPetById(
-  { petId }: { petId: GetPetByIdPathParams['petId'] }, 
+  { petId }: { petId: GetPetByIdPathParams['petId'] },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -64,8 +60,7 @@ export async function getPetById(
 ```
 :::
 
-## Class-based
-
+- `'class'` will generate a class with methods for each operation.
 ::: code-group
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
@@ -115,7 +110,7 @@ export class Pet {
    * {@link /pet/:petId}
    */
   async getPetById(
-    { petId }: { petId: GetPetByIdPathParams['petId'] }, 
+    { petId }: { petId: GetPetByIdPathParams['petId'] },
     config: Partial<RequestConfig> & { client?: typeof fetch } = {}
   ) {
     const { client: request = this.#client, ...requestConfig } = config
@@ -133,7 +128,7 @@ export class Pet {
    * {@link /pet}
    */
   async addPet(
-    data: AddPetMutationRequest, 
+    data: AddPetMutationRequest,
     config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}
   ) {
     const { client: request = this.#client, ...requestConfig } = config
