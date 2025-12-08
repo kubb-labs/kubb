@@ -61,6 +61,11 @@ export async function getPetById(
 :::
 
 - `'class'` will generate a class with methods for each operation.
+
+::: warning
+When using `clientType: 'class'`, it is not compatible with query plugins like `@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-solid-query`, `@kubb/plugin-svelte-query`, or `@kubb/plugin-swr`. These plugins are designed to work with function-based clients. If you need to use both class-based clients and query hooks, configure separate `pluginClient` instances: one with `clientType: 'class'` for your class-based needs, and another with `clientType: 'function'` (or omit it for the default) that the query plugins will reference.
+:::
+
 ::: code-group
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
