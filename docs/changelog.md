@@ -76,10 +76,11 @@ export class Pet {
 
   async addPet(data: AddPetMutationRequest, config = {}) {
     const { client: request = this.#client, ...requestConfig } = config
+    const requestData = data
     const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
       method: 'POST',
       url: '/pet',
-      data,
+      data: requestData,
       ...requestConfig,
     })
     return res.data
@@ -109,7 +110,9 @@ const newPet = await petClient.addPet({
 - Each tag generates a separate class file when using `group: { type: 'tag' }`
 - Centralized client configuration per instance
 
+## 4.8.1
 
+### 🐛 Bug Fixes
 
 #### [`plugin-client`](/plugins/plugin-client/)
 

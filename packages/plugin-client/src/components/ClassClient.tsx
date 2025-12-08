@@ -1,4 +1,4 @@
-import { URLPath } from '@kubb/core/utils'
+import { buildJSDoc, URLPath } from '@kubb/core/utils'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments } from '@kubb/plugin-oas/utils'
@@ -104,15 +104,6 @@ function buildClientParams({
   })
 }
 
-/**
- * Builds JSDoc comment block with proper indentation for class methods.
- * Returns indented JSDoc string or spaces for proper method alignment.
- */
-function buildJSDoc(operation: Operation): string {
-  const comments = getComments(operation)
-  return comments.length > 0 ? `/**\n${comments.map((c) => `   * ${c}`).join('\n')}\n   */\n  ` : '  '
-}
-
 function buildRequestDataLine({
   parser,
   zodSchemas,
@@ -175,7 +166,7 @@ function generateMethod({
   const generics = buildGenerics(typeSchemas)
   const params = ClassClient.getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable: true })
   const clientParams = buildClientParams({ operation, path, baseURL, typeSchemas, isFormData, headers })
-  const jsdoc = buildJSDoc(operation)
+  const jsdoc = buildJSDoc(getComments(operation))
 
   const requestDataLine = buildRequestDataLine({ parser, zodSchemas, typeSchemas })
   const formDataLine = buildFormDataLine(isFormData, !!typeSchemas?.request?.name)
