@@ -725,6 +725,10 @@ export class SchemaGenerator<
           })
           .filter(Boolean)
           .filter((item) => !isKeyword(item, schemaKeywords.unknown))
+          // Filter out 'schema' metadata keywords to avoid duplicates. Each parsed schema returns
+          // [type, schema_metadata, ...constraints], and using flatMap preserves all items.
+          // The schema metadata keyword only contains type/format info and is redundant in allOf,
+          // while actual constraints (max, min, matches, etc.) are preserved.
           .filter((item) => !isKeyword(item, schemaKeywords.schema)),
       }
 
