@@ -114,7 +114,7 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
         )}
         <File.Import name={['toValue']} path="vue" />
         <File.Import name={['MaybeRefOrGetter']} path="vue" isTypeOnly />
-        {!!shouldUseClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
+        {shouldUseClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
         {!shouldUseClientPlugin && (
           <File.Import name={['buildFormData']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
         )}
