@@ -68,7 +68,7 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
         },
         async getBaseURL() {
           const oas = await getOas({ config })
-          if (serverIndex) {
+          if (serverIndex !== undefined) {
             return oas.api.servers?.at(serverIndex)?.url
           }
 

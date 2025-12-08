@@ -24,12 +24,12 @@
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "~0.5.3",
+    "@kubb/react-fabric": "~0.5.4",
     "axios": "^1.13.2"
   },
   "devDependencies": {
     "@types/react": "^19.2.7",
-    "react": "^19.2.0",
+    "react": "^19.2.1",
     "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@10.18.3",

@@ -38,6 +38,8 @@ pnpm changeset              # Create changelog entry
 - Prefer strict typing; avoid `any`
 - Files: `.ts` for libraries, `.tsx` for React components, `.vue` for Vue components
 - DTS output managed by `tsdown`
+- **Import best practices**: Always use proper import statements at the module level instead of inline type imports (e.g., use `import type { Operation } from '@kubb/oas'` at the top rather than `import('@kubb/oas').Operation` inline). This improves code readability and follows TypeScript best practices.
+- **Type definitions**: Define types at the root level of the file, not inside functions. This improves reusability, makes types easier to find, and follows TypeScript best practices for better type inference and documentation.
 
 ### Naming Conventions
 
@@ -64,6 +66,42 @@ Test files named `*.test.ts` or `*.test.tsx` in `src` folders.
 - Create a changeset using `pnpm changeset` to specify version bump (major/minor/patch) for affected packages
 - Update `docs/changelog.md` with the new version entry describing the changes
 - Update docs in the same PR as code changes
+
+### Changelog Format
+
+When updating `docs/changelog.md`, use this structure:
+
+```markdown
+## X.Y.Z
+
+### ✨ Features
+
+#### [`plugin-name`](/plugins/plugin-name/)
+
+Description of the change.
+
+::: code-group
+```typescript [Before]
+// Old code
+```
+
+```typescript [After]
+// New code
+```
+:::
+```
+
+**Category prefixes:**
+- ✨ Features - New functionality
+- 🐛 Bug Fixes - Bug fixes and corrections
+- 🚀 Breaking Changes - Changes requiring code updates
+- 📦 Dependencies - Package updates
+
+**Guidelines:**
+- Use `##` for versions, `###` for categories, `####` for plugin names
+- Group related plugins together
+- Add code examples with VitePress code groups
+- Use callouts (`::: warning`, `::: tip`) for important notes
 
 ## Architecture
 

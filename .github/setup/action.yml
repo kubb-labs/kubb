@@ -1,40 +1,43 @@
-name: "Setup"
+name: "🔧 Setup"
 description: "Sets up Node.js and runs install"
 
 runs:
   using: composite
   steps:
-    - uses: pnpm/action-setup@v4
+    - name: 📦 Setup pnpm
+      uses: pnpm/action-setup@v4
 
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v3
+    - name: 🟢 Setup Node.js environment
+      uses: actions/setup-node@v4
       with:
         node-version: 20
         cache: "pnpm"
         registry-url: "https://registry.npmjs.org"
 
-    - name: Install bun
-      uses: oven-sh/setup-bun@v1
-      continue-on-error: true
+#    - name: Install safe chain
+#      shell: bash
+#      run: |
+#        npm i -g @aikidosec/safe-chain
+#        safe-chain setup-ci
 
-    - name: Setup Git User
+    - name: 👤 Setup Git User
       shell: bash
       run: |
         git config --global user.email "stijn@stijnvanhulle.be"
         git config --global user.name "Stijn Van Hulle"
 
-    - name: Install dependencies
+    - name: 📥 Install dependencies
       shell: bash
       run: pnpm install --prefer-offline
-      
-    - name: Setup Turbo
+
+    - name: ⚡ Setup Turbo cache
       uses: rharkor/caching-for-turbo@v1.8
       continue-on-error: true
       with:
         # Set the prefix for the cache keys.
         cache-prefix: kubb_
 
-    - name: Get base and head commits for `nx affected`
+    - name: 🔍 Get base and head commits for `nx affected`
       uses: nrwl/nx-set-shas@v4.1.2
       with:
         main-branch-name: main

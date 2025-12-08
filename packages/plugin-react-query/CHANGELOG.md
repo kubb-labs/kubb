@@ -1,5 +1,81 @@
 # @kubb/plugin-react-query
 
+## 4.9.1
+
+### Patch Changes
+
+- [#2125](https://github.com/kubb-labs/kubb/pull/2125) [`d883c78`](https://github.com/kubb-labs/kubb/commit/d883c78d3937bcc697ba4b2663943314b51bc735) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix `clientType: 'class'` compatibility with query plugins. Query plugins now automatically detect when `clientType: 'class'` is set and generate their own inline function-based clients, allowing class-based clients and query hooks to coexist in the same configuration.
+
+  Previously, when `@kubb/plugin-client` was configured with `clientType: 'class'`, query plugins would fail because they expected function-based clients but attempted to import non-existent class methods.
+
+- Updated dependencies []:
+  - @kubb/core@4.9.1
+  - @kubb/oas@4.9.1
+  - @kubb/plugin-client@4.9.1
+  - @kubb/plugin-oas@4.9.1
+  - @kubb/plugin-ts@4.9.1
+  - @kubb/plugin-zod@4.9.1
+
+## 4.9.0
+
+### Patch Changes
+
+- Updated dependencies [[`a1dc709`](https://github.com/kubb-labs/kubb/commit/a1dc709f21c29ad02260c7ac20058010afd1cb09)]:
+  - @kubb/plugin-client@4.9.0
+  - @kubb/core@4.9.0
+  - @kubb/oas@4.9.0
+  - @kubb/plugin-oas@4.9.0
+  - @kubb/plugin-ts@4.9.0
+  - @kubb/plugin-zod@4.9.0
+
+## 4.8.1
+
+### Patch Changes
+
+- Updated dependencies [[`b5a7a43`](https://github.com/kubb-labs/kubb/commit/b5a7a43d444d5b5f678a5b0231f8edfb4aa5d5b9)]:
+  - @kubb/plugin-client@4.8.1
+  - @kubb/core@4.8.1
+  - @kubb/oas@4.8.1
+  - @kubb/plugin-oas@4.8.1
+  - @kubb/plugin-ts@4.8.1
+  - @kubb/plugin-zod@4.8.1
+
+## 4.8.0
+
+### Patch Changes
+
+- Updated dependencies [[`9753dfa`](https://github.com/kubb-labs/kubb/commit/9753dfafc8f468d1f865896ed50341a577dfefba)]:
+  - @kubb/plugin-zod@4.8.0
+  - @kubb/plugin-client@4.8.0
+  - @kubb/core@4.8.0
+  - @kubb/oas@4.8.0
+  - @kubb/plugin-oas@4.8.0
+  - @kubb/plugin-ts@4.8.0
+
+## 4.7.4
+
+### Patch Changes
+
+- Updated dependencies [[`93e6d79`](https://github.com/kubb-labs/kubb/commit/93e6d797f96562c0eda33f2dd99183e861b40934)]:
+  - @kubb/plugin-oas@4.7.4
+  - @kubb/plugin-client@4.7.4
+  - @kubb/plugin-ts@4.7.4
+  - @kubb/plugin-zod@4.7.4
+  - @kubb/core@4.7.4
+  - @kubb/oas@4.7.4
+
+## 4.7.3
+
+### Patch Changes
+
+- Updated dependencies [[`187ae52`](https://github.com/kubb-labs/kubb/commit/187ae520791b14962712a23671952c3ca9c92f3f)]:
+  - @kubb/plugin-oas@4.7.3
+  - @kubb/plugin-client@4.7.3
+  - @kubb/plugin-ts@4.7.3
+  - @kubb/plugin-zod@4.7.3
+  - @kubb/core@4.7.3
+  - @kubb/oas@4.7.3
+
 ## 4.7.2
 
 ### Patch Changes

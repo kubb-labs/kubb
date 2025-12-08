@@ -1,50 +1,62 @@
-name: Release
+name: 🚀 Release
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Optional: Custom tag for canary release'
+        required: false
+        type: string
   push:
     branches: ["main", "alpha", "beta", "rc"]
     paths:
       - ".changeset/**"
       - "packages/**"
 permissions:
+  actions: write
   contents: write
   id-token: write
   packages: write
   pull-requests: write
+  issues: write
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   release:
-    name: Release
+    name: 📦 Release
     timeout-minutes: 15
     runs-on: ubuntu-latest
+    outputs:
+      published_packages: ${{ steps.changesets.outputs.publishedPackages }}
+      published: ${{ steps.changesets.outputs.published }}
     steps:
-      - name: Check out code
+      - name: ⬇️ Check out code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup
+      - name: 🔧 Setup
         uses: ./.github/setup
 
-      - name: Build
-        run: bun run build
+      - name: 🏗️ Build
+        run: pnpm run build
 
-      - name: Test
-        run: bun run test
+      - name: 🧪 Test
+        run: pnpm run test
 
-      - name: Upload coverage reports to Codecov
+      - name: 📊 Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Publish
+      - name: 📢 Publish
         id: changesets
         uses: changesets/action@v1
         if: ${{ github.event.inputs.tag == '' }}
         with:
-          publish: bun release
+          publish: pnpm release
           commit: "ci(changesets): version packages"
           setupGitUser: false
         env:
@@ -53,36 +65,45 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish ${{ inputs.tag || 'canary' }}
+      - name: 🐤 Publish ${{ inputs.tag || 'canary' }}
+        id: canary
         if: steps.changesets.outputs.published != 'true'
         run: |
           git checkout main
-          bun version:canary
-          bun release:canary --tag ${{ inputs.tag || 'canary' }}
+          pnpm version:canary
+          pnpm release:canary --tag ${{ inputs.tag || 'canary' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
-      #        - name: Deploy to Coolify
-      #          run: |
-      #            curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
-
-      - name: Send a discord notification
-        if: steps.changesets.outputs.published == 'true'
-        uses: actions/github-script@v6
+  notify:
+    name: 💬 Send Discord Notification
+    if: needs.release.outputs.published == 'true'
+    needs: [release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔔 Send a discord notification
+        uses: actions/github-script@v7
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          PUBLISHED_PACKAGES: ${{ needs.release.outputs.published_packages }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const publishedPackages = JSON.parse(process.env.PUBLISHED_PACKAGES || '[]');
+            const corePackage = publishedPackages.find(pkg => pkg.name === '@kubb/core');
+            const version = corePackage?.version || '';
+            const versionSlug = version.replace(/\./g, '-');
+            const docsUrl = version ? `https://www.kubb.dev/changelog#_${versionSlug}` : 'https://www.kubb.dev/changelog';
+            
             fetch(process.env.DISCORD_WEBHOOK_URL, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                content: `A new release is available 🎉. \n [Read the changelog](https://github.com/kubb-labs/kubb/releases)`
+                content: `A new release is available 🎉. \n [Read the changelog](https://github.com/kubb-labs/kubb/releases) \n [View docs changelog](${docsUrl})`
               }),
             })
             .then((res) => {
@@ -91,3 +112,28 @@ jobs:
             .catch((err) => {
               console.error('Error sending discord notification', err)
             })
+
+  comment:
+    name: 💬 Comment on related issues and pull requests
+    if: needs.release.outputs.published == 'true'
+    needs: [release]
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write # enable commenting on released issues
+      pull-requests: write # enable commenting on released pull requests
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷️ Fetch tags
+        run: git fetch --tags
+
+      # IMPORTANT: if you make changes here, also make them in release-comment-manual.yml
+      - name: 💬 Comment on related issues and pull requests
+        uses: remix-run/release-comment-action@v0.5.1
+        with:
+          DIRECTORY_TO_CHECK: "./packages"
+          PACKAGE_NAME: "@kubb/core"
+          ISSUE_LABELS_TO_KEEP_OPEN: "🗺 Roadmap"

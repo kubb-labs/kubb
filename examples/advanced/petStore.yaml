@@ -194,18 +194,18 @@ paths:
           required: true
           schema:
             type: string
-#        - name: status
-#          in: query
-#          description: Status values that need to be considered for filter
-#          required: false
-#          explode: true
-#          schema:
-#            type: string
-#            default: available
-#            enum:
-#              - available
-#              - pending
-#              - sold
+      #        - name: status
+      #          in: query
+      #          description: Status values that need to be considered for filter
+      #          required: false
+      #          explode: true
+      #          schema:
+      #            type: string
+      #            default: available
+      #            enum:
+      #              - available
+      #              - pending
+      #              - sold
       responses:
         "200":
           description: successful operation
@@ -754,14 +754,14 @@ components:
           format: int32
           example: 7
         orderType:
-           type: string
-           enum:
-             - foo
-             - bar
+          type: string
+          enum:
+            - foo
+            - bar
         type:
-           type: string
-           description: Order Status
-           example: approved
+          type: string
+          description: Order Status
+          example: approved
         shipDate:
           type: string
           format: date-time

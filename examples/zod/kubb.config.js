@@ -4,12 +4,9 @@ import { pluginOas, schemaKeywords } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
-export default defineConfig(async () => {
-  await setTimeout(() => {
-    // wait for 1s, async behaviour
-    return Promise.resolve(true)
-  }, 1000)
-  return {
+export default defineConfig([
+  {
+    name: 'zod',
     root: '.',
     input: {
       path: './petStore.yaml',
@@ -80,5 +77,25 @@ export default defineConfig(async () => {
         pathParamsType: 'object',
       }),
     ],
-  }
-})
+  },
+  {
+    name: 'zod-mini',
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen2',
+      clean: true,
+    },
+    plugins: [
+      pluginOas({ generators: [] }),
+      pluginZod({
+        output: {
+          path: './zod',
+        },
+        mini: true,
+      }),
+    ],
+  },
+])

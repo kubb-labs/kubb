@@ -117,6 +117,20 @@ Return the name of a group based on the group name, this will be used for the fi
 #### client.baseURL
 <!--@include: ../plugin-client/baseURL.md-->
 
+#### client.clientType
+
+Specify whether to use function-based or class-based clients.
+
+|           |                         |
+|----------:|:------------------------|
+|     Type: | `'function' \| 'class'` |
+| Required: | `false`                 |
+|  Default: | `'function'`            |
+
+::: warning
+This plugin is only compatible with `clientType: 'function'` (the default). If `clientType: 'class'` is detected, the plugin will automatically generate its own inline function-based client instead of importing from `@kubb/plugin-client`.
+:::
+
 #### client.bundle
 <!--@include: ../plugin-client/bundle.md-->
 
@@ -132,9 +146,13 @@ Return the name of a group based on the group name, this will be used for the fi
 ### parser
 <!--@include: ../plugin-client/parser.md-->
 
-#### queryKey
+### queryKey
 
-Customize the queryKey.
+Customize the queryKey that will be used for the query.
+
+The function receives an object with:
+- `operation`: The OpenAPI operation object with methods like `getTags()`, `getOperationId()`, etc.
+- `schemas`: An object containing operation schemas including `pathParams`, `queryParams`, `request`, `response`, etc.
 
 ::: warning
 When using a string you need to use `JSON.stringify`.
@@ -144,6 +162,113 @@ When using a string you need to use `JSON.stringify`.
 |----------:|:----------------------------------------------------------------------------|
 |     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
 | Required: | `false`                                                                     |
+
+#### Examples
+
+**Using tags and path parameters**
+
+Generate a queryKey with operation tags and path parameters:
+
+```typescript
+import { defineConfig } from '@kubb/core'
+import { pluginSolidQuery } from '@kubb/plugin-solid-query'
+
+export default defineConfig({
+  // ...
+  plugins: [
+    pluginSolidQuery({
+      queryKey: ({ operation, schemas }) => {
+        const tags = operation.getTags().map(tag => JSON.stringify(tag.name))
+        const pathParams = schemas.pathParams?.keys || []
+        return [...tags, ...pathParams]
+      },
+    }),
+  ],
+})
+```
+
+For a GET operation with tags `["user"]` and path parameter `username`, this generates:
+```typescript
+export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams["username"] }) => 
+  ["user", username] as const
+```
+
+**Using the default transformer**
+
+You can extend the default queryKey transformer:
+
+```typescript
+import { pluginSolidQuery } from '@kubb/plugin-solid-query'
+import { QueryKey } from '@kubb/plugin-solid-query/components'
+
+export default defineConfig({
+  // ...
+  plugins: [
+    pluginSolidQuery({
+      queryKey: (props) => {
+        const defaultKeys = QueryKey.getTransformer(props)
+        return [JSON.stringify('v5'), ...defaultKeys]
+      },
+    }),
+  ],
+})
+```
+
+This prepends a version to the default queryKey:
+```typescript
+export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => 
+  ["v5", { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+```
+
+**Using operation ID**
+
+Create a simple queryKey using the operation ID:
+
+```typescript
+import { pluginSolidQuery } from '@kubb/plugin-solid-query'
+
+export default defineConfig({
+  // ...
+  plugins: [
+    pluginSolidQuery({
+      queryKey: ({ operation }) => {
+        return [JSON.stringify(operation.getOperationId())]
+      },
+    }),
+  ],
+})
+```
+
+**Conditional keys based on parameters**
+
+Include query parameters when they exist:
+
+```typescript
+import { pluginSolidQuery } from '@kubb/plugin-solid-query'
+
+export default defineConfig({
+  // ...
+  plugins: [
+    pluginSolidQuery({
+      queryKey: ({ operation, schemas }) => {
+        const keys = [JSON.stringify(operation.getOperationId())]
+        
+        // Add path parameter values (without quotes, so they reference the variables)
+        if (schemas.pathParams?.keys) {
+          keys.push(...schemas.pathParams.keys)
+        }
+        
+        // Add query params conditionally (the string gets embedded as code)
+        if (schemas.queryParams?.name) {
+          keys.push('...(params ? [params] : [])')
+        }
+        
+        return keys
+      },
+    }),
+  ],
+})
+```
 
 ### query
 
@@ -203,19 +328,6 @@ type Mutation = {
 } | false
 ```
 
-#### mutationKey
-
-Customize the mutationKey.
-
-::: warning
-When using a string you need to use `JSON.stringify`.
-:::
-
-|           |                                                                             |
-|----------:|:----------------------------------------------------------------------------|
-|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
-| Required: | `false`                                                                     |
-
 #### mutation.methods
 
 Define which HttpMethods can be used for mutations
@@ -238,6 +350,19 @@ the path will be applied as is, so relative path should be based on the file bei
 |     Type: | `string`                  |
 | Required: | `false`                   |
 |  Default: | `'@tanstack/solid-query'` |
+
+### mutationKey
+
+Customize the mutationKey.
+
+::: warning
+When using a string you need to use `JSON.stringify`.
+:::
+
+|           |                                                                             |
+|----------:|:----------------------------------------------------------------------------|
+|     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
+| Required: | `false`                                                                     |
 
 ### include
 <!--@include: ../core/include.md-->
