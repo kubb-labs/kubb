@@ -12,8 +12,21 @@ All notable changes to Kubb are documented here. Each version is organized with 
 - 🚀 **Breaking Changes** - Changes that may require code updates
 - 📦 **Dependencies** - Package updates and dependency changes
 
+> [!TIP]
+> Use the outline navigation (right sidebar) to quickly jump to specific versions.
+
+## 4.9.2
+
+### 🐛 Bug Fixes
+
+- **[`plugin-swr`](/plugins/plugin-swr/)** - Add new `paramsToTrigger` option for mutations.
+
+When set to `true`, mutation parameters (path params, query params, headers, request body) are passed via `trigger({ petId, data, params, headers })` instead of requiring them as hook function arguments.
+
+This aligns with React Query's mutation pattern.
+
 ::: tip
-Use the outline navigation (right sidebar) to quickly jump to specific versions.
+This will become the default behavior in v5. Set `mutation.paramsToTrigger: true` to opt-in early.
 :::
 
 ## 4.9.1

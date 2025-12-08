@@ -32,6 +32,8 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
   return res.data
 }
 
+export type AddPetMutationArg = { data: AddPetMutationRequest }
+
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
@@ -39,7 +41,7 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
  */
 export function useAddPet(
   options: {
-    mutation?: SWRMutationConfiguration<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationKey | null, AddPetMutationRequest> & {
+    mutation?: SWRMutationConfiguration<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationKey | null, AddPetMutationArg> & {
       throwOnError?: boolean
     }
     client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch }
@@ -49,9 +51,9 @@ export function useAddPet(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = addPetMutationKey()
 
-  return useSWRMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationKey | null, AddPetMutationRequest>(
+  return useSWRMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationKey | null, AddPetMutationArg>(
     shouldFetch ? mutationKey : null,
-    async (_url, { arg: data }) => {
+    async (_url, { arg: { data } }) => {
       return addPet(data, config)
     },
     mutationOptions,

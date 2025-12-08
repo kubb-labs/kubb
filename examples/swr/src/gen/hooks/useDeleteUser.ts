@@ -29,17 +29,21 @@ export async function deleteUser(username: DeleteUserPathParams['username'], con
   return res.data
 }
 
+export type DeleteUserMutationArg = { username: DeleteUserPathParams['username'] }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
  * {@link /user/:username}
  */
 export function useDeleteUser(
-  username: DeleteUserPathParams['username'],
   options: {
-    mutation?: SWRMutationConfiguration<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, DeleteUserMutationKey | null, never> & {
-      throwOnError?: boolean
-    }
+    mutation?: SWRMutationConfiguration<
+      DeleteUserMutationResponse,
+      ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+      DeleteUserMutationKey | null,
+      DeleteUserMutationArg
+    > & { throwOnError?: boolean }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
@@ -47,9 +51,9 @@ export function useDeleteUser(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deleteUserMutationKey()
 
-  return useSWRMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, DeleteUserMutationKey | null>(
+  return useSWRMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, DeleteUserMutationKey | null, DeleteUserMutationArg>(
     shouldFetch ? mutationKey : null,
-    async (_url) => {
+    async (_url, { arg: { username } }) => {
       return deleteUser(username, config)
     },
     mutationOptions,
