@@ -34,16 +34,16 @@ export async function deletePet(
   return res.data
 }
 
+export type DeletePetMutationArg = { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }
+
 /**
  * @description delete a pet
  * @summary Deletes a pet
  * {@link /pet/:petId}
  */
 export function useDeletePet(
-  petId: DeletePetPathParams['petId'],
-  headers?: DeletePetHeaderParams,
   options: {
-    mutation?: SWRMutationConfiguration<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, DeletePetMutationKey | null, never> & {
+    mutation?: SWRMutationConfiguration<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, DeletePetMutationKey | null, DeletePetMutationArg> & {
       throwOnError?: boolean
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -53,9 +53,9 @@ export function useDeletePet(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deletePetMutationKey()
 
-  return useSWRMutation<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, DeletePetMutationKey | null>(
+  return useSWRMutation<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, DeletePetMutationKey | null, DeletePetMutationArg>(
     shouldFetch ? mutationKey : null,
-    async (_url) => {
+    async (_url, { arg: { petId, headers } }) => {
       return deletePet(petId, headers, config)
     },
     mutationOptions,

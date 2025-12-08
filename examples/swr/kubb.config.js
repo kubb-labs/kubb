@@ -28,6 +28,23 @@ export default defineConfig({
       output: {
         path: './hooks',
       },
+      mutation: {
+        paramsToTrigger: true,
+      },
+    }),
+    pluginSwr({
+      output: {
+        path: './swr-deprecated.ts',
+        barrelType: false,
+      },
+      paramsToTrigger: true,
+      include: [
+        {
+          type: 'operationId',
+          pattern: 'updatePetWithForm',
+        },
+      ],
+      query: false,
     }),
   ],
 })

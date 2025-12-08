@@ -35,6 +35,8 @@ export async function placeOrderPatch(
   return res.data
 }
 
+export type PlaceOrderPatchMutationArg = { data?: PlaceOrderPatchMutationRequest }
+
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
@@ -46,7 +48,7 @@ export function usePlaceOrderPatch(
       PlaceOrderPatchMutationResponse,
       ResponseErrorConfig<PlaceOrderPatch405>,
       PlaceOrderPatchMutationKey | null,
-      PlaceOrderPatchMutationRequest
+      PlaceOrderPatchMutationArg
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
@@ -59,10 +61,10 @@ export function usePlaceOrderPatch(
     PlaceOrderPatchMutationResponse,
     ResponseErrorConfig<PlaceOrderPatch405>,
     PlaceOrderPatchMutationKey | null,
-    PlaceOrderPatchMutationRequest
+    PlaceOrderPatchMutationArg
   >(
     shouldFetch ? mutationKey : null,
-    async (_url, { arg: data }) => {
+    async (_url, { arg: { data } }) => {
       return placeOrderPatch(data, config)
     },
     mutationOptions,

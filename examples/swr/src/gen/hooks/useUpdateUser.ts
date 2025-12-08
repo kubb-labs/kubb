@@ -36,15 +36,16 @@ export async function updateUser(
   return res.data
 }
 
+export type UpdateUserMutationArg = { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * {@link /user/:username}
  */
 export function useUpdateUser(
-  username: UpdateUserPathParams['username'],
   options: {
-    mutation?: SWRMutationConfiguration<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationKey | null, UpdateUserMutationRequest> & {
+    mutation?: SWRMutationConfiguration<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationKey | null, UpdateUserMutationArg> & {
       throwOnError?: boolean
     }
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch }
@@ -54,9 +55,9 @@ export function useUpdateUser(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updateUserMutationKey()
 
-  return useSWRMutation<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationKey | null, UpdateUserMutationRequest>(
+  return useSWRMutation<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationKey | null, UpdateUserMutationArg>(
     shouldFetch ? mutationKey : null,
-    async (_url, { arg: data }) => {
+    async (_url, { arg: { username, data } }) => {
       return updateUser(username, data, config)
     },
     mutationOptions,

@@ -32,6 +32,8 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
   return res.data
 }
 
+export type PlaceOrderMutationArg = { data?: PlaceOrderMutationRequest }
+
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
@@ -39,12 +41,9 @@ export async function placeOrder(data?: PlaceOrderMutationRequest, config: Parti
  */
 export function usePlaceOrder(
   options: {
-    mutation?: SWRMutationConfiguration<
-      PlaceOrderMutationResponse,
-      ResponseErrorConfig<PlaceOrder405>,
-      PlaceOrderMutationKey | null,
-      PlaceOrderMutationRequest
-    > & { throwOnError?: boolean }
+    mutation?: SWRMutationConfiguration<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationKey | null, PlaceOrderMutationArg> & {
+      throwOnError?: boolean
+    }
     client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
@@ -52,9 +51,9 @@ export function usePlaceOrder(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = placeOrderMutationKey()
 
-  return useSWRMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationKey | null, PlaceOrderMutationRequest>(
+  return useSWRMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationKey | null, PlaceOrderMutationArg>(
     shouldFetch ? mutationKey : null,
-    async (_url, { arg: data }) => {
+    async (_url, { arg: { data } }) => {
       return placeOrder(data, config)
     },
     mutationOptions,
