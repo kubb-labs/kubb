@@ -113,8 +113,12 @@ const zodKeywordMapper = {
     return '.nullable()'
   },
   null: () => 'z.null()',
-  nullish: (value?: string) => {
+  nullish: (value?: string, version: '3' | '4' = '3') => {
     if (value) {
+      // Zod v3 doesn't have z.nullish() wrapper, use z.nullable(z.optional()) instead
+      if (version === '3') {
+        return `z.nullable(z.optional(${value}))`
+      }
       return `z.nullish(${value})`
     }
     return '.nullish()'
@@ -396,7 +400,7 @@ export function wrapWithMiniModifiers(output: string, modifiers: MiniModifiers):
 
   // Apply nullish, nullable, or optional (outer wrappers for optionality)
   if (modifiers.hasNullish) {
-    result = zodKeywordMapper.nullish(result)!
+    result = zodKeywordMapper.nullish(result, '4')!
   } else {
     if (modifiers.hasNullable) {
       result = zodKeywordMapper.nullable(result)!
@@ -573,7 +577,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
             // both optional and nullable
             if (isNullish) {
               return `get "${propertyName}"(){
-                return ${zodKeywordMapper.nullish(objectValue)}
+                return ${zodKeywordMapper.nullish(objectValue, '4')}
               }`
             }
 
@@ -600,7 +604,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
           // both optional and nullable
           if (isNullish) {
             return `get "${propertyName}"(){
-                return ${zodKeywordMapper.nullish(objectValue)}
+                return ${zodKeywordMapper.nullish(objectValue, '4')}
               }`
           }
 
@@ -625,7 +629,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
 
         // both optional and nullable
         if (isNullish) {
-          return `"${propertyName}": ${zodKeywordMapper.nullish(objectValue)}`
+          return `"${propertyName}": ${zodKeywordMapper.nullish(objectValue, options.version)}`
         }
 
         // undefined
