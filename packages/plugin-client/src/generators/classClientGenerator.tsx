@@ -13,6 +13,21 @@ import { File } from '@kubb/react-fabric'
 import { ClassClient } from '../components/ClassClient'
 import type { PluginClient } from '../types'
 
+type OperationData = {
+  operation: Operation
+  name: string
+  typeSchemas: OperationSchemas
+  zodSchemas: OperationSchemas | undefined
+  typeFile: KubbFile.File
+  zodFile: KubbFile.File
+}
+
+type Controller = {
+  name: string
+  file: KubbFile.File
+  operations: Array<OperationData>
+}
+
 export const classClientGenerator = createReactGenerator<PluginClient>({
   name: 'classClient',
   Operations({ operations, generator, plugin, config }) {
@@ -21,21 +36,6 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
 
     const oas = useOas()
     const { getName, getFile, getGroup, getSchemas } = useOperationManager(generator)
-
-    type OperationData = {
-      operation: Operation
-      name: string
-      typeSchemas: OperationSchemas
-      zodSchemas: OperationSchemas | undefined
-      typeFile: KubbFile.File
-      zodFile: KubbFile.File
-    }
-
-    type Controller = {
-      name: string
-      file: KubbFile.File
-      operations: Array<OperationData>
-    }
 
     function buildOperationData(operation: Operation): OperationData {
       const type = {
