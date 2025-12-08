@@ -1,5 +1,14 @@
 # @kubb/plugin-ts
 
+## 4.9.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.1
+  - @kubb/oas@4.9.1
+  - @kubb/plugin-oas@4.9.1
+
 ## 4.9.0
 
 ### Patch Changes
