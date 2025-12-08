@@ -18,6 +18,42 @@ All notable changes to Kubb are documented here. Each version is organized with 
 Use the outline navigation (right sidebar) to quickly jump to specific versions.
 :::
 
+## Unreleased
+
+### 🐛 Bug Fixes
+
+#### [`plugin-oas`](/plugins/plugin-oas/)
+
+Fix `allOf` handling to properly merge constraints from inline schemas. Previously, when using `allOf` with a reference and additional constraints (e.g., `maxLength`), the constraints would be lost during schema generation.
+
+::: code-group
+```yaml [OpenAPI Schema]
+PhoneNumber:
+  type: string
+  pattern: '^(\+\d{1,3}[-\s]?)?\(?(?:\d{1,4})\)?[-\s]?\d{1,4}[-\s]?\d{1,9}$'
+
+PhoneWithMaxLength:
+  allOf:
+    - $ref: "#/components/schemas/PhoneNumber"
+    - maxLength: 15
+```
+
+```typescript [Before]
+// maxLength constraint was lost
+z.lazy(() => phoneNumberSchema)
+```
+
+```typescript [After]
+// maxLength constraint is preserved
+z.lazy(() => phoneNumberSchema).and(z.string().max(15))
+```
+:::
+
+The fix includes:
+- Changed `allOf` handling to use `flatMap` instead of `map` with `[0]` to preserve all parsed schemas
+- Added type inference from constraints when no explicit type is provided (e.g., `maxLength` infers `string` type)
+- Include base items (constraints) even when returning empty type fallback
+
 ## 4.8.1
 
 ### 🐛 Bug Fixes
