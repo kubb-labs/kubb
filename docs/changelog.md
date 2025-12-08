@@ -118,6 +118,33 @@ const newPet = await petClient.addPet({
 
 Fix formData generation when parser is undefined or non-standard. Previously, when using multipart/form-data endpoints without setting parser to 'client' or 'zod', the generated code would attempt to call `buildFormData(requestData)` with an undefined `requestData` variable, causing a reference error.
 
+#### [`plugin-oas`](/plugins/plugin-oas/)
+
+Fix `allOf` to properly merge constraints from inline schemas without explicit types. Previously, when using `allOf` to combine a `$ref` with inline constraints like `maxLength`, the inline constraints were lost during schema parsing. The fix adds type inference for schemas without explicit types (inferring string from maxLength/minLength/pattern, number from minimum/maximum, array from minItems/maxItems) and changes allOf handling to use flatMap instead of taking only the first parsed schema.
+
+::: code-group
+```yaml [OpenAPI Schema]
+phone:
+  allOf:
+    - $ref: '#/components/schemas/PhoneNumber'
+    - maxLength: 15
+
+PhoneNumber:
+  type: string
+  pattern: '^(\+\d{1,3}[-\s]?)?\(?(?:\d{1,4})\)?[-\s]?\d{1,4}[-\s]?\d{1,9}$'
+```
+
+```typescript [Generated Zod Schema]
+// Before: maxLength constraint was lost
+z.string().regex(/^(\+\d{1,3}[-\s]?)?\(?(?:\d{1,4})\)?[-\s]?\d{1,4}[-\s]?\d{1,9}$/)
+
+// After: maxLength constraint is preserved
+z.string()
+  .regex(/^(\+\d{1,3}[-\s]?)?\(?(?:\d{1,4})\)?[-\s]?\d{1,4}[-\s]?\d{1,9}$/)
+  .max(15)
+```
+:::
+
 ## 4.8.0
 
 ### ✨ Features
