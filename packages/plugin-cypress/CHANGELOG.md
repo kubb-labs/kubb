@@ -1,5 +1,15 @@
 # @kubb/plugin-cypress
 
+## 4.9.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.0
+  - @kubb/oas@4.9.0
+  - @kubb/plugin-oas@4.9.0
+  - @kubb/plugin-ts@4.9.0
+
 ## 4.8.1
 
 ### Patch Changes

@@ -1,5 +1,36 @@
 # @kubb/plugin-client
 
+## 4.9.0
+
+### Minor Changes
+
+- [#2111](https://github.com/kubb-labs/kubb/pull/2111) [`a1dc709`](https://github.com/kubb-labs/kubb/commit/a1dc709f21c29ad02260c7ac20058010afd1cb09) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add support for class-based client generation via the new `clientType` option. Users can now generate API clients as classes with methods instead of standalone functions by setting `clientType: 'class'` in the plugin configuration.
+
+  Example usage:
+
+  ```ts
+  pluginClient({
+    output: {
+      path: "./clients/class",
+    },
+    clientType: "class",
+    group: {
+      type: "tag",
+    },
+  });
+  ```
+
+  This will generate classes like `Pet`, `Store`, `User` with methods for each operation.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.0
+  - @kubb/oas@4.9.0
+  - @kubb/plugin-oas@4.9.0
+  - @kubb/plugin-ts@4.9.0
+  - @kubb/plugin-zod@4.9.0
+
 ## 4.8.1
 
 ### Patch Changes
