@@ -1149,7 +1149,7 @@ export class SchemaGenerator<
         { 
           keyword: schemaKeywords.array, 
           args: { 
-            items: [], 
+            items: this.parse({ schemaObject: [], name, parentName }), 
             min: schemaObject.minItems, 
             max: schemaObject.maxItems, 
             unique: schemaObject.uniqueItems 
