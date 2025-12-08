@@ -1128,7 +1128,7 @@ export class SchemaGenerator<
 
     // Infer type from constraints when no explicit type is provided
     // This handles cases like allOf with inline constraints: { maxLength: 15 }
-    const hasStringConstraints = schemaObject.minLength !== undefined || schemaObject.maxLength !== undefined || schemaObject.pattern
+    const hasStringConstraints = schemaObject.minLength !== undefined || schemaObject.maxLength !== undefined || schemaObject.pattern !== undefined
     const hasNumberConstraints = 
       schemaObject.minimum !== undefined || 
       schemaObject.maximum !== undefined || 
