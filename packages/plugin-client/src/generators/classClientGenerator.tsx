@@ -2,8 +2,10 @@ import path from 'node:path'
 import { usePluginManager } from '@kubb/core/hooks'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import type { KubbFile } from '@kubb/fabric-core/types'
+import type { Operation } from '@kubb/oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
+import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -21,10 +23,10 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
     const { getName, getFile, getGroup, getSchemas } = useOperationManager(generator)
 
     type OperationData = {
-      operation: import('@kubb/oas').Operation
+      operation: Operation
       name: string
-      typeSchemas: import('@kubb/plugin-oas').OperationSchemas
-      zodSchemas: import('@kubb/plugin-oas').OperationSchemas | undefined
+      typeSchemas: OperationSchemas
+      zodSchemas: OperationSchemas | undefined
       typeFile: KubbFile.File
       zodFile: KubbFile.File
     }
@@ -35,7 +37,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
       operations: Array<OperationData>
     }
 
-    function buildOperationData(operation: import('@kubb/oas').Operation): OperationData {
+    function buildOperationData(operation: Operation): OperationData {
       const type = {
         file: getFile(operation, { pluginKey: [pluginTsName] }),
         schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
