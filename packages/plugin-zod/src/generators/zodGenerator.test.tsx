@@ -260,6 +260,12 @@ describe('zodGenerator schema', async () => {
       path: 'ExclusiveNumbers',
       options: {},
     },
+    {
+      name: 'ComplexAllOf',
+      input: '../../mocks/petStore.yaml',
+      path: 'ComplexAllOf',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string
