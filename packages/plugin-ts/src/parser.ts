@@ -231,6 +231,7 @@ export function parse({ schema, current, siblings, name }: SchemaTree, options: 
         const isNullable = schemas.some((schema) => schema.keyword === schemaKeywords.nullable)
         const isOptional = schemas.some((schema) => schema.keyword === schemaKeywords.optional)
         const isReadonly = schemas.some((schema) => schema.keyword === schemaKeywords.readOnly)
+        const isRef = schemas.some((schema) => schema.keyword === schemaKeywords.ref)
         const describeSchema = schemas.find((schema) => schema.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
         const deprecatedSchema = schemas.find((schema) => schema.keyword === schemaKeywords.deprecated) as SchemaKeywordMapper['deprecated'] | undefined
         const defaultSchema = schemas.find((schema) => schema.keyword === schemaKeywords.default) as SchemaKeywordMapper['default'] | undefined
@@ -290,7 +291,7 @@ export function parse({ schema, current, siblings, name }: SchemaTree, options: 
             matchesSchema ? `@pattern ${matchesSchema.args}` : undefined,
             defaultSchema ? `@default ${defaultSchema.args}` : undefined,
             exampleSchema ? `@example ${exampleSchema.args}` : undefined,
-            schemaSchema?.args?.type || schemaSchema?.args?.format
+            !isRef && (schemaSchema?.args?.type || schemaSchema?.args?.format)
               ? [`@type ${schemaSchema?.args?.type || 'unknown'}${!isOptional ? '' : ' | undefined'}`, schemaSchema?.args?.format].filter(Boolean).join(', ')
               : undefined,
           ].filter(Boolean),

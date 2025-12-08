@@ -7,9 +7,6 @@
  * @description Null response
  */
 export type CreatePets201 = error & {
-  /**
-   * @type object | undefined
-   */
   name?: errorCode
   /**
    * @type string
