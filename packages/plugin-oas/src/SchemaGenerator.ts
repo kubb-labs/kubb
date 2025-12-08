@@ -724,7 +724,8 @@ export class SchemaGenerator<
             return item ? this.parse({ schemaObject: item as SchemaObject, name, parentName }) : []
           })
           .filter(Boolean)
-          .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
+          .filter((item) => !isKeyword(item, schemaKeywords.unknown))
+          .filter((item) => !isKeyword(item, schemaKeywords.schema)),
       }
 
       if (schemaWithoutAllOf.required?.length) {

@@ -6,13 +6,6 @@ exports[`Full Spec Circular Discriminator References > should handle full Paymen
     "args": [
       {
         "args": {
-          "format": undefined,
-          "type": undefined,
-        },
-        "keyword": "schema",
-      },
-      {
-        "args": {
           "additionalProperties": [],
           "properties": {
             "account_class": [
@@ -26,13 +19,6 @@ exports[`Full Spec Circular Discriminator References > should handle full Paymen
                       "path": "accountClass.ts",
                     },
                     "keyword": "ref",
-                  },
-                  {
-                    "args": {
-                      "format": undefined,
-                      "type": "string",
-                    },
-                    "keyword": "schema",
                   },
                 ],
                 "keyword": "and",
@@ -82,13 +68,6 @@ exports[`Full Spec Circular Discriminator References > should handle full Paymen
                       "path": "accountType.ts",
                     },
                     "keyword": "ref",
-                  },
-                  {
-                    "args": {
-                      "format": undefined,
-                      "type": "string",
-                    },
-                    "keyword": "schema",
                   },
                 ],
                 "keyword": "and",

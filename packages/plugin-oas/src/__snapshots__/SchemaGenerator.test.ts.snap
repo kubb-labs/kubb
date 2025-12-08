@@ -16,13 +16,6 @@ exports[`SchemaGenerator core > 'FullAddress' 1`] = `
       {
         "args": {
           "format": undefined,
-          "type": "object",
-        },
-        "keyword": "schema",
-      },
-      {
-        "args": {
-          "format": undefined,
           "type": undefined,
         },
         "keyword": "schema",
@@ -375,25 +368,11 @@ exports[`SchemaGenerator core > 'PhoneNumberWithMaxLength' 1`] = `
         "keyword": "matches",
       },
       {
-        "args": {
-          "format": undefined,
-          "type": "string",
-        },
-        "keyword": "schema",
-      },
-      {
         "keyword": "string",
       },
       {
         "args": 15,
         "keyword": "max",
-      },
-      {
-        "args": {
-          "format": undefined,
-          "type": undefined,
-        },
-        "keyword": "schema",
       },
     ],
     "keyword": "and",
