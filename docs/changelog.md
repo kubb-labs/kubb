@@ -110,6 +110,58 @@ const newPet = await petClient.addPet({
 - Each tag generates a separate class file when using `group: { type: 'tag' }`
 - Centralized client configuration per instance
 
+### 🐛 Bug Fixes
+
+#### Query Plugins
+
+Fix `clientType: 'class'` compatibility with query plugins (`@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-solid-query`, `@kubb/plugin-svelte-query`, `@kubb/plugin-swr`).
+
+Previously, when `@kubb/plugin-client` was configured with `clientType: 'class'`, query plugins would fail to generate proper hooks because they expected function-based clients but found class-based ones instead.
+
+Query plugins now automatically detect when `clientType: 'class'` is set and generate their own inline function-based clients, allowing class-based clients and query hooks to coexist in the same configuration.
+
+::: code-group
+```typescript [Configuration]
+import { defineConfig } from '@kubb/core'
+import { pluginClient } from '@kubb/plugin-client'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    pluginOas(),
+    pluginTs(),
+    // Class-based clients for direct usage
+    pluginClient({
+      output: {
+        path: './clients/class',
+      },
+      clientType: 'class',
+      group: { type: 'tag' },
+    }),
+    // Query hooks work with inline function-based clients
+    pluginReactQuery({
+      output: {
+        path: './hooks',
+      },
+    }),
+  ],
+})
+```
+:::
+
+**Changes:**
+- Added `clientType` to client option types for all query plugins
+- Query plugins automatically generate inline clients when `clientType: 'class'` is detected
+- Updated documentation with compatibility warnings and usage examples
+
 ## 4.8.1
 
 ### 🐛 Bug Fixes
