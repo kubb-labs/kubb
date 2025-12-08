@@ -49,8 +49,10 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
     }
 
     const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
+    // Class-based clients are not compatible with query hooks, so we generate inline clients
+    const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
     const client = {
-      name: hasClientPlugin
+      name: shouldUseClientPlugin
         ? getName(operation, {
             type: 'function',
             pluginKey: [pluginClientName],
@@ -107,8 +109,8 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
           </>
         )}
         <File.Import name={['MaybeRefOrGetter']} path="vue" isTypeOnly />
-        {!!hasClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
-        {!hasClientPlugin && (
+        {!!shouldUseClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
+        {!shouldUseClientPlugin && (
           <File.Import name={['buildFormData']} root={mutation.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
         )}
         <File.Import
@@ -133,7 +135,7 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
           typeSchemas={type.schemas}
           transformer={options.mutationKey}
         />
-        {!hasClientPlugin && (
+        {!shouldUseClientPlugin && (
           <Client
             name={client.name}
             baseURL={options.client.baseURL}
