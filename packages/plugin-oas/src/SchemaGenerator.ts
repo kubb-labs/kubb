@@ -1128,14 +1128,35 @@ export class SchemaGenerator<
 
     // Infer type from constraints when no explicit type is provided
     // This handles cases like allOf with inline constraints: { maxLength: 15 }
-    if (schemaObject.minLength !== undefined || schemaObject.maxLength !== undefined || schemaObject.pattern) {
+    const hasStringConstraints = schemaObject.minLength !== undefined || schemaObject.maxLength !== undefined || schemaObject.pattern
+    const hasNumberConstraints = 
+      schemaObject.minimum !== undefined || 
+      schemaObject.maximum !== undefined || 
+      schemaObject.exclusiveMinimum !== undefined || 
+      schemaObject.exclusiveMaximum !== undefined || 
+      schemaObject.multipleOf !== undefined
+    const hasArrayConstraints = schemaObject.minItems !== undefined || schemaObject.maxItems !== undefined || schemaObject.uniqueItems !== undefined
+
+    if (hasStringConstraints) {
       return [{ keyword: schemaKeywords.string }, ...baseItems]
     }
-    if (schemaObject.minimum !== undefined || schemaObject.maximum !== undefined || schemaObject.exclusiveMinimum !== undefined || schemaObject.exclusiveMaximum !== undefined || schemaObject.multipleOf !== undefined) {
+    if (hasNumberConstraints) {
       return [{ keyword: schemaKeywords.number }, ...baseItems]
     }
-    if (schemaObject.minItems !== undefined || schemaObject.maxItems !== undefined || schemaObject.uniqueItems !== undefined) {
-      return [{ keyword: schemaKeywords.array, args: { items: [], min: schemaObject.minItems, max: schemaObject.maxItems, unique: schemaObject.uniqueItems } }, ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max)]
+    if (hasArrayConstraints) {
+      const filteredBaseItems = baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max)
+      return [
+        { 
+          keyword: schemaKeywords.array, 
+          args: { 
+            items: [], 
+            min: schemaObject.minItems, 
+            max: schemaObject.maxItems, 
+            unique: schemaObject.uniqueItems 
+          } 
+        }, 
+        ...filteredBaseItems
+      ]
     }
 
     return [{ keyword: emptyType }, ...baseItems]
