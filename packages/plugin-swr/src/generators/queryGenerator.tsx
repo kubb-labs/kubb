@@ -37,8 +37,10 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
     }
 
     const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
+    // Class-based clients are not compatible with query hooks, so we generate inline clients
+    const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
     const client = {
-      name: hasClientPlugin
+      name: shouldUseClientPlugin
         ? getName(operation, {
             type: 'function',
             pluginKey: [pluginClientName],
@@ -109,8 +111,8 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
             )}
           </>
         )}
-        {!!hasClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
-        {!hasClientPlugin && (
+        {shouldUseClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
+        {!shouldUseClientPlugin && (
           <File.Import name={['buildFormData']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
         )}
 
@@ -136,7 +138,7 @@ export const queryGenerator = createReactGenerator<PluginSwr>({
           paramsCasing={options.paramsCasing}
           transformer={options.queryKey}
         />
-        {!hasClientPlugin && (
+        {!shouldUseClientPlugin && (
           <Client
             name={client.name}
             baseURL={options.client.baseURL}
