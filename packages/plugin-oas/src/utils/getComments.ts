@@ -4,11 +4,35 @@ import { URLPath } from '@kubb/core/utils'
 import type { Operation } from '@kubb/oas'
 
 export function getComments(operation: Operation): string[] {
+  const getDescriptionSafe = () => {
+    try {
+      return operation.getDescription()
+    } catch {
+      return undefined
+    }
+  }
+
+  const getSummarySafe = () => {
+    try {
+      return operation.getSummary()
+    } catch {
+      return undefined
+    }
+  }
+
+  const isDeprecatedSafe = () => {
+    try {
+      return operation.isDeprecated()
+    } catch {
+      return false
+    }
+  }
+
   return [
-    operation.getDescription() && `@description ${operation.getDescription()}`,
-    operation.getSummary() && `@summary ${operation.getSummary()}`,
+    getDescriptionSafe() && `@description ${getDescriptionSafe()}`,
+    getSummarySafe() && `@summary ${getSummarySafe()}`,
     operation.path && `{@link ${new URLPath(operation.path).URL}}`,
-    operation.isDeprecated() && '@deprecated',
+    isDeprecatedSafe() && '@deprecated',
   ]
     .filter(Boolean)
     .map((text) => transformers.trim(text))
