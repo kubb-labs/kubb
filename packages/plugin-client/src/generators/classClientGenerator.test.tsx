@@ -1,27 +1,31 @@
 import path from 'node:path'
-import type { Config, Plugin } from '@kubb/core'
-import type { HttpMethod } from '@kubb/oas'
+import type { Plugin } from '@kubb/core'
 import { parse } from '@kubb/oas'
-import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import { describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
-import { groupedClientGenerator } from './groupedClientGenerator.tsx'
+import { classClientGenerator } from './classClientGenerator.tsx'
 
-describe('groupedClientsGenerators operations', async () => {
+describe('classClientGenerator operations', async () => {
   const testData = [
     {
       name: 'findByTags',
       input: '../../mocks/petStore.yaml',
       path: '/pet/findByTags',
-      method: 'get',
-      options: {},
+      method: 'get' as const,
+      options: {
+        group: {
+          type: 'tag' as const,
+        },
+      } as Partial<PluginClient['resolvedOptions']>,
     },
   ] as const satisfies Array<{
     input: string
     name: string
     path: string
-    method: HttpMethod
+    method: 'get' | 'post' | 'put' | 'delete' | 'patch'
     options: Partial<PluginClient['resolvedOptions']>
   }>
 
@@ -34,7 +38,7 @@ describe('groupedClientsGenerators operations', async () => {
       paramsCasing: undefined,
       pathParamsType: 'inline',
       client: 'axios',
-      clientType: 'function',
+      clientType: 'class',
       importPath: undefined,
       bundle: false,
       baseURL: '',
@@ -62,13 +66,13 @@ describe('groupedClientsGenerators operations', async () => {
 
     const operations = await generator.getOperations()
 
-    await buildOperations(
+    await (await import('@kubb/plugin-oas')).buildOperations(
       operations.map((item) => item.operation),
       {
-        config: { root: '.', output: { path: 'test' } } as Config,
+        config: { root: '.', output: { path: 'test' } } as import('@kubb/core').Config,
         fabric,
         generator,
-        Component: groupedClientGenerator.Operations,
+        Component: classClientGenerator.Operations,
         plugin,
       },
     )
