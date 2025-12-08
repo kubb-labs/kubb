@@ -325,13 +325,9 @@ exports[`SchemaGenerator core > 'PhoneWithMaxLength' 1`] = `
       {
         "args": {
           "format": undefined,
-          "type": "string",
+          "type": undefined,
         },
         "keyword": "schema",
-      },
-      {
-        "args": "^(\\+\\d{1,3}[-\\s]?)?\\(?(?:\\d{1,4})\\)?[-\\s]?\\d{1,4}[-\\s]?\\d{1,9}$",
-        "keyword": "matches",
       },
       {
         "keyword": "string",
