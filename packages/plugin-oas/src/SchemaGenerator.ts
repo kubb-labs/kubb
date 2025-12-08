@@ -723,6 +723,7 @@ export class SchemaGenerator<
             }
             return item ? this.parse({ schemaObject: item as SchemaObject, name, parentName }) : []
           })
+          .filter(Boolean)
           .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
       }
 
