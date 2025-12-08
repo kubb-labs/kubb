@@ -625,7 +625,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
 
         // both optional and nullable
         if (isNullish) {
-          return `"${propertyName}": ${zodKeywordMapper.nullish(objectValue)}`
+          return `"${propertyName}": ${objectValue}${zodKeywordMapper.nullish()}`
         }
 
         // undefined

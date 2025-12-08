@@ -8,6 +8,6 @@ export const toy = z
   .object({
     id: z.string().uuid(),
     name: z.optional(z.string()),
-    description: z.nullish(z.string()),
+    description: z.string().nullish(),
   })
   .nullable()
