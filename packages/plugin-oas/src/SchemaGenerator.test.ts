@@ -67,6 +67,16 @@ describe('SchemaGenerator core', async () => {
         unknownType: 'unknown',
       },
     },
+    {
+      name: 'PhoneWithMaxLength',
+      input: '../mocks/petStore.yaml',
+      path: 'PhoneWithMaxLength',
+      options: {
+        dateType: 'date',
+        transformers: {},
+        unknownType: 'unknown',
+      },
+    },
     // Add discriminator test cases
   ] as const satisfies Array<{ input: string; name: string; path: string; options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>> }>
 

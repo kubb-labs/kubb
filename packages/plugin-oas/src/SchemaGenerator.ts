@@ -716,14 +716,13 @@ export class SchemaGenerator<
       const and: Schema = {
         keyword: schemaKeywords.and,
         args: schemaObject.allOf
-          .map((item) => {
+          .flatMap((item) => {
             // Skip items that would create circular references
             if (this.#wouldCreateCircularReference(item, name)) {
-              return undefined
+              return []
             }
-            return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
+            return item ? this.parse({ schemaObject: item as SchemaObject, name, parentName }) : []
           })
-          .filter(Boolean)
           .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
       }
 
