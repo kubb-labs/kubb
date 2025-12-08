@@ -112,7 +112,7 @@ export const queryGenerator = createReactGenerator<PluginSvelteQuery>({
             )}
           </>
         )}
-        {!!shouldUseClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
+        {shouldUseClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
         {!shouldUseClientPlugin && (
           <File.Import name={['buildFormData']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
         )}

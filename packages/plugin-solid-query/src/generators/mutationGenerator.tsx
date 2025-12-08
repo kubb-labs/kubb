@@ -108,7 +108,7 @@ export const mutationGenerator = createReactGenerator<PluginSolidQuery>({
             )}
           </>
         )}
-        {!!shouldUseClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
+        {shouldUseClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
         {!shouldUseClientPlugin && (
           <File.Import name={['buildFormData']} root={mutation.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
         )}
