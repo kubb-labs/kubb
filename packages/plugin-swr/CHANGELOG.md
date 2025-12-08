@@ -1,5 +1,31 @@
 # @kubb/plugin-swr
 
+## 4.9.2
+
+### Patch Changes
+
+- [#2084](https://github.com/kubb-labs/kubb/pull/2084) [`377e487`](https://github.com/kubb-labs/kubb/commit/377e48771a7a6ba9e07758a22df79233b14212c6) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add new `paramsToTrigger` option for SWR mutations.
+
+  When `mutation.paramsToTrigger` is set to `true`, mutation parameters (path params, query params, headers, request body) are passed via `trigger()` instead of as hook arguments:
+
+  ```typescript
+  // With paramsToTrigger: true
+  const { trigger } = useDeletePet();
+  trigger({ petId, data, params, headers });
+  ```
+
+  This aligns with React Query's mutation pattern. The default behavior remains unchanged for backward compatibility.
+
+  **Note:** `paramsToTrigger: true` will become the default in v5. Set it now to opt-in early.
+
+- Updated dependencies []:
+  - @kubb/core@4.9.2
+  - @kubb/oas@4.9.2
+  - @kubb/plugin-client@4.9.2
+  - @kubb/plugin-oas@4.9.2
+  - @kubb/plugin-ts@4.9.2
+  - @kubb/plugin-zod@4.9.2
+
 ## 4.9.1
 
 ### Patch Changes
