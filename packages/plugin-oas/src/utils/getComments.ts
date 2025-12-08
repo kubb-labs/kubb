@@ -28,11 +28,15 @@ export function getComments(operation: Operation): string[] {
     }
   }
 
+  const description = getDescriptionSafe()
+  const summary = getSummarySafe()
+  const deprecated = isDeprecatedSafe()
+
   return [
-    getDescriptionSafe() && `@description ${getDescriptionSafe()}`,
-    getSummarySafe() && `@summary ${getSummarySafe()}`,
+    description && `@description ${description}`,
+    summary && `@summary ${summary}`,
     operation.path && `{@link ${new URLPath(operation.path).URL}}`,
-    isDeprecatedSafe() && '@deprecated',
+    deprecated && '@deprecated',
   ]
     .filter(Boolean)
     .map((text) => transformers.trim(text))
