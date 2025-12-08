@@ -166,6 +166,116 @@ exports[`SchemaGenerator core > 'FullAddress' 1`] = `
 ]
 `;
 
+exports[`SchemaGenerator core > 'NestedAllOfInAllOf' 1`] = `
+[
+  {
+    "args": [
+      {
+        "args": {
+          "$ref": "#/components/schemas/Pet",
+          "isImportable": true,
+          "name": "pet",
+          "path": "pet.ts",
+        },
+        "keyword": "ref",
+      },
+      {
+        "args": {
+          "additionalProperties": [],
+          "properties": {
+            "permissions": [
+              {
+                "args": [
+                  {
+                    "args": [
+                      {
+                        "args": {
+                          "format": undefined,
+                          "type": undefined,
+                        },
+                        "keyword": "schema",
+                      },
+                      {
+                        "args": {
+                          "additionalProperties": [],
+                          "properties": {
+                            "can_delete": [
+                              {
+                                "keyword": "boolean",
+                              },
+                              {
+                                "args": {
+                                  "format": undefined,
+                                  "type": "boolean",
+                                },
+                                "keyword": "schema",
+                              },
+                              {
+                                "args": "can_delete",
+                                "keyword": "name",
+                              },
+                            ],
+                            "can_edit": [
+                              {
+                                "keyword": "boolean",
+                              },
+                              {
+                                "args": {
+                                  "format": undefined,
+                                  "type": "boolean",
+                                },
+                                "keyword": "schema",
+                              },
+                              {
+                                "args": "can_edit",
+                                "keyword": "name",
+                              },
+                              {
+                                "keyword": "optional",
+                              },
+                            ],
+                          },
+                        },
+                        "keyword": "object",
+                      },
+                    ],
+                    "keyword": "and",
+                  },
+                ],
+                "keyword": "and",
+              },
+              {
+                "args": {
+                  "format": undefined,
+                  "type": undefined,
+                },
+                "keyword": "schema",
+              },
+              {
+                "args": "permissions",
+                "keyword": "name",
+              },
+              {
+                "keyword": "optional",
+              },
+            ],
+          },
+        },
+        "keyword": "object",
+      },
+    ],
+    "keyword": "and",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": undefined,
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
 exports[`SchemaGenerator core > 'Owner' 1`] = `
 [
   {

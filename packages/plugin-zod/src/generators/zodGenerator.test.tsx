@@ -266,6 +266,12 @@ describe('zodGenerator schema', async () => {
       path: 'ComplexAllOf',
       options: {},
     },
+    {
+      name: 'NestedAllOfInAllOf',
+      input: '../../mocks/petStore.yaml',
+      path: 'NestedAllOfInAllOf',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string

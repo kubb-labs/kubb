@@ -213,6 +213,24 @@ components:
                       type: string
                 - description: Metadata information
                 - nullable: false
+    NestedAllOfInAllOf:
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          properties:
+            permissions:
+              allOf:
+                - type: object
+                  required:
+                    - can_delete
+                  allOf:
+                    - type: object
+                      properties:
+                        can_delete:
+                          type: boolean
+                    - properties:
+                        can_edit:
+                          type: boolean
 
     Error:
       type: object

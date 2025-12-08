@@ -142,6 +142,45 @@ exports[`getSchemas > should return schemas from components.schemas 1`] = `
       "streetNumber",
     ],
   },
+  "NestedAllOfInAllOf": {
+    "allOf": [
+      {
+        "$ref": "#/components/schemas/Pet",
+      },
+      {
+        "properties": {
+          "permissions": {
+            "allOf": [
+              {
+                "allOf": [
+                  {
+                    "properties": {
+                      "can_delete": {
+                        "type": "boolean",
+                      },
+                    },
+                    "type": "object",
+                  },
+                  {
+                    "properties": {
+                      "can_edit": {
+                        "type": "boolean",
+                      },
+                    },
+                  },
+                ],
+                "required": [
+                  "can_delete",
+                ],
+                "type": "object",
+              },
+            ],
+          },
+        },
+        "type": "object",
+      },
+    ],
+  },
   "Owner": {
     "properties": {
       "email": {
