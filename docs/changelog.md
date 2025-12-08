@@ -770,6 +770,21 @@ See [SWR Documentation](https://swr.vercel.app/docs/revalidation#disable-automat
 ```typescript [Before]
 const { data, error } = useGetOrderById(2)
 ```
+:::
+
+## 4.7.1
+
+### 🐛 Bug Fixes
+
+#### [`plugin-oas`](/plugins/plugin-oas/)
+
+Fix `serverIndex: 0` not resolving to `servers[0].url` in generated code. The condition `if (serverIndex)` was treating 0 as falsy, causing `getBaseURL()` to return undefined instead of the first server URL.
+
+## 4.7.0
+
+### ✨ Features
+
+#### [`plugin-react-query`](/plugins/plugin-react-query/) & [`plugin-vue-query`](/plugins/plugin-vue-query/)
 
 ```typescript [After]
 const { data, error } = useGetOrderById(2, { immutable: true })
@@ -858,6 +873,105 @@ Fix required properties not handled correctly when allOf is used.
 # Validate a Swagger/OpenAPI file
 npx kubb validate --input swagger.json
 ```
+:::
+
+## 3.14.3
+
+### ✨ Features
+
+#### [`plugin-client`](/plugins/plugin-client) & [`plugin-msw`](/plugins/plugin-msw)
+
+Support Google API format paths:
+
+::: code-group
+```typescript [Example]
+// Google API path format
+my-api/foo/v1/bar/{id}:search
+```
+:::
+
+## 3.14.2
+
+### 🐛 Bug Fixes
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Fix required properties not handled correctly when allOf is used.
+
+## 3.14.1
+
+### 🐛 Bug Fixes
+
+#### [`parser/ts`](/parsers/parser-ts/)
+
+- Fixed order of import and export files when using `print` of TypeScript
+- Fixed TypeScript version
+
+## 3.14.0
+
+### ✨ Features
+
+#### [`cli`](/helpers/cli/)
+
+**New CLI Commands:**
+
+::: code-group
+```bash [Validate]
+# Validate a Swagger/OpenAPI file
+npx kubb validate --input swagger.json
+```
+
+```bash [MCP]
+# Start the MCP client to interact with LLMs (like Claude)
+npx kubb mcp
+```
+:::
+
+## 3.13.2
+
+### 🐛 Bug Fixes
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Fix shadowed variables error when using `client`, use of `fetch` instead when an import to `@kubb/plugin-client/clients/axios` is needed.
+
+## 3.13.1
+
+### ✨ Features
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Parse and validate request data with Zod, including FormData, before forwarding it to the client.
+
+## 3.13.0
+
+### ✨ Features
+
+#### Multiple Plugins
+
+Add `emptySchemaType` option across plugins. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
+
+- [`plugin-ts`](/plugins/plugin-ts)
+- [`plugin-zod`](/plugins/plugin-zod)
+- [`plugin-faker`](/plugins/plugin-faker)
+
+## 3.12.2
+
+### 🐛 Bug Fixes
+
+#### [`core`](/plugins/core)
+
+Better support for Windows [back slashes](https://github.com/kubb-labs/kubb/issues/1776).
+
+## 3.12.1
+
+### 🐛 Bug Fixes
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Correct v4 imports when no importPath is defined.
+
+## 3.12.0
 
 ```bash [MCP]
 # Start the MCP client to interact with LLMs (like Claude)
