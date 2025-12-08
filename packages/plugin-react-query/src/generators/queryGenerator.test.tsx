@@ -123,6 +123,7 @@ describe('queryGenerator operation', async () => {
       client: {
         dataReturnType: 'data',
         client: 'axios',
+        clientType: 'function',
         bundle: false,
       },
       parser: 'zod',
