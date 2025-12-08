@@ -1,374 +1,1140 @@
 ---
 title: Changelog
+outline: deep
 ---
 
 # Changelog
 
-# 4.9.0
-- [`plugin-client`](/plugins/plugin-client/):
-Add support for class-based client generation via the new `clientType` option. Users can now generate API clients as classes with methods instead of standalone functions by setting `clientType: 'class'` in the plugin configuration.
+All notable changes to Kubb are documented here. Each version is organized with clear categories (Features, Bug Fixes, Breaking Changes, Dependencies) and includes code examples where applicable. Use the outline navigation in the right sidebar to quickly jump to any version.
 
-Example usage:
-```ts
-pluginClient({
+## Legend
+
+- ✨ **Features** - New functionality and enhancements
+- 🐛 **Bug Fixes** - Bug fixes and corrections
+- 🚀 **Breaking Changes** - Changes that may require code updates
+- 📦 **Dependencies** - Package updates and dependency changes
+
+::: tip
+Use the outline navigation (right sidebar) to quickly jump to specific versions.
+:::
+
+## 4.9.0
+
+### ✨ Features
+
+#### [`plugin-client`](/plugins/plugin-client/)
+
+Add support for class-based client generation via the new `clientType` option. Users can now generate API clients as classes with methods instead of standalone functions by setting `clientType: 'class'` in the plugin configuration. When combined with `group: { type: 'tag' }`, this generates one class per tag (e.g., `Pet`, `Store`, `User`) with methods for each operation.
+
+::: code-group
+```typescript [Configuration]
+import { defineConfig } from '@kubb/core'
+import { pluginClient } from '@kubb/plugin-client'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
   output: {
-    path: './clients/class',
+    path: './src/gen',
   },
-  clientType: 'class',
-  group: {
-    type: 'tag',
-  },
+  plugins: [
+    pluginOas(),
+    pluginTs(),
+    pluginClient({
+      output: {
+        path: './clients',
+      },
+      clientType: 'class',
+      group: {
+        type: 'tag',
+      },
+    }),
+  ],
 })
 ```
 
-This will generate classes like `Pet`, `Store`, `User` with methods for each operation.
+```typescript [Generated Output]
+export class Pet {
+  #client: typeof fetch
 
-
-# 4.8.1
-- [`plugin-client`](/plugins/plugin-client/): Fix formData generation when parser is undefined or non-standard. Previously, when using multipart/form-data endpoints without setting parser to 'client' or 'zod', the generated code would attempt to call `buildFormData(requestData)` with an undefined `requestData` variable, causing a reference error.
-
-# 4.8.0
-- [`plugin-zod`](/plugins/plugin-zod/): Add support for Zod Mini with the new `mini` option. When `mini: true`, generates functional syntax (e.g., `z.optional(z.string())`) instead of chainable methods for better tree-shaking. Automatically sets `version` to `'4'` and `importPath` to `'zod/mini'` when mini mode is enabled. Updated parser to support `.check()` syntax for constraints in mini mode (e.g., `z.string().check(z.minLength(5))`).
-
-# 4.7.1
-- [`plugin-oas`](/plugins/plugin-oas/): Fix `serverIndex: 0` not resolving to `servers[0].url` in generated code. The condition `if (serverIndex)` was treating 0 as falsy, causing `getBaseURL()` to return undefined instead of the first server URL.
-
-# 4.7.0
-- [`plugin-react-query`](/plugins/plugin-react-query/): Add support for `nextParam` and `previousParam` in infinite queries with nested field access. This enables independent cursor extraction for bidirectional pagination using dot notation (e.g., `'pagination.next.id'`) or array paths (e.g., `['pagination', 'next', 'id']`). The existing `cursorParam` option is deprecated but remains functional for backward compatibility.
-- [`plugin-vue-query`](/plugins/plugin-vue-query/): Add support for `nextParam` and `previousParam` in infinite queries with nested field access. This enables independent cursor extraction for bidirectional pagination using dot notation (e.g., `'pagination.next.id'`) or array paths (e.g., `['pagination', 'next', 'id']`). The existing `cursorParam` option is deprecated but remains functional for backward compatibility.
-- [`plugin-oas`](/plugins/plugin-oas/): Fixed self-referential circular type references when OpenAPI schemas use `allOf` to extend a discriminator parent that has `oneOf`/`anyOf` referencing the children. The fix detects this pattern and skips adding redundant discriminator constraints to avoid the circular structure.
-
-# 4.6.3
-- [`plugin-client`](/plugins/plugin-client/): Fix formData not being used in generated client when request schema is missing for multipart/form-data endpoints
-
-# 4.6.2
-- [`plugin-zod`](/plugins/plugin-zod/): Skip coercion for email, url, uuid with Zod 4. In Zod 4, coerce does not support `z.uuid()`, `z.email()` or `z.url()` and coercion does not make sense with these specific string subtypes. When `coercion: true` and `version: '4'` are both enabled, the plugin now correctly generates `z.uuid()`, `z.email()`, or `z.url()` without coercion, instead of attempting to use unsupported coercion syntax.
-
-# 4.6.1
-- [`plugin-react-query`](/plugins/plugin-react-query/): Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`
-- [`plugin-swr`](/plugins/plugin-swr/): Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`
-- [`plugin-vue-query`](/plugins/plugin-vue-query/): Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`
-- [`plugin-solid-query`](/plugins/plugin-solid-query/): Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`
-- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`
-
-# 4.6.0
-- [`plugin-react-query`](/plugins/plugin-react-query/): Add support for `useSuspenseInfiniteQuery` hook generation
-  - Generate `useSuspenseInfiniteQuery` hooks when both `suspense` and `infinite` options are enabled
-  - Support for both cursor-based and offset-based pagination with full TypeScript type safety
-  - Automatic validation of required query parameters and response fields
-  - Example: `useFindPetsByTagsSuspenseInfinite` for React Suspense with infinite queries
-
-# 4.5.15
-- [`plugin-client`](/plugins/plugin-client): Fix FormData handling in fetch client to properly support multipart/form-data requests. FormData instances are now passed directly to the fetch API instead of being JSON.stringify-ed, allowing the browser to correctly set the Content-Type header with the multipart boundary.
-
-# 4.5.14
-- [`plugin-client`](/plugins/plugin-client): Added `buildFormData` utility function to properly handle arrays in multipart/form-data requests
-- [`plugin-mcp`](/plugins/plugin-mcp): Support for arrays in multipart/form-data with improved FormData handling
-- [`plugin-react-query`](/plugins/plugin-react-query): Support for arrays in multipart/form-data with improved FormData handling
-- [`plugin-solid-query`](/plugins/plugin-solid-query): Support for arrays in multipart/form-data with improved FormData handling
-- [`plugin-svelte-query`](/plugins/plugin-svelte-query): Support for arrays in multipart/form-data with improved FormData handling
-- [`plugin-swr`](/plugins/plugin-swr): Support for arrays in multipart/form-data with improved FormData handling
-- [`plugin-vue-query`](/plugins/plugin-vue-query): Support for arrays in multipart/form-data with improved FormData handling
-- [`core`](/plugins/core): Added `upsertFile` method to PluginContext for idempotent file operations
-
-# 4.5.13
-- [`plugin-client`](/plugins/plugin-client): Type 'FormData' is missing the following properties from type at generated hooks
-
-# 4.5.12
-- [`plugin-zod`](/plugins/plugin-zod): Fix circular dependency issues by wrapping all schema references in `z.lazy()` to prevent "used before declaration" errors with `oneOf`/`anyOf` constructs
-- [`plugin-swr`](/plugins/plugin-swr/): Fix SWR mutation type issue by using `SWRMutationConfiguration` directly instead of `Parameters<typeof useSWRMutation>[2]`. This resolves type inference issues caused by SWR's function overloading based on `throwOnError`, allowing flexible definition and passing of mutation configuration options.
-- [`plugin-vue-query`](/plugins/plugin-vue-query/): Fixed potential runtime errors when handling undefined schemas
-- [`plugin-vue-query`](/plugins/plugin-vue-query/): Improved queryKey extraction safety with reactive value resolution
-- [`unplugin-kubb`](/builders/unplugin): Added multi-framework support (Vite and Rollup)
-- [`core`](/plugins/core): Fixed potential runtime errors when handling undefined schemas
-- Update development dependencies (Vite, Nuxt, Biome)
-
-# 4.5.11
-- upgrade to have latest react-fabric version
-
-# 4.5.10
-- upgrade to have latest react-fabric version
-
-# 4.5.9
-- [`plugin-oas`](/plugins/plugin-oas/): discriminator `inherit` issue, resolved by applying inherit on setOptions
-
-# 4.5.8
-- Rebuild core packages
-
-# 4.5.7
-- Rebuild core packages
-
-# 4.5.6
-- [`core`](/plugins/core): Correct type for Plugins
-
-# 4.5.3
-- [`plugin-oas`](/plugins/plugin-oas/): expose generators helpers again in main barrel of plugin-oas
-
-# 4.5.2
-- Update Fabric packages
-
-# 4.5.1
-- [`plugin-zod`](/plugins/plugin-zod): Query parameter object with all parameters defaulting incorrectly marked as optional in Zod
-
-# 4.5.0
-- [`plugin-react-query`](/plugins/plugin-react-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
-- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
-- [`plugin-vue-query`](/plugins/plugin-vue-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
-- [`plugin-solid-query`](/plugins/plugin-solid-query/): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
-- [`plugin-client`](/plugins/plugin-client): Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the default client (Axios or Fetch)
-- [`plugin-zod`](/plugins/plugin-zod):
-  - Remove dependency of `@kubb` inside the generated files, introduce a `.kubb` folder containing the `ToZod` helper
-  - Zod schema was not adding `.max`, revert previous changes to bring back this feature
-  -  Add `z.lazy` for every reference but when used in Zod v4 with `get(){}` syntax remove the `z.lazy`
-- [`plugin-oas`](/plugins/plugin-oas/): Sort OpenApi Schemas so references are having a correct order when generated
-
-# 4.4.1
-- Update Fabric packages
-
-# 4.4.0
-- Add Fabric support
-
-# 4.3.1
-- [`react`](/helpers/react/): update peerdeps `@kubb/react`
-# 4.3.0
-- [`plugin-zod`](/plugins/plugin-zod): Add exclusive minimum and maximum support with `z.number().gt(5);` and `z.number().lt(5);`
-
-# 4.2.2
-- [`core`](/plugins/core): resolve crash with incorrect Fabric patch version
-
-# 4.2.1
-- Update packages
-
-# 4.2.0
-- [`plugin-msw`](/plugins/plugin-msw): generating responses for status codes
-
-# 4.1.4
-- [`plugin-faker`](/plugins/plugin-faker): Add optional data parameter to override default faker generated strings and numbers
-- [`plugin-client`](/plugins/plugin-client): Correct content-type header handling for multipart/form-data
-- [`plugin-zod`](/plugins/plugin-zod): Add type to operations generated by zod plugin
-
-# 4.1.3
-- [`plugin-msw`](/plugins/plugin-msw): add promise response to msw handlers
-
-# 4.1.2
-- [`plugin-react-query`](/plugins/plugin-react-query/): guard infinite hooks and streamline mutation typings
-- [`core`](/plugins/core): Generation fails when using regexes that contain flags
-- [`plugin-zod`](/plugins/plugin-zod): url should also set min and max when defined
-
-# 4.1.1
-- Upgrade internal packages
-
-# 4.1.0
-- [`plugin-react-query`](/plugins/plugin-react-query/): Add mutationOptions to react-query
-- [`plugin-zod`](/plugins/plugin-zod): use of `z.ZodType` when using Zod v4
-
-# 4.0.2
-- [`plugin-zod`](/plugins/plugin-zod): Escape omit keys correctly with `'`
-- [`plugin-client`](/plugins/plugin-client): Support stringify when using `multipart/form-data`
-
-# 4.0.1
-- Upgrade internal packages
-
-# 4.0.0
-- [`plugin-ts`](/plugins/plugin-ts): enums generated with "asConst" have a "Key" suffix
-- [`plugin-vue-query`](/plugins/plugin-vue-query/): unwrap in vue infinite query
-- [`plugin-react-query`](/plugins/plugin-react-query/): align infinite query generics with tanstack
-
-# 3.18.4
-- [`plugin-ts`](/plugins/plugin-ts): Keep `usedEnumNames` in cache but not between builds
-
-# 3.18.3
-- [`plugin-react-query`](/plugins/plugin-react-query/): Correct generic for infiniteQuery(issue #1790)
-- [`plugin-vue-query`](/plugins/plugin-vue-query/): Correct generic for infiniteQuery(issue #1790)
-
-# 3.18.2
-- [`core`](/plugins/core): update packages
-
-# 3.18.1
-- [`parser/ts`](/parsers/parser-ts/): revert prettier removal as default formatter
-
-# 3.18.0
-- [`core`](/plugins/core): Support for custom formatters like [Biome](https://biomejs.dev/) and [Prettier](https://prettier.io/)
-- [`core`](/plugins/core): Support for custom linters like [Biome](https://biomejs.dev/), [Eslint](https://eslint.org/) and [Oxlint](https://oxc.rs/docs/guide/usage/linter)
-- [`plugin-react-query`](/plugins/plugin-react-query/): use of `toURLPath` for mutationKey
-- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): use of `toURLPath` for mutationKey
-- [`plugin-vue-query`](/plugins/plugin-vue-query/): use of `toURLPath` for mutationKey
-- [`plugin-solid-query`](/plugins/plugin-solid-query/): use of `toURLPath` for mutationKey
-
-# 3.17.1
-- [`plugin-faker`](/plugins/plugin-faker): Escaping regex correctly and without `new RegExp()`
-- [`plugin-zod`](/plugins/plugin-zod): Escaping regex correctly by using `new RegExp().source` behind the scenes
-- [`plugin-react-query`](/plugins/plugin-react-query/): resolve typescript error related to `queryClient` not having a default value
-- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): resolve typescript error related to `queryClient` not having a default value
-- [`plugin-vue-query`](/plugins/plugin-vue-query/): resolve typescript error related to `queryClient` not having a default value
-- [`plugin-solid-query`](/plugins/plugin-solid-query/): resolve typescript error related to `queryClient` not having a default value
-
-# 3.17.0
-- [`plugin-client`](/plugins/plugin-client): export method when using `urlType` as discussed in [1828](https://github.com/kubb-labs/kubb/discussions/1828)
-
-# 3.16.4
-- [`plugin-zod`](/plugins/plugin-zod): toZod support for Zod v4
-
-# 3.16.3
-- [`plugin-msw`](/plugins/plugin-msw): Return contentType from response instead of request
-- [`plugin-faker`](/plugins/plugin-faker): update Faker parser to work with enums in nested objects
-
-# 3.16.2
-- Upgrade of internal dependencies
-
-# 3.16.1
-- [`plugin-client`](/plugins/plugin-client): `validateStatus` as part of the axios client
-- [`plugin-ts`](/plugins/plugin-ts): ERROR Warning: Encountered two children with the same key
-- [`plugin-ts`](/plugins/plugin-ts): Does not consider pattern property for js doc
-
-# 3.16.0
-- [`core`](/plugins/core): Improve memory usage by using concurrency
-
-# 3.15.0
-- [`plugin-swr`](/plugins/plugin-swr/): `immutable` option to disable `revalidateIfStale`, `revalidateOnFocus` and `revalidateOnReconnect`, see [https://swr.vercel.app/docs/revalidation#disable-automatic-revalidations](https://swr.vercel.app/docs/revalidation#disable-automatic-revalidations).
-```typescript
-const { data, error } = useGetOrderById(2) // [!code --]
-const { data, error } = useGetOrderById(2, { immutable: true }) // [!code ++]
-```
-
-# 3.14.4
-- [`plugin-oas`](/plugins/plugin-oas): AnyOf where `const`(empty string) is being used should not be converted to a nullable value.
-```
-"anyOf": [
-  {
-    "const": "",
-    "type": "string"
-  },
-  {
-    "format": "email",
-    "type": "string"
+  constructor(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+    this.#client = config.client || fetch
   }
-]
-```
-```typescript
-type Order ={
-  status?: null | string // [!code --]
-  status?: string // [!code ++]
+
+  async getPetById({ petId }: { petId: number }, config = {}) {
+    const { client: request = this.#client, ...requestConfig } = config
+    const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400>, unknown>({
+      method: 'GET',
+      url: `/pet/${petId}`,
+      ...requestConfig,
+    })
+    return res.data
+  }
+
+  async addPet(data: AddPetMutationRequest, config = {}) {
+    const { client: request = this.#client, ...requestConfig } = config
+    const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
+      method: 'POST',
+      url: '/pet',
+      data,
+      ...requestConfig,
+    })
+    return res.data
+  }
 }
-
 ```
 
-# 3.14.3
-- [`plugin-client`](/plugins/plugin-client): Support Google api format, for example: `my-api/foo/v1/bar/{id}:search`
-- [`plugin-msw`](/plugins/plugin-msw): Support Google api format, for example: `my-api/foo/v1/bar/{id}:search`
+```typescript [Usage]
+import { Pet } from './gen/clients/Pet'
 
-# 3.14.2
-- [`plugin-oas`](/plugins/plugin-oas): Required properties not handled correctly when allOf is used
+const petClient = new Pet()
 
-# 3.14.1
-- [`parser/ts`](/parsers/parser-ts/): Fixed order of import and export files when using `print` of TypeScript + fixed TypeScript version
+// Get a pet by ID
+const pet = await petClient.getPetById({ petId: 1 })
 
-# 3.14.0
-- [`cli`](/helpers/cli/): `validate` cli command to validate a Swagger/OpenAPI file: `npx kubb validate --input swagger.json`
-- [`cli`](/helpers/cli/): `mcp` cli command to start the MCP client to interact with LLMs(like Claude): `npx kubb mcp`
+// Add a new pet
+const newPet = await petClient.addPet({
+  name: 'Fluffy',
+  status: 'available'
+})
+```
+:::
 
-# 3.13.2
-- [`plugin-client`](/plugins/plugin-client): Shadowed variables error when using `client`, use of `fetch` instead when an import to `@kubb/plugin-client/clients/axios` is needed.
+**Key features:**
+- Generated classes use ECMAScript private field syntax (`#client`) for true runtime privacy
+- Full support for all existing options (parser, paramsType, dataReturnType, etc.)
+- Each tag generates a separate class file when using `group: { type: 'tag' }`
+- Centralized client configuration per instance
 
-# 3.13.1
-- [`plugin-client`](/plugins/plugin-client): Parse and validate request data with Zod, including FormData, before forwarding it to the client.
 
-# 3.13.0
-- [`plugin-ts`](/plugins/plugin-ts): Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
-- [`plugin-zod`](/plugins/plugin-zod): Adds `emptySchemaType`. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
-- [`plugin-faker`](/plugins/plugin-faker): Adds `emptySchemaType` option. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
 
-# 3.12.2
-- [`core`](/plugins/core): Better support for Windows [back slashes](https://github.com/kubb-labs/kubb/issues/1776)
+#### [`plugin-client`](/plugins/plugin-client/)
 
-# 3.12.1
-- [`plugin-zod`](/plugins/plugin-zod): Correct v4 imports when no importPath is defined
+Fix formData generation when parser is undefined or non-standard. Previously, when using multipart/form-data endpoints without setting parser to 'client' or 'zod', the generated code would attempt to call `buildFormData(requestData)` with an undefined `requestData` variable, causing a reference error.
 
-# 3.12.0
-- [`plugin-zod`](/plugins/plugin-zod): full support for Zod v4
+## 4.8.0
 
-# 3.11.1
-- [`plugin-oas`](/plugins/plugin-oas): resolve anyof when used together with allof
+### ✨ Features
 
-# 3.11.0
-- [`plugin-oas`](/plugins/plugin-oas): discriminator flag that could override a schema when mapping is used(see inherit), resolves [https://github.com/kubb-labs/kubb/issues/1736](https://github.com/kubb-labs/kubb/issues/1736)
-- [`plugin-zod`](/plugins/plugin-zod): enums of type "number" are parsed to integers
-- [`plugin-faker`](/plugins/plugin-faker): Incompatible type used for true literal enum in query param
+#### [`plugin-zod`](/plugins/plugin-zod/)
 
-# 3.10.16
-- [`plugin-ts`](/plugins/plugin-ts): constEnum should be treated as export * instead of export type *
+Add support for Zod Mini with the new `mini` option. When `mini: true`, generates functional syntax instead of chainable methods for better tree-shaking.
 
-# 3.10.15
-- [`plugin-ts`](/plugins/plugin-ts): Nullable response for @kubb/plugin-ts and @kubb/plugin-zod plugins inconsistency
+::: code-group
+```typescript [Before]
+z.string().optional()
+```
 
-# 3.10.14
-- [`plugin-faker`](/plugins/plugin-faker): Min and max is not applied to the faker functions when only one of them is defined
-- [`core`](/plugins/core): uniqueBy for file.sources(isExportable and name)
-- [`plugin-ts`](/plugins/plugin-ts): Duplicated enums on TypeScript types
+```typescript [After (with mini: true)]
+z.optional(z.string())
+```
+:::
 
-# 3.10.13
-- [`plugin-zod`](/plugins/plugin-zod): query parameter objects are no longer optional if at least one parameter is defaulted
+Configuration automatically sets `version` to `'4'` and `importPath` to `'zod/mini'` when mini mode is enabled. Updated parser to support `.check()` syntax for constraints in mini mode.
 
-# 3.10.12
-- [`plugin-oas`](/plugins/plugin-oas): allow multiple `discriminator.mapping` with the same $ref
+::: code-group
+```typescript [Mini Mode]
+z.string().check(z.minLength(5))
+```
+:::
 
-# 3.10.11
-- [`plugin-zod`](/plugins/plugin-zod): update parser to include latest v4 of Zod
+## 4.7.1
 
-# 3.10.10
-- [`plugin-react-query`](/plugins/plugin-react-query/): resolve typescript error
-- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): resolve typescript error
-- [`plugin-vue-query`](/plugins/plugin-vue-query/): resolve typescript error
-- [`plugin-solid-query`](/plugins/plugin-solid-query/): resolve typescript error
+### 🐛 Bug Fixes
 
-# 3.10.9
-- [`core`](/plugins/core): update packages
+#### [`plugin-oas`](/plugins/plugin-oas/)
 
-# 3.10.8
-- [`plugin-oas`](/plugins/plugin-oas): Caching of oas
+Fix `serverIndex: 0` not resolving to `servers[0].url` in generated code. The condition `if (serverIndex)` was treating 0 as falsy, causing `getBaseURL()` to return undefined instead of the first server URL.
 
-# 3.10.7
-- [`core`](/plugins/core): better support for Windows
+## 4.7.0
 
-# 3.10.6
-- [`plugin-oas`](/plugins/plugin-oas): Improve tuple type generation
+### ✨ Features
 
-# 3.10.5
-- [`plugin-oas`](/plugins/plugin-oas): Rewrite schemas with multiple types
-- [`plugin-faker`](/plugins/plugin-faker): Fix types of enums nested in array
+#### [`plugin-react-query`](/plugins/plugin-react-query/) & [`plugin-vue-query`](/plugins/plugin-vue-query/)
 
-# 3.10.4
-- [`plugin-mcp`](/plugins/plugin-mcp/): better use of MCP tools based on oas
+Add support for `nextParam` and `previousParam` in infinite queries with nested field access. This enables independent cursor extraction for bidirectional pagination.
 
-# 3.10.3
-- [`plugin-zod`](/plugins/plugin-zod): Better convert of `discriminator`
+::: code-group
+```typescript [Dot Notation]
+{
+  nextParam: 'pagination.next.id',
+  previousParam: 'pagination.prev.id'
+}
+```
 
-# 3.10.2
-- [`plugin-react-query`](/plugins/plugin-react-query/): remove generic TQueryData when using suspense
+```typescript [Array Paths]
+{
+  nextParam: ['pagination', 'next', 'id'],
+  previousParam: ['pagination', 'prev', 'id']
+}
+```
+:::
 
-# 3.10.1
-- Update of internal libraries
+::: warning DEPRECATED
+The existing `cursorParam` option is deprecated but remains functional for backward compatibility.
+:::
 
-# 3.10.0
-- [`plugin-mcp`](/plugins/plugin-mcp/): create an [MCP](https://modelcontextprotocol.io) server based on your OpenAPI file and interact with an AI like Claude.
+### 🐛 Bug Fixes
 
-- ![Claud interaction](/screenshots/claude-interaction.gif)
+#### [`plugin-oas`](/plugins/plugin-oas/)
 
-# 3.9.5
-- [`plugin-ts`](/plugins/plugin-ts): openapi description tag is not put into the JSDoc
+Fixed self-referential circular type references when OpenAPI schemas use `allOf` to extend a discriminator parent that has `oneOf`/`anyOf` referencing the children. The fix detects this pattern and skips adding redundant discriminator constraints to avoid the circular structure.
 
-# 3.9.4
-- [`plugin-swr`](/plugins/plugin-swr/): query type inferred as any when generating SWR hooks with useSWR
+## 4.6.3
 
-# 3.9.3
-- [`plugin-ts`](/plugins/plugin-ts): nullable: true now generates | null union
+### 🐛 Bug Fixes
 
-# 3.9.2
-- [`plugin-client`](/plugins/plugin-client): exclude baseURL when not set
+#### [`plugin-client`](/plugins/plugin-client/)
 
-# 3.9.1
-- [`plugin-zod`](/plugins/plugin-zod): reduce any's being used
-- [`plugin-faker`](/plugins/plugin-faker): reduce any's being used
+Fix formData not being used in generated client when request schema is missing for multipart/form-data endpoints.
+
+## 4.6.2
+
+### 🐛 Bug Fixes
+
+#### [`plugin-zod`](/plugins/plugin-zod/)
+
+Skip coercion for email, url, uuid with Zod 4. In Zod 4, coerce does not support `z.uuid()`, `z.email()` or `z.url()` and coercion does not make sense with these specific string subtypes.
+
+::: code-group
+```typescript [Correct Output]
+// When coercion: true and version: '4' are both enabled
+z.uuid()
+z.email()
+z.url()
+```
+
+```typescript [Previous (Incorrect)]
+// Attempted to use unsupported coercion syntax
+z.coerce.uuid() // ❌ Not supported in Zod 4
+```
+:::
+
+## 4.6.1
+
+### 🐛 Bug Fixes
+
+#### Query Plugins
+
+Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`:
+
+- [`plugin-react-query`](/plugins/plugin-react-query/)
+- [`plugin-swr`](/plugins/plugin-swr/)
+- [`plugin-vue-query`](/plugins/plugin-vue-query/)
+- [`plugin-solid-query`](/plugins/plugin-solid-query/)
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/)
+
+## 4.6.0
+
+### ✨ Features
+
+#### [`plugin-react-query`](/plugins/plugin-react-query/)
+
+Add support for `useSuspenseInfiniteQuery` hook generation with the following capabilities:
+
+- Generate `useSuspenseInfiniteQuery` hooks when both `suspense` and `infinite` options are enabled
+- Support for both cursor-based and offset-based pagination with full TypeScript type safety
+- Automatic validation of required query parameters and response fields
+
+::: code-group
+```typescript [Example Usage]
+// Generated hook name example
+useFindPetsByTagsSuspenseInfinite()
+```
+
+```typescript [Configuration]
+{
+  suspense: true,
+  infinite: true
+}
+```
+:::
+
+## 4.5.15
+
+### 🐛 Bug Fixes
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Fix FormData handling in fetch client to properly support multipart/form-data requests. FormData instances are now passed directly to the fetch API instead of being JSON.stringify-ed, allowing the browser to correctly set the Content-Type header with the multipart boundary.
+
+::: code-group
+```typescript [After (Correct)]
+fetch(url, {
+  body: formData // Passed directly
+})
+```
+
+```typescript [Before (Incorrect)]
+fetch(url, {
+  body: JSON.stringify(formData) // ❌ Wrong
+})
+```
+:::
+
+## 4.5.14
+
+### ✨ Features
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Added `buildFormData` utility function to properly handle arrays in multipart/form-data requests.
+
+#### Enhanced FormData Support
+
+Support for arrays in multipart/form-data with improved FormData handling across all query plugins:
+
+- [`plugin-mcp`](/plugins/plugin-mcp)
+- [`plugin-react-query`](/plugins/plugin-react-query)
+- [`plugin-solid-query`](/plugins/plugin-solid-query)
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query)
+- [`plugin-swr`](/plugins/plugin-swr)
+- [`plugin-vue-query`](/plugins/plugin-vue-query)
+
+#### [`core`](/plugins/core)
+
+Added `upsertFile` method to PluginContext for idempotent file operations.
+
+## 4.5.13
+
+### 🐛 Bug Fixes
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Fix TypeScript type error: Type 'FormData' is missing the following properties from type at generated hooks.
+
+## 4.5.12
+
+### 🐛 Bug Fixes
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Fix circular dependency issues by wrapping all schema references in `z.lazy()` to prevent "used before declaration" errors with `oneOf`/`anyOf` constructs.
+
+::: code-group
+```typescript [Solution]
+// All references wrapped in z.lazy()
+z.lazy(() => Schema)
+```
+:::
+
+#### [`plugin-swr`](/plugins/plugin-swr/)
+
+Fix SWR mutation type issue by using `SWRMutationConfiguration` directly instead of `Parameters<typeof useSWRMutation>[2]`. This resolves type inference issues caused by SWR's function overloading based on `throwOnError`, allowing flexible definition and passing of mutation configuration options.
+
+#### [`plugin-vue-query`](/plugins/plugin-vue-query/)
+
+- Fixed potential runtime errors when handling undefined schemas
+- Improved queryKey extraction safety with reactive value resolution
+
+#### [`core`](/plugins/core)
+
+Fixed potential runtime errors when handling undefined schemas.
+
+### ✨ Features
+
+#### [`unplugin-kubb`](/builders/unplugin)
+
+Added multi-framework support (Vite and Rollup).
+
+### 📦 Dependencies
+
+Update development dependencies (Vite, Nuxt, Biome).
+
+## 4.5.11
+
+### 📦 Dependencies
+
+Upgrade to have latest react-fabric version.
+
+## 4.5.10
+
+### 📦 Dependencies
+
+Upgrade to have latest react-fabric version.
+
+## 4.5.9
+
+### 🐛 Bug Fixes
+
+#### [`plugin-oas`](/plugins/plugin-oas/)
+
+Fix discriminator `inherit` issue, resolved by applying inherit on setOptions.
+
+## 4.5.8
+
+### 📦 Dependencies
+
+Rebuild core packages.
+
+## 4.5.7
+
+### 📦 Dependencies
+
+Rebuild core packages.
+
+## 4.5.6
+
+### 🐛 Bug Fixes
+
+#### [`core`](/plugins/core)
+
+Correct type for Plugins.
+
+## 4.5.3
+
+### 🐛 Bug Fixes
+
+#### [`plugin-oas`](/plugins/plugin-oas/)
+
+Expose generators helpers again in main barrel of plugin-oas.
+
+## 4.5.2
+
+### 📦 Dependencies
+
+Update Fabric packages.
+
+## 4.5.1
+
+### 🐛 Bug Fixes
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Fix query parameter object with all parameters defaulting incorrectly marked as optional in Zod.
+
+## 4.5.0
+
+### 🚀 Breaking Changes
+
+#### Removed `@kubb` Dependency from Generated Files
+
+All query plugins now generate self-contained code with a `.kubb` folder containing necessary utilities:
+
+- [`plugin-react-query`](/plugins/plugin-react-query/)
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/)
+- [`plugin-vue-query`](/plugins/plugin-vue-query/)
+- [`plugin-solid-query`](/plugins/plugin-solid-query/)
+- [`plugin-client`](/plugins/plugin-client)
+
+::: tip BENEFIT
+Generated code no longer depends on `@kubb` runtime packages, making the output more portable and easier to customize.
+:::
+
+::: code-group
+```typescript [Before]
+import { client } from '@kubb/plugin-client'
+```
+
+```typescript [After]
+import { client } from './.kubb/client'
+```
+:::
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+**Removed Dependencies:**
+- Remove dependency of `@kubb` inside the generated files
+- Introduce a `.kubb` folder containing the `ToZod` helper
+
+**Bug Fixes:**
+- Zod schema was not adding `.max`, revert previous changes to bring back this feature
+- Add `z.lazy` for every reference but when used in Zod v4 with `get(){}` syntax remove the `z.lazy`
+
+### ✨ Features
+
+#### [`plugin-oas`](/plugins/plugin-oas/)
+
+Sort OpenApi Schemas so references are having a correct order when generated.
+
+## 4.4.1
+
+### 📦 Dependencies
+
+Update Fabric packages.
+
+## 4.4.0
+
+### ✨ Features
+
+Add Fabric support for improved code generation.
+
+## 4.3.1
+
+### 📦 Dependencies
+
+#### [`react`](/helpers/react/)
+
+Update peerdeps `@kubb/react`.
+
+## 4.3.0
+
+### ✨ Features
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Add exclusive minimum and maximum support with Zod constraints.
+
+::: code-group
+```typescript [Example]
+z.number().gt(5)  // Greater than 5
+z.number().lt(10) // Less than 10
+```
+:::
+
+## 4.2.2
+
+### 🐛 Bug Fixes
+
+#### [`core`](/plugins/core)
+
+Resolve crash with incorrect Fabric patch version.
+
+## 4.2.1
+
+### 📦 Dependencies
+
+Update packages.
+
+## 4.2.0
+
+### ✨ Features
+
+#### [`plugin-msw`](/plugins/plugin-msw)
+
+Generating responses for status codes.
+
+## 4.1.4
+
+### ✨ Features
+
+#### [`plugin-faker`](/plugins/plugin-faker)
+
+Add optional data parameter to override default faker generated strings and numbers.
+
+### 🐛 Bug Fixes
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Correct content-type header handling for multipart/form-data.
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Add type to operations generated by zod plugin.
+
+## 4.1.3
+
+### ✨ Features
+
+#### [`plugin-msw`](/plugins/plugin-msw)
+
+Add promise response to msw handlers.
+
+## 4.1.2
+
+### 🐛 Bug Fixes
+
+#### [`plugin-react-query`](/plugins/plugin-react-query/)
+
+Guard infinite hooks and streamline mutation typings.
+
+#### [`core`](/plugins/core)
+
+Fix generation failing when using regexes that contain flags.
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+URL should also set min and max when defined.
+
+## 4.1.1
+
+### 📦 Dependencies
+
+Upgrade internal packages.
+
+## 4.1.0
+
+### ✨ Features
+
+#### [`plugin-react-query`](/plugins/plugin-react-query/)
+
+Add mutationOptions to react-query.
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Use of `z.ZodType` when using Zod v4.
+
+## 4.0.2
+
+### 🐛 Bug Fixes
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Escape omit keys correctly with `'`.
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Support stringify when using `multipart/form-data`.
+
+## 4.0.1
+
+### 📦 Dependencies
+
+Upgrade internal packages.
+
+## 4.0.0
+
+### 🚀 Breaking Changes
+
+#### [`plugin-ts`](/plugins/plugin-ts)
+
+Enums generated with "asConst" have a "Key" suffix.
+
+::: code-group
+```typescript [After]
+const StatusKey = {
+  Active: 'active',
+  Inactive: 'inactive'
+} as const
+```
+
+```typescript [Before]
+const Status = {
+  Active: 'active',
+  Inactive: 'inactive'
+} as const
+```
+:::
+
+#### [`plugin-vue-query`](/plugins/plugin-vue-query/)
+
+Unwrap in vue infinite query.
+
+#### [`plugin-react-query`](/plugins/plugin-react-query/)
+
+Align infinite query generics with tanstack.
+
+## 3.18.4
+
+### 🐛 Bug Fixes
+
+#### [`plugin-ts`](/plugins/plugin-ts)
+
+Keep `usedEnumNames` in cache but not between builds.
+
+## 3.18.3
+
+### 🐛 Bug Fixes
+
+#### Query Plugins
+
+Correct generic for infiniteQuery ([#1790](https://github.com/kubb-labs/kubb/issues/1790)):
+- [`plugin-react-query`](/plugins/plugin-react-query/)
+- [`plugin-vue-query`](/plugins/plugin-vue-query/)
+
+## 3.18.2
+
+### 📦 Dependencies
+
+#### [`core`](/plugins/core)
+
+Update packages.
+
+## 3.18.1
+
+### 🐛 Bug Fixes
+
+#### [`parser/ts`](/parsers/parser-ts/)
+
+Revert prettier removal as default formatter.
+
+## 3.18.0
+
+### ✨ Features
+
+#### [`core`](/plugins/core)
+
+**Custom Formatters Support:**
+- [Biome](https://biomejs.dev/)
+- [Prettier](https://prettier.io/)
+
+**Custom Linters Support:**
+- [Biome](https://biomejs.dev/)
+- [Eslint](https://eslint.org/)
+- [Oxlint](https://oxc.rs/docs/guide/usage/linter)
+
+#### Query Plugins
+
+Use of `toURLPath` for mutationKey across all query plugins:
+- [`plugin-react-query`](/plugins/plugin-react-query/)
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/)
+- [`plugin-vue-query`](/plugins/plugin-vue-query/)
+- [`plugin-solid-query`](/plugins/plugin-solid-query/)
+
+## 3.17.1
+
+### 🐛 Bug Fixes
+
+#### [`plugin-faker`](/plugins/plugin-faker)
+
+Escaping regex correctly and without `new RegExp()`.
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Escaping regex correctly by using `new RegExp().source` behind the scenes.
+
+#### Query Plugins
+
+Resolve typescript error related to `queryClient` not having a default value:
+- [`plugin-react-query`](/plugins/plugin-react-query/)
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/)
+- [`plugin-vue-query`](/plugins/plugin-vue-query/)
+- [`plugin-solid-query`](/plugins/plugin-solid-query/)
+
+## 3.17.0
+
+### ✨ Features
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Export method when using `urlType` as discussed in [#1828](https://github.com/kubb-labs/kubb/discussions/1828).
+
+## 3.16.4
+
+### ✨ Features
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+toZod support for Zod v4.
+
+## 3.16.3
+
+### 🐛 Bug Fixes
+
+#### [`plugin-msw`](/plugins/plugin-msw)
+
+Return contentType from response instead of request.
+
+#### [`plugin-faker`](/plugins/plugin-faker)
+
+Update Faker parser to work with enums in nested objects.
+
+## 3.16.2
+
+### 📦 Dependencies
+
+Upgrade of internal dependencies.
+
+## 3.16.1
+
+### ✨ Features
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Add `validateStatus` as part of the axios client.
+
+### 🐛 Bug Fixes
+
+#### [`plugin-ts`](/plugins/plugin-ts)
+
+- Fix ERROR Warning: Encountered two children with the same key
+- Fix pattern property not considered for JSDoc
+
+## 3.16.0
+
+### ✨ Features
+
+#### [`core`](/plugins/core)
+
+Improve memory usage by using concurrency.
+
+## 3.15.0
+
+### ✨ Features
+
+#### [`plugin-swr`](/plugins/plugin-swr/)
+
+Add `immutable` option to disable `revalidateIfStale`, `revalidateOnFocus` and `revalidateOnReconnect`.
+
+::: info
+See [SWR Documentation](https://swr.vercel.app/docs/revalidation#disable-automatic-revalidations) for more details.
+:::
+
+::: code-group
+```typescript [Before]
+const { data, error } = useGetOrderById(2)
+```
+
+```typescript [After]
+const { data, error } = useGetOrderById(2, { immutable: true })
+```
+:::
+
+## 3.14.4
+
+### 🐛 Bug Fixes
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Fix AnyOf where `const` (empty string) is being used should not be converted to a nullable value.
+
+::: code-group
+```json [OpenAPI Schema]
+{
+  "anyOf": [
+    {
+      "const": "",
+      "type": "string"
+    },
+    {
+      "format": "email",
+      "type": "string"
+    }
+  ]
+}
+```
+
+```typescript [Before]
+type Order = {
+  status?: null | string
+}
+```
+
+```typescript [After (Fixed)]
+type Order = {
+  status?: string
+}
+```
+:::
+
+## 3.14.3
+
+### ✨ Features
+
+#### [`plugin-client`](/plugins/plugin-client) & [`plugin-msw`](/plugins/plugin-msw)
+
+Support Google API format paths:
+
+::: code-group
+```typescript [Example]
+// Google API path format
+my-api/foo/v1/bar/{id}:search
+```
+:::
+
+## 3.14.2
+
+### 🐛 Bug Fixes
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Fix required properties not handled correctly when allOf is used.
+
+## 3.14.1
+
+### 🐛 Bug Fixes
+
+#### [`parser/ts`](/parsers/parser-ts/)
+
+- Fixed order of import and export files when using `print` of TypeScript
+- Fixed TypeScript version
+
+## 3.14.0
+
+### ✨ Features
+
+#### [`cli`](/helpers/cli/)
+
+**New CLI Commands:**
+
+::: code-group
+```bash [Validate]
+# Validate a Swagger/OpenAPI file
+npx kubb validate --input swagger.json
+```
+
+```bash [MCP]
+# Start the MCP client to interact with LLMs (like Claude)
+npx kubb mcp
+```
+:::
+
+## 3.13.2
+
+### 🐛 Bug Fixes
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Fix shadowed variables error when using `client`, use of `fetch` instead when an import to `@kubb/plugin-client/clients/axios` is needed.
+
+## 3.13.1
+
+### ✨ Features
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Parse and validate request data with Zod, including FormData, before forwarding it to the client.
+
+## 3.13.0
+
+### ✨ Features
+
+#### Multiple Plugins
+
+Add `emptySchemaType` option across plugins. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
+
+- [`plugin-ts`](/plugins/plugin-ts)
+- [`plugin-zod`](/plugins/plugin-zod)
+- [`plugin-faker`](/plugins/plugin-faker)
+
+## 3.12.2
+
+### 🐛 Bug Fixes
+
+#### [`core`](/plugins/core)
+
+Better support for Windows [back slashes](https://github.com/kubb-labs/kubb/issues/1776).
+
+## 3.12.1
+
+### 🐛 Bug Fixes
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Correct v4 imports when no importPath is defined.
+
+## 3.12.0
+
+### ✨ Features
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Full support for Zod v4.
+
+## 3.11.1
+
+### 🐛 Bug Fixes
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Resolve anyof when used together with allof.
+
+## 3.11.0
+
+### ✨ Features
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Discriminator flag that could override a schema when mapping is used (see inherit), resolves [#1736](https://github.com/kubb-labs/kubb/issues/1736).
+
+### 🐛 Bug Fixes
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Enums of type "number" are parsed to integers.
+
+#### [`plugin-faker`](/plugins/plugin-faker)
+
+Incompatible type used for true literal enum in query param.
+
+## 3.10.16
+
+### 🐛 Bug Fixes
+
+#### [`plugin-ts`](/plugins/plugin-ts)
+
+ConstEnum should be treated as export * instead of export type *.
+
+## 3.10.15
+
+### 🐛 Bug Fixes
+
+#### [`plugin-ts`](/plugins/plugin-ts)
+
+Fix nullable response inconsistency between @kubb/plugin-ts and @kubb/plugin-zod plugins.
+
+## 3.10.14
+
+### 🐛 Bug Fixes
+
+#### [`plugin-faker`](/plugins/plugin-faker)
+
+Fix min and max not applied to the faker functions when only one of them is defined.
+
+#### [`core`](/plugins/core)
+
+Add uniqueBy for file.sources (isExportable and name).
+
+#### [`plugin-ts`](/plugins/plugin-ts)
+
+Fix duplicated enums on TypeScript types.
+
+## 3.10.13
+
+### 🐛 Bug Fixes
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Query parameter objects are no longer optional if at least one parameter is defaulted.
+
+## 3.10.12
+
+### ✨ Features
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Allow multiple `discriminator.mapping` with the same $ref.
+
+## 3.10.11
+
+### 📦 Dependencies
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Update parser to include latest v4 of Zod.
+
+## 3.10.10
+
+### 🐛 Bug Fixes
+
+#### Query Plugins
+
+Resolve TypeScript errors across all query plugins:
+
+- [`plugin-react-query`](/plugins/plugin-react-query/)
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/)
+- [`plugin-vue-query`](/plugins/plugin-vue-query/)
+- [`plugin-solid-query`](/plugins/plugin-solid-query/)
+
+## 3.10.9
+
+### 📦 Dependencies
+
+#### [`core`](/plugins/core)
+
+Update packages.
+
+## 3.10.8
+
+### ✨ Features
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Add caching of OAS.
+
+## 3.10.7
+
+### 🐛 Bug Fixes
+
+#### [`core`](/plugins/core)
+
+Better support for Windows.
+
+## 3.10.6
+
+### ✨ Features
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Improve tuple type generation.
+
+## 3.10.5
+
+### ✨ Features
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Rewrite schemas with multiple types.
+
+### 🐛 Bug Fixes
+
+#### [`plugin-faker`](/plugins/plugin-faker)
+
+Fix types of enums nested in array.
+
+## 3.10.4
+
+### ✨ Features
+
+#### [`plugin-mcp`](/plugins/plugin-mcp/)
+
+Better use of MCP tools based on OAS.
+
+## 3.10.3
+
+### ✨ Features
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Better convert of `discriminator`.
+
+## 3.10.2
+
+### 🐛 Bug Fixes
+
+#### [`plugin-react-query`](/plugins/plugin-react-query/)
+
+Remove generic TQueryData when using suspense.
+
+## 3.10.1
+
+### 📦 Dependencies
+
+Update of internal libraries.
+
+## 3.10.0
+
+### ✨ Features
+
+#### [`plugin-mcp`](/plugins/plugin-mcp/)
+
+Create an [MCP](https://modelcontextprotocol.io) server based on your OpenAPI file and interact with an AI like Claude.
+
+![Claude interaction](/screenshots/claude-interaction.gif)
+
+## 3.9.5
+
+### 🐛 Bug Fixes
+
+#### [`plugin-ts`](/plugins/plugin-ts)
+
+Fix OpenAPI description tag not put into the JSDoc.
+
+## 3.9.4
+
+### 🐛 Bug Fixes
+
+#### [`plugin-swr`](/plugins/plugin-swr/)
+
+Fix query type inferred as any when generating SWR hooks with useSWR.
+
+## 3.9.3
+
+### ✨ Features
+
+#### [`plugin-ts`](/plugins/plugin-ts)
+
+`nullable: true` now generates | null union.
+
+## 3.9.2
+
+### 🐛 Bug Fixes
+
+#### [`plugin-client`](/plugins/plugin-client)
+
+Exclude baseURL when not set.
+
+## 3.9.1
+
+### 🐛 Bug Fixes
+
+Reduce any's being used:
+
+- [`plugin-zod`](/plugins/plugin-zod)
+- [`plugin-faker`](/plugins/plugin-faker)
 
 ## 3.9.0
 - [`core`](/plugins/core): add default banner feature to enhance generated file recognizability by [@akinoccc](https://github.com/akinoccc)
@@ -435,43 +1201,86 @@ type Order ={
 - [`plugin-client`](/plugins/plugin-client): validating the request using zod before making the HTTP call
 
 ## 3.6.0
-- [`plugin-zod`](/plugins/plugin-zod): Adds wrapOutput option to allow for further customizing the generated zod schemas, this makes it possible to use `OpenAPI` on top of your Zod schema.
-```typescript
+
+### ✨ Features
+
+#### [`plugin-zod`](/plugins/plugin-zod)
+
+Adds `wrapOutput` option to allow for further customizing the generated zod schemas, making it possible to use OpenAPI on top of your Zod schema.
+
+::: code-group
+```typescript [Example with @hono/zod-openapi]
 import { z } from '@hono/zod-openapi'
 
 export const showPetByIdError = z
   .lazy(() => error)
   .openapi({
     examples: [
-      { sample: { summary: 'A sample error', value: { code: 1, message: 'A sample error message' } } },
-      { other_example: { summary: 'Another sample error', value: { code: 2, message: 'A totally specific message' } } },
+      {
+        sample: {
+          summary: 'A sample error',
+          value: { code: 1, message: 'A sample error message' }
+        }
+      },
+      {
+        other_example: {
+          summary: 'Another sample error',
+          value: { code: 2, message: 'A totally specific message' }
+        }
+      },
     ],
   })
 ```
-- [`plugin-oas`](/plugins/plugin-oas): discriminator mapping with literal types
-``` typescript
+:::
+
+#### [`plugin-oas`](/plugins/plugin-oas)
+
+Discriminator mapping with literal types.
+
+::: code-group
+```typescript [Before]
 export type FooBase = {
   /**
    * @type string
    */
--  $type: string;
-+  $type: "type-string" | "type-number";
+  $type: string;
 };
 ```
-``` typescript
--export type FooNumber = FooBase {
-+export type FooNumber = FooBase & {
-+  /**
-+   * @type string
-+   */
-+  $type: "type-number";
-+
+
+```typescript [After]
+export type FooBase = {
+  /**
+   * @type string
+   */
+  $type: "type-string" | "type-number";
+};
+```
+:::
+
+::: code-group
+```typescript [Before]
+export type FooNumber = FooBase {
   /**
    * @type number
    */
   value: number;
 };
 ```
+
+```typescript [After]
+export type FooNumber = FooBase & {
+  /**
+   * @type string
+   */
+  $type: "type-number";
+
+  /**
+   * @type number
+   */
+  value: number;
+};
+```
+:::
 
 ## 3.5.13
 - [`plugin-oas`](/plugins/plugin-oas): enum with whitespaces
@@ -606,12 +1415,21 @@ pluginTs({
 - [`plugin-client`](/plugins/plugin-client): `paramsCasing` to define casing for params
 
 ## 3.1.0
-- [`plugin-react-query`](/plugins/plugin-react-query/): Group API clients by path structure
-- [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Group API clients by path structure
-- [`plugin-vue-query`](/plugins/plugin-vue-query/): Group API clients by path structure
-- [`plugin-solid-query`](/plugins/plugin-solid-query/): Group API clients by path structure
-- [`plugin-msw`](/plugins/plugin-msw): Group API clients by path structure
-```typescript
+
+### ✨ Features
+
+#### Group API Clients by Path Structure
+
+Group API clients by path structure across all query plugins:
+
+- [`plugin-react-query`](/plugins/plugin-react-query/)
+- [`plugin-svelte-query`](/plugins/plugin-svelte-query/)
+- [`plugin-vue-query`](/plugins/plugin-vue-query/)
+- [`plugin-solid-query`](/plugins/plugin-solid-query/)
+- [`plugin-msw`](/plugins/plugin-msw)
+
+::: code-group
+```typescript [Configuration]
 group: {
   type: 'path',
   name: ({ group }) => {
@@ -620,7 +1438,8 @@ group: {
   }
 }
 ```
-```typescript
+
+```typescript [Handler Example]
 findPetsByStatusHandler((info) => {
   const { params } = info
   if (params.someKey) {
@@ -634,8 +1453,8 @@ findPetsByStatusHandler((info) => {
     { status: 200 }
   );
 })
-
 ```
+:::
 
 ## 3.0.14
 - [`core`](/plugins/core): Upgrade packages
