@@ -27,6 +27,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
 
     const isQuery = !!options.query && options.query?.methods.some((method) => operation.method === method)
     const isMutation =
+      options.mutation !== false &&
       !isQuery &&
       difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some((method) => operation.method === method)
 
