@@ -30,13 +30,14 @@ export type {
   BaseKeywordMapper,
   BaseParserOptions,
   CoercionOptions,
+  CreateParserConfig,
   MiniModeSupport,
   MiniModifiers,
   Parser,
   ParserContext,
   VersionedParserOptions,
 } from './parsers/index.ts'
-export { extractMiniModifiers, filterMiniModifiers, miniModifierKeywords, shouldCoerce } from './parsers/index.ts'
+export { createParser, extractMiniModifiers, filterMiniModifiers, miniModifierKeywords, shouldCoerce } from './parsers/index.ts'
 
 /**
  * @deprecated use `import { createGenerator } from '@kubb/plugin-oas/generators'`

@@ -13,6 +13,38 @@ Kubb's parser architecture provides a consistent way to map OpenAPI schemas to v
 
 ## Core Concepts
 
+### createParser (Recommended)
+
+The easiest way to create a new parser is using the `createParser` helper. It handles the common recursive parsing logic while allowing customization:
+
+```typescript
+import { createParser } from '@kubb/plugin-oas'
+
+const valibotKeywordMapper = {
+  string: () => 'v.string()',
+  number: () => 'v.number()',
+  array: (items) => `v.array(${items.join('')})`,
+  object: (context, options, parse) => {
+    // Handle object properties recursively
+    return 'v.object({ ... })'
+  },
+  // ... other keywords
+}
+
+export const parse = createParser({
+  keywordMapper: valibotKeywordMapper,
+  customHandlers: {
+    union: (context, options, parse) => {
+      // Custom union handling
+      const items = context.current.args
+        .map(it => parse({ ...context, current: it }, options))
+        .filter(Boolean)
+      return `v.union([${items.join(', ')}])`
+    }
+  }
+})
+```
+
 ### SchemaMapper
 
 Every validation library parser implements a `SchemaMapper` that maps OpenAPI schema keywords to validation syntax:
@@ -30,9 +62,9 @@ const zodKeywordMapper = {
 } satisfies SchemaMapper<string>
 ```
 
-### Parser Function
+### Parser Function (Manual Approach)
 
-A parser function processes schema trees and generates validation code:
+For full control, you can manually create a parser function that processes schema trees:
 
 ```typescript
 import type { SchemaTree } from '@kubb/plugin-oas'
@@ -46,6 +78,8 @@ export function parse(
   // Return generated validation syntax
 }
 ```
+
+**Note**: Using `createParser` is recommended as it handles common patterns automatically.
 
 ## Base Types
 
@@ -108,9 +142,72 @@ const finalOutput = wrapWithModifiers(output, modifiers)
 
 Follow these steps to add support for a new validation library:
 
-### 1. Create the Parser File
+### 1. Create the Parser File (Using createParser)
 
-Create `packages/plugin-{library}/src/parser.ts`:
+Create `packages/plugin-{library}/src/parser.ts` using the `createParser` helper:
+
+```typescript
+import type { SchemaMapper } from '@kubb/plugin-oas'
+import { createParser, shouldCoerce, type BaseParserOptions } from '@kubb/plugin-oas'
+
+// Define keyword mapper
+const libraryKeywordMapper = {
+  any: () => 'v.any()',
+  string: () => 'v.string()',
+  number: () => 'v.number()',
+  array: (items) => `v.array(${items.join('')})`,
+  union: (items) => `v.union([${items.join(', ')}])`,
+  object: (context, options, parse) => {
+    // Handle object properties using parse recursively
+    const properties = Object.entries(context.current.args.properties || {})
+      .map(([key, schemas]) => {
+        const value = schemas
+          .map(s => parse({ ...context, current: s }, options))
+          .filter(Boolean)
+          .join('')
+        return `${key}: ${value}`
+      })
+      .join(', ')
+    return `v.object({ ${properties} })`
+  },
+  // ... implement all required SchemaMapper keywords
+} satisfies SchemaMapper<string>
+
+// Define parser options
+type ParserOptions = BaseParserOptions & {
+  coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
+  version?: string
+}
+
+// Create parse function using createParser
+export const parse = createParser<string, ParserOptions>({
+  keywordMapper: libraryKeywordMapper,
+  
+  // Optional: Add custom handlers for specific keywords
+  customHandlers: {
+    // Override default handling for specific cases
+    string: (context, options) => {
+      const coerce = shouldCoerce(options.coercion, 'strings')
+      return coerce ? 'v.coerce.string()' : 'v.string()'
+    }
+  },
+  
+  // Optional: Add pre/post processing
+  beforeParse: (context, options) => {
+    // Normalize or validate input
+    return context
+  },
+  
+  afterParse: (output, context, options) => {
+    // Transform output if needed
+    return output
+  }
+})
+```
+
+### 1b. Alternative: Manual Parser Implementation
+
+For full control, you can manually implement the parse function:
 
 ```typescript
 import type { SchemaMapper, SchemaTree } from '@kubb/plugin-oas'
@@ -133,7 +230,7 @@ type ParserOptions = {
   version?: string
 }
 
-// Implement parse function
+// Implement parse function manually
 export function parse(
   { schema, parent, current, siblings, name }: SchemaTree,
   options: ParserOptions

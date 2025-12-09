@@ -398,7 +398,44 @@ Kubb uses an extensible parser architecture for mapping OpenAPI schemas to valid
 - `filterMiniModifiers(schemas)`: Remove modifiers from schema array
 - `miniModifierKeywords`: Array of modifier keywords
 
-**Example parser structure**:
+**Example parser structure (using createParser)**:
+
+```typescript
+import type { SchemaMapper } from '@kubb/plugin-oas'
+import { createParser, shouldCoerce, type BaseParserOptions } from '@kubb/plugin-oas'
+
+// 1. Define keyword mapper
+const libraryKeywordMapper = {
+  string: () => 'v.string()',
+  number: () => 'v.number()',
+  array: (items) => `v.array(${items.join('')})`,
+  union: (items) => `v.union([${items.join(', ')}])`,
+  object: (context, options, parse) => {
+    // Handle object recursively
+    return 'v.object({ ... })'
+  },
+  // ... other keywords
+} satisfies SchemaMapper<string>
+
+// 2. Define parser options
+type ParserOptions = BaseParserOptions & {
+  coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
+}
+
+// 3. Create parse function using createParser
+export const parse = createParser<string, ParserOptions>({
+  keywordMapper: libraryKeywordMapper,
+  customHandlers: {
+    // Optional: Override specific keywords
+    string: (context, options) => {
+      const coerce = shouldCoerce(options.coercion, 'strings')
+      return coerce ? 'v.coerce.string()' : 'v.string()'
+    }
+  }
+})
+```
+
+**Manual parser structure** (for full control):
 
 ```typescript
 import type { SchemaMapper, SchemaTree } from '@kubb/plugin-oas'
@@ -417,7 +454,7 @@ type ParserOptions = {
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
 }
 
-// 3. Implement parse function
+// 3. Implement parse function manually
 export function parse(
   { schema, parent, current, siblings, name }: SchemaTree,
   options: ParserOptions
@@ -440,6 +477,8 @@ export function parse(
   return value()
 }
 ```
+
+**Note**: Using `createParser` is recommended as it handles common recursive patterns automatically.
 
 **Mini mode support**:
 
