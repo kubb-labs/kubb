@@ -742,7 +742,7 @@ export const parse = createParser<string, ParserOptions>({
       if (options.mini) {
         return undefined
       }
-      if (current.args) {
+      if (current.args !== undefined) {
         return zodKeywordMapper.default(current.args)
       }
       // When args is undefined, call the mapper without arguments
