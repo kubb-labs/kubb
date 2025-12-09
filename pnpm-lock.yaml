@@ -1435,6 +1435,9 @@ importers:
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.5.4
+      natural-orderby:
+        specifier: ^5.0.0
+        version: 5.0.0
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
