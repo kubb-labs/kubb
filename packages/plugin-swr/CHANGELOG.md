@@ -1,5 +1,111 @@
 # @kubb/plugin-swr
 
+## 4.10.0
+
+### Patch Changes
+
+- Updated dependencies [[`b240890`](https://github.com/kubb-labs/kubb/commit/b240890fde6369293a076f031a826ed7455c73e8)]:
+  - @kubb/plugin-ts@4.10.0
+  - @kubb/plugin-client@4.10.0
+  - @kubb/plugin-zod@4.10.0
+  - @kubb/core@4.10.0
+  - @kubb/oas@4.10.0
+  - @kubb/plugin-oas@4.10.0
+
+## 4.9.4
+
+### Patch Changes
+
+- Updated dependencies [[`e71c931`](https://github.com/kubb-labs/kubb/commit/e71c93110ec19e830a068e8343aaf7cfcce5ef0c)]:
+  - @kubb/plugin-oas@4.9.4
+  - @kubb/plugin-client@4.9.4
+  - @kubb/plugin-ts@4.9.4
+  - @kubb/plugin-zod@4.9.4
+  - @kubb/core@4.9.4
+  - @kubb/oas@4.9.4
+
+## 4.9.3
+
+### Patch Changes
+
+- [#2134](https://github.com/kubb-labs/kubb/pull/2134) [`a090240`](https://github.com/kubb-labs/kubb/commit/a090240c565939609c331d7f74107e53e264b6f3) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix `mutation: false` option being ignored in query plugins
+
+  When `mutation: false` was set in plugin configuration, mutation hooks were still being generated. This has been fixed by:
+  - Adding explicit `mutation === false` check in plugin initialization before setting defaults
+  - Adding `options.mutation !== false` guard to `isMutation` condition in mutation generators
+  - Fixing vitest configs to support `#mocks` import alias via `tsconfigPaths` plugin
+
+  Example:
+
+  ```typescript
+  pluginReactQuery({
+    mutation: false, // Now properly prevents mutation hook generation
+    query: true, // Only generates queryOptions
+  });
+  ```
+
+- Updated dependencies []:
+  - @kubb/core@4.9.3
+  - @kubb/oas@4.9.3
+  - @kubb/plugin-client@4.9.3
+  - @kubb/plugin-oas@4.9.3
+  - @kubb/plugin-ts@4.9.3
+  - @kubb/plugin-zod@4.9.3
+
+## 4.9.2
+
+### Patch Changes
+
+- [#2084](https://github.com/kubb-labs/kubb/pull/2084) [`377e487`](https://github.com/kubb-labs/kubb/commit/377e48771a7a6ba9e07758a22df79233b14212c6) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add new `paramsToTrigger` option for SWR mutations.
+
+  When `mutation.paramsToTrigger` is set to `true`, mutation parameters (path params, query params, headers, request body) are passed via `trigger()` instead of as hook arguments:
+
+  ```typescript
+  // With paramsToTrigger: true
+  const { trigger } = useDeletePet();
+  trigger({ petId, data, params, headers });
+  ```
+
+  This aligns with React Query's mutation pattern. The default behavior remains unchanged for backward compatibility.
+
+  **Note:** `paramsToTrigger: true` will become the default in v5. Set it now to opt-in early.
+
+- Updated dependencies []:
+  - @kubb/core@4.9.2
+  - @kubb/oas@4.9.2
+  - @kubb/plugin-client@4.9.2
+  - @kubb/plugin-oas@4.9.2
+  - @kubb/plugin-ts@4.9.2
+  - @kubb/plugin-zod@4.9.2
+
+## 4.9.1
+
+### Patch Changes
+
+- [#2125](https://github.com/kubb-labs/kubb/pull/2125) [`d883c78`](https://github.com/kubb-labs/kubb/commit/d883c78d3937bcc697ba4b2663943314b51bc735) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix `clientType: 'class'` compatibility with query plugins. Query plugins now automatically detect when `clientType: 'class'` is set and generate their own inline function-based clients, allowing class-based clients and query hooks to coexist in the same configuration.
+
+  Previously, when `@kubb/plugin-client` was configured with `clientType: 'class'`, query plugins would fail because they expected function-based clients but attempted to import non-existent class methods.
+
+- Updated dependencies []:
+  - @kubb/core@4.9.1
+  - @kubb/oas@4.9.1
+  - @kubb/plugin-client@4.9.1
+  - @kubb/plugin-oas@4.9.1
+  - @kubb/plugin-ts@4.9.1
+  - @kubb/plugin-zod@4.9.1
+
+## 4.9.0
+
+### Patch Changes
+
+- Updated dependencies [[`a1dc709`](https://github.com/kubb-labs/kubb/commit/a1dc709f21c29ad02260c7ac20058010afd1cb09)]:
+  - @kubb/plugin-client@4.9.0
+  - @kubb/core@4.9.0
+  - @kubb/oas@4.9.0
+  - @kubb/plugin-oas@4.9.0
+  - @kubb/plugin-ts@4.9.0
+  - @kubb/plugin-zod@4.9.0
+
 ## 4.8.1
 
 ### Patch Changes

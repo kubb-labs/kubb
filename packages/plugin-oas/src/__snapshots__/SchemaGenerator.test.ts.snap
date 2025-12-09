@@ -16,6 +16,13 @@ exports[`SchemaGenerator core > 'FullAddress' 1`] = `
       {
         "args": {
           "format": undefined,
+          "type": "object",
+        },
+        "keyword": "schema",
+      },
+      {
+        "args": {
+          "format": undefined,
           "type": undefined,
         },
         "keyword": "schema",
@@ -346,6 +353,108 @@ exports[`SchemaGenerator core > 'Pets' 1`] = `
   },
   {
     "keyword": "readOnly",
+  },
+]
+`;
+
+exports[`SchemaGenerator core > 'PhoneWithMaxLength' 1`] = `
+[
+  {
+    "args": [
+      {
+        "args": {
+          "$ref": "#/components/schemas/PhoneNumber",
+          "isImportable": true,
+          "name": "phoneNumber",
+          "path": "phoneNumber.ts",
+        },
+        "keyword": "ref",
+      },
+      {
+        "args": "^(\\+\\d{1,3}[-\\s]?)?\\(?(?:\\d{1,4})\\)?[-\\s]?\\d{1,4}[-\\s]?\\d{1,9}$",
+        "keyword": "matches",
+      },
+      {
+        "args": {
+          "format": undefined,
+          "type": "string",
+        },
+        "keyword": "schema",
+      },
+      {
+        "keyword": "string",
+      },
+      {
+        "args": 15,
+        "keyword": "max",
+      },
+      {
+        "args": {
+          "format": undefined,
+          "type": undefined,
+        },
+        "keyword": "schema",
+      },
+    ],
+    "keyword": "and",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": undefined,
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
+exports[`SchemaGenerator core > 'PhoneWithMaxLengthExplicit' 1`] = `
+[
+  {
+    "args": [
+      {
+        "args": {
+          "$ref": "#/components/schemas/PhoneNumber",
+          "isImportable": true,
+          "name": "phoneNumber",
+          "path": "phoneNumber.ts",
+        },
+        "keyword": "ref",
+      },
+      {
+        "args": "^(\\+\\d{1,3}[-\\s]?)?\\(?(?:\\d{1,4})\\)?[-\\s]?\\d{1,4}[-\\s]?\\d{1,9}$",
+        "keyword": "matches",
+      },
+      {
+        "args": {
+          "format": undefined,
+          "type": "string",
+        },
+        "keyword": "schema",
+      },
+      {
+        "keyword": "string",
+      },
+      {
+        "args": 15,
+        "keyword": "max",
+      },
+      {
+        "args": {
+          "format": undefined,
+          "type": "string",
+        },
+        "keyword": "schema",
+      },
+    ],
+    "keyword": "and",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": undefined,
+    },
+    "keyword": "schema",
   },
 ]
 `;

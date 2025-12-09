@@ -4,8 +4,10 @@
  */
 
 import { z } from '../../zod.ts'
-import { userSchema } from './userSchema.gen.ts'
 
-export const userArraySchema = z.array(z.lazy(() => userSchema))
+/**
+ * @description List of user object
+ */
+export const userArraySchema = z.any().describe('List of user object')
 
 export type UserArraySchema = z.infer<typeof userArraySchema>

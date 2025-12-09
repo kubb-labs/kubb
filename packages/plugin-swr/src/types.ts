@@ -52,6 +52,13 @@ type Mutation = {
    * @default 'swr/mutation'
    */
   importPath?: string
+  /**
+   * When true, mutation parameters (path params, query params, headers, body) will be passed via `trigger()` instead of as hook arguments.
+   * This aligns with React Query's mutation pattern where variables are passed when triggering the mutation.
+   * @default false
+   * @deprecated This will become the default behavior in v5. Set to `true` to opt-in early.
+   */
+  paramsToTrigger?: boolean
 }
 
 export type Options = {
@@ -81,7 +88,7 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
-  client?: Pick<PluginClient['options'], 'client' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle'>
+  client?: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle'>
   queryKey?: QueryKey
   query?: Query | false
   mutationKey?: MutationKey
@@ -129,7 +136,7 @@ type ResolvedOptions = {
   queryKey: QueryKey | undefined
   query: NonNullable<Required<Query>> | false
   mutationKey: MutationKey | undefined
-  mutation: NonNullable<Required<Mutation>> | false
+  mutation: (Required<Pick<Mutation, 'methods' | 'importPath'>> & Pick<Mutation, 'paramsToTrigger'>) | false
   paramsCasing: Options['paramsCasing']
   paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>

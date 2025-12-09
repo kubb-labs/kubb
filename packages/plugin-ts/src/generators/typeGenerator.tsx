@@ -197,10 +197,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const imports = getImports(schema.tree)
     const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
 
-    if (enumType === 'asPascalConst') {
-      console.warn(`enumType '${enumType}' is deprecated`)
-    }
-
     let typedName = getName(schema.name, { type: 'type' })
 
     if (enumType === 'asConst' && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {

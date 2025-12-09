@@ -32,6 +32,8 @@ export async function updatePet(data: UpdatePetMutationRequest, config: Partial<
   return res.data
 }
 
+export type UpdatePetMutationArg = { data: UpdatePetMutationRequest }
+
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
@@ -43,7 +45,7 @@ export function useUpdatePet(
       UpdatePetMutationResponse,
       ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
       UpdatePetMutationKey | null,
-      UpdatePetMutationRequest
+      UpdatePetMutationArg
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
@@ -56,10 +58,10 @@ export function useUpdatePet(
     UpdatePetMutationResponse,
     ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
     UpdatePetMutationKey | null,
-    UpdatePetMutationRequest
+    UpdatePetMutationArg
   >(
     shouldFetch ? mutationKey : null,
-    async (_url, { arg: data }) => {
+    async (_url, { arg: { data } }) => {
       return updatePet(data, config)
     },
     mutationOptions,

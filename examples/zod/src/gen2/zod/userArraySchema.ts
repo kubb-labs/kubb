@@ -4,6 +4,8 @@
  */
 
 import { z } from 'zod/mini'
-import { userSchema } from './userSchema.ts'
 
-export const userArraySchema = z.array(z.lazy(() => userSchema))
+/**
+ * @description List of user object
+ */
+export const userArraySchema = z.any()

@@ -144,7 +144,6 @@ type ParserOptions = {
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
   /**
    * @default `'asConst'`
-   * asPascalConst is deprecated
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   mapper?: Record<string, ts.PropertySignature>

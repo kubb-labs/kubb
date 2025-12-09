@@ -34,7 +34,6 @@ export type Options = {
   /**
    * Choose to use `enum` or `as const` for enums
    * @default 'asConst'
-   * asPascalConst is deprecated
    */
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   /**

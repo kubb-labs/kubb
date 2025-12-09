@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 
-import type { UserType } from './UserType.ts'
-
-export type UserArrayType = UserType[]
+/**
+ * @description List of user object
+ */
+export type UserArrayType = any

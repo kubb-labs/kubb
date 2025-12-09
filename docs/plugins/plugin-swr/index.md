@@ -117,6 +117,20 @@ Return the name of a group based on the group name, this will be used for the fi
 #### client.baseURL
 <!--@include: ../plugin-client/baseURL.md-->
 
+#### client.clientType
+
+Specify whether to use function-based or class-based clients.
+
+|           |                         |
+|----------:|:------------------------|
+|     Type: | `'function' \| 'class'` |
+| Required: | `false`                 |
+|  Default: | `'function'`            |
+
+::: warning
+This plugin is only compatible with `clientType: 'function'` (the default). If `clientType: 'class'` is detected, the plugin will automatically generate its own inline function-based client instead of importing from `@kubb/plugin-client`.
+:::
+
 #### client.bundle
 <!--@include: ../plugin-client/bundle.md-->
 
@@ -176,6 +190,34 @@ When using a string you need to use `JSON.stringify`.
 |     Type: | `string`                  |
 | Required: | `false`                   |
 |  Default: | `'swr/mutation'` |
+
+
+#### mutation.paramsToTrigger
+
+When `true`, mutation parameters (path params, query params, headers, request body) are passed via `trigger()` instead of as hook arguments. This aligns with React Query's mutation pattern where variables are passed when triggering the mutation.
+
+> [!WARNING]
+> This will become the default behavior in v5. Set `mutation.paramsToTrigger: true` to opt-in early.
+
+|           |           |
+|----------:|:----------|
+|     Type: | `boolean` |
+| Required: | `false`   |
+|  Default: | `false`   |
+
+**Example with `paramsToTrigger: false` (default):**
+```typescript
+// Parameters required when calling the hook
+const { trigger } = useDeletePet(petId, params, headers)
+trigger()
+```
+
+**Example with `paramsToTrigger: true`:**
+```typescript
+// Parameters passed when triggering
+const { trigger } = useDeletePet()
+trigger({ petId, data, params, headers })
+```
 
 
 #### mutationKey

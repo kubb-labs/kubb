@@ -27,6 +27,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
 
     const isQuery = !!options.query && options.query?.methods.some((method) => operation.method === method)
     const isMutation =
+      options.mutation !== false &&
       !isQuery &&
       difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some((method) => operation.method === method)
 
@@ -50,8 +51,10 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
+    // Class-based clients are not compatible with query hooks, so we generate inline clients
+    const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
     const client = {
-      name: hasClientPlugin
+      name: shouldUseClientPlugin
         ? getName(operation, {
             type: 'function',
             pluginKey: [pluginClientName],
@@ -111,8 +114,8 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
             )}
           </>
         )}
-        {!!hasClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
-        {!hasClientPlugin && (
+        {shouldUseClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
+        {!shouldUseClientPlugin && (
           <File.Import name={['buildFormData']} root={mutation.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
         )}
         <File.Import
@@ -139,7 +142,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
           transformer={options.mutationKey}
         />
 
-        {!hasClientPlugin && (
+        {!shouldUseClientPlugin && (
           <Client
             name={client.name}
             baseURL={options.client.baseURL}

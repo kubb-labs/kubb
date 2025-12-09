@@ -34,8 +34,8 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
     client,
   } = options
 
-  const clientType = client?.client ?? 'axios'
-  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
+  const clientName = client?.client ?? 'axios'
+  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
 
   return {
     name: pluginVueQueryName,
@@ -43,7 +43,8 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
       output,
       client: {
         ...options.client,
-        client: clientType,
+        client: clientName,
+        clientType: client?.clientType ?? 'function',
         dataReturnType: client?.dataReturnType ?? 'data',
         pathParamsType,
         importPath: clientImportPath,
@@ -68,11 +69,14 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
               ...query,
             },
       mutationKey,
-      mutation: {
-        methods: ['post', 'put', 'patch', 'delete'],
-        importPath: '@tanstack/vue-query',
-        ...mutation,
-      },
+      mutation:
+        mutation === false
+          ? false
+          : {
+              methods: ['post', 'put', 'patch', 'delete'],
+              importPath: '@tanstack/vue-query',
+              ...mutation,
+            },
       paramsType,
       pathParamsType,
       parser,

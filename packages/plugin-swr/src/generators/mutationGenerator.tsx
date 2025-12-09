@@ -26,6 +26,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
 
     const isQuery = !!options.query && options.query?.methods.some((method) => operation.method === method)
     const isMutation =
+      options.mutation !== false &&
       !isQuery &&
       difference(options.mutation ? options.mutation.methods : [], options.query ? options.query.methods : []).some((method) => operation.method === method)
 
@@ -49,8 +50,10 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
     }
 
     const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
+    // Class-based clients are not compatible with query hooks, so we generate inline clients
+    const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
     const client = {
-      name: hasClientPlugin
+      name: shouldUseClientPlugin
         ? getName(operation, {
             type: 'function',
             pluginKey: [pluginClientName],
@@ -108,8 +111,8 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
         )}
         <File.Import name="useSWRMutation" path={importPath} />
         <File.Import name={['SWRMutationConfiguration', 'SWRMutationResponse']} path={importPath} isTypeOnly />
-        {!!hasClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
-        {!hasClientPlugin && (
+        {shouldUseClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
+        {!shouldUseClientPlugin && (
           <File.Import name={['buildFormData']} root={mutation.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
         )}
         <File.Import
@@ -136,7 +139,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
           transformer={options.mutationKey}
         />
 
-        {!hasClientPlugin && (
+        {!shouldUseClientPlugin && (
           <Client
             name={client.name}
             baseURL={options.client.baseURL}
@@ -163,6 +166,7 @@ export const mutationGenerator = createReactGenerator<PluginSwr>({
             pathParamsType={options.pathParamsType}
             mutationKeyName={mutationKey.name}
             mutationKeyTypeName={mutationKey.typeName}
+            paramsToTrigger={options.mutation.paramsToTrigger}
           />
         )}
       </File>

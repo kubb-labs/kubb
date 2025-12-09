@@ -24,8 +24,8 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
     client,
   } = options
 
-  const clientType = client?.client ?? 'axios'
-  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
+  const clientName = client?.client ?? 'axios'
+  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
 
   return {
     name: pluginMcpName,
@@ -33,7 +33,8 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
       output,
       group,
       client: {
-        client: clientType,
+        client: clientName,
+        clientType: client?.clientType ?? 'function',
         importPath: clientImportPath,
         dataReturnType: 'data',
         ...options.client,

@@ -70,7 +70,7 @@ export type Options = {
    * Group the @tanstack/query hooks based on the provided name.
    */
   group?: Group
-  client?: Pick<PluginClient['options'], 'client' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle'>
+  client?: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle'>
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */

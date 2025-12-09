@@ -1,5 +1,63 @@
 # @kubb/plugin-ts
 
+## 4.10.0
+
+### Minor Changes
+
+- [#2142](https://github.com/kubb-labs/kubb/pull/2142) [`b240890`](https://github.com/kubb-labs/kubb/commit/b240890fde6369293a076f031a826ed7455c73e8) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Restore `asPascalConst` enumType option - no longer deprecated. The `asPascalConst` option generates enum-like constants with PascalCase names (e.g., `const PetType = {...} as const`) while `asConst` generates camelCase names (e.g., `const petType = {...} as const`).
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.10.0
+  - @kubb/oas@4.10.0
+  - @kubb/plugin-oas@4.10.0
+
+## 4.9.4
+
+### Patch Changes
+
+- Updated dependencies [[`e71c931`](https://github.com/kubb-labs/kubb/commit/e71c93110ec19e830a068e8343aaf7cfcce5ef0c)]:
+  - @kubb/plugin-oas@4.9.4
+  - @kubb/core@4.9.4
+  - @kubb/oas@4.9.4
+
+## 4.9.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.3
+  - @kubb/oas@4.9.3
+  - @kubb/plugin-oas@4.9.3
+
+## 4.9.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.2
+  - @kubb/oas@4.9.2
+  - @kubb/plugin-oas@4.9.2
+
+## 4.9.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.1
+  - @kubb/oas@4.9.1
+  - @kubb/plugin-oas@4.9.1
+
+## 4.9.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.0
+  - @kubb/oas@4.9.0
+  - @kubb/plugin-oas@4.9.0
+
 ## 4.8.1
 
 ### Patch Changes

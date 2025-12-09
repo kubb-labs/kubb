@@ -1,5 +1,91 @@
 # @kubb/plugin-client
 
+## 4.10.0
+
+### Patch Changes
+
+- Updated dependencies [[`b240890`](https://github.com/kubb-labs/kubb/commit/b240890fde6369293a076f031a826ed7455c73e8)]:
+  - @kubb/plugin-ts@4.10.0
+  - @kubb/plugin-zod@4.10.0
+  - @kubb/core@4.10.0
+  - @kubb/oas@4.10.0
+  - @kubb/plugin-oas@4.10.0
+
+## 4.9.4
+
+### Patch Changes
+
+- Updated dependencies [[`e71c931`](https://github.com/kubb-labs/kubb/commit/e71c93110ec19e830a068e8343aaf7cfcce5ef0c)]:
+  - @kubb/plugin-oas@4.9.4
+  - @kubb/plugin-ts@4.9.4
+  - @kubb/plugin-zod@4.9.4
+  - @kubb/core@4.9.4
+  - @kubb/oas@4.9.4
+
+## 4.9.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.3
+  - @kubb/oas@4.9.3
+  - @kubb/plugin-oas@4.9.3
+  - @kubb/plugin-ts@4.9.3
+  - @kubb/plugin-zod@4.9.3
+
+## 4.9.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.2
+  - @kubb/oas@4.9.2
+  - @kubb/plugin-oas@4.9.2
+  - @kubb/plugin-ts@4.9.2
+  - @kubb/plugin-zod@4.9.2
+
+## 4.9.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.1
+  - @kubb/oas@4.9.1
+  - @kubb/plugin-oas@4.9.1
+  - @kubb/plugin-ts@4.9.1
+  - @kubb/plugin-zod@4.9.1
+
+## 4.9.0
+
+### Minor Changes
+
+- [#2111](https://github.com/kubb-labs/kubb/pull/2111) [`a1dc709`](https://github.com/kubb-labs/kubb/commit/a1dc709f21c29ad02260c7ac20058010afd1cb09) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add support for class-based client generation via the new `clientType` option. Users can now generate API clients as classes with methods instead of standalone functions by setting `clientType: 'class'` in the plugin configuration.
+
+  Example usage:
+
+  ```ts
+  pluginClient({
+    output: {
+      path: "./clients/class",
+    },
+    clientType: "class",
+    group: {
+      type: "tag",
+    },
+  });
+  ```
+
+  This will generate classes like `Pet`, `Store`, `User` with methods for each operation.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.0
+  - @kubb/oas@4.9.0
+  - @kubb/plugin-oas@4.9.0
+  - @kubb/plugin-ts@4.9.0
+  - @kubb/plugin-zod@4.9.0
+
 ## 4.8.1
 
 ### Patch Changes

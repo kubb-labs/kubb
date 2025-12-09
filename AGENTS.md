@@ -48,6 +48,8 @@ pnpm run upgrade && pnpm i   # Upgrade dependencies
 - Prefer strict typing; avoid `any`
 - Files: `.ts` for libraries, `.tsx` for React components, `.vue` for Vue components
 - DTS output managed by `tsdown`
+- **Import best practices**: Always use proper import statements at the module level instead of inline type imports (e.g., use `import type { Operation } from '@kubb/oas'` at the top rather than `import('@kubb/oas').Operation` inline). This improves code readability and follows TypeScript best practices.
+- **Type definitions**: Define types at the root level of the file, not inside functions. This improves reusability, makes types easier to find, and follows TypeScript best practices for better type inference and documentation.
 
 **Naming conventions:**
 - File/directory names: `camelCase`

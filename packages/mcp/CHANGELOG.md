@@ -1,5 +1,113 @@
 # @kubb/mcp
 
+## 4.10.0
+
+### Patch Changes
+
+- Updated dependencies [[`b240890`](https://github.com/kubb-labs/kubb/commit/b240890fde6369293a076f031a826ed7455c73e8)]:
+  - @kubb/plugin-ts@4.10.0
+  - @kubb/plugin-client@4.10.0
+  - @kubb/plugin-cypress@4.10.0
+  - @kubb/plugin-faker@4.10.0
+  - @kubb/plugin-mcp@4.10.0
+  - @kubb/plugin-msw@4.10.0
+  - @kubb/plugin-react-query@4.10.0
+  - @kubb/plugin-swr@4.10.0
+  - @kubb/plugin-zod@4.10.0
+  - @kubb/core@4.10.0
+  - @kubb/plugin-oas@4.10.0
+  - @kubb/plugin-redoc@4.10.0
+
+## 4.9.4
+
+### Patch Changes
+
+- Updated dependencies [[`e71c931`](https://github.com/kubb-labs/kubb/commit/e71c93110ec19e830a068e8343aaf7cfcce5ef0c)]:
+  - @kubb/plugin-oas@4.9.4
+  - @kubb/plugin-client@4.9.4
+  - @kubb/plugin-cypress@4.9.4
+  - @kubb/plugin-faker@4.9.4
+  - @kubb/plugin-mcp@4.9.4
+  - @kubb/plugin-msw@4.9.4
+  - @kubb/plugin-react-query@4.9.4
+  - @kubb/plugin-redoc@4.9.4
+  - @kubb/plugin-swr@4.9.4
+  - @kubb/plugin-ts@4.9.4
+  - @kubb/plugin-zod@4.9.4
+  - @kubb/core@4.9.4
+
+## 4.9.3
+
+### Patch Changes
+
+- Updated dependencies [[`a090240`](https://github.com/kubb-labs/kubb/commit/a090240c565939609c331d7f74107e53e264b6f3)]:
+  - @kubb/plugin-react-query@4.9.3
+  - @kubb/plugin-swr@4.9.3
+  - @kubb/core@4.9.3
+  - @kubb/plugin-client@4.9.3
+  - @kubb/plugin-cypress@4.9.3
+  - @kubb/plugin-faker@4.9.3
+  - @kubb/plugin-mcp@4.9.3
+  - @kubb/plugin-msw@4.9.3
+  - @kubb/plugin-oas@4.9.3
+  - @kubb/plugin-redoc@4.9.3
+  - @kubb/plugin-ts@4.9.3
+  - @kubb/plugin-zod@4.9.3
+
+## 4.9.2
+
+### Patch Changes
+
+- Updated dependencies [[`377e487`](https://github.com/kubb-labs/kubb/commit/377e48771a7a6ba9e07758a22df79233b14212c6)]:
+  - @kubb/plugin-swr@4.9.2
+  - @kubb/core@4.9.2
+  - @kubb/plugin-client@4.9.2
+  - @kubb/plugin-cypress@4.9.2
+  - @kubb/plugin-faker@4.9.2
+  - @kubb/plugin-mcp@4.9.2
+  - @kubb/plugin-msw@4.9.2
+  - @kubb/plugin-oas@4.9.2
+  - @kubb/plugin-react-query@4.9.2
+  - @kubb/plugin-redoc@4.9.2
+  - @kubb/plugin-ts@4.9.2
+  - @kubb/plugin-zod@4.9.2
+
+## 4.9.1
+
+### Patch Changes
+
+- Updated dependencies [[`d883c78`](https://github.com/kubb-labs/kubb/commit/d883c78d3937bcc697ba4b2663943314b51bc735)]:
+  - @kubb/plugin-react-query@4.9.1
+  - @kubb/plugin-swr@4.9.1
+  - @kubb/plugin-mcp@4.9.1
+  - @kubb/core@4.9.1
+  - @kubb/plugin-client@4.9.1
+  - @kubb/plugin-cypress@4.9.1
+  - @kubb/plugin-faker@4.9.1
+  - @kubb/plugin-msw@4.9.1
+  - @kubb/plugin-oas@4.9.1
+  - @kubb/plugin-redoc@4.9.1
+  - @kubb/plugin-ts@4.9.1
+  - @kubb/plugin-zod@4.9.1
+
+## 4.9.0
+
+### Patch Changes
+
+- Updated dependencies [[`a1dc709`](https://github.com/kubb-labs/kubb/commit/a1dc709f21c29ad02260c7ac20058010afd1cb09)]:
+  - @kubb/plugin-client@4.9.0
+  - @kubb/plugin-mcp@4.9.0
+  - @kubb/plugin-react-query@4.9.0
+  - @kubb/plugin-swr@4.9.0
+  - @kubb/core@4.9.0
+  - @kubb/plugin-cypress@4.9.0
+  - @kubb/plugin-faker@4.9.0
+  - @kubb/plugin-msw@4.9.0
+  - @kubb/plugin-oas@4.9.0
+  - @kubb/plugin-redoc@4.9.0
+  - @kubb/plugin-ts@4.9.0
+  - @kubb/plugin-zod@4.9.0
+
 ## 4.8.1
 
 ### Patch Changes

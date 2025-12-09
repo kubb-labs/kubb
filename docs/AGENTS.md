@@ -93,7 +93,11 @@ Brief description of what this option does.
 - Type should be formatted as code (backticks)
 - Include `Required` field (true/false)
 - Include `Default` if there's a default value
-- Add tips using `> [!TIP]` or `> [!WARNING]` blocks
+- Add tips using `> [!TIP]`, `> [!WARNING]`, `> [!NOTE]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]` blocks and don't use the Vitepress syntax (`::: tip``).
+```md
+> [!TIP]
+> Use the outline navigation (right sidebar) to quickly jump to specific versions.
+```
 
 ### Code examples
 

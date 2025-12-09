@@ -1,5 +1,71 @@
 # @kubb/plugin-msw
 
+## 4.10.0
+
+### Patch Changes
+
+- Updated dependencies [[`b240890`](https://github.com/kubb-labs/kubb/commit/b240890fde6369293a076f031a826ed7455c73e8)]:
+  - @kubb/plugin-ts@4.10.0
+  - @kubb/plugin-faker@4.10.0
+  - @kubb/core@4.10.0
+  - @kubb/oas@4.10.0
+  - @kubb/plugin-oas@4.10.0
+
+## 4.9.4
+
+### Patch Changes
+
+- Updated dependencies [[`e71c931`](https://github.com/kubb-labs/kubb/commit/e71c93110ec19e830a068e8343aaf7cfcce5ef0c)]:
+  - @kubb/plugin-oas@4.9.4
+  - @kubb/plugin-faker@4.9.4
+  - @kubb/plugin-ts@4.9.4
+  - @kubb/core@4.9.4
+  - @kubb/oas@4.9.4
+
+## 4.9.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.3
+  - @kubb/oas@4.9.3
+  - @kubb/plugin-faker@4.9.3
+  - @kubb/plugin-oas@4.9.3
+  - @kubb/plugin-ts@4.9.3
+
+## 4.9.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.2
+  - @kubb/oas@4.9.2
+  - @kubb/plugin-faker@4.9.2
+  - @kubb/plugin-oas@4.9.2
+  - @kubb/plugin-ts@4.9.2
+
+## 4.9.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.1
+  - @kubb/oas@4.9.1
+  - @kubb/plugin-faker@4.9.1
+  - @kubb/plugin-oas@4.9.1
+  - @kubb/plugin-ts@4.9.1
+
+## 4.9.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.9.0
+  - @kubb/oas@4.9.0
+  - @kubb/plugin-faker@4.9.0
+  - @kubb/plugin-oas@4.9.0
+  - @kubb/plugin-ts@4.9.0
+
 ## 4.8.1
 
 ### Patch Changes

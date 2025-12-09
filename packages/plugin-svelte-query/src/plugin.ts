@@ -33,8 +33,8 @@ export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
     client,
   } = options
 
-  const clientType = client?.client ?? 'axios'
-  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientType}` : undefined)
+  const clientName = client?.client ?? 'axios'
+  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
 
   return {
     name: pluginSvelteQueryName,
@@ -42,7 +42,8 @@ export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
       output,
       client: {
         ...options.client,
-        client: clientType,
+        client: clientName,
+        clientType: client?.clientType ?? 'function',
         dataReturnType: client?.dataReturnType ?? 'data',
         pathParamsType,
         importPath: clientImportPath,
@@ -57,11 +58,14 @@ export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
               ...query,
             },
       mutationKey,
-      mutation: {
-        methods: ['post', 'put', 'patch', 'delete'],
-        importPath: '@tanstack/svelte-query',
-        ...mutation,
-      },
+      mutation:
+        mutation === false
+          ? false
+          : {
+              methods: ['post', 'put', 'patch', 'delete'],
+              importPath: '@tanstack/svelte-query',
+              ...mutation,
+            },
       paramsType,
       pathParamsType,
       parser,

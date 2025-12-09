@@ -131,6 +131,12 @@ export type { PetNotFoundSchema } from './petNotFoundSchema.gen.ts'
 export { petNotFoundSchema } from './petNotFoundSchema.gen.ts'
 export type { PetSchema } from './petSchema.gen.ts'
 export { petSchema } from './petSchema.gen.ts'
+export type { PhoneNumberSchema } from './phoneNumberSchema.gen.ts'
+export { phoneNumberSchema } from './phoneNumberSchema.gen.ts'
+export type { PhoneWithMaxLengthExplicitSchema } from './phoneWithMaxLengthExplicitSchema.gen.ts'
+export { phoneWithMaxLengthExplicitSchema } from './phoneWithMaxLengthExplicitSchema.gen.ts'
+export type { PhoneWithMaxLengthSchema } from './phoneWithMaxLengthSchema.gen.ts'
+export { phoneWithMaxLengthSchema } from './phoneWithMaxLengthSchema.gen.ts'
 export type {
   PlaceOrderPatch200Schema,
   PlaceOrderPatch405Schema,

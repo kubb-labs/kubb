@@ -38,15 +38,15 @@ export async function uploadFile(
   return res.data
 }
 
+export type UploadFileMutationArg = { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
+
 /**
  * @summary uploads an image
  * {@link /pet/:petId/uploadImage}
  */
 export function useUploadFile(
-  petId: UploadFilePathParams['petId'],
-  params?: UploadFileQueryParams,
   options: {
-    mutation?: SWRMutationConfiguration<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationKey | null, UploadFileMutationRequest> & {
+    mutation?: SWRMutationConfiguration<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationKey | null, UploadFileMutationArg> & {
       throwOnError?: boolean
     }
     client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch }
@@ -56,9 +56,9 @@ export function useUploadFile(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = uploadFileMutationKey()
 
-  return useSWRMutation<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationKey | null, UploadFileMutationRequest>(
+  return useSWRMutation<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationKey | null, UploadFileMutationArg>(
     shouldFetch ? mutationKey : null,
-    async (_url, { arg: data }) => {
+    async (_url, { arg: { petId, data, params } }) => {
       return uploadFile(petId, data, params, config)
     },
     mutationOptions,

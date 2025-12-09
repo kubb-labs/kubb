@@ -1,3 +1,4 @@
+export { buildJSDoc } from './buildJSDoc.ts'
 export { Cache } from './Cache.ts'
 export type { FunctionParamsAST } from './FunctionParams.ts'
 export { FunctionParams } from './FunctionParams.ts'
