@@ -398,6 +398,12 @@ export function createEnumDeclaration({
   enums,
 }: {
   /**
+   * Choose to use `enum`, `asConst`, `asPascalConst`, `constEnum`, or `literal` for enums.
+   * - `enum`: TypeScript enum
+   * - `asConst`: const with camelCase name (e.g., `petType`)
+   * - `asPascalConst`: const with PascalCase name (e.g., `PetType`)
+   * - `constEnum`: const enum
+   * - `literal`: literal union type
    * @default `'enum'`
    */
   type?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
