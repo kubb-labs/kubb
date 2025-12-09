@@ -15,7 +15,14 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
-## 4.9.5
+
+## 4.10.1
+
+### 📦 Dependencies
+
+Upgrade tsdown.
+
+## 4.10.0
 
 ### 🐛 Bug Fixes
 
@@ -29,7 +36,7 @@ All notable changes to Kubb are documented here. Each version is organized with 
     Dog: 'dog',
     Cat: 'cat',
   } as const
-  
+
   type PetTypeKey = (typeof petType)[keyof typeof petType]
   ```
 
@@ -38,7 +45,7 @@ All notable changes to Kubb are documented here. Each version is organized with 
     Dog: 'dog',
     Cat: 'cat',
   } as const
-  
+
   type PetType = (typeof PetType)[keyof typeof PetType]
   ```
   :::
@@ -97,7 +104,7 @@ All notable changes to Kubb are documented here. Each version is organized with 
   ```typescript [Before - Not Working]
   import { defineConfig } from '@kubb/core'
   import { pluginReactQuery } from '@kubb/plugin-react-query'
-  
+
   export default defineConfig({
     plugins: [
       pluginReactQuery({
@@ -110,7 +117,7 @@ All notable changes to Kubb are documented here. Each version is organized with 
   ```typescript [After - Working]
   import { defineConfig } from '@kubb/core'
   import { pluginReactQuery } from '@kubb/plugin-react-query'
-  
+
   export default defineConfig({
     plugins: [
       pluginReactQuery({

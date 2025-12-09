@@ -20,12 +20,12 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
     },
     "./server": {
-      "import": "./dist/server.js",
-      "require": "./dist/server.cjs"
+      "require": "./dist/server.cjs",
+      "import": "./dist/server.js"
     },
     "./package.json": "./package.json"
   },

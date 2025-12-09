@@ -23,12 +23,12 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
     },
     "./infer": {
-      "import": "./dist/infer.js",
-      "require": "./dist/infer.cjs"
+      "require": "./dist/infer.cjs",
+      "import": "./dist/infer.js"
     },
     "./package.json": "./package.json"
   },

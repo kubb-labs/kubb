@@ -27,40 +27,40 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
+			"require": "./dist/index.cjs",
+			"import": "./dist/index.js"
 		},
 		"./astro": {
-			"import": "./dist/astro.js",
-			"require": "./dist/astro.cjs"
+			"require": "./dist/astro.cjs",
+			"import": "./dist/astro.js"
 		},
 		"./esbuild": {
-			"import": "./dist/esbuild.js",
-			"require": "./dist/esbuild.cjs"
+			"require": "./dist/esbuild.cjs",
+			"import": "./dist/esbuild.js"
 		},
 		"./nuxt": {
-			"import": "./dist/nuxt.js",
-			"require": "./dist/nuxt.cjs"
+			"require": "./dist/nuxt.cjs",
+			"import": "./dist/nuxt.js"
 		},
 		"./rollup": {
-			"import": "./dist/rollup.js",
-			"require": "./dist/rollup.cjs"
+			"require": "./dist/rollup.cjs",
+			"import": "./dist/rollup.js"
 		},
 		"./rspack": {
-			"import": "./dist/rspack.js",
-			"require": "./dist/rspack.cjs"
+			"require": "./dist/rspack.cjs",
+			"import": "./dist/rspack.js"
 		},
 		"./types": {
-			"import": "./dist/types.js",
-			"require": "./dist/types.cjs"
+			"require": "./dist/types.cjs",
+			"import": "./dist/types.js"
 		},
 		"./vite": {
-			"import": "./dist/vite.js",
-			"require": "./dist/vite.cjs"
+			"require": "./dist/vite.cjs",
+			"import": "./dist/vite.js"
 		},
 		"./webpack": {
-			"import": "./dist/webpack.js",
-			"require": "./dist/webpack.cjs"
+			"require": "./dist/webpack.cjs",
+			"import": "./dist/webpack.js"
 		},
 		"./package.json": "./package.json"
 	},
@@ -97,8 +97,8 @@
 	},
 	"devDependencies": {
 		"@kubb/core": "workspace:*",
-		"@nuxt/kit": "^4.2.1",
-		"@nuxt/schema": "^4.2.1",
+		"@nuxt/kit": "^4.2.2",
+		"@nuxt/schema": "^4.2.2",
 		"rimraf": "^6.1.2",
 		"rollup": "^4.53.3",
 		"vite": "^7.2.7",
