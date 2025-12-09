@@ -264,12 +264,12 @@ const zodKeywordMapper = {
           }
         }
       }
-      
+
       if (checks.length > 0) {
         // Append checks to the base schema
         return `.check(${checks.join(', ')})`
       }
-      
+
       // If we can't extract checks, just use the first schema (limitation)
       return ''
     }
