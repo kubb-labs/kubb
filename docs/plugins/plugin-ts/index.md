@@ -114,6 +114,11 @@ Choose to use `enum` or `as const` for enums.
 | Required: | `false`                                                              |
 |  Default: | `'asConst'`                                                               |
 
+> [!TIP]
+> The difference between `asConst` and `asPascalConst` is the casing of the constant variable name:
+> - `asConst`: generates a camelCase constant name (e.g., `petType`)
+> - `asPascalConst`: generates a PascalCase constant name (e.g., `PetType`)
+
 ::: code-group
 
 ```typescript ['enum']
