@@ -716,12 +716,12 @@ export class SchemaGenerator<
       const and: Schema = {
         keyword: schemaKeywords.and,
         args: schemaObject.allOf
-          .map((item) => {
+          .flatMap((item) => {
             // Skip items that would create circular references
             if (this.#wouldCreateCircularReference(item, name)) {
-              return undefined
+              return []
             }
-            return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
+            return item ? this.parse({ schemaObject: item as SchemaObject, name, parentName }) : []
           })
           .filter(Boolean)
           .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
@@ -1127,7 +1127,21 @@ export class SchemaGenerator<
       return [{ keyword: type }, ...baseItems]
     }
 
-    return [{ keyword: emptyType }]
+    // Infer type from constraints when no explicit type is provided
+    let inferredType: OpenAPIV3.NonArraySchemaObjectType | undefined
+    if (schemaObject.minLength !== undefined || schemaObject.maxLength !== undefined || schemaObject.pattern !== undefined) {
+      inferredType = 'string'
+    } else if (schemaObject.minimum !== undefined || schemaObject.maximum !== undefined) {
+      inferredType = 'number'
+    } else if (schemaObject.minItems !== undefined || schemaObject.maxItems !== undefined) {
+      inferredType = 'array'
+    }
+
+    if (inferredType) {
+      return [{ keyword: inferredType }, ...baseItems]
+    }
+
+    return [{ keyword: emptyType }, ...baseItems]
   }
 
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
