@@ -327,7 +327,6 @@ See [Filter And Sort](/knowledge-base/filter-and-sort).
 - `paramsType` will make it possible to have one object to pass your pathParams, params, headers and data.
 
 ### @kubb/plugin-ts
-- `enumType` `'asPascalConst'` has been removed as an option.
 - `enumSuffix` will be `'enum'` by default.
 - `mapper` can be used to override which TypeScript TsNode that should be used.
 

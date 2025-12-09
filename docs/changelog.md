@@ -15,6 +15,34 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.9.5
+
+### 🐛 Bug Fixes
+
+- **[`@kubb/plugin-ts`](/plugins/plugin-ts/)** - Restore `asPascalConst` enumType option
+
+  The `asPascalConst` enumType option is no longer deprecated. This option generates enum-like constants with PascalCase names, providing an alternative to the default `asConst` which uses camelCase.
+
+  ::: code-group
+  ```typescript [asConst (default)]
+  const petType = {
+    Dog: 'dog',
+    Cat: 'cat',
+  } as const
+  
+  type PetTypeKey = (typeof petType)[keyof typeof petType]
+  ```
+
+  ```typescript [asPascalConst]
+  const PetType = {
+    Dog: 'dog',
+    Cat: 'cat',
+  } as const
+  
+  type PetType = (typeof PetType)[keyof typeof PetType]
+  ```
+  :::
+
 ## 4.9.4
 
 ### 🐛 Bug Fixes
@@ -39,7 +67,6 @@ All notable changes to Kubb are documented here. Each version is organized with 
           - $ref: '#/components/schemas/PhoneNumber'
           - maxLength: 15  # ❌ This constraint was lost
   ```
-
   ```typescript [Before - Missing maxLength]
   // Generated Zod schema was missing .max(15)
   export const phoneWithMaxLengthSchema = z
@@ -47,7 +74,6 @@ All notable changes to Kubb are documented here. Each version is organized with 
     .regex(/^(\+\d{1,3}[-\s]?)?.*$/)
   // Missing: .max(15)
   ```
-
   ```typescript [After - Includes maxLength]
   // Generated Zod schema correctly includes .max(15)
   export const phoneWithMaxLengthSchema = z
@@ -56,11 +82,6 @@ All notable changes to Kubb are documented here. Each version is organized with 
     .max(15)  // ✅ Now correctly included
   ```
   :::
-
-  **Fixed by:**
-  - Changing allOf parser from `map(...)[0]` to `flatMap(...)` to preserve all schema constraints
-  - Adding type inference for schemas without explicit types (constraints like `maxLength` → `string`, `maximum` → `number`, etc.)
-  - Always including `baseItems` (constraints) in the return value, even for schemas without explicit types
 
 ## 4.9.3
 
