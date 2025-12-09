@@ -1,5 +1,11 @@
 # @kubb/core
 
+## 4.10.1
+
+### Patch Changes
+
+- [`6b6c13d`](https://github.com/kubb-labs/kubb/commit/6b6c13d2cf23ad056879cb66cd81995fd43def11) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update tsdown
+
 ## 4.10.0
 
 ## 4.9.4
