@@ -644,9 +644,9 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
 
     const additionalProperties = current.args?.additionalProperties?.length
       ? current.args.additionalProperties
-        .map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
-        .filter(Boolean)
-        .join('')
+          .map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
+          .filter(Boolean)
+          .join('')
       : undefined
 
     const text = [
