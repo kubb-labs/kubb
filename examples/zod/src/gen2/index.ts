@@ -64,6 +64,9 @@ export { logoutUserErrorSchema, logoutUserQueryResponseSchema } from './zod/logo
 export { orderSchema } from './zod/orderSchema.ts'
 export { petNotFoundSchema } from './zod/petNotFoundSchema.ts'
 export { petSchema } from './zod/petSchema.ts'
+export { phoneNumberSchema } from './zod/phoneNumberSchema.ts'
+export { phoneWithMaxLengthExplicitSchema } from './zod/phoneWithMaxLengthExplicitSchema.ts'
+export { phoneWithMaxLengthSchema } from './zod/phoneWithMaxLengthSchema.ts'
 export {
   placeOrderPatch200Schema,
   placeOrderPatch405Schema,

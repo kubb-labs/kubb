@@ -98,6 +98,9 @@ export { orderHttpStatusEnum, orderStatusEnum, orderValueEnum } from './ts/Order
 export type { PetNotFoundType } from './ts/PetNotFoundType.ts'
 export type { PetStatusEnumTypeKey, PetType } from './ts/PetType.ts'
 export { petStatusEnum } from './ts/PetType.ts'
+export type { PhoneNumberType } from './ts/PhoneNumberType.ts'
+export type { PhoneWithMaxLengthExplicitType } from './ts/PhoneWithMaxLengthExplicitType.ts'
+export type { PhoneWithMaxLengthType } from './ts/PhoneWithMaxLengthType.ts'
 export type {
   PlaceOrderPatch200Type,
   PlaceOrderPatch405Type,
@@ -279,6 +282,12 @@ export type { PetNotFoundSchema } from './zod/petNotFoundSchema.gen.ts'
 export { petNotFoundSchema } from './zod/petNotFoundSchema.gen.ts'
 export type { PetSchema } from './zod/petSchema.gen.ts'
 export { petSchema } from './zod/petSchema.gen.ts'
+export type { PhoneNumberSchema } from './zod/phoneNumberSchema.gen.ts'
+export { phoneNumberSchema } from './zod/phoneNumberSchema.gen.ts'
+export type { PhoneWithMaxLengthExplicitSchema } from './zod/phoneWithMaxLengthExplicitSchema.gen.ts'
+export { phoneWithMaxLengthExplicitSchema } from './zod/phoneWithMaxLengthExplicitSchema.gen.ts'
+export type { PhoneWithMaxLengthSchema } from './zod/phoneWithMaxLengthSchema.gen.ts'
+export { phoneWithMaxLengthSchema } from './zod/phoneWithMaxLengthSchema.gen.ts'
 export type {
   PlaceOrderPatch200Schema,
   PlaceOrderPatch405Schema,

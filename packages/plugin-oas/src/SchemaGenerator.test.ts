@@ -67,6 +67,26 @@ describe('SchemaGenerator core', async () => {
         unknownType: 'unknown',
       },
     },
+    {
+      name: 'PhoneWithMaxLength',
+      input: '../mocks/allOfMaxLength.yaml',
+      path: 'PhoneWithMaxLength',
+      options: {
+        dateType: 'date',
+        transformers: {},
+        unknownType: 'unknown',
+      },
+    },
+    {
+      name: 'PhoneWithMaxLengthExplicit',
+      input: '../mocks/allOfMaxLength.yaml',
+      path: 'PhoneWithMaxLengthExplicit',
+      options: {
+        dateType: 'date',
+        transformers: {},
+        unknownType: 'unknown',
+      },
+    },
     // Add discriminator test cases
   ] as const satisfies Array<{ input: string; name: string; path: string; options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>> }>
 

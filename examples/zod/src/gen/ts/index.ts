@@ -98,6 +98,9 @@ export { orderHttpStatusEnum, orderStatusEnum, orderValueEnum } from './OrderTyp
 export type { PetNotFoundType } from './PetNotFoundType.ts'
 export type { PetStatusEnumTypeKey, PetType } from './PetType.ts'
 export { petStatusEnum } from './PetType.ts'
+export type { PhoneNumberType } from './PhoneNumberType.ts'
+export type { PhoneWithMaxLengthExplicitType } from './PhoneWithMaxLengthExplicitType.ts'
+export type { PhoneWithMaxLengthType } from './PhoneWithMaxLengthType.ts'
 export type {
   PlaceOrderPatch200Type,
   PlaceOrderPatch405Type,
