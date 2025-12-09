@@ -15,6 +15,37 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.11.0
+
+### ✨ Features
+
+- **[`@kubb/plugin-oas`](/plugins/plugin-oas/)** - Add extensible parser architecture with shared utilities
+
+  Kubb now provides a shared parser architecture that makes it easier to add support for new validation libraries like Valibot, Zod Mini, or custom validation systems. This change introduces reusable utilities and types that eliminate duplication across parser implementations.
+
+  **New utilities in `@kubb/plugin-oas/parsers`:**
+  
+  - `BaseParserOptions` - Common parser options that all parsers can extend
+  - `CoercionOptions` - Type coercion configuration
+  - `MiniModeSupport` - Functional API style configuration  
+  - `shouldCoerce()` - Check if coercion is enabled for a type
+  - `extractMiniModifiers()` - Extract modifiers from schema array
+  - `filterMiniModifiers()` - Remove modifiers from schema array
+  - `miniModifierKeywords` - Array of modifier keywords
+
+  **Benefits:**
+  
+  - Eliminates duplication of mini mode logic across parsers
+  - Makes it easy to add support for new validation libraries
+  - Provides consistent handling of modifiers (optional, nullable, default)
+  - Comprehensive documentation for creating new parsers
+
+  See `packages/plugin-oas/src/parsers/README.md` for a complete guide on creating new parser implementations.
+
+  ::: tip
+  All changes are backwards compatible. The `@kubb/plugin-zod` parser now uses these shared utilities but maintains its existing API.
+  :::
+
 ## 4.9.5
 
 ### 🐛 Bug Fixes
