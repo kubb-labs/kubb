@@ -19,12 +19,34 @@ All notable changes to Kubb are documented here. Each version is organized with 
 
 ### ✨ Features
 
-- **[`@kubb/plugin-oas`](/plugins/plugin-oas/)** - Add extensible parser architecture with shared utilities
+- **[`@kubb/plugin-oas`](/plugins/plugin-oas/)** - Add extensible parser architecture with shared utilities and `createParser` helper
 
-  Kubb now provides a shared parser architecture that makes it easier to add support for new validation libraries like Valibot, Zod Mini, or custom validation systems. This change introduces reusable utilities and types that eliminate duplication across parser implementations.
+  Kubb now provides a shared parser architecture that makes it easier to add support for new validation libraries like Valibot, ArkType, Zod Mini, or custom validation systems. This change introduces reusable utilities, types, and a factory function that eliminates duplication across parser implementations.
+
+  **New `createParser` helper:**
+  
+  The easiest way to create a new parser is using the `createParser` factory function. It handles common recursive parsing logic while allowing customization:
+
+  ::: code-group
+  ```typescript [createParser Example]
+  import { createParser } from '@kubb/plugin-oas'
+
+  const parse = createParser({
+    keywordMapper: valibotKeywordMapper,
+    customHandlers: {
+      string: (context, options) => {
+        return shouldCoerce(options.coercion, 'strings') 
+          ? 'v.coerce.string()' 
+          : 'v.string()'
+      }
+    }
+  })
+  ```
+  :::
 
   **New utilities in `@kubb/plugin-oas/parsers`:**
   
+  - `createParser()` - Factory function for creating parsers with consistent patterns
   - `BaseParserOptions` - Common parser options that all parsers can extend
   - `CoercionOptions` - Type coercion configuration
   - `MiniModeSupport` - Functional API style configuration  
@@ -36,8 +58,9 @@ All notable changes to Kubb are documented here. Each version is organized with 
   **Benefits:**
   
   - Eliminates duplication of mini mode logic across parsers
-  - Makes it easy to add support for new validation libraries
+  - Makes it easy to add support for new validation libraries (Valibot, ArkType, etc.)
   - Provides consistent handling of modifiers (optional, nullable, default)
+  - Automatic handling of union, array, tuple, and object types
   - Comprehensive documentation for creating new parsers
 
   See `packages/plugin-oas/src/parsers/README.md` for a complete guide on creating new parser implementations.

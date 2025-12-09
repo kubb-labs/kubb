@@ -111,7 +111,7 @@ export function createParser<TOutput, TOptions extends BaseParserOptions>(
       context = modifiedContext
     }
 
-    const { schema, current, siblings, name, parent } = context
+    const { schema, current, siblings, name } = context
 
     // Check for custom handler first
     const customHandler = customHandlers?.[current.keyword as keyof SchemaKeywordMapper]
