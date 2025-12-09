@@ -133,4 +133,58 @@ describe('mutationGenerator operation', async () => {
 
     await matchFiles(fabric.files)
   })
+
+  test('mutation disabled with mutation: false', async () => {
+    const oas = await parse(path.resolve(__dirname, '../../mocks/petStore.yaml'))
+
+    const options: PluginReactQuery['resolvedOptions'] = {
+      client: {
+        dataReturnType: 'data',
+        client: 'axios',
+        bundle: false,
+      },
+      parser: 'zod',
+      paramsType: 'inline',
+      paramsCasing: undefined,
+      pathParamsType: 'inline',
+      queryKey: QueryKey.getTransformer,
+      mutationKey: MutationKey.getTransformer,
+      query: {
+        importPath: '@tanstack/react-query',
+        methods: ['get'],
+      },
+      mutation: false,
+      suspense: false,
+      infinite: false,
+      output: {
+        path: '.',
+      },
+      group: undefined,
+    }
+    const plugin = { options } as Plugin<PluginReactQuery>
+    const fabric = createReactFabric()
+    const generator = new OperationGenerator(options, {
+      fabric,
+      oas,
+      include: undefined,
+      pluginManager: createMockedPluginManager('mutationDisabled'),
+      plugin,
+      contentType: undefined,
+      override: undefined,
+      mode: 'split',
+      exclude: [],
+    })
+
+    const operation = oas.operation('/pet/{pet_id}', 'post')
+    await buildOperation(operation, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      generator,
+      Component: mutationGenerator.Operation,
+      plugin,
+    })
+
+    // When mutation: false, no files should be generated for POST operations
+    expect(fabric.files).toHaveLength(0)
+  })
 })

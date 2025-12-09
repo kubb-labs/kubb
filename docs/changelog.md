@@ -15,45 +15,49 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
-## Unreleased
+## 4.9.3
 
-### ✨ Features
+### 🐛 Bug Fixes
 
-- **[`@kubb/oas`](/reference/oas/)** - Add `mergeAllOf` utility function
+- **Query Plugins** - Fix `mutation: false` option being ignored
 
-A new utility function that resolves and merges OpenAPI Schema `allOf` arrays into a single Schema object. This is useful for preprocessing schemas before code generation when you want to flatten schema inheritance.
+  Fix `mutation: false` option being ignored in all TanStack Query plugins (`@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-solid-query`, `@kubb/plugin-svelte-query`, `@kubb/plugin-swr`).
 
-::: code-group
-```typescript [Usage]
-import { mergeAllOf } from '@kubb/oas'
+  When `mutation: false` was set in plugin configuration, mutation hooks were still being generated. This occurred because the plugin was spreading the `false` value into an object with default configuration values instead of checking for it explicitly.
 
-const schema = {
-  allOf: [
-    { type: 'object', properties: { id: { type: 'string' } } },
-    { description: 'A shared link' },
-    { nullable: true },
-  ],
-}
+  ::: code-group
+  ```typescript [Before - Not Working]
+  import { defineConfig } from '@kubb/core'
+  import { pluginReactQuery } from '@kubb/plugin-react-query'
 
-const merged = mergeAllOf(schema)
-// Result: {
-//   type: 'object',
-//   properties: { id: { type: 'string' } },
-//   description: 'A shared link',
-//   nullable: true
-// }
-```
-:::
+  export default defineConfig({
+    plugins: [
+      pluginReactQuery({
+        mutation: false, // ❌ Was still generating mutation hooks
+      }),
+    ],
+  })
+  ```
 
-::: info
-The function recursively processes nested `allOf` in property schemas and follows OpenAPI semantics for merging:
-- Properties: Later entries override earlier ones
-- Required arrays: Union of all required fields (deduplicated)
-- Type: Root schema type takes precedence
-- Description: Root description takes precedence, or concatenate from `allOf` entries
-- Boolean flags (nullable, deprecated, readOnly, writeOnly): True if any entry is true
-- References (`$ref`): Returned unchanged without resolution
-:::
+  ```typescript [After - Working]
+  import { defineConfig } from '@kubb/core'
+  import { pluginReactQuery } from '@kubb/plugin-react-query'
+
+  export default defineConfig({
+    plugins: [
+      pluginReactQuery({
+        mutation: false, // ✅ Now properly prevents mutation hook generation
+        query: true,     // Only generates queryOptions
+      }),
+    ],
+  })
+  ```
+  :::
+
+  **Changes:**
+  - Added explicit `mutation === false` check in plugin initialization before setting defaults, matching the existing `query: false` pattern
+  - Added `options.mutation !== false` guard to `isMutation` condition in mutation generators
+  - Updated vitest configs to support `#mocks` import alias for testing
 
 ## 4.9.2
 
