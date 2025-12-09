@@ -187,6 +187,26 @@ describe('codegen', () => {
         }),
       ),
     ).toMatchSnapshot()
+
+    // Test that imports are sorted alphabetically
+    expect(
+      await formatTS(
+        createImportDeclaration({
+          name: ['zebra', 'apple', 'banana'],
+          path: './fruits.ts',
+        }),
+      ),
+    ).toMatchSnapshot()
+
+    // Test that imports with mixed objects and strings are sorted
+    expect(
+      await formatTS(
+        createImportDeclaration({
+          name: ['zoo', { propertyName: 'apple' }, 'banana', { propertyName: 'cat', name: 'dog' }],
+          path: './mixed.ts',
+        }),
+      ),
+    ).toMatchSnapshot()
   })
 
   test('createExportDeclaration', async () => {
@@ -228,6 +248,16 @@ describe('codegen', () => {
     } catch (e) {
       expect(e).toBeDefined()
     }
+
+    // Test that exports are sorted alphabetically
+    expect(
+      await formatTS(
+        createExportDeclaration({
+          name: ['zebra', 'apple', 'banana'],
+          path: './fruits.ts',
+        }),
+      ),
+    ).toMatchSnapshot()
   })
 
   test('createEnumDeclaration', async () => {

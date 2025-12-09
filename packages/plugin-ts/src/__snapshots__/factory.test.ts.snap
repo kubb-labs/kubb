@@ -100,6 +100,11 @@ exports[`codegen > createExportDeclaration 3`] = `
 "
 `;
 
+exports[`codegen > createExportDeclaration 4`] = `
+"export { apple, banana, zebra } from './fruits.ts'
+"
+`;
+
 exports[`codegen > createImportDeclaration 1`] = `
 "import hello from './hello.ts'
 "
@@ -122,6 +127,16 @@ exports[`codegen > createImportDeclaration 4`] = `
 
 exports[`codegen > createImportDeclaration 5`] = `
 "import { hello as helloWorld } from './hello.ts'
+"
+`;
+
+exports[`codegen > createImportDeclaration 6`] = `
+"import { apple, banana, zebra } from './fruits.ts'
+"
+`;
+
+exports[`codegen > createImportDeclaration 7`] = `
+"import { apple, banana, cat as dog, zoo } from './mixed.ts'
 "
 `;
 
