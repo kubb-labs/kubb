@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-react-query",
-  "version": "4.10.0",
+  "version": "4.10.1",
   "description": "React Query hooks generator plugin for Kubb, creating type-safe API client hooks from OpenAPI specifications for React applications.",
   "keywords": [
     "react-query",
@@ -27,16 +27,16 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
     },
     "./components": {
-      "import": "./dist/components.js",
-      "require": "./dist/components.cjs"
+      "require": "./dist/components.cjs",
+      "import": "./dist/components.js"
     },
     "./generators": {
-      "import": "./dist/generators.js",
-      "require": "./dist/generators.cjs"
+      "require": "./dist/generators.cjs",
+      "import": "./dist/generators.js"
     },
     "./package.json": "./package.json"
   },

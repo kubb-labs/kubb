@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-mcp",
-  "version": "4.10.0",
+  "version": "4.10.1",
   "description": "Generator mcp",
   "keywords": [
     "typescript",
@@ -23,16 +23,16 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
     },
     "./components": {
-      "import": "./dist/components.js",
-      "require": "./dist/components.cjs"
+      "require": "./dist/components.cjs",
+      "import": "./dist/components.js"
     },
     "./generators": {
-      "import": "./dist/generators.js",
-      "require": "./dist/generators.cjs"
+      "require": "./dist/generators.cjs",
+      "import": "./dist/generators.js"
     },
     "./package.json": "./package.json"
   },

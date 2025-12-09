@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "4.10.0",
+  "version": "4.10.1",
   "description": "Command-line interface for Kubb, enabling easy generation of TypeScript, React-Query, Zod, and other code from OpenAPI specifications.",
   "keywords": [
     "cli",
@@ -24,8 +24,8 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
     },
     "./package.json": "./package.json"
   },

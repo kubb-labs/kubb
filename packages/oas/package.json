@@ -1,6 +1,6 @@
 {
   "name": "@kubb/oas",
-  "version": "4.10.0",
+  "version": "4.10.1",
   "description": "OpenAPI Specification (OAS) utilities and helpers for Kubb, providing parsing, normalization, and manipulation of OpenAPI/Swagger schemas.",
   "keywords": [
     "openapi",
@@ -23,12 +23,12 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
     },
     "./infer": {
-      "import": "./dist/infer.js",
-      "require": "./dist/infer.cjs"
+      "require": "./dist/infer.cjs",
+      "import": "./dist/infer.js"
     },
     "./package.json": "./package.json"
   },

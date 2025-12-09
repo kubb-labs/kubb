@@ -14,6 +14,7 @@ import { pluginZod } from '@kubb/plugin-zod'
 
 const schemas = [
   // { name: 'test', path: './schemas/test.json' },
+  { name: 'train-travel', path: './schemas/train-travel.yaml' },
   { name: 'discriminator', path: './schemas/discriminator.yaml' },
   { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },
   { name: 'petStoreV3', path: 'https://petstore3.swagger.io/api/v3/openapi.json' },

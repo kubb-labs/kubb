@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "4.10.0",
+  "version": "4.10.1",
   "description": "Core functionality for Kubb's plugin-based code generation system, providing the foundation for transforming OpenAPI specifications.",
   "keywords": [
     "typescript",
@@ -23,24 +23,24 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
     },
     "./hooks": {
-      "import": "./dist/hooks.js",
-      "require": "./dist/hooks.cjs"
+      "require": "./dist/hooks.cjs",
+      "import": "./dist/hooks.js"
     },
     "./logger": {
-      "import": "./dist/logger.js",
-      "require": "./dist/logger.cjs"
+      "require": "./dist/logger.cjs",
+      "import": "./dist/logger.js"
     },
     "./transformers": {
-      "import": "./dist/transformers.js",
-      "require": "./dist/transformers.cjs"
+      "require": "./dist/transformers.cjs",
+      "import": "./dist/transformers.js"
     },
     "./utils": {
-      "import": "./dist/utils.js",
-      "require": "./dist/utils.cjs"
+      "require": "./dist/utils.cjs",
+      "import": "./dist/utils.js"
     },
     "./package.json": "./package.json"
   },
