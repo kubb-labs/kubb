@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 4.9.4
+
+### Patch Changes
+
+- [#2139](https://github.com/kubb-labs/kubb/pull/2139) [`e71c931`](https://github.com/kubb-labs/kubb/commit/e71c93110ec19e830a068e8343aaf7cfcce5ef0c) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix allOf failing to merge constraints like maxLength with $ref schemas. When using allOf to combine a $ref schema with inline constraints, those constraints are now properly preserved in the generated schema tree.
+
+- Updated dependencies []:
+  - @kubb/core@4.9.4
+  - @kubb/oas@4.9.4
+
 ## 4.9.3
 
 ### Patch Changes
