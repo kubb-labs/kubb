@@ -2,7 +2,7 @@ import { isRef } from 'oas/types'
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject } from 'remeda'
 
-type SchemaObject = OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject
+type SchemaObject = (OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject) & { nullable?: boolean }
 type ReferenceObject = OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject
 
 /**
@@ -104,8 +104,9 @@ function recursivelyMergeProperties(schema: SchemaObject): SchemaObject {
   }
 
   // Also handle items for array schemas
-  if (schema.items && typeof schema.items === 'object' && !Array.isArray(schema.items)) {
-    return { ...schema, items: mergeAllOf(schema.items) }
+  const schemaWithItems = schema as any
+  if (schemaWithItems.items && typeof schemaWithItems.items === 'object' && !Array.isArray(schemaWithItems.items)) {
+    return { ...schema, items: mergeAllOf(schemaWithItems.items) } as SchemaObject
   }
 
   return schema
@@ -147,10 +148,12 @@ function mergeSchemas(earlier: SchemaObject, later: SchemaObject): SchemaObject 
   }
 
   // Boolean flags: true if any is true, but later explicit value wins
-  if (later.nullable !== undefined) {
-    result.nullable = later.nullable
-  } else if (earlier.nullable === true) {
-    result.nullable = true
+  const laterNullable = (later as any).nullable
+  const earlierNullable = (earlier as any).nullable
+  if (laterNullable !== undefined) {
+    ;(result as any).nullable = laterNullable
+  } else if (earlierNullable === true) {
+    ;(result as any).nullable = true
   }
 
   if (later.deprecated !== undefined) {
@@ -194,10 +197,12 @@ function mergeSchemas(earlier: SchemaObject, later: SchemaObject): SchemaObject 
   }
 
   // Items: later overrides earlier
-  if (later.items !== undefined) {
-    result.items = later.items
-  } else if (earlier.items !== undefined) {
-    result.items = earlier.items
+  const laterItems = (later as any).items
+  const earlierItems = (earlier as any).items
+  if (laterItems !== undefined) {
+    ;(result as any).items = laterItems
+  } else if (earlierItems !== undefined) {
+    ;(result as any).items = earlierItems
   }
 
   // Format: later overrides earlier
@@ -230,10 +235,12 @@ function mergeSchemas(earlier: SchemaObject, later: SchemaObject): SchemaObject 
   ] as const
 
   for (const field of numericFields) {
-    if (later[field] !== undefined) {
-      result[field] = later[field]
-    } else if (earlier[field] !== undefined) {
-      result[field] = earlier[field]
+    const laterValue = (later as any)[field]
+    const earlierValue = (earlier as any)[field]
+    if (laterValue !== undefined) {
+      ;(result as any)[field] = laterValue
+    } else if (earlierValue !== undefined) {
+      ;(result as any)[field] = earlierValue
     }
   }
 
@@ -282,7 +289,7 @@ function mergeSchemas(earlier: SchemaObject, later: SchemaObject): SchemaObject 
   // Copy any other properties from later schema
   for (const key of Object.keys(later)) {
     if (!(key in result)) {
-      result[key] = later[key]
+      ;(result as any)[key] = (later as any)[key]
     }
   }
 

@@ -15,6 +15,46 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## Unreleased
+
+### ✨ Features
+
+- **[`@kubb/oas`](/reference/oas/)** - Add `mergeAllOf` utility function
+
+A new utility function that resolves and merges OpenAPI Schema `allOf` arrays into a single Schema object. This is useful for preprocessing schemas before code generation when you want to flatten schema inheritance.
+
+::: code-group
+```typescript [Usage]
+import { mergeAllOf } from '@kubb/oas'
+
+const schema = {
+  allOf: [
+    { type: 'object', properties: { id: { type: 'string' } } },
+    { description: 'A shared link' },
+    { nullable: true },
+  ],
+}
+
+const merged = mergeAllOf(schema)
+// Result: {
+//   type: 'object',
+//   properties: { id: { type: 'string' } },
+//   description: 'A shared link',
+//   nullable: true
+// }
+```
+:::
+
+::: info
+The function recursively processes nested `allOf` in property schemas and follows OpenAPI semantics for merging:
+- Properties: Later entries override earlier ones
+- Required arrays: Union of all required fields (deduplicated)
+- Type: Root schema type takes precedence
+- Description: Root description takes precedence, or concatenate from `allOf` entries
+- Boolean flags (nullable, deprecated, readOnly, writeOnly): True if any entry is true
+- References (`$ref`): Returned unchanged without resolution
+:::
+
 ## 4.9.2
 
 ### 🐛 Bug Fixes

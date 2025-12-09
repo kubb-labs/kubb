@@ -360,14 +360,16 @@ describe('mergeAllOf', () => {
       allOf: [
         {
           type: 'array',
-        },
+          items: {} as OpenAPIV3.SchemaObject,
+        } as OpenAPIV3.ArraySchemaObject,
         {
+          type: 'array',
           items: { type: 'string' },
-        },
+        } as OpenAPIV3.ArraySchemaObject,
       ],
     }
 
-    const result = mergeAllOf(schema) as OpenAPIV3.SchemaObject
+    const result = mergeAllOf(schema) as any
 
     expect(result.items).toEqual({ type: 'string' })
   })
@@ -378,14 +380,15 @@ describe('mergeAllOf', () => {
         {
           type: 'array',
           items: { type: 'string' },
-        },
+        } as OpenAPIV3.ArraySchemaObject,
         {
+          type: 'array',
           items: { type: 'number' },
-        },
+        } as OpenAPIV3.ArraySchemaObject,
       ],
     }
 
-    const result = mergeAllOf(schema) as OpenAPIV3.SchemaObject
+    const result = mergeAllOf(schema) as any
 
     expect(result.items).toEqual({ type: 'number' })
   })
@@ -435,15 +438,16 @@ describe('mergeAllOf', () => {
             },
           },
           {
+            type: 'object',
             properties: {
               name: { type: 'string' },
             },
           },
         ],
       },
-    }
+    } as OpenAPIV3.ArraySchemaObject
 
-    const result = mergeAllOf(schema) as OpenAPIV3.SchemaObject
+    const result = mergeAllOf(schema) as any
 
     expect(result.items).toBeDefined()
     const items = result.items as OpenAPIV3.SchemaObject
@@ -555,16 +559,19 @@ describe('mergeAllOf', () => {
       allOf: [
         {
           type: 'array',
+          items: {} as OpenAPIV3.SchemaObject,
           minItems: 1,
-        },
+        } as OpenAPIV3.ArraySchemaObject,
         {
+          type: 'array',
+          items: {} as OpenAPIV3.SchemaObject,
           maxItems: 10,
           uniqueItems: true,
-        },
+        } as OpenAPIV3.ArraySchemaObject,
       ],
     }
 
-    const result = mergeAllOf(schema) as OpenAPIV3.SchemaObject
+    const result = mergeAllOf(schema) as any
 
     expect(result.minItems).toBe(1)
     expect(result.maxItems).toBe(10)
@@ -601,10 +608,14 @@ describe('mergeAllOf', () => {
               },
             },
             {
+              type: 'object',
               properties: {
                 updated: { type: 'string', format: 'date-time' },
                 tags: {
-                  allOf: [{ type: 'array' }, { items: { type: 'string' } }],
+                  allOf: [
+                    { type: 'array', items: {} as OpenAPIV3.SchemaObject } as OpenAPIV3.ArraySchemaObject,
+                    { type: 'array', items: { type: 'string' } } as OpenAPIV3.ArraySchemaObject,
+                  ],
                 },
               },
             },
@@ -620,7 +631,7 @@ describe('mergeAllOf', () => {
     expect(metadata.properties?.created).toEqual({ type: 'string', format: 'date-time' })
     expect(metadata.properties?.updated).toEqual({ type: 'string', format: 'date-time' })
 
-    const tags = metadata.properties?.tags as OpenAPIV3.SchemaObject
+    const tags = metadata.properties?.tags as any
     expect(tags.allOf).toBeUndefined()
     expect(tags.type).toBe('array')
     expect(tags.items).toEqual({ type: 'string' })
