@@ -80,6 +80,7 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react-fabric": "catalog:",
+    "natural-orderby": "^5.0.0",
     "remeda": "catalog:",
     "typescript": "5.9.3"
   },
