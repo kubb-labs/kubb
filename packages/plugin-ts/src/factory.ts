@@ -1,3 +1,4 @@
+import { orderBy } from 'natural-orderby'
 import { isNumber } from 'remeda'
 import ts from 'typescript'
 
@@ -319,13 +320,16 @@ export function createImportDeclaration({
     )
   }
 
+  // Sort the imports alphabetically for consistent output across platforms
+  const sortedName = orderBy(name, [(item) => (typeof item === 'object' ? item.propertyName : item)])
+
   return factory.createImportDeclaration(
     undefined,
     factory.createImportClause(
       isTypeOnly,
       undefined,
       factory.createNamedImports(
-        name.map((item) => {
+        sortedName.map((item) => {
           if (typeof item === 'object') {
             const obj = item as { propertyName: string; name?: string }
             if (obj.name) {
@@ -371,11 +375,14 @@ export function createExportDeclaration({
     )
   }
 
+  // Sort the exports alphabetically for consistent output across platforms
+  const sortedName = orderBy(name, [(propertyName) => (typeof propertyName === 'string' ? propertyName : propertyName.text)])
+
   return factory.createExportDeclaration(
     undefined,
     isTypeOnly,
     factory.createNamedExports(
-      name.map((propertyName) => {
+      sortedName.map((propertyName) => {
         return factory.createExportSpecifier(false, undefined, typeof propertyName === 'string' ? factory.createIdentifier(propertyName) : propertyName)
       }),
     ),
