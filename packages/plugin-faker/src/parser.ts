@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
-import { isKeyword, SchemaGenerator, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
+import { createParser, findSchemaKeyword, isKeyword, SchemaGenerator, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
 import type { Options } from './types.ts'
 
 const fakerKeywordMapper = {
@@ -186,210 +186,241 @@ type ParserOptions = {
   mapper?: Record<string, string>
 }
 
-export function parse({ schema, current, parent, name, siblings }: SchemaTree, options: ParserOptions): string | null | undefined {
-  const value = fakerKeywordMapper[current.keyword as keyof typeof fakerKeywordMapper]
+export const parse = createParser<string, ParserOptions>({
+  mapper: fakerKeywordMapper,
+  handlers: {
+    union: (tree, options, parse) => {
+      const { current, schema, parent, name, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.union)) return undefined
 
-  if (!value) {
-    return undefined
-  }
+      if (Array.isArray(current.args) && !current.args.length) {
+        return ''
+      }
 
-  if (isKeyword(current, schemaKeywords.union)) {
-    if (Array.isArray(current.args) && !current.args.length) {
-      return ''
-    }
+      return fakerKeywordMapper.union(
+        current.args.map((it) => parse({ schema, parent: current, name, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
+      )
+    },
+    and: (tree, options, parse) => {
+      const { current, schema, parent, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.and)) return undefined
 
-    return fakerKeywordMapper.union(
-      current.args.map((it) => parse({ schema, parent: current, name, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
-    )
-  }
+      return fakerKeywordMapper.and(
+        current.args.map((it) => parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
+      )
+    },
+    array: (tree, options, parse) => {
+      const { current, schema, parent, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.array)) return undefined
 
-  if (isKeyword(current, schemaKeywords.and)) {
-    return fakerKeywordMapper.and(
-      current.args.map((it) => parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
-    )
-  }
+      return fakerKeywordMapper.array(
+        current.args.items
+          .map((it) =>
+            parse(
+              { schema, parent: current, current: it, siblings: current.args.items },
+              {
+                ...options,
+                typeName: `NonNullable<${options.typeName}>[number]`,
+                canOverride: false,
+              },
+            ),
+          )
+          .filter(Boolean),
+        current.args.min,
+        current.args.max,
+      )
+    },
+    enum: (tree, options, parse) => {
+      const { current, schema, parent, name } = tree
+      if (!isKeyword(current, schemaKeywords.enum)) return undefined
 
-  if (isKeyword(current, schemaKeywords.array)) {
-    return fakerKeywordMapper.array(
-      current.args.items
-        .map((it) =>
-          parse(
-            { schema, parent: current, current: it, siblings },
-            {
-              ...options,
-              typeName: `NonNullable<${options.typeName}>[number]`,
-              canOverride: false,
-            },
-          ),
+      const isParentTuple = parent ? isKeyword(parent, schemaKeywords.tuple) : false
+
+      if (isParentTuple) {
+        return fakerKeywordMapper.enum(
+          current.args.items.map((schema) => {
+            if (schema.format === 'number') {
+              return schema.value
+            }
+
+            if (schema.format === 'boolean') {
+              return schema.value
+            }
+            return transformers.stringify(schema.value)
+          }),
         )
-        .filter(Boolean),
-      current.args.min,
-      current.args.max,
-    )
-  }
+      }
 
-  if (isKeyword(current, schemaKeywords.enum)) {
-    const isParentTuple = parent ? isKeyword(parent, schemaKeywords.tuple) : false
-
-    if (isParentTuple) {
       return fakerKeywordMapper.enum(
         current.args.items.map((schema) => {
           if (schema.format === 'number') {
             return schema.value
           }
-
           if (schema.format === 'boolean') {
             return schema.value
           }
           return transformers.stringify(schema.value)
         }),
+        // TODO replace this with getEnumNameFromSchema
+        name ? options.typeName : undefined,
       )
-    }
+    },
+    ref: (tree, options) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.ref)) return undefined
 
-    return fakerKeywordMapper.enum(
-      current.args.items.map((schema) => {
-        if (schema.format === 'number') {
-          return schema.value
-        }
-        if (schema.format === 'boolean') {
-          return schema.value
-        }
-        return transformers.stringify(schema.value)
-      }),
-      // TODO replace this with getEnumNameFromSchema
-      name ? options.typeName : undefined,
-    )
-  }
+      if (!current.args?.name) {
+        throw new Error(`Name not defined for keyword ${current.keyword}`)
+      }
 
-  if (isKeyword(current, schemaKeywords.ref)) {
-    if (!current.args?.name) {
-      throw new Error(`Name not defined for keyword ${current.keyword}`)
-    }
+      if (options.canOverride) {
+        return `${current.args.name}(data)`
+      }
 
-    if (options.canOverride) {
-      return `${current.args.name}(data)`
-    }
+      return `${current.args.name}()`
+    },
+    object: (tree, options, parse) => {
+      const { current, schema, name } = tree
+      if (!isKeyword(current, schemaKeywords.object)) return undefined
 
-    return `${current.args.name}()`
-  }
+      const argsObject = Object.entries(current.args?.properties || {})
+        .filter((item) => {
+          const schema = item[1]
+          return schema && typeof schema.map === 'function'
+        })
+        .map(([name, schemas]) => {
+          const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
+          const mappedName = nameSchema?.args || name
 
-  if (isKeyword(current, schemaKeywords.object)) {
-    const argsObject = Object.entries(current.args?.properties || {})
-      .filter((item) => {
-        const schema = item[1]
-        return schema && typeof schema.map === 'function'
-      })
-      .map(([name, schemas]) => {
-        const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
-        const mappedName = nameSchema?.args || name
+          // custom mapper(pluginOptions)
+          if (options.mapper?.[mappedName]) {
+            return `"${name}": ${options.mapper?.[mappedName]}`
+          }
 
-        // custom mapper(pluginOptions)
-        if (options.mapper?.[mappedName]) {
-          return `"${name}": ${options.mapper?.[mappedName]}`
-        }
+          return `"${name}": ${joinItems(
+            schemas
+              .sort(schemaKeywordSorter)
+              .map((it) =>
+                parse(
+                  { schema, name, parent: current, current: it, siblings: schemas },
+                  {
+                    ...options,
+                    typeName: `NonNullable<${options.typeName}>[${JSON.stringify(name)}]`,
+                    canOverride: false,
+                  },
+                ),
+              )
+              .filter(Boolean),
+          )}`
+        })
+        .join(',')
 
-        return `"${name}": ${joinItems(
-          schemas
-            .sort(schemaKeywordSorter)
-            .map((it) =>
-              parse(
-                { schema, name, parent: current, current: it, siblings: schemas },
-                {
-                  ...options,
-                  typeName: `NonNullable<${options.typeName}>[${JSON.stringify(name)}]`,
-                  canOverride: false,
-                },
-              ),
-            )
-            .filter(Boolean),
-        )}`
-      })
-      .join(',')
+      return `{${argsObject}}`
+    },
+    tuple: (tree, options, parse) => {
+      const { current, schema, parent, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.tuple)) return undefined
 
-    return `{${argsObject}}`
-  }
+      if (Array.isArray(current.args.items)) {
+        return fakerKeywordMapper.tuple(
+          current.args.items.map((it) => parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
+        )
+      }
 
-  if (isKeyword(current, schemaKeywords.tuple)) {
-    if (Array.isArray(current.args.items)) {
-      return fakerKeywordMapper.tuple(
-        current.args.items.map((it) => parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
-      )
-    }
+      return parse({ schema, parent: current, current: current.args.items, siblings }, { ...options, canOverride: false })
+    },
+    const: (tree, options) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.const)) return undefined
 
-    return parse({ schema, parent: current, current: current.args.items, siblings }, { ...options, canOverride: false })
-  }
+      if (current.args.format === 'number' && current.args.name !== undefined) {
+        return fakerKeywordMapper.const(current.args.name?.toString())
+      }
+      return fakerKeywordMapper.const(transformers.stringify(current.args.value))
+    },
+    matches: (tree, options) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.matches)) return undefined
 
-  if (isKeyword(current, schemaKeywords.const)) {
-    if (current.args.format === 'number' && current.args.name !== undefined) {
-      return fakerKeywordMapper.const(current.args.name?.toString())
-    }
-    return fakerKeywordMapper.const(transformers.stringify(current.args.value))
-  }
+      if (current.args) {
+        return fakerKeywordMapper.matches(current.args, options.regexGenerator)
+      }
+      return undefined
+    },
+    null: (tree) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.null)) return undefined
 
-  if (isKeyword(current, schemaKeywords.matches) && current.args) {
-    return fakerKeywordMapper.matches(current.args, options.regexGenerator)
-  }
+      return fakerKeywordMapper.null()
+    },
+    undefined: (tree) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.undefined)) return undefined
 
-  if (isKeyword(current, schemaKeywords.null) || isKeyword(current, schemaKeywords.undefined) || isKeyword(current, schemaKeywords.any)) {
-    return value() || ''
-  }
+      return fakerKeywordMapper.undefined()
+    },
+    any: (tree) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.any)) return undefined
 
-  if (isKeyword(current, schemaKeywords.string)) {
-    if (siblings) {
-      const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
-      const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
+      return fakerKeywordMapper.any()
+    },
+    string: (tree, options) => {
+      const { current, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.string)) return undefined
 
-      return fakerKeywordMapper.string(minSchema?.args, maxSchema?.args)
-    }
+      if (siblings) {
+        const minSchema = findSchemaKeyword(siblings, 'min')
+        const maxSchema = findSchemaKeyword(siblings, 'max')
 
-    return fakerKeywordMapper.string()
-  }
+        return fakerKeywordMapper.string(minSchema?.args, maxSchema?.args)
+      }
 
-  if (isKeyword(current, schemaKeywords.number)) {
-    if (siblings) {
-      const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
-      const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
+      return fakerKeywordMapper.string()
+    },
+    number: (tree, options) => {
+      const { current, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.number)) return undefined
 
-      return fakerKeywordMapper.number(minSchema?.args, maxSchema?.args)
-    }
+      if (siblings) {
+        const minSchema = findSchemaKeyword(siblings, 'min')
+        const maxSchema = findSchemaKeyword(siblings, 'max')
 
-    return fakerKeywordMapper.number()
-  }
+        return fakerKeywordMapper.number(minSchema?.args, maxSchema?.args)
+      }
 
-  if (isKeyword(current, schemaKeywords.integer)) {
-    if (siblings) {
-      const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
-      const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
+      return fakerKeywordMapper.number()
+    },
+    integer: (tree, options) => {
+      const { current, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.integer)) return undefined
 
-      return fakerKeywordMapper.integer(minSchema?.args, maxSchema?.args)
-    }
+      if (siblings) {
+        const minSchema = findSchemaKeyword(siblings, 'min')
+        const maxSchema = findSchemaKeyword(siblings, 'max')
 
-    return fakerKeywordMapper.integer()
-  }
+        return fakerKeywordMapper.integer(minSchema?.args, maxSchema?.args)
+      }
 
-  if (isKeyword(current, schemaKeywords.datetime)) {
-    return fakerKeywordMapper.datetime()
-  }
+      return fakerKeywordMapper.integer()
+    },
+    datetime: (tree) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.datetime)) return undefined
 
-  if (isKeyword(current, schemaKeywords.date)) {
-    return fakerKeywordMapper.date(current.args.type, options.dateParser)
-  }
+      return fakerKeywordMapper.datetime()
+    },
+    date: (tree, options) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.date)) return undefined
 
-  if (isKeyword(current, schemaKeywords.time)) {
-    return fakerKeywordMapper.time(current.args.type, options.dateParser)
-  }
+      return fakerKeywordMapper.date(current.args.type, options.dateParser)
+    },
+    time: (tree, options) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.time)) return undefined
 
-  if (current.keyword in fakerKeywordMapper && 'args' in current) {
-    const value = fakerKeywordMapper[current.keyword as keyof typeof fakerKeywordMapper] as (typeof fakerKeywordMapper)['const']
-
-    const options = JSON.stringify((current as SchemaKeywordBase<unknown>).args)
-
-    return value(options)
-  }
-
-  if (current.keyword in fakerKeywordMapper) {
-    return value()
-  }
-
-  return undefined
-}
+      return fakerKeywordMapper.time(current.args.type, options.dateParser)
+    },
+  },
+})
