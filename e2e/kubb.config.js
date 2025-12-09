@@ -17,7 +17,6 @@ const schemas = [
   { name: 'train-travel', path: './schemas/train-travel.yaml' },
   { name: 'discriminator', path: './schemas/discriminator.yaml' },
   { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },
-  { name: 'petStoreV3', path: 'https://petstore3.swagger.io/api/v3/openapi.json' },
   { name: 'optionalParameters', path: './schemas/optionalParameters.json' },
   { name: 'allOf', path: './schemas/allOf.json' },
   { name: 'anyOf', path: './schemas/anyOf.json' },
@@ -31,6 +30,7 @@ const schemas = [
   { name: 'box', path: './schemas/box.json' },
   { name: 'enums', path: './schemas/enums.yaml' },
   { name: 'dataset_api', path: './schemas/dataset_api.yaml' },
+  { name: 'petStoreV3', path: 'https://petstore3.swagger.io/api/v3/openapi.json' },
 ]
 
 /** @type {import('@kubb/core').UserConfig} */
