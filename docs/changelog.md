@@ -15,6 +15,50 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.9.3
+
+### 🐛 Bug Fixes
+
+- **Query Plugins** - Fix `mutation: false` option being ignored
+
+  Fix `mutation: false` option being ignored in all TanStack Query plugins (`@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-solid-query`, `@kubb/plugin-svelte-query`, `@kubb/plugin-swr`).
+
+  When `mutation: false` was set in plugin configuration, mutation hooks were still being generated. This occurred because the plugin was spreading the `false` value into an object with default configuration values instead of checking for it explicitly.
+
+  ::: code-group
+  ```typescript [Before - Not Working]
+  import { defineConfig } from '@kubb/core'
+  import { pluginReactQuery } from '@kubb/plugin-react-query'
+  
+  export default defineConfig({
+    plugins: [
+      pluginReactQuery({
+        mutation: false, // ❌ Was still generating mutation hooks
+      }),
+    ],
+  })
+  ```
+
+  ```typescript [After - Working]
+  import { defineConfig } from '@kubb/core'
+  import { pluginReactQuery } from '@kubb/plugin-react-query'
+  
+  export default defineConfig({
+    plugins: [
+      pluginReactQuery({
+        mutation: false, // ✅ Now properly prevents mutation hook generation
+        query: true,     // Only generates queryOptions
+      }),
+    ],
+  })
+  ```
+  :::
+
+  **Changes:**
+  - Added explicit `mutation === false` check in plugin initialization before setting defaults, matching the existing `query: false` pattern
+  - Added `options.mutation !== false` guard to `isMutation` condition in mutation generators
+  - Updated vitest configs to support `#mocks` import alias for testing
+
 ## 4.9.2
 
 ### 🐛 Bug Fixes
