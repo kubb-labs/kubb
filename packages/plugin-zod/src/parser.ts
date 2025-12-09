@@ -1,7 +1,18 @@
 import transformers from '@kubb/core/transformers'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
-import { isKeyword, SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
+import {
+  extractMiniModifiers as extractMiniModifiersBase,
+  filterMiniModifiers as filterMiniModifiersBase,
+  isKeyword,
+  miniModifierKeywords as miniModifierKeywordsBase,
+  SchemaGenerator,
+  shouldCoerce as shouldCoerceBase,
+  type MiniModifiers as MiniModifiersBase,
+  type SchemaKeywordMapper,
+  type SchemaTree,
+  schemaKeywords,
+} from '@kubb/plugin-oas'
 
 //TODO add zodKeywordMapper as function that returns 3 versions: v3, v4 and v4 mini, this can also be used to have the custom mapping(see object type)
 // also include shouldCoerce
@@ -382,43 +393,11 @@ export function sort(items?: Schema[]): Schema[] {
   return transformers.orderBy(items, [(v) => order.indexOf(v.keyword)], ['asc'])
 }
 
-type MiniModifiers = {
-  hasOptional?: boolean
-  hasNullable?: boolean
-  hasNullish?: boolean
-  defaultValue?: string | number | true | object
-}
-
-/**
- * Keywords that represent modifiers for mini mode
- * These are separated from the base schema and wrapped around it
- * Note: describe is included to filter it out, but won't be wrapped (Zod Mini doesn't support describe)
- */
-export const miniModifierKeywords = [schemaKeywords.optional, schemaKeywords.nullable, schemaKeywords.nullish, schemaKeywords.default, schemaKeywords.describe]
-
-/**
- * Extracts mini mode modifiers from a schemas array
- * This can be reused by other parsers (e.g., valibot) that need similar functionality
- * Note: describe is not included as Zod Mini doesn't support it
- */
-export function extractMiniModifiers(schemas: Schema[]): MiniModifiers {
-  const defaultSchema = schemas.find((item) => isKeyword(item, schemaKeywords.default)) as { keyword: string; args: unknown } | undefined
-
-  return {
-    hasOptional: schemas.some((item) => isKeyword(item, schemaKeywords.optional)),
-    hasNullable: schemas.some((item) => isKeyword(item, schemaKeywords.nullable)),
-    hasNullish: schemas.some((item) => isKeyword(item, schemaKeywords.nullish)),
-    defaultValue: defaultSchema?.args as string | number | true | object | undefined,
-  }
-}
-
-/**
- * Filters out modifier keywords from schemas for mini mode base schema parsing
- * This can be reused by other parsers (e.g., valibot) that need similar functionality
- */
-export function filterMiniModifiers(schemas: Schema[]): Schema[] {
-  return schemas.filter((item) => !miniModifierKeywords.some((keyword) => isKeyword(item, keyword)))
-}
+// Re-export shared utilities from @kubb/plugin-oas for backwards compatibility
+type MiniModifiers = MiniModifiersBase
+export const miniModifierKeywords = miniModifierKeywordsBase
+export const extractMiniModifiers = extractMiniModifiersBase
+export const filterMiniModifiers = filterMiniModifiersBase
 
 /**
  * Wraps an output string with Zod Mini functional modifiers
@@ -449,16 +428,8 @@ export function wrapWithMiniModifiers(output: string, modifiers: MiniModifiers):
   return result
 }
 
-const shouldCoerce = (coercion: ParserOptions['coercion'] | undefined, type: 'dates' | 'strings' | 'numbers'): boolean => {
-  if (coercion === undefined) {
-    return false
-  }
-  if (typeof coercion === 'boolean') {
-    return coercion
-  }
-
-  return !!coercion[type]
-}
+// Use shared shouldCoerce function from @kubb/plugin-oas
+const shouldCoerce = shouldCoerceBase
 
 type ParserOptions = {
   mapper?: Record<string, string>

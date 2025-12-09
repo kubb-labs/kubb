@@ -25,6 +25,19 @@ export { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 export type * from './types.ts'
 export { buildOperation, buildOperations, buildSchema } from './utils.tsx'
 
+// Parser utilities for creating extensible validation library parsers
+export type {
+  BaseKeywordMapper,
+  BaseParserOptions,
+  CoercionOptions,
+  MiniModeSupport,
+  MiniModifiers,
+  Parser,
+  ParserContext,
+  VersionedParserOptions,
+} from './parsers/index.ts'
+export { extractMiniModifiers, filterMiniModifiers, miniModifierKeywords, shouldCoerce } from './parsers/index.ts'
+
 /**
  * @deprecated use `import { createGenerator } from '@kubb/plugin-oas/generators'`
  */

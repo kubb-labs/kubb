@@ -373,3 +373,118 @@ const name = getName(operation, { type: 'function', prefix: 'use' })
 const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 // Returns: { request, response, pathParams, queryParams, headerParams, errors }
 ```
+
+### Parser architecture
+
+Kubb uses an extensible parser architecture for mapping OpenAPI schemas to validation library syntax (Zod, Valibot, etc.).
+
+**Key concepts**:
+- **SchemaMapper**: Maps OpenAPI schema keywords to validation library syntax
+- **Parser function**: Recursively processes schema trees to generate validation code
+- **Mini mode**: Functional API style support for libraries like Zod Mini
+- **Shared utilities**: Common functionality in `@kubb/plugin-oas/parsers`
+
+**Location**: `packages/plugin-{library}/src/parser.ts`
+
+**Base types** (from `@kubb/plugin-oas`):
+- `BaseParserOptions`: Common parser options (mapper, canOverride)
+- `CoercionOptions`: Type coercion configuration
+- `MiniModeSupport`: Functional API style configuration
+- `MiniModifiers`: Modifier keywords for mini mode (optional, nullable, default)
+
+**Shared utilities** (from `@kubb/plugin-oas`):
+- `shouldCoerce(coercion, type)`: Check if coercion is enabled for a type
+- `extractMiniModifiers(schemas)`: Extract modifiers from schema array
+- `filterMiniModifiers(schemas)`: Remove modifiers from schema array
+- `miniModifierKeywords`: Array of modifier keywords
+
+**Example parser structure**:
+
+```typescript
+import type { SchemaMapper, SchemaTree } from '@kubb/plugin-oas'
+import { isKeyword, schemaKeywords, shouldCoerce } from '@kubb/plugin-oas'
+
+// 1. Define keyword mapper
+const libraryKeywordMapper = {
+  string: (min?: number, max?: number) => 'v.string()...',
+  number: (min?: number, max?: number) => 'v.number()...',
+  // ... other keywords
+} satisfies SchemaMapper<string>
+
+// 2. Define parser options
+type ParserOptions = {
+  mapper?: Record<string, string>
+  coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
+}
+
+// 3. Implement parse function
+export function parse(
+  { schema, parent, current, siblings, name }: SchemaTree,
+  options: ParserOptions
+): string | undefined {
+  const value = libraryKeywordMapper[current.keyword]
+  
+  if (!value) {
+    return undefined
+  }
+
+  // Handle special keywords (union, array, object)
+  if (isKeyword(current, schemaKeywords.union)) {
+    return libraryKeywordMapper.union(
+      current.args.map(it => parse({ schema, parent: current, current: it, siblings }, options))
+    )
+  }
+
+  // ... handle other keywords
+  
+  return value()
+}
+```
+
+**Mini mode support**:
+
+```typescript
+import {
+  extractMiniModifiers,
+  filterMiniModifiers,
+  type MiniModifiers
+} from '@kubb/plugin-oas'
+
+// Separate base schema from modifiers
+const baseSchemas = filterMiniModifiers(schemas)
+const modifiers = extractMiniModifiers(schemas)
+
+// Parse base schema
+const output = parseBaseSchema(baseSchemas)
+
+// Wrap with functional modifiers
+function wrapWithMiniModifiers(output: string, modifiers: MiniModifiers): string {
+  let result = output
+  
+  if (modifiers.defaultValue !== undefined) {
+    result = `v.default(${result}, ${modifiers.defaultValue})`
+  }
+  
+  if (modifiers.hasOptional) {
+    result = `v.optional(${result})`
+  }
+  
+  return result
+}
+
+const finalOutput = wrapWithMiniModifiers(output, modifiers)
+```
+
+**Best practices**:
+- Use shared utilities from `@kubb/plugin-oas` instead of reimplementing
+- Implement all required SchemaMapper keywords (return `undefined` for unsupported)
+- Use recursion for complex types (unions, arrays, objects)
+- Add comprehensive tests in `parser.test.ts`
+- Re-export utilities for backwards compatibility if moving code
+
+**Reference implementations**:
+- Zod: `packages/plugin-zod/src/parser.ts` (includes mini mode)
+- TypeScript: `packages/plugin-ts/src/parser.ts` (generates types)
+- Faker: `packages/plugin-faker/src/parser.ts` (generates mock data)
+
+**Detailed documentation**: See `packages/plugin-oas/src/parsers/README.md` for complete guide on creating new parsers
