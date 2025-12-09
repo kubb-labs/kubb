@@ -234,7 +234,47 @@ const zodKeywordMapper = {
     }
     return `.default(${value ?? ''})`
   },
-  and: (items: string[] = []) => items?.map((item) => `.and(${item})`).join(''),
+  and: (items: string[] = [], mini?: boolean) => {
+    // zod/mini doesn't support .and() method, so we can't use intersection types
+    // In mini mode, we try to extract and append .check() calls instead
+    if (mini && items.length > 0) {
+      // Try to extract check calls from additional items
+      const checks: string[] = []
+      for (const item of items) {
+        // Extract .check(...) from patterns like "z.string().check(...)"
+        // Need to handle nested parentheses properly
+        const checkStart = item.indexOf('.check(')
+        if (checkStart !== -1) {
+          // Find the matching closing parenthesis
+          let depth = 0
+          let i = checkStart + 7 // length of '.check('
+          let checkContent = ''
+          while (i < item.length) {
+            const char = item[i]
+            if (char === '(') depth++
+            else if (char === ')') {
+              if (depth === 0) break
+              depth--
+            }
+            checkContent += char
+            i++
+          }
+          if (checkContent) {
+            checks.push(checkContent)
+          }
+        }
+      }
+      
+      if (checks.length > 0) {
+        // Append checks to the base schema
+        return `.check(${checks.join(', ')})`
+      }
+      
+      // If we can't extract checks, just use the first schema (limitation)
+      return ''
+    }
+    return items?.map((item) => `.and(${item})`).join('')
+  },
   describe: (value = '', innerSchema?: string, mini?: boolean) => {
     if (mini) {
       return undefined
@@ -468,7 +508,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
       .map((it: Schema, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
       .filter(Boolean)
 
-    return `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1))}`
+    return `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1), options.mini)}`
   }
 
   if (isKeyword(current, schemaKeywords.array)) {
