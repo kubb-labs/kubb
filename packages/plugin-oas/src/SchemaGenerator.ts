@@ -1133,9 +1133,9 @@ export class SchemaGenerator<
       inferredType = 'string'
     } else if (schemaObject.minimum !== undefined || schemaObject.maximum !== undefined) {
       inferredType = 'number'
-    } else if (schemaObject.minItems !== undefined || schemaObject.maxItems !== undefined) {
-      inferredType = 'array'
     }
+    // Note: minItems/maxItems don't infer type 'array' because arrays are handled
+    // specially with schemaKeywords.array and require an items property
 
     if (inferredType) {
       return [{ keyword: inferredType }, ...baseItems]
