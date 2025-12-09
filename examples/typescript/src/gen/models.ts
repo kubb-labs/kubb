@@ -79,14 +79,14 @@ export interface Customer {
   address?: Address[]
 }
 
-export type HappyCustomer = Customer & {
+export interface HappyCustomer {
   /**
    * @type boolean | undefined
    */
   isHappy?: true
 }
 
-export type UnhappyCustomer = Customer & {
+export interface UnhappyCustomer {
   /**
    * @type string | undefined
    */
@@ -249,11 +249,7 @@ export type Pet =
       status?: StatusEnum
     })
 
-export type FullAddress = Address & {
-  /**
-   * @type string
-   */
-  streetNumber: string
+export interface FullAddress {
   /**
    * @type string
    */

@@ -1,5 +1,4 @@
 export { findSchemaDefinition, matchesMimeType } from 'oas/utils'
-export type { Infer, Model, RequestParams, Response } from './infer/index.ts'
 export { mergeAllOf } from './mergeAllOf.ts'
 export { Oas } from './Oas.ts'
 export * from './types.ts'

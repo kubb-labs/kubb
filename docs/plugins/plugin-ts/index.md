@@ -299,17 +299,6 @@ type Pet = {
 ```
 :::
 
-### oasType
-
-Export an Oas object as Oas type with `import type { Infer } from '@kubb/plugin-ts/oas'` <br/>
-See [infer](/helpers/oas) in how to use the types with `@kubb/plugin-ts/oas`.<br/>
-
-|           |                    |
-|----------:|:-------------------|
-|     Type: | `'infer' \| false` |
-| Required: | `false`            |
-
-
 ### include
 <!--@include: ../core/include.md-->
 
@@ -381,7 +370,6 @@ export default defineConfig({
       dateType: 'date',
       unknownType: 'unknown',
       optionalType: 'questionTokenAndUndefined',
-      oasType: false,
     }),
   ],
 })

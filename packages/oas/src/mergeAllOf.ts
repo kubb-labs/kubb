@@ -1,8 +1,8 @@
-import { isRef } from 'oas/types'
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject } from 'remeda'
 
-// Extended schema type that includes nullable and items properties
+import { hasItems, isReference } from './utils.ts'
+
 type SchemaObject = (OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject) & {
   nullable?: boolean
   items?: SchemaObject | ReferenceObject
@@ -65,7 +65,7 @@ type NumericConstraintField =
  */
 export function mergeAllOf(schema: SchemaObject | ReferenceObject): SchemaObject | ReferenceObject {
   // If it's a reference, return it unchanged
-  if (isRef(schema)) {
+  if (isReference(schema)) {
     return schema
   }
 
@@ -77,7 +77,7 @@ export function mergeAllOf(schema: SchemaObject | ReferenceObject): SchemaObject
   // Merge all schemas in allOf
   const allOfSchemas = schema.allOf.map((s) => {
     // Each entry in allOf might itself be a reference or have nested allOf
-    if (isRef(s)) {
+    if (isReference(s)) {
       return s
     }
     // Recursively merge nested allOf
@@ -88,7 +88,7 @@ export function mergeAllOf(schema: SchemaObject | ReferenceObject): SchemaObject
   let merged: SchemaObject = {}
 
   for (const allOfSchema of allOfSchemas) {
-    if (isRef(allOfSchema)) {
+    if (isReference(allOfSchema)) {
       // If there's a reference in allOf, we can't merge it
       // In this case, we'll skip it and let the caller handle $ref resolution
       continue
@@ -103,13 +103,6 @@ export function mergeAllOf(schema: SchemaObject | ReferenceObject): SchemaObject
 
   // Recursively process properties
   return recursivelyMergeProperties(result)
-}
-
-/**
- * Type guard to check if a schema has an items property (array schema).
- */
-function hasItems(schema: SchemaObject): schema is SchemaObject & { items: SchemaObject | ReferenceObject } {
-  return 'items' in schema && schema.items !== undefined && typeof schema.items === 'object' && !Array.isArray(schema.items)
 }
 
 /**
@@ -130,7 +123,7 @@ function recursivelyMergeProperties(schema: SchemaObject): SchemaObject {
 
   // Also handle items for array schemas
   if (hasItems(schema)) {
-    return { ...schema, items: mergeAllOf(schema.items) }
+    return { ...schema, items: mergeAllOf(schema.items) } as SchemaObject
   }
 
   return schema

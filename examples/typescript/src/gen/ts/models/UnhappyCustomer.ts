@@ -3,9 +3,7 @@
  * Do not edit manually.
  */
 
-import type { Customer } from './Customer.ts'
-
-export type UnhappyCustomer = Customer & {
+export type UnhappyCustomer = {
   /**
    * @type string | undefined
    */

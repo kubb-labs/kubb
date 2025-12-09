@@ -3,9 +3,7 @@
  * Do not edit manually.
  */
 
-import type { Customer } from './Customer.ts'
-
-export type HappyCustomer = Customer & {
+export type HappyCustomer = {
   /**
    * @type boolean | undefined
    */

@@ -57,7 +57,6 @@ export default defineConfig({
       output: {
         path: 'ts/models',
       },
-      oasType: 'infer',
       mapper: {
         category: factory.createPropertySignature(
           undefined,

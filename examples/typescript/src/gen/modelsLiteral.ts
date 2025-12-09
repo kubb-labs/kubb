@@ -75,14 +75,14 @@ export type Customer = {
   address?: Address[]
 }
 
-export type HappyCustomer = Customer & {
+export type HappyCustomer = {
   /**
    * @type boolean | undefined
    */
   isHappy?: true
 }
 
-export type UnhappyCustomer = Customer & {
+export type UnhappyCustomer = {
   /**
    * @type string | undefined
    */
@@ -241,11 +241,7 @@ export type Pet =
       status?: StatusEnum
     })
 
-export type FullAddress = Address & {
-  /**
-   * @type string
-   */
-  streetNumber: string
+export type FullAddress = {
   /**
    * @type string
    */

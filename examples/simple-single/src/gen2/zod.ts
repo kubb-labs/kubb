@@ -88,7 +88,7 @@ export const flyMachineHTTPHeaderSchema = z
   )
 
 export const flyMachineCheckSchema = z.object({
-  grace_period: z.optional(z.lazy(() => flyDurationSchema).describe('The time to wait after a VM starts before checking its health')),
+  grace_period: z.optional(z.object({}).describe('The time to wait after a VM starts before checking its health')),
   headers: z.optional(
     z.array(
       z
@@ -98,13 +98,13 @@ export const flyMachineCheckSchema = z.object({
         ),
     ),
   ),
-  interval: z.optional(z.lazy(() => flyDurationSchema).describe('The time between connectivity checks')),
+  interval: z.optional(z.object({}).describe('The time between connectivity checks')),
   kind: z.optional(z.enum(['informational', 'readiness']).describe('Kind of the check (informational, readiness)')),
   method: z.optional(z.string().describe('For http checks, the HTTP method to use to when making the request')),
   path: z.optional(z.string().describe('For http checks, the path to send the request to')),
   port: z.optional(z.number().int().describe('The port to connect to, often the same as internal_port')),
   protocol: z.optional(z.string().describe('For http checks, whether to use http or https')),
-  timeout: z.optional(z.lazy(() => flyDurationSchema).describe('The maximum time a connection can take before being reported as failing its health check')),
+  timeout: z.optional(z.object({}).describe('The maximum time a connection can take before being reported as failing its health check')),
   tls_server_name: z.optional(z.string().describe('If the protocol is https, the hostname to use for TLS certificate validation')),
   tls_skip_verify: z.optional(z.boolean().describe('For http checks with https protocol, whether or not to verify the TLS certificate')),
   type: z.optional(z.string().describe('tcp or http')),
@@ -113,7 +113,7 @@ export const flyMachineCheckSchema = z.object({
 export const flyContainerDependencyConditionSchema = z.enum(['exited_successfully', 'healthy', 'started'])
 
 export const flyContainerDependencySchema = z.object({
-  condition: z.optional(z.lazy(() => flyContainerDependencyConditionSchema)),
+  condition: z.optional(z.object({})),
   name: z.optional(z.string()),
 })
 
@@ -175,7 +175,7 @@ export const flyHTTPHealthcheckSchema = z.object({
   method: z.optional(z.string().describe('The HTTP method to use to when making the request')),
   path: z.optional(z.string().describe('The path to send the request to')),
   port: z.optional(z.number().int().describe('The port to connect to, often the same as internal_port')),
-  scheme: z.optional(z.lazy(() => flyContainerHealthcheckSchemeSchema).describe('Whether to use http or https')),
+  scheme: z.optional(z.object({}).describe('Whether to use http or https')),
   tls_server_name: z.optional(z.string().describe('If the protocol is https, the hostname to use for TLS certificate validation')),
   tls_skip_verify: z.optional(z.boolean().describe('If the protocol is https, whether or not to verify the TLS certificate')),
 })
@@ -194,14 +194,12 @@ export const flyContainerHealthcheckSchema = z.object({
   grace_period: z.optional(z.number().int().describe('The time in seconds to wait after a container starts before checking its health.')),
   http: z.optional(z.lazy(() => flyHTTPHealthcheckSchema)),
   interval: z.optional(z.number().int().describe('The time in seconds between executing the defined check.')),
-  kind: z.optional(z.lazy(() => flyContainerHealthcheckKindSchema).describe('Kind of healthcheck (readiness, liveness)')),
+  kind: z.optional(z.object({}).describe('Kind of healthcheck (readiness, liveness)')),
   name: z.optional(z.string().describe('The name of the check. Must be unique within the container.')),
   success_threshold: z.optional(z.number().int().describe('The number of times the check must succeeed before considering the container healthy.')),
   tcp: z.optional(z.lazy(() => flyTCPHealthcheckSchema)),
   timeout: z.optional(z.number().int().describe('The time in seconds to wait for the check to complete.')),
-  unhealthy: z.optional(
-    z.lazy(() => flyUnhealthyPolicySchema).describe('Unhealthy policy that determines what action to take if a container is deemed unhealthy'),
-  ),
+  unhealthy: z.optional(z.object({}).describe('Unhealthy policy that determines what action to take if a container is deemed unhealthy')),
 })
 
 /**
@@ -286,9 +284,7 @@ export const flyContainerConfigSchema = z.object({
   image: z.optional(z.string().describe('Image is the docker image to run.')),
   name: z.optional(z.string().describe('Name is used to identify the container in the machine.')),
   restart: z.optional(
-    z
-      .lazy(() => flyMachineRestartSchema)
-      .describe('Restart is used to define the restart policy for the container. NOTE: spot-price is not\nsupported for containers.'),
+    z.object({}).describe('Restart is used to define the restart policy for the container. NOTE: spot-price is not\nsupported for containers.'),
   ),
   secrets: z.optional(
     z
@@ -297,7 +293,7 @@ export const flyContainerConfigSchema = z.object({
         'Secrets can be provided at the process level to explicitly indicate which secrets should be\nused for the process. If not provided, the secrets provided at the machine level will be used.',
       ),
   ),
-  stop: z.optional(z.lazy(() => flyStopConfigSchema).describe('Stop is used to define the signal and timeout for stopping the container.')),
+  stop: z.optional(z.object({}).describe('Stop is used to define the signal and timeout for stopping the container.')),
   user: z.optional(z.string().describe('UserOverride is used to override the default user of the image.')),
 })
 
@@ -386,7 +382,7 @@ export const flyMachineProcessSchema = z.object({
 })
 
 export const flyMachineServiceCheckSchema = z.object({
-  grace_period: z.optional(z.lazy(() => flyDurationSchema).describe('The time to wait after a VM starts before checking its health')),
+  grace_period: z.optional(z.object({}).describe('The time to wait after a VM starts before checking its health')),
   headers: z.optional(
     z.array(
       z
@@ -396,12 +392,12 @@ export const flyMachineServiceCheckSchema = z.object({
         ),
     ),
   ),
-  interval: z.optional(z.lazy(() => flyDurationSchema).describe('The time between connectivity checks')),
+  interval: z.optional(z.object({}).describe('The time between connectivity checks')),
   method: z.optional(z.string().describe('For http checks, the HTTP method to use to when making the request')),
   path: z.optional(z.string().describe('For http checks, the path to send the request to')),
   port: z.optional(z.number().int().describe('The port to connect to, often the same as internal_port')),
   protocol: z.optional(z.string().describe('For http checks, whether to use http or https')),
-  timeout: z.optional(z.lazy(() => flyDurationSchema).describe('The maximum time a connection can take before being reported as failing its health check')),
+  timeout: z.optional(z.object({}).describe('The maximum time a connection can take before being reported as failing its health check')),
   tls_server_name: z.optional(z.string().describe('If the protocol is https, the hostname to use for TLS certificate validation')),
   tls_skip_verify: z.optional(z.boolean().describe('For http checks with https protocol, whether or not to verify the TLS certificate')),
   type: z.optional(z.string().describe('tcp or http')),
@@ -526,7 +522,7 @@ export const flyMachineConfigSchema = z.object({
 })
 
 export const createMachineRequestSchema = z.object({
-  config: z.optional(z.lazy(() => flyMachineConfigSchema).describe('An object defining the Machine configuration')),
+  config: z.optional(z.object({}).describe('An object defining the Machine configuration')),
   lease_ttl: z.optional(z.number().int()),
   lsvd: z.optional(z.boolean()),
   min_secrets_version: z.optional(z.number().int()),
@@ -793,7 +789,7 @@ export const stopRequestSchema = z.object({
 })
 
 export const updateMachineRequestSchema = z.object({
-  config: z.optional(z.lazy(() => flyMachineConfigSchema).describe('An object defining the Machine configuration')),
+  config: z.optional(z.object({}).describe('An object defining the Machine configuration')),
   current_version: z.optional(z.string()),
   lease_ttl: z.optional(z.number().int()),
   lsvd: z.optional(z.boolean()),
@@ -849,7 +845,7 @@ export const listIPAssignmentsResponseSchema = z.object({
 export const placementWeightsSchema = z.object({}).catchall(z.number().int())
 
 export const mainGetPlacementsRequestSchema = z.object({
-  compute: z.optional(z.lazy(() => flyMachineGuestSchema).describe('Resource requirements for the Machine to simulate. Defaults to a performance-1x machine')),
+  compute: z.optional(z.object({}).describe('Resource requirements for the Machine to simulate. Defaults to a performance-1x machine')),
   count: z.optional(
     z.number().int().describe('Number of machines to simulate placement.\nDefaults to 0, which returns the org-specific limit for each region.'),
   ),
@@ -863,7 +859,7 @@ export const mainGetPlacementsRequestSchema = z.object({
   ),
   volume_name: z.optional(z.string()),
   volume_size_bytes: z.optional(z.number().int()),
-  weights: z.optional(z.lazy(() => placementWeightsSchema).describe('Optional weights to override default placement preferences.')),
+  weights: z.optional(z.object({}).describe('Optional weights to override default placement preferences.')),
 })
 
 export const placementRegionPlacementSchema = z.object({

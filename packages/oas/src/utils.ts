@@ -5,6 +5,7 @@ import yaml from '@stoplight/yaml'
 import type * as OasTypes from 'oas/types'
 import type { OASDocument, ParameterObject, SchemaObject } from 'oas/types'
 import { isRef, isSchema } from 'oas/types'
+
 import OASNormalize from 'oas-normalize'
 import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject, mergeDeep } from 'remeda'
@@ -76,6 +77,13 @@ export function isRequired(schema?: SchemaObject): boolean {
 
 export function isOptional(schema?: SchemaObject): boolean {
   return !isRequired(schema)
+}
+
+/**
+ * Type guard to check if a schema has an items property (array schema).
+ */
+export function hasItems(schema: SchemaObject): schema is SchemaObject & { items: SchemaObject } {
+  return 'items' in schema && schema.items !== undefined && typeof schema.items === 'object' && !Array.isArray(schema.items)
 }
 
 export async function parse(

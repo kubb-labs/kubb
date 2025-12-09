@@ -2,7 +2,7 @@ import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
-import { oasGenerator, typeGenerator } from './generators'
+import { typeGenerator } from './generators'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
@@ -22,9 +22,8 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     emptySchemaType = unknownType,
     syntaxType = 'type',
     transformers = {},
-    oasType = false,
     mapper = {},
-    generators = [typeGenerator, oasType === 'infer' ? oasGenerator : undefined].filter(Boolean),
+    generators = [typeGenerator].filter(Boolean),
     contentType,
   } = options
 
@@ -37,7 +36,6 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       transformers,
       dateType,
       optionalType,
-      oasType,
       enumType,
       enumSuffix,
       unknownType,

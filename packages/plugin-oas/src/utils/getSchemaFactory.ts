@@ -1,5 +1,4 @@
-import type { Oas, OpenAPIV3, OpenAPIV3_1, SchemaObject } from '@kubb/oas'
-import { isOpenApiV3_1Document } from '@kubb/oas'
+import { isOpenApiV3_1Document, mergeAllOf, type Oas, type OpenAPIV3, type OpenAPIV3_1, type SchemaObject } from '@kubb/oas'
 
 /**
  * Make it possible to narrow down the schema based on a specific version(3 or 3.1)
@@ -30,9 +29,11 @@ type SchemaResult<TWithRef extends boolean = false> =
 export function getSchemaFactory<TWithRef extends boolean = false>(oas: Oas): (schema?: SchemaObject) => SchemaResult<TWithRef> {
   return (schema?: SchemaObject) => {
     const version = isOpenApiV3_1Document(oas.api) ? '3.1' : '3.0'
+    const dereferencedSchema = oas.dereferenceWithRef(schema)
+    const schemaObject = mergeAllOf(dereferencedSchema)
 
     return {
-      schemaObject: oas.dereferenceWithRef(schema),
+      schemaObject,
       version,
     } as SchemaResult<TWithRef>
   }

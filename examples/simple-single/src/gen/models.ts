@@ -104,7 +104,7 @@ export type Person = {
   name?: string
 }
 
-export type User = Person & {
+export type User = {
   /**
    * @type integer | undefined, int64
    */

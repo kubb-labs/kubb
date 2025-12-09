@@ -3,13 +3,7 @@
  * Do not edit manually.
  */
 
-import type { Address } from './Address.ts'
-
-export type FullAddress = Address & {
-  /**
-   * @type string
-   */
-  streetNumber: string
+export type FullAddress = {
   /**
    * @type string
    */

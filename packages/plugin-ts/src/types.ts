@@ -77,10 +77,6 @@ export type Options = {
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
   /**
-   * Export an Oas object as Oas type with `import type { Infer } from '@kubb/oas'`
-   */
-  oasType?: 'infer' | false
-  /**
    * @example
    * Use https://ts-ast-viewer.com to generate factory code(see createPropertySignature)
    * category: factory.createPropertySignature(
@@ -108,7 +104,6 @@ type ResolvedOptions = {
   emptySchemaType: NonNullable<Options['emptySchemaType']>
   optionalType: NonNullable<Options['optionalType']>
   transformers: NonNullable<Options['transformers']>
-  oasType: NonNullable<Options['oasType']>
   syntaxType: NonNullable<Options['syntaxType']>
   mapper: Record<string, any>
 }
