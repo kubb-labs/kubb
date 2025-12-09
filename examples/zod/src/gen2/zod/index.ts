@@ -58,6 +58,9 @@ export { logoutUserErrorSchema, logoutUserQueryResponseSchema } from './logoutUs
 export { orderSchema } from './orderSchema.ts'
 export { petNotFoundSchema } from './petNotFoundSchema.ts'
 export { petSchema } from './petSchema.ts'
+export { phoneNumberSchema } from './phoneNumberSchema.ts'
+export { phoneWithMaxLengthExplicitSchema } from './phoneWithMaxLengthExplicitSchema.ts'
+export { phoneWithMaxLengthSchema } from './phoneWithMaxLengthSchema.ts'
 export {
   placeOrderPatch200Schema,
   placeOrderPatch405Schema,
