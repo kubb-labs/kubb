@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 
-import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
-import { createParser, findSchemaKeyword, isKeyword, SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
+import type { Schema, SchemaMapper } from '@kubb/plugin-oas'
+import { createParser, findSchemaKeyword, isKeyword, SchemaGenerator, type SchemaKeywordMapper, schemaKeywords } from '@kubb/plugin-oas'
 
 //TODO add zodKeywordMapper as function that returns 3 versions: v3, v4 and v4 mini, this can also be used to have the custom mapping(see object type)
 // also include shouldCoerce
@@ -492,7 +492,7 @@ export const parse = createParser<string, ParserOptions>({
       )
     },
     and(tree, options, parse) {
-      const { current, schema, parent, name } = tree
+      const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.and)) return undefined
       
       const items = sort(current.args)
@@ -505,7 +505,7 @@ export const parse = createParser<string, ParserOptions>({
       return `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1), options.mini)}`
     },
     array(tree, options, parse) {
-      const { current, schema, parent, name } = tree
+      const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.array)) return undefined
       
       return zodKeywordMapper.array(
@@ -521,7 +521,7 @@ export const parse = createParser<string, ParserOptions>({
       )
     },
     enum(tree, options, parse) {
-      const { current, schema, parent, name, siblings } = tree
+      const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.enum)) return undefined
       
       if (current.args.asConst) {
@@ -699,14 +699,14 @@ export const parse = createParser<string, ParserOptions>({
       return text.join('')
     },
     tuple(tree, options, parse) {
-      const { current, schema, parent, name } = tree
+      const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.tuple)) return undefined
       
       return zodKeywordMapper.tuple(
         current.args.items.map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean),
       )
     },
-    const(tree, options) {
+    const(tree, _options) {
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.const)) return undefined
       
@@ -715,7 +715,7 @@ export const parse = createParser<string, ParserOptions>({
       }
 
       if (current.args.format === 'boolean' && current.args.value !== undefined) {
-        return zodKeywordMapper.const(current.args.value)
+        return zodKeywordMapper.const(current.args.value as true)
       }
       return zodKeywordMapper.const(transformers.stringify(current.args.value))
     },
@@ -761,8 +761,8 @@ export const parse = createParser<string, ParserOptions>({
       const { current, siblings } = tree
       if (!isKeyword(current, schemaKeywords.string)) return undefined
       
-      const minSchema = findSchemaKeyword(siblings, 'min')
-      const maxSchema = findSchemaKeyword(siblings, 'max')
+      const minSchema = findSchemaKeyword(siblings, 'min') as any
+      const maxSchema = findSchemaKeyword(siblings, 'max') as any
 
       return zodKeywordMapper.string(shouldCoerce(options.coercion, 'strings'), minSchema?.args, maxSchema?.args, options.mini)
     },
@@ -770,8 +770,8 @@ export const parse = createParser<string, ParserOptions>({
       const { current, siblings } = tree
       if (!isKeyword(current, schemaKeywords.uuid)) return undefined
       
-      const minSchema = findSchemaKeyword(siblings, 'min')
-      const maxSchema = findSchemaKeyword(siblings, 'max')
+      const minSchema = findSchemaKeyword(siblings, 'min') as any
+      const maxSchema = findSchemaKeyword(siblings, 'max') as any
 
       return zodKeywordMapper.uuid(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
     },
@@ -779,8 +779,8 @@ export const parse = createParser<string, ParserOptions>({
       const { current, siblings } = tree
       if (!isKeyword(current, schemaKeywords.email)) return undefined
       
-      const minSchema = findSchemaKeyword(siblings, 'min')
-      const maxSchema = findSchemaKeyword(siblings, 'max')
+      const minSchema = findSchemaKeyword(siblings, 'min') as any
+      const maxSchema = findSchemaKeyword(siblings, 'max') as any
 
       return zodKeywordMapper.email(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
     },
@@ -788,8 +788,8 @@ export const parse = createParser<string, ParserOptions>({
       const { current, siblings } = tree
       if (!isKeyword(current, schemaKeywords.url)) return undefined
       
-      const minSchema = findSchemaKeyword(siblings, 'min')
-      const maxSchema = findSchemaKeyword(siblings, 'max')
+      const minSchema = findSchemaKeyword(siblings, 'min') as any
+      const maxSchema = findSchemaKeyword(siblings, 'max') as any
 
       return zodKeywordMapper.url(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
     },
@@ -797,10 +797,10 @@ export const parse = createParser<string, ParserOptions>({
       const { current, siblings } = tree
       if (!isKeyword(current, schemaKeywords.number)) return undefined
       
-      const minSchema = findSchemaKeyword(siblings, 'min')
-      const maxSchema = findSchemaKeyword(siblings, 'max')
-      const exclusiveMinimumSchema = findSchemaKeyword(siblings, 'exclusiveMinimum')
-      const exclusiveMaximumSchema = findSchemaKeyword(siblings, 'exclusiveMaximum')
+      const minSchema = findSchemaKeyword(siblings, 'min') as any
+      const maxSchema = findSchemaKeyword(siblings, 'max') as any
+      const exclusiveMinimumSchema = findSchemaKeyword(siblings, 'exclusiveMinimum') as any
+      const exclusiveMaximumSchema = findSchemaKeyword(siblings, 'exclusiveMaximum') as any
       
       return zodKeywordMapper.number(
         shouldCoerce(options.coercion, 'numbers'),
@@ -815,10 +815,10 @@ export const parse = createParser<string, ParserOptions>({
       const { current, siblings } = tree
       if (!isKeyword(current, schemaKeywords.integer)) return undefined
       
-      const minSchema = findSchemaKeyword(siblings, 'min')
-      const maxSchema = findSchemaKeyword(siblings, 'max')
-      const exclusiveMinimumSchema = findSchemaKeyword(siblings, 'exclusiveMinimum')
-      const exclusiveMaximumSchema = findSchemaKeyword(siblings, 'exclusiveMaximum')
+      const minSchema = findSchemaKeyword(siblings, 'min') as any
+      const maxSchema = findSchemaKeyword(siblings, 'max') as any
+      const exclusiveMinimumSchema = findSchemaKeyword(siblings, 'exclusiveMinimum') as any
+      const exclusiveMaximumSchema = findSchemaKeyword(siblings, 'exclusiveMaximum') as any
       
       return zodKeywordMapper.integer(
         shouldCoerce(options.coercion, 'numbers'),

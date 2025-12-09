@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import type { SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
-import { createParser, isKeyword, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
+import { createParser, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 import * as factory from './factory.ts'
 
@@ -170,7 +170,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
   mapper: typeKeywordMapper,
   handlers: {
     union(tree, options, parse) {
-      const { current, schema, parent, name } = tree
+      const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.union)) return undefined
 
       return typeKeywordMapper.union(
@@ -178,7 +178,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
       )
     },
     and(tree, options, parse) {
-      const { current, schema, parent, name } = tree
+      const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.and)) return undefined
 
       return typeKeywordMapper.and(
@@ -186,7 +186,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
       )
     },
     array(tree, options, parse) {
-      const { current, schema, parent, name } = tree
+      const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.array)) return undefined
 
       return typeKeywordMapper.array(
@@ -200,7 +200,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
       // Adding suffix to enum (see https://github.com/kubb-labs/kubb/issues/1873)
       return typeKeywordMapper.enum(options.enumType === 'asConst' ? `${current.args.typeName}Key` : current.args.typeName)
     },
-    ref(tree, options) {
+    ref(tree, _options) {
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.ref)) return undefined
 
@@ -213,7 +213,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
       return typeKeywordMapper.blob()
     },
     tuple(tree, options, parse) {
-      const { current, schema, parent, name } = tree
+      const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.tuple)) return undefined
 
       return typeKeywordMapper.tuple(
@@ -223,7 +223,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
         current.args.max,
       )
     },
-    const(tree, options) {
+    const(tree, _options) {
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.const)) return undefined
 

@@ -1,5 +1,5 @@
 import type { Schema, SchemaKeywordMapper, SchemaMapper, SchemaTree } from './SchemaMapper.ts'
-import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
+import { schemaKeywords } from './SchemaMapper.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 
 /**

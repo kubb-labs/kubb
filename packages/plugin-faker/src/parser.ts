@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
-import type { Schema, SchemaKeywordBase, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
-import { createParser, findSchemaKeyword, isKeyword, SchemaGenerator, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
+import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
+import { createParser, findSchemaKeyword, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import type { Options } from './types.ts'
 
 const fakerKeywordMapper = {
@@ -190,7 +190,7 @@ export const parse = createParser<string, ParserOptions>({
   mapper: fakerKeywordMapper,
   handlers: {
     union(tree, options, parse) {
-      const { current, schema, parent, name, siblings } = tree
+      const { current, schema, name, siblings } = tree
       if (!isKeyword(current, schemaKeywords.union)) return undefined
 
       if (Array.isArray(current.args) && !current.args.length) {
@@ -202,7 +202,7 @@ export const parse = createParser<string, ParserOptions>({
       )
     },
     and(tree, options, parse) {
-      const { current, schema, parent, siblings } = tree
+      const { current, schema, siblings } = tree
       if (!isKeyword(current, schemaKeywords.and)) return undefined
 
       return fakerKeywordMapper.and(
@@ -210,7 +210,7 @@ export const parse = createParser<string, ParserOptions>({
       )
     },
     array(tree, options, parse) {
-      const { current, schema, parent, siblings } = tree
+      const { current, schema } = tree
       if (!isKeyword(current, schemaKeywords.array)) return undefined
 
       return fakerKeywordMapper.array(
@@ -230,8 +230,8 @@ export const parse = createParser<string, ParserOptions>({
         current.args.max,
       )
     },
-    enum(tree, options, parse) {
-      const { current, schema, parent, name } = tree
+    enum(tree, options, _parse) {
+      const { current, parent, name } = tree
       if (!isKeyword(current, schemaKeywords.enum)) return undefined
 
       const isParentTuple = parent ? isKeyword(parent, schemaKeywords.tuple) : false
@@ -280,7 +280,7 @@ export const parse = createParser<string, ParserOptions>({
       return `${current.args.name}()`
     },
     object(tree, options, parse) {
-      const { current, schema, name } = tree
+      const { current, schema } = tree
       if (!isKeyword(current, schemaKeywords.object)) return undefined
 
       const argsObject = Object.entries(current.args?.properties || {})
@@ -318,7 +318,7 @@ export const parse = createParser<string, ParserOptions>({
       return `{${argsObject}}`
     },
     tuple(tree, options, parse) {
-      const { current, schema, parent, siblings } = tree
+      const { current, schema, siblings } = tree
       if (!isKeyword(current, schemaKeywords.tuple)) return undefined
 
       if (Array.isArray(current.args.items)) {
@@ -329,7 +329,7 @@ export const parse = createParser<string, ParserOptions>({
 
       return parse({ schema, parent: current, current: current.args.items, siblings }, { ...options, canOverride: false })
     },
-    const(tree, options) {
+    const(tree, _options) {
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.const)) return undefined
 
@@ -365,39 +365,39 @@ export const parse = createParser<string, ParserOptions>({
 
       return fakerKeywordMapper.any()
     },
-    string(tree, options) {
+    string(tree, _options) {
       const { current, siblings } = tree
       if (!isKeyword(current, schemaKeywords.string)) return undefined
 
       if (siblings) {
-        const minSchema = findSchemaKeyword(siblings, 'min')
-        const maxSchema = findSchemaKeyword(siblings, 'max')
+        const minSchema = findSchemaKeyword(siblings, 'min') as any
+        const maxSchema = findSchemaKeyword(siblings, 'max') as any
 
         return fakerKeywordMapper.string(minSchema?.args, maxSchema?.args)
       }
 
       return fakerKeywordMapper.string()
     },
-    number(tree, options) {
+    number(tree, _options) {
       const { current, siblings } = tree
       if (!isKeyword(current, schemaKeywords.number)) return undefined
 
       if (siblings) {
-        const minSchema = findSchemaKeyword(siblings, 'min')
-        const maxSchema = findSchemaKeyword(siblings, 'max')
+        const minSchema = findSchemaKeyword(siblings, 'min') as any
+        const maxSchema = findSchemaKeyword(siblings, 'max') as any
 
         return fakerKeywordMapper.number(minSchema?.args, maxSchema?.args)
       }
 
       return fakerKeywordMapper.number()
     },
-    integer(tree, options) {
+    integer(tree, _options) {
       const { current, siblings } = tree
       if (!isKeyword(current, schemaKeywords.integer)) return undefined
 
       if (siblings) {
-        const minSchema = findSchemaKeyword(siblings, 'min')
-        const maxSchema = findSchemaKeyword(siblings, 'max')
+        const minSchema = findSchemaKeyword(siblings, 'min') as any
+        const maxSchema = findSchemaKeyword(siblings, 'max') as any
 
         return fakerKeywordMapper.integer(minSchema?.args, maxSchema?.args)
       }
