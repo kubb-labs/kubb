@@ -883,11 +883,11 @@ components:
         parent:
           type: array
           items:
-            $ref: '#/components/schemas/Pet'
+            $ref: "#/components/schemas/Pet"
         internalId:
-            type: string
-            example: 10
-            pattern: "^[0-9]{1,19}$"
+          type: string
+          example: 10
+          pattern: "^[0-9]{1,19}$"
         name:
           type: string
           example: doggie
@@ -966,16 +966,6 @@ components:
           type: string
       xml:
         name: "##default"
-  requestBodies:
-    Pet:
-      description: Pet object that needs to be added to the store
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Pet"
-        application/xml:
-          schema:
-            $ref: "#/components/schemas/Pet"
     UserArray:
       description: List of user object
       content:
@@ -989,11 +979,11 @@ components:
       pattern: '^(\+\d{1,3}[-\s]?)?\(?(?:\d{1,4})\)?[-\s]?\d{1,4}[-\s]?\d{1,9}$'
     PhoneWithMaxLength:
       allOf:
-        - $ref: '#/components/schemas/PhoneNumber'
+        - $ref: "#/components/schemas/PhoneNumber"
         - maxLength: 15
     PhoneWithMaxLengthExplicit:
       allOf:
-        - $ref: '#/components/schemas/PhoneNumber'
+        - $ref: "#/components/schemas/PhoneNumber"
         - type: string
           maxLength: 15
   securitySchemes:
