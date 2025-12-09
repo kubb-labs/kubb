@@ -69,11 +69,14 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
               ...query,
             },
       mutationKey,
-      mutation: {
-        methods: ['post', 'put', 'patch', 'delete'],
-        importPath: '@tanstack/vue-query',
-        ...mutation,
-      },
+      mutation:
+        mutation === false
+          ? false
+          : {
+              methods: ['post', 'put', 'patch', 'delete'],
+              importPath: '@tanstack/vue-query',
+              ...mutation,
+            },
       paramsType,
       pathParamsType,
       parser,
