@@ -88,6 +88,13 @@ export function mergeAllOf(schema: SchemaObject | ReferenceObject): SchemaObject
 }
 
 /**
+ * Type guard to check if a schema has an items property (array schema).
+ */
+function hasItems(schema: SchemaObject): schema is SchemaObject & { items: SchemaObject | ReferenceObject } {
+  return 'items' in schema && typeof (schema as any).items === 'object' && !Array.isArray((schema as any).items)
+}
+
+/**
  * Recursively processes properties in a schema to merge any nested allOf.
  */
 function recursivelyMergeProperties(schema: SchemaObject): SchemaObject {
@@ -104,9 +111,8 @@ function recursivelyMergeProperties(schema: SchemaObject): SchemaObject {
   }
 
   // Also handle items for array schemas
-  const schemaWithItems = schema as any
-  if (schemaWithItems.items && typeof schemaWithItems.items === 'object' && !Array.isArray(schemaWithItems.items)) {
-    return { ...schema, items: mergeAllOf(schemaWithItems.items) } as SchemaObject
+  if (hasItems(schema)) {
+    return { ...schema, items: mergeAllOf(schema.items) }
   }
 
   return schema
@@ -140,7 +146,7 @@ function mergeSchemas(earlier: SchemaObject, later: SchemaObject): SchemaObject 
     result.type = earlier.type
   }
 
-  // Description: concatenate if both exist and different
+  // Description: later overrides earlier
   if (later.description !== undefined) {
     result.description = later.description
   } else if (earlier.description !== undefined) {
