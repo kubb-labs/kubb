@@ -143,6 +143,12 @@ type ParserOptions = {
    */
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
   /**
+   * Choose to use `enum`, `as const`, or `literal` for enums.
+   * - `enum`: TypeScript enum
+   * - `asConst`: const with camelCase name (e.g., `petType`)
+   * - `asPascalConst`: const with PascalCase name (e.g., `PetType`)
+   * - `constEnum`: const enum
+   * - `literal`: literal union type
    * @default `'asConst'`
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
