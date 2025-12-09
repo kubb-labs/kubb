@@ -82,7 +82,7 @@ export function isOptional(schema?: SchemaObject): boolean {
 /**
  * Type guard to check if a schema has an items property (array schema).
  */
-export function hasItems(schema: SchemaObject): schema is SchemaObject & { items: SchemaObject } {
+export function hasItems(schema: SchemaObject): schema is SchemaObject & { items: SchemaObject | OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject } {
   return 'items' in schema && schema.items !== undefined && typeof schema.items === 'object' && !Array.isArray(schema.items)
 }
 
