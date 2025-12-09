@@ -113,12 +113,8 @@ const zodKeywordMapper = {
     return '.nullable()'
   },
   null: () => 'z.null()',
-  nullish: (value?: string, version: '3' | '4' = '3') => {
+  nullish: (value?: string) => {
     if (value) {
-      // Zod v3 doesn't have z.nullish() wrapper, use z.nullable(z.optional()) instead
-      if (version === '3') {
-        return `z.nullable(z.optional(${value}))`
-      }
       return `z.nullish(${value})`
     }
     return '.nullish()'
@@ -238,7 +234,7 @@ const zodKeywordMapper = {
     }
     return `.default(${value ?? ''})`
   },
-  and: (items: string[] = []) => items?.filter(Boolean).map((item) => `.and(${item})`).join(''),
+  and: (items: string[] = []) => items?.map((item) => `.and(${item})`).join(''),
   describe: (value = '', innerSchema?: string, mini?: boolean) => {
     if (mini) {
       return undefined
@@ -400,7 +396,7 @@ export function wrapWithMiniModifiers(output: string, modifiers: MiniModifiers):
 
   // Apply nullish, nullable, or optional (outer wrappers for optionality)
   if (modifiers.hasNullish) {
-    result = zodKeywordMapper.nullish(result, '4')!
+    result = zodKeywordMapper.nullish(result)!
   } else {
     if (modifiers.hasNullable) {
       result = zodKeywordMapper.nullable(result)!
@@ -577,7 +573,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
             // both optional and nullable
             if (isNullish) {
               return `get "${propertyName}"(){
-                return ${zodKeywordMapper.nullish(objectValue, '4')}
+                return ${zodKeywordMapper.nullish(objectValue)}
               }`
             }
 
@@ -600,25 +596,25 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
               }`
           }
 
-          // V4 non-mini mode also uses wrapper functions (v4 removed chained methods)
+          // Non-mini mode uses chainable methods
           // both optional and nullable
           if (isNullish) {
             return `get "${propertyName}"(){
-                return ${zodKeywordMapper.nullish(objectValue, '4')}
+                return ${objectValue}${zodKeywordMapper.nullish()}
               }`
           }
 
           // undefined
           if (isOptional) {
             return `get "${propertyName}"(){
-                return ${zodKeywordMapper.optional(objectValue)}
+                return ${objectValue}${zodKeywordMapper.optional()}
               }`
           }
 
           // null
           if (isNullable) {
             return `get "${propertyName}"(){
-               return ${zodKeywordMapper.nullable(objectValue)}
+               return ${objectValue}${zodKeywordMapper.nullable()}
               }`
           }
 
@@ -629,7 +625,7 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
 
         // both optional and nullable
         if (isNullish) {
-          return `"${propertyName}": ${zodKeywordMapper.nullish(objectValue, options.version)}`
+          return `"${propertyName}": ${objectValue}${zodKeywordMapper.nullish()}`
         }
 
         // undefined
@@ -648,9 +644,9 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
 
     const additionalProperties = current.args?.additionalProperties?.length
       ? current.args.additionalProperties
-          .map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
-          .filter(Boolean)
-          .join('')
+        .map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
+        .filter(Boolean)
+        .join('')
       : undefined
 
     const text = [
