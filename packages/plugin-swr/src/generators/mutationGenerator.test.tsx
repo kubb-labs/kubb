@@ -69,6 +69,19 @@ describe('mutationGenerator operation', async () => {
         pathParamsType: 'object',
       },
     },
+    {
+      name: 'updatePetByIdParamsToTrigger',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'post',
+      options: {
+        mutation: {
+          importPath: 'swr/mutation',
+          methods: ['post'],
+          paramsToTrigger: true,
+        },
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

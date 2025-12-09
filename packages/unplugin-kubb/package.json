@@ -101,7 +101,7 @@
 		"@nuxt/schema": "^4.2.1",
 		"rimraf": "^6.1.2",
 		"rollup": "^4.53.3",
-		"vite": "^7.2.6",
+		"vite": "^7.2.7",
 		"webpack": "^5.103.0"
 	},
 	"peerDependencies": {

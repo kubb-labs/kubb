@@ -29,19 +29,20 @@ export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], con
   return res.data
 }
 
+export type DeleteOrderMutationArg = { orderId: DeleteOrderPathParams['orderId'] }
+
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
  * {@link /store/order/:orderId}
  */
 export function useDeleteOrder(
-  orderId: DeleteOrderPathParams['orderId'],
   options: {
     mutation?: SWRMutationConfiguration<
       DeleteOrderMutationResponse,
       ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
       DeleteOrderMutationKey | null,
-      never
+      DeleteOrderMutationArg
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
@@ -50,9 +51,14 @@ export function useDeleteOrder(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deleteOrderMutationKey()
 
-  return useSWRMutation<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, DeleteOrderMutationKey | null>(
+  return useSWRMutation<
+    DeleteOrderMutationResponse,
+    ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
+    DeleteOrderMutationKey | null,
+    DeleteOrderMutationArg
+  >(
     shouldFetch ? mutationKey : null,
-    async (_url) => {
+    async (_url, { arg: { orderId } }) => {
       return deleteOrder(orderId, config)
     },
     mutationOptions,

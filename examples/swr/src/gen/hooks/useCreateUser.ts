@@ -32,6 +32,8 @@ export async function createUser(data?: CreateUserMutationRequest, config: Parti
   return res.data
 }
 
+export type CreateUserMutationArg = { data?: CreateUserMutationRequest }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
@@ -39,7 +41,7 @@ export async function createUser(data?: CreateUserMutationRequest, config: Parti
  */
 export function useCreateUser(
   options: {
-    mutation?: SWRMutationConfiguration<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationKey | null, CreateUserMutationRequest> & {
+    mutation?: SWRMutationConfiguration<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationKey | null, CreateUserMutationArg> & {
       throwOnError?: boolean
     }
     client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch }
@@ -49,9 +51,9 @@ export function useCreateUser(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createUserMutationKey()
 
-  return useSWRMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationKey | null, CreateUserMutationRequest>(
+  return useSWRMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationKey | null, CreateUserMutationArg>(
     shouldFetch ? mutationKey : null,
-    async (_url, { arg: data }) => {
+    async (_url, { arg: { data } }) => {
       return createUser(data, config)
     },
     mutationOptions,
