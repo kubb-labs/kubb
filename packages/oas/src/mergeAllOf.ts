@@ -2,8 +2,26 @@ import { isRef } from 'oas/types'
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject } from 'remeda'
 
-type SchemaObject = (OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject) & { nullable?: boolean }
+// Extended schema type that includes nullable and items properties
+type SchemaObject = (OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject) & {
+  nullable?: boolean
+  items?: SchemaObject | ReferenceObject
+}
 type ReferenceObject = OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject
+
+// Helper type to access numeric constraint properties safely
+type NumericConstraintField =
+  | 'minimum'
+  | 'maximum'
+  | 'exclusiveMinimum'
+  | 'exclusiveMaximum'
+  | 'multipleOf'
+  | 'minLength'
+  | 'maxLength'
+  | 'minItems'
+  | 'maxItems'
+  | 'minProperties'
+  | 'maxProperties'
 
 /**
  * Merges OpenAPI Schema "allOf" arrays into a single Schema object.
@@ -91,7 +109,7 @@ export function mergeAllOf(schema: SchemaObject | ReferenceObject): SchemaObject
  * Type guard to check if a schema has an items property (array schema).
  */
 function hasItems(schema: SchemaObject): schema is SchemaObject & { items: SchemaObject | ReferenceObject } {
-  return 'items' in schema && typeof (schema as any).items === 'object' && !Array.isArray((schema as any).items)
+  return 'items' in schema && schema.items !== undefined && typeof schema.items === 'object' && !Array.isArray(schema.items)
 }
 
 /**
@@ -154,12 +172,10 @@ function mergeSchemas(earlier: SchemaObject, later: SchemaObject): SchemaObject 
   }
 
   // Boolean flags: true if any is true, but later explicit value wins
-  const laterNullable = (later as any).nullable
-  const earlierNullable = (earlier as any).nullable
-  if (laterNullable !== undefined) {
-    ;(result as any).nullable = laterNullable
-  } else if (earlierNullable === true) {
-    ;(result as any).nullable = true
+  if (later.nullable !== undefined) {
+    result.nullable = later.nullable
+  } else if (earlier.nullable === true) {
+    result.nullable = true
   }
 
   if (later.deprecated !== undefined) {
@@ -203,12 +219,10 @@ function mergeSchemas(earlier: SchemaObject, later: SchemaObject): SchemaObject 
   }
 
   // Items: later overrides earlier
-  const laterItems = (later as any).items
-  const earlierItems = (earlier as any).items
-  if (laterItems !== undefined) {
-    ;(result as any).items = laterItems
-  } else if (earlierItems !== undefined) {
-    ;(result as any).items = earlierItems
+  if (later.items !== undefined) {
+    result.items = later.items
+  } else if (earlier.items !== undefined) {
+    result.items = earlier.items
   }
 
   // Format: later overrides earlier
@@ -226,7 +240,7 @@ function mergeSchemas(earlier: SchemaObject, later: SchemaObject): SchemaObject 
   }
 
   // Numeric constraints: later overrides earlier
-  const numericFields = [
+  const numericFields: NumericConstraintField[] = [
     'minimum',
     'maximum',
     'exclusiveMinimum',
@@ -238,15 +252,16 @@ function mergeSchemas(earlier: SchemaObject, later: SchemaObject): SchemaObject 
     'maxItems',
     'minProperties',
     'maxProperties',
-  ] as const
+  ]
 
   for (const field of numericFields) {
-    const laterValue = (later as any)[field]
-    const earlierValue = (earlier as any)[field]
+    const laterValue = later[field]
+    const earlierValue = earlier[field]
     if (laterValue !== undefined) {
-      ;(result as any)[field] = laterValue
+      // Use index signature to safely assign potentially mixed types
+      ;(result as Record<string, unknown>)[field] = laterValue
     } else if (earlierValue !== undefined) {
-      ;(result as any)[field] = earlierValue
+      ;(result as Record<string, unknown>)[field] = earlierValue
     }
   }
 
@@ -293,9 +308,12 @@ function mergeSchemas(earlier: SchemaObject, later: SchemaObject): SchemaObject 
   }
 
   // Copy any other properties from later schema
+  // We need to cast here to allow index signature access
+  const resultWithIndex = result as Record<string, unknown>
+  const laterWithIndex = later as Record<string, unknown>
   for (const key of Object.keys(later)) {
     if (!(key in result)) {
-      ;(result as any)[key] = (later as any)[key]
+      resultWithIndex[key] = laterWithIndex[key]
     }
   }
 
