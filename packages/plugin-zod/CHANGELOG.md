@@ -1,5 +1,15 @@
 # @kubb/plugin-zod
 
+## 4.10.0
+
+### Patch Changes
+
+- Updated dependencies [[`b240890`](https://github.com/kubb-labs/kubb/commit/b240890fde6369293a076f031a826ed7455c73e8)]:
+  - @kubb/plugin-ts@4.10.0
+  - @kubb/core@4.10.0
+  - @kubb/oas@4.10.0
+  - @kubb/plugin-oas@4.10.0
+
 ## 4.9.4
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # @kubb/plugin-ts
 
+## 4.10.0
+
+### Minor Changes
+
+- [#2142](https://github.com/kubb-labs/kubb/pull/2142) [`b240890`](https://github.com/kubb-labs/kubb/commit/b240890fde6369293a076f031a826ed7455c73e8) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Restore `asPascalConst` enumType option - no longer deprecated. The `asPascalConst` option generates enum-like constants with PascalCase names (e.g., `const PetType = {...} as const`) while `asConst` generates camelCase names (e.g., `const petType = {...} as const`).
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.10.0
+  - @kubb/oas@4.10.0
+  - @kubb/plugin-oas@4.10.0
+
 ## 4.9.4
 
 ### Patch Changes
