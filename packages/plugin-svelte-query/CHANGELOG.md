@@ -1,5 +1,33 @@
 # @kubb/plugin-svelte-query
 
+## 4.9.3
+
+### Patch Changes
+
+- [#2134](https://github.com/kubb-labs/kubb/pull/2134) [`a090240`](https://github.com/kubb-labs/kubb/commit/a090240c565939609c331d7f74107e53e264b6f3) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix `mutation: false` option being ignored in query plugins
+
+  When `mutation: false` was set in plugin configuration, mutation hooks were still being generated. This has been fixed by:
+  - Adding explicit `mutation === false` check in plugin initialization before setting defaults
+  - Adding `options.mutation !== false` guard to `isMutation` condition in mutation generators
+  - Fixing vitest configs to support `#mocks` import alias via `tsconfigPaths` plugin
+
+  Example:
+
+  ```typescript
+  pluginReactQuery({
+    mutation: false, // Now properly prevents mutation hook generation
+    query: true, // Only generates queryOptions
+  });
+  ```
+
+- Updated dependencies []:
+  - @kubb/core@4.9.3
+  - @kubb/oas@4.9.3
+  - @kubb/plugin-client@4.9.3
+  - @kubb/plugin-oas@4.9.3
+  - @kubb/plugin-ts@4.9.3
+  - @kubb/plugin-zod@4.9.3
+
 ## 4.9.2
 
 ### Patch Changes
