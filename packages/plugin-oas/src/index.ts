@@ -22,6 +22,8 @@ export type {
   SchemaTree,
 } from './SchemaMapper.ts'
 export { isKeyword, schemaKeywords } from './SchemaMapper.ts'
+export type { CreateParserConfig, KeywordHandler } from './createParser.ts'
+export { createParser, findSchemaKeyword } from './createParser.ts'
 export type * from './types.ts'
 export { buildOperation, buildOperations, buildSchema } from './utils.tsx'
 

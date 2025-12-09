@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 
 import type { Schema, SchemaKeywordBase, SchemaMapper } from '@kubb/plugin-oas'
-import { isKeyword, SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
+import { createParser, findSchemaKeyword, isKeyword, SchemaGenerator, type SchemaKeywordMapper, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
 
 //TODO add zodKeywordMapper as function that returns 3 versions: v3, v4 and v4 mini, this can also be used to have the custom mapping(see object type)
 // also include shouldCoerce
@@ -469,165 +469,194 @@ type ParserOptions = {
   mini?: boolean
 }
 
-export function parse({ schema, parent, current, name, siblings }: SchemaTree, options: ParserOptions): string | undefined {
-  const value = zodKeywordMapper[current.keyword as keyof typeof zodKeywordMapper]
-
-  // Early exit: if siblings contain both matches and ref → skip matches entirely
-  const hasMatches = siblings.some((it) => isKeyword(it, schemaKeywords.matches))
-  const hasRef = siblings.some((it) => isKeyword(it, schemaKeywords.ref))
-
-  if (hasMatches && hasRef && isKeyword(current, schemaKeywords.matches)) {
-    return undefined // strip matches
-  }
-
-  if (!value) {
-    return undefined
-  }
-
-  if (isKeyword(current, schemaKeywords.union)) {
-    // zod union type needs at least 2 items
-    if (Array.isArray(current.args) && current.args.length === 1) {
-      return parse({ schema, parent, name, current: current.args[0] as Schema, siblings }, options)
-    }
-    if (Array.isArray(current.args) && !current.args.length) {
-      return ''
-    }
-
-    return zodKeywordMapper.union(
-      sort(current.args)
-        .map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
-        .filter(Boolean),
-    )
-  }
-
-  if (isKeyword(current, schemaKeywords.and)) {
-    const items = sort(current.args)
-      .filter((schema: Schema) => {
-        return ![schemaKeywords.optional, schemaKeywords.describe].includes(schema.keyword as typeof schemaKeywords.describe)
-      })
-      .map((it: Schema, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
-      .filter(Boolean)
-
-    return `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1), options.mini)}`
-  }
-
-  if (isKeyword(current, schemaKeywords.array)) {
-    return zodKeywordMapper.array(
-      sort(current.args.items)
-        .map((it, _index, siblings) => {
-          return parse({ schema, parent: current, name, current: it, siblings }, options)
-        })
-        .filter(Boolean),
-      current.args.min,
-      current.args.max,
-      current.args.unique,
-      options.mini,
-    )
-  }
-
-  if (isKeyword(current, schemaKeywords.enum)) {
-    if (current.args.asConst) {
-      if (current.args.items.length === 1) {
-        const child = {
-          keyword: schemaKeywords.const,
-          args: current.args.items[0],
-        }
-        return parse({ schema, parent: current, name, current: child, siblings: [child] }, options)
+// Create the parser using createParser
+export const parse = createParser<string, ParserOptions>({
+  mapper: zodKeywordMapper,
+  handlers: {
+    union: (tree, options, parse) => {
+      const { current, schema, parent, name, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.union)) return undefined
+      
+      // zod union type needs at least 2 items
+      if (Array.isArray(current.args) && current.args.length === 1) {
+        return parse({ schema, parent, name, current: current.args[0] as Schema, siblings }, options)
+      }
+      if (Array.isArray(current.args) && !current.args.length) {
+        return ''
       }
 
       return zodKeywordMapper.union(
-        current.args.items
-          .map((schema) => ({
-            keyword: schemaKeywords.const,
-            args: schema,
-          }))
+        sort(current.args)
+          .map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
+          .filter(Boolean),
+      )
+    },
+    and: (tree, options, parse) => {
+      const { current, schema, parent, name } = tree
+      if (!isKeyword(current, schemaKeywords.and)) return undefined
+      
+      const items = sort(current.args)
+        .filter((schema: Schema) => {
+          return ![schemaKeywords.optional, schemaKeywords.describe].includes(schema.keyword as typeof schemaKeywords.describe)
+        })
+        .map((it: Schema, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
+        .filter(Boolean)
+
+      return `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1), options.mini)}`
+    },
+    array: (tree, options, parse) => {
+      const { current, schema, parent, name } = tree
+      if (!isKeyword(current, schemaKeywords.array)) return undefined
+      
+      return zodKeywordMapper.array(
+        sort(current.args.items)
           .map((it, _index, siblings) => {
             return parse({ schema, parent: current, name, current: it, siblings }, options)
           })
           .filter(Boolean),
+        current.args.min,
+        current.args.max,
+        current.args.unique,
+        options.mini,
       )
-    }
+    },
+    enum: (tree, options, parse) => {
+      const { current, schema, parent, name, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.enum)) return undefined
+      
+      if (current.args.asConst) {
+        if (current.args.items.length === 1) {
+          const child = {
+            keyword: schemaKeywords.const,
+            args: current.args.items[0],
+          }
+          return parse({ schema, parent: current, name, current: child, siblings: [child] }, options)
+        }
 
-    return zodKeywordMapper.enum(
-      current.args.items.map((schema) => {
-        if (schema.format === 'boolean') {
+        return zodKeywordMapper.union(
+          current.args.items
+            .map((schema) => ({
+              keyword: schemaKeywords.const,
+              args: schema,
+            }))
+            .map((it, _index, siblings) => {
+              return parse({ schema, parent: current, name, current: it, siblings }, options)
+            })
+            .filter(Boolean),
+        )
+      }
+
+      return zodKeywordMapper.enum(
+        current.args.items.map((schema) => {
+          if (schema.format === 'boolean') {
+            return transformers.stringify(schema.value)
+          }
+
+          if (schema.format === 'number') {
+            return transformers.stringify(schema.value)
+          }
           return transformers.stringify(schema.value)
-        }
+        }),
+      )
+    },
+    ref: (tree, options) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.ref)) return undefined
+      
+      // Skip z.lazy wrapper if skipLazyForRefs is true (e.g., inside v4 getters)
+      if (options.skipLazyForRefs) {
+        return current.args?.name
+      }
+      return zodKeywordMapper.ref(current.args?.name)
+    },
+    object: (tree, options, parse) => {
+      const { current, schema, name } = tree
+      if (!isKeyword(current, schemaKeywords.object)) return undefined
+      
+      const propertyEntries = Object.entries(current.args?.properties || {}).filter((item) => {
+        const schema = item[1]
+        return schema && typeof schema.map === 'function'
+      })
 
-        if (schema.format === 'number') {
-          return transformers.stringify(schema.value)
-        }
-        return transformers.stringify(schema.value)
-      }),
-    )
-  }
+      const properties = propertyEntries
+        .map(([propertyName, schemas]) => {
+          const nameSchema = schemas.find((it) => it.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
+          const isNullable = schemas.some((it) => isKeyword(it, schemaKeywords.nullable))
+          const isNullish = schemas.some((it) => isKeyword(it, schemaKeywords.nullish))
+          const isOptional = schemas.some((it) => isKeyword(it, schemaKeywords.optional))
+          const hasRef = !!SchemaGenerator.find(schemas, schemaKeywords.ref)
 
-  if (isKeyword(current, schemaKeywords.ref)) {
-    // Skip z.lazy wrapper if skipLazyForRefs is true (e.g., inside v4 getters)
-    if (options.skipLazyForRefs) {
-      return current.args?.name
-    }
-    return zodKeywordMapper.ref(current.args?.name)
-  }
+          const mappedName = nameSchema?.args || propertyName
 
-  if (isKeyword(current, schemaKeywords.object)) {
-    const propertyEntries = Object.entries(current.args?.properties || {}).filter((item) => {
-      const schema = item[1]
-      return schema && typeof schema.map === 'function'
-    })
+          // custom mapper(pluginOptions)
+          if (options.mapper?.[mappedName]) {
+            return `"${propertyName}": ${options.mapper?.[mappedName]}`
+          }
 
-    const properties = propertyEntries
-      .map(([propertyName, schemas]) => {
-        const nameSchema = schemas.find((it) => it.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
-        const isNullable = schemas.some((it) => isKeyword(it, schemaKeywords.nullable))
-        const isNullish = schemas.some((it) => isKeyword(it, schemaKeywords.nullish))
-        const isOptional = schemas.some((it) => isKeyword(it, schemaKeywords.optional))
-        const hasRef = !!SchemaGenerator.find(schemas, schemaKeywords.ref)
+          const baseSchemaOutput = sort(schemas)
+            .filter((schema) => {
+              return !isKeyword(schema, schemaKeywords.optional) && !isKeyword(schema, schemaKeywords.nullable) && !isKeyword(schema, schemaKeywords.nullish)
+            })
+            .map((it) => {
+              // For v4 with refs, skip z.lazy wrapper since the getter provides lazy evaluation
+              const skipLazyForRefs = options.version === '4' && hasRef
+              return parse({ schema, parent: current, name, current: it, siblings: schemas }, { ...options, skipLazyForRefs })
+            })
+            .filter(Boolean)
+            .join('')
 
-        const mappedName = nameSchema?.args || propertyName
+          const objectValue = options.wrapOutput
+            ? options.wrapOutput({ output: baseSchemaOutput, schema: schema?.properties?.[propertyName] }) || baseSchemaOutput
+            : baseSchemaOutput
 
-        // custom mapper(pluginOptions)
-        if (options.mapper?.[mappedName]) {
-          return `"${propertyName}": ${options.mapper?.[mappedName]}`
-        }
+          if (options.version === '4' && hasRef) {
+            // In mini mode, use functional wrappers instead of chainable methods
+            if (options.mini) {
+              // both optional and nullable
+              if (isNullish) {
+                return `get "${propertyName}"(){
+                return ${zodKeywordMapper.nullish(objectValue)}
+              }`
+              }
 
-        const baseSchemaOutput = sort(schemas)
-          .filter((schema) => {
-            return !isKeyword(schema, schemaKeywords.optional) && !isKeyword(schema, schemaKeywords.nullable) && !isKeyword(schema, schemaKeywords.nullish)
-          })
-          .map((it) => {
-            // For v4 with refs, skip z.lazy wrapper since the getter provides lazy evaluation
-            const skipLazyForRefs = options.version === '4' && hasRef
-            return parse({ schema, parent: current, name, current: it, siblings: schemas }, { ...options, skipLazyForRefs })
-          })
-          .filter(Boolean)
-          .join('')
+              // undefined
+              if (isOptional) {
+                return `get "${propertyName}"(){
+                return ${zodKeywordMapper.optional(objectValue)}
+              }`
+              }
 
-        const objectValue = options.wrapOutput
-          ? options.wrapOutput({ output: baseSchemaOutput, schema: schema?.properties?.[propertyName] }) || baseSchemaOutput
-          : baseSchemaOutput
+              // null
+              if (isNullable) {
+                return `get "${propertyName}"(){
+                return ${zodKeywordMapper.nullable(objectValue)}
+              }`
+              }
 
-        if (options.version === '4' && hasRef) {
-          // In mini mode, use functional wrappers instead of chainable methods
-          if (options.mini) {
+              return `get "${propertyName}"(){
+                return ${objectValue}
+              }`
+            }
+
+            // Non-mini mode uses chainable methods
             // both optional and nullable
             if (isNullish) {
               return `get "${propertyName}"(){
-                return ${zodKeywordMapper.nullish(objectValue)}
+                return ${objectValue}${zodKeywordMapper.nullish()}
               }`
             }
 
             // undefined
             if (isOptional) {
               return `get "${propertyName}"(){
-                return ${zodKeywordMapper.optional(objectValue)}
+                return ${objectValue}${zodKeywordMapper.optional()}
               }`
             }
 
             // null
             if (isNullable) {
               return `get "${propertyName}"(){
-                return ${zodKeywordMapper.nullable(objectValue)}
+               return ${objectValue}${zodKeywordMapper.nullable()}
               }`
             }
 
@@ -636,188 +665,188 @@ export function parse({ schema, parent, current, name, siblings }: SchemaTree, o
               }`
           }
 
-          // Non-mini mode uses chainable methods
           // both optional and nullable
           if (isNullish) {
-            return `get "${propertyName}"(){
-                return ${objectValue}${zodKeywordMapper.nullish()}
-              }`
+            return `"${propertyName}": ${objectValue}${zodKeywordMapper.nullish()}`
           }
 
           // undefined
           if (isOptional) {
-            return `get "${propertyName}"(){
-                return ${objectValue}${zodKeywordMapper.optional()}
-              }`
+            return `"${propertyName}": ${zodKeywordMapper.optional(objectValue)}`
           }
 
           // null
           if (isNullable) {
-            return `get "${propertyName}"(){
-               return ${objectValue}${zodKeywordMapper.nullable()}
-              }`
+            return `"${propertyName}": ${zodKeywordMapper.nullable(objectValue)}`
           }
 
-          return `get "${propertyName}"(){
-                return ${objectValue}
-              }`
-        }
+          return `"${propertyName}": ${objectValue}`
+        })
+        .join(',\n')
 
-        // both optional and nullable
-        if (isNullish) {
-          return `"${propertyName}": ${objectValue}${zodKeywordMapper.nullish()}`
-        }
+      const additionalProperties = current.args?.additionalProperties?.length
+        ? current.args.additionalProperties
+            .map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
+            .filter(Boolean)
+            .join('')
+        : undefined
 
-        // undefined
-        if (isOptional) {
-          return `"${propertyName}": ${zodKeywordMapper.optional(objectValue)}`
-        }
+      const text = [
+        zodKeywordMapper.object(properties, current.args?.strict, options.version),
+        additionalProperties ? zodKeywordMapper.catchall(additionalProperties, options.mini) : undefined,
+      ].filter(Boolean)
 
-        // null
-        if (isNullable) {
-          return `"${propertyName}": ${zodKeywordMapper.nullable(objectValue)}`
-        }
+      return text.join('')
+    },
+    tuple: (tree, options, parse) => {
+      const { current, schema, parent, name } = tree
+      if (!isKeyword(current, schemaKeywords.tuple)) return undefined
+      
+      return zodKeywordMapper.tuple(
+        current.args.items.map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean),
+      )
+    },
+    const: (tree, options) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.const)) return undefined
+      
+      if (current.args.format === 'number' && current.args.value !== undefined) {
+        return zodKeywordMapper.const(Number(current.args.value))
+      }
 
-        return `"${propertyName}": ${objectValue}`
-      })
-      .join(',\n')
-
-    const additionalProperties = current.args?.additionalProperties?.length
-      ? current.args.additionalProperties
-          .map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
-          .filter(Boolean)
-          .join('')
-      : undefined
-
-    const text = [
-      zodKeywordMapper.object(properties, current.args?.strict, options.version),
-      additionalProperties ? zodKeywordMapper.catchall(additionalProperties, options.mini) : undefined,
-    ].filter(Boolean)
-
-    return text.join('')
-  }
-
-  if (isKeyword(current, schemaKeywords.tuple)) {
-    return zodKeywordMapper.tuple(
-      current.args.items.map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean),
-    )
-  }
-
-  if (isKeyword(current, schemaKeywords.const)) {
-    if (current.args.format === 'number' && current.args.value !== undefined) {
-      return zodKeywordMapper.const(Number(current.args.value))
-    }
-
-    if (current.args.format === 'boolean' && current.args.value !== undefined) {
-      return zodKeywordMapper.const(current.args.value)
-    }
-    return zodKeywordMapper.const(transformers.stringify(current.args.value))
-  }
-
-  if (isKeyword(current, schemaKeywords.matches)) {
-    if (current.args) {
-      return zodKeywordMapper.matches(transformers.toRegExpString(current.args, null), shouldCoerce(options.coercion, 'strings'), options.mini)
-    }
-  }
-
-  if (isKeyword(current, schemaKeywords.default)) {
-    // In mini mode, default is handled by wrapWithMiniModifiers
-    if (options.mini) {
+      if (current.args.format === 'boolean' && current.args.value !== undefined) {
+        return zodKeywordMapper.const(current.args.value)
+      }
+      return zodKeywordMapper.const(transformers.stringify(current.args.value))
+    },
+    matches: (tree, options) => {
+      const { current, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.matches)) return undefined
+      
+      // Early exit: if siblings contain both matches and ref → skip matches entirely
+      const hasRef = siblings.some((it) => isKeyword(it, schemaKeywords.ref))
+      if (hasRef) {
+        return undefined // strip matches
+      }
+      
+      if (current.args) {
+        return zodKeywordMapper.matches(transformers.toRegExpString(current.args, null), shouldCoerce(options.coercion, 'strings'), options.mini)
+      }
       return undefined
-    }
-    if (current.args) {
-      return zodKeywordMapper.default(current.args)
-    }
-  }
+    },
+    default: (tree, options) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.default)) return undefined
+      
+      // In mini mode, default is handled by wrapWithMiniModifiers
+      if (options.mini) {
+        return undefined
+      }
+      if (current.args) {
+        return zodKeywordMapper.default(current.args)
+      }
+      // When args is undefined, call the mapper without arguments
+      return zodKeywordMapper.default()
+    },
+    describe: (tree, options) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.describe)) return undefined
+      
+      if (current.args) {
+        return zodKeywordMapper.describe(transformers.stringify(current.args.toString()), undefined, options.mini)
+      }
+      return undefined
+    },
+    string: (tree, options) => {
+      const { current, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.string)) return undefined
+      
+      const minSchema = findSchemaKeyword(siblings, 'min')
+      const maxSchema = findSchemaKeyword(siblings, 'max')
 
-  if (isKeyword(current, schemaKeywords.describe)) {
-    if (current.args) {
-      return zodKeywordMapper.describe(transformers.stringify(current.args.toString()), undefined, options.mini)
-    }
-  }
+      return zodKeywordMapper.string(shouldCoerce(options.coercion, 'strings'), minSchema?.args, maxSchema?.args, options.mini)
+    },
+    uuid: (tree, options) => {
+      const { current, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.uuid)) return undefined
+      
+      const minSchema = findSchemaKeyword(siblings, 'min')
+      const maxSchema = findSchemaKeyword(siblings, 'max')
 
-  if (isKeyword(current, schemaKeywords.string)) {
-    const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
-    const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
+      return zodKeywordMapper.uuid(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
+    },
+    email: (tree, options) => {
+      const { current, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.email)) return undefined
+      
+      const minSchema = findSchemaKeyword(siblings, 'min')
+      const maxSchema = findSchemaKeyword(siblings, 'max')
 
-    return zodKeywordMapper.string(shouldCoerce(options.coercion, 'strings'), minSchema?.args, maxSchema?.args, options.mini)
-  }
+      return zodKeywordMapper.email(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
+    },
+    url: (tree, options) => {
+      const { current, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.url)) return undefined
+      
+      const minSchema = findSchemaKeyword(siblings, 'min')
+      const maxSchema = findSchemaKeyword(siblings, 'max')
 
-  if (isKeyword(current, schemaKeywords.uuid)) {
-    const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
-    const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
-
-    return zodKeywordMapper.uuid(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
-  }
-
-  if (isKeyword(current, schemaKeywords.email)) {
-    const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
-    const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
-
-    return zodKeywordMapper.email(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
-  }
-
-  if (isKeyword(current, schemaKeywords.url)) {
-    const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
-    const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
-
-    return zodKeywordMapper.url(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
-  }
-
-  if (isKeyword(current, schemaKeywords.number)) {
-    const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
-    const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
-
-    const exclusiveMinimumSchema = SchemaGenerator.find(siblings, schemaKeywords.exclusiveMinimum)
-    const exclusiveMaximumSchema = SchemaGenerator.find(siblings, schemaKeywords.exclusiveMaximum)
-    return zodKeywordMapper.number(
-      shouldCoerce(options.coercion, 'numbers'),
-      minSchema?.args,
-      maxSchema?.args,
-      exclusiveMinimumSchema?.args,
-      exclusiveMaximumSchema?.args,
-      options.mini,
-    )
-  }
-
-  if (isKeyword(current, schemaKeywords.integer)) {
-    const minSchema = SchemaGenerator.find(siblings, schemaKeywords.min)
-    const maxSchema = SchemaGenerator.find(siblings, schemaKeywords.max)
-
-    const exclusiveMinimumSchema = SchemaGenerator.find(siblings, schemaKeywords.exclusiveMinimum)
-    const exclusiveMaximumSchema = SchemaGenerator.find(siblings, schemaKeywords.exclusiveMaximum)
-    return zodKeywordMapper.integer(
-      shouldCoerce(options.coercion, 'numbers'),
-      minSchema?.args,
-      maxSchema?.args,
-      options.version,
-      exclusiveMinimumSchema?.args,
-      exclusiveMaximumSchema?.args,
-      options.mini,
-    )
-  }
-
-  if (isKeyword(current, schemaKeywords.datetime)) {
-    return zodKeywordMapper.datetime(current.args.offset, current.args.local, options.version, options.mini)
-  }
-
-  if (isKeyword(current, schemaKeywords.date)) {
-    return zodKeywordMapper.date(current.args.type, shouldCoerce(options.coercion, 'dates'), options.version)
-  }
-
-  if (isKeyword(current, schemaKeywords.time)) {
-    return zodKeywordMapper.time(current.args.type, shouldCoerce(options.coercion, 'dates'), options.version)
-  }
-
-  if (current.keyword in zodKeywordMapper && 'args' in current) {
-    const value = zodKeywordMapper[current.keyword as keyof typeof zodKeywordMapper] as (typeof zodKeywordMapper)['const']
-
-    return value((current as SchemaKeywordBase<unknown>).args as any)
-  }
-
-  if (current.keyword in zodKeywordMapper) {
-    return value()
-  }
-
-  return undefined
-}
+      return zodKeywordMapper.url(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
+    },
+    number: (tree, options) => {
+      const { current, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.number)) return undefined
+      
+      const minSchema = findSchemaKeyword(siblings, 'min')
+      const maxSchema = findSchemaKeyword(siblings, 'max')
+      const exclusiveMinimumSchema = findSchemaKeyword(siblings, 'exclusiveMinimum')
+      const exclusiveMaximumSchema = findSchemaKeyword(siblings, 'exclusiveMaximum')
+      
+      return zodKeywordMapper.number(
+        shouldCoerce(options.coercion, 'numbers'),
+        minSchema?.args,
+        maxSchema?.args,
+        exclusiveMinimumSchema?.args,
+        exclusiveMaximumSchema?.args,
+        options.mini,
+      )
+    },
+    integer: (tree, options) => {
+      const { current, siblings } = tree
+      if (!isKeyword(current, schemaKeywords.integer)) return undefined
+      
+      const minSchema = findSchemaKeyword(siblings, 'min')
+      const maxSchema = findSchemaKeyword(siblings, 'max')
+      const exclusiveMinimumSchema = findSchemaKeyword(siblings, 'exclusiveMinimum')
+      const exclusiveMaximumSchema = findSchemaKeyword(siblings, 'exclusiveMaximum')
+      
+      return zodKeywordMapper.integer(
+        shouldCoerce(options.coercion, 'numbers'),
+        minSchema?.args,
+        maxSchema?.args,
+        options.version,
+        exclusiveMinimumSchema?.args,
+        exclusiveMaximumSchema?.args,
+        options.mini,
+      )
+    },
+    datetime: (tree, options) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.datetime)) return undefined
+      
+      return zodKeywordMapper.datetime(current.args.offset, current.args.local, options.version, options.mini)
+    },
+    date: (tree, options) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.date)) return undefined
+      
+      return zodKeywordMapper.date(current.args.type, shouldCoerce(options.coercion, 'dates'), options.version)
+    },
+    time: (tree, options) => {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.time)) return undefined
+      
+      return zodKeywordMapper.time(current.args.type, shouldCoerce(options.coercion, 'dates'), options.version)
+    },
+  },
+})
