@@ -15,6 +15,34 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.9.5
+
+### 🐛 Bug Fixes
+
+- **[`@kubb/plugin-ts`](/plugins/plugin-ts/)** - Restore `asPascalConst` enumType option
+
+  The `asPascalConst` enumType option is no longer deprecated. This option generates enum-like constants with PascalCase names, providing an alternative to the default `asConst` which uses camelCase.
+
+  ::: code-group
+  ```typescript [asConst (default)]
+  const petType = {
+    Dog: 'dog',
+    Cat: 'cat',
+  } as const
+  
+  type PetTypeKey = (typeof petType)[keyof typeof petType]
+  ```
+
+  ```typescript [asPascalConst]
+  const PetType = {
+    Dog: 'dog',
+    Cat: 'cat',
+  } as const
+  
+  type PetType = (typeof PetType)[keyof typeof PetType]
+  ```
+  :::
+
 ## 4.9.4
 
 ### 🐛 Bug Fixes
@@ -52,30 +80,6 @@ All notable changes to Kubb are documented here. Each version is organized with 
     .string()
     .regex(/^(\+\d{1,3}[-\s]?)?.*$/)
     .max(15)  // ✅ Now correctly included
-  ```
-  :::
-
-- **[`@kubb/plugin-ts`](/plugins/plugin-ts/)** - Restore `asPascalConst` enumType option
-
-  The `asPascalConst` enumType option is no longer deprecated. This option generates enum-like constants with PascalCase names, providing an alternative to the default `asConst` which uses camelCase.
-
-  ::: code-group
-  ```typescript [asConst (default)]
-  const petType = {
-    Dog: 'dog',
-    Cat: 'cat',
-  } as const
-  
-  type PetTypeKey = (typeof petType)[keyof typeof petType]
-  ```
-
-  ```typescript [asPascalConst]
-  const PetType = {
-    Dog: 'dog',
-    Cat: 'cat',
-  } as const
-  
-  type PetType = (typeof PetType)[keyof typeof PetType]
   ```
   :::
 
