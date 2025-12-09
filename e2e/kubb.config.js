@@ -14,8 +14,6 @@ import { pluginZod } from '@kubb/plugin-zod'
 
 const schemas = [
   // { name: 'test', path: './schemas/test.json' },
-  // { name: 'notus', path: 'https://api.notus.team/openapi' },
-  // { name: 'Machines API', path: 'https://docs.machines.dev/spec/openapi3.json' },
   { name: 'discriminator', path: './schemas/discriminator.yaml' },
   { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },
   { name: 'petStoreV3', path: 'https://petstore3.swagger.io/api/v3/openapi.json' },
@@ -24,14 +22,12 @@ const schemas = [
   { name: 'anyOf', path: './schemas/anyOf.json' },
   { name: 'petStoreContent', path: './schemas/petStoreContent.json' },
   { name: 'twitter', path: './schemas/twitter.json' },
-  { name: 'twitter2', path: './schemas/twitter2.json' },
   { name: 'jokesOne', path: './schemas/jokesOne.yaml' },
   { name: 'readme.io', path: './schemas/readme.io.yaml' },
   { name: 'worldtime', path: './schemas/worldtime.yaml' },
   { name: 'zalando', path: './schemas/zalando.yaml' },
   { name: 'requestBody', path: './schemas/requestBody.yaml' },
   { name: 'box', path: './schemas/box.json' },
-  // { name: 'digitalocean', path: './schemas/digitalocean.yaml' },
   { name: 'enums', path: './schemas/enums.yaml' },
   { name: 'dataset_api', path: './schemas/dataset_api.yaml' },
 ]
