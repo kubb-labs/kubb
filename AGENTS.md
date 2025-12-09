@@ -50,6 +50,22 @@ pnpm run upgrade && pnpm i   # Upgrade dependencies
 - DTS output managed by `tsdown`
 - **Import best practices**: Always use proper import statements at the module level instead of inline type imports (e.g., use `import type { Operation } from '@kubb/oas'` at the top rather than `import('@kubb/oas').Operation` inline). This improves code readability and follows TypeScript best practices.
 - **Type definitions**: Define types at the root level of the file, not inside functions. This improves reusability, makes types easier to find, and follows TypeScript best practices for better type inference and documentation.
+- **Function syntax in objects**: Use function syntax (not arrow functions) in object methods to enable use of `this` keyword. Example:
+  ```typescript
+  // ✅ Correct - function syntax
+  const handlers = {
+    enum(tree, options) {
+      // Can use this.someMethod() if needed
+    }
+  }
+  
+  // ❌ Avoid - arrow function syntax
+  const handlers = {
+    enum: (tree, options) => {
+      // Cannot use this keyword
+    }
+  }
+  ```
 
 **Naming conventions:**
 - File/directory names: `camelCase`

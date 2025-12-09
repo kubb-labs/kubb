@@ -24,6 +24,15 @@ export type CreateParserConfig<TOutput, TOptions> = {
    * Custom handlers for specific schema keywords
    * These provide the implementation for complex types that need special processing
    * 
+   * Use function syntax (not arrow functions) to enable use of `this` keyword:
+   * ```typescript
+   * handlers: {
+   *   enum(tree, options, parse) {
+   *     // Implementation
+   *   }
+   * }
+   * ```
+   * 
    * Common keywords that typically need handlers:
    * - union: Combine multiple schemas into a union
    * - and: Combine multiple schemas into an intersection

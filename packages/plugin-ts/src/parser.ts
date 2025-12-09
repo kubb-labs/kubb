@@ -163,7 +163,7 @@ type ParserOptions = {
 export const parse = createParser<ts.Node | null, ParserOptions>({
   mapper: typeKeywordMapper,
   handlers: {
-    union: (tree, options, parse) => {
+    union(tree, options, parse) {
       const { current, schema, parent, name } = tree
       if (!isKeyword(current, schemaKeywords.union)) return undefined
 
@@ -171,7 +171,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
         current.args.map((it) => parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
       )
     },
-    and: (tree, options, parse) => {
+    and(tree, options, parse) {
       const { current, schema, parent, name } = tree
       if (!isKeyword(current, schemaKeywords.and)) return undefined
 
@@ -179,7 +179,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
         current.args.map((it) => parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
       )
     },
-    array: (tree, options, parse) => {
+    array(tree, options, parse) {
       const { current, schema, parent, name } = tree
       if (!isKeyword(current, schemaKeywords.array)) return undefined
 
@@ -187,26 +187,26 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
         current.args.items.map((it) => parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
       )
     },
-    enum: (tree, options) => {
+    enum(tree, options) {
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.enum)) return undefined
 
       // Adding suffix to enum (see https://github.com/kubb-labs/kubb/issues/1873)
       return typeKeywordMapper.enum(options.enumType === 'asConst' ? `${current.args.typeName}Key` : current.args.typeName)
     },
-    ref: (tree, options) => {
+    ref(tree, options) {
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.ref)) return undefined
 
       return typeKeywordMapper.ref(current.args.name)
     },
-    blob: (tree) => {
+    blob(tree) {
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.blob)) return undefined
 
       return typeKeywordMapper.blob()
     },
-    tuple: (tree, options, parse) => {
+    tuple(tree, options, parse) {
       const { current, schema, parent, name } = tree
       if (!isKeyword(current, schemaKeywords.tuple)) return undefined
 
@@ -217,13 +217,13 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
         current.args.max,
       )
     },
-    const: (tree, options) => {
+    const(tree, options) {
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.const)) return undefined
 
       return typeKeywordMapper.const(current.args.name, current.args.format)
     },
-    object: (tree, options, parse) => {
+    object(tree, options, parse) {
       const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.object)) return undefined
 
@@ -331,19 +331,19 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
 
       return typeKeywordMapper.object([...properties, additionalProperties].filter(Boolean))
     },
-    datetime: (tree) => {
+    datetime(tree) {
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.datetime)) return undefined
 
       return typeKeywordMapper.datetime()
     },
-    date: (tree) => {
+    date(tree) {
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.date)) return undefined
 
       return typeKeywordMapper.date(current.args.type)
     },
-    time: (tree) => {
+    time(tree) {
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.time)) return undefined
 
