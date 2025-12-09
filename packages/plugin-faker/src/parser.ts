@@ -370,8 +370,8 @@ export const parse = createParser<string, ParserOptions>({
       if (!isKeyword(current, schemaKeywords.string)) return undefined
 
       if (siblings) {
-        const minSchema = findSchemaKeyword(siblings, 'min') as any
-        const maxSchema = findSchemaKeyword(siblings, 'max') as any
+        const minSchema = findSchemaKeyword(siblings, 'min')
+        const maxSchema = findSchemaKeyword(siblings, 'max')
 
         return fakerKeywordMapper.string(minSchema?.args, maxSchema?.args)
       }
@@ -383,8 +383,8 @@ export const parse = createParser<string, ParserOptions>({
       if (!isKeyword(current, schemaKeywords.number)) return undefined
 
       if (siblings) {
-        const minSchema = findSchemaKeyword(siblings, 'min') as any
-        const maxSchema = findSchemaKeyword(siblings, 'max') as any
+        const minSchema = findSchemaKeyword(siblings, 'min')
+        const maxSchema = findSchemaKeyword(siblings, 'max')
 
         return fakerKeywordMapper.number(minSchema?.args, maxSchema?.args)
       }
@@ -396,8 +396,8 @@ export const parse = createParser<string, ParserOptions>({
       if (!isKeyword(current, schemaKeywords.integer)) return undefined
 
       if (siblings) {
-        const minSchema = findSchemaKeyword(siblings, 'min') as any
-        const maxSchema = findSchemaKeyword(siblings, 'max') as any
+        const minSchema = findSchemaKeyword(siblings, 'min')
+        const maxSchema = findSchemaKeyword(siblings, 'max')
 
         return fakerKeywordMapper.integer(minSchema?.args, maxSchema?.args)
       }

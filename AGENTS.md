@@ -45,7 +45,7 @@ pnpm run upgrade && pnpm i   # Upgrade dependencies
 
 **TypeScript conventions:**
 - Module resolution: `"bundler"`; ESM only
-- Prefer strict typing; avoid `any`
+- **Strict typing**: NEVER use `any` type or `as any` casts. Always use proper types, generics, or unknown/never when appropriate.
 - Files: `.ts` for libraries, `.tsx` for React components, `.vue` for Vue components
 - DTS output managed by `tsdown`
 - **Import best practices**: Always use proper import statements at the module level instead of inline type imports (e.g., use `import type { Operation } from '@kubb/oas'` at the top rather than `import('@kubb/oas').Operation` inline). This improves code readability and follows TypeScript best practices.

@@ -130,6 +130,9 @@ export function createParser<TOutput, TOptions extends Record<string, any>>(
  * return zodKeywordMapper.string(false, minSchema?.args, maxSchema?.args)
  * ```
  */
-export function findSchemaKeyword(siblings: Schema[], keyword: keyof typeof schemaKeywords): Schema | undefined {
-  return SchemaGenerator.find(siblings, schemaKeywords[keyword])
+export function findSchemaKeyword<K extends keyof SchemaKeywordMapper>(
+  siblings: Schema[],
+  keyword: K,
+): SchemaKeywordMapper[K] | undefined {
+  return SchemaGenerator.find(siblings, schemaKeywords[keyword]) as SchemaKeywordMapper[K] | undefined
 }
