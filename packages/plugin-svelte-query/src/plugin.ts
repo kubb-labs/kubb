@@ -58,11 +58,14 @@ export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
               ...query,
             },
       mutationKey,
-      mutation: {
-        methods: ['post', 'put', 'patch', 'delete'],
-        importPath: '@tanstack/svelte-query',
-        ...mutation,
-      },
+      mutation:
+        mutation === false
+          ? false
+          : {
+              methods: ['post', 'put', 'patch', 'delete'],
+              importPath: '@tanstack/svelte-query',
+              ...mutation,
+            },
       paramsType,
       pathParamsType,
       parser,

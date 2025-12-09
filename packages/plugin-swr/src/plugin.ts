@@ -57,11 +57,14 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
               ...query,
             },
       mutationKey,
-      mutation: {
-        importPath: 'swr/mutation',
-        methods: ['post', 'put', 'delete', 'patch'],
-        ...mutation,
-      },
+      mutation:
+        mutation === false
+          ? false
+          : {
+              importPath: 'swr/mutation',
+              methods: ['post', 'put', 'delete', 'patch'],
+              ...mutation,
+            },
       parser,
       paramsType,
       pathParamsType,

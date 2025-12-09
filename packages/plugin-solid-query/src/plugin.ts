@@ -58,11 +58,14 @@ export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
               ...query,
             },
       mutationKey,
-      mutation: {
-        methods: ['post', 'put', 'patch', 'delete'],
-        importPath: '@tanstack/solid-query',
-        ...mutation,
-      },
+      mutation:
+        mutation === false
+          ? false
+          : {
+              methods: ['post', 'put', 'patch', 'delete'],
+              importPath: '@tanstack/solid-query',
+              ...mutation,
+            },
       paramsType,
       pathParamsType,
       parser,
