@@ -17,7 +17,43 @@ All notable changes to Kubb are documented here. Each version is organized with 
 
 ## 4.9.4
 
-### ✨ Features
+### 🐛 Bug Fixes
+
+- **[`plugin-oas`](/plugins/plugin-oas/)** - Fix allOf failing to merge constraints like maxLength with $ref schemas
+
+  When using `allOf` to combine a `$ref` schema with an inline schema containing only constraints (like `maxLength`, `minLength`, `pattern`, etc.), those constraints were being lost in the generated schema tree. This affected generated TypeScript types and validation schemas (Zod, etc.).
+
+  The issue occurred in two places:
+  1. The allOf parser was using `map(...)[0]` which only kept the type keyword and discarded constraint schemas in `baseItems`
+  2. Schemas without explicit `type` fields would return `emptyType` without preserving constraints
+
+  ::: code-group
+  ```yaml [OpenAPI Schema]
+  components:
+    schemas:
+      PhoneNumber:
+        type: string
+        pattern: '^(\+\d{1,3}[-\s]?)?.*$'
+      PhoneWithMaxLength:
+        allOf:
+          - $ref: '#/components/schemas/PhoneNumber'
+          - maxLength: 15  # ❌ This constraint was lost
+  ```
+  ```typescript [Before - Missing maxLength]
+  // Generated Zod schema was missing .max(15)
+  export const phoneWithMaxLengthSchema = z
+    .string()
+    .regex(/^(\+\d{1,3}[-\s]?)?.*$/)
+  // Missing: .max(15)
+  ```
+  ```typescript [After - Includes maxLength]
+  // Generated Zod schema correctly includes .max(15)
+  export const phoneWithMaxLengthSchema = z
+    .string()
+    .regex(/^(\+\d{1,3}[-\s]?)?.*$/)
+    .max(15)  // ✅ Now correctly included
+  ```
+  :::
 
 - **[`@kubb/plugin-ts`](/plugins/plugin-ts/)** - Restore `asPascalConst` enumType option
 
