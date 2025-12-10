@@ -288,3 +288,7 @@ Yes, you can use:
 3. **Override**: Override generation for specific operations/schemas
 
 See [Generators](/knowledge-base/generators/) for more details.
+
+### How do I migrate from templates (v2.x) to generators (v3.x)?
+
+If you were using the `templates` option in Kubb v2.x, you need to migrate to the new `generators` pattern. See the [Templates to Generators Migration Guide](/knowledge-base/templates-to-generators/) for detailed instructions and examples.

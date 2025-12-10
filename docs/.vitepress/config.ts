@@ -59,6 +59,10 @@ const knowledgeBaseSidebar = [
         link: '/knowledge-base/generators/',
       },
       {
+        text: 'Templates to Generators',
+        link: '/knowledge-base/templates-to-generators/',
+      },
+      {
         text: 'Kubb Plugins',
         link: '/knowledge-base/plugins/',
       },
