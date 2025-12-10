@@ -31,6 +31,10 @@ export const LogMapper = {
   debug: 5,
 } as const
 
+// Debug log configuration
+const DEBUG_LOG_INLINE_THRESHOLD = 100 // Characters - logs shorter than this are shown inline
+const DEBUG_LOG_TITLE_MAX_LENGTH = 50 // Characters - max length for group titles
+
 export type Logger = {
   /**
    * Optional config name to show in CLI output
@@ -98,15 +102,17 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
     
     if (logLevel >= LogMapper.debug) {
       // In GitHub Actions, wrap longer debug logs in collapsible groups
-      if (isGitHubActions() && fullLog.length > 100) {
+      if (isGitHubActions() && fullLog.length > DEBUG_LOG_INLINE_THRESHOLD) {
         // Extract first line as title, or use a generic title
         const firstLine = message.logs[0] || 'Debug Details'
-        const title = firstLine.length > 50 ? firstLine.substring(0, 50) + '...' : firstLine
+        const title = firstLine.length > DEBUG_LOG_TITLE_MAX_LENGTH 
+          ? firstLine.substring(0, DEBUG_LOG_TITLE_MAX_LENGTH) + '...' 
+          : firstLine
         
         console.log(startGroup(title))
         console.log(pc.dim(fullLog))
         console.log(endGroup())
-      } else if (fullLog.length <= 100) {
+      } else if (fullLog.length <= DEBUG_LOG_INLINE_THRESHOLD) {
         // Short logs are always shown inline
         consola.log(pc.dim(fullLog))
       }

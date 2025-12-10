@@ -18,30 +18,39 @@ export function isGitHubActions(): boolean {
 }
 
 /**
- * Create a collapsible group in GitHub Actions logs
+ * GitHub Actions group markers
+ */
+export const GITHUB_ACTIONS_GROUP_START = '::group::'
+export const GITHUB_ACTIONS_GROUP_END = '::endgroup::'
+
+/**
+ * Create a collapsible group marker for GitHub Actions logs
  * @param title - The title of the group
- * @returns The opening marker for the group
+ * @returns The opening marker for the group (only in GitHub Actions, otherwise empty string)
  */
 export function startGroup(title: string): string {
   if (isGitHubActions()) {
-    return `::group::${title}`
+    return `${GITHUB_ACTIONS_GROUP_START}${title}`
   }
-  return title
+  return ''
 }
 
 /**
  * End a collapsible group in GitHub Actions logs
- * @returns The closing marker for the group
+ * @returns The closing marker for the group (only in GitHub Actions, otherwise empty string)
  */
 export function endGroup(): string {
   if (isGitHubActions()) {
-    return '::endgroup::'
+    return GITHUB_ACTIONS_GROUP_END
   }
   return ''
 }
 
 /**
  * Format a log message for CI environments with optional grouping
+ * @param message - The log message to format
+ * @param options - Optional configuration for grouping
+ * @returns The formatted message with CI markers if applicable
  */
 export function formatCILog(message: string, options?: { group?: boolean; title?: string }): string {
   if (options?.group && options?.title && isGitHubActions()) {

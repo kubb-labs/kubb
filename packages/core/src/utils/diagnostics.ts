@@ -9,7 +9,8 @@ export function getDiagnosticInfo(): Record<string, string> {
     platform: process.platform,
     arch: process.arch,
     cwd: process.cwd(),
-    kubbVersion: process.env.npm_package_version || 'unknown',
+    // Note: Kubb version tracking would require reading package.json at runtime
+    // which adds I/O overhead. Consider adding this in a future version if needed.
   }
 }
 
