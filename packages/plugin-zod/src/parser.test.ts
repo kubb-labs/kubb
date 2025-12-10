@@ -156,7 +156,7 @@ describe('zod parse', () => {
     test('default with empty string should work correctly', () => {
       const schema = { keyword: schemaKeywords.default, args: '' }
       const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] }, { version: '4' })
-      expect(text).toBe('.default()')
+      expect(text).toBe(".default('')")
     })
 
     test('default with string value should work correctly', () => {
