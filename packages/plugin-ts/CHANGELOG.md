@@ -1,5 +1,39 @@
 # @kubb/plugin-ts
 
+## 4.11.0
+
+### Minor Changes
+
+- [#2149](https://github.com/kubb-labs/kubb/pull/2149) [`c3c210f`](https://github.com/kubb-labs/kubb/commit/c3c210f48c061a0612aec0a8f3f12cd9e50f4483) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Refactor parsers to use shared `createParser` helper
+
+  Introduces `createParser` helper in `@kubb/plugin-oas` to eliminate parser duplication across Zod, TypeScript, and Faker plugins. Each parser previously reimplemented ~300 lines of schema traversal logic.
+
+  **New Features:**
+  - New `createParser` API in `@kubb/plugin-oas` that accepts keyword mapper + custom handlers
+  - Exports `findSchemaKeyword` utility for constraint lookup in sibling schemas
+  - Handlers can use `this.parse` for recursive parsing (enabled via Function.call())
+
+  **Parser Changes:**
+  - `@kubb/plugin-zod`: Converted to use handlers for mini-mode, object getters, coercion
+  - `@kubb/plugin-ts`: Converted to use handlers for JSDoc generation, AST node construction
+  - `@kubb/plugin-faker`: Converted to use handlers for dynamic type generation
+
+  **Breaking Changes:**
+  - None. No breaking type renames have been made in this PR.
+
+  All existing tests pass. No functional changes to generated code.
+
+### Patch Changes
+
+- [#2151](https://github.com/kubb-labs/kubb/pull/2151) [`51dd885`](https://github.com/kubb-labs/kubb/commit/51dd88584f6f4f5c572808a62aaf4c197701dbf5) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Improve JSDoc documentation for `asPascalConst` enumType option
+
+  Enhanced the JSDoc comments for the `enumType` option to clearly document all available enum type options, including `asPascalConst`. This makes it clear that `asPascalConst` is a fully supported option that generates enum-like constants with PascalCase names (e.g., `const PetType`) as an alternative to `asConst` which uses camelCase names (e.g., `const petType`).
+
+- Updated dependencies [[`c3c210f`](https://github.com/kubb-labs/kubb/commit/c3c210f48c061a0612aec0a8f3f12cd9e50f4483)]:
+  - @kubb/plugin-oas@4.11.0
+  - @kubb/core@4.11.0
+  - @kubb/oas@4.11.0
+
 ## 4.10.1
 
 ### Patch Changes
