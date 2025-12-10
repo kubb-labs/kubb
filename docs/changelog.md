@@ -71,6 +71,41 @@ All notable changes to Kubb are documented here. Each version is organized with 
 
   See the [Debugging Guide](/knowledge-base/debugging) for more information.
 
+- **[`@kubb/core`](/plugins/core/)**, **[`@kubb/cli`](/helpers/cli/)** - New verbose log level with plugin performance metrics (inspired by Vite and NX)
+
+  Added a new `--verbose` log level that displays plugin timing breakdowns in the build summary, helping identify performance bottlenecks.
+
+  **Features:**
+  - Visual bar chart showing plugin execution times
+  - Displays top 5 slowest plugins
+  - Times shown in milliseconds or seconds
+  - Enhanced log levels: silent, error, warn, info, verbose, debug
+
+  ::: code-group
+  ```shell [Usage]
+  # Enable verbose mode with performance metrics
+  kubb generate --verbose
+
+  # Or using log level
+  kubb generate --log-level verbose
+  ```
+  :::
+
+  **Example output:**
+  ```
+  Plugins:        5 successful, 5 total
+  Generated:      18 files in 1.286s
+  Plugin Timings:
+    ████ plugin-oas: 392ms
+    ████ plugin-react-query: 384ms
+    ███ plugin-ts: 211ms
+    ██ plugin-zod: 144ms
+    ██ plugin-redoc: 120ms
+  Output:         .
+  ```
+
+  Similar to what popular tools like Vite, NX, and Turbo provide for performance visibility.
+
 
 ## 4.11.0
 

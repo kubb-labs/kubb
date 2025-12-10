@@ -27,6 +27,7 @@ type BuildOutput = {
   fabric: Fabric
   files: Array<KubbFile.ResolvedFile>
   pluginManager: PluginManager
+  pluginTimings: Map<string, number>
   // TODO check if we can remove error
   /**
    * Only for safeBuild,
@@ -128,7 +129,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 }
 
 export async function build(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { fabric, files, pluginManager, failedPlugins, error } = await safeBuild(options, overrides)
+  const { fabric, files, pluginManager, failedPlugins, pluginTimings, error } = await safeBuild(options, overrides)
 
   if (error) {
     throw error
@@ -139,6 +140,7 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
     fabric,
     files,
     pluginManager,
+    pluginTimings,
     error,
   }
 }
@@ -147,6 +149,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
   const { fabric, pluginManager } = overrides ? overrides : await setup(options)
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
+  const pluginTimings = new Map<string, number>()
   const config = pluginManager.config
 
   try {
@@ -165,6 +168,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         await installer(context)
 
         const duration = Date.now() - startTime
+        pluginTimings.set(plugin.name, duration)
+
         pluginManager.logger.emit('debug', {
           date: new Date(),
           logs: [`[${plugin.name}] Plugin installed successfully in ${duration}ms`],
@@ -291,6 +296,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       fabric,
       files,
       pluginManager,
+      pluginTimings,
     }
   } catch (e) {
     return {
@@ -298,6 +304,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       fabric,
       files: [],
       pluginManager,
+      pluginTimings,
       error: e as Error,
     }
   }

@@ -7,7 +7,46 @@ outline: deep
 
 # Debugging Kubb <a href="/plugins/react"><Badge type="info" text="@kubb/react-fabric" /></a>
 
-## Debug Mode
+## Log Levels
+
+Kubb provides multiple log levels to control output verbosity:
+
+- **silent** - No output (suppresses all messages)
+- **error** - Only critical errors
+- **warn** - Errors and warnings
+- **info** - Standard build information (default)
+- **verbose** - Info + plugin performance metrics
+- **debug** - Verbose + detailed execution traces
+
+### Verbose Mode
+
+Verbose mode adds plugin performance metrics to help identify bottlenecks, inspired by tools like Vite and NX.
+
+```shell
+kubb generate --verbose
+# or
+kubb generate --log-level verbose
+```
+
+**Output includes:**
+- Plugin timing breakdown with visual bars
+- Top 5 slowest plugins
+- Performance metrics for optimization
+
+Example:
+```
+Plugins:        5 successful, 5 total
+Generated:      18 files in 1.286s
+Plugin Timings:
+  ████ plugin-oas: 392ms
+  ████ plugin-react-query: 384ms
+  ███ plugin-ts: 211ms
+  ██ plugin-zod: 144ms
+  ██ plugin-redoc: 120ms
+Output:         .
+```
+
+### Debug Mode
 
 Kubb provides comprehensive debug logging to help you understand what's happening during the code generation process.
 

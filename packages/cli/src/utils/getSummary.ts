@@ -10,9 +10,10 @@ type SummaryProps = {
   hrStart: [number, number]
   filesCreated: number
   config: Config
+  pluginTimings?: Map<string, number>
 }
 
-export function getSummary({ failedPlugins, filesCreated, status, hrStart, config }: SummaryProps): string[] {
+export function getSummary({ failedPlugins, filesCreated, status, hrStart, config, pluginTimings }: SummaryProps): string[] {
   const logs = new Set<string>()
   const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrStart))
 
@@ -30,13 +31,32 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
     output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
   } as const
 
+  const summaryLines: Array<[string, boolean]> = [
+    [`${pc.bold('Plugins:')}        ${meta.plugins}`, true],
+    [`${pc.dim('Failed:')}          ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
+    [`${pc.bold('Generated:')}      ${meta.filesCreated} files in ${meta.time}`, true],
+  ]
+
+  // Add plugin timing breakdown if available (similar to Vite/NX)
+  if (pluginTimings && pluginTimings.size > 0) {
+    const sortedTimings = Array.from(pluginTimings.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5) // Top 5 slowest plugins
+
+    if (sortedTimings.length > 0) {
+      summaryLines.push([`${pc.dim('Plugin Timings:')}`, true])
+      sortedTimings.forEach(([name, time]) => {
+        const timeStr = time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${time}ms`
+        const bar = '█'.repeat(Math.min(Math.ceil(time / 100), 20))
+        summaryLines.push([`  ${pc.dim(bar)} ${randomCliColour(name)}: ${pc.yellow(timeStr)}`, true])
+      })
+    }
+  }
+
+  summaryLines.push([`${pc.bold('Output:')}         ${meta.output}`, true])
+
   logs.add(
-    [
-      [`${pc.bold('Plugins:')}        ${meta.plugins}`, true],
-      [`${pc.dim('Failed:')}          ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
-      [`${pc.bold('Generated:')}      ${meta.filesCreated} files in ${meta.time}`, true],
-      [`${pc.bold('Output:')}         ${meta.output}`, true],
-    ]
+    summaryLines
       .map((item) => {
         if (item.at(1)) {
           return item.at(0)

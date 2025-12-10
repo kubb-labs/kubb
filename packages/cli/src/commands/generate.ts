@@ -22,10 +22,10 @@ const args = {
   },
   logLevel: {
     type: 'string',
-    description: 'Info, silent or debug',
+    description: 'Info, silent, verbose or debug',
     alias: 'l',
     default: 'info',
-    valueHint: 'silent|info|debug',
+    valueHint: 'silent|info|verbose|debug',
   },
   watch: {
     type: 'boolean',
@@ -37,6 +37,12 @@ const args = {
     type: 'boolean',
     description: 'Override logLevel to debug',
     alias: 'd',
+    default: false,
+  },
+  verbose: {
+    type: 'boolean',
+    description: 'Override logLevel to verbose',
+    alias: 'v',
     default: false,
   },
   help: {
@@ -68,6 +74,10 @@ const command = defineCommand({
 
     if (args.debug) {
       args.logLevel = 'debug'
+    }
+
+    if (args.verbose) {
+      args.logLevel = 'verbose'
     }
 
     const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3

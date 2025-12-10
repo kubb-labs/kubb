@@ -14,6 +14,7 @@ type Events = {
   error: [message: string, cause: Error]
   warning: [message: string]
   debug: [DebugEvent]
+  verbose: [DebugEvent]
   info: [message: string]
   progress_start: [{ id: string; size: number; message?: string }]
   progressed: [{ id: string; message?: string }]
@@ -22,8 +23,11 @@ type Events = {
 
 export const LogMapper = {
   silent: Number.NEGATIVE_INFINITY,
+  error: 0,
+  warn: 1,
   info: 3,
-  debug: 4,
+  verbose: 4,
+  debug: 5,
 } as const
 
 export type Logger = {
@@ -79,9 +83,17 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
     consola.info(pc.yellow(message))
   })
 
+  events.on('verbose', (message) => {
+    if (logLevel >= LogMapper.verbose) {
+      consola.log(pc.dim(message.logs.join('\n')))
+    }
+
+    cachedLogs.add(message)
+  })
+
   events.on('debug', (message) => {
-    if (message.logs.join('\n\n').length <= 100 && logLevel === LogMapper.debug) {
-      console.log(message.logs.join('\n\n'))
+    if (message.logs.join('\n\n').length <= 100 && logLevel >= LogMapper.debug) {
+      consola.log(pc.dim(message.logs.join('\n\n')))
     }
 
     cachedLogs.add(message)

@@ -88,7 +88,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
-  const { files, failedPlugins, error } = await safeBuild(
+  const { files, failedPlugins, pluginTimings, error } = await safeBuild(
     {
       config: definedConfig,
       logger,
@@ -96,7 +96,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     { pluginManager, fabric },
   )
 
-  if (logger.logLevel === LogMapper.debug) {
+  if (logger.logLevel >= LogMapper.debug) {
     logger.consola?.start('Writing logs')
 
     const logFiles = await logger.writeLogs()
@@ -110,6 +110,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     config: definedConfig,
     status: failedPlugins.size > 0 || error ? 'failed' : 'success',
     hrStart,
+    pluginTimings: logger.logLevel >= LogMapper.verbose ? pluginTimings : undefined,
   })
 
   if (failedPlugins.size && logger.consola) {
@@ -127,7 +128,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     })
 
     const errors = getErrorCauses([...failedPlugins].filter((it) => it.error).map((it) => it.error))
-    if (logger.consola && errors.length && logger.logLevel === LogMapper.debug) {
+    if (logger.consola && errors.length && logger.logLevel >= LogMapper.debug) {
       errors.forEach((err) => {
         logger.consola?.error(err)
       })
@@ -158,7 +159,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     })
 
     const errors = getErrorCauses([error])
-    if (logger.consola && errors.length && logger.logLevel === LogMapper.debug) {
+    if (logger.consola && errors.length && logger.logLevel >= LogMapper.debug) {
       errors.forEach((err) => {
         logger.consola?.error(err)
       })
