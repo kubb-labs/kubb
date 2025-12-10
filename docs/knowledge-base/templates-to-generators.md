@@ -331,6 +331,9 @@ export const enhancedQueryGenerator = createReactGenerator<PluginReactQuery>({
 
 ## Real-World Example: Complete Migration
 
+> [!TIP]
+> **Looking for a complete, working v4 example?** See the [Complete v4 Generator Example](/knowledge-base/templates-to-generators-v4-example/) which shows the full conversion of the template from the issue with all features preserved.
+
 Let's migrate the template from the issue description:
 
 ### Original Template (v2.x)
