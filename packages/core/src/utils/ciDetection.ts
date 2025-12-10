@@ -1,5 +1,6 @@
 /**
  * Detect if running in a CI environment
+ * Note: Currently exported for potential future use in plugins or extensions
  */
 export function isCI(): boolean {
   return !!(

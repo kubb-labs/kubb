@@ -115,6 +115,9 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
       } else if (fullLog.length <= DEBUG_LOG_INLINE_THRESHOLD) {
         // Short logs are always shown inline
         consola.log(pc.dim(fullLog))
+      } else {
+        // Long logs in non-CI environments - show inline but maybe truncated by consola
+        consola.log(pc.dim(fullLog))
       }
     }
 
