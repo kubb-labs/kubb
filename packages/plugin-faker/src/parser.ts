@@ -120,7 +120,7 @@ const fakerKeywordMapper = {
   },
   uuid: () => 'faker.string.uuid()',
   url: () => 'faker.internet.url()',
-  and: (items: string[] = []) => `Object.assign({}, ${items.join(', ')})`,
+  and: (items: string[] = []) => `{...${items.join(', ...')}}`,
   object: () => 'object',
   ref: () => 'ref',
   matches: (value = '', regexGenerator: 'faker' | 'randexp' = 'faker') => {
