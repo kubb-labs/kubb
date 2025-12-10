@@ -39,15 +39,20 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
 
   // Add plugin timing breakdown if available (similar to Vite/NX)
   if (pluginTimings && pluginTimings.size > 0) {
+    const MAX_TOP_PLUGINS = 5
+    const TIME_SCALE_DIVISOR = 100 // Each 100ms = 1 bar character
+    const MAX_BAR_LENGTH = 20
+
     const sortedTimings = Array.from(pluginTimings.entries())
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 5) // Top 5 slowest plugins
+      .slice(0, MAX_TOP_PLUGINS)
 
     if (sortedTimings.length > 0) {
       summaryLines.push([`${pc.dim('Plugin Timings:')}`, true])
       sortedTimings.forEach(([name, time]) => {
         const timeStr = time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${time}ms`
-        const bar = '█'.repeat(Math.min(Math.ceil(time / 100), 20))
+        const barLength = Math.min(Math.ceil(time / TIME_SCALE_DIVISOR), MAX_BAR_LENGTH)
+        const bar = '█'.repeat(barLength)
         summaryLines.push([`  ${pc.dim(bar)} ${randomCliColour(name)}: ${pc.yellow(timeStr)}`, true])
       })
     }

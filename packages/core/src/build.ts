@@ -1,4 +1,5 @@
 import { join, relative, resolve } from 'node:path'
+import { performance } from 'node:perf_hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import { createFabric } from '@kubb/react-fabric'
@@ -159,7 +160,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       const installer = plugin.install.bind(context)
 
       try {
-        const startTime = Date.now()
+        const startTime = performance.now()
         pluginManager.logger.emit('debug', {
           date: new Date(),
           logs: [`[${plugin.name}] Installing plugin`, `Plugin key: ${JSON.stringify(plugin.key)}`],
@@ -167,7 +168,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
         await installer(context)
 
-        const duration = Date.now() - startTime
+        const duration = Math.round(performance.now() - startTime)
         pluginTimings.set(plugin.name, duration)
 
         pluginManager.logger.emit('debug', {

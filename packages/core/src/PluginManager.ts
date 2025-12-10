@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { performance } from 'node:perf_hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import { ValidationPluginError } from './errors.ts'
@@ -582,7 +583,7 @@ export class PluginManager {
 
     this.events.emit('executing', { strategy, hookName, parameters, plugin, message })
 
-    const startTime = Date.now()
+    const startTime = performance.now()
     this.logger.emit('debug', {
       date: new Date(),
       logs: [`[${plugin.name}] Executing hook '${hookName}' with strategy '${strategy}'`, message ? `Message: ${message}` : ''].filter(Boolean),
@@ -596,7 +597,7 @@ export class PluginManager {
 
           output = result
 
-          const duration = Date.now() - startTime
+          const duration = Math.round(performance.now() - startTime)
           this.logger.emit('debug', {
             date: new Date(),
             logs: [`[${plugin.name}] Completed hook '${hookName}' in ${duration}ms`],
@@ -616,7 +617,7 @@ export class PluginManager {
 
         output = hook
 
-        const duration = Date.now() - startTime
+        const duration = Math.round(performance.now() - startTime)
         this.logger.emit('debug', {
           date: new Date(),
           logs: [`[${plugin.name}] Completed hook '${hookName}' (static value) in ${duration}ms`],
@@ -633,7 +634,7 @@ export class PluginManager {
 
         return hook
       } catch (e) {
-        const duration = Date.now() - startTime
+        const duration = Math.round(performance.now() - startTime)
         this.logger.emit('debug', {
           date: new Date(),
           logs: [
