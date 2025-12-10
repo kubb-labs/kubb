@@ -9,6 +9,15 @@ outline: deep
 
 This guide will help you migrate from the deprecated `templates` pattern (used in Kubb v2.x) to the new `generators` pattern introduced in Kubb v3.x.
 
+> [!IMPORTANT]
+> **Package Name Changes**: In addition to the templates → generators migration, note that package names have changed:
+> - `@kubb/swagger-tanstack-query` → `@kubb/plugin-react-query`
+> - `@kubb/swagger-client` → `@kubb/plugin-client`
+> - `@kubb/swagger-ts` → `@kubb/plugin-ts`
+> - `@kubb/swagger-zod` → `@kubb/plugin-zod`
+> - `@kubb/swagger-faker` → `@kubb/plugin-faker`
+> - `@kubb/swagger-msw` → `@kubb/plugin-msw`
+
 ## Understanding the Change
 
 In Kubb v2.x, plugins like `@kubb/plugin-react-query` (formerly `@kubb/swagger-tanstack-query`) allowed you to override templates:
@@ -42,6 +51,66 @@ Generators provide:
 3. **Type safety**: Better TypeScript support
 4. **Flexibility**: Use React components or plain functions
 5. **Plugin independence**: Generators work with `@kubb/plugin-oas`, not tied to specific plugins
+
+## Quick Start: Simple Example
+
+Before diving into complex migrations, here's a simple example to get you started. This shows how to add console logging to all generated queries:
+
+::: code-group
+```typescript [generator.ts]
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
+import { useOperationManager } from '@kubb/plugin-oas/hooks'
+import { File, Function } from '@kubb/react-fabric'
+
+export const loggingGenerator = createReactGenerator({
+  name: 'query-logger',
+  Operation({ operation, generator }) {
+    const { getName, getFile } = useOperationManager(generator)
+    
+    // Only generate for GET operations
+    if (operation.method !== 'get') return null
+    
+    const hook = {
+      name: getName(operation, { type: 'function', prefix: 'useLogged' }),
+      file: getFile(operation, { prefix: 'useLogged' }),
+    }
+    
+    return (
+      <File baseName={hook.file.baseName} path={hook.file.path}>
+        <File.Source>
+          <Function name={hook.name} export>
+            {`
+              console.log('Query started: ${operation.getOperationId()}')
+              return useQuery(/* ... */)
+            `}
+          </Function>
+        </File.Source>
+      </File>
+    )
+  },
+})
+```
+
+```typescript [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
+import { loggingGenerator } from './generators/loggingGenerator'
+
+export default defineConfig({
+  plugins: [
+    pluginOas({ output: false }),
+    pluginReactQuery({
+      output: { path: './hooks' },
+    }),
+    // Add your custom generator
+    pluginOas({
+      generators: [loggingGenerator],
+    }),
+  ],
+})
+```
+:::
 
 ## Migration Strategies
 
