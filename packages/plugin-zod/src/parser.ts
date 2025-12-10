@@ -232,7 +232,13 @@ const zodKeywordMapper = {
     if (typeof value === 'object') {
       return '.default({})'
     }
-    return `.default(${value ?? ''})`
+    if (value !== undefined) {
+      if (typeof value === 'string') {
+        return `.default('${value}')`
+      }
+      return `.default(${value})`
+    }
+    return '.default()'
   },
   and: (items: string[] = [], mini?: boolean) => {
     // zod/mini doesn't support .and() method, so we can't use intersection types

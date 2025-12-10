@@ -13,7 +13,6 @@ Introduces `createParser` helper in `@kubb/plugin-oas` to eliminate parser dupli
 - New `createParser` API in `@kubb/plugin-oas` that accepts keyword mapper + custom handlers
 - Exports `findSchemaKeyword` utility for constraint lookup in sibling schemas
 - Handlers can use `this.parse` for recursive parsing (enabled via Function.call())
-- Improved type names: `Schema` → `SchemaKeywordNode`, `SchemaTree` → `ParseContext`
 
 **Parser Changes:**
 - `@kubb/plugin-zod`: Converted to use handlers for mini-mode, object getters, coercion
