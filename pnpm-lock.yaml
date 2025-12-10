@@ -1125,8 +1125,8 @@ importers:
   packages/oas:
     dependencies:
       '@redocly/openapi-core':
-        specifier: ^2.12.5
-        version: 2.12.5(ajv@8.17.1)
+        specifier: ^2.12.6
+        version: 2.12.6(ajv@8.17.1)
       hotscript:
         specifier: ^1.0.13
         version: 1.0.13
@@ -2714,8 +2714,8 @@ packages:
   '@redocly/config@0.41.0':
     resolution: {integrity: sha512-8yJ2e+ex8KVF25zijdpDbAEjyubk7NLfHsLI8h0MUnLEo2iEg6rTCDT9Qw71XDqd5UlXvfJb0Z0h6dd+Y6pWLw==}
 
-  '@redocly/openapi-core@2.12.5':
-    resolution: {integrity: sha512-PlzsfOgPUWg4OmyznsIWQ6EnfZK6KSOn2MG4sZS3DY9cHgno5YywNy8zFQWHADXLqR7hTw2M7VvbiMKVJxzyiA==}
+  '@redocly/openapi-core@2.12.6':
+    resolution: {integrity: sha512-X4NK5wW0lr1Cdd5CB/St6hABU7OLw3kaI9gxVODENuxcMCIWa27v8AZwUJom5arp3f9kY0KJwNNqBghrWDQC+Q==}
     engines: {node: '>=22.12.0 || >=20.19.0 <21.0.0', npm: '>=10'}
 
   '@resvg/resvg-wasm@2.6.2':
@@ -9301,7 +9301,7 @@ snapshots:
     dependencies:
       json-schema-to-ts: 2.7.2
 
-  '@redocly/openapi-core@2.12.5(ajv@8.17.1)':
+  '@redocly/openapi-core@2.12.6(ajv@8.17.1)':
     dependencies:
       '@redocly/ajv': 8.17.1
       '@redocly/config': 0.41.0

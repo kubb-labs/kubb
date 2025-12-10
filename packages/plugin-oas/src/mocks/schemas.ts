@@ -305,7 +305,26 @@ const basic: Array<{ name: string; schema: Schema }> = [
     name: 'and',
     schema: {
       keyword: schemaKeywords.and,
-      args: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
+      args: [
+        {
+          keyword: schemaKeywords.object,
+          args: {
+            properties: {
+              street: [{ keyword: schemaKeywords.string }],
+            },
+            additionalProperties: [],
+          },
+        },
+        {
+          keyword: schemaKeywords.object,
+          args: {
+            properties: {
+              city: [{ keyword: schemaKeywords.string }],
+            },
+            additionalProperties: [],
+          },
+        },
+      ],
     },
   },
   {
@@ -401,7 +420,26 @@ const basic: Array<{ name: string; schema: Schema }> = [
           address: [
             {
               keyword: schemaKeywords.and,
-              args: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
+              args: [
+                {
+                  keyword: schemaKeywords.object,
+                  args: {
+                    properties: {
+                      street: [{ keyword: schemaKeywords.string }],
+                    },
+                    additionalProperties: [],
+                  },
+                },
+                {
+                  keyword: schemaKeywords.object,
+                  args: {
+                    properties: {
+                      city: [{ keyword: schemaKeywords.string }],
+                    },
+                    additionalProperties: [],
+                  },
+                },
+              ],
             },
             { keyword: schemaKeywords.nullable },
             { keyword: schemaKeywords.describe, args: 'Your address' },
@@ -664,7 +702,19 @@ const full: Array<{ name: string; schema: Schema[] }> = [
             address: [
               {
                 keyword: schemaKeywords.and,
-                args: [{ keyword: schemaKeywords.string }, { keyword: schemaKeywords.number }],
+                args: [
+                  { keyword: schemaKeywords.string },
+                  {
+                    keyword: schemaKeywords.object,
+                    args: {
+                      properties: {
+                        street: [{ keyword: schemaKeywords.string }],
+                        city: [{ keyword: schemaKeywords.string }],
+                      },
+                      additionalProperties: [],
+                    },
+                  },
+                ],
               },
               { keyword: schemaKeywords.nullable },
               { keyword: schemaKeywords.describe, args: 'Your address' },

@@ -1,8 +1,20 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`zod parse > 'and' 1`] = `"z.string().and(z.number())"`;
+exports[`zod parse > 'and' 1`] = `
+"z.object({
+    "street": z.string()
+    }).and(z.object({
+    "city": z.string()
+    }))"
+`;
 
-exports[`zod parse > 'and' v4 1`] = `"z.string().and(z.number())"`;
+exports[`zod parse > 'and' v4 1`] = `
+"z.object({
+    "street": z.string()
+    }).and(z.object({
+    "city": z.string()
+    }))"
+`;
 
 exports[`zod parse > 'any' 1`] = `"z.any()"`;
 
@@ -134,7 +146,11 @@ exports[`zod parse > 'objectAnd' 1`] = `
 "z.object({
     "firstName": z.string().min(2).default(test),
 "age": z.number().min(3).default(2),
-"address": z.nullable(z.string().and(z.number()).describe("Your address"))
+"address": z.nullable(z.object({
+    "street": z.string()
+    }).and(z.object({
+    "city": z.string()
+    })).describe("Your address"))
     })"
 `;
 
@@ -142,7 +158,11 @@ exports[`zod parse > 'objectAnd' v4 1`] = `
 "z.object({
     "firstName": z.string().min(2).default(test),
 "age": z.number().min(3).default(2),
-"address": z.nullable(z.string().and(z.number()).describe("Your address"))
+"address": z.nullable(z.object({
+    "street": z.string()
+    }).and(z.object({
+    "city": z.string()
+    })).describe("Your address"))
     })"
 `;
 
