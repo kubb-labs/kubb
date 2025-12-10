@@ -586,6 +586,7 @@ export class PluginManager {
     const startTime = performance.now()
     this.logger.emit('debug', {
       date: new Date(),
+      category: 'hook',
       logs: [`[${plugin.name}] Executing hook '${hookName}' with strategy '${strategy}'`, message ? `Message: ${message}` : ''].filter(Boolean),
     })
 
@@ -600,6 +601,7 @@ export class PluginManager {
           const duration = Math.round(performance.now() - startTime)
           this.logger.emit('debug', {
             date: new Date(),
+            category: 'hook',
             logs: [`[${plugin.name}] Completed hook '${hookName}' in ${duration}ms`],
           })
 
@@ -620,6 +622,7 @@ export class PluginManager {
         const duration = Math.round(performance.now() - startTime)
         this.logger.emit('debug', {
           date: new Date(),
+          category: 'hook',
           logs: [`[${plugin.name}] Completed hook '${hookName}' (static value) in ${duration}ms`],
         })
 
@@ -638,6 +641,7 @@ export class PluginManager {
         const error = e as Error
         this.logger.emit('debug', {
           date: new Date(),
+          category: 'error',
           logs: [
             `[${plugin.name}] Failed hook '${hookName}' after ${duration}ms`,
             `Strategy: ${strategy}`,

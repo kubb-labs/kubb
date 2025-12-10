@@ -52,6 +52,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   logger.emit('debug', {
     date: new Date(),
+    category: 'setup',
     logs: [
       'Starting setup phase',
       `Config name: ${userConfig.name || 'unnamed'}`,
@@ -72,6 +73,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       await exists(userConfig.input.path)
       logger.emit('debug', {
         date: new Date(),
+        category: 'setup',
         logs: [`Input file validated: ${userConfig.input.path}`],
       })
     }
@@ -80,6 +82,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       const error = e as Error
       logger.emit('debug', {
         date: new Date(),
+        category: 'setup',
         logs: [
           'Failed to validate input file',
           `Path: ${userConfig.input.path}`,
@@ -113,6 +116,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   if (definedConfig.output.clean) {
     logger.emit('debug', {
       date: new Date(),
+      category: 'setup',
       logs: ['Cleaning output directories', `Output path: ${definedConfig.output.path}`, 'Kubb cache: .kubb'],
     })
     await clean(definedConfig.output.path)
@@ -125,6 +129,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   logger.emit('debug', {
     date: new Date(),
+    category: 'setup',
     logs: [
       'Fabric initialized',
       `File writing: ${definedConfig.output.write ? 'enabled' : 'disabled (dry-run)'}`,
@@ -136,6 +141,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   logger.emit('debug', {
     date: new Date(),
+    category: 'setup',
     logs: ['PluginManager initialized', `Concurrency: 5`, `Total plugins: ${pluginManager.plugins.length}`],
   })
 
@@ -179,6 +185,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         const startTime = performance.now()
         pluginManager.logger.emit('debug', {
           date: new Date(),
+          category: 'plugin',
           logs: [`[${plugin.name}] Installing plugin`, `Plugin key: ${JSON.stringify(plugin.key)}`],
         })
 
@@ -189,12 +196,14 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
         pluginManager.logger.emit('debug', {
           date: new Date(),
+          category: 'plugin',
           logs: [`[${plugin.name}] Plugin installed successfully in ${duration}ms`],
         })
       } catch (e) {
         const error = e as Error
         pluginManager.logger.emit('debug', {
           date: new Date(),
+          category: 'error',
           logs: [
             `[${plugin.name}] Plugin installation failed`,
             `Plugin key: ${JSON.stringify(plugin.key)}`,
@@ -267,6 +276,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
       pluginManager.logger.emit('debug', {
         date: new Date(),
+        category: 'file',
         logs: [`Barrel file generated with ${rootFile.exports?.length || 0} exports`],
       })
     }
@@ -275,6 +285,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       pluginManager.logger.emit('progress_start', { id: 'files', size: files.length, message: 'Writing files ...' })
       pluginManager.logger.emit('debug', {
         date: new Date(),
+        category: 'file',
         logs: [`Starting file write process`, `Total files to write: ${files.length}`],
       })
     })
@@ -286,6 +297,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       if (file) {
         pluginManager.logger.emit('debug', {
           date: new Date(),
+          category: 'file',
           logs: [
             `Writing file: ${file.path}`,
             `Relative path: ${relative(config.root, file.path)}`,
@@ -304,6 +316,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       pluginManager.logger.emit('progress_stop', { id: 'files' })
       pluginManager.logger.emit('debug', {
         date: new Date(),
+        category: 'file',
         logs: [`File write process completed`],
       })
     })

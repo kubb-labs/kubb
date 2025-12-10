@@ -7,7 +7,22 @@ import { write } from './fs/write.ts'
 import { endGroup, isGitHubActions, startGroup } from './utils/ciDetection.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 
-type DebugEvent = { date: Date; logs: string[]; fileName?: string }
+type DebugEvent = { 
+  date: Date
+  logs: string[]
+  fileName?: string
+  /**
+   * Category of the debug log, used for GitHub Actions grouping
+   * - 'setup': Initial configuration and environment setup
+   * - 'plugin': Plugin installation and execution
+   * - 'hook': Plugin hook execution details
+   * - 'schema': Schema parsing and generation
+   * - 'file': File operations (read/write/generate)
+   * - 'error': Error details and stack traces
+   * - undefined: Generic logs (always inline)
+   */
+  category?: 'setup' | 'plugin' | 'hook' | 'schema' | 'file' | 'error'
+}
 
 type Events = {
   start: [message: string]
@@ -101,8 +116,11 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
     const fullLog = message.logs.join('\n\n')
     
     if (logLevel >= LogMapper.debug) {
-      // In GitHub Actions, wrap longer debug logs in collapsible groups
-      if (isGitHubActions() && fullLog.length > DEBUG_LOG_INLINE_THRESHOLD) {
+      // Categories that should be grouped in GitHub Actions
+      const shouldGroup = message.category && ['setup', 'plugin', 'hook', 'schema', 'file', 'error'].includes(message.category)
+      
+      // In GitHub Actions, wrap categorized logs in collapsible groups
+      if (isGitHubActions() && shouldGroup) {
         // Extract first line as title, or use a generic title
         const firstLine = message.logs[0] || 'Debug Details'
         const title = firstLine.length > DEBUG_LOG_TITLE_MAX_LENGTH 
@@ -112,11 +130,8 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
         console.log(startGroup(title))
         console.log(pc.dim(fullLog))
         console.log(endGroup())
-      } else if (fullLog.length <= DEBUG_LOG_INLINE_THRESHOLD) {
-        // Short logs are always shown inline
-        consola.log(pc.dim(fullLog))
       } else {
-        // Long logs in non-CI environments - show inline but maybe truncated by consola
+        // Non-grouped logs or non-CI environments - show inline
         consola.log(pc.dim(fullLog))
       }
     }
