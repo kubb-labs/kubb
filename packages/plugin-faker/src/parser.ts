@@ -292,10 +292,9 @@ export const parse = createParser<string, ParserOptions>({
           const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
           const mappedName = nameSchema?.args || name
 
-          // custom mapper(pluginOptions) - now supports both string and function
-          const mapperValue = options.mapper?.[mappedName]
-          if (mapperValue) {
-            const defaultOutput = joinItems(
+          // Helper to generate default output (used by both mapper and default paths)
+          const generateDefaultOutput = () => {
+            return joinItems(
               schemas
                 .sort(schemaKeywordSorter)
                 .map((it) =>
@@ -310,26 +309,17 @@ export const parse = createParser<string, ParserOptions>({
                 )
                 .filter(Boolean),
             )
-            
+          }
+
+          // custom mapper(pluginOptions) - now supports both string and function
+          const mapperValue = options.mapper?.[mappedName]
+          if (mapperValue) {
+            const defaultOutput = generateDefaultOutput()
             const evaluatedMapper = SchemaGenerator.evaluateMapper(mapperValue, schema?.properties?.[name], defaultOutput)
             return `"${name}": ${evaluatedMapper}`
           }
 
-          return `"${name}": ${joinItems(
-            schemas
-              .sort(schemaKeywordSorter)
-              .map((it) =>
-                this.parse(
-                  { schema, name, parent: current, current: it, siblings: schemas },
-                  {
-                    ...options,
-                    typeName: `NonNullable<${options.typeName}>[${JSON.stringify(name)}]`,
-                    canOverride: false,
-                  },
-                ),
-              )
-              .filter(Boolean),
-          )}`
+          return `"${name}": ${generateDefaultOutput()}`
         })
         .join(',')
 

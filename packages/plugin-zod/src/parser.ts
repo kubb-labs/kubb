@@ -602,9 +602,8 @@ export const parse = createParser<string, ParserOptions>({
 
           const mappedName = nameSchema?.args || propertyName
 
-          // custom mapper(pluginOptions) - now supports both string and function
-          const mapperValue = options.mapper?.[mappedName]
-          if (mapperValue) {
+          // Helper to generate base schema output (used by both mapper and default paths)
+          const generateBaseOutput = () => {
             const baseSchemaOutput = sort(schemas)
               .filter((schema) => {
                 return !isKeyword(schema, schemaKeywords.optional) && !isKeyword(schema, schemaKeywords.nullable) && !isKeyword(schema, schemaKeywords.nullish)
@@ -616,29 +615,20 @@ export const parse = createParser<string, ParserOptions>({
               .filter(Boolean)
               .join('')
             
-            const defaultOutput = options.wrapOutput
+            return options.wrapOutput
               ? options.wrapOutput({ output: baseSchemaOutput, schema: schema?.properties?.[propertyName] }) || baseSchemaOutput
               : baseSchemaOutput
-            
+          }
+
+          // custom mapper(pluginOptions) - now supports both string and function
+          const mapperValue = options.mapper?.[mappedName]
+          if (mapperValue) {
+            const defaultOutput = generateBaseOutput()
             const evaluatedMapper = SchemaGenerator.evaluateMapper(mapperValue, schema?.properties?.[propertyName], defaultOutput)
             return `"${propertyName}": ${evaluatedMapper}`
           }
 
-          const baseSchemaOutput = sort(schemas)
-            .filter((schema) => {
-              return !isKeyword(schema, schemaKeywords.optional) && !isKeyword(schema, schemaKeywords.nullable) && !isKeyword(schema, schemaKeywords.nullish)
-            })
-            .map((it) => {
-              // For v4 with refs, skip z.lazy wrapper since the getter provides lazy evaluation
-              const skipLazyForRefs = options.version === '4' && hasRef
-              return this.parse({ schema, parent: current, name, current: it, siblings: schemas }, { ...options, skipLazyForRefs })
-            })
-            .filter(Boolean)
-            .join('')
-
-          const objectValue = options.wrapOutput
-            ? options.wrapOutput({ output: baseSchemaOutput, schema: schema?.properties?.[propertyName] }) || baseSchemaOutput
-            : baseSchemaOutput
+          const objectValue = generateBaseOutput()
 
           if (options.version === '4' && hasRef) {
             // In mini mode, use functional wrappers instead of chainable methods
