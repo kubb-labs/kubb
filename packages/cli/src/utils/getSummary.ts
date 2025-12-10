@@ -24,7 +24,7 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
     plugins:
       status === 'success'
         ? `${pc.green(`${successCount} successful`)}, ${pluginsCount} total`
-        : `${pc.red(`${failedPlugins.size ?? 1} failed`)}, ${pluginsCount} total`,
+        : `${pc.green(`${successCount} successful`)}, ${pc.red(`${failedPlugins.size} failed`)}, ${pluginsCount} total`,
     pluginsFailed: status === 'failed' ? [...failedPlugins]?.map(({ plugin }) => randomCliColour(plugin.name))?.join(', ') : undefined,
     filesCreated: filesCreated,
     time: `${pc.yellow(`${elapsedSeconds}s`)}`,

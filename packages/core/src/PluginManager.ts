@@ -635,12 +635,18 @@ export class PluginManager {
         return hook
       } catch (e) {
         const duration = Math.round(performance.now() - startTime)
+        const error = e as Error
         this.logger.emit('debug', {
           date: new Date(),
           logs: [
             `[${plugin.name}] Failed hook '${hookName}' after ${duration}ms`,
-            `Error: ${(e as Error).message}`,
-            `Stack: ${(e as Error).stack || 'No stack trace available'}`,
+            `Strategy: ${strategy}`,
+            `Hook type: ${typeof hook}`,
+            `Error type: ${error.constructor.name}`,
+            `Error message: ${error.message}`,
+            `Stack trace:`,
+            error.stack || 'No stack trace available',
+            `Parameters: ${JSON.stringify(parameters, null, 2)}`,
           ],
         })
         this.#catcher<H>(e as Error, plugin, hookName)

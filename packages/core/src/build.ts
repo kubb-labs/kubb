@@ -13,6 +13,7 @@ import type { Logger } from './logger.ts'
 import { createLogger } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
 import type { Config, Output, Plugin, UserConfig } from './types.ts'
+import { formatDiagnosticInfo } from './utils/diagnostics.ts'
 import { URLPath } from './utils/URLPath.ts'
 
 type BuildOptions = {
@@ -57,6 +58,12 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       `Root: ${userConfig.root || process.cwd()}`,
       `Output path: ${userConfig.output?.path || 'not specified'}`,
       `Number of plugins: ${userConfig.plugins?.length || 0}`,
+      `Output write: ${userConfig.output?.write !== false ? 'enabled' : 'disabled'}`,
+      `Output format: ${userConfig.output?.format || 'none'}`,
+      `Output lint: ${userConfig.output?.lint || 'none'}`,
+      '',
+      'Environment:',
+      formatDiagnosticInfo(),
     ],
   })
 
@@ -70,6 +77,15 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     }
   } catch (e) {
     if (isInputPath(userConfig)) {
+      const error = e as Error
+      logger.emit('debug', {
+        date: new Date(),
+        logs: [
+          'Failed to validate input file',
+          `Path: ${userConfig.input.path}`,
+          `Error: ${error.message}`,
+        ],
+      })
       throw new Error(
         `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${userConfig.input.path}`,
         {
@@ -181,8 +197,11 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           date: new Date(),
           logs: [
             `[${plugin.name}] Plugin installation failed`,
-            `Error: ${error.message}`,
-            `Stack: ${error.stack || 'No stack trace available'}`,
+            `Plugin key: ${JSON.stringify(plugin.key)}`,
+            `Error type: ${error.constructor.name}`,
+            `Error message: ${error.message}`,
+            `Stack trace:`,
+            error.stack || 'No stack trace available',
           ],
         })
         failedPlugins.add({ plugin, error })

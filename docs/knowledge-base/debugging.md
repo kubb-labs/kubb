@@ -74,12 +74,19 @@ When debug mode is enabled, Kubb logs detailed information about:
 - Input file validation
 - Directory cleaning operations
 - Fabric initialization
+- **Environment information** (Node version, platform, architecture, working directory)
 
 #### Plugin Execution
 - Plugin installation with timing information
 - Hook execution for each plugin (start, duration, completion)
 - Plugin key and metadata
 - Schema parsing details for each schema
+- **Detailed error context** including:
+  - Error type and constructor name
+  - Full error message
+  - Complete stack trace
+  - Hook parameters and context
+  - Plugin-specific metadata
 
 #### File Generation
 - Total number of files to generate
@@ -92,10 +99,11 @@ When debug mode is enabled, Kubb logs detailed information about:
 - Success or failure status
 - Error messages if tools are not found
 
-#### Error Details
-- Full error messages
-- Stack traces for debugging
-- Context about where errors occurred
+#### CI/CD Integration
+- **GitHub Actions support**: Long debug logs are automatically wrapped in collapsible groups (`::group::` / `::endgroup::`)
+- Makes debug output more readable in CI environments
+- Short logs (under 100 characters) remain inline
+- Easy to expand/collapse detailed traces
 
 ### Debug Log Files
 

@@ -4,6 +4,7 @@ import { createConsola } from 'consola'
 import pc from 'picocolors'
 import seedrandom from 'seedrandom'
 import { write } from './fs/write.ts'
+import { endGroup, isGitHubActions, startGroup } from './utils/ciDetection.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 
 type DebugEvent = { date: Date; logs: string[]; fileName?: string }
@@ -85,15 +86,30 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
 
   events.on('verbose', (message) => {
     if (logLevel >= LogMapper.verbose) {
-      consola.log(pc.dim(message.logs.join('\n')))
+      const formattedLogs = message.logs.join('\n')
+      consola.log(pc.dim(formattedLogs))
     }
 
     cachedLogs.add(message)
   })
 
   events.on('debug', (message) => {
-    if (message.logs.join('\n\n').length <= 100 && logLevel >= LogMapper.debug) {
-      consola.log(pc.dim(message.logs.join('\n\n')))
+    const fullLog = message.logs.join('\n\n')
+    
+    if (logLevel >= LogMapper.debug) {
+      // In GitHub Actions, wrap longer debug logs in collapsible groups
+      if (isGitHubActions() && fullLog.length > 100) {
+        // Extract first line as title, or use a generic title
+        const firstLine = message.logs[0] || 'Debug Details'
+        const title = firstLine.length > 50 ? firstLine.substring(0, 50) + '...' : firstLine
+        
+        console.log(startGroup(title))
+        console.log(pc.dim(fullLog))
+        console.log(endGroup())
+      } else if (fullLog.length <= 100) {
+        // Short logs are always shown inline
+        consola.log(pc.dim(fullLog))
+      }
     }
 
     cachedLogs.add(message)

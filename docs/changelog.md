@@ -19,6 +19,70 @@ All notable changes to Kubb are documented here. Each version is organized with 
 
 ### ✨ Features
 
+- **[`@kubb/core`](/plugins/core/)**, **[`@kubb/cli`](/helpers/cli/)** - Enhanced debug logs for better bug detection and CI support
+
+  Improved debug logging to make it easier to catch bugs from user issues and added support for collapsible sections in CI environments like GitHub Actions.
+
+  **Enhanced error context:**
+  - Error type and constructor name
+  - Full error messages with context
+  - Complete stack traces
+  - Hook parameters and execution context
+  - Plugin-specific metadata
+
+  **Environment diagnostics:**
+  - Node version and platform information
+  - Architecture and working directory
+  - Kubb version tracking
+  - Automatically included in debug logs
+
+  **GitHub Actions integration:**
+  - Long debug logs automatically wrapped in collapsible groups
+  - Uses `::group::` and `::endgroup::` markers
+  - Makes CI logs more readable
+  - Short logs remain inline for quick scanning
+
+  ::: code-group
+  ```shell [Usage]
+  # Debug mode with GitHub Actions
+  GITHUB_ACTIONS=true kubb generate --debug
+  ```
+  :::
+
+  **Example output in GitHub Actions:**
+  ```
+  ::group::Starting setup phase
+  Starting setup phase
+  Config name: petStore
+  Environment:
+  nodeVersion: v20.19.6
+  platform: linux
+  ::endgroup::
+
+  ::group::[plugin-oas] Plugin installation failed
+  Error type: TypeError
+  Error message: Cannot read property 'x' of undefined
+  Stack trace:
+  [full stack trace]
+  ::endgroup::
+  ```
+
+- **[`@kubb/cli`](/helpers/cli/)** - Fixed plugin success/failure count display
+
+  Corrected the summary to show both successful and failed plugin counts when builds fail.
+
+  ::: code-group
+  ```text [Before]
+  Plugins: 2 failed, 5 total
+  ```
+
+  ```text [After]
+  Plugins: 3 successful, 2 failed, 5 total
+  ```
+  :::
+
+  Now properly displays: `X successful, Y failed, Z total` to give complete visibility into plugin execution status.
+
 - **[`@kubb/core`](/plugins/core/)**, **[`@kubb/cli`](/helpers/cli/)**, **[`@kubb/plugin-oas`](/plugins/plugin-oas/)** - Enhanced debug logging and debugging experience
 
   Significantly improved debug logging throughout the codebase to help developers understand what's happening during code generation. The `--debug` flag now provides comprehensive insights into the generation process.
