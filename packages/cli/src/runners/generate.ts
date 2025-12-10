@@ -172,12 +172,24 @@ export async function generate({ input, config, progressCache, args }: GenerateP
   // formatting
   if (config.output.format === 'prettier') {
     logger?.emit('start', `Formatting with ${config.output.format}`)
+    logger?.emit('debug', {
+      date: new Date(),
+      logs: [`Running prettier on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
+    })
 
     try {
       await execa('prettier', ['--ignore-unknown', '--write', path.resolve(definedConfig.root, definedConfig.output.path)])
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`Prettier formatting completed successfully`],
+      })
     } catch (e) {
       logger.consola?.warn('Prettier not found')
       logger.consola?.error(e)
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`Prettier formatting failed: ${(e as Error).message}`],
+      })
     }
 
     logger?.emit('success', `Formatted with ${config.output.format}`)
@@ -185,12 +197,24 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   if (config.output.format === 'biome') {
     logger?.emit('start', `Formatting with ${config.output.format}`)
+    logger?.emit('debug', {
+      date: new Date(),
+      logs: [`Running biome format on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
+    })
 
     try {
       await execa('biome', ['format', '--write', path.resolve(definedConfig.root, definedConfig.output.path)])
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`Biome formatting completed successfully`],
+      })
     } catch (e) {
       logger.consola?.warn('Biome not found')
       logger.consola?.error(e)
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`Biome formatting failed: ${(e as Error).message}`],
+      })
     }
 
     logger?.emit('success', `Formatted with ${config.output.format}`)
@@ -199,12 +223,24 @@ export async function generate({ input, config, progressCache, args }: GenerateP
   // linting
   if (config.output.lint === 'eslint') {
     logger?.emit('start', `Linting with ${config.output.lint}`)
+    logger?.emit('debug', {
+      date: new Date(),
+      logs: [`Running eslint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
+    })
 
     try {
       await execa('eslint', [path.resolve(definedConfig.root, definedConfig.output.path), '--fix'])
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`ESLint linting completed successfully`],
+      })
     } catch (e) {
       logger.consola?.warn('Eslint not found')
       logger.consola?.error(e)
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`ESLint linting failed: ${(e as Error).message}`],
+      })
     }
 
     logger?.emit('success', `Linted with ${config.output.lint}`)
@@ -212,12 +248,24 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   if (config.output.lint === 'biome') {
     logger?.emit('start', `Linting with ${config.output.lint}`)
+    logger?.emit('debug', {
+      date: new Date(),
+      logs: [`Running biome lint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
+    })
 
     try {
       await execa('biome', ['lint', '--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`Biome linting completed successfully`],
+      })
     } catch (e) {
       logger.consola?.warn('Biome not found')
       logger.consola?.error(e)
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`Biome linting failed: ${(e as Error).message}`],
+      })
     }
 
     logger?.emit('success', `Linted with ${config.output.lint}`)
@@ -225,12 +273,24 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   if (config.output.lint === 'oxlint') {
     logger?.emit('start', `Linting with ${config.output.lint}`)
+    logger?.emit('debug', {
+      date: new Date(),
+      logs: [`Running oxlint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
+    })
 
     try {
       await execa('oxlint', ['--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`Oxlint linting completed successfully`],
+      })
     } catch (e) {
       logger.consola?.warn('Oxlint not found')
       logger.consola?.error(e)
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`Oxlint linting failed: ${(e as Error).message}`],
+      })
     }
 
     logger?.emit('success', `Linted with ${config.output.lint}`)

@@ -47,9 +47,24 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     console.warn(pc.yellow('This feature is still under development — use with caution'))
   }
 
+  logger.emit('debug', {
+    date: new Date(),
+    logs: [
+      'Starting setup phase',
+      `Config name: ${userConfig.name || 'unnamed'}`,
+      `Root: ${userConfig.root || process.cwd()}`,
+      `Output path: ${userConfig.output?.path || 'not specified'}`,
+      `Number of plugins: ${userConfig.plugins?.length || 0}`,
+    ],
+  })
+
   try {
     if (isInputPath(userConfig) && !new URLPath(userConfig.input.path).isURL) {
       await exists(userConfig.input.path)
+      logger.emit('debug', {
+        date: new Date(),
+        logs: [`Input file validated: ${userConfig.input.path}`],
+      })
     }
   } catch (e) {
     if (isInputPath(userConfig)) {
@@ -78,6 +93,10 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   }
 
   if (definedConfig.output.clean) {
+    logger.emit('debug', {
+      date: new Date(),
+      logs: ['Cleaning output directories', `Output path: ${definedConfig.output.path}`, 'Kubb cache: .kubb'],
+    })
     await clean(definedConfig.output.path)
     await clean(join(definedConfig.root, '.kubb'))
   }
@@ -86,7 +105,21 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   fabric.use(fsPlugin, { dryRun: !definedConfig.output.write })
   fabric.use(typescriptParser)
 
+  logger.emit('debug', {
+    date: new Date(),
+    logs: [
+      'Fabric initialized',
+      `File writing: ${definedConfig.output.write ? 'enabled' : 'disabled (dry-run)'}`,
+      `Barrel type: ${definedConfig.output.barrelType || 'none'}`,
+    ],
+  })
+
   const pluginManager = new PluginManager(definedConfig, { fabric, logger, concurrency: 5 })
+
+  logger.emit('debug', {
+    date: new Date(),
+    logs: ['PluginManager initialized', `Concurrency: 5`, `Total plugins: ${pluginManager.plugins.length}`],
+  })
 
   return {
     fabric,
@@ -123,9 +156,30 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       const installer = plugin.install.bind(context)
 
       try {
+        const startTime = Date.now()
+        pluginManager.logger.emit('debug', {
+          date: new Date(),
+          logs: [`[${plugin.name}] Installing plugin`, `Plugin key: ${JSON.stringify(plugin.key)}`],
+        })
+
         await installer(context)
+
+        const duration = Date.now() - startTime
+        pluginManager.logger.emit('debug', {
+          date: new Date(),
+          logs: [`[${plugin.name}] Plugin installed successfully in ${duration}ms`],
+        })
       } catch (e) {
-        failedPlugins.add({ plugin, error: e as Error })
+        const error = e as Error
+        pluginManager.logger.emit('debug', {
+          date: new Date(),
+          logs: [
+            `[${plugin.name}] Plugin installation failed`,
+            `Error: ${error.message}`,
+            `Stack: ${error.stack || 'No stack trace available'}`,
+          ],
+        })
+        failedPlugins.add({ plugin, error })
       }
     }
 
@@ -133,8 +187,18 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       const root = resolve(config.root)
       const rootPath = resolve(root, config.output.path, 'index.ts')
 
+      pluginManager.logger.emit('debug', {
+        date: new Date(),
+        logs: ['Generating barrel file', `Type: ${config.output.barrelType}`, `Path: ${rootPath}`],
+      })
+
       const barrelFiles = fabric.files.filter((file) => {
         return file.sources.some((source) => source.isIndexable)
+      })
+
+      pluginManager.logger.emit('debug', {
+        date: new Date(),
+        logs: [`Found ${barrelFiles.length} indexable files for barrel export`],
       })
 
       const rootFile: KubbFile.File = {
@@ -175,15 +239,36 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       }
 
       await fabric.upsertFile(rootFile)
+
+      pluginManager.logger.emit('debug', {
+        date: new Date(),
+        logs: [`Barrel file generated with ${rootFile.exports.length} exports`],
+      })
     }
 
     fabric.context.on('process:start', ({ files }) => {
       pluginManager.logger.emit('progress_start', { id: 'files', size: files.length, message: 'Writing files ...' })
+      pluginManager.logger.emit('debug', {
+        date: new Date(),
+        logs: [`Starting file write process`, `Total files to write: ${files.length}`],
+      })
     })
 
     fabric.context.on('process:progress', async ({ file, source }) => {
       const message = file ? `Writing ${relative(config.root, file.path)}` : ''
       pluginManager.logger.emit('progressed', { id: 'files', message })
+
+      if (file) {
+        pluginManager.logger.emit('debug', {
+          date: new Date(),
+          logs: [
+            `Writing file: ${file.path}`,
+            `Relative path: ${relative(config.root, file.path)}`,
+            `Base name: ${file.baseName}`,
+            `Has source: ${!!source}`,
+          ],
+        })
+      }
 
       if (source) {
         await write(file.path, source, { sanity: false })
@@ -192,6 +277,10 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
     fabric.context.on('process:end', () => {
       pluginManager.logger.emit('progress_stop', { id: 'files' })
+      pluginManager.logger.emit('debug', {
+        date: new Date(),
+        logs: [`File write process completed`],
+      })
     })
     const files = [...fabric.files]
 

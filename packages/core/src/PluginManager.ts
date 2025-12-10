@@ -582,6 +582,12 @@ export class PluginManager {
 
     this.events.emit('executing', { strategy, hookName, parameters, plugin, message })
 
+    const startTime = Date.now()
+    this.logger.emit('debug', {
+      date: new Date(),
+      logs: [`[${plugin.name}] Executing hook '${hookName}' with strategy '${strategy}'`, message ? `Message: ${message}` : ''].filter(Boolean),
+    })
+
     const task = (async () => {
       try {
         if (typeof hook === 'function') {
@@ -589,6 +595,12 @@ export class PluginManager {
           const result = await Promise.resolve((hook as Function).apply(context, parameters))
 
           output = result
+
+          const duration = Date.now() - startTime
+          this.logger.emit('debug', {
+            date: new Date(),
+            logs: [`[${plugin.name}] Completed hook '${hookName}' in ${duration}ms`],
+          })
 
           this.#addExecutedToCallStack({
             parameters,
@@ -604,6 +616,12 @@ export class PluginManager {
 
         output = hook
 
+        const duration = Date.now() - startTime
+        this.logger.emit('debug', {
+          date: new Date(),
+          logs: [`[${plugin.name}] Completed hook '${hookName}' (static value) in ${duration}ms`],
+        })
+
         this.#addExecutedToCallStack({
           parameters,
           output,
@@ -615,6 +633,15 @@ export class PluginManager {
 
         return hook
       } catch (e) {
+        const duration = Date.now() - startTime
+        this.logger.emit('debug', {
+          date: new Date(),
+          logs: [
+            `[${plugin.name}] Failed hook '${hookName}' after ${duration}ms`,
+            `Error: ${(e as Error).message}`,
+            `Stack: ${(e as Error).stack || 'No stack trace available'}`,
+          ],
+        })
         this.#catcher<H>(e as Error, plugin, hookName)
         return null
       }
