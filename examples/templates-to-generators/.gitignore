@@ -1,0 +1,6 @@
+node_modules
+dist
+.kubb
+src/gen
+*.log
+.DS_Store
