@@ -272,10 +272,44 @@ export class SchemaGenerator<
 
   /**
    * Evaluates a mapper value (either string or function) and returns the final output
-   * @param mapperValue - The mapper value from options (string or function)
-   * @param schema - The OpenAPI schema object (may contain custom x-* attributes)
-   * @param defaultOutput - The default generated output
-   * @returns The final output string (either the mapper result or default)
+   * 
+   * @param mapperValue - The mapper value from options (string or function).
+   *   - String: Returned as-is (backward compatible with existing usage)
+   *   - Function: Called with schema and defaultOutput parameters
+   *   - undefined: Returns defaultOutput unchanged
+   * 
+   * @param schema - The OpenAPI schema object that may contain custom x-* attributes.
+   *   - May be undefined when mapping properties that don't have an associated schema object
+   *   - Function mappers should handle undefined schema gracefully
+   * 
+   * @param defaultOutput - The default generated output string.
+   *   - This is the output that would be generated without any mapper
+   *   - Function mappers can use this as a base for modifications
+   * 
+   * @returns The final output string. Function mappers should always return a string.
+   * 
+   * @example
+   * ```ts
+   * // String mapper
+   * evaluateMapper('z.string()', undefined, 'z.number()') // returns 'z.string()'
+   * 
+   * // Function mapper with custom attribute
+   * evaluateMapper(
+   *   (schema, defaultOutput) => {
+   *     const msg = schema?.['x-error-message']
+   *     return msg ? `${defaultOutput}.refine(..., "${msg}")` : defaultOutput
+   *   },
+   *   { type: 'string', 'x-error-message': 'Invalid' },
+   *   'z.string()'
+   * ) // returns 'z.string().refine(..., "Invalid")'
+   * 
+   * // Function mapper with no schema
+   * evaluateMapper(
+   *   (schema, defaultOutput) => schema?.['x-custom'] || defaultOutput,
+   *   undefined,
+   *   'z.string()'
+   * ) // returns 'z.string()'
+   * ```
    */
   static evaluateMapper(mapperValue: MapperValue | undefined, schema: SchemaObject | undefined, defaultOutput: string): string {
     if (!mapperValue) {
@@ -289,7 +323,13 @@ export class SchemaGenerator<
 
     // If mapper is a function, call it with schema and defaultOutput
     if (typeof mapperValue === 'function') {
-      return mapperValue(schema, defaultOutput)
+      const result = mapperValue(schema, defaultOutput)
+      // Ensure the result is a string to prevent runtime issues
+      if (typeof result !== 'string') {
+        console.warn('[Kubb] Mapper function must return a string. Falling back to default output.')
+        return defaultOutput
+      }
+      return result
     }
 
     return defaultOutput
