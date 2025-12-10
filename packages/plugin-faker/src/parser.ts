@@ -189,7 +189,7 @@ type ParserOptions = {
 export const parse = createParser<string, ParserOptions>({
   mapper: fakerKeywordMapper,
   handlers: {
-    union(tree, options, parse) {
+    union(tree, options) {
       const { current, schema, name, siblings } = tree
       if (!isKeyword(current, schemaKeywords.union)) return undefined
 
@@ -198,25 +198,25 @@ export const parse = createParser<string, ParserOptions>({
       }
 
       return fakerKeywordMapper.union(
-        current.args.map((it) => parse({ schema, parent: current, name, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
+        current.args.map((it) => this.parse({ schema, parent: current, name, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
       )
     },
-    and(tree, options, parse) {
+    and(tree, options) {
       const { current, schema, siblings } = tree
       if (!isKeyword(current, schemaKeywords.and)) return undefined
 
       return fakerKeywordMapper.and(
-        current.args.map((it) => parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
+        current.args.map((it) => this.parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
       )
     },
-    array(tree, options, parse) {
+    array(tree, options) {
       const { current, schema } = tree
       if (!isKeyword(current, schemaKeywords.array)) return undefined
 
       return fakerKeywordMapper.array(
         current.args.items
           .map((it) =>
-            parse(
+            this.parse(
               { schema, parent: current, current: it, siblings: current.args.items },
               {
                 ...options,
@@ -230,7 +230,7 @@ export const parse = createParser<string, ParserOptions>({
         current.args.max,
       )
     },
-    enum(tree, options, _parse) {
+    enum(tree, options) {
       const { current, parent, name } = tree
       if (!isKeyword(current, schemaKeywords.enum)) return undefined
 
@@ -279,7 +279,7 @@ export const parse = createParser<string, ParserOptions>({
 
       return `${current.args.name}()`
     },
-    object(tree, options, parse) {
+    object(tree, options) {
       const { current, schema } = tree
       if (!isKeyword(current, schemaKeywords.object)) return undefined
 
@@ -301,7 +301,7 @@ export const parse = createParser<string, ParserOptions>({
             schemas
               .sort(schemaKeywordSorter)
               .map((it) =>
-                parse(
+                this.parse(
                   { schema, name, parent: current, current: it, siblings: schemas },
                   {
                     ...options,
@@ -317,17 +317,17 @@ export const parse = createParser<string, ParserOptions>({
 
       return `{${argsObject}}`
     },
-    tuple(tree, options, parse) {
+    tuple(tree, options) {
       const { current, schema, siblings } = tree
       if (!isKeyword(current, schemaKeywords.tuple)) return undefined
 
       if (Array.isArray(current.args.items)) {
         return fakerKeywordMapper.tuple(
-          current.args.items.map((it) => parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
+          current.args.items.map((it) => this.parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
         )
       }
 
-      return parse({ schema, parent: current, current: current.args.items, siblings }, { ...options, canOverride: false })
+      return this.parse({ schema, parent: current, current: current.args.items, siblings }, { ...options, canOverride: false })
     },
     const(tree, _options) {
       const { current } = tree

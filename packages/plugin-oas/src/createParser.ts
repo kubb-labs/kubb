@@ -3,12 +3,20 @@ import type { Schema, SchemaKeywordMapper, SchemaMapper, SchemaTree } from './Sc
 import { schemaKeywords } from './SchemaMapper.ts'
 
 /**
+ * Handler context with parse method available via `this`
+ */
+export type HandlerContext<TOutput, TOptions> = {
+  parse: (tree: SchemaTree, options: TOptions) => TOutput | null | undefined
+}
+
+/**
  * Handler function type for custom keyword processing
+ * Handlers can access the parse function via `this.parse`
  */
 export type KeywordHandler<TOutput, TOptions> = (
+  this: HandlerContext<TOutput, TOptions>,
   tree: SchemaTree,
   options: TOptions,
-  parse: (tree: SchemaTree, options: TOptions) => TOutput | null | undefined,
 ) => TOutput | null | undefined
 
 /**
@@ -72,13 +80,13 @@ export type CreateParserConfig<TOutput, TOptions> = {
  * const parse = createParser({
  *   mapper: zodKeywordMapper,
  *   handlers: {
- *     union: (tree, options, parse) => {
+ *     union(tree, options) {
  *       const items = tree.current.args
- *         .map(it => parse({ ...tree, current: it }, options))
+ *         .map(it => this.parse({ ...tree, current: it }, options))
  *         .filter(Boolean)
  *       return `z.union([${items.join(', ')}])`
  *     },
- *     string: (tree, options, parse) => {
+ *     string(tree, options) {
  *       const minSchema = findSchemaKeyword(tree.siblings, 'min')
  *       const maxSchema = findSchemaKeyword(tree.siblings, 'max')
  *       return zodKeywordMapper.string(false, minSchema?.args, maxSchema?.args)
@@ -98,7 +106,9 @@ export function createParser<TOutput, TOptions extends Record<string, any>>(
     // Check if there's a custom handler for this keyword
     const handler = handlers[current.keyword as keyof SchemaKeywordMapper]
     if (handler) {
-      return handler(tree, options, parse)
+      // Create context object with parse method accessible via `this`
+      const context: HandlerContext<TOutput, TOptions> = { parse }
+      return handler.call(context, tree, options)
     }
 
     // Fall back to simple mapper lookup

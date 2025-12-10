@@ -169,28 +169,28 @@ type ParserOptions = {
 export const parse = createParser<ts.Node | null, ParserOptions>({
   mapper: typeKeywordMapper,
   handlers: {
-    union(tree, options, parse) {
+    union(tree, options) {
       const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.union)) return undefined
 
       return typeKeywordMapper.union(
-        current.args.map((it) => parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
+        current.args.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
       )
     },
-    and(tree, options, parse) {
+    and(tree, options) {
       const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.and)) return undefined
 
       return typeKeywordMapper.and(
-        current.args.map((it) => parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
+        current.args.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
       )
     },
-    array(tree, options, parse) {
+    array(tree, options) {
       const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.array)) return undefined
 
       return typeKeywordMapper.array(
-        current.args.items.map((it) => parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
+        current.args.items.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
       )
     },
     enum(tree, options) {
@@ -212,14 +212,14 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
 
       return typeKeywordMapper.blob()
     },
-    tuple(tree, options, parse) {
+    tuple(tree, options) {
       const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.tuple)) return undefined
 
       return typeKeywordMapper.tuple(
-        current.args.items.map((it) => parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
+        current.args.items.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
         current.args.rest &&
-          ((parse({ schema, parent: current, name, current: current.args.rest, siblings: [] }, options) ?? undefined) as ts.TypeNode | undefined),
+          ((this.parse({ schema, parent: current, name, current: current.args.rest, siblings: [] }, options) ?? undefined) as ts.TypeNode | undefined),
         current.args.min,
         current.args.max,
       )
@@ -230,7 +230,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
 
       return typeKeywordMapper.const(current.args.name, current.args.format)
     },
-    object(tree, options, parse) {
+    object(tree, options) {
       const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.object)) return undefined
 
@@ -263,7 +263,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
 
           let type = schemas
             .map((it) =>
-              parse(
+              this.parse(
                 {
                   schema,
                   parent: current,

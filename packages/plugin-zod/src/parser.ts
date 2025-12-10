@@ -473,13 +473,13 @@ type ParserOptions = {
 export const parse = createParser<string, ParserOptions>({
   mapper: zodKeywordMapper,
   handlers: {
-    union(tree, options, parse) {
+    union(tree, options) {
       const { current, schema, parent, name, siblings } = tree
       if (!isKeyword(current, schemaKeywords.union)) return undefined
 
       // zod union type needs at least 2 items
       if (Array.isArray(current.args) && current.args.length === 1) {
-        return parse({ schema, parent, name, current: current.args[0] as Schema, siblings }, options)
+        return this.parse({ schema, parent, name, current: current.args[0] as Schema, siblings }, options)
       }
       if (Array.isArray(current.args) && !current.args.length) {
         return ''
@@ -487,11 +487,11 @@ export const parse = createParser<string, ParserOptions>({
 
       return zodKeywordMapper.union(
         sort(current.args)
-          .map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
+          .map((it, _index, siblings) => this.parse({ schema, parent: current, name, current: it, siblings }, options))
           .filter(Boolean),
       )
     },
-    and(tree, options, parse) {
+    and(tree, options) {
       const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.and)) return undefined
 
@@ -499,19 +499,19 @@ export const parse = createParser<string, ParserOptions>({
         .filter((schema: Schema) => {
           return ![schemaKeywords.optional, schemaKeywords.describe].includes(schema.keyword as typeof schemaKeywords.describe)
         })
-        .map((it: Schema, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
+        .map((it: Schema, _index, siblings) => this.parse({ schema, parent: current, name, current: it, siblings }, options))
         .filter(Boolean)
 
       return `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1), options.mini)}`
     },
-    array(tree, options, parse) {
+    array(tree, options) {
       const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.array)) return undefined
 
       return zodKeywordMapper.array(
         sort(current.args.items)
           .map((it, _index, siblings) => {
-            return parse({ schema, parent: current, name, current: it, siblings }, options)
+            return this.parse({ schema, parent: current, name, current: it, siblings }, options)
           })
           .filter(Boolean),
         current.args.min,
@@ -520,7 +520,7 @@ export const parse = createParser<string, ParserOptions>({
         options.mini,
       )
     },
-    enum(tree, options, parse) {
+    enum(tree, options) {
       const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.enum)) return undefined
 
@@ -530,7 +530,7 @@ export const parse = createParser<string, ParserOptions>({
             keyword: schemaKeywords.const,
             args: current.args.items[0],
           }
-          return parse({ schema, parent: current, name, current: child, siblings: [child] }, options)
+          return this.parse({ schema, parent: current, name, current: child, siblings: [child] }, options)
         }
 
         return zodKeywordMapper.union(
@@ -540,7 +540,7 @@ export const parse = createParser<string, ParserOptions>({
               args: schema,
             }))
             .map((it, _index, siblings) => {
-              return parse({ schema, parent: current, name, current: it, siblings }, options)
+              return this.parse({ schema, parent: current, name, current: it, siblings }, options)
             })
             .filter(Boolean),
         )
@@ -569,7 +569,7 @@ export const parse = createParser<string, ParserOptions>({
       }
       return zodKeywordMapper.ref(current.args?.name)
     },
-    object(tree, options, parse) {
+    object(tree, options) {
       const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.object)) return undefined
 
@@ -600,7 +600,7 @@ export const parse = createParser<string, ParserOptions>({
             .map((it) => {
               // For v4 with refs, skip z.lazy wrapper since the getter provides lazy evaluation
               const skipLazyForRefs = options.version === '4' && hasRef
-              return parse({ schema, parent: current, name, current: it, siblings: schemas }, { ...options, skipLazyForRefs })
+              return this.parse({ schema, parent: current, name, current: it, siblings: schemas }, { ...options, skipLazyForRefs })
             })
             .filter(Boolean)
             .join('')
@@ -686,7 +686,7 @@ export const parse = createParser<string, ParserOptions>({
 
       const additionalProperties = current.args?.additionalProperties?.length
         ? current.args.additionalProperties
-            .map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options))
+            .map((it, _index, siblings) => this.parse({ schema, parent: current, name, current: it, siblings }, options))
             .filter(Boolean)
             .join('')
         : undefined
@@ -698,12 +698,12 @@ export const parse = createParser<string, ParserOptions>({
 
       return text.join('')
     },
-    tuple(tree, options, parse) {
+    tuple(tree, options) {
       const { current, schema, name } = tree
       if (!isKeyword(current, schemaKeywords.tuple)) return undefined
 
       return zodKeywordMapper.tuple(
-        current.args.items.map((it, _index, siblings) => parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean),
+        current.args.items.map((it, _index, siblings) => this.parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean),
       )
     },
     const(tree, _options) {
