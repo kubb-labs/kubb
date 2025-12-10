@@ -114,13 +114,13 @@ export async function generate({ input, config, progressCache, args }: GenerateP
   })
 
   // Handle build failures (either from failed plugins or general errors)
-  const hasBuildFailure = failedPlugins.size > 0 || error
+  const hasFailures = failedPlugins.size > 0 || error
   
-  if (hasBuildFailure && logger.consola) {
-    logger.consola.resumeLogs()
-    logger.consola.error(`Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+  if (hasFailures && logger.consola) {
+    logger.consola?.resumeLogs()
+    logger.consola?.error(`Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
-    logger.consola.box({
+    logger.consola?.box({
       title: `${config.name || ''}`,
       message: summary.join(''),
       style: {
