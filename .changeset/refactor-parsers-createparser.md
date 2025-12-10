@@ -21,8 +21,6 @@ Introduces `createParser` helper in `@kubb/plugin-oas` to eliminate parser dupli
 - `@kubb/plugin-faker`: Converted to use handlers for dynamic type generation
 
 **Breaking Changes:**
-- Type renames in `@kubb/plugin-oas`:
-  - `Schema` is now `SchemaKeywordNode` (represents parsed keyword nodes)
-  - `SchemaTree` is now `ParseContext` (represents parsing context with tree state)
+- None. No breaking type renames have been made in this PR.
 
 All existing tests pass. No functional changes to generated code.

@@ -322,7 +322,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
 
       if (current.args?.additionalProperties?.length) {
         additionalProperties = current.args.additionalProperties
-          .map((it) => parse({ schema, parent: current, name, current: it, siblings: [] }, options))
+          .map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options))
           .filter(Boolean)
           .at(0) as ts.TypeNode
 

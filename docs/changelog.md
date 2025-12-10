@@ -62,13 +62,7 @@ All notable changes to Kubb are documented here. Each version is organized with 
 
 - **[`@kubb/plugin-oas`](/plugins/plugin-oas/)** - Type renames for clarity
 
-  Renamed internal types to better reflect their purpose as intermediate representations during parsing:
-  - `Schema` → `SchemaKeywordNode` (represents parsed keyword nodes)
-  - `SchemaTree` → `ParseContext` (represents parsing context with tree traversal state)
-
-  > [!NOTE]
-  > These are internal types used during schema parsing. Most users won't be affected unless directly importing these types from `@kubb/plugin-oas`.
-
+  Internal types are used during schema parsing. Most users won't be affected unless directly importing these types from `@kubb/plugin-oas`.
 ## 4.10.1
 
 ### 📦 Dependencies
