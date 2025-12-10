@@ -94,15 +94,30 @@ kubb --log-level info
 
 #### --debug
 > [!TIP]
-> Debug mode will create 2 log files:
-> - `.kubb/kubb-DATE_STRING.log`
-> - `.kubb/kubb-files.log`
+> Debug mode creates detailed log files in the `.kubb` directory:
+> - `.kubb/kubb-{timestamp}.log` - Contains all debug messages with timestamps
 
+Debug mode provides comprehensive logging including:
+- Setup phase details (configuration, plugins, paths)
+- Plugin installation and execution timing
+- Hook execution with duration measurements
+- Schema parsing information
+- File generation progress with paths
+- Formatter/linter execution details
+- Error messages with full stack traces
+
+This is extremely useful for:
+- Troubleshooting generation issues
+- Understanding plugin execution flow
+- Performance analysis
+- Debugging schema parsing problems
 
 Alias for `kubb generate --log-level debug`
 ```shell [node]
 kubb --debug
 ```
+
+See the [Debugging Guide](/knowledge-base/debugging) for more details on using debug mode.
 
 #### --watch (-w)
 

@@ -15,6 +15,62 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## Unreleased
+
+### ✨ Features
+
+- **[`@kubb/core`](/plugins/core/)**, **[`@kubb/cli`](/helpers/cli/)**, **[`@kubb/plugin-oas`](/plugins/plugin-oas/)** - Enhanced debug logging and debugging experience
+
+  Significantly improved debug logging throughout the codebase to help developers understand what's happening during code generation. The `--debug` flag now provides comprehensive insights into the generation process.
+
+  **What's logged in debug mode:**
+  - Setup phase details (configuration, plugins, paths)
+  - Plugin installation with timing information
+  - Hook execution with duration measurements
+  - Schema parsing details for each schema
+  - File generation progress with full paths
+  - Barrel file export information
+  - Formatter/linter execution details
+  - Error messages with full stack traces
+
+  **Performance timing added to:**
+  - Plugin installation
+  - Hook execution
+  - Each lifecycle event
+
+  ::: code-group
+  ```shell [Usage]
+  # Enable debug mode
+  kubb generate --debug
+
+  # Or using log level
+  kubb generate --log-level debug
+  ```
+  :::
+
+  **Example debug output:**
+  ```
+  [log] [petStore] Starting setup phase
+  Config name: petStore
+  Root: .
+  Output path: ./src/gen
+  Number of plugins: 5
+
+  [log] [petStore] [plugin-oas] Installing plugin
+  Plugin key: ["plugin-oas",1]
+  [log] [petStore] [plugin-oas] Plugin installed successfully in 351ms
+
+  [log] [petStore] [plugin-ts] Building schemas
+  Total schemas: 12
+  Content type: default
+  Includes: all
+  Generators: 1
+  ```
+
+  Debug logs are written to `.kubb/kubb-{timestamp}.log` for later analysis.
+
+  See the [Debugging Guide](/knowledge-base/debugging) for more information.
+
 
 ## 4.11.0
 

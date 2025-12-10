@@ -242,7 +242,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
       pluginManager.logger.emit('debug', {
         date: new Date(),
-        logs: [`Barrel file generated with ${rootFile.exports.length} exports`],
+        logs: [`Barrel file generated with ${rootFile.exports?.length || 0} exports`],
       })
     }
 

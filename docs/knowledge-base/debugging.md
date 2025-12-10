@@ -7,6 +7,109 @@ outline: deep
 
 # Debugging Kubb <a href="/plugins/react"><Badge type="info" text="@kubb/react-fabric" /></a>
 
+## Debug Mode
+
+Kubb provides comprehensive debug logging to help you understand what's happening during the code generation process.
+
+### Using the --debug flag
+
+To enable debug mode, use the `--debug` flag or set `--log-level debug`:
+
+```shell
+kubb generate --debug
+```
+
+Or alternatively:
+
+```shell
+kubb generate --log-level debug
+```
+
+### What gets logged in debug mode
+
+When debug mode is enabled, Kubb logs detailed information about:
+
+#### Setup Phase
+- Configuration details (name, root path, output path)
+- Number of plugins being loaded
+- Input file validation
+- Directory cleaning operations
+- Fabric initialization
+
+#### Plugin Execution
+- Plugin installation with timing information
+- Hook execution for each plugin (start, duration, completion)
+- Plugin key and metadata
+- Schema parsing details for each schema
+
+#### File Generation
+- Total number of files to generate
+- File paths (absolute and relative)
+- Barrel file exports
+- File writing progress
+
+#### Formatting & Linting
+- Formatter/linter execution (prettier, biome, eslint, oxlint)
+- Success or failure status
+- Error messages if tools are not found
+
+#### Error Details
+- Full error messages
+- Stack traces for debugging
+- Context about where errors occurred
+
+### Debug Log Files
+
+> [!TIP]
+> Debug mode creates log files in the `.kubb` directory:
+> - `.kubb/kubb-{timestamp}.log` - Contains all debug messages with timestamps
+
+Example debug output:
+```
+[log] [petStore] Starting setup phase
+Config name: petStore
+Root: .
+Output path: ./src/gen
+Number of plugins: 5
+
+[log] [petStore] [plugin-oas] Installing plugin
+Plugin key: ["plugin-oas",1]
+
+[log] [petStore] [plugin-oas] Plugin installed successfully in 351ms
+
+[log] [petStore] [plugin-ts] Building schemas
+Total schemas: 12
+Content type: default
+Includes: all
+Generators: 1
+
+[log] [petStore] Barrel file generated with 356 exports
+
+[log] [petStore] Starting file write process
+Total files to write: 18
+
+[log] [petStore] File write process completed
+```
+
+### Performance Analysis
+
+Debug mode includes timing information for:
+- Plugin installation
+- Hook execution
+- Schema generation
+- File writing
+
+This helps identify performance bottlenecks in your generation pipeline.
+
+### Troubleshooting with Debug Mode
+
+Use debug mode to diagnose:
+- Plugin loading issues
+- Schema parsing problems
+- File generation failures
+- Hook execution order
+- Performance issues
+
 ## React DevTools
 
 Kubb supports React DevTools out-of-the-box. To enable integration with React DevTools, import the devtools package in your `kubb.config.ts` config file.
