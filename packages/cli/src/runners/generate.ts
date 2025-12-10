@@ -134,7 +134,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     const allErrors: Error[] = []
     
     if (failedPlugins.size > 0) {
-      allErrors.push(...[...failedPlugins].filter((it) => it.error).map((it) => it.error))
+      allErrors.push(...Array.from(failedPlugins).filter((it) => it.error).map((it) => it.error))
     }
     
     if (error) {
