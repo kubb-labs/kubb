@@ -26,6 +26,7 @@
   - Has `zodKeywordMapper` object
   - TODO comment: "add zodKeywordMapper as function that returns 3 versions: v3, v4 and v4 mini"
   - Supports v3, v4, and mini mode
+  - Contains comments about reusability for future parsers (valibot)
   
 - **Faker Parser** (`packages/plugin-faker/src/parser.ts`)
   - Has `fakerKeywordMapper` object
@@ -34,6 +35,13 @@
 - **TypeScript Parser** (`packages/plugin-ts/src/parser.ts`)
   - Has `typeKeywordMapper` object
   - Generates TypeScript AST nodes
+
+#### 3. Future Parsers
+**Planned Support**:
+- **Valibot Parser** - Already referenced in zod parser comments as reuse target
+- **Arktype Parser** - Future validation library support
+
+**Design Requirement**: All enhancement approaches must be generic enough to support future parsers without requiring core architecture changes. Parser-specific logic should be isolated to individual parser implementations.
 
 #### 3. Current `mapper` Option
 **Location**: Defined in `SchemaGeneratorOptions` but used in individual plugins
@@ -117,6 +125,7 @@ function createZodKeywordMapper(config: {
 - Addresses TODO in zod parser
 - Makes versioning cleaner
 - Allows per-parser configuration
+- **Reusable pattern**: Easy to adopt for valibot, arktype, and future parsers
 
 #### Option 2: Custom Attribute Handlers
 Add support for reading and processing custom OpenAPI attributes:
@@ -147,6 +156,7 @@ handlers: {
 - Enables discussion #1804 use case
 - Extensible to any x-* attribute
 - Backward compatible
+- **Generic design**: Works identically for zod, faker, ts, valibot, arktype parsers
 
 #### Option 3: Enhanced Mapper with Schema Access
 Upgrade `mapper` option to accept functions with schema access:
@@ -167,6 +177,7 @@ mapper: {
 - Minimal API change
 - Powerful customization
 - Addresses both use cases
+- **Parser agnostic**: Same mapper function signature works across all parsers (zod, faker, ts, valibot, arktype)
 
 #### Option 4: Parser Plugin System
 Create a plugin system for parsers:
@@ -189,6 +200,7 @@ createParser({
 - Most flexible
 - Clean separation of concerns
 - Reusable across parsers
+- **Future-proof**: New parsers (valibot, arktype) can use same plugin ecosystem without modification
 
 ## Recommended Actions
 
@@ -198,17 +210,28 @@ Without access to discussion #1980, I recommend:
 2. **Short-term**: Implement Option 3 (Enhanced Mapper) as it's backward compatible and addresses known requests
 3. **Long-term**: Consider Option 1 (Function-Based Mappers) to address the TODO and improve maintainability
 
+### Design Principles for Future Parser Support
+
+All enhancements must follow these principles to support future parsers (valibot, arktype, etc.):
+
+1. **Generic Core APIs**: Keep `createParser` and `SchemaMapper` generic, not tied to specific parser output types
+2. **Isolated Parser Logic**: Parser-specific behavior (zod syntax, valibot syntax, etc.) should live in parser implementations, not core
+3. **Consistent Patterns**: Use same patterns (mapper, handlers, transformers) across all parsers
+4. **Reusable Utilities**: Extract common functionality (e.g., `findSchemaKeyword`, custom attribute helpers) to shared utilities
+5. **Documentation as Template**: Document one parser thoroughly so new parsers can follow the same pattern
+
 ## Implementation Checklist (Pending Requirements)
 
 - [ ] Clarify exact requirements from discussion #1980
 - [ ] Choose enhancement approach (Options 1-4 or combination)
 - [ ] Update `SchemaMapper` types if needed
 - [ ] Modify `createParser` to support new features
-- [ ] Update all parsers (zod, faker, ts) consistently
+- [ ] Update all current parsers (zod, faker, ts) consistently
+- [ ] Ensure design is extensible for future parsers (valibot, arktype)
 - [ ] Add support for reading custom OpenAPI attributes
-- [ ] Create comprehensive tests
-- [ ] Update documentation
-- [ ] Add examples
+- [ ] Create comprehensive tests for each parser
+- [ ] Update documentation with examples for each parser
+- [ ] Add examples showing pattern reuse for new parsers
 - [ ] Create changeset
 - [ ] Update changelog
 
@@ -219,21 +242,56 @@ Without access to discussion #1980, I recommend:
 - `packages/plugin-oas/src/SchemaMapper.ts` - Type definitions
 - `packages/plugin-oas/src/SchemaGenerator.ts` - Custom attribute reading
 
-### Parsers
+### Parsers (Current)
 - `packages/plugin-zod/src/parser.ts` - Zod parser enhancements
 - `packages/plugin-faker/src/parser.ts` - Faker parser enhancements  
 - `packages/plugin-ts/src/parser.ts` - TypeScript parser enhancements
+
+### Parsers (Future - for reference)
+- `packages/plugin-valibot/src/parser.ts` - Valibot parser (planned)
+- `packages/plugin-arktype/src/parser.ts` - Arktype parser (planned)
+
+**Note**: Enhancements should be designed so future parsers can follow the same patterns with minimal changes to core architecture.
 
 ### Tests
 - `packages/plugin-zod/src/parser.test.ts`
 - `packages/plugin-faker/src/parser.test.ts`
 - `packages/plugin-ts/src/parser.test.ts`
+- Future parser tests should follow same testing patterns
 
 ### Documentation
 - `docs/plugins/plugin-zod/index.md`
 - `docs/plugins/plugin-faker/index.md`
 - `docs/plugins/plugin-ts/index.md`
 - Add examples showing custom attribute usage
+- Add "Creating a New Parser" guide showing pattern reuse
+
+## Future Parser Considerations
+
+### Valibot Support
+[Valibot](https://valibot.dev/) is a lightweight, modular validation library. When implementing parser enhancements:
+
+- **Syntax differences**: Valibot uses function composition (e.g., `string([email()])`) vs Zod's method chaining
+- **Reusable components**: Custom attribute handlers and mapper functions should work with Valibot's syntax
+- **Testing patterns**: Follow same test structure as zod parser tests
+- **Code references**: Existing comments in `packages/plugin-zod/src/parser.ts` (lines 411, 427) mention valibot reuse
+
+### Arktype Support
+[Arktype](https://arktype.io/) uses TypeScript-native syntax. When implementing parser enhancements:
+
+- **String-based definitions**: Arktype uses string literals (e.g., `type('string>5')`) for validation
+- **Type inference**: Leverages TypeScript's type system directly
+- **Compatibility**: Enhanced mapper and custom attribute systems should support string-based output generation
+
+### Design Validation Checklist
+
+Before finalizing any enhancement, validate:
+
+- [ ] Can this pattern be used by valibot without modifying core?
+- [ ] Can this pattern be used by arktype without modifying core?
+- [ ] Are parser-specific concerns isolated to parser implementations?
+- [ ] Is the API generic enough for different output syntaxes?
+- [ ] Would adding a new parser require only creating a new plugin package?
 
 ## Next Steps
 
