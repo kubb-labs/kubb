@@ -218,7 +218,8 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
 
       return typeKeywordMapper.tuple(
         current.args.items.map((it) => parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
-        current.args.rest && ((parse({ schema, parent: current, name, current: current.args.rest, siblings: [] }, options) ?? undefined) as ts.TypeNode | undefined),
+        current.args.rest &&
+          ((parse({ schema, parent: current, name, current: current.args.rest, siblings: [] }, options) ?? undefined) as ts.TypeNode | undefined),
         current.args.min,
         current.args.max,
       )
