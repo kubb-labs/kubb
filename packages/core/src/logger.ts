@@ -47,7 +47,6 @@ export const LogMapper = {
 } as const
 
 // Debug log configuration
-const DEBUG_LOG_INLINE_THRESHOLD = 100 // Characters - logs shorter than this are shown inline
 const DEBUG_LOG_TITLE_MAX_LENGTH = 50 // Characters - max length for group titles
 
 export type Logger = {
