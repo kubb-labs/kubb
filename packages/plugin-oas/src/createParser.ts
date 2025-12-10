@@ -13,11 +13,7 @@ export type HandlerContext<TOutput, TOptions> = {
  * Handler function type for custom keyword processing
  * Handlers can access the parse function via `this.parse`
  */
-export type KeywordHandler<TOutput, TOptions> = (
-  this: HandlerContext<TOutput, TOptions>,
-  tree: SchemaTree,
-  options: TOptions,
-) => TOutput | null | undefined
+export type KeywordHandler<TOutput, TOptions> = (this: HandlerContext<TOutput, TOptions>, tree: SchemaTree, options: TOptions) => TOutput | null | undefined
 
 /**
  * Configuration for createParser

@@ -229,16 +229,20 @@ const zodKeywordMapper = {
       const defaultValue = typeof value === 'object' ? '{}' : (value ?? '')
       return `z._default(${innerSchema}, ${defaultValue})`
     }
+
     if (typeof value === 'object') {
       return '.default({})'
     }
-    if (value !== undefined) {
-      if (typeof value === 'string') {
-        return `.default('${value}')`
-      }
-      return `.default(${value})`
+
+    if (value === undefined) {
+      return '.default()'
     }
-    return '.default()'
+
+    if (typeof value === 'string' && !value) {
+      return `.default('')`
+    }
+
+    return `.default(${value ?? ''})`
   },
   and: (items: string[] = [], mini?: boolean) => {
     // zod/mini doesn't support .and() method, so we can't use intersection types
