@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import type { SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
-import { isKeyword, type SchemaTree, schemaKeywords } from '@kubb/plugin-oas'
+import { createParser, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 import * as factory from './factory.ts'
 
@@ -166,177 +166,195 @@ type ParserOptions = {
  * @param options - Parsing options controlling output style, property handling, and custom mappers.
  * @returns The generated TypeScript AST node, or `undefined` if the schema keyword is not mapped.
  */
-export function parse({ schema, current, siblings, name }: SchemaTree, options: ParserOptions): ts.Node | null | undefined {
-  const value = typeKeywordMapper[current.keyword as keyof typeof typeKeywordMapper]
+export const parse = createParser<ts.Node | null, ParserOptions>({
+  mapper: typeKeywordMapper,
+  handlers: {
+    union(tree, options) {
+      const { current, schema, name } = tree
+      if (!isKeyword(current, schemaKeywords.union)) return undefined
 
-  if (!value) {
-    return undefined
-  }
+      return typeKeywordMapper.union(
+        current.args.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
+      )
+    },
+    and(tree, options) {
+      const { current, schema, name } = tree
+      if (!isKeyword(current, schemaKeywords.and)) return undefined
 
-  if (isKeyword(current, schemaKeywords.union)) {
-    return typeKeywordMapper.union(
-      current.args.map((it) => parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
-    )
-  }
+      return typeKeywordMapper.and(
+        current.args.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
+      )
+    },
+    array(tree, options) {
+      const { current, schema, name } = tree
+      if (!isKeyword(current, schemaKeywords.array)) return undefined
 
-  if (isKeyword(current, schemaKeywords.and)) {
-    return typeKeywordMapper.and(
-      current.args.map((it) => parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
-    )
-  }
+      return typeKeywordMapper.array(
+        current.args.items.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
+      )
+    },
+    enum(tree, options) {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.enum)) return undefined
 
-  if (isKeyword(current, schemaKeywords.array)) {
-    return typeKeywordMapper.array(
-      current.args.items.map((it) => parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
-    )
-  }
+      // Adding suffix to enum (see https://github.com/kubb-labs/kubb/issues/1873)
+      return typeKeywordMapper.enum(options.enumType === 'asConst' ? `${current.args.typeName}Key` : current.args.typeName)
+    },
+    ref(tree, _options) {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.ref)) return undefined
 
-  if (isKeyword(current, schemaKeywords.enum)) {
-    // Adding suffix to enum (see https://github.com/kubb-labs/kubb/issues/1873)
-    return typeKeywordMapper.enum(options.enumType === 'asConst' ? `${current.args.typeName}Key` : current.args.typeName)
-  }
+      return typeKeywordMapper.ref(current.args.name)
+    },
+    blob(tree) {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.blob)) return undefined
 
-  if (isKeyword(current, schemaKeywords.ref)) {
-    return typeKeywordMapper.ref(current.args.name)
-  }
+      return typeKeywordMapper.blob()
+    },
+    tuple(tree, options) {
+      const { current, schema, name } = tree
+      if (!isKeyword(current, schemaKeywords.tuple)) return undefined
 
-  if (isKeyword(current, schemaKeywords.blob)) {
-    return value()
-  }
+      return typeKeywordMapper.tuple(
+        current.args.items.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
+        current.args.rest &&
+          ((this.parse({ schema, parent: current, name, current: current.args.rest, siblings: [] }, options) ?? undefined) as ts.TypeNode | undefined),
+        current.args.min,
+        current.args.max,
+      )
+    },
+    const(tree, _options) {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.const)) return undefined
 
-  if (isKeyword(current, schemaKeywords.tuple)) {
-    return typeKeywordMapper.tuple(
-      current.args.items.map((it) => parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean) as ts.TypeNode[],
-      current.args.rest && ((parse({ schema, parent: current, name, current: current.args.rest, siblings }, options) ?? undefined) as ts.TypeNode | undefined),
-      current.args.min,
-      current.args.max,
-    )
-  }
+      return typeKeywordMapper.const(current.args.name, current.args.format)
+    },
+    object(tree, options) {
+      const { current, schema, name } = tree
+      if (!isKeyword(current, schemaKeywords.object)) return undefined
 
-  if (isKeyword(current, schemaKeywords.const)) {
-    return typeKeywordMapper.const(current.args.name, current.args.format)
-  }
+      const properties = Object.entries(current.args?.properties || {})
+        .filter((item) => {
+          const schemas = item[1]
+          return schemas && typeof schemas.map === 'function'
+        })
+        .map(([name, schemas]) => {
+          const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
+          const mappedName = nameSchema?.args || name
 
-  if (isKeyword(current, schemaKeywords.object)) {
-    const properties = Object.entries(current.args?.properties || {})
-      .filter((item) => {
-        const schemas = item[1]
-        return schemas && typeof schemas.map === 'function'
-      })
-      .map(([name, schemas]) => {
-        const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
-        const mappedName = nameSchema?.args || name
+          // custom mapper(pluginOptions)
+          if (options.mapper?.[mappedName]) {
+            return options.mapper?.[mappedName]
+          }
 
-        // custom mapper(pluginOptions)
-        if (options.mapper?.[mappedName]) {
-          return options.mapper?.[mappedName]
-        }
+          const isNullish = schemas.some((schema) => schema.keyword === schemaKeywords.nullish)
+          const isNullable = schemas.some((schema) => schema.keyword === schemaKeywords.nullable)
+          const isOptional = schemas.some((schema) => schema.keyword === schemaKeywords.optional)
+          const isReadonly = schemas.some((schema) => schema.keyword === schemaKeywords.readOnly)
+          const describeSchema = schemas.find((schema) => schema.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
+          const deprecatedSchema = schemas.find((schema) => schema.keyword === schemaKeywords.deprecated) as SchemaKeywordMapper['deprecated'] | undefined
+          const defaultSchema = schemas.find((schema) => schema.keyword === schemaKeywords.default) as SchemaKeywordMapper['default'] | undefined
+          const exampleSchema = schemas.find((schema) => schema.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
+          const schemaSchema = schemas.find((schema) => schema.keyword === schemaKeywords.schema) as SchemaKeywordMapper['schema'] | undefined
+          const minSchema = schemas.find((schema) => schema.keyword === schemaKeywords.min) as SchemaKeywordMapper['min'] | undefined
+          const maxSchema = schemas.find((schema) => schema.keyword === schemaKeywords.max) as SchemaKeywordMapper['max'] | undefined
+          const matchesSchema = schemas.find((schema) => schema.keyword === schemaKeywords.matches) as SchemaKeywordMapper['matches'] | undefined
 
-        const isNullish = schemas.some((schema) => schema.keyword === schemaKeywords.nullish)
-        const isNullable = schemas.some((schema) => schema.keyword === schemaKeywords.nullable)
-        const isOptional = schemas.some((schema) => schema.keyword === schemaKeywords.optional)
-        const isReadonly = schemas.some((schema) => schema.keyword === schemaKeywords.readOnly)
-        const describeSchema = schemas.find((schema) => schema.keyword === schemaKeywords.describe) as SchemaKeywordMapper['describe'] | undefined
-        const deprecatedSchema = schemas.find((schema) => schema.keyword === schemaKeywords.deprecated) as SchemaKeywordMapper['deprecated'] | undefined
-        const defaultSchema = schemas.find((schema) => schema.keyword === schemaKeywords.default) as SchemaKeywordMapper['default'] | undefined
-        const exampleSchema = schemas.find((schema) => schema.keyword === schemaKeywords.example) as SchemaKeywordMapper['example'] | undefined
-        const schemaSchema = schemas.find((schema) => schema.keyword === schemaKeywords.schema) as SchemaKeywordMapper['schema'] | undefined
-        const minSchema = schemas.find((schema) => schema.keyword === schemaKeywords.min) as SchemaKeywordMapper['min'] | undefined
-        const maxSchema = schemas.find((schema) => schema.keyword === schemaKeywords.max) as SchemaKeywordMapper['max'] | undefined
-        const matchesSchema = schemas.find((schema) => schema.keyword === schemaKeywords.matches) as SchemaKeywordMapper['matches'] | undefined
+          let type = schemas
+            .map((it) =>
+              this.parse(
+                {
+                  schema,
+                  parent: current,
+                  name,
+                  current: it,
+                  siblings: schemas,
+                },
+                options,
+              ),
+            )
+            .filter(Boolean)[0] as ts.TypeNode
 
-        let type = schemas
-          .map((it) =>
-            parse(
-              {
-                schema,
-                parent: current,
-                name,
-                current: it,
-                siblings: schemas,
-              },
-              options,
-            ),
-          )
-          .filter(Boolean)[0] as ts.TypeNode
+          if (isNullable) {
+            type = factory.createUnionDeclaration({
+              nodes: [type, factory.keywordTypeNodes.null],
+            }) as ts.TypeNode
+          }
 
+          if (isNullish && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
+            type = factory.createUnionDeclaration({
+              nodes: [type, factory.keywordTypeNodes.undefined],
+            }) as ts.TypeNode
+          }
+
+          if (isOptional && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
+            type = factory.createUnionDeclaration({
+              nodes: [type, factory.keywordTypeNodes.undefined],
+            }) as ts.TypeNode
+          }
+
+          const propertyNode = factory.createPropertySignature({
+            questionToken: isOptional || isNullish ? ['questionToken', 'questionTokenAndUndefined'].includes(options.optionalType as string) : false,
+            name: mappedName,
+            type,
+            readOnly: isReadonly,
+          })
+
+          return factory.appendJSDocToNode({
+            node: propertyNode,
+            comments: [
+              describeSchema ? `@description ${transformers.jsStringEscape(describeSchema.args)}` : undefined,
+              deprecatedSchema ? '@deprecated' : undefined,
+              minSchema ? `@minLength ${minSchema.args}` : undefined,
+              maxSchema ? `@maxLength ${maxSchema.args}` : undefined,
+              matchesSchema ? `@pattern ${matchesSchema.args}` : undefined,
+              defaultSchema ? `@default ${defaultSchema.args}` : undefined,
+              exampleSchema ? `@example ${exampleSchema.args}` : undefined,
+              schemaSchema?.args?.type || schemaSchema?.args?.format
+                ? [`@type ${schemaSchema?.args?.type || 'unknown'}${!isOptional ? '' : ' | undefined'}`, schemaSchema?.args?.format].filter(Boolean).join(', ')
+                : undefined,
+            ].filter(Boolean),
+          })
+        })
+
+      let additionalProperties: any
+
+      if (current.args?.additionalProperties?.length) {
+        additionalProperties = current.args.additionalProperties
+          .map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options))
+          .filter(Boolean)
+          .at(0) as ts.TypeNode
+
+        const isNullable = current.args?.additionalProperties.some((schema) => isKeyword(schema, schemaKeywords.nullable))
         if (isNullable) {
-          type = factory.createUnionDeclaration({
-            nodes: [type, factory.keywordTypeNodes.null],
+          additionalProperties = factory.createUnionDeclaration({
+            nodes: [additionalProperties, factory.keywordTypeNodes.null],
           }) as ts.TypeNode
         }
 
-        if (isNullish && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
-          type = factory.createUnionDeclaration({
-            nodes: [type, factory.keywordTypeNodes.undefined],
-          }) as ts.TypeNode
-        }
-
-        if (isOptional && ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType as string)) {
-          type = factory.createUnionDeclaration({
-            nodes: [type, factory.keywordTypeNodes.undefined],
-          }) as ts.TypeNode
-        }
-
-        const propertyNode = factory.createPropertySignature({
-          questionToken: isOptional || isNullish ? ['questionToken', 'questionTokenAndUndefined'].includes(options.optionalType as string) : false,
-          name: mappedName,
-          type,
-          readOnly: isReadonly,
-        })
-
-        return factory.appendJSDocToNode({
-          node: propertyNode,
-          comments: [
-            describeSchema ? `@description ${transformers.jsStringEscape(describeSchema.args)}` : undefined,
-            deprecatedSchema ? '@deprecated' : undefined,
-            minSchema ? `@minLength ${minSchema.args}` : undefined,
-            maxSchema ? `@maxLength ${maxSchema.args}` : undefined,
-            matchesSchema ? `@pattern ${matchesSchema.args}` : undefined,
-            defaultSchema ? `@default ${defaultSchema.args}` : undefined,
-            exampleSchema ? `@example ${exampleSchema.args}` : undefined,
-            schemaSchema?.args?.type || schemaSchema?.args?.format
-              ? [`@type ${schemaSchema?.args?.type || 'unknown'}${!isOptional ? '' : ' | undefined'}`, schemaSchema?.args?.format].filter(Boolean).join(', ')
-              : undefined,
-          ].filter(Boolean),
-        })
-      })
-
-    let additionalProperties: any
-
-    if (current.args?.additionalProperties?.length) {
-      additionalProperties = current.args.additionalProperties
-        .map((it) => parse({ schema, parent: current, name, current: it, siblings }, options))
-        .filter(Boolean)
-        .at(0) as ts.TypeNode
-
-      const isNullable = current.args?.additionalProperties.some((schema) => isKeyword(schema, schemaKeywords.nullable))
-      if (isNullable) {
-        additionalProperties = factory.createUnionDeclaration({
-          nodes: [additionalProperties, factory.keywordTypeNodes.null],
-        }) as ts.TypeNode
+        additionalProperties = factory.createIndexSignature(additionalProperties)
       }
 
-      additionalProperties = factory.createIndexSignature(additionalProperties)
-    }
+      return typeKeywordMapper.object([...properties, additionalProperties].filter(Boolean))
+    },
+    datetime(tree) {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.datetime)) return undefined
 
-    return typeKeywordMapper.object([...properties, additionalProperties].filter(Boolean))
-  }
+      return typeKeywordMapper.datetime()
+    },
+    date(tree) {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.date)) return undefined
 
-  if (isKeyword(current, schemaKeywords.datetime)) {
-    return typeKeywordMapper.datetime()
-  }
+      return typeKeywordMapper.date(current.args.type)
+    },
+    time(tree) {
+      const { current } = tree
+      if (!isKeyword(current, schemaKeywords.time)) return undefined
 
-  if (isKeyword(current, schemaKeywords.date)) {
-    return typeKeywordMapper.date(current.args.type)
-  }
-
-  if (isKeyword(current, schemaKeywords.time)) {
-    return typeKeywordMapper.time(current.args.type)
-  }
-  if (current.keyword in typeKeywordMapper) {
-    return value()
-  }
-
-  return undefined
-}
+      return typeKeywordMapper.time(current.args.type)
+    },
+  },
+})

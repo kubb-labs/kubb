@@ -3,6 +3,8 @@ import { createGenerator as _createGenerator } from './generators/createGenerato
 import { createReactGenerator as _createReactGenerator } from './generators/createReactGenerator.ts'
 import type { Generator as _Generator } from './generators/types.ts'
 
+export type { CreateParserConfig, KeywordHandler } from './createParser.ts'
+export { createParser, findSchemaKeyword } from './createParser.ts'
 export type { OperationMethodResult } from './OperationGenerator.ts'
 export { OperationGenerator } from './OperationGenerator.ts'
 export { pluginOas, pluginOasName } from './plugin.ts'

@@ -139,4 +139,36 @@ describe('zod parse', () => {
       expect(text).toBe('z.int().check(z.minimum(0, { exclusive: true }), z.maximum(100, { exclusive: true }))')
     })
   })
+
+  describe('default value handling', () => {
+    test('default with value 0 should work correctly', () => {
+      const schema = { keyword: schemaKeywords.default, args: 0 }
+      const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] }, { version: '4' })
+      expect(text).toBe('.default(0)')
+    })
+
+    test('default with value false should work correctly', () => {
+      const schema = { keyword: schemaKeywords.default, args: false }
+      const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] }, { version: '4' })
+      expect(text).toBe('.default(false)')
+    })
+
+    test('default with empty string should work correctly', () => {
+      const schema = { keyword: schemaKeywords.default, args: '' }
+      const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] }, { version: '4' })
+      expect(text).toBe(".default('')")
+    })
+
+    test('default with string value should work correctly', () => {
+      const schema = { keyword: schemaKeywords.default, args: 'test' }
+      const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] }, { version: '4' })
+      expect(text).toBe('.default(test)')
+    })
+
+    test('default without args should work correctly', () => {
+      const schema = { keyword: schemaKeywords.default }
+      const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] }, { version: '4' })
+      expect(text).toBe('.default()')
+    })
+  })
 })

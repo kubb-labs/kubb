@@ -16,6 +16,53 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
 
+## 4.11.0
+
+### ✨ Features
+
+- **[`@kubb/plugin-oas`](/plugins/plugin-oas/)**, **[`@kubb/plugin-zod`](/plugins/plugin-zod/)**, **[`@kubb/plugin-ts`](/plugins/plugin-ts/)**, **[`@kubb/plugin-faker`](/plugins/plugin-faker/)** - Shared `createParser` helper for reduced code duplication
+
+  Introduces `createParser` helper in `@kubb/plugin-oas` to eliminate parser duplication across Zod, TypeScript, and Faker plugins. Each parser previously reimplemented ~300 lines of schema traversal logic. Parsers are now ~150-200 lines instead of ~400-500 lines.
+
+  **Key features:**
+  - Framework accepting keyword mapper + custom handlers for parser-specific logic
+  - Handlers can use `this.parse` for recursive parsing (via Function.call())
+  - Exports `findSchemaKeyword` utility for constraint lookup in sibling schemas
+  - Function syntax for handlers to enable `this` keyword usage
+
+  ::: code-group
+  ```typescript [Usage Example]
+  export const parse = createParser<string, ParserOptions>({
+    mapper: zodKeywordMapper,
+    handlers: {
+      string(tree, options) {
+        const minSchema = findSchemaKeyword(tree.siblings, 'min')
+        const maxSchema = findSchemaKeyword(tree.siblings, 'max')
+        return zodKeywordMapper.string(
+          shouldCoerce(options.coercion, 'strings'),
+          minSchema?.args,
+          maxSchema?.args,
+          options.mini
+        )
+      },
+      union(tree, options) {
+        const { current } = tree
+        return zodKeywordMapper.union(
+          sort(current.args)
+            .map((it) => this.parse({ ...tree, current: it }, options))
+            .filter(Boolean)
+        )
+      }
+    }
+  })
+  ```
+  :::
+
+### 🚀 Breaking Changes
+
+- **[`@kubb/plugin-oas`](/plugins/plugin-oas/)** - Type renames for clarity
+
+  Internal types are used during schema parsing. Most users won't be affected unless directly importing these types from `@kubb/plugin-oas`.
 ## 4.10.1
 
 ### 📦 Dependencies
