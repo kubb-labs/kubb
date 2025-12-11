@@ -69,16 +69,23 @@ export function getSummary({
 
     if (sortedTimings.length > 0) {
       summaryLines.push([`Plugin Timings:`, true]);
+      
+      // Find the longest plugin name for alignment
+      const maxNameLength = Math.max(...sortedTimings.map(([name]) => name.length));
+      
       sortedTimings.forEach(([name, time]) => {
         const timeStr =
-          time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${time}ms`;
+          time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${Math.round(time)}ms`;
         const barLength = Math.min(
           Math.ceil(time / TIME_SCALE_DIVISOR),
           MAX_BAR_LENGTH,
         );
         const bar = "█".repeat(barLength);
+        
+        // Right-align plugin names, left-align bars, with consistent spacing
+        const paddedName = name.padStart(maxNameLength, ' ');
         summaryLines.push([
-          `  ${pc.dim(bar)} ${randomCliColour(name)}: ${pc.yellow(timeStr)}`,
+          `  ${randomCliColour(paddedName)} ${pc.dim(bar)} ${pc.yellow(timeStr)}`,
           true,
         ]);
       });
