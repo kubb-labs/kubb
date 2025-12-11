@@ -137,9 +137,10 @@ const command = defineCommand({
     await start()
 
     if (globalThis.isDevtoolsEnabled) {
-      const canRestart = await logger.consola?.prompt('Restart(could be used to validate the profiler)?', {
-        type: 'confirm',
-        initial: false,
+      const { confirm } = await import('@clack/prompts')
+      const canRestart = await confirm({
+        message: 'Restart (could be used to validate the profiler)?',
+        initialValue: false,
       })
 
       if (canRestart) {

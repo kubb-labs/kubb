@@ -66,7 +66,6 @@
     "boxen": "^8.0.1",
     "chokidar": "^4.0.3",
     "citty": "^0.1.6",
-    "consola": "^3.4.2",
     "cosmiconfig": "^9.0.0",
     "execa": "^9.6.1",
     "gradient-string": "^3.0.0",

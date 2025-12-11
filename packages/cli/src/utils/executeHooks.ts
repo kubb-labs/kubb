@@ -4,7 +4,7 @@ import { LogMapper } from '@kubb/core/logger'
 import { execa } from 'execa'
 import pc from 'picocolors'
 import { parseArgsStringToArgv } from 'string-argv'
-import { ConsolaWritable } from './Writables.ts'
+import { StdoutWritable } from './Writables.ts'
 
 type ExecutingHooksProps = {
   hooks: NonNullable<Config['hooks']>
@@ -15,7 +15,7 @@ export async function executeHooks({ hooks, logger }: ExecutingHooksProps): Prom
   const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done].filter(Boolean)
 
   for (const command of commands) {
-    const consolaWritable = new ConsolaWritable(logger.consola!, command)
+    const stdoutWritable = new StdoutWritable(command)
     const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
 
     if (!cmd) {
@@ -26,7 +26,7 @@ export async function executeHooks({ hooks, logger }: ExecutingHooksProps): Prom
 
     await execa(cmd, _args, {
       detached: true,
-      stdout: logger?.logLevel === LogMapper.silent ? undefined : ['pipe', consolaWritable],
+      stdout: logger?.logLevel === LogMapper.silent ? undefined : ['pipe', stdoutWritable],
       stripFinalNewline: true,
     })
 

@@ -1,7 +1,7 @@
 import process from 'node:process'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
-import consola from 'consola'
+import { log } from '@clack/prompts'
 import { createJiti } from 'jiti'
 
 const jiti = createJiti(import.meta.url, {
@@ -42,7 +42,7 @@ const command = defineCommand({
       try {
         mod = await jiti.import('@kubb/oas', { default: true })
       } catch (_e) {
-        consola.error(`Import of '@kubb/oas' is required to do validation`)
+        log.error(`Import of '@kubb/oas' is required to do validation`)
       }
 
       const { parse } = mod
@@ -50,10 +50,10 @@ const command = defineCommand({
         const oas = await parse(args.input)
         await oas.valdiate()
 
-        consola.success('Validation success')
+        log.success('Validation success')
       } catch (e) {
-        consola.fail('Validation failed')
-        consola.log((e as Error)?.message)
+        log.error('Validation failed')
+        console.log((e as Error)?.message)
         process.exit(1)
       }
     }
