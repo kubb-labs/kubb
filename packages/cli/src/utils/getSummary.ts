@@ -45,14 +45,23 @@ export function getSummary({
       : config.root,
   } as const;
 
+  // Calculate label padding for perfect alignment
+  const labels = {
+    plugins: 'Plugins:',
+    failed: 'Failed:',
+    generated: 'Generated:',
+    output: 'Output:',
+  };
+  const maxLabelLength = Math.max(...Object.values(labels).map(l => l.length));
+  
   const summaryLines: Array<[string, boolean]> = [
-    [`${pc.bold("Plugins:")}        ${meta.plugins}`, true],
+    [`${pc.bold(labels.plugins.padEnd(maxLabelLength))} ${meta.plugins}`, true],
     [
-      `${pc.dim("Failed:")}          ${meta.pluginsFailed || "none"}`,
+      `${pc.dim(labels.failed.padEnd(maxLabelLength))} ${meta.pluginsFailed || "none"}`,
       !!meta.pluginsFailed,
     ],
     [
-      `${pc.bold("Generated:")}      ${meta.filesCreated} files in ${meta.time}`,
+      `${pc.bold(labels.generated.padEnd(maxLabelLength))} ${meta.filesCreated} files in ${meta.time}`,
       true,
     ],
   ];
@@ -92,7 +101,7 @@ export function getSummary({
     }
   }
 
-  summaryLines.push([`${pc.bold("Output:")}         ${meta.output}`, true]);
+  summaryLines.push([`${pc.bold(labels.output.padEnd(maxLabelLength))} ${meta.output}`, true]);
 
   logs.add(
     summaryLines
