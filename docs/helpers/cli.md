@@ -8,7 +8,7 @@ outline: deep
 # @kubb/cli
 
 The Kubb CLI allows you to generate files based on the `kubb.config.ts` configuration file.
-Upon startup, Kubb displays the progress of the plugin execution, the file writing, and the results of each hook once the generation process is complete.
+During generation, Kubb displays interactive progress bars showing real-time progress for plugin execution and file generation. The progress display adapts to your environment: interactive spinners in terminals (TTY mode), periodic log lines in CI environments, and detailed debug logs in debug mode.
 
 ![React-DevTools](/screenshots/cli.gif)
 
@@ -49,7 +49,53 @@ COMMANDS
 Use kubb <command> --help for more information about a command.
 ```
 
-## `kubb generate`
+## Interactive Progress Display
+
+Kubb provides real-time progress feedback during code generation using interactive progress bars. The display adapts automatically to your environment:
+
+### TTY Mode (Interactive Terminals)
+
+When running in an interactive terminal, Kubb shows live spinners with progress bars:
+
+```
+🔧 Installing plugins...
+  [█████████████░░░░░░░░░░] 61%
+
+📦 @kubb/plugin-client...
+  [██████████░░░░░░░░░░░░░] 47%
+
+🔷 @kubb/plugin-ts...
+  [███████░░░░░░░░░░░░░░░░] 31%
+
+🖼️ Writing files...
+  [████░░░░░░░░░░░░░░░░░░░] 18%
+```
+
+Each progress indicator includes:
+- Plugin-specific emoji (🔷 TypeScript, 📦 Client, 🖼️ Query hooks, 🧩 Zod, etc.)
+- Visual progress bar showing completion percentage
+- Real-time updates as each plugin executes
+
+### CI Mode (Continuous Integration)
+
+In CI environments, Kubb falls back to periodic log lines:
+
+```
+⏳ Installing plugins... (0/5)
+🔷 @kubb/plugin-ts... (1/1 - 100%)
+✔ @kubb/plugin-ts (1/1) - 234ms
+⏳ Installing plugins... (2/5 - 40%)
+📦 @kubb/plugin-client... (1/1 - 100%)
+✔ @kubb/plugin-client (1/1) - 156ms
+```
+
+Log lines appear at meaningful milestones (every 10% completion) to provide feedback without overwhelming CI logs.
+
+### Debug Mode
+
+When using `--debug`, progress bars are disabled to avoid interfering with detailed log output. All progress information is included in the debug logs written to `.kubb/kubb-{timestamp}.log`.
+
+
 Generate files based on a `kubb.config.ts` file
 
 > [!TIP]
