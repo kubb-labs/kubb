@@ -96,7 +96,6 @@ export class PluginManager {
     this.#promiseManager = new PromiseManager({
       nullCheck: (state: SafeParseResult<'resolveName'> | null) => !!state?.result,
     })
-
     ;[...(config.plugins || [])].forEach((plugin) => {
       const parsedPlugin = this.#parse(plugin as UserPlugin)
 
@@ -207,18 +206,20 @@ export class PluginManager {
         message: `Resolving name '${params.name}' and type '${params.type}'`,
       })
 
-      if (names && names?.length > 1) {
+      const uniqueNames = new Set(names)
+
+      if (uniqueNames && uniqueNames.size > 1) {
         this.logger.emit('debug', {
           date: new Date(),
           logs: [
             `Cannot return a name where the 'pluginKey' ${
               params.pluginKey ? JSON.stringify(params.pluginKey) : '"'
-            } is not unique enough\n\nNames: ${JSON.stringify(names, undefined, 2)}\n\nFalling back on the first item.\n`,
+            } is not unique enough\n\nNames: ${JSON.stringify([...uniqueNames], undefined, 2)}\n\nFalling back on the first item.\n`,
           ],
         })
       }
 
-      return transformReservedWord(names?.at(0) || params.name)
+      return transformReservedWord([...uniqueNames].at(0) || params.name)
     }
 
     const name = this.hookFirstSync({
@@ -253,7 +254,11 @@ export class PluginManager {
   }): Promise<Array<ReturnType<ParseResult<H>> | null>> {
     const plugins = this.getPluginsByKey(hookName, pluginKey)
 
-    this.logger.emit('progress_start', { id: hookName, size: plugins.length, message: 'Running plugins...' })
+    this.logger.emit('progress_start', {
+      id: hookName,
+      size: plugins.length,
+      message: 'Running plugins...',
+    })
 
     const items: Array<ReturnType<ParseResult<H>>> = []
 
@@ -416,7 +421,9 @@ export class PluginManager {
         }) as Promise<TOuput>
     })
 
-    const results = await this.#promiseManager.run('parallel', promises, { concurrency: this.options.concurrency })
+    const results = await this.#promiseManager.run('parallel', promises, {
+      concurrency: this.options.concurrency,
+    })
 
     results.forEach((result, index) => {
       if (isPromiseRejectedResult<Error>(result)) {
@@ -528,7 +535,7 @@ export class PluginManager {
 
       const corePlugin = plugins.find((plugin) => plugin.name === 'core' && hookName in plugin)
       // Removed noisy debug logs for missing hooks - these are expected behavior, not errors
-      
+
       return corePlugin ? [corePlugin] : []
     }
 
@@ -540,7 +547,10 @@ export class PluginManager {
       this.events.emit('executed', executer)
       this.executed.push(executer)
 
-      this.logger.emit('progressed', { id: executer.hookName, message: `${executer.plugin.name}: ${executer.message}` })
+      this.logger.emit('progressed', {
+        id: executer.hookName,
+        message: `${executer.plugin.name}: ${executer.message}`,
+      })
     }
   }
 
@@ -571,7 +581,13 @@ export class PluginManager {
       return null
     }
 
-    this.events.emit('executing', { strategy, hookName, parameters, plugin, message })
+    this.events.emit('executing', {
+      strategy,
+      hookName,
+      parameters,
+      plugin,
+      message,
+    })
 
     const startTime = performance.now()
     // Only log important lifecycle hooks to reduce noise
@@ -685,7 +701,13 @@ export class PluginManager {
       return null
     }
 
-    this.events.emit('executing', { strategy, hookName, parameters, plugin, message })
+    this.events.emit('executing', {
+      strategy,
+      hookName,
+      parameters,
+      plugin,
+      message,
+    })
 
     try {
       if (typeof hook === 'function') {
