@@ -2,8 +2,8 @@ import path from 'node:path'
 import process from 'node:process'
 import { type Config, safeBuild, setup } from '@kubb/core'
 import { createLogger, LogMapper } from '@kubb/core/logger'
-import { Presets, SingleBar } from 'cli-progress'
 import { execa } from 'execa'
+import { intro, outro, log, note } from '@clack/prompts'
 import pc from 'picocolors'
 import type { Args } from '../commands/generate.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
@@ -15,7 +15,6 @@ type GenerateProps = {
   input?: string
   config: Config
   args: Args
-  progressCache: Map<string, SingleBar>
   progressManager?: ProgressManager
 }
 
@@ -49,7 +48,7 @@ function getProgressEmoji(id: string, message: string): string {
   return '⏳'
 }
 
-export async function generate({ input, config, progressCache, args, progressManager: existingProgressManager }: GenerateProps): Promise<void> {
+export async function generate({ input, config, args, progressManager: existingProgressManager }: GenerateProps): Promise<void> {
   const hrStart = process.hrtime()
   const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
 
@@ -60,6 +59,11 @@ export async function generate({ input, config, progressCache, args, progressMan
 
   const { root = process.cwd(), ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
+
+  // Show intro message
+  if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
+    intro(pc.cyan(pc.bold('Kubb')))
+  }
 
   // Create progress manager (reuse if provided, otherwise create new)
   const progressManager = existingProgressManager || new ProgressManager(logger.logLevel === LogMapper.debug)
@@ -84,45 +88,19 @@ export async function generate({ input, config, progressCache, args, progressMan
     })
 
     logger.on('progress_start', ({ id, size, message = '' }) => {
-      // Use Clack progress manager instead of cli-progress
+      // Use Clack progress manager
       const emoji = getProgressEmoji(id, message)
       progressManager.start(id, { total: size, message, emoji })
-      
-      // Keep legacy behavior for backward compatibility
-      logger.consola?.pauseLogs()
-      const payload = { id, message }
-      const progressBar = new SingleBar(
-        {
-          format: '{percentage}% {bar} {value}/{total} | {message}',
-          barsize: 30,
-          clearOnComplete: true,
-          emptyOnZero: true,
-        },
-        Presets.shades_grey,
-      )
-
-      if (!progressCache.has(id)) {
-        progressCache.set(id, progressBar)
-        progressBar.start(size, 1, payload)
-      }
     })
 
     logger.on('progress_stop', ({ id }) => {
       // Stop Clack progress
       progressManager.stop(id)
-      
-      // Keep legacy behavior
-      progressCache.get(id)?.stop()
-      logger.consola?.resumeLogs()
     })
 
     logger.on('progressed', ({ id, message = '' }) => {
       // Update Clack progress
       progressManager.update(id, message)
-      
-      // Keep legacy behavior
-      const payload = { id, message }
-      progressCache.get(id)?.increment(1, payload)
     })
   }
 
@@ -151,7 +129,9 @@ export async function generate({ input, config, progressCache, args, progressMan
     logger,
   })
 
-  logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+  if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
+    log.step(`Building ${pc.dim(inputPath!)}`)
+  }
 
   const { files, failedPlugins, pluginTimings, error } = await safeBuild(
     {
@@ -162,11 +142,11 @@ export async function generate({ input, config, progressCache, args, progressMan
   )
 
   if (logger.logLevel >= LogMapper.debug) {
-    logger.consola?.start('Writing logs')
+    log.step('Writing logs')
 
     const logFiles = await logger.writeLogs()
 
-    logger.consola?.success(`Written logs: \n${logFiles.join('\n')}`)
+    log.success(`Written logs: \n${logFiles.join('\n')}`)
   }
 
   const summary = getSummary({
@@ -181,19 +161,10 @@ export async function generate({ input, config, progressCache, args, progressMan
   // Handle build failures (either from failed plugins or general errors)
   const hasFailures = failedPlugins.size > 0 || error
 
-  if (hasFailures && logger.consola) {
-    logger.consola?.resumeLogs()
-    logger.consola?.error(`Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+  if (hasFailures) {
+    log.error(`Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
-    logger.consola?.box({
-      title: `${config.name || ''}`,
-      message: summary.join(''),
-      style: {
-        padding: 2,
-        borderColor: 'red',
-        borderStyle: 'rounded',
-      },
-    })
+    note(summary.join(''), `${config.name || 'Build Failed'}`)
 
     // Collect all errors from failed plugins and general error
     const allErrors: Error[] = []
@@ -214,13 +185,13 @@ export async function generate({ input, config, progressCache, args, progressMan
     if (logger.logLevel >= LogMapper.debug) {
       const errorCauses = getErrorCauses(allErrors)
       errorCauses.forEach((err) => {
-        logger.consola?.error(err)
+        log.error(err.message)
       })
     }
 
     // Display individual errors
     allErrors.forEach((err) => {
-      logger.consola?.error(err)
+      log.error(err.message)
     })
 
     process.exit(1)
@@ -228,7 +199,9 @@ export async function generate({ input, config, progressCache, args, progressMan
 
   // formatting
   if (config.output.format === 'prettier') {
-    logger?.emit('start', `Formatting with ${config.output.format}`)
+    if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
+      log.step(`Formatting with ${config.output.format}`)
+    }
     logger?.emit('debug', {
       date: new Date(),
       logs: [`Running prettier on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
@@ -241,19 +214,22 @@ export async function generate({ input, config, progressCache, args, progressMan
         logs: ['Prettier formatting completed successfully'],
       })
     } catch (e) {
-      logger.consola?.warn('Prettier not found')
-      logger.consola?.error(e)
+      log.warn('Prettier not found')
       logger?.emit('debug', {
         date: new Date(),
         logs: [`Prettier formatting failed: ${(e as Error).message}`],
       })
     }
 
-    logger?.emit('success', `Formatted with ${config.output.format}`)
+    if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
+      log.success(`Formatted with ${config.output.format}`)
+    }
   }
 
   if (config.output.format === 'biome') {
-    logger?.emit('start', `Formatting with ${config.output.format}`)
+    if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
+      log.step(`Formatting with ${config.output.format}`)
+    }
     logger?.emit('debug', {
       date: new Date(),
       logs: [`Running biome format on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
@@ -266,20 +242,23 @@ export async function generate({ input, config, progressCache, args, progressMan
         logs: ['Biome formatting completed successfully'],
       })
     } catch (e) {
-      logger.consola?.warn('Biome not found')
-      logger.consola?.error(e)
+      log.warn('Biome not found')
       logger?.emit('debug', {
         date: new Date(),
         logs: [`Biome formatting failed: ${(e as Error).message}`],
       })
     }
 
-    logger?.emit('success', `Formatted with ${config.output.format}`)
+    if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
+      log.success(`Formatted with ${config.output.format}`)
+    }
   }
 
   // linting
   if (config.output.lint === 'eslint') {
-    logger?.emit('start', `Linting with ${config.output.lint}`)
+    if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
+      log.step(`Linting with ${config.output.lint}`)
+    }
     logger?.emit('debug', {
       date: new Date(),
       logs: [`Running eslint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
@@ -292,19 +271,22 @@ export async function generate({ input, config, progressCache, args, progressMan
         logs: ['ESLint linting completed successfully'],
       })
     } catch (e) {
-      logger.consola?.warn('Eslint not found')
-      logger.consola?.error(e)
+      log.warn('Eslint not found')
       logger?.emit('debug', {
         date: new Date(),
         logs: [`ESLint linting failed: ${(e as Error).message}`],
       })
     }
 
-    logger?.emit('success', `Linted with ${config.output.lint}`)
+    if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
+      log.success(`Linted with ${config.output.lint}`)
+    }
   }
 
   if (config.output.lint === 'biome') {
-    logger?.emit('start', `Linting with ${config.output.lint}`)
+    if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
+      log.step(`Linting with ${config.output.lint}`)
+    }
     logger?.emit('debug', {
       date: new Date(),
       logs: [`Running biome lint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
@@ -317,19 +299,22 @@ export async function generate({ input, config, progressCache, args, progressMan
         logs: ['Biome linting completed successfully'],
       })
     } catch (e) {
-      logger.consola?.warn('Biome not found')
-      logger.consola?.error(e)
+      log.warn('Biome not found')
       logger?.emit('debug', {
         date: new Date(),
         logs: [`Biome linting failed: ${(e as Error).message}`],
       })
     }
 
-    logger?.emit('success', `Linted with ${config.output.lint}`)
+    if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
+      log.success(`Linted with ${config.output.lint}`)
+    }
   }
 
   if (config.output.lint === 'oxlint') {
-    logger?.emit('start', `Linting with ${config.output.lint}`)
+    if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
+      log.step(`Linting with ${config.output.lint}`)
+    }
     logger?.emit('debug', {
       date: new Date(),
       logs: [`Running oxlint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
@@ -342,30 +327,24 @@ export async function generate({ input, config, progressCache, args, progressMan
         logs: ['Oxlint linting completed successfully'],
       })
     } catch (e) {
-      logger.consola?.warn('Oxlint not found')
-      logger.consola?.error(e)
+      log.warn('Oxlint not found')
       logger?.emit('debug', {
         date: new Date(),
         logs: [`Oxlint linting failed: ${(e as Error).message}`],
       })
     }
 
-    logger?.emit('success', `Linted with ${config.output.lint}`)
+    if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
+      log.success(`Linted with ${config.output.lint}`)
+    }
   }
 
   if (config.hooks) {
     await executeHooks({ hooks: config.hooks, logger })
   }
 
-  logger.consola?.log(`⚡Build completed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
-
-  logger.consola?.box({
-    title: `${config.name || ''}`,
-    message: summary.join(''),
-    style: {
-      padding: 2,
-      borderColor: 'green',
-      borderStyle: 'rounded',
-    },
-  })
+  if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
+    outro(pc.green(`⚡Build completed ${pc.dim(inputPath!)}`))
+    note(summary.join(''), config.name || 'Build Summary')
+  }
 }
