@@ -1,6 +1,4 @@
 import { resolve } from 'node:path'
-import type { ConsolaInstance, LogLevel } from 'consola'
-import { createConsola } from 'consola'
 import pc from 'picocolors'
 import seedrandom from 'seedrandom'
 import { write } from './fs/write.ts'
@@ -58,6 +56,8 @@ export const LogMapper = {
   debug: 5,
 } as const
 
+export type LogLevel = (typeof LogMapper)[keyof typeof LogMapper]
+
 // Debug log configuration
 const DEBUG_LOG_TITLE_MAX_LENGTH = 50 // Characters - max length for group titles
 
@@ -67,7 +67,6 @@ export type Logger = {
    */
   name?: string
   logLevel: LogLevel
-  consola?: ConsolaInstance
   on: EventEmitter<Events>['on']
   emit: EventEmitter<Events>['emit']
   writeLogs: () => Promise<string[]>
@@ -76,48 +75,44 @@ export type Logger = {
 type Props = {
   name?: string
   logLevel?: LogLevel
-  consola?: ConsolaInstance
 }
 
-export function createLogger({ logLevel = 3, name, consola: _consola }: Props = {}): Logger {
+export function createLogger({ logLevel = 3, name }: Props = {}): Logger {
   const events = new EventEmitter<Events>()
   const startDate = Date.now()
   const cachedLogs = new Set<DebugEvent>()
 
-  const consola =
-    _consola ||
-    createConsola({
-      level: logLevel,
-      formatOptions: {
-        colors: true,
-        date: true,
-        columns: 80,
-        compact: logLevel !== LogMapper.debug,
-      },
-    }).withTag(name ? randomCliColour(name) : '')
-
-  consola?.wrapConsole()
+  const coloredTag = name ? randomCliColour(name) : ''
+  const tag = coloredTag ? `[${coloredTag}] ` : ''
 
   events.on('start', (message) => {
-    consola.start(message)
+    if (logLevel > LogMapper.silent) {
+      console.log(`${tag}${pc.cyan('◐')} ${message}`)
+    }
   })
 
   events.on('success', (message) => {
-    consola.success(message)
+    if (logLevel > LogMapper.silent) {
+      console.log(`${tag}${pc.green('✔')} ${message}`)
+    }
   })
 
   events.on('warning', (message) => {
-    consola.warn(pc.yellow(message))
+    if (logLevel > LogMapper.silent) {
+      console.warn(`${tag}${pc.yellow('⚠')} ${pc.yellow(message)}`)
+    }
   })
 
   events.on('info', (message) => {
-    consola.info(pc.yellow(message))
+    if (logLevel >= LogMapper.info) {
+      console.info(`${tag}${pc.blue('ℹ')} ${pc.yellow(message)}`)
+    }
   })
 
   events.on('verbose', (message) => {
     if (logLevel >= LogMapper.verbose) {
       const formattedLogs = message.logs.join('\n')
-      consola.log(pc.dim(formattedLogs))
+      console.log(`${tag}${pc.dim(formattedLogs)}`)
     }
 
     cachedLogs.add(message)
@@ -147,17 +142,17 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
           const title = firstLine.length > DEBUG_LOG_TITLE_MAX_LENGTH ? `${firstLine.substring(0, DEBUG_LOG_TITLE_MAX_LENGTH)}...` : firstLine
 
           console.log(startGroup(title))
-          console.log(pc.dim(fullLog))
+          console.log(`${tag}${pc.dim(fullLog)}`)
           console.log(endGroup())
         } else {
           // Plugin-specific logs are shown inline within their plugin group
           // Non-categorized logs are shown inline
-          consola.log(pc.dim(fullLog))
+          console.log(`${tag}${pc.dim(fullLog)}`)
         }
       } else {
         // Non-CI environments - show all logs inline (except group markers)
         if (!message.pluginGroupMarker) {
-          consola.log(pc.dim(fullLog))
+          console.log(`${tag}${pc.dim(fullLog)}`)
         }
       }
     }
@@ -172,14 +167,9 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
     throw error
   })
 
-  if (consola) {
-    consola.level = logLevel
-  }
-
   const logger: Logger = {
     name,
     logLevel,
-    consola,
     on(...args) {
       return events.on(...args)
     },
