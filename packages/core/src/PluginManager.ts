@@ -527,7 +527,6 @@ export class PluginManager {
       // fallback on the core plugin when there is no match
 
       const corePlugin = plugins.find((plugin) => plugin.name === 'core' && hookName in plugin)
-
       // Removed noisy debug logs for missing hooks - these are expected behavior, not errors
       
       return corePlugin ? [corePlugin] : []

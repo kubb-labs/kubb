@@ -198,7 +198,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           date: timestamp,
           category: 'plugin',
           pluginName: plugin.name,
-          logs: ['Installing plugin', `Plugin key: ${JSON.stringify(plugin.key)}`],
+          logs: ['Installing plugin...', `  • Plugin Key: ${JSON.stringify(plugin.key)}`],
         })
 
         await installer(context)
@@ -210,7 +210,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           date: new Date(),
           category: 'plugin',
           pluginName: plugin.name,
-          logs: ['', `✓ Plugin installed successfully (${duration}ms)`],
+          logs: [`✓ Plugin installed successfully (${duration}ms)`],
         })
 
         // End plugin group
@@ -312,7 +312,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       pluginManager.logger.emit('debug', {
         date: new Date(),
         category: 'file',
-        logs: ['', `✓ Generated barrel file (${rootFile.exports?.length || 0} exports)`],
+        logs: [`✓ Generated barrel file (${rootFile.exports?.length || 0} exports)`],
       })
     }
 
@@ -321,7 +321,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       pluginManager.logger.emit('debug', {
         date: new Date(),
         category: 'file',
-        logs: ['', `Writing ${files.length} files...`],
+        logs: [`Writing ${files.length} files...`],
       })
     })
 
