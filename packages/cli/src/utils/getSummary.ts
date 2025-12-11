@@ -82,6 +82,9 @@ export function getSummary({
       // Find the longest plugin name for alignment
       const maxNameLength = Math.max(...sortedTimings.map(([name]) => name.length));
       
+      // Indent plugin timing bars to align with summary values (e.g., "7 successful", "60 files")
+      const indent = ' '.repeat(maxLabelLength + 1);
+      
       sortedTimings.forEach(([name, time]) => {
         const timeStr =
           time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${Math.round(time)}ms`;
@@ -94,7 +97,7 @@ export function getSummary({
         // Right-align plugin names, left-align bars, with consistent spacing
         const paddedName = name.padStart(maxNameLength, ' ');
         summaryLines.push([
-          `  ${randomCliColour(paddedName)} ${pc.dim(bar)} ${pc.yellow(timeStr)}`,
+          `${indent}${randomCliColour(paddedName)} ${pc.dim(bar)} ${pc.yellow(timeStr)}`,
           true,
         ]);
       });
