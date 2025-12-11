@@ -15,11 +15,11 @@ export function getDiagnosticInfo(): Record<string, string> {
 }
 
 /**
- * Format diagnostic information as a string for logs
+ * Format diagnostic information as a string for logs with improved readability
  */
 export function formatDiagnosticInfo(): string {
   const info = getDiagnosticInfo()
   return Object.entries(info)
-    .map(([key, value]) => `${key}: ${value}`)
+    .map(([key, value]) => `  • ${key}: ${value}`)
     .join('\n')
 }

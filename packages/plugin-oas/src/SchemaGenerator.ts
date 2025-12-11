@@ -782,16 +782,7 @@ export class SchemaGenerator<
         this.context.pluginManager.logger.emit('info', 'EnumSuffix set to an empty string does not work')
       }
 
-      this.context.pluginManager.logger.emit('debug', {
-        date: new Date(),
-        logs: [
-          `Parsing enum for '${parentName}.${name}'`,
-          `Enum type: ${schemaObject.type || 'unspecified'}`,
-          `Enum values: ${JSON.stringify(schemaObject.enum)}`,
-          `Has x-enumNames: ${'x-enumNames' in schemaObject}`,
-          `Has x-enum-varnames: ${'x-enum-varnames' in schemaObject}`,
-        ],
-      })
+      // Removed verbose enum parsing debug log - too noisy for hundreds of enums
 
       const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.options.usedEnumNames || {})
       const typeName = this.context.pluginManager.resolveName({
@@ -1132,15 +1123,7 @@ export class SchemaGenerator<
 
       if (!['boolean', 'object', 'number', 'string', 'integer', 'null'].includes(type)) {
         this.context.pluginManager.logger.emit('warning', `Schema type '${schemaObject.type}' is not valid for schema ${parentName}.${name}`)
-        this.context.pluginManager.logger.emit('debug', {
-          date: new Date(),
-          logs: [
-            'Invalid schema type detected',
-            `Schema: ${parentName}.${name}`,
-            `Type: ${JSON.stringify(schemaObject.type)}`,
-            `Full schema object keys: ${Object.keys(schemaObject).join(', ')}`,
-          ],
-        })
+        // Removed duplicate debug log - warning already provides the information needed
       }
 
       // 'string' | 'number' | 'integer' | 'boolean'
@@ -1172,11 +1155,10 @@ export class SchemaGenerator<
     this.context.pluginManager.logger.emit('debug', {
       date: new Date(),
       logs: [
-        `[${this.context.plugin.name}] Building schemas`,
-        `Total schemas: ${schemaEntries.length}`,
-        `Content type: ${contentType || 'default'}`,
-        `Includes: ${include?.join(', ') || 'all'}`,
-        `Generators: ${generators.length}`,
+        '',
+        `Building ${schemaEntries.length} schemas`,
+        `  • Content Type: ${contentType || 'application/json'}`,
+        `  • Generators: ${generators.length}`,
       ],
     })
 

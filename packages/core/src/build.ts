@@ -54,17 +54,22 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     date: new Date(),
     category: 'setup',
     logs: [
-      'Starting setup phase',
-      `Config name: ${userConfig.name || 'unnamed'}`,
-      `Root: ${userConfig.root || process.cwd()}`,
-      `Output path: ${userConfig.output?.path || 'not specified'}`,
-      `Number of plugins: ${userConfig.plugins?.length || 0}`,
-      `Output write: ${userConfig.output?.write !== false ? 'enabled' : 'disabled'}`,
-      `Output format: ${userConfig.output?.format || 'none'}`,
-      `Output lint: ${userConfig.output?.lint || 'none'}`,
+      'Setup',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+      'Configuration:',
+      `  • Name: ${userConfig.name || 'unnamed'}`,
+      `  • Root: ${userConfig.root || process.cwd()}`,
+      `  • Output: ${userConfig.output?.path || 'not specified'}`,
+      `  • Plugins: ${userConfig.plugins?.length || 0}`,
+      '',
+      'Output Settings:',
+      `  • Write: ${userConfig.output?.write !== false ? 'enabled' : 'disabled'}`,
+      `  • Format: ${userConfig.output?.format || 'none'}`,
+      `  • Lint: ${userConfig.output?.lint || 'none'}`,
       '',
       'Environment:',
       formatDiagnosticInfo(),
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
     ],
   })
 
@@ -74,7 +79,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       logger.emit('debug', {
         date: new Date(),
         category: 'setup',
-        logs: [`Input file validated: ${userConfig.input.path}`],
+        logs: [`✓ Input file validated: ${userConfig.input.path}`],
       })
     }
   } catch (e) {
@@ -113,7 +118,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     logger.emit('debug', {
       date: new Date(),
       category: 'setup',
-      logs: ['Cleaning output directories', `Output path: ${definedConfig.output.path}`, 'Kubb cache: .kubb'],
+      logs: ['Cleaning output directories', `  • Output: ${definedConfig.output.path}`, '  • Cache: .kubb'],
     })
     await clean(definedConfig.output.path)
     await clean(join(definedConfig.root, '.kubb'))
@@ -127,9 +132,9 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     date: new Date(),
     category: 'setup',
     logs: [
-      'Fabric initialized',
-      `File writing: ${definedConfig.output.write ? 'enabled' : 'disabled (dry-run)'}`,
-      `Barrel type: ${definedConfig.output.barrelType || 'none'}`,
+      '✓ Fabric initialized',
+      `  • File writing: ${definedConfig.output.write ? 'enabled' : 'disabled (dry-run)'}`,
+      `  • Barrel type: ${definedConfig.output.barrelType || 'none'}`,
     ],
   })
 
@@ -138,7 +143,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   logger.emit('debug', {
     date: new Date(),
     category: 'setup',
-    logs: ['PluginManager initialized', 'Concurrency: 5', `Total plugins: ${pluginManager.plugins.length}`],
+    logs: ['✓ PluginManager initialized', '  • Concurrency: 5', `  • Total plugins: ${pluginManager.plugins.length}`],
   })
 
   return {
@@ -205,7 +210,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           date: new Date(),
           category: 'plugin',
           pluginName: plugin.name,
-          logs: [`Plugin installed successfully in ${duration}ms`],
+          logs: ['', `✓ Plugin installed successfully (${duration}ms)`],
         })
 
         // End plugin group
@@ -224,11 +229,13 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           category: 'error',
           pluginName: plugin.name,
           logs: [
-            'Plugin installation failed',
-            `Plugin key: ${JSON.stringify(plugin.key)}`,
-            `Error type: ${error.constructor.name}`,
-            `Error message: ${error.message}`,
-            'Stack trace:',
+            '✗ Plugin installation failed',
+            `  Plugin Key: ${JSON.stringify(plugin.key)}`,
+            '',
+            `Error: ${error.constructor.name}`,
+            `  ${error.message}`,
+            '',
+            'Stack Trace:',
             error.stack || 'No stack trace available',
           ],
         })
@@ -305,7 +312,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       pluginManager.logger.emit('debug', {
         date: new Date(),
         category: 'file',
-        logs: [`Barrel file generated with ${rootFile.exports?.length || 0} exports`],
+        logs: ['', `✓ Generated barrel file (${rootFile.exports?.length || 0} exports)`],
       })
     }
 
@@ -314,7 +321,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       pluginManager.logger.emit('debug', {
         date: new Date(),
         category: 'file',
-        logs: ['Starting file write process', `Total files to write: ${files.length}`],
+        logs: ['', `Writing ${files.length} files...`],
       })
     })
 
@@ -322,13 +329,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       const message = file ? `Writing ${relative(config.root, file.path)}` : ''
       pluginManager.logger.emit('progressed', { id: 'files', message })
 
-      if (file) {
-        pluginManager.logger.emit('debug', {
-          date: new Date(),
-          category: 'file',
-          logs: [`Writing file: ${file.path}`, `Relative path: ${relative(config.root, file.path)}`, `Base name: ${file.baseName}`, `Has source: ${!!source}`],
-        })
-      }
+      // Removed verbose file write logs - progress bar already shows this
 
       if (source) {
         await write(file.path, source, { sanity: false })
@@ -340,7 +341,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       pluginManager.logger.emit('debug', {
         date: new Date(),
         category: 'file',
-        logs: ['File write process completed'],
+        logs: ['✓ File write process completed'],
       })
     })
     const files = [...fabric.files]

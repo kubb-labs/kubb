@@ -528,17 +528,8 @@ export class PluginManager {
 
       const corePlugin = plugins.find((plugin) => plugin.name === 'core' && hookName in plugin)
 
-      if (corePlugin) {
-        this.logger.emit('debug', {
-          date: new Date(),
-          logs: [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`],
-        })
-      } else {
-        this.logger.emit('debug', {
-          date: new Date(),
-          logs: [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, no fallback found in the '@kubb/core' plugin`],
-        })
-      }
+      // Removed noisy debug logs for missing hooks - these are expected behavior, not errors
+      
       return corePlugin ? [corePlugin] : []
     }
 
@@ -584,12 +575,16 @@ export class PluginManager {
     this.events.emit('executing', { strategy, hookName, parameters, plugin, message })
 
     const startTime = performance.now()
-    this.logger.emit('debug', {
-      date: new Date(),
-      category: 'hook',
-      pluginName: plugin.name,
-      logs: [`Executing hook '${hookName}' with strategy '${strategy}'`, message ? `Message: ${message}` : ''].filter(Boolean),
-    })
+    // Only log important lifecycle hooks to reduce noise
+    const importantHooks = ['buildStart', 'buildEnd', 'writeFile']
+    if (importantHooks.includes(hookName)) {
+      this.logger.emit('debug', {
+        date: new Date(),
+        category: 'hook',
+        pluginName: plugin.name,
+        logs: [`Executing hook: ${hookName}`, `  • Strategy: ${strategy}`],
+      })
+    }
 
     const task = (async () => {
       try {
@@ -600,12 +595,14 @@ export class PluginManager {
           output = result
 
           const duration = Math.round(performance.now() - startTime)
-          this.logger.emit('debug', {
-            date: new Date(),
-            category: 'hook',
-            pluginName: plugin.name,
-            logs: [`Completed hook '${hookName}' in ${duration}ms`],
-          })
+          if (importantHooks.includes(hookName)) {
+            this.logger.emit('debug', {
+              date: new Date(),
+              category: 'hook',
+              pluginName: plugin.name,
+              logs: [`✓ Completed in ${duration}ms`],
+            })
+          }
 
           this.#addExecutedToCallStack({
             parameters,
@@ -621,13 +618,7 @@ export class PluginManager {
 
         output = hook
 
-        const duration = Math.round(performance.now() - startTime)
-        this.logger.emit('debug', {
-          date: new Date(),
-          category: 'hook',
-          pluginName: plugin.name,
-          logs: [`Completed hook '${hookName}' (static value) in ${duration}ms`],
-        })
+        // Don't log static values completion - too noisy
 
         this.#addExecutedToCallStack({
           parameters,
@@ -647,14 +638,17 @@ export class PluginManager {
           category: 'error',
           pluginName: plugin.name,
           logs: [
-            `Failed hook '${hookName}' after ${duration}ms`,
-            `Strategy: ${strategy}`,
-            `Hook type: ${typeof hook}`,
-            `Error type: ${error.constructor.name}`,
-            `Error message: ${error.message}`,
-            'Stack trace:',
+            `✗ Hook '${hookName}' failed after ${duration}ms`,
+            `  • Strategy: ${strategy}`,
+            '',
+            `Error: ${error.constructor.name}`,
+            `  ${error.message}`,
+            '',
+            'Stack Trace:',
             error.stack || 'No stack trace available',
-            `Parameters: ${JSON.stringify(parameters, null, 2)}`,
+            '',
+            'Parameters:',
+            JSON.stringify(parameters, null, 2),
           ],
         })
         this.#catcher<H>(e as Error, plugin, hookName)
