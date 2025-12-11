@@ -5,7 +5,7 @@ import pc from 'picocolors'
 
 type ProgressTask = {
   id: string
-  spinner: ReturnType<typeof clackSpinner>
+  spinner?: ReturnType<typeof clackSpinner>
   total: number
   current: number
   message: string
@@ -67,7 +67,7 @@ export class ProgressManager {
       
       this.tasks.set(id, {
         id,
-        spinner: null as any, // Not used in CI mode
+        spinner: undefined as any, // Not used in CI mode
         total,
         current: 0,
         message,
@@ -98,7 +98,7 @@ export class ProgressManager {
 
     const percentage = Math.round((task.current / task.total) * 100)
 
-    if (this.useTTY) {
+    if (this.useTTY && task.spinner) {
       // TTY mode: Update spinner text
       task.spinner.message(this.formatMessage(task.emoji || '⏳', task.message, task.current, task.total))
     } else {
@@ -126,7 +126,7 @@ export class ProgressManager {
     const duration = Date.now() - task.startTime
     const durationStr = duration > 1000 ? `${(duration / 1000).toFixed(1)}s` : `${duration}ms`
 
-    if (this.useTTY) {
+    if (this.useTTY && task.spinner) {
       // TTY mode: Stop spinner with appropriate status
       const message = finalMessage || `${task.message} (${task.current}/${task.total})`
       
