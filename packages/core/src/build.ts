@@ -175,6 +175,13 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
   const config = pluginManager.config
 
   try {
+    // Emit initial progress for all plugins
+    pluginManager.logger.emit('progress_start', {
+      id: 'plugins',
+      size: pluginManager.plugins.length,
+      message: 'Installing plugins...',
+    })
+
     for (const plugin of pluginManager.plugins) {
       const context = pluginManager.getContext(plugin)
 
@@ -183,6 +190,12 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       try {
         const startTime = performance.now()
         const timestamp = new Date()
+
+        // Emit plugin start event for progress tracking
+        pluginManager.logger.emit('plugin_start', {
+          pluginName: plugin.name,
+          pluginKey: plugin.key,
+        })
 
         // Start plugin group
         pluginManager.logger.emit('debug', {
@@ -203,6 +216,19 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
         const duration = Math.round(performance.now() - startTime)
         pluginTimings.set(plugin.name, duration)
+
+        // Emit plugin end event for progress tracking
+        pluginManager.logger.emit('plugin_end', {
+          pluginName: plugin.name,
+          pluginKey: plugin.key,
+          duration,
+        })
+
+        // Update overall plugin progress
+        pluginManager.logger.emit('progressed', {
+          id: 'plugins',
+          message: `Installed ${plugin.name}`,
+        })
 
         pluginManager.logger.emit('debug', {
           date: new Date(),
@@ -236,6 +262,12 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           ],
         })
 
+        // Update progress even on error
+        pluginManager.logger.emit('progressed', {
+          id: 'plugins',
+          message: `Failed: ${plugin.name}`,
+        })
+
         // End plugin group even on error
         pluginManager.logger.emit('debug', {
           date: errorTimestamp,
@@ -247,6 +279,9 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         failedPlugins.add({ plugin, error })
       }
     }
+
+    // Stop plugin progress
+    pluginManager.logger.emit('progress_stop', { id: 'plugins' })
 
     if (config.output.barrelType) {
       const root = resolve(config.root)

@@ -9,15 +9,47 @@ import type { Args } from '../commands/generate.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
 import { getErrorCauses } from '../utils/getErrorCauses.ts'
 import { getSummary } from '../utils/getSummary.ts'
+import { ProgressManager } from '../utils/progressManager.ts'
 
 type GenerateProps = {
   input?: string
   config: Config
   args: Args
   progressCache: Map<string, SingleBar>
+  progressManager?: ProgressManager
 }
 
-export async function generate({ input, config, progressCache, args }: GenerateProps): Promise<void> {
+/**
+ * Get emoji for plugin based on its name
+ */
+function getPluginEmoji(pluginName: string): string {
+  if (pluginName.includes('ts') || pluginName.includes('typescript')) return '🔷'
+  if (pluginName.includes('swagger') || pluginName.includes('oas')) return '📋'
+  if (pluginName.includes('client')) return '📦'
+  if (pluginName.includes('react-query')) return '🖼️'
+  if (pluginName.includes('vue-query')) return '🖼️'
+  if (pluginName.includes('solid-query')) return '🖼️'
+  if (pluginName.includes('svelte-query')) return '🖼️'
+  if (pluginName.includes('swr')) return '🖼️'
+  if (pluginName.includes('zod')) return '🧩'
+  if (pluginName.includes('faker')) return '🎲'
+  if (pluginName.includes('msw')) return '🔧'
+  return '🔧'
+}
+
+/**
+ * Get emoji for progress based on id and message
+ */
+function getProgressEmoji(id: string, message: string): string {
+  if (id === 'files' || message.toLowerCase().includes('file')) return '🖼️'
+  if (id === 'plugins' || message.toLowerCase().includes('plugin')) return '🔧'
+  if (message.toLowerCase().includes('schema')) return '📋'
+  if (message.toLowerCase().includes('type')) return '🧩'
+  if (message.toLowerCase().includes('client')) return '📦'
+  return '⏳'
+}
+
+export async function generate({ input, config, progressCache, args, progressManager: existingProgressManager }: GenerateProps): Promise<void> {
   const hrStart = process.hrtime()
   const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
 
@@ -29,8 +61,34 @@ export async function generate({ input, config, progressCache, args }: GenerateP
   const { root = process.cwd(), ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
+  // Create progress manager (reuse if provided, otherwise create new)
+  const progressManager = existingProgressManager || new ProgressManager(logger.logLevel === LogMapper.debug)
+
   if (logger.logLevel !== LogMapper.debug) {
+    // Handle plugin-level progress
+    logger.on('plugin_start', ({ pluginName }) => {
+      // Each plugin gets its own progress tracker
+      const emoji = getPluginEmoji(pluginName)
+      progressManager.start(`plugin:${pluginName}`, {
+        total: 1,
+        message: `${pluginName}...`,
+        emoji,
+      })
+    })
+
+    logger.on('plugin_end', ({ pluginName, duration }) => {
+      progressManager.stop(`plugin:${pluginName}`, {
+        success: true,
+        finalMessage: `${pluginName} (${duration}ms)`,
+      })
+    })
+
     logger.on('progress_start', ({ id, size, message = '' }) => {
+      // Use Clack progress manager instead of cli-progress
+      const emoji = getProgressEmoji(id, message)
+      progressManager.start(id, { total: size, message, emoji })
+      
+      // Keep legacy behavior for backward compatibility
       logger.consola?.pauseLogs()
       const payload = { id, message }
       const progressBar = new SingleBar(
@@ -50,13 +108,20 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     })
 
     logger.on('progress_stop', ({ id }) => {
+      // Stop Clack progress
+      progressManager.stop(id)
+      
+      // Keep legacy behavior
       progressCache.get(id)?.stop()
       logger.consola?.resumeLogs()
     })
 
     logger.on('progressed', ({ id, message = '' }) => {
+      // Update Clack progress
+      progressManager.update(id, message)
+      
+      // Keep legacy behavior
       const payload = { id, message }
-
       progressCache.get(id)?.increment(1, payload)
     })
   }

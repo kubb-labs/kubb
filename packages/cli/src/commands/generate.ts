@@ -85,6 +85,8 @@ const command = defineCommand({
       logLevel,
     })
     const { generate } = await import('../runners/generate.ts')
+    // Import ProgressManager dynamically to avoid circular deps
+    const { ProgressManager } = await import('../utils/progressManager.ts')
 
     logger.emit('start', 'Loading config')
 
@@ -92,6 +94,9 @@ const command = defineCommand({
     logger.emit('success', `Config loaded(${pc.dim(path.relative(process.cwd(), result.filepath))})`)
 
     const config = await getConfig(result, args)
+
+    // Create a shared progress manager for all configs
+    const progressManager = new ProgressManager(logLevel === LogMapper.debug)
 
     const start = async () => {
       if (Array.isArray(config)) {
@@ -104,6 +109,7 @@ const command = defineCommand({
             config: c,
             args,
             progressCache,
+            progressManager,
           })
         })
 
@@ -118,6 +124,7 @@ const command = defineCommand({
         config,
         progressCache,
         args,
+        progressManager,
       })
 
       return
