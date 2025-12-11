@@ -655,13 +655,10 @@ export class PluginManager {
           logs: [
             `✗ Hook '${hookName}' failed after ${duration}ms`,
             `  • Strategy: ${strategy}`,
-            '',
             `Error: ${error.constructor.name}`,
             `  ${error.message}`,
-            '',
             'Stack Trace:',
             error.stack || 'No stack trace available',
-            '',
             'Parameters:',
             JSON.stringify(parameters, null, 2),
           ],
