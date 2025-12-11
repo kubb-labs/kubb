@@ -1135,7 +1135,7 @@ export class SchemaGenerator<
         this.context.pluginManager.logger.emit('debug', {
           date: new Date(),
           logs: [
-            `Invalid schema type detected`,
+            'Invalid schema type detected',
             `Schema: ${parentName}.${name}`,
             `Type: ${JSON.stringify(schemaObject.type)}`,
             `Full schema object keys: ${Object.keys(schemaObject).join(', ')}`,

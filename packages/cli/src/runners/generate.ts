@@ -115,7 +115,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   // Handle build failures (either from failed plugins or general errors)
   const hasFailures = failedPlugins.size > 0 || error
-  
+
   if (hasFailures && logger.consola) {
     logger.consola?.resumeLogs()
     logger.consola?.error(`Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
@@ -132,11 +132,15 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
     // Collect all errors from failed plugins and general error
     const allErrors: Error[] = []
-    
+
     if (failedPlugins.size > 0) {
-      allErrors.push(...Array.from(failedPlugins).filter((it) => it.error).map((it) => it.error))
+      allErrors.push(
+        ...Array.from(failedPlugins)
+          .filter((it) => it.error)
+          .map((it) => it.error),
+      )
     }
-    
+
     if (error) {
       allErrors.push(error)
     }
@@ -169,7 +173,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
       await execa('prettier', ['--ignore-unknown', '--write', path.resolve(definedConfig.root, definedConfig.output.path)])
       logger?.emit('debug', {
         date: new Date(),
-        logs: [`Prettier formatting completed successfully`],
+        logs: ['Prettier formatting completed successfully'],
       })
     } catch (e) {
       logger.consola?.warn('Prettier not found')
@@ -194,7 +198,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
       await execa('biome', ['format', '--write', path.resolve(definedConfig.root, definedConfig.output.path)])
       logger?.emit('debug', {
         date: new Date(),
-        logs: [`Biome formatting completed successfully`],
+        logs: ['Biome formatting completed successfully'],
       })
     } catch (e) {
       logger.consola?.warn('Biome not found')
@@ -220,7 +224,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
       await execa('eslint', [path.resolve(definedConfig.root, definedConfig.output.path), '--fix'])
       logger?.emit('debug', {
         date: new Date(),
-        logs: [`ESLint linting completed successfully`],
+        logs: ['ESLint linting completed successfully'],
       })
     } catch (e) {
       logger.consola?.warn('Eslint not found')
@@ -245,7 +249,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
       await execa('biome', ['lint', '--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
       logger?.emit('debug', {
         date: new Date(),
-        logs: [`Biome linting completed successfully`],
+        logs: ['Biome linting completed successfully'],
       })
     } catch (e) {
       logger.consola?.warn('Biome not found')
@@ -270,7 +274,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
       await execa('oxlint', ['--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
       logger?.emit('debug', {
         date: new Date(),
-        logs: [`Oxlint linting completed successfully`],
+        logs: ['Oxlint linting completed successfully'],
       })
     } catch (e) {
       logger.consola?.warn('Oxlint not found')

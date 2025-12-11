@@ -83,11 +83,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       logger.emit('debug', {
         date: new Date(),
         category: 'setup',
-        logs: [
-          'Failed to validate input file',
-          `Path: ${userConfig.input.path}`,
-          `Error: ${error.message}`,
-        ],
+        logs: ['Failed to validate input file', `Path: ${userConfig.input.path}`, `Error: ${error.message}`],
       })
       throw new Error(
         `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${userConfig.input.path}`,
@@ -142,7 +138,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   logger.emit('debug', {
     date: new Date(),
     category: 'setup',
-    logs: ['PluginManager initialized', `Concurrency: 5`, `Total plugins: ${pluginManager.plugins.length}`],
+    logs: ['PluginManager initialized', 'Concurrency: 5', `Total plugins: ${pluginManager.plugins.length}`],
   })
 
   return {
@@ -184,7 +180,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       try {
         const startTime = performance.now()
         const timestamp = new Date()
-        
+
         // Start plugin group
         pluginManager.logger.emit('debug', {
           date: timestamp,
@@ -192,12 +188,12 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           pluginName: plugin.name,
           logs: [],
         })
-        
+
         pluginManager.logger.emit('debug', {
           date: timestamp,
           category: 'plugin',
           pluginName: plugin.name,
-          logs: [`Installing plugin`, `Plugin key: ${JSON.stringify(plugin.key)}`],
+          logs: ['Installing plugin', `Plugin key: ${JSON.stringify(plugin.key)}`],
         })
 
         await installer(context)
@@ -211,7 +207,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           pluginName: plugin.name,
           logs: [`Plugin installed successfully in ${duration}ms`],
         })
-        
+
         // End plugin group
         pluginManager.logger.emit('debug', {
           date: new Date(),
@@ -222,21 +218,21 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       } catch (e) {
         const error = e as Error
         const errorTimestamp = new Date()
-        
+
         pluginManager.logger.emit('debug', {
           date: errorTimestamp,
           category: 'error',
           pluginName: plugin.name,
           logs: [
-            `Plugin installation failed`,
+            'Plugin installation failed',
             `Plugin key: ${JSON.stringify(plugin.key)}`,
             `Error type: ${error.constructor.name}`,
             `Error message: ${error.message}`,
-            `Stack trace:`,
+            'Stack trace:',
             error.stack || 'No stack trace available',
           ],
         })
-        
+
         // End plugin group even on error
         pluginManager.logger.emit('debug', {
           date: errorTimestamp,
@@ -244,7 +240,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           pluginName: plugin.name,
           logs: [],
         })
-        
+
         failedPlugins.add({ plugin, error })
       }
     }
@@ -318,7 +314,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       pluginManager.logger.emit('debug', {
         date: new Date(),
         category: 'file',
-        logs: [`Starting file write process`, `Total files to write: ${files.length}`],
+        logs: ['Starting file write process', `Total files to write: ${files.length}`],
       })
     })
 
@@ -330,12 +326,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         pluginManager.logger.emit('debug', {
           date: new Date(),
           category: 'file',
-          logs: [
-            `Writing file: ${file.path}`,
-            `Relative path: ${relative(config.root, file.path)}`,
-            `Base name: ${file.baseName}`,
-            `Has source: ${!!source}`,
-          ],
+          logs: [`Writing file: ${file.path}`, `Relative path: ${relative(config.root, file.path)}`, `Base name: ${file.baseName}`, `Has source: ${!!source}`],
         })
       }
 
@@ -349,7 +340,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       pluginManager.logger.emit('debug', {
         date: new Date(),
         category: 'file',
-        logs: [`File write process completed`],
+        logs: ['File write process completed'],
       })
     })
     const files = [...fabric.files]

@@ -3,12 +3,7 @@
  * Note: Currently exported for potential future use in plugins or extensions
  */
 export function isCI(): boolean {
-  return !!(
-    process.env.CI ||
-    process.env.CONTINUOUS_INTEGRATION ||
-    process.env.BUILD_NUMBER ||
-    process.env.RUN_ID
-  )
+  return !!(process.env.CI || process.env.CONTINUOUS_INTEGRATION || process.env.BUILD_NUMBER || process.env.RUN_ID)
 }
 
 /**

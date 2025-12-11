@@ -7,7 +7,7 @@ import { write } from './fs/write.ts'
 import { endGroup, isGitHubActions, startGroup } from './utils/ciDetection.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 
-type DebugEvent = { 
+type DebugEvent = {
   date: Date
   logs: string[]
   fileName?: string
@@ -123,7 +123,7 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
 
   events.on('debug', (message) => {
     const fullLog = message.logs.join('\n\n')
-    
+
     if (logLevel >= LogMapper.debug) {
       // Handle plugin group markers in GitHub Actions
       if (isGitHubActions()) {
@@ -132,19 +132,18 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
           const title = message.pluginName || 'Plugin'
           console.log(startGroup(title))
           return undefined // Don't log the marker itself
-        } else if (message.pluginGroupMarker === 'end') {
+        }
+        if (message.pluginGroupMarker === 'end') {
           // End the plugin group
           console.log(endGroup())
           return undefined // Don't log the marker itself
         }
-        
+
         // For setup/file operations that aren't plugin-specific, create individual groups
         if (!message.pluginName && message.category && ['setup', 'file'].includes(message.category)) {
           const firstLine = message.logs[0] || 'Debug Details'
-          const title = firstLine.length > DEBUG_LOG_TITLE_MAX_LENGTH 
-            ? firstLine.substring(0, DEBUG_LOG_TITLE_MAX_LENGTH) + '...' 
-            : firstLine
-          
+          const title = firstLine.length > DEBUG_LOG_TITLE_MAX_LENGTH ? `${firstLine.substring(0, DEBUG_LOG_TITLE_MAX_LENGTH)}...` : firstLine
+
           console.log(startGroup(title))
           console.log(pc.dim(fullLog))
           console.log(endGroup())

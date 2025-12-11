@@ -652,7 +652,7 @@ export class PluginManager {
             `Hook type: ${typeof hook}`,
             `Error type: ${error.constructor.name}`,
             `Error message: ${error.message}`,
-            `Stack trace:`,
+            'Stack trace:',
             error.stack || 'No stack trace available',
             `Parameters: ${JSON.stringify(parameters, null, 2)}`,
           ],
