@@ -183,10 +183,20 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
       try {
         const startTime = performance.now()
+        
+        // Start plugin group
+        pluginManager.logger.emit('debug', {
+          date: new Date(),
+          pluginGroupMarker: 'start',
+          pluginName: plugin.name,
+          logs: [],
+        })
+        
         pluginManager.logger.emit('debug', {
           date: new Date(),
           category: 'plugin',
-          logs: [`[${plugin.name}] Installing plugin`, `Plugin key: ${JSON.stringify(plugin.key)}`],
+          pluginName: plugin.name,
+          logs: [`Installing plugin`, `Plugin key: ${JSON.stringify(plugin.key)}`],
         })
 
         await installer(context)
@@ -197,15 +207,25 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         pluginManager.logger.emit('debug', {
           date: new Date(),
           category: 'plugin',
-          logs: [`[${plugin.name}] Plugin installed successfully in ${duration}ms`],
+          pluginName: plugin.name,
+          logs: [`Plugin installed successfully in ${duration}ms`],
+        })
+        
+        // End plugin group
+        pluginManager.logger.emit('debug', {
+          date: new Date(),
+          pluginGroupMarker: 'end',
+          pluginName: plugin.name,
+          logs: [],
         })
       } catch (e) {
         const error = e as Error
         pluginManager.logger.emit('debug', {
           date: new Date(),
           category: 'error',
+          pluginName: plugin.name,
           logs: [
-            `[${plugin.name}] Plugin installation failed`,
+            `Plugin installation failed`,
             `Plugin key: ${JSON.stringify(plugin.key)}`,
             `Error type: ${error.constructor.name}`,
             `Error message: ${error.message}`,
@@ -213,6 +233,15 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
             error.stack || 'No stack trace available',
           ],
         })
+        
+        // End plugin group even on error
+        pluginManager.logger.emit('debug', {
+          date: new Date(),
+          pluginGroupMarker: 'end',
+          pluginName: plugin.name,
+          logs: [],
+        })
+        
         failedPlugins.add({ plugin, error })
       }
     }

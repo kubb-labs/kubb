@@ -22,6 +22,16 @@ type DebugEvent = {
    * - undefined: Generic logs (always inline)
    */
   category?: 'setup' | 'plugin' | 'hook' | 'schema' | 'file' | 'error'
+  /**
+   * Plugin name for grouping plugin-specific logs together
+   */
+  pluginName?: string
+  /**
+   * Indicates if this is the start or end of a plugin's execution
+   * - 'start': Start of plugin execution group
+   * - 'end': End of plugin execution group
+   */
+  pluginGroupMarker?: 'start' | 'end'
 }
 
 type Events = {
@@ -115,23 +125,39 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
     const fullLog = message.logs.join('\n\n')
     
     if (logLevel >= LogMapper.debug) {
-      // Categories that should be grouped in GitHub Actions
-      const shouldGroup = message.category && ['setup', 'plugin', 'hook', 'schema', 'file', 'error'].includes(message.category)
-      
-      // In GitHub Actions, wrap categorized logs in collapsible groups
-      if (isGitHubActions() && shouldGroup) {
-        // Extract first line as title, or use a generic title
-        const firstLine = message.logs[0] || 'Debug Details'
-        const title = firstLine.length > DEBUG_LOG_TITLE_MAX_LENGTH 
-          ? firstLine.substring(0, DEBUG_LOG_TITLE_MAX_LENGTH) + '...' 
-          : firstLine
+      // Handle plugin group markers in GitHub Actions
+      if (isGitHubActions()) {
+        if (message.pluginGroupMarker === 'start') {
+          // Start a new plugin group
+          const title = message.pluginName || 'Plugin'
+          console.log(startGroup(title))
+          return // Don't log the marker itself
+        } else if (message.pluginGroupMarker === 'end') {
+          // End the plugin group
+          console.log(endGroup())
+          return // Don't log the marker itself
+        }
         
-        console.log(startGroup(title))
-        console.log(pc.dim(fullLog))
-        console.log(endGroup())
+        // For setup/file operations that aren't plugin-specific, create individual groups
+        if (!message.pluginName && message.category && ['setup', 'file'].includes(message.category)) {
+          const firstLine = message.logs[0] || 'Debug Details'
+          const title = firstLine.length > DEBUG_LOG_TITLE_MAX_LENGTH 
+            ? firstLine.substring(0, DEBUG_LOG_TITLE_MAX_LENGTH) + '...' 
+            : firstLine
+          
+          console.log(startGroup(title))
+          console.log(pc.dim(fullLog))
+          console.log(endGroup())
+        } else {
+          // Plugin-specific logs are shown inline within their plugin group
+          // Non-categorized logs are shown inline
+          consola.log(pc.dim(fullLog))
+        }
       } else {
-        // Non-grouped logs or non-CI environments - show inline
-        consola.log(pc.dim(fullLog))
+        // Non-CI environments - show all logs inline (except group markers)
+        if (!message.pluginGroupMarker) {
+          consola.log(pc.dim(fullLog))
+        }
       }
     }
 

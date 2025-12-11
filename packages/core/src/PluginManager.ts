@@ -587,7 +587,8 @@ export class PluginManager {
     this.logger.emit('debug', {
       date: new Date(),
       category: 'hook',
-      logs: [`[${plugin.name}] Executing hook '${hookName}' with strategy '${strategy}'`, message ? `Message: ${message}` : ''].filter(Boolean),
+      pluginName: plugin.name,
+      logs: [`Executing hook '${hookName}' with strategy '${strategy}'`, message ? `Message: ${message}` : ''].filter(Boolean),
     })
 
     const task = (async () => {
@@ -602,7 +603,8 @@ export class PluginManager {
           this.logger.emit('debug', {
             date: new Date(),
             category: 'hook',
-            logs: [`[${plugin.name}] Completed hook '${hookName}' in ${duration}ms`],
+            pluginName: plugin.name,
+            logs: [`Completed hook '${hookName}' in ${duration}ms`],
           })
 
           this.#addExecutedToCallStack({
@@ -623,7 +625,8 @@ export class PluginManager {
         this.logger.emit('debug', {
           date: new Date(),
           category: 'hook',
-          logs: [`[${plugin.name}] Completed hook '${hookName}' (static value) in ${duration}ms`],
+          pluginName: plugin.name,
+          logs: [`Completed hook '${hookName}' (static value) in ${duration}ms`],
         })
 
         this.#addExecutedToCallStack({
@@ -642,8 +645,9 @@ export class PluginManager {
         this.logger.emit('debug', {
           date: new Date(),
           category: 'error',
+          pluginName: plugin.name,
           logs: [
-            `[${plugin.name}] Failed hook '${hookName}' after ${duration}ms`,
+            `Failed hook '${hookName}' after ${duration}ms`,
             `Strategy: ${strategy}`,
             `Hook type: ${typeof hook}`,
             `Error type: ${error.constructor.name}`,
