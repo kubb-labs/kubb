@@ -14,8 +14,11 @@ export function listPetsQueryParams(data?: Partial<ListPetsQueryParams>): ListPe
 /**
  * @description A paged array of pets
  */
-export function listPets200() {
-  return pets()
+export function listPets200(data?: Partial<ListPets200>): ListPets200 {
+  return {
+    ...{ ...pagination(), ...pets() },
+    ...(data || {}),
+  }
 }
 
 /**
