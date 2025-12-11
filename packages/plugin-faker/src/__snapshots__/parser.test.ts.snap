@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`faker parse > 'and' 1`] = `"Object.assign({}, {"street": faker.string.alpha()}, {"city": faker.string.alpha()})"`;
+exports[`faker parse > 'and' 1`] = `"{...{"street": faker.string.alpha()}, ...{"city": faker.string.alpha()}}"`;
 
 exports[`faker parse > 'any' 1`] = `"undefined"`;
 
@@ -52,7 +52,7 @@ exports[`faker parse > 'number' 1`] = `"faker.number.float()"`;
 
 exports[`faker parse > 'object' 1`] = `"{"firstName": faker.string.alpha({ length: 2 }),"address": faker.string.alpha()}"`;
 
-exports[`faker parse > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha({ length: 2 }),"age": faker.number.float({ min: 3 }),"address": Object.assign({}, {"street": faker.string.alpha()}, {"city": faker.string.alpha()})}"`;
+exports[`faker parse > 'objectAnd' 1`] = `"{"firstName": faker.string.alpha({ length: 2 }),"age": faker.number.float({ min: 3 }),"address": {...{"street": faker.string.alpha()}, ...{"city": faker.string.alpha()}}}"`;
 
 exports[`faker parse > 'objectArray' 1`] = `"{"ids": faker.helpers.multiple(() => (faker.helpers.fromRegExp("^[a-zA-Z0-9]{1,13}$")), { count: { min: 3, max: 10 }})}"`;
 

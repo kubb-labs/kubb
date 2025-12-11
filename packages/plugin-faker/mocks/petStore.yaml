@@ -31,7 +31,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Pets'
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                  - $ref: '#/components/schemas/Pets'
         default:
           description: unexpected error
           content:
@@ -153,3 +155,12 @@ components:
           format: int32
         message:
           type: string
+    Pagination:
+      type: object
+      properties:
+        total_records:
+          type: integer
+          description: Total number of records
+          minimum: 0
+      required:
+        - total_records
