@@ -3,7 +3,7 @@ import process from 'node:process'
 import { type Config, safeBuild, setup } from '@kubb/core'
 import { createLogger, LogMapper } from '@kubb/core/logger'
 import { execa } from 'execa'
-import { intro, outro, log, note } from '@clack/prompts'
+import { intro, outro, log } from '@clack/prompts'
 import pc from 'picocolors'
 import type { Args } from '../commands/generate.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
@@ -164,7 +164,18 @@ export async function generate({ input, config, args, progressManager: existingP
   if (hasFailures) {
     log.error(`Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
-    note(summary.join(''), `${config.name || 'Build Failed'}`)
+    // Use consola box for error to maintain consistency
+    if (logger.consola) {
+      logger.consola.box({
+        title: `${config.name || ''}`,
+        message: summary.join(''),
+        style: {
+          padding: 2,
+          borderColor: 'red',
+          borderStyle: 'rounded',
+        },
+      })
+    }
 
     // Collect all errors from failed plugins and general error
     const allErrors: Error[] = []
@@ -345,6 +356,18 @@ export async function generate({ input, config, args, progressManager: existingP
 
   if (logger.logLevel !== LogMapper.silent && logger.logLevel !== LogMapper.debug) {
     outro(pc.green(`⚡Build completed ${pc.dim(inputPath!)}`))
-    note(summary.join(''), config.name || 'Build Summary')
+    
+    // Use consola box for success summary to maintain the "dane style" green box
+    if (logger.consola) {
+      logger.consola.box({
+        title: `${config.name || ''}`,
+        message: summary.join(''),
+        style: {
+          padding: 2,
+          borderColor: 'green',
+          borderStyle: 'rounded',
+        },
+      })
+    }
   }
 }
