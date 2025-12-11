@@ -194,7 +194,7 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
           files[fileName] = []
         }
 
-        files[fileName] = [...files[fileName], `[${log.date.toLocaleString()}]: ${log.logs.join('\n\n')}`]
+        files[fileName] = [...files[fileName], `[${log.date.toLocaleString()}]: \n${log.logs.join('\n\n')}`]
       })
       await Promise.all(
         Object.entries(files).map(async ([fileName, logs]) => {
