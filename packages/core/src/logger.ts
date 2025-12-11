@@ -131,11 +131,11 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
           // Start a new plugin group
           const title = message.pluginName || 'Plugin'
           console.log(startGroup(title))
-          return // Don't log the marker itself
+          return undefined // Don't log the marker itself
         } else if (message.pluginGroupMarker === 'end') {
           // End the plugin group
           console.log(endGroup())
-          return // Don't log the marker itself
+          return undefined // Don't log the marker itself
         }
         
         // For setup/file operations that aren't plugin-specific, create individual groups

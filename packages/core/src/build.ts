@@ -183,17 +183,18 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
       try {
         const startTime = performance.now()
+        const timestamp = new Date()
         
         // Start plugin group
         pluginManager.logger.emit('debug', {
-          date: new Date(),
+          date: timestamp,
           pluginGroupMarker: 'start',
           pluginName: plugin.name,
           logs: [],
         })
         
         pluginManager.logger.emit('debug', {
-          date: new Date(),
+          date: timestamp,
           category: 'plugin',
           pluginName: plugin.name,
           logs: [`Installing plugin`, `Plugin key: ${JSON.stringify(plugin.key)}`],
@@ -220,8 +221,10 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         })
       } catch (e) {
         const error = e as Error
+        const errorTimestamp = new Date()
+        
         pluginManager.logger.emit('debug', {
-          date: new Date(),
+          date: errorTimestamp,
           category: 'error',
           pluginName: plugin.name,
           logs: [
@@ -236,7 +239,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         
         // End plugin group even on error
         pluginManager.logger.emit('debug', {
-          date: new Date(),
+          date: errorTimestamp,
           pluginGroupMarker: 'end',
           pluginName: plugin.name,
           logs: [],
