@@ -2,13 +2,14 @@ import * as clack from '@clack/prompts'
 import type { Logger } from '@kubb/core/logger'
 import { LogMapper } from '@kubb/core/logger'
 import pc from 'picocolors'
-import type { CreateLoggerAdapter, LoggerAdapter, LoggerAdapterOptions } from './types.ts'
+import { defineLoggerAdapter } from './defineLoggerAdapter.ts'
+import type { LoggerAdapterOptions } from './types.ts'
 
 /**
  * Clack adapter for local TTY environments
  * Provides a beautiful CLI UI with flat structure (no nested groups)
  */
-export const createClackAdapter: CreateLoggerAdapter = (options: LoggerAdapterOptions): LoggerAdapter => {
+export const createClackAdapter = defineLoggerAdapter((options: LoggerAdapterOptions) => {
   const logLevel = options.logLevel
 
   return {
@@ -70,4 +71,4 @@ export const createClackAdapter: CreateLoggerAdapter = (options: LoggerAdapterOp
       // Clack doesn't require cleanup
     },
   }
-}
+})

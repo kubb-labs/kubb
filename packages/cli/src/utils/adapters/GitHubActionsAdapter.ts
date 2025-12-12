@@ -1,12 +1,13 @@
 import type { Logger } from '@kubb/core/logger'
-import type { CreateLoggerAdapter, LoggerAdapter, LoggerAdapterOptions } from './types.ts'
+import { defineLoggerAdapter } from './defineLoggerAdapter.ts'
+import type { LoggerAdapterOptions } from './types.ts'
 
 /**
  * GitHub Actions adapter for CI environments
  * Uses ::group:: and ::endgroup:: annotations for collapsible sections
  * Supports nested groups
  */
-export const createGitHubActionsAdapter: CreateLoggerAdapter = (options: LoggerAdapterOptions): LoggerAdapter => {
+export const createGitHubActionsAdapter = defineLoggerAdapter((options: LoggerAdapterOptions) => {
   const activeGroups: Map<string, boolean> = new Map()
 
   return {
@@ -86,4 +87,4 @@ export const createGitHubActionsAdapter: CreateLoggerAdapter = (options: LoggerA
       activeGroups.clear()
     },
   }
-}
+})

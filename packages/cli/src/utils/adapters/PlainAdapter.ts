@@ -1,12 +1,13 @@
 import type { Logger } from '@kubb/core/logger'
 import { LogMapper } from '@kubb/core/logger'
-import type { CreateLoggerAdapter, LoggerAdapter, LoggerAdapterOptions } from './types.ts'
+import { defineLoggerAdapter } from './defineLoggerAdapter.ts'
+import type { LoggerAdapterOptions } from './types.ts'
 
 /**
  * Plain console adapter for non-TTY environments
  * Simple console.log output with indentation
  */
-export const createPlainAdapter: CreateLoggerAdapter = (options: LoggerAdapterOptions): LoggerAdapter => {
+export const createPlainAdapter = defineLoggerAdapter((options: LoggerAdapterOptions) => {
   const logLevel = options.logLevel
   let indentLevel = 0
 
@@ -86,4 +87,4 @@ export const createPlainAdapter: CreateLoggerAdapter = (options: LoggerAdapterOp
       indentLevel = 0
     },
   }
-}
+})

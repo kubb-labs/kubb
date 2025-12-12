@@ -1,7 +1,8 @@
 import { resolve } from 'node:path'
 import type { Logger } from '@kubb/core/logger'
 import { write } from '@kubb/core/fs'
-import type { CreateLoggerAdapter, LoggerAdapter, LoggerAdapterOptions } from './types.ts'
+import { defineLoggerAdapter } from './defineLoggerAdapter.ts'
+import type { LoggerAdapterOptions } from './types.ts'
 
 type DebugEvent = {
   date: Date
@@ -25,19 +26,13 @@ export type FileSystemAdapterOptions = LoggerAdapterOptions & {
 /**
  * FileSystemAdapter with additional writeLogs method
  */
-export type FileSystemAdapterInstance = LoggerAdapter & {
-  /**
-   * Write all cached logs to files in .kubb directory
-   * Groups logs by fileName if specified, otherwise uses default timestamp-based name
-   */
-  writeLogs(): Promise<void>
-}
+export type FileSystemAdapterInstance = ReturnType<typeof createFileSystemAdapter>
 
 /**
  * FileSystemAdapter writes debug and verbose logs to files in .kubb directory
  * This adapter captures all debug/verbose events and persists them to disk
  */
-export const createFileSystemAdapter = (options: FileSystemAdapterOptions): FileSystemAdapterInstance => {
+export const createFileSystemAdapter = defineLoggerAdapter((options: FileSystemAdapterOptions) => {
   const cachedLogs: Set<DebugEvent> = new Set()
   const startDate: number = Date.now()
   const cleanupFns: Array<() => void> = []
@@ -94,4 +89,4 @@ export const createFileSystemAdapter = (options: FileSystemAdapterOptions): File
       )
     },
   }
-}
+})

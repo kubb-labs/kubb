@@ -1,4 +1,5 @@
 export { createClackAdapter } from './ClackAdapter.ts'
+export { defineLoggerAdapter } from './defineLoggerAdapter.ts'
 export { canUseTTY, isCIEnvironment, isGitHubActions } from './envDetection.ts'
 export type { FileSystemAdapterInstance, FileSystemAdapterOptions } from './FileSystemAdapter.ts'
 export { createFileSystemAdapter } from './FileSystemAdapter.ts'
