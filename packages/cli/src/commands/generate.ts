@@ -6,6 +6,7 @@ import { createLogger, LogMapper } from '@kubb/core/logger'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import pc from 'picocolors'
+import { LoggerAdapterFactory } from '../utils/adapters/index.ts'
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { startWatcher } from '../utils/watcher.ts'
@@ -79,40 +80,11 @@ const command = defineCommand({
       logLevel: LogMapper[args.logLevel as keyof typeof LogMapper] || 3, // 3 is info
     })
 
-    logger.on('start', (message) => {
-      clack.intro(message)
+    // Create and setup logger adapter based on environment
+    const adapter = LoggerAdapterFactory.createAuto({
+      logLevel: logger.logLevel,
     })
-
-    logger.on('stop', (message) => {
-      clack.outro(message)
-    })
-
-    logger.on('step', (message) => {
-      clack.log.step(message)
-    })
-
-    logger.on('success', (message) => {
-      clack.log.success(message)
-    })
-
-    logger.on('warning', (message) => {
-      if (logger.logLevel >= LogMapper.warn) {
-        clack.log.warning(pc.yellow(message))
-      }
-    })
-
-    logger.on('info', (message) => {
-      if (logger.logLevel >= LogMapper.info) {
-        clack.log.info(pc.yellow(message))
-      }
-    })
-
-    logger.on('verbose', (message) => {
-      if (logger.logLevel >= LogMapper.verbose) {
-        const formattedLogs = message.logs.join('\n')
-        clack.log.message(pc.dim(formattedLogs))
-      }
-    })
+    adapter.setup(logger)
 
     logger.emit('start', 'Configuration started')
 
@@ -156,6 +128,9 @@ const command = defineCommand({
     })
 
     await promiseManager.run('seq', promises)
+
+    // Cleanup adapter
+    adapter.cleanup()
   },
 })
 
