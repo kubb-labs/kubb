@@ -52,13 +52,6 @@ export const createMockedPluginManager = (name?: string) =>
       },
     },
     resolvePath: ({ baseName }) => baseName,
-    logger: {
-      emit(message) {
-        console.log(message)
-      },
-      on(_eventName, _args) {},
-      logLevel: 3,
-    },
     getPluginByKey: (_pluginKey: Plugin['key']) => {
       return undefined
     },

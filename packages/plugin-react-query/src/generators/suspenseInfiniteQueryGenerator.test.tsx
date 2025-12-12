@@ -80,11 +80,13 @@ describe('suspenseInfiniteQueryGenerator operation', async () => {
     const plugin = { options } as Plugin<PluginReactQuery>
     const fabric = createReactFabric()
 
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: createMockedPluginManager(props.name),
+      pluginManager: mockedPluginManager,
+
       plugin,
       contentType: undefined,
       override: undefined,

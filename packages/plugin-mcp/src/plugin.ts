@@ -135,6 +135,7 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
         fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
+        logger: this.logger,
         plugin: this.plugin,
         contentType,
         exclude,

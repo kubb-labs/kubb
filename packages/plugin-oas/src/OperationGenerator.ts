@@ -1,5 +1,6 @@
 import type { Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import { BaseGenerator, type FileMetaBase } from '@kubb/core'
+import type { Logger } from '@kubb/core/logger'
 import transformers from '@kubb/core/transformers'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
@@ -19,6 +20,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   override: Array<Override<TOptions>> | undefined
   contentType: contentType | undefined
   pluginManager: PluginManager
+  logger?: Logger
   /**
    * Current plugin
    */
@@ -221,7 +223,7 @@ export class OperationGenerator<
     const generatorLimit = pLimit(1)
     const operationLimit = pLimit(10)
 
-    this.context.pluginManager.logger.emit('debug', {
+    this.context.logger?.emit('debug', {
       date: new Date(),
       pluginName: this.context.plugin.name,
       logs: [`Building ${operations.length} operations`, `  • Generators: ${generators.length}`],
