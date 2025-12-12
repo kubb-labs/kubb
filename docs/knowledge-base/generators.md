@@ -17,6 +17,9 @@ Let's say you want to add some extra code after a generated client with [`@kubb/
 > [!TIP]
 > Every plugin has the `generators` option but for the most basic generation you can use [`plugin-oas`](/plugins/plugin-oas#generators).
 
+> [!NOTE]
+> **Migrating from v2.x templates?** Check out the [Templates to Generators Migration Guide](/knowledge-base/templates-to-generators/) for detailed instructions on migrating from the old `templates` pattern to the new `generators` pattern.
+
 Generators can be used with our [React](/helpers/react/) renderer or define your own renderer and return an array of KubbFiles.
 
 
