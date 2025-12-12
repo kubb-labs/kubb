@@ -1,1 +1,6 @@
-{"type":"object","properties":{"id":{"type":"integer","format":"int64"},"name":{"type":"string"}},"xml":{"name":"tag"},"x-readme-ref-name":"Tag"}
+{
+  "type": "object",
+  "properties": { "id": { "type": "integer", "format": "int64" }, "name": { "type": "string" } },
+  "xml": { "name": "tag" },
+  "x-readme-ref-name": "Tag"
+}
