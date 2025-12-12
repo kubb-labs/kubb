@@ -144,14 +144,6 @@ export async function generate({ input, config, logger }: GenerateProps): Promis
     { pluginManager, fabric, logger },
   )
 
-  if (logger.logLevel >= LogMapper.debug) {
-    console.log('⏳ Writing logs')
-
-    await logger.writeLogs()
-
-    console.log('✅ Written logs')
-  }
-
   const summary = getSummary({
     failedPlugins,
     filesCreated: files.length,

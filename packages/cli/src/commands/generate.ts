@@ -6,7 +6,7 @@ import { createLogger, LogMapper } from '@kubb/core/logger'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import pc from 'picocolors'
-import { LoggerAdapterFactory } from '../utils/adapters/index.ts'
+import { FileSystemAdapter, LoggerAdapterFactory } from '../utils/adapters/index.ts'
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { startWatcher } from '../utils/watcher.ts'
@@ -86,6 +86,12 @@ const command = defineCommand({
     })
     adapter.setup(logger)
 
+    // Create filesystem adapter for debug logging
+    const fsAdapter = new FileSystemAdapter({
+      logLevel: logger.logLevel,
+    })
+    fsAdapter.setup(logger)
+
     logger.emit('start', 'Configuration started')
 
     const configLogger = clack.taskLog({
@@ -129,8 +135,16 @@ const command = defineCommand({
 
     await promiseManager.run('seq', promises)
 
-    // Cleanup adapter
+    // Write debug logs to filesystem if in debug mode
+    if (logger.logLevel >= LogMapper.debug) {
+      console.log('⏳ Writing logs')
+      await fsAdapter.writeLogs()
+      console.log('✅ Written logs')
+    }
+
+    // Cleanup adapters
     adapter.cleanup()
+    fsAdapter.cleanup()
   },
 })
 

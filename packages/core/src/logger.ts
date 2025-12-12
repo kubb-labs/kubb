@@ -1,7 +1,5 @@
-import { resolve } from 'node:path'
 import pc from 'picocolors'
 import seedrandom from 'seedrandom'
-import { write } from './fs/write.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 
 type DebugEvent = {
@@ -75,7 +73,6 @@ export type Logger = {
   logLevel: LogLevel
   on: EventEmitter<Events>['on']
   emit: EventEmitter<Events>['emit']
-  writeLogs: () => Promise<void>
 }
 
 type Props = {
@@ -85,12 +82,6 @@ type Props = {
 
 export function createLogger({ logLevel = 3, name }: Props = {}): Logger {
   const events = new EventEmitter<Events>()
-  const startDate = Date.now()
-  const cachedLogs = new Set<DebugEvent>()
-
-  events.on('debug', (message) => {
-    cachedLogs.add(message)
-  })
 
   const logger: Logger = {
     name,
@@ -101,27 +92,6 @@ export function createLogger({ logLevel = 3, name }: Props = {}): Logger {
     emit(...args) {
       return events.emit(...args)
     },
-    async writeLogs() {
-      const files: Record<string, string[]> = {}
-
-      cachedLogs.forEach((log) => {
-        const fileName = resolve(process.cwd(), '.kubb', log.fileName || `kubb-${startDate}.log`)
-
-        if (!files[fileName]) {
-          files[fileName] = []
-        }
-
-        if (log.logs.length) {
-          files[fileName] = [...files[fileName], `[${log.date.toLocaleString()}]: \n${log.logs.join('\n')}`]
-        }
-      })
-
-      await Promise.all(
-        Object.entries(files).map(async ([fileName, logs]) => {
-          return write(fileName, logs.join('\n'))
-        }),
-      )
-    },
   }
 
   logger.on('error', (message, cause) => {
@@ -129,10 +99,6 @@ export function createLogger({ logLevel = 3, name }: Props = {}): Logger {
     error.cause = cause
 
     throw error
-  })
-
-  logger.on('verbose', (message) => {
-    cachedLogs.add(message)
   })
 
   return logger
