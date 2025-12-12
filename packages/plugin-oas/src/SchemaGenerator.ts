@@ -1155,11 +1155,7 @@ export class SchemaGenerator<
     this.context.pluginManager.logger.emit('debug', {
       date: new Date(),
       pluginName: this.context.plugin.name,
-      logs: [
-        `Building ${schemaEntries.length} schemas`,
-        `  • Content Type: ${contentType || 'application/json'}`,
-        `  • Generators: ${generators.length}`,
-      ],
+      logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
     })
 
     const generatorLimit = pLimit(1)

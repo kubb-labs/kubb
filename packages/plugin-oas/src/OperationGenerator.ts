@@ -221,6 +221,12 @@ export class OperationGenerator<
     const generatorLimit = pLimit(1)
     const operationLimit = pLimit(10)
 
+    this.context.pluginManager.logger.emit('debug', {
+      date: new Date(),
+      pluginName: this.context.plugin.name,
+      logs: [`Building ${operations.length} operations`, `  • Generators: ${generators.length}`],
+    })
+
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
         const operationTasks = operations.map(({ operation, method }) =>

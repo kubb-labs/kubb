@@ -99,9 +99,9 @@ export async function generate({ input, config, progressCache, args }: GenerateP
   if (logger.logLevel >= LogMapper.debug) {
     logger.consola?.start('Writing logs')
 
-    const logFiles = await logger.writeLogs()
+    await logger.writeLogs()
 
-    logger.consola?.success(`Written logs: \n${logFiles.join('\n')}`)
+    logger.consola?.success('Written logs')
   }
 
   const summary = getSummary({
@@ -292,7 +292,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     await executeHooks({ hooks: config.hooks, logger })
   }
 
-  logger.consola?.log(`⚡Build completed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+  logger.consola?.log(`⚡ Build completed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
   logger.consola?.box({
     title: `${config.name || ''}`,

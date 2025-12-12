@@ -590,16 +590,12 @@ export class PluginManager {
     })
 
     const startTime = performance.now()
-    // Only log important lifecycle hooks to reduce noise
-    const importantHooks = ['buildStart', 'buildEnd', 'writeFile']
-    if (importantHooks.includes(hookName)) {
-      this.logger.emit('debug', {
-        date: new Date(),
-        category: 'hook',
-        pluginName: plugin.name,
-        logs: [`Executing hook: ${hookName}`, `  • Strategy: ${strategy}`],
-      })
-    }
+    this.logger.emit('debug', {
+      date: new Date(),
+      category: 'hook',
+      pluginName: plugin.name,
+      logs: [`Executing hook: ${hookName}`, `  • Strategy: ${strategy}`, '  • Parameters:', JSON.stringify(parameters, null, 2)],
+    })
 
     const task = (async () => {
       try {
@@ -610,14 +606,12 @@ export class PluginManager {
           output = result
 
           const duration = Math.round(performance.now() - startTime)
-          if (importantHooks.includes(hookName)) {
-            this.logger.emit('debug', {
-              date: new Date(),
-              category: 'hook',
-              pluginName: plugin.name,
-              logs: [`✓ Completed in ${duration}ms`],
-            })
-          }
+          this.logger.emit('debug', {
+            date: new Date(),
+            category: 'hook',
+            pluginName: plugin.name,
+            logs: [`✓ Completed in ${duration}ms`],
+          })
 
           this.#addExecutedToCallStack({
             parameters,
@@ -633,8 +627,6 @@ export class PluginManager {
 
         output = hook
 
-        // Don't log static values completion - too noisy
-
         this.#addExecutedToCallStack({
           parameters,
           output,
@@ -648,6 +640,7 @@ export class PluginManager {
       } catch (e) {
         const duration = Math.round(performance.now() - startTime)
         const error = e as Error
+
         this.logger.emit('debug', {
           date: new Date(),
           category: 'error',
@@ -655,15 +648,15 @@ export class PluginManager {
           logs: [
             `✗ Hook '${hookName}' failed after ${duration}ms`,
             `  • Strategy: ${strategy}`,
-            `Error: ${error.constructor.name}`,
-            `  ${error.message}`,
-            'Stack Trace:',
+            `  • Error: ${error.constructor.name} - ${error.message}`,
+            '  • Stack Trace:',
             error.stack || 'No stack trace available',
-            'Parameters:',
+            '  • Parameters:',
             JSON.stringify(parameters, null, 2),
           ],
         })
         this.#catcher<H>(e as Error, plugin, hookName)
+
         return null
       }
     })()
@@ -706,12 +699,28 @@ export class PluginManager {
       message,
     })
 
+    const startTime = performance.now()
+    this.logger.emit('debug', {
+      date: new Date(),
+      category: 'hook',
+      pluginName: plugin.name,
+      logs: [`Executing hook: ${hookName}`, `  • Strategy: ${strategy}`, '  • Parameters:', JSON.stringify(parameters, null, 2)],
+    })
+
     try {
       if (typeof hook === 'function') {
         const context = this.getContext(plugin)
         const fn = (hook as Function).apply(context, parameters) as ReturnType<ParseResult<H>>
 
         output = fn
+
+        const duration = Math.round(performance.now() - startTime)
+        this.logger.emit('debug', {
+          date: new Date(),
+          category: 'hook',
+          pluginName: plugin.name,
+          logs: [`✓ Completed in ${duration}ms`],
+        })
 
         this.#addExecutedToCallStack({
           parameters,
@@ -738,7 +747,25 @@ export class PluginManager {
 
       return hook
     } catch (e) {
-      this.#catcher<H>(e as Error, plugin, hookName)
+      const duration = Math.round(performance.now() - startTime)
+      const error = e as Error
+
+      this.logger.emit('debug', {
+        date: new Date(),
+        category: 'error',
+        pluginName: plugin.name,
+        logs: [
+          `✗ Hook '${hookName}' failed after ${duration}ms`,
+          `  • Strategy: ${strategy}`,
+          `  • Error: ${error.constructor.name} - ${error.message}`,
+          '  • Stack Trace:',
+          error.stack || 'No stack trace available',
+          '  • Parameters:',
+          JSON.stringify(parameters, null, 2),
+        ],
+      })
+
+      this.#catcher<H>(error, plugin, hookName)
 
       return null
     }

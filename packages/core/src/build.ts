@@ -13,7 +13,7 @@ import type { Logger } from './logger.ts'
 import { createLogger } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
 import type { Config, Output, Plugin, UserConfig } from './types.ts'
-import { formatDiagnosticInfo } from './utils/diagnostics.ts'
+import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import { URLPath } from './utils/URLPath.ts'
 
 type BuildOptions = {
@@ -46,6 +46,8 @@ type SetupResult = {
 export async function setup(options: BuildOptions): Promise<SetupResult> {
   const { config: userConfig, logger = createLogger() } = options
 
+  const diagnosticInfo = getDiagnosticInfo()
+
   if (Array.isArray(userConfig.input)) {
     console.warn(pc.yellow('This feature is still under development — use with caution'))
   }
@@ -54,8 +56,6 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     date: new Date(),
     category: 'setup',
     logs: [
-      'Setup',
-      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
       'Configuration:',
       `  • Name: ${userConfig.name || 'unnamed'}`,
       `  • Root: ${userConfig.root || process.cwd()}`,
@@ -63,17 +63,19 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       `  • Plugins: ${userConfig.plugins?.length || 0}`,
       'Output Settings:',
       `  • Write: ${userConfig.output?.write !== false ? 'enabled' : 'disabled'}`,
-      `  • Format: ${userConfig.output?.format || 'none'}`,
-      `  • Lint: ${userConfig.output?.lint || 'none'}`,
+      `  • Formater: ${userConfig.output?.format || 'none'}`,
+      `  • Linter: ${userConfig.output?.lint || 'none'}`,
       'Environment:',
-      formatDiagnosticInfo(),
-      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+      Object.entries(diagnosticInfo)
+        .map(([key, value]) => `  • ${key}: ${value}`)
+        .join('\n'),
     ],
   })
 
   try {
     if (isInputPath(userConfig) && !new URLPath(userConfig.input.path).isURL) {
       await exists(userConfig.input.path)
+
       logger.emit('debug', {
         date: new Date(),
         category: 'setup',
@@ -83,15 +85,10 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   } catch (e) {
     if (isInputPath(userConfig)) {
       const error = e as Error
-      logger.emit('debug', {
-        date: new Date(),
-        category: 'setup',
-        logs: ['Failed to validate input file', `Path: ${userConfig.input.path}`, `Error: ${error.message}`],
-      })
       throw new Error(
         `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${userConfig.input.path}`,
         {
-          cause: e,
+          cause: error,
         },
       )
     }
@@ -228,10 +225,9 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           pluginName: plugin.name,
           logs: [
             '✗ Plugin installation failed',
-            `  Plugin Key: ${JSON.stringify(plugin.key)}`,
-            `Error: ${error.constructor.name}`,
-            `  ${error.message}`,
-            'Stack Trace:',
+            `  • Plugin Key: ${JSON.stringify(plugin.key)}`,
+            `  • Error: ${error.constructor.name} - ${error.message}`,
+            '  • Stack Trace:',
             error.stack || 'No stack trace available',
           ],
         })
@@ -254,7 +250,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
       pluginManager.logger.emit('debug', {
         date: new Date(),
-        logs: ['Generating barrel file', `Type: ${config.output.barrelType}`, `Path: ${rootPath}`],
+        logs: ['Generating barrel file', `  • Type: ${config.output.barrelType}`, `  • Path: ${rootPath}`],
       })
 
       const barrelFiles = fabric.files.filter((file) => {
@@ -324,8 +320,6 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
     fabric.context.on('process:progress', async ({ file, source }) => {
       const message = file ? `Writing ${relative(config.root, file.path)}` : ''
       pluginManager.logger.emit('progressed', { id: 'files', message })
-
-      // Removed verbose file write logs - progress bar already shows this
 
       if (source) {
         await write(file.path, source, { sanity: false })

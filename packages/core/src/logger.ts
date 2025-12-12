@@ -56,7 +56,6 @@ export const LogMapper = {
   debug: 5,
 } as const
 
-// Debug log configuration
 const DEBUG_LOG_TITLE_MAX_LENGTH = 50 // Characters - max length for group titles
 
 export type Logger = {
@@ -68,7 +67,7 @@ export type Logger = {
   consola?: ConsolaInstance
   on: EventEmitter<Events>['on']
   emit: EventEmitter<Events>['emit']
-  writeLogs: () => Promise<string[]>
+  writeLogs: () => Promise<void>
 }
 
 type Props = {
@@ -122,7 +121,7 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
   })
 
   events.on('debug', (message) => {
-    const fullLog = message.logs.join('\n\n')
+    const fullLog = message.logs.join('\n')
 
     if (logLevel >= LogMapper.debug) {
       // Handle plugin group markers in GitHub Actions
@@ -131,11 +130,13 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
           // Start a new plugin group
           const title = message.pluginName || 'Plugin'
           console.log(startGroup(title))
+
           return undefined // Don't log the marker itself
         }
         if (message.pluginGroupMarker === 'end') {
           // End the plugin group
           console.log(endGroup())
+
           return undefined // Don't log the marker itself
         }
 
@@ -194,15 +195,16 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
           files[fileName] = []
         }
 
-        files[fileName] = [...files[fileName], `[${log.date.toLocaleString()}]: \n${log.logs.join('\n\n')}`]
+        if (log.logs.length) {
+          files[fileName] = [...files[fileName], `[${log.date.toLocaleString()}]: \n${log.logs.join('\n')}`]
+        }
       })
+
       await Promise.all(
         Object.entries(files).map(async ([fileName, logs]) => {
           return write(fileName, logs.join('\n'))
         }),
       )
-
-      return Object.keys(files)
     },
   }
 
