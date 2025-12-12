@@ -298,7 +298,7 @@ describe('zodGenerator schema', async () => {
       fabric,
       oas,
       pluginManager: mockedPluginManager,
-      logger: mockedPluginManager.logger,
+
       plugin,
       contentType: 'application/json',
       include: undefined,
@@ -417,7 +417,7 @@ describe('zodGenerator operation', async () => {
       oas,
       include: undefined,
       pluginManager: mockedPluginManager,
-      logger: mockedPluginManager.logger,
+
       plugin,
       contentType: undefined,
       override: undefined,
@@ -489,7 +489,7 @@ describe('zodGenerator operation', async () => {
         oas,
         include: undefined,
         pluginManager: mockedPluginManager,
-        logger: mockedPluginManager.logger,
+
         plugin,
         contentType: undefined,
         override: undefined,
@@ -583,7 +583,7 @@ describe('zodGenerator operation', async () => {
         oas,
         include: undefined,
         pluginManager: mockedPluginManager,
-        logger: mockedPluginManager.logger,
+
         plugin,
         contentType: undefined,
         override: undefined,

@@ -107,7 +107,7 @@ describe('SchemaGenerator core', async () => {
       oas,
       include: undefined,
       pluginManager: mockedPluginManager,
-      logger: mockedPluginManager.logger,
+
       plugin,
       contentType: undefined,
       override: undefined,

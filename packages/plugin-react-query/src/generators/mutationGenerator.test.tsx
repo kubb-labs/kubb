@@ -111,13 +111,12 @@ describe('mutationGenerator operation', async () => {
     const plugin = { options } as Plugin<PluginReactQuery>
     const fabric = createReactFabric()
     const mockedPluginManager = createMockedPluginManager(props.name)
-const generator = new OperationGenerator(options, {
+    const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
       pluginManager: mockedPluginManager,
 
-      logger: mockedPluginManager.logger,
       plugin,
       contentType: undefined,
       override: undefined,
@@ -173,7 +172,6 @@ const generator = new OperationGenerator(options, {
       include: undefined,
       pluginManager: mockedPluginManager,
 
-      logger: mockedPluginManager.logger,
       plugin,
       contentType: undefined,
       override: undefined,

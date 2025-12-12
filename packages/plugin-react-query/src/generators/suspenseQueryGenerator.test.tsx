@@ -63,13 +63,12 @@ describe('suspenseQueryGenerator operation', async () => {
     const fabric = createReactFabric()
 
     const mockedPluginManager = createMockedPluginManager(props.name)
-const generator = new OperationGenerator(options, {
+    const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
       pluginManager: mockedPluginManager,
 
-      logger: mockedPluginManager.logger,
       plugin,
       contentType: undefined,
       override: undefined,

@@ -125,6 +125,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const schemaGenerator = new SchemaGenerator(options, {
       fabric: generator.context.fabric,
       oas,
+      logger: generator.context.logger,
       plugin,
       pluginManager,
       mode,

@@ -28,8 +28,8 @@ export async function format(source?: string): Promise<string> {
   }
 }
 
-export const createMockedPluginManager = (name?: string) => {
-  const manager = {
+export const createMockedPluginManager = (name?: string) =>
+  ({
     resolveName: (result) => {
       if (result.type === 'file') {
         return camelCase(name || result.name)
@@ -52,13 +52,6 @@ export const createMockedPluginManager = (name?: string) => {
       },
     },
     resolvePath: ({ baseName }) => baseName,
-    logger: {
-      emit(message) {
-        console.log(message)
-      },
-      on(_eventName, _args) {},
-      logLevel: 3,
-    },
     getPluginByKey: (_pluginKey: Plugin['key']) => {
       return undefined
     },
@@ -71,10 +64,7 @@ export const createMockedPluginManager = (name?: string) => {
         meta: { pluginKey },
       }
     },
-  } as PluginManager
-  
-  return manager
-}
+  }) as PluginManager
 
 export const mockedPluginManager = createMockedPluginManager('')
 

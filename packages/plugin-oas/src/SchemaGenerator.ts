@@ -1,6 +1,6 @@
 import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type { Logger } from '@kubb/core/logger'
 import { BaseGenerator, type FileMetaBase } from '@kubb/core'
+import type { Logger } from '@kubb/core/logger'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
@@ -25,7 +25,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   fabric: Fabric
   oas: Oas
   pluginManager: PluginManager
-  logger: Logger
+  logger?: Logger
   /**
    * Current plugin
    */
@@ -781,7 +781,7 @@ export class SchemaGenerator<
 
     if (schemaObject.enum) {
       if (options.enumSuffix === '') {
-        this.context.logger.emit('info', 'EnumSuffix set to an empty string does not work')
+        this.context.logger?.emit('info', 'EnumSuffix set to an empty string does not work')
       }
 
       // Removed verbose enum parsing debug log - too noisy for hundreds of enums
@@ -1124,7 +1124,7 @@ export class SchemaGenerator<
       ) as OpenAPIV3.NonArraySchemaObjectType
 
       if (!['boolean', 'object', 'number', 'string', 'integer', 'null'].includes(type)) {
-        this.context.logger.emit('warning', `Schema type '${schemaObject.type}' is not valid for schema ${parentName}.${name}`)
+        this.context.logger?.emit('warning', `Schema type '${schemaObject.type}' is not valid for schema ${parentName}.${name}`)
         // Removed duplicate debug log - warning already provides the information needed
       }
 
@@ -1154,7 +1154,7 @@ export class SchemaGenerator<
     const schemas = getSchemas({ oas, contentType, includes: include })
     const schemaEntries = Object.entries(schemas)
 
-    this.context.logger.emit('debug', {
+    this.context.logger?.emit('debug', {
       date: new Date(),
       pluginName: this.context.plugin.name,
       logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],

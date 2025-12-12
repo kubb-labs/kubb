@@ -477,7 +477,7 @@ describe('typeGenerator schema', async () => {
       fabric,
       oas,
       pluginManager: mockedPluginManager,
-      logger: mockedPluginManager.logger,
+
       plugin,
       contentType: 'application/json',
       include: undefined,
@@ -613,7 +613,7 @@ describe('typeGenerator operation', async () => {
       oas,
       include: undefined,
       pluginManager: mockedPluginManager,
-      logger: mockedPluginManager.logger,
+
       plugin,
       contentType: undefined,
       override: undefined,
