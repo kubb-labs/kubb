@@ -1,8 +1,8 @@
-import type { AddPetRequest } from '../models/ts/AddPetRequest.ts'
+import { z } from 'zod'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { AddPetRequest } from '../models/ts/AddPetRequest.ts'
 import { categorySchema } from './categorySchema.ts'
 import { tagTagSchema } from './tag/tagSchema.ts'
-import { z } from 'zod'
 
 export const addPetRequestSchema = z.object({
   id: z.optional(z.number().int()),

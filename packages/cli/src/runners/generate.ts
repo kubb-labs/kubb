@@ -31,30 +31,82 @@ export async function generate({ input, config, logger }: GenerateProps): Promis
       .join(' '),
   )
 
+  // Track progress bars for plugins and file writing
+  const progressBars = new Map<string, ReturnType<typeof clack.progress>>()
+  const progressIntervals = new Map<string, NodeJS.Timeout>()
+
   if (logger.logLevel !== LogMapper.debug) {
-    logger.on('plugin:start', () => {
-      // start of plugin
+    logger.on('plugin:start', ({ pluginName }) => {
+      // Create a progress bar for this plugin with indeterminate progress
+      const pluginProgress = clack.progress({
+        style: 'block',
+        max: 100,
+        size: 30,
+      })
+      progressBars.set(pluginName, pluginProgress)
+      pluginProgress.start(`Generating ${pluginName}`)
+
+      // Simulate gradual progress while plugin is executing
+      let currentProgress = 0
+      const interval = setInterval(() => {
+        if (currentProgress < 90) {
+          currentProgress += Math.random() * 10
+          if (currentProgress <= 90) {
+            pluginProgress.advance()
+          }
+        }
+      }, 100)
+      progressIntervals.set(pluginName, interval)
     })
 
-    logger.on('plugin:end', () => {
-      // end of plugin
+    logger.on('plugin:end', ({ pluginName, duration }) => {
+      // Clear interval and complete progress
+      const interval = progressIntervals.get(pluginName)
+      if (interval) {
+        clearInterval(interval)
+        progressIntervals.delete(pluginName)
+      }
+
+      const pluginProgress = progressBars.get(pluginName)
+      if (pluginProgress) {
+        // Advance to completion
+        for (let i = 0; i < 10; i++) {
+          pluginProgress.advance()
+        }
+        pluginProgress.stop(`${pluginName} completed in ${duration}ms`)
+        progressBars.delete(pluginName)
+      }
     })
 
-    logger.on('progress:start', ({ id, size: _size }) => {
+    logger.on('progress:start', ({ id, size }) => {
       if (id === 'files') {
-        //start file generation
+        const filesProgress = clack.progress({
+          style: 'heavy',
+          max: size,
+          size: 30,
+          indicator: undefined,
+        })
+        progressBars.set('files', filesProgress)
+        filesProgress.start(`Writing ${size} files`)
       }
     })
 
     logger.on('progressed', ({ id }) => {
       if (id === 'files') {
-        // file generation progressed
+        const filesProgress = progressBars.get('files')
+        if (filesProgress) {
+          filesProgress.advance()
+        }
       }
     })
 
     logger.on('progress:stop', ({ id }) => {
       if (id === 'files') {
-        //progres stop
+        const filesProgress = progressBars.get('files')
+        if (filesProgress) {
+          filesProgress.stop('Files written successfully')
+          progressBars.delete('files')
+        }
       }
     })
   }

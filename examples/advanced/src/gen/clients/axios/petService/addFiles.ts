@@ -1,7 +1,7 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { AddFilesMutationRequest, AddFilesMutationResponse, AddFiles405 } from '../../../models/ts/petController/AddFiles.ts'
+import fetch from '../../../../axios-client.ts'
 import { buildFormData } from '../../../.kubb/config.ts'
+import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../../models/ts/petController/AddFiles.ts'
 
 export function getAddFilesUrl() {
   const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/pet/files' as const }
