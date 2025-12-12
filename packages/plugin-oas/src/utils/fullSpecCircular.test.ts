@@ -155,6 +155,7 @@ describe('Full Spec Circular Discriminator References', () => {
       oas,
       include: undefined,
       pluginManager: mockedPluginManager,
+
       plugin,
       contentType: undefined,
       override: undefined,

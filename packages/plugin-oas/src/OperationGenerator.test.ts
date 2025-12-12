@@ -21,6 +21,8 @@ describe('OperationGenerator core', async () => {
         oas,
         contentType: undefined,
         pluginManager: undefined as unknown as PluginManager,
+
+        logger: undefined as any,
         plugin: {} as Plugin,
         exclude: [],
         include: undefined,
@@ -56,6 +58,8 @@ describe('OperationGenerator exclude', async () => {
         ],
         include: undefined,
         pluginManager: undefined as unknown as PluginManager,
+
+        logger: undefined as any,
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
@@ -84,6 +88,8 @@ describe('OperationGenerator exclude', async () => {
         ],
         include: undefined,
         pluginManager: undefined as unknown as PluginManager,
+
+        logger: undefined as any,
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
@@ -112,6 +118,8 @@ describe('OperationGenerator exclude', async () => {
         ],
         include: undefined,
         pluginManager: undefined as unknown as PluginManager,
+
+        logger: undefined as any,
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
@@ -140,6 +148,8 @@ describe('OperationGenerator exclude', async () => {
         ],
         include: undefined,
         pluginManager: undefined as unknown as PluginManager,
+
+        logger: undefined as any,
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
@@ -172,6 +182,8 @@ describe('OperationGenerator exclude', async () => {
         ],
         include: undefined,
         pluginManager: undefined as unknown as PluginManager,
+
+        logger: undefined as any,
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
@@ -208,6 +220,8 @@ describe('OperationGenerator include', async () => {
         ],
         exclude: undefined,
         pluginManager: undefined as unknown as PluginManager,
+
+        logger: undefined as any,
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
@@ -236,6 +250,8 @@ describe('OperationGenerator include', async () => {
         ],
         exclude: undefined,
         pluginManager: undefined as unknown as PluginManager,
+
+        logger: undefined as any,
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
@@ -264,6 +280,8 @@ describe('OperationGenerator include', async () => {
         ],
         exclude: undefined,
         pluginManager: undefined as unknown as PluginManager,
+
+        logger: undefined as any,
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
@@ -292,6 +310,8 @@ describe('OperationGenerator include', async () => {
         ],
         exclude: undefined,
         pluginManager: undefined as unknown as PluginManager,
+
+        logger: undefined as any,
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
@@ -324,6 +344,8 @@ describe('OperationGenerator include', async () => {
         ],
         exclude: undefined,
         pluginManager: undefined as unknown as PluginManager,
+
+        logger: undefined as any,
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,
@@ -365,6 +387,8 @@ describe('OperationGenerator include and exclude', async () => {
           },
         ],
         pluginManager: undefined as unknown as PluginManager,
+
+        logger: undefined as any,
         plugin: {} as Plugin,
         contentType: undefined,
         override: undefined,

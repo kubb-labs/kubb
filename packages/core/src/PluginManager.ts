@@ -107,10 +107,6 @@ export class PluginManager {
   readonly events: EventEmitter<Events> = new EventEmitter()
 
   readonly config: Config
-  /**
-   * @deprecated
-   */
-  readonly logger: Logger
   readonly options: Options
 
   readonly #plugins = new Set<Plugin<GetPluginFactoryOptions<any>>>()
@@ -120,7 +116,6 @@ export class PluginManager {
   constructor(config: Config, options: Options) {
     this.config = config
     this.options = options
-    this.logger = options.logger
     this.#promiseManager = new PromiseManager({
       nullCheck: (state: SafeParseResult<'resolveName'> | null) => !!state?.result,
     })
