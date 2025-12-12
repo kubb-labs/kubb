@@ -1,67 +1,60 @@
 import path from 'node:path'
 import process from 'node:process'
+import * as clack from '@clack/prompts'
 import { type Config, safeBuild, setup } from '@kubb/core'
-import { createLogger, LogMapper } from '@kubb/core/logger'
-import boxen from 'boxen'
+import { type Logger, LogMapper } from '@kubb/core/logger'
+
 import { execa } from 'execa'
 import pc from 'picocolors'
-import type { Args } from '../commands/generate.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
 import { getSummary } from '../utils/getSummary.ts'
-import { ProgressManager } from '../utils/progressManager.ts'
+import { ClackWritable } from '../utils/Writables.ts'
 
 type GenerateProps = {
   input?: string
   config: Config
-  args: Args
+  logger: Logger
 }
 
-export async function generate({ input, config, args }: GenerateProps): Promise<void> {
-  const hrStart = process.hrtime()
-  const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
-
-  const logger = createLogger({
-    logLevel,
-    name: config.name,
-  })
-
-  // for name
-  logger.emit('start', 'Starting ...')
-
+export async function generate({ input, config, logger }: GenerateProps): Promise<void> {
   const { root = process.cwd(), ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
+  const hrStart = process.hrtime()
 
-  // Initialize progress manager
-  const progressManager = new ProgressManager(logLevel)
+  logger.emit(
+    'start',
+    [
+      config.name ? `Generation started ${pc.dim(config.name)}` : 'Generation started',
+      logger.logLevel > LogMapper.silent ? `for ${pc.dim(inputPath)}` : undefined,
+    ]
+      .filter(Boolean)
+      .join(' '),
+  )
 
-  // Track schema loading
-  progressManager.startSchemaLoading()
-
-  // Set up plugin tracking
   if (logger.logLevel !== LogMapper.debug) {
-    logger.on('plugin_start', ({ pluginName }) => {
-      progressManager.startPlugin(pluginName)
+    logger.on('plugin:start', () => {
+      // start of plugin
     })
 
-    logger.on('plugin_end', ({ pluginName, duration }) => {
-      progressManager.completePlugin(pluginName, duration)
+    logger.on('plugin:end', () => {
+      // end of plugin
     })
 
-    logger.on('progress_start', ({ id, size }) => {
+    logger.on('progress:start', ({ id, size: _size }) => {
       if (id === 'files') {
-        progressManager.startFileGeneration(size)
+        //start file generation
       }
     })
 
     logger.on('progressed', ({ id }) => {
       if (id === 'files') {
-        progressManager.updateFileGeneration()
+        // file generation progressed
       }
     })
 
-    logger.on('progress_stop', ({ id }) => {
+    logger.on('progress:stop', ({ id }) => {
       if (id === 'files') {
-        progressManager.completeFileGeneration()
+        //progres stop
       }
     })
   }
@@ -91,14 +84,6 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     logger,
   })
 
-  // Initialize plugin names for progress tracking
-  const pluginNames = pluginManager.plugins.map((p) => p.name)
-  progressManager.initPlugins(pluginNames)
-
-  progressManager.completeSchemaLoading()
-
-  logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
-
   const { files, failedPlugins, pluginTimings, error } = await safeBuild(
     {
       config: definedConfig,
@@ -106,9 +91,6 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     },
     { pluginManager, fabric, logger },
   )
-
-  // Finish progress tracking
-  progressManager.finish()
 
   if (logger.logLevel >= LogMapper.debug) {
     console.log('⏳ Writing logs')
@@ -150,155 +132,184 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
       console.error(err)
     })
 
-    const box = boxen(summary.join(''), {
-      title: config.name || '',
-      padding: 1,
-      borderColor: 'red',
-      borderStyle: 'round',
+    clack.box(summary.join(''), config.name || '', {
+      width: 'auto',
+      formatBorder: pc.red,
+      rounded: true,
+      withGuide: false,
+      contentAlign: 'left',
+      titleAlign: 'center',
     })
-    console.log(box)
 
     process.exit(1)
   }
 
+  logger.emit('stop', `Build completed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+
   // formatting
-  if (config.output.format === 'prettier') {
-    logger?.emit('start', `Formatting with ${config.output.format}`)
-    logger?.emit('debug', {
-      date: new Date(),
-      logs: [`Running prettier on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
-    })
+  if (config.output.format) {
+    logger.emit('start', 'Formatting started')
 
-    try {
-      await execa('prettier', ['--ignore-unknown', '--write', path.resolve(definedConfig.root, definedConfig.output.path)])
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: ['Prettier formatting completed successfully'],
-      })
-    } catch (e) {
-      console.warn('⚠️  Prettier not found')
-      console.error(e)
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: [`Prettier formatting failed: ${(e as Error).message}`],
-      })
+    const formatLogger = clack.taskLog({
+      title: [
+        `Formatting with ${pc.dim(config.output.format)}`,
+        logger.logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    })
+    const formatWritable = new ClackWritable(formatLogger)
+
+    if (config.output.format === 'prettier') {
+      try {
+        const result = await execa('prettier', ['--ignore-unknown', '--write', path.resolve(definedConfig.root, definedConfig.output.path)], {
+          detached: true,
+          stdout: logger?.logLevel === LogMapper.silent ? undefined : ['pipe', formatWritable],
+          stripFinalNewline: true,
+        })
+
+        formatLogger.success(
+          [
+            `Formatting with ${pc.dim(config.output.format)}`,
+            logger.logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+            'successfully',
+          ]
+            .filter(Boolean)
+            .join(' '),
+        )
+        formatLogger.message(result.stdout)
+      } catch (e) {
+        logger.emit('error', 'Biome not found', e as Error)
+      }
+
+      logger?.emit('success', `Formatted with ${config.output.format}`)
     }
 
-    logger?.emit('success', `Formatted with ${config.output.format}`)
-  }
+    if (config.output.format === 'biome') {
+      try {
+        const result = await execa('biome', ['format', '--write', path.resolve(definedConfig.root, definedConfig.output.path)], {
+          detached: true,
+          stdout: logger?.logLevel === LogMapper.silent ? undefined : ['pipe', formatWritable],
+          stripFinalNewline: true,
+        })
 
-  if (config.output.format === 'biome') {
-    logger?.emit('start', `Formatting with ${config.output.format}`)
-    logger?.emit('debug', {
-      date: new Date(),
-      logs: [`Running biome format on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
-    })
-
-    try {
-      await execa('biome', ['format', '--write', path.resolve(definedConfig.root, definedConfig.output.path)])
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: ['Biome formatting completed successfully'],
-      })
-    } catch (e) {
-      console.warn('⚠️  Biome not found')
-      console.error(e)
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: [`Biome formatting failed: ${(e as Error).message}`],
-      })
+        formatLogger.success(
+          [
+            `Formatting with ${pc.dim(config.output.format)}`,
+            logger.logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+            'successfully',
+          ]
+            .filter(Boolean)
+            .join(' '),
+        )
+        formatLogger.message(result.stdout)
+      } catch (e) {
+        logger.emit('error', 'Biome not found', e as Error)
+      }
     }
 
-    logger?.emit('success', `Formatted with ${config.output.format}`)
+    logger.emit('stop', 'Formatting completed')
   }
 
   // linting
-  if (config.output.lint === 'eslint') {
-    logger?.emit('start', `Linting with ${config.output.lint}`)
-    logger?.emit('debug', {
-      date: new Date(),
-      logs: [`Running eslint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
-    })
+  if (config.output.lint) {
+    logger.emit('start', 'Linting started')
 
-    try {
-      await execa('eslint', [path.resolve(definedConfig.root, definedConfig.output.path), '--fix'])
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: ['ESLint linting completed successfully'],
-      })
-    } catch (e) {
-      console.warn('⚠️  Eslint not found')
-      console.error(e)
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: [`ESLint linting failed: ${(e as Error).message}`],
-      })
+    const lintLogger = clack.taskLog({
+      title: [
+        `Linting with ${pc.dim(config.output.lint)}`,
+        logger.logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    })
+    const lintWritable = new ClackWritable(lintLogger)
+
+    if (config.output.lint === 'eslint') {
+      try {
+        const result = await execa('eslint', [path.resolve(definedConfig.root, definedConfig.output.path), '--fix'], {
+          detached: true,
+          stdout: logger?.logLevel === LogMapper.silent ? undefined : ['pipe', lintWritable],
+          stripFinalNewline: true,
+        })
+
+        lintLogger.success(
+          [
+            `Linted with ${pc.dim(config.output.lint)}`,
+            logger.logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+            'successfully',
+          ]
+            .filter(Boolean)
+            .join(' '),
+        )
+        lintLogger.message(result.stdout)
+      } catch (e) {
+        logger.emit('error', 'Eslint not found', e as Error)
+      }
     }
 
-    logger?.emit('success', `Linted with ${config.output.lint}`)
-  }
+    if (config.output.lint === 'biome') {
+      try {
+        const result = await execa('biome', ['lint', '--fix', path.resolve(definedConfig.root, definedConfig.output.path)], {
+          detached: true,
+          stdout: logger?.logLevel === LogMapper.silent ? undefined : ['pipe', lintWritable],
+          stripFinalNewline: true,
+        })
 
-  if (config.output.lint === 'biome') {
-    logger?.emit('start', `Linting with ${config.output.lint}`)
-    logger?.emit('debug', {
-      date: new Date(),
-      logs: [`Running biome lint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
-    })
-
-    try {
-      await execa('biome', ['lint', '--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: ['Biome linting completed successfully'],
-      })
-    } catch (e) {
-      console.warn('⚠️  Biome not found')
-      console.error(e)
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: [`✗ Biome linting failed: ${(e as Error).message}`],
-      })
+        lintLogger.success(
+          [
+            `Linted with ${pc.dim(config.output.lint)}`,
+            logger.logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+            'successfully',
+          ]
+            .filter(Boolean)
+            .join(' '),
+        )
+        lintLogger.message(result.stdout)
+      } catch (e) {
+        logger.emit('error', 'Biome not found', e as Error)
+      }
     }
 
-    logger?.emit('success', `Linted with ${config.output.lint}`)
-  }
+    if (config.output.lint === 'oxlint') {
+      try {
+        const result = await execa('oxlint', ['--fix', path.resolve(definedConfig.root, definedConfig.output.path)], {
+          detached: true,
+          stdout: logger?.logLevel === LogMapper.silent ? undefined : ['pipe', lintWritable],
+          stripFinalNewline: true,
+        })
 
-  if (config.output.lint === 'oxlint') {
-    logger?.emit('start', `Linting with ${config.output.lint}`)
-    logger?.emit('debug', {
-      date: new Date(),
-      logs: [`Running oxlint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
-    })
-
-    try {
-      await execa('oxlint', ['--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: ['Oxlint linting completed successfully'],
-      })
-    } catch (e) {
-      console.warn('⚠️  Oxlint not found')
-      console.error(e)
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: [`✗ Oxlint linting failed: ${(e as Error).message}`],
-      })
+        lintLogger.success(
+          [
+            `Linted with ${pc.dim(config.output.lint)}`,
+            logger.logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+            'successfully',
+          ]
+            .filter(Boolean)
+            .join(' '),
+        )
+        lintLogger.message(result.stdout)
+      } catch (e) {
+        logger.emit('error', 'Oxlint not found', e as Error)
+      }
     }
 
-    logger?.emit('success', `Linted with ${config.output.lint}`)
+    logger?.emit('stop', 'Linting completed')
   }
 
   if (config.hooks) {
+    logger.emit('start', 'Hooks started')
     await executeHooks({ hooks: config.hooks, logger })
+
+    logger?.emit('stop', 'Hooks completed')
   }
 
-  console.log(`⚡ Build completed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
-
-  const box = boxen(summary.join(''), {
-    title: config.name || '',
-    padding: 1,
-    borderColor: 'green',
-    borderStyle: 'round',
+  clack.box(summary.join(''), config.name || '', {
+    width: 'auto',
+    formatBorder: pc.green,
+    rounded: true,
+    withGuide: false,
+    contentAlign: 'left',
+    titleAlign: 'center',
   })
-  console.log(box)
 }

@@ -1,10 +1,11 @@
+import * as clack from '@clack/prompts'
 import type { Config } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import { LogMapper } from '@kubb/core/logger'
 import { execa } from 'execa'
 import pc from 'picocolors'
 import { parseArgsStringToArgv } from 'string-argv'
-import { ConsolaWritable } from './Writables.ts'
+import { ClackWritable } from './Writables.ts'
 
 type ExecutingHooksProps = {
   hooks: NonNullable<Config['hooks']>
@@ -15,23 +16,25 @@ export async function executeHooks({ hooks, logger }: ExecutingHooksProps): Prom
   const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done].filter(Boolean)
 
   for (const command of commands) {
-    const consolaWritable = new ConsolaWritable(command)
     const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
 
     if (!cmd) {
       continue
     }
 
-    logger?.emit('start', `Executing hook ${logger.logLevel !== LogMapper.silent ? pc.dim(command) : ''}`)
+    const hooksLogger = clack.taskLog({
+      title: ['Executing hook', logger.logLevel !== LogMapper.silent ? pc.dim(command) : undefined].filter(Boolean).join(' '),
+    })
 
-    await execa(cmd, _args, {
+    const writable = new ClackWritable(hooksLogger)
+
+    const result = await execa(cmd, _args, {
       detached: true,
-      stdout: logger?.logLevel === LogMapper.silent ? undefined : ['pipe', consolaWritable],
+      stdout: logger?.logLevel === LogMapper.silent ? undefined : ['pipe', writable],
       stripFinalNewline: true,
     })
 
-    logger?.emit('success', `Executed hook ${logger.logLevel !== LogMapper.silent ? pc.dim(command) : ''}`)
+    hooksLogger.success(['Executing hook', logger.logLevel !== LogMapper.silent ? pc.dim(command) : undefined, 'successfully'].filter(Boolean).join(' '))
+    hooksLogger.message(result.stdout)
   }
-
-  logger?.emit('success', 'Executed hooks')
 }

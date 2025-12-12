@@ -81,8 +81,8 @@ type Options = {
 }
 
 type Events = {
-  progress_start: [meta: ProgressStartMeta]
-  progress_stop: [meta: ProgressStopMeta]
+  'progress:start': [meta: ProgressStartMeta]
+  'progress:stop': [meta: ProgressStopMeta]
   executing: [meta: ExecutingMeta]
   executed: [meta: ExecutedMeta]
   error: [error: Error, meta: ErrorMeta]
@@ -249,7 +249,7 @@ export class PluginManager {
   }): Promise<Array<ReturnType<ParseResult<H>> | null>> {
     const plugins = this.getPluginsByKey(hookName, pluginKey)
 
-    this.events.emit('progress_start', {
+    this.events.emit('progress:start', {
       hookName,
       plugins,
     })
@@ -269,7 +269,7 @@ export class PluginManager {
       }
     }
 
-    this.events.emit('progress_stop', { hookName })
+    this.events.emit('progress:stop', { hookName })
 
     return items
   }
@@ -318,7 +318,7 @@ export class PluginManager {
       return skipped ? skipped.has(plugin) : true
     })
 
-    this.events.emit('progress_start', { hookName, plugins })
+    this.events.emit('progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return async () => {
@@ -338,7 +338,7 @@ export class PluginManager {
 
     const result = await this.#promiseManager.run('first', promises)
 
-    this.events.emit('progress_stop', { hookName })
+    this.events.emit('progress:stop', { hookName })
 
     return result
   }
@@ -390,7 +390,7 @@ export class PluginManager {
     parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined
   }): Promise<Awaited<TOuput>[]> {
     const plugins = this.#getSortedPlugins(hookName)
-    this.events.emit('progress_start', { hookName, plugins })
+    this.events.emit('progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return () =>
@@ -416,7 +416,7 @@ export class PluginManager {
       }
     })
 
-    this.events.emit('progress_stop', { hookName })
+    this.events.emit('progress:stop', { hookName })
 
     return results.filter((result) => result.status === 'fulfilled').map((result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value)
   }
@@ -426,7 +426,7 @@ export class PluginManager {
    */
   async hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
     const plugins = this.#getSortedPlugins(hookName)
-    this.events.emit('progress_start', { hookName, plugins })
+    this.events.emit('progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return () =>
@@ -440,7 +440,7 @@ export class PluginManager {
 
     await this.#promiseManager.run('seq', promises)
 
-    this.events.emit('progress_stop', { hookName })
+    this.events.emit('progress:stop', { hookName })
   }
 
   #getSortedPlugins(hookName?: keyof PluginLifecycle): Array<Plugin> {

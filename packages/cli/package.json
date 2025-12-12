@@ -63,7 +63,6 @@
   "dependencies": {
     "@clack/prompts": "1.0.0-alpha.8",
     "@kubb/core": "workspace:*",
-    "boxen": "^8.0.1",
     "chokidar": "^4.0.3",
     "citty": "^0.1.6",
     "cosmiconfig": "^9.0.0",

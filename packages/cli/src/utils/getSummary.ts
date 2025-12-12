@@ -31,7 +31,6 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
     output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
   } as const
 
-  // Calculate label padding for perfect alignment
   const labels = {
     plugins: 'Plugins:',
     failed: 'Failed:',
@@ -51,21 +50,17 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
   summaryLines.push(firstLine)
   summaryLines.push('') // Empty line after time
 
-  // Plugins line
   summaryLines.push(`${labels.plugins.padEnd(maxLabelLength + 2)} ${meta.plugins}`)
 
-  // Failed plugins (if any)
   if (meta.pluginsFailed) {
     summaryLines.push(`${labels.failed.padEnd(maxLabelLength + 2)} ${meta.pluginsFailed}`)
   }
 
-  // Generated files
   summaryLines.push(`${labels.generated.padEnd(maxLabelLength + 2)} ${meta.filesCreated} files in ${meta.time}`)
 
-  // Add plugin timing breakdown if available
   if (pluginTimings && pluginTimings.size > 0) {
     const MAX_TOP_PLUGINS = 5
-    const TIME_SCALE_DIVISOR = 100 // Each 100ms = 1 bar character
+    const TIME_SCALE_DIVISOR = 100
     const MAX_BAR_LENGTH = 10
 
     const sortedTimings = Array.from(pluginTimings.entries())
@@ -75,7 +70,6 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
     if (sortedTimings.length > 0) {
       summaryLines.push(`${labels.pluginTimings}`)
 
-      // Find the longest plugin name for alignment
       const maxNameLength = Math.max(...sortedTimings.map(([name]) => name.length))
 
       sortedTimings.forEach(([name, time]) => {
@@ -89,10 +83,8 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
     }
   }
 
-  // Output line
   summaryLines.push(`${labels.output.padEnd(maxLabelLength + 2)} ${meta.output}`)
-
-  summaryLines.push('') // Empty line at the end
+  summaryLines.push('')
 
   logs.add(summaryLines.join('\n'))
 

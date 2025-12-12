@@ -2,7 +2,6 @@ import { resolve } from 'node:path'
 import pc from 'picocolors'
 import seedrandom from 'seedrandom'
 import { write } from './fs/write.ts'
-// import { endGroup, isGitHubActions, startGroup } from './utils/ciDetection.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 
 type DebugEvent = {
@@ -34,17 +33,19 @@ type DebugEvent = {
 
 type Events = {
   start: [message: string]
+  stop: [message: string]
   success: [message: string]
   error: [message: string, error: Error]
   warning: [message: string]
+  step: [message: string]
   debug: [DebugEvent]
   verbose: [DebugEvent]
   info: [message: string]
-  progress_start: [{ id: string; size: number; message?: string }]
+  'progress:start': [{ id: string; size: number; message?: string }]
   progressed: [{ id: string; message?: string }]
-  progress_stop: [{ id: string }]
-  plugin_start: [{ pluginName: string; pluginKey: unknown }]
-  plugin_end: [{ pluginName: string; pluginKey: unknown; duration: number }]
+  'progress:stop': [{ id: string }]
+  'plugin:start': [{ pluginName: string; pluginKey: unknown }]
+  'plugin:end': [{ pluginName: string; pluginKey: unknown; duration: number }]
 }
 
 /**
@@ -87,56 +88,9 @@ export function createLogger({ logLevel = 3, name }: Props = {}): Logger {
   const startDate = Date.now()
   const cachedLogs = new Set<DebugEvent>()
 
-  // events.on('debug', (message) => {
-  //   const fullLog = message.logs.join('\n')
-  //
-  //   if (logLevel >= LogMapper.debug) {
-  //     // Handle plugin group markers in GitHub Actions
-  //     if (isGitHubActions()) {
-  //       if (message.pluginGroupMarker === 'start') {
-  //         // Start a new plugin group
-  //         const title = message.pluginName || 'Plugin'
-  //         console.log(startGroup(title))
-  //
-  //         return undefined // Don't log the marker itself
-  //       }
-  //       if (message.pluginGroupMarker === 'end') {
-  //         // End the plugin group
-  //         console.log(endGroup())
-  //
-  //         return undefined // Don't log the marker itself
-  //       }
-  //
-  //       // For setup/file operations that aren't plugin-specific, create individual groups
-  //       if (!message.pluginName && message.category && ['setup', 'file'].includes(message.category)) {
-  //         const firstLine = message.logs[0] || 'Debug Details'
-  //         const title = firstLine.length > DEBUG_LOG_TITLE_MAX_LENGTH ? `${firstLine.substring(0, DEBUG_LOG_TITLE_MAX_LENGTH)}...` : firstLine
-  //
-  //         console.log(startGroup(title))
-  //         console.log(pc.dim(fullLog))
-  //         console.log(endGroup())
-  //       } else {
-  //         // Plugin-specific logs are shown inline within their plugin group
-  //         // Non-categorized logs are shown inline
-  //         consola.log(pc.dim(fullLog))
-  //       }
-  //     } else {
-  //       // Non-CI environments - show all logs inline (except group markers)
-  //       if (!message.pluginGroupMarker) {
-  //         consola.log(pc.dim(fullLog))
-  //       }
-  //     }
-  //   }
-  //
-  //   cachedLogs.add(message)
-  // })
-  //
-  // events.on('error', (message, cause) => {
-  //   const error = new Error(message || 'Something went wrong')
-  //   error.cause = cause
-  //
-  //   throw error
-  // })
+  events.on('debug', (message) => {
+    cachedLogs.add(message)
+  })
 
   const logger: Logger = {
     name,

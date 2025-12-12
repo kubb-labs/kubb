@@ -1,7 +1,7 @@
 import path from 'node:path'
 import * as process from 'node:process'
 import * as clack from '@clack/prompts'
-import { type Config, isInputPath, PromiseManager } from '@kubb/core'
+import { isInputPath, PromiseManager } from '@kubb/core'
 import { createLogger, LogMapper } from '@kubb/core/logger'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
@@ -58,11 +58,10 @@ const command = defineCommand({
   },
   args,
   async run(commandContext) {
-    const { generate } = await import('../runners/generate.ts')
     const { args } = commandContext
-    let config: Config[] | Config
-
     const input = args._[0]
+    const promiseManager = new PromiseManager()
+    const { generate } = await import('../runners/generate.ts')
 
     if (args.help) {
       return showUsage(command)
@@ -76,49 +75,20 @@ const command = defineCommand({
       args.logLevel = 'verbose'
     }
 
-    async function start() {
-      if (Array.isArray(config)) {
-        const promiseManager = new PromiseManager()
-        const promises = config.map((c) => () => {
-          return generate({
-            input,
-            config: c,
-            args,
-          })
-        })
-
-        await promiseManager.run('seq', promises)
-
-        return
-      }
-
-      await generate({
-        input,
-        config,
-        args,
-      })
-    }
-
-    async function startWatch() {
-      if (Array.isArray(config)) {
-        throw new Error('Cannot use watcher with multiple Configs(array)')
-      }
-
-      if (isInputPath(config)) {
-        return startWatcher([input || config.input.path], async (paths) => {
-          await start()
-
-          clack.log.info(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
-        })
-      }
-    }
-
     const logger = createLogger({
       logLevel: LogMapper[args.logLevel as keyof typeof LogMapper] || 3, // 3 is info
     })
 
     logger.on('start', (message) => {
       clack.intro(message)
+    })
+
+    logger.on('stop', (message) => {
+      clack.outro(message)
+    })
+
+    logger.on('step', (message) => {
+      clack.log.step(message)
     })
 
     logger.on('success', (message) => {
@@ -144,34 +114,48 @@ const command = defineCommand({
       }
     })
 
-    await clack.tasks([
-      {
-        title: 'Loading config',
-        task: async () => {
-          const result = await getCosmiConfig('kubb', args.config)
-          config = await getConfig(result, args)
-          await new Promise((resolve) => setTimeout(resolve, 10000))
+    logger.emit('start', 'Configuration started')
 
-          return `✓ Config loaded(${pc.dim(path.relative(process.cwd(), result.filepath))})`
-        },
-      },
-      {
-        title: 'Starting generation',
-        task: async () => {
-          await start()
+    const configLogger = clack.taskLog({
+      title: 'Loading config',
+    })
 
-          return '✓ Generation completed'
-        },
-      },
-    ])
-
-    if (args.watch) {
-      await startWatch()
-
-      return
+    const result = await getCosmiConfig('kubb', args.config)
+    if (logger.logLevel > LogMapper.silent) {
+      configLogger.message(`Config loaded from ${pc.dim(path.relative(process.cwd(), result.filepath))}}`)
     }
+    const config = await getConfig(result, args)
 
-    await start()
+    const configs = Array.isArray(config) ? config : [config]
+
+    configLogger.success('✓ Config loaded successfully')
+    logger.emit('stop', 'Configuration completed')
+
+    const promises = configs.map((config) => {
+      return async () => {
+        if (isInputPath(config) && args.watch) {
+          await startWatcher([input || config.input.path], async (paths) => {
+            await generate({
+              input,
+              config,
+              logger,
+            })
+
+            clack.log.step(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
+          })
+
+          return
+        }
+
+        await generate({
+          input,
+          config,
+          logger,
+        })
+      }
+    })
+
+    await promiseManager.run('seq', promises)
   },
 })
 

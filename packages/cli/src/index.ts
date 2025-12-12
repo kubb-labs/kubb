@@ -1,7 +1,8 @@
-import boxen from 'boxen'
+import * as clack from '@clack/prompts'
 import { defineCommand, runCommand, runMain } from 'citty'
 import { default as gradientString } from 'gradient-string'
 import getLatestVersion from 'latest-version'
+import pc from 'picocolors'
 import { lt } from 'semver'
 import { version } from '../package.json'
 
@@ -31,17 +32,19 @@ const main = defineCommand({
       const latestVersion = await getLatestVersion('@kubb/cli')
 
       if (lt(version, latestVersion)) {
-        const box = boxen(
+        clack.box(
           `\`v${version}\` → \`v${latestVersion}\`
 Run \`npm install -g @kubb/cli\` to update`,
+          'Update available for `Kubb`',
           {
-            title: 'Update available for `Kubb`',
-            padding: 1,
-            borderColor: 'yellow',
-            borderStyle: 'round',
+            width: 'auto',
+            formatBorder: pc.yellow,
+            rounded: true,
+            withGuide: false,
+            contentAlign: 'center',
+            titleAlign: 'center',
           },
         )
-        console.log(box)
       }
     } catch (_e) {}
 

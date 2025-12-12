@@ -121,7 +121,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   fabric.use(typescriptParser)
 
   fabric.context.on('process:start', ({ files }) => {
-    logger.emit('progress_start', { id: 'files', size: files.length, message: 'Writing files ...' })
+    logger.emit('progress:start', { id: 'files', size: files.length, message: 'Writing files ...' })
     logger.emit('debug', {
       date: new Date(),
       category: 'file',
@@ -139,7 +139,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   })
 
   fabric.context.on('process:end', () => {
-    logger.emit('progress_stop', { id: 'files' })
+    logger.emit('progress:stop', { id: 'files' })
     logger.emit('debug', {
       date: new Date(),
       category: 'file',
@@ -192,12 +192,12 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     })
   })
 
-  pluginManager.on('progress_start', ({ hookName, plugins }) => {
-    logger.emit('progress_start', { id: hookName, size: plugins.length, message: 'Running plugins...' })
+  pluginManager.on('progress:start', ({ hookName, plugins }) => {
+    logger.emit('progress:start', { id: hookName, size: plugins.length, message: 'Running plugins...' })
   })
 
-  pluginManager.on('progress_stop', ({ hookName }) => {
-    logger.emit('progress_stop', { id: hookName })
+  pluginManager.on('progress:stop', ({ hookName }) => {
+    logger.emit('progress:stop', { id: hookName })
   })
 
   pluginManager.on('error', (error, { plugin, strategy, duration, parameters, hookName }) => {
@@ -268,18 +268,9 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         const startTime = performance.now()
         const timestamp = new Date()
 
-        // Emit plugin_start event for progress tracking
-        logger.emit('plugin_start', {
+        logger.emit('plugin:start', {
           pluginName: plugin.name,
           pluginKey: plugin.key,
-        })
-
-        // Start plugin group
-        logger.emit('debug', {
-          date: timestamp,
-          pluginGroupMarker: 'start',
-          pluginName: plugin.name,
-          logs: [],
         })
 
         logger.emit('debug', {
@@ -294,8 +285,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         const duration = Math.round(performance.now() - startTime)
         pluginTimings.set(plugin.name, duration)
 
-        // Emit plugin_end event for progress tracking
-        logger.emit('plugin_end', {
+        logger.emit('plugin:end', {
           pluginName: plugin.name,
           pluginKey: plugin.key,
           duration,
@@ -306,14 +296,6 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           category: 'plugin',
           pluginName: plugin.name,
           logs: [`✓ Plugin installed successfully (${duration}ms)`],
-        })
-
-        // End plugin group
-        logger.emit('debug', {
-          date: new Date(),
-          pluginGroupMarker: 'end',
-          pluginName: plugin.name,
-          logs: [],
         })
       } catch (e) {
         const error = e as Error
@@ -330,14 +312,6 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
             '  • Stack Trace:',
             error.stack || 'No stack trace available',
           ],
-        })
-
-        // End plugin group even on error
-        logger.emit('debug', {
-          date: errorTimestamp,
-          pluginGroupMarker: 'end',
-          pluginName: plugin.name,
-          logs: [],
         })
 
         failedPlugins.add({ plugin, error })
