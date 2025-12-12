@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import type { Logger } from '@kubb/core/logger'
 import { write } from '@kubb/core/fs'
-import type { LoggerAdapter, LoggerAdapterOptions } from './types.ts'
+import type { CreateLoggerAdapter, LoggerAdapter, LoggerAdapterOptions } from './types.ts'
 
 type DebugEvent = {
   date: Date
@@ -13,66 +13,85 @@ type DebugEvent = {
 }
 
 /**
- * FileSystemAdapter writes debug and verbose logs to files in .kubb directory
- * This adapter captures all debug/verbose events and persists them to disk
+ * Options for FileSystemAdapter
  */
-export class FileSystemAdapter implements LoggerAdapter {
-  readonly name = 'filesystem'
-  private cachedLogs: Set<DebugEvent> = new Set()
-  private startDate: number = Date.now()
-  private cleanupFns: Array<() => void> = []
+export type FileSystemAdapterOptions = LoggerAdapterOptions & {
+  /**
+   * Optional custom output directory (defaults to .kubb)
+   */
+  outputDir?: string
+}
 
-  constructor(private options: LoggerAdapterOptions) {}
-
-  setup(logger: Logger): void {
-    // Listen to debug events and cache them
-    const debugHandler = (event: DebugEvent) => {
-      this.cachedLogs.add(event)
-    }
-
-    const verboseHandler = (event: DebugEvent) => {
-      this.cachedLogs.add(event)
-    }
-
-    logger.on('debug', debugHandler)
-    logger.on('verbose', verboseHandler)
-
-    // Store cleanup functions
-    this.cleanupFns.push(
-      () => logger.on('debug', () => {}),
-      () => logger.on('verbose', () => {}),
-    )
-  }
-
-  cleanup(): void {
-    // Call all cleanup functions
-    this.cleanupFns.forEach((fn) => fn())
-    this.cleanupFns = []
-  }
-
+/**
+ * FileSystemAdapter with additional writeLogs method
+ */
+export type FileSystemAdapterInstance = LoggerAdapter & {
   /**
    * Write all cached logs to files in .kubb directory
    * Groups logs by fileName if specified, otherwise uses default timestamp-based name
    */
-  async writeLogs(): Promise<void> {
-    const files: Record<string, string[]> = {}
+  writeLogs(): Promise<void>
+}
 
-    this.cachedLogs.forEach((log) => {
-      const fileName = resolve(process.cwd(), '.kubb', log.fileName || `kubb-${this.startDate}.log`)
+/**
+ * FileSystemAdapter writes debug and verbose logs to files in .kubb directory
+ * This adapter captures all debug/verbose events and persists them to disk
+ */
+export const createFileSystemAdapter = (options: FileSystemAdapterOptions): FileSystemAdapterInstance => {
+  const cachedLogs: Set<DebugEvent> = new Set()
+  const startDate: number = Date.now()
+  const cleanupFns: Array<() => void> = []
+  const outputDir = options.outputDir || '.kubb'
 
-      if (!files[fileName]) {
-        files[fileName] = []
+  return {
+    name: 'filesystem',
+
+    install(logger: Logger): void {
+      // Listen to debug events and cache them
+      const debugHandler = (event: DebugEvent) => {
+        cachedLogs.add(event)
       }
 
-      if (log.logs.length) {
-        files[fileName] = [...files[fileName], `[${log.date.toLocaleString()}]: \n${log.logs.join('\n')}`]
+      const verboseHandler = (event: DebugEvent) => {
+        cachedLogs.add(event)
       }
-    })
 
-    await Promise.all(
-      Object.entries(files).map(async ([fileName, logs]) => {
-        return write(fileName, logs.join('\n'))
-      }),
-    )
+      logger.on('debug', debugHandler)
+      logger.on('verbose', verboseHandler)
+
+      // Store cleanup functions
+      cleanupFns.push(
+        () => logger.on('debug', () => {}),
+        () => logger.on('verbose', () => {}),
+      )
+    },
+
+    cleanup(): void {
+      // Call all cleanup functions
+      cleanupFns.forEach((fn) => fn())
+      cleanupFns.length = 0
+    },
+
+    async writeLogs(): Promise<void> {
+      const files: Record<string, string[]> = {}
+
+      cachedLogs.forEach((log) => {
+        const fileName = resolve(process.cwd(), outputDir, log.fileName || `kubb-${startDate}.log`)
+
+        if (!files[fileName]) {
+          files[fileName] = []
+        }
+
+        if (log.logs.length) {
+          files[fileName] = [...files[fileName], `[${log.date.toLocaleString()}]: \n${log.logs.join('\n')}`]
+        }
+      })
+
+      await Promise.all(
+        Object.entries(files).map(async ([fileName, logs]) => {
+          return write(fileName, logs.join('\n'))
+        }),
+      )
+    },
   }
 }

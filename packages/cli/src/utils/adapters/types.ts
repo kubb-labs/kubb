@@ -1,14 +1,14 @@
 import type { Logger } from '@kubb/core/logger'
 
 /**
- * Base interface for logger adapters
+ * Logger adapter instance with lifecycle methods
  * Allows different UI libraries to be plugged in
  */
-export interface LoggerAdapter {
+export type LoggerAdapter = {
   /**
    * Initialize the adapter and set up event listeners
    */
-  setup(logger: Logger): void
+  install(logger: Logger): void
 
   /**
    * Clean up resources and close any open groups
@@ -22,7 +22,7 @@ export interface LoggerAdapter {
 }
 
 /**
- * Options for creating a logger adapter
+ * Base options for creating a logger adapter
  */
 export type LoggerAdapterOptions = {
   /**
@@ -30,3 +30,8 @@ export type LoggerAdapterOptions = {
    */
   logLevel: number
 }
+
+/**
+ * Factory function type for creating logger adapters
+ */
+export type CreateLoggerAdapter<TOptions extends LoggerAdapterOptions = LoggerAdapterOptions> = (options: TOptions) => LoggerAdapter

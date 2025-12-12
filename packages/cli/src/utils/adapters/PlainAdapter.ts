@@ -1,90 +1,89 @@
 import type { Logger } from '@kubb/core/logger'
 import { LogMapper } from '@kubb/core/logger'
-import type { LoggerAdapter, LoggerAdapterOptions } from './types.ts'
+import type { CreateLoggerAdapter, LoggerAdapter, LoggerAdapterOptions } from './types.ts'
 
 /**
  * Plain console adapter for non-TTY environments
  * Simple console.log output with indentation
  */
-export class PlainAdapter implements LoggerAdapter {
-  readonly name = 'plain'
-  private logLevel: number
-  private indentLevel = 0
+export const createPlainAdapter: CreateLoggerAdapter = (options: LoggerAdapterOptions): LoggerAdapter => {
+  const logLevel = options.logLevel
+  let indentLevel = 0
 
-  constructor(options: LoggerAdapterOptions) {
-    this.logLevel = options.logLevel
-  }
-
-  private log(message: string, indent = this.indentLevel): void {
+  const log = (message: string, indent = indentLevel): void => {
     const prefix = '  '.repeat(indent)
     console.log(`${prefix}${message}`)
   }
 
-  setup(logger: Logger): void {
-    // Main lifecycle
-    logger.on('start', (message) => {
-      this.log(message)
-      this.indentLevel++
-    })
+  return {
+    name: 'plain',
 
-    logger.on('stop', (message) => {
-      this.indentLevel = Math.max(0, this.indentLevel - 1)
-      this.log(message)
-    })
+    install(logger: Logger): void {
+      // Main lifecycle
+      logger.on('start', (message) => {
+        log(message)
+        indentLevel++
+      })
 
-    // Step messages
-    logger.on('step', (message) => {
-      this.log(`→ ${message}`)
-    })
+      logger.on('stop', (message) => {
+        indentLevel = Math.max(0, indentLevel - 1)
+        log(message)
+      })
 
-    // Success messages
-    logger.on('success', (message) => {
-      this.log(`✓ ${message}`)
-    })
+      // Step messages
+      logger.on('step', (message) => {
+        log(`→ ${message}`)
+      })
 
-    // Warning messages
-    logger.on('warning', (message) => {
-      if (this.logLevel >= LogMapper.warn) {
-        this.log(`⚠ ${message}`)
-      }
-    })
+      // Success messages
+      logger.on('success', (message) => {
+        log(`✓ ${message}`)
+      })
 
-    // Error messages
-    logger.on('error', (message, error) => {
-      this.log(`✗ ${message}`)
-      if (error) {
-        console.error(error)
-      }
-    })
+      // Warning messages
+      logger.on('warning', (message) => {
+        if (logLevel >= LogMapper.warn) {
+          log(`⚠ ${message}`)
+        }
+      })
 
-    // Info messages
-    logger.on('info', (message) => {
-      if (this.logLevel >= LogMapper.info) {
-        this.log(message)
-      }
-    })
+      // Error messages
+      logger.on('error', (message, error) => {
+        log(`✗ ${message}`)
+        if (error) {
+          console.error(error)
+        }
+      })
 
-    // Verbose messages
-    logger.on('verbose', (message) => {
-      if (this.logLevel >= LogMapper.verbose) {
-        const formattedLogs = message.logs.join('\n')
-        this.log(formattedLogs)
-      }
-    })
+      // Info messages
+      logger.on('info', (message) => {
+        if (logLevel >= LogMapper.info) {
+          log(message)
+        }
+      })
 
-    // Plugin events
-    logger.on('plugin:start', ({ pluginName }) => {
-      this.log(`Starting ${pluginName}...`)
-      this.indentLevel++
-    })
+      // Verbose messages
+      logger.on('verbose', (message) => {
+        if (logLevel >= LogMapper.verbose) {
+          const formattedLogs = message.logs.join('\n')
+          log(formattedLogs)
+        }
+      })
 
-    logger.on('plugin:end', ({ pluginName, duration }) => {
-      this.indentLevel = Math.max(0, this.indentLevel - 1)
-      this.log(`${pluginName} completed in ${duration}ms`)
-    })
-  }
+      // Plugin events
+      logger.on('plugin:start', ({ pluginName }) => {
+        log(`Starting ${pluginName}...`)
+        indentLevel++
+      })
 
-  cleanup(): void {
-    this.indentLevel = 0
+      logger.on('plugin:end', ({ pluginName, duration }) => {
+        indentLevel = Math.max(0, indentLevel - 1)
+        log(`${pluginName} completed in ${duration}ms`)
+      })
+    },
+
+    cleanup(): void {
+      indentLevel = 0
+    },
   }
 }

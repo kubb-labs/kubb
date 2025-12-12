@@ -6,7 +6,7 @@ import { createLogger, LogMapper } from '@kubb/core/logger'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import pc from 'picocolors'
-import { FileSystemAdapter, LoggerAdapterFactory } from '../utils/adapters/index.ts'
+import { createFileSystemAdapter, createLoggerAdapterAuto } from '../utils/adapters/index.ts'
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { startWatcher } from '../utils/watcher.ts'
@@ -81,16 +81,16 @@ const command = defineCommand({
     })
 
     // Create and setup logger adapter based on environment
-    const adapter = LoggerAdapterFactory.createAuto({
+    const adapter = createLoggerAdapterAuto({
       logLevel: logger.logLevel,
     })
-    adapter.setup(logger)
+    adapter.install(logger)
 
     // Create filesystem adapter for debug logging
-    const fsAdapter = new FileSystemAdapter({
+    const fsAdapter = createFileSystemAdapter({
       logLevel: logger.logLevel,
     })
-    fsAdapter.setup(logger)
+    fsAdapter.install(logger)
 
     logger.emit('start', 'Configuration started')
 

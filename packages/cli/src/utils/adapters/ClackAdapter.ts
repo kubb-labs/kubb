@@ -2,73 +2,72 @@ import * as clack from '@clack/prompts'
 import type { Logger } from '@kubb/core/logger'
 import { LogMapper } from '@kubb/core/logger'
 import pc from 'picocolors'
-import type { LoggerAdapter, LoggerAdapterOptions } from './types.ts'
+import type { CreateLoggerAdapter, LoggerAdapter, LoggerAdapterOptions } from './types.ts'
 
 /**
  * Clack adapter for local TTY environments
  * Provides a beautiful CLI UI with flat structure (no nested groups)
  */
-export class ClackAdapter implements LoggerAdapter {
-  readonly name = 'clack'
-  private logLevel: number
+export const createClackAdapter: CreateLoggerAdapter = (options: LoggerAdapterOptions): LoggerAdapter => {
+  const logLevel = options.logLevel
 
-  constructor(options: LoggerAdapterOptions) {
-    this.logLevel = options.logLevel
-  }
+  return {
+    name: 'clack',
 
-  setup(logger: Logger): void {
-    // Main lifecycle events - use intro/outro
-    logger.on('start', (message) => {
-      clack.intro(message)
-    })
+    install(logger: Logger): void {
+      // Main lifecycle events - use intro/outro
+      logger.on('start', (message) => {
+        clack.intro(message)
+      })
 
-    logger.on('stop', (message) => {
-      clack.outro(message)
-    })
+      logger.on('stop', (message) => {
+        clack.outro(message)
+      })
 
-    // Step messages
-    logger.on('step', (message) => {
-      clack.log.step(message)
-    })
+      // Step messages
+      logger.on('step', (message) => {
+        clack.log.step(message)
+      })
 
-    // Success messages
-    logger.on('success', (message) => {
-      clack.log.success(message)
-    })
+      // Success messages
+      logger.on('success', (message) => {
+        clack.log.success(message)
+      })
 
-    // Warning messages
-    logger.on('warning', (message) => {
-      if (this.logLevel >= LogMapper.warn) {
-        clack.log.warning(pc.yellow(message))
-      }
-    })
+      // Warning messages
+      logger.on('warning', (message) => {
+        if (logLevel >= LogMapper.warn) {
+          clack.log.warning(pc.yellow(message))
+        }
+      })
 
-    // Info messages
-    logger.on('info', (message) => {
-      if (this.logLevel >= LogMapper.info) {
-        clack.log.info(pc.yellow(message))
-      }
-    })
+      // Info messages
+      logger.on('info', (message) => {
+        if (logLevel >= LogMapper.info) {
+          clack.log.info(pc.yellow(message))
+        }
+      })
 
-    // Verbose messages
-    logger.on('verbose', (message) => {
-      if (this.logLevel >= LogMapper.verbose) {
-        const formattedLogs = message.logs.join('\n')
-        clack.log.message(pc.dim(formattedLogs))
-      }
-    })
+      // Verbose messages
+      logger.on('verbose', (message) => {
+        if (logLevel >= LogMapper.verbose) {
+          const formattedLogs = message.logs.join('\n')
+          clack.log.message(pc.dim(formattedLogs))
+        }
+      })
 
-    // Plugin events - flat structure with log.step/success
-    logger.on('plugin:start', ({ pluginName }) => {
-      clack.log.step(`Starting ${pluginName}...`)
-    })
+      // Plugin events - flat structure with log.step/success
+      logger.on('plugin:start', ({ pluginName }) => {
+        clack.log.step(`Starting ${pluginName}...`)
+      })
 
-    logger.on('plugin:end', ({ pluginName, duration }) => {
-      clack.log.success(`${pluginName} completed in ${duration}ms`)
-    })
-  }
+      logger.on('plugin:end', ({ pluginName, duration }) => {
+        clack.log.success(`${pluginName} completed in ${duration}ms`)
+      })
+    },
 
-  cleanup(): void {
-    // Clack doesn't require cleanup
+    cleanup(): void {
+      // Clack doesn't require cleanup
+    },
   }
 }
