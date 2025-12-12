@@ -2,21 +2,21 @@ import path from 'node:path'
 import process from 'node:process'
 import { type Config, safeBuild, setup } from '@kubb/core'
 import { createLogger, LogMapper } from '@kubb/core/logger'
-import { Presets, SingleBar } from 'cli-progress'
+import boxen from 'boxen'
 import { execa } from 'execa'
 import pc from 'picocolors'
 import type { Args } from '../commands/generate.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
 import { getSummary } from '../utils/getSummary.ts'
+import { ProgressManager } from '../utils/progressManager.ts'
 
 type GenerateProps = {
   input?: string
   config: Config
   args: Args
-  progressCache: Map<string, SingleBar>
 }
 
-export async function generate({ input, config, progressCache, args }: GenerateProps): Promise<void> {
+export async function generate({ input, config, args }: GenerateProps): Promise<void> {
   const hrStart = process.hrtime()
   const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
 
@@ -28,35 +28,38 @@ export async function generate({ input, config, progressCache, args }: GenerateP
   const { root = process.cwd(), ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
-  if (logger.logLevel !== LogMapper.debug) {
-    logger.on('progress_start', ({ id, size, message = '' }) => {
-      logger.consola?.pauseLogs()
-      const payload = { id, message }
-      const progressBar = new SingleBar(
-        {
-          format: '{percentage}% {bar} {value}/{total} | {message}',
-          barsize: 30,
-          clearOnComplete: true,
-          emptyOnZero: true,
-        },
-        Presets.shades_grey,
-      )
+  // Initialize progress manager
+  const progressManager = new ProgressManager(logLevel)
 
-      if (!progressCache.has(id)) {
-        progressCache.set(id, progressBar)
-        progressBar.start(size, 1, payload)
+  // Track schema loading
+  progressManager.startSchemaLoading()
+
+  // Set up plugin tracking
+  if (logger.logLevel !== LogMapper.debug) {
+    logger.on('plugin_start', ({ pluginName }) => {
+      progressManager.startPlugin(pluginName)
+    })
+
+    logger.on('plugin_end', ({ pluginName, duration }) => {
+      progressManager.completePlugin(pluginName, duration)
+    })
+
+    logger.on('progress_start', ({ id, size }) => {
+      if (id === 'files') {
+        progressManager.startFileGeneration(size)
+      }
+    })
+
+    logger.on('progressed', ({ id }) => {
+      if (id === 'files') {
+        progressManager.updateFileGeneration()
       }
     })
 
     logger.on('progress_stop', ({ id }) => {
-      progressCache.get(id)?.stop()
-      logger.consola?.resumeLogs()
-    })
-
-    logger.on('progressed', ({ id, message = '' }) => {
-      const payload = { id, message }
-
-      progressCache.get(id)?.increment(1, payload)
+      if (id === 'files') {
+        progressManager.completeFileGeneration()
+      }
     })
   }
 
@@ -85,6 +88,12 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     logger,
   })
 
+  // Initialize plugin names for progress tracking
+  const pluginNames = pluginManager.plugins.map(p => p.name)
+  progressManager.initPlugins(pluginNames)
+  
+  progressManager.completeSchemaLoading()
+
   logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
   const { files, failedPlugins, pluginTimings, error } = await safeBuild(
@@ -95,12 +104,15 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     { pluginManager, fabric, logger },
   )
 
+  // Finish progress tracking
+  progressManager.finish()
+
   if (logger.logLevel >= LogMapper.debug) {
-    logger.consola?.start('Writing logs')
+    console.log('⏳ Writing logs')
 
     await logger.writeLogs()
 
-    logger.consola?.success('Written logs')
+    console.log('✅ Written logs')
   }
 
   const summary = getSummary({
@@ -115,9 +127,8 @@ export async function generate({ input, config, progressCache, args }: GenerateP
   // Handle build failures (either from failed plugins or general errors)
   const hasFailures = failedPlugins.size > 0 || error
 
-  if (hasFailures && logger.consola) {
-    logger.consola?.resumeLogs()
-    logger.consola?.log(`✗  Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+  if (hasFailures) {
+    console.log(`✗  Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
     // Collect all errors from failed plugins and general error
     const allErrors: Error[] = [
@@ -130,21 +141,19 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     allErrors.forEach((err) => {
       // Display error causes in debug mode
       if (logger.logLevel >= LogMapper.debug && err.cause) {
-        logger.consola?.error(err.cause)
+        console.error(err.cause)
       }
 
-      logger.consola?.error(err)
+      console.error(err)
     })
 
-    logger.consola?.box({
-      title: `${config.name || ''}`,
-      message: summary.join(''),
-      style: {
-        padding: 2,
-        borderColor: 'red',
-        borderStyle: 'rounded',
-      },
+    const box = boxen(summary.join(''), {
+      title: config.name || '',
+      padding: 1,
+      borderColor: 'red',
+      borderStyle: 'round',
     })
+    console.log(box)
 
     process.exit(1)
   }
@@ -164,8 +173,8 @@ export async function generate({ input, config, progressCache, args }: GenerateP
         logs: ['Prettier formatting completed successfully'],
       })
     } catch (e) {
-      logger.consola?.warn('Prettier not found')
-      logger.consola?.error(e)
+      console.warn('⚠️  Prettier not found')
+      console.error(e)
       logger?.emit('debug', {
         date: new Date(),
         logs: [`Prettier formatting failed: ${(e as Error).message}`],
@@ -189,8 +198,8 @@ export async function generate({ input, config, progressCache, args }: GenerateP
         logs: ['Biome formatting completed successfully'],
       })
     } catch (e) {
-      logger.consola?.warn('Biome not found')
-      logger.consola?.error(e)
+      console.warn('⚠️  Biome not found')
+      console.error(e)
       logger?.emit('debug', {
         date: new Date(),
         logs: [`Biome formatting failed: ${(e as Error).message}`],
@@ -215,8 +224,8 @@ export async function generate({ input, config, progressCache, args }: GenerateP
         logs: ['ESLint linting completed successfully'],
       })
     } catch (e) {
-      logger.consola?.warn('Eslint not found')
-      logger.consola?.error(e)
+      console.warn('⚠️  Eslint not found')
+      console.error(e)
       logger?.emit('debug', {
         date: new Date(),
         logs: [`ESLint linting failed: ${(e as Error).message}`],
@@ -240,8 +249,8 @@ export async function generate({ input, config, progressCache, args }: GenerateP
         logs: ['Biome linting completed successfully'],
       })
     } catch (e) {
-      logger.consola?.warn('Biome not found')
-      logger.consola?.error(e)
+      console.warn('⚠️  Biome not found')
+      console.error(e)
       logger?.emit('debug', {
         date: new Date(),
         logs: [`✗ Biome linting failed: ${(e as Error).message}`],
@@ -265,8 +274,8 @@ export async function generate({ input, config, progressCache, args }: GenerateP
         logs: ['Oxlint linting completed successfully'],
       })
     } catch (e) {
-      logger.consola?.warn('Oxlint not found')
-      logger.consola?.error(e)
+      console.warn('⚠️  Oxlint not found')
+      console.error(e)
       logger?.emit('debug', {
         date: new Date(),
         logs: [`✗ Oxlint linting failed: ${(e as Error).message}`],
@@ -280,14 +289,13 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     await executeHooks({ hooks: config.hooks, logger })
   }
 
-  logger.consola?.log(`⚡ Build completed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
-  logger.consola?.box({
-    title: `${config.name || ''}`,
-    message: summary.join(''),
-    style: {
-      padding: 2,
-      borderColor: 'green',
-      borderStyle: 'rounded',
-    },
+  console.log(`⚡ Build completed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+  
+  const box = boxen(summary.join(''), {
+    title: config.name || '',
+    padding: 1,
+    borderColor: 'green',
+    borderStyle: 'round',
   })
+  console.log(box)
 }

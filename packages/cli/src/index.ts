@@ -1,5 +1,5 @@
 import { defineCommand, runCommand, runMain } from 'citty'
-import consola from 'consola'
+import boxen from 'boxen'
 import { default as gradientString } from 'gradient-string'
 import getLatestVersion from 'latest-version'
 import { lt } from 'semver'
@@ -26,21 +26,19 @@ const main = defineCommand({
       process.exit(0)
     }
     try {
-      consola.log(gradientString(['#F58517', '#F5A217', '#F55A17'])('Kubb CLI:'))
+      console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])('Kubb CLI:'))
 
       const latestVersion = await getLatestVersion('@kubb/cli')
 
       if (lt(version, latestVersion)) {
-        consola.box({
-          title: 'Update available for `Kubb` ',
-          message: `\`v${version}\` → \`v${latestVersion}\`
-Run \`npm install -g @kubb/cli\` to update`,
-          style: {
-            padding: 2,
-            borderColor: 'yellow',
-            borderStyle: 'rounded',
-          },
+        const box = boxen(`\`v${version}\` → \`v${latestVersion}\`
+Run \`npm install -g @kubb/cli\` to update`, {
+          title: 'Update available for `Kubb`',
+          padding: 1,
+          borderColor: 'yellow',
+          borderStyle: 'round',
         })
+        console.log(box)
       }
     } catch (_e) {}
 

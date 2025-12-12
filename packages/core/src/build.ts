@@ -268,6 +268,12 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         const startTime = performance.now()
         const timestamp = new Date()
 
+        // Emit plugin_start event for progress tracking
+        logger.emit('plugin_start', {
+          pluginName: plugin.name,
+          pluginKey: plugin.key,
+        })
+
         // Start plugin group
         logger.emit('debug', {
           date: timestamp,
@@ -287,6 +293,13 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
         const duration = Math.round(performance.now() - startTime)
         pluginTimings.set(plugin.name, duration)
+
+        // Emit plugin_end event for progress tracking
+        logger.emit('plugin_end', {
+          pluginName: plugin.name,
+          pluginKey: plugin.key,
+          duration,
+        })
 
         logger.emit('debug', {
           date: new Date(),

@@ -45,6 +45,8 @@ type Events = {
   progress_start: [{ id: string; size: number; message?: string }]
   progressed: [{ id: string; message?: string }]
   progress_stop: [{ id: string }]
+  plugin_start: [{ pluginName: string; pluginKey: unknown }]
+  plugin_end: [{ pluginName: string; pluginKey: unknown; duration: number }]
 }
 
 export const LogMapper = {

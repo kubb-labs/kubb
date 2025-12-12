@@ -2,9 +2,9 @@ import path from 'node:path'
 import * as process from 'node:process'
 import { isInputPath, PromiseManager } from '@kubb/core'
 import { createLogger, LogMapper } from '@kubb/core/logger'
+import * as clack from '@clack/prompts'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
-import type { SingleBar } from 'cli-progress'
 import pc from 'picocolors'
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
@@ -62,8 +62,6 @@ const command = defineCommand({
   },
   args,
   async run(commandContext) {
-    const progressCache = new Map<string, SingleBar>()
-
     const { args } = commandContext
 
     const input = args._[0]
@@ -97,13 +95,10 @@ const command = defineCommand({
       if (Array.isArray(config)) {
         const promiseManager = new PromiseManager()
         const promises = config.map((c) => () => {
-          progressCache.clear()
-
           return generate({
             input,
             config: c,
             args,
-            progressCache,
           })
         })
 
@@ -111,12 +106,9 @@ const command = defineCommand({
         return
       }
 
-      progressCache.clear()
-
       await generate({
         input,
         config,
-        progressCache,
         args,
       })
 
@@ -139,9 +131,9 @@ const command = defineCommand({
     await start()
 
     if (globalThis.isDevtoolsEnabled) {
-      const canRestart = await logger.consola?.prompt('Restart(could be used to validate the profiler)?', {
-        type: 'confirm',
-        initial: false,
+      const canRestart = await clack.confirm({
+        message: 'Restart(could be used to validate the profiler)?',
+        initialValue: false,
       })
 
       if (canRestart) {

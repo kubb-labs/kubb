@@ -15,7 +15,7 @@ export async function executeHooks({ hooks, logger }: ExecutingHooksProps): Prom
   const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done].filter(Boolean)
 
   for (const command of commands) {
-    const consolaWritable = new ConsolaWritable(logger.consola!, command)
+    const consolaWritable = new ConsolaWritable(command)
     const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
 
     if (!cmd) {

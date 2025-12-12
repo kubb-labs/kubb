@@ -61,11 +61,11 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@clack/prompts": "^0.11.0",
     "@kubb/core": "workspace:*",
+    "boxen": "^8.0.1",
     "chokidar": "^4.0.3",
     "citty": "^0.1.6",
-    "cli-progress": "^3.12.0",
-    "consola": "^3.4.2",
     "cosmiconfig": "^9.0.0",
     "execa": "^9.6.1",
     "gradient-string": "^3.0.0",
@@ -78,7 +78,6 @@
   "devDependencies": {
     "@kubb/mcp": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@types/cli-progress": "^3.11.6",
     "@types/semver": "^7.7.1",
     "source-map-support": "^0.5.21"
   },
