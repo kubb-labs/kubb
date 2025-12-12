@@ -25,6 +25,9 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
     name: config.name,
   })
 
+  // for name
+  logger.emit('start', 'Starting ...')
+
   const { root = process.cwd(), ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 

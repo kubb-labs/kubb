@@ -26,7 +26,7 @@ const main = defineCommand({
       process.exit(0)
     }
     try {
-      console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])('Kubb CLI:'))
+      console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])('Kubb CLI 🧩'))
 
       const latestVersion = await getLatestVersion('@kubb/cli')
 

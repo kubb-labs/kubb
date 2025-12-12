@@ -1,7 +1,7 @@
 import path from 'node:path'
 import * as process from 'node:process'
 import * as clack from '@clack/prompts'
-import { isInputPath, PromiseManager } from '@kubb/core'
+import { type Config, isInputPath, PromiseManager } from '@kubb/core'
 import { createLogger, LogMapper } from '@kubb/core/logger'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
@@ -9,10 +9,6 @@ import pc from 'picocolors'
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { startWatcher } from '../utils/watcher.ts'
-
-declare global {
-  var isDevtoolsEnabled: any
-}
 
 const args = {
   config: {
@@ -62,7 +58,9 @@ const command = defineCommand({
   },
   args,
   async run(commandContext) {
+    const { generate } = await import('../runners/generate.ts')
     const { args } = commandContext
+    let config: Config[] | Config
 
     const input = args._[0]
 
@@ -78,20 +76,7 @@ const command = defineCommand({
       args.logLevel = 'verbose'
     }
 
-    const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
-    const logger = createLogger({
-      logLevel,
-    })
-    const { generate } = await import('../runners/generate.ts')
-
-    logger.emit('start', 'Loading config')
-
-    const result = await getCosmiConfig('kubb', args.config)
-    logger.emit('success', `Config loaded(${pc.dim(path.relative(process.cwd(), result.filepath))})`)
-
-    const config = await getConfig(result, args)
-
-    const start = async () => {
+    async function start() {
       if (Array.isArray(config)) {
         const promiseManager = new PromiseManager()
         const promises = config.map((c) => () => {
@@ -103,6 +88,7 @@ const command = defineCommand({
         })
 
         await promiseManager.run('seq', promises)
+
         return
       }
 
@@ -111,11 +97,9 @@ const command = defineCommand({
         config,
         args,
       })
-
-      return
     }
 
-    if (args.watch) {
+    async function startWatch() {
       if (Array.isArray(config)) {
         throw new Error('Cannot use watcher with multiple Configs(array)')
       }
@@ -123,25 +107,71 @@ const command = defineCommand({
       if (isInputPath(config)) {
         return startWatcher([input || config.input.path], async (paths) => {
           await start()
-          logger.emit('start', pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
+
+          clack.log.info(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
         })
       }
     }
 
-    await start()
+    const logger = createLogger({
+      logLevel: LogMapper[args.logLevel as keyof typeof LogMapper] || 3, // 3 is info
+    })
 
-    if (globalThis.isDevtoolsEnabled) {
-      const canRestart = await clack.confirm({
-        message: 'Restart(could be used to validate the profiler)?',
-        initialValue: false,
-      })
+    logger.on('start', (message) => {
+      clack.intro(message)
+    })
 
-      if (canRestart) {
-        await start()
-      } else {
-        process.exit(1)
+    logger.on('success', (message) => {
+      clack.log.success(message)
+    })
+
+    logger.on('warning', (message) => {
+      if (logger.logLevel >= LogMapper.warn) {
+        clack.log.warning(pc.yellow(message))
       }
+    })
+
+    logger.on('info', (message) => {
+      if (logger.logLevel >= LogMapper.info) {
+        clack.log.info(pc.yellow(message))
+      }
+    })
+
+    logger.on('verbose', (message) => {
+      if (logger.logLevel >= LogMapper.verbose) {
+        const formattedLogs = message.logs.join('\n')
+        clack.log.message(pc.dim(formattedLogs))
+      }
+    })
+
+    await clack.tasks([
+      {
+        title: 'Loading config',
+        task: async () => {
+          const result = await getCosmiConfig('kubb', args.config)
+          config = await getConfig(result, args)
+          await new Promise((resolve) => setTimeout(resolve, 10000))
+
+          return `✓ Config loaded(${pc.dim(path.relative(process.cwd(), result.filepath))})`
+        },
+      },
+      {
+        title: 'Starting generation',
+        task: async () => {
+          await start()
+
+          return '✓ Generation completed'
+        },
+      },
+    ])
+
+    if (args.watch) {
+      await startWatch()
+
+      return
     }
+
+    await start()
   },
 })
 

@@ -1,10 +1,8 @@
 import { resolve } from 'node:path'
-import type { ConsolaInstance, LogLevel } from 'consola'
-import { createConsola } from 'consola'
 import pc from 'picocolors'
 import seedrandom from 'seedrandom'
 import { write } from './fs/write.ts'
-import { endGroup, isGitHubActions, startGroup } from './utils/ciDetection.ts'
+// import { endGroup, isGitHubActions, startGroup } from './utils/ciDetection.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 
 type DebugEvent = {
@@ -49,6 +47,14 @@ type Events = {
   plugin_end: [{ pluginName: string; pluginKey: unknown; duration: number }]
 }
 
+/**
+ * Defines the level of logs as specific numbers or special number types.
+ *
+ * @type {0 | 1 | 2 | 3 | 4 | 5 | (number & {})} LogLevel - Represents the log level.
+ * @default 0 - Represents the default log level.
+ */
+export type LogLevel = 0 | 1 | 2 | 3 | 4 | 5 | (number & {})
+
 export const LogMapper = {
   silent: Number.NEGATIVE_INFINITY,
   error: 0,
@@ -58,7 +64,7 @@ export const LogMapper = {
   debug: 5,
 } as const
 
-const DEBUG_LOG_TITLE_MAX_LENGTH = 50 // Characters - max length for group titles
+// const DEBUG_LOG_TITLE_MAX_LENGTH = 50 // Characters - max length for group titles
 
 export type Logger = {
   /**
@@ -66,7 +72,6 @@ export type Logger = {
    */
   name?: string
   logLevel: LogLevel
-  consola?: ConsolaInstance
   on: EventEmitter<Events>['on']
   emit: EventEmitter<Events>['emit']
   writeLogs: () => Promise<void>
@@ -75,112 +80,67 @@ export type Logger = {
 type Props = {
   name?: string
   logLevel?: LogLevel
-  consola?: ConsolaInstance
 }
 
-export function createLogger({ logLevel = 3, name, consola: _consola }: Props = {}): Logger {
+export function createLogger({ logLevel = 3, name }: Props = {}): Logger {
   const events = new EventEmitter<Events>()
   const startDate = Date.now()
   const cachedLogs = new Set<DebugEvent>()
 
-  const consola =
-    _consola ||
-    createConsola({
-      level: logLevel,
-      formatOptions: {
-        colors: true,
-        date: true,
-        columns: 80,
-        compact: logLevel !== LogMapper.debug,
-      },
-    }).withTag(name ? randomCliColour(name) : '')
-
-  consola?.wrapConsole()
-
-  events.on('start', (message) => {
-    consola.start(message)
-  })
-
-  events.on('success', (message) => {
-    consola.success(message)
-  })
-
-  events.on('warning', (message) => {
-    consola.warn(pc.yellow(message))
-  })
-
-  events.on('info', (message) => {
-    consola.info(pc.yellow(message))
-  })
-
-  events.on('verbose', (message) => {
-    if (logLevel >= LogMapper.verbose) {
-      const formattedLogs = message.logs.join('\n')
-      consola.log(pc.dim(formattedLogs))
-    }
-
-    cachedLogs.add(message)
-  })
-
-  events.on('debug', (message) => {
-    const fullLog = message.logs.join('\n')
-
-    if (logLevel >= LogMapper.debug) {
-      // Handle plugin group markers in GitHub Actions
-      if (isGitHubActions()) {
-        if (message.pluginGroupMarker === 'start') {
-          // Start a new plugin group
-          const title = message.pluginName || 'Plugin'
-          console.log(startGroup(title))
-
-          return undefined // Don't log the marker itself
-        }
-        if (message.pluginGroupMarker === 'end') {
-          // End the plugin group
-          console.log(endGroup())
-
-          return undefined // Don't log the marker itself
-        }
-
-        // For setup/file operations that aren't plugin-specific, create individual groups
-        if (!message.pluginName && message.category && ['setup', 'file'].includes(message.category)) {
-          const firstLine = message.logs[0] || 'Debug Details'
-          const title = firstLine.length > DEBUG_LOG_TITLE_MAX_LENGTH ? `${firstLine.substring(0, DEBUG_LOG_TITLE_MAX_LENGTH)}...` : firstLine
-
-          console.log(startGroup(title))
-          console.log(pc.dim(fullLog))
-          console.log(endGroup())
-        } else {
-          // Plugin-specific logs are shown inline within their plugin group
-          // Non-categorized logs are shown inline
-          consola.log(pc.dim(fullLog))
-        }
-      } else {
-        // Non-CI environments - show all logs inline (except group markers)
-        if (!message.pluginGroupMarker) {
-          consola.log(pc.dim(fullLog))
-        }
-      }
-    }
-
-    cachedLogs.add(message)
-  })
-
-  events.on('error', (message, cause) => {
-    const error = new Error(message || 'Something went wrong')
-    error.cause = cause
-
-    throw error
-  })
-
-  if (consola) {
-    consola.level = logLevel
-  }
+  // events.on('debug', (message) => {
+  //   const fullLog = message.logs.join('\n')
+  //
+  //   if (logLevel >= LogMapper.debug) {
+  //     // Handle plugin group markers in GitHub Actions
+  //     if (isGitHubActions()) {
+  //       if (message.pluginGroupMarker === 'start') {
+  //         // Start a new plugin group
+  //         const title = message.pluginName || 'Plugin'
+  //         console.log(startGroup(title))
+  //
+  //         return undefined // Don't log the marker itself
+  //       }
+  //       if (message.pluginGroupMarker === 'end') {
+  //         // End the plugin group
+  //         console.log(endGroup())
+  //
+  //         return undefined // Don't log the marker itself
+  //       }
+  //
+  //       // For setup/file operations that aren't plugin-specific, create individual groups
+  //       if (!message.pluginName && message.category && ['setup', 'file'].includes(message.category)) {
+  //         const firstLine = message.logs[0] || 'Debug Details'
+  //         const title = firstLine.length > DEBUG_LOG_TITLE_MAX_LENGTH ? `${firstLine.substring(0, DEBUG_LOG_TITLE_MAX_LENGTH)}...` : firstLine
+  //
+  //         console.log(startGroup(title))
+  //         console.log(pc.dim(fullLog))
+  //         console.log(endGroup())
+  //       } else {
+  //         // Plugin-specific logs are shown inline within their plugin group
+  //         // Non-categorized logs are shown inline
+  //         consola.log(pc.dim(fullLog))
+  //       }
+  //     } else {
+  //       // Non-CI environments - show all logs inline (except group markers)
+  //       if (!message.pluginGroupMarker) {
+  //         consola.log(pc.dim(fullLog))
+  //       }
+  //     }
+  //   }
+  //
+  //   cachedLogs.add(message)
+  // })
+  //
+  // events.on('error', (message, cause) => {
+  //   const error = new Error(message || 'Something went wrong')
+  //   error.cause = cause
+  //
+  //   throw error
+  // })
 
   const logger: Logger = {
     name,
     logLevel,
-    consola,
     on(...args) {
       return events.on(...args)
     },
@@ -209,6 +169,17 @@ export function createLogger({ logLevel = 3, name, consola: _consola }: Props = 
       )
     },
   }
+
+  logger.on('error', (message, cause) => {
+    const error = new Error(message || 'Something went wrong')
+    error.cause = cause
+
+    throw error
+  })
+
+  logger.on('verbose', (message) => {
+    cachedLogs.add(message)
+  })
 
   return logger
 }
