@@ -293,10 +293,12 @@ describe('zodGenerator schema', async () => {
     }
     const plugin = { options } as Plugin<PluginZod>
     const fabric = createReactFabric()
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
-      pluginManager: createMockedPluginManager(props.name),
+      pluginManager: mockedPluginManager,
+      logger: mockedPluginManager.logger,
       plugin,
       contentType: 'application/json',
       include: undefined,
@@ -409,11 +411,13 @@ describe('zodGenerator operation', async () => {
     }
     const plugin = { options } as Plugin<PluginZod>
     const fabric = createReactFabric()
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: createMockedPluginManager(props.name),
+      pluginManager: mockedPluginManager,
+      logger: mockedPluginManager.logger,
       plugin,
       contentType: undefined,
       override: undefined,
@@ -479,11 +483,13 @@ describe('zodGenerator operation', async () => {
       }
       const plugin = { options } as Plugin<PluginZod>
       const fabric = createReactFabric()
+      const mockedPluginManager = createMockedPluginManager(props.name)
       const generator = new OperationGenerator(options, {
         fabric,
         oas,
         include: undefined,
-        pluginManager: createMockedPluginManager(props.name),
+        pluginManager: mockedPluginManager,
+        logger: mockedPluginManager.logger,
         plugin,
         contentType: undefined,
         override: undefined,
@@ -571,11 +577,13 @@ describe('zodGenerator operation', async () => {
       }
       const plugin = { options } as Plugin<PluginZod>
       const fabric = createReactFabric()
+      const mockedPluginManager = createMockedPluginManager(entry.name)
       const generator = new OperationGenerator(options, {
         fabric,
         oas,
         include: undefined,
-        pluginManager: createMockedPluginManager(entry.name),
+        pluginManager: mockedPluginManager,
+        logger: mockedPluginManager.logger,
         plugin,
         contentType: undefined,
         override: undefined,
