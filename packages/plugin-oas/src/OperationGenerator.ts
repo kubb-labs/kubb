@@ -1,4 +1,5 @@
-import type { Logger, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
+import type { Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
+import type { Logger } from '@kubb/core/logger'
 import { BaseGenerator, type FileMetaBase } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import type { KubbFile } from '@kubb/fabric-core/types'

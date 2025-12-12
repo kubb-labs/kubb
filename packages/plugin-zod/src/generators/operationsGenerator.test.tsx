@@ -51,11 +51,14 @@ describe('operationsGenerator operations', async () => {
     }
     const plugin = { options } as Plugin<PluginZod>
     const fabric = createReactFabric()
-    const generator = new OperationGenerator(options, {
+    const mockedPluginManager = createMockedPluginManager(props.name)
+const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: createMockedPluginManager(props.name),
+      pluginManager: mockedPluginManager,
+
+      logger: mockedPluginManager.logger,
       plugin,
       contentType: undefined,
       override: undefined,

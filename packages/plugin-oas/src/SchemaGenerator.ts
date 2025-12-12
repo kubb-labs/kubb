@@ -1,4 +1,5 @@
-import type { Logger, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
+import type { Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
+import type { Logger } from '@kubb/core/logger'
 import { BaseGenerator, type FileMetaBase } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
