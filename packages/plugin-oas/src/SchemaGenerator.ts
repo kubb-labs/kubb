@@ -782,6 +782,8 @@ export class SchemaGenerator<
         this.context.pluginManager.logger.emit('info', 'EnumSuffix set to an empty string does not work')
       }
 
+      // Removed verbose enum parsing debug log - too noisy for hundreds of enums
+
       const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.options.usedEnumNames || {})
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,
@@ -1121,6 +1123,7 @@ export class SchemaGenerator<
 
       if (!['boolean', 'object', 'number', 'string', 'integer', 'null'].includes(type)) {
         this.context.pluginManager.logger.emit('warning', `Schema type '${schemaObject.type}' is not valid for schema ${parentName}.${name}`)
+        // Removed duplicate debug log - warning already provides the information needed
       }
 
       // 'string' | 'number' | 'integer' | 'boolean'
@@ -1148,6 +1151,12 @@ export class SchemaGenerator<
     const { oas, contentType, include } = this.context
     const schemas = getSchemas({ oas, contentType, includes: include })
     const schemaEntries = Object.entries(schemas)
+
+    this.context.pluginManager.logger.emit('debug', {
+      date: new Date(),
+      pluginName: this.context.plugin.name,
+      logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
+    })
 
     const generatorLimit = pLimit(1)
     const schemaLimit = pLimit(10)

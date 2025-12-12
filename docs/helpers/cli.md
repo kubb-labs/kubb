@@ -61,9 +61,10 @@ USAGE kubb generate [OPTIONS]
 OPTIONS
 
                         -c, --config    Path to the Kubb config
-  -l, --logLevel=<silent|info|debug>    Info, silent or debug
+  -l, --logLevel=<silent|info|verbose|debug>    Log level control
                          -w, --watch    Watch mode based on the input file
-                         -d, --debug    Override logLevel to debug
+                         -v, --verbose  Override logLevel to verbose (shows plugin timings)
+                         -d, --debug    Override logLevel to debug (shows all details)
                           -h, --help    Show help
 ```
 
@@ -84,25 +85,61 @@ kubb --config kubb.config.ts
 ```
 
 #### --log-level (-l)
-- `silent` will suppresses all log messages, warnings, and errors, minimizing console output.
-- `info` will log all warnings, errors and info messages.
-- `debug` will show all message from `info` and all details about what is being executed.
+- `silent` suppresses all log messages, warnings, and errors.
+- `info` logs warnings, errors, and informational messages (default).
+- `verbose` adds plugin timing breakdown and performance metrics.
+- `debug` shows all messages from `verbose` plus detailed execution traces.
 
 ```shell [node]
-kubb --log-level info
+kubb --log-level verbose
+```
+
+#### --verbose (-v)
+
+Enables verbose logging with plugin performance metrics. Shows a breakdown of plugin execution times in the summary, similar to what tools like Vite and NX display.
+
+Output includes:
+- Plugin timing breakdown with visual bars
+- Performance metrics for slowest plugins
+- All info-level messages
+
+```shell [node]
+kubb --verbose
+```
+
+Example output:
+```
+Plugin Timings:
+  ████████████ plugin-oas: 1.19s
+  ██ plugin-ts: 194ms
 ```
 
 #### --debug
 > [!TIP]
-> Debug mode will create 2 log files:
-> - `.kubb/kubb-DATE_STRING.log`
-> - `.kubb/kubb-files.log`
+> Debug mode creates detailed log files in the `.kubb` directory:
+> - `.kubb/kubb-{timestamp}.log` - Contains all debug messages with timestamps
 
+Debug mode provides comprehensive logging including:
+- Setup phase details (configuration, plugins, paths)
+- Plugin installation and execution timing
+- Hook execution with duration measurements
+- Schema parsing information
+- File generation progress with paths
+- Formatter/linter execution details
+- Error messages with full stack traces
+
+This is extremely useful for:
+- Troubleshooting generation issues
+- Understanding plugin execution flow
+- Performance analysis
+- Debugging schema parsing problems
 
 Alias for `kubb generate --log-level debug`
 ```shell [node]
 kubb --debug
 ```
+
+See the [Debugging Guide](/knowledge-base/debugging) for more details on using debug mode.
 
 #### --watch (-w)
 

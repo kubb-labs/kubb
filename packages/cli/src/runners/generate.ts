@@ -7,7 +7,6 @@ import { execa } from 'execa'
 import pc from 'picocolors'
 import type { Args } from '../commands/generate.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
-import { getErrorCauses } from '../utils/getErrorCauses.ts'
 import { getSummary } from '../utils/getSummary.ts'
 
 type GenerateProps = {
@@ -88,20 +87,20 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
 
-  const { files, failedPlugins, error } = await safeBuild(
+  const { files, failedPlugins, pluginTimings, error } = await safeBuild(
     {
       config: definedConfig,
       logger,
     },
-    { pluginManager, fabric },
+    { pluginManager, fabric, logger },
   )
 
-  if (logger.logLevel === LogMapper.debug) {
+  if (logger.logLevel >= LogMapper.debug) {
     logger.consola?.start('Writing logs')
 
-    const logFiles = await logger.writeLogs()
+    await logger.writeLogs()
 
-    logger.consola?.success(`Written logs: \n${logFiles.join('\n')}`)
+    logger.consola?.success('Written logs')
   }
 
   const summary = getSummary({
@@ -110,13 +109,34 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     config: definedConfig,
     status: failedPlugins.size > 0 || error ? 'failed' : 'success',
     hrStart,
+    pluginTimings: logger.logLevel >= LogMapper.verbose ? pluginTimings : undefined,
   })
 
-  if (failedPlugins.size && logger.consola) {
-    logger.consola?.resumeLogs()
-    logger.consola.error(`Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+  // Handle build failures (either from failed plugins or general errors)
+  const hasFailures = failedPlugins.size > 0 || error
 
-    logger.consola.box({
+  if (hasFailures && logger.consola) {
+    logger.consola?.resumeLogs()
+    logger.consola?.log(`✗  Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+
+    // Collect all errors from failed plugins and general error
+    const allErrors: Error[] = [
+      error,
+      ...Array.from(failedPlugins)
+        .filter((it) => it.error)
+        .map((it) => it.error),
+    ].filter(Boolean)
+
+    allErrors.forEach((err) => {
+      // Display error causes in debug mode
+      if (logger.logLevel >= LogMapper.debug && err.cause) {
+        logger.consola?.error(err.cause)
+      }
+
+      logger.consola?.error(err)
+    })
+
+    logger.consola?.box({
       title: `${config.name || ''}`,
       message: summary.join(''),
       style: {
@@ -125,46 +145,6 @@ export async function generate({ input, config, progressCache, args }: GenerateP
         borderStyle: 'rounded',
       },
     })
-
-    const errors = getErrorCauses([...failedPlugins].filter((it) => it.error).map((it) => it.error))
-    if (logger.consola && errors.length && logger.logLevel === LogMapper.debug) {
-      errors.forEach((err) => {
-        logger.consola?.error(err)
-      })
-    }
-
-    ;[...failedPlugins]
-      .filter((it) => it.error)
-      .forEach((it) => {
-        logger.consola?.error(it.error)
-      })
-
-    process.exit(1)
-  }
-
-  // TODO check if we can remove error
-  if (error && logger.consola) {
-    logger.consola?.resumeLogs()
-    logger.consola.error(`Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
-
-    logger.consola.box({
-      title: `${config.name || ''}`,
-      message: summary.join(''),
-      style: {
-        padding: 2,
-        borderColor: 'red',
-        borderStyle: 'rounded',
-      },
-    })
-
-    const errors = getErrorCauses([error])
-    if (logger.consola && errors.length && logger.logLevel === LogMapper.debug) {
-      errors.forEach((err) => {
-        logger.consola?.error(err)
-      })
-    }
-
-    logger.consola?.error(error)
 
     process.exit(1)
   }
@@ -172,12 +152,24 @@ export async function generate({ input, config, progressCache, args }: GenerateP
   // formatting
   if (config.output.format === 'prettier') {
     logger?.emit('start', `Formatting with ${config.output.format}`)
+    logger?.emit('debug', {
+      date: new Date(),
+      logs: [`Running prettier on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
+    })
 
     try {
       await execa('prettier', ['--ignore-unknown', '--write', path.resolve(definedConfig.root, definedConfig.output.path)])
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: ['Prettier formatting completed successfully'],
+      })
     } catch (e) {
       logger.consola?.warn('Prettier not found')
       logger.consola?.error(e)
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`Prettier formatting failed: ${(e as Error).message}`],
+      })
     }
 
     logger?.emit('success', `Formatted with ${config.output.format}`)
@@ -185,12 +177,24 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   if (config.output.format === 'biome') {
     logger?.emit('start', `Formatting with ${config.output.format}`)
+    logger?.emit('debug', {
+      date: new Date(),
+      logs: [`Running biome format on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
+    })
 
     try {
       await execa('biome', ['format', '--write', path.resolve(definedConfig.root, definedConfig.output.path)])
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: ['Biome formatting completed successfully'],
+      })
     } catch (e) {
       logger.consola?.warn('Biome not found')
       logger.consola?.error(e)
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`Biome formatting failed: ${(e as Error).message}`],
+      })
     }
 
     logger?.emit('success', `Formatted with ${config.output.format}`)
@@ -199,12 +203,24 @@ export async function generate({ input, config, progressCache, args }: GenerateP
   // linting
   if (config.output.lint === 'eslint') {
     logger?.emit('start', `Linting with ${config.output.lint}`)
+    logger?.emit('debug', {
+      date: new Date(),
+      logs: [`Running eslint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
+    })
 
     try {
       await execa('eslint', [path.resolve(definedConfig.root, definedConfig.output.path), '--fix'])
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: ['ESLint linting completed successfully'],
+      })
     } catch (e) {
       logger.consola?.warn('Eslint not found')
       logger.consola?.error(e)
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`ESLint linting failed: ${(e as Error).message}`],
+      })
     }
 
     logger?.emit('success', `Linted with ${config.output.lint}`)
@@ -212,12 +228,24 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   if (config.output.lint === 'biome') {
     logger?.emit('start', `Linting with ${config.output.lint}`)
+    logger?.emit('debug', {
+      date: new Date(),
+      logs: [`Running biome lint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
+    })
 
     try {
       await execa('biome', ['lint', '--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: ['Biome linting completed successfully'],
+      })
     } catch (e) {
       logger.consola?.warn('Biome not found')
       logger.consola?.error(e)
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`✗ Biome linting failed: ${(e as Error).message}`],
+      })
     }
 
     logger?.emit('success', `Linted with ${config.output.lint}`)
@@ -225,12 +253,24 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   if (config.output.lint === 'oxlint') {
     logger?.emit('start', `Linting with ${config.output.lint}`)
+    logger?.emit('debug', {
+      date: new Date(),
+      logs: [`Running oxlint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
+    })
 
     try {
       await execa('oxlint', ['--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: ['Oxlint linting completed successfully'],
+      })
     } catch (e) {
       logger.consola?.warn('Oxlint not found')
       logger.consola?.error(e)
+      logger?.emit('debug', {
+        date: new Date(),
+        logs: [`✗ Oxlint linting failed: ${(e as Error).message}`],
+      })
     }
 
     logger?.emit('success', `Linted with ${config.output.lint}`)
@@ -240,8 +280,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     await executeHooks({ hooks: config.hooks, logger })
   }
 
-  logger.consola?.log(`⚡Build completed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
-
+  logger.consola?.log(`⚡ Build completed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
   logger.consola?.box({
     title: `${config.name || ''}`,
     message: summary.join(''),

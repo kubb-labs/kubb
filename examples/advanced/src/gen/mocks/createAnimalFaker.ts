@@ -4,5 +4,11 @@ import { createCatFaker } from './createCatFaker.ts'
 import { createDogFaker } from './createDogFaker.ts'
 
 export function createAnimalFaker(data?: Partial<Animal>): Animal {
-  return data || faker.helpers.arrayElement<any>([Object.assign({}, createCatFaker(), { type: 'cat' }), Object.assign({}, createDogFaker(), { type: 'dog' })])
+  return (
+    data ||
+    faker.helpers.arrayElement<any>([
+      { ...createCatFaker(), ...{ type: 'cat' } },
+      { ...createDogFaker(), ...{ type: 'dog' } },
+    ])
+  )
 }
