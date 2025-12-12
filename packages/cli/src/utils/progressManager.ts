@@ -25,17 +25,18 @@ function canUseTTY(): boolean {
  */
 function getPluginEmoji(pluginName: string): string {
   const name = pluginName.toLowerCase()
-  
+
   if (name.includes('typescript') || name.includes('plugin-ts')) return '🔷'
   if (name.includes('openapi') || name.includes('swagger') || name.includes('oas')) return '📋'
   if (name.includes('client')) return '📦'
-  if (name.includes('react-query') || name.includes('vue-query') || name.includes('solid-query') || name.includes('svelte-query') || name.includes('swr')) return '🖼️'
+  if (name.includes('react-query') || name.includes('vue-query') || name.includes('solid-query') || name.includes('svelte-query') || name.includes('swr'))
+    return '🖼️'
   if (name.includes('zod')) return '🧩'
   if (name.includes('faker')) return '🎲'
   if (name.includes('msw')) return '🔧'
   if (name.includes('redoc')) return '📚'
   if (name.includes('cypress')) return '🌲'
-  
+
   return '🔧'
 }
 
@@ -99,7 +100,7 @@ export class ProgressManager {
   initPlugins(pluginNames: string[]): void {
     this.totalPlugins = pluginNames.length
     this.completedPlugins = 0
-    
+
     for (const name of pluginNames) {
       this.plugins.set(name, {
         name,
@@ -191,7 +192,7 @@ export class ProgressManager {
    */
   startFileGeneration(total: number): void {
     this.filesProgress = { current: 0, total }
-    
+
     if (this.mode === 'tty') {
       clack.log.step(`📝 Generating ${total} files...`)
     } else if (this.mode === 'ci') {
@@ -204,7 +205,7 @@ export class ProgressManager {
    */
   updateFileGeneration(message?: string): void {
     this.filesProgress.current++
-    
+
     if (this.mode === 'tty') {
       const percentage = formatPercentage(this.filesProgress.current, this.filesProgress.total)
       clack.log.info(`  [${percentage}] ${message || ''}`)
@@ -234,13 +235,15 @@ export class ProgressManager {
    * Log CI progress summary
    */
   private logCIProgress(): void {
-    const running = Array.from(this.plugins.values()).filter(p => p.status === 'running')
+    const running = Array.from(this.plugins.values()).filter((p) => p.status === 'running')
     if (running.length === 0) return
 
-    const summary = running.map(p => {
-      const percentage = formatPercentage(p.current, p.total)
-      return `  ${p.emoji} ${p.name}: ${percentage}`
-    }).join('\n')
+    const summary = running
+      .map((p) => {
+        const percentage = formatPercentage(p.current, p.total)
+        return `  ${p.emoji} ${p.name}: ${percentage}`
+      })
+      .join('\n')
 
     console.log(`\nProgress (${this.completedPlugins}/${this.totalPlugins} plugins completed):\n${summary}`)
   }

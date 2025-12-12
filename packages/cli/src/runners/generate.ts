@@ -89,9 +89,9 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
   })
 
   // Initialize plugin names for progress tracking
-  const pluginNames = pluginManager.plugins.map(p => p.name)
+  const pluginNames = pluginManager.plugins.map((p) => p.name)
   progressManager.initPlugins(pluginNames)
-  
+
   progressManager.completeSchemaLoading()
 
   logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
@@ -290,7 +290,7 @@ export async function generate({ input, config, args }: GenerateProps): Promise<
   }
 
   console.log(`⚡ Build completed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
-  
+
   const box = boxen(summary.join(''), {
     title: config.name || '',
     padding: 1,
