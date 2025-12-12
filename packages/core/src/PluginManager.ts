@@ -28,13 +28,38 @@ type RequiredPluginLifecycle = Required<PluginLifecycle>
 
 type Strategy = 'hookFirst' | 'hookForPlugin' | 'hookParallel' | 'hookSeq'
 
-type Executer<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  message: string
+type ExecutingMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
   strategy: Strategy
   hookName: H
   plugin: Plugin
   parameters?: unknown[] | undefined
   output?: unknown
+}
+
+type ExecutedMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
+  duration: number
+  strategy: Strategy
+  hookName: H
+  plugin: Plugin
+  parameters?: unknown[] | undefined
+  output?: unknown
+}
+
+type ErrorMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
+  hookName: H
+  duration: number
+  strategy: Strategy
+  parameters?: unknown[] | undefined
+  plugin: Plugin
+}
+
+type ProgressStartMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
+  hookName: H
+  plugins: Array<Plugin>
+}
+
+type ProgressStopMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
+  hookName: H
 }
 
 type ParseResult<H extends PluginLifecycleHooks> = RequiredPluginLifecycle[H]
@@ -56,9 +81,11 @@ type Options = {
 }
 
 type Events = {
-  executing: [executer: Executer]
-  executed: [executer: Executer]
-  error: [error: Error]
+  progress_start: [meta: ProgressStartMeta]
+  progress_stop: [meta: ProgressStopMeta]
+  executing: [meta: ExecutingMeta]
+  executed: [meta: ExecutedMeta]
+  error: [error: Error, meta: ErrorMeta]
 }
 
 type GetFileProps<TOptions = object> = {
@@ -80,8 +107,9 @@ export class PluginManager {
   readonly events: EventEmitter<Events> = new EventEmitter()
 
   readonly config: Config
-
-  readonly executed: Array<Executer> = []
+  /**
+   * @deprecated
+   */
   readonly logger: Logger
   readonly options: Options
 
@@ -171,19 +199,7 @@ export class PluginManager {
         pluginKey: params.pluginKey,
         hookName: 'resolvePath',
         parameters: [params.baseName, params.mode, params.options as object],
-        message: `Resolving path '${params.baseName}'`,
       })
-
-      if (paths && paths?.length > 1) {
-        this.logger.emit('debug', {
-          date: new Date(),
-          logs: [
-            `Cannot return a path where the 'pluginKey' ${
-              params.pluginKey ? JSON.stringify(params.pluginKey) : '"'
-            } is not unique enough\n\nPaths: ${JSON.stringify(paths, undefined, 2)}\n\nFalling back on the first item.\n`,
-          ],
-        })
-      }
 
       return paths?.at(0) || defaultPath
     }
@@ -191,7 +207,6 @@ export class PluginManager {
     const firstResult = this.hookFirstSync({
       hookName: 'resolvePath',
       parameters: [params.baseName, params.mode, params.options as object],
-      message: `Resolving path '${params.baseName}'`,
     })
 
     return firstResult?.result || defaultPath
@@ -203,21 +218,9 @@ export class PluginManager {
         pluginKey: params.pluginKey,
         hookName: 'resolveName',
         parameters: [trim(params.name), params.type],
-        message: `Resolving name '${params.name}' and type '${params.type}'`,
       })
 
       const uniqueNames = new Set(names)
-
-      if (uniqueNames && uniqueNames.size > 1) {
-        this.logger.emit('debug', {
-          date: new Date(),
-          logs: [
-            `Cannot return a name where the 'pluginKey' ${
-              params.pluginKey ? JSON.stringify(params.pluginKey) : '"'
-            } is not unique enough\n\nNames: ${JSON.stringify([...uniqueNames], undefined, 2)}\n\nFalling back on the first item.\n`,
-          ],
-        })
-      }
 
       return transformReservedWord([...uniqueNames].at(0) || params.name)
     }
@@ -225,7 +228,6 @@ export class PluginManager {
     const name = this.hookFirstSync({
       hookName: 'resolveName',
       parameters: [trim(params.name), params.type],
-      message: `Resolving name '${params.name}' and type '${params.type}'`,
     }).result
 
     return transformReservedWord(name)
@@ -245,19 +247,16 @@ export class PluginManager {
     pluginKey,
     hookName,
     parameters,
-    message,
   }: {
     pluginKey: Plugin['key']
     hookName: H
     parameters: PluginParameter<H>
-    message: string
   }): Promise<Array<ReturnType<ParseResult<H>> | null>> {
     const plugins = this.getPluginsByKey(hookName, pluginKey)
 
-    this.logger.emit('progress_start', {
-      id: hookName,
-      size: plugins.length,
-      message: 'Running plugins...',
+    this.events.emit('progress_start', {
+      hookName,
+      plugins,
     })
 
     const items: Array<ReturnType<ParseResult<H>>> = []
@@ -268,7 +267,6 @@ export class PluginManager {
         hookName,
         parameters,
         plugin,
-        message,
       })
 
       if (result !== undefined && result !== null) {
@@ -276,7 +274,7 @@ export class PluginManager {
       }
     }
 
-    this.logger.emit('progress_stop', { id: hookName })
+    this.events.emit('progress_stop', { hookName })
 
     return items
   }
@@ -288,12 +286,10 @@ export class PluginManager {
     pluginKey,
     hookName,
     parameters,
-    message,
   }: {
     pluginKey: Plugin['key']
     hookName: H
     parameters: PluginParameter<H>
-    message: string
   }): Array<ReturnType<ParseResult<H>>> | null {
     const plugins = this.getPluginsByKey(hookName, pluginKey)
 
@@ -304,7 +300,6 @@ export class PluginManager {
           hookName,
           parameters,
           plugin,
-          message,
         })
       })
       .filter(Boolean)
@@ -319,18 +314,16 @@ export class PluginManager {
     hookName,
     parameters,
     skipped,
-    message,
   }: {
     hookName: H
     parameters: PluginParameter<H>
     skipped?: ReadonlySet<Plugin> | null
-    message: string
   }): Promise<SafeParseResult<H>> {
     const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
       return skipped ? skipped.has(plugin) : true
     })
 
-    this.logger.emit('progress_start', { id: hookName, size: plugins.length })
+    this.events.emit('progress_start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return async () => {
@@ -339,7 +332,6 @@ export class PluginManager {
           hookName,
           parameters,
           plugin,
-          message,
         })
 
         return Promise.resolve({
@@ -351,7 +343,7 @@ export class PluginManager {
 
     const result = await this.#promiseManager.run('first', promises)
 
-    this.logger.emit('progress_stop', { id: hookName })
+    this.events.emit('progress_stop', { hookName })
 
     return result
   }
@@ -363,12 +355,10 @@ export class PluginManager {
     hookName,
     parameters,
     skipped,
-    message,
   }: {
     hookName: H
     parameters: PluginParameter<H>
     skipped?: ReadonlySet<Plugin> | null
-    message: string
   }): SafeParseResult<H> {
     let parseResult: SafeParseResult<H> = null as unknown as SafeParseResult<H>
     const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
@@ -382,7 +372,6 @@ export class PluginManager {
           hookName,
           parameters,
           plugin,
-          message,
         }),
         plugin,
       } as SafeParseResult<H>
@@ -401,14 +390,12 @@ export class PluginManager {
   async hookParallel<H extends PluginLifecycleHooks, TOuput = void>({
     hookName,
     parameters,
-    message,
   }: {
     hookName: H
     parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined
-    message: string
   }): Promise<Awaited<TOuput>[]> {
     const plugins = this.#getSortedPlugins(hookName)
-    this.logger.emit('progress_start', { id: hookName, size: plugins.length })
+    this.events.emit('progress_start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return () =>
@@ -417,7 +404,6 @@ export class PluginManager {
           hookName,
           parameters,
           plugin,
-          message,
         }) as Promise<TOuput>
     })
 
@@ -429,11 +415,13 @@ export class PluginManager {
       if (isPromiseRejectedResult<Error>(result)) {
         const plugin = this.#getSortedPlugins(hookName)[index]
 
-        this.#catcher<H>(result.reason, plugin, hookName)
+        if (plugin) {
+          this.events.emit('error', result.reason, { plugin, hookName, strategy: 'hookParallel', duration: 0, parameters })
+        }
       }
     })
 
-    this.logger.emit('progress_stop', { id: hookName })
+    this.events.emit('progress_stop', { hookName })
 
     return results.filter((result) => result.status === 'fulfilled').map((result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value)
   }
@@ -441,17 +429,9 @@ export class PluginManager {
   /**
    * Chains plugins
    */
-  async hookSeq<H extends PluginLifecycleHooks>({
-    hookName,
-    parameters,
-    message,
-  }: {
-    hookName: H
-    parameters?: PluginParameter<H>
-    message: string
-  }): Promise<void> {
+  async hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
     const plugins = this.#getSortedPlugins(hookName)
-    this.logger.emit('progress_start', { id: hookName, size: plugins.length })
+    this.events.emit('progress_start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return () =>
@@ -460,13 +440,12 @@ export class PluginManager {
           hookName,
           parameters,
           plugin,
-          message,
         })
     })
 
     await this.#promiseManager.run('seq', promises)
 
-    this.logger.emit('progress_stop', { id: hookName })
+    this.events.emit('progress_stop', { hookName })
   }
 
   #getSortedPlugins(hookName?: keyof PluginLifecycle): Array<Plugin> {
@@ -542,18 +521,6 @@ export class PluginManager {
     return pluginByPluginName
   }
 
-  #addExecutedToCallStack(executer: Executer | undefined) {
-    if (executer) {
-      this.events.emit('executed', executer)
-      this.executed.push(executer)
-
-      this.logger.emit('progressed', {
-        id: executer.hookName,
-        message: `${executer.plugin.name}: ${executer.message}`,
-      })
-    }
-  }
-
   /**
    * Run an async plugin hook and return the result.
    * @param hookName Name of the plugin hook. Must be either in `PluginHooks` or `OutputPluginValueHooks`.
@@ -566,13 +533,11 @@ export class PluginManager {
     hookName,
     parameters,
     plugin,
-    message,
   }: {
     strategy: Strategy
     hookName: H
     parameters: unknown[] | undefined
     plugin: PluginWithLifeCycle
-    message: string
   }): Promise<ReturnType<ParseResult<H>> | null> | null {
     const hook = plugin[hookName]
     let output: unknown
@@ -586,16 +551,9 @@ export class PluginManager {
       hookName,
       parameters,
       plugin,
-      message,
     })
 
     const startTime = performance.now()
-    this.logger.emit('debug', {
-      date: new Date(),
-      category: 'hook',
-      pluginName: plugin.name,
-      logs: [`Executing hook: ${hookName}`, `  • Strategy: ${strategy}`, '  • Parameters:', JSON.stringify(parameters, null, 2)],
-    })
 
     const task = (async () => {
       try {
@@ -605,21 +563,13 @@ export class PluginManager {
 
           output = result
 
-          const duration = Math.round(performance.now() - startTime)
-          this.logger.emit('debug', {
-            date: new Date(),
-            category: 'hook',
-            pluginName: plugin.name,
-            logs: [`✓ Completed in ${duration}ms`],
-          })
-
-          this.#addExecutedToCallStack({
+          this.events.emit('executed', {
+            duration: Math.round(performance.now() - startTime),
             parameters,
             output,
             strategy,
             hookName,
             plugin,
-            message,
           })
 
           return result
@@ -627,35 +577,18 @@ export class PluginManager {
 
         output = hook
 
-        this.#addExecutedToCallStack({
+        this.events.emit('executed', {
+          duration: Math.round(performance.now() - startTime),
           parameters,
           output,
           strategy,
           hookName,
           plugin,
-          message,
         })
 
         return hook
       } catch (e) {
-        const duration = Math.round(performance.now() - startTime)
-        const error = e as Error
-
-        this.logger.emit('debug', {
-          date: new Date(),
-          category: 'error',
-          pluginName: plugin.name,
-          logs: [
-            `✗ Hook '${hookName}' failed after ${duration}ms`,
-            `  • Strategy: ${strategy}`,
-            `  • Error: ${error.constructor.name} - ${error.message}`,
-            '  • Stack Trace:',
-            error.stack || 'No stack trace available',
-            '  • Parameters:',
-            JSON.stringify(parameters, null, 2),
-          ],
-        })
-        this.#catcher<H>(e as Error, plugin, hookName)
+        this.events.emit('error', e as Error, { plugin, hookName, strategy, duration: Math.round(performance.now() - startTime) })
 
         return null
       }
@@ -676,13 +609,11 @@ export class PluginManager {
     hookName,
     parameters,
     plugin,
-    message,
   }: {
     strategy: Strategy
     hookName: H
     parameters: PluginParameter<H>
     plugin: PluginWithLifeCycle
-    message: string
   }): ReturnType<ParseResult<H>> | null {
     const hook = plugin[hookName]
     let output: unknown
@@ -696,16 +627,9 @@ export class PluginManager {
       hookName,
       parameters,
       plugin,
-      message,
     })
 
     const startTime = performance.now()
-    this.logger.emit('debug', {
-      date: new Date(),
-      category: 'hook',
-      pluginName: plugin.name,
-      logs: [`Executing hook: ${hookName}`, `  • Strategy: ${strategy}`, '  • Parameters:', JSON.stringify(parameters, null, 2)],
-    })
 
     try {
       if (typeof hook === 'function') {
@@ -714,21 +638,13 @@ export class PluginManager {
 
         output = fn
 
-        const duration = Math.round(performance.now() - startTime)
-        this.logger.emit('debug', {
-          date: new Date(),
-          category: 'hook',
-          pluginName: plugin.name,
-          logs: [`✓ Completed in ${duration}ms`],
-        })
-
-        this.#addExecutedToCallStack({
+        this.events.emit('executed', {
+          duration: Math.round(performance.now() - startTime),
           parameters,
           output,
           strategy,
           hookName,
           plugin,
-          message,
         })
 
         return fn
@@ -736,46 +652,21 @@ export class PluginManager {
 
       output = hook
 
-      this.#addExecutedToCallStack({
+      this.events.emit('executed', {
+        duration: Math.round(performance.now() - startTime),
         parameters,
         output,
         strategy,
         hookName,
         plugin,
-        message,
       })
 
       return hook
     } catch (e) {
-      const duration = Math.round(performance.now() - startTime)
-      const error = e as Error
-
-      this.logger.emit('debug', {
-        date: new Date(),
-        category: 'error',
-        pluginName: plugin.name,
-        logs: [
-          `✗ Hook '${hookName}' failed after ${duration}ms`,
-          `  • Strategy: ${strategy}`,
-          `  • Error: ${error.constructor.name} - ${error.message}`,
-          '  • Stack Trace:',
-          error.stack || 'No stack trace available',
-          '  • Parameters:',
-          JSON.stringify(parameters, null, 2),
-        ],
-      })
-
-      this.#catcher<H>(error, plugin, hookName)
+      this.events.emit('error', e as Error, { plugin, hookName, strategy, duration: Math.round(performance.now() - startTime) })
 
       return null
     }
-  }
-
-  #catcher<H extends PluginLifecycleHooks>(cause: Error, plugin?: Plugin, hookName?: H) {
-    const text = `${cause.message} (plugin: ${plugin?.name || 'unknown'}, hook: ${hookName || 'unknown'})`
-
-    this.logger.emit('error', text, cause)
-    this.events.emit('error', cause)
   }
 
   #parse(plugin: UserPlugin): Plugin {

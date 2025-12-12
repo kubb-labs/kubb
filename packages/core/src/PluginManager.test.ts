@@ -101,7 +101,6 @@ describe('PluginManager', () => {
     const { result, plugin } = await pluginManager.hookFirst({
       hookName: 'resolvePath',
       parameters: ['path.ts'],
-      message: '',
     })
 
     expect(plugin.name).toBe('pluginA')
@@ -115,7 +114,6 @@ describe('PluginManager', () => {
     const { result, plugin } = pluginManager.hookFirstSync({
       hookName: 'resolvePath',
       parameters: ['path.ts'],
-      message: '',
     })
 
     expect(plugin.name).toBe('pluginA')
@@ -130,7 +128,6 @@ describe('PluginManager', () => {
     await pluginManager.hookParallel({
       hookName: 'resolvePath',
       parameters: ['path.ts'],
-      message: '',
     })
 
     expect(pluginAMocks.resolvePath).toHaveBeenCalled()
@@ -193,7 +190,6 @@ describe('PluginManager', () => {
       pluginKey: ['pluginB'],
       hookName: 'resolvePath',
       parameters: ['path.ts'],
-      message: '',
     })
 
     expect(pluginAMocks.resolvePath).toHaveBeenCalled()

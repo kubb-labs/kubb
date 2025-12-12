@@ -30,15 +30,11 @@ type BuildOutput = {
   files: Array<KubbFile.ResolvedFile>
   pluginManager: PluginManager
   pluginTimings: Map<string, number>
-  // TODO check if we can remove error
-  /**
-   * Only for safeBuild,
-   * @deprecated
-   */
   error?: Error
 }
 
 type SetupResult = {
+  logger: Logger
   fabric: Fabric
   pluginManager: PluginManager
 }
@@ -85,6 +81,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   } catch (e) {
     if (isInputPath(userConfig)) {
       const error = e as Error
+
       throw new Error(
         `Cannot read file/URL defined in \`input.path\` or set with \`kubb generate PATH\` in the CLI of your Kubb config ${userConfig.input.path}`,
         {
@@ -123,6 +120,33 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   fabric.use(fsPlugin, { dryRun: !definedConfig.output.write })
   fabric.use(typescriptParser)
 
+  fabric.context.on('process:start', ({ files }) => {
+    logger.emit('progress_start', { id: 'files', size: files.length, message: 'Writing files ...' })
+    logger.emit('debug', {
+      date: new Date(),
+      category: 'file',
+      logs: [`Writing ${files.length} files...`],
+    })
+  })
+
+  fabric.context.on('process:progress', async ({ file, source }) => {
+    const message = file ? `Writing ${relative(definedConfig.root, file.path)}` : ''
+    logger.emit('progressed', { id: 'files', message })
+
+    if (source) {
+      await write(file.path, source, { sanity: false })
+    }
+  })
+
+  fabric.context.on('process:end', () => {
+    logger.emit('progress_stop', { id: 'files' })
+    logger.emit('debug', {
+      date: new Date(),
+      category: 'file',
+      logs: ['✓ File write process completed'],
+    })
+  })
+
   logger.emit('debug', {
     date: new Date(),
     category: 'setup',
@@ -135,6 +159,68 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   const pluginManager = new PluginManager(definedConfig, { fabric, logger, concurrency: 5 })
 
+  pluginManager.on('executing', ({ plugin, hookName, strategy, parameters }) => {
+    logger.emit('debug', {
+      date: new Date(),
+      category: 'hook',
+      pluginName: plugin.name,
+      logs: [`Executing hook: ${hookName}`, `  • Strategy: ${strategy}`, '  • Parameters:', JSON.stringify(parameters, null, 2)],
+    })
+  })
+
+  pluginManager.on('executed', ({ plugin, hookName, duration, parameters }) => {
+    let message = ''
+    if (hookName === 'resolvePath') {
+      const [path] = parameters || []
+      message = `Resolving path '${path}'`
+    }
+
+    if (hookName === 'resolveName') {
+      const [name, type] = parameters || []
+      message = `Resolving name '${name}' and type '${type}'`
+    }
+
+    logger.emit('progressed', {
+      id: hookName,
+      message: `${plugin.name}: ${message}`,
+    })
+    logger.emit('debug', {
+      date: new Date(),
+      category: 'hook',
+      pluginName: plugin.name,
+      logs: [`✓ Completed in ${duration}ms`],
+    })
+  })
+
+  pluginManager.on('progress_start', ({ hookName, plugins }) => {
+    logger.emit('progress_start', { id: hookName, size: plugins.length, message: 'Running plugins...' })
+  })
+
+  pluginManager.on('progress_stop', ({ hookName }) => {
+    logger.emit('progress_stop', { id: hookName })
+  })
+
+  pluginManager.on('error', (error, { plugin, strategy, duration, parameters, hookName }) => {
+    const text = `${error.message} (plugin: ${plugin?.name || 'unknown'}, hook: ${hookName || 'unknown'})`
+
+    logger.emit('error', text, error)
+
+    logger.emit('debug', {
+      date: new Date(),
+      category: 'error',
+      pluginName: plugin.name,
+      logs: [
+        `✗ Hook '${hookName}' failed after ${duration}ms`,
+        `  • Strategy: ${strategy}`,
+        `  • Error: ${error.constructor.name} - ${error.message}`,
+        '  • Stack Trace:',
+        error.stack || 'No stack trace available',
+        '  • Parameters:',
+        JSON.stringify(parameters, null, 2),
+      ],
+    })
+  })
+
   logger.emit('debug', {
     date: new Date(),
     category: 'setup',
@@ -142,6 +228,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   })
 
   return {
+    logger,
     fabric,
     pluginManager,
   }
@@ -165,7 +252,7 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
 }
 
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { fabric, pluginManager } = overrides ? overrides : await setup(options)
+  const { fabric, pluginManager, logger } = overrides ? overrides : await setup(options)
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   const pluginTimings = new Map<string, number>()
@@ -182,14 +269,14 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         const timestamp = new Date()
 
         // Start plugin group
-        pluginManager.logger.emit('debug', {
+        logger.emit('debug', {
           date: timestamp,
           pluginGroupMarker: 'start',
           pluginName: plugin.name,
           logs: [],
         })
 
-        pluginManager.logger.emit('debug', {
+        logger.emit('debug', {
           date: timestamp,
           category: 'plugin',
           pluginName: plugin.name,
@@ -201,7 +288,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         const duration = Math.round(performance.now() - startTime)
         pluginTimings.set(plugin.name, duration)
 
-        pluginManager.logger.emit('debug', {
+        logger.emit('debug', {
           date: new Date(),
           category: 'plugin',
           pluginName: plugin.name,
@@ -209,7 +296,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         })
 
         // End plugin group
-        pluginManager.logger.emit('debug', {
+        logger.emit('debug', {
           date: new Date(),
           pluginGroupMarker: 'end',
           pluginName: plugin.name,
@@ -219,7 +306,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         const error = e as Error
         const errorTimestamp = new Date()
 
-        pluginManager.logger.emit('debug', {
+        logger.emit('debug', {
           date: errorTimestamp,
           category: 'error',
           pluginName: plugin.name,
@@ -233,7 +320,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         })
 
         // End plugin group even on error
-        pluginManager.logger.emit('debug', {
+        logger.emit('debug', {
           date: errorTimestamp,
           pluginGroupMarker: 'end',
           pluginName: plugin.name,
@@ -248,7 +335,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       const root = resolve(config.root)
       const rootPath = resolve(root, config.output.path, 'index.ts')
 
-      pluginManager.logger.emit('debug', {
+      logger.emit('debug', {
         date: new Date(),
         logs: ['Generating barrel file', `  • Type: ${config.output.barrelType}`, `  • Path: ${rootPath}`],
       })
@@ -257,7 +344,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         return file.sources.some((source) => source.isIndexable)
       })
 
-      pluginManager.logger.emit('debug', {
+      logger.emit('debug', {
         date: new Date(),
         logs: [`Found ${barrelFiles.length} indexable files for barrel export`],
       })
@@ -301,39 +388,13 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
       await fabric.upsertFile(rootFile)
 
-      pluginManager.logger.emit('debug', {
+      logger.emit('debug', {
         date: new Date(),
         category: 'file',
         logs: [`✓ Generated barrel file (${rootFile.exports?.length || 0} exports)`],
       })
     }
 
-    fabric.context.on('process:start', ({ files }) => {
-      pluginManager.logger.emit('progress_start', { id: 'files', size: files.length, message: 'Writing files ...' })
-      pluginManager.logger.emit('debug', {
-        date: new Date(),
-        category: 'file',
-        logs: [`Writing ${files.length} files...`],
-      })
-    })
-
-    fabric.context.on('process:progress', async ({ file, source }) => {
-      const message = file ? `Writing ${relative(config.root, file.path)}` : ''
-      pluginManager.logger.emit('progressed', { id: 'files', message })
-
-      if (source) {
-        await write(file.path, source, { sanity: false })
-      }
-    })
-
-    fabric.context.on('process:end', () => {
-      pluginManager.logger.emit('progress_stop', { id: 'files' })
-      pluginManager.logger.emit('debug', {
-        date: new Date(),
-        category: 'file',
-        logs: ['✓ File write process completed'],
-      })
-    })
     const files = [...fabric.files]
 
     await fabric.write({ extension: config.output.extension })

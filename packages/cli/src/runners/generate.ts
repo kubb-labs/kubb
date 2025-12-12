@@ -7,7 +7,6 @@ import { execa } from 'execa'
 import pc from 'picocolors'
 import type { Args } from '../commands/generate.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
-import { getErrorCauses } from '../utils/getErrorCauses.ts'
 import { getSummary } from '../utils/getSummary.ts'
 
 type GenerateProps = {
@@ -93,7 +92,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
       config: definedConfig,
       logger,
     },
-    { pluginManager, fabric },
+    { pluginManager, fabric, logger },
   )
 
   if (logger.logLevel >= LogMapper.debug) {
@@ -118,7 +117,24 @@ export async function generate({ input, config, progressCache, args }: GenerateP
 
   if (hasFailures && logger.consola) {
     logger.consola?.resumeLogs()
-    logger.consola?.error(`Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+    logger.consola?.log(`✗  Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+
+    // Collect all errors from failed plugins and general error
+    const allErrors: Error[] = [
+      error,
+      ...Array.from(failedPlugins)
+        .filter((it) => it.error)
+        .map((it) => it.error),
+    ].filter(Boolean)
+
+    allErrors.forEach((err) => {
+      // Display error causes in debug mode
+      if (logger.logLevel >= LogMapper.debug && err.cause) {
+        logger.consola?.error(err.cause)
+      }
+
+      logger.consola?.error(err)
+    })
 
     logger.consola?.box({
       title: `${config.name || ''}`,
@@ -128,34 +144,6 @@ export async function generate({ input, config, progressCache, args }: GenerateP
         borderColor: 'red',
         borderStyle: 'rounded',
       },
-    })
-
-    // Collect all errors from failed plugins and general error
-    const allErrors: Error[] = []
-
-    if (failedPlugins.size > 0) {
-      allErrors.push(
-        ...Array.from(failedPlugins)
-          .filter((it) => it.error)
-          .map((it) => it.error),
-      )
-    }
-
-    if (error) {
-      allErrors.push(error)
-    }
-
-    // Display error causes in debug mode
-    if (logger.logLevel >= LogMapper.debug) {
-      const errorCauses = getErrorCauses(allErrors)
-      errorCauses.forEach((err) => {
-        logger.consola?.error(err)
-      })
-    }
-
-    // Display individual errors
-    allErrors.forEach((err) => {
-      logger.consola?.error(err)
     })
 
     process.exit(1)
@@ -256,7 +244,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
       logger.consola?.error(e)
       logger?.emit('debug', {
         date: new Date(),
-        logs: [`Biome linting failed: ${(e as Error).message}`],
+        logs: [`✗ Biome linting failed: ${(e as Error).message}`],
       })
     }
 
@@ -281,7 +269,7 @@ export async function generate({ input, config, progressCache, args }: GenerateP
       logger.consola?.error(e)
       logger?.emit('debug', {
         date: new Date(),
-        logs: [`Oxlint linting failed: ${(e as Error).message}`],
+        logs: [`✗ Oxlint linting failed: ${(e as Error).message}`],
       })
     }
 
@@ -293,7 +281,6 @@ export async function generate({ input, config, progressCache, args }: GenerateP
   }
 
   logger.consola?.log(`⚡ Build completed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
-
   logger.consola?.box({
     title: `${config.name || ''}`,
     message: summary.join(''),

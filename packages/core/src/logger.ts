@@ -37,7 +37,7 @@ type DebugEvent = {
 type Events = {
   start: [message: string]
   success: [message: string]
-  error: [message: string, cause: Error]
+  error: [message: string, error: Error]
   warning: [message: string]
   debug: [DebugEvent]
   verbose: [DebugEvent]
