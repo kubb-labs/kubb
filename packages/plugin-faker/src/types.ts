@@ -1,7 +1,7 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
 import type { contentType, Oas, SchemaObject } from '@kubb/oas'
-import type { Exclude, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
+import type { Exclude, Include, Override, ResolvePathOptions, Schema, MapperValue } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
 
 export type Options = {
@@ -65,8 +65,27 @@ export type Options = {
    * @default 'faker'
    */
   regexGenerator?: 'faker' | 'randexp'
-
-  mapper?: Record<string, string>
+  /**
+   * Custom mapper for property generation.
+   * Can be a string (static override) or function (with schema access for custom attributes)
+   * 
+   * @example
+   * ```typescript
+   * // String mapper (static)
+   * mapper: {
+   *   status: `faker.helpers.arrayElement(['active', 'inactive'])`
+   * }
+   * 
+   * // Function mapper (with schema access)
+   * mapper: {
+   *   email: (schema, defaultOutput) => {
+   *     const pattern = schema?.['x-custom-pattern']
+   *     return pattern ? `faker.helpers.fromRegExp(${pattern})` : defaultOutput
+   *   }
+   * }
+   * ```
+   */
+  mapper?: Record<string, MapperValue>
   /**
    * The use of Seed is intended to allow for consistent values in a test.
    */

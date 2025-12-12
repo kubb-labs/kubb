@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 
 import type { Schema, SchemaMapper } from '@kubb/plugin-oas'
-import { createParser, findSchemaKeyword, isKeyword, SchemaGenerator, type SchemaKeywordMapper, schemaKeywords } from '@kubb/plugin-oas'
+import { createParser, findSchemaKeyword, isKeyword, SchemaGenerator, type SchemaKeywordMapper, schemaKeywords, type MapperValue } from '@kubb/plugin-oas'
 
 //TODO add zodKeywordMapper as function that returns 3 versions: v3, v4 and v4 mini, this can also be used to have the custom mapping(see object type)
 // also include shouldCoerce
@@ -471,7 +471,11 @@ const shouldCoerce = (coercion: ParserOptions['coercion'] | undefined, type: 'da
 }
 
 type ParserOptions = {
-  mapper?: Record<string, string>
+  /**
+   * Custom mapper for property generation.
+   * Can be a string (static override) or function (with schema access for custom attributes)
+   */
+  mapper?: Record<string, MapperValue>
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
   version: '3' | '4'
@@ -598,26 +602,33 @@ export const parse = createParser<string, ParserOptions>({
 
           const mappedName = nameSchema?.args || propertyName
 
-          // custom mapper(pluginOptions)
-          if (options.mapper?.[mappedName]) {
-            return `"${propertyName}": ${options.mapper?.[mappedName]}`
+          // Helper to generate base schema output (used by both mapper and default paths)
+          const generateBaseOutput = () => {
+            const baseSchemaOutput = sort(schemas)
+              .filter((schema) => {
+                return !isKeyword(schema, schemaKeywords.optional) && !isKeyword(schema, schemaKeywords.nullable) && !isKeyword(schema, schemaKeywords.nullish)
+              })
+              .map((it) => {
+                const skipLazyForRefs = options.version === '4' && hasRef
+                return this.parse({ schema, parent: current, name, current: it, siblings: schemas }, { ...options, skipLazyForRefs })
+              })
+              .filter(Boolean)
+              .join('')
+            
+            return options.wrapOutput
+              ? options.wrapOutput({ output: baseSchemaOutput, schema: schema?.properties?.[propertyName] }) || baseSchemaOutput
+              : baseSchemaOutput
           }
 
-          const baseSchemaOutput = sort(schemas)
-            .filter((schema) => {
-              return !isKeyword(schema, schemaKeywords.optional) && !isKeyword(schema, schemaKeywords.nullable) && !isKeyword(schema, schemaKeywords.nullish)
-            })
-            .map((it) => {
-              // For v4 with refs, skip z.lazy wrapper since the getter provides lazy evaluation
-              const skipLazyForRefs = options.version === '4' && hasRef
-              return this.parse({ schema, parent: current, name, current: it, siblings: schemas }, { ...options, skipLazyForRefs })
-            })
-            .filter(Boolean)
-            .join('')
+          // custom mapper(pluginOptions) - now supports both string and function
+          const mapperValue = options.mapper?.[mappedName]
+          if (mapperValue) {
+            const defaultOutput = generateBaseOutput()
+            const evaluatedMapper = SchemaGenerator.evaluateMapper(mapperValue, schema?.properties?.[propertyName], defaultOutput)
+            return `"${propertyName}": ${evaluatedMapper}`
+          }
 
-          const objectValue = options.wrapOutput
-            ? options.wrapOutput({ output: baseSchemaOutput, schema: schema?.properties?.[propertyName] }) || baseSchemaOutput
-            : baseSchemaOutput
+          const objectValue = generateBaseOutput()
 
           if (options.version === '4' && hasRef) {
             // In mini mode, use functional wrappers instead of chainable methods

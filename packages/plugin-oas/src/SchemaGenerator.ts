@@ -21,6 +21,19 @@ export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> 
 
 export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
+/**
+ * Mapper function type that receives schema object and default output
+ * @param schema - The OpenAPI schema object containing custom attributes
+ * @param defaultOutput - The default generated output string
+ * @returns Modified output string
+ */
+export type MapperFunction = (schema: SchemaObject | undefined, defaultOutput: string) => string
+
+/**
+ * Mapper value can be either a string (static override) or a function (with schema access)
+ */
+export type MapperValue = string | MapperFunction
+
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   fabric: Fabric
   oas: Oas
@@ -44,7 +57,31 @@ export type SchemaGeneratorOptions = {
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   enumSuffix?: string
   usedEnumNames?: Record<string, number>
-  mapper?: Record<string, string>
+  /**
+   * Custom mapper for property generation.
+   * Can be:
+   * - String: Static override for the property
+   * - Function: Dynamic generation with access to schema object (including custom x-* attributes)
+   * 
+   * @example
+   * ```typescript
+   * // String mapper (static)
+   * mapper: {
+   *   status: `faker.helpers.arrayElement(['active', 'inactive'])`
+   * }
+   * 
+   * // Function mapper (dynamic with schema access)
+   * mapper: {
+   *   email: (schema, defaultOutput) => {
+   *     const errorMsg = schema?.['x-error-message']
+   *     return errorMsg 
+   *       ? `${defaultOutput}.email({ message: "${errorMsg}" })`
+   *       : defaultOutput
+   *   }
+   * }
+   * ```
+   */
+  mapper?: Record<string, MapperValue>
   typed?: boolean
   transformers: {
     /**
@@ -233,6 +270,71 @@ export class SchemaGenerator<
         args: newArgs,
       }
     })
+  }
+
+  /**
+   * Evaluates a mapper value (either string or function) and returns the final output
+   * 
+   * @param mapperValue - The mapper value from options (string or function).
+   *   - String: Returned as-is (backward compatible with existing usage)
+   *   - Function: Called with schema and defaultOutput parameters
+   *   - undefined: Returns defaultOutput unchanged
+   * 
+   * @param schema - The OpenAPI schema object that may contain custom x-* attributes.
+   *   - May be undefined when mapping properties that don't have an associated schema object
+   *   - Function mappers should handle undefined schema gracefully
+   * 
+   * @param defaultOutput - The default generated output string.
+   *   - This is the output that would be generated without any mapper
+   *   - Function mappers can use this as a base for modifications
+   * 
+   * @returns The final output string. Function mappers should always return a string.
+   * 
+   * @example
+   * ```ts
+   * // String mapper
+   * evaluateMapper('z.string()', undefined, 'z.number()') // returns 'z.string()'
+   * 
+   * // Function mapper with custom attribute
+   * evaluateMapper(
+   *   (schema, defaultOutput) => {
+   *     const msg = schema?.['x-error-message']
+   *     return msg ? `${defaultOutput}.refine(..., "${msg}")` : defaultOutput
+   *   },
+   *   { type: 'string', 'x-error-message': 'Invalid' },
+   *   'z.string()'
+   * ) // returns 'z.string().refine(..., "Invalid")'
+   * 
+   * // Function mapper with no schema
+   * evaluateMapper(
+   *   (schema, defaultOutput) => schema?.['x-custom'] || defaultOutput,
+   *   undefined,
+   *   'z.string()'
+   * ) // returns 'z.string()'
+   * ```
+   */
+  static evaluateMapper(mapperValue: MapperValue | undefined, schema: SchemaObject | undefined, defaultOutput: string): string {
+    if (!mapperValue) {
+      return defaultOutput
+    }
+
+    // If mapper is a string, return it directly (backward compatible)
+    if (typeof mapperValue === 'string') {
+      return mapperValue
+    }
+
+    // If mapper is a function, call it with schema and defaultOutput
+    if (typeof mapperValue === 'function') {
+      const result = mapperValue(schema, defaultOutput)
+      // Ensure the result is a string to prevent runtime issues
+      if (typeof result !== 'string') {
+        console.warn('[Kubb] Mapper function must return a string. Falling back to default output.')
+        return defaultOutput
+      }
+      return result
+    }
+
+    return defaultOutput
   }
 
   #getOptions({ name }: SchemaProps): Partial<TOptions> {

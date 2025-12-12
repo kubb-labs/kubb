@@ -13,6 +13,8 @@ export type {
   SchemaGeneratorBuildOptions,
   SchemaGeneratorOptions,
   SchemaMethodResult,
+  MapperFunction,
+  MapperValue,
 } from './SchemaGenerator.ts'
 export { SchemaGenerator } from './SchemaGenerator.ts'
 export type {
