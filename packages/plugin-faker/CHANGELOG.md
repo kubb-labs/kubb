@@ -1,5 +1,17 @@
 # @kubb/plugin-faker
 
+## 4.11.1
+
+### Patch Changes
+
+- [#2154](https://github.com/kubb-labs/kubb/pull/2154) [`801a678`](https://github.com/kubb-labs/kubb/commit/801a67818bf58ccad0a804a7177b0d1e7da2e4b0) Thanks [@IanVS](https://github.com/IanVS)! - Allow overriding data in mocks when using allOf schemas
+
+- Updated dependencies []:
+  - @kubb/core@4.11.1
+  - @kubb/oas@4.11.1
+  - @kubb/plugin-oas@4.11.1
+  - @kubb/plugin-ts@4.11.1
+
 ## 4.11.0
 
 ### Minor Changes
