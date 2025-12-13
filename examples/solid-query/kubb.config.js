@@ -11,11 +11,9 @@ export default defineConfig({
   output: {
     path: './src/gen',
     clean: true,
-    format: 'biome',
-    lint: 'biome',
   },
   hooks: {
-    done: ['npm run typecheck'],
+    done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
   },
   plugins: [
     pluginOas({
