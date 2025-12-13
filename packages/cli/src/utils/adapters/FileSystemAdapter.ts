@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import type { Logger } from '@kubb/core/logger'
 import { write } from '@kubb/core/fs'
 import { defineLoggerAdapter } from './defineLoggerAdapter.ts'
-import type { LoggerAdapterOptions } from './types.ts'
+import type { LoggerAdapter, LoggerAdapterOptions } from './types.ts'
 
 type DebugEvent = {
   date: Date
@@ -26,45 +26,44 @@ export type FileSystemAdapterOptions = LoggerAdapterOptions & {
 /**
  * FileSystemAdapter with additional writeLogs method
  */
-export type FileSystemAdapterInstance = ReturnType<typeof createFileSystemAdapter>
+export type FileSystemAdapter = LoggerAdapter & {
+  writeLogs(): Promise<void>
+}
 
 /**
  * FileSystemAdapter writes debug and verbose logs to files in .kubb directory
  * This adapter captures all debug/verbose events and persists them to disk
  */
-export const createFileSystemAdapter = defineLoggerAdapter((options: FileSystemAdapterOptions) => {
+export const createFileSystemAdapter = defineLoggerAdapter<FileSystemAdapterOptions, FileSystemAdapter>((options: FileSystemAdapterOptions) => {
   const cachedLogs: Set<DebugEvent> = new Set()
   const startDate: number = Date.now()
-  const cleanupFns: Array<() => void> = []
   const outputDir = options.outputDir || '.kubb'
+  let loggerRef: Logger | undefined
+
+  const debugHandler = (event: DebugEvent) => {
+    cachedLogs.add(event)
+  }
+
+  const verboseHandler = (event: DebugEvent) => {
+    cachedLogs.add(event)
+  }
 
   return {
     name: 'filesystem',
 
     install(logger: Logger): void {
-      // Listen to debug events and cache them
-      const debugHandler = (event: DebugEvent) => {
-        cachedLogs.add(event)
-      }
-
-      const verboseHandler = (event: DebugEvent) => {
-        cachedLogs.add(event)
-      }
-
+      loggerRef = logger
       logger.on('debug', debugHandler)
       logger.on('verbose', verboseHandler)
-
-      // Store cleanup functions
-      cleanupFns.push(
-        () => logger.on('debug', () => {}),
-        () => logger.on('verbose', () => {}),
-      )
     },
 
     cleanup(): void {
-      // Call all cleanup functions
-      cleanupFns.forEach((fn) => fn())
-      cleanupFns.length = 0
+      // Properly remove event listeners if we have a logger reference
+      if (loggerRef) {
+        loggerRef.off('debug', debugHandler)
+        loggerRef.off('verbose', verboseHandler)
+        loggerRef = undefined
+      }
     },
 
     async writeLogs(): Promise<void> {

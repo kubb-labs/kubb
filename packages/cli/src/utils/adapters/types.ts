@@ -34,4 +34,7 @@ export type LoggerAdapterOptions = {
 /**
  * Factory function type for creating logger adapters
  */
-export type CreateLoggerAdapter<TOptions extends LoggerAdapterOptions = LoggerAdapterOptions> = (options: TOptions) => LoggerAdapter
+export type CreateLoggerAdapter<
+  TOptions extends LoggerAdapterOptions = LoggerAdapterOptions,
+  TAdapter extends LoggerAdapter = LoggerAdapter,
+> = (options: TOptions) => TAdapter

@@ -72,6 +72,7 @@ export type Logger = {
   name?: string
   logLevel: LogLevel
   on: EventEmitter<Events>['on']
+  off: EventEmitter<Events>['off']
   emit: EventEmitter<Events>['emit']
 }
 
@@ -88,6 +89,9 @@ export function createLogger({ logLevel = 3, name }: Props = {}): Logger {
     logLevel,
     on(...args) {
       return events.on(...args)
+    },
+    off(...args) {
+      return events.off(...args)
     },
     emit(...args) {
       return events.emit(...args)
