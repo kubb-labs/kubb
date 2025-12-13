@@ -60,9 +60,6 @@
       ],
       "hooks": [
         "./dist/hooks.d.ts"
-      ],
-      "fs": [
-        "./dist/fs.d.ts"
       ]
     }
   },
