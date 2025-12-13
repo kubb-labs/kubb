@@ -1,18 +1,15 @@
 import path from 'node:path'
 import * as process from 'node:process'
+import * as clack from '@clack/prompts'
 import { isInputPath, PromiseManager } from '@kubb/core'
 import { createLogger, LogMapper } from '@kubb/core/logger'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
-import type { SingleBar } from 'cli-progress'
 import pc from 'picocolors'
+import { createFileSystemAdapter, createLoggerAdapterAuto } from '../utils/adapters/index.ts'
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { startWatcher } from '../utils/watcher.ts'
-
-declare global {
-  var isDevtoolsEnabled: any
-}
 
 const args = {
   config: {
@@ -62,11 +59,10 @@ const command = defineCommand({
   },
   args,
   async run(commandContext) {
-    const progressCache = new Map<string, SingleBar>()
-
     const { args } = commandContext
-
     const input = args._[0]
+    const promiseManager = new PromiseManager()
+    const { generate } = await import('../runners/generate.ts')
 
     if (args.help) {
       return showUsage(command)
@@ -80,76 +76,75 @@ const command = defineCommand({
       args.logLevel = 'verbose'
     }
 
-    const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
     const logger = createLogger({
-      logLevel,
+      logLevel: LogMapper[args.logLevel as keyof typeof LogMapper] || 3, // 3 is info
     })
-    const { generate } = await import('../runners/generate.ts')
 
-    logger.emit('start', 'Loading config')
+    // Create and setup logger adapter based on environment
+    const adapter = createLoggerAdapterAuto({
+      logLevel: logger.logLevel,
+    })
+    adapter.install(logger)
+
+    // Create filesystem adapter for debug logging
+    const fsAdapter = createFileSystemAdapter({
+      logLevel: logger.logLevel,
+    })
+    fsAdapter.install(logger)
+
+    logger.emit('start', 'Configuration started')
+
+    const configLogger = clack.taskLog({
+      title: 'Loading config',
+    })
 
     const result = await getCosmiConfig('kubb', args.config)
-    logger.emit('success', `Config loaded(${pc.dim(path.relative(process.cwd(), result.filepath))})`)
-
+    if (logger.logLevel > LogMapper.silent) {
+      configLogger.message(`Config loaded from ${pc.dim(path.relative(process.cwd(), result.filepath))}}`)
+    }
     const config = await getConfig(result, args)
 
-    const start = async () => {
-      if (Array.isArray(config)) {
-        const promiseManager = new PromiseManager()
-        const promises = config.map((c) => () => {
-          progressCache.clear()
+    const configs = Array.isArray(config) ? config : [config]
 
-          return generate({
-            input,
-            config: c,
-            args,
-            progressCache,
+    configLogger.success('✓ Config loaded successfully')
+    logger.emit('stop', 'Configuration completed')
+
+    const promises = configs.map((config) => {
+      return async () => {
+        if (isInputPath(config) && args.watch) {
+          await startWatcher([input || config.input.path], async (paths) => {
+            await generate({
+              input,
+              config,
+              logger,
+            })
+
+            clack.log.step(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
           })
-        })
 
-        await promiseManager.run('seq', promises)
-        return
-      }
+          return
+        }
 
-      progressCache.clear()
-
-      await generate({
-        input,
-        config,
-        progressCache,
-        args,
-      })
-
-      return
-    }
-
-    if (args.watch) {
-      if (Array.isArray(config)) {
-        throw new Error('Cannot use watcher with multiple Configs(array)')
-      }
-
-      if (isInputPath(config)) {
-        return startWatcher([input || config.input.path], async (paths) => {
-          await start()
-          logger.emit('start', pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
+        await generate({
+          input,
+          config,
+          logger,
         })
       }
+    })
+
+    await promiseManager.run('seq', promises)
+
+    // Write debug logs to filesystem if in debug mode
+    if (logger.logLevel >= LogMapper.debug) {
+      console.log('⏳ Writing logs')
+      await fsAdapter.writeLogs()
+      console.log('✅ Written logs')
     }
 
-    await start()
-
-    if (globalThis.isDevtoolsEnabled) {
-      const canRestart = await logger.consola?.prompt('Restart(could be used to validate the profiler)?', {
-        type: 'confirm',
-        initial: false,
-      })
-
-      if (canRestart) {
-        await start()
-      } else {
-        process.exit(1)
-      }
-    }
+    // Cleanup adapters
+    adapter.cleanup()
+    fsAdapter.cleanup()
   },
 })
 

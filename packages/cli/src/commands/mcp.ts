@@ -1,6 +1,5 @@
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
-import consola from 'consola'
 import { createJiti } from 'jiti'
 import pc from 'picocolors'
 
@@ -36,16 +35,16 @@ const command = defineCommand({
     try {
       mod = await jiti.import('@kubb/mcp', { default: true })
     } catch (_e) {
-      consola.error(`Import of '@kubb/mcp' is required to start the MCP server`)
+      console.error(`Import of '@kubb/mcp' is required to start the MCP server`)
     }
 
     const { startServer } = mod
     try {
-      consola.start('Starting MCP server...')
-      consola.warn(pc.yellow('This feature is still under development — use with caution'))
+      console.log('⏳ Starting MCP server...')
+      console.warn(pc.yellow('This feature is still under development — use with caution'))
       await startServer()
     } catch (e) {
-      consola.error((e as Error)?.message)
+      console.error((e as Error)?.message)
     }
   },
 })
