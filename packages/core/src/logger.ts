@@ -27,23 +27,38 @@ type DebugEvent = {
    * - 'end': End of plugin execution group
    */
   pluginGroupMarker?: 'start' | 'end'
+  /**
+   * Optional group ID for associating logs with specific groups (e.g., for GitHub Actions)
+   */
+  groupId?: string
+}
+
+/**
+ * Base event with optional group ID for GitHub Actions workflow grouping
+ */
+type GroupableEvent = {
+  /**
+   * Optional group ID to associate this event with a specific group
+   * Used for GitHub Actions ::group:: annotations
+   */
+  groupId?: string
 }
 
 type Events = {
-  start: [message: string]
-  stop: [message: string]
-  success: [message: string]
-  error: [message: string, error: Error]
-  warning: [message: string]
-  step: [message: string]
+  start: [message: string, options?: GroupableEvent]
+  stop: [message: string, options?: GroupableEvent]
+  success: [message: string, options?: GroupableEvent]
+  error: [message: string, error: Error, options?: GroupableEvent]
+  warning: [message: string, options?: GroupableEvent]
+  step: [message: string, options?: GroupableEvent]
   debug: [DebugEvent]
   verbose: [DebugEvent]
-  info: [message: string]
-  'progress:start': [{ id: string; size: number; message?: string }]
+  info: [message: string, options?: GroupableEvent]
+  'progress:start': [{ id: string; size: number; message?: string; groupId?: string }]
   progressed: [{ id: string; message?: string }]
   'progress:stop': [{ id: string }]
-  'plugin:start': [{ pluginName: string; pluginKey: unknown }]
-  'plugin:end': [{ pluginName: string; pluginKey: unknown; duration: number }]
+  'plugin:start': [{ pluginName: string; pluginKey: unknown; groupId?: string }]
+  'plugin:end': [{ pluginName: string; pluginKey: unknown; duration: number; groupId?: string }]
 }
 
 /**

@@ -8,7 +8,7 @@ import type { LoggerAdapterOptions } from './types.ts'
 /**
  * Clack adapter for local TTY environments
  * Provides a beautiful CLI UI with flat structure inspired by Claude's CLI patterns
- * 
+ *
  * Key features:
  * - Task status icons (✓ success, ✗ error, ⚠ warning, ◐ in-progress)
  * - Single-level indentation for subtasks (Clack limitation)
@@ -27,11 +27,11 @@ export const createClackAdapter = defineLoggerAdapter((options: LoggerAdapterOpt
 
     install(logger: Logger): void {
       // Main lifecycle events - use intro/outro
-      logger.on('start', (message) => {
+      logger.on('start', (message, _opts) => {
         clack.intro(pc.bold(message))
       })
 
-      logger.on('stop', (message) => {
+      logger.on('stop', (message, _opts) => {
         // Show summary with error/warning counts if any
         if (errorCount.value > 0 || warningCount.value > 0) {
           const parts: string[] = []
@@ -48,17 +48,17 @@ export const createClackAdapter = defineLoggerAdapter((options: LoggerAdapterOpt
       })
 
       // Step messages - show as in-progress tasks
-      logger.on('step', (message) => {
+      logger.on('step', (message, _opts) => {
         clack.log.step(pc.cyan(`◐ ${message}`))
       })
 
       // Success messages - show with checkmark
-      logger.on('success', (message) => {
+      logger.on('success', (message, _opts) => {
         clack.log.success(pc.green(`✓ ${message}`))
       })
 
       // Warning messages - show with warning icon and count
-      logger.on('warning', (message) => {
+      logger.on('warning', (message, _opts) => {
         if (logLevel >= LogMapper.warn) {
           warningCount.value++
           clack.log.warning(`${pc.yellow('⚠')} ${message}`)
@@ -66,17 +66,17 @@ export const createClackAdapter = defineLoggerAdapter((options: LoggerAdapterOpt
       })
 
       // Error messages - show with error icon, count, and context
-      logger.on('error', (message, error) => {
+      logger.on('error', (message, error, _opts) => {
         errorCount.value++
-        
+
         // Main error message
         clack.log.error(`${pc.red('✗')} ${pc.bold(message)}`)
-        
+
         // Show error details with indentation (single level)
         if (error.message) {
           clack.log.message(`  ${pc.dim('└─')} ${pc.red(error.message)}`)
         }
-        
+
         // Show stack trace in debug mode
         if (logLevel >= LogMapper.debug && error.stack) {
           const stackLines = error.stack.split('\n').slice(1, 4) // First 3 stack frames
@@ -87,7 +87,7 @@ export const createClackAdapter = defineLoggerAdapter((options: LoggerAdapterOpt
       })
 
       // Info messages
-      logger.on('info', (message) => {
+      logger.on('info', (message, _opts) => {
         if (logLevel >= LogMapper.info) {
           clack.log.info(`${pc.blue('ℹ')} ${message}`)
         }
@@ -97,18 +97,16 @@ export const createClackAdapter = defineLoggerAdapter((options: LoggerAdapterOpt
       logger.on('verbose', (message) => {
         if (logLevel >= LogMapper.verbose) {
           // Group related verbose logs by indenting them
-          const timestamp = new Date().toLocaleTimeString('en-US', { 
+          const timestamp = new Date().toLocaleTimeString('en-US', {
             hour12: false,
-            hour: '2-digit', 
+            hour: '2-digit',
             minute: '2-digit',
-            second: '2-digit'
+            second: '2-digit',
           })
-          
+
           // Show verbose messages with timestamp prefix for traceability
-          const formattedLogs = message.logs
-            .map(log => `  ${pc.dim('└─')} ${log}`)
-            .join('\n')
-          
+          const formattedLogs = message.logs.map((log) => `  ${pc.dim('└─')} ${log}`).join('\n')
+
           clack.log.message(`${pc.dim(`[${timestamp}]`)} ${pc.cyan('verbose')}`)
           clack.log.message(formattedLogs)
         }
@@ -129,9 +127,7 @@ export const createClackAdapter = defineLoggerAdapter((options: LoggerAdapterOpt
       })
 
       logger.on('plugin:end', ({ pluginName, duration }) => {
-        const durationStr = duration < 1000 
-          ? `${duration}ms` 
-          : `${(duration / 1000).toFixed(2)}s`
+        const durationStr = duration < 1000 ? `${duration}ms` : `${(duration / 1000).toFixed(2)}s`
         clack.log.success(pc.green(`✓ ${pluginName} ${pc.dim(`(${durationStr})`)}`))
       })
     },

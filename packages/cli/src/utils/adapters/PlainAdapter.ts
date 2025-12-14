@@ -21,35 +21,35 @@ export const createPlainAdapter = defineLoggerAdapter((options: LoggerAdapterOpt
 
     install(logger: Logger): void {
       // Main lifecycle
-      logger.on('start', (message) => {
+      logger.on('start', (message, _opts) => {
         log(message)
         indentLevel++
       })
 
-      logger.on('stop', (message) => {
+      logger.on('stop', (message, _opts) => {
         indentLevel = Math.max(0, indentLevel - 1)
         log(message)
       })
 
       // Step messages
-      logger.on('step', (message) => {
+      logger.on('step', (message, _opts) => {
         log(`→ ${message}`)
       })
 
       // Success messages
-      logger.on('success', (message) => {
+      logger.on('success', (message, _opts) => {
         log(`✓ ${message}`)
       })
 
       // Warning messages
-      logger.on('warning', (message) => {
+      logger.on('warning', (message, _opts) => {
         if (logLevel >= LogMapper.warn) {
           log(`⚠ ${message}`)
         }
       })
 
       // Error messages
-      logger.on('error', (message, error) => {
+      logger.on('error', (message, error, _opts) => {
         log(`✗ ${message}`)
         if (error) {
           console.error(error)
@@ -57,7 +57,7 @@ export const createPlainAdapter = defineLoggerAdapter((options: LoggerAdapterOpt
       })
 
       // Info messages
-      logger.on('info', (message) => {
+      logger.on('info', (message, _opts) => {
         if (logLevel >= LogMapper.info) {
           log(message)
         }
