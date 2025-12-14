@@ -14,6 +14,8 @@ import type { LoggerAdapterOptions } from './types.ts'
  * - Single-level indentation for subtasks (Clack limitation)
  * - Contextual error messages with actionable suggestions
  * - Clear visual hierarchy with colors and symbols
+ * - Timestamped verbose logging for detailed operation tracing
+ * - Category-based debug logging with color-coded prefixes
  */
 export const createClackAdapter = defineLoggerAdapter((options: LoggerAdapterOptions) => {
   const logLevel = options.logLevel
@@ -91,11 +93,24 @@ export const createClackAdapter = defineLoggerAdapter((options: LoggerAdapterOpt
         }
       })
 
-      // Verbose messages
+      // Verbose messages - inspired by Claude's detailed operation logging
       logger.on('verbose', (message) => {
         if (logLevel >= LogMapper.verbose) {
-          const formattedLogs = message.logs.join('\n')
-          clack.log.message(pc.dim(formattedLogs))
+          // Group related verbose logs by indenting them
+          const timestamp = new Date().toLocaleTimeString('en-US', { 
+            hour12: false,
+            hour: '2-digit', 
+            minute: '2-digit',
+            second: '2-digit'
+          })
+          
+          // Show verbose messages with timestamp prefix for traceability
+          const formattedLogs = message.logs
+            .map(log => `  ${pc.dim('└─')} ${log}`)
+            .join('\n')
+          
+          clack.log.message(`${pc.dim(`[${timestamp}]`)} ${pc.cyan('verbose')}`)
+          clack.log.message(formattedLogs)
         }
       })
 
