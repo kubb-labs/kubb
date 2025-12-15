@@ -46,7 +46,7 @@ describe('cypressGenerator operation', async () => {
       path: '/pets',
       method: 'post',
       options: {
-        prefix: ''
+        prefix: '',
       },
     },
     {
@@ -55,7 +55,7 @@ describe('cypressGenerator operation', async () => {
       path: '/pets/{petId}',
       method: 'delete',
       options: {
-        prefix: 'prefix'
+        prefix: 'prefix',
       },
     },
   ] as const satisfies Array<{
