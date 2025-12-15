@@ -120,8 +120,12 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   fabric.use(fsPlugin, { dryRun: !definedConfig.output.write })
   fabric.use(typescriptParser)
 
-  fabric.context.on('process:start', ({ files }) => {
-    logger.emit('progress:start', { id: 'files', size: files.length, message: 'Writing files ...' })
+  fabric.context.on('files:processing:start', ({ files }) => {
+    logger.emit('progress:start', {
+      id: 'files',
+      size: files.length,
+      message: 'Writing files ...',
+    })
     logger.emit('debug', {
       date: new Date(),
       category: 'file',
@@ -129,7 +133,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     })
   })
 
-  fabric.context.on('process:progress', async ({ file, source }) => {
+  fabric.context.on('files:processing:update', async ({ file, source }) => {
     const message = file ? `Writing ${relative(definedConfig.root, file.path)}` : ''
     logger.emit('progressed', { id: 'files', message })
 
@@ -138,7 +142,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     }
   })
 
-  fabric.context.on('process:end', () => {
+  fabric.context.on('files:processing:end', () => {
     logger.emit('progress:stop', { id: 'files' })
     logger.emit('debug', {
       date: new Date(),
@@ -157,7 +161,11 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     ],
   })
 
-  const pluginManager = new PluginManager(definedConfig, { fabric, logger, concurrency: 5 })
+  const pluginManager = new PluginManager(definedConfig, {
+    fabric,
+    logger,
+    concurrency: 5,
+  })
 
   pluginManager.on('executing', ({ plugin, hookName, strategy, parameters }) => {
     logger.emit('debug', {
@@ -193,7 +201,11 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   })
 
   pluginManager.on('progress:start', ({ hookName, plugins }) => {
-    logger.emit('progress:start', { id: hookName, size: plugins.length, message: 'Running plugins...' })
+    logger.emit('progress:start', {
+      id: hookName,
+      size: plugins.length,
+      message: 'Running plugins...',
+    })
   })
 
   pluginManager.on('progress:stop', ({ hookName }) => {
@@ -354,7 +366,9 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
                   const meta = file.meta as any
                   return isDeepEqual(item.key, meta?.pluginKey)
                 })
-                const pluginOptions = plugin?.options as { output?: Output<any> }
+                const pluginOptions = plugin?.options as {
+                  output?: Output<any>
+                }
 
                 if (!pluginOptions || pluginOptions?.output?.barrelType === false) {
                   return undefined

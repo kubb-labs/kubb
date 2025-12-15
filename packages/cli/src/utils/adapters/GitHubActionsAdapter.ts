@@ -7,7 +7,7 @@ import type { LoggerAdapterOptions } from './types.ts'
  * Uses ::group:: and ::endgroup:: annotations for collapsible sections
  * Supports nested groups with group IDs
  */
-export const createGitHubActionsAdapter = defineLoggerAdapter((options: LoggerAdapterOptions) => {
+export const createGitHubActionsAdapter = defineLoggerAdapter((_options: LoggerAdapterOptions) => {
   const activeGroups: Map<string, boolean> = new Map()
 
   return {

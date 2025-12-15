@@ -1,7 +1,7 @@
 import { mkdir, rm } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { createLogger } from '@kubb/core/logger'
-import { describe, expect, it, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createFileSystemAdapter } from './FileSystemAdapter.ts'
 
 describe('FileSystemAdapter', () => {

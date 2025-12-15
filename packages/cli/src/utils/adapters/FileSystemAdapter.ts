@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import type { Logger } from '@kubb/core/logger'
-import { write } from '@kubb/core/fs'
+// import fs from "fs-extra";
 import { defineLoggerAdapter } from './defineLoggerAdapter.ts'
 import type { LoggerAdapter, LoggerAdapterOptions } from './types.ts'
 
@@ -81,11 +81,13 @@ export const createFileSystemAdapter = defineLoggerAdapter<FileSystemAdapterOpti
         }
       })
 
-      await Promise.all(
-        Object.entries(files).map(async ([fileName, logs]) => {
-          return write(fileName, logs.join('\n'))
-        }),
-      )
+      // await Promise.all(
+      //   Object.entries(files).map(async ([fileName, logs]) => {
+      //     return fs.outputFile(fileName, logs.join("\n"), {
+      //       encoding: "utf-8",
+      //     });
+      //   }),
+      // );
     },
   }
 })
