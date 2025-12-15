@@ -64,7 +64,6 @@
     "@clack/prompts": "1.0.0-alpha.8",
     "@kubb/core": "workspace:*",
     "chokidar": "^4.0.3",
-    "seedrandom": "^3.0.5",
     "citty": "^0.1.6",
     "cosmiconfig": "^9.0.0",
     "execa": "^9.6.1",
@@ -72,6 +71,7 @@
     "jiti": "^2.6.1",
     "latest-version": "^9.0.0",
     "picocolors": "^1.1.1",
+    "seedrandom": "^3.0.5",
     "semver": "^7.7.3",
     "string-argv": "^0.3.2"
   },

@@ -1,59 +1,40 @@
-import * as clack from "@clack/prompts";
-import type { Config } from "@kubb/core";
-import type { Logger } from "@kubb/core/logger";
-import { LogMapper } from "@kubb/core/logger";
-import { execa } from "execa";
-import pc from "picocolors";
-import { parseArgsStringToArgv } from "string-argv";
-import { ClackWritable } from "./Writables.ts";
-import type { LogLevel } from "packages/core/src/logger/types.ts";
+import * as clack from '@clack/prompts'
+import type { Config } from '@kubb/core'
+import { LogMapper } from '@kubb/core/logger'
+import { execa } from 'execa'
+import type { LogLevel } from 'packages/core/src/logger/types.ts'
+import pc from 'picocolors'
+import { parseArgsStringToArgv } from 'string-argv'
+import { ClackWritable } from './Writables.ts'
 
 type ExecutingHooksProps = {
-  hooks: NonNullable<Config["hooks"]>;
-  logLevel: LogLevel;
-};
+  hooks: NonNullable<Config['hooks']>
+  logLevel: LogLevel
+}
 
-export async function executeHooks({
-  hooks,
-  logLevel,
-}: ExecutingHooksProps): Promise<void> {
-  const commands = Array.isArray(hooks.done)
-    ? hooks.done
-    : [hooks.done].filter(Boolean);
+export async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<void> {
+  const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done].filter(Boolean)
 
   for (const command of commands) {
-    const [cmd, ..._args] = [...parseArgsStringToArgv(command)];
+    const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
 
     if (!cmd) {
-      continue;
+      continue
     }
 
     const hooksLogger = clack.taskLog({
-      title: [
-        "Executing hook",
-        logLevel !== LogMapper.silent ? pc.dim(command) : undefined,
-      ]
-        .filter(Boolean)
-        .join(" "),
-    });
+      title: ['Executing hook', logLevel !== LogMapper.silent ? pc.dim(command) : undefined].filter(Boolean).join(' '),
+    })
 
-    const writable = new ClackWritable(hooksLogger);
+    const writable = new ClackWritable(hooksLogger)
 
     const result = await execa(cmd, _args, {
       detached: true,
-      stdout: logLevel === LogMapper.silent ? undefined : ["pipe", writable],
+      stdout: logLevel === LogMapper.silent ? undefined : ['pipe', writable],
       stripFinalNewline: true,
-    });
+    })
 
-    hooksLogger.success(
-      [
-        "Executing hook",
-        logLevel !== LogMapper.silent ? pc.dim(command) : undefined,
-        "successfully",
-      ]
-        .filter(Boolean)
-        .join(" "),
-    );
-    hooksLogger.message(result.stdout);
+    hooksLogger.success(['Executing hook', logLevel !== LogMapper.silent ? pc.dim(command) : undefined, 'successfully'].filter(Boolean).join(' '))
+    hooksLogger.message(result.stdout)
   }
 }

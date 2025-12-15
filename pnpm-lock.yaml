@@ -7,11 +7,11 @@ settings:
 catalogs:
   default:
     '@kubb/fabric-core':
-      specifier: 0.5.5
-      version: 0.5.5
+      specifier: 0.6.0
+      version: 0.6.0
     '@kubb/react-fabric':
-      specifier: 0.5.5
-      version: 0.5.5
+      specifier: 0.6.0
+      version: 0.6.0
     '@size-limit/file':
       specifier: ^11.2.0
       version: 11.2.0
@@ -39,8 +39,8 @@ importers:
   .:
     devDependencies:
       '@biomejs/biome':
-        specifier: ^2.3.8
-        version: 2.3.8
+        specifier: ^2.3.9
+        version: 2.3.9
       '@changesets/changelog-github':
         specifier: ^0.5.2
         version: 0.5.2(encoding@0.1.13)
@@ -49,10 +49,10 @@ importers:
         version: 2.29.8(@types/node@20.19.27)
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       '@size-limit/file':
         specifier: 'catalog:'
         version: 11.2.0(size-limit@11.2.0)
@@ -134,7 +134,7 @@ importers:
         version: link:../packages/core
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../packages/plugin-client
@@ -173,7 +173,7 @@ importers:
         version: link:../packages/plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       '@mermaid-js/mermaid-cli':
         specifier: ^11.12.0
         version: 11.12.0(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(puppeteer@23.11.1(typescript@5.9.3))(yaml@2.8.1)
@@ -245,7 +245,7 @@ importers:
         version: link:../packages/plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       '@tanstack/react-query':
         specifier: ^5.90.12
         version: 5.90.12(react@18.3.1)
@@ -277,8 +277,8 @@ importers:
         specifier: ^4.2.20
         version: 4.2.20
       swr:
-        specifier: ^2.3.7
-        version: 2.3.7(react@18.3.1)
+        specifier: ^2.3.8
+        version: 2.3.8(react@18.3.1)
       vue:
         specifier: ^3.5.25
         version: 3.5.25(typescript@5.9.3)
@@ -377,8 +377,8 @@ importers:
         specifier: ^4.2.20
         version: 4.2.20
       swr:
-        specifier: ^2.3.7
-        version: 2.3.7(react@19.2.3)
+        specifier: ^2.3.8
+        version: 2.3.8(react@19.2.3)
       vue:
         specifier: ^3.5.25
         version: 3.5.25(typescript@5.9.3)
@@ -832,8 +832,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       swr:
-        specifier: ^2.3.7
-        version: 2.3.7(react@18.3.1)
+        specifier: ^2.3.8
+        version: 2.3.8(react@18.3.1)
     devDependencies:
       typescript:
         specifier: 'catalog:'
@@ -1008,7 +1008,7 @@ importers:
     dependencies:
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       camelcase:
         specifier: ^8.0.0
         version: 8.0.0
@@ -1102,7 +1102,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       '@modelcontextprotocol/sdk':
         specifier: 1.21.1
         version: 1.21.1
@@ -1113,8 +1113,8 @@ importers:
   packages/oas:
     dependencies:
       '@redocly/openapi-core':
-        specifier: ^2.12.6
-        version: 2.12.6(ajv@8.17.1)
+        specifier: ^2.12.7
+        version: 2.12.7(ajv@8.17.1)
       hotscript:
         specifier: ^1.0.13
         version: 1.0.13
@@ -1169,7 +1169,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
@@ -1194,7 +1194,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
 
   packages/plugin-faker:
     dependencies:
@@ -1212,7 +1212,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
 
   packages/plugin-mcp:
     dependencies:
@@ -1236,7 +1236,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
 
   packages/plugin-msw:
     dependencies:
@@ -1257,7 +1257,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
 
   packages/plugin-oas:
     dependencies:
@@ -1269,7 +1269,7 @@ importers:
         version: link:../oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       '@stoplight/yaml':
         specifier: ^4.3.0
         version: 4.3.0
@@ -1302,7 +1302,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
@@ -1320,7 +1320,7 @@ importers:
         version: link:../plugin-oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
@@ -1347,7 +1347,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
@@ -1374,7 +1374,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
@@ -1401,7 +1401,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
@@ -1413,7 +1413,7 @@ importers:
         version: link:../core
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1422,7 +1422,7 @@ importers:
         version: link:../plugin-oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       natural-orderby:
         specifier: ^5.0.0
         version: 5.0.0
@@ -1455,7 +1455,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
@@ -1476,7 +1476,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.5.5
+        version: 0.6.0
     devDependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.2.0
@@ -1647,55 +1647,55 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
-  '@biomejs/biome@2.3.8':
-    resolution: {integrity: sha512-Qjsgoe6FEBxWAUzwFGFrB+1+M8y/y5kwmg5CHac+GSVOdmOIqsAiXM5QMVGZJ1eCUCLlPZtq4aFAQ0eawEUuUA==}
+  '@biomejs/biome@2.3.9':
+    resolution: {integrity: sha512-js+34KpnY65I00k8P71RH0Uh2rJk4BrpxMGM5m2nBfM9XTlKE5N1URn5ydILPRyXXq4ebhKCjsvR+txS+D4z2A==}
     engines: {node: '>=14.21.3'}
     hasBin: true
 
-  '@biomejs/cli-darwin-arm64@2.3.8':
-    resolution: {integrity: sha512-HM4Zg9CGQ3txTPflxD19n8MFPrmUAjaC7PQdLkugeeC0cQ+PiVrd7i09gaBS/11QKsTDBJhVg85CEIK9f50Qww==}
+  '@biomejs/cli-darwin-arm64@2.3.9':
+    resolution: {integrity: sha512-hHbYYnna/WBwem5iCpssQQLtm5ey8ADuDT8N2zqosk6LVWimlEuUnPy6Mbzgu4GWVriyL5ijWd+1zphX6ll4/A==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [darwin]
 
-  '@biomejs/cli-darwin-x64@2.3.8':
-    resolution: {integrity: sha512-lUDQ03D7y/qEao7RgdjWVGCu+BLYadhKTm40HkpJIi6kn8LSv5PAwRlew/DmwP4YZ9ke9XXoTIQDO1vAnbRZlA==}
+  '@biomejs/cli-darwin-x64@2.3.9':
+    resolution: {integrity: sha512-sKMW5fpvGDmPdqCchtVH5MVlbVeSU3ad4CuKS45x8VHt3tNSC8CZ2QbxffAOKYK9v/mAeUiPC6Cx6+wtyU1q7g==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [darwin]
 
-  '@biomejs/cli-linux-arm64-musl@2.3.8':
-    resolution: {integrity: sha512-PShR4mM0sjksUMyxbyPNMxoKFPVF48fU8Qe8Sfx6w6F42verbwRLbz+QiKNiDPRJwUoMG1nPM50OBL3aOnTevA==}
+  '@biomejs/cli-linux-arm64-musl@2.3.9':
+    resolution: {integrity: sha512-JOHyG2nl8XDpncbMazm1uBSi1dPX9VbQDOjKcfSVXTqajD0PsgodMOKyuZ/PkBu5Lw877sWMTGKfEfpM7jE7Cw==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [linux]
 
-  '@biomejs/cli-linux-arm64@2.3.8':
-    resolution: {integrity: sha512-Uo1OJnIkJgSgF+USx970fsM/drtPcQ39I+JO+Fjsaa9ZdCN1oysQmy6oAGbyESlouz+rzEckLTF6DS7cWse95g==}
+  '@biomejs/cli-linux-arm64@2.3.9':
+    resolution: {integrity: sha512-BXBB6HbAgZI6T6QB8q6NSwIapVngqArP6K78BqkMerht7YjL6yWctqfeTnJm0qGF2bKBYFexslrbV+VTlM2E6g==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [linux]
 
-  '@biomejs/cli-linux-x64-musl@2.3.8':
-    resolution: {integrity: sha512-YGLkqU91r1276uwSjiUD/xaVikdxgV1QpsicT0bIA1TaieM6E5ibMZeSyjQ/izBn4tKQthUSsVZacmoJfa3pDA==}
+  '@biomejs/cli-linux-x64-musl@2.3.9':
+    resolution: {integrity: sha512-FUkb/5beCIC2trpqAbW9e095X4vamdlju80c1ExSmhfdrojLZnWkah/XfTSixKb/dQzbAjpD7vvs6rWkJ+P07Q==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [linux]
 
-  '@biomejs/cli-linux-x64@2.3.8':
-    resolution: {integrity: sha512-QDPMD5bQz6qOVb3kiBui0zKZXASLo0NIQ9JVJio5RveBEFgDgsvJFUvZIbMbUZT3T00M/1wdzwWXk4GIh0KaAw==}
+  '@biomejs/cli-linux-x64@2.3.9':
+    resolution: {integrity: sha512-PjYuv2WLmvf0WtidxAkFjlElsn0P6qcvfPijrqu1j+3GoW3XSQh3ywGu7gZ25J25zrYj3KEovUjvUZB55ATrGw==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [linux]
 
-  '@biomejs/cli-win32-arm64@2.3.8':
-    resolution: {integrity: sha512-H4IoCHvL1fXKDrTALeTKMiE7GGWFAraDwBYFquE/L/5r1927Te0mYIGseXi4F+lrrwhSWbSGt5qPFswNoBaCxg==}
+  '@biomejs/cli-win32-arm64@2.3.9':
+    resolution: {integrity: sha512-w48Yh/XbYHO2cBw8B5laK3vCAEKuocX5ItGXVDAqFE7Ze2wnR00/1vkY6GXglfRDOjWHu2XtxI0WKQ52x1qxEA==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [win32]
 
-  '@biomejs/cli-win32-x64@2.3.8':
-    resolution: {integrity: sha512-RguzimPoZWtBapfKhKjcWXBVI91tiSprqdBYu7tWhgN8pKRZhw24rFeNZTNf6UiBfjCYCi9eFQs/JzJZIhuK4w==}
+  '@biomejs/cli-win32-x64@2.3.9':
+    resolution: {integrity: sha512-90+J63VT7qImy9s3pkWL0ZX27VzVwMNCRzpLpe5yMzMYPbO1vcjL/w/Q5f/juAGMvP7a2Fd0H7IhAR6F7/i78A==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
@@ -2156,8 +2156,16 @@ packages:
     resolution: {integrity: sha512-XY3Nj01e4qcYqamRAjSLD3nZFTyTrHKnKUYXPVm6v+RIRATpHEh/CUp+UTCR3VlRGY7oygIqf8KKVMU+M5qv1A==}
     engines: {node: '>=20'}
 
+  '@kubb/fabric-core@0.6.0':
+    resolution: {integrity: sha512-Vb9Dd3D3vc1nf/PqWh+C1wXvPTelyAZdNGf7Yh5cYe8YlZ7jT6JpQLzhn5/6uUU/GNL6It5N8dmC4hJCxFzMBA==}
+    engines: {node: '>=20'}
+
   '@kubb/react-fabric@0.5.5':
     resolution: {integrity: sha512-QOf8Z/7e0PVrSE90bKdLyLFttfP0HXu3SwSUU7llgvkqf84zRcCeK+GAEuki7Wo55ITNr+1ZpV0N+j+mHF2Gtg==}
+    engines: {node: '>=20'}
+
+  '@kubb/react-fabric@0.6.0':
+    resolution: {integrity: sha512-LmEQj68jLLm58jTh2MP+D+nY9IyGs06Vq8uyW0TAJDh7oOmqPwkyX9xkmYlJ6NQBqGpQkfKBNPjqeAqhgAv3nA==}
     engines: {node: '>=20'}
 
   '@manypkg/find-root@1.1.0':
@@ -2552,8 +2560,8 @@ packages:
   '@redocly/config@0.41.0':
     resolution: {integrity: sha512-8yJ2e+ex8KVF25zijdpDbAEjyubk7NLfHsLI8h0MUnLEo2iEg6rTCDT9Qw71XDqd5UlXvfJb0Z0h6dd+Y6pWLw==}
 
-  '@redocly/openapi-core@2.12.6':
-    resolution: {integrity: sha512-X4NK5wW0lr1Cdd5CB/St6hABU7OLw3kaI9gxVODENuxcMCIWa27v8AZwUJom5arp3f9kY0KJwNNqBghrWDQC+Q==}
+  '@redocly/openapi-core@2.12.7':
+    resolution: {integrity: sha512-b32Pvl4IE2QZFPpPXD7Qciwy1/AZ2EUaYJ++Oyngaz5WlyeGb9HX/fWmf2QO0YvSqNdK7OSY3m8lPBQ+zlNlgw==}
     engines: {node: '>=22.12.0 || >=20.19.0 <21.0.0', npm: '>=10'}
 
   '@resvg/resvg-wasm@2.6.2':
@@ -7034,8 +7042,8 @@ packages:
     resolution: {integrity: sha512-upi/0ZGkYgEcLeGieoz8gT74oWHA0E7JivX7aN9mAf+Tc7BQoRBvnIGHoPDw+f9TXTW4s6kGYCZJtauP6OYp7g==}
     hasBin: true
 
-  swr@2.3.7:
-    resolution: {integrity: sha512-ZEquQ82QvalqTxhBVv/DlAg2mbmUjF4UgpPg9wwk4ufb9rQnZXh1iKyyKBqV6bQGu1Ie7L1QwSYO07qFIa1p+g==}
+  swr@2.3.8:
+    resolution: {integrity: sha512-gaCPRVoMq8WGDcWj9p4YWzCMPHzE0WNl6W8ADIx9c3JBEIdMkJGMzW+uzXvxHMltwcYACr9jP+32H8/hgwMR7w==}
     peerDependencies:
       react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -8000,39 +8008,39 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
-  '@biomejs/biome@2.3.8':
+  '@biomejs/biome@2.3.9':
     optionalDependencies:
-      '@biomejs/cli-darwin-arm64': 2.3.8
-      '@biomejs/cli-darwin-x64': 2.3.8
-      '@biomejs/cli-linux-arm64': 2.3.8
-      '@biomejs/cli-linux-arm64-musl': 2.3.8
-      '@biomejs/cli-linux-x64': 2.3.8
-      '@biomejs/cli-linux-x64-musl': 2.3.8
-      '@biomejs/cli-win32-arm64': 2.3.8
-      '@biomejs/cli-win32-x64': 2.3.8
+      '@biomejs/cli-darwin-arm64': 2.3.9
+      '@biomejs/cli-darwin-x64': 2.3.9
+      '@biomejs/cli-linux-arm64': 2.3.9
+      '@biomejs/cli-linux-arm64-musl': 2.3.9
+      '@biomejs/cli-linux-x64': 2.3.9
+      '@biomejs/cli-linux-x64-musl': 2.3.9
+      '@biomejs/cli-win32-arm64': 2.3.9
+      '@biomejs/cli-win32-x64': 2.3.9
 
-  '@biomejs/cli-darwin-arm64@2.3.8':
+  '@biomejs/cli-darwin-arm64@2.3.9':
     optional: true
 
-  '@biomejs/cli-darwin-x64@2.3.8':
+  '@biomejs/cli-darwin-x64@2.3.9':
     optional: true
 
-  '@biomejs/cli-linux-arm64-musl@2.3.8':
+  '@biomejs/cli-linux-arm64-musl@2.3.9':
     optional: true
 
-  '@biomejs/cli-linux-arm64@2.3.8':
+  '@biomejs/cli-linux-arm64@2.3.9':
     optional: true
 
-  '@biomejs/cli-linux-x64-musl@2.3.8':
+  '@biomejs/cli-linux-x64-musl@2.3.9':
     optional: true
 
-  '@biomejs/cli-linux-x64@2.3.8':
+  '@biomejs/cli-linux-x64@2.3.9':
     optional: true
 
-  '@biomejs/cli-win32-arm64@2.3.8':
+  '@biomejs/cli-win32-arm64@2.3.9':
     optional: true
 
-  '@biomejs/cli-win32-x64@2.3.8':
+  '@biomejs/cli-win32-x64@2.3.9':
     optional: true
 
   '@braintree/sanitize-url@7.1.1': {}
@@ -8602,9 +8610,38 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
+  '@kubb/fabric-core@0.6.0':
+    dependencies:
+      cli-progress: 3.12.0
+      consola: 3.4.2
+      fs-extra: 11.3.2
+      natural-orderby: 5.0.0
+      p-limit: 7.2.0
+      serve-handler: 6.1.6
+      typescript: 5.9.3
+      ws: 8.18.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   '@kubb/react-fabric@0.5.5':
     dependencies:
       '@kubb/fabric-core': 0.5.5
+      dedent: 1.7.0
+      execa: 9.6.1
+      indent-string: 5.0.0
+      natural-orderby: 5.0.0
+      react-devtools-core: 6.1.2
+      signal-exit: 4.1.0
+      ws: 8.18.0
+    transitivePeerDependencies:
+      - babel-plugin-macros
+      - bufferutil
+      - utf-8-validate
+
+  '@kubb/react-fabric@0.6.0':
+    dependencies:
+      '@kubb/fabric-core': 0.6.0
       dedent: 1.7.0
       execa: 9.6.1
       indent-string: 5.0.0
@@ -9074,7 +9111,7 @@ snapshots:
     dependencies:
       json-schema-to-ts: 2.7.2
 
-  '@redocly/openapi-core@2.12.6(ajv@8.17.1)':
+  '@redocly/openapi-core@2.12.7(ajv@8.17.1)':
     dependencies:
       '@redocly/ajv': 8.17.1
       '@redocly/config': 0.41.0
@@ -14275,13 +14312,13 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  swr@2.3.7(react@18.3.1):
+  swr@2.3.8(react@18.3.1):
     dependencies:
       dequal: 2.0.3
       react: 18.3.1
       use-sync-external-store: 1.6.0(react@18.3.1)
 
-  swr@2.3.7(react@19.2.3):
+  swr@2.3.8(react@19.2.3):
     dependencies:
       dequal: 2.0.3
       react: 19.2.3
