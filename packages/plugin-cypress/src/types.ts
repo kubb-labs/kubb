@@ -6,6 +6,11 @@ import type { Generator } from '@kubb/plugin-oas/generators'
 
 export type Options = {
   /**
+   * Prefixes all function names with the given string.
+   * @default 'cy'
+   */
+  prefix?: string
+  /**
    * Specify the export location for the files and define the behavior of the output
    * @default { path: 'cypress', barrelType: 'named' }
    */
@@ -56,6 +61,7 @@ type ResolvedOptions = {
   group: Options['group']
   baseURL: Options['baseURL'] | undefined
   dataReturnType: NonNullable<Options['dataReturnType']>
+  prefix?: string
 }
 
 export type PluginCypress = PluginFactoryOptions<'plugin-cypress', Options, ResolvedOptions, never, ResolvePathOptions>

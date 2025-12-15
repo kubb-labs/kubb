@@ -38,6 +38,26 @@ describe('cypressGenerator operation', async () => {
       method: 'delete',
       options: {},
     },
+
+    // Prefixes
+    {
+      name: 'emptyPrefix',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {
+        prefix: ''
+      },
+    },
+    {
+      name: 'customPrefix',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'delete',
+      options: {
+        prefix: 'prefix'
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
