@@ -1,59 +1,59 @@
-import { join } from 'node:path'
-import type { KubbFile } from '@kubb/fabric-core/types'
-import { BarrelManager } from '../BarrelManager.ts'
-import type { Logger } from '../logger.ts'
-import type { BarrelType, Plugin } from '../types.ts'
+import { join } from "node:path";
+import type { KubbFile } from "@kubb/fabric-core/types";
+import { BarrelManager } from "../BarrelManager.ts";
+import type { BarrelType, Plugin } from "../types.ts";
 
 export type FileMetaBase = {
-  pluginKey?: Plugin['key']
-}
+  pluginKey?: Plugin["key"];
+};
 
 type AddIndexesProps = {
-  type: BarrelType | false | undefined
+  type: BarrelType | false | undefined;
   /**
    * Root based on root and output.path specified in the config
    */
-  root: string
+  root: string;
   /**
    * Output for plugin
    */
   output: {
-    path: string
-  }
+    path: string;
+  };
   group?: {
-    output: string
-    exportAs: string
-  }
-  logger?: Logger
+    output: string;
+    exportAs: string;
+  };
 
-  meta?: FileMetaBase
-}
+  meta?: FileMetaBase;
+};
 
 function trimExtName(text: string): string {
-  return text.replace(/\.[^/.]+$/, '')
+  return text.replace(/\.[^/.]+$/, "");
 }
 
 export async function getBarrelFiles(
   files: Array<KubbFile.ResolvedFile>,
-  { type, meta = {}, root, output, logger }: AddIndexesProps,
+  { type, meta = {}, root, output }: AddIndexesProps,
 ): Promise<KubbFile.File[]> {
-  if (!type || type === 'propagate') {
-    return []
+  if (!type || type === "propagate") {
+    return [];
   }
 
-  const barrelManager = new BarrelManager({ logger })
+  const barrelManager = new BarrelManager({});
 
-  const pathToBuildFrom = join(root, output.path)
+  const pathToBuildFrom = join(root, output.path);
 
-  if (trimExtName(pathToBuildFrom).endsWith('index')) {
-    logger?.emit('warning', 'Output has the same fileName as the barrelFiles, please disable barrel generation')
-
-    return []
+  if (trimExtName(pathToBuildFrom).endsWith("index")) {
+    return [];
   }
 
-  const barrelFiles = barrelManager.getFiles({ files, root: pathToBuildFrom, meta })
+  const barrelFiles = barrelManager.getFiles({
+    files,
+    root: pathToBuildFrom,
+    meta,
+  });
 
-  if (type === 'all') {
+  if (type === "all") {
     return barrelFiles.map((file) => {
       return {
         ...file,
@@ -61,16 +61,16 @@ export async function getBarrelFiles(
           return {
             ...exportItem,
             name: undefined,
-          }
+          };
         }),
-      }
-    })
+      };
+    });
   }
 
   return barrelFiles.map((indexFile) => {
     return {
       ...indexFile,
       meta,
-    }
-  })
+    };
+  });
 }

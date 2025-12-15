@@ -1,15 +1,15 @@
-import path from 'node:path'
-import { performance } from 'node:perf_hooks'
-import type { KubbFile } from '@kubb/fabric-core/types'
-import type { Fabric } from '@kubb/react-fabric'
-import { ValidationPluginError } from './errors.ts'
-import type { Logger } from './logger.ts'
-import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
-import { transformReservedWord } from './transformers/transformReservedWord.ts'
-import { trim } from './transformers/trim.ts'
+import path from "node:path";
+import { performance } from "node:perf_hooks";
+import type { KubbFile } from "@kubb/fabric-core/types";
+import type { Fabric } from "@kubb/react-fabric";
+import { ValidationPluginError } from "./errors.ts";
+import { isPromiseRejectedResult, PromiseManager } from "./PromiseManager.ts";
+import { transformReservedWord } from "./transformers/transformReservedWord.ts";
+import { trim } from "./transformers/trim.ts";
 import type {
   Config,
   GetPluginFactoryOptions,
+  KubbEvents,
   Plugin,
   PluginContext,
   PluginFactoryOptions,
@@ -20,139 +20,112 @@ import type {
   ResolveNameParams,
   ResolvePathParams,
   UserPlugin,
-} from './types.ts'
-import { EventEmitter } from './utils/EventEmitter.ts'
-import { setUniqueName } from './utils/uniqueName.ts'
+} from "./types.ts";
 
-type RequiredPluginLifecycle = Required<PluginLifecycle>
+import { setUniqueName } from "./utils/uniqueName.ts";
+import type { AsyncEventEmitter } from "./utils/AsyncEventEmitter.ts";
 
-type Strategy = 'hookFirst' | 'hookForPlugin' | 'hookParallel' | 'hookSeq'
+type RequiredPluginLifecycle = Required<PluginLifecycle>;
 
-type ExecutingMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  strategy: Strategy
-  hookName: H
-  plugin: Plugin
-  parameters?: unknown[] | undefined
-  output?: unknown
-}
+export type Strategy =
+  | "hookFirst"
+  | "hookForPlugin"
+  | "hookParallel"
+  | "hookSeq";
 
-type ExecutedMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  duration: number
-  strategy: Strategy
-  hookName: H
-  plugin: Plugin
-  parameters?: unknown[] | undefined
-  output?: unknown
-}
+type ParseResult<H extends PluginLifecycleHooks> = RequiredPluginLifecycle[H];
 
-type ErrorMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  hookName: H
-  duration: number
-  strategy: Strategy
-  parameters?: unknown[] | undefined
-  plugin: Plugin
-}
-
-type ProgressStartMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  hookName: H
-  plugins: Array<Plugin>
-}
-
-type ProgressStopMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  hookName: H
-}
-
-type ParseResult<H extends PluginLifecycleHooks> = RequiredPluginLifecycle[H]
-
-type SafeParseResult<H extends PluginLifecycleHooks, Result = ReturnType<ParseResult<H>>> = {
-  result: Result
-  plugin: Plugin
-}
+type SafeParseResult<
+  H extends PluginLifecycleHooks,
+  Result = ReturnType<ParseResult<H>>,
+> = {
+  result: Result;
+  plugin: Plugin;
+};
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
 type Options = {
-  fabric: Fabric
-  logger: Logger
+  fabric: Fabric;
+  events: AsyncEventEmitter<KubbEvents>;
   /**
    * @default Number.POSITIVE_INFINITY
    */
-  concurrency?: number
-}
-
-type Events = {
-  'progress:start': [meta: ProgressStartMeta]
-  'progress:stop': [meta: ProgressStopMeta]
-  executing: [meta: ExecutingMeta]
-  executed: [meta: ExecutedMeta]
-  error: [error: Error, meta: ErrorMeta]
-}
+  concurrency?: number;
+};
 
 type GetFileProps<TOptions = object> = {
-  name: string
-  mode?: KubbFile.Mode
-  extname: KubbFile.Extname
-  pluginKey: Plugin['key']
-  options?: TOptions
-}
+  name: string;
+  mode?: KubbFile.Mode;
+  extname: KubbFile.Extname;
+  pluginKey: Plugin["key"];
+  options?: TOptions;
+};
 
-export function getMode(fileOrFolder: string | undefined | null): KubbFile.Mode {
+export function getMode(
+  fileOrFolder: string | undefined | null,
+): KubbFile.Mode {
   if (!fileOrFolder) {
-    return 'split'
+    return "split";
   }
-  return path.extname(fileOrFolder) ? 'single' : 'split'
+  return path.extname(fileOrFolder) ? "single" : "split";
 }
 
 export class PluginManager {
-  readonly events: EventEmitter<Events> = new EventEmitter()
+  readonly config: Config;
+  readonly options: Options;
 
-  readonly config: Config
-  readonly options: Options
-
-  readonly #plugins = new Set<Plugin<GetPluginFactoryOptions<any>>>()
-  readonly #usedPluginNames: Record<string, number> = {}
-  readonly #promiseManager: PromiseManager
+  readonly #plugins = new Set<Plugin<GetPluginFactoryOptions<any>>>();
+  readonly #usedPluginNames: Record<string, number> = {};
+  readonly #promiseManager: PromiseManager;
 
   constructor(config: Config, options: Options) {
-    this.config = config
-    this.options = options
+    this.config = config;
+    this.options = options;
     this.#promiseManager = new PromiseManager({
-      nullCheck: (state: SafeParseResult<'resolveName'> | null) => !!state?.result,
-    })
-    ;[...(config.plugins || [])].forEach((plugin) => {
-      const parsedPlugin = this.#parse(plugin as UserPlugin)
+      nullCheck: (state: SafeParseResult<"resolveName"> | null) =>
+        !!state?.result,
+    });
+    [...(config.plugins || [])].forEach((plugin) => {
+      const parsedPlugin = this.#parse(plugin as UserPlugin);
 
-      this.#plugins.add(parsedPlugin)
-    })
+      this.#plugins.add(parsedPlugin);
+    });
 
-    return this
+    return this;
   }
 
-  getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, any> {
-    const plugins = [...this.#plugins]
+  get events() {
+    return this.options.events;
+  }
+
+  getContext<TOptions extends PluginFactoryOptions>(
+    plugin: Plugin<TOptions>,
+  ): PluginContext<TOptions> & Record<string, any> {
+    const plugins = [...this.#plugins];
     const baseContext = {
       fabric: this.options.fabric,
       config: this.config,
       plugin,
-      logger: this.options.logger,
+      events: this.options.events,
       pluginManager: this,
       mode: getMode(path.resolve(this.config.root, this.config.output.path)),
       addFile: async (...files: Array<KubbFile.File>) => {
-        await this.options.fabric.addFile(...files)
+        await this.options.fabric.addFile(...files);
       },
       upsertFile: async (...files: Array<KubbFile.File>) => {
-        await this.options.fabric.upsertFile(...files)
+        await this.options.fabric.upsertFile(...files);
       },
-    } as unknown as PluginContext<TOptions>
+    } as unknown as PluginContext<TOptions>;
 
-    let mergedExtras: Record<string, any> = {}
+    let mergedExtras: Record<string, any> = {};
     for (const p of plugins) {
-      if (typeof p.inject === 'function') {
-        const injector = p.inject.bind(baseContext as any) as any
+      if (typeof p.inject === "function") {
+        const injector = p.inject.bind(baseContext as any) as any;
 
-        const result = injector(baseContext)
-        if (result && typeof result === 'object') {
-          mergedExtras = { ...mergedExtras, ...result }
+        const result = injector(baseContext);
+        if (result && typeof result === "object") {
+          mergedExtras = { ...mergedExtras, ...result };
         }
       }
     }
@@ -160,19 +133,27 @@ export class PluginManager {
     return {
       ...baseContext,
       ...mergedExtras,
-    }
+    };
   }
 
   get plugins(): Array<Plugin> {
-    return this.#getSortedPlugins()
+    return this.#getSortedPlugins();
   }
 
-  getFile<TOptions = object>({ name, mode, extname, pluginKey, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
-    const baseName = `${name}${extname}` as const
-    const path = this.resolvePath({ baseName, mode, pluginKey, options })
+  getFile<TOptions = object>({
+    name,
+    mode,
+    extname,
+    pluginKey,
+    options,
+  }: GetFileProps<TOptions>): KubbFile.File<{ pluginKey: Plugin["key"] }> {
+    const baseName = `${name}${extname}` as const;
+    const path = this.resolvePath({ baseName, mode, pluginKey, options });
 
     if (!path) {
-      throw new Error(`Filepath should be defined for resolvedName "${name}" and pluginKey [${JSON.stringify(pluginKey)}]`)
+      throw new Error(
+        `Filepath should be defined for resolvedName "${name}" and pluginKey [${JSON.stringify(pluginKey)}]`,
+      );
     }
 
     return {
@@ -182,58 +163,53 @@ export class PluginManager {
         pluginKey,
       },
       sources: [],
-    }
+    };
   }
 
-  resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): KubbFile.Path => {
-    const root = path.resolve(this.config.root, this.config.output.path)
-    const defaultPath = path.resolve(root, params.baseName)
+  resolvePath = <TOptions = object>(
+    params: ResolvePathParams<TOptions>,
+  ): KubbFile.Path => {
+    const root = path.resolve(this.config.root, this.config.output.path);
+    const defaultPath = path.resolve(root, params.baseName);
 
     if (params.pluginKey) {
       const paths = this.hookForPluginSync({
         pluginKey: params.pluginKey,
-        hookName: 'resolvePath',
+        hookName: "resolvePath",
         parameters: [params.baseName, params.mode, params.options as object],
-      })
+      });
 
-      return paths?.at(0) || defaultPath
+      return paths?.at(0) || defaultPath;
     }
 
     const firstResult = this.hookFirstSync({
-      hookName: 'resolvePath',
+      hookName: "resolvePath",
       parameters: [params.baseName, params.mode, params.options as object],
-    })
+    });
 
-    return firstResult?.result || defaultPath
-  }
+    return firstResult?.result || defaultPath;
+  };
   //TODO refactor by using the order of plugins and the cache of the fileManager instead of guessing and recreating the name/path
   resolveName = (params: ResolveNameParams): string => {
     if (params.pluginKey) {
       const names = this.hookForPluginSync({
         pluginKey: params.pluginKey,
-        hookName: 'resolveName',
+        hookName: "resolveName",
         parameters: [trim(params.name), params.type],
-      })
+      });
 
-      const uniqueNames = new Set(names)
+      const uniqueNames = new Set(names);
 
-      return transformReservedWord([...uniqueNames].at(0) || params.name)
+      return transformReservedWord([...uniqueNames].at(0) || params.name);
     }
 
     const name = this.hookFirstSync({
-      hookName: 'resolveName',
+      hookName: "resolveName",
       parameters: [trim(params.name), params.type],
-    }).result
+    }).result;
 
-    return transformReservedWord(name)
-  }
-
-  /**
-   * Instead of calling `pluginManager.events.on` you can use `pluginManager.on`. This one also has better types.
-   */
-  on<TEventName extends keyof Events & string>(eventName: TEventName, handler: (...eventArg: Events[TEventName]) => void): void {
-    this.events.on(eventName, handler as any)
-  }
+    return transformReservedWord(name);
+  };
 
   /**
    * Run a specific hookName for plugin x.
@@ -243,35 +219,35 @@ export class PluginManager {
     hookName,
     parameters,
   }: {
-    pluginKey: Plugin['key']
-    hookName: H
-    parameters: PluginParameter<H>
+    pluginKey: Plugin["key"];
+    hookName: H;
+    parameters: PluginParameter<H>;
   }): Promise<Array<ReturnType<ParseResult<H>> | null>> {
-    const plugins = this.getPluginsByKey(hookName, pluginKey)
+    const plugins = this.getPluginsByKey(hookName, pluginKey);
 
-    this.events.emit('progress:start', {
+    this.events.emit("hook:progress:start", {
       hookName,
       plugins,
-    })
+    });
 
-    const items: Array<ReturnType<ParseResult<H>>> = []
+    const items: Array<ReturnType<ParseResult<H>>> = [];
 
     for (const plugin of plugins) {
       const result = await this.#execute<H>({
-        strategy: 'hookFirst',
+        strategy: "hookFirst",
         hookName,
         parameters,
         plugin,
-      })
+      });
 
       if (result !== undefined && result !== null) {
-        items.push(result)
+        items.push(result);
       }
     }
 
-    this.events.emit('progress:stop', { hookName })
+    this.events.emit("hook:progress:end", { hookName });
 
-    return items
+    return items;
   }
   /**
    * Run a specific hookName for plugin x.
@@ -282,24 +258,24 @@ export class PluginManager {
     hookName,
     parameters,
   }: {
-    pluginKey: Plugin['key']
-    hookName: H
-    parameters: PluginParameter<H>
+    pluginKey: Plugin["key"];
+    hookName: H;
+    parameters: PluginParameter<H>;
   }): Array<ReturnType<ParseResult<H>>> | null {
-    const plugins = this.getPluginsByKey(hookName, pluginKey)
+    const plugins = this.getPluginsByKey(hookName, pluginKey);
 
     const result = plugins
       .map((plugin) => {
         return this.#executeSync<H>({
-          strategy: 'hookFirst',
+          strategy: "hookFirst",
           hookName,
           parameters,
           plugin,
-        })
+        });
       })
-      .filter(Boolean)
+      .filter(Boolean);
 
-    return result
+    return result;
   }
 
   /**
@@ -310,37 +286,37 @@ export class PluginManager {
     parameters,
     skipped,
   }: {
-    hookName: H
-    parameters: PluginParameter<H>
-    skipped?: ReadonlySet<Plugin> | null
+    hookName: H;
+    parameters: PluginParameter<H>;
+    skipped?: ReadonlySet<Plugin> | null;
   }): Promise<SafeParseResult<H>> {
     const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
-      return skipped ? skipped.has(plugin) : true
-    })
+      return skipped ? skipped.has(plugin) : true;
+    });
 
-    this.events.emit('progress:start', { hookName, plugins })
+    this.events.emit("hook:progress:start", { hookName, plugins });
 
     const promises = plugins.map((plugin) => {
       return async () => {
         const value = await this.#execute<H>({
-          strategy: 'hookFirst',
+          strategy: "hookFirst",
           hookName,
           parameters,
           plugin,
-        })
+        });
 
         return Promise.resolve({
           plugin,
           result: value,
-        } as SafeParseResult<H>)
-      }
-    })
+        } as SafeParseResult<H>);
+      };
+    });
 
-    const result = await this.#promiseManager.run('first', promises)
+    const result = await this.#promiseManager.run("first", promises);
 
-    this.events.emit('progress:stop', { hookName })
+    this.events.emit("hook:progress:end", { hookName });
 
-    return result
+    return result;
   }
 
   /**
@@ -351,32 +327,32 @@ export class PluginManager {
     parameters,
     skipped,
   }: {
-    hookName: H
-    parameters: PluginParameter<H>
-    skipped?: ReadonlySet<Plugin> | null
+    hookName: H;
+    parameters: PluginParameter<H>;
+    skipped?: ReadonlySet<Plugin> | null;
   }): SafeParseResult<H> {
-    let parseResult: SafeParseResult<H> = null as unknown as SafeParseResult<H>
+    let parseResult: SafeParseResult<H> = null as unknown as SafeParseResult<H>;
     const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
-      return skipped ? skipped.has(plugin) : true
-    })
+      return skipped ? skipped.has(plugin) : true;
+    });
 
     for (const plugin of plugins) {
       parseResult = {
         result: this.#executeSync<H>({
-          strategy: 'hookFirst',
+          strategy: "hookFirst",
           hookName,
           parameters,
           plugin,
         }),
         plugin,
-      } as SafeParseResult<H>
+      } as SafeParseResult<H>;
 
       if (parseResult?.result != null) {
-        break
+        break;
       }
     }
 
-    return parseResult
+    return parseResult;
   }
 
   /**
@@ -386,134 +362,161 @@ export class PluginManager {
     hookName,
     parameters,
   }: {
-    hookName: H
-    parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined
+    hookName: H;
+    parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined;
   }): Promise<Awaited<TOuput>[]> {
-    const plugins = this.#getSortedPlugins(hookName)
-    this.events.emit('progress:start', { hookName, plugins })
+    const plugins = this.#getSortedPlugins(hookName);
+    this.events.emit("hook:progress:start", { hookName, plugins });
 
     const promises = plugins.map((plugin) => {
       return () =>
         this.#execute({
-          strategy: 'hookParallel',
+          strategy: "hookParallel",
           hookName,
           parameters,
           plugin,
-        }) as Promise<TOuput>
-    })
+        }) as Promise<TOuput>;
+    });
 
-    const results = await this.#promiseManager.run('parallel', promises, {
+    const results = await this.#promiseManager.run("parallel", promises, {
       concurrency: this.options.concurrency,
-    })
+    });
 
     results.forEach((result, index) => {
       if (isPromiseRejectedResult<Error>(result)) {
-        const plugin = this.#getSortedPlugins(hookName)[index]
+        const plugin = this.#getSortedPlugins(hookName)[index];
 
         if (plugin) {
-          this.events.emit('error', result.reason, { plugin, hookName, strategy: 'hookParallel', duration: 0, parameters })
+          this.events.emit("error", result.reason, {
+            plugin,
+            hookName,
+            strategy: "hookParallel",
+            duration: 0,
+            parameters,
+          });
         }
       }
-    })
+    });
 
-    this.events.emit('progress:stop', { hookName })
+    this.events.emit("hook:progress:end", { hookName });
 
-    return results.filter((result) => result.status === 'fulfilled').map((result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value)
+    return results
+      .filter((result) => result.status === "fulfilled")
+      .map(
+        (result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value,
+      );
   }
 
   /**
    * Chains plugins
    */
-  async hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
-    const plugins = this.#getSortedPlugins(hookName)
-    this.events.emit('progress:start', { hookName, plugins })
+  async hookSeq<H extends PluginLifecycleHooks>({
+    hookName,
+    parameters,
+  }: {
+    hookName: H;
+    parameters?: PluginParameter<H>;
+  }): Promise<void> {
+    const plugins = this.#getSortedPlugins(hookName);
+    this.events.emit("hook:progress:start", { hookName, plugins });
 
     const promises = plugins.map((plugin) => {
       return () =>
         this.#execute({
-          strategy: 'hookSeq',
+          strategy: "hookSeq",
           hookName,
           parameters,
           plugin,
-        })
-    })
+        });
+    });
 
-    await this.#promiseManager.run('seq', promises)
+    await this.#promiseManager.run("seq", promises);
 
-    this.events.emit('progress:stop', { hookName })
+    this.events.emit("hook:progress:end", { hookName });
   }
 
   #getSortedPlugins(hookName?: keyof PluginLifecycle): Array<Plugin> {
-    const plugins = [...this.#plugins]
+    const plugins = [...this.#plugins];
 
     if (hookName) {
-      return plugins.filter((plugin) => hookName in plugin)
+      return plugins.filter((plugin) => hookName in plugin);
     }
     // TODO add test case for sorting with pre/post
 
     return plugins
       .map((plugin) => {
         if (plugin.pre) {
-          const missingPlugins = plugin.pre.filter((pluginName) => !plugins.find((pluginToFind) => pluginToFind.name === pluginName))
+          const missingPlugins = plugin.pre.filter(
+            (pluginName) =>
+              !plugins.find((pluginToFind) => pluginToFind.name === pluginName),
+          );
 
           if (missingPlugins.length > 0) {
-            throw new ValidationPluginError(`The plugin '${plugin.name}' has a pre set that references missing plugins for '${missingPlugins.join(', ')}'`)
+            throw new ValidationPluginError(
+              `The plugin '${plugin.name}' has a pre set that references missing plugins for '${missingPlugins.join(", ")}'`,
+            );
           }
         }
 
-        return plugin
+        return plugin;
       })
       .sort((a, b) => {
         if (b.pre?.includes(a.name)) {
-          return 1
+          return 1;
         }
         if (b.post?.includes(a.name)) {
-          return -1
+          return -1;
         }
-        return 0
-      })
+        return 0;
+      });
   }
 
-  getPluginByKey(pluginKey: Plugin['key']): Plugin | undefined {
-    const plugins = [...this.#plugins]
-    const [searchPluginName] = pluginKey
+  getPluginByKey(pluginKey: Plugin["key"]): Plugin | undefined {
+    const plugins = [...this.#plugins];
+    const [searchPluginName] = pluginKey;
 
     return plugins.find((item) => {
-      const [name] = item.key
+      const [name] = item.key;
 
-      return name === searchPluginName
-    })
+      return name === searchPluginName;
+    });
   }
 
-  getPluginsByKey(hookName: keyof PluginWithLifeCycle, pluginKey: Plugin['key']): Plugin[] {
-    const plugins = [...this.plugins]
-    const [searchPluginName, searchIdentifier] = pluginKey
+  getPluginsByKey(
+    hookName: keyof PluginWithLifeCycle,
+    pluginKey: Plugin["key"],
+  ): Plugin[] {
+    const plugins = [...this.plugins];
+    const [searchPluginName, searchIdentifier] = pluginKey;
 
     const pluginByPluginName = plugins
       .filter((plugin) => hookName in plugin)
       .filter((item) => {
-        const [name, identifier] = item.key
+        const [name, identifier] = item.key;
 
-        const identifierCheck = identifier?.toString() === searchIdentifier?.toString()
-        const nameCheck = name === searchPluginName
+        const identifierCheck =
+          identifier?.toString() === searchIdentifier?.toString();
+        const nameCheck = name === searchPluginName;
 
         if (searchIdentifier) {
-          return identifierCheck && nameCheck
+          return identifierCheck && nameCheck;
         }
 
-        return nameCheck
-      })
+        return nameCheck;
+      });
 
     if (!pluginByPluginName?.length) {
       // fallback on the core plugin when there is no match
 
-      const corePlugin = plugins.find((plugin) => plugin.name === 'core' && hookName in plugin)
+      const corePlugin = plugins.find(
+        (plugin) => plugin.name === "core" && hookName in plugin,
+      );
       // Removed noisy debug logs for missing hooks - these are expected behavior, not errors
 
-      return corePlugin ? [corePlugin] : []
+      return corePlugin ? [corePlugin] : [];
     }
 
-    return pluginByPluginName
+    return pluginByPluginName;
   }
 
   /**
@@ -529,67 +532,74 @@ export class PluginManager {
     parameters,
     plugin,
   }: {
-    strategy: Strategy
-    hookName: H
-    parameters: unknown[] | undefined
-    plugin: PluginWithLifeCycle
+    strategy: Strategy;
+    hookName: H;
+    parameters: unknown[] | undefined;
+    plugin: PluginWithLifeCycle;
   }): Promise<ReturnType<ParseResult<H>> | null> | null {
-    const hook = plugin[hookName]
-    let output: unknown
+    const hook = plugin[hookName];
+    let output: unknown;
 
     if (!hook) {
-      return null
+      return null;
     }
 
-    this.events.emit('executing', {
+    this.events.emit("hook:processing:start", {
       strategy,
       hookName,
       parameters,
       plugin,
-    })
+    });
 
-    const startTime = performance.now()
+    const startTime = performance.now();
 
     const task = (async () => {
       try {
-        if (typeof hook === 'function') {
-          const context = this.getContext(plugin)
-          const result = await Promise.resolve((hook as Function).apply(context, parameters))
+        if (typeof hook === "function") {
+          const context = this.getContext(plugin);
+          const result = await Promise.resolve(
+            (hook as Function).apply(context, parameters),
+          );
 
-          output = result
+          output = result;
 
-          this.events.emit('executed', {
+          this.events.emit("hook:processing:end", {
             duration: Math.round(performance.now() - startTime),
             parameters,
             output,
             strategy,
             hookName,
             plugin,
-          })
+          });
 
-          return result
+          return result;
         }
 
-        output = hook
+        output = hook;
 
-        this.events.emit('executed', {
+        this.events.emit("hook:processing:end", {
           duration: Math.round(performance.now() - startTime),
           parameters,
           output,
           strategy,
           hookName,
           plugin,
-        })
+        });
 
-        return hook
+        return hook;
       } catch (e) {
-        this.events.emit('error', e as Error, { plugin, hookName, strategy, duration: Math.round(performance.now() - startTime) })
+        this.events.emit("error", e as Error, {
+          plugin,
+          hookName,
+          strategy,
+          duration: Math.round(performance.now() - startTime),
+        });
 
-        return null
+        return null;
       }
-    })()
+    })();
 
-    return task
+    return task;
   }
 
   /**
@@ -605,74 +615,84 @@ export class PluginManager {
     parameters,
     plugin,
   }: {
-    strategy: Strategy
-    hookName: H
-    parameters: PluginParameter<H>
-    plugin: PluginWithLifeCycle
+    strategy: Strategy;
+    hookName: H;
+    parameters: PluginParameter<H>;
+    plugin: PluginWithLifeCycle;
   }): ReturnType<ParseResult<H>> | null {
-    const hook = plugin[hookName]
-    let output: unknown
+    const hook = plugin[hookName];
+    let output: unknown;
 
     if (!hook) {
-      return null
+      return null;
     }
 
-    this.events.emit('executing', {
+    this.events.emit("hook:processing:start", {
       strategy,
       hookName,
       parameters,
       plugin,
-    })
+    });
 
-    const startTime = performance.now()
+    const startTime = performance.now();
 
     try {
-      if (typeof hook === 'function') {
-        const context = this.getContext(plugin)
-        const fn = (hook as Function).apply(context, parameters) as ReturnType<ParseResult<H>>
+      if (typeof hook === "function") {
+        const context = this.getContext(plugin);
+        const fn = (hook as Function).apply(context, parameters) as ReturnType<
+          ParseResult<H>
+        >;
 
-        output = fn
+        output = fn;
 
-        this.events.emit('executed', {
+        this.events.emit("hook:processing:end", {
           duration: Math.round(performance.now() - startTime),
           parameters,
           output,
           strategy,
           hookName,
           plugin,
-        })
+        });
 
-        return fn
+        return fn;
       }
 
-      output = hook
+      output = hook;
 
-      this.events.emit('executed', {
+      this.events.emit("hook:processing:end", {
         duration: Math.round(performance.now() - startTime),
         parameters,
         output,
         strategy,
         hookName,
         plugin,
-      })
+      });
 
-      return hook
+      return hook;
     } catch (e) {
-      this.events.emit('error', e as Error, { plugin, hookName, strategy, duration: Math.round(performance.now() - startTime) })
+      this.events.emit("error", e as Error, {
+        plugin,
+        hookName,
+        strategy,
+        duration: Math.round(performance.now() - startTime),
+      });
 
-      return null
+      return null;
     }
   }
 
   #parse(plugin: UserPlugin): Plugin {
-    const usedPluginNames = this.#usedPluginNames
+    const usedPluginNames = this.#usedPluginNames;
 
-    setUniqueName(plugin.name, usedPluginNames)
+    setUniqueName(plugin.name, usedPluginNames);
 
     return {
       install() {},
       ...plugin,
-      key: [plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.name, string],
-    } as unknown as Plugin
+      key: [plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [
+        typeof plugin.name,
+        string,
+      ],
+    } as unknown as Plugin;
   }
 }

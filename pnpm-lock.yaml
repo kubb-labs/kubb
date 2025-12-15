@@ -978,6 +978,9 @@ importers:
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
+      seedrandom:
+        specifier: ^3.0.5
+        version: 3.0.5
       semver:
         specifier: ^7.7.3
         version: 7.7.3
@@ -991,6 +994,9 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
+      '@types/seedrandom':
+        specifier: ^3.0.8
+        version: 3.0.8
       '@types/semver':
         specifier: ^7.7.1
         version: 7.7.1
@@ -1027,15 +1033,9 @@ importers:
       p-limit:
         specifier: 'catalog:'
         version: 7.2.0
-      picocolors:
-        specifier: ^1.1.1
-        version: 1.1.1
       remeda:
         specifier: 'catalog:'
         version: 2.32.0
-      seedrandom:
-        specifier: ^3.0.5
-        version: 3.0.5
       semver:
         specifier: ^7.7.3
         version: 7.7.3
@@ -1046,9 +1046,6 @@ importers:
       '@types/object-hash':
         specifier: ^3.0.6
         version: 3.0.6
-      '@types/seedrandom':
-        specifier: ^3.0.8
-        version: 3.0.8
       '@types/semver':
         specifier: ^7.7.1
         version: 7.7.1

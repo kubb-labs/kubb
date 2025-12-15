@@ -64,6 +64,7 @@
     "@clack/prompts": "1.0.0-alpha.8",
     "@kubb/core": "workspace:*",
     "chokidar": "^4.0.3",
+    "seedrandom": "^3.0.5",
     "citty": "^0.1.6",
     "cosmiconfig": "^9.0.0",
     "execa": "^9.6.1",
@@ -77,6 +78,7 @@
   "devDependencies": {
     "@kubb/mcp": "workspace:*",
     "@kubb/oas": "workspace:*",
+    "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.7.1",
     "source-map-support": "^0.5.21"
   },

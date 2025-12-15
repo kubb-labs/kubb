@@ -100,15 +100,12 @@
     "natural-orderby": "^5.0.0",
     "object-hash": "^3.0.0",
     "p-limit": "catalog:",
-    "picocolors": "^1.1.1",
     "remeda": "catalog:",
-    "seedrandom": "^3.0.5",
     "semver": "^7.7.3"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/object-hash": "^3.0.6",
-    "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.7.1",
     "zod": "^4.2.0"
   },

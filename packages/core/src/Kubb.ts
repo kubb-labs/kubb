@@ -1,6 +1,7 @@
 import type { KubbFile } from "@kubb/fabric-core/types";
 import type { Plugin, PluginLifecycleHooks } from "./types";
-import type { Strategy } from "./utils/executeStrategies";
+import type { Strategy } from "./PluginManager.ts";
+
 type DebugEvent = {
   date: Date;
   logs: string[];
@@ -68,26 +69,49 @@ export interface KubbEvents {
   /** Called at the end of the Kubb lifecycle. */
   "lifecycle:end": [];
 
-  "lifecycle:success": [message: string];
-  "log:error": [error: Error];
-  "log:warning": [message: string];
-  "log:verbose": [meta: DebugEvent];
-  "log:debug": [meta: DebugEvent];
+  info: [message: string];
+  /**
+   * When in group, load the groupsLogger success
+   */
+  error: [error: Error, meta?: Record<string, unknown>];
+  /**
+   * When in group, load the groupsLogger success
+   */
+  success: [message: string];
+  /**
+   * When in group, load the groupsLogger success and add a pc.yellow
+   */
+  warn: [message: string];
+  verbose: [meta: DebugEvent];
+  debug: [meta: DebugEvent];
+  /**
+   * use this     // const configLogger = clack.taskLog({
+    //   title: 'Loading config',
+    // })
+   */
+  "group:create": [
+    {
+      title: string;
+      groupId: string;
+    },
+  ];
   // this will be used for the step
-  "lifecycle:group": [groupId: string];
+  "group:start": [message: string, groupId: string];
+  "group:message": [message: string, groupId: string];
+  /**]
+   *     logger.emit("stop", "Configuration completed");
+   */
+  "group:end": [message: string, groupId: string];
   "files:processing:start": [{ id: string; size: number; message?: string }];
   "files:processing:update": [
     {
-      processed: number;
-      total: number;
-      percentage: number;
-      source?: string;
-      file: KubbFile.ResolvedFile;
+      id: string;
+      message: string;
     },
   ];
-  "files:processing:end": [{ files: KubbFile.ResolvedFile[] }];
+  "files:processing:end": [{ id: string; files: KubbFile.ResolvedFile[] }];
   "plugin:start": [plugin: Plugin];
-  "plugin:end": [plugin: Plugin];
+  "plugin:end": [plugin: Plugin, duration: number];
 
   "hook:progress:start": [meta: ProgressStartMeta];
   "hook:progress:end": [meta: ProgressStopMeta];
