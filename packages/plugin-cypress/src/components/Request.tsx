@@ -4,6 +4,7 @@ import type { OperationSchemas } from '@kubb/plugin-oas'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginCypress } from '../types.ts'
+import { camelCase } from '@kubb/core/transformers'
 
 type Props = {
   /**
@@ -15,9 +16,10 @@ type Props = {
   baseURL: string | undefined
   dataReturnType: PluginCypress['resolvedOptions']['dataReturnType']
   method: HttpMethod
+  prefix?: string
 }
 
-export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, method }: Props): KubbNode {
+export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, method, prefix }: Props): KubbNode {
   const params = FunctionParams.factory({
     data: typeSchemas.request?.name
       ? {
@@ -27,6 +29,8 @@ export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, 
       : undefined,
   })
 
+  const functionName = camelCase(name, {prefix: prefix ?? 'cy'})
+
   const returnType =
     dataReturnType === 'data' ? `Cypress.Chainable<${typeSchemas.response.name}>` : `Cypress.Chainable<Cypress.Response<${typeSchemas.response.name}>>`
 
@@ -34,7 +38,7 @@ export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, 
 
   return (
     <File.Source name={name} isIndexable isExportable>
-      <Function name={name} export params={params.toConstructor()} returnType={returnType}>
+      <Function name={functionName} export params={params.toConstructor()} returnType={returnType}>
         {dataReturnType === 'data' &&
           `return cy.request('${method}', '${baseURL ?? ''}${new URLPath(url).toURLPath().replace(/([^/]):/g, '$1\\\\:')}', ${body}).then((res: Cypress.Response<${typeSchemas.response.name}>) => res.body)`}
         {dataReturnType === 'full' && `return cy.request('${method}', '${new URLPath(`${baseURL ?? ''}${url}`).toURLPath()}', ${body})`}

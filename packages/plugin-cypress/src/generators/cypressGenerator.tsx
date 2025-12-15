@@ -12,7 +12,7 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
   name: 'cypress',
   Operation({ operation, generator, plugin }) {
     const {
-      options: { output, baseURL, dataReturnType },
+      options: { output, baseURL, dataReturnType, prefix },
     } = plugin
     const pluginManager = usePluginManager()
 
@@ -56,6 +56,7 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
           typeSchemas={type.schemas}
           method={operation.method}
           baseURL={baseURL}
+          prefix={prefix}
           url={new URLPath(operation.path).toURLPath()}
         />
       </File>
