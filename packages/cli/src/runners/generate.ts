@@ -1,20 +1,18 @@
 import path from 'node:path'
 import process from 'node:process'
 import * as clack from '@clack/prompts'
-import { type Config, type KubbEvents, safeBuild, setup } from '@kubb/core'
-import { type LogLevel, LogMapper } from '@kubb/core/logger'
+import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import { execa } from 'execa'
 import pc from 'picocolors'
 import { executeHooks } from '../utils/executeHooks.ts'
 import { getSummary } from '../utils/getSummary.ts'
-import { ClackWritable } from '../utils/Writables.ts'
 
 type GenerateProps = {
   input?: string
   config: Config
   events: AsyncEventEmitter<KubbEvents>
-  logLevel: LogLevel
+  logLevel: number
 }
 
 export async function generate({ input, config, events, logLevel }: GenerateProps): Promise<void> {
@@ -22,23 +20,19 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
   const hrStart = process.hrtime()
 
-  events.emit('group:create', {
-    title: [
-      config.name ? `Generation started ${pc.dim(config.name)}` : 'Generation started',
-      logLevel > LogMapper.silent ? `for ${pc.dim(inputPath)}` : undefined,
-    ]
+  await events.emit('generation:start')
+  await events.emit(
+    'verbose',
+    [config.name ? `Loading generation ${pc.dim(config.name)}` : 'Loading generation', logLevel > LogLevel.silent ? `for ${pc.dim(inputPath)}` : undefined]
       .filter(Boolean)
       .join(' '),
-    groupId: 'configuration',
-  })
-
-  events.emit('group:start', 'Loading generation', 'configuration')
+  )
 
   // Track progress bars for plugins and file writing
   const progressBars = new Map<string, ReturnType<typeof clack.progress>>()
   const progressIntervals = new Map<string, NodeJS.Timeout>()
 
-  if (logLevel !== LogMapper.debug) {
+  if (logLevel !== LogLevel.debug) {
     events.on('plugin:start', (plugin) => {
       // Create a progress bar for this plugin with indeterminate progress
       const pluginProgress = clack.progress({
@@ -63,7 +57,6 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
     })
 
     events.on('plugin:end', (plugin, duration) => {
-      // Clear interval and complete progress
       const interval = progressIntervals.get(plugin.name)
       if (interval) {
         clearInterval(interval)
@@ -72,7 +65,6 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
       const pluginProgress = progressBars.get(plugin.name)
       if (pluginProgress) {
-        // Advance to completion
         for (let i = 0; i < 10; i++) {
           pluginProgress.advance()
         }
@@ -81,35 +73,29 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
       }
     })
 
-    events.on('files:processing:start', ({ id, size }) => {
-      if (id === 'files') {
-        const filesProgress = clack.progress({
-          style: 'heavy',
-          max: size,
-          size: 30,
-          indicator: undefined,
-        })
-        progressBars.set('files', filesProgress)
-        filesProgress.start(`Writing ${size} files`)
+    events.on('files:processing:start', ({ files }) => {
+      const filesProgress = clack.progress({
+        style: 'heavy',
+        max: files.length,
+        size: 30,
+        indicator: undefined,
+      })
+      progressBars.set('files', filesProgress)
+      filesProgress.start(`Writing ${files.length} files`)
+    })
+
+    events.on('file:processing:update', () => {
+      const filesProgress = progressBars.get('files')
+      if (filesProgress) {
+        filesProgress.advance()
       }
     })
 
-    events.on('files:processing:update', ({ id }) => {
-      if (id === 'files') {
-        const filesProgress = progressBars.get('files')
-        if (filesProgress) {
-          filesProgress.advance()
-        }
-      }
-    })
-
-    events.on('files:processing:end', ({ id }) => {
-      if (id === 'files') {
-        const filesProgress = progressBars.get('files')
-        if (filesProgress) {
-          filesProgress.stop('Files written successfully')
-          progressBars.delete('files')
-        }
+    events.on('files:processing:end', () => {
+      const filesProgress = progressBars.get('files')
+      if (filesProgress) {
+        filesProgress.stop('Files written successfully')
+        progressBars.delete('files')
       }
     })
   }
@@ -136,17 +122,15 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
   const { fabric, pluginManager } = await setup({
     config: definedConfig,
-    logLevel,
     events,
   })
 
   const { files, failedPlugins, pluginTimings, error } = await safeBuild(
     {
       config: definedConfig,
-      logLevel,
       events,
     },
-    { pluginManager, fabric, events, logLevel },
+    { pluginManager, fabric, events },
   )
 
   const summary = getSummary({
@@ -155,14 +139,14 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
     config: definedConfig,
     status: failedPlugins.size > 0 || error ? 'failed' : 'success',
     hrStart,
-    pluginTimings: logLevel >= LogMapper.verbose ? pluginTimings : undefined,
+    pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
   })
 
   // Handle build failures (either from failed plugins or general errors)
   const hasFailures = failedPlugins.size > 0 || error
 
   if (hasFailures) {
-    console.log(`✗  Build failed ${logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+    console.log(`✗  Build failed ${logLevel !== LogLevel.silent ? pc.dim(inputPath!) : ''}`)
 
     // Collect all errors from failed plugins and general error
     const allErrors: Error[] = [
@@ -174,7 +158,7 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     allErrors.forEach((err) => {
       // Display error causes in debug mode
-      if (logLevel >= LogMapper.debug && err.cause) {
+      if (logLevel >= LogLevel.debug && err.cause) {
         console.error(err.cause)
       }
 
@@ -193,114 +177,118 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
     process.exit(1)
   }
 
-  // events.emit(
-  //   "stop",
-  //   `Build completed ${logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ""}`,
-  // );
+  await events.emit('generation:end')
+  await events.emit('info', `Build completed ${pc.dim(inputPath!)}`)
 
   // formatting
   if (config.output.format) {
-    // logger.emit("start", "Formatting started");
+    await events.emit('format:start')
 
-    const formatLogger = clack.taskLog({
-      title: [
+    await events.emit(
+      'info',
+      [
         `Formatting with ${pc.dim(config.output.format)}`,
-        logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+        logLevel > LogLevel.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
       ]
         .filter(Boolean)
         .join(' '),
-    })
-    const formatWritable = new ClackWritable(formatLogger)
+    )
 
     if (config.output.format === 'prettier') {
       try {
-        const result = await execa('prettier', ['--ignore-unknown', '--write', path.resolve(definedConfig.root, definedConfig.output.path)], {
-          detached: true,
-          stdout: logLevel === LogMapper.silent ? undefined : ['pipe', formatWritable],
-          stripFinalNewline: true,
-        })
-
-        formatLogger.success(
-          [
-            `Formatting with ${pc.dim(config.output.format)}`,
-            logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
-            'successfully',
-          ]
-            .filter(Boolean)
-            .join(' '),
+        await events.emit(
+          'hook:execute',
+          'prettier',
+          ['--ignore-unknown', '--write', path.resolve(definedConfig.root, definedConfig.output.path)],
+          async (result) => {
+            await events.emit(
+              'success',
+              [
+                `Formatting with ${pc.dim(config.output.format as string)}`,
+                logLevel > LogLevel.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+                'successfully',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+            await events.emit('hook:end')
+            await events.emit('verbose', result.stdout)
+          },
         )
-        formatLogger.message(result.stdout)
       } catch (e) {
-        events.emit('error', e as Error)
+        await events.emit('error', e as Error)
       }
 
-      events.emit('success', `Formatted with ${config.output.format}`)
+      await events.emit('success', `Formatted with ${config.output.format}`)
     }
 
     if (config.output.format === 'biome') {
       try {
         const result = await execa('biome', ['format', '--write', path.resolve(definedConfig.root, definedConfig.output.path)], {
           detached: true,
-          stdout: logLevel === LogMapper.silent ? undefined : ['pipe', formatWritable],
+          stdout: logLevel === LogLevel.silent ? undefined : ['pipe'],
           stripFinalNewline: true,
         })
 
-        formatLogger.success(
+        await events.emit(
+          'success',
           [
             `Formatting with ${pc.dim(config.output.format)}`,
-            logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+            logLevel > LogLevel.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
             'successfully',
           ]
             .filter(Boolean)
             .join(' '),
         )
-        formatLogger.message(result.stdout)
+
+        await events.emit('verbose', result.stdout)
       } catch (e) {
         const error = new Error('Biome not found')
         error.cause = e
-        events.emit('error', error)
+        await events.emit('error', error)
       }
     }
 
-    // logger.emit("stop", "Formatting completed");
+    await events.emit('format:end')
   }
 
   // linting
   if (config.output.lint) {
-    // logger.emit("start", "Linting started");
+    await events.emit('lint:start')
 
-    const lintLogger = clack.taskLog({
-      title: [
+    await events.emit(
+      'info',
+      [
         `Linting with ${pc.dim(config.output.lint)}`,
-        logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+        logLevel > LogLevel.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
       ]
         .filter(Boolean)
         .join(' '),
-    })
-    const lintWritable = new ClackWritable(lintLogger)
+    )
 
     if (config.output.lint === 'eslint') {
       try {
         const result = await execa('eslint', [path.resolve(definedConfig.root, definedConfig.output.path), '--fix'], {
           detached: true,
-          stdout: logLevel === LogMapper.silent ? undefined : ['pipe', lintWritable],
+          stdout: logLevel === LogLevel.silent ? undefined : ['pipe'],
           stripFinalNewline: true,
         })
 
-        lintLogger.success(
+        await events.emit(
+          'success',
           [
             `Linted with ${pc.dim(config.output.lint)}`,
-            logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+            logLevel > LogLevel.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
             'successfully',
           ]
             .filter(Boolean)
             .join(' '),
         )
-        lintLogger.message(result.stdout)
+        await events.emit('verbose', result.stdout)
       } catch (e) {
         const error = new Error('Eslint not found')
         error.cause = e
-        events.emit('error', error)
+        await events.emit('error', error)
       }
     }
 
@@ -308,24 +296,25 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
       try {
         const result = await execa('biome', ['lint', '--fix', path.resolve(definedConfig.root, definedConfig.output.path)], {
           detached: true,
-          stdout: logLevel === LogMapper.silent ? undefined : ['pipe', lintWritable],
+          stdout: logLevel === LogLevel.silent ? undefined : ['pipe'],
           stripFinalNewline: true,
         })
 
-        lintLogger.success(
+        await events.emit(
+          'success',
           [
             `Linted with ${pc.dim(config.output.lint)}`,
-            logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+            logLevel > LogLevel.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
             'successfully',
           ]
             .filter(Boolean)
             .join(' '),
         )
-        lintLogger.message(result.stdout)
+        await events.emit('verbose', result.stdout)
       } catch (e) {
         const error = new Error('Biome not found')
         error.cause = e
-        events.emit('error', error)
+        await events.emit('error', error)
       }
     }
 
@@ -333,35 +322,36 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
       try {
         const result = await execa('oxlint', ['--fix', path.resolve(definedConfig.root, definedConfig.output.path)], {
           detached: true,
-          stdout: logLevel === LogMapper.silent ? undefined : ['pipe', lintWritable],
+          stdout: logLevel === LogLevel.silent ? undefined : ['pipe'],
           stripFinalNewline: true,
         })
 
-        lintLogger.success(
+        await events.emit(
+          'success',
           [
             `Linted with ${pc.dim(config.output.lint)}`,
-            logLevel > LogMapper.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+            logLevel > LogLevel.silent ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
             'successfully',
           ]
             .filter(Boolean)
             .join(' '),
         )
-        lintLogger.message(result.stdout)
+        await events.emit('verbose', result.stdout)
       } catch (e) {
         const error = new Error('Oxlint not found')
         error.cause = e
-        events.emit('error', error)
+        await events.emit('error', error)
       }
     }
 
-    // logger?.emit("stop", "Linting completed");
+    await events.emit('lint:end')
   }
 
   if (config.hooks) {
-    logger.emit('start', 'Hooks started')
-    await executeHooks({ hooks: config.hooks, logLevel })
+    await events.emit('hooks:start')
+    await executeHooks({ hooks: config.hooks, logLevel, events })
 
-    // logger?.emit("stop", "Hooks completed");
+    await events.emit('hooks:end')
   }
 
   clack.box(summary.join(''), config.name || '', {

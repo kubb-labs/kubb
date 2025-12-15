@@ -1,18 +1,17 @@
-import * as clack from '@clack/prompts'
-import type { Config } from '@kubb/core'
-import { LogMapper } from '@kubb/core/logger'
-import { execa } from 'execa'
-import type { LogLevel } from 'packages/core/src/logger/types.ts'
+import type { Config, KubbEvents } from '@kubb/core'
+import { LogLevel } from '@kubb/core'
+import type { AsyncEventEmitter } from '@kubb/core/utils'
+
 import pc from 'picocolors'
 import { parseArgsStringToArgv } from 'string-argv'
-import { ClackWritable } from './Writables.ts'
 
 type ExecutingHooksProps = {
   hooks: NonNullable<Config['hooks']>
-  logLevel: LogLevel
+  logLevel: number
+  events: AsyncEventEmitter<KubbEvents>
 }
 
-export async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<void> {
+export async function executeHooks({ hooks, events, logLevel }: ExecutingHooksProps): Promise<void> {
   const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done].filter(Boolean)
 
   for (const command of commands) {
@@ -22,19 +21,13 @@ export async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Pr
       continue
     }
 
-    const hooksLogger = clack.taskLog({
-      title: ['Executing hook', logLevel !== LogMapper.silent ? pc.dim(command) : undefined].filter(Boolean).join(' '),
+    await events.emit('hook:start')
+
+    await events.emit('hook:execute', cmd, _args, async (result) => {
+      await events.emit('success', [logLevel !== LogLevel.silent ? pc.dim(command) : undefined, 'successfully'].filter(Boolean).join(' '))
+
+      await events.emit('hook:end')
+      await events.emit('verbose', result.stdout)
     })
-
-    const writable = new ClackWritable(hooksLogger)
-
-    const result = await execa(cmd, _args, {
-      detached: true,
-      stdout: logLevel === LogMapper.silent ? undefined : ['pipe', writable],
-      stripFinalNewline: true,
-    })
-
-    hooksLogger.success(['Executing hook', logLevel !== LogMapper.silent ? pc.dim(command) : undefined, 'successfully'].filter(Boolean).join(' '))
-    hooksLogger.message(result.stdout)
   }
 }

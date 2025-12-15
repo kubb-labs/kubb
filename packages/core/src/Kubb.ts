@@ -6,31 +6,6 @@ type DebugEvent = {
   date: Date
   logs: string[]
   fileName?: string
-  /**
-   * Category of the debug log, used for GitHub Actions grouping
-   * - 'setup': Initial configuration and environment setup
-   * - 'plugin': Plugin installation and execution
-   * - 'hook': Plugin hook execution details
-   * - 'schema': Schema parsing and generation
-   * - 'file': File operations (read/write/generate)
-   * - 'error': Error details and stack traces
-   * - undefined: Generic logs (always inline)
-   */
-  category?: 'setup' | 'plugin' | 'hook' | 'schema' | 'file' | 'error'
-  /**
-   * Plugin name for grouping plugin-specific logs together
-   */
-  pluginName?: string
-  /**
-   * Indicates if this is the start or end of a plugin's execution
-   * - 'start': Start of plugin execution group
-   * - 'end': End of plugin execution group
-   */
-  pluginGroupMarker?: 'start' | 'end'
-  /**
-   * Optional group ID for associating logs with specific groups (e.g., for GitHub Actions)
-   */
-  groupId?: string
 }
 
 type ProgressStartMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
@@ -64,9 +39,27 @@ type ExecutedMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
 export interface KubbEvents {
   /** Called at the beginning of the Kubb lifecycle. */
   'lifecycle:start': []
-
   /** Called at the end of the Kubb lifecycle. */
   'lifecycle:end': []
+
+  'config:start': []
+  'config:end': []
+
+  'generation:start': []
+  'generation:end': []
+
+  'format:start': []
+  'format:end': []
+
+  'lint:start': []
+  'lint:end': []
+
+  'hooks:start': []
+  'hooks:end': []
+
+  'hook:start': []
+  'hook:execute': [command: string | URL, arguments: readonly string[], cb: (options: { stdout: string }) => void]
+  'hook:end': []
 
   info: [message: string]
   /**
@@ -81,39 +74,31 @@ export interface KubbEvents {
    * When in group, load the groupsLogger success and add a pc.yellow
    */
   warn: [message: string]
-  verbose: [meta: DebugEvent]
+  verbose: [message: string]
   debug: [meta: DebugEvent]
   /**
    * use this     // const configLogger = clack.taskLog({
     //   title: 'Loading config',
     // })
    */
-  'group:create': [
-    {
-      title: string
-      groupId: string
-    },
-  ]
-  // this will be used for the step
-  'group:start': [message: string, groupId: string]
-  'group:message': [message: string, groupId: string]
   /**]
    *     logger.emit("stop", "Configuration completed");
    */
-  'group:end': [message: string, groupId: string]
-  'files:processing:start': [{ id: string; size: number; message?: string }]
-  'files:processing:update': [
+  'files:processing:start': [{ files: KubbFile.ResolvedFile[] }]
+  'file:processing:update': [
     {
-      id: string
-      message: string
+      processed: number
+      total: number
+      percentage: number
+      source?: string
+      file: KubbFile.ResolvedFile
     },
   ]
-  'files:processing:end': [{ id: string; files: KubbFile.ResolvedFile[] }]
+  'files:processing:end': [{ files: KubbFile.ResolvedFile[] }]
   'plugin:start': [plugin: Plugin]
   'plugin:end': [plugin: Plugin, duration: number]
-
-  'hook:progress:start': [meta: ProgressStartMeta]
-  'hook:progress:end': [meta: ProgressStopMeta]
-  'hook:processing:start': [meta: ExecutingMeta]
-  'hook:processing:end': [meta: ExecutedMeta]
+  'plugin:hook:progress:start': [meta: ProgressStartMeta]
+  'plugin:hook:progress:end': [meta: ProgressStopMeta]
+  'plugin:hook:processing:start': [meta: ExecutingMeta]
+  'plugin:hook:processing:end': [meta: ExecutedMeta]
 }

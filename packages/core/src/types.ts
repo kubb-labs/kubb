@@ -345,4 +345,34 @@ export type Group = {
   name?: (context: GroupContext) => string
 }
 
+export const LogLevel = {
+  silent: Number.NEGATIVE_INFINITY,
+  error: 0,
+  warn: 1,
+  info: 3,
+  verbose: 4,
+  debug: 5,
+} as const
+
+export type LoggerOptions = {
+  /**
+   * @default 3
+   */
+  logLevel: (typeof LogLevel)[keyof typeof LogLevel]
+}
+
+/**
+ * Shared context passed to all plugins, parsers, and Fabric internals.
+ */
+export interface LoggerContext extends AsyncEventEmitter<KubbEvents> {}
+
+type Install<TOptions = unknown> = (context: LoggerContext, options?: TOptions) => void | Promise<void>
+
+export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
+  name: string
+  install: Install<TOptions>
+}
+
+export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Omit<Logger<TOptions>, 'logLevel'>
+
 export type { KubbEvents } from './Kubb.ts'

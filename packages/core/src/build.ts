@@ -1,4 +1,4 @@
-import { join, relative, resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
@@ -8,7 +8,6 @@ import { fsPlugin } from '@kubb/react-fabric/plugins'
 import { isDeepEqual } from 'remeda'
 import { isInputPath } from './config.ts'
 import { clean, exists, getRelativePath, write } from './fs/index.ts'
-import type { LogLevel } from './logger/types.ts'
 import { PluginManager } from './PluginManager.ts'
 import type { Config, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
 import type { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
@@ -18,7 +17,6 @@ import { URLPath } from './utils/URLPath.ts'
 type BuildOptions = {
   config: UserConfig
   events: AsyncEventEmitter<KubbEvents>
-  logLevel: LogLevel
 }
 
 type BuildOutput = {
@@ -32,23 +30,21 @@ type BuildOutput = {
 
 type SetupResult = {
   events: AsyncEventEmitter<KubbEvents>
-  logLevel: LogLevel
   fabric: Fabric
   pluginManager: PluginManager
 }
 
 export async function setup(options: BuildOptions): Promise<SetupResult> {
-  const { config: userConfig, events, logLevel } = options
+  const { config: userConfig, events } = options
 
   const diagnosticInfo = getDiagnosticInfo()
 
   if (Array.isArray(userConfig.input)) {
-    events.emit('warn', 'This feature is still under development — use with caution')
+    await events.emit('warn', 'This feature is still under development — use with caution')
   }
 
-  events.emit('debug', {
+  await events.emit('debug', {
     date: new Date(),
-    category: 'setup',
     logs: [
       'Configuration:',
       `  • Name: ${userConfig.name || 'unnamed'}`,
@@ -70,9 +66,8 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     if (isInputPath(userConfig) && !new URLPath(userConfig.input.path).isURL) {
       await exists(userConfig.input.path)
 
-      events.emit('debug', {
+      await events.emit('debug', {
         date: new Date(),
-        category: 'setup',
         logs: [`✓ Input file validated: ${userConfig.input.path}`],
       })
     }
@@ -105,9 +100,8 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   }
 
   if (definedConfig.output.clean) {
-    events.emit('debug', {
+    await events.emit('debug', {
       date: new Date(),
-      category: 'setup',
       logs: ['Cleaning output directories', `  • Output: ${definedConfig.output.path}`, '  • Cache: .kubb'],
     })
     await clean(definedConfig.output.path)
@@ -118,40 +112,34 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   fabric.use(fsPlugin, { dryRun: !definedConfig.output.write })
   fabric.use(typescriptParser)
 
-  fabric.context.on('files:processing:start', ({ files }) => {
-    events.emit('files:processing:start', {
-      id: 'files',
-      size: files.length,
-      message: 'Writing files ...',
-    })
+  fabric.context.on('files:processing:start', (params) => {
+    events.emit('files:processing:start', params)
     events.emit('debug', {
       date: new Date(),
-      category: 'file',
-      logs: [`Writing ${files.length} files...`],
+      logs: [`Writing ${params.files.length} files...`],
     })
   })
 
-  fabric.context.on('files:processing:update', async ({ file, source }) => {
-    const message = file ? `Writing ${relative(definedConfig.root, file.path)}` : ''
-    events.emit('files:processing:update', { id: 'files', message })
+  fabric.context.on('file:processing:update', async (params) => {
+    const { file, source } = params
+    // const message = file ? `Writing ${relative(definedConfig.root, file.path)}` : ''
+    await events.emit('file:processing:update', params)
 
     if (source) {
       await write(file.path, source, { sanity: false })
     }
   })
 
-  fabric.context.on('files:processing:end', ({ files }) => {
-    events.emit('files:processing:end', { id: 'files', files })
-    events.emit('debug', {
+  fabric.context.on('files:processing:end', async ({ files }) => {
+    await events.emit('files:processing:end', { files })
+    await events.emit('debug', {
       date: new Date(),
-      category: 'file',
       logs: ['✓ File write process completed'],
     })
   })
 
-  events.emit('debug', {
+  await events.emit('debug', {
     date: new Date(),
-    category: 'setup',
     logs: [
       '✓ Fabric initialized',
       `  • File writing: ${definedConfig.output.write ? 'enabled' : 'disabled (dry-run)'}`,
@@ -239,7 +227,6 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   return {
     events,
-    logLevel,
     fabric,
     pluginManager,
   }
@@ -263,7 +250,7 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
 }
 
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { fabric, pluginManager, events, logLevel } = overrides ? overrides : await setup(options)
+  const { fabric, pluginManager, events } = overrides ? overrides : await setup(options)
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   const pluginTimings = new Map<string, number>()
@@ -279,12 +266,10 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         const startTime = performance.now()
         const timestamp = new Date()
 
-        events.emit('plugin:start', plugin)
+        await events.emit('plugin:start', plugin)
 
-        events.emit('debug', {
+        await events.emit('debug', {
           date: timestamp,
-          category: 'plugin',
-          pluginName: plugin.name,
           logs: ['Installing plugin...', `  • Plugin Key: ${JSON.stringify(plugin.key)}`],
         })
 
@@ -293,22 +278,18 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         const duration = Math.round(performance.now() - startTime)
         pluginTimings.set(plugin.name, duration)
 
-        events.emit('plugin:end', plugin, duration)
+        await events.emit('plugin:end', plugin, duration)
 
-        events.emit('debug', {
+        await events.emit('debug', {
           date: new Date(),
-          category: 'plugin',
-          pluginName: plugin.name,
           logs: [`✓ Plugin installed successfully (${duration}ms)`],
         })
       } catch (e) {
         const error = e as Error
         const errorTimestamp = new Date()
 
-        events.emit('debug', {
+        await events.emit('debug', {
           date: errorTimestamp,
-          category: 'error',
-          pluginName: plugin.name,
           logs: [
             '✗ Plugin installation failed',
             `  • Plugin Key: ${JSON.stringify(plugin.key)}`,
@@ -381,9 +362,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
       await fabric.upsertFile(rootFile)
 
-      events.emit('debug', {
+      await events.emit('debug', {
         date: new Date(),
-        category: 'file',
         logs: [`✓ Generated barrel file (${rootFile.exports?.length || 0} exports)`],
       })
     }

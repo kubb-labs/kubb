@@ -1,8 +1,8 @@
 import path from 'node:path'
 import type { Config, Plugin } from '@kubb/core'
-import { randomCliColour } from '@kubb/core/logger'
 import pc from 'picocolors'
 import { parseHrtimeToSeconds } from './parseHrtimeToSeconds.ts'
+import { randomCliColour } from './randomColour.ts'
 
 type SummaryProps = {
   failedPlugins: Set<{ plugin: Plugin; error: Error }>

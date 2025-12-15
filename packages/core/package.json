@@ -30,10 +30,6 @@
       "require": "./dist/hooks.cjs",
       "import": "./dist/hooks.js"
     },
-    "./logger": {
-      "require": "./dist/logger.cjs",
-      "import": "./dist/logger.js"
-    },
     "./transformers": {
       "require": "./dist/transformers.cjs",
       "import": "./dist/transformers.js"
@@ -54,9 +50,6 @@
       ],
       "transformers": [
         "./dist/transformers.d.ts"
-      ],
-      "logger": [
-        "./dist/logger.d.ts"
       ],
       "hooks": [
         "./dist/hooks.d.ts"

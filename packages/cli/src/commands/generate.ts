@@ -1,14 +1,16 @@
 import path from 'node:path'
 import * as process from 'node:process'
 import * as clack from '@clack/prompts'
-import { isInputPath, type KubbEvents, PromiseManager } from '@kubb/core'
-import { LogMapper } from '@kubb/core/logger'
+import { isInputPath, type KubbEvents, LogLevel, PromiseManager } from '@kubb/core'
 import { AsyncEventEmitter } from '@kubb/core/utils'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
+import { execa } from 'execa'
 import pc from 'picocolors'
+import { setupLogger } from '../loggers/utils.ts'
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
+import { ClackWritable } from '../utils/Writables.ts'
 import { startWatcher } from '../utils/watcher.ts'
 
 const args = {
@@ -60,13 +62,15 @@ const command = defineCommand({
   args,
   async run(commandContext) {
     const { args } = commandContext
-    const input = args._[0]
-    const promiseManager = new PromiseManager()
-    const { generate } = await import('../runners/generate.ts')
 
     if (args.help) {
       return showUsage(command)
     }
+
+    const input = args._[0]
+    const promiseManager = new PromiseManager()
+    const events = new AsyncEventEmitter<KubbEvents>()
+    const { generate } = await import('../runners/generate.ts')
 
     if (args.debug) {
       args.logLevel = 'debug'
@@ -76,28 +80,39 @@ const command = defineCommand({
       args.logLevel = 'verbose'
     }
 
-    const events = new AsyncEventEmitter<KubbEvents>()
-    const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
+    const logLevel = LogLevel[args.logLevel as keyof typeof LogLevel] || 3
 
-    events.emit('lifecycle:start')
+    await setupLogger(events, { logLevel })
 
-    events.emit('group:create', {
-      title: 'Configuration started',
-      groupId: 'config',
+    await events.emit('lifecycle:start')
+
+    // TODO move to the clack logger
+    events.on('hook:execute', async (command, args, cb) => {
+      const logger = clack.taskLog({
+        title: ['Executing hook', logLevel !== LogLevel.silent ? pc.dim(`${command} ${args.join(' ')}`) : undefined].filter(Boolean).join(' '),
+      })
+
+      const writable = new ClackWritable(logger)
+
+      const result = await execa(command, args, {
+        detached: true,
+        stdout: logLevel === LogLevel.silent ? undefined : ['pipe', writable],
+        stripFinalNewline: true,
+      })
+
+      cb(result)
     })
 
-    events.emit('group:start', 'Loading config', 'config')
+    await events.emit('config:start')
 
     const result = await getCosmiConfig('kubb', args.config)
-    if (logLevel > LogMapper.silent) {
-      events.emit('group:message', `Config loaded from ${pc.dim(path.relative(process.cwd(), result.filepath))}}`, 'config')
-    }
+    await events.emit('info', `Config loaded from ${pc.dim(path.relative(process.cwd(), result.filepath))}}`)
 
     const config = await getConfig(result, args)
     const configs = Array.isArray(config) ? config : [config]
 
-    events.emit('success', '✓ Config loaded successfully')
-    events.emit('group:end', 'Configuration completed', 'config')
+    await events.emit('success', '✓ Config loaded successfully')
+    await events.emit('config:end')
 
     const promises = configs.map((config) => {
       return async () => {
@@ -128,7 +143,7 @@ const command = defineCommand({
     await promiseManager.run('seq', promises)
 
     // Write debug logs to filesystem if in debug mode
-    if (logLevel >= LogMapper.debug) {
+    if (logLevel >= LogLevel.debug) {
       console.log('⏳ Writing logs')
       // await fsAdapter.writeLogs();
       console.log('✅ Written logs')

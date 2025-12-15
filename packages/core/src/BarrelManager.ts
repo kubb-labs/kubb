@@ -9,11 +9,7 @@ import { TreeNode } from './utils/TreeNode.ts'
 type BarrelManagerOptions = {}
 
 export class BarrelManager {
-  #options: BarrelManagerOptions
-
-  constructor(options: BarrelManagerOptions = {}) {
-    this.#options = options
-
+  constructor(_options: BarrelManagerOptions = {}) {
     return this
   }
 
