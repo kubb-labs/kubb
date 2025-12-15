@@ -307,7 +307,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       const root = resolve(config.root)
       const rootPath = resolve(root, config.output.path, 'index.ts')
 
-      events.emit('debug', {
+      await events.emit('debug', {
         date: new Date(),
         logs: ['Generating barrel file', `  • Type: ${config.output.barrelType}`, `  • Path: ${rootPath}`],
       })
@@ -316,7 +316,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         return file.sources.some((source) => source.isIndexable)
       })
 
-      events.emit('debug', {
+      await events.emit('debug', {
         date: new Date(),
         logs: [`Found ${barrelFiles.length} indexable files for barrel export`],
       })

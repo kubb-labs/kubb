@@ -111,7 +111,7 @@ const command = defineCommand({
     const config = await getConfig(result, args)
     const configs = Array.isArray(config) ? config : [config]
 
-    await events.emit('success', '✓ Config loaded successfully')
+    await events.emit('success', 'Config loaded successfully')
     await events.emit('config:end')
 
     const promises = configs.map((config) => {
