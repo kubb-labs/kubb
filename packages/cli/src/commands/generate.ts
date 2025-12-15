@@ -82,7 +82,7 @@ const command = defineCommand({
 
     const logLevel = LogLevel[args.logLevel as keyof typeof LogLevel] || 3
 
-    await setupLogger(events, { logLevel })
+    const cleanup = await setupLogger(events, { logLevel })
 
     await events.emit('lifecycle:start')
 
@@ -142,12 +142,12 @@ const command = defineCommand({
 
     await promiseManager.run('seq', promises)
 
-    // Write debug logs to filesystem if in debug mode
-    if (logLevel >= LogLevel.debug) {
-      console.log('⏳ Writing logs')
-      // await fsAdapter.writeLogs();
-      console.log('✅ Written logs')
+    // Call cleanup before lifecycle:end to properly clean up resources
+    if (cleanup) {
+      await cleanup()
     }
+
+    await events.emit('lifecycle:end')
   },
 })
 
