@@ -10,13 +10,13 @@ import { isInputPath } from './config.ts'
 import { clean, exists, getRelativePath, write } from './fs/index.ts'
 import { PluginManager } from './PluginManager.ts'
 import type { Config, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
-import type { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
+import { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import { URLPath } from './utils/URLPath.ts'
 
 type BuildOptions = {
   config: UserConfig
-  events: AsyncEventEmitter<KubbEvents>
+  events?: AsyncEventEmitter<KubbEvents>
 }
 
 type BuildOutput = {
@@ -35,7 +35,7 @@ type SetupResult = {
 }
 
 export async function setup(options: BuildOptions): Promise<SetupResult> {
-  const { config: userConfig, events } = options
+  const { config: userConfig, events = new AsyncEventEmitter<KubbEvents>() } = options
 
   const diagnosticInfo = getDiagnosticInfo()
 
