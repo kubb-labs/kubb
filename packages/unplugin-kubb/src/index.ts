@@ -1,7 +1,7 @@
 import process from 'node:process'
 import type { Config } from '@kubb/core'
 import { type KubbEvents, safeBuild } from '@kubb/core'
-import { AsyncEventEmitter } from 'packages/core/src/utils/AsyncEventEmitter.ts'
+import { AsyncEventEmitter } from '@kubb/core/utils'
 import type { UnpluginFactory } from 'unplugin'
 import { createUnplugin } from 'unplugin'
 import type { Logger } from 'vite'
@@ -16,24 +16,6 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
   const name = 'unplugin-kubb' as const
   const events = new AsyncEventEmitter<KubbEvents>()
   const isVite = meta.framework === 'vite'
-
-  function setupLogger(_viteLogger?: Logger, _rollupCtx?: RollupContext) {
-    // if (viteLogger) {
-    //   // Vite integration
-    //   events.on('start', (message: string) => viteLogger.info(`${name}: ${message}`))
-    //   events.on('success', (message: string) => viteLogger.info(`${name}: ${message}`))
-    //   events.on('warning', (message: string) => viteLogger.warn(`${name}: ${message}`))
-    //   events.on('error', (message: string) => viteLogger.error(`${name}: ${message}`))
-    // } else if (rollupCtx) {
-    //   // Rollup-like bundlers (Rollup, Webpack, Rspack, esbuild, etc.)
-    //   events.on('start', (message: string) => rollupCtx.warn?.(`${name}: ${message}`))
-    //   events.on('success', (message: string) => rollupCtx.warn?.(`${name}: ${message}`))
-    //   events.on('warning', (message: string) => rollupCtx.warn?.(`${name}: ${message}`))
-    //   events.on('error', (message: string) => {
-    //     rollupCtx.error?.(`${name}: ${message}`) || console.error(`${name}: ${message}`)
-    //   })
-    // }
-  }
 
   async function runBuild(ctx: RollupContext) {
     if (!options?.config) {
@@ -68,17 +50,10 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     apply: isVite ? 'build' : undefined,
 
     async buildStart() {
-      if (!isVite) {
-        setupLogger(undefined, this as unknown as RollupContext)
-      }
       await runBuild(this as unknown as RollupContext)
     },
 
-    vite: {
-      configResolved(config) {
-        setupLogger(config.logger)
-      },
-    },
+    vite: {},
   }
 }
 
