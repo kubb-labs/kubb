@@ -70,5 +70,10 @@ export const plainLogger = defineLogger({
       indentLevel = Math.max(0, indentLevel - 1)
       log(`${plugin.name} completed in ${duration}ms`)
     })
+
+    // No cleanup needed for plain logger, but return function for consistency
+    return () => {
+      // No-op cleanup
+    }
   },
 })
