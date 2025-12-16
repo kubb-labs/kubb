@@ -8,7 +8,14 @@ import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { MutationKey } from './components'
 import { QueryKey } from './components/QueryKey.tsx'
-import { infiniteQueryGenerator, mutationGenerator, queryGenerator, suspenseInfiniteQueryGenerator, suspenseQueryGenerator } from './generators'
+import {
+  hookOptionsGenerator,
+  infiniteQueryGenerator,
+  mutationGenerator,
+  queryGenerator,
+  suspenseInfiniteQueryGenerator,
+  suspenseQueryGenerator,
+} from './generators'
 import type { PluginReactQuery } from './types.ts'
 
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
@@ -26,11 +33,19 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
     transformers = {},
     paramsType = 'inline',
     pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
-    generators = [queryGenerator, suspenseQueryGenerator, infiniteQueryGenerator, suspenseInfiniteQueryGenerator, mutationGenerator].filter(Boolean),
+    generators = [
+      queryGenerator,
+      suspenseQueryGenerator,
+      infiniteQueryGenerator,
+      suspenseInfiniteQueryGenerator,
+      mutationGenerator,
+      hookOptionsGenerator,
+    ].filter(Boolean),
     mutation = {},
     query = {},
     mutationKey = MutationKey.getTransformer,
     queryKey = QueryKey.getTransformer,
+    customOptions,
     paramsCasing,
     contentType,
     client,
@@ -80,6 +95,7 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
               importPath: '@tanstack/react-query',
               ...mutation,
             },
+      customOptions,
       paramsType,
       pathParamsType,
       parser,

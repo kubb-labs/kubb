@@ -130,6 +130,7 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
         {!shouldUseClientPlugin && (
           <File.Import name={['buildFormData']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
         )}
+        {options.customOptions && <File.Import name={[options.customOptions.name]} path={options.customOptions.importPath} />}
         <File.Import
           name={[
             type.schemas.request?.name,
@@ -194,6 +195,7 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
               dataReturnType={options.client.dataReturnType || 'data'}
               queryKeyName={queryKey.name}
               queryKeyTypeName={queryKey.typeName}
+              customOptions={options.customOptions}
             />
           </>
         )}

@@ -5,6 +5,7 @@
 
 import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/GetUserByName.ts'
@@ -67,10 +68,12 @@ export function useGetUserByNameHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey({ username })
+  const customOptions = useCustomHookOptions({ hookName: 'useGetUserByNameHook' })
 
   const query = useQuery(
     {
       ...getUserByNameQueryOptionsHook({ username }, config),
+      ...customOptions,
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

@@ -32,7 +32,7 @@ export class OperationGenerator<
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
 > extends BaseGenerator<TPluginOptions['resolvedOptions'], Context<TPluginOptions['resolvedOptions'], TPluginOptions>> {
-  #getOptions(operation: Operation, method: HttpMethod): Partial<TPluginOptions['resolvedOptions']> {
+  getOptions(operation: Operation, method: HttpMethod): Partial<TPluginOptions['resolvedOptions']> {
     const { override = [] } = this.context
     const operationId = operation.getOperationId({ friendlyCase: true })
     const contentType = operation.getContentType()
@@ -233,7 +233,7 @@ export class OperationGenerator<
       generatorLimit(async () => {
         const operationTasks = operations.map(({ operation, method }) =>
           operationLimit(async () => {
-            const options = this.#getOptions(operation, method)
+            const options = this.getOptions(operation, method)
 
             if (generator.type === 'react') {
               await buildOperation(operation, {

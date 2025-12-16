@@ -5,6 +5,7 @@
 
 import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models/DeletePet.ts'
@@ -75,6 +76,12 @@ export function useDeletePetHook<TContext>(
     { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },
     TContext
   >
+  const customOptions = useCustomHookOptions({ hookName: 'useDeletePetHook' }) as UseMutationOptions<
+    DeletePetMutationResponse,
+    ResponseErrorConfig<DeletePet400>,
+    { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },
+    TContext
+  >
 
   return useMutation<
     DeletePetMutationResponse,
@@ -84,6 +91,7 @@ export function useDeletePetHook<TContext>(
   >(
     {
       ...baseOptions,
+      ...customOptions,
       mutationKey,
       ...mutationOptions,
     },

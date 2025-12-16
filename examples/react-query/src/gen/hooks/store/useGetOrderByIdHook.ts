@@ -5,6 +5,7 @@
 
 import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../models/GetOrderById.ts'
@@ -69,10 +70,12 @@ export function useGetOrderByIdHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey({ orderId })
+  const customOptions = useCustomHookOptions({ hookName: 'useGetOrderByIdHook' })
 
   const query = useQuery(
     {
       ...getOrderByIdQueryOptionsHook({ orderId }, config),
+      ...customOptions,
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

@@ -5,6 +5,7 @@
 
 import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/DeleteUser.ts'
@@ -73,10 +74,17 @@ export function useDeleteUserHook<TContext>(
     { username: DeleteUserPathParams['username'] },
     TContext
   >
+  const customOptions = useCustomHookOptions({ hookName: 'useDeleteUserHook' }) as UseMutationOptions<
+    DeleteUserMutationResponse,
+    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    { username: DeleteUserPathParams['username'] },
+    TContext
+  >
 
   return useMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, { username: DeleteUserPathParams['username'] }, TContext>(
     {
       ...baseOptions,
+      ...customOptions,
       mutationKey,
       ...mutationOptions,
     },

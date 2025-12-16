@@ -5,6 +5,7 @@
 
 import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/UpdateUser.ts'
@@ -77,6 +78,12 @@ export function useUpdateUserHook<TContext>(
     { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
     TContext
   >
+  const customOptions = useCustomHookOptions({ hookName: 'useUpdateUserHook' }) as UseMutationOptions<
+    UpdateUserMutationResponse,
+    ResponseErrorConfig<Error>,
+    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    TContext
+  >
 
   return useMutation<
     UpdateUserMutationResponse,
@@ -86,6 +93,7 @@ export function useUpdateUserHook<TContext>(
   >(
     {
       ...baseOptions,
+      ...customOptions,
       mutationKey,
       ...mutationOptions,
     },

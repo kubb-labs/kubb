@@ -5,6 +5,7 @@
 
 import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/GetPetById.ts'
@@ -62,10 +63,12 @@ export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TQueryData = 
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey({ pet_id })
+  const customOptions = useCustomHookOptions({ hookName: 'useGetPetByIdHook' })
 
   const query = useQuery(
     {
       ...getPetByIdQueryOptionsHook({ pet_id }, config),
+      ...customOptions,
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

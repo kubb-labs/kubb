@@ -23,6 +23,7 @@ type Props = {
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
   initialPageParam: Infinite['initialPageParam']
   queryParam?: Infinite['queryParam']
+  customOptions: PluginReactQuery['resolvedOptions']['customOptions']
 }
 
 type GetParamsProps = {
@@ -129,6 +130,7 @@ export function InfiniteQuery({
   operation,
   initialPageParam,
   queryParam,
+  customOptions,
 }: Props): KubbNode {
   const responseType = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const errorType = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
@@ -193,9 +195,10 @@ export function InfiniteQuery({
        const { query: queryConfig = {}, client: config = {} } = options ?? {}
        const { client: queryClient, ...queryOptions } = queryConfig
        const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
+       ${customOptions ? `const customOptions = ${customOptions.name}({ hookName: '${name}' })` : ''}
 
        const query = useInfiniteQuery({
-        ...${queryOptions},
+        ...${queryOptions},${customOptions ? '\n...customOptions,' : ''}
         queryKey,
         ...queryOptions
        } as unknown as InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>, queryClient) as ${returnType}
