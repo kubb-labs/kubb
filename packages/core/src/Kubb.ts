@@ -1,6 +1,6 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Strategy } from './PluginManager.ts'
-import type { Plugin, PluginLifecycleHooks } from './types'
+import type { Config, Plugin, PluginLifecycleHooks } from './types'
 
 type DebugEvent = {
   date: Date
@@ -82,6 +82,10 @@ export interface KubbEvents {
       percentage: number
       source?: string
       file: KubbFile.ResolvedFile
+      /**
+       * Only added in Kubb, we don't have this in Fabric
+       */
+      config: Config
     },
   ]
   'files:processing:end': [{ files: KubbFile.ResolvedFile[] }]

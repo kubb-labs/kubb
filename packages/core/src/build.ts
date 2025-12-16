@@ -122,8 +122,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   fabric.context.on('file:processing:update', async (params) => {
     const { file, source } = params
-    // const message = file ? `Writing ${relative(definedConfig.root, file.path)}` : ''
-    await events.emit('file:processing:update', params)
+    await events.emit('file:processing:update', { ...params, config: definedConfig, source })
 
     if (source) {
       await write(file.path, source, { sanity: false })

@@ -1,3 +1,4 @@
+import { relative } from 'node:path'
 import * as clack from '@clack/prompts'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { execa } from 'execa'
@@ -13,7 +14,7 @@ export const clackLogger = defineLogger({
   name: 'clack',
   install(context, options) {
     const logLevel = options?.logLevel || LogLevel.info
-    const activeProgress = new Map<string, any>()
+    const activeProgress = new Map<string, { interval?: NodeJS.Timeout; progressBar: clack.ProgressResult }>()
     const spinner = clack.spinner()
     let isSpinning = false
 
@@ -32,8 +33,18 @@ export const clackLogger = defineLogger({
       return message
     }
 
+    function startSpinner(text?: string) {
+      spinner.start(text)
+      isSpinning = true
+    }
+
+    function stopSpinner(text?: string) {
+      spinner.cancel(text)
+      isSpinning = false
+    }
+
     context.on('info', (message, info = '') => {
-      const text = [pc.blue('ℹ'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' ')
+      const text = [pc.blue('ℹ'), message, pc.dim(info)].join(' ')
 
       if (logLevel >= LogLevel.info) {
         if (isSpinning) {
@@ -48,8 +59,7 @@ export const clackLogger = defineLogger({
       const text = [pc.blue('✓'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' ')
 
       if (isSpinning) {
-        spinner.stop(getMessage(text))
-        isSpinning = false
+        stopSpinner(getMessage(text))
       } else {
         clack.log.success(getMessage(text))
       }
@@ -69,8 +79,7 @@ export const clackLogger = defineLogger({
       const text = [pc.red('✗'), error.message].join(' ')
 
       if (isSpinning) {
-        spinner.cancel(getMessage(text))
-        isSpinning = false
+        stopSpinner(getMessage(text))
       } else {
         clack.log.error(getMessage(text))
       }
@@ -115,8 +124,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
     context.on('config:start', () => {
       clack.intro(getMessage('Configuration started'))
-      spinner.start(getMessage('Configuration loading'))
-      isSpinning = true
+      startSpinner(getMessage('Configuration loading'))
     })
 
     context.on('config:end', () => {
@@ -125,8 +133,83 @@ Run \`npm install -g @kubb/cli\` to update`,
 
     context.on('generation:start', () => {
       clack.intro(getMessage('Generation started'))
-      spinner.start(getMessage('Generation loading'))
-      isSpinning = true
+    })
+
+    context.on('plugin:start', (plugin) => {
+      stopSpinner()
+
+      const progressBar = clack.progress({
+        style: 'block',
+        max: 100,
+        size: 30,
+      })
+      progressBar.start(getMessage(`Generating ${pc.bold(plugin.name)}`))
+
+      const interval = setInterval(() => {
+        progressBar.advance()
+      }, 50)
+
+      activeProgress.set(plugin.name, { progressBar, interval })
+    })
+
+    context.on('plugin:end', (plugin, duration) => {
+      stopSpinner()
+
+      const active = activeProgress.get(plugin.name)
+
+      if (!active) {
+        return
+      }
+
+      clearInterval(active.interval)
+
+      const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
+
+      active.progressBar.stop(getMessage(`${pc.bold(plugin.name)} completed in ${pc.dim(durationStr)}`))
+      activeProgress.delete(plugin.name)
+    })
+
+    context.on('files:processing:start', ({ files }) => {
+      stopSpinner()
+
+      const text = `Writing ${files.length} files`
+      const progressBar = clack.progress({
+        style: 'block',
+        max: files.length,
+        size: 30,
+      })
+
+      context.emit('info', getMessage(text))
+      progressBar.start(getMessage(text))
+      activeProgress.set('files', { progressBar })
+    })
+
+    context.on('file:processing:update', ({ file, config }) => {
+      stopSpinner()
+
+      const text = `Writing ${relative(config.root, file.path)}`
+      const active = activeProgress.get('files')
+
+      if (!active) {
+        return
+      }
+
+      active.progressBar.advance(undefined, text)
+    })
+    context.on('files:processing:end', () => {
+      stopSpinner()
+
+      const text = 'Files written successfully'
+      const active = activeProgress.get('files')
+
+      if (!active) {
+        return
+      }
+
+      active.progressBar.stop(getMessage(text))
+
+      context.emit('success', getMessage(text))
+      activeProgress.delete('files')
     })
 
     context.on('generation:end', ({ summary, title, success }) => {
@@ -221,59 +304,5 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
       activeProgress.clear()
     })
-
-    //
-    // context.on('plugin:start', (plugin) => {
-    //   // Create progress bar for plugin execution
-    //   const progressBar = clack.progress({
-    //     style: 'block',
-    //     max: 100,
-    //     size: 30,
-    //   })
-    //   progressBar.start(`Generating ${plugin.name}...`)
-    //
-    //   const interval = setInterval(() => {
-    //     progressBar.advance()
-    //   }, 50)
-    //
-    //   activeProgress.set(plugin.name, { progressBar, interval })
-    // })
-    //
-    // context.on('plugin:end', (plugin, duration) => {
-    //   const active = activeProgress.get(plugin.name)
-    //   if (active) {
-    //     clearInterval(active.interval)
-    //     const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
-    //     active.progressBar.stop(`${plugin.name} completed in ${durationStr}`)
-    //     activeProgress.delete(plugin.name)
-    //   }
-    // })
-    //
-    // // File processing progress
-    // context.on('files:processing:start', ({ files }) => {
-    //   const progressBar = clack.progress({
-    //     style: 'heavy',
-    //     max: files.length,
-    //     size: 30,
-    //     indicator: undefined,
-    //   })
-    //   progressBar.start(`Writing ${files.length} files...`)
-    //   activeProgress.set('files', { progressBar })
-    // })
-    //
-    // context.on('file:processing:update', () => {
-    //   const active = activeProgress.get('files')
-    //   if (active) {
-    //     active.progressBar.advance()
-    //   }
-    // })
-    //
-    // context.on('files:processing:end', () => {
-    //   const active = activeProgress.get('files')
-    //   if (active) {
-    //     active.progressBar.stop('Files written successfully')
-    //     activeProgress.delete('files')
-    //   }
-    // })
   },
 })
