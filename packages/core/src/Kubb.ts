@@ -34,7 +34,7 @@ type ExecutedMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
   output?: unknown
 }
 
-// TODO add more Kubb related types like Context, PLugin, ... this will keep the root types clean of Kubb related types (and we could export all types via .types.ts like Fabric)
+// TODO add more Kubb related types like Context, Plugin, ... this will keep the root types clean of Kubb related types (and we could export all types via .types.ts like Fabric)
 
 export interface KubbEvents {
   /** Called at the beginning of the Kubb lifecycle. */

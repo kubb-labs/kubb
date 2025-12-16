@@ -102,7 +102,6 @@ const command = defineCommand({
       const config = await getConfig(result, args)
       const configs = Array.isArray(config) ? config : [config]
 
-      // TODO something wrong, not sure what
       await events.emit('success', 'Config loaded successfully', path.relative(process.cwd(), result.filepath))
       await events.emit('config:end')
 

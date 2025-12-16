@@ -190,7 +190,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
 
-      active.progressBar.stop(getMessage(`${pc.bold(plugin.name)} completed in ${pc.dim(durationStr)}`))
+      active.progressBar.stop(getMessage(`${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}`))
       activeProgress.delete(plugin.name)
     })
 

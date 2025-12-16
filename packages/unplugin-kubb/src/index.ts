@@ -4,11 +4,13 @@ import { type KubbEvents, safeBuild } from '@kubb/core'
 import { AsyncEventEmitter } from '@kubb/core/utils'
 import type { UnpluginFactory } from 'unplugin'
 import { createUnplugin } from 'unplugin'
+import { version } from '../package.json'
 import type { Options } from './types.ts'
 
 type RollupContext = {
+  info?: (message: string) => void
   warn?: (message: string) => void
-  error?: (message: string | Error) => void
+  error?: (message: string) => void
 }
 
 export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, meta) => {
@@ -18,13 +20,43 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
   async function runBuild(ctx: RollupContext) {
     if (!options?.config) {
-      ctx.error?.(`[${name}] Config is not set`)
+      if (ctx.error) {
+        ctx.error?.(`[${name}] Config is not set`)
+      } else {
+        console.error(`[${name}] Config is not set`)
+      }
       return
     }
 
+    events.on('lifecycle:start', () => {
+      console.log(`Kubb ${version} 🧩`)
+    })
+
+    events.on('error', (error) => {
+      console.error(error)
+    })
+
+    events.on('warn', (message) => {
+      console.warn(message)
+    })
+
+    events.on('info', (message) => {
+      console.info(message)
+    })
+
+    events.on('success', (message) => {
+      console.log(message)
+    })
+
+    events.on('generation:end', () => {
+      console.log('Generation done')
+    })
+
     const { root: _root, ...userConfig } = options.config as Config
 
-    const { error } = await safeBuild({
+    await events.emit('generation:start', options.config.name)
+
+    const { error, failedPlugins } = await safeBuild({
       config: {
         root: process.cwd(),
         ...userConfig,
@@ -36,20 +68,34 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       events,
     })
 
-    if (error) {
-      ctx.error?.(error)
-    } else {
-      events.emit('success', 'Build finished')
+    const hasFailures = failedPlugins.size > 0 || error
+    if (hasFailures) {
+      // Collect all errors from failed plugins and general error
+      const allErrors: Error[] = [
+        error,
+        ...Array.from(failedPlugins)
+          .filter((it) => it.error)
+          .map((it) => it.error),
+      ].filter(Boolean)
+
+      allErrors.forEach((err) => {
+        events.emit('error', err)
+      })
     }
+
+    await events.emit('generation:end', options.config.name || '')
   }
 
   return {
     name,
     enforce: 'pre',
     apply: isVite ? 'build' : undefined,
-
     async buildStart() {
+      await events.emit('lifecycle:start')
+
       await runBuild(this as unknown as RollupContext)
+
+      await events.emit('lifecycle:end')
     },
 
     vite: {},
