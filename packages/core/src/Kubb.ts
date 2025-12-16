@@ -92,8 +92,8 @@ export interface KubbEvents {
   'files:processing:end': [{ files: KubbFile.ResolvedFile[] }]
   'plugin:start': [plugin: Plugin]
   'plugin:end': [plugin: Plugin, duration: number]
-  'plugin:hook:progress:start': [meta: ProgressStartMeta]
-  'plugin:hook:progress:end': [meta: ProgressStopMeta]
-  'plugin:hook:processing:start': [meta: ExecutingMeta]
-  'plugin:hook:processing:end': [meta: ExecutedMeta]
+  'plugins:hook:progress:start': [meta: ProgressStartMeta]
+  'plugins:hook:progress:end': [meta: ProgressStopMeta]
+  'plugins:hook:processing:start': [meta: ExecutingMeta]
+  'plugins:hook:processing:end': [meta: ExecutedMeta]
 }

@@ -202,7 +202,7 @@ export class PluginManager {
   }): Promise<Array<ReturnType<ParseResult<H>> | null>> {
     const plugins = this.getPluginsByKey(hookName, pluginKey)
 
-    this.events.emit('plugin:hook:progress:start', {
+    this.events.emit('plugins:hook:progress:start', {
       hookName,
       plugins,
     })
@@ -222,7 +222,7 @@ export class PluginManager {
       }
     }
 
-    this.events.emit('plugin:hook:progress:end', { hookName })
+    this.events.emit('plugins:hook:progress:end', { hookName })
 
     return items
   }
@@ -271,7 +271,7 @@ export class PluginManager {
       return skipped ? skipped.has(plugin) : true
     })
 
-    this.events.emit('plugin:hook:progress:start', { hookName, plugins })
+    this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return async () => {
@@ -291,7 +291,7 @@ export class PluginManager {
 
     const result = await this.#promiseManager.run('first', promises)
 
-    this.events.emit('plugin:hook:progress:end', { hookName })
+    this.events.emit('plugins:hook:progress:end', { hookName })
 
     return result
   }
@@ -343,7 +343,7 @@ export class PluginManager {
     parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined
   }): Promise<Awaited<TOuput>[]> {
     const plugins = this.#getSortedPlugins(hookName)
-    this.events.emit('plugin:hook:progress:start', { hookName, plugins })
+    this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return () =>
@@ -375,7 +375,7 @@ export class PluginManager {
       }
     })
 
-    this.events.emit('plugin:hook:progress:end', { hookName })
+    this.events.emit('plugins:hook:progress:end', { hookName })
 
     return results.filter((result) => result.status === 'fulfilled').map((result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value)
   }
@@ -385,7 +385,7 @@ export class PluginManager {
    */
   async hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
     const plugins = this.#getSortedPlugins(hookName)
-    this.events.emit('plugin:hook:progress:start', { hookName, plugins })
+    this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return () =>
@@ -399,7 +399,7 @@ export class PluginManager {
 
     await this.#promiseManager.run('seq', promises)
 
-    this.events.emit('plugin:hook:progress:end', { hookName })
+    this.events.emit('plugins:hook:progress:end', { hookName })
   }
 
   #getSortedPlugins(hookName?: keyof PluginLifecycle): Array<Plugin> {
@@ -500,7 +500,7 @@ export class PluginManager {
       return null
     }
 
-    this.events.emit('plugin:hook:processing:start', {
+    this.events.emit('plugins:hook:processing:start', {
       strategy,
       hookName,
       parameters,
@@ -517,7 +517,7 @@ export class PluginManager {
 
           output = result
 
-          this.events.emit('plugin:hook:processing:end', {
+          this.events.emit('plugins:hook:processing:end', {
             duration: Math.round(performance.now() - startTime),
             parameters,
             output,
@@ -531,7 +531,7 @@ export class PluginManager {
 
         output = hook
 
-        this.events.emit('plugin:hook:processing:end', {
+        this.events.emit('plugins:hook:processing:end', {
           duration: Math.round(performance.now() - startTime),
           parameters,
           output,
@@ -581,7 +581,7 @@ export class PluginManager {
       return null
     }
 
-    this.events.emit('plugin:hook:processing:start', {
+    this.events.emit('plugins:hook:processing:start', {
       strategy,
       hookName,
       parameters,
@@ -597,7 +597,7 @@ export class PluginManager {
 
         output = fn
 
-        this.events.emit('plugin:hook:processing:end', {
+        this.events.emit('plugins:hook:processing:end', {
           duration: Math.round(performance.now() - startTime),
           parameters,
           output,
@@ -611,7 +611,7 @@ export class PluginManager {
 
       output = hook
 
-      this.events.emit('plugin:hook:processing:end', {
+      this.events.emit('plugins:hook:processing:end', {
         duration: Math.round(performance.now() - startTime),
         parameters,
         output,
