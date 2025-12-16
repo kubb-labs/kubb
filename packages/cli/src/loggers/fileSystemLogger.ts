@@ -13,6 +13,9 @@ type CachedEvent = {
 /**
  * FileSystem logger for debug log persistence
  * Captures debug and verbose events and writes them to files in .kubb directory
+ * 
+ * Note: Logs are written on lifecycle:end or process exit. If the process crashes
+ * before these events, some cached logs may be lost.
  */
 export const fileSystemLogger = defineLogger({
   name: 'filesystem',
@@ -20,15 +23,7 @@ export const fileSystemLogger = defineLogger({
     const cachedLogs: Set<CachedEvent> = new Set()
     const startDate = Date.now()
 
-    context.on('debug', (message) => {
-      cachedLogs.add({
-        date: new Date(),
-        logs: message.logs,
-        fileName: undefined,
-      })
-    })
-
-    context.on('lifecycle:end', async () => {
+    async function writeLogs() {
       if (cachedLogs.size === 0) {
         return
       }
@@ -56,6 +51,39 @@ export const fileSystemLogger = defineLogger({
       )
 
       cachedLogs.clear()
+    }
+
+    context.on('debug', (message) => {
+      cachedLogs.add({
+        date: new Date(),
+        logs: message.logs,
+        fileName: undefined,
+      })
     })
+
+    context.on('lifecycle:end', async () => {
+      await writeLogs()
+    })
+
+    // Fallback: Write logs on process exit to handle crashes
+    const exitHandler = () => {
+      // Synchronous write on exit - best effort
+      if (cachedLogs.size > 0) {
+        writeLogs().catch(() => {
+          // Ignore errors on exit
+        })
+      }
+    }
+
+    process.once('exit', exitHandler)
+    process.once('SIGINT', exitHandler)
+    process.once('SIGTERM', exitHandler)
+
+    // Return cleanup function that removes process listeners
+    return () => {
+      process.off('exit', exitHandler)
+      process.off('SIGINT', exitHandler)
+      process.off('SIGTERM', exitHandler)
+    }
   },
 })

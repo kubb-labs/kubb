@@ -163,13 +163,16 @@ export const plainLogger = defineLogger({
     })
 
     context.on('hook:execute', async ({ command, args }, cb) => {
-      await execa(command, args, {
-        detached: true,
-        stdout: logLevel === LogLevel.silent ? undefined : ['pipe'],
-        stripFinalNewline: true,
-      })
-
-      cb()
+      try {
+        await execa(command, args, {
+          detached: true,
+          stdout: logLevel === LogLevel.silent ? undefined : ['pipe'],
+          stripFinalNewline: true,
+        })
+        cb()
+      } catch (error) {
+        context.emit('error', error)
+      }
     })
 
     context.on('format:start', () => {
