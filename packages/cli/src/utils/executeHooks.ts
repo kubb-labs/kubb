@@ -15,19 +15,18 @@ export async function executeHooks({ hooks, events, logLevel }: ExecutingHooksPr
   const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done].filter(Boolean)
 
   for (const command of commands) {
-    const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
+    const [cmd, ...args] = [...parseArgsStringToArgv(command)]
 
     if (!cmd) {
       continue
     }
 
-    await events.emit('hook:start')
+    await events.emit('hook:start', command)
 
-    await events.emit('hook:execute', cmd, _args, async (result) => {
-      await events.emit('success', [logLevel !== LogLevel.silent ? pc.dim(command) : undefined, 'successfully'].filter(Boolean).join(' '))
+    await events.emit('hook:execute', { command: cmd, args }, async () => {
+      await events.emit('success', [logLevel >= LogLevel.info ? pc.dim(command) : undefined, 'successfully'].filter(Boolean).join(' '))
 
-      await events.emit('hook:end')
-      await events.emit('verbose', result.stdout)
+      await events.emit('hook:end', command)
     })
   }
 }

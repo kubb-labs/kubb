@@ -90,48 +90,53 @@ const command = defineCommand({
       await events.emit('version:new', version, latestVersion)
     }
 
-    await events.emit('lifecycle:start')
+    try {
+      await events.emit('lifecycle:start')
 
-    await events.emit('config:start')
+      await events.emit('config:start')
 
-    const result = await getCosmiConfig('kubb', args.config)
-    await events.emit('info', `Config loaded from ${pc.dim(path.relative(process.cwd(), result.filepath))}}`)
+      const result = await getCosmiConfig('kubb', args.config)
 
-    const config = await getConfig(result, args)
-    const configs = Array.isArray(config) ? config : [config]
+      await events.emit('info', 'Config loaded', path.relative(process.cwd(), result.filepath))
 
-    await events.emit('success', 'Config loaded successfully')
-    await events.emit('config:end')
+      const config = await getConfig(result, args)
+      const configs = Array.isArray(config) ? config : [config]
 
-    const promises = configs.map((config) => {
-      return async () => {
-        if (isInputPath(config) && args.watch) {
-          await startWatcher([input || config.input.path], async (paths) => {
-            await generate({
-              input,
-              config,
-              logLevel,
-              events,
+      await events.emit('success', 'Config loaded successfully', path.relative(process.cwd(), result.filepath))
+      await events.emit('config:end')
+
+      const promises = configs.map((config) => {
+        return async () => {
+          if (isInputPath(config) && args.watch) {
+            await startWatcher([input || config.input.path], async (paths) => {
+              await generate({
+                input,
+                config,
+                logLevel,
+                events,
+              })
+
+              clack.log.step(pc.yellow(`Watching for changes in ${paths.join(' and ')}`))
             })
 
-            clack.log.step(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
+            return
+          }
+
+          await generate({
+            input,
+            config,
+            logLevel,
+            events,
           })
-
-          return
         }
+      })
 
-        await generate({
-          input,
-          config,
-          logLevel,
-          events,
-        })
-      }
-    })
+      await promiseManager.run('seq', promises)
 
-    await promiseManager.run('seq', promises)
-
-    await events.emit('lifecycle:end')
+      await events.emit('lifecycle:end')
+    } catch (e) {
+      await events.emit('error', e as Error)
+    }
   },
 })
 

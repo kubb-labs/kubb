@@ -49,12 +49,6 @@ export const plainLogger = defineLogger({
       }
     })
 
-    context.on('verbose', (message) => {
-      if (logLevel >= LogLevel.verbose) {
-        log(message)
-      }
-    })
-
     context.on('debug', (message) => {
       if (logLevel >= LogLevel.debug) {
         const formattedLogs = message.logs.join('\n')
@@ -72,14 +66,14 @@ export const plainLogger = defineLogger({
       log(`${plugin.name} completed in ${duration}ms`)
     })
 
-    context.on('hook:execute', async (command, args, cb) => {
-      const result = await execa(command, args, {
+    context.on('hook:execute', async ({ command, args }, cb) => {
+      await execa(command, args, {
         detached: true,
         stdout: logLevel === LogLevel.silent ? undefined : ['pipe'],
         stripFinalNewline: true,
       })
 
-      cb(result)
+      cb()
     })
   },
 })

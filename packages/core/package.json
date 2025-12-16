@@ -107,7 +107,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/object-hash": "^3.0.6",
     "@types/semver": "^7.7.1",
-    "zod": "^4.2.0"
+    "zod": "^4.2.1"
   },
   "peerDependencies": {
     "@kubb/react-fabric": "0.5.5"

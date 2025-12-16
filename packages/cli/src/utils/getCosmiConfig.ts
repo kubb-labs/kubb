@@ -23,6 +23,7 @@ const tsLoader = async (configFile: string) => {
 }
 
 export async function getCosmiConfig(moduleName: string, config?: string): Promise<CosmiconfigResult> {
+  let result: CosmiconfigResult
   const searchPlaces = [
     'package.json',
     `.${moduleName}rc`,
@@ -56,7 +57,11 @@ export async function getCosmiConfig(moduleName: string, config?: string): Promi
     },
   })
 
-  const result = config ? await explorer.load(config) : await explorer.search()
+  try {
+    result = config ? ((await explorer.load(config)) as CosmiconfigResult) : ((await explorer.search()) as CosmiconfigResult)
+  } catch (e) {
+    throw new Error('Config failed loading', { cause: e })
+  }
 
   if (result?.isEmpty || !result || !result.config) {
     throw new Error('Config not defined, create a kubb.config.js or pass through your config with the option --config')

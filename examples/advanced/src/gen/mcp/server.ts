@@ -1,3 +1,26 @@
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
+import { addFilesMutationRequestSchema } from '../zod/petController/addFilesSchema.ts'
+import { addPetMutationRequestSchema } from '../zod/petController/addPetSchema.ts'
+import { deletePetHeaderParamsSchema, deletePetPathParamsSchema } from '../zod/petController/deletePetSchema.ts'
+import { findPetsByStatusPathParamsSchema } from '../zod/petController/findPetsByStatusSchema.ts'
+import { findPetsByTagsHeaderParamsSchema, findPetsByTagsQueryParamsSchema } from '../zod/petController/findPetsByTagsSchema.ts'
+import { getPetByIdPathParamsSchema } from '../zod/petController/getPetByIdSchema.ts'
+import { updatePetMutationRequestSchema } from '../zod/petController/updatePetSchema.ts'
+import { updatePetWithFormPathParamsSchema, updatePetWithFormQueryParamsSchema } from '../zod/petController/updatePetWithFormSchema.ts'
+import { uploadFileMutationRequestSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from '../zod/petController/uploadFileSchema.ts'
+import {
+  createPetsHeaderParamsSchema,
+  createPetsMutationRequestSchema,
+  createPetsPathParamsSchema,
+  createPetsQueryParamsSchema,
+} from '../zod/petsController/createPetsSchema.ts'
+import { createUserMutationRequestSchema } from '../zod/userController/createUserSchema.ts'
+import { createUsersWithListInputMutationRequestSchema } from '../zod/userController/createUsersWithListInputSchema.ts'
+import { deleteUserPathParamsSchema } from '../zod/userController/deleteUserSchema.ts'
+import { getUserByNamePathParamsSchema } from '../zod/userController/getUserByNameSchema.ts'
+import { loginUserQueryParamsSchema } from '../zod/userController/loginUserSchema.ts'
+import { updateUserMutationRequestSchema, updateUserPathParamsSchema } from '../zod/userController/updateUserSchema.ts'
 import { addFilesHandler } from './petRequests/addFiles.ts'
 import { addPetHandler } from './petRequests/addPet.ts'
 import { deletePetHandler } from './petRequests/deletePet.ts'
@@ -15,29 +38,6 @@ import { getUserByNameHandler } from './userRequests/getUserByName.ts'
 import { loginUserHandler } from './userRequests/loginUser.ts'
 import { logoutUserHandler } from './userRequests/logoutUser.ts'
 import { updateUserHandler } from './userRequests/updateUser.ts'
-import { addFilesMutationRequestSchema } from '../zod/petController/addFilesSchema.ts'
-import { addPetMutationRequestSchema } from '../zod/petController/addPetSchema.ts'
-import { deletePetPathParamsSchema, deletePetHeaderParamsSchema } from '../zod/petController/deletePetSchema.ts'
-import { findPetsByStatusPathParamsSchema } from '../zod/petController/findPetsByStatusSchema.ts'
-import { findPetsByTagsQueryParamsSchema, findPetsByTagsHeaderParamsSchema } from '../zod/petController/findPetsByTagsSchema.ts'
-import { getPetByIdPathParamsSchema } from '../zod/petController/getPetByIdSchema.ts'
-import { updatePetMutationRequestSchema } from '../zod/petController/updatePetSchema.ts'
-import { updatePetWithFormPathParamsSchema, updatePetWithFormQueryParamsSchema } from '../zod/petController/updatePetWithFormSchema.ts'
-import { uploadFileMutationRequestSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from '../zod/petController/uploadFileSchema.ts'
-import {
-  createPetsMutationRequestSchema,
-  createPetsPathParamsSchema,
-  createPetsQueryParamsSchema,
-  createPetsHeaderParamsSchema,
-} from '../zod/petsController/createPetsSchema.ts'
-import { createUserMutationRequestSchema } from '../zod/userController/createUserSchema.ts'
-import { createUsersWithListInputMutationRequestSchema } from '../zod/userController/createUsersWithListInputSchema.ts'
-import { deleteUserPathParamsSchema } from '../zod/userController/deleteUserSchema.ts'
-import { getUserByNamePathParamsSchema } from '../zod/userController/getUserByNameSchema.ts'
-import { loginUserQueryParamsSchema } from '../zod/userController/loginUserSchema.ts'
-import { updateUserMutationRequestSchema, updateUserPathParamsSchema } from '../zod/userController/updateUserSchema.ts'
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
 
 export const server = new McpServer({
   name: 'Swagger Petstore - OpenAPI 3.0',

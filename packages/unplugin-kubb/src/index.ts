@@ -4,7 +4,6 @@ import { type KubbEvents, safeBuild } from '@kubb/core'
 import { AsyncEventEmitter } from '@kubb/core/utils'
 import type { UnpluginFactory } from 'unplugin'
 import { createUnplugin } from 'unplugin'
-import type { Logger } from 'vite'
 import type { Options } from './types.ts'
 
 type RollupContext = {

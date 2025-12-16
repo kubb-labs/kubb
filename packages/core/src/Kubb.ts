@@ -45,8 +45,14 @@ export interface KubbEvents {
   'config:start': []
   'config:end': []
 
-  'generation:start': []
-  'generation:end': []
+  'generation:start': [name: string | undefined]
+  'generation:end': [
+    {
+      summary: string[]
+      title: string
+      success: boolean
+    },
+  ]
 
   'format:start': []
   'format:end': []
@@ -57,35 +63,17 @@ export interface KubbEvents {
   'hooks:start': []
   'hooks:end': []
 
-  'hook:start': []
-  'hook:execute': [command: string | URL, arguments: readonly string[], cb: (options: { stdout: string }) => void]
-  'hook:end': []
+  'hook:start': [command: string]
+  'hook:execute': [{ command: string | URL; args?: readonly string[] }, cb: () => void]
+  'hook:end': [command: string]
 
   'version:new': [currentVersion: string, latestVersion: string]
 
-  info: [message: string]
-  /**
-   * When in group, load the groupsLogger success
-   */
+  info: [message: string, info?: string]
   error: [error: Error, meta?: Record<string, unknown>]
-  /**
-   * When in group, load the groupsLogger success
-   */
-  success: [message: string]
-  /**
-   * When in group, load the groupsLogger success and add a pc.yellow
-   */
-  warn: [message: string]
-  verbose: [message: string]
+  success: [message: string, info?: string]
+  warn: [message: string, info?: string]
   debug: [meta: DebugEvent]
-  /**
-   * use this     // const configLogger = clack.taskLog({
-    //   title: 'Loading config',
-    // })
-   */
-  /**]
-   *     logger.emit("stop", "Configuration completed");
-   */
   'files:processing:start': [{ files: KubbFile.ResolvedFile[] }]
   'file:processing:update': [
     {

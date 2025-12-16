@@ -56,14 +56,14 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('hook:execute', async (command, args, cb) => {
-      const result = await execa(command, args, {
+    context.on('hook:execute', async ({ command, args }, cb) => {
+      await execa(command, args, {
         detached: true,
         stdout: logLevel === LogLevel.silent ? undefined : ['pipe'],
         stripFinalNewline: true,
       })
 
-      cb(result)
+      cb()
     })
 
     context.on('files:processing:start', (count) => {

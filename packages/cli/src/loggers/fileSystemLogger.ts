@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { defineLogger, LogLevel } from '@kubb/core'
+import { defineLogger } from '@kubb/core'
 import { write } from '@kubb/core/fs'
 
 type CachedEvent = {
@@ -22,8 +22,7 @@ type CachedEvent = {
  */
 export const fileSystemLogger = defineLogger({
   name: 'filesystem',
-  install(context, options) {
-    const logLevel = options?.logLevel || LogLevel.info
+  install(context) {
     const cachedLogs: Set<CachedEvent> = new Set()
     const startDate = Date.now()
 
@@ -34,17 +33,6 @@ export const fileSystemLogger = defineLogger({
         fileName: undefined,
       })
     })
-
-    if (logLevel >= LogLevel.verbose) {
-      context.on('verbose', (message) => {
-        cachedLogs.add({
-          date: new Date(),
-          logs: [message],
-          category: 'verbose',
-          fileName: undefined,
-        })
-      })
-    }
 
     context.on('lifecycle:end', async () => {
       if (cachedLogs.size === 0) {
