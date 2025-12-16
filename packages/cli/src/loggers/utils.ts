@@ -42,18 +42,7 @@ export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOp
 
   // Also install fileSystemLogger in debug mode for log persistence
   if (logLevel >= LogLevel.debug) {
-    const fsCleanup = await fileSystemLogger.install(context, { logLevel })
-    
-    // Combine cleanup functions
-    const originalCleanup = cleanup
-    return async () => {
-      if (originalCleanup) {
-        await originalCleanup()
-      }
-      if (fsCleanup) {
-        await fsCleanup()
-      }
-    }
+    await fileSystemLogger.install(context, { logLevel })
   }
 
   return cleanup

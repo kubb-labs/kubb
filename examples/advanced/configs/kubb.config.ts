@@ -64,7 +64,7 @@ export default defineConfig(() => {
       },
       plugins: [
         pluginOas({
-          validate: true,
+          validate: false,
           discriminator: 'strict',
         }),
         pluginRedoc(),

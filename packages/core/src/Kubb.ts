@@ -61,6 +61,8 @@ export interface KubbEvents {
   'hook:execute': [command: string | URL, arguments: readonly string[], cb: (options: { stdout: string }) => void]
   'hook:end': []
 
+  'version:new': [currentVersion: string, latestVersion: string]
+
   info: [message: string]
   /**
    * When in group, load the groupsLogger success

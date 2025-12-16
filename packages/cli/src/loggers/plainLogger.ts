@@ -1,4 +1,5 @@
 import { defineLogger, LogLevel } from '@kubb/core'
+import { execa } from 'execa'
 
 /**
  * Plain console adapter for non-TTY environments
@@ -71,9 +72,14 @@ export const plainLogger = defineLogger({
       log(`${plugin.name} completed in ${duration}ms`)
     })
 
-    // No cleanup needed for plain logger, but return function for consistency
-    return () => {
-      // No-op cleanup
-    }
+    context.on('hook:execute', async (command, args, cb) => {
+      const result = await execa(command, args, {
+        detached: true,
+        stdout: logLevel === LogLevel.silent ? undefined : ['pipe'],
+        stripFinalNewline: true,
+      })
+
+      cb(result)
+    })
   },
 })

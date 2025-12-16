@@ -1,19 +1,14 @@
 import * as clack from '@clack/prompts'
 import { defineLogger, LogLevel } from '@kubb/core'
+import { execa } from 'execa'
+import { default as gradientString } from 'gradient-string'
 import pc from 'picocolors'
+import { ClackWritable } from '../utils/Writables.ts'
 
 /**
  * Clack adapter for local TTY environments
  * Provides a beautiful CLI UI with flat structure inspired by Claude's CLI patterns
  *
- * Key features:
- * - Task status icons (✓ success, ✗ error, ⚠ warning, ◐ in-progress)
- * - Single-level indentation for subtasks (Clack limitation)
- * - Contextual error messages with actionable suggestions
- * - Clear visual hierarchy with colors and symbols
- * - Timestamped verbose logging for detailed operation tracing
- * - Category-based debug logging with color-coded prefixes
- * - Progress bars for plugin execution and file generation
  */
 export const clackLogger = defineLogger({
   name: 'clack',
@@ -23,11 +18,30 @@ export const clackLogger = defineLogger({
     const warningCount = { value: 0 }
     const activeProgress = new Map<string, any>()
 
-    context.on('lifecycle:start', (message) => {
-      clack.intro(pc.bold(message))
+    context.on('lifecycle:start', () => {
+      console.log('logLevel', logLevel)
+      console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])('Kubb CLI 🧩'))
+
+      clack.intro(pc.bold('Kubb started'))
     })
 
-    context.on('lifecycle:end', (message) => {
+    context.on('version:new', (version, latestVersion) => {
+      clack.box(
+        `\`v${version}\` → \`v${latestVersion}\`
+Run \`npm install -g @kubb/cli\` to update`,
+        'Update available for `Kubb`',
+        {
+          width: 'auto',
+          formatBorder: pc.yellow,
+          rounded: true,
+          withGuide: false,
+          contentAlign: 'center',
+          titleAlign: 'center',
+        },
+      )
+    })
+
+    context.on('lifecycle:end', () => {
       // Show summary with error/warning counts if any
       if (errorCount.value > 0 || warningCount.value > 0) {
         const parts: string[] = []
@@ -37,10 +51,26 @@ export const clackLogger = defineLogger({
         if (warningCount.value > 0) {
           parts.push(pc.yellow(`${warningCount.value} warning${warningCount.value > 1 ? 's' : ''}`))
         }
-        clack.outro(`${message} ${pc.dim('with')} ${parts.join(pc.dim(' and '))}`)
+        clack.outro(`${'Kubb completed'} ${pc.dim('with')} ${parts.join(pc.dim(' and '))}`)
       } else {
-        clack.outro(pc.green(message))
+        clack.outro(pc.green('Kubb completed'))
       }
+    })
+
+    context.on('hook:execute', async (command, args, cb) => {
+      const logger = clack.taskLog({
+        title: ['Executing hook', logLevel !== LogLevel.silent ? pc.dim(`${command} ${args.join(' ')}`) : undefined].filter(Boolean).join(' '),
+      })
+
+      const writable = new ClackWritable(logger)
+
+      const result = await execa(command, args, {
+        detached: true,
+        stdout: logLevel === LogLevel.silent ? undefined : ['pipe', writable],
+        stripFinalNewline: true,
+      })
+
+      cb(result)
     })
 
     context.on('success', (message) => {
@@ -87,23 +117,20 @@ export const clackLogger = defineLogger({
           second: '2-digit',
         })
 
-        const formattedLogs = message.logs.map((log) => `  ${pc.dim('└─')} ${log}`).join('\n')
-
         clack.log.message(`${pc.dim(`[${timestamp}]`)} ${pc.cyan('verbose')}`)
-        clack.log.message(formattedLogs)
+        clack.log.message(message)
       }
     })
 
     context.on('debug', (message) => {
       if (logLevel >= LogLevel.debug) {
-        const category = message.category || 'debug'
+        const category = 'debug'
         const prefix = pc.dim(`[${category}]`)
         const formattedLogs = message.logs.map((log) => `${prefix} ${log}`).join('\n')
         clack.log.message(formattedLogs)
       }
     })
 
-    // Plugin lifecycle with progress bars
     context.on('plugin:start', (plugin) => {
       // Create progress bar for plugin execution
       const progressBar = clack.progress({
@@ -113,7 +140,6 @@ export const clackLogger = defineLogger({
       })
       progressBar.start(`Generating ${plugin.name}...`)
 
-      // Simulate gradual progress
       const interval = setInterval(() => {
         progressBar.advance()
       }, 50)
@@ -132,18 +158,18 @@ export const clackLogger = defineLogger({
     })
 
     // File processing progress
-    context.on('files:processing:start', (count) => {
+    context.on('files:processing:start', ({ files }) => {
       const progressBar = clack.progress({
         style: 'heavy',
-        max: count,
+        max: files.length,
         size: 30,
         indicator: undefined,
       })
-      progressBar.start(`Writing ${count} files...`)
+      progressBar.start(`Writing ${files.length} files...`)
       activeProgress.set('files', { progressBar })
     })
 
-    context.on('files:processing:update', () => {
+    context.on('file:processing:update', () => {
       const active = activeProgress.get('files')
       if (active) {
         active.progressBar.advance()
@@ -158,8 +184,7 @@ export const clackLogger = defineLogger({
       }
     })
 
-    // Cleanup any remaining progress bars
-    return () => {
+    context.on('lifecycle:end', () => {
       for (const [_key, active] of activeProgress) {
         if (active.interval) {
           clearInterval(active.interval)
@@ -169,6 +194,6 @@ export const clackLogger = defineLogger({
         }
       }
       activeProgress.clear()
-    }
+    })
   },
 })

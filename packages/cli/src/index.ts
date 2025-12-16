@@ -1,16 +1,10 @@
-import * as clack from '@clack/prompts'
 import { defineCommand, runCommand, runMain } from 'citty'
-import { default as gradientString } from 'gradient-string'
-import getLatestVersion from 'latest-version'
-import pc from 'picocolors'
-import { lt } from 'semver'
-import { version } from '../package.json'
 
-const name = 'kubb'
+import { version } from '../package.json'
 
 const main = defineCommand({
   meta: {
-    name,
+    name: 'kubb',
     version,
     description: 'Kubb generation',
   },
@@ -26,27 +20,14 @@ const main = defineCommand({
       console.log(version)
       process.exit(0)
     }
-    try {
-      console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])('Kubb CLI 🧩'))
 
-      const latestVersion = await getLatestVersion('@kubb/cli')
+    if (args.debug) {
+      args.logLevel = 'debug'
+    }
 
-      if (lt(version, latestVersion)) {
-        clack.box(
-          `\`v${version}\` → \`v${latestVersion}\`
-Run \`npm install -g @kubb/cli\` to update`,
-          'Update available for `Kubb`',
-          {
-            width: 'auto',
-            formatBorder: pc.yellow,
-            rounded: true,
-            withGuide: false,
-            contentAlign: 'center',
-            titleAlign: 'center',
-          },
-        )
-      }
-    } catch (_e) {}
+    if (args.verbose) {
+      args.logLevel = 'verbose'
+    }
 
     if (!['generate', 'validate', 'mcp'].includes(rawArgs[0] as string)) {
       // generate is not being used

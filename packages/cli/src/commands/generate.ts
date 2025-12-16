@@ -5,12 +5,14 @@ import { isInputPath, type KubbEvents, LogLevel, PromiseManager } from '@kubb/co
 import { AsyncEventEmitter } from '@kubb/core/utils'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
-import { execa } from 'execa'
+import getLatestVersion from 'latest-version'
 import pc from 'picocolors'
+import { lt } from 'semver'
+import { version } from '../../package.json'
 import { setupLogger } from '../loggers/utils.ts'
+import { generate } from '../runners/generate.ts'
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
-import { ClackWritable } from '../utils/Writables.ts'
 import { startWatcher } from '../utils/watcher.ts'
 
 const args = {
@@ -70,7 +72,7 @@ const command = defineCommand({
     const input = args._[0]
     const promiseManager = new PromiseManager()
     const events = new AsyncEventEmitter<KubbEvents>()
-    const { generate } = await import('../runners/generate.ts')
+    const latestVersion = await getLatestVersion('@kubb/cli')
 
     if (args.debug) {
       args.logLevel = 'debug'
@@ -82,26 +84,13 @@ const command = defineCommand({
 
     const logLevel = LogLevel[args.logLevel as keyof typeof LogLevel] || 3
 
-    const cleanup = await setupLogger(events, { logLevel })
+    await setupLogger(events, { logLevel })
+
+    if (lt(version, latestVersion)) {
+      await events.emit('version:new', version, latestVersion)
+    }
 
     await events.emit('lifecycle:start')
-
-    // TODO move to the clack logger
-    events.on('hook:execute', async (command, args, cb) => {
-      const logger = clack.taskLog({
-        title: ['Executing hook', logLevel !== LogLevel.silent ? pc.dim(`${command} ${args.join(' ')}`) : undefined].filter(Boolean).join(' '),
-      })
-
-      const writable = new ClackWritable(logger)
-
-      const result = await execa(command, args, {
-        detached: true,
-        stdout: logLevel === LogLevel.silent ? undefined : ['pipe', writable],
-        stripFinalNewline: true,
-      })
-
-      cb(result)
-    })
 
     await events.emit('config:start')
 
@@ -141,11 +130,6 @@ const command = defineCommand({
     })
 
     await promiseManager.run('seq', promises)
-
-    // Call cleanup before lifecycle:end to properly clean up resources
-    if (cleanup) {
-      await cleanup()
-    }
 
     await events.emit('lifecycle:end')
   },

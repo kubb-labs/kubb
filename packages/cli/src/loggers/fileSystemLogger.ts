@@ -1,7 +1,6 @@
 import { resolve } from 'node:path'
-import { write } from '@kubb/core/fs'
 import { defineLogger, LogLevel } from '@kubb/core'
-import type { DebugEvent, VerboseEvent } from '@kubb/core/events'
+import { write } from '@kubb/core/fs'
 
 type CachedEvent = {
   date: Date
@@ -14,7 +13,7 @@ type CachedEvent = {
 /**
  * FileSystem logger for debug log persistence
  * Captures debug and verbose events and writes them to files in .kubb directory
- * 
+ *
  * Key features:
  * - Persists debug logs to disk for troubleshooting
  * - Groups logs by fileName if specified
@@ -28,31 +27,26 @@ export const fileSystemLogger = defineLogger({
     const cachedLogs: Set<CachedEvent> = new Set()
     const startDate = Date.now()
 
-    // Only capture logs if debug/verbose mode is enabled
-    if (logLevel >= LogLevel.debug) {
-      context.on('debug', (message: DebugEvent) => {
-        cachedLogs.add({
-          date: new Date(),
-          logs: message.logs,
-          category: message.category,
-          fileName: undefined,
-        })
+    context.on('debug', (message) => {
+      cachedLogs.add({
+        date: new Date(),
+        logs: message.logs,
+        fileName: undefined,
       })
-    }
+    })
 
     if (logLevel >= LogLevel.verbose) {
-      context.on('verbose', (message: VerboseEvent) => {
+      context.on('verbose', (message) => {
         cachedLogs.add({
           date: new Date(),
-          logs: message.logs,
+          logs: [message],
           category: 'verbose',
           fileName: undefined,
         })
       })
     }
 
-    // Cleanup function that writes logs to disk
-    return async () => {
+    context.on('lifecycle:end', async () => {
       if (cachedLogs.size === 0) {
         return
       }
@@ -80,6 +74,6 @@ export const fileSystemLogger = defineLogger({
       )
 
       cachedLogs.clear()
-    }
+    })
   },
 })

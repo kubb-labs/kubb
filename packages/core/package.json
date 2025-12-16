@@ -26,6 +26,10 @@
       "require": "./dist/index.cjs",
       "import": "./dist/index.js"
     },
+    "./fs": {
+      "require": "./dist/fs.cjs",
+      "import": "./dist/fs.js"
+    },
     "./hooks": {
       "require": "./dist/hooks.cjs",
       "import": "./dist/hooks.js"
@@ -50,6 +54,9 @@
       ],
       "transformers": [
         "./dist/transformers.d.ts"
+      ],
+      "fs": [
+        "./dist/fs.d.ts"
       ],
       "hooks": [
         "./dist/hooks.d.ts"
