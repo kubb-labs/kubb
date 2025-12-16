@@ -13,7 +13,7 @@ type CachedEvent = {
 /**
  * FileSystem logger for debug log persistence
  * Captures debug and verbose events and writes them to files in .kubb directory
- * 
+ *
  * Note: Logs are written on lifecycle:end or process exit. If the process crashes
  * before these events, some cached logs may be lost.
  */
@@ -78,12 +78,5 @@ export const fileSystemLogger = defineLogger({
     process.once('exit', exitHandler)
     process.once('SIGINT', exitHandler)
     process.once('SIGTERM', exitHandler)
-
-    // Return cleanup function that removes process listeners
-    return () => {
-      process.off('exit', exitHandler)
-      process.off('SIGINT', exitHandler)
-      process.off('SIGTERM', exitHandler)
-    }
   },
 })

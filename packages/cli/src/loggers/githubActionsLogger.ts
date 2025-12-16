@@ -32,19 +32,19 @@ export const githubActionsLogger = defineLogger({
       activeGroups.clear()
     }
 
-    context.on('lifecycle:start', (message) => {
+    context.on('lifecycle:start', () => {
       if (logLevel <= LogLevel.silent) {
         return
       }
       openGroup('Build')
-      console.log(message)
+      console.log('start')
     })
 
-    context.on('lifecycle:end', (message) => {
+    context.on('lifecycle:end', () => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      console.log(message || 'Build complete')
+      console.log('Build complete')
       closeAllGroups()
     })
 
@@ -85,21 +85,13 @@ export const githubActionsLogger = defineLogger({
       console.error(`::error::${message}`)
     })
 
-    context.on('debug', (message) => {
+    context.on('debug', (_message) => {
       if (logLevel < LogLevel.debug) {
         return
       }
-      const category = message.category ? `[${message.category}]` : ''
-      const logs = message.logs.join('\n')
-      console.debug(`::debug::${category} ${logs}`)
-    })
-
-    context.on('verbose', (message) => {
-      if (logLevel < LogLevel.verbose) {
-        return
-      }
-      const logs = message.logs.join('\n')
-      console.log(logs)
+      // const category = message.category ? `[${message.category}]` : ''
+      // const logs = message.logs.join('\n')
+      // console.debug(`::debug::${category} ${logs}`)
     })
 
     context.on('hook:execute', async ({ command, args }, cb) => {
@@ -111,7 +103,7 @@ export const githubActionsLogger = defineLogger({
         })
         cb()
       } catch (error) {
-        context.emit('error', error)
+        context.emit('error', error as Error)
       }
     })
 
@@ -131,9 +123,8 @@ export const githubActionsLogger = defineLogger({
       closeGroup('File Generation')
     })
 
-    // Return cleanup function
-    return () => {
+    context.on('lifecycle:end', async () => {
       closeAllGroups()
-    }
+    })
   },
 })
