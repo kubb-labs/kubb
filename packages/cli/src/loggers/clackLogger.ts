@@ -4,6 +4,7 @@ import { defineLogger, LogLevel } from '@kubb/core'
 import { execa } from 'execa'
 import { default as gradientString } from 'gradient-string'
 import pc from 'picocolors'
+import { version } from '../../package.json'
 import { ClackWritable } from '../utils/Writables.ts'
 
 /**
@@ -39,23 +40,29 @@ export const clackLogger = defineLogger({
     }
 
     function stopSpinner(text?: string) {
-      spinner.cancel(text)
+      spinner.stop(text)
       isSpinning = false
     }
 
     context.on('info', (message, info = '') => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       const text = [pc.blue('ℹ'), message, pc.dim(info)].join(' ')
 
-      if (logLevel >= LogLevel.info) {
-        if (isSpinning) {
-          spinner.message(getMessage(text))
-        } else {
-          clack.log.info(getMessage(text))
-        }
+      if (isSpinning) {
+        spinner.message(getMessage(text))
+      } else {
+        clack.log.info(getMessage(text))
       }
     })
 
     context.on('success', (message, info = '') => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       const text = [pc.blue('✓'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' ')
 
       if (isSpinning) {
@@ -66,11 +73,13 @@ export const clackLogger = defineLogger({
     })
 
     context.on('warn', (message, info) => {
+      if (logLevel < LogLevel.warn) {
+        return
+      }
+
       const text = [pc.yellow('⚠'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' ')
 
-      if (logLevel >= LogLevel.warn) {
-        clack.log.warn(getMessage(text))
-      }
+      clack.log.warn(getMessage(text))
     })
 
     context.on('error', (error) => {
@@ -103,6 +112,10 @@ export const clackLogger = defineLogger({
     })
 
     context.on('version:new', (version, latestVersion) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       clack.box(
         `\`v${version}\` → \`v${latestVersion}\`
 Run \`npm install -g @kubb/cli\` to update`,
@@ -119,23 +132,35 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('lifecycle:start', () => {
-      console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])('Kubb CLI 🧩'))
+      console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(`Kubb ${version} 🧩`))
     })
 
     context.on('config:start', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       clack.intro(getMessage('Configuration started'))
       startSpinner(getMessage('Configuration loading'))
     })
 
     context.on('config:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       clack.outro(getMessage('Configuration completed'))
     })
 
-    context.on('generation:start', () => {
-      clack.intro(getMessage('Generation started'))
+    context.on('generation:start', (name) => {
+      clack.intro(getMessage(['Generation started', name ? `for ${pc.dim(name)}` : undefined].filter(Boolean).join(' ')))
     })
 
     context.on('plugin:start', (plugin) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       stopSpinner()
 
       const progressBar = clack.progress({
@@ -157,7 +182,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       const active = activeProgress.get(plugin.name)
 
-      if (!active) {
+      if (!active || logLevel === LogLevel.silent) {
         return
       }
 
@@ -170,6 +195,10 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('files:processing:start', ({ files }) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       stopSpinner()
 
       const text = `Writing ${files.length} files`
@@ -185,6 +214,10 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('file:processing:update', ({ file, config }) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       stopSpinner()
 
       const text = `Writing ${relative(config.root, file.path)}`
@@ -197,6 +230,10 @@ Run \`npm install -g @kubb/cli\` to update`,
       active.progressBar.advance(undefined, text)
     })
     context.on('files:processing:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       stopSpinner()
 
       const text = 'Files written successfully'
@@ -207,16 +244,19 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
 
       active.progressBar.stop(getMessage(text))
-
-      context.emit('success', getMessage(text))
       activeProgress.delete('files')
     })
 
-    context.on('generation:end', ({ summary, title, success }) => {
-      clack.outro(getMessage('Generation completed'))
+    context.on('generation:end', (name) => {
+      clack.outro(getMessage(name ? `Generation completed for ${name}` : 'Generation completed'))
+    })
+
+    context.on('generation:summary', ({ summary, title, success }) => {
+      summary.unshift('\n')
+      summary.push('\n')
 
       if (success) {
-        clack.box(summary.join(''), getMessage(title), {
+        clack.box(summary.join('\n'), getMessage(title), {
           width: 'auto',
           formatBorder: pc.green,
           rounded: true,
@@ -228,7 +268,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      clack.box(summary.join(''), getMessage(title), {
+      clack.box(summary.join('\n'), getMessage(title), {
         width: 'auto',
         formatBorder: pc.red,
         rounded: true,
@@ -239,6 +279,34 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('hook:execute', async ({ command, args }, cb) => {
+      if (logLevel <= LogLevel.silent) {
+        try {
+          const result = await execa(command, args, {
+            detached: true,
+            stripFinalNewline: true,
+          })
+
+          await context.emit('debug', {
+            date: new Date(),
+            logs: [result.stdout],
+          })
+
+          cb()
+        } catch (err) {
+          const error = new Error('Hook execute failed')
+          error.cause = err
+
+          await context.emit('debug', {
+            date: new Date(),
+            logs: [(err as any).stdout],
+          })
+
+          await context.emit('error', error)
+        }
+
+        return
+      }
+
       const logger = clack.taskLog({
         title: getMessage(['Executing hook', logLevel >= LogLevel.info ? pc.dim(`${command} ${args?.join(' ')}`) : undefined].filter(Boolean).join(' ')),
       })
@@ -248,7 +316,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       try {
         const result = await execa(command, args, {
           detached: true,
-          stdout: logLevel === LogLevel.silent || logLevel === LogLevel.verbose ? undefined : ['pipe', writable],
+          stdout: ['pipe', writable],
           stripFinalNewline: true,
         })
 
@@ -272,26 +340,49 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('format:start', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       clack.intro(getMessage('Format started'))
     })
 
     context.on('format:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       clack.outro(getMessage('Format completed'))
     })
 
     context.on('lint:start', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
       clack.intro(getMessage('Lint started'))
     })
 
     context.on('lint:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       clack.outro(getMessage('Lint completed'))
     })
 
     context.on('hook:start', (command) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       clack.intro(getMessage(`Hook ${pc.dim(command)} started`))
     })
 
     context.on('hook:end', (command) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       clack.outro(getMessage(`Hook ${pc.dim(command)} completed`))
     })
 

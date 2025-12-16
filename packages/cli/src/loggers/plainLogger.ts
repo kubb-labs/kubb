@@ -1,3 +1,4 @@
+import { relative } from 'node:path'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { execa } from 'execa'
 
@@ -26,25 +27,33 @@ export const plainLogger = defineLogger({
     }
 
     context.on('info', (message, info) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       const text = ['ℹ', message, info].join(' ')
 
-      if (logLevel >= LogLevel.info) {
-        console.log(getMessage(text))
-      }
+      console.log(getMessage(text))
     })
 
     context.on('success', (message, info = '') => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       const text = ['✓', message, logLevel >= LogLevel.info ? info : undefined].filter(Boolean).join(' ')
 
       console.log(getMessage(text))
     })
 
     context.on('warn', (message, info) => {
+      if (logLevel < LogLevel.warn) {
+        return
+      }
+
       const text = ['⚠', message, logLevel >= LogLevel.info ? info : undefined].filter(Boolean).join(' ')
 
-      if (logLevel >= LogLevel.warn) {
-        console.log(getMessage(text))
-      }
+      console.log(getMessage(text))
     })
 
     context.on('error', (error) => {
@@ -77,10 +86,18 @@ export const plainLogger = defineLogger({
     })
 
     context.on('config:start', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       console.log(getMessage('Configuration started'))
     })
 
     context.on('config:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       console.log(getMessage('Configuration completed'))
     })
 
@@ -88,11 +105,61 @@ export const plainLogger = defineLogger({
       console.log(getMessage('Configuration started'))
     })
 
-    context.on('generation:end', ({ summary, title }) => {
-      console.log(getMessage('Generation completed'))
+    context.on('plugin:start', (plugin) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+      console.log(getMessage(`Generating ${plugin.name}`))
+    })
 
-      console.log(title)
-      console.log(summary.join(''))
+    context.on('plugin:end', (plugin, duration) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
+
+      console.log(getMessage(`${plugin.name} completed in ${durationStr}`))
+    })
+
+    context.on('files:processing:start', ({ files }) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      const text = `Writing ${files.length} files`
+
+      console.log(getMessage(text))
+    })
+
+    context.on('file:processing:update', ({ file, config }) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      const text = `Writing ${relative(config.root, file.path)}`
+
+      console.log(getMessage(text))
+    })
+
+    context.on('files:processing:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      const text = 'Files written successfully'
+
+      console.log(getMessage(text))
+    })
+
+    context.on('generation:end', (name) => {
+      console.log(getMessage(name ? `Generation completed for ${name}` : 'Generation completed'))
+    })
+
+    context.on('generation:summary', ({ summary }) => {
+      console.log('---------------------------')
+      console.log(summary.join('\n'))
+      console.log('---------------------------')
     })
 
     context.on('hook:execute', async ({ command, args }, cb) => {
@@ -106,38 +173,51 @@ export const plainLogger = defineLogger({
     })
 
     context.on('format:start', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       console.log(getMessage('Format started'))
     })
 
     context.on('format:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       console.log(getMessage('Format completed'))
     })
 
     context.on('lint:start', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       console.log(getMessage('Lint started'))
     })
 
     context.on('lint:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       console.log(getMessage('Lint completed'))
     })
 
     context.on('hook:start', (command) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       console.log(getMessage(`Hook ${command} started`))
     })
 
     context.on('hook:end', (command) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
       console.log(getMessage(`Hook ${command} completed`))
     })
-
-    //
-    // context.on('plugin:start', (plugin) => {
-    //   log(`Starting ${plugin.name}...`)
-    //   indentLevel++
-    // })
-    //
-    // context.on('plugin:end', (plugin, duration) => {
-    //   indentLevel = Math.max(0, indentLevel - 1)
-    //   log(`${plugin.name} completed in ${duration}ms`)
-    // })
   },
 })

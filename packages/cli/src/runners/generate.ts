@@ -20,8 +20,6 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
   await events.emit('generation:start', config.name)
 
-  await events.emit('info', config.name ? `Loading generation ${pc.bold(config.name)}` : 'Loading generation', inputPath)
-
   const definedConfig: Config = {
     root,
     ...userConfig,
@@ -42,10 +40,14 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
     },
   }
 
+  await events.emit('info', config.name ? `Setup generation ${pc.bold(config.name)}` : 'Setup generation', inputPath)
+
   const { fabric, pluginManager } = await setup({
     config: definedConfig,
     events,
   })
+
+  await events.emit('info', config.name ? `Build generation ${pc.bold(config.name)}` : 'Build generation', inputPath)
 
   const { files, failedPlugins, pluginTimings, error } = await safeBuild(
     {
@@ -54,6 +56,8 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
     },
     { pluginManager, fabric, events },
   )
+
+  await events.emit('info', 'Load summary')
 
   const summary = getSummary({
     failedPlugins,
@@ -80,13 +84,14 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
       events.emit('error', err)
     })
 
-    await events.emit('generation:end', { summary, title: config.name || '', success: false })
+    await events.emit('generation:end', config.name || '')
+    await events.emit('generation:summary', { summary, title: config.name || '', success: false })
 
     process.exit(1)
   }
 
   await events.emit('success', 'Generation successfully', inputPath)
-  await events.emit('generation:end', { summary, title: config.name || '', success: true })
+  await events.emit('generation:end', config.name || '')
 
   // formatting
   if (config.output.format) {
@@ -264,8 +269,10 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
   if (config.hooks) {
     await events.emit('hooks:start')
-    await executeHooks({ hooks: config.hooks, logLevel, events })
+    await executeHooks({ hooks: config.hooks, events })
 
     await events.emit('hooks:end')
   }
+
+  await events.emit('generation:summary', { summary, title: config.name || '', success: true })
 }

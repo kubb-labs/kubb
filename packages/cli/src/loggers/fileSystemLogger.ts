@@ -13,12 +13,6 @@ type CachedEvent = {
 /**
  * FileSystem logger for debug log persistence
  * Captures debug and verbose events and writes them to files in .kubb directory
- *
- * Key features:
- * - Persists debug logs to disk for troubleshooting
- * - Groups logs by fileName if specified
- * - Timestamped entries for operation tracing
- * - Supports custom log file naming via fileName option
  */
 export const fileSystemLogger = defineLogger({
   name: 'filesystem',

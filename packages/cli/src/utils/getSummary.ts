@@ -14,7 +14,6 @@ type SummaryProps = {
 }
 
 export function getSummary({ failedPlugins, filesCreated, status, hrStart, config, pluginTimings }: SummaryProps): string[] {
-  const logs = new Set<string>()
   const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrStart))
 
   const pluginsCount = config.plugins?.length || 0
@@ -38,55 +37,37 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
     pluginTimings: 'Plugin Timings:',
     output: 'Output:',
   }
-  const maxLabelLength = Math.max(...Object.values(labels).map((l) => l.length))
+  const maxLength = Math.max(0, ...[...Object.values(labels), ...(pluginTimings ? Array.from(pluginTimings.keys()) : [])].map((s) => s.length))
 
-  // Two-column layout: left side for labels/values, right side for time
-  const BOX_WIDTH = 60 // Approximate width of the content area
   const summaryLines: string[] = []
-
-  // First line: empty with time on the right
-  const timeDisplay = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })
-  const firstLine = ''.padEnd(BOX_WIDTH - timeDisplay.length) + pc.dim(timeDisplay)
-  summaryLines.push(firstLine)
-  summaryLines.push('') // Empty line after time
-
-  summaryLines.push(`${labels.plugins.padEnd(maxLabelLength + 2)} ${meta.plugins}`)
+  summaryLines.push(`${labels.plugins.padEnd(maxLength + 2)} ${meta.plugins}`)
 
   if (meta.pluginsFailed) {
-    summaryLines.push(`${labels.failed.padEnd(maxLabelLength + 2)} ${meta.pluginsFailed}`)
+    summaryLines.push(`${labels.failed.padEnd(maxLength + 2)} ${meta.pluginsFailed}`)
   }
 
-  summaryLines.push(`${labels.generated.padEnd(maxLabelLength + 2)} ${meta.filesCreated} files in ${meta.time}`)
+  summaryLines.push(`${labels.generated.padEnd(maxLength + 2)} ${meta.filesCreated} files in ${meta.time}`)
 
   if (pluginTimings && pluginTimings.size > 0) {
-    const MAX_TOP_PLUGINS = 5
     const TIME_SCALE_DIVISOR = 100
     const MAX_BAR_LENGTH = 10
 
-    const sortedTimings = Array.from(pluginTimings.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, MAX_TOP_PLUGINS)
+    const sortedTimings = Array.from(pluginTimings.entries()).sort((a, b) => b[1] - a[1])
 
     if (sortedTimings.length > 0) {
       summaryLines.push(`${labels.pluginTimings}`)
-
-      const maxNameLength = Math.max(...sortedTimings.map(([name]) => name.length))
 
       sortedTimings.forEach(([name, time]) => {
         const timeStr = time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${Math.round(time)}ms`
         const barLength = Math.min(Math.ceil(time / TIME_SCALE_DIVISOR), MAX_BAR_LENGTH)
         const bar = pc.dim('█'.repeat(barLength))
 
-        // Format: "  • plugin-name  ██ 123ms"
-        summaryLines.push(`  ${pc.dim('•')} ${name.padEnd(maxNameLength + 2)}${bar} ${timeStr}`)
+        summaryLines.push(`${pc.dim('•')} ${name.padEnd(maxLength + 1)}${bar} ${timeStr}`)
       })
     }
   }
 
-  summaryLines.push(`${labels.output.padEnd(maxLabelLength + 2)} ${meta.output}`)
-  summaryLines.push('')
+  summaryLines.push(`${labels.output.padEnd(maxLength + 2)} ${meta.output}`)
 
-  logs.add(summaryLines.join('\n'))
-
-  return [...logs]
+  return summaryLines
 }

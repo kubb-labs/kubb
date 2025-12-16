@@ -46,7 +46,8 @@ export interface KubbEvents {
   'config:end': []
 
   'generation:start': [name: string | undefined]
-  'generation:end': [
+  'generation:end': [name: string | undefined]
+  'generation:summary': [
     {
       summary: string[]
       title: string

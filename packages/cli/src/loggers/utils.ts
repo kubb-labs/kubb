@@ -25,6 +25,7 @@ const logMapper = {
 
 export function getLoggerByEnvironment(): Logger {
   const type = detectLogger()
+
   return logMapper[type]
 }
 
@@ -40,7 +41,6 @@ export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOp
   // Install primary logger
   const cleanup = await logger.install(context, { logLevel })
 
-  // Also install fileSystemLogger in debug mode for log persistence
   if (logLevel >= LogLevel.debug) {
     await fileSystemLogger.install(context, { logLevel })
   }

@@ -12,7 +12,6 @@ export class ClackWritable extends Writable {
   }
   _write(chunk: any, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
     this.taskLog.message(`${pc.dim(chunk?.toString())}`)
-    // process.stdout.write(`${pc.dim(chunk?.toString())}`)
     callback()
   }
 }
