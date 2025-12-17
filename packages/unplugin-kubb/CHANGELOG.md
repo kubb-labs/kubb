@@ -1,5 +1,11 @@
 # unplugin-kubb
 
+## 4.0.1
+
+### Patch Changes
+
+- [`e56c308`](https://github.com/kubb-labs/kubb/commit/e56c30860ce8b8557e22dab08c6f246b7b064952) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update to reflect changes in kubb
+
 ## 4.0.0
 
 ### Major Changes

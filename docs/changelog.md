@@ -15,6 +15,27 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.12.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-cypress`](/plugins/plugin-cypress/), [`@kubb/plugin-msw`](/plugins/plugin-msw/)
+
+Uses backticks so that the baseUrl can be set to a dynamic value (like an environment variable).
+
+::: code-group
+```typescript [Before]
+// Generated with single quotes - static string
+const baseUrl = 'https://api.example.com'
+```
+
+```typescript [After]
+// Generated with backticks - allows template literals
+const baseUrl = `https://api.example.com`
+// Now you can use: const baseUrl = `${process.env.API_URL}`
+```
+:::
+
 ## 4.12.0
 
 ### ✨ Features
