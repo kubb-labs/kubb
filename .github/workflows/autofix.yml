@@ -36,6 +36,7 @@ jobs:
         uses: autofix-ci/action@v1
         with:
           commit-message: 'ci: apply linting and formating'
+          comment: Auto fix applied for linting anf formating
 
   examples:
     name: Generate examples
@@ -59,4 +60,4 @@ jobs:
         uses: autofix-ci/action@635ffb0c9798bd160680f18fd73371e355b85f27
         with:
           commit-message: 'ci: apply auto update examples'
-          comment: true
+          comment: Auto fix applied for examples generation
