@@ -1,4 +1,4 @@
-'📚 documentation / examples':
+'docs':
   - any:
       [
         'docs/**',
@@ -66,3 +66,9 @@
 
 'unplugin-kubb':
   - any: ['packages/unplugin-kubb/**', '!packages/unplugin-kubb/package.json']
+
+feature:
+  - head-branch: ['^feat', 'feat']
+
+bug:
+  - head-branch: [ '^bug', 'bug', '^fix', 'fix', ]
