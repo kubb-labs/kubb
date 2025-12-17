@@ -78,24 +78,24 @@ export interface KubbEvents {
   /**
    * Emitted when code generation phase starts.
    */
-  'generation:start': [name: string | undefined]
+  'generation:start': [config: Config]
 
   /**
    * Emitted when code generation phase completes.
    */
-  'generation:end': [name: string | undefined]
+  'generation:end': [Config: Config]
 
   /**
    * Emitted with a summary of the generation results.
    * Contains summary lines, title, and success status.
    */
   'generation:summary': [
+    Config: Config,
     {
       failedPlugins: Set<{ plugin: Plugin; error: Error }>
       status: 'success' | 'failed'
       hrStart: [number, number]
       filesCreated: number
-      config: Config
       pluginTimings?: Map<string, number>
     },
   ]

@@ -162,37 +162,37 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('generation:end', (name) => {
-      const text = getMessage(name ? `Generation completed for ${name}` : 'Generation completed')
+    context.on('generation:end', (config) => {
+      const text = getMessage(config.name ? `Generation completed for ${config.name}` : 'Generation completed')
 
       console.log(text)
     })
 
-    context.on('generation:summary', ({ config, pluginTimings, status, hrStart, failedPlugins, filesCreated }) => {
-      const summary = getSummary({
-        failedPlugins,
-        filesCreated,
-        config,
-        status,
-        hrStart,
-        pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
-      })
-
-      console.log('---------------------------')
-      console.log(summary.join('\n'))
-      console.log('---------------------------')
-    })
-
     context.on('hook:execute', async ({ command, args }, cb) => {
       try {
-        await execa(command, args, {
+        const result = await execa(command, args, {
           detached: true,
-          stdout: logLevel === LogLevel.silent ? undefined : ['pipe'],
           stripFinalNewline: true,
         })
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [result.stdout],
+        })
+
+        console.log(result.stdout)
+
         cb()
-      } catch (error) {
-        await context.emit('error', error as Error)
+      } catch (err) {
+        const error = new Error('Hook execute failed')
+        error.cause = err
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [(err as any).stdout],
+        })
+
+        await context.emit('error', error)
       }
     })
 
@@ -254,6 +254,21 @@ export const plainLogger = defineLogger({
       const text = getMessage(`Hook ${command} completed`)
 
       console.log(text)
+    })
+
+    context.on('generation:summary', (config, { pluginTimings, status, hrStart, failedPlugins, filesCreated }) => {
+      const summary = getSummary({
+        failedPlugins,
+        filesCreated,
+        config,
+        status,
+        hrStart,
+        pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
+      })
+
+      console.log('---------------------------')
+      console.log(summary.join('\n'))
+      console.log('---------------------------')
     })
   },
 })

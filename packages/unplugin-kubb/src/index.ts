@@ -60,11 +60,11 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       console.log(text)
     })
 
-    events.on('generation:end', (name) => {
-      console.log(name ? `✓ Generation completed for ${name}` : '✓ Generation completed')
+    events.on('generation:end', (config) => {
+      console.log(config.name ? `✓ Generation completed for ${config.name}` : '✓ Generation completed')
     })
 
-    events.on('generation:summary', ({ config, status, failedPlugins }) => {
+    events.on('generation:summary', (config, { status, failedPlugins }) => {
       const pluginsCount = config.plugins?.length || 0
       const successCount = pluginsCount - failedPlugins.size
 
@@ -79,7 +79,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     const { root: _root, ...userConfig } = options.config as Config
 
-    await events.emit('generation:start', options.config.name)
+    await events.emit('generation:start', options.config as Config)
 
     const { error, failedPlugins, pluginTimings, files } = await safeBuild({
       config: {
@@ -108,11 +108,10 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       })
     }
 
-    await events.emit('generation:end', options.config.name || '')
-    await events.emit('generation:summary', {
+    await events.emit('generation:end', options.config as Config)
+    await events.emit('generation:summary', options.config as Config, {
       failedPlugins,
       filesCreated: files.length,
-      config: options.config as Config,
       status: failedPlugins.size > 0 || error ? 'failed' : 'success',
       hrStart,
       pluginTimings,

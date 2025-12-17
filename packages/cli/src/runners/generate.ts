@@ -17,8 +17,6 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
   const hrStart = process.hrtime()
 
-  await events.emit('generation:start', config.name)
-
   const definedConfig: Config = {
     root,
     ...userConfig,
@@ -38,6 +36,8 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
       ...userConfig.output,
     },
   }
+
+  await events.emit('generation:start', definedConfig)
 
   await events.emit('info', config.name ? `Setup generation ${pc.bold(config.name)}` : 'Setup generation', inputPath)
 
@@ -74,12 +74,11 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
       events.emit('error', err)
     })
 
-    await events.emit('generation:end', config.name || '')
+    await events.emit('generation:end', definedConfig)
 
-    await events.emit('generation:summary', {
+    await events.emit('generation:summary', definedConfig, {
       failedPlugins,
       filesCreated: files.length,
-      config: definedConfig,
       status: failedPlugins.size > 0 || error ? 'failed' : 'success',
       hrStart,
       pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
@@ -89,7 +88,7 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
   }
 
   await events.emit('success', 'Generation successfully', inputPath)
-  await events.emit('generation:end', config.name || '')
+  await events.emit('generation:end', definedConfig)
 
   // formatting
   if (config.output.format) {
@@ -272,10 +271,9 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
     await events.emit('hooks:end')
   }
 
-  await events.emit('generation:summary', {
+  await events.emit('generation:summary', definedConfig, {
     failedPlugins,
     filesCreated: files.length,
-    config: definedConfig,
     status: failedPlugins.size > 0 || error ? 'failed' : 'success',
     hrStart,
     pluginTimings,

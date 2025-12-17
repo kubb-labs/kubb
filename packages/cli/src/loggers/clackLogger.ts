@@ -157,8 +157,8 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.outro(text)
     })
 
-    context.on('generation:start', (name) => {
-      const text = getMessage(['Generation started', name ? `for ${pc.dim(name)}` : undefined].filter(Boolean).join(' '))
+    context.on('generation:start', (config) => {
+      const text = getMessage(['Generation started', config.name ? `for ${pc.dim(config.name)}` : undefined].filter(Boolean).join(' '))
 
       clack.intro(text)
     })
@@ -256,47 +256,10 @@ Run \`npm install -g @kubb/cli\` to update`,
       activeProgress.delete('files')
     })
 
-    context.on('generation:end', (name) => {
-      const text = getMessage(name ? `Generation completed for ${pc.dim(name)}` : 'Generation completed')
+    context.on('generation:end', (config) => {
+      const text = getMessage(config.name ? `Generation completed for ${pc.dim(config.name)}` : 'Generation completed')
 
       clack.outro(text)
-    })
-
-    context.on('generation:summary', ({ config, pluginTimings, failedPlugins, filesCreated, status, hrStart }) => {
-      const summary = getSummary({
-        failedPlugins,
-        filesCreated,
-        config,
-        status,
-        hrStart,
-        pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
-      })
-      const title = config.name || ''
-
-      summary.unshift('\n')
-      summary.push('\n')
-
-      if (status === 'success') {
-        clack.box(summary.join('\n'), getMessage(title), {
-          width: 'auto',
-          formatBorder: pc.green,
-          rounded: true,
-          withGuide: false,
-          contentAlign: 'left',
-          titleAlign: 'center',
-        })
-
-        return
-      }
-
-      clack.box(summary.join('\n'), getMessage(title), {
-        width: 'auto',
-        formatBorder: pc.red,
-        rounded: true,
-        withGuide: false,
-        contentAlign: 'left',
-        titleAlign: 'center',
-      })
     })
 
     context.on('hook:execute', async ({ command, args }, cb) => {
@@ -418,6 +381,43 @@ Run \`npm install -g @kubb/cli\` to update`,
       const text = getMessage(`Hook ${pc.dim(command)} completed`)
 
       clack.outro(text)
+    })
+
+    context.on('generation:summary', (config, { pluginTimings, failedPlugins, filesCreated, status, hrStart }) => {
+      const summary = getSummary({
+        failedPlugins,
+        filesCreated,
+        config,
+        status,
+        hrStart,
+        pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
+      })
+      const title = config.name || ''
+
+      summary.unshift('\n')
+      summary.push('\n')
+
+      if (status === 'success') {
+        clack.box(summary.join('\n'), getMessage(title), {
+          width: 'auto',
+          formatBorder: pc.green,
+          rounded: true,
+          withGuide: false,
+          contentAlign: 'left',
+          titleAlign: 'center',
+        })
+
+        return
+      }
+
+      clack.box(summary.join('\n'), getMessage(title), {
+        width: 'auto',
+        formatBorder: pc.red,
+        rounded: true,
+        withGuide: false,
+        contentAlign: 'left',
+        titleAlign: 'center',
+      })
     })
 
     context.on('lifecycle:end', () => {

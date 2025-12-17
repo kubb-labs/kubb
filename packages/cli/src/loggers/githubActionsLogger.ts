@@ -35,7 +35,7 @@ export const githubActionsLogger = defineLogger({
       console.log('::endgroup::')
     }
 
-    context.on('info', (message, info) => {
+    context.on('info', (message, info = '') => {
       if (logLevel <= LogLevel.silent) {
         return
       }
@@ -55,7 +55,7 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('warn', (message, info) => {
+    context.on('warn', (message, info = '') => {
       if (logLevel <= LogLevel.silent) {
         return
       }
@@ -84,6 +84,8 @@ export const githubActionsLogger = defineLogger({
 
       const text = getMessage('Configuration started')
 
+      openGroup('Configuration')
+
       console.log(text)
     })
 
@@ -97,15 +99,20 @@ export const githubActionsLogger = defineLogger({
       const text = getMessage('Configuration completed')
 
       console.log(text)
+
+      closeGroup('Configuration')
     })
 
-    context.on('generation:start', (name) => {
-      const text = getMessage(['Generation started', name ? `for ${pc.dim(name)}` : undefined].filter(Boolean).join(' '))
+    context.on('generation:start', (config) => {
+      const text = config.name ? `Generation for ${pc.bold(config.name)}` : 'Generation'
 
       if (currentConfigs.length > 1) {
-        openGroup(`Generation: ${name || ''}`)
+        openGroup(text)
       }
-      console.log(text)
+
+      if (currentConfigs.length === 1) {
+        console.log(getMessage(text))
+      }
     })
 
     context.on('plugin:start', (plugin) => {
@@ -129,6 +136,9 @@ export const githubActionsLogger = defineLogger({
       const text = getMessage(`${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}`)
 
       console.log(text)
+      if (currentConfigs.length > 1) {
+        console.log('\n')
+      }
 
       if (currentConfigs.length === 1) {
         closeGroup(`Plugin: ${plugin.name}`)
@@ -160,37 +170,37 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('generation:end', (name) => {
-      const text = getMessage(name ? `${pc.blue('✓')} Generation completed for ${pc.dim(name)}` : `${pc.blue('✓')} Generation completed`)
+    context.on('generation:end', (config) => {
+      const text = getMessage(config.name ? `${pc.blue('✓')} Generation completed for ${pc.dim(config.name)}` : `${pc.blue('✓')} Generation completed`)
 
       console.log(text)
-
-      if (currentConfigs.length > 1) {
-        closeGroup(`Generation: ${name || ''}`)
-      }
-    })
-
-    context.on('generation:summary', ({ config, status, failedPlugins }) => {
-      const pluginsCount = config.plugins?.length || 0
-      const successCount = pluginsCount - failedPlugins.size
-
-      console.log(
-        status === 'success'
-          ? `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ${pluginsCount} total`
-          : `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total`,
-      )
     })
 
     context.on('hook:execute', async ({ command, args }, cb) => {
       try {
-        await execa(command, args, {
+        const result = await execa(command, args, {
           detached: true,
-          stdout: logLevel === LogLevel.silent ? undefined : ['pipe'],
           stripFinalNewline: true,
         })
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [result.stdout],
+        })
+
+        console.log(result.stdout)
+
         cb()
-      } catch (error) {
-        await context.emit('error', error as Error)
+      } catch (err) {
+        const error = new Error('Hook execute failed')
+        error.cause = err
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [(err as any).stdout],
+        })
+
+        await context.emit('error', error)
       }
     })
 
@@ -275,6 +285,25 @@ export const githubActionsLogger = defineLogger({
 
       if (currentConfigs.length === 1) {
         closeGroup(`Hook ${command}`)
+      }
+    })
+
+    context.on('generation:summary', (config, { status, failedPlugins }) => {
+      const pluginsCount = config.plugins?.length || 0
+      const successCount = pluginsCount - failedPlugins.size
+
+      if (currentConfigs.length > 1) {
+        console.log('\n')
+      }
+
+      console.log(
+        status === 'success'
+          ? `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ${pluginsCount} total`
+          : `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total`,
+      )
+
+      if (currentConfigs.length > 1) {
+        closeGroup(config.name ? `Generation for ${pc.bold(config.name)}` : 'Generation')
       }
     })
   },
