@@ -15,7 +15,7 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
-## Unreleased
+## 4.12.1
 
 ### 🐛 Bug Fixes
 
@@ -46,10 +46,6 @@ export type SystemsQueryParams = {
 :::
 
 This matches the OpenAPI specification where `explode: true` causes object properties to be expanded as separate query parameters at the root level.
-
-## 4.12.1
-
-### 🐛 Bug Fixes
 
 #### [`@kubb/plugin-cypress`](/plugins/plugin-cypress/), [`@kubb/plugin-msw`](/plugins/plugin-msw/)
 
