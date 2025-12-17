@@ -17,6 +17,7 @@ jobs:
   autofix:
     name: Lint and format
     runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
     steps:
       - name: Check out code
         uses: actions/checkout@v6
@@ -41,6 +42,7 @@ jobs:
   examples:
     name: Generate examples
     runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
     steps:
       - name: Check out code
         uses: actions/checkout@v6
