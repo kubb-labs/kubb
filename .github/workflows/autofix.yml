@@ -38,28 +38,3 @@ jobs:
         with:
           commit-message: 'ci: apply linting and formating'
           comment: Auto fix applied for linting anf formating
-
-  examples:
-    name: Generate examples
-    runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]'
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 2
-
-      - name: Setup
-        uses: ./.github/setup
-
-      - name: Build
-        run: pnpm run build
-
-      - name: Fix generating
-        run: pnpm run generate
-
-      - name: Apply fixes
-        uses: autofix-ci/action@635ffb0c9798bd160680f18fd73371e355b85f27
-        with:
-          commit-message: 'ci: apply auto update examples'
-          comment: Auto fix applied for examples generation
