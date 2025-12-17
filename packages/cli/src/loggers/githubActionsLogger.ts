@@ -137,7 +137,7 @@ export const githubActionsLogger = defineLogger({
 
       console.log(text)
       if (currentConfigs.length > 1) {
-        console.log('\n')
+        console.log('')
       }
 
       if (currentConfigs.length === 1) {
@@ -293,7 +293,7 @@ export const githubActionsLogger = defineLogger({
       const successCount = pluginsCount - failedPlugins.size
 
       if (currentConfigs.length > 1) {
-        console.log('\n')
+        console.log('')
       }
 
       console.log(
