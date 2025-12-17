@@ -25,6 +25,12 @@ export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, 
           optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
+
+    options: {
+      type: 'Partial<Cypress.RequestOptions>',
+      optional: true,
+      default: '{}',
+    },
   })
 
   const returnType =
@@ -36,7 +42,12 @@ export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, 
     <File.Source name={name} isIndexable isExportable>
       <Function name={name} export params={params.toConstructor()} returnType={returnType}>
         {dataReturnType === 'data' &&
-          `return cy.request('${method}', '${baseURL ?? ''}${new URLPath(url).toURLPath().replace(/([^/]):/g, '$1\\\\:')}', ${body}).then((res: Cypress.Response<${typeSchemas.response.name}>) => res.body)`}
+          `return cy.request({
+            method: '${method}', 
+            url: '${baseURL ?? ''}${new URLPath(url).toURLPath().replace(/([^/]):/g, '$1\\\\:')}', 
+            body: ${body},
+            ...options,
+          }).then((res: Cypress.Response<${typeSchemas.response.name}>) => res.body)`}
         {dataReturnType === 'full' && `return cy.request('${method}', '${new URLPath(`${baseURL ?? ''}${url}`).toURLPath()}', ${body})`}
       </Function>
     </File.Source>
