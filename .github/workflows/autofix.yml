@@ -1,9 +1,10 @@
 name: autofix.ci
 
 on:
+  workflow_dispatch:
   pull_request:
-  push:
-    branches: ["main", "alpha", "beta", "rc"]
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
