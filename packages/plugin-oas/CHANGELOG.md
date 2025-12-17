@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 4.12.4
+
+### Patch Changes
+
+- [#2199](https://github.com/kubb-labs/kubb/pull/2199) [`329cf02`](https://github.com/kubb-labs/kubb/commit/329cf021783d3e0f00d2597eefbc20487bfb5e23) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix handling of empty schema objects in anyOf/oneOf/allOf. Empty schema objects `{}` in anyOf, oneOf, or allOf are now correctly preserved in unions and intersections instead of being filtered out. Per JSON Schema specification, an empty schema `{}` accepts any value and should be represented as the configured unknownType (default: 'any' or 'unknown'). This ensures that schemas like `anyOf: [{}, {type: "null"}]` correctly generate `unknown | null` instead of just `null`.
+
+- Updated dependencies []:
+  - @kubb/core@4.12.4
+  - @kubb/oas@4.12.4
+
 ## 4.12.3
 
 ### Patch Changes
