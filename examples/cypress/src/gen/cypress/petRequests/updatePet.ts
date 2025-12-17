@@ -5,6 +5,13 @@
 
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../models/UpdatePet.ts'
 
-export function updatePet(data: UpdatePetMutationRequest): Cypress.Chainable<UpdatePetMutationResponse> {
-  return cy.request('put', 'http://localhost:3000/pet', data).then((res: Cypress.Response<UpdatePetMutationResponse>) => res.body)
+export function updatePet(data: UpdatePetMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<UpdatePetMutationResponse> {
+  return cy
+    .request({
+      method: 'put',
+      url: 'http://localhost:3000/pet',
+      body: data,
+      ...options,
+    })
+    .then((res: Cypress.Response<UpdatePetMutationResponse>) => res.body)
 }

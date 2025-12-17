@@ -83,7 +83,7 @@
     "zod": "^3.25.76"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.5.4"
+    "@kubb/react-fabric": "0.7.0"
   },
   "devDependencies": {
     "@kubb/plugin-oas": "workspace:*"

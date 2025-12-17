@@ -5,6 +5,13 @@
 
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse } from '../../models/UpdateUser.ts'
 
-export function updateUser(data?: UpdateUserMutationRequest): Cypress.Chainable<UpdateUserMutationResponse> {
-  return cy.request('put', 'http://localhost:3000/user/:username', data).then((res: Cypress.Response<UpdateUserMutationResponse>) => res.body)
+export function updateUser(data?: UpdateUserMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<UpdateUserMutationResponse> {
+  return cy
+    .request({
+      method: 'put',
+      url: 'http://localhost:3000/user/:username',
+      body: data,
+      ...options,
+    })
+    .then((res: Cypress.Response<UpdateUserMutationResponse>) => res.body)
 }

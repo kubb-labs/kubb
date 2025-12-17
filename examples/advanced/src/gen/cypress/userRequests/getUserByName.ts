@@ -1,5 +1,12 @@
 import type { GetUserByNameQueryResponse } from '../../models/ts/userController/GetUserByName.ts'
 
-export function getUserByName(): Cypress.Chainable<GetUserByNameQueryResponse> {
-  return cy.request('get', '/user/:username', undefined).then((res: Cypress.Response<GetUserByNameQueryResponse>) => res.body)
+export function getUserByName(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetUserByNameQueryResponse> {
+  return cy
+    .request({
+      method: 'get',
+      url: '/user/:username',
+      body: undefined,
+      ...options,
+    })
+    .then((res: Cypress.Response<GetUserByNameQueryResponse>) => res.body)
 }

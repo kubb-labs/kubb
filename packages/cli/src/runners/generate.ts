@@ -1,64 +1,21 @@
 import path from 'node:path'
 import process from 'node:process'
-import { type Config, safeBuild, setup } from '@kubb/core'
-import { createLogger, LogMapper } from '@kubb/core/logger'
-import { Presets, SingleBar } from 'cli-progress'
-import { execa } from 'execa'
+import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/core'
+import type { AsyncEventEmitter } from '@kubb/core/utils'
 import pc from 'picocolors'
-import type { Args } from '../commands/generate.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
-import { getSummary } from '../utils/getSummary.ts'
 
 type GenerateProps = {
   input?: string
   config: Config
-  args: Args
-  progressCache: Map<string, SingleBar>
+  events: AsyncEventEmitter<KubbEvents>
+  logLevel: number
 }
 
-export async function generate({ input, config, progressCache, args }: GenerateProps): Promise<void> {
-  const hrStart = process.hrtime()
-  const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
-
-  const logger = createLogger({
-    logLevel,
-    name: config.name,
-  })
-
+export async function generate({ input, config, events, logLevel }: GenerateProps): Promise<void> {
   const { root = process.cwd(), ...userConfig } = config
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
-
-  if (logger.logLevel !== LogMapper.debug) {
-    logger.on('progress_start', ({ id, size, message = '' }) => {
-      logger.consola?.pauseLogs()
-      const payload = { id, message }
-      const progressBar = new SingleBar(
-        {
-          format: '{percentage}% {bar} {value}/{total} | {message}',
-          barsize: 30,
-          clearOnComplete: true,
-          emptyOnZero: true,
-        },
-        Presets.shades_grey,
-      )
-
-      if (!progressCache.has(id)) {
-        progressCache.set(id, progressBar)
-        progressBar.start(size, 1, payload)
-      }
-    })
-
-    logger.on('progress_stop', ({ id }) => {
-      progressCache.get(id)?.stop()
-      logger.consola?.resumeLogs()
-    })
-
-    logger.on('progressed', ({ id, message = '' }) => {
-      const payload = { id, message }
-
-      progressCache.get(id)?.increment(1, payload)
-    })
-  }
+  const hrStart = process.hrtime()
 
   const definedConfig: Config = {
     root,
@@ -80,45 +37,31 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     },
   }
 
+  await events.emit('generation:start', definedConfig)
+
+  await events.emit('info', config.name ? `Setup generation ${pc.bold(config.name)}` : 'Setup generation', inputPath)
+
   const { fabric, pluginManager } = await setup({
     config: definedConfig,
-    logger,
+    events,
   })
 
-  logger.emit('start', `Building ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
+  await events.emit('info', config.name ? `Build generation ${pc.bold(config.name)}` : 'Build generation', inputPath)
 
   const { files, failedPlugins, pluginTimings, error } = await safeBuild(
     {
       config: definedConfig,
-      logger,
+      events,
     },
-    { pluginManager, fabric, logger },
+    { pluginManager, fabric, events },
   )
 
-  if (logger.logLevel >= LogMapper.debug) {
-    logger.consola?.start('Writing logs')
-
-    await logger.writeLogs()
-
-    logger.consola?.success('Written logs')
-  }
-
-  const summary = getSummary({
-    failedPlugins,
-    filesCreated: files.length,
-    config: definedConfig,
-    status: failedPlugins.size > 0 || error ? 'failed' : 'success',
-    hrStart,
-    pluginTimings: logger.logLevel >= LogMapper.verbose ? pluginTimings : undefined,
-  })
+  await events.emit('info', 'Load summary')
 
   // Handle build failures (either from failed plugins or general errors)
+
   const hasFailures = failedPlugins.size > 0 || error
-
-  if (hasFailures && logger.consola) {
-    logger.consola?.resumeLogs()
-    logger.consola?.log(`✗  Build failed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
-
+  if (hasFailures) {
     // Collect all errors from failed plugins and general error
     const allErrors: Error[] = [
       error,
@@ -128,166 +71,211 @@ export async function generate({ input, config, progressCache, args }: GenerateP
     ].filter(Boolean)
 
     allErrors.forEach((err) => {
-      // Display error causes in debug mode
-      if (logger.logLevel >= LogMapper.debug && err.cause) {
-        logger.consola?.error(err.cause)
-      }
-
-      logger.consola?.error(err)
+      events.emit('error', err)
     })
 
-    logger.consola?.box({
-      title: `${config.name || ''}`,
-      message: summary.join(''),
-      style: {
-        padding: 2,
-        borderColor: 'red',
-        borderStyle: 'rounded',
-      },
+    await events.emit('generation:end', definedConfig)
+
+    await events.emit('generation:summary', definedConfig, {
+      failedPlugins,
+      filesCreated: files.length,
+      status: failedPlugins.size > 0 || error ? 'failed' : 'success',
+      hrStart,
+      pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
     })
 
     process.exit(1)
   }
 
+  await events.emit('success', 'Generation successfully', inputPath)
+  await events.emit('generation:end', definedConfig)
+
   // formatting
-  if (config.output.format === 'prettier') {
-    logger?.emit('start', `Formatting with ${config.output.format}`)
-    logger?.emit('debug', {
-      date: new Date(),
-      logs: [`Running prettier on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
-    })
+  if (config.output.format) {
+    await events.emit('format:start')
 
-    try {
-      await execa('prettier', ['--ignore-unknown', '--write', path.resolve(definedConfig.root, definedConfig.output.path)])
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: ['Prettier formatting completed successfully'],
-      })
-    } catch (e) {
-      logger.consola?.warn('Prettier not found')
-      logger.consola?.error(e)
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: [`Prettier formatting failed: ${(e as Error).message}`],
-      })
+    await events.emit(
+      'info',
+      [
+        `Formatting with ${pc.dim(config.output.format as string)}`,
+        logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    )
+
+    if (config.output.format === 'prettier') {
+      try {
+        await events.emit(
+          'hook:execute',
+          {
+            command: 'prettier',
+            args: ['--ignore-unknown', '--write', path.resolve(definedConfig.root, definedConfig.output.path)],
+          },
+          async () => {
+            await events.emit(
+              'success',
+              [
+                `Formatting with ${pc.dim(config.output.format as string)}`,
+                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+                'successfully',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+          },
+        )
+      } catch (e) {
+        await events.emit('error', e as Error)
+      }
+
+      await events.emit('success', `Formatted with ${config.output.format}`)
     }
 
-    logger?.emit('success', `Formatted with ${config.output.format}`)
-  }
-
-  if (config.output.format === 'biome') {
-    logger?.emit('start', `Formatting with ${config.output.format}`)
-    logger?.emit('debug', {
-      date: new Date(),
-      logs: [`Running biome format on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
-    })
-
-    try {
-      await execa('biome', ['format', '--write', path.resolve(definedConfig.root, definedConfig.output.path)])
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: ['Biome formatting completed successfully'],
-      })
-    } catch (e) {
-      logger.consola?.warn('Biome not found')
-      logger.consola?.error(e)
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: [`Biome formatting failed: ${(e as Error).message}`],
-      })
+    if (config.output.format === 'biome') {
+      try {
+        await events.emit(
+          'hook:execute',
+          {
+            command: 'biome',
+            args: ['format', '--write', path.resolve(definedConfig.root, definedConfig.output.path)],
+          },
+          async () => {
+            await events.emit(
+              'success',
+              [
+                `Formatting with ${pc.dim(config.output.format as string)}`,
+                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+                'successfully',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+          },
+        )
+      } catch (e) {
+        const error = new Error('Biome not found')
+        error.cause = e
+        await events.emit('error', error)
+      }
     }
 
-    logger?.emit('success', `Formatted with ${config.output.format}`)
+    await events.emit('format:end')
   }
 
   // linting
-  if (config.output.lint === 'eslint') {
-    logger?.emit('start', `Linting with ${config.output.lint}`)
-    logger?.emit('debug', {
-      date: new Date(),
-      logs: [`Running eslint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
-    })
+  if (config.output.lint) {
+    await events.emit('lint:start')
 
-    try {
-      await execa('eslint', [path.resolve(definedConfig.root, definedConfig.output.path), '--fix'])
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: ['ESLint linting completed successfully'],
-      })
-    } catch (e) {
-      logger.consola?.warn('Eslint not found')
-      logger.consola?.error(e)
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: [`ESLint linting failed: ${(e as Error).message}`],
-      })
+    await events.emit(
+      'info',
+      [
+        `Linting with ${pc.dim(config.output.lint as string)}`,
+        logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    )
+
+    if (config.output.lint === 'eslint') {
+      try {
+        await events.emit(
+          'hook:execute',
+          {
+            command: 'eslint',
+            args: [path.resolve(definedConfig.root, definedConfig.output.path), '--fix'],
+          },
+          async () => {
+            await events.emit(
+              'success',
+              [
+                `Linted with ${pc.dim(config.output.lint as string)}`,
+                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+                'successfully',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+          },
+        )
+      } catch (e) {
+        const error = new Error('Eslint not found')
+        error.cause = e
+        await events.emit('error', error)
+      }
     }
 
-    logger?.emit('success', `Linted with ${config.output.lint}`)
-  }
-
-  if (config.output.lint === 'biome') {
-    logger?.emit('start', `Linting with ${config.output.lint}`)
-    logger?.emit('debug', {
-      date: new Date(),
-      logs: [`Running biome lint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
-    })
-
-    try {
-      await execa('biome', ['lint', '--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: ['Biome linting completed successfully'],
-      })
-    } catch (e) {
-      logger.consola?.warn('Biome not found')
-      logger.consola?.error(e)
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: [`✗ Biome linting failed: ${(e as Error).message}`],
-      })
+    if (config.output.lint === 'biome') {
+      try {
+        await events.emit(
+          'hook:execute',
+          {
+            command: 'biome',
+            args: ['lint', '--fix', path.resolve(definedConfig.root, definedConfig.output.path)],
+          },
+          async () => {
+            await events.emit(
+              'success',
+              [
+                `Linted with ${pc.dim(config.output.lint as string)}`,
+                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+                'successfully',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+          },
+        )
+      } catch (e) {
+        const error = new Error('Biome not found')
+        error.cause = e
+        await events.emit('error', error)
+      }
     }
 
-    logger?.emit('success', `Linted with ${config.output.lint}`)
-  }
-
-  if (config.output.lint === 'oxlint') {
-    logger?.emit('start', `Linting with ${config.output.lint}`)
-    logger?.emit('debug', {
-      date: new Date(),
-      logs: [`Running oxlint on ${path.resolve(definedConfig.root, definedConfig.output.path)}`],
-    })
-
-    try {
-      await execa('oxlint', ['--fix', path.resolve(definedConfig.root, definedConfig.output.path)])
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: ['Oxlint linting completed successfully'],
-      })
-    } catch (e) {
-      logger.consola?.warn('Oxlint not found')
-      logger.consola?.error(e)
-      logger?.emit('debug', {
-        date: new Date(),
-        logs: [`✗ Oxlint linting failed: ${(e as Error).message}`],
-      })
+    if (config.output.lint === 'oxlint') {
+      try {
+        await events.emit(
+          'hook:execute',
+          {
+            command: 'oxlint',
+            args: ['--fix', path.resolve(definedConfig.root, definedConfig.output.path)],
+          },
+          async () => {
+            await events.emit(
+              'success',
+              [
+                `Linted with ${pc.dim(config.output.lint as string)}`,
+                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+                'successfully',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+          },
+        )
+      } catch (e) {
+        const error = new Error('Oxlint not found')
+        error.cause = e
+        await events.emit('error', error)
+      }
     }
 
-    logger?.emit('success', `Linted with ${config.output.lint}`)
+    await events.emit('lint:end')
   }
 
   if (config.hooks) {
-    await executeHooks({ hooks: config.hooks, logger })
+    await events.emit('hooks:start')
+    await executeHooks({ hooks: config.hooks, events })
+
+    await events.emit('hooks:end')
   }
 
-  logger.consola?.log(`⚡ Build completed ${logger.logLevel !== LogMapper.silent ? pc.dim(inputPath!) : ''}`)
-  logger.consola?.box({
-    title: `${config.name || ''}`,
-    message: summary.join(''),
-    style: {
-      padding: 2,
-      borderColor: 'green',
-      borderStyle: 'rounded',
-    },
+  await events.emit('generation:summary', definedConfig, {
+    failedPlugins,
+    filesCreated: files.length,
+    status: failedPlugins.size > 0 || error ? 'failed' : 'success',
+    hrStart,
+    pluginTimings,
   })
 }

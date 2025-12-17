@@ -9,7 +9,6 @@ export default defineConfig({
     coverage: {
       exclude: [
         '**/**/plugin.ts', // exclude because we have e2e
-        'throttle', // TODO remove when we use an external library
         '**/dist/**',
         '**/mocks/**',
         '**/examples/**',

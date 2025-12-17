@@ -5,6 +5,13 @@
 
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/CreateUser.ts'
 
-export function createUser(data?: CreateUserMutationRequest): Cypress.Chainable<CreateUserMutationResponse> {
-  return cy.request('post', 'http://localhost:3000/user', data).then((res: Cypress.Response<CreateUserMutationResponse>) => res.body)
+export function createUser(data?: CreateUserMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<CreateUserMutationResponse> {
+  return cy
+    .request({
+      method: 'post',
+      url: 'http://localhost:3000/user',
+      body: data,
+      ...options,
+    })
+    .then((res: Cypress.Response<CreateUserMutationResponse>) => res.body)
 }

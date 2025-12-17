@@ -5,6 +5,13 @@
 
 import type { FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus.ts'
 
-export function findPetsByStatus(): Cypress.Chainable<FindPetsByStatusQueryResponse> {
-  return cy.request('get', 'http://localhost:3000/pet/findByStatus', undefined).then((res: Cypress.Response<FindPetsByStatusQueryResponse>) => res.body)
+export function findPetsByStatus(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<FindPetsByStatusQueryResponse> {
+  return cy
+    .request({
+      method: 'get',
+      url: 'http://localhost:3000/pet/findByStatus',
+      body: undefined,
+      ...options,
+    })
+    .then((res: Cypress.Response<FindPetsByStatusQueryResponse>) => res.body)
 }

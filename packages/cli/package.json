@@ -61,24 +61,24 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@clack/prompts": "1.0.0-alpha.8",
     "@kubb/core": "workspace:*",
     "chokidar": "^4.0.3",
     "citty": "^0.1.6",
-    "cli-progress": "^3.12.0",
-    "consola": "^3.4.2",
     "cosmiconfig": "^9.0.0",
     "execa": "^9.6.1",
     "gradient-string": "^3.0.0",
     "jiti": "^2.6.1",
     "latest-version": "^9.0.0",
     "picocolors": "^1.1.1",
+    "seedrandom": "^3.0.5",
     "semver": "^7.7.3",
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
     "@kubb/mcp": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@types/cli-progress": "^3.11.6",
+    "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.7.1",
     "source-map-support": "^0.5.21"
   },

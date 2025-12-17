@@ -145,10 +145,7 @@ describe('zod parse', () => {
       const schema = { keyword: schemaKeywords.matches, args: '^[A-Za-z0-9]+$' }
       const minSchema = { keyword: schemaKeywords.min, args: 5 }
       const maxSchema = { keyword: schemaKeywords.max, args: 19 }
-      const text = parserZod.parse(
-        { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema, minSchema, maxSchema] },
-        { version: '3' },
-      )
+      const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema, minSchema, maxSchema] }, { version: '3' })
       expect(text).toBe('z.string().min(5).max(19).regex(/^[A-Za-z0-9]+$/)')
     })
 
@@ -156,10 +153,7 @@ describe('zod parse', () => {
       const schema = { keyword: schemaKeywords.matches, args: '^[A-Za-z0-9]+$' }
       const minSchema = { keyword: schemaKeywords.min, args: 5 }
       const maxSchema = { keyword: schemaKeywords.max, args: 19 }
-      const text = parserZod.parse(
-        { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema, minSchema, maxSchema] },
-        { version: '4' },
-      )
+      const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema, minSchema, maxSchema] }, { version: '4' })
       expect(text).toBe('z.string().min(5).max(19).regex(/^[A-Za-z0-9]+$/)')
     })
 
@@ -177,20 +171,14 @@ describe('zod parse', () => {
     test('matches with only min should include min constraint', () => {
       const schema = { keyword: schemaKeywords.matches, args: '^[A-Z]+$' }
       const minSchema = { keyword: schemaKeywords.min, args: 3 }
-      const text = parserZod.parse(
-        { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema, minSchema] },
-        { version: '4' },
-      )
+      const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema, minSchema] }, { version: '4' })
       expect(text).toBe('z.string().min(3).regex(/^[A-Z]+$/)')
     })
 
     test('matches with only max should include max constraint', () => {
       const schema = { keyword: schemaKeywords.matches, args: '^[0-9]+$' }
       const maxSchema = { keyword: schemaKeywords.max, args: 10 }
-      const text = parserZod.parse(
-        { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema, maxSchema] },
-        { version: '4' },
-      )
+      const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema, maxSchema] }, { version: '4' })
       expect(text).toBe('z.string().max(10).regex(/^[0-9]+$/)')
     })
 
