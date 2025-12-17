@@ -576,6 +576,15 @@ describe('typeGenerator operation', async () => {
         emptySchemaType: 'void',
       },
     },
+    {
+      name: 'systems with explode form',
+      input: '../../mocks/explode.yaml',
+      path: '/systems',
+      method: 'get',
+      options: {
+        enumType: 'enum',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
