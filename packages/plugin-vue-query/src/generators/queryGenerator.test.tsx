@@ -20,6 +20,17 @@ describe('queryGenerator operation', async () => {
       options: {},
     },
     {
+      name: 'findByTagsTemplateString',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        client: {
+          baseURL: '${123456}'
+        }
+      },
+    },
+    {
       name: 'findByTagsPathParamsObject',
       input: '../../mocks/petStore.yaml',
       path: '/pet/findByTags',
