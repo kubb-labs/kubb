@@ -1,5 +1,17 @@
 # @kubb/plugin-zod
 
+## 4.12.3
+
+### Patch Changes
+
+- [#2195](https://github.com/kubb-labs/kubb/pull/2195) [`a7608e0`](https://github.com/kubb-labs/kubb/commit/a7608e00af70dcc22e61eec80d931a94010cde5e) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix handling of query parameters with explode=true and style=form for objects with additionalProperties. When a query parameter has style: "form", explode: true, and a schema with type: "object" and additionalProperties but no defined properties, the parameter is now correctly flattened to have additionalProperties at the root level instead of being nested as a property. This matches the OpenAPI specification where explode: true causes object properties to be expanded as separate query parameters.
+
+- Updated dependencies [[`a7608e0`](https://github.com/kubb-labs/kubb/commit/a7608e00af70dcc22e61eec80d931a94010cde5e)]:
+  - @kubb/oas@4.12.3
+  - @kubb/plugin-ts@4.12.3
+  - @kubb/plugin-oas@4.12.3
+  - @kubb/core@4.12.3
+
 ## 4.12.2
 
 ### Patch Changes

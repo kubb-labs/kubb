@@ -1,5 +1,13 @@
 # @kubb/swagger
 
+## 4.12.3
+
+### Patch Changes
+
+- Updated dependencies [[`a7608e0`](https://github.com/kubb-labs/kubb/commit/a7608e00af70dcc22e61eec80d931a94010cde5e)]:
+  - @kubb/oas@4.12.3
+  - @kubb/core@4.12.3
+
 ## 4.12.2
 
 ### Patch Changes
