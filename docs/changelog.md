@@ -193,6 +193,14 @@ This fix applies to all Zod versions:
   Similar to what popular tools like Vite, NX, and Turbo provide for performance visibility.
 
 
+## 4.11.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/oas`](/plugins/oas/)
+
+Fixed issue with uninitialized `oasClass` causing errors during OpenAPI schema processing.
+
 ## 4.11.0
 
 ### ✨ Features
