@@ -15,13 +15,13 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
-## 4.12.2
+## 4.12.3
 
 ### 🐛 Bug Fixes
 
 #### [`@kubb/oas`](/api/oas/), [`@kubb/plugin-ts`](/plugins/plugin-ts/), [`@kubb/plugin-zod`](/plugins/plugin-zod/), [`@kubb/plugin-faker`](/plugins/plugin-faker/)
 
-Fixed handling of query parameters with `explode: true` and `style: form` for objects with `additionalProperties`. 
+Fixed handling of query parameters with `explode: true` and `style: form` for objects with `additionalProperties`.
 
 When a query parameter has `style: "form"`, `explode: true`, and a schema with `type: "object"` and `additionalProperties` but no defined properties, the parameter is now correctly flattened to have additionalProperties at the root level instead of being nested as a property.
 
@@ -46,6 +46,11 @@ export type SystemsQueryParams = {
 :::
 
 This matches the OpenAPI specification where `explode: true` causes object properties to be expanded as separate query parameters at the root level.
+
+
+## 4.12.2
+
+### 🐛 Bug Fixes
 
 #### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
 
