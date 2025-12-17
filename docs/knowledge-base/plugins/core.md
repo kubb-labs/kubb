@@ -37,12 +37,6 @@ The current plugin.
 
 - **Type:** `KubbPlugin` <br/>
 
-### this.logger
-
-Instance of the Logger.
-
-- **Type:** `Logger` <br/>
-
 ### this.fileManager
 
 Instance of the fileManager.

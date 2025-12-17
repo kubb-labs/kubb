@@ -5,6 +5,13 @@
 
 import type { GetUserByNameQueryResponse } from '../../models/GetUserByName.ts'
 
-export function getUserByName(): Cypress.Chainable<GetUserByNameQueryResponse> {
-  return cy.request('get', 'http://localhost:3000/user/:username', undefined).then((res: Cypress.Response<GetUserByNameQueryResponse>) => res.body)
+export function getUserByName(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetUserByNameQueryResponse> {
+  return cy
+    .request({
+      method: 'get',
+      url: 'http://localhost:3000/user/:username',
+      body: undefined,
+      ...options,
+    })
+    .then((res: Cypress.Response<GetUserByNameQueryResponse>) => res.body)
 }

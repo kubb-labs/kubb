@@ -2,26 +2,18 @@
 import { join } from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { getRelativePath } from './fs/index.ts'
-import type { Logger } from './logger.ts'
+
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { TreeNode } from './utils/TreeNode.ts'
 
-type BarrelManagerOptions = {
-  logger?: Logger
-}
+type BarrelManagerOptions = {}
 
 export class BarrelManager {
-  #options: BarrelManagerOptions
-
-  constructor(options: BarrelManagerOptions = {}) {
-    this.#options = options
-
+  constructor(_options: BarrelManagerOptions = {}) {
     return this
   }
 
   getFiles({ files: generatedFiles, root }: { files: KubbFile.File[]; root?: string; meta?: FileMetaBase | undefined }): Array<KubbFile.File> {
-    const { logger } = this.#options
-
     const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
 
     TreeNode.build(generatedFiles, root)?.forEach((treeNode) => {
@@ -44,13 +36,6 @@ export class BarrelManager {
         }
 
         const sources = item.data.file?.sources || []
-
-        if (!sources.some((source) => source.isIndexable)) {
-          logger?.emit(
-            'warning',
-            `No isIndexable source found(source should have a name and isIndexable):\nFile: ${JSON.stringify(item.data.file, undefined, 2)}`,
-          )
-        }
 
         sources.forEach((source) => {
           if (!item.data.file?.path || !source.isIndexable || !source.name) {

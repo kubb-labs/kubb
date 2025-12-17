@@ -1,7 +1,8 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { build } from './build.ts'
 import { definePlugin } from './definePlugin.ts'
-import type { Config, Plugin } from './types.ts'
+import type { Config, KubbEvents, Plugin } from './types.ts'
+import { AsyncEventEmitter } from './utils'
 
 describe('build', () => {
   const pluginMocks = {
@@ -51,6 +52,7 @@ describe('build', () => {
   test('if build can run and return created files and the pluginManager', async () => {
     const { fabric, pluginManager } = await build({
       config,
+      events: new AsyncEventEmitter<KubbEvents>(),
     })
 
     await fabric.addFile(file)
@@ -63,6 +65,7 @@ describe('build', () => {
   test('if build with one plugin is running the different hooks in the correct order', async () => {
     const { fabric } = await build({
       config,
+      events: new AsyncEventEmitter<KubbEvents>(),
     })
 
     await fabric.addFile(file)

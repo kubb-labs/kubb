@@ -1,7 +1,6 @@
 import { join } from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { BarrelManager } from '../BarrelManager.ts'
-import type { Logger } from '../logger.ts'
 import type { BarrelType, Plugin } from '../types.ts'
 
 export type FileMetaBase = {
@@ -24,7 +23,6 @@ type AddIndexesProps = {
     output: string
     exportAs: string
   }
-  logger?: Logger
 
   meta?: FileMetaBase
 }
@@ -33,25 +31,24 @@ function trimExtName(text: string): string {
   return text.replace(/\.[^/.]+$/, '')
 }
 
-export async function getBarrelFiles(
-  files: Array<KubbFile.ResolvedFile>,
-  { type, meta = {}, root, output, logger }: AddIndexesProps,
-): Promise<KubbFile.File[]> {
+export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type, meta = {}, root, output }: AddIndexesProps): Promise<KubbFile.File[]> {
   if (!type || type === 'propagate') {
     return []
   }
 
-  const barrelManager = new BarrelManager({ logger })
+  const barrelManager = new BarrelManager({})
 
   const pathToBuildFrom = join(root, output.path)
 
   if (trimExtName(pathToBuildFrom).endsWith('index')) {
-    logger?.emit('warning', 'Output has the same fileName as the barrelFiles, please disable barrel generation')
-
     return []
   }
 
-  const barrelFiles = barrelManager.getFiles({ files, root: pathToBuildFrom, meta })
+  const barrelFiles = barrelManager.getFiles({
+    files,
+    root: pathToBuildFrom,
+    meta,
+  })
 
   if (type === 'all') {
     return barrelFiles.map((file) => {

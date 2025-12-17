@@ -5,8 +5,16 @@
 
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../../models/CreateUsersWithListInput.ts'
 
-export function createUsersWithListInput(data?: CreateUsersWithListInputMutationRequest): Cypress.Chainable<CreateUsersWithListInputMutationResponse> {
+export function createUsersWithListInput(
+  data?: CreateUsersWithListInputMutationRequest,
+  options?: Partial<Cypress.RequestOptions>,
+): Cypress.Chainable<CreateUsersWithListInputMutationResponse> {
   return cy
-    .request('post', 'http://localhost:3000/user/createWithList', data)
+    .request({
+      method: 'post',
+      url: 'http://localhost:3000/user/createWithList',
+      body: data,
+      ...options,
+    })
     .then((res: Cypress.Response<CreateUsersWithListInputMutationResponse>) => res.body)
 }

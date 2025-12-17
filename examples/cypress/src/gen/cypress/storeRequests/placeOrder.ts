@@ -5,6 +5,13 @@
 
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../../models/PlaceOrder.ts'
 
-export function placeOrder(data?: PlaceOrderMutationRequest): Cypress.Chainable<PlaceOrderMutationResponse> {
-  return cy.request('post', 'http://localhost:3000/store/order', data).then((res: Cypress.Response<PlaceOrderMutationResponse>) => res.body)
+export function placeOrder(data?: PlaceOrderMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<PlaceOrderMutationResponse> {
+  return cy
+    .request({
+      method: 'post',
+      url: 'http://localhost:3000/store/order',
+      body: data,
+      ...options,
+    })
+    .then((res: Cypress.Response<PlaceOrderMutationResponse>) => res.body)
 }

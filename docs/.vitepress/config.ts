@@ -496,7 +496,6 @@ export default defineConfig({
               '@kubb/core': ['../packages/core/src/index.ts'],
               '@kubb/types': ['../packages/types/src/index.ts'],
               '@kubb/core/utils': ['../packages/core/src/utils/index.ts'],
-              '@kubb/core/logger': ['../packages/core/src/logger.ts'],
               '@kubb/core/transformers': ['../packages/core/src/transformers/index.ts'],
               '@kubb/plugin-cypress': ['../packages/plugin-cypress/src/index.ts'],
               '@kubb/plugin-mcp': ['../packages/plugin-mcp/src/index.ts'],

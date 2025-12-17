@@ -28,7 +28,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       fabric: generator.context.fabric,
       oas,
       plugin,
-      logger: generator.context.logger,
+      events: generator.context.events,
       pluginManager,
       mode,
       override: options.override,

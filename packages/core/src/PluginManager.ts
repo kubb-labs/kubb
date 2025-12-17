@@ -3,13 +3,13 @@ import { performance } from 'node:perf_hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import { ValidationPluginError } from './errors.ts'
-import type { Logger } from './logger.ts'
 import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
 import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { trim } from './transformers/trim.ts'
 import type {
   Config,
   GetPluginFactoryOptions,
+  KubbEvents,
   Plugin,
   PluginContext,
   PluginFactoryOptions,
@@ -21,46 +21,12 @@ import type {
   ResolvePathParams,
   UserPlugin,
 } from './types.ts'
-import { EventEmitter } from './utils/EventEmitter.ts'
+import type { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
 
 type RequiredPluginLifecycle = Required<PluginLifecycle>
 
-type Strategy = 'hookFirst' | 'hookForPlugin' | 'hookParallel' | 'hookSeq'
-
-type ExecutingMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  strategy: Strategy
-  hookName: H
-  plugin: Plugin
-  parameters?: unknown[] | undefined
-  output?: unknown
-}
-
-type ExecutedMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  duration: number
-  strategy: Strategy
-  hookName: H
-  plugin: Plugin
-  parameters?: unknown[] | undefined
-  output?: unknown
-}
-
-type ErrorMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  hookName: H
-  duration: number
-  strategy: Strategy
-  parameters?: unknown[] | undefined
-  plugin: Plugin
-}
-
-type ProgressStartMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  hookName: H
-  plugins: Array<Plugin>
-}
-
-type ProgressStopMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
-  hookName: H
-}
+export type Strategy = 'hookFirst' | 'hookForPlugin' | 'hookParallel' | 'hookSeq'
 
 type ParseResult<H extends PluginLifecycleHooks> = RequiredPluginLifecycle[H]
 
@@ -73,19 +39,11 @@ type SafeParseResult<H extends PluginLifecycleHooks, Result = ReturnType<ParseRe
 
 type Options = {
   fabric: Fabric
-  logger: Logger
+  events: AsyncEventEmitter<KubbEvents>
   /**
    * @default Number.POSITIVE_INFINITY
    */
   concurrency?: number
-}
-
-type Events = {
-  progress_start: [meta: ProgressStartMeta]
-  progress_stop: [meta: ProgressStopMeta]
-  executing: [meta: ExecutingMeta]
-  executed: [meta: ExecutedMeta]
-  error: [error: Error, meta: ErrorMeta]
 }
 
 type GetFileProps<TOptions = object> = {
@@ -104,8 +62,6 @@ export function getMode(fileOrFolder: string | undefined | null): KubbFile.Mode 
 }
 
 export class PluginManager {
-  readonly events: EventEmitter<Events> = new EventEmitter()
-
   readonly config: Config
   readonly options: Options
 
@@ -128,13 +84,17 @@ export class PluginManager {
     return this
   }
 
+  get events() {
+    return this.options.events
+  }
+
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, any> {
     const plugins = [...this.#plugins]
     const baseContext = {
       fabric: this.options.fabric,
       config: this.config,
       plugin,
-      logger: this.options.logger,
+      events: this.options.events,
       pluginManager: this,
       mode: getMode(path.resolve(this.config.root, this.config.output.path)),
       addFile: async (...files: Array<KubbFile.File>) => {
@@ -229,13 +189,6 @@ export class PluginManager {
   }
 
   /**
-   * Instead of calling `pluginManager.events.on` you can use `pluginManager.on`. This one also has better types.
-   */
-  on<TEventName extends keyof Events & string>(eventName: TEventName, handler: (...eventArg: Events[TEventName]) => void): void {
-    this.events.on(eventName, handler as any)
-  }
-
-  /**
    * Run a specific hookName for plugin x.
    */
   async hookForPlugin<H extends PluginLifecycleHooks>({
@@ -249,7 +202,7 @@ export class PluginManager {
   }): Promise<Array<ReturnType<ParseResult<H>> | null>> {
     const plugins = this.getPluginsByKey(hookName, pluginKey)
 
-    this.events.emit('progress_start', {
+    this.events.emit('plugins:hook:progress:start', {
       hookName,
       plugins,
     })
@@ -269,7 +222,7 @@ export class PluginManager {
       }
     }
 
-    this.events.emit('progress_stop', { hookName })
+    this.events.emit('plugins:hook:progress:end', { hookName })
 
     return items
   }
@@ -318,7 +271,7 @@ export class PluginManager {
       return skipped ? skipped.has(plugin) : true
     })
 
-    this.events.emit('progress_start', { hookName, plugins })
+    this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return async () => {
@@ -338,7 +291,7 @@ export class PluginManager {
 
     const result = await this.#promiseManager.run('first', promises)
 
-    this.events.emit('progress_stop', { hookName })
+    this.events.emit('plugins:hook:progress:end', { hookName })
 
     return result
   }
@@ -390,7 +343,7 @@ export class PluginManager {
     parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined
   }): Promise<Awaited<TOuput>[]> {
     const plugins = this.#getSortedPlugins(hookName)
-    this.events.emit('progress_start', { hookName, plugins })
+    this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return () =>
@@ -411,12 +364,18 @@ export class PluginManager {
         const plugin = this.#getSortedPlugins(hookName)[index]
 
         if (plugin) {
-          this.events.emit('error', result.reason, { plugin, hookName, strategy: 'hookParallel', duration: 0, parameters })
+          this.events.emit('error', result.reason, {
+            plugin,
+            hookName,
+            strategy: 'hookParallel',
+            duration: 0,
+            parameters,
+          })
         }
       }
     })
 
-    this.events.emit('progress_stop', { hookName })
+    this.events.emit('plugins:hook:progress:end', { hookName })
 
     return results.filter((result) => result.status === 'fulfilled').map((result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value)
   }
@@ -426,7 +385,7 @@ export class PluginManager {
    */
   async hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
     const plugins = this.#getSortedPlugins(hookName)
-    this.events.emit('progress_start', { hookName, plugins })
+    this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
       return () =>
@@ -440,7 +399,7 @@ export class PluginManager {
 
     await this.#promiseManager.run('seq', promises)
 
-    this.events.emit('progress_stop', { hookName })
+    this.events.emit('plugins:hook:progress:end', { hookName })
   }
 
   #getSortedPlugins(hookName?: keyof PluginLifecycle): Array<Plugin> {
@@ -541,7 +500,7 @@ export class PluginManager {
       return null
     }
 
-    this.events.emit('executing', {
+    this.events.emit('plugins:hook:processing:start', {
       strategy,
       hookName,
       parameters,
@@ -558,7 +517,7 @@ export class PluginManager {
 
           output = result
 
-          this.events.emit('executed', {
+          this.events.emit('plugins:hook:processing:end', {
             duration: Math.round(performance.now() - startTime),
             parameters,
             output,
@@ -572,7 +531,7 @@ export class PluginManager {
 
         output = hook
 
-        this.events.emit('executed', {
+        this.events.emit('plugins:hook:processing:end', {
           duration: Math.round(performance.now() - startTime),
           parameters,
           output,
@@ -583,7 +542,12 @@ export class PluginManager {
 
         return hook
       } catch (e) {
-        this.events.emit('error', e as Error, { plugin, hookName, strategy, duration: Math.round(performance.now() - startTime) })
+        this.events.emit('error', e as Error, {
+          plugin,
+          hookName,
+          strategy,
+          duration: Math.round(performance.now() - startTime),
+        })
 
         return null
       }
@@ -617,7 +581,7 @@ export class PluginManager {
       return null
     }
 
-    this.events.emit('executing', {
+    this.events.emit('plugins:hook:processing:start', {
       strategy,
       hookName,
       parameters,
@@ -633,7 +597,7 @@ export class PluginManager {
 
         output = fn
 
-        this.events.emit('executed', {
+        this.events.emit('plugins:hook:processing:end', {
           duration: Math.round(performance.now() - startTime),
           parameters,
           output,
@@ -647,7 +611,7 @@ export class PluginManager {
 
       output = hook
 
-      this.events.emit('executed', {
+      this.events.emit('plugins:hook:processing:end', {
         duration: Math.round(performance.now() - startTime),
         parameters,
         output,
@@ -658,7 +622,12 @@ export class PluginManager {
 
       return hook
     } catch (e) {
-      this.events.emit('error', e as Error, { plugin, hookName, strategy, duration: Math.round(performance.now() - startTime) })
+      this.events.emit('error', e as Error, {
+        plugin,
+        hookName,
+        strategy,
+        duration: Math.round(performance.now() - startTime),
+      })
 
       return null
     }

@@ -1,4 +1,5 @@
-import { type Config, type Plugin, safeBuild } from '@kubb/core'
+import { type Config, type KubbEvents, type Plugin, safeBuild } from '@kubb/core'
+import { AsyncEventEmitter } from '@kubb/core/utils'
 import { type Include, pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -52,6 +53,7 @@ export async function generate({ plugin, openApi, operationId }: z.infer<typeof 
 
     const { fabric, error } = await safeBuild({
       config: definedConfig,
+      events: new AsyncEventEmitter<KubbEvents>(),
     })
 
     if (error) {
