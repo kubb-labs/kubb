@@ -281,7 +281,7 @@ describe('SchemaGenerator core', async () => {
 
   test('array of enums with malformed schema (enum at array level)', async () => {
     const oas = await parse(path.resolve(__dirname, '../mocks/petStore.yaml'))
-    
+
     // Malformed schema: enum at same level as type: array
     // This should be normalized to: { type: 'array', items: { type: 'string', enum: [...] } }
     const malformedSchema = {
@@ -311,7 +311,7 @@ describe('SchemaGenerator core', async () => {
       override: undefined,
       mode: 'split',
     })
-    
+
     const tree = generator.parse({ schemaObject: malformedSchema as any, name: 'TestArrayEnum' })
 
     expect(tree).toMatchSnapshot()

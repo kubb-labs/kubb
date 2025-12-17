@@ -36,10 +36,12 @@ describe('type parse', () => {
       { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] },
       { optionalType: 'questionToken', enumType: 'asConst' },
     )
-    
+
     // Should generate: Array<TestArrayEnumKey>
     expect(result).toBeTruthy()
     // The result is a TypeScript AST node, so we need to check its structure
-    expect(result.kind).toBeDefined()
+    if (result) {
+      expect(result.kind).toBeDefined()
+    }
   })
 })

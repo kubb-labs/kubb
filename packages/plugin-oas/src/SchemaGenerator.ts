@@ -787,13 +787,13 @@ export class SchemaGenerator<
           ...(typeof schemaObject.items === 'object' ? schemaObject.items : {}),
           enum: schemaObject.enum,
         } as SchemaObject
-        
+
         const normalizedSchema = {
           ...schemaObject,
           enum: undefined,
           items: normalizedItems,
         } as SchemaObject
-        
+
         return this.parse({ schemaObject: normalizedSchema, name, parentName })
       }
 
