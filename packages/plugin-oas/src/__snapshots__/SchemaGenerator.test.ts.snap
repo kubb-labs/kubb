@@ -540,6 +540,60 @@ exports[`SchemaGenerator core > 'Toy' 1`] = `
 ]
 `;
 
+exports[`SchemaGenerator core > array of enums with malformed schema (enum at array level) 1`] = `
+[
+  {
+    "args": {
+      "items": [
+        {
+          "args": {
+            "asConst": false,
+            "items": [
+              {
+                "format": "string",
+                "name": ""foo"",
+                "value": "foo",
+              },
+              {
+                "format": "string",
+                "name": ""bar"",
+                "value": "bar",
+              },
+              {
+                "format": "string",
+                "name": ""baz"",
+                "value": "baz",
+              },
+            ],
+            "name": "TestArrayEnum",
+            "typeName": "TestArrayEnum",
+          },
+          "keyword": "enum",
+        },
+        {
+          "args": {
+            "format": undefined,
+            "type": "string",
+          },
+          "keyword": "schema",
+        },
+      ],
+      "max": undefined,
+      "min": undefined,
+      "unique": false,
+    },
+    "keyword": "array",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "array",
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
 exports[`SchemaGenerator core > combineObjects 1`] = `
 [
   {
