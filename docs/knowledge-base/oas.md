@@ -75,6 +75,64 @@ Kubb reads your OpenAPI specification and generates code based on:
 3. **Hooks**: Generated for data fetching libraries (React Query, SWR, etc.)
 4. **Mocks**: Generated from schemas using Faker.js
 
+### Parameters with Style and Explode
+
+Kubb correctly handles OpenAPI parameter serialization using the `style` and `explode` properties according to the OpenAPI specification.
+
+#### Form Style with Explode
+
+When a query parameter has `style: "form"` and `explode: true` (which is the default for query parameters), object properties are flattened into separate query parameters.
+
+For objects with `additionalProperties` and no defined properties, Kubb generates a flattened type:
+
+```yaml
+parameters:
+  - name: customFields
+    in: query
+    style: form
+    explode: true
+    schema:
+      type: object
+      additionalProperties:
+        type: string
+```
+
+Generated TypeScript type:
+
+```typescript
+export type QueryParams = {
+  [key: string]: string
+}
+```
+
+This allows for dynamic query parameters like `?field1=value1&field2=value2` instead of nesting them under a single parameter name.
+
+#### Without Explode
+
+When `explode: false`, the object remains nested:
+
+```yaml
+parameters:
+  - name: customFields
+    in: query
+    style: form
+    explode: false
+    schema:
+      type: object
+      additionalProperties:
+        type: string
+```
+
+Generated TypeScript type:
+
+```typescript
+export type QueryParams = {
+  customFields?: {
+    [key: string]: string
+  }
+}
+```
+
 ## Working with OpenAPI Files
 
 ### Validation
