@@ -48,10 +48,10 @@ jobs:
       - name: Setup
         uses: ./.github/setup
 
-      - name: Fix formatting
+      - name: Build
         run: pnpm run build
 
-      - name: Fix formatting
+      - name: Fix generating
         run: pnpm run generate
 
       - name: Apply fixes
