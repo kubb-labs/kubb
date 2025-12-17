@@ -44,7 +44,7 @@ export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, 
         {dataReturnType === 'data' &&
           `return cy.request({
             method: '${method}', 
-            url: '${baseURL ?? ''}${new URLPath(url).toURLPath().replace(/([^/]):/g, '$1\\\\:')}', 
+            url: \`${baseURL ?? ''}${new URLPath(url).toURLPath().replace(/([^/]):/g, '$1\\\\:')}\`, 
             body: ${body},
             ...options,
           }).then((res: Cypress.Response<${typeSchemas.response.name}>) => res.body)`}
