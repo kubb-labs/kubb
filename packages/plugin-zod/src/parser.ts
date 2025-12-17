@@ -303,11 +303,20 @@ const zodKeywordMapper = {
     }
     return '.optional()'
   },
-  matches: (value = '', coercion?: boolean, mini?: boolean) => {
+  matches: (value = '', coercion?: boolean, mini?: boolean, min?: number, max?: number) => {
     if (mini) {
-      return `z.string().check(z.regex(${value}))`
+      const checks = buildLengthChecks(min, max)
+      checks.push(`z.regex(${value})`)
+      return `z.string().check(${checks.join(', ')})`
     }
-    return coercion ? `z.coerce.string().regex(${value})` : `z.string().regex(${value})`
+    return [
+      coercion ? 'z.coerce.string()' : 'z.string()',
+      min !== undefined ? `.min(${min})` : undefined,
+      max !== undefined ? `.max(${max})` : undefined,
+      `.regex(${value})`,
+    ]
+      .filter(Boolean)
+      .join('')
   },
   email: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number, mini?: boolean) => {
     if (mini) {
@@ -739,8 +748,11 @@ export const parse = createParser<string, ParserOptions>({
         return undefined // strip matches
       }
 
+      const minSchema = findSchemaKeyword(siblings, 'min')
+      const maxSchema = findSchemaKeyword(siblings, 'max')
+
       if (current.args) {
-        return zodKeywordMapper.matches(transformers.toRegExpString(current.args, null), shouldCoerce(options.coercion, 'strings'), options.mini)
+        return zodKeywordMapper.matches(transformers.toRegExpString(current.args, null), shouldCoerce(options.coercion, 'strings'), options.mini, minSchema?.args, maxSchema?.args)
       }
       return undefined
     },
