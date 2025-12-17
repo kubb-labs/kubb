@@ -7,7 +7,7 @@ export function deletePetsPetid(options?: Partial<Cypress.RequestOptions>): Cypr
   return cy
     .request({
       method: 'delete',
-      url: '/pets/:petId',
+      url: `/pets/:petId`,
       body: undefined,
       ...options,
     })

@@ -25,6 +25,17 @@ describe('mcpGenerator operation', async () => {
       options: {},
     },
     {
+      name: 'getPetsTemplateString',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
+      options: {
+        client: {
+          baseURL: '${123456}'
+        }
+      },
+    },
+    {
       name: 'createPet',
       input: '../../mocks/petStore.yaml',
       path: '/pets',

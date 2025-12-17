@@ -25,6 +25,15 @@ describe('cypressGenerator operation', async () => {
       options: {},
     },
     {
+      name: 'getPetsWithTemplateString',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
+      options: {
+        baseURL: '${123456}'
+      },
+    },
+    {
       name: 'createPet',
       input: '../../mocks/petStore.yaml',
       path: '/pets',

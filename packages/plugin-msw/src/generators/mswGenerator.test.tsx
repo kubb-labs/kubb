@@ -25,6 +25,15 @@ describe('mswGenerator operation', async () => {
       options: {},
     },
     {
+      name: 'getPetsTemplateBaseUrl',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
+      options: {
+        baseURL: '${123456}'
+      },
+    },
+    {
       name: 'getPetsFaker',
       input: '../../mocks/petStore.yaml',
       path: '/pets',
