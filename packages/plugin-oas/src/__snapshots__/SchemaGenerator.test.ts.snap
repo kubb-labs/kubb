@@ -8,7 +8,14 @@ exports[`SchemaGenerator core > 'EmptyAnyOf' 1`] = `
       "properties": {
         "fixed_value": [
           {
-            "args": [],
+            "args": [
+              {
+                "keyword": "unknown",
+              },
+              {
+                "keyword": "null",
+              },
+            ],
             "keyword": "union",
           },
           {
@@ -32,6 +39,9 @@ exports[`SchemaGenerator core > 'EmptyAnyOf' 1`] = `
             "args": [
               {
                 "keyword": "string",
+              },
+              {
+                "keyword": "null",
               },
             ],
             "keyword": "union",

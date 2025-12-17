@@ -11,13 +11,13 @@ components:
         fixed_value:
           anyOf:
             - {}
-            - type: null
+            - {type: "null"}
           title: Fixed Value
           description: The fixed value - should accept any type or null
         payload_key:
           anyOf:
-            - type: string
-            - type: null
+            - {type: "string"}
+            - {type: "null"}
           title: Payload Key
           description: String or null
       required:
