@@ -1,5 +1,74 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`SchemaGenerator core > 'EmptyAnyOf' 1`] = `
+[
+  {
+    "args": {
+      "additionalProperties": [],
+      "properties": {
+        "fixed_value": [
+          {
+            "args": [],
+            "keyword": "union",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": undefined,
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "The fixed value - should accept any type or null",
+            "keyword": "describe",
+          },
+          {
+            "args": "fixed_value",
+            "keyword": "name",
+          },
+        ],
+        "payload_key": [
+          {
+            "args": [
+              {
+                "keyword": "string",
+              },
+            ],
+            "keyword": "union",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": undefined,
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "String or null",
+            "keyword": "describe",
+          },
+          {
+            "args": "payload_key",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
+      },
+    },
+    "keyword": "object",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "object",
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
 exports[`SchemaGenerator core > 'FullAddress' 1`] = `
 [
   {

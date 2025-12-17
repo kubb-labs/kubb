@@ -87,6 +87,16 @@ describe('SchemaGenerator core', async () => {
         unknownType: 'unknown',
       },
     },
+    {
+      name: 'EmptyAnyOf',
+      input: '../mocks/anyOfEmpty.yaml',
+      path: 'EmptyAnyOf',
+      options: {
+        dateType: 'date',
+        transformers: {},
+        unknownType: 'unknown',
+      },
+    },
     // Add discriminator test cases
   ] as const satisfies Array<{ input: string; name: string; path: string; options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>> }>
 
