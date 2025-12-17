@@ -17,6 +17,102 @@ All notable changes to Kubb are documented here. Each version is organized with 
 
 ## Unreleased
 
+## 4.12.0
+
+### ✨ Features
+
+#### [`@kubb/cli`](/helpers/cli/), [`@kubb/core`](/plugins/core/) - Interactive Progress Bars with Clack UI
+
+Replaced `cli-progress` and `consola` with `@clack/prompts` for a modern CLI experience with real-time interactive progress bars. Implements a flexible logger pattern using `defineLogger` following Kubb's established conventions (matching `definePlugin` and `createParser`).
+
+**Interactive Progress Bars:**
+- Real-time progress bars for plugin execution (block style with simulated progress)
+- Progress bars for file writing (heavy style with accurate tracking)
+- Automatic cleanup and completion messages with timing information
+- Integrated directly into clackLogger using defineLogger pattern
+
+**defineLogger Pattern with Cleanup:**
+- Four loggers: `clack` (local), `githubActions` (CI), `plain` (fallback), `fileSystem` (debug persistence)
+- All loggers return cleanup function from install() for consistent lifecycle management
+- Environment auto-detection with `getLoggerByEnvironment()`
+- Functional factories using `defineLogger` helper from @kubb/core
+- Full backward compatibility with existing code
+- Cleanup called before lifecycle:end for proper resource cleanup
+
+**Event-Based System:**
+- 29 documented events covering lifecycle, plugins, file operations, and logging
+- Events: `lifecycle:start`, `lifecycle:end`, `plugin:start`, `plugin:end`, `files:processing:start`, `files:processing:update`, `files:processing:end`
+- Hook events: `plugins:hook:progress:start`, `plugins:hook:progress:end`, `plugins:hook:processing:start`, `plugins:hook:processing:end`
+- Optional `groupId` parameter on all logger events for organizing logs
+- Comprehensive JSDoc documentation for all events with usage examples
+
+::: code-group
+```typescript [Usage Example]
+import { setupLogger } from '@kubb/cli/loggers'
+
+// setupLogger returns cleanup function
+const cleanup = await setupLogger(events, { logLevel })
+
+await events.emit('lifecycle:start')
+
+// ... run generation ...
+
+// Cleanup before lifecycle:end
+if (cleanup) {
+  await cleanup()
+}
+
+await events.emit('lifecycle:end')
+```
+:::
+
+**GitHub Actions Integration:**
+- Full logger implementation with group management
+- Automatic `::group::` / `::endgroup::` annotations in CI
+- Custom group naming for better log organization
+- Collapsible sections for cleaner workflow logs
+- Auto-close groups with pluginGroupMarker
+- Proper cleanup closes all open groups
+
+::: code-group
+```typescript [GitHub Actions Example]
+logger.emit('lifecycle:start', 'Build started', { groupId: 'build' })
+logger.emit('info', 'Processing schema', { groupId: 'schema-validation' })
+logger.emit('warn', 'Deprecated feature', { groupId: 'warnings' })
+logger.emit('lifecycle:end', 'Build complete', { groupId: 'build' })
+```
+:::
+
+**Debug File Persistence:**
+- fileSystemLogger automatically captures debug/verbose events
+- Writes timestamped logs to `.kubb/kubb-{timestamp}.log` files
+- Auto-enabled in debug mode (logLevel >= debug)
+- Groups logs with category labels for easy searching
+- Async cleanup writes all cached logs to disk
+- Process exit handlers for crash recovery (best-effort)
+- Useful for troubleshooting and post-mortem analysis
+
+**Claude Code-Inspired CLI:**
+- Task status icons (✓ success, ✗ error, ⚠ warning, ◐ in-progress, ℹ info)
+- Contextual error messages with stack traces in debug mode
+- Error/warning counters in build summary
+- Timestamped verbose logging for operation tracing
+- Single-level indentation respecting Clack constraints
+- Category-based debug logging with color-coded prefixes
+
+**Error Handling:**
+- Try-catch wrappers in hook execution prevent unhandled errors
+- Errors properly emitted through event system to prevent unhandled rejections
+- Consistent error handling across all loggers
+
+**Logger Cleanup Functions:**
+- **clackLogger**: Cleans up progress bars and intervals
+- **githubActionsLogger**: Closes all open groups
+- **fileSystemLogger**: Writes cached logs to disk (async) + process exit handlers
+- **plainLogger**: No-op cleanup (for consistency)
+
+See the [Debugging Guide](/knowledge-base/debugging) for complete documentation on using the new logger system.
+
 ### 🐛 Bug Fixes
 
 #### [`@kubb/plugin-zod`](/plugins/zod/)

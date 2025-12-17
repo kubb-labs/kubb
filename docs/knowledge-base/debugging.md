@@ -9,14 +9,30 @@ outline: deep
 
 ## Log Levels
 
-Kubb provides multiple log levels to control output verbosity:
+Kubb provides multiple log levels to control output verbosity. The logging system uses an event-based architecture with `@clack/prompts` for interactive progress bars and multiple logger adapters for different environments.
 
 - **silent** - No output (suppresses all messages)
 - **error** - Only critical errors
 - **warn** - Errors and warnings
 - **info** - Standard build information (default)
 - **verbose** - Info + plugin performance metrics
-- **debug** - Verbose + detailed execution traces
+- **debug** - Verbose + detailed execution traces + file persistence
+
+## Logger Architecture
+
+Kubb uses a flexible logger pattern with environment-specific adapters:
+
+- **clackLogger** - Local development with interactive progress bars (@clack/prompts)
+- **githubActionsLogger** - CI environment with collapsible groups (`::group::` annotations)
+- **plainLogger** - Fallback console logger for non-TTY environments
+- **fileSystemLogger** - Debug file persistence to `.kubb/kubb-{timestamp}.log`
+
+The logger is automatically selected based on your environment:
+- GitHub Actions: Uses githubActionsLogger
+- TTY terminal: Uses clackLogger with progress bars
+- Non-TTY: Uses plainLogger
+
+All loggers follow the `defineLogger` pattern and return cleanup functions for proper resource management.
 
 ### Verbose Mode
 
@@ -48,7 +64,7 @@ Output:         .
 
 ### Debug Mode
 
-Kubb provides comprehensive debug logging to help you understand what's happening during the code generation process.
+Kubb provides comprehensive debug logging powered by an event-based architecture. Debug mode captures detailed execution traces and persists them to log files for later analysis.
 
 ### Using the --debug flag
 
@@ -63,6 +79,50 @@ Or alternatively:
 ```shell
 kubb generate --log-level debug
 ```
+
+### Event-Based Logging System
+
+Kubb's logger uses an event-driven architecture with 29 documented events:
+
+**Lifecycle Events:**
+- `lifecycle:start` - Build process begins
+- `lifecycle:end` - Build process completes
+
+**Plugin Events:**
+- `plugin:start` - Plugin execution starts (per-plugin)
+- `plugin:end` - Plugin execution ends with timing
+- `plugins:hook:progress:start` - Hook collection starts
+- `plugins:hook:progress:end` - Hook collection ends
+- `plugins:hook:processing:start` - Hook execution starts
+- `plugins:hook:processing:end` - Hook execution ends
+
+**File Events:**
+- `files:processing:start` - File generation begins
+- `files:processing:update` - File generation progress
+- `files:processing:end` - File generation completes
+
+**Log Events:**
+- `info`, `warn`, `error` - Standard logging
+- `debug` - Debug messages with category labels
+- `verbose` - Verbose operation traces
+
+All events support an optional `groupId` parameter for organizing logs in CI environments.
+
+::: code-group
+```typescript [Event Usage Example]
+// Listen to events
+context.on('plugin:start', ({ name }) => {
+  console.log(`Starting plugin: ${name}`)
+})
+
+context.on('plugin:end', ({ name }, duration) => {
+  console.log(`Completed plugin: ${name} in ${duration}ms`)
+})
+
+// Emit with group IDs for CI
+context.emit('info', 'Processing schema', { groupId: 'schema-validation' })
+```
+:::
 
 ### What gets logged in debug mode
 
@@ -100,43 +160,104 @@ When debug mode is enabled, Kubb logs detailed information about:
 - Error messages if tools are not found
 
 #### CI/CD Integration
-- **GitHub Actions support**: Long debug logs are automatically wrapped in collapsible groups (`::group::` / `::endgroup::`)
+
+**GitHub Actions Support:**
+- Automatic environment detection (`isGitHubActions()`)
+- Long debug logs wrapped in collapsible groups (`::group::` / `::endgroup::`)
 - Makes debug output more readable in CI environments
 - Short logs (under 100 characters) remain inline
 - Easy to expand/collapse detailed traces
+- Supports custom group naming with `groupId` parameter
+
+**Logger Adapters:**
+- **githubActionsLogger**: Uses GitHub Actions workflow commands for warnings (`::warning::`), errors (`::error::`), and debug (`::debug::`)
+- **clackLogger**: Interactive progress bars with Claude-inspired task status icons
+- **plainLogger**: Simple console output for non-TTY environments
+- **fileSystemLogger**: Captures all debug/verbose events to disk
+
+::: code-group
+```shell [GitHub Actions Example]
+# GitHub Actions automatically detected
+GITHUB_ACTIONS=true kubb generate --debug
+
+# Output uses collapsible groups:
+::group::Starting setup phase
+Config name: petStore
+Environment: Node v20.19.6, linux
+::endgroup::
+
+::group::plugin-oas
+Plugin installation started
+Plugin installed in 351ms
+::endgroup::
+```
+:::
 
 ### Debug Log Files
 
 > [!TIP]
 > Debug mode creates log files in the `.kubb` directory:
-> - `.kubb/kubb-{timestamp}.log` - Contains all debug messages with timestamps
+> - `.kubb/kubb-{timestamp}.log` - Contains all debug messages with timestamps and categories
+> 
+> **Crash Recovery:**
+> Process exit handlers (SIGINT, SIGTERM, exit) ensure logs are written even if the process crashes unexpectedly.
 
-Example debug output:
+**File Persistence Features:**
+- Auto-enabled when logLevel >= debug
+- Timestamped entries for operation tracing
+- Category labels for easy filtering (config, plugin, schema, files, etc.)
+- Async cleanup writes all cached logs to disk
+- Process exit handlers for best-effort crash recovery
+
+Example debug log file content:
 ```
-[log] [petStore] Starting setup phase
+[2024-12-17T10:33:45.123Z] [config] Starting setup phase
 Config name: petStore
 Root: .
 Output path: ./src/gen
 Number of plugins: 5
 
-[log] [petStore] [plugin-oas] Installing plugin
+[2024-12-17T10:33:45.234Z] [plugin] [plugin-oas] Installing plugin
 Plugin key: ["plugin-oas",1]
 
-[log] [petStore] [plugin-oas] Plugin installed successfully in 351ms
+[2024-12-17T10:33:45.585Z] [plugin] [plugin-oas] Plugin installed successfully in 351ms
 
-[log] [petStore] [plugin-ts] Building schemas
+[2024-12-17T10:33:45.750Z] [schema] [plugin-ts] Building schemas
 Total schemas: 12
 Content type: default
 Includes: all
 Generators: 1
-
-[log] [petStore] Barrel file generated with 356 exports
-
-[log] [petStore] Starting file write process
-Total files to write: 18
-
-[log] [petStore] File write process completed
 ```
+
+Example debug output:
+```
+┌  Generation started
+
+◇  Starting plugin-oas...
+◒  ████████ Generating...
+◇  plugin-oas completed in 487ms
+
+◇  Starting plugin-ts...
+◓  ████████ Generating...
+◇  plugin-ts completed in 186ms
+
+└  Build completed
+
+Plugins:        2 successful, 2 total
+Generated:      18 files in 0.673s
+Plugin Timings:
+  ████ plugin-oas: 487ms
+  ███ plugin-ts: 186ms
+Output:         .
+```
+
+**Claude-Inspired Features:**
+- Task status icons (✓ success, ✗ error, ⚠ warning, ◐ in-progress, ℹ info)
+- Real-time progress bars for plugin execution and file writing
+- Contextual error messages with stack traces
+- Error/warning counters in summary
+- Human-readable durations (<1s: ms, >=1s: seconds)
+- Single-level indentation respecting Clack constraints
 
 ### Performance Analysis
 
