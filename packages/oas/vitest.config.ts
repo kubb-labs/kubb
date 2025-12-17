@@ -1,4 +1,4 @@
-import path from 'node:path'
+import tsconfigPaths from 'vite-tsconfig-paths'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -6,9 +6,5 @@ export default defineConfig({
     dir: './src',
     globals: true,
   },
-  resolve: {
-    alias: {
-      '@kubb/core/utils': path.resolve(__dirname, '../core/dist/utils.js'),
-    },
-  },
+  plugins: [tsconfigPaths()],
 })
