@@ -1,5 +1,17 @@
 # @kubb/plugin-cypress
 
+## 4.11.3
+
+### Patch Changes
+
+- [#2179](https://github.com/kubb-labs/kubb/pull/2179) [`c1e3e1e`](https://github.com/kubb-labs/kubb/commit/c1e3e1ec3a2fb5162fbb01475a0b1d1a252b96b5) Thanks [@Ericlm](https://github.com/Ericlm)! - Add an options param to generated requests, accepting the same options as https://docs.cypress.io/api/commands/request#Arguments
+
+- Updated dependencies []:
+  - @kubb/core@4.11.3
+  - @kubb/oas@4.11.3
+  - @kubb/plugin-oas@4.11.3
+  - @kubb/plugin-ts@4.11.3
+
 ## 4.11.2
 
 ### Patch Changes
