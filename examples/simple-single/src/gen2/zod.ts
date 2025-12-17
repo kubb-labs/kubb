@@ -1234,6 +1234,11 @@ export const machinesPatchMetadata204Schema = z.any()
  */
 export const machinesPatchMetadata400Schema = z.lazy(() => errorResponseSchema)
 
+/**
+ * @description Precondition Failed
+ */
+export const machinesPatchMetadata412Schema = z.lazy(() => errorResponseSchema)
+
 export const machinesPatchMetadataMutationResponseSchema = z.lazy(() => machinesPatchMetadata204Schema)
 
 export const machinesUpdateMetadataPathParamsSchema = z.object({

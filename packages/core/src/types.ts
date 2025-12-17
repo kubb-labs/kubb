@@ -1,7 +1,8 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
-import type { Logger } from './logger.ts'
+import type { KubbEvents } from './Kubb.ts'
 import type { PluginManager } from './PluginManager.ts'
+import type { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
 import type { PossiblePromise } from './utils/types.ts'
 
 declare global {
@@ -299,7 +300,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * merging multiple sources into the same output file
    */
   upsertFile: (...file: Array<KubbFile.File>) => Promise<void>
-  logger: Logger
+  events: AsyncEventEmitter<KubbEvents>
   mode: KubbFile.Mode
   /**
    * Current plugin
@@ -343,3 +344,35 @@ export type Group = {
    */
   name?: (context: GroupContext) => string
 }
+
+export const LogLevel = {
+  silent: Number.NEGATIVE_INFINITY,
+  error: 0,
+  warn: 1,
+  info: 3,
+  verbose: 4,
+  debug: 5,
+} as const
+
+export type LoggerOptions = {
+  /**
+   * @default 3
+   */
+  logLevel: (typeof LogLevel)[keyof typeof LogLevel]
+}
+
+/**
+ * Shared context passed to all plugins, parsers, and Fabric internals.
+ */
+export interface LoggerContext extends AsyncEventEmitter<KubbEvents> {}
+
+type Install<TOptions = unknown> = (context: LoggerContext, options?: TOptions) => void | Promise<void>
+
+export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
+  name: string
+  install: Install<TOptions>
+}
+
+export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Omit<Logger<TOptions>, 'logLevel'>
+
+export type { KubbEvents } from './Kubb.ts'

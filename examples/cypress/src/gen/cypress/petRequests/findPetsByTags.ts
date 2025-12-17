@@ -5,6 +5,13 @@
 
 import type { FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
 
-export function findPetsByTags(): Cypress.Chainable<FindPetsByTagsQueryResponse> {
-  return cy.request('get', 'http://localhost:3000/pet/findByTags', undefined).then((res: Cypress.Response<FindPetsByTagsQueryResponse>) => res.body)
+export function findPetsByTags(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<FindPetsByTagsQueryResponse> {
+  return cy
+    .request({
+      method: 'get',
+      url: 'http://localhost:3000/pet/findByTags',
+      body: undefined,
+      ...options,
+    })
+    .then((res: Cypress.Response<FindPetsByTagsQueryResponse>) => res.body)
 }

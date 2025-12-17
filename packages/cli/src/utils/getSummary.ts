@@ -1,8 +1,8 @@
 import path from 'node:path'
 import type { Config, Plugin } from '@kubb/core'
-import { randomCliColour } from '@kubb/core/logger'
 import pc from 'picocolors'
 import { parseHrtimeToSeconds } from './parseHrtimeToSeconds.ts'
+import { randomCliColour } from './randomColour.ts'
 
 type SummaryProps = {
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
@@ -14,7 +14,6 @@ type SummaryProps = {
 }
 
 export function getSummary({ failedPlugins, filesCreated, status, hrStart, config, pluginTimings }: SummaryProps): string[] {
-  const logs = new Set<string>()
   const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrStart))
 
   const pluginsCount = config.plugins?.length || 0
@@ -27,69 +26,48 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
         : `${pc.green(`${successCount} successful`)}, ${pc.red(`${failedPlugins.size} failed`)}, ${pluginsCount} total`,
     pluginsFailed: status === 'failed' ? [...failedPlugins]?.map(({ plugin }) => randomCliColour(plugin.name))?.join(', ') : undefined,
     filesCreated: filesCreated,
-    time: `${pc.yellow(`${elapsedSeconds}s`)}`,
+    time: `${elapsedSeconds}s`,
     output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
   } as const
 
-  // Calculate label padding for perfect alignment
   const labels = {
     plugins: 'Plugins:',
     failed: 'Failed:',
     generated: 'Generated:',
+    pluginTimings: 'Plugin Timings:',
     output: 'Output:',
   }
-  const maxLabelLength = Math.max(...Object.values(labels).map((l) => l.length))
+  const maxLength = Math.max(0, ...[...Object.values(labels), ...(pluginTimings ? Array.from(pluginTimings.keys()) : [])].map((s) => s.length))
 
-  const summaryLines: Array<[string, boolean]> = [
-    [`${pc.bold(labels.plugins.padEnd(maxLabelLength))} ${meta.plugins}`, true],
-    [`${pc.dim(labels.failed.padEnd(maxLabelLength))} ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
-    [`${pc.bold(labels.generated.padEnd(maxLabelLength))} ${meta.filesCreated} files in ${meta.time}`, true],
-  ]
+  const summaryLines: string[] = []
+  summaryLines.push(`${labels.plugins.padEnd(maxLength + 2)} ${meta.plugins}`)
 
-  // Add plugin timing breakdown if available
+  if (meta.pluginsFailed) {
+    summaryLines.push(`${labels.failed.padEnd(maxLength + 2)} ${meta.pluginsFailed}`)
+  }
+
+  summaryLines.push(`${labels.generated.padEnd(maxLength + 2)} ${meta.filesCreated} files in ${meta.time}`)
+
   if (pluginTimings && pluginTimings.size > 0) {
-    const MAX_TOP_PLUGINS = 5
-    const TIME_SCALE_DIVISOR = 100 // Each 100ms = 1 bar character
-    const MAX_BAR_LENGTH = 20
+    const TIME_SCALE_DIVISOR = 100
+    const MAX_BAR_LENGTH = 10
 
-    const sortedTimings = Array.from(pluginTimings.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, MAX_TOP_PLUGINS)
+    const sortedTimings = Array.from(pluginTimings.entries()).sort((a, b) => b[1] - a[1])
 
     if (sortedTimings.length > 0) {
-      summaryLines.push(['Plugin Timings:', true])
-
-      // Find the longest plugin name for alignment
-      const maxNameLength = Math.max(...sortedTimings.map(([name]) => name.length))
-
-      // Indent plugin timing bars to align with summary values (e.g., "7 successful", "60 files")
-      const indent = ' '.repeat(maxLabelLength + 1)
+      summaryLines.push(`${labels.pluginTimings}`)
 
       sortedTimings.forEach(([name, time]) => {
         const timeStr = time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${Math.round(time)}ms`
         const barLength = Math.min(Math.ceil(time / TIME_SCALE_DIVISOR), MAX_BAR_LENGTH)
-        const bar = '█'.repeat(barLength)
+        const bar = pc.dim('█'.repeat(barLength))
 
-        // Right-align plugin names, left-align bars, with consistent spacing
-        const paddedName = name.padStart(maxNameLength, ' ')
-        summaryLines.push([`${indent}${randomCliColour(paddedName)} ${pc.dim(bar)} ${pc.yellow(timeStr)}`, true])
+        summaryLines.push(`${pc.dim('•')} ${name.padEnd(maxLength + 1)}${bar} ${timeStr}`)
       })
     }
   }
 
-  summaryLines.push([`${pc.bold(labels.output.padEnd(maxLabelLength))} ${meta.output}`, true])
+  summaryLines.push(`${labels.output.padEnd(maxLength + 2)} ${meta.output}`)
 
-  logs.add(
-    summaryLines
-      .map((item) => {
-        if (item.at(1)) {
-          return item.at(0)
-        }
-        return undefined
-      })
-      .filter(Boolean)
-      .join('\n'),
-  )
-
-  return [...logs]
+  return summaryLines
 }

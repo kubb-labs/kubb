@@ -1,18 +1,19 @@
 import path from 'node:path'
 import * as process from 'node:process'
-import { isInputPath, PromiseManager } from '@kubb/core'
-import { createLogger, LogMapper } from '@kubb/core/logger'
+import * as clack from '@clack/prompts'
+import { isInputPath, type KubbEvents, LogLevel, PromiseManager } from '@kubb/core'
+import { AsyncEventEmitter } from '@kubb/core/utils'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
-import type { SingleBar } from 'cli-progress'
+import getLatestVersion from 'latest-version'
 import pc from 'picocolors'
+import { lt } from 'semver'
+import { version } from '../../package.json'
+import { setupLogger } from '../loggers/utils.ts'
+import { generate } from '../runners/generate.ts'
 import { getConfig } from '../utils/getConfig.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { startWatcher } from '../utils/watcher.ts'
-
-declare global {
-  var isDevtoolsEnabled: any
-}
 
 const args = {
   config: {
@@ -62,11 +63,10 @@ const command = defineCommand({
   },
   args,
   async run(commandContext) {
-    const progressCache = new Map<string, SingleBar>()
-
     const { args } = commandContext
-
     const input = args._[0]
+    const events = new AsyncEventEmitter<KubbEvents>()
+    const promiseManager = new PromiseManager()
 
     if (args.help) {
       return showUsage(command)
@@ -80,75 +80,62 @@ const command = defineCommand({
       args.logLevel = 'verbose'
     }
 
-    const logLevel = LogMapper[args.logLevel as keyof typeof LogMapper] || 3
-    const logger = createLogger({
-      logLevel,
-    })
-    const { generate } = await import('../runners/generate.ts')
+    const logLevel = LogLevel[args.logLevel as keyof typeof LogLevel] || 3
 
-    logger.emit('start', 'Loading config')
+    await setupLogger(events, { logLevel })
 
-    const result = await getCosmiConfig('kubb', args.config)
-    logger.emit('success', `Config loaded(${pc.dim(path.relative(process.cwd(), result.filepath))})`)
+    const latestVersion = await getLatestVersion('@kubb/cli')
 
-    const config = await getConfig(result, args)
+    if (lt(version, latestVersion)) {
+      await events.emit('version:new', version, latestVersion)
+    }
 
-    const start = async () => {
-      if (Array.isArray(config)) {
-        const promiseManager = new PromiseManager()
-        const promises = config.map((c) => () => {
-          progressCache.clear()
+    try {
+      await events.emit('lifecycle:start', version)
 
-          return generate({
+      await events.emit('config:start')
+
+      const result = await getCosmiConfig('kubb', args.config)
+
+      await events.emit('info', 'Config loaded', path.relative(process.cwd(), result.filepath))
+
+      const config = await getConfig(result, args)
+      const configs = Array.isArray(config) ? config : [config]
+
+      await events.emit('success', 'Config loaded successfully', path.relative(process.cwd(), result.filepath))
+      await events.emit('config:end', configs)
+
+      const promises = configs.map((config) => {
+        return async () => {
+          if (isInputPath(config) && args.watch) {
+            await startWatcher([input || config.input.path], async (paths) => {
+              await generate({
+                input,
+                config,
+                logLevel,
+                events,
+              })
+
+              clack.log.step(pc.yellow(`Watching for changes in ${paths.join(' and ')}`))
+            })
+
+            return
+          }
+
+          await generate({
             input,
-            config: c,
-            args,
-            progressCache,
+            config,
+            logLevel,
+            events,
           })
-        })
-
-        await promiseManager.run('seq', promises)
-        return
-      }
-
-      progressCache.clear()
-
-      await generate({
-        input,
-        config,
-        progressCache,
-        args,
+        }
       })
 
-      return
-    }
+      await promiseManager.run('seq', promises)
 
-    if (args.watch) {
-      if (Array.isArray(config)) {
-        throw new Error('Cannot use watcher with multiple Configs(array)')
-      }
-
-      if (isInputPath(config)) {
-        return startWatcher([input || config.input.path], async (paths) => {
-          await start()
-          logger.emit('start', pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
-        })
-      }
-    }
-
-    await start()
-
-    if (globalThis.isDevtoolsEnabled) {
-      const canRestart = await logger.consola?.prompt('Restart(could be used to validate the profiler)?', {
-        type: 'confirm',
-        initial: false,
-      })
-
-      if (canRestart) {
-        await start()
-      } else {
-        process.exit(1)
-      }
+      await events.emit('lifecycle:end')
+    } catch (e) {
+      await events.emit('error', e as Error)
     }
   },
 })

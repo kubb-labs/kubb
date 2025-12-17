@@ -85,7 +85,7 @@ export const pluginCypress = definePlugin<PluginCypress>((options) => {
         fabric: this.fabric,
         oas,
         pluginManager: this.pluginManager,
-        logger: this.logger,
+        events: this.events,
         plugin: this.plugin,
         contentType,
         exclude,
@@ -104,7 +104,6 @@ export const pluginCypress = definePlugin<PluginCypress>((options) => {
         meta: {
           pluginKey: this.plugin.key,
         },
-        logger: this.logger,
       })
 
       await this.upsertFile(...barrelFiles)

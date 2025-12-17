@@ -1,9 +1,9 @@
 import { createFabric } from '@kubb/react-fabric'
 import { definePlugin } from './definePlugin.ts'
-import { createLogger } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
 
-import type { Config, Plugin } from './types.ts'
+import type { Config, KubbEvents, Plugin } from './types.ts'
+import { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
 
 describe('PluginManager', () => {
   const pluginAMocks = {
@@ -85,7 +85,7 @@ describe('PluginManager', () => {
   } satisfies Config
   const pluginManager = new PluginManager(config, {
     fabric: createFabric(),
-    logger: createLogger({ logLevel: 3 }),
+    events: new AsyncEventEmitter<KubbEvents>(),
   })
 
   afterEach(() => {

@@ -31,7 +31,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       oas,
       plugin,
       pluginManager,
-      logger: generator.context.logger,
+      events: generator.context.events,
       mode,
       override: options.override,
     })

@@ -5,6 +5,13 @@
 
 import type { DeleteUserMutationResponse } from '../../models/DeleteUser.ts'
 
-export function deleteUser(): Cypress.Chainable<DeleteUserMutationResponse> {
-  return cy.request('delete', 'http://localhost:3000/user/:username', undefined).then((res: Cypress.Response<DeleteUserMutationResponse>) => res.body)
+export function deleteUser(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<DeleteUserMutationResponse> {
+  return cy
+    .request({
+      method: 'delete',
+      url: 'http://localhost:3000/user/:username',
+      body: undefined,
+      ...options,
+    })
+    .then((res: Cypress.Response<DeleteUserMutationResponse>) => res.body)
 }

@@ -5,6 +5,13 @@
 
 import type { GetInventoryQueryResponse } from '../../models/GetInventory.ts'
 
-export function getInventory(): Cypress.Chainable<GetInventoryQueryResponse> {
-  return cy.request('get', 'http://localhost:3000/store/inventory', undefined).then((res: Cypress.Response<GetInventoryQueryResponse>) => res.body)
+export function getInventory(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetInventoryQueryResponse> {
+  return cy
+    .request({
+      method: 'get',
+      url: 'http://localhost:3000/store/inventory',
+      body: undefined,
+      ...options,
+    })
+    .then((res: Cypress.Response<GetInventoryQueryResponse>) => res.body)
 }

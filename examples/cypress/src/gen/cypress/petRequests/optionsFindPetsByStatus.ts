@@ -5,8 +5,13 @@
 
 import type { OptionsFindPetsByStatusMutationResponse } from '../../models/OptionsFindPetsByStatus.ts'
 
-export function optionsFindPetsByStatus(): Cypress.Chainable<OptionsFindPetsByStatusMutationResponse> {
+export function optionsFindPetsByStatus(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<OptionsFindPetsByStatusMutationResponse> {
   return cy
-    .request('options', 'http://localhost:3000/pet/findByStatus', undefined)
+    .request({
+      method: 'options',
+      url: 'http://localhost:3000/pet/findByStatus',
+      body: undefined,
+      ...options,
+    })
     .then((res: Cypress.Response<OptionsFindPetsByStatusMutationResponse>) => res.body)
 }

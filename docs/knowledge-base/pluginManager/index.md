@@ -56,11 +56,6 @@ Array of all executed plugins.
 
 - **Type:** `Array<Executer>` <br/>
 
-### pluginManager.logger
-
-Instance of the logger.
-
-- **Type:** `Logger` <br/>
 
 ### pluginManager.resolvePath
 

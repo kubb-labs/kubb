@@ -3,6 +3,13 @@
  * Do not edit manually.
  */
 
-export function createPets(data: CreatePetsMutationRequest): Cypress.Chainable<CreatePetsMutationResponse> {
-  return cy.request('post', '/pets', data).then((res: Cypress.Response<CreatePetsMutationResponse>) => res.body)
+export function createPets(data: CreatePetsMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<CreatePetsMutationResponse> {
+  return cy
+    .request({
+      method: 'post',
+      url: '/pets',
+      body: data,
+      ...options,
+    })
+    .then((res: Cypress.Response<CreatePetsMutationResponse>) => res.body)
 }

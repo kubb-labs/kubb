@@ -5,6 +5,13 @@
 
 import type { LoginUserQueryResponse } from '../../models/LoginUser.ts'
 
-export function loginUser(): Cypress.Chainable<LoginUserQueryResponse> {
-  return cy.request('get', 'http://localhost:3000/user/login', undefined).then((res: Cypress.Response<LoginUserQueryResponse>) => res.body)
+export function loginUser(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<LoginUserQueryResponse> {
+  return cy
+    .request({
+      method: 'get',
+      url: 'http://localhost:3000/user/login',
+      body: undefined,
+      ...options,
+    })
+    .then((res: Cypress.Response<LoginUserQueryResponse>) => res.body)
 }

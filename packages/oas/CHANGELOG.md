@@ -1,5 +1,13 @@
 # @kubb/oas
 
+## 4.11.3
+
+## 4.11.2
+
+### Patch Changes
+
+- [#2173](https://github.com/kubb-labs/kubb/pull/2173) [`c71df32`](https://github.com/kubb-labs/kubb/commit/c71df32646b1f4dbfa0d94f2f411ae114e0afac4) Thanks [@stepek](https://github.com/stepek)! - Fix issue with not initialized oasClass
+
 ## 4.11.1
 
 ## 4.11.0
