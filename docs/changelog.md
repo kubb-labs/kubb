@@ -24,7 +24,7 @@ All notable changes to Kubb are documented here. Each version is organized with 
 Added TypeScript as a peerDependency to ensure proper compatibility with the `mapper` option. The `mapper` feature uses TypeScript's compiler API (specifically `ts.PropertySignature` and `factory` methods), which requires TypeScript to be installed in the consuming project.
 
 ::: warning
-If you're using the `mapper` option in `@kubb/plugin-ts`, ensure you have TypeScript >=5.0.0 installed in your project.
+If you're using the `mapper` option in `@kubb/plugin-ts`, ensure you have TypeScript >=5.9.0 installed in your project.
 :::
 
 ::: code-group
