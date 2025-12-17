@@ -1,5 +1,23 @@
 # @kubb/cli
 
+## 4.12.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.12.1
+
+## 4.12.0
+
+### Minor Changes
+
+- [#2165](https://github.com/kubb-labs/kubb/pull/2165) [`d16354c`](https://github.com/kubb-labs/kubb/commit/d16354c4afc013e47b0ee935efdc526d908de617) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Replace cli-progress and consola with @clack/prompts for modern interactive progress bars. Introduces flexible logger pattern with Claude-inspired CLI and GitHub Actions support.
+
+### Patch Changes
+
+- Updated dependencies [[`d16354c`](https://github.com/kubb-labs/kubb/commit/d16354c4afc013e47b0ee935efdc526d908de617)]:
+  - @kubb/core@4.12.0
+
 ## 4.11.3
 
 ### Patch Changes

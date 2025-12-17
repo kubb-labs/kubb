@@ -23,12 +23,6 @@ const logMapper = {
   'github-actions': githubActionsLogger,
 } as const satisfies Record<LoggerType, Logger>
 
-export function getLoggerByEnvironment(): Logger {
-  const type = detectLogger()
-
-  return logMapper[type]
-}
-
 export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOptions): Promise<void> {
   const type = detectLogger()
 

@@ -7,7 +7,7 @@ export function showPetById(options?: Partial<Cypress.RequestOptions>): Cypress.
   return cy
     .request({
       method: 'get',
-      url: '/pets/:petId',
+      url: `/pets/:petId`,
       body: undefined,
       ...options,
     })

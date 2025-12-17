@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
 import path from 'node:path'
 import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
@@ -18,6 +19,17 @@ describe('queryGenerator operation', async () => {
       path: '/pet/findByTags',
       method: 'get',
       options: {},
+    },
+    {
+      name: 'findByTagsTemplateString',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        client: {
+          baseURL: '${123456}',
+        },
+      },
     },
     {
       name: 'findByTagsPathParamsObject',

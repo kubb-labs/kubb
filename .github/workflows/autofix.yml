@@ -1,0 +1,61 @@
+name: autofix.ci
+
+on:
+  pull_request:
+  push:
+    branches: ["main", "alpha", "beta", "rc"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  autofix:
+    name: Lint and format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Setup
+        uses: ./.github/setup
+
+      - name: Fix formatting
+        run: pnpm run format
+
+      - name: Fix linting
+        run: pnpm run lint:fix
+
+      - name: Apply fixes
+        uses: autofix-ci/action@v1
+        with:
+          commit-message: 'ci: apply linting and formating'
+
+  examples:
+    name: Generate examples
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Setup
+        uses: ./.github/setup
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Fix generating
+        run: pnpm run generate
+
+      - name: Apply fixes
+        uses: autofix-ci/action@635ffb0c9798bd160680f18fd73371e355b85f27
+        with:
+          commit-message: 'ci: apply auto update examples'
+          comment: true

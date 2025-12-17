@@ -7,7 +7,7 @@ export function createPets(data: CreatePetsMutationRequest, options?: Partial<Cy
   return cy
     .request({
       method: 'post',
-      url: '/pets',
+      url: `/pets`,
       body: data,
       ...options,
     })

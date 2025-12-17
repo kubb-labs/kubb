@@ -7,7 +7,7 @@ export function listPets(options?: Partial<Cypress.RequestOptions>): Cypress.Cha
   return cy
     .request({
       method: 'get',
-      url: `/pets`,
+      url: `${123456}/pets`,
       body: undefined,
       ...options,
     })

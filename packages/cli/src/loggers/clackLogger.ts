@@ -210,7 +210,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       stopSpinner()
 
-      const text = getMessage(`Writing ${files.length} files`)
+      const text = `Writing ${files.length} files`
       const progressBar = clack.progress({
         style: 'block',
         max: files.length,
@@ -218,7 +218,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       })
 
       context.emit('info', text)
-      progressBar.start(text)
+      progressBar.start(getMessage(text))
       activeProgress.set('files', { progressBar })
     })
 

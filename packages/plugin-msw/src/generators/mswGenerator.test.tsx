@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
 import path from 'node:path'
 import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
@@ -23,6 +24,15 @@ describe('mswGenerator operation', async () => {
       path: '/pets',
       method: 'get',
       options: {},
+    },
+    {
+      name: 'getPetsTemplateBaseUrl',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
+      options: {
+        baseURL: '${123456}',
+      },
     },
     {
       name: 'getPetsFaker',

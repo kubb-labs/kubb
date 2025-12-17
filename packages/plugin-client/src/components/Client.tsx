@@ -163,7 +163,7 @@ export function Client({
         baseURL:
           baseURL && !urlName
             ? {
-                value: JSON.stringify(baseURL),
+                value: `\`${baseURL}\``,
               }
             : undefined,
         params: typeSchemas.queryParams?.name ? {} : undefined,

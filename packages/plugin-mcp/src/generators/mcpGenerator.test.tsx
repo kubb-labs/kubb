@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
 import path from 'node:path'
 import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
@@ -23,6 +24,17 @@ describe('mcpGenerator operation', async () => {
       path: '/pets',
       method: 'get',
       options: {},
+    },
+    {
+      name: 'getPetsTemplateString',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
+      options: {
+        client: {
+          baseURL: '${123456}',
+        },
+      },
     },
     {
       name: 'createPet',
