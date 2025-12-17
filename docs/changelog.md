@@ -15,6 +15,38 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.12.4
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+Fixed handling of empty schema objects `{}` in `anyOf`, `oneOf`, and `allOf` constructs.
+
+Empty schema objects (`{}`) in JSON Schema represent "accepts any value" per the specification, but were being incorrectly filtered out from unions and intersections. This caused schemas like `anyOf: [{}, {type: "null"}]` to generate only `null` instead of the correct `unknown | null`.
+
+::: code-group
+```typescript [Before]
+export type ParameterBinding = {
+  /**
+   * @description The fixed value when source is FIXED.
+   */
+  fixed_value?: null;  // Missing unknown type
+}
+```
+
+```typescript [After]
+export type ParameterBinding = {
+  /**
+   * @description The fixed value when source is FIXED.
+   */
+  fixed_value?: unknown | null;  // Correct union type
+}
+```
+:::
+
+The fix ensures that empty schemas are properly preserved as the configured `unknownType` (or `emptySchemaType`) in the generated types, matching the JSON Schema specification.
+
 ## 4.12.3
 
 ### 🐛 Bug Fixes
