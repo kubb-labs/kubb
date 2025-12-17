@@ -779,6 +779,24 @@ export class SchemaGenerator<
     }
 
     if (schemaObject.enum) {
+      // Handle malformed schema where enum exists at array level instead of in items
+      // This normalizes: { type: 'array', enum: [...], items: {...} }
+      // Into: { type: 'array', items: { type: 'string', enum: [...] } }
+      if (schemaObject.type === 'array' || 'items' in schemaObject) {
+        const normalizedItems = {
+          ...(typeof schemaObject.items === 'object' ? schemaObject.items : {}),
+          enum: schemaObject.enum,
+        } as SchemaObject
+        
+        const normalizedSchema = {
+          ...schemaObject,
+          enum: undefined,
+          items: normalizedItems,
+        } as SchemaObject
+        
+        return this.parse({ schemaObject: normalizedSchema, name, parentName })
+      }
+
       if (options.enumSuffix === '') {
         this.context.events?.emit('info', 'EnumSuffix set to an empty string does not work')
       }

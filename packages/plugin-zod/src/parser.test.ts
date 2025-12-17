@@ -220,4 +220,32 @@ describe('zod parse', () => {
       expect(text).toBe('.default()')
     })
   })
+
+  describe('array of enums', () => {
+    test('array with enum items should wrap enum in z.array()', () => {
+      const schema = {
+        keyword: schemaKeywords.array,
+        args: {
+          items: [
+            {
+              keyword: schemaKeywords.enum,
+              args: {
+                name: 'TestArrayEnum',
+                typeName: 'TestArrayEnum',
+                asConst: false,
+                items: [
+                  { name: '"foo"', value: 'foo', format: 'string' },
+                  { name: '"bar"', value: 'bar', format: 'string' },
+                  { name: '"baz"', value: 'baz', format: 'string' },
+                ],
+              },
+            },
+          ],
+          unique: false,
+        },
+      }
+      const text = parserZod.parse({ name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] }, { version: '3' })
+      expect(text).toBe('z.array(z.enum(["foo", "bar", "baz"]))')
+    })
+  })
 })
