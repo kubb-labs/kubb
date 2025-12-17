@@ -278,4 +278,42 @@ describe('SchemaGenerator core', async () => {
 
     expect(SchemaGenerator.combineObjects(input)).toMatchSnapshot()
   })
+
+  test('array of enums with malformed schema (enum at array level)', async () => {
+    const oas = await parse(path.resolve(__dirname, '../mocks/petStore.yaml'))
+
+    // Malformed schema: enum at same level as type: array
+    // This should be normalized to: { type: 'array', items: { type: 'string', enum: [...] } }
+    const malformedSchema = {
+      type: 'array',
+      enum: ['foo', 'bar', 'baz'],
+      items: {
+        type: 'string',
+      },
+    }
+
+    const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
+      emptySchemaType: 'unknown',
+      dateType: 'date',
+      transformers: {},
+      unknownType: 'unknown',
+    }
+    const plugin = { options } as Plugin<any>
+    const fabric = createReactFabric()
+
+    const generator = new SchemaGenerator(options, {
+      fabric,
+      oas,
+      include: undefined,
+      pluginManager: mockedPluginManager,
+      plugin,
+      contentType: undefined,
+      override: undefined,
+      mode: 'split',
+    })
+
+    const tree = generator.parse({ schemaObject: malformedSchema as any, name: 'TestArrayEnum' })
+
+    expect(tree).toMatchSnapshot()
+  })
 })

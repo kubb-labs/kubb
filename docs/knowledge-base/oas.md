@@ -238,9 +238,31 @@ components:
           type: string
 ```
 
+5. **Array of enums**: When defining arrays with enum values, place the `enum` inside the `items` schema, not at the array level:
+
+```yaml
+# ❌ Incorrect (malformed schema)
+schema:
+  type: array
+  enum: ["foo", "bar", "baz"]
+  items:
+    type: string
+
+# ✅ Correct
+schema:
+  type: array
+  items:
+    type: string
+    enum: ["foo", "bar", "baz"]
+```
+
+::: info
+Kubb automatically normalizes malformed array enum schemas (where `enum` is at the array level) by moving the enum into the items schema. This ensures correct TypeScript types (`Type[]`) and Zod schemas (`z.array(z.enum([...]))`) are generated.
+:::
+
 ### Organization
 
-5. **Use tags consistently**: Group related operations with tags for organized code generation. This helps Kubb create logical folder structures.
+6. **Use tags consistently**: Group related operations with tags for organized code generation. This helps Kubb create logical folder structures.
 
 ```yaml
 tags:
@@ -250,7 +272,7 @@ tags:
     description: User operations
 ```
 
-6. **Include descriptions**: Add descriptions to schemas, operations, and parameters for better generated documentation and code comments.
+7. **Include descriptions**: Add descriptions to schemas, operations, and parameters for better generated documentation and code comments.
 
 ```yaml
 paths:
@@ -263,7 +285,7 @@ paths:
 
 ### Versioning
 
-7. **Version your API**: Use semantic versioning in your API paths or headers:
+8. **Version your API**: Use semantic versioning in your API paths or headers:
 
 ```yaml
 servers:
@@ -271,7 +293,7 @@ servers:
     description: Production API v1
 ```
 
-8. **Document breaking changes**: Clearly mark deprecated endpoints and provide migration paths:
+9. **Document breaking changes**: Clearly mark deprecated endpoints and provide migration paths:
 
 ```yaml
 paths:
