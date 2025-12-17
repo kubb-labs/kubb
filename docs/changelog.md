@@ -17,6 +17,28 @@ All notable changes to Kubb are documented here. Each version is organized with 
 
 ## Unreleased
 
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-zod`](/plugins/zod/)
+
+Fixed Zod plugin to properly include `minLength`/`maxLength` constraints when a `pattern` (regex) is also present. Previously, string schemas with both length constraints and patterns would only generate the regex validation, ignoring the length constraints.
+
+::: code-group
+```typescript [Before]
+// Schema with minLength: 5, maxLength: 19, pattern: "^[A-Za-z0-9]+$"
+export const maxStringSchema = z.string().regex(/^[A-Za-z0-9]+$/)
+```
+
+```typescript [After]
+// Schema with minLength: 5, maxLength: 19, pattern: "^[A-Za-z0-9]+$"
+export const maxStringSchema = z.string().min(5).max(19).regex(/^[A-Za-z0-9]+$/)
+```
+:::
+
+This fix applies to all Zod versions:
+- **Version 3/4**: Generates `.min(x).max(y).regex(pattern)`
+- **Mini mode**: Generates `.check(z.minLength(x), z.maxLength(y), z.regex(pattern))`
+
 ### ✨ Features
 
 - **[`@kubb/core`](/plugins/core/)**, **[`@kubb/cli`](/helpers/cli/)** - Enhanced debug logs for better bug detection and CI support
