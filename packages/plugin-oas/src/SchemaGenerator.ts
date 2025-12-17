@@ -782,15 +782,16 @@ export class SchemaGenerator<
       // Handle malformed schema where enum exists at array level instead of in items
       // This normalizes: { type: 'array', enum: [...], items: {...} }
       // Into: { type: 'array', items: { type: 'string', enum: [...] } }
-      if (schemaObject.type === 'array' || 'items' in schemaObject) {
+      if (schemaObject.type === 'array') {
+        const isItemsObject = typeof schemaObject.items === 'object' && !Array.isArray(schemaObject.items)
         const normalizedItems = {
-          ...(typeof schemaObject.items === 'object' ? schemaObject.items : {}),
+          ...(isItemsObject ? schemaObject.items : {}),
           enum: schemaObject.enum,
         } as SchemaObject
 
+        const { enum: _, ...schemaWithoutEnum } = schemaObject
         const normalizedSchema = {
-          ...schemaObject,
-          enum: undefined,
+          ...schemaWithoutEnum,
           items: normalizedItems,
         } as SchemaObject
 
