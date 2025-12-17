@@ -29,9 +29,6 @@
     "typescript": "^5.9.3",
     "zod": "^4.2.1"
   },
-  "devDependencies": {
-    "typescript": "catalog:"
-  },
   "packageManager": "pnpm@10.18.3",
   "engines": {
     "node": ">=20",

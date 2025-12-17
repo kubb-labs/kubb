@@ -1,0 +1,11 @@
+'📚 documentation / examples':
+  - any:
+      [
+        'docs/**',
+        '!docs/**/package.json',
+        'examples/**',
+        '!examples/**/package.json',
+      ]
+
+'@kubb/core':
+  - any: ['packages/core/**', '!packages/core/package.json']

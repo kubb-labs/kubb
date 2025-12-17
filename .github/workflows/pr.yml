@@ -1,4 +1,4 @@
-name: Quality
+name: PR
 
 on:
   workflow_dispatch:
@@ -51,15 +51,15 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     needs: build
     steps:
-      - name: ⬇️ Check out code
+      - name: Check out code
         uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
-      - name: 🔧 Setup
-        uses: ./.github/setup
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
 
-      - name: 📦 Restore build artifacts
+      - name: Restore build artifacts
         uses: actions/cache/restore@v4
         with:
           path: |
@@ -67,10 +67,10 @@ jobs:
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
-      - name: 🔍 Typecheck
+      - name: Typecheck
         run: pnpm run typecheck
 
-      - name: 🔍 Typecheck examples
+      - name: Typecheck examples
         run: pnpm run typecheck:examples
 
   tests:
@@ -85,8 +85,8 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: 🔧 Setup
-        uses: ./.github/setup
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
