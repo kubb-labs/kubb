@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
 import path from 'node:path'
 import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
