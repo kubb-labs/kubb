@@ -83,7 +83,7 @@
     "zod": "^3.25.76"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.7.0"
+    "@kubb/react-fabric": "0.7.1"
   },
   "engines": {
     "node": ">=20"
