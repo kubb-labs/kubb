@@ -1,6 +1,5 @@
-import { defineLogger, LogLevel } from '@kubb/core'
+import { type Config, defineLogger, LogLevel } from '@kubb/core'
 import { execa } from 'execa'
-import { default as gradientString } from 'gradient-string'
 import pc from 'picocolors'
 
 /**
@@ -12,6 +11,7 @@ export const githubActionsLogger = defineLogger({
   install(context, options) {
     const logLevel = options?.logLevel || LogLevel.info
     const activeGroups = new Set<string>()
+    let currentConfigs: Array<Config> = []
 
     function getMessage(message: string): string {
       if (logLevel >= LogLevel.verbose) {
@@ -88,7 +88,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('lifecycle:start', (version) => {
-      console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(`Kubb ${version} 🧩`))
+      console.log(pc.yellow(`Kubb ${version} 🧩`))
     })
 
     context.on('config:start', () => {
@@ -101,7 +101,9 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('config:end', () => {
+    context.on('config:end', (configs) => {
+      currentConfigs = configs
+
       if (logLevel <= LogLevel.silent) {
         return
       }
@@ -114,15 +116,23 @@ export const githubActionsLogger = defineLogger({
     context.on('generation:start', (name) => {
       const text = getMessage(['Generation started', name ? `for ${pc.dim(name)}` : undefined].filter(Boolean).join(' '))
 
+      if (currentConfigs.length > 0) {
+        openGroup(`Generation: ${name || ''}`)
+      }
       console.log(text)
-      openGroup(`Generation: ${name || ''}`)
     })
 
     context.on('plugin:start', (plugin) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      openGroup(`Plugin: ${plugin.name}`)
+      const text = getMessage(`Generating ${pc.bold(plugin.name)}`)
+
+      if (currentConfigs.length === 0) {
+        openGroup(`Plugin: ${plugin.name}`)
+      }
+
+      console.log(text)
     })
 
     context.on('plugin:end', (plugin, duration) => {
@@ -134,14 +144,18 @@ export const githubActionsLogger = defineLogger({
 
       console.log(text)
 
-      closeGroup(`Plugin: ${plugin.name}`)
+      if (currentConfigs.length === 0) {
+        closeGroup(`Plugin: ${plugin.name}`)
+      }
     })
 
-    context.on('files:processing:start', ({ files }) => {
+    context.on('files:processing:start', (files) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      openGroup('File Generation')
+      if (currentConfigs.length === 0) {
+        openGroup('File Generation')
+      }
       const text = getMessage(`Writing ${files.length} files`)
 
       console.log(text)
@@ -154,14 +168,20 @@ export const githubActionsLogger = defineLogger({
       const text = getMessage('Files written successfully')
 
       console.log(text)
-      closeGroup('File Generation')
+
+      if (currentConfigs.length === 0) {
+        closeGroup('File Generation')
+      }
     })
 
     context.on('generation:end', (name) => {
-      const text = getMessage(name ? `✓ Generation completed for ${pc.dim(name)}` : '✓ Generation completed')
+      const text = getMessage(name ? `${pc.blue('✓')} Generation completed for ${pc.dim(name)}` : `${pc.blue('✓')} Generation completed`)
 
       console.log(text)
-      closeGroup(`Generation: ${name || ''}`)
+
+      if (currentConfigs.length > 0) {
+        closeGroup(`Generation: ${name || ''}`)
+      }
     })
 
     context.on('generation:summary', ({ config, status, failedPlugins }) => {
@@ -170,8 +190,8 @@ export const githubActionsLogger = defineLogger({
 
       console.log(
         status === 'success'
-          ? `Kubb Summary: ✓ ${`${successCount} successful`}, ${pluginsCount} total`
-          : `Kubb Summary: ✓ ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total`,
+          ? `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ${pluginsCount} total`
+          : `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total`,
       )
     })
 

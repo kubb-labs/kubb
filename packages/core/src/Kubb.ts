@@ -73,7 +73,7 @@ export interface KubbEvents {
   /**
    * Emitted when configuration loading is complete.
    */
-  'config:end': []
+  'config:end': [configs: Array<Config>]
 
   /**
    * Emitted when code generation phase starts.
@@ -181,7 +181,7 @@ export interface KubbEvents {
    * Emitted when file processing starts.
    * Contains the list of files to be processed.
    */
-  'files:processing:start': [{ files: KubbFile.ResolvedFile[] }]
+  'files:processing:start': [files: Array<KubbFile.ResolvedFile>]
 
   /**
    * Emitted for each file being processed, providing progress updates.
@@ -211,7 +211,7 @@ export interface KubbEvents {
    * Emitted when file processing completes.
    * Contains the list of processed files.
    */
-  'files:processing:end': [{ files: KubbFile.ResolvedFile[] }]
+  'files:processing:end': [files: KubbFile.ResolvedFile[]]
 
   /**
    * Emitted when a plugin starts executing.

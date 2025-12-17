@@ -89,7 +89,7 @@ export async function parse(
     const config = await loadConfig()
     const bundleResults = await bundle({ ref: pathOrApi, config, base: pathOrApi })
 
-    return parse(bundleResults.bundle.parsed as string, {oasClass, canBundle, enablePaths })
+    return parse(bundleResults.bundle.parsed as string, { oasClass, canBundle, enablePaths })
   }
 
   const oasNormalize = new OASNormalize(pathOrApi, {

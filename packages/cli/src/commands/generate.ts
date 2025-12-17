@@ -103,7 +103,7 @@ const command = defineCommand({
       const configs = Array.isArray(config) ? config : [config]
 
       await events.emit('success', 'Config loaded successfully', path.relative(process.cwd(), result.filepath))
-      await events.emit('config:end')
+      await events.emit('config:end', configs)
 
       const promises = configs.map((config) => {
         return async () => {

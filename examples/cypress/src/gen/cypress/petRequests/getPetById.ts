@@ -5,6 +5,13 @@
 
 import type { GetPetByIdQueryResponse } from '../../models/GetPetById.ts'
 
-export function getPetById(): Cypress.Chainable<GetPetByIdQueryResponse> {
-  return cy.request('get', 'http://localhost:3000/pet/:petId', undefined).then((res: Cypress.Response<GetPetByIdQueryResponse>) => res.body)
+export function getPetById(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetPetByIdQueryResponse> {
+  return cy
+    .request({
+      method: 'get',
+      url: 'http://localhost:3000/pet/:petId',
+      body: undefined,
+      ...options,
+    })
+    .then((res: Cypress.Response<GetPetByIdQueryResponse>) => res.body)
 }

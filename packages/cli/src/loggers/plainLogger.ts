@@ -132,7 +132,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('files:processing:start', ({ files }) => {
+    context.on('files:processing:start', (files) => {
       if (logLevel <= LogLevel.silent) {
         return
       }

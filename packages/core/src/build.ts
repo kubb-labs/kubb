@@ -112,11 +112,11 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   fabric.use(fsPlugin, { dryRun: !definedConfig.output.write })
   fabric.use(typescriptParser)
 
-  fabric.context.on('files:processing:start', (params) => {
-    events.emit('files:processing:start', params)
+  fabric.context.on('files:processing:start', (files) => {
+    events.emit('files:processing:start', files)
     events.emit('debug', {
       date: new Date(),
-      logs: [`Writing ${params.files.length} files...`],
+      logs: [`Writing ${files.length} files...`],
     })
   })
 
@@ -129,8 +129,8 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     }
   })
 
-  fabric.context.on('files:processing:end', async ({ files }) => {
-    await events.emit('files:processing:end', { files })
+  fabric.context.on('files:processing:end', async (files) => {
+    await events.emit('files:processing:end', files)
     await events.emit('debug', {
       date: new Date(),
       logs: ['✓ File write process completed'],

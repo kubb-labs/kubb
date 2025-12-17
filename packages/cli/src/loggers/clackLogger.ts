@@ -203,7 +203,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       activeProgress.delete(plugin.name)
     })
 
-    context.on('files:processing:start', ({ files }) => {
+    context.on('files:processing:start', (files) => {
       if (logLevel <= LogLevel.silent) {
         return
       }

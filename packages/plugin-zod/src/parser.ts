@@ -752,7 +752,13 @@ export const parse = createParser<string, ParserOptions>({
       const maxSchema = findSchemaKeyword(siblings, 'max')
 
       if (current.args) {
-        return zodKeywordMapper.matches(transformers.toRegExpString(current.args, null), shouldCoerce(options.coercion, 'strings'), options.mini, minSchema?.args, maxSchema?.args)
+        return zodKeywordMapper.matches(
+          transformers.toRegExpString(current.args, null),
+          shouldCoerce(options.coercion, 'strings'),
+          options.mini,
+          minSchema?.args,
+          maxSchema?.args,
+        )
       }
       return undefined
     },
