@@ -19,29 +19,6 @@ All notable changes to Kubb are documented here. Each version is organized with 
 
 ### 🐛 Bug Fixes
 
-#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
-
-Added TypeScript as a peerDependency to ensure proper compatibility with the `mapper` option. The `mapper` feature uses TypeScript's compiler API (specifically `ts.PropertySignature` and `factory` methods), which requires TypeScript to be installed in the consuming project.
-
-::: warning
-If you're using the `mapper` option in `@kubb/plugin-ts`, ensure you have TypeScript >=5.9.0 installed in your project.
-:::
-
-::: code-group
-```json [package.json]
-{
-  "dependencies": {
-    "@kubb/plugin-ts": "^4.12.2",
-    "typescript": "^5.9.3"
-  }
-}
-```
-:::
-
-## 4.12.1
-
-### 🐛 Bug Fixes
-
 #### [`@kubb/oas`](/api/oas/), [`@kubb/plugin-ts`](/plugins/plugin-ts/), [`@kubb/plugin-zod`](/plugins/plugin-zod/), [`@kubb/plugin-faker`](/plugins/plugin-faker/)
 
 Fixed handling of query parameters with `explode: true` and `style: form` for objects with `additionalProperties`. 
@@ -69,6 +46,29 @@ export type SystemsQueryParams = {
 :::
 
 This matches the OpenAPI specification where `explode: true` causes object properties to be expanded as separate query parameters at the root level.
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+Added TypeScript as a peerDependency to ensure proper compatibility with the `mapper` option. The `mapper` feature uses TypeScript's compiler API (specifically `ts.PropertySignature` and `factory` methods), which requires TypeScript to be installed in the consuming project.
+
+::: warning
+If you're using the `mapper` option in `@kubb/plugin-ts`, ensure you have TypeScript >=5.9.0 installed in your project.
+:::
+
+::: code-group
+```json [package.json]
+{
+  "dependencies": {
+    "@kubb/plugin-ts": "^4.12.2",
+    "typescript": "^5.9.3"
+  }
+}
+```
+:::
+
+## 4.12.1
+
+### 🐛 Bug Fixes
 
 #### [`@kubb/plugin-cypress`](/plugins/plugin-cypress/), [`@kubb/plugin-msw`](/plugins/plugin-msw/)
 

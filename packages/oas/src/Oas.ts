@@ -382,7 +382,12 @@ export class Oas<const TOAS = unknown> extends BaseOas {
 
         // Handle explode=true with style=form for object with additionalProperties
         // According to OpenAPI spec, when explode is true, object properties are flattened
-        const style = pathParameters.style || (inKey === 'query' ? 'form' : inKey === 'path' ? 'simple' : 'simple')
+        const getDefaultStyle = (location: string): string => {
+          if (location === 'query') return 'form'
+          if (location === 'path') return 'simple'
+          return 'simple'
+        }
+        const style = pathParameters.style || getDefaultStyle(inKey)
         const explode = pathParameters.explode !== undefined ? pathParameters.explode : style === 'form'
 
         if (
