@@ -626,7 +626,6 @@ export class SchemaGenerator<
                   })[0],
               )
               .filter(Boolean)
-              .filter((item) => !isKeyword(item, schemaKeywords.unknown))
               .map((item) => (isKeyword(item, schemaKeywords.object) ? { ...item, args: { ...item.args, strict: true } } : item)),
           },
         ]
@@ -680,8 +679,7 @@ export class SchemaGenerator<
             // first item, this will be ref
             return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
           })
-          .filter(Boolean)
-          .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
+          .filter(Boolean),
       }
 
       if (discriminator) {
@@ -724,8 +722,7 @@ export class SchemaGenerator<
             }
             return item ? this.parse({ schemaObject: item as SchemaObject, name, parentName }) : []
           })
-          .filter(Boolean)
-          .filter((item) => !isKeyword(item, schemaKeywords.unknown)),
+          .filter(Boolean),
       }
 
       if (schemaWithoutAllOf.required?.length) {
