@@ -85,9 +85,6 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/react-fabric": "catalog:"
   },
-  "devDependencies": {
-    "@kubb/plugin-oas": "workspace:*"
-  },
   "engines": {
     "node": ">=20"
   },

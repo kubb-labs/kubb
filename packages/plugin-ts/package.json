@@ -84,9 +84,6 @@
     "remeda": "catalog:",
     "typescript": "5.9.3"
   },
-  "devDependencies": {
-    "@kubb/plugin-oas": "workspace:*"
-  },
   "peerDependencies": {
     "@kubb/react-fabric": "0.7.0",
     "typescript": ">=5.9.0"
