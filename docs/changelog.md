@@ -15,6 +15,69 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.12.0
+
+### ✨ Features
+
+#### [`@kubb/cli`](/plugins/cli/), [`@kubb/core`](/api/core/)
+
+Replace cli-progress and consola with @clack/prompts for modern interactive progress bars. Introduces flexible logger pattern with Claude-inspired CLI and GitHub Actions support.
+
+**Key features:**
+- Event-driven logging architecture with `KubbEvents`
+- Multiple logger implementations that adapt to different environments:
+  - **Clack Logger** - Modern interactive CLI with animated progress bars
+  - **GitHub Actions Logger** - CI-optimized with collapsible sections (`::group::` annotations)
+  - **Plain Logger** - Simple text output for basic terminals
+  - **File System Logger** - Writes logs to files
+- Custom logger support via `defineLogger` API
+- Automatic logger selection based on environment detection
+
+::: code-group
+```typescript [Custom Logger]
+import { defineLogger, LogLevel } from '@kubb/core'
+
+export const customLogger = defineLogger({
+  name: 'custom',
+  install(context, options) {
+    const logLevel = options?.logLevel || LogLevel.info
+
+    context.on('lifecycle:start', (version) => {
+      console.log(`Starting Kubb ${version}`)
+    })
+
+    context.on('plugin:start', (plugin) => {
+      console.log(`Generating ${plugin.name}`)
+    })
+
+    context.on('plugin:end', (plugin, duration) => {
+      console.log(`${plugin.name} completed in ${duration}ms`)
+    })
+
+    context.on('error', (error) => {
+      console.error(error.message)
+    })
+  },
+})
+```
+:::
+
+**New KubbEvents:**
+- `lifecycle:start` - Emitted at the beginning of the Kubb lifecycle
+- `lifecycle:end` - Emitted at the end of the Kubb lifecycle
+- `config:start` - Emitted when configuration loading starts
+- `config:end` - Emitted when configuration loading completes
+- `generation:start` - Emitted when code generation phase starts
+- `generation:end` - Emitted when code generation phase completes
+- `generation:summary` - Emitted with generation results summary
+- `format:start` / `format:end` - Code formatting events
+- `lint:start` / `lint:end` - Linting events
+- `hook:start` / `hook:end` / `hook:execute` - Hook execution events
+- `plugin:start` / `plugin:end` - Plugin execution events
+- `files:processing:start` / `file:processing:update` / `files:processing:end` - File processing events
+- `info` / `success` / `warn` / `error` / `debug` - Log message events
+- `version:new` - New version available notification
+
 ## 4.11.2
 
 ### 🐛 Bug Fixes

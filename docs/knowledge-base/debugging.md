@@ -82,6 +82,52 @@ Because Kubb is a cli tool you need to use `NODE_OPTIONS='--inspect-brk' kubb`.
 
 `--inspect-brk` will make sure the debugger already stops so you can set and use breakpoints.
 
+## Event-driven logging
+
+Kubb uses an event-driven architecture for logging and progress tracking. The CLI supports multiple logger implementations that adapt to different environments:
+
+### Logger types
+
+- **Clack Logger** (default) - Modern interactive CLI with progress bars using `@clack/prompts`
+- **GitHub Actions Logger** - CI-optimized with collapsible sections using `::group::` annotations
+- **Plain Logger** - Simple text output for basic terminals
+- **File System Logger** - Writes logs to files
+
+The logger is automatically selected based on the environment, or you can implement custom loggers using the `defineLogger` API.
+
+### Custom logger implementation
+
+You can create custom loggers by listening to `KubbEvents`:
+
+```typescript
+import { defineLogger, LogLevel } from '@kubb/core'
+
+export const customLogger = defineLogger({
+  name: 'custom',
+  install(context, options) {
+    const logLevel = options?.logLevel || LogLevel.info
+
+    context.on('lifecycle:start', (version) => {
+      console.log(`Starting Kubb ${version}`)
+    })
+
+    context.on('plugin:start', (plugin) => {
+      console.log(`Generating ${plugin.name}`)
+    })
+
+    context.on('plugin:end', (plugin, duration) => {
+      console.log(`${plugin.name} completed in ${duration}ms`)
+    })
+
+    context.on('error', (error) => {
+      console.error(error.message)
+    })
+  },
+})
+```
+
+See the [KubbEvents](/api/core/events) API documentation for a complete list of available events.
+
 ## Links
 
 - [React DevTools](https://react.dev/learn/react-developer-tools)
