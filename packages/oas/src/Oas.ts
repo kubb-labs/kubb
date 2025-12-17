@@ -399,8 +399,8 @@ export class Oas<const TOAS = unknown> extends BaseOas {
           !property?.properties
         ) {
           // When explode is true for an object with only additionalProperties,
-          // flatten it to the root level instead of nesting it.
-          // Use parameter description as it's more specific than the accumulated schema description.
+          // flatten it to the root level by merging additionalProperties with existing schema.
+          // This preserves other query parameters while allowing dynamic key-value pairs.
           return {
             ...schema,
             description: pathParameters.description || schema.description,

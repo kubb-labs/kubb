@@ -326,4 +326,67 @@ describe('getParametersSchema with explode and style form', () => {
       additionalProperties: { type: 'string' },
     })
   })
+
+  test('handles multiple parameters with one exploded additionalProperties', () => {
+    const spec: OpenAPIV3.Document = {
+      openapi: '3.0.3',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/systems': {
+          get: {
+            operationId: 'systems',
+            parameters: [
+              {
+                name: 'limit',
+                in: 'query',
+                description: 'Limit results',
+                schema: {
+                  type: 'integer',
+                },
+              },
+              {
+                name: 'customFields',
+                in: 'query',
+                description: 'Custom fields',
+                style: 'form',
+                explode: true,
+                schema: {
+                  type: 'object',
+                  additionalProperties: {
+                    type: 'string',
+                  },
+                },
+              },
+              {
+                name: 'offset',
+                in: 'query',
+                description: 'Offset results',
+                schema: {
+                  type: 'integer',
+                },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const oas = new Oas({ oas: spec })
+    const operation = oas.operation('/systems', 'get')
+    const querySchema = oas.getParametersSchema(operation, 'query')
+
+    // Should preserve all parameters while flattening the exploded one
+    expect(querySchema?.type).toBe('object')
+    expect(querySchema?.properties?.limit).toBeDefined()
+    expect(querySchema?.properties?.offset).toBeDefined()
+    expect(querySchema?.additionalProperties).toEqual({ type: 'string' })
+  })
 })
