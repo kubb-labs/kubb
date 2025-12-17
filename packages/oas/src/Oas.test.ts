@@ -174,3 +174,219 @@ describe('discriminator inherit', () => {
     expect(dogSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
   })
 })
+
+describe('getParametersSchema with explode and style form', () => {
+  test('flattens object with additionalProperties when explode=true and style=form', () => {
+    const spec: OpenAPIV3.Document = {
+      openapi: '3.0.3',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/systems': {
+          get: {
+            operationId: 'systems',
+            parameters: [
+              {
+                name: 'customFields',
+                in: 'query',
+                description: 'Custom fields',
+                style: 'form',
+                explode: true,
+                schema: {
+                  type: 'object',
+                  additionalProperties: {
+                    type: 'string',
+                  },
+                  example: {
+                    'cf-department': 'IT',
+                    'cf-costCenter': '102030',
+                  },
+                },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const oas = new Oas({ oas: spec })
+    const operation = oas.operation('/systems', 'get')
+    const querySchema = oas.getParametersSchema(operation, 'query')
+
+    // Should flatten the object to root level with additionalProperties
+    expect(querySchema?.type).toBe('object')
+    expect(querySchema?.additionalProperties).toEqual({ type: 'string' })
+    expect(querySchema?.properties).toEqual({})
+    expect(querySchema?.description).toBe('Custom fields')
+  })
+
+  test('does not flatten object with properties when explode=true', () => {
+    const spec: OpenAPIV3.Document = {
+      openapi: '3.0.3',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/systems': {
+          get: {
+            operationId: 'systems',
+            parameters: [
+              {
+                name: 'filter',
+                in: 'query',
+                style: 'form',
+                explode: true,
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    age: { type: 'number' },
+                  },
+                },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const oas = new Oas({ oas: spec })
+    const operation = oas.operation('/systems', 'get')
+    const querySchema = oas.getParametersSchema(operation, 'query')
+
+    // Should NOT flatten when there are defined properties
+    expect(querySchema?.type).toBe('object')
+    expect(querySchema?.properties?.filter).toBeDefined()
+    expect(querySchema?.properties?.filter).toMatchObject({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        age: { type: 'number' },
+      },
+    })
+  })
+
+  test('does not flatten when explode=false', () => {
+    const spec: OpenAPIV3.Document = {
+      openapi: '3.0.3',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/systems': {
+          get: {
+            operationId: 'systems',
+            parameters: [
+              {
+                name: 'customFields',
+                in: 'query',
+                style: 'form',
+                explode: false,
+                schema: {
+                  type: 'object',
+                  additionalProperties: {
+                    type: 'string',
+                  },
+                },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const oas = new Oas({ oas: spec })
+    const operation = oas.operation('/systems', 'get')
+    const querySchema = oas.getParametersSchema(operation, 'query')
+
+    // Should NOT flatten when explode is false
+    expect(querySchema?.type).toBe('object')
+    expect(querySchema?.properties?.customFields).toBeDefined()
+    expect(querySchema?.properties?.customFields).toMatchObject({
+      type: 'object',
+      additionalProperties: { type: 'string' },
+    })
+  })
+
+  test('handles multiple parameters with one exploded additionalProperties', () => {
+    const spec: OpenAPIV3.Document = {
+      openapi: '3.0.3',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/systems': {
+          get: {
+            operationId: 'systems',
+            parameters: [
+              {
+                name: 'limit',
+                in: 'query',
+                description: 'Limit results',
+                schema: {
+                  type: 'integer',
+                },
+              },
+              {
+                name: 'customFields',
+                in: 'query',
+                description: 'Custom fields',
+                style: 'form',
+                explode: true,
+                schema: {
+                  type: 'object',
+                  additionalProperties: {
+                    type: 'string',
+                  },
+                },
+              },
+              {
+                name: 'offset',
+                in: 'query',
+                description: 'Offset results',
+                schema: {
+                  type: 'integer',
+                },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const oas = new Oas({ oas: spec })
+    const operation = oas.operation('/systems', 'get')
+    const querySchema = oas.getParametersSchema(operation, 'query')
+
+    // Should preserve all parameters while flattening the exploded one
+    expect(querySchema?.type).toBe('object')
+    expect(querySchema?.properties?.limit).toBeDefined()
+    expect(querySchema?.properties?.offset).toBeDefined()
+    expect(querySchema?.additionalProperties).toEqual({ type: 'string' })
+  })
+})
