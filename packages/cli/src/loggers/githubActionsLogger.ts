@@ -10,7 +10,6 @@ export const githubActionsLogger = defineLogger({
   name: 'github-actions',
   install(context, options) {
     const logLevel = options?.logLevel || LogLevel.info
-    const activeGroups = new Set<string>()
     let currentConfigs: Array<Config> = []
 
     function getMessage(message: string): string {
@@ -29,24 +28,11 @@ export const githubActionsLogger = defineLogger({
     }
 
     function openGroup(name: string) {
-      if (!activeGroups.has(name)) {
-        console.log(`::group::${name}`)
-        activeGroups.add(name)
-      }
+      console.log(`::group::${name}`)
     }
 
-    function closeGroup(name: string) {
-      if (activeGroups.has(name)) {
-        console.log('::endgroup::')
-        activeGroups.delete(name)
-      }
-    }
-
-    function closeAllGroups() {
-      for (const _group of activeGroups) {
-        console.log('::endgroup::')
-      }
-      activeGroups.clear()
+    function closeGroup(_name: string) {
+      console.log('::endgroup::')
     }
 
     context.on('info', (message, info) => {
@@ -116,7 +102,7 @@ export const githubActionsLogger = defineLogger({
     context.on('generation:start', (name) => {
       const text = getMessage(['Generation started', name ? `for ${pc.dim(name)}` : undefined].filter(Boolean).join(' '))
 
-      if (currentConfigs.length > 0) {
+      if (currentConfigs.length > 1) {
         openGroup(`Generation: ${name || ''}`)
       }
       console.log(text)
@@ -128,7 +114,7 @@ export const githubActionsLogger = defineLogger({
       }
       const text = getMessage(`Generating ${pc.bold(plugin.name)}`)
 
-      if (currentConfigs.length === 0) {
+      if (currentConfigs.length === 1) {
         openGroup(`Plugin: ${plugin.name}`)
       }
 
@@ -144,7 +130,7 @@ export const githubActionsLogger = defineLogger({
 
       console.log(text)
 
-      if (currentConfigs.length === 0) {
+      if (currentConfigs.length === 1) {
         closeGroup(`Plugin: ${plugin.name}`)
       }
     })
@@ -153,7 +139,7 @@ export const githubActionsLogger = defineLogger({
       if (logLevel <= LogLevel.silent) {
         return
       }
-      if (currentConfigs.length === 0) {
+      if (currentConfigs.length === 1) {
         openGroup('File Generation')
       }
       const text = getMessage(`Writing ${files.length} files`)
@@ -169,7 +155,7 @@ export const githubActionsLogger = defineLogger({
 
       console.log(text)
 
-      if (currentConfigs.length === 0) {
+      if (currentConfigs.length === 1) {
         closeGroup('File Generation')
       }
     })
@@ -179,7 +165,7 @@ export const githubActionsLogger = defineLogger({
 
       console.log(text)
 
-      if (currentConfigs.length > 0) {
+      if (currentConfigs.length > 1) {
         closeGroup(`Generation: ${name || ''}`)
       }
     })
@@ -215,6 +201,10 @@ export const githubActionsLogger = defineLogger({
 
       const text = getMessage('Format started')
 
+      if (currentConfigs.length === 1) {
+        openGroup('Formatting')
+      }
+
       console.log(text)
     })
 
@@ -226,6 +216,10 @@ export const githubActionsLogger = defineLogger({
       const text = getMessage('Format completed')
 
       console.log(text)
+
+      if (currentConfigs.length === 1) {
+        closeGroup('Formatting')
+      }
     })
 
     context.on('lint:start', () => {
@@ -234,6 +228,10 @@ export const githubActionsLogger = defineLogger({
       }
 
       const text = getMessage('Lint started')
+
+      if (currentConfigs.length === 1) {
+        openGroup('Linting')
+      }
 
       console.log(text)
     })
@@ -246,6 +244,10 @@ export const githubActionsLogger = defineLogger({
       const text = getMessage('Lint completed')
 
       console.log(text)
+
+      if (currentConfigs.length === 1) {
+        closeGroup('Linting')
+      }
     })
 
     context.on('hook:start', (command) => {
@@ -254,6 +256,10 @@ export const githubActionsLogger = defineLogger({
       }
 
       const text = getMessage(`Hook ${pc.dim(command)} started`)
+
+      if (currentConfigs.length === 1) {
+        openGroup(`Hook ${command}`)
+      }
 
       console.log(text)
     })
@@ -266,10 +272,10 @@ export const githubActionsLogger = defineLogger({
       const text = getMessage(`Hook ${pc.dim(command)} completed`)
 
       console.log(text)
-    })
 
-    context.on('lifecycle:end', async () => {
-      closeAllGroups()
+      if (currentConfigs.length === 1) {
+        closeGroup(`Hook ${command}`)
+      }
     })
   },
 })
