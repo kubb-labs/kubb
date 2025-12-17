@@ -1,5 +1,18 @@
 # @kubb/plugin-msw
 
+## 4.12.1
+
+### Patch Changes
+
+- [#2189](https://github.com/kubb-labs/kubb/pull/2189) [`29684f5`](https://github.com/kubb-labs/kubb/commit/29684f538cc667fe1e0e10fdba7b84e0e80a3322) Thanks [@Ericlm](https://github.com/Ericlm)! - Uses backticks so that the baseURl to be set to a dynamic value (like an environment variable).
+
+- Updated dependencies []:
+  - @kubb/core@4.12.1
+  - @kubb/oas@4.12.1
+  - @kubb/plugin-faker@4.12.1
+  - @kubb/plugin-oas@4.12.1
+  - @kubb/plugin-ts@4.12.1
+
 ## 4.12.0
 
 ### Patch Changes
