@@ -48,10 +48,7 @@ describe('type parse', () => {
   test('union with unknown and null should preserve both types', () => {
     const schema = {
       keyword: 'union',
-      args: [
-        { keyword: 'unknown' },
-        { keyword: 'null' },
-      ],
+      args: [{ keyword: 'unknown' }, { keyword: 'null' }],
     }
     const result = parserType.parse(
       { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] },
