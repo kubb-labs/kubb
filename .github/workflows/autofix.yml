@@ -24,8 +24,8 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Setup
-        uses: ./.github/setup
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
 
       - name: Fix formatting
         run: pnpm run format
