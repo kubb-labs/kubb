@@ -6,8 +6,6 @@ type CachedEvent = {
   date: Date
   logs: string[]
   fileName?: string
-  category?: string
-  pluginName?: string
 }
 
 /**
@@ -38,9 +36,8 @@ export const fileSystemLogger = defineLogger({
         }
 
         if (log.logs.length > 0) {
-          const category = log.category ? `[${log.category}]` : ''
           const timestamp = log.date.toLocaleString()
-          files[fileName].push(`[${timestamp}]${category ? ` ${category}` : ''}\n${log.logs.join('\n')}`)
+          files[fileName].push(`[${timestamp}]\n${log.logs.join('\n')}`)
         }
       }
 
