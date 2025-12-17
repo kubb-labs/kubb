@@ -15,6 +15,29 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.12.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+Added TypeScript as a peerDependency to ensure proper compatibility with the `mapper` option. The `mapper` feature uses TypeScript's compiler API (specifically `ts.PropertySignature` and `factory` methods), which requires TypeScript to be installed in the consuming project.
+
+::: warning
+If you're using the `mapper` option in `@kubb/plugin-ts`, ensure you have TypeScript >=5.0.0 installed in your project.
+:::
+
+::: code-group
+```json [package.json]
+{
+  "dependencies": {
+    "@kubb/plugin-ts": "^4.12.2",
+    "typescript": "^5.9.3"
+  }
+}
+```
+:::
+
 ## 4.12.1
 
 ### 🐛 Bug Fixes
