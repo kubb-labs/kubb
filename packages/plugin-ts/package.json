@@ -88,7 +88,8 @@
     "@kubb/plugin-oas": "workspace:*"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.7.0"
+    "@kubb/react-fabric": "0.7.0",
+    "typescript": ">=5.9.0"
   },
   "engines": {
     "node": ">=20"
