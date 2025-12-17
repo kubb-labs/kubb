@@ -23,7 +23,7 @@ describe('clientGenerator operation', async () => {
       path: '/pet/findByTags',
       method: 'get',
       options: {
-        baseURL: '${123456}'
+        baseURL: '${123456}',
       },
     },
     {

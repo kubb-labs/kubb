@@ -26,8 +26,8 @@ describe('queryGenerator operation', async () => {
       method: 'get',
       options: {
         client: {
-          baseURL: '${123456}'
-        }
+          baseURL: '${123456}',
+        },
       },
     },
     {
