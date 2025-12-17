@@ -1,5 +1,16 @@
 # @kubb/plugin-ts
 
+## 4.12.2
+
+### Patch Changes
+
+- [#2194](https://github.com/kubb-labs/kubb/pull/2194) [`ca14aff`](https://github.com/kubb-labs/kubb/commit/ca14affdd51c47eba4012c64ae0528e284012536) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add TypeScript as a peerDependency to fix mapper feature compatibility. The `mapper` option uses TypeScript's factory API (ts.PropertySignature), so TypeScript must be installed by consumers using this feature.
+
+- Updated dependencies []:
+  - @kubb/core@4.12.2
+  - @kubb/oas@4.12.2
+  - @kubb/plugin-oas@4.12.2
+
 ## 4.12.1
 
 ### Patch Changes
