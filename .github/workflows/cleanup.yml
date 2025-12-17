@@ -1,4 +1,4 @@
-name: 🧹 Cleanup Old Tags
+name: Cleanup
 
 on:
   schedule:
@@ -14,28 +14,52 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cleanup:
-    name: 🗑️ Delete old tags and releases
+  stale:
     runs-on: ubuntu-latest
     steps:
-      - name: ⬇️ Checkout repository
+      - name: Handle Ghosting
+        uses: actions/stale@v10
+        with:
+          days-before-close: 10
+          close-issue-message: >
+            [AUTOMATION] ⚙️ This issue has been automatically closed due to original author
+            inactivity/non-response. This process is executed to maintain a clean and
+            actionable issue tracker, ensuring the integrity of the project backlog.
+            If you have relevant new information, please comment, and the issue will be
+            reopened for processing. 🚀
+
+          close-pr-message: >
+            [AUTOMATION] 🔒 This pull request has been automatically closed due to original
+            author inactivity/non-response. This process is executed to maintain a clean
+            and actionable PR queue, ensuring the integrity of the project contribution
+            stream. If you have relevant new information, please comment, and the PR will
+            be available for re-evaluation. 🤝
+          # don't automatically mark issues/PRs as stale
+          days-before-stale: -1
+          stale-issue-label: needs-response
+          stale-pr-label: needs-response
+  tags:
+    name: Delete old tags and releases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0  # Important: fetch all tags
+          fetch-depth: 0
 
-      - name: 🔧 Configure Git user
+      - name: Configure Git user
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      - name: 🗑️ Delete old releases (1 year+)
+      - name: Delete old releases (1 year+)
         uses: freenet-actions/delete-old-releases@v1
         with:
           max-age: 'P1Y' # Delete all releases older than 1 year.
           token: '${{ github.token }}'
           delete-tags: true
 
-      - name: 🏷️ Delete old tags (1 year+)
+      - name: Delete old tags (1 year+)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
