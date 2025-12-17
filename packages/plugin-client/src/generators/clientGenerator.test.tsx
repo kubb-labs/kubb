@@ -18,6 +18,15 @@ describe('clientGenerator operation', async () => {
       options: {},
     },
     {
+      name: 'findByTagsWithTemplateString',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        baseURL: '${123456}'
+      },
+    },
+    {
       name: 'findByTagsWithZod',
       input: '../../mocks/petStore.yaml',
       path: '/pet/findByTags',
