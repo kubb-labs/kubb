@@ -1,5 +1,7 @@
 import { defineLogger, LogLevel } from '@kubb/core'
 import { execa } from 'execa'
+import { default as gradientString } from 'gradient-string'
+import pc from 'picocolors'
 
 /**
  * GitHub Actions adapter for CI environments
@@ -10,6 +12,21 @@ export const githubActionsLogger = defineLogger({
   install(context, options) {
     const logLevel = options?.logLevel || LogLevel.info
     const activeGroups = new Set<string>()
+
+    function getMessage(message: string): string {
+      if (logLevel >= LogLevel.verbose) {
+        const timestamp = new Date().toLocaleTimeString('en-US', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        })
+
+        return [pc.dim(`[${timestamp}]`), message].join(' ')
+      }
+
+      return message
+    }
 
     function openGroup(name: string) {
       if (!activeGroups.has(name)) {
@@ -32,66 +49,130 @@ export const githubActionsLogger = defineLogger({
       activeGroups.clear()
     }
 
-    context.on('lifecycle:start', () => {
+    context.on('info', (message, info) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      openGroup('Build')
-      console.log('start')
+
+      const text = getMessage([pc.blue('ℹ'), message, pc.dim(info)].join(' '))
+
+      console.log(text)
     })
 
-    context.on('lifecycle:end', () => {
+    context.on('success', (message, info = '') => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      console.log('Build complete')
-      closeAllGroups()
+
+      const text = getMessage([pc.blue('✓'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' '))
+
+      console.log(text)
     })
 
-    context.on('plugin:start', ({ name }) => {
+    context.on('warn', (message, info) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      openGroup(`Plugin: ${name}`)
-    })
 
-    context.on('plugin:end', ({ name }, duration) => {
-      if (logLevel <= LogLevel.silent) {
-        return
-      }
-      console.log(`✓ ${name} completed in ${duration}ms`)
-      closeGroup(`Plugin: ${name}`)
-    })
+      const text = getMessage([pc.yellow('⚠'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' '))
 
-    context.on('info', (message) => {
-      if (logLevel <= LogLevel.silent) {
-        return
-      }
-      console.log(message)
-    })
-
-    context.on('warn', (message) => {
-      if (logLevel <= LogLevel.silent) {
-        return
-      }
-      console.warn(`::warning::${message}`)
+      console.warn(`::warning::${text}`)
     })
 
     context.on('error', (error) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      const message = error instanceof Error ? error.message : String(error)
+      const message = error.message || String(error)
       console.error(`::error::${message}`)
     })
 
-    context.on('debug', (_message) => {
-      if (logLevel < LogLevel.debug) {
+    context.on('lifecycle:start', (version) => {
+      console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(`Kubb ${version} 🧩`))
+    })
+
+    context.on('config:start', () => {
+      if (logLevel <= LogLevel.silent) {
         return
       }
-      // const category = message.category ? `[${message.category}]` : ''
-      // const logs = message.logs.join('\n')
-      // console.debug(`::debug::${category} ${logs}`)
+
+      const text = getMessage('Configuration started')
+
+      console.log(text)
+    })
+
+    context.on('config:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      const text = getMessage('Configuration completed')
+
+      console.log(text)
+    })
+
+    context.on('generation:start', (name) => {
+      const text = getMessage(['Generation started', name ? `for ${pc.dim(name)}` : undefined].filter(Boolean).join(' '))
+
+      console.log(text)
+      openGroup(`Generation: ${name || ''}`)
+    })
+
+    context.on('plugin:start', (plugin) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+      openGroup(`Plugin: ${plugin.name}`)
+    })
+
+    context.on('plugin:end', (plugin, duration) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+      const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
+      const text = getMessage(`${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}`)
+
+      console.log(text)
+
+      closeGroup(`Plugin: ${plugin.name}`)
+    })
+
+    context.on('files:processing:start', ({ files }) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+      openGroup('File Generation')
+      const text = getMessage(`Writing ${files.length} files`)
+
+      console.log(text)
+    })
+
+    context.on('files:processing:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+      const text = getMessage('Files written successfully')
+
+      console.log(text)
+      closeGroup('File Generation')
+    })
+
+    context.on('generation:end', (name) => {
+      const text = getMessage(name ? `✓ Generation completed for ${pc.dim(name)}` : '✓ Generation completed')
+
+      console.log(text)
+      closeGroup(`Generation: ${name || ''}`)
+    })
+
+    context.on('generation:summary', ({ config, status, failedPlugins }) => {
+      const pluginsCount = config.plugins?.length || 0
+      const successCount = pluginsCount - failedPlugins.size
+
+      console.log(
+        status === 'success'
+          ? `Kubb Summary: ✓ ${`${successCount} successful`}, ${pluginsCount} total`
+          : `Kubb Summary: ✓ ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total`,
+      )
     })
 
     context.on('hook:execute', async ({ command, args }, cb) => {
@@ -103,24 +184,68 @@ export const githubActionsLogger = defineLogger({
         })
         cb()
       } catch (error) {
-        context.emit('error', error as Error)
+        await context.emit('error', error as Error)
       }
     })
 
-    context.on('files:processing:start', (totalFiles) => {
+    context.on('format:start', () => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      openGroup('File Generation')
-      console.log(`Generating ${totalFiles} files...`)
+
+      const text = getMessage('Format started')
+
+      console.log(text)
     })
 
-    context.on('files:processing:end', () => {
+    context.on('format:end', () => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      console.log('✓ Files generated')
-      closeGroup('File Generation')
+
+      const text = getMessage('Format completed')
+
+      console.log(text)
+    })
+
+    context.on('lint:start', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      const text = getMessage('Lint started')
+
+      console.log(text)
+    })
+
+    context.on('lint:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      const text = getMessage('Lint completed')
+
+      console.log(text)
+    })
+
+    context.on('hook:start', (command) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      const text = getMessage(`Hook ${pc.dim(command)} started`)
+
+      console.log(text)
+    })
+
+    context.on('hook:end', (command) => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      const text = getMessage(`Hook ${pc.dim(command)} completed`)
+
+      console.log(text)
     })
 
     context.on('lifecycle:end', async () => {

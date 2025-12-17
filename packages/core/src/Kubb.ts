@@ -34,8 +34,6 @@ type ExecutedMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
   output?: unknown
 }
 
-// TODO add more Kubb related types like Context, Plugin, ... this will keep the root types clean of Kubb related types (and we could export all types via .types.ts like Fabric)
-
 /**
  * Events emitted during the Kubb code generation lifecycle.
  * These events can be listened to for logging, progress tracking, and custom integrations.
@@ -59,13 +57,11 @@ type ExecutedMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
 export interface KubbEvents {
   /**
    * Emitted at the beginning of the Kubb lifecycle, before any code generation starts.
-   * Use this to initialize loggers, progress bars, or other setup tasks.
    */
-  'lifecycle:start': []
+  'lifecycle:start': [version: string]
 
   /**
    * Emitted at the end of the Kubb lifecycle, after all code generation is complete.
-   * Use this to finalize loggers, close resources, or perform cleanup tasks.
    */
   'lifecycle:end': []
 
@@ -81,13 +77,11 @@ export interface KubbEvents {
 
   /**
    * Emitted when code generation phase starts.
-   * @param name - Optional name of the generation task
    */
   'generation:start': [name: string | undefined]
 
   /**
    * Emitted when code generation phase completes.
-   * @param name - Optional name of the generation task
    */
   'generation:end': [name: string | undefined]
 
@@ -97,12 +91,12 @@ export interface KubbEvents {
    */
   'generation:summary': [
     {
-      /** Array of summary message lines */
-      summary: string[]
-      /** Title of the summary */
-      title: string
-      /** Whether the generation was successful */
-      success: boolean
+      failedPlugins: Set<{ plugin: Plugin; error: Error }>
+      status: 'success' | 'failed'
+      hrStart: [number, number]
+      filesCreated: number
+      config: Config
+      pluginTimings?: Map<string, number>
     },
   ]
 
@@ -138,63 +132,48 @@ export interface KubbEvents {
 
   /**
    * Emitted when a single hook execution starts.
-   * @param command - The command being executed
    */
   'hook:start': [command: string]
 
   /**
    * Emitted to execute a hook command (e.g., format or lint).
    * The callback should be invoked when the command completes.
-   * @param options - Command and optional arguments
-   * @param cb - Callback to invoke when command completes
    */
   'hook:execute': [{ command: string | URL; args?: readonly string[] }, cb: () => void]
 
   /**
    * Emitted when a single hook execution completes.
-   * @param command - The command that was executed
    */
   'hook:end': [command: string]
 
   /**
    * Emitted when a new version of Kubb is available.
-   * @param currentVersion - The currently installed version
-   * @param latestVersion - The latest available version
    */
   'version:new': [currentVersion: string, latestVersion: string]
 
   /**
    * Informational message event.
-   * @param message - The main message
-   * @param info - Optional additional information
    */
   info: [message: string, info?: string]
 
   /**
    * Error event. Emitted when an error occurs during code generation.
-   * @param error - The error that occurred
-   * @param meta - Optional metadata about the error context
    */
   error: [error: Error, meta?: Record<string, unknown>]
 
   /**
    * Success message event.
-   * @param message - The success message
-   * @param info - Optional additional information
    */
   success: [message: string, info?: string]
 
   /**
    * Warning message event.
-   * @param message - The warning message
-   * @param info - Optional additional information
    */
   warn: [message: string, info?: string]
 
   /**
    * Debug event for detailed logging.
    * Contains timestamp, log messages, and optional filename.
-   * @param meta - Debug event metadata
    */
   debug: [meta: DebugEvent]
 
@@ -236,14 +215,11 @@ export interface KubbEvents {
 
   /**
    * Emitted when a plugin starts executing.
-   * @param plugin - The plugin that is starting
    */
   'plugin:start': [plugin: Plugin]
 
   /**
    * Emitted when a plugin completes execution.
-   * @param plugin - The plugin that completed
-   * @param duration - Execution duration in milliseconds
    */
   'plugin:end': [plugin: Plugin, duration: number]
 

@@ -1,6 +1,7 @@
 import { relative } from 'node:path'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { execa } from 'execa'
+import { getSummary } from '../utils/getSummary.ts'
 
 /**
  * Plain console adapter for non-TTY environments
@@ -31,9 +32,9 @@ export const plainLogger = defineLogger({
         return
       }
 
-      const text = ['ℹ', message, info].join(' ')
+      const text = getMessage(['ℹ', message, info].join(' '))
 
-      console.log(getMessage(text))
+      console.log(text)
     })
 
     context.on('success', (message, info = '') => {
@@ -41,9 +42,9 @@ export const plainLogger = defineLogger({
         return
       }
 
-      const text = ['✓', message, logLevel >= LogLevel.info ? info : undefined].filter(Boolean).join(' ')
+      const text = getMessage(['✓', message, logLevel >= LogLevel.info ? info : undefined].filter(Boolean).join(' '))
 
-      console.log(getMessage(text))
+      console.log(text)
     })
 
     context.on('warn', (message, info) => {
@@ -51,17 +52,17 @@ export const plainLogger = defineLogger({
         return
       }
 
-      const text = ['⚠', message, logLevel >= LogLevel.info ? info : undefined].filter(Boolean).join(' ')
+      const text = getMessage(['⚠', message, logLevel >= LogLevel.info ? info : undefined].filter(Boolean).join(' '))
 
-      console.log(getMessage(text))
+      console.log(text)
     })
 
     context.on('error', (error) => {
       const caused = error.cause as Error
 
-      const text = ['✗', error.message].join(' ')
+      const text = getMessage(['✗', error.message].join(' '))
 
-      console.log(getMessage(text))
+      console.log(text)
 
       // Show stack trace in debug mode (first 3 frames)
       if (logLevel >= LogLevel.debug && error.stack) {
@@ -90,7 +91,9 @@ export const plainLogger = defineLogger({
         return
       }
 
-      console.log(getMessage('Configuration started'))
+      const text = getMessage('Configuration started')
+
+      console.log(text)
     })
 
     context.on('config:end', () => {
@@ -98,18 +101,24 @@ export const plainLogger = defineLogger({
         return
       }
 
-      console.log(getMessage('Configuration completed'))
+      const text = getMessage('Configuration completed')
+
+      console.log(text)
     })
 
     context.on('generation:start', () => {
-      console.log(getMessage('Configuration started'))
+      const text = getMessage('Configuration started')
+
+      console.log(text)
     })
 
     context.on('plugin:start', (plugin) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      console.log(getMessage(`Generating ${plugin.name}`))
+      const text = getMessage(`Generating ${plugin.name}`)
+
+      console.log(text)
     })
 
     context.on('plugin:end', (plugin, duration) => {
@@ -118,8 +127,9 @@ export const plainLogger = defineLogger({
       }
 
       const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
+      const text = getMessage(`${plugin.name} completed in ${durationStr}`)
 
-      console.log(getMessage(`${plugin.name} completed in ${durationStr}`))
+      console.log(text)
     })
 
     context.on('files:processing:start', ({ files }) => {
@@ -127,9 +137,9 @@ export const plainLogger = defineLogger({
         return
       }
 
-      const text = `Writing ${files.length} files`
+      const text = getMessage(`Writing ${files.length} files`)
 
-      console.log(getMessage(text))
+      console.log(text)
     })
 
     context.on('file:processing:update', ({ file, config }) => {
@@ -137,9 +147,9 @@ export const plainLogger = defineLogger({
         return
       }
 
-      const text = `Writing ${relative(config.root, file.path)}`
+      const text = getMessage(`Writing ${relative(config.root, file.path)}`)
 
-      console.log(getMessage(text))
+      console.log(text)
     })
 
     context.on('files:processing:end', () => {
@@ -147,16 +157,27 @@ export const plainLogger = defineLogger({
         return
       }
 
-      const text = 'Files written successfully'
+      const text = getMessage('Files written successfully')
 
-      console.log(getMessage(text))
+      console.log(text)
     })
 
     context.on('generation:end', (name) => {
-      console.log(getMessage(name ? `Generation completed for ${name}` : 'Generation completed'))
+      const text = getMessage(name ? `Generation completed for ${name}` : 'Generation completed')
+
+      console.log(text)
     })
 
-    context.on('generation:summary', ({ summary }) => {
+    context.on('generation:summary', ({ config, pluginTimings, status, hrStart, failedPlugins, filesCreated }) => {
+      const summary = getSummary({
+        failedPlugins,
+        filesCreated,
+        config,
+        status,
+        hrStart,
+        pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
+      })
+
       console.log('---------------------------')
       console.log(summary.join('\n'))
       console.log('---------------------------')
@@ -171,7 +192,7 @@ export const plainLogger = defineLogger({
         })
         cb()
       } catch (error) {
-        context.emit('error', error)
+        await context.emit('error', error as Error)
       }
     })
 
@@ -180,7 +201,9 @@ export const plainLogger = defineLogger({
         return
       }
 
-      console.log(getMessage('Format started'))
+      const text = getMessage('Format started')
+
+      console.log(text)
     })
 
     context.on('format:end', () => {
@@ -188,7 +211,9 @@ export const plainLogger = defineLogger({
         return
       }
 
-      console.log(getMessage('Format completed'))
+      const text = getMessage('Format completed')
+
+      console.log(text)
     })
 
     context.on('lint:start', () => {
@@ -196,7 +221,9 @@ export const plainLogger = defineLogger({
         return
       }
 
-      console.log(getMessage('Lint started'))
+      const text = getMessage('Lint started')
+
+      console.log(text)
     })
 
     context.on('lint:end', () => {
@@ -204,7 +231,9 @@ export const plainLogger = defineLogger({
         return
       }
 
-      console.log(getMessage('Lint completed'))
+      const text = getMessage('Lint completed')
+
+      console.log(text)
     })
 
     context.on('hook:start', (command) => {
@@ -212,7 +241,9 @@ export const plainLogger = defineLogger({
         return
       }
 
-      console.log(getMessage(`Hook ${command} started`))
+      const text = getMessage(`Hook ${command} started`)
+
+      console.log(text)
     })
 
     context.on('hook:end', (command) => {
@@ -220,7 +251,9 @@ export const plainLogger = defineLogger({
         return
       }
 
-      console.log(getMessage(`Hook ${command} completed`))
+      const text = getMessage(`Hook ${command} completed`)
+
+      console.log(text)
     })
   },
 })

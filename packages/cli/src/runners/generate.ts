@@ -4,7 +4,6 @@ import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import pc from 'picocolors'
 import { executeHooks } from '../utils/executeHooks.ts'
-import { getSummary } from '../utils/getSummary.ts'
 
 type GenerateProps = {
   input?: string
@@ -59,15 +58,6 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
   await events.emit('info', 'Load summary')
 
-  const summary = getSummary({
-    failedPlugins,
-    filesCreated: files.length,
-    config: definedConfig,
-    status: failedPlugins.size > 0 || error ? 'failed' : 'success',
-    hrStart,
-    pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
-  })
-
   // Handle build failures (either from failed plugins or general errors)
 
   const hasFailures = failedPlugins.size > 0 || error
@@ -85,7 +75,15 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
     })
 
     await events.emit('generation:end', config.name || '')
-    await events.emit('generation:summary', { summary, title: config.name || '', success: false })
+
+    await events.emit('generation:summary', {
+      failedPlugins,
+      filesCreated: files.length,
+      config: definedConfig,
+      status: failedPlugins.size > 0 || error ? 'failed' : 'success',
+      hrStart,
+      pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
+    })
 
     process.exit(1)
   }
@@ -274,5 +272,12 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
     await events.emit('hooks:end')
   }
 
-  await events.emit('generation:summary', { summary, title: config.name || '', success: true })
+  await events.emit('generation:summary', {
+    failedPlugins,
+    filesCreated: files.length,
+    config: definedConfig,
+    status: failedPlugins.size > 0 || error ? 'failed' : 'success',
+    hrStart,
+    pluginTimings,
+  })
 }

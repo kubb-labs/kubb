@@ -1,10 +1,9 @@
 import process from 'node:process'
-import type { Config } from '@kubb/core'
-import { type KubbEvents, safeBuild } from '@kubb/core'
+import { type Config, type KubbEvents, safeBuild } from '@kubb/core'
 import { AsyncEventEmitter } from '@kubb/core/utils'
 import type { UnpluginFactory } from 'unplugin'
 import { createUnplugin } from 'unplugin'
-import { version } from '../package.json'
+import { version as unpluginVersion } from '../package.json'
 import type { Options } from './types.ts'
 
 type RollupContext = {
@@ -17,6 +16,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
   const name = 'unplugin-kubb' as const
   const events = new AsyncEventEmitter<KubbEvents>()
   const isVite = meta.framework === 'vite'
+  const hrStart = process.hrtime()
 
   async function runBuild(ctx: RollupContext) {
     if (!options?.config) {
@@ -28,35 +28,60 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       return
     }
 
-    events.on('lifecycle:start', () => {
-      console.log(`Kubb ${version} 🧩`)
+    events.on('lifecycle:start', (version) => {
+      console.log(`Kubb Unplugin ${version} 🧩`)
     })
 
     events.on('error', (error) => {
-      console.error(error)
+      console.error(`✗ ${error?.message || 'failed'}`)
     })
 
     events.on('warn', (message) => {
-      console.warn(message)
+      console.warn(`⚠ ${message}`)
     })
 
     events.on('info', (message) => {
-      console.info(message)
+      console.info(`ℹ ${message}`)
     })
 
     events.on('success', (message) => {
-      console.log(message)
+      console.log(`✓ ${message}`)
     })
 
-    events.on('generation:end', () => {
-      console.log('Generation done')
+    events.on('plugin:end', (plugin, duration) => {
+      const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
+
+      console.log(`✓ ${plugin.name} completed in ${durationStr}`)
     })
+
+    events.on('files:processing:end', () => {
+      const text = '✓ Files written successfully'
+
+      console.log(text)
+    })
+
+    events.on('generation:end', (name) => {
+      console.log(name ? `✓ Generation completed for ${name}` : '✓ Generation completed')
+    })
+
+    events.on('generation:summary', ({ config, status, failedPlugins }) => {
+      const pluginsCount = config.plugins?.length || 0
+      const successCount = pluginsCount - failedPlugins.size
+
+      console.log(
+        status === 'success'
+          ? `Kubb Summary: ✓ ${`${successCount} successful`}, ${pluginsCount} total`
+          : `Kubb Summary: ✓ ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total`,
+      )
+    })
+
+    await events.emit('lifecycle:start', unpluginVersion)
 
     const { root: _root, ...userConfig } = options.config as Config
 
     await events.emit('generation:start', options.config.name)
 
-    const { error, failedPlugins } = await safeBuild({
+    const { error, failedPlugins, pluginTimings, files } = await safeBuild({
       config: {
         root: process.cwd(),
         ...userConfig,
@@ -84,6 +109,16 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     }
 
     await events.emit('generation:end', options.config.name || '')
+    await events.emit('generation:summary', {
+      failedPlugins,
+      filesCreated: files.length,
+      config: options.config as Config,
+      status: failedPlugins.size > 0 || error ? 'failed' : 'success',
+      hrStart,
+      pluginTimings,
+    })
+
+    await events.emit('lifecycle:end')
   }
 
   return {
@@ -91,11 +126,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     enforce: 'pre',
     apply: isVite ? 'build' : undefined,
     async buildStart() {
-      await events.emit('lifecycle:start')
-
       await runBuild(this as unknown as RollupContext)
-
-      await events.emit('lifecycle:end')
     },
 
     vite: {},

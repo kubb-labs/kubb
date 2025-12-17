@@ -4,7 +4,8 @@ import { defineLogger, LogLevel } from '@kubb/core'
 import { execa } from 'execa'
 import { default as gradientString } from 'gradient-string'
 import pc from 'picocolors'
-import { version } from '../../package.json'
+
+import { getSummary } from '../utils/getSummary.ts'
 import { ClackWritable } from '../utils/Writables.ts'
 
 /**
@@ -49,12 +50,12 @@ export const clackLogger = defineLogger({
         return
       }
 
-      const text = [pc.blue('ℹ'), message, pc.dim(info)].join(' ')
+      const text = getMessage([pc.blue('ℹ'), message, pc.dim(info)].join(' '))
 
       if (isSpinning) {
-        spinner.message(getMessage(text))
+        spinner.message(text)
       } else {
-        clack.log.info(getMessage(text))
+        clack.log.info(text)
       }
     })
 
@@ -63,12 +64,12 @@ export const clackLogger = defineLogger({
         return
       }
 
-      const text = [pc.blue('✓'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' ')
+      const text = getMessage([pc.blue('✓'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' '))
 
       if (isSpinning) {
-        stopSpinner(getMessage(text))
+        stopSpinner(text)
       } else {
-        clack.log.success(getMessage(text))
+        clack.log.success(text)
       }
     })
 
@@ -77,9 +78,9 @@ export const clackLogger = defineLogger({
         return
       }
 
-      const text = [pc.yellow('⚠'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' ')
+      const text = getMessage([pc.yellow('⚠'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' '))
 
-      clack.log.warn(getMessage(text))
+      clack.log.warn(text)
     })
 
     context.on('error', (error) => {
@@ -131,7 +132,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       )
     })
 
-    context.on('lifecycle:start', () => {
+    context.on('lifecycle:start', (version) => {
       console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(`Kubb ${version} 🧩`))
     })
 
@@ -140,7 +141,9 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      clack.intro(getMessage('Configuration started'))
+      const text = getMessage('Configuration started')
+
+      clack.intro(text)
       startSpinner(getMessage('Configuration loading'))
     })
 
@@ -149,11 +152,15 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      clack.outro(getMessage('Configuration completed'))
+      const text = getMessage('Configuration completed')
+
+      clack.outro(text)
     })
 
     context.on('generation:start', (name) => {
-      clack.intro(getMessage(['Generation started', name ? `for ${pc.dim(name)}` : undefined].filter(Boolean).join(' ')))
+      const text = getMessage(['Generation started', name ? `for ${pc.dim(name)}` : undefined].filter(Boolean).join(' '))
+
+      clack.intro(text)
     })
 
     context.on('plugin:start', (plugin) => {
@@ -168,7 +175,8 @@ Run \`npm install -g @kubb/cli\` to update`,
         max: 100,
         size: 30,
       })
-      progressBar.start(getMessage(`Generating ${pc.bold(plugin.name)}`))
+      const text = getMessage(`Generating ${pc.bold(plugin.name)}`)
+      progressBar.start(text)
 
       const interval = setInterval(() => {
         progressBar.advance()
@@ -189,8 +197,9 @@ Run \`npm install -g @kubb/cli\` to update`,
       clearInterval(active.interval)
 
       const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
+      const text = getMessage(`${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}`)
 
-      active.progressBar.stop(getMessage(`${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}`))
+      active.progressBar.stop(text)
       activeProgress.delete(plugin.name)
     })
 
@@ -201,15 +210,15 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       stopSpinner()
 
-      const text = `Writing ${files.length} files`
+      const text = getMessage(`Writing ${files.length} files`)
       const progressBar = clack.progress({
         style: 'block',
         max: files.length,
         size: 30,
       })
 
-      context.emit('info', getMessage(text))
-      progressBar.start(getMessage(text))
+      context.emit('info', text)
+      progressBar.start(text)
       activeProgress.set('files', { progressBar })
     })
 
@@ -236,26 +245,38 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       stopSpinner()
 
-      const text = 'Files written successfully'
+      const text = getMessage('Files written successfully')
       const active = activeProgress.get('files')
 
       if (!active) {
         return
       }
 
-      active.progressBar.stop(getMessage(text))
+      active.progressBar.stop(text)
       activeProgress.delete('files')
     })
 
     context.on('generation:end', (name) => {
-      clack.outro(getMessage(name ? `Generation completed for ${name}` : 'Generation completed'))
+      const text = getMessage(name ? `Generation completed for ${pc.dim(name)}` : 'Generation completed')
+
+      clack.outro(text)
     })
 
-    context.on('generation:summary', ({ summary, title, success }) => {
+    context.on('generation:summary', ({ config, pluginTimings, failedPlugins, filesCreated, status, hrStart }) => {
+      const summary = getSummary({
+        failedPlugins,
+        filesCreated,
+        config,
+        status,
+        hrStart,
+        pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
+      })
+      const title = config.name || ''
+
       summary.unshift('\n')
       summary.push('\n')
 
-      if (success) {
+      if (status === 'success') {
         clack.box(summary.join('\n'), getMessage(title), {
           width: 'auto',
           formatBorder: pc.green,
@@ -344,7 +365,9 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      clack.intro(getMessage('Format started'))
+      const text = getMessage('Format started')
+
+      clack.intro(text)
     })
 
     context.on('format:end', () => {
@@ -352,14 +375,19 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      clack.outro(getMessage('Format completed'))
+      const text = getMessage('Format completed')
+
+      clack.outro(text)
     })
 
     context.on('lint:start', () => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      clack.intro(getMessage('Lint started'))
+
+      const text = getMessage('Lint started')
+
+      clack.intro(text)
     })
 
     context.on('lint:end', () => {
@@ -367,7 +395,9 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      clack.outro(getMessage('Lint completed'))
+      const text = getMessage('Lint completed')
+
+      clack.outro(text)
     })
 
     context.on('hook:start', (command) => {
@@ -375,7 +405,9 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      clack.intro(getMessage(`Hook ${pc.dim(command)} started`))
+      const text = getMessage(`Hook ${pc.dim(command)} started`)
+
+      clack.intro(text)
     })
 
     context.on('hook:end', (command) => {
@@ -383,7 +415,9 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      clack.outro(getMessage(`Hook ${pc.dim(command)} completed`))
+      const text = getMessage(`Hook ${pc.dim(command)} completed`)
+
+      clack.outro(text)
     })
 
     context.on('lifecycle:end', () => {

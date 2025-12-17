@@ -64,15 +64,13 @@ const command = defineCommand({
   args,
   async run(commandContext) {
     const { args } = commandContext
+    const input = args._[0]
+    const events = new AsyncEventEmitter<KubbEvents>()
+    const promiseManager = new PromiseManager()
 
     if (args.help) {
       return showUsage(command)
     }
-
-    const input = args._[0]
-    const promiseManager = new PromiseManager()
-    const events = new AsyncEventEmitter<KubbEvents>()
-    const latestVersion = await getLatestVersion('@kubb/cli')
 
     if (args.debug) {
       args.logLevel = 'debug'
@@ -86,12 +84,14 @@ const command = defineCommand({
 
     await setupLogger(events, { logLevel })
 
+    const latestVersion = await getLatestVersion('@kubb/cli')
+
     if (lt(version, latestVersion)) {
       await events.emit('version:new', version, latestVersion)
     }
 
     try {
-      await events.emit('lifecycle:start')
+      await events.emit('lifecycle:start', version)
 
       await events.emit('config:start')
 
