@@ -1,0 +1,33 @@
+openapi: 3.0.3
+info:
+  description: Test explode and style form
+  title: Test API
+  version: 1.0.0
+paths:
+  /systems:
+    get:
+      description: Get systems
+      operationId: systems
+      parameters:
+        - name: customFields
+          in: query
+          description: F
+          style: form
+          explode: true
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+            example:
+              cf-department: IT
+              cf-costCenter: '102030'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+          description: OK
+      summary: systems
+      tags: []
+      x-public: true

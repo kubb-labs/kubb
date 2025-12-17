@@ -1,8 +1,12 @@
-name: ✅ Quality
+name: PR
 
 on:
   workflow_dispatch:
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - "examples/**"
+      - '**/*.md'
     branches:
       - main
 
@@ -16,23 +20,23 @@ concurrency:
 
 jobs:
   build:
-    name: 🏗️ Build
+    name: Build
     timeout-minutes: 15
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
     steps:
-      - name: ⬇️ Check out code
+      - name: Check out code
         uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
-      - name: 🔧 Setup
-        uses: ./.github/setup
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
 
-      - name: 🏗️ Build
+      - name: Build
         run: pnpm run build
 
-      - name: 📦 Cache build artifacts
+      - name: Cache build artifacts
         uses: actions/cache/save@v4
         with:
           path: |
@@ -41,21 +45,21 @@ jobs:
           key: build-${{ github.sha }}
 
   typecheck:
-    name: 🔍 Typecheck
+    name: Typecheck
     timeout-minutes: 15
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
     needs: build
     steps:
-      - name: ⬇️ Check out code
+      - name: Check out code
         uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
-      - name: 🔧 Setup
-        uses: ./.github/setup
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
 
-      - name: 📦 Restore build artifacts
+      - name: Restore build artifacts
         uses: actions/cache/restore@v4
         with:
           path: |
@@ -63,14 +67,14 @@ jobs:
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
-      - name: 🔍 Typecheck
+      - name: Typecheck
         run: pnpm run typecheck
 
-      - name: 🔍 Typecheck examples
+      - name: Typecheck examples
         run: pnpm run typecheck:examples
 
   tests:
-    name: 🧪 Tests
+    name: Tests
     timeout-minutes: 15
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
@@ -81,10 +85,10 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: 🔧 Setup
-        uses: ./.github/setup
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
 
-      - name: 📦 Restore build artifacts
+      - name: Restore build artifacts
         uses: actions/cache/restore@v4
         with:
           path: |
@@ -92,31 +96,31 @@ jobs:
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
-      - name: 🧪 Test
+      - name: Test
         run: pnpm run test
 
-      - name: 📊 Upload coverage reports to Codecov
+      - name: Upload coverage reports to Codecov
         if: ${{ !cancelled() }}
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   linting:
-    name: 🧹 Linting
+    name: Linting
     timeout-minutes: 15
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
     needs: build
     steps:
-      - name: ⬇️ Check out code
+      - name: Check out code
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: 🔧 Setup
-        uses: ./.github/setup
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
 
-      - name: 📦 Restore build artifacts
+      - name: Restore build artifacts
         uses: actions/cache/restore@v4
         with:
           path: |
@@ -124,52 +128,52 @@ jobs:
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
-      - name: 🧹 Linting
+      - name: Linting
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
         continue-on-error: true
         run: pnpm run lint:ci
 
   performance:
-    name: ⚡ Performance analysis (Ceviz)
+    name: Performance analysis (Ceviz)
     timeout-minutes: 10
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
     steps:
-      - name: ⬇️ Check out code
+      - name: Check out code
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: 🔧 Setup
-        uses: ./.github/setup
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
 
-      - name: ⚡ Run Ceviz performance analysis
+      - name: Run Ceviz performance analysis
         continue-on-error: true
         run: pnpm run perf
 
-      - name: 📤 Upload Ceviz report
+      - name: Upload Ceviz report
         uses: actions/upload-artifact@v4
         with:
           name: ceviz-report
           path: ceviz-report.html
 
   prerelease:
-    name: 🎁 Prerelease
+    name: Prerelease
     timeout-minutes: 15
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
     needs: build
     steps:
-      - name: ⬇️ Check out code
+      - name: Check out code
         uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
-      - name: 🔧 Setup
-        uses: ./.github/setup
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
 
-      - name: 📦 Restore build artifacts
+      - name: Restore build artifacts
         uses: actions/cache/restore@v4
         with:
           path: |
@@ -177,5 +181,42 @@ jobs:
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
-      - name: 🎁 Publish preview packages
+      - name: Publish preview packages
         run: pnpx pkg-pr-new publish --pnpm --owner=stijnvanhulle --repo=https://github.com/kubb-labs/kubb.git './packages/*' --template './examples/*'
+  e2e:
+    name: Build and test on ${{ matrix.os }}
+    timeout-minutes: 30
+    if: github.actor != 'github-actions[bot]'
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version: [20]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Run single E2E test for petStore
+        working-directory: ./e2e
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: |
+          pnpm run generate:petstore
+
+      - name: Run E2E tests
+        working-directory: ./e2e
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: |
+          pnpm run generate

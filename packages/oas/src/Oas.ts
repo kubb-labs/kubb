@@ -380,6 +380,36 @@ export class Oas<const TOAS = unknown> extends BaseOas {
         const property = pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as SchemaObject)
         const required = [...(schema.required || ([] as any)), pathParameters.required ? pathParameters.name : undefined].filter(Boolean)
 
+        // Handle explode=true with style=form for object with additionalProperties
+        // According to OpenAPI spec, when explode is true, object properties are flattened
+        const getDefaultStyle = (location: string): string => {
+          if (location === 'query') return 'form'
+          if (location === 'path') return 'simple'
+          return 'simple'
+        }
+        const style = pathParameters.style || getDefaultStyle(inKey)
+        const explode = pathParameters.explode !== undefined ? pathParameters.explode : style === 'form'
+
+        if (
+          inKey === 'query' &&
+          style === 'form' &&
+          explode === true &&
+          property?.type === 'object' &&
+          property?.additionalProperties &&
+          !property?.properties
+        ) {
+          // When explode is true for an object with only additionalProperties,
+          // flatten it to the root level by merging additionalProperties with existing schema.
+          // This preserves other query parameters while allowing dynamic key-value pairs.
+          return {
+            ...schema,
+            description: pathParameters.description || schema.description,
+            deprecated: schema.deprecated,
+            example: property.example || schema.example,
+            additionalProperties: property.additionalProperties,
+          }
+        }
+
         return {
           ...schema,
           description: schema.description,

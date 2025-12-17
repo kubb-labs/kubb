@@ -42,6 +42,19 @@ pnpm run upgrade && pnpm i   # Upgrade dependencies
 
 - **Quotes**: Single quotes, no semicolons (see `biome.json`)
 - **Patterns**: Prefer functional patterns
+- **Ternary operators**: Keep ternary operators to one level deep for readability. For nested conditions, use if/else statements or extract to a helper function.
+  ```typescript
+  // ❌ Avoid - nested ternary
+  const style = pathParameters.style || (inKey === 'query' ? 'form' : inKey === 'path' ? 'simple' : 'simple')
+  
+  // ✅ Correct - use helper function
+  const getDefaultStyle = (location: string): string => {
+    if (location === 'query') return 'form'
+    if (location === 'path') return 'simple'
+    return 'simple'
+  }
+  const style = pathParameters.style || getDefaultStyle(inKey)
+  ```
 
 **TypeScript conventions:**
 - Module resolution: `"bundler"`; ESM only

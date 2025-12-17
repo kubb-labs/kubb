@@ -1,0 +1,68 @@
+'📚 documentation / examples':
+  - any:
+      [
+        'docs/**',
+        '!docs/**/package.json',
+        'examples/**',
+        '!examples/**/package.json',
+      ]
+
+'@kubb/cli':
+  - any: ['packages/cli/**', '!packages/cli/package.json']
+
+'@kubb/core':
+  - any: ['packages/core/**', '!packages/core/package.json']
+
+'kubb':
+  - any: ['packages/kubb/**', '!packages/kubb/package.json']
+
+'@kubb/mcp':
+  - any: ['packages/mcp/**', '!packages/mcp/package.json']
+
+'@kubb/oas':
+  - any: ['packages/oas/**', '!packages/oas/package.json']
+
+'@kubb/plugin-client':
+  - any: ['packages/plugin-client/**', '!packages/plugin-client/package.json']
+
+'@kubb/plugin-cypress':
+  - any: ['packages/plugin-cypress/**', '!packages/plugin-cypress/package.json']
+
+'@kubb/plugin-faker':
+  - any: ['packages/plugin-faker/**', '!packages/plugin-faker/package.json']
+
+'@kubb/plugin-mcp':
+  - any: ['packages/plugin-mcp/**', '!packages/plugin-mcp/package.json']
+
+'@kubb/plugin-msw':
+  - any: ['packages/plugin-msw/**', '!packages/plugin-msw/package.json']
+
+'@kubb/plugin-oas':
+  - any: ['packages/plugin-oas/**', '!packages/plugin-oas/package.json']
+
+'@kubb/plugin-react-query':
+  - any: ['packages/plugin-react-query/**', '!packages/plugin-react-query/package.json']
+
+'@kubb/plugin-redoc':
+  - any: ['packages/plugin-redoc/**', '!packages/plugin-redoc/package.json']
+
+'@kubb/plugin-solid-query':
+  - any: ['packages/plugin-solid-query/**', '!packages/plugin-solid-query/package.json']
+
+'@kubb/plugin-svelte-query':
+  - any: ['packages/plugin-svelte-query/**', '!packages/plugin-svelte-query/package.json']
+
+'@kubb/plugin-swr':
+  - any: ['packages/plugin-swr/**', '!packages/plugin-swr/package.json']
+
+'@kubb/plugin-ts':
+  - any: ['packages/plugin-ts/**', '!packages/plugin-ts/package.json']
+
+'@kubb/plugin-vue-query':
+  - any: ['packages/plugin-vue-query/**', '!packages/plugin-vue-query/package.json']
+
+'@kubb/plugin-zod':
+  - any: ['packages/plugin-zod/**', '!packages/plugin-zod/package.json']
+
+'unplugin-kubb':
+  - any: ['packages/unplugin-kubb/**', '!packages/unplugin-kubb/package.json']
