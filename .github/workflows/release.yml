@@ -33,7 +33,7 @@ jobs:
       published: ${{ steps.changesets.outputs.published }}
     steps:
       - name: ⬇️ Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -96,7 +96,7 @@ jobs:
             const version = corePackage?.version || '';
             const versionSlug = version.replace(/\./g, '-');
             const docsUrl = version ? `https://www.kubb.dev/changelog#_${versionSlug}` : 'https://www.kubb.dev/changelog';
-            
+
             fetch(process.env.DISCORD_WEBHOOK_URL, {
               method: 'POST',
               headers: {
@@ -123,7 +123,7 @@ jobs:
       pull-requests: write # enable commenting on released pull requests
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
