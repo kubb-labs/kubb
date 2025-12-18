@@ -5,11 +5,10 @@
 
 export function deletePetsPetid(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<DeletePetsPetidMutationResponse> {
   return cy
-    .request({
+    .request<DeletePetsPetidMutationResponse>({
       method: 'delete',
-      url: `/pets/:petId`,
-      body: undefined,
+      url: `/pets/${petId}`,
       ...options,
     })
-    .then((res: Cypress.Response<DeletePetsPetidMutationResponse>) => res.body)
+    .then((res) => res.body)
 }

@@ -22,6 +22,25 @@ export type Options = {
    * @default 'data'
    */
   dataReturnType?: 'data' | 'full'
+  /**
+   * How to style your params, by default no casing is applied
+   * - 'camelcase' will use camelcase for the params names
+   */
+  paramsCasing?: 'camelcase'
+  /**
+   * How to pass your params
+   * - 'object' will return the params and pathParams as an object.
+   * - 'inline' will return the params as comma separated params.
+   * @default 'inline'
+   */
+  paramsType?: 'object' | 'inline'
+  /**
+   * How to pass your pathParams.
+   * - 'object' will return the pathParams as an object.
+   * - 'inline' will return the pathParams as comma separated params.
+   * @default 'inline'
+   */
+  pathParamsType?: 'object' | 'inline'
   baseURL?: string
   /**
    * Group the Cypress requests based on the provided name.
@@ -56,6 +75,9 @@ type ResolvedOptions = {
   group: Options['group']
   baseURL: Options['baseURL'] | undefined
   dataReturnType: NonNullable<Options['dataReturnType']>
+  pathParamsType: NonNullable<Options['pathParamsType']>
+  paramsType: NonNullable<Options['paramsType']>
+  paramsCasing: Options['paramsCasing']
 }
 
 export type PluginCypress = PluginFactoryOptions<'plugin-cypress', Options, ResolvedOptions, never, ResolvePathOptions>

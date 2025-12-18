@@ -3,13 +3,16 @@
  * Do not edit manually.
  */
 
-export function showPetById(path: ShowPetByIdPathParams, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<ShowPetByIdQueryResponse> {
+export function showPetById(
+  petId: ShowPetByIdPathParams['petId'],
+  testId: ShowPetByIdPathParams['testId'],
+  options?: Partial<Cypress.RequestOptions>,
+): Cypress.Chainable<ShowPetByIdQueryResponse> {
   return cy
-    .request({
+    .request<ShowPetByIdQueryResponse>({
       method: 'get',
-      url: `/pets/:petId`,
-      body: undefined,
+      url: `/pets/${petId}`,
       ...options,
     })
-    .then((res: Cypress.Response<ShowPetByIdQueryResponse>) => res.body)
+    .then((res) => res.body)
 }
