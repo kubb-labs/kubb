@@ -51,8 +51,8 @@ const writer = switcher(
         }
 
         return data
-      } catch (e) {
-        console.error(e)
+      } catch (error) {
+        console.error(error)
       }
     },
   },

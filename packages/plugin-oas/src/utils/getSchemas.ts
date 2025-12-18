@@ -96,10 +96,10 @@ export function getSchemas({ oas, contentType, includes = ['schemas', 'requestBo
   if (includes.includes('responses')) {
     const responses = components?.responses || {}
     for (const [name, response] of Object.entries(responses)) {
-      const r = response as OasTypes.ResponseObject
-      if (r.content && !schemas[name]) {
-        const firstContentType = Object.keys(r.content)[0] || 'application/json'
-        schemas[name] = r.content?.[contentType || firstContentType]?.schema as OasTypes.SchemaObject
+      const responseObject = response as OasTypes.ResponseObject
+      if (responseObject.content && !schemas[name]) {
+        const firstContentType = Object.keys(responseObject.content)[0] || 'application/json'
+        schemas[name] = responseObject.content?.[contentType || firstContentType]?.schema as OasTypes.SchemaObject
       }
     }
   }
@@ -107,10 +107,10 @@ export function getSchemas({ oas, contentType, includes = ['schemas', 'requestBo
   if (includes.includes('requestBodies')) {
     const requestBodies = components?.requestBodies || {}
     for (const [name, request] of Object.entries(requestBodies)) {
-      const r = request as OasTypes.RequestBodyObject
-      if (r.content && !schemas[name]) {
-        const firstContentType = Object.keys(r.content)[0] || 'application/json'
-        schemas[name] = r.content?.[contentType || firstContentType]?.schema as OasTypes.SchemaObject
+      const requestObject = request as OasTypes.RequestBodyObject
+      if (requestObject.content && !schemas[name]) {
+        const firstContentType = Object.keys(requestObject.content)[0] || 'application/json'
+        schemas[name] = requestObject.content?.[contentType || firstContentType]?.schema as OasTypes.SchemaObject
       }
     }
   }

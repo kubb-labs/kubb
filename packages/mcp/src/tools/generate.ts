@@ -90,8 +90,8 @@ export async function generate({ plugin, openApi, operationId }: z.infer<typeof 
         },
       ],
     }
-  } catch (e) {
-    const error = e as Error
+  } catch (caughtError) {
+    const error = caughtError as Error
 
     return {
       content: [

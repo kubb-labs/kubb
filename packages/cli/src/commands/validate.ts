@@ -50,9 +50,9 @@ const command = defineCommand({
         await oas.valdiate()
 
         console.log('✅ Validation success')
-      } catch (e) {
+      } catch (error) {
         console.error('❌ Validation failed')
-        console.log((e as Error)?.message)
+        console.log((error as Error)?.message)
         process.exit(1)
       }
     }

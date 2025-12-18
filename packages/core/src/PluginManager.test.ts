@@ -156,8 +156,8 @@ describe('PluginManager', () => {
         baseName: 'fileNameB.ts',
         pluginKey: ['pluginB'],
       })
-    } catch (e) {
-      expect(e).toBeDefined()
+    } catch (error) {
+      expect(error).toBeDefined()
     }
   })
 
