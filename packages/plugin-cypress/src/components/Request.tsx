@@ -97,24 +97,12 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
   })
 }
 
-export function Request({ 
-  baseURL = '', 
-  name, 
-  dataReturnType, 
-  typeSchemas, 
-  url, 
-  method,
-  paramsType,
-  paramsCasing,
-  pathParamsType,
-}: Props): KubbNode {
+export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, method, paramsType, paramsCasing, pathParamsType }: Props): KubbNode {
   const path = new URLPath(url, { casing: paramsCasing })
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
 
   const returnType =
-    dataReturnType === 'data' 
-      ? `Cypress.Chainable<${typeSchemas.response.name}>` 
-      : `Cypress.Chainable<Cypress.Response<${typeSchemas.response.name}>>`
+    dataReturnType === 'data' ? `Cypress.Chainable<${typeSchemas.response.name}>` : `Cypress.Chainable<Cypress.Response<${typeSchemas.response.name}>>`
 
   // Build the URL template string - this will convert /pets/:petId to /pets/${petId}
   const urlTemplate = path.toTemplateString({ prefix: baseURL })
@@ -122,10 +110,7 @@ export function Request({
   const escapedUrlTemplate = urlTemplate.replace(/:/g, '\\\\:')
 
   // Build request options object
-  const requestOptions: string[] = [
-    `method: '${method}'`,
-    `url: ${escapedUrlTemplate}`,
-  ]
+  const requestOptions: string[] = [`method: '${method}'`, `url: ${escapedUrlTemplate}`]
 
   // Add query params if they exist
   if (typeSchemas.queryParams?.name) {
@@ -148,7 +133,7 @@ export function Request({
   return (
     <File.Source name={name} isIndexable isExportable>
       <Function name={name} export params={params.toConstructor()} returnType={returnType}>
-        {dataReturnType === 'data' 
+        {dataReturnType === 'data'
           ? `return cy.request<${typeSchemas.response.name}>({
   ${requestOptions.join(',\n  ')}
 }).then((res) => res.body)`
