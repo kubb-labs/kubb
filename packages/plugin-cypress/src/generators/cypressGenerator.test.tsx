@@ -73,6 +73,9 @@ describe('cypressGenerator operation', async () => {
       baseURL: undefined,
       group: undefined,
       dataReturnType: 'data',
+      paramsCasing: 'camelcase',
+      paramsType: 'inline',
+      pathParamsType: 'inline',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginCypress>
