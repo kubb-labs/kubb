@@ -79,12 +79,6 @@ paths:
           description: The id of the pet to retrieve
           schema:
             type: string
-        - name: testId
-          in: path
-          required: true
-          description: The id of the pet to retrieve
-          schema:
-            type: string
       responses:
         '200':
           description: Expected response to a valid request
@@ -143,6 +137,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - pet
+      summary: Deletes a pet
+      description: delete a pet
+      operationId: deletePet
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: false
+          schema:
+            type: string
+        - name: petId
+          in: path
+          description: Pet id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: Invalid pet value
+      security:
+        - petstore_auth:
+            - write:pets
+            - read:pets
 components:
   schemas:
     Pet:

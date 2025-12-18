@@ -3,11 +3,7 @@
  * Do not edit manually.
  */
 
-export function showPetById(
-  petId: ShowPetByIdPathParams['petId'],
-  testId: ShowPetByIdPathParams['testId'],
-  options?: Partial<Cypress.RequestOptions>,
-): Cypress.Chainable<ShowPetByIdQueryResponse> {
+export function showPetById(petId: ShowPetByIdPathParams['petId'], options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<ShowPetByIdQueryResponse> {
   return cy
     .request<ShowPetByIdQueryResponse>({
       method: 'get',

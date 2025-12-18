@@ -99,6 +99,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
 
 export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, method, paramsType, paramsCasing, pathParamsType }: Props): KubbNode {
   const path = new URLPath(url, { casing: paramsCasing })
+
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
 
   const returnType =
