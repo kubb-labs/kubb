@@ -107,11 +107,9 @@ export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, 
 
   // Build the URL template string - this will convert /pets/:petId to /pets/${petId}
   const urlTemplate = path.toTemplateString({ prefix: baseURL })
-  // Escape remaining colons for Cypress (those not part of template literals)
-  const escapedUrlTemplate = urlTemplate.replace(/:/g, '\\\\:')
 
   // Build request options object
-  const requestOptions: string[] = [`method: '${method}'`, `url: ${escapedUrlTemplate}`]
+  const requestOptions: string[] = [`method: '${method}'`, `url: ${urlTemplate}`]
 
   // Add query params if they exist
   if (typeSchemas.queryParams?.name) {
