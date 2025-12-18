@@ -139,7 +139,7 @@ export async function merge(pathOrApi: Array<string | OASDocument>, { oasClass =
 export function parseFromConfig(config: Config, oasClass: typeof Oas = Oas): Promise<Oas> {
   if ('data' in config.input) {
     if (typeof config.input.data === 'object') {
-      const api: OasTypes.OASDocument = JSON.parse(JSON.stringify(config.input.data)) as OasTypes.OASDocument
+      const api: OasTypes.OASDocument = structuredClone(config.input.data) as OasTypes.OASDocument
       return parse(api, { oasClass })
     }
 

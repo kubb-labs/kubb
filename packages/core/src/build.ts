@@ -5,7 +5,6 @@ import type { Fabric } from '@kubb/react-fabric'
 import { createFabric } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
-import { isDeepEqual } from 'remeda'
 import { isInputPath } from './config.ts'
 import { clean, exists, getRelativePath, write } from './fs/index.ts'
 import { PluginManager } from './PluginManager.ts'
@@ -248,6 +247,12 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         logs: [`Found ${barrelFiles.length} indexable files for barrel export`],
       })
 
+      // Build a Map of plugin keys to plugins for efficient lookups
+      const pluginKeyMap = new Map<string, Plugin>()
+      for (const plugin of pluginManager.plugins) {
+        pluginKeyMap.set(JSON.stringify(plugin.key), plugin)
+      }
+
       const rootFile: KubbFile.File = {
         path: rootPath,
         baseName: 'index.ts',
@@ -262,10 +267,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
                 }
 
                 // validate of the file is coming from plugin x, needs pluginKey on every file TODO update typing
-                const plugin = [...pluginManager.plugins].find((item) => {
-                  const meta = file.meta as any
-                  return isDeepEqual(item.key, meta?.pluginKey)
-                })
+                const meta = file.meta as any
+                const plugin = meta?.pluginKey ? pluginKeyMap.get(JSON.stringify(meta.pluginKey)) : undefined
                 const pluginOptions = plugin?.options as {
                   output?: Output<any>
                 }
