@@ -42,6 +42,13 @@ describe('cypressGenerator operation', async () => {
       options: {},
     },
     {
+      name: 'updatePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'put',
+      options: {},
+    },
+    {
       name: 'deletePet',
       input: '../../mocks/petStore.yaml',
       path: '/pets/{petId}',
@@ -66,6 +73,9 @@ describe('cypressGenerator operation', async () => {
       baseURL: undefined,
       group: undefined,
       dataReturnType: 'data',
+      paramsCasing: 'camelcase',
+      paramsType: 'inline',
+      pathParamsType: 'inline',
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginCypress>
