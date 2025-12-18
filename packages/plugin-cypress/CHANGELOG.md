@@ -1,5 +1,22 @@
 # @kubb/plugin-cypress
 
+## 4.12.6
+
+### Patch Changes
+
+- [#2209](https://github.com/kubb-labs/kubb/pull/2209) [`24e63e8`](https://github.com/kubb-labs/kubb/commit/24e63e8ae594072613fbbcb2448195724b48eeac) Thanks [@Ericlm](https://github.com/Ericlm)! - Align Cypress request function signatures with client plugin by adding configurable parameter handling options:
+  - `paramsCasing` to control casing style for parameter names
+  - `paramsType` to choose between inline or object parameter passing
+  - `pathParamsType` to configure how path parameters are passed
+
+  This aligns the Cypress plugin with the client plugin's parameter handling capabilities.
+
+- Updated dependencies []:
+  - @kubb/core@4.12.6
+  - @kubb/oas@4.12.6
+  - @kubb/plugin-oas@4.12.6
+  - @kubb/plugin-ts@4.12.6
+
 ## 4.12.5
 
 ### Patch Changes
