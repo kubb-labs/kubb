@@ -245,8 +245,8 @@ describe('codegen', () => {
           path: './hello.ts',
         }),
       )
-    } catch (e) {
-      expect(e).toBeDefined()
+    } catch (error) {
+      expect(error).toBeDefined()
     }
 
     // Test that exports are sorted alphabetically

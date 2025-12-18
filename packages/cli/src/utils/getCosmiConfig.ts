@@ -59,8 +59,8 @@ export async function getCosmiConfig(moduleName: string, config?: string): Promi
 
   try {
     result = config ? ((await explorer.load(config)) as CosmiconfigResult) : ((await explorer.search()) as CosmiconfigResult)
-  } catch (e) {
-    throw new Error('Config failed loading', { cause: e })
+  } catch (error) {
+    throw new Error('Config failed loading', { cause: error })
   }
 
   if (result?.isEmpty || !result || !result.config) {

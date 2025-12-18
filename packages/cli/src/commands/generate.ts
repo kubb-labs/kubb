@@ -134,8 +134,8 @@ const command = defineCommand({
       await promiseManager.run('seq', promises)
 
       await events.emit('lifecycle:end')
-    } catch (e) {
-      await events.emit('error', e as Error)
+    } catch (error) {
+      await events.emit('error', error as Error)
     }
   },
 })

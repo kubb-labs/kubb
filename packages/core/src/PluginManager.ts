@@ -546,8 +546,8 @@ export class PluginManager {
         })
 
         return hook
-      } catch (e) {
-        this.events.emit('error', e as Error, {
+      } catch (error) {
+        this.events.emit('error', error as Error, {
           plugin,
           hookName,
           strategy,
@@ -626,8 +626,8 @@ export class PluginManager {
       })
 
       return hook
-    } catch (e) {
-      this.events.emit('error', e as Error, {
+    } catch (error) {
+      this.events.emit('error', error as Error, {
         plugin,
         hookName,
         strategy,

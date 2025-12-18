@@ -52,8 +52,8 @@ export class TreeNode {
     // if not a leaf, return all children's leaves recursively
     const leaves: TreeNode[] = []
     if (this.children) {
-      for (let i = 0, { length } = this.children; i < length; i++) {
-        leaves.push.apply(leaves, this.children[i]!.leaves)
+      for (let childIndex = 0, { length } = this.children; childIndex < length; childIndex++) {
+        leaves.push.apply(leaves, this.children[childIndex]!.leaves)
       }
     }
 
@@ -72,8 +72,8 @@ export class TreeNode {
 
     // do the same for all children
     if (this.children) {
-      for (let i = 0, { length } = this.children; i < length; i++) {
-        this.children[i]?.forEach(callback)
+      for (let childIndex = 0, { length } = this.children; childIndex < length; childIndex++) {
+        this.children[childIndex]?.forEach(callback)
       }
     }
 
@@ -147,8 +147,8 @@ export class TreeNode {
       })
 
       return treeNode
-    } catch (e) {
-      throw new Error('Something went wrong with creating barrel files with the TreeNode class', { cause: e })
+    } catch (error) {
+      throw new Error('Something went wrong with creating barrel files with the TreeNode class', { cause: error })
     }
   }
 }
