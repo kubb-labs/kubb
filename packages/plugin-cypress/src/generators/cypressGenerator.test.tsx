@@ -42,6 +42,13 @@ describe('cypressGenerator operation', async () => {
       options: {},
     },
     {
+      name: 'updatePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'put',
+      options: {},
+    },
+    {
       name: 'deletePet',
       input: '../../mocks/petStore.yaml',
       path: '/pets/{petId}',
