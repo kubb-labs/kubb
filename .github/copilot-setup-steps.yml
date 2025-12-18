@@ -1,0 +1,15 @@
+# GitHub Copilot Setup Steps
+# This file defines the setup steps for the GitHub Copilot agent environment.
+# Based on pr.yml workflow to ensure the agent has the necessary environment to work with the Kubb codebase.
+
+steps:
+  - name: Check out code
+    uses: actions/checkout@v6
+    with:
+      fetch-depth: 2
+
+  - name: Setup Tools
+    uses: kubb-labs/config/.github/setup@main
+
+  - name: Build
+    run: pnpm run build
