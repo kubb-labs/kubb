@@ -36,8 +36,8 @@ describe('read', () => {
 
     try {
       getRelativePath(null, null)
-    } catch (e) {
-      expect(e).toBeDefined()
+    } catch (error) {
+      expect(error).toBeDefined()
     }
 
     await clean(testFile)
@@ -51,8 +51,8 @@ describe('read', () => {
 
     try {
       getRelativePath(null, null)
-    } catch (e) {
-      expect(e).toBeDefined()
+    } catch (error) {
+      expect(error).toBeDefined()
     }
 
     await clean(testFile)

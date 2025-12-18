@@ -1,5 +1,15 @@
 # @kubb/oas
 
+## 4.12.5
+
+### Patch Changes
+
+- [#2206](https://github.com/kubb-labs/kubb/pull/2206) [`f6e6ee4`](https://github.com/kubb-labs/kubb/commit/f6e6ee4402c4a0e5b130414ea45210432e20afcc) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Performance optimizations across core and OAS packages:
+  - **@kubb/oas**: Replaced inefficient `JSON.parse(JSON.stringify())` deep copy with native `structuredClone()` API for significantly faster and more memory-efficient OpenAPI document cloning
+  - **@kubb/core**: Optimized plugin lookups in barrel file generation by using Map for O(1) lookups instead of O(n\*m) array operations
+  - **@kubb/core**: Replaced repeated object spreading with `Object.assign()` in plugin context initialization to reduce object allocations
+  - **@kubb/core**: Optimized filter-map chains to use single-pass `reduce()` for better performance when processing promise results
+
 ## 4.12.4
 
 ## 4.12.3

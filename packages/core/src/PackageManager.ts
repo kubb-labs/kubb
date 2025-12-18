@@ -67,8 +67,8 @@ export class PackageManager {
       const module = await import(location)
 
       return module?.default ?? module
-    } catch (e) {
-      console.error(e)
+    } catch (error) {
+      console.error(error)
       return undefined
     }
   }

@@ -43,8 +43,8 @@ const command = defineCommand({
       console.log('⏳ Starting MCP server...')
       console.warn(pc.yellow('This feature is still under development — use with caution'))
       await startServer()
-    } catch (e) {
-      console.error((e as Error)?.message)
+    } catch (error) {
+      console.error((error as Error)?.message)
     }
   },
 })

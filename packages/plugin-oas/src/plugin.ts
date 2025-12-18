@@ -37,8 +37,8 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
       if (validate) {
         await oas.valdiate()
       }
-    } catch (e) {
-      const error = e as Error
+    } catch (caughtError) {
+      const error = caughtError as Error
 
       console.warn(error?.message)
     }

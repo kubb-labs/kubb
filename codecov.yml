@@ -11,3 +11,105 @@ comment:
 bundle_analysis:
   warning_threshold: "10MB"
   status: True
+
+
+# configuration related to pull request comments
+comment: false # do not comment PR with the result
+
+ignore:
+  - '**/examples/**'
+  - '**/e2e/**'
+coverage:
+  range: 50..90 # coverage lower than 50 is red, higher than 90 green, between color code
+
+  status:
+    project: # settings affecting project coverage
+      default:
+        target: auto # auto % coverage target
+        threshold: 1% # allow for 1% reduction of coverage without failing
+
+    # do not run coverage on patch nor changes
+    patch: off
+
+component_management:
+  individual_components:
+    - component_id: cli
+      name: '@kubb/cli'
+      paths:
+        - packages/cli/**
+    - component_id: core
+      name: '@kubb/core'
+      paths:
+        - packages/core/**
+    - component_id: kubb
+      name: 'kubb'
+      paths: 
+        - packages/kubb/**
+    - component_id: mcp
+      name: '@kubb/mcp'
+      paths: 
+        - packages/mcp/**
+    - component_id: oas
+      name: '@kubb/oas'
+      paths: 
+        - packages/oas/**
+    - component_id: plugin-client
+      name: '@kubb/plugin-client'
+      paths: 
+        - packages/plugin-client/**
+    - component_id:  plugin-cypress
+      name: '@kubb/plugin-cypress'
+      paths: 
+        - packages/plugin-cypress/**
+    - component_id:  plugin-faker
+      name: '@kubb/plugin-faker'
+      paths: 
+        - packages/plugin-faker/**
+    - component_id:  plugin-mcp
+      name: '@kubb/plugin-mcp'
+      paths:
+        - packages/plugin-mcp/**
+    - component_id: plugin-msw
+      name: '@kubb/plugin-msw'
+      paths:
+        - packages/plugin-msw/**
+    - component_id: plugin-oas
+      name: '@kubb/plugin-oas'
+      paths:
+        - packages/plugin-oas/**
+    - component_id: plugin-react-query
+      name: '@kubb/plugin-react-query'
+      paths:
+        - packages/plugin-react-query/**
+    - component_id: plugin-redoc
+      name: '@kubb/plugin-redoc'
+      paths:
+        - packages/plugin-redoc/**
+    - component_id: plugin-solid-query
+      name: '@kubb/plugin-solid-query'
+      paths:
+        - packages/plugin-solid-query/**
+    - component_id: plugin-svelte-query
+      name:  '@kubb/plugin-svelte-query'
+      paths: 
+        - packages/plugin-svelte-query/**
+    - component_id: plugin-swr
+      name: '@kubb/plugin-swr'
+      paths:
+        - packages/plugin-swr/**
+    - component_id: plugin-ts
+      name: '@kubb/plugin-ts'
+      paths:
+        - packages/plugin-ts/**
+    - component_id: plugin-vue-query
+      name: '@kubb/plugin-vue-query'
+      paths:
+        - packages/plugin-vue-query/**
+    - component_id: plugin-zod
+      name: '@kubb/plugin-zod'
+      paths:
+        - packages/plugin-zod/**
+    - component_id: unplugin-kubb
+      name: 'unplugin-kubb'
+      paths:
+        - packages/unplugin-kubb/**
