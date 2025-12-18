@@ -83,6 +83,15 @@ Add a footer text at the end of every file.
 ### contentType
 <!--@include: ../core/contentType.md-->
 
+### paramsType
+<!--@include: ../plugin-client/paramsType.md-->
+
+### paramsCasing
+<!--@include: ../plugin-client/paramsCasing.md-->
+
+### pathParamsType
+<!--@include: ../plugin-client/pathParamsType.md-->
+
 ### baseURL
 <!--@include: ../plugin-client/baseURL.md-->
 
