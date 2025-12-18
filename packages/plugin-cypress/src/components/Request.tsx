@@ -19,6 +19,13 @@ type Props = {
 
 export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, method }: Props): KubbNode {
   const params = FunctionParams.factory({
+    path: typeSchemas.pathParams?.name
+      ? {
+          type: typeSchemas.pathParams.name,
+          optional: isOptional(typeSchemas.pathParams.schema),
+        }
+      : undefined,
+
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
