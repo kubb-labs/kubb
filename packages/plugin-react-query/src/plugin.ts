@@ -9,6 +9,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 import { MutationKey } from './components'
 import { QueryKey } from './components/QueryKey.tsx'
 import {
+  customHookOptionsFileGenerator,
   hookOptionsGenerator,
   infiniteQueryGenerator,
   mutationGenerator,
@@ -40,6 +41,7 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
       suspenseInfiniteQueryGenerator,
       mutationGenerator,
       hookOptionsGenerator,
+      customHookOptionsFileGenerator,
     ].filter(Boolean),
     mutation = {},
     query = {},

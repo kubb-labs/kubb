@@ -328,6 +328,11 @@ export type Output<TOptions> = {
    * Add a footer text in the beginning of every file
    */
   footer?: string | ((options: TOptions) => string)
+  /**
+   * Whether to override existing external files if they already exist.
+   * @default false
+   */
+  override?: boolean
 }
 
 type GroupContext = {
