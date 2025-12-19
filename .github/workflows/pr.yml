@@ -200,7 +200,7 @@ jobs:
 
       - name: Analyze dependency changes
         uses: e18e/action-dependency-diff@v1
-        whith:
+        with:
           duplicate-threshold: 5
           size-threshold: -1
 
