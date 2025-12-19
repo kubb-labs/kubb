@@ -8,7 +8,7 @@ outline: deep
 # @kubb/cli
 
 The Kubb CLI allows you to generate files based on the `kubb.config.ts` configuration file.
-Upon startup, Kubb displays a compact progress indicator (similar to Vitest and Jest) that shows real-time status of plugin execution, file writing, and other operations. The CLI also provides detailed logs of each step once the generation process is complete.
+The CLI displays progress updates showing plugin execution status, file counts, and timing information throughout the generation process.
 
 ![React-DevTools](/screenshots/cli.gif)
 
@@ -49,20 +49,14 @@ COMMANDS
 Use kubb <command> --help for more information about a command.
 ```
 
-## Progress Indicator
+## Progress Display
 
-The CLI displays a compact, real-time progress indicator at the top of the terminal (in TTY environments) that shows:
+During generation, the CLI shows progress updates after each major step:
 
-- **Configuration loading**: `Loading config... | 0.5s`
-- **Plugin generation**: `Plugins 3/5 | plugin-ts | 2.1s` (includes current plugin name)
-- **File writing**: `Files 15/18 | 3.2s`
-- **Formatting**: `Formatting... | 4.0s`
-- **Linting**: `Linting... | 4.5s`
+- After each plugin completes: `◇ Plugins 3/5 | 2.1s`
+- After file writing completes: `◇ Plugins 5/5 | Files 18/18 | 3.2s`
 
-This provides at-a-glance visibility into the generation progress, similar to how Vitest and Jest display test progress.
-
-> [!TIP]
-> The progress indicator only appears in TTY environments (when running in an interactive terminal). In CI/CD environments, detailed logs are shown instead.
+This provides at-a-glance visibility into the generation progress, similar to test runners like Vitest and Jest.
 
 ## `kubb generate`
 Generate files based on a `kubb.config.ts` file
