@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 4.12.8
+
+### Patch Changes
+
+- [#2227](https://github.com/kubb-labs/kubb/pull/2227) [`1f27fb3`](https://github.com/kubb-labs/kubb/commit/1f27fb31d4e8ff2cbe4a87cabeebec6e941782b4) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Better logging + --silent flag
+
+- Updated dependencies []:
+  - @kubb/core@4.12.8
+
 ## 4.12.7
 
 ### Patch Changes
