@@ -1,298 +1,274 @@
-import { relative } from "node:path";
-import { defineLogger, LogLevel } from "@kubb/core";
-import { execa } from "execa";
-import { getSummary } from "../utils/getSummary.ts";
+import { relative } from 'node:path'
+import { defineLogger, LogLevel } from '@kubb/core'
+import { execa } from 'execa'
+import { getSummary } from '../utils/getSummary.ts'
 
 /**
  * Plain console adapter for non-TTY environments
  * Simple console.log output with indentation
  */
 export const plainLogger = defineLogger({
-  name: "plain",
+  name: 'plain',
   install(context, options) {
-    const logLevel = options?.logLevel || 3;
+    const logLevel = options?.logLevel || 3
 
     function getMessage(message: string): string {
       if (logLevel >= LogLevel.verbose) {
-        const timestamp = new Date().toLocaleTimeString("en-US", {
+        const timestamp = new Date().toLocaleTimeString('en-US', {
           hour12: false,
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        });
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        })
 
-        return [`[${timestamp}]`, message].join(" ");
+        return [`[${timestamp}]`, message].join(' ')
       }
 
-      return message;
+      return message
     }
 
-    context.on("info", (message, info) => {
+    context.on('info', (message, info) => {
       if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
 
-      const text = getMessage(["ℹ", message, info].join(" "));
+      const text = getMessage(['ℹ', message, info].join(' '))
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("success", (message, info = "") => {
+    context.on('success', (message, info = '') => {
       if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
 
-      const text = getMessage(
-        ["✓", message, logLevel >= LogLevel.info ? info : undefined]
-          .filter(Boolean)
-          .join(" "),
-      );
+      const text = getMessage(['✓', message, logLevel >= LogLevel.info ? info : undefined].filter(Boolean).join(' '))
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("warn", (message, info) => {
+    context.on('warn', (message, info) => {
       if (logLevel < LogLevel.warn) {
-        return;
+        return
       }
 
-      const text = getMessage(
-        ["⚠", message, logLevel >= LogLevel.info ? info : undefined]
-          .filter(Boolean)
-          .join(" "),
-      );
+      const text = getMessage(['⚠', message, logLevel >= LogLevel.info ? info : undefined].filter(Boolean).join(' '))
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("error", (error) => {
-      const caused = error.cause as Error;
+    context.on('error', (error) => {
+      const caused = error.cause as Error
 
-      const text = getMessage(["✗", error.message].join(" "));
+      const text = getMessage(['✗', error.message].join(' '))
 
-      console.log(text);
+      console.log(text)
 
       // Show stack trace in debug mode (first 3 frames)
       if (logLevel >= LogLevel.debug && error.stack) {
-        const frames = error.stack.split("\n").slice(1, 4);
+        const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
-          console.log(getMessage(frame.trim()));
+          console.log(getMessage(frame.trim()))
         }
 
         if (caused?.stack) {
-          console.log(`└─ caused by ${caused.message}`);
+          console.log(`└─ caused by ${caused.message}`)
 
-          const frames = caused.stack.split("\n").slice(1, 4);
+          const frames = caused.stack.split('\n').slice(1, 4)
           for (const frame of frames) {
-            console.log(getMessage(`    ${frame.trim()}`));
+            console.log(getMessage(`    ${frame.trim()}`))
           }
         }
       }
-    });
+    })
 
-    context.on("lifecycle:start", () => {
-      console.log("Kubb CLI 🧩");
-    });
+    context.on('lifecycle:start', () => {
+      console.log('Kubb CLI 🧩')
+    })
 
-    context.on("config:start", () => {
+    context.on('config:start', () => {
       if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
 
-      const text = getMessage("Configuration started");
+      const text = getMessage('Configuration started')
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("config:end", () => {
+    context.on('config:end', () => {
       if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
 
-      const text = getMessage("Configuration completed");
+      const text = getMessage('Configuration completed')
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("generation:start", () => {
-      const text = getMessage("Configuration started");
+    context.on('generation:start', () => {
+      const text = getMessage('Configuration started')
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("plugin:start", (plugin) => {
+    context.on('plugin:start', (plugin) => {
       if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
-      const text = getMessage(`Generating ${plugin.name}`);
+      const text = getMessage(`Generating ${plugin.name}`)
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("plugin:end", (plugin, { duration, success }) => {
+    context.on('plugin:end', (plugin, { duration, success }) => {
       if (logLevel <= LogLevel.silent) {
-        return;
-      }
-
-      const durationStr =
-        duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`;
-      const text = getMessage(
-        success
-          ? `${plugin.name} completed in ${durationStr}`
-          : `${plugin.name} failed in ${durationStr}`,
-      );
-
-      console.log(text);
-    });
-
-    context.on("files:processing:start", (files) => {
-      if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
 
-      const text = getMessage(`Writing ${files.length} files`);
+      const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
+      const text = getMessage(success ? `${plugin.name} completed in ${durationStr}` : `${plugin.name} failed in ${durationStr}`)
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("file:processing:update", ({ file, config }) => {
+    context.on('files:processing:start', (files) => {
       if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
 
-      const text = getMessage(`Writing ${relative(config.root, file.path)}`);
+      const text = getMessage(`Writing ${files.length} files`)
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("files:processing:end", () => {
+    context.on('file:processing:update', ({ file, config }) => {
       if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
 
-      const text = getMessage("Files written successfully");
+      const text = getMessage(`Writing ${relative(config.root, file.path)}`)
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("generation:end", (config) => {
-      const text = getMessage(
-        config.name
-          ? `Generation completed for ${config.name}`
-          : "Generation completed",
-      );
+    context.on('files:processing:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
 
-      console.log(text);
-    });
+      const text = getMessage('Files written successfully')
 
-    context.on("hook:execute", async ({ command, args }, cb) => {
+      console.log(text)
+    })
+
+    context.on('generation:end', (config) => {
+      const text = getMessage(config.name ? `Generation completed for ${config.name}` : 'Generation completed')
+
+      console.log(text)
+    })
+
+    context.on('hook:execute', async ({ command, args }, cb) => {
       try {
         const result = await execa(command, args, {
           detached: true,
           stripFinalNewline: true,
-        });
+        })
 
-        await context.emit("debug", {
+        await context.emit('debug', {
           date: new Date(),
           logs: [result.stdout],
-        });
+        })
 
-        console.log(result.stdout);
+        console.log(result.stdout)
 
-        cb();
+        cb()
       } catch (err) {
-        const error = new Error("Hook execute failed");
-        error.cause = err;
+        const error = new Error('Hook execute failed')
+        error.cause = err
 
-        await context.emit("debug", {
+        await context.emit('debug', {
           date: new Date(),
           logs: [(err as any).stdout],
-        });
+        })
 
-        await context.emit("error", error);
+        await context.emit('error', error)
       }
-    });
+    })
 
-    context.on("format:start", () => {
+    context.on('format:start', () => {
       if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
 
-      const text = getMessage("Format started");
+      const text = getMessage('Format started')
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("format:end", () => {
+    context.on('format:end', () => {
       if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
 
-      const text = getMessage("Format completed");
+      const text = getMessage('Format completed')
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("lint:start", () => {
+    context.on('lint:start', () => {
       if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
 
-      const text = getMessage("Lint started");
+      const text = getMessage('Lint started')
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("lint:end", () => {
+    context.on('lint:end', () => {
       if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
 
-      const text = getMessage("Lint completed");
+      const text = getMessage('Lint completed')
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("hook:start", (command) => {
+    context.on('hook:start', (command) => {
       if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
 
-      const text = getMessage(`Hook ${command} started`);
+      const text = getMessage(`Hook ${command} started`)
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on("hook:end", (command) => {
+    context.on('hook:end', (command) => {
       if (logLevel <= LogLevel.silent) {
-        return;
+        return
       }
 
-      const text = getMessage(`Hook ${command} completed`);
+      const text = getMessage(`Hook ${command} completed`)
 
-      console.log(text);
-    });
+      console.log(text)
+    })
 
-    context.on(
-      "generation:summary",
-      (
+    context.on('generation:summary', (config, { pluginTimings, status, hrStart, failedPlugins, filesCreated }) => {
+      const summary = getSummary({
+        failedPlugins,
+        filesCreated,
         config,
-        { pluginTimings, status, hrStart, failedPlugins, filesCreated },
-      ) => {
-        const summary = getSummary({
-          failedPlugins,
-          filesCreated,
-          config,
-          status,
-          hrStart,
-          pluginTimings:
-            logLevel >= LogLevel.verbose ? pluginTimings : undefined,
-        });
+        status,
+        hrStart,
+        pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
+      })
 
-        console.log("---------------------------");
-        console.log(summary.join("\n"));
-        console.log("---------------------------");
-      },
-    );
+      console.log('---------------------------')
+      console.log(summary.join('\n'))
+      console.log('---------------------------')
+    })
   },
-});
+})
