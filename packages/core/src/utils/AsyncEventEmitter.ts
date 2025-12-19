@@ -19,7 +19,7 @@ export class AsyncEventEmitter<TEvents extends Record<string, any>> {
           return await listener(...eventArgs)
         } catch (err) {
           const causedError = err as Error
-          const error = new Error(`Error in async listener for "${eventName}"`, { cause: causedError })
+          const error = new Error(`Error in async listener for "${eventName}" with eventArgs "${eventArgs}"`, { cause: causedError })
 
           throw error
         }
