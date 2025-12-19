@@ -195,6 +195,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       progressState.totalPlugins = configs.reduce((sum, config) => sum + (config.plugins?.length || 0), 0)
       progressState.completedPlugins = 0
       progressState.failedPlugins = 0
+      progressState.hrStart = process.hrtime()
     })
 
     context.on('generation:start', (config) => {
@@ -210,7 +211,6 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       stopSpinner()
 
-      progressState.hrStart = process.hrtime()
       const progressBar = clack.progress({
         style: 'block',
         max: 100,
