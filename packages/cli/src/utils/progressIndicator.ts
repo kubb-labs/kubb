@@ -123,7 +123,7 @@ export class ProgressIndicator {
     let inEscape = false
 
     for (let i = 0; i < str.length; i++) {
-      if (str[i] === '\x1b' && str[i + 1] === '[') {
+      if (i + 1 < str.length && str[i] === '\x1b' && str[i + 1] === '[') {
         inEscape = true
         i++ // Skip the '['
         continue
