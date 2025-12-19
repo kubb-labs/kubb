@@ -119,6 +119,7 @@ export const githubActionsLogger = defineLogger({
 
     context.on('lifecycle:start', (version) => {
       console.log(pc.yellow(`Kubb ${version} 🧩`))
+      reset()
     })
 
     context.on('config:start', () => {

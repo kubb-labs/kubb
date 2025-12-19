@@ -188,6 +188,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
     context.on('lifecycle:start', (version) => {
       console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(`Kubb ${version} 🧩`))
+      reset()
     })
 
     context.on('config:start', () => {
