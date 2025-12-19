@@ -161,6 +161,8 @@ export const githubActionsLogger = defineLogger({
       if (state.currentConfigs.length === 1) {
         console.log(getMessage(text))
       }
+
+      reset()
     })
 
     context.on('plugin:start', (plugin) => {
@@ -255,8 +257,6 @@ export const githubActionsLogger = defineLogger({
       const text = getMessage(config.name ? `${pc.blue('✓')} Generation completed for ${pc.dim(config.name)}` : `${pc.blue('✓')} Generation completed`)
 
       console.log(text)
-
-      reset()
     })
 
     context.on('hook:execute', async ({ command, args }, cb) => {

@@ -219,6 +219,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       const text = getMessage(['Generation started', config.name ? `for ${pc.dim(config.name)}` : undefined].filter(Boolean).join(' '))
 
       clack.intro(text)
+      reset()
     })
 
     context.on('plugin:start', (plugin) => {
@@ -238,7 +239,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       const interval = setInterval(() => {
         progressBar.advance()
-      }, 50)
+      }, 100)
 
       state.activeProgress.set(plugin.name, { progressBar, interval })
     })
@@ -337,8 +338,6 @@ Run \`npm install -g @kubb/cli\` to update`,
       const text = getMessage(config.name ? `Generation completed for ${pc.dim(config.name)}` : 'Generation completed')
 
       clack.outro(text)
-
-      reset()
     })
 
     context.on('hook:execute', async ({ command, args }, cb) => {
