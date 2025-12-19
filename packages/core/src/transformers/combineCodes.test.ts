@@ -1,6 +1,5 @@
-import { combineCodes } from './combineCodes.ts'
 import { describe, expect, it } from 'vitest'
-
+import { combineCodes } from './combineCodes.ts'
 
 describe('combineCodes', () => {
   it('should combine multiple code strings with newlines', () => {

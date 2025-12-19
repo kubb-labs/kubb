@@ -1,6 +1,5 @@
-import { camelCase, pascalCase } from './casing.ts'
 import { describe, expect, test } from 'vitest'
-
+import { camelCase, pascalCase } from './casing.ts'
 
 describe('casing', () => {
   test('camelCase', () => {

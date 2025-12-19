@@ -1,14 +1,12 @@
 import path from 'node:path'
 
 import yaml from '@stoplight/yaml'
-
+import { describe, expect, expectTypeOf, test } from 'vitest'
 import { petStore } from '../mocks/petStore.ts'
 import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './infer/index.ts'
 import { Oas } from './Oas.ts'
 import type { OpenAPIV3 } from './types.ts'
 import { parse } from './utils.ts'
-import { describe, expect, expectTypeOf, test } from 'vitest'
-
 
 describe('swagger Infer', () => {
   const oas = new Oas({ oas: petStore })

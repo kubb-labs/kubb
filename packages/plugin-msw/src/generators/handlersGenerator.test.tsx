@@ -4,11 +4,10 @@ import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import { describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginMsw } from '../types.ts'
 import { handlersGenerator } from './handlersGenerator.tsx'
-import { describe, test } from 'vitest'
-
 
 describe('handlersGenerator operations', async () => {
   const testData = [

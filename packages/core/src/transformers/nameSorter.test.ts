@@ -1,6 +1,5 @@
-import { nameSorter } from './nameSorter.ts'
 import { describe, expect, it } from 'vitest'
-
+import { nameSorter } from './nameSorter.ts'
 
 describe('nameSorter', () => {
   it('should sort by name in ascending order', () => {

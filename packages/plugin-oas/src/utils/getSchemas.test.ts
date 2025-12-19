@@ -1,9 +1,8 @@
 import path from 'node:path'
 import type { OasTypes } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { getSchemas } from './getSchemas.ts'
 import { describe, expect, it } from 'vitest'
-
+import { getSchemas } from './getSchemas.ts'
 
 describe('getSchemas', () => {
   it('should return schemas from components.schemas', async () => {

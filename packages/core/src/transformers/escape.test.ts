@@ -1,6 +1,5 @@
-import { escape, jsStringEscape } from './escape.ts'
 import { describe, expect, test } from 'vitest'
-
+import { escape, jsStringEscape } from './escape.ts'
 
 describe('escape', () => {
   test('return escape text', () => {

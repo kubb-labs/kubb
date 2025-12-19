@@ -1,6 +1,5 @@
+import { describe, expect, it } from 'vitest'
 import { buildFormData } from './config'
-import { describe, expect, it, test } from 'vitest'
-
 
 describe('buildFormData', () => {
   describe('primitive types', () => {

@@ -5,12 +5,11 @@ import { parse } from '@kubb/oas'
 
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import { describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
 import { suspenseInfiniteQueryGenerator } from './suspenseInfiniteQueryGenerator.tsx'
-import { describe, test } from 'vitest'
-
 
 describe('suspenseInfiniteQueryGenerator operation', async () => {
   const testData = [

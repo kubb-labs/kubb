@@ -1,8 +1,7 @@
 import type { OasTypes } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { getFooter } from './getFooter.ts'
 import { describe, expect, it } from 'vitest'
-
+import { getFooter } from './getFooter.ts'
 
 describe('getFooter', () => {
   it('should return undefined when no footer is provided', async () => {

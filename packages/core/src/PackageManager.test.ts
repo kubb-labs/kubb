@@ -1,8 +1,6 @@
 import path from 'node:path'
-
-import { PackageManager } from './PackageManager.ts'
 import { describe, expect, test } from 'vitest'
-
+import { PackageManager } from './PackageManager.ts'
 
 describe('getPackageJSON', () => {
   const packageManager = new PackageManager()

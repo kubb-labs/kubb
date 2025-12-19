@@ -1,8 +1,6 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
-
-import { BarrelManager } from './BarrelManager.ts'
 import { describe, expect, it, test } from 'vitest'
-
+import { BarrelManager } from './BarrelManager.ts'
 
 describe('BarrelManager', () => {
   it(`if getFiles returns 'index.ts' files`, () => {

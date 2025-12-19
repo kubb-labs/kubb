@@ -6,11 +6,10 @@ import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
 import ts, { factory } from 'typescript'
+import { describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
-import { describe, test } from 'vitest'
-
 
 describe('typeGenerator schema', async () => {
   const testData = [
