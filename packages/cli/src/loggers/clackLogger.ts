@@ -19,16 +19,15 @@ export const clackLogger = defineLogger({
     const logLevel = options?.logLevel || LogLevel.info
     const activeProgress = new Map<string, { interval?: NodeJS.Timeout; progressBar: clack.ProgressResult }>()
     const spinner = clack.spinner()
+    const progressState = {
+      totalPlugins: 0,
+      completedPlugins: 0,
+      failedPlugins: 0,
+      totalFiles: 0,
+      processedFiles: 0,
+      hrStart: process.hrtime(),
+    }
     let isSpinning = false
-
-    // Progress tracking state
-    let totalPlugins = 0
-    let completedPlugins = 0
-    let failedPlugins = 0
-    let totalFiles = 0
-    let processedFiles = 0
-    let hrStart: [number, number] = process.hrtime()
-    let isGenerating = false
 
     function showProgressStep() {
       if (logLevel <= LogLevel.silent) {
@@ -39,20 +38,20 @@ export const clackLogger = defineLogger({
       const duration = ((hrtime) => {
         const [seconds, nanoseconds] = process.hrtime(hrtime)
         return Math.round(seconds * 1000 + nanoseconds / 1e6)
-      })(hrStart)
+      })(progressState.hrStart)
 
       const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
 
-      if (totalPlugins > 0) {
+      if (progressState.totalPlugins > 0) {
         const pluginStr =
-          failedPlugins > 0
-            ? `Plugins ${pc.green(completedPlugins.toString())}/${totalPlugins} ${pc.red(`(${failedPlugins} failed)`)}`
-            : `Plugins ${pc.green(completedPlugins.toString())}/${totalPlugins}`
+          progressState.failedPlugins > 0
+            ? `Plugins ${pc.green(progressState.completedPlugins.toString())}/${progressState.totalPlugins} ${pc.red(`(${progressState.failedPlugins} failed)`)}`
+            : `Plugins ${pc.green(progressState.completedPlugins.toString())}/${progressState.totalPlugins}`
         parts.push(pluginStr)
       }
 
-      if (totalFiles > 0) {
-        parts.push(`Files ${pc.green(processedFiles.toString())}/${totalFiles}`)
+      if (progressState.totalFiles > 0) {
+        parts.push(`Files ${pc.green(progressState.processedFiles.toString())}/${progressState.totalFiles}`)
       }
 
       if (parts.length > 0) {
@@ -135,12 +134,6 @@ export const clackLogger = defineLogger({
         clack.log.error(getMessage(text))
       }
 
-      // Track plugin failures during generation
-      if (isGenerating && totalPlugins > 0 && completedPlugins + failedPlugins < totalPlugins) {
-        failedPlugins++
-        showProgressStep()
-      }
-
       // Show stack trace in debug mode (first 3 frames)
       if (logLevel >= LogLevel.debug && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
@@ -204,14 +197,13 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.outro(text)
 
       // Initialize progress tracking
-      totalPlugins = configs.reduce((sum, config) => sum + (config.plugins?.length || 0), 0)
-      completedPlugins = 0
-      failedPlugins = 0
-      hrStart = process.hrtime()
+      progressState.totalPlugins = configs.reduce((sum, config) => sum + (config.plugins?.length || 0), 0)
+      progressState.completedPlugins = 0
+      progressState.failedPlugins = 0
+      progressState.hrStart = process.hrtime()
     })
 
     context.on('generation:start', (config) => {
-      isGenerating = true
       const text = getMessage(['Generation started', config.name ? `for ${pc.dim(config.name)}` : undefined].filter(Boolean).join(' '))
 
       clack.intro(text)
@@ -239,7 +231,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       activeProgress.set(plugin.name, { progressBar, interval })
     })
 
-    context.on('plugin:end', (plugin, { duration, success, error }) => {
+    context.on('plugin:end', (plugin, { duration, success }) => {
       stopSpinner()
 
       const active = activeProgress.get(plugin.name)
@@ -250,7 +242,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       clearInterval(active.interval)
 
-      completedPlugins++
+      progressState.completedPlugins++
 
       const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
       const text = getMessage(
@@ -271,8 +263,8 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       stopSpinner()
 
-      totalFiles = files.length
-      processedFiles = 0
+      progressState.totalFiles = files.length
+      progressState.processedFiles = 0
 
       const text = `Writing ${files.length} files`
       const progressBar = clack.progress({
@@ -293,7 +285,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       stopSpinner()
 
-      processedFiles++
+      progressState.processedFiles++
 
       const text = `Writing ${relative(config.root, file.path)}`
       const active = activeProgress.get('files')
@@ -326,7 +318,6 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('generation:end', (config) => {
-      isGenerating = false
       const text = getMessage(config.name ? `Generation completed for ${pc.dim(config.name)}` : 'Generation completed')
 
       clack.outro(text)
