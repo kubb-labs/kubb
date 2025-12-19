@@ -53,8 +53,8 @@ Use kubb <command> --help for more information about a command.
 
 During generation, the CLI shows progress updates after each major step:
 
-- After each plugin completes: `◇ Plugins 3/5 | 2.1s`
-- After file writing completes: `◇ Plugins 5/5 | Files 18/18 | 3.2s`
+- After each plugin completes: `◇ Plugins 3/5 | 2100ms`
+- After file writing completes: `◇ Plugins 5/5 | Files 18/18 | 3.20s`
 
 This provides at-a-glance visibility into the generation progress, similar to test runners like Vitest and Jest.
 
