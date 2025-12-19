@@ -108,6 +108,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/GKNewsrooms"><img src="https://avatars.githubusercontent.com/u/201248633?v=4?s=100" width="100px;" alt="GKNewsrooms"/><br /><sub><b>GKNewsrooms</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=GKNewsrooms" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/stepek"><img src="https://avatars.githubusercontent.com/u/5058678?v=4?s=100" width="100px;" alt="Kamil Stepczuk"/><br /><sub><b>Kamil Stepczuk</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=stepek" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/JoaoBrlt"><img src="https://avatars.githubusercontent.com/u/11065509?v=4?s=100" width="100px;" alt="João Brilhante"/><br /><sub><b>João Brilhante</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=JoaoBrlt" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
