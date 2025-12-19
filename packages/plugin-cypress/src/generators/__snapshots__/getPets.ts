@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-export function listPets(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<ListPetsQueryResponse> {
+export function listPets(params?: ListPetsQueryParams, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<ListPetsQueryResponse> {
   return cy
-    .request({
+    .request<ListPetsQueryResponse>({
       method: 'get',
       url: `/pets`,
-      body: undefined,
+      qs: params,
       ...options,
     })
-    .then((res: Cypress.Response<ListPetsQueryResponse>) => res.body)
+    .then((res) => res.body)
 }

@@ -15,6 +15,70 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.12.5
+
+### ✨ Features
+
+#### Performance Optimizations
+
+Improved performance across the core and OAS packages with several key optimizations:
+
+**[`@kubb/oas`](/plugins/plugin-oas/)**
+
+Replaced inefficient JSON deep cloning with native `structuredClone()` API. The previous `JSON.parse(JSON.stringify())` approach was significantly slower and more memory-intensive, especially for large OpenAPI documents.
+
+::: code-group
+```typescript [Before]
+const api: OasTypes.OASDocument = JSON.parse(JSON.stringify(config.input.data))
+```
+
+```typescript [After]
+const api: OasTypes.OASDocument = structuredClone(config.input.data)
+```
+:::
+
+**[`@kubb/core`](/plugins/core/)**
+
+1. **Plugin Lookup Optimization**: Eliminated O(n*m) complexity in barrel file generation by creating a plugin key Map before nested loops, replacing expensive array spreading and linear searches with O(1) Map lookups.
+
+2. **Object Spreading**: Replaced repeated object spreading with `Object.assign()` in plugin context initialization, preventing unnecessary object allocations on each loop iteration.
+
+3. **Array Operations**: Optimized filter-map chains to use single-pass `reduce()`, eliminating redundant array iterations when processing settled promises.
+
+These optimizations provide measurable performance improvements when generating code from large OpenAPI specifications with many plugins and files.
+
+## 4.12.4
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+Fixed handling of empty schema objects `{}` in `anyOf`, `oneOf`, and `allOf` constructs.
+
+Empty schema objects (`{}`) in JSON Schema represent "accepts any value" per the specification, but were being incorrectly filtered out from unions and intersections. This caused schemas like `anyOf: [{}, {type: "null"}]` to generate only `null` instead of the correct `unknown | null`.
+
+::: code-group
+```typescript [Before]
+export type ParameterBinding = {
+  /**
+   * @description The fixed value when source is FIXED.
+   */
+  fixed_value?: null;  // Missing unknown type
+}
+```
+
+```typescript [After]
+export type ParameterBinding = {
+  /**
+   * @description The fixed value when source is FIXED.
+   */
+  fixed_value?: unknown | null;  // Correct union type
+}
+```
+:::
+
+The fix ensures that empty schemas are properly preserved as the configured `unknownType` (or `emptySchemaType`) in the generated types, matching the JSON Schema specification.
+
 ## 4.12.3
 
 ### 🐛 Bug Fixes

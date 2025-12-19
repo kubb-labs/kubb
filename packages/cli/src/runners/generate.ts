@@ -125,8 +125,8 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
             )
           },
         )
-      } catch (e) {
-        await events.emit('error', e as Error)
+      } catch (caughtError) {
+        await events.emit('error', caughtError as Error)
       }
 
       await events.emit('success', `Formatted with ${config.output.format}`)
@@ -153,9 +153,9 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
             )
           },
         )
-      } catch (e) {
+      } catch (caughtError) {
         const error = new Error('Biome not found')
-        error.cause = e
+        error.cause = caughtError
         await events.emit('error', error)
       }
     }
@@ -198,9 +198,9 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
             )
           },
         )
-      } catch (e) {
+      } catch (caughtError) {
         const error = new Error('Eslint not found')
-        error.cause = e
+        error.cause = caughtError
         await events.emit('error', error)
       }
     }
@@ -226,9 +226,9 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
             )
           },
         )
-      } catch (e) {
+      } catch (caughtError) {
         const error = new Error('Biome not found')
-        error.cause = e
+        error.cause = caughtError
         await events.emit('error', error)
       }
     }
@@ -254,9 +254,9 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
             )
           },
         )
-      } catch (e) {
+      } catch (caughtError) {
         const error = new Error('Oxlint not found')
-        error.cause = e
+        error.cause = caughtError
         await events.emit('error', error)
       }
     }

@@ -1,5 +1,41 @@
 # @kubb/plugin-solid-query
 
+## 4.12.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.12.6
+  - @kubb/oas@4.12.6
+  - @kubb/plugin-client@4.12.6
+  - @kubb/plugin-oas@4.12.6
+  - @kubb/plugin-ts@4.12.6
+  - @kubb/plugin-zod@4.12.6
+
+## 4.12.5
+
+### Patch Changes
+
+- Updated dependencies [[`f6e6ee4`](https://github.com/kubb-labs/kubb/commit/f6e6ee4402c4a0e5b130414ea45210432e20afcc)]:
+  - @kubb/oas@4.12.5
+  - @kubb/core@4.12.5
+  - @kubb/plugin-client@4.12.5
+  - @kubb/plugin-oas@4.12.5
+  - @kubb/plugin-ts@4.12.5
+  - @kubb/plugin-zod@4.12.5
+
+## 4.12.4
+
+### Patch Changes
+
+- Updated dependencies [[`329cf02`](https://github.com/kubb-labs/kubb/commit/329cf021783d3e0f00d2597eefbc20487bfb5e23)]:
+  - @kubb/plugin-oas@4.12.4
+  - @kubb/plugin-client@4.12.4
+  - @kubb/plugin-ts@4.12.4
+  - @kubb/plugin-zod@4.12.4
+  - @kubb/core@4.12.4
+  - @kubb/oas@4.12.4
+
 ## 4.12.3
 
 ### Patch Changes

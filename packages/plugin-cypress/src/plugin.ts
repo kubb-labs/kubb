@@ -20,6 +20,9 @@ export const pluginCypress = definePlugin<PluginCypress>((options) => {
     generators = [cypressGenerator].filter(Boolean),
     contentType,
     baseURL,
+    paramsCasing = 'camelcase',
+    paramsType = 'inline',
+    pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
   } = options
 
   return {
@@ -29,6 +32,10 @@ export const pluginCypress = definePlugin<PluginCypress>((options) => {
       dataReturnType,
       group,
       baseURL,
+
+      paramsCasing,
+      paramsType,
+      pathParamsType,
     },
     pre: [pluginOasName, pluginTsName].filter(Boolean),
     resolvePath(baseName, pathMode, options) {

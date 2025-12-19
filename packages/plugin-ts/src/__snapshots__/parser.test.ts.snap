@@ -2369,3 +2369,64 @@ TokenObject {
   "transformFlags": 1,
 }
 `;
+
+exports[`type parse > union with unknown and null should preserve both types 1`] = `
+NodeObject {
+  "emitNode": undefined,
+  "end": -1,
+  "flags": 16,
+  "id": 0,
+  "kind": 197,
+  "modifierFlagsCache": 0,
+  "original": undefined,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+  "type": NodeObject {
+    "emitNode": undefined,
+    "end": -1,
+    "flags": 16,
+    "id": 0,
+    "kind": 193,
+    "modifierFlagsCache": 0,
+    "original": undefined,
+    "parent": undefined,
+    "pos": -1,
+    "transformFlags": 1,
+    "types": [
+      TokenObject {
+        "emitNode": undefined,
+        "end": -1,
+        "flags": 16,
+        "id": 0,
+        "kind": 159,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+      NodeObject {
+        "emitNode": undefined,
+        "end": -1,
+        "flags": 16,
+        "id": 0,
+        "kind": 202,
+        "literal": TokenObject {
+          "emitNode": undefined,
+          "end": -1,
+          "flags": 16,
+          "id": 0,
+          "kind": 106,
+          "parent": undefined,
+          "pos": -1,
+          "transformFlags": 0,
+        },
+        "modifierFlagsCache": 0,
+        "original": undefined,
+        "parent": undefined,
+        "pos": -1,
+        "transformFlags": 1,
+      },
+    ],
+  },
+}
+`;

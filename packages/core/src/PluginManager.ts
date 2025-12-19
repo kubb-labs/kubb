@@ -105,14 +105,14 @@ export class PluginManager {
       },
     } as unknown as PluginContext<TOptions>
 
-    let mergedExtras: Record<string, any> = {}
+    const mergedExtras: Record<string, any> = {}
     for (const p of plugins) {
       if (typeof p.inject === 'function') {
         const injector = p.inject.bind(baseContext as any) as any
 
         const result = injector(baseContext)
         if (result && typeof result === 'object') {
-          mergedExtras = { ...mergedExtras, ...result }
+          Object.assign(mergedExtras, result)
         }
       }
     }
@@ -377,7 +377,12 @@ export class PluginManager {
 
     this.events.emit('plugins:hook:progress:end', { hookName })
 
-    return results.filter((result) => result.status === 'fulfilled').map((result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value)
+    return results.reduce((acc, result) => {
+      if (result.status === 'fulfilled') {
+        acc.push(result.value)
+      }
+      return acc
+    }, [] as Awaited<TOuput>[])
   }
 
   /**
@@ -541,8 +546,8 @@ export class PluginManager {
         })
 
         return hook
-      } catch (e) {
-        this.events.emit('error', e as Error, {
+      } catch (error) {
+        this.events.emit('error', error as Error, {
           plugin,
           hookName,
           strategy,
@@ -621,8 +626,8 @@ export class PluginManager {
       })
 
       return hook
-    } catch (e) {
-      this.events.emit('error', e as Error, {
+    } catch (error) {
+      this.events.emit('error', error as Error, {
         plugin,
         hookName,
         strategy,

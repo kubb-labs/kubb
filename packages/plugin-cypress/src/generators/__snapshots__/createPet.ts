@@ -5,11 +5,11 @@
 
 export function createPets(data: CreatePetsMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<CreatePetsMutationResponse> {
   return cy
-    .request({
+    .request<CreatePetsMutationResponse>({
       method: 'post',
       url: `/pets`,
       body: data,
       ...options,
     })
-    .then((res: Cypress.Response<CreatePetsMutationResponse>) => res.body)
+    .then((res) => res.body)
 }

@@ -1,5 +1,4 @@
 import { usePluginManager } from '@kubb/core/hooks'
-import { URLPath } from '@kubb/core/utils'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -12,7 +11,7 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
   name: 'cypress',
   Operation({ operation, generator, plugin }) {
     const {
-      options: { output, baseURL, dataReturnType },
+      options: { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType },
     } = plugin
     const pluginManager = usePluginManager()
 
@@ -53,10 +52,13 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
         <Request
           name={request.name}
           dataReturnType={dataReturnType}
+          paramsCasing={paramsCasing}
+          paramsType={paramsType}
+          pathParamsType={pathParamsType}
           typeSchemas={type.schemas}
           method={operation.method}
           baseURL={baseURL}
-          url={new URLPath(operation.path).toURLPath()}
+          url={operation.path}
         />
       </File>
     )

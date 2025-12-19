@@ -1,0 +1,24 @@
+openapi: 3.0.3
+info:
+  title: AnyOf Empty Test
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    EmptyAnyOf:
+      type: object
+      properties:
+        fixed_value:
+          anyOf:
+            - {}
+            - {type: "null"}
+          title: Fixed Value
+          description: The fixed value - should accept any type or null
+        payload_key:
+          anyOf:
+            - {type: "string"}
+            - {type: "null"}
+          title: Payload Key
+          description: String or null
+      required:
+        - fixed_value

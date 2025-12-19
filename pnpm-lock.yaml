@@ -338,8 +338,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@kubb/react-fabric':
-        specifier: ~0.7.0
-        version: 0.7.0
+        specifier: ~0.7.1
+        version: 0.7.1
       '@modelcontextprotocol/sdk':
         specifier: 1.21.1
         version: 1.21.1
@@ -411,8 +411,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: ~0.7.0
-        version: 0.7.0
+        specifier: ~0.7.1
+        version: 0.7.1
       axios:
         specifier: ^1.13.2
         version: 1.13.2
@@ -479,8 +479,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: ~0.7.0
-        version: 0.7.0
+        specifier: ~0.7.1
+        version: 0.7.1
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
@@ -535,8 +535,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: ~0.7.0
-        version: 0.7.0
+        specifier: ~0.7.1
+        version: 0.7.1
       axios:
         specifier: ^1.13.2
         version: 1.13.2
@@ -649,8 +649,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: ~0.7.0
-        version: 0.7.0
+        specifier: ~0.7.1
+        version: 0.7.1
       '@tanstack/react-query':
         specifier: ^5.90.12
         version: 5.90.12(react@19.2.3)
@@ -2155,16 +2155,8 @@ packages:
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
 
-  '@kubb/fabric-core@0.7.0':
-    resolution: {integrity: sha512-rqXA09P+bTCqE41OTCkPxDCLmqtOvzQ/3o+aB7Z0NJWKna7IwU1/fTjfTDH7Bp1SSAxi/EwqQ/vbJ6vOmwV+nA==}
-    engines: {node: '>=20'}
-
   '@kubb/fabric-core@0.7.1':
     resolution: {integrity: sha512-rNySKWnd/POG9ovrxadvGYa7Hv7uJE+OqVbRXyBEMPEZ4XTi23NKhiOtkTyEMkzIr8yNdFgrZi6dKmmGXot0Bg==}
-    engines: {node: '>=20'}
-
-  '@kubb/react-fabric@0.7.0':
-    resolution: {integrity: sha512-ztmWjqCrp+LyVhUdBpQQxB7Yk9F6x2ek1ijyLtNqUkrGZsXPoAV4ylZpQ878OBO6SUQXd2lNRsi0lyfbtVaNqg==}
     engines: {node: '>=20'}
 
   '@kubb/react-fabric@0.7.1':
@@ -4348,14 +4340,6 @@ packages:
 
   decode-named-character-reference@1.2.0:
     resolution: {integrity: sha512-c6fcElNV6ShtZXmsgNgFFV5tVX2PaV4g+MOAkb8eXHvn6sryJBrZa9r0zV6+dtTyoCKxtDy5tyQ5ZwQuidtd+Q==}
-
-  dedent@1.7.0:
-    resolution: {integrity: sha512-HGFtf8yhuhGhqO07SV79tRp+br4MnbdjeVxotpn1QBl30pcLLCQjX5b2295ll0fv8RKDKsmWYrl05usHM9CewQ==}
-    peerDependencies:
-      babel-plugin-macros: ^3.1.0
-    peerDependenciesMeta:
-      babel-plugin-macros:
-        optional: true
 
   dedent@1.7.1:
     resolution: {integrity: sha512-9JmrhGZpOlEgOLdQgSm0zxFaYoQon408V1v49aqTWuXENVlnCuY9JBZcXZiCsZQWDjTm5Qf/nIvAy77mXDAjEg==}
@@ -8622,20 +8606,6 @@ snapshots:
     dependencies:
       jsep: 1.4.0
 
-  '@kubb/fabric-core@0.7.0':
-    dependencies:
-      cli-progress: 3.12.0
-      consola: 3.4.2
-      fs-extra: 11.3.2
-      natural-orderby: 5.0.0
-      p-limit: 7.2.0
-      serve-handler: 6.1.6
-      typescript: 5.9.3
-      ws: 8.18.3
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
   '@kubb/fabric-core@0.7.1':
     dependencies:
       cli-progress: 3.12.0
@@ -8647,21 +8617,6 @@ snapshots:
       typescript: 5.9.3
       ws: 8.18.3
     transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
-  '@kubb/react-fabric@0.7.0':
-    dependencies:
-      '@kubb/fabric-core': 0.7.0
-      dedent: 1.7.0
-      execa: 9.6.1
-      indent-string: 5.0.0
-      natural-orderby: 5.0.0
-      react-devtools-core: 6.1.2
-      signal-exit: 4.1.0
-      ws: 8.18.0
-    transitivePeerDependencies:
-      - babel-plugin-macros
       - bufferutil
       - utf-8-validate
 
@@ -11113,8 +11068,6 @@ snapshots:
   decode-named-character-reference@1.2.0:
     dependencies:
       character-entities: 2.0.2
-
-  dedent@1.7.0: {}
 
   dedent@1.7.1: {}
 
