@@ -1082,6 +1082,9 @@ importers:
 
   packages/oas:
     dependencies:
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
       '@redocly/openapi-core':
         specifier: ^2.13.0
         version: 2.13.0(ajv@8.17.1)
