@@ -1,12 +1,14 @@
-import type { GetUserByNameQueryResponse } from '../../models/ts/userController/GetUserByName.ts'
+import type { GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/ts/userController/GetUserByName.ts'
 
-export function getUserByName(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetUserByNameQueryResponse> {
+export function getUserByName(
+  username: GetUserByNamePathParams['username'],
+  options?: Partial<Cypress.RequestOptions>,
+): Cypress.Chainable<GetUserByNameQueryResponse> {
   return cy
-    .request({
+    .request<GetUserByNameQueryResponse>({
       method: 'get',
-      url: '/user/:username',
-      body: undefined,
+      url: `/user/${username}`,
       ...options,
     })
-    .then((res: Cypress.Response<GetUserByNameQueryResponse>) => res.body)
+    .then((res) => res.body)
 }

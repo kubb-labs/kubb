@@ -2,11 +2,11 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
 
 export function createUser(data?: CreateUserMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<CreateUserMutationResponse> {
   return cy
-    .request({
+    .request<CreateUserMutationResponse>({
       method: 'post',
       url: '/user',
       body: data,
       ...options,
     })
-    .then((res: Cypress.Response<CreateUserMutationResponse>) => res.body)
+    .then((res) => res.body)
 }

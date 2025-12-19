@@ -1,5 +1,5 @@
 import { type Config, defineLogger, LogLevel } from '@kubb/core'
-import { formatMs } from '@kubb/core/utils'
+import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import pc from 'picocolors'
 
@@ -11,7 +11,41 @@ export const githubActionsLogger = defineLogger({
   name: 'github-actions',
   install(context, options) {
     const logLevel = options?.logLevel || LogLevel.info
-    let currentConfigs: Array<Config> = []
+    const state = {
+      totalPlugins: 0,
+      completedPlugins: 0,
+      failedPlugins: 0,
+      totalFiles: 0,
+      processedFiles: 0,
+      hrStart: process.hrtime(),
+      currentConfigs: [] as Array<Config>,
+    }
+
+    function showProgressStep() {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      const parts: string[] = []
+      const duration = formatHrtime(state.hrStart)
+
+      if (state.totalPlugins > 0) {
+        const pluginStr =
+          state.failedPlugins > 0
+            ? `Plugins ${pc.green(state.completedPlugins.toString())}/${state.totalPlugins} ${pc.red(`(${state.failedPlugins} failed)`)}`
+            : `Plugins ${pc.green(state.completedPlugins.toString())}/${state.totalPlugins}`
+        parts.push(pluginStr)
+      }
+
+      if (state.totalFiles > 0) {
+        parts.push(`Files ${pc.green(state.processedFiles.toString())}/${state.totalFiles}`)
+      }
+
+      if (parts.length > 0) {
+        parts.push(pc.green(duration))
+        console.log(parts.join(pc.dim(' | ')))
+      }
+    }
 
     function getMessage(message: string): string {
       if (logLevel >= LogLevel.verbose) {
@@ -91,7 +125,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('config:end', (configs) => {
-      currentConfigs = configs
+      state.currentConfigs = configs
 
       if (logLevel <= LogLevel.silent) {
         return
@@ -105,13 +139,19 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('generation:start', (config) => {
+      // Initialize progress tracking
+      state.totalPlugins = config.plugins?.length || 0
+      state.completedPlugins = 0
+      state.failedPlugins = 0
+      state.hrStart = process.hrtime()
+
       const text = config.name ? `Generation for ${pc.bold(config.name)}` : 'Generation'
 
-      if (currentConfigs.length > 1) {
+      if (state.currentConfigs.length > 1) {
         openGroup(text)
       }
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         console.log(getMessage(text))
       }
     })
@@ -122,7 +162,7 @@ export const githubActionsLogger = defineLogger({
       }
       const text = getMessage(`Generating ${pc.bold(plugin.name)}`)
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         openGroup(`Plugin: ${plugin.name}`)
       }
 
@@ -133,26 +173,40 @@ export const githubActionsLogger = defineLogger({
       if (logLevel <= LogLevel.silent) {
         return
       }
+
+      if (success) {
+        state.completedPlugins++
+      } else {
+        state.failedPlugins++
+      }
+
       const durationStr = formatMs(duration)
       const text = getMessage(
         success ? `${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}` : `${pc.bold(plugin.name)} failed in ${pc.red(durationStr)}`,
       )
 
       console.log(text)
-      if (currentConfigs.length > 1) {
+      if (state.currentConfigs.length > 1) {
         console.log(' ')
       }
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         closeGroup(`Plugin: ${plugin.name}`)
       }
+
+      // Show progress step after each plugin
+      showProgressStep()
     })
 
     context.on('files:processing:start', (files) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      if (currentConfigs.length === 1) {
+
+      state.totalFiles = files.length
+      state.processedFiles = 0
+
+      if (state.currentConfigs.length === 1) {
         openGroup('File Generation')
       }
       const text = getMessage(`Writing ${files.length} files`)
@@ -168,9 +222,26 @@ export const githubActionsLogger = defineLogger({
 
       console.log(text)
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         closeGroup('File Generation')
       }
+    })
+
+    context.on('file:processing:update', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      state.processedFiles++
+    })
+
+    context.on('files:processing:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      // Show final progress step after files are written
+      showProgressStep()
     })
 
     context.on('generation:end', (config) => {
@@ -214,7 +285,7 @@ export const githubActionsLogger = defineLogger({
 
       const text = getMessage('Format started')
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         openGroup('Formatting')
       }
 
@@ -230,7 +301,7 @@ export const githubActionsLogger = defineLogger({
 
       console.log(text)
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         closeGroup('Formatting')
       }
     })
@@ -242,7 +313,7 @@ export const githubActionsLogger = defineLogger({
 
       const text = getMessage('Lint started')
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         openGroup('Linting')
       }
 
@@ -258,7 +329,7 @@ export const githubActionsLogger = defineLogger({
 
       console.log(text)
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         closeGroup('Linting')
       }
     })
@@ -270,7 +341,7 @@ export const githubActionsLogger = defineLogger({
 
       const text = getMessage(`Hook ${pc.dim(command)} started`)
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         openGroup(`Hook ${command}`)
       }
 
@@ -286,7 +357,7 @@ export const githubActionsLogger = defineLogger({
 
       console.log(text)
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         closeGroup(`Hook ${command}`)
       }
     })
@@ -295,7 +366,7 @@ export const githubActionsLogger = defineLogger({
       const pluginsCount = config.plugins?.length || 0
       const successCount = pluginsCount - failedPlugins.size
 
-      if (currentConfigs.length > 1) {
+      if (state.currentConfigs.length > 1) {
         console.log(' ')
       }
 
@@ -305,7 +376,7 @@ export const githubActionsLogger = defineLogger({
           : `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total`,
       )
 
-      if (currentConfigs.length > 1) {
+      if (state.currentConfigs.length > 1) {
         closeGroup(config.name ? `Generation for ${pc.bold(config.name)}` : 'Generation')
       }
     })

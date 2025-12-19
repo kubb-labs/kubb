@@ -1,12 +1,16 @@
-import type { DeletePetMutationResponse } from '../../models/ts/petController/DeletePet.ts'
+import type { DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models/ts/petController/DeletePet.ts'
 
-export function deletePet(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<DeletePetMutationResponse> {
+export function deletePet(
+  petId: DeletePetPathParams['petId'],
+  headers?: DeletePetHeaderParams,
+  options?: Partial<Cypress.RequestOptions>,
+): Cypress.Chainable<DeletePetMutationResponse> {
   return cy
-    .request({
+    .request<DeletePetMutationResponse>({
       method: 'delete',
-      url: '/pet/:petId\\:search',
-      body: undefined,
+      url: `/pet/${petId}:search`,
+      headers,
       ...options,
     })
-    .then((res: Cypress.Response<DeletePetMutationResponse>) => res.body)
+    .then((res) => res.body)
 }
