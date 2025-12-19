@@ -52,7 +52,7 @@ export const githubActionsLogger = defineLogger({
 
       if (parts.length > 0) {
         parts.push(`${pc.green(duration)} elapsed`)
-        console.log(parts.join(pc.dim(' | ')))
+        console.log(getMessage(parts.join(pc.dim(' | '))))
       }
     }
 
