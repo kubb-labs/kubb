@@ -69,7 +69,7 @@ export const clackLogger = defineLogger({
       }
 
       if (parts.length > 0) {
-        parts.push(pc.green(duration))
+        parts.push(`${pc.green(duration)} elapsed`)
         clack.log.step(parts.join(pc.dim(' | ')))
       }
     }
