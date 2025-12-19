@@ -93,7 +93,7 @@ describe('build', () => {
     expect(pluginMocks.install).toHaveBeenCalledTimes(1)
   })
 
-  test('should handle plugin installation errors', async () => {
+  it('should handle plugin installation errors', async () => {
     const errorPlugin = definePlugin(() => {
       return {
         name: 'errorPlugin',
@@ -122,7 +122,7 @@ describe('build', () => {
     expect(failedPlugin?.error.message).toBe('Installation failed')
   })
 
-  test('should emit debug events during build process', async () => {
+  it('should emit debug events during build process', async () => {
     const events = new AsyncEventEmitter<KubbEvents>()
     const debugSpy = vi.fn()
     events.on('debug', debugSpy)
@@ -135,7 +135,7 @@ describe('build', () => {
     expect(debugSpy).toHaveBeenCalled()
   })
 
-  test('should handle array input with warning', async () => {
+  it('should handle array input with warning', async () => {
     const events = new AsyncEventEmitter<KubbEvents>()
     const warnSpy = vi.fn()
     events.on('warn', warnSpy)
@@ -153,7 +153,7 @@ describe('build', () => {
     expect(warnSpy).toHaveBeenCalledWith('This feature is still under development — use with caution')
   })
 
-  test.skip('should generate barrel file when barrelType is set', async () => {
+  it('should generate barrel file when barrelType is set', async () => {
     const indexableFile: KubbFile.File = {
       path: './src/gen/test.ts',
       baseName: 'test.ts',
@@ -193,7 +193,7 @@ describe('build', () => {
     expect(hasIndexableFiles).toBe(true)
   })
 
-  test.skip('should handle "all" barrel type', async () => {
+  it('should handle "all" barrel type', async () => {
     const indexableFile: KubbFile.File = {
       path: './src/gen/test.ts',
       baseName: 'test.ts',
@@ -259,7 +259,7 @@ describe('build', () => {
     expect(result.failedPlugins.size).toBeGreaterThan(0)
   })
 
-  test('should track plugin timings', async () => {
+  it('should track plugin timings', async () => {
     const { pluginTimings } = await build({
       config,
       events: new AsyncEventEmitter<KubbEvents>(),
@@ -269,7 +269,7 @@ describe('build', () => {
     expect(pluginTimings.size).toBeGreaterThan(0)
   })
 
-  test('should emit plugin lifecycle events', async () => {
+  it('should emit plugin lifecycle events', async () => {
     const events = new AsyncEventEmitter<KubbEvents>()
     const startSpy = vi.fn()
     const endSpy = vi.fn()
@@ -286,7 +286,7 @@ describe('build', () => {
     expect(endSpy).toHaveBeenCalled()
   })
 
-  test('should not include files with barrelType false in barrel', async () => {
+  it('should not include files with barrelType false in barrel', async () => {
     const indexableFile: KubbFile.File = {
       path: 'src/gen/mocks/excluded.ts',
       baseName: 'excluded.ts',

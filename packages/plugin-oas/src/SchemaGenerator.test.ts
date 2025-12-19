@@ -100,7 +100,7 @@ describe('SchemaGenerator core', async () => {
     // Add discriminator test cases
   ] as const satisfies Array<{ input: string; name: string; path: string; options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>> }>
 
-  test.each(testData)('$name', async (props) => {
+  it.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
     const schemas = oas.getDefinition().components?.schemas
     const schema = schemas?.[props.path]

@@ -444,7 +444,7 @@ describe('typeGenerator schema', async () => {
     }
   }>
 
-  test.each(testData)('$name', async (props) => {
+  it.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     if ('oasOptions' in props && props.oasOptions) {
@@ -593,7 +593,7 @@ describe('typeGenerator operation', async () => {
     options: Partial<PluginTs['resolvedOptions']>
   }>
 
-  test.each(testData)('$name', async (props) => {
+  it.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginTs['resolvedOptions'] = {

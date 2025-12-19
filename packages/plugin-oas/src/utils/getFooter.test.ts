@@ -1,10 +1,10 @@
 import type { OasTypes } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { getFooter } from './getFooter.ts'
 
 describe('getFooter', () => {
-  test('should return undefined when no footer is provided', async () => {
+  it('should return undefined when no footer is provided', async () => {
     const oas = await parse({
       openapi: '3.0.0',
       info: {},
@@ -18,7 +18,7 @@ describe('getFooter', () => {
     expect(result).toBeUndefined()
   })
 
-  test('should return string footer', async () => {
+  it('should return string footer', async () => {
     const oas = await parse({
       openapi: '3.0.0',
       info: {},
@@ -33,7 +33,7 @@ describe('getFooter', () => {
     expect(result).toBe(footer)
   })
 
-  test('should call function footer with oas', async () => {
+  it('should call function footer with oas', async () => {
     const oas = await parse({
       openapi: '3.0.0',
       info: {

@@ -226,7 +226,7 @@ describe('PluginManager', () => {
     expect(paths).toEqual(['static/path'])
   })
 
-  test('should handle plugin hook errors gracefully', async () => {
+  it('should handle plugin hook errors gracefully', async () => {
     const errorPlugin = definePlugin(() => {
       return {
         name: 'errorPlugin',

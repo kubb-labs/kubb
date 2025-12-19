@@ -25,7 +25,7 @@ describe('groupedClientsGenerators operations', async () => {
     options: Partial<PluginClient['resolvedOptions']>
   }>
 
-  test.each(testData)('$name', async (props) => {
+  it.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginClient['resolvedOptions'] = {

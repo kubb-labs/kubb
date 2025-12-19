@@ -267,7 +267,7 @@ describe('zodGenerator schema', async () => {
     options: Partial<PluginZod['resolvedOptions']>
   }>
 
-  test.each(testData)('$name', async (props) => {
+  it.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginZod['resolvedOptions'] = {
@@ -385,7 +385,7 @@ describe('zodGenerator operation', async () => {
     options: Partial<PluginZod['resolvedOptions']>
   }>
 
-  test.each(testData)('$name', async (props) => {
+  it.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginZod['resolvedOptions'] = {
@@ -437,7 +437,7 @@ describe('zodGenerator operation', async () => {
   })
 
   describe('wrapOutput', () => {
-    test.each(testData)('$name', async (props) => {
+    it.each(testData)('$name', async (props) => {
       const oas = await parse(path.resolve(__dirname, props.input))
 
       const options: PluginZod['resolvedOptions'] = {

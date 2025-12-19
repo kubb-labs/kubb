@@ -4,7 +4,7 @@ import { FileManager } from '@kubb/react-fabric'
 import { getBarrelFiles } from './getBarrelFiles.ts'
 
 describe('getBarrelFiles', () => {
-  test('if generation works', async () => {
+  it('should generate barrel files correctly', async () => {
     const fileManager = new FileManager()
     const files: KubbFile.File[] = [
       {
