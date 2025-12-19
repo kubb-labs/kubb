@@ -1,4 +1,3 @@
-
 import { canUseTTY, isCIEnvironment, isGitHubActions } from './envDetection.ts'
 
 describe('envDetection', () => {

@@ -1,87 +1,87 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
-import path from "node:path";
-import type { Config, Plugin } from "@kubb/core";
-import type { HttpMethod } from "@kubb/oas";
-import { parse } from "@kubb/oas";
-import { buildOperation, OperationGenerator } from "@kubb/plugin-oas";
-import { createReactFabric } from "@kubb/react-fabric";
-import { createMockedPluginManager, matchFiles } from "#mocks";
-import type { PluginCypress } from "../types.ts";
-import { cypressGenerator } from "./cypressGenerator.tsx";
+import path from 'node:path'
+import type { Config, Plugin } from '@kubb/core'
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas'
+import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
+import type { PluginCypress } from '../types.ts'
+import { cypressGenerator } from './cypressGenerator.tsx'
 
-describe("cypressGenerator operation", async () => {
+describe('cypressGenerator operation', async () => {
   const testData = [
     {
-      name: "showPetById",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets/{petId}",
-      method: "get",
+      name: 'showPetById',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'get',
       options: {},
     },
     {
-      name: "getPets",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets",
-      method: "get",
+      name: 'getPets',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
       options: {},
     },
     {
-      name: "getPetsWithTemplateString",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets",
-      method: "get",
+      name: 'getPetsWithTemplateString',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
       options: {
-        baseURL: "${123456}",
+        baseURL: '${123456}',
       },
     },
     {
-      name: "createPet",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets",
-      method: "post",
+      name: 'createPet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
       options: {},
     },
     {
-      name: "updatePet",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets/{petId}",
-      method: "put",
+      name: 'updatePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'put',
       options: {},
     },
     {
-      name: "deletePet",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets/{petId}",
-      method: "delete",
+      name: 'deletePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'delete',
       options: {},
     },
   ] as const satisfies Array<{
-    input: string;
-    name: string;
-    path: string;
-    method: HttpMethod;
-    options: Partial<PluginCypress["resolvedOptions"]>;
-  }>;
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<PluginCypress['resolvedOptions']>
+  }>
 
-  test.each(testData)("$name", async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input));
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginCypress["resolvedOptions"] = {
+    const options: PluginCypress['resolvedOptions'] = {
       output: {
-        path: ".",
+        path: '.',
       },
       baseURL: undefined,
       group: undefined,
-      dataReturnType: "data",
-      paramsCasing: "camelcase",
-      paramsType: "inline",
-      pathParamsType: "inline",
+      dataReturnType: 'data',
+      paramsCasing: 'camelcase',
+      paramsType: 'inline',
+      pathParamsType: 'inline',
       ...props.options,
-    };
-    const plugin = { options } as Plugin<PluginCypress>;
-    const fabric = createReactFabric();
+    }
+    const plugin = { options } as Plugin<PluginCypress>
+    const fabric = createReactFabric()
 
-    const mockedPluginManager = createMockedPluginManager(props.name);
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -91,20 +91,20 @@ describe("cypressGenerator operation", async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: "split",
+      mode: 'split',
       exclude: [],
-    });
+    })
 
-    const operation = oas.operation(props.path, props.method);
+    const operation = oas.operation(props.path, props.method)
 
     await buildOperation(operation, {
-      config: { root: ".", output: { path: "test" } } as Config,
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
       Component: cypressGenerator.Operation,
       plugin,
-    });
+    })
 
-    await matchFiles(fabric.files);
-  });
-});
+    await matchFiles(fabric.files)
+  })
+})

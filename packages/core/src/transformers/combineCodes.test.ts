@@ -1,4 +1,3 @@
-
 import { combineCodes } from './combineCodes.ts'
 
 describe('combineCodes', () => {

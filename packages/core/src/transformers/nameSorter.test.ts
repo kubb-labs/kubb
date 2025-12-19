@@ -1,4 +1,3 @@
-
 import { nameSorter } from './nameSorter.ts'
 
 describe('nameSorter', () => {

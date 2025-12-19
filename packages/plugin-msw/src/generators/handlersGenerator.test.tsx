@@ -1,45 +1,45 @@
-import path from "node:path";
-import type { Config, Plugin } from "@kubb/core";
-import type { HttpMethod } from "@kubb/oas";
-import { parse } from "@kubb/oas";
-import { buildOperations, OperationGenerator } from "@kubb/plugin-oas";
-import { createReactFabric } from "@kubb/react-fabric";
-import { createMockedPluginManager, matchFiles } from "#mocks";
-import type { PluginMsw } from "../types.ts";
-import { handlersGenerator } from "./handlersGenerator.tsx";
+import path from 'node:path'
+import type { Config, Plugin } from '@kubb/core'
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas'
+import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
+import type { PluginMsw } from '../types.ts'
+import { handlersGenerator } from './handlersGenerator.tsx'
 
-describe("handlersGenerator operations", async () => {
+describe('handlersGenerator operations', async () => {
   const testData = [
     {
-      name: "findByTags",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTags',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {},
     },
   ] as const satisfies Array<{
-    input: string;
-    name: string;
-    path: string;
-    method: HttpMethod;
-    options: Partial<PluginMsw["resolvedOptions"]>;
-  }>;
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<PluginMsw['resolvedOptions']>
+  }>
 
-  test.each(testData)("$name", async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input));
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginMsw["resolvedOptions"] = {
+    const options: PluginMsw['resolvedOptions'] = {
       output: {
-        path: ".",
+        path: '.',
       },
-      parser: "data",
+      parser: 'data',
       baseURL: undefined,
       group: undefined,
       ...props.options,
-    };
-    const plugin = { options } as Plugin<PluginMsw>;
-    const fabric = createReactFabric();
-    const mockedPluginManager = createMockedPluginManager(props.name);
+    }
+    const plugin = { options } as Plugin<PluginMsw>
+    const fabric = createReactFabric()
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -49,23 +49,23 @@ describe("handlersGenerator operations", async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: "split",
+      mode: 'split',
       exclude: [],
-    });
+    })
 
-    const operations = await generator.getOperations();
+    const operations = await generator.getOperations()
 
     await buildOperations(
       operations.map((item) => item.operation),
       {
-        config: { root: ".", output: { path: "test" } } as Config,
+        config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
         generator,
         Component: handlersGenerator.Operations,
         plugin,
       },
-    );
+    )
 
-    await matchFiles(fabric.files);
-  });
-});
+    await matchFiles(fabric.files)
+  })
+})

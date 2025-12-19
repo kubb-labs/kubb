@@ -1,4 +1,3 @@
-
 import { getDiagnosticInfo } from './diagnostics.ts'
 
 describe('diagnostics', () => {

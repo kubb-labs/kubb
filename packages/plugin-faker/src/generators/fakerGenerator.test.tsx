@@ -1,67 +1,62 @@
-import path from "node:path";
-import type { Config, Plugin } from "@kubb/core";
-import type { HttpMethod } from "@kubb/oas";
-import { parse } from "@kubb/oas";
-import {
-  buildOperation,
-  buildSchema,
-  OperationGenerator,
-  SchemaGenerator,
-} from "@kubb/plugin-oas";
-import { getSchemas } from "@kubb/plugin-oas/utils";
-import { createReactFabric } from "@kubb/react-fabric";
-import { createMockedPluginManager, matchFiles } from "#mocks";
-import type { PluginFaker } from "../types.ts";
-import { fakerGenerator } from "./fakerGenerator.tsx";
+import path from 'node:path'
+import type { Config, Plugin } from '@kubb/core'
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas'
+import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
+import { getSchemas } from '@kubb/plugin-oas/utils'
+import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
+import type { PluginFaker } from '../types.ts'
+import { fakerGenerator } from './fakerGenerator.tsx'
 
-describe("fakerGenerator schema", async () => {
+describe('fakerGenerator schema', async () => {
   const testData = [
     {
-      name: "Pet",
-      path: "Pet",
-      input: "../../mocks/petStore.yaml",
+      name: 'Pet',
+      path: 'Pet',
+      input: '../../mocks/petStore.yaml',
       options: {},
     },
     {
-      name: "PetWithDayjs",
-      input: "../../mocks/petStore.yaml",
-      path: "Pet",
+      name: 'PetWithDayjs',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pet',
       options: {
-        dateType: "string",
-        dateParser: "dayjs",
+        dateType: 'string',
+        dateParser: 'dayjs',
       },
     },
     {
-      name: "String",
-      input: "../../mocks/petStore.yaml",
-      path: "String",
+      name: 'String',
+      input: '../../mocks/petStore.yaml',
+      path: 'String',
       options: {},
     },
     {
-      name: "Integer",
-      input: "../../mocks/petStore.yaml",
-      path: "Integer",
+      name: 'Integer',
+      input: '../../mocks/petStore.yaml',
+      path: 'Integer',
       options: {},
     },
     {
-      name: "Float",
-      input: "../../mocks/petStore.yaml",
-      path: "Float",
+      name: 'Float',
+      input: '../../mocks/petStore.yaml',
+      path: 'Float',
       options: {},
     },
     {
-      name: "PetWithDateString",
-      input: "../../mocks/petStore.yaml",
-      path: "Pet",
+      name: 'PetWithDateString',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pet',
       options: {
-        dateParser: "faker",
-        dateType: "string",
+        dateParser: 'faker',
+        dateType: 'string',
       },
     },
     {
-      name: "PetWithMapper",
-      input: "../../mocks/petStore.yaml",
-      path: "Pet",
+      name: 'PetWithMapper',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pet',
       options: {
         mapper: {
           id: `faker.string.fromCharacters('abc')`,
@@ -70,78 +65,78 @@ describe("fakerGenerator schema", async () => {
       },
     },
     {
-      name: "PetWithRandExp",
-      input: "../../mocks/petStore.yaml",
-      path: "Pet",
+      name: 'PetWithRandExp',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pet',
       options: {
-        regexGenerator: "randexp",
+        regexGenerator: 'randexp',
       },
     },
     {
-      name: "enumVarNames",
-      input: "../../mocks/enums.yaml",
-      path: "enumVarNames.Type",
+      name: 'enumVarNames',
+      input: '../../mocks/enums.yaml',
+      path: 'enumVarNames.Type',
       options: {},
     },
     {
-      name: "enumNames",
-      input: "../../mocks/enums.yaml",
-      path: "enumNames.Type",
+      name: 'enumNames',
+      input: '../../mocks/enums.yaml',
+      path: 'enumNames.Type',
       options: {},
     },
     {
-      name: "Pets",
-      path: "Pets",
-      input: "../../mocks/petStore.yaml",
+      name: 'Pets',
+      path: 'Pets',
+      input: '../../mocks/petStore.yaml',
       options: {},
     },
   ] as const satisfies Array<{
-    input: string;
-    name: string;
-    path: string;
-    options: Partial<PluginFaker["resolvedOptions"]>;
-  }>;
+    input: string
+    name: string
+    path: string
+    options: Partial<PluginFaker['resolvedOptions']>
+  }>
 
-  test.each(testData)("$name", async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input));
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginFaker["resolvedOptions"] = {
-      dateType: "date",
-      dateParser: "faker",
+    const options: PluginFaker['resolvedOptions'] = {
+      dateType: 'date',
+      dateParser: 'faker',
       seed: undefined,
-      regexGenerator: "faker",
+      regexGenerator: 'faker',
       override: [],
       transformers: {},
-      unknownType: "unknown",
+      unknownType: 'unknown',
       mapper: {},
       output: {
-        path: ".",
+        path: '.',
       },
       group: undefined,
-      emptySchemaType: "unknown",
+      emptySchemaType: 'unknown',
       ...props.options,
-    };
-    const plugin = { options } as Plugin<PluginFaker>;
-    const fabric = createReactFabric();
+    }
+    const plugin = { options } as Plugin<PluginFaker>
+    const fabric = createReactFabric()
 
-    const mockedPluginManager = createMockedPluginManager(props.name);
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
       pluginManager: mockedPluginManager,
 
       plugin,
-      contentType: "application/json",
+      contentType: 'application/json',
       include: undefined,
       override: undefined,
-      mode: "split",
-      output: "./gen",
-    });
+      mode: 'split',
+      output: './gen',
+    })
 
-    const schemas = getSchemas({ oas });
-    const name = props.path;
-    const schema = schemas[name]!;
-    const tree = generator.parse({ schemaObject: schema, name });
+    const schemas = getSchemas({ oas })
+    const name = props.path
+    const schema = schemas[name]!
+    const tree = generator.parse({ schemaObject: schema, name })
 
     await buildSchema(
       {
@@ -150,97 +145,97 @@ describe("fakerGenerator schema", async () => {
         value: schema,
       },
       {
-        config: { root: ".", output: { path: "test" } } as Config,
+        config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
         generator,
         Component: fakerGenerator.Schema,
         plugin,
       },
-    );
+    )
 
-    await matchFiles(fabric.files);
-  });
-});
+    await matchFiles(fabric.files)
+  })
+})
 
-describe("fakerGenerator operation", async () => {
+describe('fakerGenerator operation', async () => {
   const testData = [
     {
-      name: "showPetById",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets/{petId}",
-      method: "get",
+      name: 'showPetById',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'get',
       options: {},
     },
     {
-      name: "getPets",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets",
-      method: "get",
+      name: 'getPets',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
       options: {},
     },
     {
-      name: "createPet",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets",
-      method: "post",
+      name: 'createPet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
       options: {},
     },
     {
-      name: "createPetUnknownTypeAny",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets",
-      method: "post",
+      name: 'createPetUnknownTypeAny',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
       options: {
-        unknownType: "any",
+        unknownType: 'any',
       },
     },
     {
-      name: "createPetSeed",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets",
-      method: "post",
+      name: 'createPetSeed',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
       options: {
         seed: [222],
       },
     },
     {
-      name: "deletePet",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets/{petId}",
-      method: "delete",
+      name: 'deletePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'delete',
       options: {},
     },
   ] as const satisfies Array<{
-    input: string;
-    name: string;
-    path: string;
-    method: HttpMethod;
-    options: Partial<PluginFaker["resolvedOptions"]>;
-  }>;
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<PluginFaker['resolvedOptions']>
+  }>
 
-  test.each(testData)("$name", async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input));
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginFaker["resolvedOptions"] = {
-      dateType: "date",
-      dateParser: "faker",
+    const options: PluginFaker['resolvedOptions'] = {
+      dateType: 'date',
+      dateParser: 'faker',
       seed: undefined,
-      regexGenerator: "faker",
+      regexGenerator: 'faker',
       override: [],
       transformers: {},
-      unknownType: "unknown",
+      unknownType: 'unknown',
       mapper: {},
       output: {
-        path: ".",
+        path: '.',
       },
       group: undefined,
-      emptySchemaType: "unknown",
+      emptySchemaType: 'unknown',
       ...props.options,
-    };
-    const plugin = { options } as Plugin<PluginFaker>;
-    const fabric = createReactFabric();
+    }
+    const plugin = { options } as Plugin<PluginFaker>
+    const fabric = createReactFabric()
 
-    const mockedPluginManager = createMockedPluginManager(props.name);
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -250,19 +245,19 @@ describe("fakerGenerator operation", async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: "split",
+      mode: 'split',
       exclude: [],
-    });
-    const operation = oas.operation(props.path, props.method);
+    })
+    const operation = oas.operation(props.path, props.method)
 
     await buildOperation(operation, {
-      config: { root: ".", output: { path: "test" } } as Config,
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
       Component: fakerGenerator.Operation,
       plugin,
-    });
+    })
 
-    await matchFiles(fabric.files);
-  });
-});
+    await matchFiles(fabric.files)
+  })
+})

@@ -1,153 +1,153 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
-import path from "node:path";
-import type { Config, Plugin } from "@kubb/core";
-import type { HttpMethod } from "@kubb/oas";
-import { parse } from "@kubb/oas";
+import path from 'node:path'
+import type { Config, Plugin } from '@kubb/core'
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas'
 
-import { buildOperation, OperationGenerator } from "@kubb/plugin-oas";
-import { createReactFabric } from "@kubb/react-fabric";
-import { createMockedPluginManager, matchFiles } from "#mocks";
-import { QueryKey } from "../components";
-import type { PluginSolidQuery } from "../types.ts";
-import { queryGenerator } from "./queryGenerator.tsx";
+import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
+import { QueryKey } from '../components'
+import type { PluginSolidQuery } from '../types.ts'
+import { queryGenerator } from './queryGenerator.tsx'
 
-describe("queryGenerator operation", async () => {
+describe('queryGenerator operation', async () => {
   const testData = [
     {
-      name: "findByTags",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTags',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {},
     },
     {
-      name: "findByTagsTemplateString",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTagsTemplateString',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
         client: {
-          baseURL: "${123456}",
+          baseURL: '${123456}',
         },
       },
     },
     {
-      name: "findByTagsPathParamsObject",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTagsPathParamsObject',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
-        pathParamsType: "object",
+        pathParamsType: 'object',
       },
     },
     {
-      name: "findByTagsWithZod",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTagsWithZod',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
-        parser: "zod",
+        parser: 'zod',
       },
     },
     {
-      name: "findByTagsWithCustomQueryKey",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTagsWithCustomQueryKey',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
         query: {
-          methods: ["get"],
-          importPath: "@tanstack/react-query",
+          methods: ['get'],
+          importPath: '@tanstack/react-query',
         },
         queryKey(props) {
-          const keys = QueryKey.getTransformer(props);
-          return ['"test"', ...keys];
+          const keys = QueryKey.getTransformer(props)
+          return ['"test"', ...keys]
         },
       },
     },
     {
-      name: "clientGetImportPath",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'clientGetImportPath',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
         client: {
-          dataReturnType: "data",
-          importPath: "axios",
+          dataReturnType: 'data',
+          importPath: 'axios',
         },
       },
     },
     {
-      name: "clientDataReturnTypeFull",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'clientDataReturnTypeFull',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
         client: {
-          dataReturnType: "full",
-          importPath: "@kubb/plugin-client/clients/axios",
+          dataReturnType: 'full',
+          importPath: '@kubb/plugin-client/clients/axios',
         },
       },
     },
     {
-      name: "postAsQuery",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/{petId}",
-      method: "post",
+      name: 'postAsQuery',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'post',
       options: {
         query: {
-          importPath: "custom-query",
-          methods: ["post"],
+          importPath: 'custom-query',
+          methods: ['post'],
         },
       },
     },
     {
-      name: "findByTagsObject",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTagsObject',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
-        paramsType: "object",
-        pathParamsType: "object",
+        paramsType: 'object',
+        pathParamsType: 'object',
       },
     },
   ] as const satisfies Array<{
-    input: string;
-    name: string;
-    path: string;
-    method: HttpMethod;
-    options: Partial<PluginSolidQuery["resolvedOptions"]>;
-  }>;
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<PluginSolidQuery['resolvedOptions']>
+  }>
 
-  test.each(testData)("$name", async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input));
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginSolidQuery["resolvedOptions"] = {
+    const options: PluginSolidQuery['resolvedOptions'] = {
       client: {
-        dataReturnType: "data",
-        importPath: "@kubb/plugin-client/clients/axios",
+        dataReturnType: 'data',
+        importPath: '@kubb/plugin-client/clients/axios',
         bundle: false,
       },
-      parser: "zod",
-      paramsType: "inline",
+      parser: 'zod',
+      paramsType: 'inline',
       paramsCasing: undefined,
-      pathParamsType: "inline",
+      pathParamsType: 'inline',
       queryKey: QueryKey.getTransformer,
       query: {
-        importPath: "@tanstack/svelte-query",
-        methods: ["get"],
+        importPath: '@tanstack/svelte-query',
+        methods: ['get'],
       },
       mutation: false,
       mutationKey: undefined,
       output: {
-        path: ".",
+        path: '.',
       },
       group: undefined,
       ...props.options,
-    };
-    const plugin = { options } as Plugin<PluginSolidQuery>;
-    const fabric = createReactFabric();
-    const mockedPluginManager = createMockedPluginManager(props.name);
+    }
+    const plugin = { options } as Plugin<PluginSolidQuery>
+    const fabric = createReactFabric()
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -157,20 +157,20 @@ describe("queryGenerator operation", async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: "split",
+      mode: 'split',
       exclude: [],
-    });
+    })
 
-    const operation = oas.operation(props.path, props.method);
+    const operation = oas.operation(props.path, props.method)
 
     await buildOperation(operation, {
-      config: { root: ".", output: { path: "test" } } as Config,
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
       Component: queryGenerator.Operation,
       plugin,
-    });
+    })
 
-    await matchFiles(fabric.files);
-  });
-});
+    await matchFiles(fabric.files)
+  })
+})

@@ -1,5 +1,3 @@
-
-
 import type { petStore } from '../../mocks/petStore.ts'
 import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './index.ts'
 

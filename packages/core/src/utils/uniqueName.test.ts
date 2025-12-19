@@ -1,4 +1,3 @@
-
 import { getUniqueName, setUniqueName } from './uniqueName.ts'
 
 describe('uniqueName', () => {

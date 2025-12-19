@@ -1,82 +1,82 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
-import path from "node:path";
-import type { Config, Plugin } from "@kubb/core";
-import type { HttpMethod } from "@kubb/oas";
-import { parse } from "@kubb/oas";
-import { buildOperation, OperationGenerator } from "@kubb/plugin-oas";
-import { createReactFabric } from "@kubb/react-fabric";
-import { createMockedPluginManager, matchFiles } from "#mocks";
-import type { PluginMcp } from "../types.ts";
-import { mcpGenerator } from "./mcpGenerator.tsx";
+import path from 'node:path'
+import type { Config, Plugin } from '@kubb/core'
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas'
+import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
+import type { PluginMcp } from '../types.ts'
+import { mcpGenerator } from './mcpGenerator.tsx'
 
-describe("mcpGenerator operation", async () => {
+describe('mcpGenerator operation', async () => {
   const testData = [
     {
-      name: "showPetById",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets/{petId}",
-      method: "get",
+      name: 'showPetById',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'get',
       options: {},
     },
     {
-      name: "getPets",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets",
-      method: "get",
+      name: 'getPets',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
       options: {},
     },
     {
-      name: "getPetsTemplateString",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets",
-      method: "get",
+      name: 'getPetsTemplateString',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
       options: {
         client: {
-          baseURL: "${123456}",
+          baseURL: '${123456}',
         },
       },
     },
     {
-      name: "createPet",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets",
-      method: "post",
+      name: 'createPet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
       options: {},
     },
     {
-      name: "deletePet",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets/{petId}",
-      method: "delete",
+      name: 'deletePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'delete',
       options: {},
     },
   ] as const satisfies Array<{
-    input: string;
-    name: string;
-    path: string;
-    method: HttpMethod;
-    options: Partial<PluginMcp["resolvedOptions"]>;
-  }>;
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<PluginMcp['resolvedOptions']>
+  }>
 
-  test.each(testData)("$name", async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input));
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginMcp["resolvedOptions"] = {
+    const options: PluginMcp['resolvedOptions'] = {
       output: {
-        path: ".",
+        path: '.',
       },
       client: {
-        client: "axios",
-        baseURL: "",
-        dataReturnType: "data",
+        client: 'axios',
+        baseURL: '',
+        dataReturnType: 'data',
       },
       group: undefined,
       ...props.options,
-    };
-    const plugin = { options } as Plugin<PluginMcp>;
-    const fabric = createReactFabric();
+    }
+    const plugin = { options } as Plugin<PluginMcp>
+    const fabric = createReactFabric()
 
-    const mockedPluginManager = createMockedPluginManager(props.name);
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -86,20 +86,20 @@ describe("mcpGenerator operation", async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: "split",
+      mode: 'split',
       exclude: [],
-    });
+    })
 
-    const operation = oas.operation(props.path, props.method);
+    const operation = oas.operation(props.path, props.method)
 
     await buildOperation(operation, {
-      config: { root: ".", output: { path: "test" } } as Config,
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
       Component: mcpGenerator.Operation,
       plugin,
-    });
+    })
 
-    await matchFiles(fabric.files);
-  });
-});
+    await matchFiles(fabric.files)
+  })
+})

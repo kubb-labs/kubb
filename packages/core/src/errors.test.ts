@@ -1,4 +1,3 @@
-
 import { ValidationPluginError } from './errors.ts'
 
 describe('ValidationPluginError', () => {

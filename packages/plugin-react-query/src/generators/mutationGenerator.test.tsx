@@ -1,116 +1,116 @@
-import path from "node:path";
-import type { Config, Plugin } from "@kubb/core";
-import type { HttpMethod } from "@kubb/oas";
-import { parse } from "@kubb/oas";
+import path from 'node:path'
+import type { Config, Plugin } from '@kubb/core'
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas'
 
-import { buildOperation, OperationGenerator } from "@kubb/plugin-oas";
-import { createReactFabric } from "@kubb/react-fabric";
-import { createMockedPluginManager, matchFiles } from "#mocks";
-import { MutationKey, QueryKey } from "../components";
-import type { PluginReactQuery } from "../types.ts";
-import { mutationGenerator } from "./mutationGenerator.tsx";
+import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
+import { MutationKey, QueryKey } from '../components'
+import type { PluginReactQuery } from '../types.ts'
+import { mutationGenerator } from './mutationGenerator.tsx'
 
-describe("mutationGenerator operation", async () => {
+describe('mutationGenerator operation', async () => {
   const testData = [
     {
-      name: "getAsMutation",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'getAsMutation',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
         mutation: {
-          importPath: "custom-swr/mutation",
-          methods: ["get"],
+          importPath: 'custom-swr/mutation',
+          methods: ['get'],
         },
       },
     },
     {
-      name: "clientPostImportPath",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/{pet_id}",
-      method: "post",
+      name: 'clientPostImportPath',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{pet_id}',
+      method: 'post',
       options: {
         client: {
-          dataReturnType: "data",
-          importPath: "axios",
+          dataReturnType: 'data',
+          importPath: 'axios',
         },
       },
     },
     {
-      name: "updatePetById",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/{pet_id}",
-      method: "post",
+      name: 'updatePetById',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{pet_id}',
+      method: 'post',
       options: {},
     },
     {
-      name: "updatePetByIdPathParamsObject",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/{pet_id}",
-      method: "post",
+      name: 'updatePetByIdPathParamsObject',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{pet_id}',
+      method: 'post',
       options: {
-        pathParamsType: "object",
+        pathParamsType: 'object',
       },
     },
     {
-      name: "deletePet",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/{pet_id}",
-      method: "delete",
+      name: 'deletePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{pet_id}',
+      method: 'delete',
       options: {},
     },
     {
-      name: "deletePetObject",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/{pet_id}",
-      method: "get",
+      name: 'deletePetObject',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{pet_id}',
+      method: 'get',
       options: {
-        paramsType: "object",
-        pathParamsType: "object",
+        paramsType: 'object',
+        pathParamsType: 'object',
       },
     },
   ] as const satisfies Array<{
-    input: string;
-    name: string;
-    path: string;
-    method: HttpMethod;
-    options: Partial<PluginReactQuery["resolvedOptions"]>;
-  }>;
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<PluginReactQuery['resolvedOptions']>
+  }>
 
-  test.each(testData)("$name", async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input));
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginReactQuery["resolvedOptions"] = {
+    const options: PluginReactQuery['resolvedOptions'] = {
       client: {
-        dataReturnType: "data",
-        client: "axios",
+        dataReturnType: 'data',
+        client: 'axios',
         bundle: false,
       },
-      parser: "zod",
-      paramsType: "inline",
+      parser: 'zod',
+      paramsType: 'inline',
       paramsCasing: undefined,
-      pathParamsType: "inline",
+      pathParamsType: 'inline',
       queryKey: QueryKey.getTransformer,
       mutationKey: MutationKey.getTransformer,
       query: {
-        importPath: "@tanstack/react-query",
-        methods: ["get"],
+        importPath: '@tanstack/react-query',
+        methods: ['get'],
       },
       mutation: {
-        methods: ["post"],
-        importPath: "@tanstack/react-query",
+        methods: ['post'],
+        importPath: '@tanstack/react-query',
       },
       suspense: false,
       infinite: false,
       output: {
-        path: ".",
+        path: '.',
       },
       group: undefined,
       ...props.options,
-    };
-    const plugin = { options } as Plugin<PluginReactQuery>;
-    const fabric = createReactFabric();
-    const mockedPluginManager = createMockedPluginManager(props.name);
+    }
+    const plugin = { options } as Plugin<PluginReactQuery>
+    const fabric = createReactFabric()
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -120,54 +120,52 @@ describe("mutationGenerator operation", async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: "split",
+      mode: 'split',
       exclude: [],
-    });
+    })
 
-    const operation = oas.operation(props.path, props.method);
+    const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {
-      config: { root: ".", output: { path: "test" } } as Config,
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
       Component: mutationGenerator.Operation,
       plugin,
-    });
+    })
 
-    await matchFiles(fabric.files);
-  });
+    await matchFiles(fabric.files)
+  })
 
-  test("mutation disabled with mutation: false", async () => {
-    const oas = await parse(
-      path.resolve(__dirname, "../../mocks/petStore.yaml"),
-    );
+  test('mutation disabled with mutation: false', async () => {
+    const oas = await parse(path.resolve(__dirname, '../../mocks/petStore.yaml'))
 
-    const options: PluginReactQuery["resolvedOptions"] = {
+    const options: PluginReactQuery['resolvedOptions'] = {
       client: {
-        dataReturnType: "data",
-        client: "axios",
+        dataReturnType: 'data',
+        client: 'axios',
         bundle: false,
       },
-      parser: "zod",
-      paramsType: "inline",
+      parser: 'zod',
+      paramsType: 'inline',
       paramsCasing: undefined,
-      pathParamsType: "inline",
+      pathParamsType: 'inline',
       queryKey: QueryKey.getTransformer,
       mutationKey: MutationKey.getTransformer,
       query: {
-        importPath: "@tanstack/react-query",
-        methods: ["get"],
+        importPath: '@tanstack/react-query',
+        methods: ['get'],
       },
       mutation: false,
       suspense: false,
       infinite: false,
       output: {
-        path: ".",
+        path: '.',
       },
       group: undefined,
-    };
-    const plugin = { options } as Plugin<PluginReactQuery>;
-    const fabric = createReactFabric();
-    const mockedPluginManager = createMockedPluginManager("mutationDisabled");
+    }
+    const plugin = { options } as Plugin<PluginReactQuery>
+    const fabric = createReactFabric()
+    const mockedPluginManager = createMockedPluginManager('mutationDisabled')
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -177,20 +175,20 @@ describe("mutationGenerator operation", async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: "split",
+      mode: 'split',
       exclude: [],
-    });
+    })
 
-    const operation = oas.operation("/pet/{pet_id}", "post");
+    const operation = oas.operation('/pet/{pet_id}', 'post')
     await buildOperation(operation, {
-      config: { root: ".", output: { path: "test" } } as Config,
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
       Component: mutationGenerator.Operation,
       plugin,
-    });
+    })
 
     // When mutation: false, no files should be generated for POST operations
-    expect(fabric.files).toHaveLength(0);
-  });
-});
+    expect(fabric.files).toHaveLength(0)
+  })
+})

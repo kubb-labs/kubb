@@ -1,58 +1,58 @@
-import path from "node:path";
-import type { Config, Plugin } from "@kubb/core";
-import type { HttpMethod } from "@kubb/oas";
-import { parse } from "@kubb/oas";
-import { buildOperations, OperationGenerator } from "@kubb/plugin-oas";
-import { createReactFabric } from "@kubb/react-fabric";
-import { createMockedPluginManager, matchFiles } from "#mocks";
-import type { PluginZod } from "../types.ts";
-import { describe, test } from "vitest";
-import { operationsGenerator } from "./operationsGenerator.tsx";
+import path from 'node:path'
+import type { Config, Plugin } from '@kubb/core'
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas'
+import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react-fabric'
+import { describe, test } from 'vitest'
+import { createMockedPluginManager, matchFiles } from '#mocks'
+import type { PluginZod } from '../types.ts'
+import { operationsGenerator } from './operationsGenerator.tsx'
 
-describe("operationsGenerator operations", async () => {
+describe('operationsGenerator operations', async () => {
   const testData = [
     {
-      name: "showPetById",
-      input: "../../mocks/petStore.yaml",
-      path: "/pets/{petId}",
-      method: "get",
+      name: 'showPetById',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'get',
       options: {},
     },
   ] as const satisfies Array<{
-    input: string;
-    name: string;
-    path: string;
-    method: HttpMethod;
-    options: Partial<PluginZod["resolvedOptions"]>;
-  }>;
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<PluginZod['resolvedOptions']>
+  }>
 
-  test.each(testData)("$name", async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input));
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginZod["resolvedOptions"] = {
-      dateType: "date",
+    const options: PluginZod['resolvedOptions'] = {
+      dateType: 'date',
       transformers: {},
       inferred: false,
       typed: false,
-      unknownType: "any",
+      unknownType: 'any',
       mapper: {},
-      importPath: "zod",
+      importPath: 'zod',
       coercion: false,
       operations: false,
       override: [],
       output: {
-        path: ".",
+        path: '.',
       },
       group: undefined,
       wrapOutput: undefined,
-      version: "4",
-      emptySchemaType: "unknown",
+      version: '4',
+      emptySchemaType: 'unknown',
       mini: false,
       ...props.options,
-    };
-    const plugin = { options } as Plugin<PluginZod>;
-    const fabric = createReactFabric();
-    const mockedPluginManager = createMockedPluginManager(props.name);
+    }
+    const plugin = { options } as Plugin<PluginZod>
+    const fabric = createReactFabric()
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -62,23 +62,23 @@ describe("operationsGenerator operations", async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: "split",
+      mode: 'split',
       exclude: [],
-    });
+    })
 
-    const operations = await generator.getOperations();
+    const operations = await generator.getOperations()
 
     await buildOperations(
       operations.map((item) => item.operation),
       {
-        config: { root: ".", output: { path: "test" } } as Config,
+        config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
         generator,
         Component: operationsGenerator.Operations,
         plugin,
       },
-    );
+    )
 
-    await matchFiles(fabric.files);
-  });
-});
+    await matchFiles(fabric.files)
+  })
+})

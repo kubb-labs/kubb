@@ -1,86 +1,86 @@
-import path from "node:path";
-import type { Config, Plugin } from "@kubb/core";
-import type { HttpMethod } from "@kubb/oas";
-import { parse } from "@kubb/oas";
+import path from 'node:path'
+import type { Config, Plugin } from '@kubb/core'
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas'
 
-import { buildOperation, OperationGenerator } from "@kubb/plugin-oas";
-import { createReactFabric } from "@kubb/react-fabric";
-import { createMockedPluginManager, matchFiles } from "#mocks";
-import { MutationKey, QueryKey } from "../components";
-import type { PluginReactQuery } from "../types.ts";
-import { suspenseInfiniteQueryGenerator } from "./suspenseInfiniteQueryGenerator.tsx";
+import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react-fabric'
+import { createMockedPluginManager, matchFiles } from '#mocks'
+import { MutationKey, QueryKey } from '../components'
+import type { PluginReactQuery } from '../types.ts'
+import { suspenseInfiniteQueryGenerator } from './suspenseInfiniteQueryGenerator.tsx'
 
-describe("suspenseInfiniteQueryGenerator operation", async () => {
+describe('suspenseInfiniteQueryGenerator operation', async () => {
   const testData = [
     {
-      name: "findSuspenseInfiniteByTags",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findSuspenseInfiniteByTags',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
         suspense: {},
         infinite: {
-          queryParam: "pageSize",
+          queryParam: 'pageSize',
           initialPageParam: 0,
           cursorParam: undefined,
         },
       },
     },
     {
-      name: "findSuspenseInfiniteByTagsCursor",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findSuspenseInfiniteByTagsCursor',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
         suspense: {},
         infinite: {
-          queryParam: "pageSize",
+          queryParam: 'pageSize',
           initialPageParam: 0,
-          cursorParam: "cursor",
+          cursorParam: 'cursor',
         },
       },
     },
   ] as const satisfies Array<{
-    input: string;
-    name: string;
-    path: string;
-    method: HttpMethod;
-    options: Partial<PluginReactQuery["resolvedOptions"]>;
-  }>;
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<PluginReactQuery['resolvedOptions']>
+  }>
 
-  test.each(testData)("$name", async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input));
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginReactQuery["resolvedOptions"] = {
+    const options: PluginReactQuery['resolvedOptions'] = {
       client: {
-        dataReturnType: "data",
-        client: "axios",
+        dataReturnType: 'data',
+        client: 'axios',
         bundle: false,
       },
-      parser: "zod",
+      parser: 'zod',
       paramsCasing: undefined,
-      paramsType: "inline",
-      pathParamsType: "inline",
+      paramsType: 'inline',
+      pathParamsType: 'inline',
       query: {
-        importPath: "@tanstack/react-query",
-        methods: ["get"],
+        importPath: '@tanstack/react-query',
+        methods: ['get'],
       },
       queryKey: QueryKey.getTransformer,
       mutationKey: MutationKey.getTransformer,
       mutation: {
-        methods: ["post"],
-        importPath: "@tanstack/react-query",
+        methods: ['post'],
+        importPath: '@tanstack/react-query',
       },
       output: {
-        path: ".",
+        path: '.',
       },
       group: undefined,
       ...props.options,
-    };
-    const plugin = { options } as Plugin<PluginReactQuery>;
-    const fabric = createReactFabric();
+    }
+    const plugin = { options } as Plugin<PluginReactQuery>
+    const fabric = createReactFabric()
 
-    const mockedPluginManager = createMockedPluginManager(props.name);
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -90,19 +90,19 @@ describe("suspenseInfiniteQueryGenerator operation", async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: "split",
+      mode: 'split',
       exclude: [],
-    });
+    })
 
-    const operation = oas.operation(props.path, props.method);
+    const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {
-      config: { root: ".", output: { path: "test" } } as Config,
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
       Component: suspenseInfiniteQueryGenerator.Operation,
       plugin,
-    });
+    })
 
-    await matchFiles(fabric.files);
-  });
-});
+    await matchFiles(fabric.files)
+  })
+})

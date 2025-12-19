@@ -1,161 +1,161 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
-import path from "node:path";
-import type { Config, Plugin } from "@kubb/core";
-import type { HttpMethod } from "@kubb/oas";
-import { parse } from "@kubb/oas";
-import { buildOperation, OperationGenerator } from "@kubb/plugin-oas";
-import { createReactFabric } from "@kubb/react-fabric";
-import { createMockedPluginManager, matchFiles } from "#mocks";
-import type { PluginClient } from "../types.ts";
-import { clientGenerator } from "./clientGenerator.tsx";
-import { describe, test } from "vitest";
+import path from 'node:path'
+import type { Config, Plugin } from '@kubb/core'
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas'
+import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react-fabric'
+import { describe, test } from 'vitest'
+import { createMockedPluginManager, matchFiles } from '#mocks'
+import type { PluginClient } from '../types.ts'
+import { clientGenerator } from './clientGenerator.tsx'
 
-describe("clientGenerator operation", async () => {
+describe('clientGenerator operation', async () => {
   const testData = [
     {
-      name: "findByTags",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTags',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {},
     },
     {
-      name: "findByTagsWithTemplateString",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTagsWithTemplateString',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
-        baseURL: "${123456}",
+        baseURL: '${123456}',
       },
     },
     {
-      name: "findByTagsWithZod",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTagsWithZod',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
-        parser: "zod",
+        parser: 'zod',
       },
     },
     {
-      name: "findByTagsFull",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTagsFull',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
-        dataReturnType: "full",
+        dataReturnType: 'full',
       },
     },
     {
-      name: "findByTagsWithZodFull",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTagsWithZodFull',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
-        parser: "zod",
-        dataReturnType: "full",
+        parser: 'zod',
+        dataReturnType: 'full',
       },
     },
     {
-      name: "importPath",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'importPath',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
-        importPath: "axios",
+        importPath: 'axios',
       },
     },
     {
-      name: "findByTagsObject",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTagsObject',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
-        paramsType: "object",
-        pathParamsType: "object",
+        paramsType: 'object',
+        pathParamsType: 'object',
       },
     },
     {
-      name: "updatePetById",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/{petId}",
-      method: "post",
+      name: 'updatePetById',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'post',
       options: {},
     },
     {
-      name: "deletePet",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/{petId}",
-      method: "delete",
+      name: 'deletePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'delete',
       options: {},
     },
     {
-      name: "deletePetObject",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/{petId}",
-      method: "delete",
+      name: 'deletePetObject',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'delete',
       options: {
-        pathParamsType: "object",
+        pathParamsType: 'object',
       },
     },
     {
-      name: "updatePetByIdClean",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/{petId}",
-      method: "post",
+      name: 'updatePetByIdClean',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}',
+      method: 'post',
       options: {
         urlType: false,
       },
     },
     {
-      name: "uploadFile",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/{petId}/uploadImage",
-      method: "post",
+      name: 'uploadFile',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{petId}/uploadImage',
+      method: 'post',
       options: {},
     },
     {
-      name: "findByTagsWithBaseURL",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTagsWithBaseURL',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {
-        baseURL: "https://petstore3.swagger.io/api/v3",
+        baseURL: 'https://petstore3.swagger.io/api/v3',
       },
     },
   ] as const satisfies Array<{
-    input: string;
-    name: string;
-    path: string;
-    method: HttpMethod;
-    options: Partial<PluginClient["resolvedOptions"]>;
-  }>;
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<PluginClient['resolvedOptions']>
+  }>
 
-  test.each(testData)("$name", async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input));
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginClient["resolvedOptions"] = {
-      dataReturnType: "data",
+    const options: PluginClient['resolvedOptions'] = {
+      dataReturnType: 'data',
       paramsCasing: undefined,
-      paramsType: "inline",
-      pathParamsType: "inline",
-      client: "axios",
-      clientType: "function",
+      paramsType: 'inline',
+      pathParamsType: 'inline',
+      client: 'axios',
+      clientType: 'function',
       importPath: undefined,
       bundle: false,
-      baseURL: "",
-      parser: "client",
+      baseURL: '',
+      parser: 'client',
       output: {
-        path: ".",
-        banner: "/* eslint-disable no-alert, no-console */",
+        path: '.',
+        banner: '/* eslint-disable no-alert, no-console */',
       },
       group: undefined,
-      urlType: "export",
+      urlType: 'export',
       ...props.options,
-    };
-    const plugin = { options } as Plugin<PluginClient>;
-    const fabric = createReactFabric();
-    const mockedPluginManager = createMockedPluginManager(props.name);
+    }
+    const plugin = { options } as Plugin<PluginClient>
+    const fabric = createReactFabric()
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -165,20 +165,20 @@ describe("clientGenerator operation", async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: "split",
+      mode: 'split',
       exclude: [],
-    });
+    })
 
-    const operation = oas.operation(props.path, props.method);
+    const operation = oas.operation(props.path, props.method)
 
     await buildOperation(operation, {
-      config: { root: ".", output: { path: "test" } } as Config,
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
       Component: clientGenerator.Operation,
       plugin,
-    });
+    })
 
-    await matchFiles(fabric.files);
-  });
-});
+    await matchFiles(fabric.files)
+  })
+})

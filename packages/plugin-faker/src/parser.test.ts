@@ -1,9 +1,9 @@
-import { schemas } from "@kubb/plugin-oas/mocks";
+import { schemas } from '@kubb/plugin-oas/mocks'
 
-import * as parserFaker from "./parser.ts";
+import * as parserFaker from './parser.ts'
 
-describe("faker parse", () => {
-  test.each(schemas.basic)("$name", ({ name, schema }) => {
+describe('faker parse', () => {
+  test.each(schemas.basic)('$name', ({ name, schema }) => {
     const text = parserFaker.parse(
       {
         name,
@@ -12,8 +12,8 @@ describe("faker parse", () => {
         current: schema,
         siblings: [schema],
       },
-      { typeName: "Pet" },
-    );
-    expect(text).toMatchSnapshot();
-  });
-});
+      { typeName: 'Pet' },
+    )
+    expect(text).toMatchSnapshot()
+  })
+})

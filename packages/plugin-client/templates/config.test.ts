@@ -1,4 +1,3 @@
-
 import { buildFormData } from './config'
 
 describe('buildFormData', () => {

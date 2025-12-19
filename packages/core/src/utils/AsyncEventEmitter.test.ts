@@ -1,4 +1,3 @@
-
 import { AsyncEventEmitter } from './AsyncEventEmitter.ts'
 
 type TestEvents = {

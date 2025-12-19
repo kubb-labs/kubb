@@ -1,4 +1,3 @@
-
 import { client, getConfig, setConfig } from './fetch'
 
 // Mock the global fetch
