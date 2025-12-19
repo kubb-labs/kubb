@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
   pull_request:
     paths-ignore:
-      - 'docs/**'
+      - "docs/**"
       - "examples/**"
-      - '**/*.md'
+      - "**/*.md"
     branches:
       - main
 
@@ -80,7 +80,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     needs: build
     steps:
-      - name: ⬇️ Check out code
+      - name: Check out code
         uses: actions/checkout@v6
         with:
           fetch-depth: 2
@@ -134,6 +134,10 @@ jobs:
         continue-on-error: true
         run: pnpm run lint:ci
 
+      - name: Knip
+        continue-on-error: true
+        run: pnpm run knip --reporter github-actions
+
   performance:
     name: Performance analysis (Ceviz)
     timeout-minutes: 10
@@ -183,6 +187,23 @@ jobs:
 
       - name: Publish preview packages
         run: pnpx pkg-pr-new publish --pnpm --owner=stijnvanhulle --repo=https://github.com/kubb-labs/kubb.git './packages/*' --template './examples/*'
+  dependency-diff:
+    name: Dependency Diff
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Analyze dependency changes
+        uses: e18e/action-dependency-diff@v1
+        whith:
+          duplicate-threshold: 5
+          size-threshold: -1
+
   e2e:
     name: Build and test on ${{ matrix.os }}
     timeout-minutes: 30

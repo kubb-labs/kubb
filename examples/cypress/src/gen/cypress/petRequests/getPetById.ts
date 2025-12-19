@@ -3,15 +3,14 @@
  * Do not edit manually.
  */
 
-import type { GetPetByIdQueryResponse } from '../../models/GetPetById.ts'
+import type { GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/GetPetById.ts'
 
-export function getPetById(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetPetByIdQueryResponse> {
+export function getPetById(petId: GetPetByIdPathParams['petId'], options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetPetByIdQueryResponse> {
   return cy
-    .request({
+    .request<GetPetByIdQueryResponse>({
       method: 'get',
-      url: 'http://localhost:3000/pet/:petId',
-      body: undefined,
+      url: `http://localhost:3000/pet/${petId}`,
       ...options,
     })
-    .then((res: Cypress.Response<GetPetByIdQueryResponse>) => res.body)
+    .then((res) => res.body)
 }

@@ -2,11 +2,11 @@ import type { AddFilesMutationRequest, AddFilesMutationResponse } from '../../mo
 
 export function addFiles(data: AddFilesMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<AddFilesMutationResponse> {
   return cy
-    .request({
+    .request<AddFilesMutationResponse>({
       method: 'post',
       url: '/pet/files',
       body: data,
       ...options,
     })
-    .then((res: Cypress.Response<AddFilesMutationResponse>) => res.body)
+    .then((res) => res.body)
 }

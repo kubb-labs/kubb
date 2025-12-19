@@ -10,11 +10,11 @@ export function placeOrderPatch(
   options?: Partial<Cypress.RequestOptions>,
 ): Cypress.Chainable<PlaceOrderPatchMutationResponse> {
   return cy
-    .request({
+    .request<PlaceOrderPatchMutationResponse>({
       method: 'patch',
       url: 'http://localhost:3000/store/order',
       body: data,
       ...options,
     })
-    .then((res: Cypress.Response<PlaceOrderPatchMutationResponse>) => res.body)
+    .then((res) => res.body)
 }

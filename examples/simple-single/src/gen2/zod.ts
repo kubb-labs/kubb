@@ -867,12 +867,7 @@ export const mainGetPlacementsRequestSchema = z.object({
 })
 
 export const placementRegionPlacementSchema = z.object({
-  concurrency: z.optional(
-    z
-      .number()
-      .int()
-      .describe('Hint on the number of machines in this region can be created concurrently.\nEqual to the number of unique hosts selected for placement.'),
-  ),
+  concurrency: z.optional(z.number().int()),
   count: z.optional(z.number().int()),
   region: z.optional(z.string()),
 })

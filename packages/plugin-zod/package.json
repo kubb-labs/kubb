@@ -87,7 +87,6 @@
   },
   "devDependencies": {
     "@asteasolutions/zod-to-openapi": "^8.2.0",
-    "@hono/zod-openapi": "0.19.2",
     "zod": "^3.25.76"
   },
   "engines": {
