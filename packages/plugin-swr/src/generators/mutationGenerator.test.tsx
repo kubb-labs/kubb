@@ -9,7 +9,7 @@ import { createMockedPluginManager, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginSwr } from '../types.ts'
 import { mutationGenerator } from './mutationGenerator.tsx'
-import { describe } from 'vitest'
+import { describe, test } from 'vitest'
 
 
 describe('mutationGenerator operation', async () => {

@@ -8,7 +8,7 @@ import { createReactFabric } from '@kubb/react-fabric'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginFaker } from '../types.ts'
 import { fakerGenerator } from './fakerGenerator.tsx'
-import { describe } from 'vitest'
+import { describe, test } from 'vitest'
 
 
 describe('fakerGenerator schema', async () => {
