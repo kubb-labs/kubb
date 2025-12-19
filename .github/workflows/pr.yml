@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
   pull_request:
     paths-ignore:
-      - 'docs/**'
+      - "docs/**"
       - "examples/**"
-      - '**/*.md'
+      - "**/*.md"
     branches:
       - main
 
@@ -80,7 +80,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     needs: build
     steps:
-      - name: ⬇️ Check out code
+      - name: Check out code
         uses: actions/checkout@v6
         with:
           fetch-depth: 2
@@ -196,6 +196,9 @@ jobs:
 
       - name: Analyze dependency changes
         uses: e18e/action-dependency-diff@v1
+        whith:
+          duplicate-threshold: 5
+          size-threshold: -1
 
   e2e:
     name: Build and test on ${{ matrix.os }}
