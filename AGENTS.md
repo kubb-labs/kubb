@@ -30,6 +30,7 @@ pnpm run upgrade && pnpm i   # Upgrade dependencies
 
 ## Testing instructions
 
+- We use `vitest`
 - Find the CI plan in `.github/workflows/quality` folder
 - From package root, run `pnpm test` - all tests must pass before merging
 - Focus on specific tests: `pnpm test "<test name>"`
@@ -46,7 +47,7 @@ pnpm run upgrade && pnpm i   # Upgrade dependencies
   ```typescript
   // ❌ Avoid - nested ternary
   const style = pathParameters.style || (inKey === 'query' ? 'form' : inKey === 'path' ? 'simple' : 'simple')
-  
+
   // ✅ Correct - use helper function
   const getDefaultStyle = (location: string): string => {
     if (location === 'query') return 'form'
@@ -71,7 +72,7 @@ pnpm run upgrade && pnpm i   # Upgrade dependencies
       // Can use this.someMethod() if needed
     }
   }
-  
+
   // ❌ Avoid - arrow function syntax
   const handlers = {
     enum: (tree, options) => {

@@ -191,7 +191,7 @@ export const customLogger = defineLogger({
       console.log(`Generating ${plugin.name}`)
     })
 
-    context.on('plugin:end', (plugin, { duration}) => {
+    context.on('plugin:end', (plugin, { duration }) => {
       console.log(`${plugin.name} completed in ${duration}ms`)
     })
 

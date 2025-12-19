@@ -135,7 +135,7 @@ export const githubActionsLogger = defineLogger({
       }
       const durationStr = formatMs(duration)
       const text = getMessage(
-        success ? `${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}` : `${pc.bold(plugin.name)} failed in ${pc.green(durationStr)}`,
+        success ? `${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}` : `${pc.bold(plugin.name)} failed in ${pc.red(durationStr)}`,
       )
 
       console.log(text)
