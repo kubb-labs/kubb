@@ -7,11 +7,10 @@ import type { GetInventoryQueryResponse } from '../../models/GetInventory.ts'
 
 export function getInventory(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetInventoryQueryResponse> {
   return cy
-    .request({
+    .request<GetInventoryQueryResponse>({
       method: 'get',
       url: 'http://localhost:3000/store/inventory',
-      body: undefined,
       ...options,
     })
-    .then((res: Cypress.Response<GetInventoryQueryResponse>) => res.body)
+    .then((res) => res.body)
 }

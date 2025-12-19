@@ -103,7 +103,7 @@
 		"rimraf": "^6.1.2",
 		"rollup": "^4.53.5",
 		"vite": "^7.3.0",
-		"webpack": "^5.104.0"
+		"webpack": "^5.104.1"
 	},
 	"peerDependencies": {
 		"@kubb/core": "^4.0.0",

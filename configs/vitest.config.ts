@@ -34,7 +34,7 @@ export default defineConfig({
         '**/*{.,-}{test,spec}.?(c|m)[jt]s?(x)',
         '**/__tests__/**',
         '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsdown,build}.config.*',
-        '**/.{eslint,mocha,prettier}rc.{?(c|m)js,yml}',
+        '**/.rc.{?(c|m)js,yml}',
       ],
     },
   },

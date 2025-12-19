@@ -15,11 +15,3 @@ export class ClackWritable extends Writable {
     callback()
   }
 }
-
-export class StdoutWritable extends Writable {
-  _write(chunk: any, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
-    process.stdout.write(`${pc.dim(chunk?.toString())}`)
-
-    callback()
-  }
-}

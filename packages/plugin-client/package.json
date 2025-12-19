@@ -102,8 +102,7 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@kubb/react-fabric": "catalog:",
-    "jiti": "^2.6.1"
+    "@kubb/react-fabric": "catalog:"
   },
   "devDependencies": {
     "axios": "^1.13.2"
