@@ -19,26 +19,34 @@ type CachedEvent = {
 export const fileSystemLogger = defineLogger({
   name: 'filesystem',
   install(context) {
-    const cachedLogs: Set<CachedEvent> = new Set()
-    const startDate = Date.now()
+    const state = {
+      cachedLogs: new Set<CachedEvent>(),
+      startDate: Date.now(),
+    }
 
-    async function writeLogs() {
-      if (cachedLogs.size === 0) {
+    function reset() {
+      state.cachedLogs = new Set<CachedEvent>()
+      state.startDate = Date.now()
+    }
+
+    async function writeLogs(name?: string) {
+      if (state.cachedLogs.size === 0) {
         return
       }
 
       const files: Record<string, string[]> = {}
 
-      for (const log of cachedLogs) {
-        const fileName = resolve(process.cwd(), '.kubb', log.fileName || `kubb-${startDate}.log`)
+      for (const log of state.cachedLogs) {
+        const baseName = log.fileName || `${['kubb', name, state.startDate].filter(Boolean).join('-')}.log`
+        const pathName = resolve(process.cwd(), '.kubb', baseName)
 
-        if (!files[fileName]) {
-          files[fileName] = []
+        if (!files[pathName]) {
+          files[pathName] = []
         }
 
         if (log.logs.length > 0) {
           const timestamp = log.date.toLocaleString()
-          files[fileName].push(`[${timestamp}]\n${log.logs.join('\n')}`)
+          files[pathName].push(`[${timestamp}]\n${log.logs.join('\n')}`)
         }
       }
 
@@ -47,12 +55,10 @@ export const fileSystemLogger = defineLogger({
           return write(fileName, logs.join('\n\n'))
         }),
       )
-
-      cachedLogs.clear()
     }
 
     context.on('info', (message, info) => {
-      cachedLogs.add({
+      state.cachedLogs.add({
         date: new Date(),
         logs: [`ℹ ${message} ${info}`],
         fileName: undefined,
@@ -60,7 +66,7 @@ export const fileSystemLogger = defineLogger({
     })
 
     context.on('success', (message, info) => {
-      cachedLogs.add({
+      state.cachedLogs.add({
         date: new Date(),
         logs: [`✓ ${message} ${info}`],
         fileName: undefined,
@@ -68,7 +74,7 @@ export const fileSystemLogger = defineLogger({
     })
 
     context.on('warn', (message, info) => {
-      cachedLogs.add({
+      state.cachedLogs.add({
         date: new Date(),
         logs: [`⚠ ${message} ${info}`],
         fileName: undefined,
@@ -76,7 +82,7 @@ export const fileSystemLogger = defineLogger({
     })
 
     context.on('error', (error) => {
-      cachedLogs.add({
+      state.cachedLogs.add({
         date: new Date(),
         logs: [`✗ ${error.message}`, error.stack || 'unknown stack'],
         fileName: undefined,
@@ -84,7 +90,7 @@ export const fileSystemLogger = defineLogger({
     })
 
     context.on('debug', (message) => {
-      cachedLogs.add({
+      state.cachedLogs.add({
         date: new Date(),
         logs: message.logs,
         fileName: undefined,
@@ -92,7 +98,7 @@ export const fileSystemLogger = defineLogger({
     })
 
     context.on('plugin:start', (plugin) => {
-      cachedLogs.add({
+      state.cachedLogs.add({
         date: new Date(),
         logs: [`Generating ${plugin.name}`],
         fileName: undefined,
@@ -102,7 +108,7 @@ export const fileSystemLogger = defineLogger({
     context.on('plugin:end', (plugin, { duration, success }) => {
       const durationStr = formatMs(duration)
 
-      cachedLogs.add({
+      state.cachedLogs.add({
         date: new Date(),
         logs: [success ? `${plugin.name} completed in ${durationStr}` : `${plugin.name} failed in ${durationStr}`],
         fileName: undefined,
@@ -110,21 +116,22 @@ export const fileSystemLogger = defineLogger({
     })
 
     context.on('files:processing:start', (files) => {
-      cachedLogs.add({
+      state.cachedLogs.add({
         date: new Date(),
         logs: [`Start ${files.length} writing:`, ...files.map((file) => file.path)],
         fileName: undefined,
       })
     })
 
-    context.on('lifecycle:end', async () => {
-      await writeLogs()
+    context.on('generation:end', async (config) => {
+      await writeLogs(config.name)
+      reset()
     })
 
     // Fallback: Write logs on process exit to handle crashes
     const exitHandler = () => {
       // Synchronous write on exit - best effort
-      if (cachedLogs.size > 0) {
+      if (state.cachedLogs.size > 0) {
         writeLogs().catch(() => {
           // Ignore errors on exit
         })

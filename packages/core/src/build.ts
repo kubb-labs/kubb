@@ -1,4 +1,4 @@
-import { join, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import { createFabric } from '@kubb/react-fabric'
@@ -101,10 +101,9 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   if (definedConfig.output.clean) {
     await events.emit('debug', {
       date: new Date(),
-      logs: ['Cleaning output directories', `  • Output: ${definedConfig.output.path}`, '  • Cache: .kubb'],
+      logs: ['Cleaning output directories', `  • Output: ${definedConfig.output.path}`],
     })
     await clean(definedConfig.output.path)
-    await clean(join(definedConfig.root, '.kubb'))
   }
 
   const fabric = createFabric()
