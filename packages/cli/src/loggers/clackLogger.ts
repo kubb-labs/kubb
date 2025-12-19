@@ -24,9 +24,11 @@ export const clackLogger = defineLogger({
     // Progress tracking state
     let totalPlugins = 0
     let completedPlugins = 0
+    let failedPlugins = 0
     let totalFiles = 0
     let processedFiles = 0
     let hrStart: [number, number] = process.hrtime()
+    let isGenerating = false
 
     function showProgressStep() {
       if (logLevel <= LogLevel.silent) {
@@ -42,7 +44,11 @@ export const clackLogger = defineLogger({
       const timeStr = elapsedMs >= 1000 ? `${(elapsedMs / 1000).toFixed(2)}s` : `${elapsedMs}ms`
 
       if (totalPlugins > 0) {
-        parts.push(`Plugins ${pc.green(completedPlugins.toString())}/${totalPlugins}`)
+        const pluginStr =
+          failedPlugins > 0
+            ? `Plugins ${pc.green(completedPlugins.toString())}/${totalPlugins} ${pc.red(`(${failedPlugins} failed)`)}`
+            : `Plugins ${pc.green(completedPlugins.toString())}/${totalPlugins}`
+        parts.push(pluginStr)
       }
 
       if (totalFiles > 0) {
@@ -129,6 +135,12 @@ export const clackLogger = defineLogger({
         clack.log.error(getMessage(text))
       }
 
+      // Track plugin failures during generation
+      if (isGenerating && totalPlugins > 0 && completedPlugins + failedPlugins < totalPlugins) {
+        failedPlugins++
+        showProgressStep()
+      }
+
       // Show stack trace in debug mode (first 3 frames)
       if (logLevel >= LogLevel.debug && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
@@ -194,10 +206,12 @@ Run \`npm install -g @kubb/cli\` to update`,
       // Initialize progress tracking
       totalPlugins = configs.reduce((sum, config) => sum + (config.plugins?.length || 0), 0)
       completedPlugins = 0
+      failedPlugins = 0
       hrStart = process.hrtime()
     })
 
     context.on('generation:start', (config) => {
+      isGenerating = true
       const text = getMessage(['Generation started', config.name ? `for ${pc.dim(config.name)}` : undefined].filter(Boolean).join(' '))
 
       clack.intro(text)
@@ -310,6 +324,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('generation:end', (config) => {
+      isGenerating = false
       const text = getMessage(config.name ? `Generation completed for ${pc.dim(config.name)}` : 'Generation completed')
 
       clack.outro(text)
