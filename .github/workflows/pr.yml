@@ -136,7 +136,7 @@ jobs:
 
       - name: Knip
         continue-on-error: true
-        run: pnpm run knip
+        run: pnpm run knip --reporter github-actions
 
   performance:
     name: Performance analysis (Ceviz)
