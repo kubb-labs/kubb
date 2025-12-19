@@ -36,12 +36,12 @@ export const clackLogger = defineLogger({
       }
 
       const parts: string[] = []
-      const elapsedMs = ((hrtime) => {
+      const duration = ((hrtime) => {
         const [seconds, nanoseconds] = process.hrtime(hrtime)
         return Math.round(seconds * 1000 + nanoseconds / 1e6)
       })(hrStart)
 
-      const timeStr = elapsedMs >= 1000 ? `${(elapsedMs / 1000).toFixed(2)}s` : `${elapsedMs}ms`
+      const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
 
       if (totalPlugins > 0) {
         const pluginStr =
@@ -56,7 +56,7 @@ export const clackLogger = defineLogger({
       }
 
       if (parts.length > 0) {
-        parts.push(pc.green(timeStr))
+        parts.push(pc.green(durationStr))
         clack.log.step(parts.join(pc.dim(' | ')))
       }
     }
