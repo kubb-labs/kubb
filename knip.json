@@ -3,5 +3,8 @@
   "ignoreWorkspaces": ["examples/**", "e2e/**", "docs/**"],
   "ignore": ["packages/**/src/**/*.test.ts", "packages/**/src/**/*.test.tsx", "packages/**/src/**/__snapshots__/**"],
   "ignoreExportsUsedInFile": true,
-  "ignoreDependencies": ["prettier", "ts-node"]
+  "ignoreDependencies": ["prettier", "ts-node"],
+  "typescript": {
+    "config": ["tsconfig.json", "packages/*/tsconfig.json"]
+  }
 }
