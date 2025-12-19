@@ -23,7 +23,7 @@ export const customHookOptionsFileGenerator = createReactGenerator<PluginReactQu
       return null
     }
 
-    const override = output.override ?? false
+    const override = output.override ?? config.output.override ?? false
     const { importPath, name } = options.customOptions
 
     const root = path.resolve(config.root, config.output.path)
