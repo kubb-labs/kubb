@@ -8,6 +8,8 @@ import { createReactFabric } from '@kubb/react-fabric'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginCypress } from '../types.ts'
 import { cypressGenerator } from './cypressGenerator.tsx'
+import { describe } from 'vitest'
+
 
 describe('cypressGenerator operation', async () => {
   const testData = [

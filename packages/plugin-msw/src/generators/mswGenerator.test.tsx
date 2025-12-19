@@ -8,6 +8,8 @@ import { createReactFabric } from '@kubb/react-fabric'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginMsw } from '../types.ts'
 import { mswGenerator } from './mswGenerator.tsx'
+import { describe } from 'vitest'
+
 
 describe('mswGenerator operation', async () => {
   const testData = [

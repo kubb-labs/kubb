@@ -9,6 +9,8 @@ import ts, { factory } from 'typescript'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
+import { describe } from 'vitest'
+
 
 describe('typeGenerator schema', async () => {
   const testData = [

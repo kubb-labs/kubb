@@ -3,6 +3,8 @@ import path from 'node:path'
 import fs from 'fs-extra'
 
 import { exists, existsSync } from './exists.ts'
+import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
+
 
 const testDir = path.join(os.tmpdir(), 'kubb-test-exists')
 const testFile = path.join(testDir, 'test.txt')

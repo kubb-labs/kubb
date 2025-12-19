@@ -1,4 +1,6 @@
 import { toRegExpString } from './toRegExp.ts'
+import { describe, expect, test } from 'vitest'
+
 
 describe('toRegExpString', () => {
   test('advanced regex', () => {

@@ -2,6 +2,8 @@ import path from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { FileManager } from '@kubb/react-fabric'
 import { getBarrelFiles } from './getBarrelFiles.ts'
+import { describe, expect, it } from 'vitest'
+
 
 describe('getBarrelFiles', () => {
   it('should generate barrel files correctly', async () => {

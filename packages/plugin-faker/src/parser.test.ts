@@ -1,6 +1,8 @@
 import { schemas } from '@kubb/plugin-oas/mocks'
 
 import * as parserFaker from './parser.ts'
+import { describe, expect, test } from 'vitest'
+
 
 describe('faker parse', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {

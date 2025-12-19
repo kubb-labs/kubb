@@ -1,5 +1,7 @@
 import type { petStore } from '../../mocks/petStore.ts'
 import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './index.ts'
+import { describe, test } from 'vitest'
+
 
 describe('swagger Infer', () => {
   type Oas = Infer<typeof petStore>

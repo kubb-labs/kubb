@@ -1,5 +1,7 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: test case */
 import { URLPath } from './URLPath.ts'
+import { describe, expect, test } from 'vitest'
+
 
 describe('URLPath', () => {
   const path = new URLPath('/user/{userID}/monetary-account/{monetary-accountID}/whitelist-sdd/{itemId}')

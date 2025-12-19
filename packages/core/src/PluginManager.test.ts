@@ -4,6 +4,8 @@ import { PluginManager } from './PluginManager.ts'
 
 import type { Config, KubbEvents, Plugin } from './types.ts'
 import { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
+import { afterEach, describe, expect, it, test, vi } from 'vitest'
+
 
 describe('PluginManager', () => {
   const pluginAMocks = {

@@ -1,4 +1,6 @@
 import { ValidationPluginError } from './errors.ts'
+import { describe, expect, it } from 'vitest'
+
 
 describe('ValidationPluginError', () => {
   it('should create an error instance', () => {

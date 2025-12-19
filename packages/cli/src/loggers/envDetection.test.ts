@@ -1,4 +1,6 @@
 import { canUseTTY, isCIEnvironment, isGitHubActions } from './envDetection.ts'
+import { describe, expect, it } from 'vitest'
+
 
 describe('envDetection', () => {
   describe('isGitHubActions', () => {

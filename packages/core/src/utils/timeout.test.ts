@@ -1,4 +1,6 @@
 import { timeout } from './timeout.ts'
+import { describe, expect, it } from 'vitest'
+
 
 describe('timeout', () => {
   it('should return promise after timeout duration', async () => {

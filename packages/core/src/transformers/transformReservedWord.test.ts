@@ -1,4 +1,6 @@
 import { transformReservedWord } from './transformReservedWord.ts'
+import { describe, expect, test } from 'vitest'
+
 
 describe('transformReservedWord', () => {
   test('template rendering', () => {

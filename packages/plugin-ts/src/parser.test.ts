@@ -1,6 +1,8 @@
 import { schemas } from '@kubb/plugin-oas/mocks'
 
 import * as parserType from './parser.ts'
+import { describe, expect, it, test } from 'vitest'
+
 
 describe('type parse', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {

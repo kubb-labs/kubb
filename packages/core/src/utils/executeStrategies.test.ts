@@ -1,5 +1,7 @@
 import { hookFirst, hookParallel, hookSeq } from './executeStrategies.ts'
 import { timeout } from './timeout.ts'
+import { describe, expect, test } from 'vitest'
+
 
 describe('executeStrategies', () => {
   test('hookSeq', async () => {

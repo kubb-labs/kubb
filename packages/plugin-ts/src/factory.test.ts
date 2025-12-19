@@ -2,6 +2,8 @@ import { print } from '@kubb/fabric-core/parsers/typescript'
 import ts from 'typescript'
 import { format } from '#mocks'
 import {
+import { describe, expect, it } from 'vitest'
+
   appendJSDocToNode,
   createArrayDeclaration,
   createEnumDeclaration,

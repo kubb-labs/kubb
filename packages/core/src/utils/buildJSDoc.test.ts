@@ -1,4 +1,6 @@
 import { buildJSDoc } from './buildJSDoc'
+import { describe, expect, it } from 'vitest'
+
 
 describe('buildJSDoc', () => {
   it('should return fallback when no comments', () => {

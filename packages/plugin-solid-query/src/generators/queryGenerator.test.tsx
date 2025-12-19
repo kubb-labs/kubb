@@ -10,6 +10,8 @@ import { createMockedPluginManager, matchFiles } from '#mocks'
 import { QueryKey } from '../components'
 import type { PluginSolidQuery } from '../types.ts'
 import { queryGenerator } from './queryGenerator.tsx'
+import { describe } from 'vitest'
+
 
 describe('queryGenerator operation', async () => {
   const testData = [

@@ -1,4 +1,6 @@
 import { client, getConfig, setConfig } from './fetch'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 
 // Mock the global fetch
 const mockFetch = vi.fn()

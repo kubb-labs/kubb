@@ -1,4 +1,6 @@
 import { AsyncEventEmitter } from './AsyncEventEmitter.ts'
+import { describe, expect, it, vi } from 'vitest'
+
 
 type TestEvents = {
   test: [string, number]

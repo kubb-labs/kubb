@@ -1,4 +1,6 @@
 import { Cache } from './Cache.ts'
+import { describe, expect, it } from 'vitest'
+
 
 describe('Cache', () => {
   it('should set and get values', async () => {

@@ -1,4 +1,6 @@
 import { getDiagnosticInfo } from './diagnostics.ts'
+import { describe, expect, it } from 'vitest'
+
 
 describe('diagnostics', () => {
   it('should return diagnostic information', () => {

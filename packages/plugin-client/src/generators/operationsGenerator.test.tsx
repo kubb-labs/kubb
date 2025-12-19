@@ -7,6 +7,8 @@ import { createReactFabric } from '@kubb/react-fabric'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
 import { operationsGenerator } from './operationsGenerator.tsx'
+import { describe } from 'vitest'
+
 
 describe('operationsGenerator operations', async () => {
   const testData = [

@@ -1,4 +1,6 @@
 import { createJSDocBlockText } from './createJSDocBlockText.ts'
+import { describe, expect, test } from 'vitest'
+
 
 describe('jsdoc', () => {
   test('comments should be converted to jsdocs', () => {

@@ -1,4 +1,6 @@
 import { renderTemplate } from './renderTemplate.ts'
+import { describe, expect, test } from 'vitest'
+
 
 describe('renderTemplate', () => {
   test('template rendering', () => {

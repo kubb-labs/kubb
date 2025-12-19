@@ -9,6 +9,8 @@ import { createMockedPluginManager, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginSvelteQuery } from '../types.ts'
 import { mutationGenerator } from './mutationGenerator.tsx'
+import { describe } from 'vitest'
+
 
 describe('mutationGenerator operation', async () => {
   const testData = [

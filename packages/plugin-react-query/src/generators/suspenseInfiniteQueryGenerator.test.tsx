@@ -9,6 +9,8 @@ import { createMockedPluginManager, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
 import { suspenseInfiniteQueryGenerator } from './suspenseInfiniteQueryGenerator.tsx'
+import { describe } from 'vitest'
+
 
 describe('suspenseInfiniteQueryGenerator operation', async () => {
   const testData = [

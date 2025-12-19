@@ -3,6 +3,8 @@ import { build } from './build.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbEvents, Plugin } from './types.ts'
 import { AsyncEventEmitter } from './utils'
+import { afterEach, describe, expect, it, test, vi } from 'vitest'
+
 
 describe('build', () => {
   const pluginMocks = {

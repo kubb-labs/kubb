@@ -4,6 +4,8 @@ import { parse } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { mockedPluginManager } from '#mocks'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from './SchemaGenerator.ts'
+import { describe, expect, test } from 'vitest'
+
 
 describe('SchemaGenerator core', async () => {
   const testData = [

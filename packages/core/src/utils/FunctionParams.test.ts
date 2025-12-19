@@ -1,4 +1,6 @@
 import { FunctionParams } from './FunctionParams.ts'
+import { describe, expect, it } from 'vitest'
+
 
 describe('objectToParameters', () => {
   it('should resolve object to a string with parameters', () => {
