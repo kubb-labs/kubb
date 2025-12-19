@@ -4,8 +4,12 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
 import type { Generator } from './generators/types.ts'
 
+type GetOasOptions = {
+  validate?: boolean
+}
+
 type Context = {
-  getOas(): Promise<Oas>
+  getOas(options?: GetOasOptions): Promise<Oas>
   getBaseURL(): Promise<string | undefined>
 }
 

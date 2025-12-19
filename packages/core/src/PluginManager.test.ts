@@ -254,7 +254,7 @@ describe('PluginManager', () => {
 
     const result = await errorPluginManager.hookFirst({
       hookName: 'install',
-      parameters: [],
+      parameters: [] as any,
     })
 
     expect(result.result).toBeNull()
