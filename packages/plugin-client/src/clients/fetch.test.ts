@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { client, getConfig, setConfig } from './fetch'
 
 // Mock the global fetch

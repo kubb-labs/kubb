@@ -176,3 +176,180 @@ exports[`codegen > createUnionDeclaration 1`] = `
 "string | number
 "
 `;
+
+exports[`codegen > should append JSDoc to node 1`] = `
+"/**
+ * @description description
+ * @example example
+ */
+const hello = 'world'
+"
+`;
+
+exports[`codegen > should append JSDoc to node 2`] = `
+"const hello = 'world'
+"
+`;
+
+exports[`codegen > should create JSDoc 1`] = `
+"/**
+ * @description description
+ * @example example */
+"
+`;
+
+exports[`codegen > should create array declaration 1`] = `
+"Array<string | number>
+"
+`;
+
+exports[`codegen > should create array declaration 2`] = `
+"string[]
+"
+`;
+
+exports[`codegen > should create enum declaration 1`] = `
+"export enum Hello {
+  'hello' = 'world',
+  'end' = 2050,
+  'survive' = true,
+}
+"
+`;
+
+exports[`codegen > should create enum declaration 2`] = `
+"export const hello = {
+  hello: 'world',
+  end: 2050,
+  survive: true,
+} as const
+export type Hello = (typeof hello)[keyof typeof hello]
+"
+`;
+
+exports[`codegen > should create enum declaration 3`] = `
+"export const hello = {
+  'FILE.UPLOADED': 'FILE.UPLOADED',
+  'FILE.PREVIEWE': 'FILE.PREVIEWE',
+} as const
+export type Hello = (typeof hello)[keyof typeof hello]
+"
+`;
+
+exports[`codegen > should create enum declaration 4`] = `
+"export const Hello = {
+  hello: 'world',
+  end: 2050,
+  survive: true,
+} as const
+type Hello = (typeof Hello)[keyof typeof Hello]
+"
+`;
+
+exports[`codegen > should create enum declaration 5`] = `
+"export const enum Hello {
+  'hello' = 'world',
+  'end' = 2050,
+  'survive' = true,
+}
+"
+`;
+
+exports[`codegen > should create enum declaration 6`] = `
+"export type Hello = 'world' | 2050 | true
+"
+`;
+
+exports[`codegen > should create enum declaration 7`] = `
+"export enum Hello {
+  'Hello_1' = 'world',
+  'Hello_2' = 2050,
+  'Hello_3' = true,
+}
+"
+`;
+
+exports[`codegen > should create export declaration 1`] = `
+"export * from './hello.ts'
+"
+`;
+
+exports[`codegen > should create export declaration 2`] = `
+"export { hello, world } from './hello.ts'
+"
+`;
+
+exports[`codegen > should create export declaration 3`] = `
+"export * as hello from './hello.ts'
+"
+`;
+
+exports[`codegen > should create export declaration 4`] = `
+"export { apple, banana, zebra } from './fruits.ts'
+"
+`;
+
+exports[`codegen > should create import declaration 1`] = `
+"import hello from './hello.ts'
+"
+`;
+
+exports[`codegen > should create import declaration 2`] = `
+"import type hello from './hello.ts'
+"
+`;
+
+exports[`codegen > should create import declaration 3`] = `
+"import { hello } from './hello.ts'
+"
+`;
+
+exports[`codegen > should create import declaration 4`] = `
+"import * as hello from './hello.ts'
+"
+`;
+
+exports[`codegen > should create import declaration 5`] = `
+"import { hello as helloWorld } from './hello.ts'
+"
+`;
+
+exports[`codegen > should create import declaration 6`] = `
+"import { apple, banana, zebra } from './fruits.ts'
+"
+`;
+
+exports[`codegen > should create import declaration 7`] = `
+"import { apple, banana, cat as dog, zoo } from './mixed.ts'
+"
+`;
+
+exports[`codegen > should create intersection declaration 1`] = `
+"string & number
+"
+`;
+
+exports[`codegen > should create parameter signature 1`] = `
+"hello: string
+"
+`;
+
+exports[`codegen > should create parameter signature 2`] = `
+"hello?: string
+"
+`;
+
+exports[`codegen > should create parameter signature 3`] = `
+"hello?: boolean
+"
+`;
+
+exports[`codegen > should create property signature 1`] = `
+"const hello: string;
+"
+`;
+
+exports[`codegen > should create union declaration 1`] = `
+"string | number
+"
+`;

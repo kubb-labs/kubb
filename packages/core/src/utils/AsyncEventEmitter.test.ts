@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+
 import { AsyncEventEmitter } from './AsyncEventEmitter.ts'
 
 type TestEvents = {

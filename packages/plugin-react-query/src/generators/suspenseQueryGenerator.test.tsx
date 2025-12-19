@@ -1,68 +1,68 @@
-import path from 'node:path'
-import type { Config, Plugin } from '@kubb/core'
-import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas'
+import path from "node:path";
+import type { Config, Plugin } from "@kubb/core";
+import type { HttpMethod } from "@kubb/oas";
+import { parse } from "@kubb/oas";
 
-import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
-import { createReactFabric } from '@kubb/react-fabric'
-import { createMockedPluginManager, matchFiles } from '#mocks'
-import { MutationKey, QueryKey } from '../components'
-import type { PluginReactQuery } from '../types.ts'
-import { suspenseQueryGenerator } from './suspenseQueryGenerator.tsx'
+import { buildOperation, OperationGenerator } from "@kubb/plugin-oas";
+import { createReactFabric } from "@kubb/react-fabric";
+import { createMockedPluginManager, matchFiles } from "#mocks";
+import { MutationKey, QueryKey } from "../components";
+import type { PluginReactQuery } from "../types.ts";
+import { suspenseQueryGenerator } from "./suspenseQueryGenerator.tsx";
 
-describe('suspenseQueryGenerator operation', async () => {
+describe("suspenseQueryGenerator operation", async () => {
   const testData = [
     {
-      name: 'findSuspenseByTags',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
+      name: "findSuspenseByTags",
+      input: "../../mocks/petStore.yaml",
+      path: "/pet/findByTags",
+      method: "get",
       options: {
         suspense: {},
       },
     },
   ] as const satisfies Array<{
-    input: string
-    name: string
-    path: string
-    method: HttpMethod
-    options: Partial<PluginReactQuery['resolvedOptions']>
-  }>
+    input: string;
+    name: string;
+    path: string;
+    method: HttpMethod;
+    options: Partial<PluginReactQuery["resolvedOptions"]>;
+  }>;
 
-  it.each(testData)('$name', async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input))
+  test.each(testData)("$name", async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input));
 
-    const options: PluginReactQuery['resolvedOptions'] = {
+    const options: PluginReactQuery["resolvedOptions"] = {
       client: {
-        dataReturnType: 'data',
-        client: 'axios',
+        dataReturnType: "data",
+        client: "axios",
         bundle: false,
       },
-      parser: 'zod',
+      parser: "zod",
       paramsCasing: undefined,
-      paramsType: 'inline',
-      pathParamsType: 'inline',
+      paramsType: "inline",
+      pathParamsType: "inline",
       queryKey: QueryKey.getTransformer,
       mutationKey: MutationKey.getTransformer,
       query: {
-        importPath: '@tanstack/react-query',
-        methods: ['get'],
+        importPath: "@tanstack/react-query",
+        methods: ["get"],
       },
       mutation: {
-        methods: ['post'],
-        importPath: '@tanstack/react-query',
+        methods: ["post"],
+        importPath: "@tanstack/react-query",
       },
       infinite: false,
       output: {
-        path: '.',
+        path: ".",
       },
       group: undefined,
       ...props.options,
-    }
-    const plugin = { options } as Plugin<PluginReactQuery>
-    const fabric = createReactFabric()
+    };
+    const plugin = { options } as Plugin<PluginReactQuery>;
+    const fabric = createReactFabric();
 
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager(props.name);
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -72,20 +72,20 @@ describe('suspenseQueryGenerator operation', async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: 'split',
+      mode: "split",
       exclude: [],
-    })
+    });
 
-    const operation = oas.operation(props.path, props.method)
+    const operation = oas.operation(props.path, props.method);
 
     await buildOperation(operation, {
-      config: { root: '.', output: { path: 'test' } } as Config,
+      config: { root: ".", output: { path: "test" } } as Config,
       fabric,
       generator,
       Component: suspenseQueryGenerator.Operation,
       plugin,
-    })
+    });
 
-    await matchFiles(fabric.files)
-  })
-})
+    await matchFiles(fabric.files);
+  });
+});

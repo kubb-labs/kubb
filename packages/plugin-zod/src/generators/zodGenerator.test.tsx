@@ -1,316 +1,322 @@
-import path from 'node:path'
-import type { ZodOpenAPIMetadata } from '@asteasolutions/zod-to-openapi'
-import type { Config, Plugin } from '@kubb/core'
-import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas'
-import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
-import { getSchemas } from '@kubb/plugin-oas/utils'
-import { createReactFabric } from '@kubb/react-fabric'
-import { createMockedPluginManager, matchFiles } from '#mocks'
-import type { PluginZod } from '../types.ts'
-import { zodGenerator } from './zodGenerator.tsx'
+import path from "node:path";
+import type { ZodOpenAPIMetadata } from "@asteasolutions/zod-to-openapi";
+import type { Config, Plugin } from "@kubb/core";
+import type { HttpMethod } from "@kubb/oas";
+import { parse } from "@kubb/oas";
+import {
+  buildOperation,
+  buildSchema,
+  OperationGenerator,
+  SchemaGenerator,
+} from "@kubb/plugin-oas";
+import { getSchemas } from "@kubb/plugin-oas/utils";
+import { createReactFabric } from "@kubb/react-fabric";
+import { createMockedPluginManager, matchFiles } from "#mocks";
+import type { PluginZod } from "../types.ts";
+import { zodGenerator } from "./zodGenerator.tsx";
+import { describe, test } from "vitest";
 
-describe('zodGenerator schema', async () => {
+describe("zodGenerator schema", async () => {
   const testData = [
     {
-      name: 'Pet',
-      path: 'Pet',
-      input: '../../mocks/petStore.yaml',
+      name: "Pet",
+      path: "Pet",
+      input: "../../mocks/petStore.yaml",
       options: {},
     },
     {
-      name: 'Pet-v4',
-      path: 'Pet',
-      input: '../../mocks/petStore.yaml',
+      name: "Pet-v4",
+      path: "Pet",
+      input: "../../mocks/petStore.yaml",
       options: {
-        version: '4',
+        version: "4",
       },
     },
     {
-      name: 'Pets',
-      path: 'Pets',
-      input: '../../mocks/petStore.yaml',
+      name: "Pets",
+      path: "Pets",
+      input: "../../mocks/petStore.yaml",
       options: {
         typed: true,
       },
     },
     {
-      name: 'PetCoercion',
-      path: 'Pet',
-      input: '../../mocks/petStore.yaml',
+      name: "PetCoercion",
+      path: "Pet",
+      input: "../../mocks/petStore.yaml",
       options: {
         coercion: true,
       },
     },
     {
-      name: 'PetWithMapper',
-      input: '../../mocks/petStore.yaml',
-      path: 'Pet',
+      name: "PetWithMapper",
+      input: "../../mocks/petStore.yaml",
+      path: "Pet",
       options: {
         mapper: {
-          name: 'z.string().email()',
+          name: "z.string().email()",
         },
       },
     },
     {
-      name: 'PetTupleObject',
-      path: 'PetTupleObject',
-      input: '../../mocks/petStore.yaml',
+      name: "PetTupleObject",
+      path: "PetTupleObject",
+      input: "../../mocks/petStore.yaml",
       options: {},
     },
     {
-      name: 'OptionalPetInfer',
-      path: 'OptionalPet',
-      input: '../../mocks/petStore.yaml',
+      name: "OptionalPetInfer",
+      path: "OptionalPet",
+      input: "../../mocks/petStore.yaml",
       options: {
         inferred: true,
       },
     },
     {
-      name: 'OptionalPetTyped',
-      path: 'OptionalPet',
-      input: '../../mocks/petStore.yaml',
+      name: "OptionalPetTyped",
+      path: "OptionalPet",
+      input: "../../mocks/petStore.yaml",
       options: {
         typed: true,
       },
     },
     {
-      name: 'PetArray',
-      path: 'PetArray',
-      input: '../../mocks/petStore.yaml',
+      name: "PetArray",
+      path: "PetArray",
+      input: "../../mocks/petStore.yaml",
       options: {},
     },
     {
-      name: 'Order',
-      path: 'Order',
-      input: '../../mocks/petStore.yaml',
+      name: "Order",
+      path: "Order",
+      input: "../../mocks/petStore.yaml",
       options: {},
     },
     {
-      name: 'OrderDateTypeString',
-      path: 'Order',
-      input: '../../mocks/petStore.yaml',
+      name: "OrderDateTypeString",
+      path: "Order",
+      input: "../../mocks/petStore.yaml",
       options: {
-        dateType: 'string',
+        dateType: "string",
       },
     },
     {
-      name: 'Toy',
-      path: 'Toy',
-      input: '../../mocks/petStore.yaml',
+      name: "Toy",
+      path: "Toy",
+      input: "../../mocks/petStore.yaml",
       options: {},
     },
     {
-      name: 'OrderDateTypeFalse',
-      path: 'Order',
-      input: '../../mocks/petStore.yaml',
+      name: "OrderDateTypeFalse",
+      path: "Order",
+      input: "../../mocks/petStore.yaml",
       options: {
         dateType: false,
       },
     },
     {
-      name: 'UuidSchema',
-      path: 'UuidSchema',
-      input: '../../mocks/constCases.yaml',
+      name: "UuidSchema",
+      path: "UuidSchema",
+      input: "../../mocks/constCases.yaml",
       options: {},
     },
     {
-      name: 'NullableString',
-      path: 'NullableString',
-      input: '../../mocks/constCases.yaml',
+      name: "NullableString",
+      path: "NullableString",
+      input: "../../mocks/constCases.yaml",
       options: {},
     },
     {
-      name: 'NullableStringWithAnyOf',
-      path: 'NullableStringWithAnyOf',
-      input: '../../mocks/constCases.yaml',
+      name: "NullableStringWithAnyOf",
+      path: "NullableStringWithAnyOf",
+      input: "../../mocks/constCases.yaml",
       options: {},
     },
     {
-      name: 'NullableStringUuid',
-      path: 'NullableStringUuid',
-      input: '../../mocks/constCases.yaml',
+      name: "NullableStringUuid",
+      path: "NullableStringUuid",
+      input: "../../mocks/constCases.yaml",
       options: {},
     },
     {
-      name: 'StringValueConst',
-      path: 'StringValueConst',
-      input: '../../mocks/constCases.yaml',
+      name: "StringValueConst",
+      path: "StringValueConst",
+      input: "../../mocks/constCases.yaml",
       options: {},
     },
     {
-      name: 'NumberValueConst',
-      path: 'NumberValueConst',
-      input: '../../mocks/constCases.yaml',
+      name: "NumberValueConst",
+      path: "NumberValueConst",
+      input: "../../mocks/constCases.yaml",
       options: {},
     },
     {
-      name: 'MixedValueTypeConst',
-      path: 'MixedValueTypeConst',
-      input: '../../mocks/constCases.yaml',
+      name: "MixedValueTypeConst",
+      path: "MixedValueTypeConst",
+      input: "../../mocks/constCases.yaml",
       options: {},
     },
     {
-      name: 'enumVarNames.Type',
-      path: 'enumVarNames.Type',
-      input: '../../mocks/enums.yaml',
+      name: "enumVarNames.Type",
+      path: "enumVarNames.Type",
+      input: "../../mocks/enums.yaml",
       options: {},
     },
     {
-      name: 'enumNames.Type',
-      path: 'enumNames.Type',
-      input: '../../mocks/enums.yaml',
+      name: "enumNames.Type",
+      path: "enumNames.Type",
+      input: "../../mocks/enums.yaml",
       options: {},
     },
     {
-      name: 'enumNullable',
-      path: 'enumNullable',
-      input: '../../mocks/enums3_1.yaml',
+      name: "enumNullable",
+      path: "enumNullable",
+      input: "../../mocks/enums3_1.yaml",
       options: {},
     },
     {
-      name: 'enumBooleanLiteral',
-      path: 'enumBooleanLiteral',
-      input: '../../mocks/enums3_1.yaml',
+      name: "enumBooleanLiteral",
+      path: "enumBooleanLiteral",
+      input: "../../mocks/enums3_1.yaml",
       options: {},
     },
     {
-      name: 'enumSingleLiteral',
-      path: 'enumSingleLiteral',
-      input: '../../mocks/enums3_1.yaml',
+      name: "enumSingleLiteral",
+      path: "enumSingleLiteral",
+      input: "../../mocks/enums3_1.yaml",
       options: {},
     },
     {
-      name: 'Recursive',
-      path: 'Example',
-      input: '../../mocks/recursive.yaml',
+      name: "Recursive",
+      path: "Example",
+      input: "../../mocks/recursive.yaml",
       options: {},
     },
     {
-      name: 'anyof',
-      path: 'test',
-      input: '../../mocks/anyof.yaml',
+      name: "anyof",
+      path: "test",
+      input: "../../mocks/anyof.yaml",
       options: {},
     },
     {
-      name: 'oneof',
-      path: 'test',
-      input: '../../mocks/oneof.yaml',
+      name: "oneof",
+      path: "test",
+      input: "../../mocks/oneof.yaml",
       options: {},
     },
     {
-      name: 'Example',
-      path: 'Example',
-      input: '../../mocks/lazy.yaml',
+      name: "Example",
+      path: "Example",
+      input: "../../mocks/lazy.yaml",
       options: {},
     },
     {
-      name: 'discriminator',
-      path: 'Advanced',
-      input: '../../mocks/discriminator.yaml',
+      name: "discriminator",
+      path: "Advanced",
+      input: "../../mocks/discriminator.yaml",
       options: {},
     },
     {
-      name: 'coercion',
-      path: 'Pet',
-      input: '../../mocks/petStore.yaml',
+      name: "coercion",
+      path: "Pet",
+      input: "../../mocks/petStore.yaml",
       options: {
         coercion: true,
       },
     },
     {
-      name: 'coercion-strings',
-      path: 'Pet',
-      input: '../../mocks/petStore.yaml',
+      name: "coercion-strings",
+      path: "Pet",
+      input: "../../mocks/petStore.yaml",
       options: {
         coercion: { strings: true },
       },
     },
     {
-      name: 'coercion-numbers',
-      path: 'Pet',
-      input: '../../mocks/petStore.yaml',
+      name: "coercion-numbers",
+      path: "Pet",
+      input: "../../mocks/petStore.yaml",
       options: {
         coercion: { numbers: true },
       },
     },
     {
-      name: 'coercion-dates',
-      path: 'Pet',
-      input: '../../mocks/petStore.yaml',
+      name: "coercion-dates",
+      path: "Pet",
+      input: "../../mocks/petStore.yaml",
       options: {
         coercion: { dates: true },
       },
     },
     {
-      name: 'Nullable',
-      input: '../../mocks/nullable.yaml',
-      path: 'Nullable',
+      name: "Nullable",
+      input: "../../mocks/nullable.yaml",
+      path: "Nullable",
       options: {},
     },
     {
-      name: 'ExclusiveNumbers',
-      input: '../../mocks/exclusiveNumbers-v3_1_0.yaml',
-      path: 'ExclusiveNumbers',
+      name: "ExclusiveNumbers",
+      input: "../../mocks/exclusiveNumbers-v3_1_0.yaml",
+      path: "ExclusiveNumbers",
       options: {},
     },
     {
-      name: 'ExclusiveNumbers',
-      input: '../../mocks/exclusiveNumbers-v3_0_x.yaml',
-      path: 'ExclusiveNumbers',
+      name: "ExclusiveNumbers",
+      input: "../../mocks/exclusiveNumbers-v3_0_x.yaml",
+      path: "ExclusiveNumbers",
       options: {},
     },
   ] as const satisfies Array<{
-    input: string
-    name: string
-    path: string
-    options: Partial<PluginZod['resolvedOptions']>
-  }>
+    input: string;
+    name: string;
+    path: string;
+    options: Partial<PluginZod["resolvedOptions"]>;
+  }>;
 
-  it.each(testData)('$name', async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input))
+  test.each(testData)("$name", async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input));
 
-    const options: PluginZod['resolvedOptions'] = {
-      dateType: 'date',
+    const options: PluginZod["resolvedOptions"] = {
+      dateType: "date",
       transformers: {},
       inferred: false,
       typed: false,
-      unknownType: 'any',
+      unknownType: "any",
       mapper: {},
-      importPath: 'zod',
+      importPath: "zod",
       coercion: false,
       operations: false,
       override: [],
       output: {
-        path: '.',
+        path: ".",
       },
       group: undefined,
       wrapOutput: undefined,
-      version: '3',
-      emptySchemaType: 'unknown',
+      version: "3",
+      emptySchemaType: "unknown",
       mini: false,
       ...props.options,
-    }
-    const plugin = { options } as Plugin<PluginZod>
-    const fabric = createReactFabric()
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    };
+    const plugin = { options } as Plugin<PluginZod>;
+    const fabric = createReactFabric();
+    const mockedPluginManager = createMockedPluginManager(props.name);
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
       pluginManager: mockedPluginManager,
 
       plugin,
-      contentType: 'application/json',
+      contentType: "application/json",
       include: undefined,
       override: undefined,
-      mode: 'split',
-      output: './gen',
-    })
+      mode: "split",
+      output: "./gen",
+    });
 
-    const schemas = getSchemas({ oas })
-    const name = props.path
-    const schema = schemas[name]!
-    const tree = generator.parse({ schemaObject: schema, name })
+    const schemas = getSchemas({ oas });
+    const name = props.path;
+    const schema = schemas[name]!;
+    const tree = generator.parse({ schemaObject: schema, name });
 
     await buildSchema(
       {
@@ -319,99 +325,99 @@ describe('zodGenerator schema', async () => {
         value: schema,
       },
       {
-        config: { root: '.', output: { path: 'test' } } as Config,
+        config: { root: ".", output: { path: "test" } } as Config,
         fabric,
         generator,
         Component: zodGenerator.Schema,
         plugin,
       },
-    )
+    );
 
-    await matchFiles(fabric.files)
-  })
-})
+    await matchFiles(fabric.files);
+  });
+});
 
-describe('zodGenerator operation', async () => {
+describe("zodGenerator operation", async () => {
   const testData = [
     {
-      name: 'showPetById',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets/{petId}',
-      method: 'get',
+      name: "showPetById",
+      input: "../../mocks/petStore.yaml",
+      path: "/pets/{petId}",
+      method: "get",
       options: {},
     },
     {
-      name: 'getPets',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'get',
+      name: "getPets",
+      input: "../../mocks/petStore.yaml",
+      path: "/pets",
+      method: "get",
       options: {},
     },
     {
-      name: 'createPet',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'post',
+      name: "createPet",
+      input: "../../mocks/petStore.yaml",
+      path: "/pets",
+      method: "post",
       options: {},
     },
     {
-      name: 'createPet with unknownType unknown',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'post',
+      name: "createPet with unknownType unknown",
+      input: "../../mocks/petStore.yaml",
+      path: "/pets",
+      method: "post",
       options: {
-        unknownType: 'unknown',
+        unknownType: "unknown",
       },
     },
     {
-      name: 'deletePet',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets/{petId}',
-      method: 'delete',
+      name: "deletePet",
+      input: "../../mocks/petStore.yaml",
+      path: "/pets/{petId}",
+      method: "delete",
       options: {},
     },
     {
-      name: 'query-all-defaulted',
-      input: '../../mocks/queryRequiredDefault.yaml',
-      method: 'get',
-      path: '/thing',
+      name: "query-all-defaulted",
+      input: "../../mocks/queryRequiredDefault.yaml",
+      method: "get",
+      path: "/thing",
       options: {},
     },
   ] as const satisfies Array<{
-    input: string
-    name: string
-    path: string
-    method: HttpMethod
-    options: Partial<PluginZod['resolvedOptions']>
-  }>
+    input: string;
+    name: string;
+    path: string;
+    method: HttpMethod;
+    options: Partial<PluginZod["resolvedOptions"]>;
+  }>;
 
-  it.each(testData)('$name', async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input))
+  test.each(testData)("$name", async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input));
 
-    const options: PluginZod['resolvedOptions'] = {
-      dateType: 'date',
+    const options: PluginZod["resolvedOptions"] = {
+      dateType: "date",
       transformers: {},
       typed: false,
       inferred: false,
-      unknownType: 'any',
+      unknownType: "any",
       mapper: {},
-      importPath: 'zod',
+      importPath: "zod",
       coercion: false,
       operations: false,
       override: [],
       output: {
-        path: '.',
+        path: ".",
       },
       group: undefined,
       wrapOutput: undefined,
-      version: '3',
-      emptySchemaType: 'unknown',
+      version: "3",
+      emptySchemaType: "unknown",
       mini: false,
       ...props.options,
-    }
-    const plugin = { options } as Plugin<PluginZod>
-    const fabric = createReactFabric()
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    };
+    const plugin = { options } as Plugin<PluginZod>;
+    const fabric = createReactFabric();
+    const mockedPluginManager = createMockedPluginManager(props.name);
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -421,69 +427,71 @@ describe('zodGenerator operation', async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: 'split',
+      mode: "split",
       exclude: [],
-    })
-    const operation = oas.operation(props.path, props.method)
+    });
+    const operation = oas.operation(props.path, props.method);
     await buildOperation(operation, {
-      config: { root: '.', output: { path: 'test' } } as Config,
+      config: { root: ".", output: { path: "test" } } as Config,
       fabric,
       generator,
       Component: zodGenerator.Operation,
       plugin,
-    })
+    });
 
-    await matchFiles(fabric.files)
-  })
+    await matchFiles(fabric.files);
+  });
 
-  describe('wrapOutput', () => {
-    it.each(testData)('$name', async (props) => {
-      const oas = await parse(path.resolve(__dirname, props.input))
+  describe("wrapOutput", () => {
+    test.each(testData)("$name", async (props) => {
+      const oas = await parse(path.resolve(__dirname, props.input));
 
-      const options: PluginZod['resolvedOptions'] = {
-        dateType: 'date',
+      const options: PluginZod["resolvedOptions"] = {
+        dateType: "date",
         transformers: {},
         typed: false,
         inferred: false,
-        unknownType: 'any',
+        unknownType: "any",
         mapper: {},
-        importPath: '@hono/zod-openapi',
+        importPath: "@hono/zod-openapi",
         coercion: false,
         operations: false,
         override: [],
         output: {
-          path: '.',
+          path: ".",
         },
         group: undefined,
-        version: '3',
-        emptySchemaType: 'unknown',
+        version: "3",
+        emptySchemaType: "unknown",
         wrapOutput: ({ output, schema }) => {
-          const metadata: ZodOpenAPIMetadata = {}
+          const metadata: ZodOpenAPIMetadata = {};
 
           if (schema?.example) {
-            metadata.example = schema.example
+            metadata.example = schema.example;
           }
 
           if (schema?.examples) {
             if (Array.isArray(schema.examples)) {
-              metadata.examples = schema.examples
-            } else if (typeof schema.examples === 'object') {
-              metadata.examples = Object.entries(schema.examples).map(([key, value]) => ({
-                [key]: value,
-              }))
+              metadata.examples = schema.examples;
+            } else if (typeof schema.examples === "object") {
+              metadata.examples = Object.entries(schema.examples).map(
+                ([key, value]) => ({
+                  [key]: value,
+                }),
+              );
             }
           }
           if (Object.keys(metadata).length > 0) {
-            return `${output}.openapi(${JSON.stringify(metadata)})`
+            return `${output}.openapi(${JSON.stringify(metadata)})`;
           }
-          return undefined
+          return undefined;
         },
         mini: false,
         ...props.options,
-      }
-      const plugin = { options } as Plugin<PluginZod>
-      const fabric = createReactFabric()
-      const mockedPluginManager = createMockedPluginManager(props.name)
+      };
+      const plugin = { options } as Plugin<PluginZod>;
+      const fabric = createReactFabric();
+      const mockedPluginManager = createMockedPluginManager(props.name);
       const generator = new OperationGenerator(options, {
         fabric,
         oas,
@@ -493,91 +501,95 @@ describe('zodGenerator operation', async () => {
         plugin,
         contentType: undefined,
         override: undefined,
-        mode: 'split',
+        mode: "split",
         exclude: [],
-      })
-      const operation = oas.operation(props.path, props.method)
+      });
+      const operation = oas.operation(props.path, props.method);
 
       await buildOperation(operation, {
-        config: { root: '.', output: { path: 'test' } } as Config,
+        config: { root: ".", output: { path: "test" } } as Config,
         fabric,
         generator,
         Component: zodGenerator.Operation,
         plugin,
-      })
+      });
 
-      let files = fabric.files
+      let files = fabric.files;
       files = files?.map((file) => {
-        const [operation, extension] = file.path.split('.')
-        file.path = `${operation}_wrapOutput.${extension}`
-        return file
-      })
+        const [operation, extension] = file.path.split(".");
+        file.path = `${operation}_wrapOutput.${extension}`;
+        return file;
+      });
 
-      await matchFiles(files)
-    })
+      await matchFiles(files);
+    });
 
-    test('wraps the entire output', async () => {
+    test("wraps the entire output", async () => {
       const entry = {
-        name: 'createPet with unknownType unknown',
-        input: '../../mocks/petStore.yaml',
-        path: '/pets',
-        method: 'post',
+        name: "createPet with unknownType unknown",
+        input: "../../mocks/petStore.yaml",
+        path: "/pets",
+        method: "post",
         options: {
-          unknownType: 'unknown',
+          unknownType: "unknown",
         },
       } as const satisfies {
-        input: string
-        name: string
-        path: string
-        method: HttpMethod
-        options: Partial<PluginZod['resolvedOptions']>
-      }
+        input: string;
+        name: string;
+        path: string;
+        method: HttpMethod;
+        options: Partial<PluginZod["resolvedOptions"]>;
+      };
 
-      const oas = await parse(path.resolve(__dirname, '../../mocks/petStore.yaml'))
+      const oas = await parse(
+        path.resolve(__dirname, "../../mocks/petStore.yaml"),
+      );
 
-      const options: PluginZod['resolvedOptions'] = {
-        dateType: 'date',
+      const options: PluginZod["resolvedOptions"] = {
+        dateType: "date",
         transformers: {},
         typed: false,
         inferred: false,
         mapper: {},
-        importPath: '@hono/zod-openapi',
+        importPath: "@hono/zod-openapi",
         coercion: false,
         operations: false,
         override: [],
         output: {
-          path: '.',
+          path: ".",
         },
         group: undefined,
-        version: '3',
-        emptySchemaType: 'unknown',
+        version: "3",
+        emptySchemaType: "unknown",
         wrapOutput: ({ output, schema }) => {
-          const metadata: ZodOpenAPIMetadata = {}
+          const metadata: ZodOpenAPIMetadata = {};
 
           if (schema?.example) {
-            metadata.example = schema.example
+            metadata.example = schema.example;
           }
 
           if (schema.examples) {
             if (Array.isArray(schema.examples)) {
-              metadata.examples = schema.examples
-            } else if (typeof schema.examples === 'object') {
-              metadata.examples = Object.entries(schema.examples).map(([key, value]) => ({
-                [key]: value,
-              }))
+              metadata.examples = schema.examples;
+            } else if (typeof schema.examples === "object") {
+              metadata.examples = Object.entries(schema.examples).map(
+                ([key, value]) => ({
+                  [key]: value,
+                }),
+              );
             }
           }
           if (Object.keys(metadata).length > 0) {
-            return `extendApi(${output}, ${JSON.stringify(metadata)})`
+            return `extendApi(${output}, ${JSON.stringify(metadata)})`;
           }
-          return undefined
+          return undefined;
         },
         mini: false,
         ...entry.options,
-      }
-      const plugin = { options } as Plugin<PluginZod>
-      const fabric = createReactFabric()
-      const mockedPluginManager = createMockedPluginManager(entry.name)
+      };
+      const plugin = { options } as Plugin<PluginZod>;
+      const fabric = createReactFabric();
+      const mockedPluginManager = createMockedPluginManager(entry.name);
       const generator = new OperationGenerator(options, {
         fabric,
         oas,
@@ -587,27 +599,27 @@ describe('zodGenerator operation', async () => {
         plugin,
         contentType: undefined,
         override: undefined,
-        mode: 'split',
+        mode: "split",
         exclude: [],
-      })
-      const operation = oas.operation(entry.path, entry.method)
+      });
+      const operation = oas.operation(entry.path, entry.method);
 
       await buildOperation(operation, {
-        config: { root: '.', output: { path: 'test' } } as Config,
+        config: { root: ".", output: { path: "test" } } as Config,
         fabric,
         generator,
         Component: zodGenerator.Operation,
         plugin,
-      })
+      });
 
-      let files = fabric.files
+      let files = fabric.files;
       files = files?.map((file) => {
-        const [operation, extension] = file.path.split('.')
-        file.path = `${operation}_wrapOutput_entire_.${extension}`
-        return file
-      })
+        const [operation, extension] = file.path.split(".");
+        file.path = `${operation}_wrapOutput_entire_.${extension}`;
+        return file;
+      });
 
-      await matchFiles(files)
-    })
-  })
-})
+      await matchFiles(files);
+    });
+  });
+});

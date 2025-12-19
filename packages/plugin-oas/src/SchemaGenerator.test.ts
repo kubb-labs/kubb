@@ -1,116 +1,124 @@
-import path from 'node:path'
-import type { Plugin } from '@kubb/core'
-import { parse } from '@kubb/oas'
-import { createReactFabric } from '@kubb/react-fabric'
-import { mockedPluginManager } from '#mocks'
-import { type GetSchemaGeneratorOptions, SchemaGenerator } from './SchemaGenerator.ts'
+import path from "node:path";
+import type { Plugin } from "@kubb/core";
+import { parse } from "@kubb/oas";
+import { createReactFabric } from "@kubb/react-fabric";
+import { mockedPluginManager } from "#mocks";
+import {
+  type GetSchemaGeneratorOptions,
+  SchemaGenerator,
+} from "./SchemaGenerator.ts";
 
-describe('SchemaGenerator core', async () => {
+describe("SchemaGenerator core", async () => {
   const testData = [
     {
-      name: 'Pet',
-      input: '../mocks/petStore.yaml',
-      path: 'Pet',
+      name: "Pet",
+      input: "../mocks/petStore.yaml",
+      path: "Pet",
       options: {
-        dateType: 'date',
+        dateType: "date",
         transformers: {},
-        unknownType: 'unknown',
+        unknownType: "unknown",
       },
     },
     {
-      name: 'FullAddress',
-      input: '../mocks/petStore.yaml',
-      path: 'FullAddress',
+      name: "FullAddress",
+      input: "../mocks/petStore.yaml",
+      path: "FullAddress",
       options: {
-        dateType: 'date',
+        dateType: "date",
         transformers: {},
-        unknownType: 'unknown',
+        unknownType: "unknown",
       },
     },
     {
-      name: 'Owner',
-      input: '../mocks/petStore.yaml',
-      path: 'Owner',
+      name: "Owner",
+      input: "../mocks/petStore.yaml",
+      path: "Owner",
       options: {
-        dateType: 'date',
+        dateType: "date",
         transformers: {},
-        unknownType: 'unknown',
+        unknownType: "unknown",
       },
     },
     {
-      name: 'Pets',
-      input: '../mocks/petStore.yaml',
-      path: 'Pets',
+      name: "Pets",
+      input: "../mocks/petStore.yaml",
+      path: "Pets",
       options: {
-        dateType: 'date',
+        dateType: "date",
         transformers: {},
-        unknownType: 'unknown',
+        unknownType: "unknown",
       },
     },
     {
-      name: 'Toy',
-      input: '../mocks/petStore.yaml',
-      path: 'Toy',
+      name: "Toy",
+      input: "../mocks/petStore.yaml",
+      path: "Toy",
       options: {
-        dateType: 'date',
+        dateType: "date",
         transformers: {},
-        unknownType: 'unknown',
+        unknownType: "unknown",
       },
     },
     {
-      name: 'PageSize',
-      input: '../mocks/petStore.yaml',
-      path: 'PageSize',
+      name: "PageSize",
+      input: "../mocks/petStore.yaml",
+      path: "PageSize",
       options: {
-        dateType: 'date',
+        dateType: "date",
         transformers: {},
-        unknownType: 'unknown',
+        unknownType: "unknown",
       },
     },
     {
-      name: 'PhoneWithMaxLength',
-      input: '../mocks/allOfMaxLength.yaml',
-      path: 'PhoneWithMaxLength',
+      name: "PhoneWithMaxLength",
+      input: "../mocks/allOfMaxLength.yaml",
+      path: "PhoneWithMaxLength",
       options: {
-        dateType: 'date',
+        dateType: "date",
         transformers: {},
-        unknownType: 'unknown',
+        unknownType: "unknown",
       },
     },
     {
-      name: 'PhoneWithMaxLengthExplicit',
-      input: '../mocks/allOfMaxLength.yaml',
-      path: 'PhoneWithMaxLengthExplicit',
+      name: "PhoneWithMaxLengthExplicit",
+      input: "../mocks/allOfMaxLength.yaml",
+      path: "PhoneWithMaxLengthExplicit",
       options: {
-        dateType: 'date',
+        dateType: "date",
         transformers: {},
-        unknownType: 'unknown',
+        unknownType: "unknown",
       },
     },
     {
-      name: 'EmptyAnyOf',
-      input: '../mocks/anyOfEmpty.yaml',
-      path: 'EmptyAnyOf',
+      name: "EmptyAnyOf",
+      input: "../mocks/anyOfEmpty.yaml",
+      path: "EmptyAnyOf",
       options: {
-        dateType: 'date',
+        dateType: "date",
         transformers: {},
-        unknownType: 'unknown',
+        unknownType: "unknown",
       },
     },
     // Add discriminator test cases
-  ] as const satisfies Array<{ input: string; name: string; path: string; options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>> }>
+  ] as const satisfies Array<{
+    input: string;
+    name: string;
+    path: string;
+    options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>>;
+  }>;
 
-  it.each(testData)('$name', async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input))
-    const schemas = oas.getDefinition().components?.schemas
-    const schema = schemas?.[props.path]
+  test.each(testData)("$name", async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input));
+    const schemas = oas.getDefinition().components?.schemas;
+    const schema = schemas?.[props.path];
 
     const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
-      emptySchemaType: 'unknown',
+      emptySchemaType: "unknown",
       ...props.options,
-    }
-    const plugin = { options } as Plugin<any>
-    const fabric = createReactFabric()
+    };
+    const plugin = { options } as Plugin<any>;
+    const fabric = createReactFabric();
 
     const generator = new SchemaGenerator(options, {
       fabric,
@@ -121,65 +129,65 @@ describe('SchemaGenerator core', async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: 'split',
-    })
-    const tree = generator.parse({ schemaObject: schema, name: props.name })
+      mode: "split",
+    });
+    const tree = generator.parse({ schemaObject: schema, name: props.name });
 
-    expect(tree).toMatchSnapshot()
-  })
+    expect(tree).toMatchSnapshot();
+  });
 
-  test('combineObjects', () => {
+  test("combineObjects", () => {
     const input = [
       {
-        keyword: 'and',
+        keyword: "and",
         args: [
           {
-            keyword: 'ref',
+            keyword: "ref",
             args: {
-              name: 'EventBase',
-              $ref: '#/components/schemas/EventBase',
-              path: '/Users/stijnvanhullem/Git/external/kubb/examples/typescript/src/gen/models.ts',
+              name: "EventBase",
+              $ref: "#/components/schemas/EventBase",
+              path: "/Users/stijnvanhullem/Git/external/kubb/examples/typescript/src/gen/models.ts",
               isImportable: true,
             },
           },
           {
-            keyword: 'object',
+            keyword: "object",
             args: {
               properties: {
                 text: [
                   {
-                    keyword: 'string',
+                    keyword: "string",
                   },
                   {
-                    keyword: 'schema',
+                    keyword: "schema",
                     args: {
-                      type: 'string',
+                      type: "string",
                     },
                   },
                   {
-                    keyword: 'name',
-                    args: 'text',
+                    keyword: "name",
+                    args: "text",
                   },
                   {
-                    keyword: 'optional',
+                    keyword: "optional",
                   },
                 ],
                 verified: [
                   {
-                    keyword: 'boolean',
+                    keyword: "boolean",
                   },
                   {
-                    keyword: 'schema',
+                    keyword: "schema",
                     args: {
-                      type: 'boolean',
+                      type: "boolean",
                     },
                   },
                   {
-                    keyword: 'name',
-                    args: 'verified',
+                    keyword: "name",
+                    args: "verified",
                   },
                   {
-                    keyword: 'optional',
+                    keyword: "optional",
                   },
                 ],
               },
@@ -187,23 +195,23 @@ describe('SchemaGenerator core', async () => {
             },
           },
           {
-            keyword: 'object',
+            keyword: "object",
             args: {
               properties: {
                 id: [
                   {
-                    keyword: 'uuid',
+                    keyword: "uuid",
                   },
                   {
-                    keyword: 'schema',
+                    keyword: "schema",
                     args: {
-                      type: 'string',
-                      format: 'uuid',
+                      type: "string",
+                      format: "uuid",
                     },
                   },
                   {
-                    keyword: 'name',
-                    args: 'id',
+                    keyword: "name",
+                    args: "id",
                   },
                 ],
               },
@@ -211,28 +219,28 @@ describe('SchemaGenerator core', async () => {
             },
           },
           {
-            keyword: 'schema',
+            keyword: "schema",
             args: {
-              type: 'object',
+              type: "object",
             },
           },
           {
-            keyword: 'object',
+            keyword: "object",
             args: {
               properties: {
                 text: [
                   {
-                    keyword: 'string',
+                    keyword: "string",
                   },
                   {
-                    keyword: 'schema',
+                    keyword: "schema",
                     args: {
-                      type: 'string',
+                      type: "string",
                     },
                   },
                   {
-                    keyword: 'name',
-                    args: 'text',
+                    keyword: "name",
+                    args: "text",
                   },
                 ],
               },
@@ -240,32 +248,32 @@ describe('SchemaGenerator core', async () => {
             },
           },
           {
-            keyword: 'schema',
+            keyword: "schema",
             args: {
-              type: 'object',
+              type: "object",
             },
           },
           {
-            keyword: 'object',
+            keyword: "object",
             args: {
               properties: {
                 ts: [
                   {
-                    keyword: 'datetime',
+                    keyword: "datetime",
                     args: {
                       offset: false,
                     },
                   },
                   {
-                    keyword: 'schema',
+                    keyword: "schema",
                     args: {
-                      type: 'string',
-                      format: 'date-time',
+                      type: "string",
+                      format: "date-time",
                     },
                   },
                   {
-                    keyword: 'name',
-                    args: 'ts',
+                    keyword: "name",
+                    args: "ts",
                   },
                 ],
               },
@@ -273,43 +281,43 @@ describe('SchemaGenerator core', async () => {
             },
           },
           {
-            keyword: 'schema',
+            keyword: "schema",
             args: {
-              type: 'object',
+              type: "object",
             },
           },
         ],
       },
       {
-        keyword: 'schema',
+        keyword: "schema",
         args: {},
       },
-    ]
+    ];
 
-    expect(SchemaGenerator.combineObjects(input)).toMatchSnapshot()
-  })
+    expect(SchemaGenerator.combineObjects(input)).toMatchSnapshot();
+  });
 
-  test('array of enums with malformed schema (enum at array level)', async () => {
-    const oas = await parse(path.resolve(__dirname, '../mocks/petStore.yaml'))
+  test("array of enums with malformed schema (enum at array level)", async () => {
+    const oas = await parse(path.resolve(__dirname, "../mocks/petStore.yaml"));
 
     // Malformed schema: enum at same level as type: array
     // This should be normalized to: { type: 'array', items: { type: 'string', enum: [...] } }
     const malformedSchema = {
-      type: 'array',
-      enum: ['foo', 'bar', 'baz'],
+      type: "array",
+      enum: ["foo", "bar", "baz"],
       items: {
-        type: 'string',
+        type: "string",
       },
-    }
+    };
 
     const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
-      emptySchemaType: 'unknown',
-      dateType: 'date',
+      emptySchemaType: "unknown",
+      dateType: "date",
       transformers: {},
-      unknownType: 'unknown',
-    }
-    const plugin = { options } as Plugin<any>
-    const fabric = createReactFabric()
+      unknownType: "unknown",
+    };
+    const plugin = { options } as Plugin<any>;
+    const fabric = createReactFabric();
 
     const generator = new SchemaGenerator(options, {
       fabric,
@@ -319,11 +327,14 @@ describe('SchemaGenerator core', async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: 'split',
-    })
+      mode: "split",
+    });
 
-    const tree = generator.parse({ schemaObject: malformedSchema as any, name: 'TestArrayEnum' })
+    const tree = generator.parse({
+      schemaObject: malformedSchema as any,
+      name: "TestArrayEnum",
+    });
 
-    expect(tree).toMatchSnapshot()
-  })
-})
+    expect(tree).toMatchSnapshot();
+  });
+});

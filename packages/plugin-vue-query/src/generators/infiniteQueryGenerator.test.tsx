@@ -1,85 +1,85 @@
-import path from 'node:path'
-import type { Config, Plugin } from '@kubb/core'
-import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas'
+import path from "node:path";
+import type { Config, Plugin } from "@kubb/core";
+import type { HttpMethod } from "@kubb/oas";
+import { parse } from "@kubb/oas";
 
-import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
-import { createReactFabric } from '@kubb/react-fabric'
-import { createMockedPluginManager, matchFiles } from '#mocks'
-import { MutationKey, QueryKey } from '../components'
-import type { PluginVueQuery } from '../types.ts'
-import { infiniteQueryGenerator } from './infiniteQueryGenerator.tsx'
+import { buildOperation, OperationGenerator } from "@kubb/plugin-oas";
+import { createReactFabric } from "@kubb/react-fabric";
+import { createMockedPluginManager, matchFiles } from "#mocks";
+import { MutationKey, QueryKey } from "../components";
+import type { PluginVueQuery } from "../types.ts";
+import { infiniteQueryGenerator } from "./infiniteQueryGenerator.tsx";
 
-describe('infiniteQueryGenerator operation', async () => {
+describe("infiniteQueryGenerator operation", async () => {
   const testData = [
     {
-      name: 'findInfiniteByTags',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
+      name: "findInfiniteByTags",
+      input: "../../mocks/petStore.yaml",
+      path: "/pet/findByTags",
+      method: "get",
       options: {
         infinite: {
-          queryParam: 'pageSize',
+          queryParam: "pageSize",
           initialPageParam: 0,
           cursorParam: undefined,
         },
       },
     },
     {
-      name: 'findInfiniteByTagsCursor',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
+      name: "findInfiniteByTagsCursor",
+      input: "../../mocks/petStore.yaml",
+      path: "/pet/findByTags",
+      method: "get",
       options: {
         infinite: {
-          queryParam: 'pageSize',
+          queryParam: "pageSize",
           initialPageParam: 0,
-          cursorParam: 'cursor',
+          cursorParam: "cursor",
         },
       },
     },
   ] as const satisfies Array<{
-    input: string
-    name: string
-    path: string
-    method: HttpMethod
-    options: Partial<PluginVueQuery['resolvedOptions']>
-  }>
+    input: string;
+    name: string;
+    path: string;
+    method: HttpMethod;
+    options: Partial<PluginVueQuery["resolvedOptions"]>;
+  }>;
 
-  it.each(testData)('$name', async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input))
+  test.each(testData)("$name", async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input));
 
-    const options: PluginVueQuery['resolvedOptions'] = {
+    const options: PluginVueQuery["resolvedOptions"] = {
       client: {
-        dataReturnType: 'data',
-        client: 'axios',
+        dataReturnType: "data",
+        client: "axios",
         importPath: undefined,
         bundle: false,
       },
-      parser: 'zod',
-      paramsType: 'inline',
+      parser: "zod",
+      paramsType: "inline",
       paramsCasing: undefined,
-      pathParamsType: 'inline',
+      pathParamsType: "inline",
       queryKey: QueryKey.getTransformer,
       mutationKey: MutationKey.getTransformer,
       query: {
-        importPath: '@tanstack/react-query',
-        methods: ['get'],
+        importPath: "@tanstack/react-query",
+        methods: ["get"],
       },
       mutation: {
-        methods: ['post'],
-        importPath: '@tanstack/react-query',
+        methods: ["post"],
+        importPath: "@tanstack/react-query",
       },
       output: {
-        path: '.',
+        path: ".",
       },
       group: undefined,
       ...props.options,
-    }
-    const plugin = { options } as Plugin<PluginVueQuery>
-    const fabric = createReactFabric()
+    };
+    const plugin = { options } as Plugin<PluginVueQuery>;
+    const fabric = createReactFabric();
 
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager(props.name);
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -89,19 +89,19 @@ describe('infiniteQueryGenerator operation', async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: 'split',
+      mode: "split",
       exclude: [],
-    })
+    });
 
-    const operation = oas.operation(props.path, props.method)
+    const operation = oas.operation(props.path, props.method);
     await buildOperation(operation, {
-      config: { root: '.', output: { path: 'test' } } as Config,
+      config: { root: ".", output: { path: "test" } } as Config,
       fabric,
       generator,
       Component: infiniteQueryGenerator.Operation,
       plugin,
-    })
+    });
 
-    await matchFiles(fabric.files)
-  })
-})
+    await matchFiles(fabric.files);
+  });
+});

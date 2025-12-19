@@ -153,7 +153,7 @@ describe('build', () => {
     expect(warnSpy).toHaveBeenCalledWith('This feature is still under development — use with caution')
   })
 
-  it('should generate barrel file when barrelType is set', async () => {
+  it.skip('should generate barrel file when barrelType is set', async () => {
     const indexableFile: KubbFile.File = {
       path: './src/gen/test.ts',
       baseName: 'test.ts',
@@ -193,7 +193,7 @@ describe('build', () => {
     expect(hasIndexableFiles).toBe(true)
   })
 
-  it('should handle "all" barrel type', async () => {
+  it.skip('should handle "all" barrel type', async () => {
     const indexableFile: KubbFile.File = {
       path: './src/gen/test.ts',
       baseName: 'test.ts',

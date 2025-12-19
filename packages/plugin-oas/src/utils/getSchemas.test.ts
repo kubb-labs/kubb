@@ -1,7 +1,6 @@
 import path from 'node:path'
 import type { OasTypes } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { describe, expect, it } from 'vitest'
 import { getSchemas } from './getSchemas.ts'
 
 describe('getSchemas', () => {
