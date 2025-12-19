@@ -210,6 +210,8 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
       })
 
       await this.upsertFile(...barrelFiles)
+
+      throw new Error('CANNOT WORK')
     },
   }
 })

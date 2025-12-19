@@ -1,5 +1,6 @@
 import { relative } from 'node:path'
 import { defineLogger, LogLevel } from '@kubb/core'
+import { formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import { getSummary } from '../utils/getSummary.ts'
 
@@ -121,13 +122,13 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('plugin:end', (plugin, duration) => {
+    context.on('plugin:end', (plugin, { duration, success }) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
 
-      const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
-      const text = getMessage(`${plugin.name} completed in ${durationStr}`)
+      const durationStr = formatMs(duration)
+      const text = getMessage(success ? `${plugin.name} completed in ${durationStr}` : `${plugin.name} failed in ${durationStr}`)
 
       console.log(text)
     })
