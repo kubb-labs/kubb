@@ -1,12 +1,23 @@
-import type { UploadFileMutationRequest, UploadFileMutationResponse } from '../../models/ts/petController/UploadFile.ts'
+import type {
+  UploadFileMutationRequest,
+  UploadFileMutationResponse,
+  UploadFilePathParams,
+  UploadFileQueryParams,
+} from '../../models/ts/petController/UploadFile.ts'
 
-export function uploadFile(data?: UploadFileMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<UploadFileMutationResponse> {
+export function uploadFile(
+  petId: UploadFilePathParams['petId'],
+  data?: UploadFileMutationRequest,
+  params?: UploadFileQueryParams,
+  options?: Partial<Cypress.RequestOptions>,
+): Cypress.Chainable<UploadFileMutationResponse> {
   return cy
-    .request({
+    .request<UploadFileMutationResponse>({
       method: 'post',
-      url: '/pet/:petId/uploadImage',
+      url: `/pet/${petId}/uploadImage`,
+      qs: params,
       body: data,
       ...options,
     })
-    .then((res: Cypress.Response<UploadFileMutationResponse>) => res.body)
+    .then((res) => res.body)
 }

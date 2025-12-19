@@ -1,12 +1,14 @@
-import type { DeleteUserMutationResponse } from '../../models/ts/userController/DeleteUser.ts'
+import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/ts/userController/DeleteUser.ts'
 
-export function deleteUser(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<DeleteUserMutationResponse> {
+export function deleteUser(
+  username: DeleteUserPathParams['username'],
+  options?: Partial<Cypress.RequestOptions>,
+): Cypress.Chainable<DeleteUserMutationResponse> {
   return cy
-    .request({
+    .request<DeleteUserMutationResponse>({
       method: 'delete',
-      url: '/user/:username',
-      body: undefined,
+      url: `/user/${username}`,
       ...options,
     })
-    .then((res: Cypress.Response<DeleteUserMutationResponse>) => res.body)
+    .then((res) => res.body)
 }

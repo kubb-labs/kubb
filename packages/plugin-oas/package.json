@@ -93,7 +93,6 @@
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/react-fabric": "catalog:",
-    "@stoplight/yaml": "^4.3.0",
     "p-limit": "catalog:",
     "remeda": "catalog:"
   },

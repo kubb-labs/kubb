@@ -187,6 +187,20 @@ jobs:
 
       - name: Publish preview packages
         run: pnpx pkg-pr-new publish --pnpm --owner=stijnvanhulle --repo=https://github.com/kubb-labs/kubb.git './packages/*' --template './examples/*'
+  dependency-diff:
+    name: Dependency Diff
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Analyze dependency changes
+        uses: e18e/action-dependency-diff@v1
+
   e2e:
     name: Build and test on ${{ matrix.os }}
     timeout-minutes: 30

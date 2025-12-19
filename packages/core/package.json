@@ -94,20 +94,17 @@
     "@kubb/react-fabric": "catalog:",
     "camelcase": "^8.0.0",
     "find-up": "^7.0.0",
-    "fs-extra": "^11.3.2",
+    "fs-extra": "^11.3.3",
     "jiti": "^2.6.1",
     "js-runtime": "^0.0.8",
     "natural-orderby": "^5.0.0",
-    "object-hash": "^3.0.0",
     "p-limit": "catalog:",
     "remeda": "catalog:",
     "semver": "^7.7.3"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "@types/object-hash": "^3.0.6",
-    "@types/semver": "^7.7.1",
-    "zod": "^4.2.1"
+    "@types/semver": "^7.7.1"
   },
   "peerDependencies": {
     "@kubb/react-fabric": "0.7.1"

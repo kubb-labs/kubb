@@ -3,15 +3,18 @@
  * Do not edit manually.
  */
 
-import type { FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus.ts'
+import type { FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus.ts'
 
-export function findPetsByStatus(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<FindPetsByStatusQueryResponse> {
+export function findPetsByStatus(
+  params?: FindPetsByStatusQueryParams,
+  options?: Partial<Cypress.RequestOptions>,
+): Cypress.Chainable<FindPetsByStatusQueryResponse> {
   return cy
-    .request({
+    .request<FindPetsByStatusQueryResponse>({
       method: 'get',
       url: 'http://localhost:3000/pet/findByStatus',
-      body: undefined,
+      qs: params,
       ...options,
     })
-    .then((res: Cypress.Response<FindPetsByStatusQueryResponse>) => res.body)
+    .then((res) => res.body)
 }
