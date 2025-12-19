@@ -1,4 +1,4 @@
-import type { ArgsDef, ParsedArgs } from 'citty'
+import type { ArgsDef } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import { createJiti } from 'jiti'
 import pc from 'picocolors'
@@ -15,8 +15,6 @@ const args = {
     default: false,
   },
 } as const satisfies ArgsDef
-
-export type Args = ParsedArgs<typeof args>
 
 const command = defineCommand({
   meta: {

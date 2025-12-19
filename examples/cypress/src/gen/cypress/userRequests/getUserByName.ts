@@ -3,15 +3,17 @@
  * Do not edit manually.
  */
 
-import type { GetUserByNameQueryResponse } from '../../models/GetUserByName.ts'
+import type { GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/GetUserByName.ts'
 
-export function getUserByName(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetUserByNameQueryResponse> {
+export function getUserByName(
+  username: GetUserByNamePathParams['username'],
+  options?: Partial<Cypress.RequestOptions>,
+): Cypress.Chainable<GetUserByNameQueryResponse> {
   return cy
-    .request({
+    .request<GetUserByNameQueryResponse>({
       method: 'get',
-      url: 'http://localhost:3000/user/:username',
-      body: undefined,
+      url: `http://localhost:3000/user/${username}`,
       ...options,
     })
-    .then((res: Cypress.Response<GetUserByNameQueryResponse>) => res.body)
+    .then((res) => res.body)
 }

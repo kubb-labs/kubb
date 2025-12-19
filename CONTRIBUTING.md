@@ -30,6 +30,14 @@ gh repo clone <your-github-name>/kubb
 
 ### Implement your changes
 
+This project includes several code quality tools to help maintain code standards:
+
+- **Linting**: Run `pnpm run lint` to check code style (uses Biome)
+- **Formatting**: Run `pnpm run format` to auto-format code
+- **Type checking**: Run `pnpm run typecheck` to verify TypeScript types
+- **Testing**: Run `pnpm run test` to run the test suite
+- **Unused code detection**: Run `pnpm run knip` to detect unused exports, dependencies, and files
+
 When making commits, make sure to follow the [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) guidelines, i.e. prepending the message with `feat:`, `fix:`, `chore:`, `docs:`, etc... You can use `git status` to double check which files have not yet been staged for commit:
 
 ```bash
