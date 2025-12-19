@@ -35,7 +35,7 @@ describe("getBanner", () => {
     expect(result).toContain("Source: api.yaml");
   });
 
-  test("should generate simple banner", async () => {
+  it("should generate simple banner", async () => {
     const oas = await parse({
       openapi: "3.0.0",
       info: {
@@ -151,7 +151,7 @@ describe("getBanner", () => {
     expect(result).toBe("");
   });
 
-  test("should handle multiline description", async () => {
+  it("should handle multiline description", async () => {
     const oas = await parse({
       openapi: "3.0.0",
       info: {

@@ -12,7 +12,7 @@ describe('getFooter', () => {
 
     const result = getFooter({
       oas,
-      output: { path: "./output" },
+      output: { path: './output' },
     })
 
     expect(result).toBeUndefined()
@@ -27,7 +27,7 @@ describe('getFooter', () => {
     const footer = '// End of file'
     const result = getFooter({
       oas,
-      output: { path: "./output", footer },
+      output: { path: './output', footer },
     })
 
     expect(result).toBe(footer)
@@ -44,7 +44,7 @@ describe('getFooter', () => {
     const footerFn = (o: typeof oas) => `// Generated for ${o.api?.info?.title}`
     const result = getFooter({
       oas,
-      output: { path: "./output", footer: footerFn },
+      output: { path: './output', footer: footerFn },
     })
 
     expect(result).toBe('// Generated for Test API')
