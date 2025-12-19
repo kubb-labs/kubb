@@ -2,6 +2,7 @@ import { relative } from 'node:path'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { execa } from 'execa'
 import { getSummary } from '../utils/getSummary.ts'
+import {formatMs} from '@kubb/core/utils'
 
 /**
  * Plain console adapter for non-TTY environments
@@ -126,7 +127,7 @@ export const plainLogger = defineLogger({
         return
       }
 
-      const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
+ const durationStr = formatMs(duration);
       const text = getMessage(success ? `${plugin.name} completed in ${durationStr}` : `${plugin.name} failed in ${durationStr}`)
 
       console.log(text)
