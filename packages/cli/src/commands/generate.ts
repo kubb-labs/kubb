@@ -46,6 +46,12 @@ const args = {
     alias: 'v',
     default: false,
   },
+  silent: {
+    type: 'boolean',
+    description: 'Override logLevel to silent',
+    alias: 's',
+    default: false,
+  },
   help: {
     type: 'boolean',
     description: 'Show help',
@@ -78,6 +84,10 @@ const command = defineCommand({
 
     if (args.verbose) {
       args.logLevel = 'verbose'
+    }
+
+    if (args.silent) {
+      args.logLevel = 'silent'
     }
 
     const logLevel = LogLevel[args.logLevel as keyof typeof LogLevel] || 3

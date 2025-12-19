@@ -74,6 +74,7 @@ OPTIONS
   -l, --logLevel=<silent|info|verbose|debug>    Log level control
                          -w, --watch    Watch mode based on the input file
                          -v, --verbose  Override logLevel to verbose (shows plugin timings)
+                         -s, --silent   Override logLevel to silent (shows plugin timings)
                          -d, --debug    Override logLevel to debug (shows all details)
                           -h, --help    Show help
 ```

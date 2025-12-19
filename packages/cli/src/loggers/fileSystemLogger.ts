@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { defineLogger } from '@kubb/core'
 import { write } from '@kubb/core/fs'
+import { formatMs } from '@kubb/core/utils'
 
 type CachedEvent = {
   date: Date
@@ -50,10 +51,68 @@ export const fileSystemLogger = defineLogger({
       cachedLogs.clear()
     }
 
+    context.on('info', (message, info) => {
+      cachedLogs.add({
+        date: new Date(),
+        logs: [`ℹ ${message} ${info}`],
+        fileName: undefined,
+      })
+    })
+
+    context.on('success', (message, info) => {
+      cachedLogs.add({
+        date: new Date(),
+        logs: [`✓ ${message} ${info}`],
+        fileName: undefined,
+      })
+    })
+
+    context.on('warn', (message, info) => {
+      cachedLogs.add({
+        date: new Date(),
+        logs: [`⚠ ${message} ${info}`],
+        fileName: undefined,
+      })
+    })
+
+    context.on('error', (error) => {
+      cachedLogs.add({
+        date: new Date(),
+        logs: [`✗ ${error.message}`, error.stack || 'unknown stack'],
+        fileName: undefined,
+      })
+    })
+
     context.on('debug', (message) => {
       cachedLogs.add({
         date: new Date(),
         logs: message.logs,
+        fileName: undefined,
+      })
+    })
+
+    context.on('plugin:start', (plugin) => {
+      cachedLogs.add({
+        date: new Date(),
+        logs: [`Generating ${plugin.name}`],
+        fileName: undefined,
+      })
+    })
+
+    context.on('plugin:end', (plugin, { duration, success }) => {
+      const durationStr = formatMs(duration)
+
+      cachedLogs.add({
+        date: new Date(),
+        logs: [success ? `${plugin.name} completed in ${durationStr}` : `${plugin.name} failed in ${durationStr}`],
+        fileName: undefined,
+      })
+    })
+
+    context.on('files:processing:start', (files) => {
+      cachedLogs.add({
+        date: new Date(),
+        logs: [`Start ${files.length} writing:`, ...files.map((file) => file.path)],
         fileName: undefined,
       })
     })

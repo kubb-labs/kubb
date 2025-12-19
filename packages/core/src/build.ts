@@ -136,7 +136,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     await events.emit('files:processing:end', files)
     await events.emit('debug', {
       date: new Date(),
-      logs: ['✓ File write process completed'],
+      logs: [`✓ File write process completed for ${files.length} files`],
     })
   })
 
@@ -201,7 +201,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
         await events.emit('debug', {
           date: timestamp,
-          logs: ['Installing plugin...', `  • Plugin Key: ${JSON.stringify(plugin.key)}`],
+          logs: ['Installing plugin...', `  • Plugin Key: [${plugin.key.join(', ')}]`],
         })
 
         await installer(context)
@@ -213,7 +213,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
         await events.emit('debug', {
           date: new Date(),
-          logs: [`✓ Plugin installed successfully (${formatMs(duration)}`],
+          logs: [`✓ Plugin installed successfully (${formatMs(duration)})`],
         })
       } catch (caughtError) {
         const error = caughtError as Error

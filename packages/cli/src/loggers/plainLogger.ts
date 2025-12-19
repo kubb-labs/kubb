@@ -169,34 +169,6 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('hook:execute', async ({ command, args }, cb) => {
-      try {
-        const result = await execa(command, args, {
-          detached: true,
-          stripFinalNewline: true,
-        })
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [result.stdout],
-        })
-
-        console.log(result.stdout)
-
-        cb()
-      } catch (err) {
-        const error = new Error('Hook execute failed')
-        error.cause = err
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [(err as any).stdout],
-        })
-
-        await context.emit('error', error)
-      }
-    })
-
     context.on('format:start', () => {
       if (logLevel <= LogLevel.silent) {
         return
@@ -237,14 +209,38 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('hook:start', (command) => {
-      if (logLevel <= LogLevel.silent) {
-        return
-      }
-
+    context.on('hook:start', async ({ id, command, args }) => {
       const text = getMessage(`Hook ${command} started`)
 
-      console.log(text)
+      if (logLevel > LogLevel.silent) {
+        console.log(text)
+      }
+
+      try {
+        const result = await execa(command, args, {
+          detached: true,
+          stripFinalNewline: true,
+        })
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [result.stdout],
+        })
+
+        console.log(result.stdout)
+
+        await context.emit('hook:end', { command, id })
+      } catch (err) {
+        const error = new Error('Hook execute failed')
+        error.cause = err
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [(err as any).stdout],
+        })
+
+        await context.emit('error', error)
+      }
     })
 
     context.on('hook:end', (command) => {

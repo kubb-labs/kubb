@@ -15,6 +15,15 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+
+## 4.12.8
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/cli`](/plugins/cli/)
+
+Support for `--silent` flag to set LogLevel to **silent**.
+
 ## 4.12.7
 
 ### 🐛 Bug Fixes
