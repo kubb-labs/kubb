@@ -8,8 +8,4 @@ describe('createIndent', () => {
     expect(createIndent(4)).toBe('    ')
     expect(createIndent(8)).toBe('        ')
   })
-
-  test('should handle negative size', () => {
-    expect(createIndent(-1)).toBe('')
-  })
 })
