@@ -1,14 +1,7 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "ignoreWorkspaces": ["examples/**", "e2e/**", "docs/**"],
-  "ignore": [
-    "packages/**/src/**/*.test.ts",
-    "packages/**/src/**/*.test.tsx",
-    "packages/**/src/**/__snapshots__/**"
-  ],
+  "ignore": ["packages/**/src/**/*.test.ts", "packages/**/src/**/*.test.tsx", "packages/**/src/**/__snapshots__/**"],
   "ignoreExportsUsedInFile": true,
-  "ignoreDependencies": [
-    "prettier",
-    "ts-node"
-  ]
+  "ignoreDependencies": ["prettier", "ts-node"]
 }
