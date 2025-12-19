@@ -5,6 +5,6 @@
   "ignoreExportsUsedInFile": true,
   "ignoreDependencies": ["prettier", "ts-node"],
   "typescript": {
-    "config": ["tsconfig.json", "packages/*/tsconfig.json"]
+    "config": ["tsconfig.json", "packages/*/tsconfig.json", "tools/*/tsconfig.json"]
   }
 }
