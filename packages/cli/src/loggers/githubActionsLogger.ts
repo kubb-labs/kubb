@@ -21,6 +21,15 @@ export const githubActionsLogger = defineLogger({
       currentConfigs: [] as Array<Config>,
     }
 
+    function reset() {
+      state.totalPlugins = 0
+      state.completedPlugins = 0
+      state.failedPlugins = 0
+      state.totalFiles = 0
+      state.processedFiles = 0
+      state.hrStart = process.hrtime()
+    }
+
     function showProgressStep() {
       if (logLevel <= LogLevel.silent) {
         return
@@ -141,9 +150,6 @@ export const githubActionsLogger = defineLogger({
     context.on('generation:start', (config) => {
       // Initialize progress tracking
       state.totalPlugins = config.plugins?.length || 0
-      state.completedPlugins = 0
-      state.failedPlugins = 0
-      state.hrStart = process.hrtime()
 
       const text = config.name ? `Generation for ${pc.bold(config.name)}` : 'Generation'
 
@@ -248,6 +254,8 @@ export const githubActionsLogger = defineLogger({
       const text = getMessage(config.name ? `${pc.blue('✓')} Generation completed for ${pc.dim(config.name)}` : `${pc.blue('✓')} Generation completed`)
 
       console.log(text)
+
+      reset()
     })
 
     context.on('hook:execute', async ({ command, args }, cb) => {

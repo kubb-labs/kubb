@@ -1,55 +1,55 @@
-import path from "node:path";
-import type { Config, Plugin } from "@kubb/core";
-import type { HttpMethod } from "@kubb/oas";
-import { parse } from "@kubb/oas";
-import { buildOperations, OperationGenerator } from "@kubb/plugin-oas";
-import { createReactFabric } from "@kubb/react-fabric";
-import { describe, test } from "vitest";
-import { createMockedPluginManager, matchFiles } from "#mocks";
-import type { PluginClient } from "../types.ts";
-import { operationsGenerator } from "./operationsGenerator.tsx";
+import path from 'node:path'
+import type { Config, Plugin } from '@kubb/core'
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas'
+import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
+import { createReactFabric } from '@kubb/react-fabric'
+import { describe, test } from 'vitest'
+import { createMockedPluginManager, matchFiles } from '#mocks'
+import type { PluginClient } from '../types.ts'
+import { operationsGenerator } from './operationsGenerator.tsx'
 
-describe("operationsGenerator operations", async () => {
+describe('operationsGenerator operations', async () => {
   const testData = [
     {
-      name: "findByTags",
-      input: "../../mocks/petStore.yaml",
-      path: "/pet/findByTags",
-      method: "get",
+      name: 'findByTags',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {},
     },
   ] as const satisfies Array<{
-    input: string;
-    name: string;
-    path: string;
-    method: HttpMethod;
-    options: Partial<PluginClient["resolvedOptions"]>;
-  }>;
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<PluginClient['resolvedOptions']>
+  }>
 
-  test.each(testData)("$name", async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input));
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-    const options: PluginClient["resolvedOptions"] = {
-      dataReturnType: "data",
-      paramsType: "inline",
+    const options: PluginClient['resolvedOptions'] = {
+      dataReturnType: 'data',
+      paramsType: 'inline',
       paramsCasing: undefined,
-      pathParamsType: "inline",
-      client: "axios",
-      clientType: "function",
+      pathParamsType: 'inline',
+      client: 'axios',
+      clientType: 'function',
       importPath: undefined,
       bundle: false,
-      baseURL: "",
-      parser: "client",
+      baseURL: '',
+      parser: 'client',
       output: {
-        path: ".",
+        path: '.',
       },
       group: undefined,
-      urlType: "export",
+      urlType: 'export',
       ...props.options,
-    };
-    const plugin = { options } as Plugin<PluginClient>;
-    const fabric = createReactFabric();
-    const mockedPluginManager = createMockedPluginManager(props.name);
+    }
+    const plugin = { options } as Plugin<PluginClient>
+    const fabric = createReactFabric()
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -59,23 +59,23 @@ describe("operationsGenerator operations", async () => {
       plugin,
       contentType: undefined,
       override: undefined,
-      mode: "split",
+      mode: 'split',
       exclude: [],
-    });
+    })
 
-    const operations = await generator.getOperations();
+    const operations = await generator.getOperations()
 
     await buildOperations(
       operations.map((item) => item.operation),
       {
-        config: { root: ".", output: { path: "test" } } as Config,
+        config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
         generator,
         Component: operationsGenerator.Operations,
         plugin,
       },
-    );
+    )
 
-    await matchFiles(fabric.files);
-  });
-});
+    await matchFiles(fabric.files)
+  })
+})
