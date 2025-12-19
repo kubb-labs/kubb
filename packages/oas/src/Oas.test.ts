@@ -7,7 +7,7 @@ import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from '
 import { Oas } from './Oas.ts'
 import type { OpenAPIV3 } from './types.ts'
 import { parse } from './utils.ts'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, expectTypeOf, test } from 'vitest'
 
 
 describe('swagger Infer', () => {
