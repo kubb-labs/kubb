@@ -21,7 +21,7 @@ describe('swagger Infer', () => {
   //     ^?
   type UserRequestParams = RequestParams<Oas, '/pet', 'post'>
   type UserResponse = Response<Oas, '/pet', 'post', '200'>
-  test('types', () => {
+  it('types', () => {
     expectTypeOf<Paths>().not.toBeUndefined()
     expectTypeOf<Methods>().toMatchTypeOf<'post' | 'put'>()
     expectTypeOf<UserModel>().toMatchTypeOf<{
@@ -39,14 +39,14 @@ describe('swagger Infer', () => {
 describe('Oas filter', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
 
-  test('Filtering on operationId', async () => {
+  it('Filtering on operationId', async () => {
     const oas = await parse(petStorePath)
 
     expect(yaml.safeStringify(oas.api)).toMatchSnapshot()
   })
 })
 describe('discriminator inherit', () => {
-  test('sets enum on mapped schemas before parsing', () => {
+  it('sets enum on mapped schemas before parsing', () => {
     const discriminatorSpec: OpenAPIV3.Document = {
       openapi: '3.0.3',
       info: {
@@ -110,7 +110,7 @@ describe('discriminator inherit', () => {
     expect(dogSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
   })
 
-  test('keeps original schemas when discriminator option is strict', () => {
+  it('keeps original schemas when discriminator option is strict', () => {
     const discriminatorSpec: OpenAPIV3.Document = {
       openapi: '3.0.3',
       info: {
@@ -176,7 +176,7 @@ describe('discriminator inherit', () => {
 })
 
 describe('getParametersSchema with explode and style form', () => {
-  test('flattens object with additionalProperties when explode=true and style=form', () => {
+  it('flattens object with additionalProperties when explode=true and style=form', () => {
     const spec: OpenAPIV3.Document = {
       openapi: '3.0.3',
       info: {
@@ -227,7 +227,7 @@ describe('getParametersSchema with explode and style form', () => {
     expect(querySchema?.description).toBe('Custom fields')
   })
 
-  test('does not flatten object with properties when explode=true', () => {
+  it('does not flatten object with properties when explode=true', () => {
     const spec: OpenAPIV3.Document = {
       openapi: '3.0.3',
       info: {
@@ -279,7 +279,7 @@ describe('getParametersSchema with explode and style form', () => {
     })
   })
 
-  test('does not flatten when explode=false', () => {
+  it('does not flatten when explode=false', () => {
     const spec: OpenAPIV3.Document = {
       openapi: '3.0.3',
       info: {
@@ -327,7 +327,7 @@ describe('getParametersSchema with explode and style form', () => {
     })
   })
 
-  test('handles multiple parameters with one exploded additionalProperties', () => {
+  it('handles multiple parameters with one exploded additionalProperties', () => {
     const spec: OpenAPIV3.Document = {
       openapi: '3.0.3',
       info: {

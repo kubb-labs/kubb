@@ -11,7 +11,7 @@ describe('OperationGenerator core', async () => {
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
   })
 
-  test('if pathParams return undefined when there are no params in path', async () => {
+  it('if pathParams return undefined when there are no params in path', async () => {
     const fabric = createReactFabric()
 
     const og = new OperationGenerator(
@@ -40,7 +40,7 @@ describe('OperationGenerator exclude', async () => {
     output: { path: 'test', clean: true },
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
   })
-  test('if exclude is filtered out for tag', async () => {
+  it('if exclude is filtered out for tag', async () => {
     const fabric = createReactFabric()
 
     const og = new OperationGenerator(
@@ -68,7 +68,7 @@ describe('OperationGenerator exclude', async () => {
     expect(operations.map((op) => op.path)).toMatchSnapshot()
   })
 
-  test('if exclude is filtered out for operationId', async () => {
+  it('if exclude is filtered out for operationId', async () => {
     const fabric = createReactFabric()
 
     const og = new OperationGenerator(
@@ -96,7 +96,7 @@ describe('OperationGenerator exclude', async () => {
     expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
-  test('if exclude is filtered out for path', async () => {
+  it('if exclude is filtered out for path', async () => {
     const fabric = createReactFabric()
 
     const og = new OperationGenerator(
@@ -124,7 +124,7 @@ describe('OperationGenerator exclude', async () => {
     expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
-  test('if exclude is filtered out for method', async () => {
+  it('if exclude is filtered out for method', async () => {
     const fabric = createReactFabric()
 
     const og = new OperationGenerator(
@@ -152,7 +152,7 @@ describe('OperationGenerator exclude', async () => {
     expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
-  test('if exclude is filtered out for path and operationId', async () => {
+  it('if exclude is filtered out for path and operationId', async () => {
     const fabric = createReactFabric()
 
     const og = new OperationGenerator(
@@ -192,7 +192,7 @@ describe('OperationGenerator include', async () => {
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
   })
 
-  test('if include is only selecting tag', async () => {
+  it('if include is only selecting tag', async () => {
     const fabric = createReactFabric()
 
     const og = new OperationGenerator(
@@ -220,7 +220,7 @@ describe('OperationGenerator include', async () => {
     expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
-  test('if include is only selecting for operationId', async () => {
+  it('if include is only selecting for operationId', async () => {
     const fabric = createReactFabric()
 
     const og = new OperationGenerator(
@@ -248,7 +248,7 @@ describe('OperationGenerator include', async () => {
     expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
-  test('if include is only selecting for path', async () => {
+  it('if include is only selecting for path', async () => {
     const fabric = createReactFabric()
 
     const og = new OperationGenerator(
@@ -276,7 +276,7 @@ describe('OperationGenerator include', async () => {
     expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
-  test('if include is only selecting for method', async () => {
+  it('if include is only selecting for method', async () => {
     const fabric = createReactFabric()
 
     const og = new OperationGenerator(
@@ -304,7 +304,7 @@ describe('OperationGenerator include', async () => {
     expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 
-  test('if include is only selecting path and operationId', async () => {
+  it('if include is only selecting path and operationId', async () => {
     const fabric = createReactFabric()
 
     const og = new OperationGenerator(
@@ -344,7 +344,7 @@ describe('OperationGenerator include and exclude', async () => {
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
   })
 
-  test('if include is only selecting path and exclude is removing the GET calls', async () => {
+  it('if include is only selecting path and exclude is removing the GET calls', async () => {
     const fabric = createReactFabric()
 
     const og = new OperationGenerator(

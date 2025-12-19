@@ -5,13 +5,13 @@ import { PackageManager } from './PackageManager.ts'
 describe('getPackageJSON', () => {
   const packageManager = new PackageManager()
 
-  test('if package.json data is returned', async () => {
+  it('if package.json data is returned', async () => {
     const packageJSON = await packageManager.getPackageJSON()
 
     expect(packageJSON).toBeDefined()
   })
 
-  test('if version out of package.json data is returned', async () => {
+  it('if version out of package.json data is returned', async () => {
     const version = await packageManager.getVersion('typescript')
 
     expect(version?.startsWith('catalog')).toBeTruthy()
@@ -21,17 +21,17 @@ describe('getPackageJSON', () => {
     expect(versionRegex?.startsWith('catalog:')).toBeTruthy()
   })
 
-  test('if compared version is correct', async () => {
+  it('if compared version is correct', async () => {
     const isValid = await packageManager.isValid('typescript', 'catalog:')
 
     expect(isValid).toBeTruthy()
   })
 
-  test('normalizeDirectory', () => {
+  it('normalizeDirectory', () => {
     expect(packageManager.normalizeDirectory('/user/nzakas/foo')).toBe('/user/nzakas/foo/')
     expect(packageManager.normalizeDirectory('/user/nzakas/foo/')).toBe('/user/nzakas/foo/')
   })
-  test('it should find mocks/noop.js file with default cwd and ESM', async () => {
+  it('it should find mocks/noop.js file with default cwd and ESM', async () => {
     packageManager.workspace = __dirname
 
     const module = await packageManager.import(path.join(__dirname, '../mocks/noop.js'))
@@ -41,7 +41,7 @@ describe('getPackageJSON', () => {
     expect(fn?.()).toBe('js-noop')
   })
 
-  test('it should find mocks/noop.js file with default cwd and CJS', async () => {
+  it('it should find mocks/noop.js file with default cwd and CJS', async () => {
     packageManager.workspace = __dirname
 
     const module = await packageManager.import(path.join(__dirname, '../mocks/noop.cjs'))
@@ -51,7 +51,7 @@ describe('getPackageJSON', () => {
     expect(fn?.()).toBe('cjs-noop')
   })
 
-  test('if overriding cache with static setVersion works', async () => {
+  it('if overriding cache with static setVersion works', async () => {
     PackageManager.setVersion('typescript', '^4.1.1')
     expect(await packageManager.isValid('typescript', '>=5')).toBeFalsy()
 

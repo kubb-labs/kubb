@@ -1,9 +1,9 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { defineLogger } from './defineLogger.ts'
 import type { UserLogger } from './types.ts'
 
 describe('defineLogger', () => {
-  test('should define a logger with all methods', () => {
+  it('should define a logger with all methods', () => {
     const userLogger: UserLogger = {
       on: () => {},
       emit: () => {},
@@ -18,7 +18,7 @@ describe('defineLogger', () => {
     expect(logger.logLevel).toBe(userLogger.logLevel)
   })
 
-  test('should preserve custom logger properties', () => {
+  it('should preserve custom logger properties', () => {
     const customLogger: UserLogger<{ customProp: string }> = {
       on: () => {},
       emit: () => {},

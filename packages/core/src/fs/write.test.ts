@@ -7,7 +7,7 @@ describe('write', () => {
   const mocksPath = path.resolve(__dirname, '../../mocks')
   const filePath = path.resolve(mocksPath, './hellowWorld.js')
 
-  test('if write is creating a file in the mocks folder', async () => {
+  it('if write is creating a file in the mocks folder', async () => {
     const text = `export const hallo = 'world'`
 
     await write(filePath, text)
@@ -18,25 +18,25 @@ describe('write', () => {
     expect(file).toBe(text)
   })
 
-  test('do not write if file content is the same', async () => {
+  it('do not write if file content is the same', async () => {
     const text = `export const hallo = 'world'`
 
     await write(filePath, text)
     await write(filePath, text)
   })
 
-  test('should return undefined for empty data', async () => {
+  it('should return undefined for empty data', async () => {
     const result = await write(filePath, '   ')
     expect(result).toBeUndefined()
   })
 
-  test('should perform sanity check when enabled', async () => {
+  it('should perform sanity check when enabled', async () => {
     const text = `export const hallo = 'world with sanity'`
     const result = await write(filePath, text, { sanity: true })
     expect(result).toBe(text)
   })
 
-  test('should trim data before writing', async () => {
+  it('should trim data before writing', async () => {
     const text = `  export const hallo = 'world'  `
     await write(filePath, text)
     const file = await read(filePath)

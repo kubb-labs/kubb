@@ -3,7 +3,7 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 import { BarrelManager } from './BarrelManager.ts'
 
 describe('BarrelManager', () => {
-  test(`if getFiles returns 'index.ts' files`, () => {
+  it(`if getFiles returns 'index.ts' files`, () => {
     const files: KubbFile.File[] = [
       {
         path: 'src/test.ts',
@@ -51,7 +51,7 @@ describe('BarrelManager', () => {
     expect(rootIndex?.exports?.every((file) => file.path?.endsWith('.ts'))).toBeTruthy()
   })
 
-  test('if getFiles retuns subdirectory files without already generated index files', () => {
+  it('if getFiles retuns subdirectory files without already generated index files', () => {
     const files: KubbFile.File[] = [
       {
         path: 'src/test.ts',

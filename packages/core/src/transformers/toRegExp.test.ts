@@ -1,7 +1,7 @@
 import { toRegExpString } from './toRegExp.ts'
 
 describe('toRegExpString', () => {
-  test('advanced regex', () => {
+  it('advanced regex', () => {
     expect(toRegExpString('^.+/.+$', null)).toBe(String.raw`/^.+\/.+$/`)
     expect(toRegExpString('^data:image\\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$', null)).toBe(
       '/^data:image\\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$/',
@@ -14,7 +14,7 @@ describe('toRegExpString', () => {
 })
 
 describe('toRegExp', () => {
-  test('String.raw', () => {
+  it('String.raw', () => {
     expect(String.raw`\n`).toBe('\\n')
     expect(String.raw`\n`).toBe('\\n')
 

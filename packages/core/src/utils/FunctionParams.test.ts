@@ -1,12 +1,12 @@
 import { FunctionParams } from './FunctionParams.ts'
 
 describe('objectToParameters', () => {
-  test('if object is resolved to a string with parameters', () => {
+  it('should resolve object to a string with parameters', () => {
     expect(new FunctionParams().add([{ name: 'firstName' }]).toString()).toEqual('firstName')
     expect(new FunctionParams().add([{ name: 'firstName' }, { name: 'lastName' }]).toString()).toEqual('firstName, lastName')
   })
 
-  test('if object is resolved to a string with typed generics', () => {
+  it('should resolve object to a string with typed generics', () => {
     expect(new FunctionParams().add([{ type: 'TData', default: 'User' }]).toString()).toEqual('TData = User')
     expect(
       new FunctionParams()
@@ -27,7 +27,7 @@ describe('objectToParameters', () => {
     ).toEqual('TData = User')
   })
 
-  test('if object is resolved to a string with typed parameters', () => {
+  it('should resolve object to a string with typed parameters', () => {
     expect(new FunctionParams().add([{ name: 'firstName', type: 'User["firstName"]' }]).toString()).toEqual('firstName: User["firstName"]')
     expect(
       new FunctionParams()
@@ -39,7 +39,7 @@ describe('objectToParameters', () => {
     ).toEqual('firstName: User["firstName"], lastName: User["lastName"]')
   })
 
-  test('if object is resolved to a string with typed parameters and optional paramters', () => {
+  it('should resolve object to a string with typed parameters and optional parameters', () => {
     expect(
       new FunctionParams()
         .add([
@@ -67,7 +67,7 @@ describe('objectToParameters', () => {
     ).toEqual('lastName?: User["lastName"], firstName: User["firstName"] = {}')
   })
 
-  test('if object is resolved to a string with array typed parameters', () => {
+  it('should resolve object to a string with array typed parameters', () => {
     expect(new FunctionParams().add([[{ name: 'id' }], { name: 'params' }]).toString()).toEqual('{ id }, params')
     expect(new FunctionParams().add([[{ name: 'id' }, { name: 'data' }], { name: 'params' }]).toString()).toEqual('{ id, data }, params')
     expect(
@@ -83,11 +83,11 @@ describe('objectToParameters', () => {
     ).toEqual('{ id, data }?: { id: Id; data: Data }, params: Params')
   })
 
-  test('if object is resolved to a string with empty array', () => {
+  it('should resolve object to a string with empty array', () => {
     expect(new FunctionParams().add([[{ name: 'id' }], { name: 'params' }]).toString()).toEqual('{ id }, params')
     expect(new FunctionParams().add([[{ name: 'id' }, { name: 'data' }], { name: 'params' }]).toString()).toEqual('{ id, data }, params')
     expect(new FunctionParams().add([[], { name: 'params', type: 'Params' }]).toString()).toEqual('params: Params')
   })
 
-  test.todo('if static functionality works')
+  it.todo('should have static functionality working')
 })

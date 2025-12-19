@@ -11,7 +11,7 @@ const plugin = definePlugin(() => {
 })
 
 describe('getConfig', () => {
-  test('return Config when config is set with defineConfig', async () => {
+  it('should return Config when config is set with defineConfig', async () => {
     const config: CosmiconfigResult['config'] = defineConfig(() => {
       return {
         input: {
@@ -43,7 +43,7 @@ describe('getConfig', () => {
     })
   })
 
-  test('return Config[] when config is set with defineConfig', async () => {
+  it('should return Config[] when config is set with defineConfig', async () => {
     const config: CosmiconfigResult['config'] = defineConfig(() => {
       return [
         {
@@ -105,7 +105,7 @@ describe('getConfig', () => {
     }
   })
 
-  test('return object when config is set with defineConfig and returns a promise', async () => {
+  it('should return object when config is set with defineConfig and returns a promise', async () => {
     const config: CosmiconfigResult['config'] = defineConfig(() => {
       return Promise.resolve({
         input: {
@@ -137,7 +137,7 @@ describe('getConfig', () => {
     })
   })
 
-  test('return object when config is set with defineConfig and plugins is an function', async () => {
+  it('should return object when config is set with defineConfig and plugins is a function', async () => {
     const config: CosmiconfigResult['config'] = defineConfig(() => {
       return {
         input: {

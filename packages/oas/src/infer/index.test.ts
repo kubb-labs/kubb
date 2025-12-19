@@ -14,7 +14,7 @@ describe('swagger Infer', () => {
   //     ^?
   type UserRequestParams = RequestParams<Oas, '/pet', 'post'>
   type UserResponse = Response<Oas, '/pet', 'post', '200'>
-  test('types', () => {
+  it('types', () => {
     expectTypeOf<Paths>().not.toBeUndefined()
     expectTypeOf<Methods>().toMatchTypeOf<'post' | 'put'>()
     expectTypeOf<UserModel>().toMatchTypeOf<{

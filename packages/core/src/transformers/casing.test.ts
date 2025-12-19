@@ -1,7 +1,7 @@
 import { camelCase, pascalCase } from './casing.ts'
 
 describe('casing', () => {
-  test('camelCase', () => {
+  it('camelCase', () => {
     expect(camelCase('pet pet')).toBe('petPet')
     expect(camelCase('is HTML test')).toBe('isHTMLTest')
     expect(camelCase('aiType')).toBe('aiType')
@@ -10,7 +10,7 @@ describe('casing', () => {
     expect(camelCase('tag.tag', { isFile: true, prefix: 'create' })).toBe('tag/createTag')
     expect(camelCase('tag.tag', { isFile: true, suffix: 'schema' })).toBe('tag/tagSchema')
   })
-  test('pascalCase', () => {
+  it('pascalCase', () => {
     expect(pascalCase('pet pet')).toBe('PetPet')
     expect(pascalCase('is HTML test')).toBe('IsHTMLTest')
     expect(pascalCase('aiType')).toBe('AiType')

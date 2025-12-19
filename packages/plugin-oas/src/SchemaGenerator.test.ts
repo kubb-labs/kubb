@@ -100,7 +100,7 @@ describe('SchemaGenerator core', async () => {
     // Add discriminator test cases
   ] as const satisfies Array<{ input: string; name: string; path: string; options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>> }>
 
-  test.each(testData)('$name', async (props) => {
+  it.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
     const schemas = oas.getDefinition().components?.schemas
     const schema = schemas?.[props.path]
@@ -128,7 +128,7 @@ describe('SchemaGenerator core', async () => {
     expect(tree).toMatchSnapshot()
   })
 
-  test('combineObjects', () => {
+  it('combineObjects', () => {
     const input = [
       {
         keyword: 'and',
@@ -289,7 +289,7 @@ describe('SchemaGenerator core', async () => {
     expect(SchemaGenerator.combineObjects(input)).toMatchSnapshot()
   })
 
-  test('array of enums with malformed schema (enum at array level)', async () => {
+  it('array of enums with malformed schema (enum at array level)', async () => {
     const oas = await parse(path.resolve(__dirname, '../mocks/petStore.yaml'))
 
     // Malformed schema: enum at same level as type: array

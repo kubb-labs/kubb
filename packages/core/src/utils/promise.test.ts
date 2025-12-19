@@ -1,20 +1,20 @@
 /** biome-ignore-all lint/suspicious/noThenProperty: test case */
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { isPromise, isPromiseFulfilledResult, isPromiseRejectedResult } from './promise.ts'
 
 describe('promise utilities', () => {
   describe('isPromise', () => {
-    test('should return true for Promise', () => {
+    it('should return true for Promise', () => {
       const promise = Promise.resolve('test')
       expect(isPromise(promise)).toBe(true)
     })
 
-    test('should return true for object with then method', () => {
+    it('should return true for object with then method', () => {
       const thenable = { then: () => {} }
       expect(isPromise(thenable)).toBe(true)
     })
 
-    test('should return false for non-promise values', () => {
+    it('should return false for non-promise values', () => {
       expect(isPromise('string')).toBe(false)
       expect(isPromise(123)).toBe(false)
       expect(isPromise(null)).toBe(false)
@@ -24,7 +24,7 @@ describe('promise utilities', () => {
   })
 
   describe('isPromiseFulfilledResult', () => {
-    test('should return true for fulfilled result', () => {
+    it('should return true for fulfilled result', () => {
       const result: PromiseFulfilledResult<string> = {
         status: 'fulfilled',
         value: 'test',
@@ -32,7 +32,7 @@ describe('promise utilities', () => {
       expect(isPromiseFulfilledResult(result)).toBe(true)
     })
 
-    test('should return false for rejected result', () => {
+    it('should return false for rejected result', () => {
       const result: PromiseRejectedResult = {
         status: 'rejected',
         reason: new Error('test'),
@@ -42,7 +42,7 @@ describe('promise utilities', () => {
   })
 
   describe('isPromiseRejectedResult', () => {
-    test('should return true for rejected result', () => {
+    it('should return true for rejected result', () => {
       const result: PromiseRejectedResult = {
         status: 'rejected',
         reason: new Error('test'),
@@ -50,7 +50,7 @@ describe('promise utilities', () => {
       expect(isPromiseRejectedResult(result)).toBe(true)
     })
 
-    test('should return false for fulfilled result', () => {
+    it('should return false for fulfilled result', () => {
       const result: PromiseFulfilledResult<string> = {
         status: 'fulfilled',
         value: 'test',

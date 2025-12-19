@@ -31,12 +31,12 @@ describe('codegen', () => {
     ),
   )
 
-  test('createQuestionToken', () => {
+  it('should create question token', () => {
     expect(createQuestionToken()).toBeUndefined()
     expect(createQuestionToken(true)).toBeDefined()
   })
 
-  test('createArrayDeclaration', () => {
+  it('should create array declaration', () => {
     expect(
       print(
         createArrayDeclaration({
@@ -54,7 +54,7 @@ describe('codegen', () => {
     ).toMatchSnapshot()
   })
 
-  test('createIntersectionDeclaration', () => {
+  it('should create intersection declaration', () => {
     expect(
       print(
         createIntersectionDeclaration({
@@ -63,7 +63,7 @@ describe('codegen', () => {
       ),
     ).toMatchSnapshot()
   })
-  test('createUnionDeclaration', () => {
+  it('should create union declaration', () => {
     expect(
       print(
         createUnionDeclaration({
@@ -72,7 +72,7 @@ describe('codegen', () => {
       ),
     ).toMatchSnapshot()
   })
-  test('createPropertySignature', () => {
+  it('should create property signature', () => {
     expect(
       print(
         createPropertySignature({
@@ -84,7 +84,7 @@ describe('codegen', () => {
     ).toMatchSnapshot()
   })
 
-  test('createParameter', () => {
+  it('should create parameter signature', () => {
     expect(
       print(
         createParameterSignature('hello', {
@@ -110,7 +110,7 @@ describe('codegen', () => {
     ).toMatchSnapshot()
   })
 
-  test('createJSDoc', async () => {
+  it('should create JSDoc', async () => {
     expect(
       await formatTS(
         createJSDoc({
@@ -120,7 +120,7 @@ describe('codegen', () => {
     ).toMatchSnapshot()
   })
 
-  test('appendJSDocToNode', async () => {
+  it('should append JSDoc to node', async () => {
     expect(
       await formatTS(
         appendJSDocToNode({
@@ -140,7 +140,7 @@ describe('codegen', () => {
     ).toMatchSnapshot()
   })
 
-  test('createImportDeclaration', async () => {
+  it('should create import declaration', async () => {
     expect(
       await formatTS(
         createImportDeclaration({
@@ -209,7 +209,7 @@ describe('codegen', () => {
     ).toMatchSnapshot()
   })
 
-  test('createExportDeclaration', async () => {
+  it('should create export declaration', async () => {
     expect(
       await formatTS(
         createExportDeclaration({
@@ -260,7 +260,7 @@ describe('codegen', () => {
     ).toMatchSnapshot()
   })
 
-  test('createEnumDeclaration', async () => {
+  it('should create enum declaration', async () => {
     expect(
       await formatTS(
         createEnumDeclaration({
@@ -368,7 +368,7 @@ describe('codegen', () => {
 })
 
 describe('Import/Export Sorting Consistency', () => {
-  test('imports with different input order should produce identical sorted output', () => {
+  it('should produce identical sorted output for imports with different input order', () => {
     const import1 = createImportDeclaration({
       name: ['zebra', 'apple', 'banana', 'cat'],
       path: './test.ts',
@@ -387,7 +387,7 @@ describe('Import/Export Sorting Consistency', () => {
     expect(output1).toContain('apple, banana, cat, zebra')
   })
 
-  test('exports with different input order should produce identical sorted output', () => {
+  it('should produce identical sorted output for exports with different input order', () => {
     const export1 = createExportDeclaration({
       name: ['zoo', 'apple', 'monkey'],
       path: './animals.ts',
@@ -406,7 +406,7 @@ describe('Import/Export Sorting Consistency', () => {
     expect(output1).toContain('apple, monkey, zoo')
   })
 
-  test('mixed string and object imports should be sorted by property name', () => {
+  it('should sort mixed string and object imports by property name', () => {
     const import1 = createImportDeclaration({
       name: ['zoo', { propertyName: 'apple' }, 'monkey', { propertyName: 'banana', name: 'yellow' }],
       path: './mixed.ts',
@@ -418,7 +418,7 @@ describe('Import/Export Sorting Consistency', () => {
     expect(output).toContain('apple, banana as yellow, monkey, zoo')
   })
 
-  test('demonstrates consistency across different orders - real world scenario', () => {
+  it('should demonstrate consistency across different orders in real world scenario', () => {
     // Simulating how imports might be collected on different OS/filesystem orders
     const linuxOrder = ['UserService', 'AuthService', 'DatabaseService', 'CacheService']
     const windowsOrder = ['CacheService', 'UserService', 'DatabaseService', 'AuthService']

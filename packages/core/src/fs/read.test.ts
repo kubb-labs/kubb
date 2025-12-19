@@ -15,7 +15,7 @@ describe('read', () => {
     await clean(folderPath)
   })
 
-  test('read filePath', async () => {
+  it('read filePath', async () => {
     const text = `export const hallo = 'world'`
 
     await write(filePath, text)
@@ -26,7 +26,7 @@ describe('read', () => {
     expect(file).toBe(text)
   })
 
-  test('readSync reads file synchronously', async () => {
+  it('readSync reads file synchronously', async () => {
     const text = `export const hallo = 'world sync'`
 
     await write(filePath, text)
@@ -37,7 +37,7 @@ describe('read', () => {
     expect(file).toBe(text)
   })
 
-  test('getRelativePath returns correct path for Linux and macOS', async () => {
+  it('getRelativePath returns correct path for Linux and macOS', async () => {
     const testFile = path.resolve(folderPath, 'test.js')
     await write(testFile, 'test')
 
@@ -53,7 +53,7 @@ describe('read', () => {
 
     await clean(testFile)
   })
-  test('getRelativePath returns correct path for Windows', async () => {
+  it('getRelativePath returns correct path for Windows', async () => {
     const testFile = path.resolve(folderPath, 'test.js')
     await write(testFile, 'test')
 

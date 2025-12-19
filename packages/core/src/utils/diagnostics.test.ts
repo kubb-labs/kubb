@@ -1,8 +1,8 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { getDiagnosticInfo } from './diagnostics.ts'
 
 describe('diagnostics', () => {
-  test('should return diagnostic information', () => {
+  it('should return diagnostic information', () => {
     const info = getDiagnosticInfo()
 
     expect(info).toBeDefined()
@@ -18,7 +18,7 @@ describe('diagnostics', () => {
     expect(typeof info.cwd).toBe('string')
   })
 
-  test('should return consistent values', () => {
+  it('should return consistent values', () => {
     const info1 = getDiagnosticInfo()
     const info2 = getDiagnosticInfo()
 
