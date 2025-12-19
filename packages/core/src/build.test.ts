@@ -189,9 +189,7 @@ describe('build', () => {
     })
 
     // Check if barrel exports were created
-    const hasIndexableFiles = fabric.files.some((f) => 
-      f.sources.some((s) => s.isIndexable)
-    )
+    const hasIndexableFiles = fabric.files.some((f) => f.sources.some((s) => s.isIndexable))
     expect(hasIndexableFiles).toBe(true)
   })
 
@@ -231,9 +229,7 @@ describe('build', () => {
     })
 
     // Check if indexable files exist
-    const hasIndexableFiles = fabric.files.some((f) => 
-      f.sources.some((s) => s.isIndexable)
-    )
+    const hasIndexableFiles = fabric.files.some((f) => f.sources.some((s) => s.isIndexable))
     expect(hasIndexableFiles).toBe(true)
   })
 
@@ -277,7 +273,7 @@ describe('build', () => {
     const events = new AsyncEventEmitter<KubbEvents>()
     const startSpy = vi.fn()
     const endSpy = vi.fn()
-    
+
     events.on('plugin:start', startSpy)
     events.on('plugin:end', endSpy)
 
@@ -326,9 +322,7 @@ describe('build', () => {
 
     const barrelFile = fabric.files.find((f) => f.baseName === 'index.ts')
     if (barrelFile) {
-      const hasExcludedExport = barrelFile.exports?.some((e) => 
-        e.name && e.name.includes('excluded')
-      )
+      const hasExcludedExport = barrelFile.exports?.some((e) => e.name?.includes('excluded'))
       expect(hasExcludedExport).toBeFalsy()
     }
   })

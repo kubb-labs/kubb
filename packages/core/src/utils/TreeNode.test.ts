@@ -281,7 +281,7 @@ describe('TreeNode', () => {
     ]
     const treeWithJson = TreeNode.build(filesWithJson, 'src/')
     const leaves = treeWithJson?.leaves || []
-    
+
     expect(leaves.every((leaf) => !leaf.data.path.endsWith('.json'))).toBe(true)
   })
 })

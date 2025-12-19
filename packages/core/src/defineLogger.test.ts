@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import type { UserLogger } from './types.ts'
 import { defineLogger } from './defineLogger.ts'
+import type { UserLogger } from './types.ts'
 
 describe('defineLogger', () => {
   test('should define a logger with all methods', () => {

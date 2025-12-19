@@ -314,7 +314,7 @@ describe('PluginManager', () => {
 
   test('getPluginsByKey should return correct plugins', () => {
     const plugins = pluginManager.getPluginsByKey('install', ['pluginB'])
-    
+
     expect(plugins).toBeDefined()
     expect(plugins?.length).toBeGreaterThan(0)
     expect(plugins?.[0]?.name).toBe('pluginB')
@@ -322,7 +322,7 @@ describe('PluginManager', () => {
 
   test('getPluginsByKey should return empty array for non-existent plugin', () => {
     const plugins = pluginManager.getPluginsByKey('install', ['nonExistent'])
-    
+
     expect(plugins).toEqual([])
   })
 })

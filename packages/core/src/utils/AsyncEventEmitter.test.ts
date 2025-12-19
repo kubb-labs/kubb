@@ -12,10 +12,10 @@ describe('AsyncEventEmitter', () => {
   test('should emit event to registered listeners', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler = vi.fn()
-    
+
     emitter.on('test', handler)
     await emitter.emit('test', 'hello', 42)
-    
+
     expect(handler).toHaveBeenCalledWith('hello', 42)
     expect(handler).toHaveBeenCalledTimes(1)
   })
@@ -24,11 +24,11 @@ describe('AsyncEventEmitter', () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler1 = vi.fn()
     const handler2 = vi.fn()
-    
+
     emitter.on('test', handler1)
     emitter.on('test', handler2)
     await emitter.emit('test', 'hello', 42)
-    
+
     expect(handler1).toHaveBeenCalledWith('hello', 42)
     expect(handler2).toHaveBeenCalledWith('hello', 42)
   })
@@ -36,17 +36,17 @@ describe('AsyncEventEmitter', () => {
   test('should handle async listeners', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler = vi.fn().mockResolvedValue(undefined)
-    
+
     emitter.on('test', handler)
     await emitter.emit('test', 'hello', 42)
-    
+
     expect(handler).toHaveBeenCalled()
   })
 
   test('should return undefined when no listeners', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const result = await emitter.emit('test', 'hello', 42)
-    
+
     expect(result).toBeUndefined()
   })
 
@@ -54,10 +54,10 @@ describe('AsyncEventEmitter', () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const handler = vi.fn().mockRejectedValue(new Error('test error'))
-    
+
     emitter.on('test', handler)
     await emitter.emit('test', 'hello', 42)
-    
+
     expect(consoleErrorSpy).toHaveBeenCalled()
     consoleErrorSpy.mockRestore()
   })
@@ -65,22 +65,22 @@ describe('AsyncEventEmitter', () => {
   test('should remove listener with off', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler = vi.fn()
-    
+
     emitter.on('test', handler)
     emitter.off('test', handler)
     await emitter.emit('test', 'hello', 42)
-    
+
     expect(handler).not.toHaveBeenCalled()
   })
 
   test('should execute onOnce listener only once', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler = vi.fn()
-    
+
     emitter.onOnce('test', handler)
     await emitter.emit('test', 'hello', 42)
     await emitter.emit('test', 'world', 24)
-    
+
     expect(handler).toHaveBeenCalledTimes(1)
     expect(handler).toHaveBeenCalledWith('hello', 42)
   })
@@ -89,13 +89,13 @@ describe('AsyncEventEmitter', () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler1 = vi.fn()
     const handler2 = vi.fn()
-    
+
     emitter.on('test', handler1)
     emitter.on('single', handler2)
     emitter.removeAll()
     await emitter.emit('test', 'hello', 42)
     await emitter.emit('single', 'world')
-    
+
     expect(handler1).not.toHaveBeenCalled()
     expect(handler2).not.toHaveBeenCalled()
   })
@@ -108,10 +108,10 @@ describe('AsyncEventEmitter', () => {
   test('should handle events with no arguments', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler = vi.fn()
-    
+
     emitter.on('noArgs', handler)
     await emitter.emit('noArgs')
-    
+
     expect(handler).toHaveBeenCalledTimes(1)
   })
 })

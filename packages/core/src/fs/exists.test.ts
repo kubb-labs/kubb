@@ -1,8 +1,8 @@
-import { exists, existsSync } from './exists.ts'
-import { describe, expect, test, beforeAll, afterAll } from 'vitest'
-import fs from 'fs-extra'
-import path from 'node:path'
 import os from 'node:os'
+import path from 'node:path'
+import fs from 'fs-extra'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
+import { exists, existsSync } from './exists.ts'
 
 const testDir = path.join(os.tmpdir(), 'kubb-test-exists')
 const testFile = path.join(testDir, 'test.txt')

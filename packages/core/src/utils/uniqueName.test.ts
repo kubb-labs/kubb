@@ -29,7 +29,7 @@ describe('uniqueName', () => {
       const result1 = getUniqueName('foo', data)
       const result2 = getUniqueName('bar', data)
       const result3 = getUniqueName('foo', data)
-      
+
       expect(result1).toBe('foo')
       expect(result2).toBe('bar')
       expect(result3).toBe('foo2')
@@ -57,7 +57,7 @@ describe('uniqueName', () => {
       setUniqueName('test', data)
       setUniqueName('test', data)
       setUniqueName('test', data)
-      
+
       expect(data).toEqual({ test: 3 })
     })
   })
