@@ -142,7 +142,7 @@ export function Mutation({
         const mutationKey = mutationOptions.mutationKey ?? ${mutationKeyName}(${mutationKeyParams.toCall()})
 
         const baseOptions = ${mutationOptions} as UseMutationOptions<${generics}>
-        ${customOptions ? `const customOptions = ${customOptions.name}({ hookName: '${name}' }) as UseMutationOptions<${generics}>` : ''}
+        ${customOptions ? `const customOptions = ${customOptions.name}({ hookName: '${name}', operationId: '${operation.getOperationId()}' }) as UseMutationOptions<${generics}>` : ''}
 
         return useMutation<${generics}>({
           ...baseOptions,${customOptions ? '\n...customOptions,' : ''}

@@ -79,7 +79,7 @@ export function useCreateUsersWithListInputHook<TContext>(
     { data?: CreateUsersWithListInputMutationRequest },
     TContext
   >
-  const customOptions = useCustomHookOptions({ hookName: 'useCreateUsersWithListInputHook' }) as UseMutationOptions<
+  const customOptions = useCustomHookOptions({ hookName: 'useCreateUsersWithListInputHook', operationId: 'createUsersWithListInput' }) as UseMutationOptions<
     CreateUsersWithListInputMutationResponse,
     ResponseErrorConfig<Error>,
     { data?: CreateUsersWithListInputMutationRequest },

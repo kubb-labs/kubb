@@ -68,7 +68,7 @@ export function useGetUserByNameHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey({ username })
-  const customOptions = useCustomHookOptions({ hookName: 'useGetUserByNameHook' })
+  const customOptions = useCustomHookOptions({ hookName: 'useGetUserByNameHook', operationId: 'getUserByName' })
 
   const query = useQuery(
     {

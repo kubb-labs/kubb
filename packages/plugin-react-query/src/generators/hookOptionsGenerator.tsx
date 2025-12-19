@@ -20,6 +20,10 @@ export const hookOptionsGenerator = createReactGenerator<PluginReactQuery>({
     const oas = useOas()
     const { getName, getFile } = useOperationManager(generator)
 
+    if (!options.customOptions) {
+      return null
+    }
+
     const name = 'HookOptions'
     const file = pluginManager.getFile({ name, extname: '.ts', pluginKey })
 
@@ -171,10 +175,6 @@ export const hookOptionsGenerator = createReactGenerator<PluginReactQuery>({
       },
       {} as Record<string, string>,
     )
-
-    if (!options.customOptions) {
-      return null
-    }
 
     return (
       <File

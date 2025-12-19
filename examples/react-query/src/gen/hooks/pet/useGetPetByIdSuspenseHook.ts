@@ -66,7 +66,7 @@ export function useGetPetByIdSuspenseHook<TData = GetPetByIdQueryResponse, TQuer
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getPetByIdSuspenseQueryKey({ pet_id })
-  const customOptions = useCustomHookOptions({ hookName: 'useGetPetByIdSuspenseHook' })
+  const customOptions = useCustomHookOptions({ hookName: 'useGetPetByIdSuspenseHook', operationId: 'get_pet_by_id' })
 
   const query = useSuspenseQuery(
     {

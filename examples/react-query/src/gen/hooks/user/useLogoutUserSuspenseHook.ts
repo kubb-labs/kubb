@@ -49,7 +49,7 @@ export function useLogoutUserSuspenseHook<TData = LogoutUserQueryResponse, TQuer
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? logoutUserSuspenseQueryKey()
-  const customOptions = useCustomHookOptions({ hookName: 'useLogoutUserSuspenseHook' })
+  const customOptions = useCustomHookOptions({ hookName: 'useLogoutUserSuspenseHook', operationId: 'logoutUser' })
 
   const query = useSuspenseQuery(
     {

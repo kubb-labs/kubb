@@ -77,7 +77,7 @@ export function useUpdatePetWithFormHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(pet_id, params)
-  const customOptions = useCustomHookOptions({ hookName: 'useUpdatePetWithFormHook' })
+  const customOptions = useCustomHookOptions({ hookName: 'useUpdatePetWithFormHook', operationId: 'updatePetWithForm' })
 
   const query = useQuery(
     {

@@ -64,7 +64,7 @@ export function useAddPetHook<TContext>(
     { data: AddPetMutationRequest },
     TContext
   >
-  const customOptions = useCustomHookOptions({ hookName: 'useAddPetHook' }) as UseMutationOptions<
+  const customOptions = useCustomHookOptions({ hookName: 'useAddPetHook', operationId: 'addPet' }) as UseMutationOptions<
     AddPetMutationResponse,
     ResponseErrorConfig<AddPet405>,
     { data: AddPetMutationRequest },

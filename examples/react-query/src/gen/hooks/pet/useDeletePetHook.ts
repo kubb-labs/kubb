@@ -76,7 +76,7 @@ export function useDeletePetHook<TContext>(
     { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },
     TContext
   >
-  const customOptions = useCustomHookOptions({ hookName: 'useDeletePetHook' }) as UseMutationOptions<
+  const customOptions = useCustomHookOptions({ hookName: 'useDeletePetHook', operationId: 'deletePet' }) as UseMutationOptions<
     DeletePetMutationResponse,
     ResponseErrorConfig<DeletePet400>,
     { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },

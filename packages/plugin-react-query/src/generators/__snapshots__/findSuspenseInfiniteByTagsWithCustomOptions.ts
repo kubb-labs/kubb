@@ -85,7 +85,7 @@ export function useFindPetsByTagsSuspenseInfinite<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseInfiniteQueryKey(params)
-  const customOptions = useCustomHookOptions({ hookName: 'useFindPetsByTagsSuspenseInfinite' })
+  const customOptions = useCustomHookOptions({ hookName: 'useFindPetsByTagsSuspenseInfinite', operationId: 'findPetsByTags' })
 
   const query = useSuspenseInfiniteQuery(
     {

@@ -63,7 +63,7 @@ export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TQueryData = 
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey({ pet_id })
-  const customOptions = useCustomHookOptions({ hookName: 'useGetPetByIdHook' })
+  const customOptions = useCustomHookOptions({ hookName: 'useGetPetByIdHook', operationId: 'get_pet_by_id' })
 
   const query = useQuery(
     {

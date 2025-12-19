@@ -77,7 +77,7 @@ export function usePlaceOrderPatchHook<TContext>(
     { data?: PlaceOrderPatchMutationRequest },
     TContext
   >
-  const customOptions = useCustomHookOptions({ hookName: 'usePlaceOrderPatchHook' }) as UseMutationOptions<
+  const customOptions = useCustomHookOptions({ hookName: 'usePlaceOrderPatchHook', operationId: 'placeOrderPatch' }) as UseMutationOptions<
     PlaceOrderPatchMutationResponse,
     ResponseErrorConfig<PlaceOrderPatch405>,
     { data?: PlaceOrderPatchMutationRequest },

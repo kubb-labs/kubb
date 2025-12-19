@@ -68,7 +68,7 @@ export function useFindPetsByTagsHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-  const customOptions = useCustomHookOptions({ hookName: 'useFindPetsByTagsHook' })
+  const customOptions = useCustomHookOptions({ hookName: 'useFindPetsByTagsHook', operationId: 'findPetsByTags' })
 
   const query = useQuery(
     {

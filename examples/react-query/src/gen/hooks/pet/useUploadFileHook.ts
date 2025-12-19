@@ -79,7 +79,7 @@ export function useUploadFileHook<TContext>(
     { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
     TContext
   >
-  const customOptions = useCustomHookOptions({ hookName: 'useUploadFileHook' }) as UseMutationOptions<
+  const customOptions = useCustomHookOptions({ hookName: 'useUploadFileHook', operationId: 'uploadFile' }) as UseMutationOptions<
     UploadFileMutationResponse,
     ResponseErrorConfig<Error>,
     { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },

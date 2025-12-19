@@ -76,7 +76,7 @@ export function useUpdatePetWithForm<TContext>(
     { petId: UpdatePetWithFormPathParams['petId']; data?: UpdatePetWithFormMutationRequest; params?: UpdatePetWithFormQueryParams },
     TContext
   >
-  const customOptions = useCustomHookOptions({ hookName: 'useUpdatePetWithForm' }) as UseMutationOptions<
+  const customOptions = useCustomHookOptions({ hookName: 'useUpdatePetWithForm', operationId: 'updatePetWithForm' }) as UseMutationOptions<
     UpdatePetWithFormMutationResponse,
     ResponseErrorConfig<UpdatePetWithForm405>,
     { petId: UpdatePetWithFormPathParams['petId']; data?: UpdatePetWithFormMutationRequest; params?: UpdatePetWithFormQueryParams },

@@ -69,7 +69,7 @@ export function usePlaceOrderHook<TContext>(
     { data?: PlaceOrderMutationRequest },
     TContext
   >
-  const customOptions = useCustomHookOptions({ hookName: 'usePlaceOrderHook' }) as UseMutationOptions<
+  const customOptions = useCustomHookOptions({ hookName: 'usePlaceOrderHook', operationId: 'placeOrder' }) as UseMutationOptions<
     PlaceOrderMutationResponse,
     ResponseErrorConfig<PlaceOrder405>,
     { data?: PlaceOrderMutationRequest },

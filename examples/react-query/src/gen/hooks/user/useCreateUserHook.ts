@@ -69,7 +69,7 @@ export function useCreateUserHook<TContext>(
     { data?: CreateUserMutationRequest },
     TContext
   >
-  const customOptions = useCustomHookOptions({ hookName: 'useCreateUserHook' }) as UseMutationOptions<
+  const customOptions = useCustomHookOptions({ hookName: 'useCreateUserHook', operationId: 'createUser' }) as UseMutationOptions<
     CreateUserMutationResponse,
     ResponseErrorConfig<Error>,
     { data?: CreateUserMutationRequest },
