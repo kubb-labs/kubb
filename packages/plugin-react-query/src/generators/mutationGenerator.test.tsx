@@ -136,7 +136,7 @@ describe('mutationGenerator operation', async () => {
     await matchFiles(fabric.files)
   })
 
-  it('mutation disabled with mutation: false', async () => {
+  test('mutation disabled with mutation: false', async () => {
     const oas = await parse(path.resolve(__dirname, '../../mocks/petStore.yaml'))
 
     const options: PluginReactQuery['resolvedOptions'] = {

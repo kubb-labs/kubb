@@ -5,25 +5,25 @@ describe('URLPath', () => {
   const path = new URLPath('/user/{userID}/monetary-account/{monetary-accountID}/whitelist-sdd/{itemId}')
   const simplePath = new URLPath('/user/{userID}')
   const underscorePath = new URLPath('/user/{user_id}')
-  it('if templateStrings returns correct format', () => {
+  test('if templateStrings returns correct format', () => {
     expect(path.template).toBe('`/user/${userID}/monetary-account/${monetaryAccountID}/whitelist-sdd/${itemId}`')
     expect(underscorePath.template).toBe('`/user/${user_id}`')
   })
 
-  it('if templateStrings returns correct format with replacer', () => {
+  test('if templateStrings returns correct format with replacer', () => {
     expect(simplePath.toTemplateString({ replacer: (item) => `unref(${item})` })).toBe('`/user/${unref(userID)}`')
     expect(simplePath.template).toBe('`/user/${userID}`')
   })
 
-  it('if URL path returns the correct format', () => {
+  test('if URL path returns the correct format', () => {
     expect(path.URL).toBe('/user/:userID/monetary-account/:monetary-accountID/whitelist-sdd/:itemId')
   })
 
-  it('if params is getting returned', () => {
+  test('if params is getting returned', () => {
     expect(simplePath.params).toStrictEqual({ userID: 'userID' })
     expect(simplePath.getParams()).toStrictEqual({ userID: 'userID' })
   })
-  it('if object is getting returned', () => {
+  test('if object is getting returned', () => {
     expect(simplePath.object).toStrictEqual({
       url: '/user/:userID',
       params: { userID: 'userID' },

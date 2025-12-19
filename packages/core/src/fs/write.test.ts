@@ -7,7 +7,7 @@ describe('write', () => {
   const mocksPath = path.resolve(__dirname, '../../mocks')
   const filePath = path.resolve(mocksPath, './hellowWorld.js')
 
-  it('if write is creating a file in the mocks folder', async () => {
+  test('if write is creating a file in the mocks folder', async () => {
     const text = `export const hallo = 'world'`
 
     await write(filePath, text)
@@ -18,7 +18,7 @@ describe('write', () => {
     expect(file).toBe(text)
   })
 
-  it('do not write if file content is the same', async () => {
+  test('do not write if file content is the same', async () => {
     const text = `export const hallo = 'world'`
 
     await write(filePath, text)

@@ -1,7 +1,7 @@
 import { renderTemplate } from './renderTemplate.ts'
 
 describe('renderTemplate', () => {
-  it('template rendering', () => {
+  test('template rendering', () => {
     expect(renderTemplate('{{name}}', { name: 'pet' })).toBe('pet')
     expect(renderTemplate('{{name}}Service', { name: 'pet' })).toBe('petService')
     expect(renderTemplate('{{name}}Service')).toBe('Service')

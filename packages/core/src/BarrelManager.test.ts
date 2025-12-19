@@ -51,7 +51,7 @@ describe('BarrelManager', () => {
     expect(rootIndex?.exports?.every((file) => file.path?.endsWith('.ts'))).toBeTruthy()
   })
 
-  it('if getFiles retuns subdirectory files without already generated index files', () => {
+  test('if getFiles retuns subdirectory files without already generated index files', () => {
     const files: KubbFile.File[] = [
       {
         path: 'src/test.ts',

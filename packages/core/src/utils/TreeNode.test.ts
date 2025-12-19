@@ -26,7 +26,7 @@ describe('TreeNode', () => {
   const tree = TreeNode.build(files, 'src/')
   const treeWindows = TreeNode.build(files, 'src\\')
 
-  it('if schemas folder contains x files and y folders', () => {
+  test('if schemas folder contains x files and y folders', () => {
     expect(tree).toBeDefined()
     expect(treeWindows).toBeDefined()
 
@@ -170,7 +170,7 @@ describe('TreeNode', () => {
     `)
   })
 
-  it('if leaves are rendered correctly', () => {
+  test('if leaves are rendered correctly', () => {
     expect(tree?.leaves.length).toBe(3)
 
     tree?.leaves.forEach((leave) => {
@@ -190,14 +190,14 @@ describe('TreeNode', () => {
       }
     })
   })
-  it('if `find` is executed correctly', () => {
+  test('if `find` is executed correctly', () => {
     const helloTS = tree?.leaves.find((leave) => leave.data.name === 'hello.ts')
 
     expect(tree?.findDeep).toBeDefined()
     expect(tree?.findDeep((item) => item.data === helloTS?.data)?.data.name).toEqual('hello.ts')
   })
 
-  it('if `foreach` is executed correctly', () => {
+  test('if `foreach` is executed correctly', () => {
     const items: TreeNode['data'][] = []
 
     tree?.forEach((treeNode) => {
@@ -217,7 +217,7 @@ describe('TreeNode', () => {
     `)
   })
 
-  it('if `forEachDeep` is executed correctly', () => {
+  test('if `forEachDeep` is executed correctly', () => {
     const leafNames: string[] = []
 
     tree?.forEachDeep((treeNode) => {
@@ -228,14 +228,14 @@ describe('TreeNode', () => {
     expect(leafNames).toEqual(['test.ts', 'hello.ts', 'world.ts'])
   })
 
-  it('if `filterDeep` is executed correctly', () => {
+  test('if `filterDeep` is executed correctly', () => {
     const subFiles = tree?.filterDeep((treeNode) => treeNode.data.path.includes('sub'))
 
     expect(subFiles?.length).toBe(2)
     expect(subFiles?.map((node) => node.data.name)).toEqual(['hello.ts', 'world.ts'])
   })
 
-  it('if `mapDeep` is executed correctly', () => {
+  test('if `mapDeep` is executed correctly', () => {
     const filePaths = tree?.mapDeep((treeNode) => treeNode.data.path)
 
     expect(filePaths?.length).toBe(3)
@@ -244,32 +244,32 @@ describe('TreeNode', () => {
     expect(filePaths).toContain(path.join('src/sub', 'world.ts'))
   })
 
-  it('if forEach throws error with non-function', () => {
+  test('if forEach throws error with non-function', () => {
     expect(() => tree?.forEach(null as any)).toThrow('forEach() callback must be a function')
   })
 
-  it('if findDeep throws error with non-function', () => {
+  test('if findDeep throws error with non-function', () => {
     expect(() => tree?.findDeep(null as any)).toThrow('find() predicate must be a function')
   })
 
-  it('if forEachDeep throws error with non-function', () => {
+  test('if forEachDeep throws error with non-function', () => {
     expect(() => tree?.forEachDeep(null as any)).toThrow('forEach() callback must be a function')
   })
 
-  it('if filterDeep throws error with non-function', () => {
+  test('if filterDeep throws error with non-function', () => {
     expect(() => tree?.filterDeep(null as any)).toThrow('filter() callback must be a function')
   })
 
-  it('if mapDeep throws error with non-function', () => {
+  test('if mapDeep throws error with non-function', () => {
     expect(() => tree?.mapDeep(null as any)).toThrow('map() callback must be a function')
   })
 
-  it('if build handles empty file list', () => {
+  test('if build handles empty file list', () => {
     const emptyTree = TreeNode.build([], 'src/')
     expect(emptyTree).toBeNull()
   })
 
-  it('if build filters out JSON files', () => {
+  test('if build filters out JSON files', () => {
     const filesWithJson: KubbFile.File[] = [
       ...files,
       {

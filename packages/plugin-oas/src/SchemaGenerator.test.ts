@@ -128,7 +128,7 @@ describe('SchemaGenerator core', async () => {
     expect(tree).toMatchSnapshot()
   })
 
-  it('combineObjects', () => {
+  test('combineObjects', () => {
     const input = [
       {
         keyword: 'and',
@@ -289,7 +289,7 @@ describe('SchemaGenerator core', async () => {
     expect(SchemaGenerator.combineObjects(input)).toMatchSnapshot()
   })
 
-  it('array of enums with malformed schema (enum at array level)', async () => {
+  test('array of enums with malformed schema (enum at array level)', async () => {
     const oas = await parse(path.resolve(__dirname, '../mocks/petStore.yaml'))
 
     // Malformed schema: enum at same level as type: array

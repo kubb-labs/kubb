@@ -516,7 +516,7 @@ describe('zodGenerator operation', async () => {
       await matchFiles(files)
     })
 
-    it('wraps the entire output', async () => {
+    test('wraps the entire output', async () => {
       const entry = {
         name: 'createPet with unknownType unknown',
         input: '../../mocks/petStore.yaml',

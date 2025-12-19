@@ -49,7 +49,7 @@ describe('build', () => {
     })
   })
 
-  it('if build can run and return created files and the pluginManager', async () => {
+  test('if build can run and return created files and the pluginManager', async () => {
     const { fabric, pluginManager } = await build({
       config,
       events: new AsyncEventEmitter<KubbEvents>(),
@@ -62,7 +62,7 @@ describe('build', () => {
     expect(fabric.files.length).toBe(1)
   })
 
-  it('if build with one plugin is running the different hooks in the correct order', async () => {
+  test('if build with one plugin is running the different hooks in the correct order', async () => {
     const { fabric } = await build({
       config,
       events: new AsyncEventEmitter<KubbEvents>(),
@@ -233,7 +233,7 @@ describe('build', () => {
     expect(hasIndexableFiles).toBe(true)
   })
 
-  it('safeBuild should return error instead of throwing', async () => {
+  test('safeBuild should return error instead of throwing', async () => {
     const throwingPlugin = definePlugin(() => {
       return {
         name: 'throwingPlugin',

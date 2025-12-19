@@ -1,4 +1,4 @@
-import { expectTypeOf } from 'vitest'
+import { expectTypeOf, test } from 'vitest'
 
 import type { petStore } from '../../mocks/petStore.ts'
 import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './index.ts'
@@ -14,7 +14,7 @@ describe('swagger Infer', () => {
   //     ^?
   type UserRequestParams = RequestParams<Oas, '/pet', 'post'>
   type UserResponse = Response<Oas, '/pet', 'post', '200'>
-  it('types', () => {
+  test('types', () => {
     expectTypeOf<Paths>().not.toBeUndefined()
     expectTypeOf<Methods>().toMatchTypeOf<'post' | 'put'>()
     expectTypeOf<UserModel>().toMatchTypeOf<{

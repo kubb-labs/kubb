@@ -2,7 +2,7 @@ import { hookFirst, hookParallel, hookSeq } from './executeStrategies.ts'
 import { timeout } from './timeout.ts'
 
 describe('executeStrategies', () => {
-  it('hookSeq', async () => {
+  test('hookSeq', async () => {
     expect(hookSeq).toBeDefined()
 
     const result = await hookSeq([
@@ -26,7 +26,7 @@ describe('executeStrategies', () => {
     expect(result).toEqual([1, 2])
   })
 
-  it('hookFirst', async () => {
+  test('hookFirst', async () => {
     expect(hookFirst).toBeDefined()
 
     const result = await hookFirst([
@@ -48,7 +48,7 @@ describe('executeStrategies', () => {
     expect(result).toEqual(2)
   })
 
-  it('hookParallel', async () => {
+  test('hookParallel', async () => {
     expect(hookParallel).toBeDefined()
 
     const results = await hookParallel([

@@ -1,7 +1,7 @@
 import { transformReservedWord } from './transformReservedWord.ts'
 
 describe('transformReservedWord', () => {
-  it('template rendering', () => {
+  test('template rendering', () => {
     expect(transformReservedWord('delete')).toBe('_delete')
     expect(transformReservedWord('this')).toBe('_this')
     expect(transformReservedWord('var')).toBe('_var')
