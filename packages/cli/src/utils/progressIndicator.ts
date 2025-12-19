@@ -67,7 +67,7 @@ export class ProgressIndicator {
   clear(): void {
     if (this.isTTY && this.lastLineLength > 0) {
       // Clear the current line
-      process.stdout.write('\r' + ' '.repeat(this.lastLineLength) + '\r')
+      process.stdout.write(`\r${' '.repeat(this.lastLineLength)}\r`)
       this.lastLineLength = 0
     }
   }
@@ -109,7 +109,7 @@ export class ProgressIndicator {
 
     // Clear previous line and write new one
     if (this.lastLineLength > 0) {
-      process.stdout.write('\r' + ' '.repeat(this.lastLineLength) + '\r')
+      process.stdout.write(`\r${' '.repeat(this.lastLineLength)}\r`)
     }
     process.stdout.write(line)
 
@@ -118,6 +118,27 @@ export class ProgressIndicator {
 
   private stripAnsi(str: string): string {
     // Simple ANSI code stripper for length calculation
-    return str.replace(/\u001b\[[0-9;]*m/g, '')
+    // Matches ANSI escape sequences like \x1b[32m, \x1b[0m, etc.
+    let result = ''
+    let inEscape = false
+
+    for (let i = 0; i < str.length; i++) {
+      if (str[i] === '\x1b' && str[i + 1] === '[') {
+        inEscape = true
+        i++ // Skip the '['
+        continue
+      }
+
+      if (inEscape) {
+        if (str[i] === 'm') {
+          inEscape = false
+        }
+        continue
+      }
+
+      result += str[i]
+    }
+
+    return result
   }
 }
