@@ -370,9 +370,10 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('generation:summary', (config, { status, failedPlugins }) => {
+    context.on('generation:summary', (config, { status, hrStart, failedPlugins }) => {
       const pluginsCount = config.plugins?.length || 0
       const successCount = pluginsCount - failedPlugins.size
+      const duration = formatHrtime(hrStart)
 
       if (state.currentConfigs.length > 1) {
         console.log(' ')
@@ -380,8 +381,8 @@ export const githubActionsLogger = defineLogger({
 
       console.log(
         status === 'success'
-          ? `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ${pluginsCount} total`
-          : `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total`,
+          ? `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ${pluginsCount} total, ${pc.green(duration)}`
+          : `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total, ${pc.green(duration)}`,
       )
 
       if (state.currentConfigs.length > 1) {
