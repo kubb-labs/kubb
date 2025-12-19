@@ -1,47 +1,32 @@
-import path from "node:path";
-import { definePlugin, type Group, getBarrelFiles, getMode } from "@kubb/core";
-import { camelCase, pascalCase } from "@kubb/core/transformers";
-import { resolveModuleSource } from "@kubb/core/utils";
-import { pluginClientName } from "@kubb/plugin-client";
-import { OperationGenerator, pluginOasName } from "@kubb/plugin-oas";
-import { pluginTsName } from "@kubb/plugin-ts";
-import { pluginZodName } from "@kubb/plugin-zod";
-import { MutationKey } from "./components";
-import { QueryKey } from "./components/QueryKey.tsx";
-import {
-  infiniteQueryGenerator,
-  mutationGenerator,
-  queryGenerator,
-  suspenseInfiniteQueryGenerator,
-  suspenseQueryGenerator,
-} from "./generators";
-import type { PluginReactQuery } from "./types.ts";
+import path from 'node:path'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { camelCase, pascalCase } from '@kubb/core/transformers'
+import { resolveModuleSource } from '@kubb/core/utils'
+import { pluginClientName } from '@kubb/plugin-client'
+import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
+import { pluginTsName } from '@kubb/plugin-ts'
+import { pluginZodName } from '@kubb/plugin-zod'
+import { MutationKey } from './components'
+import { QueryKey } from './components/QueryKey.tsx'
+import { infiniteQueryGenerator, mutationGenerator, queryGenerator, suspenseInfiniteQueryGenerator, suspenseQueryGenerator } from './generators'
+import type { PluginReactQuery } from './types.ts'
 
-export const pluginReactQueryName =
-  "plugin-react-query" satisfies PluginReactQuery["name"];
+export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
 
 export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
   const {
-    output = { path: "hooks", barrelType: "named" },
+    output = { path: 'hooks', barrelType: 'named' },
     group,
     exclude = [],
     include,
     override = [],
-    parser = "client",
+    parser = 'client',
     suspense = {},
     infinite = false,
     transformers = {},
-    paramsType = "inline",
-    pathParamsType = paramsType === "object"
-      ? "object"
-      : options.pathParamsType || "inline",
-    generators = [
-      queryGenerator,
-      suspenseQueryGenerator,
-      infiniteQueryGenerator,
-      suspenseInfiniteQueryGenerator,
-      mutationGenerator,
-    ].filter(Boolean),
+    paramsType = 'inline',
+    pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
+    generators = [queryGenerator, suspenseQueryGenerator, infiniteQueryGenerator, suspenseInfiniteQueryGenerator, mutationGenerator].filter(Boolean),
     mutation = {},
     query = {},
     mutationKey = MutationKey.getTransformer,
@@ -49,12 +34,10 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
     paramsCasing,
     contentType,
     client,
-  } = options;
+  } = options
 
-  const clientName = client?.client ?? "axios";
-  const clientImportPath =
-    client?.importPath ??
-    (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined);
+  const clientName = client?.client ?? 'axios'
+  const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
 
   return {
     name: pluginReactQueryName,
@@ -63,14 +46,14 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
       client: {
         ...options.client,
         client: clientName,
-        clientType: client?.clientType ?? "function",
-        dataReturnType: client?.dataReturnType ?? "data",
+        clientType: client?.clientType ?? 'function',
+        dataReturnType: client?.dataReturnType ?? 'data',
         pathParamsType,
         importPath: clientImportPath,
       },
       infinite: infinite
         ? {
-            queryParam: "id",
+            queryParam: 'id',
             initialPageParam: 0,
             cursorParam: undefined,
             nextParam: undefined,
@@ -84,8 +67,8 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
         query === false
           ? false
           : {
-              methods: ["get"],
-              importPath: "@tanstack/react-query",
+              methods: ['get'],
+              importPath: '@tanstack/react-query',
               ...query,
             },
       mutationKey,
@@ -93,8 +76,8 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
         mutation === false
           ? false
           : {
-              methods: ["post", "put", "patch", "delete"],
-              importPath: "@tanstack/react-query",
+              methods: ['post', 'put', 'patch', 'delete'],
+              importPath: '@tanstack/react-query',
               ...mutation,
             },
       paramsType,
@@ -103,116 +86,102 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
       paramsCasing,
       group,
     },
-    pre: [
-      pluginOasName,
-      pluginTsName,
-      parser === "zod" ? pluginZodName : undefined,
-    ].filter(Boolean),
+    pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
-      const root = path.resolve(this.config.root, this.config.output.path);
-      const mode = pathMode ?? getMode(path.resolve(root, output.path));
+      const root = path.resolve(this.config.root, this.config.output.path)
+      const mode = pathMode ?? getMode(path.resolve(root, output.path))
 
-      if (mode === "single") {
+      if (mode === 'single') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
-        return path.resolve(root, output.path);
+        return path.resolve(root, output.path)
       }
 
       if (group && (options?.group?.path || options?.group?.tag)) {
-        const groupName: Group["name"] = group?.name
+        const groupName: Group['name'] = group?.name
           ? group.name
           : (ctx) => {
-              if (group?.type === "path") {
-                return `${ctx.group.split("/")[1]}`;
+              if (group?.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
               }
-              return `${camelCase(ctx.group)}Controller`;
-            };
+              return `${camelCase(ctx.group)}Controller`
+            }
 
         return path.resolve(
           root,
           output.path,
           groupName({
-            group:
-              group.type === "path" ? options.group.path! : options.group.tag!,
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
           }),
           baseName,
-        );
+        )
       }
 
-      return path.resolve(root, output.path, baseName);
+      return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
-      let resolvedName = camelCase(name);
+      let resolvedName = camelCase(name)
 
-      if (type === "file" || type === "function") {
+      if (type === 'file' || type === 'function') {
         resolvedName = camelCase(name, {
-          isFile: type === "file",
-        });
+          isFile: type === 'file',
+        })
       }
-      if (type === "type") {
-        resolvedName = pascalCase(name);
+      if (type === 'type') {
+        resolvedName = pascalCase(name)
       }
 
       if (type) {
-        return transformers?.name?.(resolvedName, type) || resolvedName;
+        return transformers?.name?.(resolvedName, type) || resolvedName
       }
 
-      return resolvedName;
+      return resolvedName
     },
     async install() {
-      const root = path.resolve(this.config.root, this.config.output.path);
-      const mode = getMode(path.resolve(root, output.path));
-      const oas = await this.getOas();
-      const baseURL = await this.getBaseURL();
+      const root = path.resolve(this.config.root, this.config.output.path)
+      const mode = getMode(path.resolve(root, output.path))
+      const oas = await this.getOas()
+      const baseURL = await this.getBaseURL()
 
       if (baseURL) {
-        this.plugin.options.client.baseURL = baseURL;
+        this.plugin.options.client.baseURL = baseURL
       }
 
-      const hasClientPlugin = !!this.pluginManager.getPluginByKey([
-        pluginClientName,
-      ]);
+      const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
 
-      if (
-        this.plugin.options.client.bundle &&
-        !hasClientPlugin &&
-        !this.plugin.options.client.importPath
-      ) {
+      if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled fetch
         await this.upsertFile({
-          baseName: "fetch.ts",
-          path: path.resolve(root, ".kubb/fetch.ts"),
+          baseName: 'fetch.ts',
+          path: path.resolve(root, '.kubb/fetch.ts'),
           sources: [
             {
-              name: "fetch",
+              name: 'fetch',
               value: resolveModuleSource(
-                this.plugin.options.client.client === "fetch"
-                  ? "@kubb/plugin-client/templates/clients/fetch"
-                  : "@kubb/plugin-client/templates/clients/axios",
+                this.plugin.options.client.client === 'fetch' ? '@kubb/plugin-client/templates/clients/fetch' : '@kubb/plugin-client/templates/clients/axios',
               ).source,
               isExportable: true,
               isIndexable: true,
             },
           ],
-        });
+        })
       }
 
       if (!hasClientPlugin) {
         await this.upsertFile({
-          baseName: "config.ts",
-          path: path.resolve(root, ".kubb/config.ts"),
+          baseName: 'config.ts',
+          path: path.resolve(root, '.kubb/config.ts'),
           sources: [
             {
-              name: "config",
-              value: resolveModuleSource("@kubb/plugin-client/templates/config")
-                .source,
+              name: 'config',
+              value: resolveModuleSource('@kubb/plugin-client/templates/config').source,
               isExportable: false,
               isIndexable: false,
             },
           ],
-        });
+        })
       }
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
@@ -226,23 +195,23 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
         include,
         override,
         mode,
-      });
+      })
 
-      const files = await operationGenerator.build(...generators);
-      await this.upsertFile(...files);
+      const files = await operationGenerator.build(...generators)
+      await this.upsertFile(...files)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
-        type: output.barrelType ?? "named",
+        type: output.barrelType ?? 'named',
         root,
         output,
         meta: {
           pluginKey: this.plugin.key,
         },
-      });
+      })
 
-      await this.upsertFile(...barrelFiles);
+      await this.upsertFile(...barrelFiles)
 
-      throw new Error("CANNOT WORK");
+      throw new Error('CANNOT WORK')
     },
-  };
-});
+  }
+})
