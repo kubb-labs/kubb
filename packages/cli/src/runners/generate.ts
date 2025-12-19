@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
 import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/core'
@@ -106,13 +107,15 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.format === 'prettier') {
       try {
-        await events.emit(
-          'hook:execute',
-          {
-            command: 'prettier',
-            args: ['--ignore-unknown', '--write', path.resolve(definedConfig.root, definedConfig.output.path)],
-          },
-          async () => {
+        const hookId = createHash('sha256').update(config.output.format).digest('hex')
+        await events.emit('hook:start', {
+          id: hookId,
+          command: 'prettier',
+          args: ['--ignore-unknown', '--write', path.resolve(definedConfig.root, definedConfig.output.path)],
+        })
+
+        await events.on('hook:end', async ({ id }) => {
+          if (id === hookId) {
             await events.emit(
               'success',
               [
@@ -123,8 +126,8 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
                 .filter(Boolean)
                 .join(' '),
             )
-          },
-        )
+          }
+        })
       } catch (caughtError) {
         await events.emit('error', caughtError as Error)
       }
@@ -134,13 +137,15 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.format === 'biome') {
       try {
-        await events.emit(
-          'hook:execute',
-          {
-            command: 'biome',
-            args: ['format', '--write', path.resolve(definedConfig.root, definedConfig.output.path)],
-          },
-          async () => {
+        const hookId = createHash('sha256').update(config.output.format).digest('hex')
+        await events.emit('hook:start', {
+          id: hookId,
+          command: 'biome',
+          args: ['format', '--write', path.resolve(definedConfig.root, definedConfig.output.path)],
+        })
+
+        await events.on('hook:end', async ({ id }) => {
+          if (id === hookId) {
             await events.emit(
               'success',
               [
@@ -151,8 +156,8 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
                 .filter(Boolean)
                 .join(' '),
             )
-          },
-        )
+          }
+        })
       } catch (caughtError) {
         const error = new Error('Biome not found')
         error.cause = caughtError
@@ -179,13 +184,15 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.lint === 'eslint') {
       try {
-        await events.emit(
-          'hook:execute',
-          {
-            command: 'eslint',
-            args: [path.resolve(definedConfig.root, definedConfig.output.path), '--fix'],
-          },
-          async () => {
+        const hookId = createHash('sha256').update(config.output.lint).digest('hex')
+        await events.emit('hook:start', {
+          id: hookId,
+          command: 'eslint',
+          args: [path.resolve(definedConfig.root, definedConfig.output.path), '--fix'],
+        })
+
+        await events.on('hook:end', async ({ id }) => {
+          if (id === hookId) {
             await events.emit(
               'success',
               [
@@ -196,8 +203,8 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
                 .filter(Boolean)
                 .join(' '),
             )
-          },
-        )
+          }
+        })
       } catch (caughtError) {
         const error = new Error('Eslint not found')
         error.cause = caughtError
@@ -207,13 +214,15 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.lint === 'biome') {
       try {
-        await events.emit(
-          'hook:execute',
-          {
-            command: 'biome',
-            args: ['lint', '--fix', path.resolve(definedConfig.root, definedConfig.output.path)],
-          },
-          async () => {
+        const hookId = createHash('sha256').update(config.output.lint).digest('hex')
+        await events.emit('hook:start', {
+          id: hookId,
+          command: 'biome',
+          args: ['lint', '--fix', path.resolve(definedConfig.root, definedConfig.output.path)],
+        })
+
+        await events.on('hook:end', async ({ id }) => {
+          if (id === hookId) {
             await events.emit(
               'success',
               [
@@ -224,8 +233,8 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
                 .filter(Boolean)
                 .join(' '),
             )
-          },
-        )
+          }
+        })
       } catch (caughtError) {
         const error = new Error('Biome not found')
         error.cause = caughtError
@@ -235,13 +244,15 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.lint === 'oxlint') {
       try {
-        await events.emit(
-          'hook:execute',
-          {
-            command: 'oxlint',
-            args: ['--fix', path.resolve(definedConfig.root, definedConfig.output.path)],
-          },
-          async () => {
+        const hookId = createHash('sha256').update(config.output.lint).digest('hex')
+        await events.emit('hook:start', {
+          id: hookId,
+          command: 'oxlint',
+          args: ['--fix', path.resolve(definedConfig.root, definedConfig.output.path)],
+        })
+
+        await events.on('hook:end', async ({ id }) => {
+          if (id === hookId) {
             await events.emit(
               'success',
               [
@@ -252,8 +263,8 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
                 .filter(Boolean)
                 .join(' '),
             )
-          },
-        )
+          }
+        })
       } catch (caughtError) {
         const error = new Error('Oxlint not found')
         error.cause = caughtError

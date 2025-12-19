@@ -70,7 +70,7 @@ export const clackLogger = defineLogger({
 
       if (parts.length > 0) {
         parts.push(`${pc.green(duration)} elapsed`)
-        clack.log.step(parts.join(pc.dim(' | ')))
+        clack.log.step(getMessage(parts.join(pc.dim(' | '))))
       }
     }
 
@@ -340,67 +340,6 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.outro(text)
     })
 
-    context.on('hook:execute', async ({ command, args }, cb) => {
-      if (logLevel <= LogLevel.silent) {
-        try {
-          const result = await execa(command, args, {
-            detached: true,
-            stripFinalNewline: true,
-          })
-
-          await context.emit('debug', {
-            date: new Date(),
-            logs: [result.stdout],
-          })
-
-          cb()
-        } catch (err) {
-          const error = new Error('Hook execute failed')
-          error.cause = err
-
-          await context.emit('debug', {
-            date: new Date(),
-            logs: [(err as any).stdout],
-          })
-
-          await context.emit('error', error)
-        }
-
-        return
-      }
-
-      const logger = clack.taskLog({
-        title: getMessage(['Executing hook', logLevel >= LogLevel.info ? pc.dim(`${command} ${args?.join(' ')}`) : undefined].filter(Boolean).join(' ')),
-      })
-
-      const writable = new ClackWritable(logger)
-
-      try {
-        const result = await execa(command, args, {
-          detached: true,
-          stdout: ['pipe', writable],
-          stripFinalNewline: true,
-        })
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [result.stdout],
-        })
-
-        cb()
-      } catch (err) {
-        const error = new Error('Hook execute failed')
-        error.cause = err
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [(err as any).stdout],
-        })
-
-        await context.emit('error', error)
-      }
-    })
-
     context.on('format:start', () => {
       if (logLevel <= LogLevel.silent) {
         return
@@ -441,22 +380,77 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.outro(text)
     })
 
-    context.on('hook:start', (command) => {
-      if (logLevel <= LogLevel.silent) {
-        return
-      }
-
+    context.on('hook:start', async ({ id, command, args }) => {
       const text = getMessage(`Hook ${pc.dim(command)} started`)
 
+      if (logLevel <= LogLevel.silent) {
+        try {
+          const result = await execa(command, args, {
+            detached: true,
+            stripFinalNewline: true,
+          })
+
+          await context.emit('debug', {
+            date: new Date(),
+            logs: [result.stdout],
+          })
+
+          await context.emit('hook:end', { command, id })
+        } catch (err) {
+          const error = new Error('Hook execute failed')
+          error.cause = err
+
+          await context.emit('debug', {
+            date: new Date(),
+            logs: [(err as any).stdout],
+          })
+
+          await context.emit('error', error)
+        }
+
+        return
+      }
+
       clack.intro(text)
+
+      const logger = clack.taskLog({
+        title: getMessage(['Executing hook', logLevel >= LogLevel.info ? pc.dim(`${command} ${args?.join(' ')}`) : undefined].filter(Boolean).join(' ')),
+      })
+
+      const writable = new ClackWritable(logger)
+
+      try {
+        const result = await execa(command, args, {
+          detached: true,
+          stdout: ['pipe', writable],
+          stripFinalNewline: true,
+        })
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [result.stdout],
+        })
+
+        await context.emit('hook:end', { command, id })
+      } catch (err) {
+        const error = new Error('Hook execute failed')
+        error.cause = err
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [(err as any).stdout],
+        })
+
+        await context.emit('error', error)
+      }
     })
 
-    context.on('hook:end', (command) => {
+    context.on('hook:end', ({ command }) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
 
-      const text = getMessage(`Hook ${pc.dim(command)} completed`)
+      const text = getMessage(`Hook ${pc.dim(command)} successfully executed`)
 
       clack.outro(text)
     })

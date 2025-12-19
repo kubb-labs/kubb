@@ -52,7 +52,7 @@ export const githubActionsLogger = defineLogger({
 
       if (parts.length > 0) {
         parts.push(`${pc.green(duration)} elapsed`)
-        console.log(parts.join(pc.dim(' | ')))
+        console.log(getMessage(parts.join(pc.dim(' | '))))
       }
     }
 
@@ -259,34 +259,6 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('hook:execute', async ({ command, args }, cb) => {
-      try {
-        const result = await execa(command, args, {
-          detached: true,
-          stripFinalNewline: true,
-        })
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [result.stdout],
-        })
-
-        console.log(result.stdout)
-
-        cb()
-      } catch (err) {
-        const error = new Error('Hook execute failed')
-        error.cause = err
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [(err as any).stdout],
-        })
-
-        await context.emit('error', error)
-      }
-    })
-
     context.on('format:start', () => {
       if (logLevel <= LogLevel.silent) {
         return
@@ -343,21 +315,45 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('hook:start', (command) => {
-      if (logLevel <= LogLevel.silent) {
-        return
-      }
-
+    context.on('hook:start', async ({ id, command, args }) => {
       const text = getMessage(`Hook ${pc.dim(command)} started`)
 
-      if (state.currentConfigs.length === 1) {
-        openGroup(`Hook ${command}`)
+      if (logLevel > LogLevel.silent) {
+        if (state.currentConfigs.length === 1) {
+          openGroup(`Hook ${command}`)
+        }
+
+        console.log(text)
       }
 
-      console.log(text)
+      try {
+        const result = await execa(command, args, {
+          detached: true,
+          stripFinalNewline: true,
+        })
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [result.stdout],
+        })
+
+        console.log(result.stdout)
+
+        await context.emit('hook:end', { command, id })
+      } catch (err) {
+        const error = new Error('Hook execute failed')
+        error.cause = err
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [(err as any).stdout],
+        })
+
+        await context.emit('error', error)
+      }
     })
 
-    context.on('hook:end', (command) => {
+    context.on('hook:end', ({ command }) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
