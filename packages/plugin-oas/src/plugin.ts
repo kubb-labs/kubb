@@ -1,6 +1,7 @@
 import path from 'node:path'
-import { type Config, definePlugin, type Group, getMode } from '@kubb/core'
+import { type Config, definePlugin, type Group, getMode, type KubbEvents } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
+import type { AsyncEventEmitter } from '@kubb/core/utils'
 import type { Oas } from '@kubb/oas'
 import { parseFromConfig } from '@kubb/oas'
 import { jsonGenerator } from './generators'
@@ -24,7 +25,7 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
     discriminator = 'strict',
   } = options
 
-  const getOas = async ({ config }: { config: Config }): Promise<Oas> => {
+  const getOas = async ({ validate, config, events }: { validate: boolean; config: Config; events: AsyncEventEmitter<KubbEvents> }): Promise<Oas> => {
     // needs to be in a different variable or the catch here will not work(return of a promise instead)
     const oas = await parseFromConfig(config, oasClass)
 
@@ -37,10 +38,18 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
       if (validate) {
         await oas.valdiate()
       }
-    } catch (caughtError) {
-      const error = caughtError as Error
+    } catch (er) {
+      const caughtError = er as Error
+      const errorTimestamp = new Date()
+      const error = new Error('OAS Validation failed', {
+        cause: caughtError,
+      })
 
-      console.warn(error?.message)
+      events.emit('info', caughtError.message)
+      events.emit('debug', {
+        date: errorTimestamp,
+        logs: [`✗ ${error.message}`, caughtError.message],
+      })
     }
 
     return oas
@@ -56,18 +65,20 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
     },
     inject() {
       const config = this.config
+      const events = this.events
+
       let oas: Oas
 
       return {
-        async getOas() {
+        async getOas({ validate = false } = {}) {
           if (!oas) {
-            oas = await getOas({ config })
+            oas = await getOas({ config, events, validate })
           }
 
           return oas
         },
         async getBaseURL() {
-          const oas = await getOas({ config })
+          const oas = await getOas({ config, events, validate: false })
           if (serverIndex !== undefined) {
             return oas.api.servers?.at(serverIndex)?.url
           }
@@ -111,11 +122,12 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
       return path.resolve(root, output.path, baseName)
     },
     async install() {
+      const oas = await this.getOas({ validate })
+
       if (!output) {
         return
       }
 
-      const oas = await this.getOas()
       await oas.dereference()
 
       const schemaGenerator = new SchemaGenerator(

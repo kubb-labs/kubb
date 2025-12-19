@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import { ValidationPluginError } from './errors.ts'
 
 describe('ValidationPluginError', () => {

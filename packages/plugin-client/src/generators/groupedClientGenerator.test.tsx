@@ -4,6 +4,7 @@ import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import { describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
 import { groupedClientGenerator } from './groupedClientGenerator.tsx'
@@ -25,7 +26,7 @@ describe('groupedClientsGenerators operations', async () => {
     options: Partial<PluginClient['resolvedOptions']>
   }>
 
-  it.each(testData)('$name', async (props) => {
+  test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginClient['resolvedOptions'] = {

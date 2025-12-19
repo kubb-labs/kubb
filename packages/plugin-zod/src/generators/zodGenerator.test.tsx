@@ -6,6 +6,7 @@ import { parse } from '@kubb/oas'
 import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
+import { describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginZod } from '../types.ts'
 import { zodGenerator } from './zodGenerator.tsx'
@@ -267,7 +268,7 @@ describe('zodGenerator schema', async () => {
     options: Partial<PluginZod['resolvedOptions']>
   }>
 
-  it.each(testData)('$name', async (props) => {
+  test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginZod['resolvedOptions'] = {
@@ -385,7 +386,7 @@ describe('zodGenerator operation', async () => {
     options: Partial<PluginZod['resolvedOptions']>
   }>
 
-  it.each(testData)('$name', async (props) => {
+  test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginZod['resolvedOptions'] = {
@@ -437,7 +438,7 @@ describe('zodGenerator operation', async () => {
   })
 
   describe('wrapOutput', () => {
-    it.each(testData)('$name', async (props) => {
+    test.each(testData)('$name', async (props) => {
       const oas = await parse(path.resolve(__dirname, props.input))
 
       const options: PluginZod['resolvedOptions'] = {

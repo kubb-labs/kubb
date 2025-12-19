@@ -1,7 +1,6 @@
 import path from 'node:path'
 
 import yaml from '@stoplight/yaml'
-import { expectTypeOf, test } from 'vitest'
 
 import { petStore } from '../mocks/petStore.ts'
 import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './infer/index.ts'

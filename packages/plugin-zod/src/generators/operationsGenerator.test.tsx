@@ -4,6 +4,7 @@ import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import { describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginZod } from '../types.ts'
 import { operationsGenerator } from './operationsGenerator.tsx'
@@ -25,7 +26,7 @@ describe('operationsGenerator operations', async () => {
     options: Partial<PluginZod['resolvedOptions']>
   }>
 
-  it.each(testData)('$name', async (props) => {
+  test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginZod['resolvedOptions'] = {

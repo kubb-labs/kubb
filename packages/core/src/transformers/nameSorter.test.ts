@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import { nameSorter } from './nameSorter.ts'
 
 describe('nameSorter', () => {

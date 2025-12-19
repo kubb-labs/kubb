@@ -1,6 +1,5 @@
 import type { OasTypes } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { describe, expect, it } from 'vitest'
 import { getFooter } from './getFooter.ts'
 
 describe('getFooter', () => {
@@ -12,7 +11,7 @@ describe('getFooter', () => {
 
     const result = getFooter({
       oas,
-      output: {},
+      output: { path: './output' },
     })
 
     expect(result).toBeUndefined()
@@ -27,7 +26,7 @@ describe('getFooter', () => {
     const footer = '// End of file'
     const result = getFooter({
       oas,
-      output: { footer },
+      output: { path: './output', footer },
     })
 
     expect(result).toBe(footer)
@@ -44,7 +43,7 @@ describe('getFooter', () => {
     const footerFn = (o: typeof oas) => `// Generated for ${o.api?.info?.title}`
     const result = getFooter({
       oas,
-      output: { footer: footerFn },
+      output: { path: './output', footer: footerFn },
     })
 
     expect(result).toBe('// Generated for Test API')

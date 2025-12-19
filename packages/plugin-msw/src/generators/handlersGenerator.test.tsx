@@ -25,7 +25,7 @@ describe('handlersGenerator operations', async () => {
     options: Partial<PluginMsw['resolvedOptions']>
   }>
 
-  it.each(testData)('$name', async (props) => {
+  test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginMsw['resolvedOptions'] = {

@@ -58,7 +58,7 @@ describe('mcpGenerator operation', async () => {
     options: Partial<PluginMcp['resolvedOptions']>
   }>
 
-  it.each(testData)('$name', async (props) => {
+  test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginMcp['resolvedOptions'] = {

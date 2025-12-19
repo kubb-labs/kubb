@@ -1,7 +1,6 @@
 import type { Config } from '@kubb/core'
 import type { OasTypes } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { describe, expect, it } from 'vitest'
 import { getBanner } from './getBanner.ts'
 
 describe('getBanner', () => {
@@ -18,11 +17,13 @@ describe('getBanner', () => {
     const config = {
       input: { path: '/path/to/api.yaml' },
       output: { path: './output', defaultBanner: true },
-    } as Config
+    } as unknown as Config
 
     const result = getBanner({
       oas,
-      output: {},
+      output: {
+        path: './output',
+      },
       config,
     })
 
@@ -45,11 +46,11 @@ describe('getBanner', () => {
     const config = {
       input: { path: '/path/to/api.yaml' },
       output: { path: './output', defaultBanner: 'simple' },
-    } as Config
+    } as unknown as Config
 
     const result = getBanner({
       oas,
-      output: {},
+      output: { path: './output' },
       config,
     })
 
@@ -70,11 +71,11 @@ describe('getBanner', () => {
     const config = {
       input: { data: 'openapi spec content' },
       output: { path: './output', defaultBanner: true },
-    } as Config
+    } as unknown as Config
 
     const result = getBanner({
       oas,
-      output: {},
+      output: { path: './output' },
       config,
     })
 
@@ -90,12 +91,12 @@ describe('getBanner', () => {
     const config = {
       input: { path: '/path/to/api.yaml' },
       output: { path: './output', defaultBanner: true },
-    } as Config
+    } as unknown as Config
 
     const customBanner = '// Custom banner'
     const result = getBanner({
       oas,
-      output: { banner: customBanner },
+      output: { path: './output', banner: customBanner },
       config,
     })
 
@@ -112,12 +113,12 @@ describe('getBanner', () => {
     const config = {
       input: { path: '/path/to/api.yaml' },
       output: { path: './output', defaultBanner: true },
-    } as Config
+    } as unknown as Config
 
     const bannerFn = () => '// Function generated banner'
     const result = getBanner({
       oas,
-      output: { banner: bannerFn },
+      output: { path: './output', banner: bannerFn },
       config,
     })
 
@@ -136,11 +137,13 @@ describe('getBanner', () => {
     const config = {
       input: { path: '/path/to/api.yaml' },
       output: { path: './output', defaultBanner: false },
-    } as Config
+    } as unknown as Config
 
     const result = getBanner({
       oas,
-      output: {},
+      output: {
+        path: './output',
+      },
       config,
     })
 
@@ -160,11 +163,13 @@ describe('getBanner', () => {
     const config = {
       input: { path: '/path/to/api.yaml' },
       output: { path: './output', defaultBanner: true },
-    } as Config
+    } as unknown as Config
 
     const result = getBanner({
       oas,
-      output: {},
+      output: {
+        path: './output',
+      },
       config,
     })
 

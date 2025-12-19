@@ -97,7 +97,7 @@ describe('fakerGenerator schema', async () => {
     options: Partial<PluginFaker['resolvedOptions']>
   }>
 
-  it.each(testData)('$name', async (props) => {
+  test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginFaker['resolvedOptions'] = {
@@ -213,7 +213,7 @@ describe('fakerGenerator operation', async () => {
     options: Partial<PluginFaker['resolvedOptions']>
   }>
 
-  it.each(testData)('$name', async (props) => {
+  test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginFaker['resolvedOptions'] = {
