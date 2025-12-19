@@ -3,7 +3,7 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 import { BarrelManager } from './BarrelManager.ts'
 
 describe('BarrelManager', () => {
-  test(`if getFiles returns 'index.ts' files`, () => {
+  it(`if getFiles returns 'index.ts' files`, () => {
     const files: KubbFile.File[] = [
       {
         path: 'src/test.ts',

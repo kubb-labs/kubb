@@ -74,7 +74,7 @@ describe('mswGenerator operation', async () => {
     options: Partial<PluginMsw['resolvedOptions']>
   }>
 
-  test.each(testData)('$name', async (props) => {
+  it.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginMsw['resolvedOptions'] = {

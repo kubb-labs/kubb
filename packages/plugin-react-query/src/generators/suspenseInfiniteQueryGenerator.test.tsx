@@ -48,7 +48,7 @@ describe('suspenseInfiniteQueryGenerator operation', async () => {
     options: Partial<PluginReactQuery['resolvedOptions']>
   }>
 
-  test.each(testData)('$name', async (props) => {
+  it.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginReactQuery['resolvedOptions'] = {

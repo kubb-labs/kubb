@@ -3,7 +3,7 @@ import type { Plugin } from '@kubb/core'
 import { parse } from '@kubb/oas'
 import { OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
-import { describe, test } from 'vitest'
+import { describe, it } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
 import { classClientGenerator } from './classClientGenerator.tsx'
@@ -29,7 +29,7 @@ describe('classClientGenerator operations', async () => {
     options: Partial<PluginClient['resolvedOptions']>
   }>
 
-  test.each(testData)('$name', async (props) => {
+  it.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginClient['resolvedOptions'] = {

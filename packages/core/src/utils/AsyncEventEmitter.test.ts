@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { AsyncEventEmitter } from './AsyncEventEmitter.ts'
 
 type TestEvents = {
@@ -9,7 +9,7 @@ type TestEvents = {
 }
 
 describe('AsyncEventEmitter', () => {
-  test('should emit event to registered listeners', async () => {
+  it('should emit event to registered listeners', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler = vi.fn()
 
@@ -20,7 +20,7 @@ describe('AsyncEventEmitter', () => {
     expect(handler).toHaveBeenCalledTimes(1)
   })
 
-  test('should emit to multiple listeners', async () => {
+  it('should emit event to multiple listeners', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler1 = vi.fn()
     const handler2 = vi.fn()
@@ -33,7 +33,7 @@ describe('AsyncEventEmitter', () => {
     expect(handler2).toHaveBeenCalledWith('hello', 42)
   })
 
-  test('should handle async listeners', async () => {
+  it('should handle async listeners', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler = vi.fn().mockResolvedValue(undefined)
 
@@ -43,14 +43,14 @@ describe('AsyncEventEmitter', () => {
     expect(handler).toHaveBeenCalled()
   })
 
-  test('should return undefined when no listeners', async () => {
+  it('should return undefined when emitting event with no registered listeners', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const result = await emitter.emit('test', 'hello', 42)
 
     expect(result).toBeUndefined()
   })
 
-  test('should handle errors in listeners', async () => {
+  it('should handle errors in listeners', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const handler = vi.fn().mockRejectedValue(new Error('test error'))
@@ -62,7 +62,7 @@ describe('AsyncEventEmitter', () => {
     consoleErrorSpy.mockRestore()
   })
 
-  test('should remove listener with off', async () => {
+  it('should remove listener with off method', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler = vi.fn()
 
@@ -73,7 +73,7 @@ describe('AsyncEventEmitter', () => {
     expect(handler).not.toHaveBeenCalled()
   })
 
-  test('should execute onOnce listener only once', async () => {
+  it('should execute onOnce listener only once', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler = vi.fn()
 
@@ -85,7 +85,7 @@ describe('AsyncEventEmitter', () => {
     expect(handler).toHaveBeenCalledWith('hello', 42)
   })
 
-  test('should remove all listeners', async () => {
+  it('should remove all listeners', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler1 = vi.fn()
     const handler2 = vi.fn()
@@ -100,12 +100,12 @@ describe('AsyncEventEmitter', () => {
     expect(handler2).not.toHaveBeenCalled()
   })
 
-  test('should set max listeners in constructor', () => {
+  it('should accept max listeners parameter in constructor', () => {
     const emitter = new AsyncEventEmitter<TestEvents>(200)
     expect(emitter).toBeDefined()
   })
 
-  test('should handle events with no arguments', async () => {
+  it('should handle events with no arguments', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler = vi.fn()
 

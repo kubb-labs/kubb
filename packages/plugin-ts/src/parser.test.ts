@@ -11,7 +11,7 @@ describe('type parse', () => {
     expect(text).toMatchSnapshot()
   })
 
-  test('array with enum items should create array type with enum reference', () => {
+  it('should create array type with enum reference when items are enums', () => {
     const schema = {
       keyword: 'array',
       args: {
@@ -45,7 +45,7 @@ describe('type parse', () => {
     }
   })
 
-  test('union with unknown and null should preserve both types', () => {
+  it('should preserve both unknown and null types in union', () => {
     const schema = {
       keyword: 'union',
       args: [{ keyword: 'unknown' }, { keyword: 'null' }],

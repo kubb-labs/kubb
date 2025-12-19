@@ -1,7 +1,7 @@
 import os from 'node:os'
 import path from 'node:path'
 import fs from 'fs-extra'
-import { afterAll, beforeAll, describe, expect, test } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
 import { exists, existsSync } from './exists.ts'
 
 const testDir = path.join(os.tmpdir(), 'kubb-test-exists')
@@ -17,17 +17,17 @@ describe('exists', () => {
     await fs.remove(testDir)
   })
 
-  test('should return true for existing file', async () => {
+  it('should return true for existing file', async () => {
     const result = await exists(testFile)
     expect(result).toBe(true)
   })
 
-  test('should return false for non-existing file', async () => {
+  it('should return false for non-existing file', async () => {
     const result = await exists(path.join(testDir, 'nonexistent.txt'))
     expect(result).toBe(false)
   })
 
-  test('should return true for existing directory', async () => {
+  it('should return true for existing directory', async () => {
     const result = await exists(testDir)
     expect(result).toBe(true)
   })

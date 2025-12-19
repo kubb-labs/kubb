@@ -63,7 +63,7 @@ describe('cypressGenerator operation', async () => {
     options: Partial<PluginCypress['resolvedOptions']>
   }>
 
-  test.each(testData)('$name', async (props) => {
+  it.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
 
     const options: PluginCypress['resolvedOptions'] = {
