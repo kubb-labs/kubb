@@ -134,6 +134,10 @@ jobs:
         continue-on-error: true
         run: pnpm run lint:ci
 
+      - name: Knip
+        continue-on-error: true
+        run: pnpm run knip --reporter github-actions
+
   performance:
     name: Performance analysis (Ceviz)
     timeout-minutes: 10

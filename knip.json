@@ -1,0 +1,10 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "ignoreWorkspaces": ["examples/**", "e2e/**", "docs/**"],
+  "ignore": ["packages/plugin-client/src/clients/**", "**/*.test.ts", "**/*.test.tsx", "**/__snapshots__/**", "configs/**", "scripts/**", "**/mocks/**"],
+  "ignoreExportsUsedInFile": true,
+  "ignoreDependencies": ["prettier", "ts-node"],
+  "typescript": {
+    "config": ["tsconfig.json", "packages/*/tsconfig.json", "tools/*/tsconfig.json"]
+  }
+}

@@ -15,6 +15,25 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## Unreleased
+
+### ✨ Features
+
+#### Development Tooling
+
+Added [Knip](https://knip.dev/) for unused code detection to help maintain code quality and identify unused exports, dependencies, and files across the monorepo.
+
+**Usage:**
+```bash
+# Run Knip to detect unused code
+pnpm run knip
+
+# Run Knip in production mode
+pnpm run knip:production
+```
+
+The configuration is defined in `knip.json` at the repository root and automatically ignores examples, e2e tests, and documentation workspaces.
+
 ## 4.12.5
 
 ### ✨ Features
