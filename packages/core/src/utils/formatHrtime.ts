@@ -3,9 +3,9 @@
  * Rounds to 2 decimal places to provide sub-millisecond precision without noise.
  */
 export function getElapsedMs(hrStart: [number, number]): number {
-  const [seconds, nanoseconds] = process.hrtime(hrStart);
-  const ms = seconds * 1000 + nanoseconds / 1e6;
-  return Math.round(ms * 100) / 100;
+  const [seconds, nanoseconds] = process.hrtime(hrStart)
+  const ms = seconds * 1000 + nanoseconds / 1e6
+  return Math.round(ms * 100) / 100
 }
 
 /**
@@ -15,23 +15,23 @@ export function getElapsedMs(hrStart: [number, number]): number {
 export function formatMs(ms: number): string {
   // 1. Minutes and Seconds (>= 60s)
   if (ms >= 60000) {
-    const mins = Math.floor(ms / 60000);
-    const secs = ((ms % 60000) / 1000).toFixed(1);
-    return `${mins}m ${secs}s`;
+    const mins = Math.floor(ms / 60000)
+    const secs = ((ms % 60000) / 1000).toFixed(1)
+    return `${mins}m ${secs}s`
   }
 
   // 2. Seconds (>= 1s)
   if (ms >= 1000) {
-    return `${(ms / 1000).toFixed(2)}s`;
+    return `${(ms / 1000).toFixed(2)}s`
   }
 
   // 3. Milliseconds (< 1s)
-  return `${Math.round(ms).toFixed(0)}ms`;
+  return `${Math.round(ms).toFixed(0)}ms`
 }
 
 /**
  * Convenience helper to get and format elapsed time in one step.
  */
 export function formatHrtime(hrStart: [number, number]): string {
-  return formatMs(getElapsedMs(hrStart));
+  return formatMs(getElapsedMs(hrStart))
 }
