@@ -216,4 +216,72 @@ describe('TreeNode', () => {
       ]
     `)
   })
+
+  test('if `forEachDeep` is executed correctly', () => {
+    const leafNames: string[] = []
+
+    tree?.forEachDeep((treeNode) => {
+      leafNames.push(treeNode.data.name)
+    })
+
+    expect(leafNames.length).toBe(3)
+    expect(leafNames).toEqual(['test.ts', 'hello.ts', 'world.ts'])
+  })
+
+  test('if `filterDeep` is executed correctly', () => {
+    const subFiles = tree?.filterDeep((treeNode) => treeNode.data.path.includes('sub'))
+
+    expect(subFiles?.length).toBe(2)
+    expect(subFiles?.map((node) => node.data.name)).toEqual(['hello.ts', 'world.ts'])
+  })
+
+  test('if `mapDeep` is executed correctly', () => {
+    const filePaths = tree?.mapDeep((treeNode) => treeNode.data.path)
+
+    expect(filePaths?.length).toBe(3)
+    expect(filePaths).toContain('src/test.ts')
+    expect(filePaths).toContain(path.join('src/sub', 'hello.ts'))
+    expect(filePaths).toContain(path.join('src/sub', 'world.ts'))
+  })
+
+  test('if forEach throws error with non-function', () => {
+    expect(() => tree?.forEach(null as any)).toThrow('forEach() callback must be a function')
+  })
+
+  test('if findDeep throws error with non-function', () => {
+    expect(() => tree?.findDeep(null as any)).toThrow('find() predicate must be a function')
+  })
+
+  test('if forEachDeep throws error with non-function', () => {
+    expect(() => tree?.forEachDeep(null as any)).toThrow('forEach() callback must be a function')
+  })
+
+  test('if filterDeep throws error with non-function', () => {
+    expect(() => tree?.filterDeep(null as any)).toThrow('filter() callback must be a function')
+  })
+
+  test('if mapDeep throws error with non-function', () => {
+    expect(() => tree?.mapDeep(null as any)).toThrow('map() callback must be a function')
+  })
+
+  test('if build handles empty file list', () => {
+    const emptyTree = TreeNode.build([], 'src/')
+    expect(emptyTree).toBeNull()
+  })
+
+  test('if build filters out JSON files', () => {
+    const filesWithJson: KubbFile.File[] = [
+      ...files,
+      {
+        path: 'src/data.json',
+        baseName: 'data.json',
+        sources: [],
+        meta: {},
+      },
+    ]
+    const treeWithJson = TreeNode.build(filesWithJson, 'src/')
+    const leaves = treeWithJson?.leaves || []
+
+    expect(leaves.every((leaf) => !leaf.data.path.endsWith('.json'))).toBe(true)
+  })
 })

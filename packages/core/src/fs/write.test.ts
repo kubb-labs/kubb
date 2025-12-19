@@ -24,4 +24,22 @@ describe('write', () => {
     await write(filePath, text)
     await write(filePath, text)
   })
+
+  test('should return undefined for empty data', async () => {
+    const result = await write(filePath, '   ')
+    expect(result).toBeUndefined()
+  })
+
+  test('should perform sanity check when enabled', async () => {
+    const text = `export const hallo = 'world with sanity'`
+    const result = await write(filePath, text, { sanity: true })
+    expect(result).toBe(text)
+  })
+
+  test('should trim data before writing', async () => {
+    const text = `  export const hallo = 'world'  `
+    await write(filePath, text)
+    const file = await read(filePath)
+    expect(file).toBe(text.trim())
+  })
 })

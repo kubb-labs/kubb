@@ -16,4 +16,15 @@ describe('escape', () => {
     expect(jsStringEscape({})).toMatchInlineSnapshot(`"[object Object]"`)
     expect(jsStringEscape('')).toMatchInlineSnapshot(`""`)
   })
+
+  test('jsStringEscape handles line terminators', () => {
+    expect(jsStringEscape('line1\nline2')).toBe('line1\\nline2')
+    expect(jsStringEscape('line1\rline2')).toBe('line1\\rline2')
+    expect(jsStringEscape('line1\u2028line2')).toBe('line1\\u2028line2')
+    expect(jsStringEscape('line1\u2029line2')).toBe('line1\\u2029line2')
+  })
+
+  test('jsStringEscape handles backslash', () => {
+    expect(jsStringEscape('path\\to\\file')).toBe('path\\\\to\\\\file')
+  })
 })
