@@ -6,6 +6,7 @@ import { default as gradientString } from 'gradient-string'
 import pc from 'picocolors'
 
 import { getSummary } from '../utils/getSummary.ts'
+import { ProgressIndicator } from '../utils/progressIndicator.ts'
 import { ClackWritable } from '../utils/Writables.ts'
 
 /**
@@ -18,6 +19,7 @@ export const clackLogger = defineLogger({
     const logLevel = options?.logLevel || LogLevel.info
     const activeProgress = new Map<string, { interval?: NodeJS.Timeout; progressBar: clack.ProgressResult }>()
     const spinner = clack.spinner()
+    const progressIndicator = new ProgressIndicator()
     let isSpinning = false
 
     function getMessage(message: string): string {
@@ -141,23 +143,30 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
+      progressIndicator.setPhase('config')
       const text = getMessage('Configuration started')
 
       clack.intro(text)
       startSpinner(getMessage('Configuration loading'))
     })
 
-    context.on('config:end', () => {
+    context.on('config:end', (configs) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
 
+      progressIndicator.clear()
       const text = getMessage('Configuration completed')
 
       clack.outro(text)
+
+      // Initialize progress with total plugins count
+      const totalPlugins = configs.reduce((sum, config) => sum + (config.plugins?.length || 0), 0)
+      progressIndicator.start(totalPlugins, process.hrtime())
     })
 
     context.on('generation:start', (config) => {
+      progressIndicator.clear()
       const text = getMessage(['Generation started', config.name ? `for ${pc.dim(config.name)}` : undefined].filter(Boolean).join(' '))
 
       clack.intro(text)
@@ -169,6 +178,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
 
       stopSpinner()
+      progressIndicator.updatePlugin(plugin.name)
 
       const progressBar = clack.progress({
         style: 'block',
@@ -195,6 +205,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
 
       clearInterval(active.interval)
+      progressIndicator.completePlugin()
 
       const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
       const text = getMessage(`${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}`)
@@ -209,6 +220,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
 
       stopSpinner()
+      progressIndicator.startFiles(files.length)
 
       const text = `Writing ${files.length} files`
       const progressBar = clack.progress({
@@ -228,6 +240,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
 
       stopSpinner()
+      progressIndicator.updateFile()
 
       const text = `Writing ${relative(config.root, file.path)}`
       const active = activeProgress.get('files')
@@ -244,6 +257,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
 
       stopSpinner()
+      progressIndicator.clear()
 
       const text = getMessage('Files written successfully')
       const active = activeProgress.get('files')
@@ -257,6 +271,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('generation:end', (config) => {
+      progressIndicator.clear()
       const text = getMessage(config.name ? `Generation completed for ${pc.dim(config.name)}` : 'Generation completed')
 
       clack.outro(text)
@@ -328,6 +343,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
+      progressIndicator.setPhase('format')
       const text = getMessage('Format started')
 
       clack.intro(text)
@@ -338,6 +354,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
+      progressIndicator.clear()
       const text = getMessage('Format completed')
 
       clack.outro(text)
@@ -348,6 +365,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
+      progressIndicator.setPhase('lint')
       const text = getMessage('Lint started')
 
       clack.intro(text)
@@ -358,6 +376,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
+      progressIndicator.clear()
       const text = getMessage('Lint completed')
 
       clack.outro(text)
@@ -368,6 +387,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
+      progressIndicator.setPhase('hooks')
       const text = getMessage(`Hook ${pc.dim(command)} started`)
 
       clack.intro(text)
@@ -378,6 +398,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
+      progressIndicator.clear()
       const text = getMessage(`Hook ${pc.dim(command)} completed`)
 
       clack.outro(text)
@@ -421,6 +442,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('lifecycle:end', () => {
+      progressIndicator.clear()
       for (const [_key, active] of activeProgress) {
         if (active.interval) {
           clearInterval(active.interval)
