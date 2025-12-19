@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 4.12.7
+
+### Patch Changes
+
+- [#2222](https://github.com/kubb-labs/kubb/pull/2222) [`03babc8`](https://github.com/kubb-labs/kubb/commit/03babc84964e3d5e8a294f8be55cdee55f106ecc) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Only validate once
+
+- Updated dependencies [[`93b39af`](https://github.com/kubb-labs/kubb/commit/93b39aff5874c959ce1d3ee1203ea378a0cbe663)]:
+  - @kubb/core@4.12.7
+  - @kubb/oas@4.12.7
+
 ## 4.12.6
 
 ### Patch Changes
