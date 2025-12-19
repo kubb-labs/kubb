@@ -1,1 +1,1 @@
-export const excluded = "excluded"
+export const excluded = 'excluded'
