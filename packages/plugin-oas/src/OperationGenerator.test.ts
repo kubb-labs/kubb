@@ -2,6 +2,7 @@ import path from 'node:path'
 import type { Plugin, PluginManager } from '@kubb/core'
 import { parseFromConfig } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import { describe, expect, test } from 'vitest'
 import { OperationGenerator } from './OperationGenerator.ts'
 
 describe('OperationGenerator core', async () => {

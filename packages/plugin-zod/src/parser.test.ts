@@ -1,6 +1,6 @@
 import { schemaKeywords } from '@kubb/plugin-oas'
 import { schemas } from '@kubb/plugin-oas/mocks'
-import { describe, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import * as parserZod from './parser.ts'
 
 describe('zod parse', () => {

@@ -1,6 +1,7 @@
 import path from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { FileManager } from '@kubb/react-fabric'
+import { describe, expect, it } from 'vitest'
 import { getBarrelFiles } from './getBarrelFiles.ts'
 
 describe('getBarrelFiles', () => {

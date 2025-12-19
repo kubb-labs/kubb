@@ -29,6 +29,25 @@ export const clackLogger = defineLogger({
       activeProgress: new Map<string, { interval?: NodeJS.Timeout; progressBar: clack.ProgressResult }>(),
     }
 
+    function reset() {
+      for (const [_key, active] of state.activeProgress) {
+        if (active.interval) {
+          clearInterval(active.interval)
+        }
+        active.progressBar?.stop()
+      }
+
+      state.totalPlugins = 0
+      state.completedPlugins = 0
+      state.failedPlugins = 0
+      state.totalFiles = 0
+      state.processedFiles = 0
+      state.hrStart = process.hrtime()
+      state.spinner = clack.spinner()
+      state.isSpinning = false
+      state.activeProgress.clear()
+    }
+
     function showProgressStep() {
       if (logLevel <= LogLevel.silent) {
         return
@@ -50,7 +69,7 @@ export const clackLogger = defineLogger({
       }
 
       if (parts.length > 0) {
-        parts.push(pc.green(duration))
+        parts.push(`${pc.green(duration)} elapsed`)
         clack.log.step(parts.join(pc.dim(' | ')))
       }
     }
@@ -169,6 +188,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
     context.on('lifecycle:start', (version) => {
       console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(`Kubb ${version} 🧩`))
+      reset()
     })
 
     context.on('config:start', () => {
@@ -195,9 +215,6 @@ Run \`npm install -g @kubb/cli\` to update`,
     context.on('generation:start', (config) => {
       // Initialize progress tracking
       state.totalPlugins = config.plugins?.length || 0
-      state.completedPlugins = 0
-      state.failedPlugins = 0
-      state.hrStart = process.hrtime()
 
       const text = getMessage(['Generation started', config.name ? `for ${pc.dim(config.name)}` : undefined].filter(Boolean).join(' '))
 
@@ -320,6 +337,8 @@ Run \`npm install -g @kubb/cli\` to update`,
       const text = getMessage(config.name ? `Generation completed for ${pc.dim(config.name)}` : 'Generation completed')
 
       clack.outro(text)
+
+      reset()
     })
 
     context.on('hook:execute', async ({ command, args }, cb) => {
@@ -481,13 +500,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('lifecycle:end', () => {
-      for (const [_key, active] of state.activeProgress) {
-        if (active.interval) {
-          clearInterval(active.interval)
-        }
-        active.progressBar?.stop()
-      }
-      state.activeProgress.clear()
+      reset()
     })
   },
 })

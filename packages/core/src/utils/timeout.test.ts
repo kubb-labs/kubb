@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { timeout } from './timeout.ts'
 
 describe('timeout', () => {

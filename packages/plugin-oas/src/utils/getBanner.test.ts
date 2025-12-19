@@ -1,6 +1,7 @@
 import type { Config } from '@kubb/core'
 import type { OasTypes } from '@kubb/oas'
 import { parse } from '@kubb/oas'
+import { describe, expect, it } from 'vitest'
 import { getBanner } from './getBanner.ts'
 
 describe('getBanner', () => {

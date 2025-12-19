@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { transformReservedWord } from './transformReservedWord.ts'
 
 describe('transformReservedWord', () => {

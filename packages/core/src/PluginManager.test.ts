@@ -1,7 +1,7 @@
 import { createFabric } from '@kubb/react-fabric'
+import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { definePlugin } from './definePlugin.ts'
 import { PluginManager } from './PluginManager.ts'
-
 import type { Config, KubbEvents, Plugin } from './types.ts'
 import { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
 

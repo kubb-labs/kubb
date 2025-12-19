@@ -21,6 +21,15 @@ export const githubActionsLogger = defineLogger({
       currentConfigs: [] as Array<Config>,
     }
 
+    function reset() {
+      state.totalPlugins = 0
+      state.completedPlugins = 0
+      state.failedPlugins = 0
+      state.totalFiles = 0
+      state.processedFiles = 0
+      state.hrStart = process.hrtime()
+    }
+
     function showProgressStep() {
       if (logLevel <= LogLevel.silent) {
         return
@@ -42,7 +51,7 @@ export const githubActionsLogger = defineLogger({
       }
 
       if (parts.length > 0) {
-        parts.push(pc.green(duration))
+        parts.push(`${pc.green(duration)} elapsed`)
         console.log(parts.join(pc.dim(' | ')))
       }
     }
@@ -110,6 +119,7 @@ export const githubActionsLogger = defineLogger({
 
     context.on('lifecycle:start', (version) => {
       console.log(pc.yellow(`Kubb ${version} 🧩`))
+      reset()
     })
 
     context.on('config:start', () => {
@@ -141,9 +151,6 @@ export const githubActionsLogger = defineLogger({
     context.on('generation:start', (config) => {
       // Initialize progress tracking
       state.totalPlugins = config.plugins?.length || 0
-      state.completedPlugins = 0
-      state.failedPlugins = 0
-      state.hrStart = process.hrtime()
 
       const text = config.name ? `Generation for ${pc.bold(config.name)}` : 'Generation'
 
@@ -248,6 +255,8 @@ export const githubActionsLogger = defineLogger({
       const text = getMessage(config.name ? `${pc.blue('✓')} Generation completed for ${pc.dim(config.name)}` : `${pc.blue('✓')} Generation completed`)
 
       console.log(text)
+
+      reset()
     })
 
     context.on('hook:execute', async ({ command, args }, cb) => {
@@ -362,9 +371,10 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('generation:summary', (config, { status, failedPlugins }) => {
+    context.on('generation:summary', (config, { status, hrStart, failedPlugins }) => {
       const pluginsCount = config.plugins?.length || 0
       const successCount = pluginsCount - failedPlugins.size
+      const duration = formatHrtime(hrStart)
 
       if (state.currentConfigs.length > 1) {
         console.log(' ')
@@ -372,8 +382,8 @@ export const githubActionsLogger = defineLogger({
 
       console.log(
         status === 'success'
-          ? `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ${pluginsCount} total`
-          : `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total`,
+          ? `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ${pluginsCount} total, ${pc.green(duration)}`
+          : `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total, ${pc.green(duration)}`,
       )
 
       if (state.currentConfigs.length > 1) {

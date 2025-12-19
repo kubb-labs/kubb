@@ -1,6 +1,7 @@
 import path from 'node:path'
 import type { Config } from '@kubb/core'
 import yaml from '@stoplight/yaml'
+import { describe, expect, test } from 'vitest'
 import { merge, parse, parseFromConfig } from './utils.ts'
 
 describe('utils', () => {

@@ -1,4 +1,6 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: test case */
+
+import { describe, expect, test } from 'vitest'
 import { URLPath } from './URLPath.ts'
 
 describe('URLPath', () => {

@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { createJSDocBlockText } from './createJSDocBlockText.ts'
 
 describe('jsdoc', () => {

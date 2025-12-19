@@ -1,5 +1,6 @@
 /** biome-ignore-all lint/suspicious/noThenProperty: test case */
 
+import { describe, expect, it } from 'vitest'
 import { isPromise, isPromiseFulfilledResult, isPromiseRejectedResult } from './promise.ts'
 
 describe('promise utilities', () => {

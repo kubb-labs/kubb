@@ -2,7 +2,7 @@
   "extends": "./bundler.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "types": ["vitest/globals", "bun-types"],
+    "types": ["bun-types"],
     "paths": {
       "#mocks": ["configs/mocks.ts"],
       "@kubb/core/hooks": ["packages/core/src/hooks/index.ts"],

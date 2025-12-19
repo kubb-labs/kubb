@@ -1,5 +1,6 @@
 import { print } from '@kubb/fabric-core/parsers/typescript'
 import ts from 'typescript'
+import { describe, expect, it } from 'vitest'
 import { format } from '#mocks'
 import {
   appendJSDocToNode,
@@ -424,9 +425,18 @@ describe('Import/Export Sorting Consistency', () => {
     const windowsOrder = ['CacheService', 'UserService', 'DatabaseService', 'AuthService']
     const macOrder = ['DatabaseService', 'AuthService', 'CacheService', 'UserService']
 
-    const import1 = createImportDeclaration({ name: linuxOrder, path: './services.ts' })
-    const import2 = createImportDeclaration({ name: windowsOrder, path: './services.ts' })
-    const import3 = createImportDeclaration({ name: macOrder, path: './services.ts' })
+    const import1 = createImportDeclaration({
+      name: linuxOrder,
+      path: './services.ts',
+    })
+    const import2 = createImportDeclaration({
+      name: windowsOrder,
+      path: './services.ts',
+    })
+    const import3 = createImportDeclaration({
+      name: macOrder,
+      path: './services.ts',
+    })
 
     const output1 = print(import1)
     const output2 = print(import2)

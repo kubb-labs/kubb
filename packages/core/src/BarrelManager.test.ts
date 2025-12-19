@@ -1,5 +1,5 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
-
+import { describe, expect, it, test } from 'vitest'
 import { BarrelManager } from './BarrelManager.ts'
 
 describe('BarrelManager', () => {

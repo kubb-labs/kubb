@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { buildJSDoc } from './buildJSDoc'
 
 describe('buildJSDoc', () => {

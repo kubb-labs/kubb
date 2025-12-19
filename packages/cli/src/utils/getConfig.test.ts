@@ -1,7 +1,6 @@
 import { defineConfig, definePlugin } from '@kubb/core'
-
+import { describe, expect, it } from 'vitest'
 import { getConfig } from './getConfig.ts'
-
 import type { CosmiconfigResult } from './getCosmiConfig.ts'
 
 const plugin = definePlugin(() => {

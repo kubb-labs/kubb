@@ -1,5 +1,6 @@
 import path from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
+import { describe, expect, test } from 'vitest'
 import { TreeNode } from './TreeNode.ts'
 
 describe('TreeNode', () => {

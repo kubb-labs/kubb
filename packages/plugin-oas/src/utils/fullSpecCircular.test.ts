@@ -3,6 +3,7 @@ import { camelCase, pascalCase } from '@kubb/core/transformers'
 import type { OasTypes } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import { describe, expect, it } from 'vitest'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from '../SchemaGenerator.ts'
 
 // Simple mocked plugin manager for testing
