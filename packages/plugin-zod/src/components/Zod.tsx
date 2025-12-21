@@ -108,8 +108,6 @@ export function Zod({
   const wrappedSchemaOutput = wrapOutput ? wrapOutput({ output: baseSchemaOutput, schema }) || baseSchemaOutput : baseSchemaOutput
   const finalOutput = typeName ? `${wrappedSchemaOutput} as unknown as ${version === '4' ? 'z.ZodType' : 'ToZod'}<${typeName}>` : wrappedSchemaOutput
 
-  console.log(finalOutput)
-
   return (
     <>
       <File.Source name={name} isExportable isIndexable>
