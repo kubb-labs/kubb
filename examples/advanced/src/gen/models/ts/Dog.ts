@@ -1,3 +1,5 @@
+import type { Image } from './Image.ts'
+
 export type Dog = {
   /**
    * @minLength 1
@@ -8,4 +10,5 @@ export type Dog = {
    * @type string
    */
   name: string
+  readonly image?: Image
 }

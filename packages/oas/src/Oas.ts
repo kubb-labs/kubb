@@ -445,4 +445,37 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       },
     })
   }
+
+  flattenTrivialAllOf(schema?: SchemaObject): SchemaObject | undefined {
+    if (!schema?.allOf || schema.allOf.length === 0) {
+      return schema
+    }
+
+    // Never touch ref-based or structural composition
+    if (schema.allOf.some((item) => isReference(item))) {
+      return schema
+    }
+
+    const STRUCTURAL_KEYS = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'])
+
+    const isPlainFragment = (item: SchemaObject) => !Object.keys(item).some((key) => STRUCTURAL_KEYS.has(key))
+
+    // Only flatten keyword-only fragments
+    if (!schema.allOf.every((item) => isPlainFragment(item as SchemaObject))) {
+      return schema
+    }
+
+    const merged: SchemaObject = { ...schema }
+    delete merged.allOf
+
+    for (const fragment of schema.allOf as SchemaObject[]) {
+      for (const [key, value] of Object.entries(fragment)) {
+        if ((merged as any)[key] === undefined) {
+          ;(merged as any)[key] = value
+        }
+      }
+    }
+
+    return merged
+  }
 }

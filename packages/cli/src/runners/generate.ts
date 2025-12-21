@@ -107,7 +107,7 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.format === 'prettier') {
       try {
-        const hookId = createHash('sha256').update(config.output.format).digest('hex')
+        const hookId = createHash('sha256').update([config.name, config.output.format].filter(Boolean).join('-')).digest('hex')
         await events.emit('hook:start', {
           id: hookId,
           command: 'prettier',
@@ -137,7 +137,7 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.format === 'biome') {
       try {
-        const hookId = createHash('sha256').update(config.output.format).digest('hex')
+        const hookId = createHash('sha256').update([config.name, config.output.format].filter(Boolean).join('-')).digest('hex')
         await events.emit('hook:start', {
           id: hookId,
           command: 'biome',
@@ -184,7 +184,7 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.lint === 'eslint') {
       try {
-        const hookId = createHash('sha256').update(config.output.lint).digest('hex')
+        const hookId = createHash('sha256').update([config.name, config.output.lint].filter(Boolean).join('-')).digest('hex')
         await events.emit('hook:start', {
           id: hookId,
           command: 'eslint',
@@ -214,7 +214,7 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.lint === 'biome') {
       try {
-        const hookId = createHash('sha256').update(config.output.lint).digest('hex')
+        const hookId = createHash('sha256').update([config.name, config.output.lint].filter(Boolean).join('-')).digest('hex')
         await events.emit('hook:start', {
           id: hookId,
           command: 'biome',
@@ -244,7 +244,7 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.lint === 'oxlint') {
       try {
-        const hookId = createHash('sha256').update(config.output.lint).digest('hex')
+        const hookId = createHash('sha256').update([config.name, config.output.lint].filter(Boolean).join('-')).digest('hex')
         await events.emit('hook:start', {
           id: hookId,
           command: 'oxlint',

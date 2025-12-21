@@ -1037,6 +1037,12 @@ components:
           type: boolean
       additionalProperties: false
 
+    Image:
+      example: linode/debian10
+      readOnly: true
+      allOf:
+        - type: string
+          nullable: true
     Dog:
       title: Dog
       type: object
@@ -1050,6 +1056,8 @@ components:
           readOnly: true
         name:
           type: string
+        image:
+          $ref: "#/components/schemas/Image"
       additionalProperties: false
   requestBodies:
     Pet:
