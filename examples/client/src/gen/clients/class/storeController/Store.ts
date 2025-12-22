@@ -35,7 +35,12 @@ export class Store {
    * @summary Place an order for a pet
    * {@link /store/order}
    */
-  async placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch } = {}) {
+  async placeOrder(
+    data?: PlaceOrderMutationRequest,
+    config: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
+      client?: typeof fetch
+    } = {},
+  ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
     const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
@@ -54,7 +59,9 @@ export class Store {
    */
   async placeOrderPatch(
     data?: PlaceOrderPatchMutationRequest,
-    config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof fetch } = {},
+    config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
+      client?: typeof fetch
+    } = {},
   ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data

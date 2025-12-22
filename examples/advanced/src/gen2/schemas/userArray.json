@@ -10,7 +10,14 @@
         "deprecated": true,
         "type": "object",
         "properties": {
-          "id": { "type": "integer", "format": "int64", "minLength": 5, "maxLength": 7, "default": 1, "deprecated": true },
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "minLength": 5,
+            "maxLength": 7,
+            "default": 1,
+            "deprecated": true
+          },
           "name": { "type": "string" }
         },
         "xml": { "name": "tag" },
@@ -20,10 +27,19 @@
       },
       "firstName": { "type": "string", "example": "John" },
       "lastName": { "type": "string", "example": "James" },
-      "email": { "type": "string", "format": "email", "example": "john@email.com" },
+      "email": {
+        "type": "string",
+        "format": "email",
+        "example": "john@email.com"
+      },
       "password": { "type": "string", "example": "12345" },
       "phone": { "type": "string", "example": "12345" },
-      "userStatus": { "type": "integer", "description": "User Status", "format": "int32", "example": 1 }
+      "userStatus": {
+        "type": "integer",
+        "description": "User Status",
+        "format": "int32",
+        "example": 1
+      }
     },
     "xml": { "name": "user" },
     "x-readme-ref-name": "User"

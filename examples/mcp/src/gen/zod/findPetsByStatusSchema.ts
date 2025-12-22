@@ -17,7 +17,9 @@ export const findPetsByStatus200Schema = z
   .array(z.lazy(() => petSchema))
   .min(1)
   .max(3)
-  .refine((items) => new Set(items).size === items.length, { message: 'Array entries must be unique' })
+  .refine((items) => new Set(items).size === items.length, {
+    message: 'Array entries must be unique',
+  })
 
 /**
  * @description Invalid status value

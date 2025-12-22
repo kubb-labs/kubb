@@ -20,7 +20,9 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
  */
 export async function createUsersWithListInputHook(
   data?: CreateUsersWithListInputMutationRequest,
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
@@ -36,7 +38,9 @@ export async function createUsersWithListInputHook(
 }
 
 export function createUsersWithListInputMutationOptionsHook(
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const mutationKey = createUsersWithListInputMutationKey()
   return mutationOptions<
@@ -65,7 +69,9 @@ export function useCreateUsersWithListInputHook<TContext>(
       { data?: CreateUsersWithListInputMutationRequest },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
+      client?: typeof fetch
+    }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

@@ -23,7 +23,9 @@ function getCreateUsersWithListInputUrl() {
  */
 export async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 

@@ -71,7 +71,9 @@ export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByT
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
-  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
+  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & {
+    queryKey: TQueryKey
+  }
 
   query.queryKey = queryKey as TQueryKey
 

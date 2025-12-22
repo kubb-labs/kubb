@@ -21,7 +21,9 @@ export async function uploadFile(
   petId: UploadFilePathParams['petId'],
   data?: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
@@ -33,7 +35,10 @@ export async function uploadFile(
     params,
     data: requestData,
     ...requestConfig,
-    headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
+    headers: {
+      'Content-Type': 'application/octet-stream',
+      ...requestConfig.headers,
+    },
   })
   return res.data
 }
@@ -48,11 +53,17 @@ export function useUploadFile<TContext>(
       UseMutationOptions<
         UploadFileMutationResponse,
         ResponseErrorConfig<Error>,
-        { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+        {
+          petId: UploadFilePathParams['petId']
+          data?: UploadFileMutationRequest
+          params?: UploadFileQueryParams
+        },
         TContext
       >
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<UploadFileMutationRequest>> & {
+      client?: typeof fetch
+    }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
@@ -62,7 +73,11 @@ export function useUploadFile<TContext>(
   return useMutation<
     UploadFileMutationResponse,
     ResponseErrorConfig<Error>,
-    { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
+    {
+      petId: UploadFilePathParams['petId']
+      data?: UploadFileMutationRequest
+      params?: UploadFileQueryParams
+    },
     TContext
   >(
     () => ({

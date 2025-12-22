@@ -20,7 +20,9 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
  */
 export async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
@@ -35,7 +37,9 @@ export async function createUsersWithListInput(
   return res.data
 }
 
-export type CreateUsersWithListInputMutationArg = { data?: CreateUsersWithListInputMutationRequest }
+export type CreateUsersWithListInputMutationArg = {
+  data?: CreateUsersWithListInputMutationRequest
+}
 
 /**
  * @description Creates list of users with given input array
@@ -50,7 +54,9 @@ export function useCreateUsersWithListInput(
       CreateUsersWithListInputMutationKey | null,
       CreateUsersWithListInputMutationArg
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
+      client?: typeof fetch
+    }
     shouldFetch?: boolean
   } = {},
 ) {

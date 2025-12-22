@@ -44,7 +44,12 @@ export class Pet {
    * @summary Update an existing pet
    * {@link /pet}
    */
-  async updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch } = {}) {
+  async updatePet(
+    data: UpdatePetMutationRequest,
+    config: Partial<RequestConfig<UpdatePetMutationRequest>> & {
+      client?: typeof fetch
+    } = {},
+  ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
     const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
@@ -61,7 +66,12 @@ export class Pet {
    * @summary Add a new pet to the store
    * {@link /pet}
    */
-  async addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}) {
+  async addPet(
+    data: AddPetMutationRequest,
+    config: Partial<RequestConfig<AddPetMutationRequest>> & {
+      client?: typeof fetch
+    } = {},
+  ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
     const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
@@ -167,7 +177,9 @@ export class Pet {
     { petId }: { petId: UploadFilePathParams['petId'] },
     data: UploadFileMutationRequest,
     params?: UploadFileQueryParams,
-    config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch } = {},
+    config: Partial<RequestConfig<UploadFileMutationRequest>> & {
+      client?: typeof fetch
+    } = {},
   ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data

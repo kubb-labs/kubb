@@ -59,7 +59,10 @@ export function useDeletePetHook<TContext>(
     mutation?: UseMutationOptions<
       DeletePetMutationResponse,
       ResponseErrorConfig<DeletePet400>,
-      { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },
+      {
+        pet_id: DeletePetPathParams['pet_id']
+        headers?: DeletePetHeaderParams
+      },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }

@@ -8,7 +8,10 @@ import fetch from '@kubb/plugin-client/clients/fetch'
 import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from './models.ts'
 
 function getGetUserByNameUrl(username: GetUserByNamePathParams['username']) {
-  const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
+  const res = {
+    method: 'GET',
+    url: `https://petstore3.swagger.io/api/v3/user/${username}` as const,
+  }
   return res
 }
 

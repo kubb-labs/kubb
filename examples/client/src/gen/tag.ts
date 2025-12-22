@@ -44,7 +44,9 @@ function getPlaceOrderUrlController() {
  */
 export async function placeOrderController(
   data?: PlaceOrderMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
@@ -71,7 +73,9 @@ function getPlaceOrderPatchUrlController() {
  */
 export async function placeOrderPatchController(
   data?: PlaceOrderPatchMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
@@ -129,5 +133,11 @@ export async function deleteOrderController(orderId: DeleteOrderPathParams['orde
 }
 
 export function storeController() {
-  return { getInventoryController, placeOrderController, placeOrderPatchController, getOrderByIdController, deleteOrderController }
+  return {
+    getInventoryController,
+    placeOrderController,
+    placeOrderPatchController,
+    getOrderByIdController,
+    deleteOrderController,
+  }
 }

@@ -29,7 +29,9 @@ export async function deleteUser(username: DeleteUserPathParams['username'], con
   return res.data
 }
 
-export type DeleteUserMutationArg = { username: DeleteUserPathParams['username'] }
+export type DeleteUserMutationArg = {
+  username: DeleteUserPathParams['username']
+}
 
 /**
  * @description This can only be done by the logged in user.

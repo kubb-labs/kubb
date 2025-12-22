@@ -8,7 +8,10 @@ import fetch from '@kubb/plugin-client/clients/fetch'
 import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from './models.ts'
 
 function getFindPetsByStatusUrl() {
-  const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/pet/findByStatus' as const }
+  const res = {
+    method: 'GET',
+    url: 'https://petstore3.swagger.io/api/v3/pet/findByStatus' as const,
+  }
   return res
 }
 

@@ -95,7 +95,9 @@ export function createUpdatePetWithForm<
       ...queryOptions,
     } as unknown as CreateBaseQueryOptions,
     queryClient,
-  ) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
+  ) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & {
+    queryKey: TQueryKey
+  }
 
   query.queryKey = queryKey as TQueryKey
 

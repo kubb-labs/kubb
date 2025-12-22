@@ -81,7 +81,9 @@ export function createFindPetsByStatus<
       ...queryOptions,
     } as unknown as CreateBaseQueryOptions,
     queryClient,
-  ) as CreateQueryResult<TData, ResponseErrorConfig<FindPetsByStatus400>> & { queryKey: TQueryKey }
+  ) as CreateQueryResult<TData, ResponseErrorConfig<FindPetsByStatus400>> & {
+    queryKey: TQueryKey
+  }
 
   query.queryKey = queryKey as TQueryKey
 

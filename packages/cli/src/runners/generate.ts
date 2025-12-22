@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
 import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/core'
@@ -13,14 +12,13 @@ type GenerateProps = {
   logLevel: number
 }
 
-export async function generate({ input, config, events, logLevel }: GenerateProps): Promise<void> {
-  const { root = process.cwd(), ...userConfig } = config
+export async function generate({ input, config: userConfig, events, logLevel }: GenerateProps): Promise<void> {
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
   const hrStart = process.hrtime()
 
-  const definedConfig: Config = {
-    root,
+  const config: Config = {
     ...userConfig,
+    root: userConfig.root || process.cwd(),
     input: inputPath
       ? {
           ...userConfig.input,
@@ -38,12 +36,12 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
     },
   }
 
-  await events.emit('generation:start', definedConfig)
+  await events.emit('generation:start', config)
 
   await events.emit('info', config.name ? `Setup generation ${pc.bold(config.name)}` : 'Setup generation', inputPath)
 
   const { fabric, pluginManager } = await setup({
-    config: definedConfig,
+    config,
     events,
   })
 
@@ -51,7 +49,7 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
   const { files, failedPlugins, pluginTimings, error } = await safeBuild(
     {
-      config: definedConfig,
+      config,
       events,
     },
     { pluginManager, fabric, events },
@@ -75,9 +73,9 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
       events.emit('error', err)
     })
 
-    await events.emit('generation:end', definedConfig)
+    await events.emit('generation:end', config)
 
-    await events.emit('generation:summary', definedConfig, {
+    await events.emit('generation:summary', config, {
       failedPlugins,
       filesCreated: files.length,
       status: failedPlugins.size > 0 || error ? 'failed' : 'success',
@@ -89,7 +87,7 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
   }
 
   await events.emit('success', 'Generation successfully', inputPath)
-  await events.emit('generation:end', definedConfig)
+  await events.emit('generation:end', config)
 
   // formatting
   if (config.output.format) {
@@ -99,7 +97,7 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
       'info',
       [
         `Formatting with ${pc.dim(config.output.format as string)}`,
-        logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+        logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
       ]
         .filter(Boolean)
         .join(' '),
@@ -107,26 +105,22 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.format === 'prettier') {
       try {
-        const hookId = createHash('sha256').update([config.name, config.output.format].filter(Boolean).join('-')).digest('hex')
         await events.emit('hook:start', {
-          id: hookId,
           command: 'prettier',
-          args: ['--ignore-unknown', '--write', path.resolve(definedConfig.root, definedConfig.output.path)],
+          args: ['--ignore-unknown', '--write', path.resolve(config.root, config.output.path)],
         })
 
-        await events.on('hook:end', async ({ id }) => {
-          if (id === hookId) {
-            await events.emit(
-              'success',
-              [
-                `Formatting with ${pc.dim(config.output.format as string)}`,
-                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
-                'successfully',
-              ]
-                .filter(Boolean)
-                .join(' '),
-            )
-          }
+        await events.onOnce('hook:end', async () => {
+          await events.emit(
+            'success',
+            [
+              `Formatting with ${pc.dim(config.output.format as string)}`,
+              logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
+              'successfully',
+            ]
+              .filter(Boolean)
+              .join(' '),
+          )
         })
       } catch (caughtError) {
         await events.emit('error', caughtError as Error)
@@ -137,26 +131,22 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.format === 'biome') {
       try {
-        const hookId = createHash('sha256').update([config.name, config.output.format].filter(Boolean).join('-')).digest('hex')
         await events.emit('hook:start', {
-          id: hookId,
           command: 'biome',
-          args: ['format', '--write', path.resolve(definedConfig.root, definedConfig.output.path)],
+          args: ['format', '--write', path.resolve(config.root, config.output.path)],
         })
 
-        await events.on('hook:end', async ({ id }) => {
-          if (id === hookId) {
-            await events.emit(
-              'success',
-              [
-                `Formatting with ${pc.dim(config.output.format as string)}`,
-                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
-                'successfully',
-              ]
-                .filter(Boolean)
-                .join(' '),
-            )
-          }
+        await events.onOnce('hook:end', async () => {
+          await events.emit(
+            'success',
+            [
+              `Formatting with ${pc.dim(config.output.format as string)}`,
+              logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
+              'successfully',
+            ]
+              .filter(Boolean)
+              .join(' '),
+          )
         })
       } catch (caughtError) {
         const error = new Error('Biome not found')
@@ -176,7 +166,7 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
       'info',
       [
         `Linting with ${pc.dim(config.output.lint as string)}`,
-        logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
+        logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
       ]
         .filter(Boolean)
         .join(' '),
@@ -184,26 +174,22 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.lint === 'eslint') {
       try {
-        const hookId = createHash('sha256').update([config.name, config.output.lint].filter(Boolean).join('-')).digest('hex')
         await events.emit('hook:start', {
-          id: hookId,
           command: 'eslint',
-          args: [path.resolve(definedConfig.root, definedConfig.output.path), '--fix'],
+          args: [path.resolve(config.root, config.output.path), '--fix'],
         })
 
-        await events.on('hook:end', async ({ id }) => {
-          if (id === hookId) {
-            await events.emit(
-              'success',
-              [
-                `Linted with ${pc.dim(config.output.lint as string)}`,
-                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
-                'successfully',
-              ]
-                .filter(Boolean)
-                .join(' '),
-            )
-          }
+        await events.onOnce('hook:end', async () => {
+          await events.emit(
+            'success',
+            [
+              `Linted with ${pc.dim(config.output.lint as string)}`,
+              logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
+              'successfully',
+            ]
+              .filter(Boolean)
+              .join(' '),
+          )
         })
       } catch (caughtError) {
         const error = new Error('Eslint not found')
@@ -214,26 +200,22 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.lint === 'biome') {
       try {
-        const hookId = createHash('sha256').update([config.name, config.output.lint].filter(Boolean).join('-')).digest('hex')
         await events.emit('hook:start', {
-          id: hookId,
           command: 'biome',
-          args: ['lint', '--fix', path.resolve(definedConfig.root, definedConfig.output.path)],
+          args: ['lint', '--fix', path.resolve(config.root, config.output.path)],
         })
 
-        await events.on('hook:end', async ({ id }) => {
-          if (id === hookId) {
-            await events.emit(
-              'success',
-              [
-                `Linted with ${pc.dim(config.output.lint as string)}`,
-                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
-                'successfully',
-              ]
-                .filter(Boolean)
-                .join(' '),
-            )
-          }
+        await events.onOnce('hook:end', async () => {
+          await events.emit(
+            'success',
+            [
+              `Linted with ${pc.dim(config.output.lint as string)}`,
+              logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
+              'successfully',
+            ]
+              .filter(Boolean)
+              .join(' '),
+          )
         })
       } catch (caughtError) {
         const error = new Error('Biome not found')
@@ -244,26 +226,22 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
 
     if (config.output.lint === 'oxlint') {
       try {
-        const hookId = createHash('sha256').update([config.name, config.output.lint].filter(Boolean).join('-')).digest('hex')
         await events.emit('hook:start', {
-          id: hookId,
           command: 'oxlint',
-          args: ['--fix', path.resolve(definedConfig.root, definedConfig.output.path)],
+          args: ['--fix', path.resolve(config.root, config.output.path)],
         })
 
-        await events.on('hook:end', async ({ id }) => {
-          if (id === hookId) {
-            await events.emit(
-              'success',
-              [
-                `Linted with ${pc.dim(config.output.lint as string)}`,
-                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(definedConfig.root, definedConfig.output.path))}` : undefined,
-                'successfully',
-              ]
-                .filter(Boolean)
-                .join(' '),
-            )
-          }
+        await events.onOnce('hook:end', async () => {
+          await events.emit(
+            'success',
+            [
+              `Linted with ${pc.dim(config.output.lint as string)}`,
+              logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
+              'successfully',
+            ]
+              .filter(Boolean)
+              .join(' '),
+          )
         })
       } catch (caughtError) {
         const error = new Error('Oxlint not found')
@@ -282,7 +260,7 @@ export async function generate({ input, config, events, logLevel }: GenerateProp
     await events.emit('hooks:end')
   }
 
-  await events.emit('generation:summary', definedConfig, {
+  await events.emit('generation:summary', config, {
     failedPlugins,
     filesCreated: files.length,
     status: failedPlugins.size > 0 || error ? 'failed' : 'success',

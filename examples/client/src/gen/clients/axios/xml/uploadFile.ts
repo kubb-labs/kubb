@@ -27,7 +27,9 @@ export async function uploadFileXML(
   { petId }: { petId: UploadFilePathParams['petId'] },
   data: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 

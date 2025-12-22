@@ -29,7 +29,12 @@ export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
  * @summary Update an existing pet
  * {@link /pet}
  */
-export async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch } = {}) {
+export async function updatePet(
+  data: UpdatePetMutationRequest,
+  config: Partial<RequestConfig<UpdatePetMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
+) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
@@ -56,7 +61,9 @@ export function createUpdatePet<TContext>(
       { data: UpdatePetMutationRequest },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<UpdatePetMutationRequest>> & {
+      client?: typeof fetch
+    }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

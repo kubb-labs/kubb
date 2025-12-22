@@ -13,5 +13,13 @@ import { logoutUser } from './logoutUser.js'
 import { updateUser } from './updateUser.js'
 
 export function userService() {
-  return { createUser, createUsersWithListInput, loginUser, logoutUser, getUserByName, updateUser, deleteUser }
+  return {
+    createUser,
+    createUsersWithListInput,
+    loginUser,
+    logoutUser,
+    getUserByName,
+    updateUser,
+    deleteUser,
+  }
 }

@@ -3,7 +3,12 @@
   "type": "object",
   "required": ["indoor", "type"],
   "properties": {
-    "type": { "type": "string", "minLength": 1, "readOnly": true, "enum": ["cat"] },
+    "type": {
+      "type": "string",
+      "minLength": 1,
+      "readOnly": true,
+      "enum": ["cat"]
+    },
     "name": { "type": "string" },
     "indoor": { "type": "boolean" }
   },
