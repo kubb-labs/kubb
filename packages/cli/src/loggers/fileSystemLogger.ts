@@ -1,4 +1,4 @@
-import { resolve } from 'node:path'
+import { relative, resolve } from 'node:path'
 import { defineLogger } from '@kubb/core'
 import { write } from '@kubb/core/fs'
 import { formatMs } from '@kubb/core/utils'
@@ -31,7 +31,7 @@ export const fileSystemLogger = defineLogger({
 
     async function writeLogs(name?: string) {
       if (state.cachedLogs.size === 0) {
-        return
+        return []
       }
 
       const files: Record<string, string[]> = {}
@@ -55,6 +55,8 @@ export const fileSystemLogger = defineLogger({
           return write(fileName, logs.join('\n\n'))
         }),
       )
+
+      return Object.keys(files)
     }
 
     context.on('info', (message, info) => {
@@ -124,8 +126,16 @@ export const fileSystemLogger = defineLogger({
     })
 
     context.on('generation:end', async (config) => {
-      await writeLogs(config.name)
+      const writtenFilePaths = await writeLogs(config.name)
+      if (writtenFilePaths.length > 0) {
+        const files = writtenFilePaths.map((f) => relative(process.cwd(), f))
+        await context.emit('info', 'Debug files written to:', files.join(', '))
+      }
       reset()
+    })
+
+    context.on('lifecycle:end', async () => {
+      // lifecycle:end handler can be used for cleanup if needed in the future
     })
 
     // Fallback: Write logs on process exit to handle crashes
