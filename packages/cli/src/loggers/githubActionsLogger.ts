@@ -2,6 +2,7 @@ import { type Config, defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import pc from 'picocolors'
+import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 
 /**
  * GitHub Actions adapter for CI environments
@@ -189,9 +190,9 @@ export const githubActionsLogger = defineLogger({
         state.failedPlugins++
       }
 
-      const durationStr = formatMs(duration)
+      const durationStr = formatMsWithColor(duration)
       const text = getMessage(
-        success ? `${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}` : `${pc.bold(plugin.name)} failed in ${pc.red(durationStr)}`,
+        success ? `${pc.bold(plugin.name)} completed in ${durationStr}` : `${pc.bold(plugin.name)} failed in ${pc.red(formatMs(duration))}`,
       )
 
       console.log(text)

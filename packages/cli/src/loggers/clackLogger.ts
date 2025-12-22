@@ -6,6 +6,7 @@ import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import { default as gradientString } from 'gradient-string'
 import pc from 'picocolors'
+import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 import { getSummary } from '../utils/getSummary.ts'
 import { ClackWritable } from '../utils/Writables.ts'
 
@@ -261,9 +262,9 @@ Run \`npm install -g @kubb/cli\` to update`,
         state.failedPlugins++
       }
 
-      const durationStr = formatMs(duration)
+      const durationStr = formatMsWithColor(duration)
       const text = getMessage(
-        success ? `${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}` : `${pc.bold(plugin.name)} failed in ${pc.red(durationStr)}`,
+        success ? `${pc.bold(plugin.name)} completed in ${durationStr}` : `${pc.bold(plugin.name)} failed in ${pc.red(formatMs(duration))}`,
       )
 
       active.progressBar.stop(text)
