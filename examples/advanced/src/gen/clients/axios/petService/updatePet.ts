@@ -1,13 +1,13 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type {
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
 } from '../../../models/ts/petController/UpdatePet.ts'
-import { updatePetMutationResponseSchema, updatePetMutationRequestSchema } from '../../../zod/petController/updatePetSchema.ts'
+import { updatePetMutationRequestSchema, updatePetMutationResponseSchema } from '../../../zod/petController/updatePetSchema.ts'
 
 export function getUpdatePetUrl() {
   const res = { method: 'PUT', url: 'https://petstore3.swagger.io/api/v3/pet' as const }

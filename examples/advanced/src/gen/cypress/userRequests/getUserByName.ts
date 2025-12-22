@@ -1,4 +1,4 @@
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams } from '../../models/ts/userController/GetUserByName.ts'
+import type { GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/ts/userController/GetUserByName.ts'
 
 export function getUserByName(
   username: GetUserByNamePathParams['username'],

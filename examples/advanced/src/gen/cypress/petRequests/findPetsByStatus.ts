@@ -1,4 +1,4 @@
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusPathParams } from '../../models/ts/petController/FindPetsByStatus.ts'
+import type { FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../../models/ts/petController/FindPetsByStatus.ts'
 
 export function findPetsByStatus(
   stepId: FindPetsByStatusPathParams['step_id'],

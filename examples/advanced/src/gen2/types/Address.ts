@@ -2,17 +2,17 @@ export type Address = {
   /**
    * @type string | undefined
    */
-  street?: string;
+  street?: string
   /**
    * @type string | undefined
    */
-  city?: string;
+  city?: string
   /**
    * @type string | undefined
    */
-  state?: string;
+  state?: string
   /**
    * @type string | undefined
    */
-  zip?: string;
-};
+  zip?: string
+}
