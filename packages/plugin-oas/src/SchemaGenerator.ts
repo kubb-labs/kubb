@@ -282,6 +282,7 @@ export class SchemaGenerator<
     const properties = schemaObject?.properties || {}
     const additionalProperties = schemaObject?.additionalProperties
     const required = schemaObject?.required
+    const patternProperties = schemaObject && 'patternProperties' in schemaObject ? schemaObject.patternProperties : undefined
 
     const propertiesSchemas = Object.keys(properties)
       .map((propertyName) => {
@@ -318,13 +319,39 @@ export class SchemaGenerator<
           : this.parse({ schemaObject: additionalProperties as SchemaObject, parentName: name })
     }
 
+    let patternPropertiesSchemas: Record<string, Schema[]> = {}
+
+    if (patternProperties && typeof patternProperties === 'object') {
+      patternPropertiesSchemas = Object.entries(patternProperties).reduce((acc, [pattern, patternSchema]) => {
+        const schemas =
+          patternSchema === true || !Object.keys(patternSchema as object).length
+            ? [{ keyword: this.#getUnknownType({ schemaObject, name }) }]
+            : this.parse({ schemaObject: patternSchema as SchemaObject, parentName: name })
+
+        return {
+          ...acc,
+          [pattern]: schemas,
+        }
+      }, {})
+    }
+
+    const args: {
+      properties: typeof propertiesSchemas
+      additionalProperties: typeof additionalPropertiesSchemas
+      patternProperties?: typeof patternPropertiesSchemas
+    } = {
+      properties: propertiesSchemas,
+      additionalProperties: additionalPropertiesSchemas,
+    }
+
+    if (Object.keys(patternPropertiesSchemas).length > 0) {
+      args['patternProperties'] = patternPropertiesSchemas
+    }
+
     return [
       {
         keyword: schemaKeywords.object,
-        args: {
-          properties: propertiesSchemas,
-          additionalProperties: additionalPropertiesSchemas,
-        },
+        args,
       },
     ]
   }
@@ -1104,7 +1131,7 @@ export class SchemaGenerator<
       ]
     }
 
-    if (schemaObject.properties || schemaObject.additionalProperties) {
+    if (schemaObject.properties || schemaObject.additionalProperties || 'patternProperties' in schemaObject) {
       if (isDiscriminator(schemaObject)) {
         // override schema to set type to be based on discriminator mapping, use of enum to convert type string to type 'mapping1' | 'mapping2'
         const schemaObjectOverriden = Object.keys(schemaObject.properties || {}).reduce((acc, propertyName) => {
