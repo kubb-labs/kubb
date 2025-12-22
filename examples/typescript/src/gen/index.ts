@@ -67,8 +67,6 @@ export type { LoginUser200, LoginUser400, LoginUserQuery, LoginUserQueryParams, 
 export type { LogoutUserError, LogoutUserQuery, LogoutUserQueryResponse } from './ts/models/LogoutUser.ts'
 export type { Order, OrderHttpStatusEnumKey } from './ts/models/Order.ts'
 export { orderHttpStatusEnum } from './ts/models/Order.ts'
-export type { Oas } from './ts/models/oas.ts'
-export { oas } from './ts/models/oas.ts'
 export type { Pet, StatusEnumKey } from './ts/models/Pet.ts'
 export { statusEnum } from './ts/models/Pet.ts'
 export type { PetNotFound } from './ts/models/PetNotFound.ts'

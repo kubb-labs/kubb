@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
-import { parse } from '@kubb/oas'
+import { parse, type SchemaObject } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, test } from 'vitest'
 import { mockedPluginManager } from '#mocks'
@@ -109,7 +109,7 @@ describe('SchemaGenerator core', async () => {
   test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
     const schemas = oas.getDefinition().components?.schemas
-    const schema = schemas?.[props.path]
+    const schema = schemas?.[props.path] as SchemaObject
 
     const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
       emptySchemaType: 'unknown',
@@ -129,7 +129,7 @@ describe('SchemaGenerator core', async () => {
       override: undefined,
       mode: 'split',
     })
-    const tree = generator.parse({ schemaObject: schema, name: props.name })
+    const tree = generator.parse({ schema: schema, name: props.name, parentName: null })
 
     expect(tree).toMatchSnapshot()
   })
@@ -306,7 +306,7 @@ describe('SchemaGenerator core', async () => {
       items: {
         type: 'string',
       },
-    }
+    } as SchemaObject
 
     const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
       emptySchemaType: 'unknown',
@@ -329,8 +329,9 @@ describe('SchemaGenerator core', async () => {
     })
 
     const tree = generator.parse({
-      schemaObject: malformedSchema as any,
+      schema: malformedSchema,
       name: 'TestArrayEnum',
+      parentName: null,
     })
 
     expect(tree).toMatchSnapshot()

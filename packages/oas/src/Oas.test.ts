@@ -1,41 +1,12 @@
 import path from 'node:path'
 
 import yaml from '@stoplight/yaml'
-import { describe, expect, expectTypeOf, test } from 'vitest'
-import { petStore } from '../mocks/petStore.ts'
-import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './infer/index.ts'
+import { describe, expect, test } from 'vitest'
 import { Oas } from './Oas.ts'
-import type { OpenAPIV3, OpenAPIV3_1, SchemaObject } from './types.ts'
+import type { Document, SchemaObject } from './types.ts'
 import { parse } from './utils.ts'
 
-describe('swagger Infer', () => {
-  const oas = new Oas({ oas: petStore })
-  type Oas = Infer<typeof oas.document>
-  //   ^?
-  type Paths = keyof PathMap<Oas>
-  //    ^?
-  type Methods = keyof MethodMap<Oas, '/pet'>
-  //     ^?
-  type UserModel = Model<Oas, 'User'>
-  //     ^?
-  type UserRequestParams = RequestParams<Oas, '/pet', 'post'>
-  type UserResponse = Response<Oas, '/pet', 'post', '200'>
-  test('types', () => {
-    expectTypeOf<Paths>().not.toBeUndefined()
-    expectTypeOf<Methods>().toMatchTypeOf<'post' | 'put'>()
-    expectTypeOf<UserModel>().toMatchTypeOf<{
-      username?: string | undefined
-    }>()
-    expectTypeOf<UserRequestParams['json']>().toMatchTypeOf<{
-      status?: 'available' | 'pending' | 'sold' | undefined
-    }>()
-    expectTypeOf<UserResponse>().toMatchTypeOf<{
-      status?: 'available' | 'pending' | 'sold' | undefined
-    }>()
-  })
-})
-
-describe('Oas filter', async () => {
+describe('[oas] filter', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
 
   test('Filtering on operationId', async () => {
@@ -45,142 +16,154 @@ describe('Oas filter', async () => {
   })
 })
 
-describe('discriminator', () => {
-  describe('inherit mode', () => {
-    test('sets enum on mapped schemas before parsing', () => {
-      const discriminatorSpec: OpenAPIV3.Document = {
-        openapi: '3.0.3',
-        info: {
-          title: 'Discriminator inherit',
-          version: '1.0.0',
-        },
-        paths: {},
-        components: {
-          schemas: {
-            Animal: {
-              type: 'object',
-              required: ['type'],
-              oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
-              properties: {
-                type: {
-                  type: 'string',
-                },
-              },
-              discriminator: {
-                propertyName: 'type',
-                mapping: {
-                  cat: '#/components/schemas/Cat',
-                  dog: '#/components/schemas/Dog',
-                },
+describe('[oas] discriminator', () => {
+  test('sets enum on mapped schemas before parsing', () => {
+    const document: Document = {
+      openapi: '3.0.3',
+      info: {
+        title: 'Discriminator inherit',
+        version: '1.0.0',
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Animal: {
+            type: 'object',
+            required: ['type'],
+            oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            properties: {
+              type: {
+                type: 'string',
               },
             },
-            Cat: {
-              type: 'object',
-              required: ['type'],
-              properties: {
-                type: {
-                  type: 'string',
-                },
+            discriminator: {
+              propertyName: 'type',
+              mapping: {
+                cat: '#/components/schemas/Cat',
+                dog: '#/components/schemas/Dog',
               },
             },
-            Dog: {
-              type: 'object',
-              required: ['type'],
-              properties: {
-                type: {
-                  type: 'string',
-                },
+          },
+          Cat: {
+            type: 'object',
+            required: ['type'],
+            properties: {
+              type: {
+                type: 'string',
+              },
+            },
+          },
+          Dog: {
+            type: 'object',
+            required: ['type'],
+            properties: {
+              type: {
+                type: 'string',
               },
             },
           },
         },
-      }
+      },
+    }
 
-      const oas = new Oas({ oas: discriminatorSpec })
+    const oas = new Oas(document)
 
-      oas.setOptions({ discriminator: 'inherit' })
+    oas.setOptions({ discriminator: 'inherit' })
 
-      const catSchema = oas.get('#/components/schemas/Cat') as OpenAPIV3.SchemaObject
-      const dogSchema = oas.get('#/components/schemas/Dog') as OpenAPIV3.SchemaObject
-      const catTypeProperty = catSchema.properties?.type as OpenAPIV3.SchemaObject | undefined
-      const dogTypeProperty = dogSchema.properties?.type as OpenAPIV3.SchemaObject | undefined
+    const catSchema = oas.get<SchemaObject>('#/components/schemas/Cat')
+    const dogSchema = oas.get<SchemaObject>('#/components/schemas/Dog')
+    const catTypeProperty = catSchema?.properties?.type as SchemaObject | undefined
+    const dogTypeProperty = dogSchema?.properties?.type as SchemaObject | undefined
 
-      expect(catTypeProperty?.enum).toEqual(['cat'])
-      expect(dogTypeProperty?.enum).toEqual(['dog'])
-      expect(catSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
-      expect(dogSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
-    })
+    expect(catTypeProperty?.enum).toEqual(['cat'])
+    expect(dogTypeProperty?.enum).toEqual(['dog'])
+    expect(catSchema?.required).toMatchInlineSnapshot(`
+      [
+        "type",
+      ]
+    `)
+    expect(dogSchema?.required).toMatchInlineSnapshot(`
+      [
+        "type",
+      ]
+    `)
   })
 
-  describe('strict mode', () => {
-    test('keeps original schemas when discriminator option is strict', () => {
-      const discriminatorSpec: OpenAPIV3.Document = {
-        openapi: '3.0.3',
-        info: {
-          title: 'Discriminator strict',
-          version: '1.0.0',
-        },
-        paths: {},
-        components: {
-          schemas: {
-            Animal: {
-              type: 'object',
-              required: ['type'],
-              oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
-              properties: {
-                type: {
-                  type: 'string',
-                },
-              },
-              discriminator: {
-                propertyName: 'type',
-                mapping: {
-                  cat: '#/components/schemas/Cat',
-                  dog: '#/components/schemas/Dog',
-                },
+  test('keeps original schemas when discriminator option is strict', () => {
+    const document: Document = {
+      openapi: '3.0.3',
+      info: {
+        title: 'Discriminator strict',
+        version: '1.0.0',
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Animal: {
+            type: 'object',
+            required: ['type'],
+            oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            properties: {
+              type: {
+                type: 'string',
               },
             },
-            Cat: {
-              type: 'object',
-              required: ['type'],
-              properties: {
-                type: {
-                  type: 'string',
-                },
+            discriminator: {
+              propertyName: 'type',
+              mapping: {
+                cat: '#/components/schemas/Cat',
+                dog: '#/components/schemas/Dog',
               },
             },
-            Dog: {
-              type: 'object',
-              required: ['type'],
-              properties: {
-                type: {
-                  type: 'string',
-                },
+          },
+          Cat: {
+            type: 'object',
+            required: ['type'],
+            properties: {
+              type: {
+                type: 'string',
+              },
+            },
+          },
+          Dog: {
+            type: 'object',
+            required: ['type'],
+            properties: {
+              type: {
+                type: 'string',
               },
             },
           },
         },
-      }
+      },
+    }
 
-      const oas = new Oas({ oas: discriminatorSpec })
+    const oas = new Oas(document)
 
-      oas.setOptions({ discriminator: 'strict' })
+    oas.setOptions({ discriminator: 'strict' })
 
-      const catSchema = oas.get('#/components/schemas/Cat') as OpenAPIV3.SchemaObject
-      const dogSchema = oas.get('#/components/schemas/Dog') as OpenAPIV3.SchemaObject
-      const catTypeProperty = catSchema.properties?.type as OpenAPIV3.SchemaObject | undefined
-      const dogTypeProperty = dogSchema.properties?.type as OpenAPIV3.SchemaObject | undefined
+    const catSchema = oas.get<SchemaObject>('#/components/schemas/Cat')
+    const dogSchema = oas.get<SchemaObject>('#/components/schemas/Dog')
+    const catTypeProperty = catSchema?.properties?.type as SchemaObject | undefined
+    const dogTypeProperty = dogSchema?.properties?.type as SchemaObject | undefined
 
-      expect(catTypeProperty?.enum).toBeUndefined()
-      expect(dogTypeProperty?.enum).toBeUndefined()
-      expect(catSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
-      expect(dogSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
-    })
+    expect(catTypeProperty?.enum).toBeUndefined()
+    expect(dogTypeProperty?.enum).toBeUndefined()
+    expect(catSchema?.required).toMatchInlineSnapshot(`
+      [
+        "type",
+      ]
+    `)
+    expect(dogSchema?.required).toMatchInlineSnapshot(`
+      [
+        "type",
+      ]
+    `)
   })
 
   describe('getDiscriminator', () => {
     test('handles inline schemas with extension properties as discriminator values', () => {
-      const discriminatorSpec: OpenAPIV3.Document = {
+      const document: Document = {
         openapi: '3.1.0',
         info: {
           title: 'Inline Discriminator with Extension',
@@ -209,7 +192,7 @@ describe('discriminator', () => {
                           },
                         },
                       },
-                    } as any,
+                    },
                     {
                       type: 'array',
                       title: 'Stats Unavailable',
@@ -217,18 +200,18 @@ describe('discriminator', () => {
                       items: {
                         type: 'string',
                       },
-                    } as any,
+                    },
                   ],
-                } as any,
+                },
               },
             },
           },
         },
-      }
+      } as unknown as Document
 
-      const oas = new Oas({ oas: discriminatorSpec })
-      const testDataSchema = oas.get('#/components/schemas/TestData') as OpenAPIV3.SchemaObject
-      const dataProperty = testDataSchema.properties?.data as OpenAPIV3.SchemaObject
+      const oas = new Oas(document)
+      const schema = oas.get<SchemaObject>('#/components/schemas/TestData')
+      const dataProperty = schema?.properties?.data as SchemaObject
 
       const discriminator = oas.getDiscriminator(dataProperty)
 
@@ -240,7 +223,7 @@ describe('discriminator', () => {
     })
 
     test('handles inline schemas with const values as discriminator', () => {
-      const discriminatorSpec: OpenAPIV3.Document = {
+      const document: Document = {
         openapi: '3.1.0',
         info: {
           title: 'Inline Discriminator with Const',
@@ -279,15 +262,15 @@ describe('discriminator', () => {
                   },
                 },
               ],
-            } as any,
+            },
           },
         },
       }
 
-      const oas = new Oas({ oas: discriminatorSpec })
-      const petSchema = oas.get('#/components/schemas/Pet') as OpenAPIV3.SchemaObject
+      const oas = new Oas(document)
+      const schema = oas.get<SchemaObject>('#/components/schemas/Pet')
 
-      const discriminator = oas.getDiscriminator(petSchema)
+      const discriminator = oas.getDiscriminator(schema!)
 
       expect(discriminator).toBeDefined()
       expect(discriminator?.propertyName).toBe('petType')
@@ -297,7 +280,7 @@ describe('discriminator', () => {
     })
 
     test('handles mixed ref and inline schemas', () => {
-      const discriminatorSpec = {
+      const document: Document = {
         openapi: '3.1.0',
         info: {
           title: 'Mixed Discriminator',
@@ -334,12 +317,12 @@ describe('discriminator', () => {
             },
           },
         },
-      } as OpenAPIV3_1.Document
+      }
 
-      const oas = new Oas({ oas: discriminatorSpec })
-      const animalSchema = oas.get('#/components/schemas/Animal')
+      const oas = new Oas(document)
+      const schema = oas.get('#/components/schemas/Animal')
 
-      const discriminator = oas.getDiscriminator(animalSchema)
+      const discriminator = oas.getDiscriminator(schema!)
 
       expect(discriminator).toBeDefined()
       expect(discriminator?.propertyName).toBe('type')
@@ -349,7 +332,7 @@ describe('discriminator', () => {
     })
 
     test('handles Linode API pattern with mixed object and array types', () => {
-      const discriminatorSpec: OpenAPIV3.Document = {
+      const document: Document = {
         openapi: '3.1.0',
         info: {
           title: 'Linode Discriminator',
@@ -378,7 +361,7 @@ describe('discriminator', () => {
                           },
                         },
                       },
-                    } as any,
+                    },
                     {
                       type: 'array',
                       title: 'Stats unavailable',
@@ -386,18 +369,18 @@ describe('discriminator', () => {
                       items: {
                         type: 'string',
                       },
-                    } as any,
+                    },
                   ],
-                } as any,
+                },
               },
             },
           },
         },
-      }
+      } as unknown as Document
 
-      const oas = new Oas({ oas: discriminatorSpec })
-      const testDataSchema = oas.get('#/components/schemas/TestData') as OpenAPIV3.SchemaObject
-      const dataProperty = testDataSchema.properties?.data as OpenAPIV3.SchemaObject
+      const oas = new Oas(document)
+      const schema = oas.get<SchemaObject>('#/components/schemas/TestData')
+      const dataProperty = schema?.properties?.data as SchemaObject
 
       const discriminator = oas.getDiscriminator(dataProperty)
 
@@ -409,7 +392,7 @@ describe('discriminator', () => {
     })
 
     test('handles discriminator without explicit mapping - infers from schema names', () => {
-      const discriminatorSpec: OpenAPIV3.Document = {
+      const document: Document = {
         openapi: '3.0.3',
         info: {
           title: 'Discriminator No Mapping',
@@ -446,10 +429,10 @@ describe('discriminator', () => {
         },
       }
 
-      const oas = new Oas({ oas: discriminatorSpec })
-      const animalSchema = oas.get('#/components/schemas/Animal') as OpenAPIV3.SchemaObject
+      const oas = new Oas(document)
+      const schema = oas.get<SchemaObject>('#/components/schemas/Animal')
 
-      const discriminator = oas.getDiscriminator(animalSchema)
+      const discriminator = oas.getDiscriminator(schema)
 
       expect(discriminator).toBeDefined()
       expect(discriminator?.propertyName).toBe('petType')
@@ -460,7 +443,7 @@ describe('discriminator', () => {
     })
 
     test('handles discriminator with anyOf', () => {
-      const discriminatorSpec: OpenAPIV3.Document = {
+      const document: Document = {
         openapi: '3.1.0',
         info: {
           title: 'Discriminator with anyOf',
@@ -499,10 +482,10 @@ describe('discriminator', () => {
         },
       }
 
-      const oas = new Oas({ oas: discriminatorSpec })
-      const petSchema = oas.get('#/components/schemas/Pet') as OpenAPIV3.SchemaObject
+      const oas = new Oas(document)
+      const schema = oas.get<SchemaObject>('#/components/schemas/Pet')
 
-      const discriminator = oas.getDiscriminator(petSchema)
+      const discriminator = oas.getDiscriminator(schema)
 
       expect(discriminator).toBeDefined()
       expect(discriminator?.propertyName).toBe('type')
@@ -511,7 +494,7 @@ describe('discriminator', () => {
     })
 
     test('handles discriminator with title fallback for inline schemas', () => {
-      const discriminatorSpec: OpenAPIV3.Document = {
+      const document: Document = {
         openapi: '3.1.0',
         info: {
           title: 'Discriminator Title Fallback',
@@ -532,7 +515,7 @@ describe('discriminator', () => {
                     status: { type: 'string' },
                     data: { type: 'object' },
                   },
-                } as any,
+                },
                 {
                   type: 'object',
                   title: 'Error',
@@ -540,17 +523,17 @@ describe('discriminator', () => {
                     status: { type: 'string' },
                     error: { type: 'string' },
                   },
-                } as any,
+                },
               ],
-            } as any,
+            },
           },
         },
       }
 
-      const oas = new Oas({ oas: discriminatorSpec })
-      const responseSchema = oas.get('#/components/schemas/Response') as OpenAPIV3.SchemaObject
+      const oas = new Oas(document)
+      const schema = oas.get<SchemaObject>('#/components/schemas/Response')
 
-      const discriminator = oas.getDiscriminator(responseSchema)
+      const discriminator = oas.getDiscriminator(schema)
 
       expect(discriminator).toBeDefined()
       expect(discriminator?.propertyName).toBe('status')
@@ -560,7 +543,7 @@ describe('discriminator', () => {
     })
 
     test('handles discriminator with single-value enum', () => {
-      const discriminatorSpec: OpenAPIV3.Document = {
+      const document: Document = {
         openapi: '3.0.3',
         info: {
           title: 'Discriminator Enum',
@@ -597,10 +580,10 @@ describe('discriminator', () => {
         },
       }
 
-      const oas = new Oas({ oas: discriminatorSpec })
-      const animalSchema = oas.get('#/components/schemas/Animal') as OpenAPIV3.SchemaObject
+      const oas = new Oas(document)
+      const schema = oas.get<SchemaObject>('#/components/schemas/Animal')
 
-      const discriminator = oas.getDiscriminator(animalSchema)
+      const discriminator = oas.getDiscriminator(schema)
 
       expect(discriminator).toBeDefined()
       expect(discriminator?.propertyName).toBe('petType')
@@ -611,7 +594,7 @@ describe('discriminator', () => {
   })
 })
 
-describe('flattenSchema', () => {
+describe('[oas] flattenSchema', () => {
   test('merges non-structural allOf fragments for OpenAPI 3.0', () => {
     const schema = {
       type: 'string',
@@ -619,13 +602,11 @@ describe('flattenSchema', () => {
     } as SchemaObject
 
     const oas = new Oas({
-      oas: {
-        openapi: '3.0.3',
-        info: { title: 'Flatten', version: '1.0.0' },
-        paths: {},
-        components: { schemas: { Example: schema } },
-      },
-    })
+      openapi: '3.0.3',
+      info: { title: 'Flatten', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { Example: schema } },
+    } as Document)
 
     const flattened = oas.flattenSchema(schema)
 
@@ -645,13 +626,11 @@ describe('flattenSchema', () => {
     } as SchemaObject
 
     const oas = new Oas({
-      oas: {
-        openapi: '3.1.0',
-        info: { title: 'Flatten 3.1', version: '1.0.0' },
-        paths: {},
-        components: { schemas: { Example: schema } },
-      },
-    })
+      openapi: '3.1.0',
+      info: { title: 'Flatten 3.1', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { Example: schema } },
+    } as Document)
 
     const flattened = oas.flattenSchema(schema)
 
@@ -671,13 +650,11 @@ describe('flattenSchema', () => {
     } as SchemaObject
 
     const oas = new Oas({
-      oas: {
-        openapi: '3.1.0',
-        info: { title: 'Flatten 3.1 structural', version: '1.0.0' },
-        paths: {},
-        components: { schemas: { Example: schema } },
-      },
-    })
+      openapi: '3.1.0',
+      info: { title: 'Flatten 3.1 structural', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { Example: schema } },
+    } as Document)
 
     const flattened = oas.flattenSchema(schema)
 
@@ -695,21 +672,19 @@ describe('flattenSchema', () => {
     } as SchemaObject
 
     const oas = new Oas({
-      oas: {
-        openapi: '3.0.3',
-        info: { title: 'Flatten refs', version: '1.0.0' },
-        paths: {},
-        components: {
-          schemas: {
-            PhoneNumber: {
-              type: 'string',
-              maxLength: 30,
-            },
-            PhoneWithMaxLength: schema,
+      openapi: '3.0.3',
+      info: { title: 'Flatten refs', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          PhoneNumber: {
+            type: 'string',
+            maxLength: 30,
           },
+          PhoneWithMaxLength: schema,
         },
       },
-    })
+    } as Document)
 
     const flattened = oas.flattenSchema(schema)
 
@@ -719,9 +694,9 @@ describe('flattenSchema', () => {
   })
 })
 
-describe('getParametersSchema with explode and style form', () => {
+describe('[oas] getParametersSchema with explode and style form', () => {
   test('flattens object with additionalProperties when explode=true and style=form', () => {
-    const spec: OpenAPIV3.Document = {
+    const document: Document = {
       openapi: '3.0.3',
       info: {
         title: 'Test API',
@@ -760,7 +735,7 @@ describe('getParametersSchema with explode and style form', () => {
       },
     }
 
-    const oas = new Oas({ oas: spec })
+    const oas = new Oas(document)
     const operation = oas.operation('/systems', 'get')
     const querySchema = oas.getParametersSchema(operation, 'query')
 
@@ -772,7 +747,7 @@ describe('getParametersSchema with explode and style form', () => {
   })
 
   test('does not flatten object with properties when explode=true', () => {
-    const spec: OpenAPIV3.Document = {
+    const document: Document = {
       openapi: '3.0.3',
       info: {
         title: 'Test API',
@@ -807,7 +782,7 @@ describe('getParametersSchema with explode and style form', () => {
       },
     }
 
-    const oas = new Oas({ oas: spec })
+    const oas = new Oas(document)
     const operation = oas.operation('/systems', 'get')
     const querySchema = oas.getParametersSchema(operation, 'query')
 
@@ -824,7 +799,7 @@ describe('getParametersSchema with explode and style form', () => {
   })
 
   test('does not flatten when explode=false', () => {
-    const spec: OpenAPIV3.Document = {
+    const document: Document = {
       openapi: '3.0.3',
       info: {
         title: 'Test API',
@@ -858,7 +833,7 @@ describe('getParametersSchema with explode and style form', () => {
       },
     }
 
-    const oas = new Oas({ oas: spec })
+    const oas = new Oas(document)
     const operation = oas.operation('/systems', 'get')
     const querySchema = oas.getParametersSchema(operation, 'query')
 
@@ -872,7 +847,7 @@ describe('getParametersSchema with explode and style form', () => {
   })
 
   test('handles multiple parameters with one exploded additionalProperties', () => {
-    const spec: OpenAPIV3.Document = {
+    const document: Document = {
       openapi: '3.0.3',
       info: {
         title: 'Test API',
@@ -923,7 +898,7 @@ describe('getParametersSchema with explode and style form', () => {
       },
     }
 
-    const oas = new Oas({ oas: spec })
+    const oas = new Oas(document)
     const operation = oas.operation('/systems', 'get')
     const querySchema = oas.getParametersSchema(operation, 'query')
 

@@ -81,7 +81,7 @@ export type Options = {
      * TODO TODO add docs
      * @beta
      */
-    schema?: (props: { schema?: SchemaObject; name?: string; parentName?: string }, defaultSchemas: Schema[]) => Schema[] | undefined
+    schema?: (props: { schema: SchemaObject | null; name: string | null; parentName: string | null }, defaultSchemas: Schema[]) => Schema[] | undefined
   }
   /**
    * Define some generators next to the faker generators

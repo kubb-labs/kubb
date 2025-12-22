@@ -1091,9 +1091,6 @@ importers:
       '@redocly/openapi-core':
         specifier: ^2.14.0
         version: 2.14.0(ajv@8.17.1)
-      hotscript:
-        specifier: ^1.0.13
-        version: 1.0.13
       json-schema-to-ts:
         specifier: ^3.1.1
         version: 3.1.1
@@ -1115,9 +1112,6 @@ importers:
       swagger2openapi:
         specifier: ^7.0.8
         version: 7.0.8(encoding@0.1.13)
-      ts-toolbelt:
-        specifier: ^9.6.0
-        version: 9.6.0
     devDependencies:
       '@stoplight/yaml':
         specifier: ^4.3.0
@@ -5224,9 +5218,6 @@ packages:
   hookable@6.0.1:
     resolution: {integrity: sha512-uKGyY8BuzN/a5gvzvA+3FVWo0+wUjgtfSdnmjtrOVwQCZPHpHDH2WRO3VZSOeluYrHoDCiXFffZXs8Dj1ULWtw==}
 
-  hotscript@1.0.13:
-    resolution: {integrity: sha512-C++tTF1GqkGYecL+2S1wJTfoH6APGAsbb7PAWQ3iVIwgG/EFseAfEVOKFgAFq4yK3+6j1EjUD4UQ9dRJHX/sSQ==}
-
   htm@3.1.1:
     resolution: {integrity: sha512-983Vyg8NwUE7JkZ6NmOqpCZ+sh1bKv2iYTlUkzlWmA5JD2acKoxd4KVxbMmxX/85mtfdnDmTFoNKcg5DGAvxNQ==}
 
@@ -7432,9 +7423,6 @@ packages:
         optional: true
       '@swc/wasm':
         optional: true
-
-  ts-toolbelt@9.6.0:
-    resolution: {integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==}
 
   tsconfck@3.1.6:
     resolution: {integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==}
@@ -12243,8 +12231,6 @@ snapshots:
 
   hookable@6.0.1: {}
 
-  hotscript@1.0.13: {}
-
   htm@3.1.1: {}
 
   html-escaper@2.0.2: {}
@@ -14931,8 +14917,6 @@ snapshots:
       typescript: 5.9.3
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
-
-  ts-toolbelt@9.6.0: {}
 
   tsconfck@3.1.6(typescript@5.9.3):
     optionalDependencies:

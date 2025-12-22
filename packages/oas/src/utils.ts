@@ -2,14 +2,14 @@ import path from 'node:path'
 import type { Config } from '@kubb/core'
 import { URLPath } from '@kubb/core/utils'
 import yaml from '@stoplight/yaml'
-import type * as OasTypes from 'oas/types'
-import type { OASDocument, ParameterObject, SchemaObject } from 'oas/types'
+import type { ParameterObject, SchemaObject } from 'oas/types'
 import { isRef, isSchema } from 'oas/types'
 import OASNormalize from 'oas-normalize'
-import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject, mergeDeep } from 'remeda'
 import swagger2openapi from 'swagger2openapi'
 import { Oas } from './Oas.ts'
+import type { Document } from './types.ts'
 
 export const STRUCTURAL_KEYS = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'])
 
@@ -81,7 +81,7 @@ export function isOptional(schema?: SchemaObject): boolean {
 }
 
 export async function parse(
-  pathOrApi: string | OASDocument,
+  pathOrApi: string | Document,
   { oasClass = Oas, canBundle = true, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
 ): Promise<Oas> {
   const { loadConfig, bundle } = await import('@redocly/openapi-core')
@@ -98,20 +98,20 @@ export async function parse(
     enablePaths,
     colorizeErrors: true,
   })
-  const document = (await oasNormalize.load()) as OpenAPI.Document
+  const document = (await oasNormalize.load()) as Document
 
   if (isOpenApiV2Document(document)) {
     const { openapi } = await swagger2openapi.convertObj(document, {
       anchors: true,
     })
 
-    return new oasClass({ oas: openapi as OASDocument })
+    return new oasClass(openapi as Document)
   }
 
-  return new oasClass({ oas: document })
+  return new oasClass(document)
 }
 
-export async function merge(pathOrApi: Array<string | OASDocument>, { oasClass = Oas }: { oasClass?: typeof Oas } = {}): Promise<Oas> {
+export async function merge(pathOrApi: Array<string | Document>, { oasClass = Oas }: { oasClass?: typeof Oas } = {}): Promise<Oas> {
   const instances = await Promise.all(pathOrApi.map((p) => parse(p, { oasClass, enablePaths: false, canBundle: false })))
 
   if (instances.length === 0) {
@@ -120,7 +120,7 @@ export async function merge(pathOrApi: Array<string | OASDocument>, { oasClass =
 
   const merged = instances.reduce(
     (acc, current) => {
-      return mergeDeep(acc, current.document as OASDocument)
+      return mergeDeep(acc, current.document as Document)
     },
     {
       openapi: '3.0.0',
@@ -141,7 +141,7 @@ export async function merge(pathOrApi: Array<string | OASDocument>, { oasClass =
 export function parseFromConfig(config: Config, oasClass: typeof Oas = Oas): Promise<Oas> {
   if ('data' in config.input) {
     if (typeof config.input.data === 'object') {
-      const api: OasTypes.OASDocument = structuredClone(config.input.data) as OasTypes.OASDocument
+      const api: Document = structuredClone(config.input.data) as Document
       return parse(api, { oasClass })
     }
 

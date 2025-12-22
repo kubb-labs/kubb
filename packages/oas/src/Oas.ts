@@ -1,12 +1,8 @@
 import jsonpointer from 'jsonpointer'
 import BaseOas from 'oas'
-import type { Operation } from 'oas/operation'
-import type { MediaTypeObject, OASDocument, ResponseObject, SchemaObject, User } from 'oas/types'
+
 import { matchesMimeType } from 'oas/utils'
-import OASNormalize from 'oas-normalize'
-import type { OpenAPIV3 } from 'openapi-types'
-import type { OasTypes } from './index.ts'
-import type { contentType } from './types.ts'
+import type { contentType, DiscriminatorObject, Document, MediaTypeObject, Operation, ReferenceObject, ResponseObject, SchemaObject } from './types.ts'
 import { isDiscriminator, isReference, STRUCTURAL_KEYS } from './utils.ts'
 
 type Options = {
@@ -14,20 +10,16 @@ type Options = {
   discriminator?: 'strict' | 'inherit'
 }
 
-export class Oas<const TOAS = unknown> extends BaseOas {
+export class Oas extends BaseOas {
   #options: Options = {
     discriminator: 'strict',
   }
-  document: TOAS = undefined as unknown as TOAS
+  document: Document
 
-  constructor({ oas, user }: { oas: TOAS | OASDocument | string; user?: User }) {
-    if (typeof oas === 'string') {
-      oas = JSON.parse(oas)
-    }
+  constructor(document: Document) {
+    super(document, undefined)
 
-    super(oas as OASDocument, user)
-
-    this.document = oas as TOAS
+    this.document = document
   }
 
   setOptions(options: Options) {
@@ -45,7 +37,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     return this.#options
   }
 
-  get($ref: string): any | null {
+  get<T = unknown>($ref: string): T | null {
     const origRef = $ref
     $ref = $ref.trim()
     if ($ref === '') {
@@ -80,13 +72,13 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     }
   }
 
-  #setDiscriminator(schema: OasTypes.SchemaObject & { discriminator: OpenAPIV3.DiscriminatorObject }): void {
+  #setDiscriminator(schema: SchemaObject & { discriminator: DiscriminatorObject }): void {
     const { mapping = {}, propertyName } = schema.discriminator
 
     if (this.#options.discriminator === 'inherit') {
       Object.entries(mapping).forEach(([mappingKey, mappingValue]) => {
         if (mappingValue) {
-          const childSchema = this.get(mappingValue)
+          const childSchema = this.get<any>(mappingValue)
           if (!childSchema) {
             return
           }
@@ -113,9 +105,9 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     }
   }
 
-  getDiscriminator(schema: OasTypes.SchemaObject): OpenAPIV3.DiscriminatorObject | undefined {
-    if (!isDiscriminator(schema)) {
-      return undefined
+  getDiscriminator(schema: SchemaObject | null): DiscriminatorObject | null {
+    if (!isDiscriminator(schema) || !schema) {
+      return null
     }
 
     const { mapping = {}, propertyName } = schema.discriminator
@@ -128,29 +120,33 @@ export class Oas<const TOAS = unknown> extends BaseOas {
      * 3. Property with single enum value
      * 4. Title as fallback
      */
-    const getDiscriminatorValue = (schemaObj: SchemaObject): string | undefined => {
+    const getDiscriminatorValue = (schema: SchemaObject | null): string | null => {
+      if (!schema) {
+        return null
+      }
+
       // Check extension properties first (e.g., x-linode-ref-name)
       // Only check if propertyName starts with 'x-' to avoid conflicts with standard properties
       if (propertyName.startsWith('x-')) {
-        const extensionValue = (schemaObj as Record<string, unknown>)[propertyName]
+        const extensionValue = (schema as Record<string, unknown>)[propertyName]
         if (extensionValue && typeof extensionValue === 'string') {
           return extensionValue
         }
       }
 
       // Check if property has const value
-      const propertySchema = schemaObj.properties?.[propertyName] as SchemaObject
-      if ('const' in propertySchema && propertySchema?.const !== undefined) {
+      const propertySchema = schema.properties?.[propertyName] as SchemaObject
+      if (propertySchema && 'const' in propertySchema && propertySchema.const !== undefined) {
         return String(propertySchema.const)
       }
 
       // Check if property has single enum value
-      if (propertySchema?.enum?.length === 1) {
+      if (propertySchema && propertySchema.enum?.length === 1) {
         return String(propertySchema.enum[0])
       }
 
       // Fallback to title if available
-      return schemaObj.title
+      return schema.title || null
     }
 
     /**
@@ -164,7 +160,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
           const key = this.getKey(schemaItem.$ref)
 
           try {
-            const refSchema: OpenAPIV3.SchemaObject = this.get(schemaItem.$ref)
+            const refSchema = this.get<SchemaObject>(schemaItem.$ref)
             const discriminatorValue = getDiscriminatorValue(refSchema)
             const canAdd = key && !Object.values(existingMapping).includes(schemaItem.$ref)
 
@@ -181,7 +177,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
           }
         } else {
           // Handle inline schema case
-          const inlineSchema = schemaItem as OpenAPIV3.SchemaObject
+          const inlineSchema = schemaItem as SchemaObject
           const discriminatorValue = getDiscriminatorValue(inlineSchema)
 
           if (discriminatorValue) {
@@ -210,7 +206,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
   }
 
   // TODO add better typing
-  dereferenceWithRef(schema?: unknown) {
+  dereferenceWithRef<T = unknown>(schema?: T): T {
     if (isReference(schema)) {
       return {
         ...schema,
@@ -219,7 +215,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       }
     }
 
-    return schema
+    return schema as T
   }
 
   #applyDiscriminatorInheritance() {
@@ -246,17 +242,17 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       }
     }
 
-    const visit = (schema?: SchemaObject | OpenAPIV3.ReferenceObject | null) => {
+    const visit = (schema?: SchemaObject | ReferenceObject | null) => {
       if (!schema || typeof schema !== 'object') {
         return
       }
 
       if (isReference(schema)) {
-        visit(this.get(schema.$ref) as OpenAPIV3.SchemaObject)
+        visit(this.get(schema.$ref) as SchemaObject)
         return
       }
 
-      const schemaObject = schema as OpenAPIV3.SchemaObject
+      const schemaObject = schema as SchemaObject
 
       if (visited.has(schemaObject as object)) {
         return
@@ -365,7 +361,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
         const $ref = isReference(schema) ? schema.$ref : undefined
 
         if (schema && $ref) {
-          operation.schema.responses![key] = this.get($ref)
+          operation.schema.responses![key] = this.get<any>($ref)
         }
       })
     }
@@ -428,8 +424,11 @@ export class Oas<const TOAS = unknown> extends BaseOas {
 
     return params.reduce(
       (schema, pathParameters) => {
-        const property = pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as SchemaObject)
-        const required = [...(schema.required || []), pathParameters.required ? pathParameters.name : undefined].filter(Boolean)
+        const property = (pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as SchemaObject)) as SchemaObject | null
+        const required =
+          typeof schema.required === 'boolean'
+            ? schema.required
+            : [...(schema.required || []), pathParameters.required ? pathParameters.name : undefined].filter(Boolean)
 
         // Handle explode=true with style=form for object with additionalProperties
         // According to OpenAPI spec, when explode is true, object properties are flattened
@@ -458,7 +457,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
             deprecated: schema.deprecated,
             example: property.example || schema.example,
             additionalProperties: property.additionalProperties,
-          }
+          } as SchemaObject
         }
 
         return {
@@ -474,13 +473,14 @@ export class Oas<const TOAS = unknown> extends BaseOas {
               ...property,
             },
           },
-        }
+        } as SchemaObject
       },
       { type: 'object', required: [], properties: {} } as SchemaObject,
     )
   }
 
   async valdiate() {
+    const OASNormalize = await import('oas-normalize').then((m) => m.default)
     const oasNormalize = new OASNormalize(this.api, {
       enablePaths: true,
       colorizeErrors: true,
@@ -497,9 +497,9 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     })
   }
 
-  flattenSchema(schema?: SchemaObject): SchemaObject | undefined {
+  flattenSchema(schema: SchemaObject | null): SchemaObject | null {
     if (!schema?.allOf || schema.allOf.length === 0) {
-      return schema
+      return schema || null
     }
 
     // Never touch ref-based or structural composition
