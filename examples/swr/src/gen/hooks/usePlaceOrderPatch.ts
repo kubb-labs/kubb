@@ -20,7 +20,9 @@ export type PlaceOrderPatchMutationKey = ReturnType<typeof placeOrderPatchMutati
  */
 export async function placeOrderPatch(
   data?: PlaceOrderPatchMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
@@ -35,7 +37,9 @@ export async function placeOrderPatch(
   return res.data
 }
 
-export type PlaceOrderPatchMutationArg = { data?: PlaceOrderPatchMutationRequest }
+export type PlaceOrderPatchMutationArg = {
+  data?: PlaceOrderPatchMutationRequest
+}
 
 /**
  * @description Place a new order in the store with patch
@@ -50,7 +54,9 @@ export function usePlaceOrderPatch(
       PlaceOrderPatchMutationKey | null,
       PlaceOrderPatchMutationArg
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
+      client?: typeof fetch
+    }
     shouldFetch?: boolean
   } = {},
 ) {

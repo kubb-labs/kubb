@@ -49,7 +49,9 @@ function getPlaceOrderUrl() {
  */
 export async function placeOrder(
   data?: PlaceOrderMutationRequestType,
-  config: Partial<RequestConfig<PlaceOrderMutationRequestType>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<PlaceOrderMutationRequestType>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
@@ -76,7 +78,9 @@ function getPlaceOrderPatchUrl() {
  */
 export async function placeOrderPatch(
   data?: PlaceOrderPatchMutationRequestType,
-  config: Partial<RequestConfig<PlaceOrderPatchMutationRequestType>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<PlaceOrderPatchMutationRequestType>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 

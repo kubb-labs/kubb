@@ -271,7 +271,7 @@ components:
           type: integer
         message:
           type: string
-    
+
     Pet:
       type: object
       required: ['id', 'name']
@@ -295,6 +295,207 @@ components:
         petType:
           type: string
 ```
+
+### Discriminators
+
+Kubb provides comprehensive support for OpenAPI discriminators, which are used to handle polymorphism and union types in your API schemas. Discriminators help differentiate between multiple possible schemas in `oneOf` or `anyOf` constructs.
+
+#### Supported Discriminator Patterns
+
+Kubb supports all discriminator patterns from **OpenAPI 3.0** and **OpenAPI 3.1** specifications:
+
+**OpenAPI 3.0 Patterns:**
+- ✅ With explicit mapping
+- ✅ Without mapping (inferred from schema names)
+- ✅ With `oneOf`
+- ✅ With `anyOf`
+- ✅ Strict vs Inherit modes
+
+**OpenAPI 3.1 Patterns:**
+- ✅ With `$ref` in `oneOf`/`anyOf`
+- ✅ Enhanced polymorphism support
+
+**Edge Cases:**
+- ✅ Inline schemas (not just `$ref`)
+- ✅ Extension properties (e.g., `x-custom-name`)
+- ✅ Const values
+- ✅ Single-value enums
+- ✅ Mixed `$ref` and inline schemas
+- ✅ Title fallback
+- ✅ Mixed types in `oneOf` (with extension properties)
+
+#### Discriminator with Explicit Mapping
+
+The most common pattern uses explicit mapping to connect discriminator values to specific schemas:
+
+```yaml
+components:
+  schemas:
+    Pet:
+      type: object
+      required: [petType]
+      discriminator:
+        propertyName: petType
+        mapping:
+          cat: '#/components/schemas/Cat'
+          dog: '#/components/schemas/Dog'
+      oneOf:
+        - $ref: '#/components/schemas/Cat'
+        - $ref: '#/components/schemas/Dog'
+
+    Cat:
+      type: object
+      properties:
+        petType:
+          type: string
+          enum: [cat]
+        meow:
+          type: boolean
+
+    Dog:
+      type: object
+      properties:
+        petType:
+          type: string
+          enum: [dog]
+        bark:
+          type: boolean
+```
+
+This generates proper TypeScript union types with discriminated unions for type narrowing.
+
+#### Discriminator Without Mapping
+
+When no explicit mapping is provided, Kubb infers the mapping from schema names:
+
+```yaml
+components:
+  schemas:
+    Animal:
+      discriminator:
+        propertyName: animalType
+      oneOf:
+        - $ref: '#/components/schemas/Cat'
+        - $ref: '#/components/schemas/Dog'
+```
+
+Kubb automatically creates mapping:
+```
+{
+  Cat: '#/components/schemas/Cat',
+  Dog: '#/components/schemas/Dog'
+}
+```
+
+#### Discriminator with Inline Schemas
+
+Kubb supports discriminators with inline schemas (not just `$ref`):
+
+```yaml
+components:
+  schemas:
+    Response:
+      discriminator:
+        propertyName: status
+      oneOf:
+        - type: object
+          title: Success
+          properties:
+            status:
+              type: string
+              const: success
+            data:
+              type: object
+        - type: object
+          title: Error
+          properties:
+            status:
+              type: string
+              const: error
+            message:
+              type: string
+```
+
+For inline schemas, Kubb creates synthetic references and uses the `const` value or `title` for discriminator mapping.
+
+#### Discriminator with Extension Properties
+
+When using extension properties as discriminator property names (properties starting with `x-`):
+
+```yaml
+components:
+  schemas:
+    Data:
+      discriminator:
+        propertyName: x-custom-type  # Extension property
+      oneOf:
+        - type: object
+          x-custom-type: TypeA
+          properties:
+            field1:
+              type: string
+        - type: object
+          x-custom-type: TypeB
+          properties:
+            field2:
+              type: number
+```
+
+Extension properties are treated as metadata and don't generate runtime validation constraints, but they still enable proper union type generation.
+
+#### Discriminator Modes
+
+Kubb supports two modes for discriminator handling:
+
+**Strict Mode (default):**
+```typescript
+import { pluginOas } from '@kubb/plugin-oas'
+
+pluginOas({
+  discriminator: 'strict', // Default
+})
+```
+
+In strict mode, the discriminator property is not automatically added to child schemas.
+
+**Inherit Mode:**
+```typescript
+import { pluginOas } from '@kubb/plugin-oas'
+
+pluginOas({
+  discriminator: 'inherit',
+})
+```
+
+In inherit mode, Kubb automatically adds the discriminator property with appropriate enum values to each child schema, ensuring type safety.
+
+#### Best Practices for Discriminators
+
+1. **Use consistent discriminator property names** across your API (e.g., always use `type` or `kind`)
+
+2. **Provide explicit mapping** when using custom discriminator values
+
+3. **Use const or single-value enum** for the discriminator property in child schemas:
+
+```yaml
+Cat:
+  properties:
+    petType:
+      const: cat  # Preferred for discriminator values
+```
+
+4. **Ensure all oneOf/anyOf members share the same base type** when possible (all objects or all arrays, not mixed)
+
+5. **Use standard properties (not extensions)** when runtime validation is needed
+
+6. **Document the discriminator** in your schema description for API consumers
+
+#### Known Limitations
+
+- **Extension property discriminators**: When the discriminator property name is an extension (starts with `x-`), it's treated as metadata only and doesn't generate runtime validation constraints
+- **Mixed types**: While technically supported (e.g., mixing object and array types in oneOf), it's not recommended per OpenAPI spec and may produce unexpected results with validation libraries
+
+For more information about discriminators, see the [OpenAPI Specification](https://spec.openapis.org/oas/latest.html#discriminator-object).
 
 5. **Array of enums**: When defining arrays with enum values, place the `enum` inside the `items` schema, not at the array level:
 

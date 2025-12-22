@@ -84,7 +84,9 @@ export function useUpdatePetWithFormHook<
       ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
+  ) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & {
+    queryKey: TQueryKey
+  }
 
   query.queryKey = queryKey as TQueryKey
 

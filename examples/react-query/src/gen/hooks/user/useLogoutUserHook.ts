@@ -56,7 +56,9 @@ export function useLogoutUserHook<TData = LogoutUserQueryResponse, TQueryData = 
       ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
+  ) as UseQueryResult<TData, ResponseErrorConfig<Error>> & {
+    queryKey: TQueryKey
+  }
 
   query.queryKey = queryKey as TQueryKey
 

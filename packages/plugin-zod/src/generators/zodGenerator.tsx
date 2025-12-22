@@ -53,7 +53,10 @@ export const zodGenerator = createReactGenerator<PluginZod>({
           .map(([key]) => key)
       }
 
-      const tree = [...schemaGenerator.parse({ schemaObject, name }), optional ? { keyword: schemaKeywords.optional } : undefined].filter(Boolean)
+      const tree = [
+        ...schemaGenerator.parse({ schema: schemaObject, name, parentName: null }),
+        optional ? { keyword: schemaKeywords.optional } : undefined,
+      ].filter(Boolean)
       const imports = schemaManager.getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 

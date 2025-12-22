@@ -1,12 +1,8 @@
 import jsonpointer from 'jsonpointer'
 import BaseOas from 'oas'
-import type { Operation } from 'oas/operation'
-import type { MediaTypeObject, OASDocument, ResponseObject, SchemaObject, User } from 'oas/types'
+
 import { matchesMimeType } from 'oas/utils'
-import OASNormalize from 'oas-normalize'
-import type { OpenAPIV3 } from 'openapi-types'
-import type { OasTypes } from './index.ts'
-import type { contentType } from './types.ts'
+import type { contentType, DiscriminatorObject, Document, MediaTypeObject, Operation, ReferenceObject, ResponseObject, SchemaObject } from './types.ts'
 import { isDiscriminator, isReference, STRUCTURAL_KEYS } from './utils.ts'
 
 type Options = {
@@ -14,20 +10,16 @@ type Options = {
   discriminator?: 'strict' | 'inherit'
 }
 
-export class Oas<const TOAS = unknown> extends BaseOas {
+export class Oas extends BaseOas {
   #options: Options = {
     discriminator: 'strict',
   }
-  document: TOAS = undefined as unknown as TOAS
+  document: Document
 
-  constructor({ oas, user }: { oas: TOAS | OASDocument | string; user?: User }) {
-    if (typeof oas === 'string') {
-      oas = JSON.parse(oas)
-    }
+  constructor(document: Document) {
+    super(document, undefined)
 
-    super(oas as OASDocument, user)
-
-    this.document = oas as TOAS
+    this.document = document
   }
 
   setOptions(options: Options) {
@@ -45,11 +37,11 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     return this.#options
   }
 
-  get($ref: string) {
+  get<T = unknown>($ref: string): T | null {
     const origRef = $ref
     $ref = $ref.trim()
     if ($ref === '') {
-      return false
+      return null
     }
     if ($ref.startsWith('#')) {
       $ref = globalThis.decodeURIComponent($ref.substring(1))
@@ -80,13 +72,17 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     }
   }
 
-  #setDiscriminator(schema: OasTypes.SchemaObject & { discriminator: OpenAPIV3.DiscriminatorObject }): void {
+  #setDiscriminator(schema: SchemaObject & { discriminator: DiscriminatorObject }): void {
     const { mapping = {}, propertyName } = schema.discriminator
 
     if (this.#options.discriminator === 'inherit') {
       Object.entries(mapping).forEach(([mappingKey, mappingValue]) => {
         if (mappingValue) {
-          const childSchema = this.get(mappingValue)
+          const childSchema = this.get<any>(mappingValue)
+          if (!childSchema) {
+            return
+          }
+
           if (!childSchema.properties) {
             childSchema.properties = {}
           }
@@ -95,11 +91,12 @@ export class Oas<const TOAS = unknown> extends BaseOas {
 
           if (childSchema.properties) {
             childSchema.properties[propertyName] = {
-              ...(childSchema.properties ? childSchema.properties[propertyName] : {}),
+              ...((childSchema.properties ? childSchema.properties[propertyName] : {}) as SchemaObject),
               enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
             }
 
-            childSchema.required = [...new Set([...(childSchema.required ?? []), propertyName])]
+            childSchema.required =
+              typeof childSchema.required === 'boolean' ? childSchema.required : [...new Set([...(childSchema.required ?? []), propertyName])]
 
             this.set(mappingValue, childSchema)
           }
@@ -108,48 +105,98 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     }
   }
 
-  getDiscriminator(schema: OasTypes.SchemaObject): OpenAPIV3.DiscriminatorObject | undefined {
-    if (!isDiscriminator(schema)) {
-      return undefined
+  getDiscriminator(schema: SchemaObject | null): DiscriminatorObject | null {
+    if (!isDiscriminator(schema) || !schema) {
+      return null
     }
 
     const { mapping = {}, propertyName } = schema.discriminator
 
-    // loop over oneOf and add default mapping when none is defined
-    if (schema.oneOf) {
-      schema.oneOf.forEach((schema) => {
-        if (isReference(schema)) {
-          const key = this.getKey(schema.$ref)
-          const refSchema: OpenAPIV3.SchemaObject = this.get(schema.$ref)
-          // special case where enum in the schema is set without mapping being defined, see https://github.com/kubb-labs/kubb/issues/1669
-          const propertySchema = refSchema.properties?.[propertyName] as OpenAPIV3.SchemaObject
-          const canAdd = key && !Object.values(mapping).includes(schema.$ref)
+    /**
+     * Helper to extract discriminator value from a schema.
+     * Checks in order:
+     * 1. Extension property matching propertyName (e.g., x-linode-ref-name)
+     * 2. Property with const value
+     * 3. Property with single enum value
+     * 4. Title as fallback
+     */
+    const getDiscriminatorValue = (schema: SchemaObject | null): string | null => {
+      if (!schema) {
+        return null
+      }
 
-          if (canAdd && propertySchema?.enum?.length === 1) {
-            mapping[propertySchema.enum[0]] = schema.$ref
-          } else if (canAdd) {
-            mapping[key] = schema.$ref
+      // Check extension properties first (e.g., x-linode-ref-name)
+      // Only check if propertyName starts with 'x-' to avoid conflicts with standard properties
+      if (propertyName.startsWith('x-')) {
+        const extensionValue = (schema as Record<string, unknown>)[propertyName]
+        if (extensionValue && typeof extensionValue === 'string') {
+          return extensionValue
+        }
+      }
+
+      // Check if property has const value
+      const propertySchema = schema.properties?.[propertyName] as SchemaObject
+      if (propertySchema && 'const' in propertySchema && propertySchema.const !== undefined) {
+        return String(propertySchema.const)
+      }
+
+      // Check if property has single enum value
+      if (propertySchema && propertySchema.enum?.length === 1) {
+        return String(propertySchema.enum[0])
+      }
+
+      // Fallback to title if available
+      return schema.title || null
+    }
+
+    /**
+     * Process oneOf/anyOf items to build mapping.
+     * Handles both $ref and inline schemas.
+     */
+    const processSchemas = (schemas: Array<SchemaObject>, existingMapping: Record<string, string>) => {
+      schemas.forEach((schemaItem, index) => {
+        if (isReference(schemaItem)) {
+          // Handle $ref case
+          const key = this.getKey(schemaItem.$ref)
+
+          try {
+            const refSchema = this.get<SchemaObject>(schemaItem.$ref)
+            const discriminatorValue = getDiscriminatorValue(refSchema)
+            const canAdd = key && !Object.values(existingMapping).includes(schemaItem.$ref)
+
+            if (canAdd && discriminatorValue) {
+              existingMapping[discriminatorValue] = schemaItem.$ref
+            } else if (canAdd) {
+              existingMapping[key] = schemaItem.$ref
+            }
+          } catch (_error) {
+            // If we can't resolve the reference, skip it and use the key as fallback
+            if (key && !Object.values(existingMapping).includes(schemaItem.$ref)) {
+              existingMapping[key] = schemaItem.$ref
+            }
+          }
+        } else {
+          // Handle inline schema case
+          const inlineSchema = schemaItem as SchemaObject
+          const discriminatorValue = getDiscriminatorValue(inlineSchema)
+
+          if (discriminatorValue) {
+            // Create a synthetic ref for inline schemas using index
+            // The value points to the inline schema itself via a special marker
+            existingMapping[discriminatorValue] = `#kubb-inline-${index}`
           }
         }
       })
     }
 
-    if (schema.anyOf) {
-      schema.anyOf.forEach((schema) => {
-        if (isReference(schema)) {
-          const key = this.getKey(schema.$ref)
-          const refSchema: OpenAPIV3.SchemaObject = this.get(schema.$ref)
-          // special case where enum in the schema is set without mapping being defined, see https://github.com/kubb-labs/kubb/issues/1669
-          const propertySchema = refSchema.properties?.[propertyName] as OpenAPIV3.SchemaObject
-          const canAdd = key && !Object.values(mapping).includes(schema.$ref)
+    // Process oneOf schemas
+    if (schema.oneOf) {
+      processSchemas(schema.oneOf as Array<SchemaObject>, mapping)
+    }
 
-          if (canAdd && propertySchema?.enum?.length === 1) {
-            mapping[propertySchema.enum[0]] = schema.$ref
-          } else if (canAdd) {
-            mapping[key] = schema.$ref
-          }
-        }
-      })
+    // Process anyOf schemas
+    if (schema.anyOf) {
+      processSchemas(schema.anyOf as Array<SchemaObject>, mapping)
     }
 
     return {
@@ -159,7 +206,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
   }
 
   // TODO add better typing
-  dereferenceWithRef(schema?: unknown) {
+  dereferenceWithRef<T = unknown>(schema?: T): T {
     if (isReference(schema)) {
       return {
         ...schema,
@@ -168,7 +215,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       }
     }
 
-    return schema
+    return schema as T
   }
 
   #applyDiscriminatorInheritance() {
@@ -195,17 +242,17 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       }
     }
 
-    const visit = (schema?: SchemaObject | OpenAPIV3.ReferenceObject | null) => {
+    const visit = (schema?: SchemaObject | ReferenceObject | null) => {
       if (!schema || typeof schema !== 'object') {
         return
       }
 
       if (isReference(schema)) {
-        visit(this.get(schema.$ref) as OpenAPIV3.SchemaObject)
+        visit(this.get(schema.$ref) as SchemaObject)
         return
       }
 
-      const schemaObject = schema as OpenAPIV3.SchemaObject
+      const schemaObject = schema as SchemaObject
 
       if (visited.has(schemaObject as object)) {
         return
@@ -314,7 +361,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
         const $ref = isReference(schema) ? schema.$ref : undefined
 
         if (schema && $ref) {
-          operation.schema.responses![key] = this.get($ref)
+          operation.schema.responses![key] = this.get<any>($ref)
         }
       })
     }
@@ -377,8 +424,11 @@ export class Oas<const TOAS = unknown> extends BaseOas {
 
     return params.reduce(
       (schema, pathParameters) => {
-        const property = pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as SchemaObject)
-        const required = [...(schema.required || ([] as any)), pathParameters.required ? pathParameters.name : undefined].filter(Boolean)
+        const property = (pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as SchemaObject)) as SchemaObject | null
+        const required =
+          typeof schema.required === 'boolean'
+            ? schema.required
+            : [...(schema.required || []), pathParameters.required ? pathParameters.name : undefined].filter(Boolean)
 
         // Handle explode=true with style=form for object with additionalProperties
         // According to OpenAPI spec, when explode is true, object properties are flattened
@@ -407,7 +457,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
             deprecated: schema.deprecated,
             example: property.example || schema.example,
             additionalProperties: property.additionalProperties,
-          }
+          } as SchemaObject
         }
 
         return {
@@ -423,13 +473,14 @@ export class Oas<const TOAS = unknown> extends BaseOas {
               ...property,
             },
           },
-        }
+        } as SchemaObject
       },
       { type: 'object', required: [], properties: {} } as SchemaObject,
     )
   }
 
   async valdiate() {
+    const OASNormalize = await import('oas-normalize').then((m) => m.default)
     const oasNormalize = new OASNormalize(this.api, {
       enablePaths: true,
       colorizeErrors: true,
@@ -446,9 +497,9 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     })
   }
 
-  flattenSchema(schema?: SchemaObject): SchemaObject | undefined {
+  flattenSchema(schema: SchemaObject | null): SchemaObject | null {
     if (!schema?.allOf || schema.allOf.length === 0) {
-      return schema
+      return schema || null
     }
 
     // Never touch ref-based or structural composition
@@ -468,13 +519,12 @@ export class Oas<const TOAS = unknown> extends BaseOas {
 
     for (const fragment of schema.allOf as SchemaObject[]) {
       for (const [key, value] of Object.entries(fragment)) {
-        if ((merged as any)[key] === undefined) {
-          ;(merged as any)[key] = value
+        if (merged[key as keyof typeof merged] === undefined) {
+          merged[key as keyof typeof merged] = value
         }
       }
     }
 
-    // biome-ignore lint/suspicious/noAssignInExpressions: should not trigger this
     return merged
   }
 }

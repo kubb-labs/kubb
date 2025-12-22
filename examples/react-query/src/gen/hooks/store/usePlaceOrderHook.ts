@@ -20,7 +20,9 @@ export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
  */
 export async function placeOrderHook(
   data?: PlaceOrderMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
@@ -35,7 +37,11 @@ export async function placeOrderHook(
   return res.data
 }
 
-export function placeOrderMutationOptionsHook(config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch } = {}) {
+export function placeOrderMutationOptionsHook(
+  config: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
+) {
   const mutationKey = placeOrderMutationKey()
   return mutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, typeof mutationKey>({
     mutationKey,
@@ -55,7 +61,9 @@ export function usePlaceOrderHook<TContext>(
     mutation?: UseMutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
+      client?: typeof fetch
+    }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

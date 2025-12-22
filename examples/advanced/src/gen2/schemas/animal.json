@@ -8,7 +8,12 @@
       "type": "object",
       "required": ["indoor", "type"],
       "properties": {
-        "type": { "type": "string", "minLength": 1, "readOnly": true, "enum": ["cat"] },
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "readOnly": true,
+          "enum": ["cat"]
+        },
         "name": { "type": "string" },
         "indoor": { "type": "boolean" }
       },
@@ -20,16 +25,36 @@
       "type": "object",
       "required": ["name", "type"],
       "properties": {
-        "type": { "type": "string", "minLength": 1, "readOnly": true, "enum": ["dog"] },
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "readOnly": true,
+          "enum": ["dog"]
+        },
         "name": { "type": "string" },
-        "image": { "example": "linode/debian10", "readOnly": true, "allOf": [{ "type": "string", "nullable": true }], "x-readme-ref-name": "Image" }
+        "image": {
+          "example": "linode/debian10",
+          "readOnly": true,
+          "allOf": [{ "type": "string", "nullable": true }],
+          "x-readme-ref-name": "Image"
+        }
       },
       "additionalProperties": false,
       "x-readme-ref-name": "Dog"
     }
   ],
-  "properties": { "type": { "type": "string", "enum": ["cat", "dog"], "minLength": 1, "readOnly": true } },
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["cat", "dog"],
+      "minLength": 1,
+      "readOnly": true
+    }
+  },
   "additionalProperties": false,
-  "discriminator": { "propertyName": "type", "mapping": { "cat": "#/components/schemas/Cat", "dog": "#/components/schemas/Dog" } },
+  "discriminator": {
+    "propertyName": "type",
+    "mapping": { "cat": "#kubb-inline-0", "dog": "#kubb-inline-1" }
+  },
   "x-readme-ref-name": "Animal"
 }

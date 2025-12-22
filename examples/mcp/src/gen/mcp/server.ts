@@ -90,7 +90,10 @@ server.tool(
 server.tool(
   'findPetsByTags',
   'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
-  { headers: findPetsByTagsHeaderParamsSchema, params: findPetsByTagsQueryParamsSchema },
+  {
+    headers: findPetsByTagsHeaderParamsSchema,
+    params: findPetsByTagsQueryParamsSchema,
+  },
   async ({ headers, params }) => {
     return findPetsByTagsHandler({ headers, params })
   },
@@ -103,7 +106,10 @@ server.tool('getPetById', 'Returns a single pet', { petId: getPetByIdPathParamsS
 server.tool(
   'updatePetWithForm',
   'Make a POST request to /pet/{petId}',
-  { petId: updatePetWithFormPathParamsSchema.shape['petId'], params: updatePetWithFormQueryParamsSchema },
+  {
+    petId: updatePetWithFormPathParamsSchema.shape['petId'],
+    params: updatePetWithFormQueryParamsSchema,
+  },
   async ({ petId, params }) => {
     return updatePetWithFormHandler({ petId, params })
   },
@@ -112,7 +118,10 @@ server.tool(
 server.tool(
   'deletePet',
   'delete a pet',
-  { petId: deletePetPathParamsSchema.shape['petId'], headers: deletePetHeaderParamsSchema },
+  {
+    petId: deletePetPathParamsSchema.shape['petId'],
+    headers: deletePetHeaderParamsSchema,
+  },
   async ({ petId, headers }) => {
     return deletePetHandler({ petId, headers })
   },
@@ -180,7 +189,10 @@ server.tool('getUserByName', 'Make a GET request to /user/{username}', { usernam
 server.tool(
   'updateUser',
   'This can only be done by the logged in user.',
-  { username: updateUserPathParamsSchema.shape['username'], data: updateUserMutationRequestSchema },
+  {
+    username: updateUserPathParamsSchema.shape['username'],
+    data: updateUserMutationRequestSchema,
+  },
   async ({ username, data }) => {
     return updateUserHandler({ username, data })
   },

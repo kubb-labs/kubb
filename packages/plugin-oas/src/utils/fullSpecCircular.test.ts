@@ -1,6 +1,6 @@
 import type { Plugin, PluginManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
-import type { OasTypes } from '@kubb/oas'
+import type { OasTypes, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, it } from 'vitest'
@@ -164,13 +164,13 @@ describe('Full Spec Circular Discriminator References', () => {
 
     // Parse ACHDetailsResponse - should have a plain ref to parent, not nested and(and(...)) structure
     // The fix ensures we skip adding discriminator constraints when child extends parent via allOf
-    const achSchema = schemas?.['ACHDetailsResponse']
-    const achTree = generator.parse({ schemaObject: achSchema, name: 'ACHDetailsResponse' })
+    const achSchema = schemas?.['ACHDetailsResponse'] as SchemaObject
+    const achTree = generator.parse({ schema: achSchema, name: 'ACHDetailsResponse', parentName: null })
     expect(achTree).toMatchSnapshot('ACHDetailsResponse-tree')
 
     // Parse PaymentAccountDetailsResponse - union with discriminator constraints at this level
-    const parentSchema = schemas?.['PaymentAccountDetailsResponse']
-    const parentTree = generator.parse({ schemaObject: parentSchema, name: 'PaymentAccountDetailsResponse' })
+    const parentSchema = schemas?.['PaymentAccountDetailsResponse'] as SchemaObject
+    const parentTree = generator.parse({ schema: parentSchema, name: 'PaymentAccountDetailsResponse', parentName: null })
     expect(parentTree).toMatchSnapshot('PaymentAccountDetailsResponse-tree')
   })
 })

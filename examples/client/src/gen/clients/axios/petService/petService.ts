@@ -14,5 +14,14 @@ import { updatePetWithForm } from './updatePetWithForm.js'
 import { uploadFile } from './uploadFile.js'
 
 export function petService() {
-  return { updatePet, addPet, findPetsByStatus, findPetsByTags, getPetById, updatePetWithForm, deletePet, uploadFile }
+  return {
+    updatePet,
+    addPet,
+    findPetsByStatus,
+    findPetsByTags,
+    getPetById,
+    updatePetWithForm,
+    deletePet,
+    uploadFile,
+  }
 }

@@ -34,7 +34,12 @@ export class User {
    * @summary Create user
    * {@link /user}
    */
-  async createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {}) {
+  async createUser(
+    data?: CreateUserMutationRequest,
+    config: Partial<RequestConfig<CreateUserMutationRequest>> & {
+      client?: typeof fetch
+    } = {},
+  ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
     const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
@@ -53,7 +58,9 @@ export class User {
    */
   async createUsersWithListInput(
     data?: CreateUsersWithListInputMutationRequest,
-    config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch } = {},
+    config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
+      client?: typeof fetch
+    } = {},
   ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
@@ -113,7 +120,9 @@ export class User {
   async updateUser(
     { username }: { username: UpdateUserPathParams['username'] },
     data?: UpdateUserMutationRequest,
-    config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch } = {},
+    config: Partial<RequestConfig<UpdateUserMutationRequest>> & {
+      client?: typeof fetch
+    } = {},
   ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
