@@ -1,21 +1,16 @@
-import { createHash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
 import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import pc from 'picocolors'
 import { executeHooks } from '../utils/executeHooks.ts'
+import { generateHookId } from '../utils/generateHookId.ts'
 
 type GenerateProps = {
   input?: string
   config: Config
   events: AsyncEventEmitter<KubbEvents>
   logLevel: number
-}
-
-function generateHookId(command: string, configName?: string): string {
-  const input = [command, configName].filter(Boolean).join('::')
-  return createHash('sha256').update(input).digest('hex')
 }
 
 export async function generate({ input, config: userConfig, events, logLevel }: GenerateProps): Promise<void> {

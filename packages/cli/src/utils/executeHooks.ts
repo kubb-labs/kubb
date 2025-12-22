@@ -1,19 +1,14 @@
-import { createHash } from 'node:crypto'
 import type { Config, KubbEvents } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 
 import pc from 'picocolors'
 import { parseArgsStringToArgv } from 'string-argv'
+import { generateHookId } from './generateHookId.ts'
 
 type ExecutingHooksProps = {
   hooks: NonNullable<Config['hooks']>
   events: AsyncEventEmitter<KubbEvents>
   config: Config
-}
-
-function generateHookId(command: string, configName?: string): string {
-  const input = [command, configName].filter(Boolean).join('::')
-  return createHash('sha256').update(input).digest('hex')
 }
 
 export async function executeHooks({ hooks, events, config }: ExecutingHooksProps): Promise<void> {
