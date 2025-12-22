@@ -114,6 +114,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  /pets/pet-dict:
+    get:
+      summary: Dict for a specific pet
+      operationId: petDict
+      tags:
+        - pets
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetDict'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     Pet:
@@ -138,6 +158,18 @@ components:
         required: ['id', 'name'],
         properties: { id: { type: 'integer', format: 'int64' }, name: { type: 'string' }, tag: { type: 'string' } },
       }
+    PetDict:
+      type: object
+      required:
+        - matrix
+      title: PetDict
+      properties:
+        matrix:
+          type: object
+          title: Matrix
+          patternProperties:
+            ^pet\.\d+/type\.\d+$:
+              $ref: '#/components/schemas/MastRepEntry'
     Error:
       type: object
       required:

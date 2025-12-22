@@ -22,6 +22,12 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
+      name: 'PetDict',
+      input: '../../mocks/petStore.yaml',
+      path: 'PetDict',
+      options: {},
+    },
+    {
       name: 'PetUndefined',
       input: '../../mocks/petStore.yaml',
       path: 'Pet',
