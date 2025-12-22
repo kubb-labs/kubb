@@ -5,7 +5,7 @@ import { describe, expect, expectTypeOf, test } from 'vitest'
 import { petStore } from '../mocks/petStore.ts'
 import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './infer/index.ts'
 import { Oas } from './Oas.ts'
-import type { OpenAPIV3 } from './types.ts'
+import type { OpenAPIV3, SchemaObject } from './types.ts'
 import { parse } from './utils.ts'
 
 describe('swagger Infer', () => {
@@ -171,6 +171,114 @@ describe('discriminator inherit', () => {
     expect(dogTypeProperty?.enum).toBeUndefined()
     expect(catSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
     expect(dogSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
+  })
+})
+
+describe('flattenSchema', () => {
+  test('merges non-structural allOf fragments for OpenAPI 3.0', () => {
+    const schema = {
+      type: 'string',
+      allOf: [{ minLength: 2 }, { pattern: '^[a-z]+$' }, { description: 'letters only' }],
+    } as SchemaObject
+
+    const oas = new Oas({
+      oas: {
+        openapi: '3.0.3',
+        info: { title: 'Flatten', version: '1.0.0' },
+        paths: {},
+        components: { schemas: { Example: schema } },
+      },
+    })
+
+    const flattened = oas.flattenSchema(schema)
+
+    expect(flattened).toEqual({
+      type: 'string',
+      minLength: 2,
+      pattern: '^[a-z]+$',
+      description: 'letters only',
+    })
+    expect(flattened?.allOf).toBeUndefined()
+  })
+
+  test('merges keyword-only fragments for OpenAPI 3.1', () => {
+    const schema = {
+      type: 'number',
+      allOf: [{ minimum: 1 }, { exclusiveMaximum: 10 }, { description: 'v3.1 merge' }],
+    } as SchemaObject
+
+    const oas = new Oas({
+      oas: {
+        openapi: '3.1.0',
+        info: { title: 'Flatten 3.1', version: '1.0.0' },
+        paths: {},
+        components: { schemas: { Example: schema } },
+      },
+    })
+
+    const flattened = oas.flattenSchema(schema)
+
+    expect(flattened).toMatchObject({
+      type: 'number',
+      minimum: 1,
+      exclusiveMaximum: 10,
+      description: 'v3.1 merge',
+    })
+    expect(flattened?.allOf).toBeUndefined()
+  })
+
+  test('merges structural allOf fragments with OpenAPI 3.1 applicator keywords', () => {
+    const schema = {
+      type: 'array',
+      allOf: [{ prefixItems: [{ type: 'string' }] }, { minItems: 1 }],
+    } as SchemaObject
+
+    const oas = new Oas({
+      oas: {
+        openapi: '3.1.0',
+        info: { title: 'Flatten 3.1 structural', version: '1.0.0' },
+        paths: {},
+        components: { schemas: { Example: schema } },
+      },
+    })
+
+    const flattened = oas.flattenSchema(schema)
+
+    expect(flattened).toEqual({
+      type: 'array',
+      prefixItems: [{ type: 'string' }],
+      minItems: 1,
+    })
+    expect(flattened?.allOf).toBeUndefined()
+  })
+
+  test('preserves inline constraints alongside $ref in allOf', () => {
+    const schema = {
+      allOf: [{ $ref: '#/components/schemas/PhoneNumber' }, { maxLength: 15 }],
+    } as SchemaObject
+
+    const oas = new Oas({
+      oas: {
+        openapi: '3.0.3',
+        info: { title: 'Flatten refs', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            PhoneNumber: {
+              type: 'string',
+              maxLength: 30,
+            },
+            PhoneWithMaxLength: schema,
+          },
+        },
+      },
+    })
+
+    const flattened = oas.flattenSchema(schema)
+
+    expect(flattened).toMatchObject({
+      allOf: [{ $ref: '#/components/schemas/PhoneNumber' }, { maxLength: 15 }],
+    })
   })
 })
 

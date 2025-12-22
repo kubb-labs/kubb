@@ -7,7 +7,7 @@ import OASNormalize from 'oas-normalize'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { OasTypes } from './index.ts'
 import type { contentType } from './types.ts'
-import { isDiscriminator, isReference } from './utils.ts'
+import { isDiscriminator, isReference, STRUCTURAL_KEYS } from './utils.ts'
 
 type Options = {
   contentType?: contentType
@@ -444,5 +444,37 @@ export class Oas<const TOAS = unknown> extends BaseOas {
         },
       },
     })
+  }
+
+  flattenSchema(schema?: SchemaObject): SchemaObject | undefined {
+    if (!schema?.allOf || schema.allOf.length === 0) {
+      return schema
+    }
+
+    // Never touch ref-based or structural composition
+    if (schema.allOf.some((item) => isReference(item))) {
+      return schema
+    }
+
+    const isPlainFragment = (item: SchemaObject) => !Object.keys(item).some((key) => STRUCTURAL_KEYS.has(key))
+
+    // Only flatten keyword-only fragments
+    if (!schema.allOf.every((item) => isPlainFragment(item as SchemaObject))) {
+      return schema
+    }
+
+    const merged: SchemaObject = { ...schema }
+    delete merged.allOf
+
+    for (const fragment of schema.allOf as SchemaObject[]) {
+      for (const [key, value] of Object.entries(fragment)) {
+        if ((merged as any)[key] === undefined) {
+          ;(merged as any)[key] = value
+        }
+      }
+    }
+
+    // biome-ignore lint/suspicious/noAssignInExpressions: should not trigger this
+    return merged
   }
 }

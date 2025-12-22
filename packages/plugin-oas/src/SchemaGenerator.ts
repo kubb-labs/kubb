@@ -543,7 +543,9 @@ export class SchemaGenerator<
    * schema and returns the appropriate type.
    */
   #parseSchemaObject({ schemaObject: _schemaObject, name, parentName }: SchemaProps): Schema[] {
-    const { schemaObject, version } = this.#getParsedSchemaObject(_schemaObject)
+    const normalizedSchema = this.context.oas.flattenSchema(_schemaObject)
+
+    const { schemaObject, version } = this.#getParsedSchemaObject(normalizedSchema)
 
     const options = this.#getOptions({ schemaObject, name })
     const emptyType = this.#getEmptyType({ schemaObject, name })
@@ -747,6 +749,7 @@ export class SchemaGenerator<
             if (this.#wouldCreateCircularReference(item, name)) {
               return []
             }
+
             return item ? this.parse({ schemaObject: item as SchemaObject, name, parentName }) : []
           })
           .filter(Boolean),

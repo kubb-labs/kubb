@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 4.12.9
+
+### Patch Changes
+
+- [#2232](https://github.com/kubb-labs/kubb/pull/2232) [`600053d`](https://github.com/kubb-labs/kubb/commit/600053db677dc6ba1b60c822d6dad23d6da60507) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - flatten allof to support better Zod schemas
+
+- Updated dependencies [[`600053d`](https://github.com/kubb-labs/kubb/commit/600053db677dc6ba1b60c822d6dad23d6da60507)]:
+  - @kubb/oas@4.12.9
+  - @kubb/core@4.12.9
+
 ## 4.12.8
 
 ### Patch Changes
