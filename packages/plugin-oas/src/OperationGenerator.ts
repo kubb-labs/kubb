@@ -33,6 +33,8 @@ export class OperationGenerator<
   TFileMeta extends FileMetaBase = FileMetaBase,
 > extends BaseGenerator<TPluginOptions['resolvedOptions'], Context<TPluginOptions['resolvedOptions'], TPluginOptions>> {
   #optionsCache = new Map<string, Partial<TPluginOptions['resolvedOptions']>>()
+  #filterCache = new Map<string, boolean>()
+  #schemasCache = new Map<string, OperationSchemas>()
 
   #getOptions(operation: Operation, method: HttpMethod): Partial<TPluginOptions['resolvedOptions']> {
     const operationId = operation.getOperationId({ friendlyCase: true })
@@ -69,11 +71,24 @@ export class OperationGenerator<
   }
 
   #isExcluded(operation: Operation, method: HttpMethod): boolean {
-    const { exclude = [] } = this.context
     const operationId = operation.getOperationId({ friendlyCase: true })
+    const cacheKey = `exclude:${operationId}:${method}`
+    const cached = this.#filterCache.get(cacheKey)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    const { exclude = [] } = this.context
+    
+    // Early return if no exclusion rules
+    if (exclude.length === 0) {
+      this.#filterCache.set(cacheKey, false)
+      return false
+    }
+
     const contentType = operation.getContentType()
 
-    return exclude.some(({ pattern, type }) => {
+    const result = exclude.some(({ pattern, type }) => {
       switch (type) {
         case 'tag':
           return operation.getTags().some((tag) => tag.name.match(pattern))
@@ -89,14 +104,30 @@ export class OperationGenerator<
           return false
       }
     })
+
+    this.#filterCache.set(cacheKey, result)
+    return result
   }
 
   #isIncluded(operation: Operation, method: HttpMethod): boolean {
-    const { include = [] } = this.context
     const operationId = operation.getOperationId({ friendlyCase: true })
+    const cacheKey = `include:${operationId}:${method}`
+    const cached = this.#filterCache.get(cacheKey)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    const { include = [] } = this.context
+    
+    // Early return if no inclusion rules
+    if (include.length === 0) {
+      this.#filterCache.set(cacheKey, true)
+      return true
+    }
+
     const contentType = operation.getContentType()
 
-    return include.some(({ pattern, type }) => {
+    const result = include.some(({ pattern, type }) => {
       switch (type) {
         case 'tag':
           return operation.getTags().some((tag) => tag.name.match(pattern))
@@ -112,6 +143,9 @@ export class OperationGenerator<
           return false
       }
     })
+
+    this.#filterCache.set(cacheKey, result)
+    return result
   }
 
   getSchemas(
