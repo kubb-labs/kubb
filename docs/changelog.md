@@ -15,8 +15,15 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
-## 4.12.9
+## 4.12.10
 
+#### [`@kubb/oas`](/api/oas/), [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+### 🐛 Bug Fixes
+
+Better patternProperties handling for type generation.
+
+## 4.12.9
 
 ### 🐛 Bug Fixes
 
