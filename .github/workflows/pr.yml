@@ -162,6 +162,33 @@ jobs:
           name: ceviz-report
           path: ceviz-report.html
 
+  benchmarks:
+    name: Performance benchmarks (Vitest)
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    needs: build
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
+
+      - name: Restore build artifacts
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            packages/*/dist
+            packages/*/node_modules/.cache
+          key: build-${{ github.sha }}
+
+      - name: Run Vitest benchmarks
+        continue-on-error: true
+        run: pnpm run perf:bench
+
   prerelease:
     name: Prerelease
     timeout-minutes: 15
