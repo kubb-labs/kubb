@@ -268,4 +268,4 @@ jobs:
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
         run: |
-          pnpm run generate --verbose
+          pnpm run generate --debug
