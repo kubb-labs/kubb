@@ -1,7 +1,8 @@
 import { type Config, defineLogger, LogLevel } from '@kubb/core'
-import { formatHrtime, formatMs, formatMsWithColor } from '@kubb/core/utils'
+import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import pc from 'picocolors'
+import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 
 /**
  * GitHub Actions adapter for CI environments

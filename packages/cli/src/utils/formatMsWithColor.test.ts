@@ -1,26 +1,6 @@
 import pc from 'picocolors'
 import { describe, expect, it } from 'vitest'
-import { formatMs, formatMsWithColor } from './formatHrtime.ts'
-
-describe('formatMs', () => {
-  it('should format milliseconds < 1000 as ms', () => {
-    expect(formatMs(100)).toBe('100ms')
-    expect(formatMs(500)).toBe('500ms')
-    expect(formatMs(999)).toBe('999ms')
-  })
-
-  it('should format milliseconds >= 1000 as seconds', () => {
-    expect(formatMs(1000)).toBe('1.00s')
-    expect(formatMs(1500)).toBe('1.50s')
-    expect(formatMs(2000)).toBe('2.00s')
-  })
-
-  it('should format milliseconds >= 60000 as minutes and seconds', () => {
-    expect(formatMs(60000)).toBe('1m 0.0s')
-    expect(formatMs(90000)).toBe('1m 30.0s')
-    expect(formatMs(125000)).toBe('2m 5.0s')
-  })
-})
+import { formatMsWithColor } from './formatMsWithColor.ts'
 
 describe('formatMsWithColor', () => {
   it('should format with green color when duration <= 500ms', () => {

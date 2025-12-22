@@ -99,7 +99,6 @@
     "js-runtime": "^0.0.8",
     "natural-orderby": "^5.0.0",
     "p-limit": "catalog:",
-    "picocolors": "^1.1.1",
     "remeda": "catalog:",
     "semver": "^7.7.3"
   },
