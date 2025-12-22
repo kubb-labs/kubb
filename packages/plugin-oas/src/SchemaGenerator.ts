@@ -108,6 +108,14 @@ export class SchemaGenerator<
         Object.values(schema.args?.additionalProperties || {}).forEach((entrySchema) => {
           foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
         })
+
+        if (schema.args?.patternProperties) {
+          Object.values(schema.args.patternProperties).forEach((entrySchemas) => {
+            entrySchemas.forEach((entrySchema) => {
+              foundItems.push(...SchemaGenerator.deepSearch<T>([entrySchema], keyword))
+            })
+          })
+        }
       }
 
       if (isKeyword(schema, schemaKeywords.array)) {
