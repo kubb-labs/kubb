@@ -1,5 +1,14 @@
 # @kubb/plugin-ts
 
+## 4.12.12
+
+### Patch Changes
+
+- Updated dependencies [[`6e15732`](https://github.com/kubb-labs/kubb/commit/6e15732cc3fe4a5ae386d3dcff41527930755cb6)]:
+  - @kubb/oas@4.12.12
+  - @kubb/plugin-oas@4.12.12
+  - @kubb/core@4.12.12
+
 ## 4.12.11
 
 ### Patch Changes
