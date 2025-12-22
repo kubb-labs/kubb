@@ -123,7 +123,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
      * 3. Property with single enum value
      * 4. Title as fallback
      */
-    const getDiscriminatorValue = (schemaObj: OpenAPIV3.SchemaObject): string | undefined => {
+    const getDiscriminatorValue = (schemaObj: SchemaObject): string | undefined => {
       // Check extension properties first (e.g., x-linode-ref-name)
       // Only check if propertyName starts with 'x-' to avoid conflicts with standard properties
       if (propertyName.startsWith('x-')) {
@@ -134,8 +134,8 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       }
 
       // Check if property has const value
-      const propertySchema = schemaObj.properties?.[propertyName] as OpenAPIV3.SchemaObject
-      if (propertySchema?.const !== undefined) {
+      const propertySchema = schemaObj.properties?.[propertyName] as SchemaObject
+      if ('const' in propertySchema && propertySchema?.const !== undefined) {
         return String(propertySchema.const)
       }
 
@@ -152,7 +152,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
      * Process oneOf/anyOf items to build mapping.
      * Handles both $ref and inline schemas.
      */
-    const processSchemas = (schemas: Array<OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>, existingMapping: Record<string, string>) => {
+    const processSchemas = (schemas: Array<SchemaObject>, existingMapping: Record<string, string>) => {
       schemas.forEach((schemaItem, index) => {
         if (isReference(schemaItem)) {
           // Handle $ref case
@@ -191,12 +191,12 @@ export class Oas<const TOAS = unknown> extends BaseOas {
 
     // Process oneOf schemas
     if (schema.oneOf) {
-      processSchemas(schema.oneOf, mapping)
+      processSchemas(schema.oneOf as SchemaObject[], mapping)
     }
 
     // Process anyOf schemas
     if (schema.anyOf) {
-      processSchemas(schema.anyOf, mapping)
+      processSchemas(schema.anyOf as SchemaObject[], mapping)
     }
 
     return {
@@ -521,7 +521,6 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       }
     }
 
-    // biome-ignore lint/suspicious/noAssignInExpressions: should not trigger this
     return merged
   }
 }
