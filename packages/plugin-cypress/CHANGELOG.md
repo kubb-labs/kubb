@@ -1,5 +1,15 @@
 # @kubb/plugin-cypress
 
+## 4.12.10
+
+### Patch Changes
+
+- Updated dependencies [[`028f5e8`](https://github.com/kubb-labs/kubb/commit/028f5e85109853b1d9a10a17ff0d2d269975b61f)]:
+  - @kubb/plugin-ts@4.12.10
+  - @kubb/core@4.12.10
+  - @kubb/oas@4.12.10
+  - @kubb/plugin-oas@4.12.10
+
 ## 4.12.9
 
 ### Patch Changes
