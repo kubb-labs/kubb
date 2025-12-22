@@ -11,6 +11,8 @@ import { isPlainObject, mergeDeep } from 'remeda'
 import swagger2openapi from 'swagger2openapi'
 import { Oas } from './Oas.ts'
 
+export const STRUCTURAL_KEYS = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'])
+
 export function isOpenApiV2Document(doc: any): doc is OpenAPIV2.Document {
   return doc && isPlainObject(doc) && !('openapi' in doc)
 }

@@ -516,7 +516,7 @@ export class SchemaGenerator<
    * schema and returns the appropriate type.
    */
   #parseSchemaObject({ schemaObject: _schemaObject, name, parentName }: SchemaProps): Schema[] {
-    const normalizedSchema = this.context.oas.flattenTrivialAllOf(_schemaObject)
+    const normalizedSchema = this.context.oas.flattenSchema(_schemaObject)
 
     const { schemaObject, version } = this.#getParsedSchemaObject(normalizedSchema)
 

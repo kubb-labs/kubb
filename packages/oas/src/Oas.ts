@@ -7,7 +7,7 @@ import OASNormalize from 'oas-normalize'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { OasTypes } from './index.ts'
 import type { contentType } from './types.ts'
-import { isDiscriminator, isReference } from './utils.ts'
+import { isDiscriminator, isReference, STRUCTURAL_KEYS } from './utils.ts'
 
 type Options = {
   contentType?: contentType
@@ -446,7 +446,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     })
   }
 
-  flattenTrivialAllOf(schema?: SchemaObject): SchemaObject | undefined {
+  flattenSchema(schema?: SchemaObject): SchemaObject | undefined {
     if (!schema?.allOf || schema.allOf.length === 0) {
       return schema
     }
@@ -455,8 +455,6 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     if (schema.allOf.some((item) => isReference(item))) {
       return schema
     }
-
-    const STRUCTURAL_KEYS = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'])
 
     const isPlainFragment = (item: SchemaObject) => !Object.keys(item).some((key) => STRUCTURAL_KEYS.has(key))
 
@@ -476,6 +474,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       }
     }
 
+    // biome-ignore lint/suspicious/noAssignInExpressions: should not trigger this
     return merged
   }
 }

@@ -75,8 +75,8 @@ importers:
         specifier: ^0.0.6
         version: 0.0.6(magicast@0.5.1)
       knip:
-        specifier: ^5.76.2
-        version: 5.76.2(@types/node@20.19.27)(typescript@5.9.3)
+        specifier: ^5.76.3
+        version: 5.76.3(@types/node@20.19.27)(typescript@5.9.3)
       prettier:
         specifier: ^3.7.4
         version: 3.7.4
@@ -5654,8 +5654,8 @@ packages:
     resolution: {integrity: sha512-dhG34DXATL5hSxJbIexCft8FChFXtmskoZYnoPWjXQuebWYCNkVeV3KkGegCK9CP1oswI/vQibS2GY7Em/sJJA==}
     engines: {node: '>= 8'}
 
-  knip@5.76.2:
-    resolution: {integrity: sha512-UCs2MNe+sUYo5rR/KcoyEqCqwWh1mrHcAkTvW7Hm7DcnaLa1xzHHRbEqmEeocI23bMXPaZtlSALrfjFIU0xNjQ==}
+  knip@5.76.3:
+    resolution: {integrity: sha512-YLCCzOFzkuNgyL9LdrwFBstV9gpmvPCuolRzs9W++of0mtPH1D3ehE3M4okgayksgq7tWkkMAmyjrDrXxX6aAQ==}
     engines: {node: '>=18.18.0'}
     hasBin: true
     peerDependencies:
@@ -12611,7 +12611,7 @@ snapshots:
 
   klona@2.0.6: {}
 
-  knip@5.76.2(@types/node@20.19.27)(typescript@5.9.3):
+  knip@5.76.3(@types/node@20.19.27)(typescript@5.9.3):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
       '@types/node': 20.19.27
