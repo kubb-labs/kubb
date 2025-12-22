@@ -128,7 +128,9 @@ Plugin Timings:
 #### --debug
 > [!TIP]
 > Debug mode creates detailed log files in the `.kubb` directory:
-> - `.kubb/kubb-{timestamp}.log` - Contains all debug messages with timestamps
+> - `.kubb/kubb-{name}-{timestamp}.log` - Contains all debug messages with timestamps
+> 
+> After each generation completes, the CLI will display the exact location of the debug log file.
 
 Debug mode provides comprehensive logging including:
 - Setup phase details (configuration, plugins, paths)
