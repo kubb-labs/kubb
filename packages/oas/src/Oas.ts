@@ -127,7 +127,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       // Check extension properties first (e.g., x-linode-ref-name)
       // Only check if propertyName starts with 'x-' to avoid conflicts with standard properties
       if (propertyName.startsWith('x-')) {
-        const extensionValue = schemaObj[propertyName as keyof typeof schemaObj]
+        const extensionValue = (schemaObj as Record<string, unknown>)[propertyName]
         if (extensionValue && typeof extensionValue === 'string') {
           return extensionValue
         }
@@ -157,14 +157,22 @@ export class Oas<const TOAS = unknown> extends BaseOas {
         if (isReference(schemaItem)) {
           // Handle $ref case
           const key = this.getKey(schemaItem.$ref)
-          const refSchema: OpenAPIV3.SchemaObject = this.get(schemaItem.$ref)
-          const discriminatorValue = getDiscriminatorValue(refSchema)
-          const canAdd = key && !Object.values(existingMapping).includes(schemaItem.$ref)
 
-          if (canAdd && discriminatorValue) {
-            existingMapping[discriminatorValue] = schemaItem.$ref
-          } else if (canAdd) {
-            existingMapping[key] = schemaItem.$ref
+          try {
+            const refSchema: OpenAPIV3.SchemaObject = this.get(schemaItem.$ref)
+            const discriminatorValue = getDiscriminatorValue(refSchema)
+            const canAdd = key && !Object.values(existingMapping).includes(schemaItem.$ref)
+
+            if (canAdd && discriminatorValue) {
+              existingMapping[discriminatorValue] = schemaItem.$ref
+            } else if (canAdd) {
+              existingMapping[key] = schemaItem.$ref
+            }
+          } catch (_error) {
+            // If we can't resolve the reference, skip it and use the key as fallback
+            if (key && !Object.values(existingMapping).includes(schemaItem.$ref)) {
+              existingMapping[key] = schemaItem.$ref
+            }
           }
         } else {
           // Handle inline schema case
