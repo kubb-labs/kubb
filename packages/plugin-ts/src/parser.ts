@@ -336,7 +336,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
         additionalProperties = factory.createIndexSignature(additionalProperties)
       }
 
-      let patternProperties: any
+      let patternProperties: ts.TypeNode | ts.IndexSignatureDeclaration | undefined
 
       if (current.args?.patternProperties) {
         const allPatternSchemas = Object.values(current.args.patternProperties).flat()

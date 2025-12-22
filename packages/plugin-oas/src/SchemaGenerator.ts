@@ -282,7 +282,7 @@ export class SchemaGenerator<
     const properties = schemaObject?.properties || {}
     const additionalProperties = schemaObject?.additionalProperties
     const required = schemaObject?.required
-    const patternProperties = schemaObject && 'patternProperties' in schemaObject ? (schemaObject as any).patternProperties : undefined
+    const patternProperties = schemaObject && 'patternProperties' in schemaObject ? schemaObject.patternProperties : undefined
 
     const propertiesSchemas = Object.keys(properties)
       .map((propertyName) => {
