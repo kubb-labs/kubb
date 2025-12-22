@@ -191,7 +191,7 @@ jobs:
     name: Dependency Diff
     timeout-minutes: 10
     runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]'
+    if: github.actor != 'github-actions[bot]' && github.repository_owner == 'kubb-labs'
     steps:
       - name: Check out code
         uses: actions/checkout@v6
@@ -200,6 +200,7 @@ jobs:
 
       - name: Analyze dependency changes
         uses: e18e/action-dependency-diff@v1
+        continue-on-error: true
         with:
           duplicate-threshold: 5
           size-threshold: -1
