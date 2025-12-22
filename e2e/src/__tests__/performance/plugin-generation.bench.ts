@@ -1,18 +1,18 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import type { Config } from '@kubb/core'
 import { build } from '@kubb/core'
+import { AsyncEventEmitter } from '@kubb/core/utils'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 import { bench, describe } from 'vitest'
-import type { Config } from '@kubb/core'
-import { AsyncEventEmitter } from '@kubb/core/utils'
 
 /**
  * Performance benchmarks for Kubb plugin generation
- * 
+ *
  * These benchmarks test the performance of generating code from OpenAPI specifications
  * using different plugin configurations. They help track performance regressions and
  * identify optimization opportunities.
