@@ -32,12 +32,20 @@ export class OperationGenerator<
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
 > extends BaseGenerator<TPluginOptions['resolvedOptions'], Context<TPluginOptions['resolvedOptions'], TPluginOptions>> {
+  #optionsCache = new Map<string, Partial<TPluginOptions['resolvedOptions']>>()
+
   #getOptions(operation: Operation, method: HttpMethod): Partial<TPluginOptions['resolvedOptions']> {
-    const { override = [] } = this.context
     const operationId = operation.getOperationId({ friendlyCase: true })
+    const cacheKey = `${operationId}:${method}`
+    const cached = this.#optionsCache.get(cacheKey)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    const { override = [] } = this.context
     const contentType = operation.getContentType()
 
-    return (
+    const result = (
       override.find(({ pattern, type }) => {
         switch (type) {
           case 'tag':
@@ -55,6 +63,9 @@ export class OperationGenerator<
         }
       })?.options || {}
     )
+
+    this.#optionsCache.set(cacheKey, result)
+    return result
   }
 
   #isExcluded(operation: Operation, method: HttpMethod): boolean {
@@ -220,8 +231,8 @@ export class OperationGenerator<
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const operations = await this.getOperations()
 
-    const generatorLimit = pLimit(1)
-    const operationLimit = pLimit(10)
+    const generatorLimit = pLimit(generators.length)
+    const operationLimit = pLimit(20)
 
     this.context.events?.emit('debug', {
       date: new Date(),

@@ -68,6 +68,8 @@ export class PluginManager {
   readonly #plugins = new Set<Plugin<GetPluginFactoryOptions<any>>>()
   readonly #usedPluginNames: Record<string, number> = {}
   readonly #promiseManager: PromiseManager
+  readonly #resolveNameCache = new Map<string, string>()
+  readonly #resolvePathCache = new Map<string, KubbFile.Path>()
 
   constructor(config: Config, options: Options) {
     this.config = config
@@ -146,8 +148,16 @@ export class PluginManager {
   }
 
   resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): KubbFile.Path => {
+    const cacheKey = JSON.stringify({ baseName: params.baseName, mode: params.mode, pluginKey: params.pluginKey })
+    const cached = this.#resolvePathCache.get(cacheKey)
+    if (cached !== undefined) {
+      return cached
+    }
+
     const root = path.resolve(this.config.root, this.config.output.path)
     const defaultPath = path.resolve(root, params.baseName)
+
+    let result: KubbFile.Path
 
     if (params.pluginKey) {
       const paths = this.hookForPluginSync({
@@ -156,18 +166,29 @@ export class PluginManager {
         parameters: [params.baseName, params.mode, params.options as object],
       })
 
-      return paths?.at(0) || defaultPath
+      result = paths?.at(0) || defaultPath
+    } else {
+      const firstResult = this.hookFirstSync({
+        hookName: 'resolvePath',
+        parameters: [params.baseName, params.mode, params.options as object],
+      })
+
+      result = firstResult?.result || defaultPath
     }
 
-    const firstResult = this.hookFirstSync({
-      hookName: 'resolvePath',
-      parameters: [params.baseName, params.mode, params.options as object],
-    })
-
-    return firstResult?.result || defaultPath
+    this.#resolvePathCache.set(cacheKey, result)
+    return result
   }
   //TODO refactor by using the order of plugins and the cache of the fileManager instead of guessing and recreating the name/path
   resolveName = (params: ResolveNameParams): string => {
+    const cacheKey = JSON.stringify({ name: params.name, type: params.type, pluginKey: params.pluginKey })
+    const cached = this.#resolveNameCache.get(cacheKey)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    let result: string
+
     if (params.pluginKey) {
       const names = this.hookForPluginSync({
         pluginKey: params.pluginKey,
@@ -177,15 +198,18 @@ export class PluginManager {
 
       const uniqueNames = new Set(names)
 
-      return transformReservedWord([...uniqueNames].at(0) || params.name)
+      result = transformReservedWord([...uniqueNames].at(0) || params.name)
+    } else {
+      const name = this.hookFirstSync({
+        hookName: 'resolveName',
+        parameters: [trim(params.name), params.type],
+      }).result
+
+      result = transformReservedWord(name)
     }
 
-    const name = this.hookFirstSync({
-      hookName: 'resolveName',
-      parameters: [trim(params.name), params.type],
-    }).result
-
-    return transformReservedWord(name)
+    this.#resolveNameCache.set(cacheKey, result)
+    return result
   }
 
   /**

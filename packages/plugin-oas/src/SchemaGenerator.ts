@@ -77,6 +77,8 @@ export class SchemaGenerator<
 
   // Keep track of already used type aliases
   #usedAliasNames: Record<string, number> = {}
+  #optionsCache = new Map<string, Partial<TOptions>>()
+  #parseCache = new Map<string, Schema[]>()
 
   /**
    * Creates a type node from a given schema.
@@ -84,12 +86,21 @@ export class SchemaGenerator<
    * optionally adds a union with null.
    */
   parse(props: SchemaProps): Schema[] {
+    // Create a cache key based on schema content and context
+    const cacheKey = JSON.stringify({ schema: props.schema, name: props.name, parentName: props.parentName })
+    const cached = this.#parseCache.get(cacheKey)
+    if (cached !== undefined) {
+      return cached
+    }
+
     const options = this.#getOptions(props.name)
 
     const defaultSchemas = this.#parseSchemaObject(props)
     const schemas = options.transformers?.schema?.(props, defaultSchemas) || defaultSchemas || []
 
-    return uniqueWith(schemas, isDeepEqual)
+    const result = uniqueWith(schemas, isDeepEqual)
+    this.#parseCache.set(cacheKey, result)
+    return result
   }
 
   static deepSearch<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): Array<SchemaKeywordMapper[T]> {
@@ -235,9 +246,18 @@ export class SchemaGenerator<
   }
 
   #getOptions(name: string | null): Partial<TOptions> {
+    if (!name) {
+      return this.options
+    }
+
+    const cached = this.#optionsCache.get(name)
+    if (cached !== undefined) {
+      return cached
+    }
+
     const { override = [] } = this.context
 
-    return {
+    const result = {
       ...this.options,
       ...(override.find(({ pattern, type }) => {
         if (name && type === 'schemaName') {
@@ -247,6 +267,9 @@ export class SchemaGenerator<
         return false
       })?.options || {}),
     }
+
+    this.#optionsCache.set(name, result)
+    return result
   }
 
   #getUnknownType(name: string | null): string {
@@ -1218,8 +1241,8 @@ export class SchemaGenerator<
       logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
     })
 
-    const generatorLimit = pLimit(1)
-    const schemaLimit = pLimit(10)
+    const generatorLimit = pLimit(generators.length)
+    const schemaLimit = pLimit(20)
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
