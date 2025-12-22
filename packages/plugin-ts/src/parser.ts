@@ -336,7 +336,29 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
         additionalProperties = factory.createIndexSignature(additionalProperties)
       }
 
-      return typeKeywordMapper.object([...properties, additionalProperties].filter(Boolean))
+      let patternProperties: ts.TypeNode | ts.IndexSignatureDeclaration | undefined
+
+      if (current.args?.patternProperties) {
+        const allPatternSchemas = Object.values(current.args.patternProperties).flat()
+
+        if (allPatternSchemas.length > 0) {
+          patternProperties = allPatternSchemas
+            .map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options))
+            .filter(Boolean)
+            .at(0) as ts.TypeNode
+
+          const isNullable = allPatternSchemas.some((schema) => isKeyword(schema, schemaKeywords.nullable))
+          if (isNullable) {
+            patternProperties = factory.createUnionDeclaration({
+              nodes: [patternProperties, factory.keywordTypeNodes.null],
+            }) as ts.TypeNode
+          }
+
+          patternProperties = factory.createIndexSignature(patternProperties)
+        }
+      }
+
+      return typeKeywordMapper.object([...properties, additionalProperties, patternProperties].filter(Boolean))
     },
     datetime(tree) {
       const { current } = tree
