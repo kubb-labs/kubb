@@ -169,7 +169,7 @@ components:
           title: Matrix
           patternProperties:
             ^pet\.\d+/type\.\d+$:
-              $ref: '#/components/schemas/MastRepEntry'
+              $ref: '#/components/schemas/Pet'
     Error:
       type: object
       required:

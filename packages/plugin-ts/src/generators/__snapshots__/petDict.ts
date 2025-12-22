@@ -7,5 +7,7 @@ export type petDict = {
   /**
    * @type object
    */
-  matrix: object
+  matrix: {
+    [key: string]: pet
+  }
 }
