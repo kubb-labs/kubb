@@ -15,6 +15,124 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.12.11
+
+### ✨ Features
+
+#### [`@kubb/oas`](/api/oas/), [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+Comprehensive discriminator improvements with full OpenAPI 3.0 and 3.1 compliance.
+
+**Inline Schema Support:**
+
+Discriminators now work with inline schemas in `oneOf`/`anyOf`, not just `$ref` references:
+
+::: code-group
+
+```yaml [OpenAPI]
+components:
+  schemas:
+    Response:
+      discriminator:
+        propertyName: status
+      oneOf:
+        - type: object
+          title: Success
+          properties:
+            status:
+              const: success
+            data:
+              type: object
+        - type: object
+          title: Error
+          properties:
+            status:
+              const: error
+            message:
+              type: string
+```
+
+```typescript [Generated]
+export type Response = 
+  | {
+      status?: "success"
+      data?: object
+    }
+  | {
+      status?: "error"
+      message?: string
+    }
+```
+
+:::
+
+**Extension Property Discriminators:**
+
+Support for extension properties as discriminator names (e.g., `x-linode-ref-name`):
+
+::: code-group
+
+```yaml [OpenAPI]
+components:
+  schemas:
+    Data:
+      discriminator:
+        propertyName: x-response-type
+      oneOf:
+        - type: object
+          x-response-type: Success
+          properties:
+            result:
+              type: object
+        - type: object
+          x-response-type: Error
+          properties:
+            error:
+              type: string
+```
+
+```typescript [Generated]
+export type Data = 
+  | {
+      result?: object
+    }
+  | {
+      error?: string
+    }
+```
+
+:::
+
+Extension properties are treated as metadata and don't generate runtime validation constraints.
+
+**Additional Improvements:**
+
+- ✅ Const and single-value enum support for discriminator values
+- ✅ Mixed `$ref` and inline schemas in the same `oneOf`/`anyOf`
+- ✅ Title fallback for inline schemas without explicit discriminator values
+- ✅ Inferred mapping when explicit mapping not provided
+- ✅ Support for both `oneOf` and `anyOf` constructs
+- ✅ Synthetic ref handling with bounds validation
+- ✅ Error handling for invalid schema references
+
+**Supported Patterns:**
+
+All discriminator patterns from OpenAPI 3.0 and 3.1 specifications are now supported:
+
+- With explicit mapping
+- Without mapping (inferred from schema names)
+- `oneOf` and `anyOf` constructs
+- Strict and inherit modes
+- Inline schemas
+- Extension properties (x-*)
+- Const values
+- Single-value enums
+- Mixed `$ref` and inline schemas
+
+**Documentation:**
+
+See [Discriminators](/knowledge-base/oas#discriminators) in the knowledge base for comprehensive examples and patterns.
+
 ## 4.12.10
 
 #### [`@kubb/oas`](/api/oas/), [`@kubb/plugin-ts`](/plugins/plugin-ts/)
