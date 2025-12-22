@@ -325,8 +325,8 @@ export class SchemaGenerator<
       patternPropertiesSchemas = Object.entries(patternProperties).reduce((acc, [pattern, patternSchema]) => {
         const schemas =
           patternSchema === true || !Object.keys(patternSchema as object).length
-            ? [{ keyword: this.#getUnknownType({ schemaObject, name }) }]
-            : this.parse({ schemaObject: patternSchema as SchemaObject, parentName: name })
+            ? [{ keyword: this.#getUnknownType(name) }]
+            : this.parse({ schema: patternSchema, name: null, parentName: name })
 
         return {
           ...acc,
