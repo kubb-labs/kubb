@@ -157,16 +157,25 @@ const plugin = pluginOas({ serverIndex: 1 })
 ### discriminator
 
 Defines how the discriminator value should be interpreted during processing.
-This has been mentioned in [issues/1736](https://github.com/kubb-labs/kubb/issues/1736).
 
+Kubb provides comprehensive support for OpenAPI discriminators in both **OpenAPI 3.0** and **OpenAPI 3.1** specifications, including:
+- Explicit and inferred mapping
+- `oneOf` and `anyOf` constructs
+- Inline schemas and `$ref` references
+- Extension properties (e.g., `x-custom-name`)
+- Const and enum values
+- Mixed types and edge cases
+
+See [Discriminators](/knowledge-base/oas#discriminators) in the knowledge base for detailed examples and supported patterns.
 
 |           |                          |
 |----------:|:-------------------------|
 |     Type: | ` 'strict' \| 'inherit'` |
-| Required: | `'strict'`                 |
+| Required: | `false`                  |
+|  Default: | `'strict'`               |
 
-- `'inherit'` Replaces the `oneOf` schema with the schema referenced by `discriminator.mapping[key]`.
-- `'strict'` Uses the `oneOf` schemas as defined, without modification.
+- `'strict'` Uses the `oneOf` schemas as defined, without modification. The discriminator is used for type narrowing but doesn't modify the child schemas.
+- `'inherit'` Adds the discriminator property with appropriate enum values to each child schema, ensuring type safety and enabling better code generation.
 
 ::: code-group
 
@@ -337,6 +346,96 @@ export default defineConfig({
 })
 ```
 
+## Discriminator Support
+
+Kubb provides comprehensive support for OpenAPI discriminators, enabling proper handling of polymorphic schemas and union types. Discriminators are fully supported for both **OpenAPI 3.0** and **OpenAPI 3.1** specifications.
+
+### Supported Patterns
+
+**Standard Patterns:**
+- ✅ Discriminator with explicit mapping
+- ✅ Discriminator without mapping (inferred from schema names)
+- ✅ `oneOf` and `anyOf` constructs
+- ✅ Strict and inherit modes
+
+**Advanced Patterns:**
+- ✅ Inline schemas (not just `$ref`)
+- ✅ Extension properties as discriminator names (e.g., `x-linode-ref-name`)
+- ✅ Const values for discriminator properties
+- ✅ Single-value enums for discriminator properties
+- ✅ Mixed `$ref` and inline schemas
+- ✅ Title fallback for inline schemas
+- ✅ Mixed types in `oneOf` (with extension properties)
+
+### Configuration
+
+Configure discriminator handling using the `discriminator` option:
+
+```typescript
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+
+export default defineConfig({
+  plugins: [
+    pluginOas({
+      discriminator: 'inherit', // or 'strict' (default)
+    }),
+  ],
+})
+```
+
+### Example: Inline Schemas with Extension Properties
+
+This example demonstrates support for inline schemas with extension property discriminators:
+
+::: code-group
+
+```yaml [OpenAPI]
+components:
+  schemas:
+    Response:
+      discriminator:
+        propertyName: x-response-type
+      oneOf:
+        - type: object
+          x-response-type: Success
+          properties:
+            data:
+              type: object
+        - type: object
+          x-response-type: Error
+          properties:
+            message:
+              type: string
+```
+
+```typescript [Generated]
+export type Response = 
+  | {
+      data?: object
+    }
+  | {
+      message?: string
+    }
+```
+
+:::
+
+### Best Practices
+
+1. **Use consistent property names** - Use the same discriminator property name across your API (e.g., `type`, `kind`)
+2. **Provide explicit mapping** - Define mapping for clarity and maintainability
+3. **Use const or enum** - Define discriminator values using `const` or single-value `enum` in child schemas
+4. **Ensure type consistency** - All `oneOf`/`anyOf` members should ideally share the same base type
+
+### Limitations
+
+- **Extension properties**: When using extension properties (starting with `x-`) as discriminator property names, they're treated as metadata and don't generate runtime validation constraints
+- **Mixed types**: While supported, mixing different types (e.g., object and array) in `oneOf` is not recommended per OpenAPI spec
+
+For comprehensive documentation, examples, and detailed patterns, see [Discriminators in the Knowledge Base](/knowledge-base/oas#discriminators).
+
 ## Links
 
 - [Oas](https://github.com/readmeio/oas)
+- [OpenAPI Discriminators](/knowledge-base/oas#discriminators)
