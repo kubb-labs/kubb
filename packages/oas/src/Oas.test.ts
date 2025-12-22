@@ -407,6 +407,207 @@ describe('discriminator', () => {
       expect(discriminator?.mapping?.['Stats Available']).toBe('#inline-0')
       expect(discriminator?.mapping?.['Stats Unavailable']).toBe('#inline-1')
     })
+
+    test('handles discriminator without explicit mapping - infers from schema names', () => {
+      const discriminatorSpec: OpenAPIV3.Document = {
+        openapi: '3.0.3',
+        info: {
+          title: 'Discriminator No Mapping',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            Animal: {
+              type: 'object',
+              required: ['petType'],
+              discriminator: {
+                propertyName: 'petType',
+              },
+              oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            },
+            Cat: {
+              type: 'object',
+              properties: {
+                petType: {
+                  type: 'string',
+                },
+              },
+            },
+            Dog: {
+              type: 'object',
+              properties: {
+                petType: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const oas = new Oas({ oas: discriminatorSpec })
+      const animalSchema = oas.get('#/components/schemas/Animal') as OpenAPIV3.SchemaObject
+
+      const discriminator = oas.getDiscriminator(animalSchema)
+
+      expect(discriminator).toBeDefined()
+      expect(discriminator?.propertyName).toBe('petType')
+      expect(discriminator?.mapping).toBeDefined()
+      // When no explicit mapping, schema names are used as keys
+      expect(discriminator?.mapping?.['Cat']).toBe('#/components/schemas/Cat')
+      expect(discriminator?.mapping?.['Dog']).toBe('#/components/schemas/Dog')
+    })
+
+    test('handles discriminator with anyOf', () => {
+      const discriminatorSpec: OpenAPIV3.Document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Discriminator with anyOf',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            Pet: {
+              discriminator: {
+                propertyName: 'type',
+                mapping: {
+                  cat: '#/components/schemas/Cat',
+                  dog: '#/components/schemas/Dog',
+                },
+              },
+              anyOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            },
+            Cat: {
+              type: 'object',
+              properties: {
+                type: {
+                  type: 'string',
+                },
+              },
+            },
+            Dog: {
+              type: 'object',
+              properties: {
+                type: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const oas = new Oas({ oas: discriminatorSpec })
+      const petSchema = oas.get('#/components/schemas/Pet') as OpenAPIV3.SchemaObject
+
+      const discriminator = oas.getDiscriminator(petSchema)
+
+      expect(discriminator).toBeDefined()
+      expect(discriminator?.propertyName).toBe('type')
+      expect(discriminator?.mapping?.['cat']).toBe('#/components/schemas/Cat')
+      expect(discriminator?.mapping?.['dog']).toBe('#/components/schemas/Dog')
+    })
+
+    test('handles discriminator with title fallback for inline schemas', () => {
+      const discriminatorSpec: OpenAPIV3.Document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Discriminator Title Fallback',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            Response: {
+              discriminator: {
+                propertyName: 'status',
+              },
+              oneOf: [
+                {
+                  type: 'object',
+                  title: 'Success',
+                  properties: {
+                    status: { type: 'string' },
+                    data: { type: 'object' },
+                  },
+                } as any,
+                {
+                  type: 'object',
+                  title: 'Error',
+                  properties: {
+                    status: { type: 'string' },
+                    error: { type: 'string' },
+                  },
+                } as any,
+              ],
+            } as any,
+          },
+        },
+      }
+
+      const oas = new Oas({ oas: discriminatorSpec })
+      const responseSchema = oas.get('#/components/schemas/Response') as OpenAPIV3.SchemaObject
+
+      const discriminator = oas.getDiscriminator(responseSchema)
+
+      expect(discriminator).toBeDefined()
+      expect(discriminator?.propertyName).toBe('status')
+      // Should use title as fallback when no explicit discriminator value
+      expect(discriminator?.mapping?.['Success']).toBe('#inline-0')
+      expect(discriminator?.mapping?.['Error']).toBe('#inline-1')
+    })
+
+    test('handles discriminator with single-value enum', () => {
+      const discriminatorSpec: OpenAPIV3.Document = {
+        openapi: '3.0.3',
+        info: {
+          title: 'Discriminator Enum',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            Animal: {
+              discriminator: {
+                propertyName: 'petType',
+              },
+              oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            },
+            Cat: {
+              type: 'object',
+              properties: {
+                petType: {
+                  type: 'string',
+                  enum: ['cat'],
+                },
+              },
+            },
+            Dog: {
+              type: 'object',
+              properties: {
+                petType: {
+                  type: 'string',
+                  enum: ['dog'],
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const oas = new Oas({ oas: discriminatorSpec })
+      const animalSchema = oas.get('#/components/schemas/Animal') as OpenAPIV3.SchemaObject
+
+      const discriminator = oas.getDiscriminator(animalSchema)
+
+      expect(discriminator).toBeDefined()
+      expect(discriminator?.propertyName).toBe('petType')
+      // Should extract enum value for mapping
+      expect(discriminator?.mapping?.['cat']).toBe('#/components/schemas/Cat')
+      expect(discriminator?.mapping?.['dog']).toBe('#/components/schemas/Dog')
+    })
   })
 })
 
