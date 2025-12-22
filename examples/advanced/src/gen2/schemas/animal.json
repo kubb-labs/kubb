@@ -30,6 +30,6 @@
   ],
   "properties": { "type": { "type": "string", "enum": ["cat", "dog"], "minLength": 1, "readOnly": true } },
   "additionalProperties": false,
-  "discriminator": { "propertyName": "type", "mapping": { "cat": "#/components/schemas/Cat", "dog": "#/components/schemas/Dog" } },
+  "discriminator": { "propertyName": "type", "mapping": { "cat": "#kubb-inline-0", "dog": "#kubb-inline-1" } },
   "x-readme-ref-name": "Animal"
 }

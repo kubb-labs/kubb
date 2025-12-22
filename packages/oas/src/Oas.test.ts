@@ -5,7 +5,7 @@ import { describe, expect, expectTypeOf, test } from 'vitest'
 import { petStore } from '../mocks/petStore.ts'
 import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './infer/index.ts'
 import { Oas } from './Oas.ts'
-import type { OpenAPIV3, SchemaObject } from './types.ts'
+import type { OpenAPIV3, OpenAPIV3_1, SchemaObject } from './types.ts'
 import { parse } from './utils.ts'
 
 describe('swagger Infer', () => {
@@ -235,8 +235,8 @@ describe('discriminator', () => {
       expect(discriminator).toBeDefined()
       expect(discriminator?.propertyName).toBe('x-linode-ref-name')
       expect(discriminator?.mapping).toBeDefined()
-      expect(discriminator?.mapping?.['Stats Available']).toBe('#inline-0')
-      expect(discriminator?.mapping?.['Stats Unavailable']).toBe('#inline-1')
+      expect(discriminator?.mapping?.['Stats Available']).toBe('#kubb-inline-0')
+      expect(discriminator?.mapping?.['Stats Unavailable']).toBe('#kubb-inline-1')
     })
 
     test('handles inline schemas with const values as discriminator', () => {
@@ -292,12 +292,12 @@ describe('discriminator', () => {
       expect(discriminator).toBeDefined()
       expect(discriminator?.propertyName).toBe('petType')
       expect(discriminator?.mapping).toBeDefined()
-      expect(discriminator?.mapping?.['cat']).toBe('#inline-0')
-      expect(discriminator?.mapping?.['dog']).toBe('#inline-1')
+      expect(discriminator?.mapping?.['cat']).toBe('#kubb-inline-0')
+      expect(discriminator?.mapping?.['dog']).toBe('#kubb-inline-1')
     })
 
     test('handles mixed ref and inline schemas', () => {
-      const discriminatorSpec: OpenAPIV3.Document = {
+      const discriminatorSpec = {
         openapi: '3.1.0',
         info: {
           title: 'Mixed Discriminator',
@@ -331,13 +331,13 @@ describe('discriminator', () => {
                   },
                 },
               ],
-            } as any,
+            },
           },
         },
-      }
+      } as OpenAPIV3_1.Document
 
       const oas = new Oas({ oas: discriminatorSpec })
-      const animalSchema = oas.get('#/components/schemas/Animal') as OpenAPIV3.SchemaObject
+      const animalSchema = oas.get('#/components/schemas/Animal')
 
       const discriminator = oas.getDiscriminator(animalSchema)
 
@@ -345,7 +345,7 @@ describe('discriminator', () => {
       expect(discriminator?.propertyName).toBe('type')
       expect(discriminator?.mapping).toBeDefined()
       expect(discriminator?.mapping?.['cat']).toBe('#/components/schemas/Cat')
-      expect(discriminator?.mapping?.['dog']).toBe('#inline-1')
+      expect(discriminator?.mapping?.['dog']).toBe('#kubb-inline-1')
     })
 
     test('handles Linode API pattern with mixed object and array types', () => {
@@ -404,8 +404,8 @@ describe('discriminator', () => {
       expect(discriminator).toBeDefined()
       expect(discriminator?.propertyName).toBe('x-linode-ref-name')
       expect(discriminator?.mapping).toBeDefined()
-      expect(discriminator?.mapping?.['Stats Available']).toBe('#inline-0')
-      expect(discriminator?.mapping?.['Stats Unavailable']).toBe('#inline-1')
+      expect(discriminator?.mapping?.['Stats Available']).toBe('#kubb-inline-0')
+      expect(discriminator?.mapping?.['Stats Unavailable']).toBe('#kubb-inline-1')
     })
 
     test('handles discriminator without explicit mapping - infers from schema names', () => {
@@ -555,8 +555,8 @@ describe('discriminator', () => {
       expect(discriminator).toBeDefined()
       expect(discriminator?.propertyName).toBe('status')
       // Should use title as fallback when no explicit discriminator value
-      expect(discriminator?.mapping?.['Success']).toBe('#inline-0')
-      expect(discriminator?.mapping?.['Error']).toBe('#inline-1')
+      expect(discriminator?.mapping?.['Success']).toBe('#kubb-inline-0')
+      expect(discriminator?.mapping?.['Error']).toBe('#kubb-inline-1')
     })
 
     test('handles discriminator with single-value enum', () => {

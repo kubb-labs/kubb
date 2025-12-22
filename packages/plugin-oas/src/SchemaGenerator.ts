@@ -442,9 +442,9 @@ export class SchemaGenerator<
         .map(([key, value]) => {
           let arg: Schema | undefined
 
-          // Check if this is a synthetic ref for inline schemas (e.g., #inline-0)
-          if (value.startsWith('#inline-')) {
-            const index = Number.parseInt(value.replace('#inline-', ''), 10)
+          // Check if this is a synthetic ref for inline schemas (e.g., #kubb-inline-0)
+          if (value.startsWith('#kubb-inline-')) {
+            const index = Number.parseInt(value.replace('#kubb-inline-', ''), 10)
             // Validate index is within bounds
             if (!Number.isNaN(index) && index >= 0 && index < schema.args.length) {
               arg = schema.args[index]

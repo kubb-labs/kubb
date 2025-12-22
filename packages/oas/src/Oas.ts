@@ -45,11 +45,11 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     return this.#options
   }
 
-  get($ref: string) {
+  get($ref: string): any | null {
     const origRef = $ref
     $ref = $ref.trim()
     if ($ref === '') {
-      return false
+      return null
     }
     if ($ref.startsWith('#')) {
       $ref = globalThis.decodeURIComponent($ref.substring(1))
@@ -87,6 +87,10 @@ export class Oas<const TOAS = unknown> extends BaseOas {
       Object.entries(mapping).forEach(([mappingKey, mappingValue]) => {
         if (mappingValue) {
           const childSchema = this.get(mappingValue)
+          if (!childSchema) {
+            return
+          }
+
           if (!childSchema.properties) {
             childSchema.properties = {}
           }
@@ -95,11 +99,12 @@ export class Oas<const TOAS = unknown> extends BaseOas {
 
           if (childSchema.properties) {
             childSchema.properties[propertyName] = {
-              ...(childSchema.properties ? childSchema.properties[propertyName] : {}),
+              ...((childSchema.properties ? childSchema.properties[propertyName] : {}) as SchemaObject),
               enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
             }
 
-            childSchema.required = [...new Set([...(childSchema.required ?? []), propertyName])]
+            childSchema.required =
+              typeof childSchema.required === 'boolean' ? childSchema.required : [...new Set([...(childSchema.required ?? []), propertyName])]
 
             this.set(mappingValue, childSchema)
           }
@@ -182,8 +187,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
           if (discriminatorValue) {
             // Create a synthetic ref for inline schemas using index
             // The value points to the inline schema itself via a special marker
-            const syntheticRef = `#inline-${index}`
-            existingMapping[discriminatorValue] = syntheticRef
+            existingMapping[discriminatorValue] = `#kubb-inline-${index}`
           }
         }
       })
@@ -191,12 +195,12 @@ export class Oas<const TOAS = unknown> extends BaseOas {
 
     // Process oneOf schemas
     if (schema.oneOf) {
-      processSchemas(schema.oneOf as SchemaObject[], mapping)
+      processSchemas(schema.oneOf as Array<SchemaObject>, mapping)
     }
 
     // Process anyOf schemas
     if (schema.anyOf) {
-      processSchemas(schema.anyOf as SchemaObject[], mapping)
+      processSchemas(schema.anyOf as Array<SchemaObject>, mapping)
     }
 
     return {
@@ -425,7 +429,7 @@ export class Oas<const TOAS = unknown> extends BaseOas {
     return params.reduce(
       (schema, pathParameters) => {
         const property = pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as SchemaObject)
-        const required = [...(schema.required || ([] as any)), pathParameters.required ? pathParameters.name : undefined].filter(Boolean)
+        const required = [...(schema.required || []), pathParameters.required ? pathParameters.name : undefined].filter(Boolean)
 
         // Handle explode=true with style=form for object with additionalProperties
         // According to OpenAPI spec, when explode is true, object properties are flattened
@@ -515,8 +519,8 @@ export class Oas<const TOAS = unknown> extends BaseOas {
 
     for (const fragment of schema.allOf as SchemaObject[]) {
       for (const [key, value] of Object.entries(fragment)) {
-        if ((merged as any)[key] === undefined) {
-          ;(merged as any)[key] = value
+        if (merged[key as keyof typeof merged] === undefined) {
+          merged[key as keyof typeof merged] = value
         }
       }
     }
