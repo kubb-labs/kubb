@@ -347,6 +347,66 @@ describe('discriminator', () => {
       expect(discriminator?.mapping?.['cat']).toBe('#/components/schemas/Cat')
       expect(discriminator?.mapping?.['dog']).toBe('#inline-1')
     })
+
+    test('handles Linode API pattern with mixed object and array types', () => {
+      const discriminatorSpec: OpenAPIV3.Document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Linode Discriminator',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            TestData: {
+              type: 'object',
+              properties: {
+                data: {
+                  discriminator: {
+                    propertyName: 'x-linode-ref-name',
+                  },
+                  oneOf: [
+                    {
+                      type: 'object',
+                      title: 'Stats available',
+                      'x-linode-ref-name': 'Stats Available',
+                      properties: {
+                        swap: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                          },
+                        },
+                      },
+                    } as any,
+                    {
+                      type: 'array',
+                      title: 'Stats unavailable',
+                      'x-linode-ref-name': 'Stats Unavailable',
+                      items: {
+                        type: 'string',
+                      },
+                    } as any,
+                  ],
+                } as any,
+              },
+            },
+          },
+        },
+      }
+
+      const oas = new Oas({ oas: discriminatorSpec })
+      const testDataSchema = oas.get('#/components/schemas/TestData') as OpenAPIV3.SchemaObject
+      const dataProperty = testDataSchema.properties?.data as OpenAPIV3.SchemaObject
+
+      const discriminator = oas.getDiscriminator(dataProperty)
+
+      expect(discriminator).toBeDefined()
+      expect(discriminator?.propertyName).toBe('x-linode-ref-name')
+      expect(discriminator?.mapping).toBeDefined()
+      expect(discriminator?.mapping?.['Stats Available']).toBe('#inline-0')
+      expect(discriminator?.mapping?.['Stats Unavailable']).toBe('#inline-1')
+    })
   })
 })
 

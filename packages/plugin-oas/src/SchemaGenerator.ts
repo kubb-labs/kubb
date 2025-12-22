@@ -427,13 +427,30 @@ export class SchemaGenerator<
       return schema
     }
 
+    // If the discriminator property is an extension property (starts with x-),
+    // it's metadata and not an actual schema property, so we can't add constraints for it.
+    // In this case, return the union as-is without adding discriminator constraints.
+    if (discriminator.propertyName.startsWith('x-')) {
+      return schema
+    }
+
     const objectPropertySchema = SchemaGenerator.find(this.parse({ schemaObject: schemaObject }), schemaKeywords.object)
 
     return {
       ...schema,
       args: Object.entries(discriminator.mapping || {})
         .map(([key, value]) => {
-          const arg = schema.args.find((item) => isKeyword(item, schemaKeywords.ref) && item.args.$ref === value)
+          let arg: Schema | undefined
+
+          // Check if this is a synthetic ref for inline schemas (e.g., #inline-0)
+          if (value.startsWith('#inline-')) {
+            const index = Number.parseInt(value.replace('#inline-', ''), 10)
+            arg = schema.args[index]
+          } else {
+            // Regular ref - find by $ref value
+            arg = schema.args.find((item) => isKeyword(item, schemaKeywords.ref) && item.args.$ref === value)
+          }
+
           // Skip discriminator mappings that don't have a corresponding schema in the oneOf/anyOf
           if (!arg) {
             return undefined
