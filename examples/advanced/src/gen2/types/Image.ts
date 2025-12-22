@@ -1,4 +1,4 @@
 /**
  * @example linode/debian10
  */
-export type Image = string | null
+export type Image = string | null;

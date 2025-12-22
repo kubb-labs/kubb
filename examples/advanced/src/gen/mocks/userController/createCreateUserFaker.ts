@@ -15,6 +15,6 @@ export function createCreateUserMutationRequestFaker() {
   return createUserFaker()
 }
 
-export function createCreateUserMutationResponseFaker(_data?: Partial<CreateUserMutationResponse>): CreateUserMutationResponse {
+export function createCreateUserMutationResponseFaker(data?: Partial<CreateUserMutationResponse>): CreateUserMutationResponse {
   return undefined
 }

@@ -1,1 +1,1 @@
-export type { TagTag } from './Tag.ts'
+export type { TagTag } from "./Tag.ts";

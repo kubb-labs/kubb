@@ -15,6 +15,28 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## Unreleased
+
+### ✨ Features
+
+#### [`@kubb/core`](/api/core/), [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Performance Optimizations:**
+
+Significant performance improvements through code optimizations and intelligent caching mechanisms:
+
+- **Increased Concurrency**: Generator processing now runs in parallel (up from sequential), and operation/schema processing limits increased from 10 to 20 concurrent operations
+- **Memoization**: Added caching for `resolveName` and `resolvePath` calls in PluginManager to avoid redundant computations
+- **Schema Parsing Cache**: Schema parsing results are now cached, dramatically reducing duplicate parsing work
+- **Filter Optimization**: Exclude/include checks are cached and include early returns for empty filter arrays
+- **Options Caching**: `#getOptions` results are cached to avoid repeated array iterations
+
+These optimizations provide noticeable performance improvements, especially for large OpenAPI specifications with many operations and schemas.
+
+::: tip Performance Impact
+For large specifications, these optimizations can reduce generation time by 30-50% depending on the complexity and size of your OpenAPI document.
+:::
+
 ## 4.12.11
 
 ### ✨ Features
