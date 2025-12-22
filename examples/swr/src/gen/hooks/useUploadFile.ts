@@ -21,7 +21,9 @@ export async function uploadFile(
   petId: UploadFilePathParams['petId'],
   data?: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
@@ -33,12 +35,19 @@ export async function uploadFile(
     params,
     data: requestData,
     ...requestConfig,
-    headers: { 'Content-Type': 'application/octet-stream', ...requestConfig.headers },
+    headers: {
+      'Content-Type': 'application/octet-stream',
+      ...requestConfig.headers,
+    },
   })
   return res.data
 }
 
-export type UploadFileMutationArg = { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams }
+export type UploadFileMutationArg = {
+  petId: UploadFilePathParams['petId']
+  data?: UploadFileMutationRequest
+  params?: UploadFileQueryParams
+}
 
 /**
  * @summary uploads an image
@@ -49,7 +58,9 @@ export function useUploadFile(
     mutation?: SWRMutationConfiguration<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationKey | null, UploadFileMutationArg> & {
       throwOnError?: boolean
     }
-    client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<UploadFileMutationRequest>> & {
+      client?: typeof fetch
+    }
     shouldFetch?: boolean
   } = {},
 ) {

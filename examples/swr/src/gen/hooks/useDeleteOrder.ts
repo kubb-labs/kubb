@@ -29,7 +29,9 @@ export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], con
   return res.data
 }
 
-export type DeleteOrderMutationArg = { orderId: DeleteOrderPathParams['orderId'] }
+export type DeleteOrderMutationArg = {
+  orderId: DeleteOrderPathParams['orderId']
+}
 
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors

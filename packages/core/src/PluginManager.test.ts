@@ -1,7 +1,7 @@
 import { createFabric } from '@kubb/react-fabric'
+import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { definePlugin } from './definePlugin.ts'
 import { PluginManager } from './PluginManager.ts'
-
 import type { Config, KubbEvents, Plugin } from './types.ts'
 import { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
 
@@ -194,5 +194,135 @@ describe('PluginManager', () => {
 
     expect(pluginAMocks.resolvePath).toHaveBeenCalled()
     expect(pluginBMocks.resolvePath).toHaveBeenCalled()
+  })
+
+  test('hookForPluginSync should work with non-function hooks', () => {
+    const staticPlugin = definePlugin(() => {
+      return {
+        name: 'staticPlugin',
+        options: undefined as any,
+        context: undefined as never,
+        key: ['staticPlugin'],
+        resolvePath: 'static/path' as any,
+      }
+    })
+
+    const staticConfig = {
+      ...config,
+      plugins: [staticPlugin({})] as Plugin[],
+    } satisfies Config
+
+    const staticPluginManager = new PluginManager(staticConfig, {
+      fabric: createFabric(),
+      events: new AsyncEventEmitter<KubbEvents>(),
+    })
+
+    const paths = staticPluginManager.hookForPluginSync({
+      pluginKey: ['staticPlugin'],
+      hookName: 'resolvePath',
+      parameters: ['path.ts'],
+    })
+
+    expect(paths).toEqual(['static/path'])
+  })
+
+  it('should handle plugin hook errors gracefully', async () => {
+    const errorPlugin = definePlugin(() => {
+      return {
+        name: 'errorPlugin',
+        options: undefined as any,
+        context: undefined as never,
+        key: ['errorPlugin'],
+        install() {
+          throw new Error('Install failed')
+        },
+      }
+    })
+
+    const errorConfig = {
+      ...config,
+      plugins: [errorPlugin({})] as Plugin[],
+    } satisfies Config
+
+    const errorPluginManager = new PluginManager(errorConfig, {
+      fabric: createFabric(),
+      events: new AsyncEventEmitter<KubbEvents>(),
+    })
+
+    const errorSpy = vi.fn()
+    errorPluginManager.events.on('error', errorSpy)
+
+    const result = await errorPluginManager.hookFirst({
+      hookName: 'install',
+      parameters: [] as any,
+    })
+
+    expect(result.result).toBeNull()
+    expect(errorSpy).toHaveBeenCalled()
+  })
+
+  test('resolvePath should return default path when no plugins have resolvePath', () => {
+    const noResolvePlugin = definePlugin(() => {
+      return {
+        name: 'noResolvePlugin',
+        options: undefined as any,
+        context: undefined as never,
+        key: ['noResolvePlugin'],
+      }
+    })
+
+    const noResolveConfig = {
+      ...config,
+      plugins: [noResolvePlugin({})] as Plugin[],
+    } satisfies Config
+
+    const noResolvePluginManager = new PluginManager(noResolveConfig, {
+      fabric: createFabric(),
+      events: new AsyncEventEmitter<KubbEvents>(),
+    })
+
+    const path = noResolvePluginManager.resolvePath({
+      baseName: 'test.ts',
+    })
+
+    expect(path).toContain('test.ts')
+  })
+
+  test('getFile should create file with correct properties', () => {
+    const file = pluginManager.getFile({
+      name: 'testFile',
+      extname: '.ts',
+      pluginKey: ['pluginA'],
+    })
+
+    expect(file).toBeDefined()
+    expect(file.baseName).toBe('testFile.ts')
+    expect(file.path).toBeDefined()
+  })
+
+  test('getFile should work with custom mode', () => {
+    const file = pluginManager.getFile({
+      name: 'testFile',
+      extname: '.ts',
+      mode: 'single',
+      pluginKey: ['pluginA'],
+    })
+
+    expect(file).toBeDefined()
+    expect(file.baseName).toBe('testFile.ts')
+  })
+
+  test('getPluginsByKey should return correct plugins', () => {
+    const plugins = pluginManager.getPluginsByKey('install', ['pluginB'])
+
+    expect(plugins).toBeDefined()
+    expect(plugins?.length).toBeGreaterThan(0)
+    expect(plugins?.[0]?.name).toBe('pluginB')
+  })
+
+  test('getPluginsByKey should return empty array for non-existent plugin', () => {
+    const plugins = pluginManager.getPluginsByKey('install', ['nonExistent'])
+
+    expect(plugins).toEqual([])
   })
 })

@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { stringify } from './stringify.ts'
 
 describe('stringify', () => {

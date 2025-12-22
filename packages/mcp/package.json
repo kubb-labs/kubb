@@ -1,6 +1,6 @@
 {
   "name": "@kubb/mcp",
-  "version": "4.12.6",
+  "version": "4.12.11",
   "description": "Generator MCP",
   "keywords": [
     "typescript",
@@ -75,7 +75,7 @@
     "zod": "^3.25.76"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.7.1"
+    "@kubb/react-fabric": "0.7.4"
   },
   "engines": {
     "node": ">=20"

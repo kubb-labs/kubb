@@ -25,7 +25,13 @@
       "xml": { "name": "customer" },
       "x-readme-ref-name": "Customer"
     },
-    { "type": "object", "properties": { "reasonToBeUnhappy": { "type": "string" }, "isHappy": { "type": "boolean", "const": false } } }
+    {
+      "type": "object",
+      "properties": {
+        "reasonToBeUnhappy": { "type": "string" },
+        "isHappy": { "type": "boolean", "const": false }
+      }
+    }
   ],
   "x-readme-ref-name": "UnhappyCustomer"
 }

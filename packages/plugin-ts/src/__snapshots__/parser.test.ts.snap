@@ -2370,7 +2370,7 @@ TokenObject {
 }
 `;
 
-exports[`type parse > union with unknown and null should preserve both types 1`] = `
+exports[`type parse > should preserve both unknown and null types in union 1`] = `
 NodeObject {
   "emitNode": undefined,
   "end": -1,

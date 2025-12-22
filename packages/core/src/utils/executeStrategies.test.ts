@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { hookFirst, hookParallel, hookSeq } from './executeStrategies.ts'
 import { timeout } from './timeout.ts'
 

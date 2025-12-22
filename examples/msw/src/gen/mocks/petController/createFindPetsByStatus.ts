@@ -10,7 +10,9 @@ import { createPet } from '../createPet.ts'
 export function createFindPetsByStatusQueryParams(data?: Partial<FindPetsByStatusQueryParams>): FindPetsByStatusQueryParams {
   faker.seed([220])
   return {
-    ...{ status: faker.helpers.arrayElement<NonNullable<FindPetsByStatusQueryParams>['status']>(['available', 'pending', 'sold']) },
+    ...{
+      status: faker.helpers.arrayElement<NonNullable<FindPetsByStatusQueryParams>['status']>(['available', 'pending', 'sold']),
+    },
     ...(data || {}),
   }
 }

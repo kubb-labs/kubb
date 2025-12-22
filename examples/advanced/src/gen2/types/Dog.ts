@@ -1,3 +1,5 @@
+import type { Image } from './Image.ts'
+
 export const dogTypeEnum = {
   dog: 'dog',
 } as const
@@ -13,4 +15,5 @@ export type Dog = {
    * @type string
    */
   name: string
+  readonly image?: Image
 }

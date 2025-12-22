@@ -1,5 +1,5 @@
 import path from 'node:path'
-
+import { describe, expect, it, test } from 'vitest'
 import { read } from './read.ts'
 import { write } from './write.ts'
 
@@ -23,5 +23,23 @@ describe('write', () => {
 
     await write(filePath, text)
     await write(filePath, text)
+  })
+
+  it('should return undefined for empty data', async () => {
+    const result = await write(filePath, '   ')
+    expect(result).toBeUndefined()
+  })
+
+  it('should perform sanity check when enabled', async () => {
+    const text = `export const hallo = 'world with sanity'`
+    const result = await write(filePath, text, { sanity: true })
+    expect(result).toBe(text)
+  })
+
+  it('should trim data before writing', async () => {
+    const text = `  export const hallo = 'world'  `
+    await write(filePath, text)
+    const file = await read(filePath)
+    expect(file).toBe(text.trim())
   })
 })

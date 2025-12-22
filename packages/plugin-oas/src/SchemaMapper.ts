@@ -7,6 +7,7 @@ export type SchemaKeywordMapper = {
     args: {
       properties: { [x: string]: Schema[] }
       additionalProperties: Schema[]
+      patternProperties?: Record<string, Schema[]>
       strict?: boolean
     }
   }

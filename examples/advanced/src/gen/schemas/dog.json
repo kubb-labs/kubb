@@ -2,7 +2,11 @@
   "title": "Dog",
   "type": "object",
   "required": ["name", "type"],
-  "properties": { "type": { "type": "string", "minLength": 1, "readOnly": true }, "name": { "type": "string" } },
+  "properties": {
+    "type": { "type": "string", "minLength": 1, "readOnly": true },
+    "name": { "type": "string" },
+    "image": { "example": "linode/debian10", "readOnly": true, "allOf": [{ "type": "string", "nullable": true }], "x-readme-ref-name": "Image" }
+  },
   "additionalProperties": false,
   "x-readme-ref-name": "Dog"
 }

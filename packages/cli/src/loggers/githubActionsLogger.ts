@@ -1,4 +1,5 @@
 import { type Config, defineLogger, LogLevel } from '@kubb/core'
+import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import pc from 'picocolors'
 
@@ -10,7 +11,50 @@ export const githubActionsLogger = defineLogger({
   name: 'github-actions',
   install(context, options) {
     const logLevel = options?.logLevel || LogLevel.info
-    let currentConfigs: Array<Config> = []
+    const state = {
+      totalPlugins: 0,
+      completedPlugins: 0,
+      failedPlugins: 0,
+      totalFiles: 0,
+      processedFiles: 0,
+      hrStart: process.hrtime(),
+      currentConfigs: [] as Array<Config>,
+    }
+
+    function reset() {
+      state.totalPlugins = 0
+      state.completedPlugins = 0
+      state.failedPlugins = 0
+      state.totalFiles = 0
+      state.processedFiles = 0
+      state.hrStart = process.hrtime()
+    }
+
+    function showProgressStep() {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      const parts: string[] = []
+      const duration = formatHrtime(state.hrStart)
+
+      if (state.totalPlugins > 0) {
+        const pluginStr =
+          state.failedPlugins > 0
+            ? `Plugins ${pc.green(state.completedPlugins.toString())}/${state.totalPlugins} ${pc.red(`(${state.failedPlugins} failed)`)}`
+            : `Plugins ${pc.green(state.completedPlugins.toString())}/${state.totalPlugins}`
+        parts.push(pluginStr)
+      }
+
+      if (state.totalFiles > 0) {
+        parts.push(`Files ${pc.green(state.processedFiles.toString())}/${state.totalFiles}`)
+      }
+
+      if (parts.length > 0) {
+        parts.push(`${pc.green(duration)} elapsed`)
+        console.log(getMessage(parts.join(pc.dim(' | '))))
+      }
+    }
 
     function getMessage(message: string): string {
       if (logLevel >= LogLevel.verbose) {
@@ -75,6 +119,7 @@ export const githubActionsLogger = defineLogger({
 
     context.on('lifecycle:start', (version) => {
       console.log(pc.yellow(`Kubb ${version} 🧩`))
+      reset()
     })
 
     context.on('config:start', () => {
@@ -90,7 +135,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('config:end', (configs) => {
-      currentConfigs = configs
+      state.currentConfigs = configs
 
       if (logLevel <= LogLevel.silent) {
         return
@@ -104,15 +149,20 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('generation:start', (config) => {
+      // Initialize progress tracking
+      state.totalPlugins = config.plugins?.length || 0
+
       const text = config.name ? `Generation for ${pc.bold(config.name)}` : 'Generation'
 
-      if (currentConfigs.length > 1) {
+      if (state.currentConfigs.length > 1) {
         openGroup(text)
       }
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         console.log(getMessage(text))
       }
+
+      reset()
     })
 
     context.on('plugin:start', (plugin) => {
@@ -121,35 +171,51 @@ export const githubActionsLogger = defineLogger({
       }
       const text = getMessage(`Generating ${pc.bold(plugin.name)}`)
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         openGroup(`Plugin: ${plugin.name}`)
       }
 
       console.log(text)
     })
 
-    context.on('plugin:end', (plugin, duration) => {
+    context.on('plugin:end', (plugin, { duration, success }) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
-      const text = getMessage(`${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}`)
+
+      if (success) {
+        state.completedPlugins++
+      } else {
+        state.failedPlugins++
+      }
+
+      const durationStr = formatMs(duration)
+      const text = getMessage(
+        success ? `${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}` : `${pc.bold(plugin.name)} failed in ${pc.red(durationStr)}`,
+      )
 
       console.log(text)
-      if (currentConfigs.length > 1) {
+      if (state.currentConfigs.length > 1) {
         console.log(' ')
       }
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         closeGroup(`Plugin: ${plugin.name}`)
       }
+
+      // Show progress step after each plugin
+      showProgressStep()
     })
 
     context.on('files:processing:start', (files) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
-      if (currentConfigs.length === 1) {
+
+      state.totalFiles = files.length
+      state.processedFiles = 0
+
+      if (state.currentConfigs.length === 1) {
         openGroup('File Generation')
       }
       const text = getMessage(`Writing ${files.length} files`)
@@ -165,43 +231,32 @@ export const githubActionsLogger = defineLogger({
 
       console.log(text)
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         closeGroup('File Generation')
       }
+    })
+
+    context.on('file:processing:update', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      state.processedFiles++
+    })
+
+    context.on('files:processing:end', () => {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      // Show final progress step after files are written
+      showProgressStep()
     })
 
     context.on('generation:end', (config) => {
       const text = getMessage(config.name ? `${pc.blue('✓')} Generation completed for ${pc.dim(config.name)}` : `${pc.blue('✓')} Generation completed`)
 
       console.log(text)
-    })
-
-    context.on('hook:execute', async ({ command, args }, cb) => {
-      try {
-        const result = await execa(command, args, {
-          detached: true,
-          stripFinalNewline: true,
-        })
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [result.stdout],
-        })
-
-        console.log(result.stdout)
-
-        cb()
-      } catch (err) {
-        const error = new Error('Hook execute failed')
-        error.cause = err
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [(err as any).stdout],
-        })
-
-        await context.emit('error', error)
-      }
     })
 
     context.on('format:start', () => {
@@ -211,7 +266,7 @@ export const githubActionsLogger = defineLogger({
 
       const text = getMessage('Format started')
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         openGroup('Formatting')
       }
 
@@ -227,7 +282,7 @@ export const githubActionsLogger = defineLogger({
 
       console.log(text)
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         closeGroup('Formatting')
       }
     })
@@ -239,7 +294,7 @@ export const githubActionsLogger = defineLogger({
 
       const text = getMessage('Lint started')
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         openGroup('Linting')
       }
 
@@ -255,26 +310,50 @@ export const githubActionsLogger = defineLogger({
 
       console.log(text)
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         closeGroup('Linting')
       }
     })
 
-    context.on('hook:start', (command) => {
-      if (logLevel <= LogLevel.silent) {
-        return
-      }
-
+    context.on('hook:start', async ({ id, command, args }) => {
       const text = getMessage(`Hook ${pc.dim(command)} started`)
 
-      if (currentConfigs.length === 1) {
-        openGroup(`Hook ${command}`)
+      if (logLevel > LogLevel.silent) {
+        if (state.currentConfigs.length === 1) {
+          openGroup(`Hook ${command}`)
+        }
+
+        console.log(text)
       }
 
-      console.log(text)
+      try {
+        const result = await execa(command, args, {
+          detached: true,
+          stripFinalNewline: true,
+        })
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [result.stdout],
+        })
+
+        console.log(result.stdout)
+
+        await context.emit('hook:end', { command, id })
+      } catch (err) {
+        const error = new Error('Hook execute failed')
+        error.cause = err
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [(err as any).stdout],
+        })
+
+        await context.emit('error', error)
+      }
     })
 
-    context.on('hook:end', (command) => {
+    context.on('hook:end', ({ command }) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
@@ -283,26 +362,27 @@ export const githubActionsLogger = defineLogger({
 
       console.log(text)
 
-      if (currentConfigs.length === 1) {
+      if (state.currentConfigs.length === 1) {
         closeGroup(`Hook ${command}`)
       }
     })
 
-    context.on('generation:summary', (config, { status, failedPlugins }) => {
+    context.on('generation:summary', (config, { status, hrStart, failedPlugins }) => {
       const pluginsCount = config.plugins?.length || 0
       const successCount = pluginsCount - failedPlugins.size
+      const duration = formatHrtime(hrStart)
 
-      if (currentConfigs.length > 1) {
+      if (state.currentConfigs.length > 1) {
         console.log(' ')
       }
 
       console.log(
         status === 'success'
-          ? `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ${pluginsCount} total`
-          : `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total`,
+          ? `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ${pluginsCount} total, ${pc.green(duration)}`
+          : `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total, ${pc.green(duration)}`,
       )
 
-      if (currentConfigs.length > 1) {
+      if (state.currentConfigs.length > 1) {
         closeGroup(config.name ? `Generation for ${pc.bold(config.name)}` : 'Generation')
       }
     })

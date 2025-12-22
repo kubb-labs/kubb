@@ -87,9 +87,9 @@ export type Options = {
      */
     schema?: (
       props: {
-        schema?: SchemaObject
-        name?: string
-        parentName?: string
+        schema: SchemaObject | null
+        name: string | null
+        parentName: string | null
       },
       defaultSchemas: Schema[],
     ) => Schema[] | undefined

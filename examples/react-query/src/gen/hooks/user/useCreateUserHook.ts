@@ -21,7 +21,9 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  */
 export async function createUserHook(
   data?: CreateUserMutationRequest,
-  config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<CreateUserMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
@@ -36,7 +38,11 @@ export async function createUserHook(
   return res.data
 }
 
-export function createUserMutationOptionsHook(config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {}) {
+export function createUserMutationOptionsHook(
+  config: Partial<RequestConfig<CreateUserMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
+) {
   const mutationKey = createUserMutationKey()
   return mutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, typeof mutationKey>({
     mutationKey,
@@ -56,7 +62,9 @@ export function useCreateUserHook<TContext>(
     mutation?: UseMutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<CreateUserMutationRequest>> & {
+      client?: typeof fetch
+    }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

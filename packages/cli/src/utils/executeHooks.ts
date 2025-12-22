@@ -19,12 +19,10 @@ export async function executeHooks({ hooks, events }: ExecutingHooksProps): Prom
       continue
     }
 
-    await events.emit('hook:start', command)
+    await events.emit('hook:start', { command: cmd, args })
 
-    await events.emit('hook:execute', { command: cmd, args }, async () => {
+    await events.onOnce('hook:end', async () => {
       await events.emit('success', `${pc.dim(command)} successfully executed`)
-
-      await events.emit('hook:end', command)
     })
   }
 }

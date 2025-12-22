@@ -1,5 +1,57 @@
 # @kubb/swagger
 
+## 4.12.11
+
+### Patch Changes
+
+- [#2234](https://github.com/kubb-labs/kubb/pull/2234) [`5334e6e`](https://github.com/kubb-labs/kubb/commit/5334e6eca99856560c46a774e30f4ddc085edbb0) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Improved discriminator handling for OpenAPI schemas:
+  - Support for inline schemas in oneOf/anyOf (not just $ref)
+  - Support for extension properties as discriminator names (e.g., x-linode-ref-name)
+  - Support for const and single-value enum discriminator values
+  - Synthetic ref handling for inline schemas with bounds validation
+  - Extension property discriminators treated as metadata (no runtime constraints)
+  - Full OpenAPI 3.0 and 3.1 compliance validated with comprehensive tests
+
+- Updated dependencies [[`5334e6e`](https://github.com/kubb-labs/kubb/commit/5334e6eca99856560c46a774e30f4ddc085edbb0)]:
+  - @kubb/oas@4.12.11
+  - @kubb/core@4.12.11
+
+## 4.12.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.12.10
+  - @kubb/oas@4.12.10
+
+## 4.12.9
+
+### Patch Changes
+
+- [#2232](https://github.com/kubb-labs/kubb/pull/2232) [`600053d`](https://github.com/kubb-labs/kubb/commit/600053db677dc6ba1b60c822d6dad23d6da60507) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - flatten allof to support better Zod schemas
+
+- Updated dependencies [[`600053d`](https://github.com/kubb-labs/kubb/commit/600053db677dc6ba1b60c822d6dad23d6da60507)]:
+  - @kubb/oas@4.12.9
+  - @kubb/core@4.12.9
+
+## 4.12.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.12.8
+  - @kubb/oas@4.12.8
+
+## 4.12.7
+
+### Patch Changes
+
+- [#2222](https://github.com/kubb-labs/kubb/pull/2222) [`03babc8`](https://github.com/kubb-labs/kubb/commit/03babc84964e3d5e8a294f8be55cdee55f106ecc) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Only validate once
+
+- Updated dependencies [[`93b39af`](https://github.com/kubb-labs/kubb/commit/93b39aff5874c959ce1d3ee1203ea378a0cbe663)]:
+  - @kubb/core@4.12.7
+  - @kubb/oas@4.12.7
+
 ## 4.12.6
 
 ### Patch Changes

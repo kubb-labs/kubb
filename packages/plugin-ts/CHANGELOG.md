@@ -1,5 +1,54 @@
 # @kubb/plugin-ts
 
+## 4.12.11
+
+### Patch Changes
+
+- Updated dependencies [[`5334e6e`](https://github.com/kubb-labs/kubb/commit/5334e6eca99856560c46a774e30f4ddc085edbb0)]:
+  - @kubb/oas@4.12.11
+  - @kubb/plugin-oas@4.12.11
+  - @kubb/core@4.12.11
+
+## 4.12.10
+
+### Patch Changes
+
+- [#2235](https://github.com/kubb-labs/kubb/pull/2235) [`028f5e8`](https://github.com/kubb-labs/kubb/commit/028f5e85109853b1d9a10a17ff0d2d269975b61f) Thanks [@Ericlm](https://github.com/Ericlm)! - Better patternProperties handling for type generation.
+
+- Updated dependencies []:
+  - @kubb/core@4.12.10
+  - @kubb/oas@4.12.10
+  - @kubb/plugin-oas@4.12.10
+
+## 4.12.9
+
+### Patch Changes
+
+- [#2232](https://github.com/kubb-labs/kubb/pull/2232) [`600053d`](https://github.com/kubb-labs/kubb/commit/600053db677dc6ba1b60c822d6dad23d6da60507) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - flatten allof to support better Zod schemas
+
+- Updated dependencies [[`600053d`](https://github.com/kubb-labs/kubb/commit/600053db677dc6ba1b60c822d6dad23d6da60507)]:
+  - @kubb/plugin-oas@4.12.9
+  - @kubb/oas@4.12.9
+  - @kubb/core@4.12.9
+
+## 4.12.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.12.8
+  - @kubb/oas@4.12.8
+  - @kubb/plugin-oas@4.12.8
+
+## 4.12.7
+
+### Patch Changes
+
+- Updated dependencies [[`03babc8`](https://github.com/kubb-labs/kubb/commit/03babc84964e3d5e8a294f8be55cdee55f106ecc), [`93b39af`](https://github.com/kubb-labs/kubb/commit/93b39aff5874c959ce1d3ee1203ea378a0cbe663)]:
+  - @kubb/plugin-oas@4.12.7
+  - @kubb/core@4.12.7
+  - @kubb/oas@4.12.7
+
 ## 4.12.6
 
 ### Patch Changes

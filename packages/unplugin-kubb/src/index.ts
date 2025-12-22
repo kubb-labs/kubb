@@ -48,7 +48,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       console.log(`✓ ${message}`)
     })
 
-    events.on('plugin:end', (plugin, duration) => {
+    events.on('plugin:end', (plugin, { duration }) => {
       const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
 
       console.log(`✓ ${plugin.name} completed in ${durationStr}`)

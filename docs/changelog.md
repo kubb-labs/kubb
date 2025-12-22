@@ -15,7 +15,157 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
-## Unreleased
+## 4.12.11
+
+### ✨ Features
+
+#### [`@kubb/oas`](/api/oas/), [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+Comprehensive discriminator improvements with full OpenAPI 3.0 and 3.1 compliance.
+
+**Inline Schema Support:**
+
+Discriminators now work with inline schemas in `oneOf`/`anyOf`, not just `$ref` references:
+
+::: code-group
+
+```yaml [OpenAPI]
+components:
+  schemas:
+    Response:
+      discriminator:
+        propertyName: status
+      oneOf:
+        - type: object
+          title: Success
+          properties:
+            status:
+              const: success
+            data:
+              type: object
+        - type: object
+          title: Error
+          properties:
+            status:
+              const: error
+            message:
+              type: string
+```
+
+```typescript [Generated]
+export type Response = 
+  | {
+      status?: "success"
+      data?: object
+    }
+  | {
+      status?: "error"
+      message?: string
+    }
+```
+
+:::
+
+**Extension Property Discriminators:**
+
+Support for extension properties as discriminator names (e.g., `x-linode-ref-name`):
+
+::: code-group
+
+```yaml [OpenAPI]
+components:
+  schemas:
+    Data:
+      discriminator:
+        propertyName: x-response-type
+      oneOf:
+        - type: object
+          x-response-type: Success
+          properties:
+            result:
+              type: object
+        - type: object
+          x-response-type: Error
+          properties:
+            error:
+              type: string
+```
+
+```typescript [Generated]
+export type Data = 
+  | {
+      result?: object
+    }
+  | {
+      error?: string
+    }
+```
+
+:::
+
+Extension properties are treated as metadata and don't generate runtime validation constraints.
+
+**Additional Improvements:**
+
+- ✅ Const and single-value enum support for discriminator values
+- ✅ Mixed `$ref` and inline schemas in the same `oneOf`/`anyOf`
+- ✅ Title fallback for inline schemas without explicit discriminator values
+- ✅ Inferred mapping when explicit mapping not provided
+- ✅ Support for both `oneOf` and `anyOf` constructs
+- ✅ Synthetic ref handling with bounds validation
+- ✅ Error handling for invalid schema references
+
+**Supported Patterns:**
+
+All discriminator patterns from OpenAPI 3.0 and 3.1 specifications are now supported:
+
+- With explicit mapping
+- Without mapping (inferred from schema names)
+- `oneOf` and `anyOf` constructs
+- Strict and inherit modes
+- Inline schemas
+- Extension properties (x-*)
+- Const values
+- Single-value enums
+- Mixed `$ref` and inline schemas
+
+**Documentation:**
+
+See [Discriminators](/knowledge-base/oas#discriminators) in the knowledge base for comprehensive examples and patterns.
+
+## 4.12.10
+
+#### [`@kubb/oas`](/api/oas/), [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+### 🐛 Bug Fixes
+
+Better patternProperties handling for type generation.
+
+## 4.12.9
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+Flatten allof to support better Zod schemas
+
+## 4.12.8
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/cli`](/plugins/cli/)
+
+Support for `--silent` flag to set LogLevel to **silent**.
+
+## 4.12.7
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+Only validate once
+
+## 4.12.6
 
 ### ✨ Features
 
@@ -24,6 +174,7 @@ All notable changes to Kubb are documented here. Each version is organized with 
 Added [Knip](https://knip.dev/) for unused code detection to help maintain code quality and identify unused exports, dependencies, and files across the monorepo.
 
 **Usage:**
+
 ```bash
 # Run Knip to detect unused code
 pnpm run knip
@@ -47,18 +198,20 @@ Improved performance across the core and OAS packages with several key optimizat
 Replaced inefficient JSON deep cloning with native `structuredClone()` API. The previous `JSON.parse(JSON.stringify())` approach was significantly slower and more memory-intensive, especially for large OpenAPI documents.
 
 ::: code-group
+
 ```typescript [Before]
-const api: OasTypes.OASDocument = JSON.parse(JSON.stringify(config.input.data))
+const api: OasTypes.OASDocument = JSON.parse(JSON.stringify(config.input.data));
 ```
 
 ```typescript [After]
-const api: OasTypes.OASDocument = structuredClone(config.input.data)
+const api: OasTypes.OASDocument = structuredClone(config.input.data);
 ```
+
 :::
 
 **[`@kubb/core`](/plugins/core/)**
 
-1. **Plugin Lookup Optimization**: Eliminated O(n*m) complexity in barrel file generation by creating a plugin key Map before nested loops, replacing expensive array spreading and linear searches with O(1) Map lookups.
+1. **Plugin Lookup Optimization**: Eliminated O(n\*m) complexity in barrel file generation by creating a plugin key Map before nested loops, replacing expensive array spreading and linear searches with O(1) Map lookups.
 
 2. **Object Spreading**: Replaced repeated object spreading with `Object.assign()` in plugin context initialization, preventing unnecessary object allocations on each loop iteration.
 
@@ -77,13 +230,14 @@ Fixed handling of empty schema objects `{}` in `anyOf`, `oneOf`, and `allOf` con
 Empty schema objects (`{}`) in JSON Schema represent "accepts any value" per the specification, but were being incorrectly filtered out from unions and intersections. This caused schemas like `anyOf: [{}, {type: "null"}]` to generate only `null` instead of the correct `unknown | null`.
 
 ::: code-group
+
 ```typescript [Before]
 export type ParameterBinding = {
   /**
    * @description The fixed value when source is FIXED.
    */
-  fixed_value?: null;  // Missing unknown type
-}
+  fixed_value?: null; // Missing unknown type
+};
 ```
 
 ```typescript [After]
@@ -91,9 +245,10 @@ export type ParameterBinding = {
   /**
    * @description The fixed value when source is FIXED.
    */
-  fixed_value?: unknown | null;  // Correct union type
-}
+  fixed_value?: unknown | null; // Correct union type
+};
 ```
+
 :::
 
 The fix ensures that empty schemas are properly preserved as the configured `unknownType` (or `emptySchemaType`) in the generated types, matching the JSON Schema specification.
@@ -109,6 +264,7 @@ Fixed handling of query parameters with `explode: true` and `style: form` for ob
 When a query parameter has `style: "form"`, `explode: true`, and a schema with `type: "object"` and `additionalProperties` but no defined properties, the parameter is now correctly flattened to have additionalProperties at the root level instead of being nested as a property.
 
 ::: code-group
+
 ```typescript [Before]
 export type SystemsQueryParams = {
   /**
@@ -116,20 +272,20 @@ export type SystemsQueryParams = {
    * @type object | undefined
    */
   customFields?: {
-    [key: string]: string
-  }
-}
+    [key: string]: string;
+  };
+};
 ```
 
 ```typescript [After]
 export type SystemsQueryParams = {
-  [key: string]: string
-}
+  [key: string]: string;
+};
 ```
+
 :::
 
 This matches the OpenAPI specification where `explode: true` causes object properties to be expanded as separate query parameters at the root level.
-
 
 ## 4.12.2
 
@@ -144,6 +300,7 @@ If you're using the `mapper` option in `@kubb/plugin-ts`, ensure you have TypeSc
 :::
 
 ::: code-group
+
 ```json [package.json]
 {
   "dependencies": {
@@ -152,6 +309,7 @@ If you're using the `mapper` option in `@kubb/plugin-ts`, ensure you have TypeSc
   }
 }
 ```
+
 :::
 
 ## 4.12.1
@@ -163,16 +321,18 @@ If you're using the `mapper` option in `@kubb/plugin-ts`, ensure you have TypeSc
 Uses backticks so that the baseUrl can be set to a dynamic value (like an environment variable).
 
 ::: code-group
+
 ```typescript [Before]
 // Generated with single quotes - static string
-const baseUrl = 'https://api.example.com'
+const baseUrl = "https://api.example.com";
 ```
 
 ```typescript [After]
 // Generated with backticks - allows template literals
-const baseUrl = `https://api.example.com`
+const baseUrl = `https://api.example.com`;
 // Now you can use: const baseUrl = `${process.env.API_URL}`
 ```
+
 :::
 
 ## 4.12.0
@@ -184,6 +344,7 @@ const baseUrl = `https://api.example.com`
 Replace cli-progress and consola with @clack/prompts for modern interactive progress bars. Introduces flexible logger pattern with Claude-inspired CLI and GitHub Actions support.
 
 **Key features:**
+
 - Event-driven logging architecture with `KubbEvents`
 - Multiple logger implementations that adapt to different environments:
   - **Clack Logger** - Modern interactive CLI with animated progress bars
@@ -194,35 +355,38 @@ Replace cli-progress and consola with @clack/prompts for modern interactive prog
 - Automatic logger selection based on environment detection
 
 ::: code-group
+
 ```typescript [Custom Logger]
-import { defineLogger, LogLevel } from '@kubb/core'
+import { defineLogger, LogLevel } from "@kubb/core";
 
 export const customLogger = defineLogger({
-  name: 'custom',
+  name: "custom",
   install(context, options) {
-    const logLevel = options?.logLevel || LogLevel.info
+    const logLevel = options?.logLevel || LogLevel.info;
 
-    context.on('lifecycle:start', (version) => {
-      console.log(`Starting Kubb ${version}`)
-    })
+    context.on("lifecycle:start", (version) => {
+      console.log(`Starting Kubb ${version}`);
+    });
 
-    context.on('plugin:start', (plugin) => {
-      console.log(`Generating ${plugin.name}`)
-    })
+    context.on("plugin:start", (plugin) => {
+      console.log(`Generating ${plugin.name}`);
+    });
 
-    context.on('plugin:end', (plugin, duration) => {
-      console.log(`${plugin.name} completed in ${duration}ms`)
-    })
+    context.on("plugin:end", (plugin, { duration }) => {
+      console.log(`${plugin.name} completed in ${duration}ms`);
+    });
 
-    context.on('error', (error) => {
-      console.error(error.message)
-    })
+    context.on("error", (error) => {
+      console.error(error.message);
+    });
   },
-})
+});
 ```
+
 :::
 
 **New KubbEvents:**
+
 - `lifecycle:start` - Emitted at the beginning of the Kubb lifecycle
 - `lifecycle:end` - Emitted at the end of the Kubb lifecycle
 - `config:start` - Emitted when configuration loading starts
@@ -261,31 +425,33 @@ Fixed issue with uninitialized `oasClass` causing errors during OpenAPI schema p
   - Function syntax for handlers to enable `this` keyword usage
 
   ::: code-group
+
   ```typescript [Usage Example]
   export const parse = createParser<string, ParserOptions>({
     mapper: zodKeywordMapper,
     handlers: {
       string(tree, options) {
-        const minSchema = findSchemaKeyword(tree.siblings, 'min')
-        const maxSchema = findSchemaKeyword(tree.siblings, 'max')
+        const minSchema = findSchemaKeyword(tree.siblings, "min");
+        const maxSchema = findSchemaKeyword(tree.siblings, "max");
         return zodKeywordMapper.string(
-          shouldCoerce(options.coercion, 'strings'),
+          shouldCoerce(options.coercion, "strings"),
           minSchema?.args,
           maxSchema?.args,
-          options.mini
-        )
+          options.mini,
+        );
       },
       union(tree, options) {
-        const { current } = tree
+        const { current } = tree;
         return zodKeywordMapper.union(
           sort(current.args)
             .map((it) => this.parse({ ...tree, current: it }, options))
-            .filter(Boolean)
-        )
-      }
-    }
-  })
+            .filter(Boolean),
+        );
+      },
+    },
+  });
   ```
+
   :::
 
 ### 🚀 Breaking Changes
@@ -293,6 +459,7 @@ Fixed issue with uninitialized `oasClass` causing errors during OpenAPI schema p
 - **[`@kubb/plugin-oas`](/plugins/plugin-oas/)** - Type renames for clarity
 
   Internal types are used during schema parsing. Most users won't be affected unless directly importing these types from `@kubb/plugin-oas`.
+
 ## 4.10.1
 
 ### 📦 Dependencies
@@ -308,23 +475,25 @@ Upgrade tsdown.
   The `asPascalConst` enumType option is no longer deprecated. This option generates enum-like constants with PascalCase names, providing an alternative to the default `asConst` which uses camelCase.
 
   ::: code-group
+
   ```typescript [asConst (default)]
   const petType = {
-    Dog: 'dog',
-    Cat: 'cat',
-  } as const
+    Dog: "dog",
+    Cat: "cat",
+  } as const;
 
-  type PetTypeKey = (typeof petType)[keyof typeof petType]
+  type PetTypeKey = (typeof petType)[keyof typeof petType];
   ```
 
   ```typescript [asPascalConst]
   const PetType = {
-    Dog: 'dog',
-    Cat: 'cat',
-  } as const
+    Dog: "dog",
+    Cat: "cat",
+  } as const;
 
-  type PetType = (typeof PetType)[keyof typeof PetType]
+  type PetType = (typeof PetType)[keyof typeof PetType];
   ```
+
   :::
 
 ## 4.9.4
@@ -340,6 +509,7 @@ Upgrade tsdown.
   2. Schemas without explicit `type` fields would return `emptyType` without preserving constraints
 
   ::: code-group
+
   ```yaml [OpenAPI Schema]
   components:
     schemas:
@@ -348,23 +518,26 @@ Upgrade tsdown.
         pattern: '^(\+\d{1,3}[-\s]?)?.*$'
       PhoneWithMaxLength:
         allOf:
-          - $ref: '#/components/schemas/PhoneNumber'
-          - maxLength: 15  # ❌ This constraint was lost
+          - $ref: "#/components/schemas/PhoneNumber"
+          - maxLength: 15 # ❌ This constraint was lost
   ```
+
   ```typescript [Before - Missing maxLength]
   // Generated Zod schema was missing .max(15)
   export const phoneWithMaxLengthSchema = z
     .string()
-    .regex(/^(\+\d{1,3}[-\s]?)?.*$/)
+    .regex(/^(\+\d{1,3}[-\s]?)?.*$/);
   // Missing: .max(15)
   ```
+
   ```typescript [After - Includes maxLength]
   // Generated Zod schema correctly includes .max(15)
   export const phoneWithMaxLengthSchema = z
     .string()
     .regex(/^(\+\d{1,3}[-\s]?)?.*$/)
-    .max(15)  // ✅ Now correctly included
+    .max(15); // ✅ Now correctly included
   ```
+
   :::
 
 ## 4.9.3
@@ -378,9 +551,10 @@ Upgrade tsdown.
   When `mutation: false` was set in plugin configuration, mutation hooks were still being generated. This occurred because the plugin was spreading the `false` value into an object with default configuration values instead of checking for it explicitly.
 
   ::: code-group
+
   ```typescript [Before - Not Working]
-  import { defineConfig } from '@kubb/core'
-  import { pluginReactQuery } from '@kubb/plugin-react-query'
+  import { defineConfig } from "@kubb/core";
+  import { pluginReactQuery } from "@kubb/plugin-react-query";
 
   export default defineConfig({
     plugins: [
@@ -388,22 +562,23 @@ Upgrade tsdown.
         mutation: false, // ❌ Was still generating mutation hooks
       }),
     ],
-  })
+  });
   ```
 
   ```typescript [After - Working]
-  import { defineConfig } from '@kubb/core'
-  import { pluginReactQuery } from '@kubb/plugin-react-query'
+  import { defineConfig } from "@kubb/core";
+  import { pluginReactQuery } from "@kubb/plugin-react-query";
 
   export default defineConfig({
     plugins: [
       pluginReactQuery({
         mutation: false, // ✅ Now properly prevents mutation hook generation
-        query: true,     // Only generates queryOptions
+        query: true, // Only generates queryOptions
       }),
     ],
-  })
+  });
   ```
+
   :::
 
   **Changes:**
@@ -438,19 +613,20 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
   Query plugins now automatically detect when `clientType: 'class'` is set and generate their own inline function-based clients, allowing class-based clients and query hooks to coexist in the same configuration.
 
   ::: code-group
+
   ```typescript [Configuration]
-  import { defineConfig } from '@kubb/core'
-  import { pluginClient } from '@kubb/plugin-client'
-  import { pluginOas } from '@kubb/plugin-oas'
-  import { pluginReactQuery } from '@kubb/plugin-react-query'
-  import { pluginTs } from '@kubb/plugin-ts'
+  import { defineConfig } from "@kubb/core";
+  import { pluginClient } from "@kubb/plugin-client";
+  import { pluginOas } from "@kubb/plugin-oas";
+  import { pluginReactQuery } from "@kubb/plugin-react-query";
+  import { pluginTs } from "@kubb/plugin-ts";
 
   export default defineConfig({
     input: {
-      path: './petStore.yaml',
+      path: "./petStore.yaml",
     },
     output: {
-      path: './src/gen',
+      path: "./src/gen",
     },
     plugins: [
       pluginOas(),
@@ -458,20 +634,21 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
       // Class-based clients for direct usage
       pluginClient({
         output: {
-          path: './clients/class',
+          path: "./clients/class",
         },
-        clientType: 'class',
-        group: { type: 'tag' },
+        clientType: "class",
+        group: { type: "tag" },
       }),
       // Query hooks work with inline function-based clients
       pluginReactQuery({
         output: {
-          path: './hooks',
+          path: "./hooks",
         },
       }),
     ],
-  })
+  });
   ```
+
   :::
 
   **Changes:**
@@ -488,81 +665,93 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
   Add support for class-based client generation via the new `clientType` option. Users can now generate API clients as classes with methods instead of standalone functions by setting `clientType: 'class'` in the plugin configuration. When combined with `group: { type: 'tag' }`, this generates one class per tag (e.g., `Pet`, `Store`, `User`) with methods for each operation.
 
   ::: code-group
+
   ```typescript [Configuration]
-  import { defineConfig } from '@kubb/core'
-  import { pluginClient } from '@kubb/plugin-client'
-  import { pluginOas } from '@kubb/plugin-oas'
-  import { pluginTs } from '@kubb/plugin-ts'
+  import { defineConfig } from "@kubb/core";
+  import { pluginClient } from "@kubb/plugin-client";
+  import { pluginOas } from "@kubb/plugin-oas";
+  import { pluginTs } from "@kubb/plugin-ts";
 
   export default defineConfig({
     input: {
-      path: './petStore.yaml',
+      path: "./petStore.yaml",
     },
     output: {
-      path: './src/gen',
+      path: "./src/gen",
     },
     plugins: [
       pluginOas(),
       pluginTs(),
       pluginClient({
         output: {
-          path: './clients',
+          path: "./clients",
         },
-        clientType: 'class',
+        clientType: "class",
         group: {
-          type: 'tag',
+          type: "tag",
         },
       }),
     ],
-  })
+  });
   ```
 
   ```typescript [Generated Output]
   export class Pet {
-    #client: typeof fetch
+    #client: typeof fetch;
 
-    constructor(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-      this.#client = config.client || fetch
+    constructor(
+      config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+    ) {
+      this.#client = config.client || fetch;
     }
 
     async getPetById({ petId }: { petId: number }, config = {}) {
-      const { client: request = this.#client, ...requestConfig } = config
-      const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400>, unknown>({
-        method: 'GET',
+      const { client: request = this.#client, ...requestConfig } = config;
+      const res = await request<
+        GetPetByIdQueryResponse,
+        ResponseErrorConfig<GetPetById400>,
+        unknown
+      >({
+        method: "GET",
         url: `/pet/${petId}`,
         ...requestConfig,
-      })
-      return res.data
+      });
+      return res.data;
     }
 
     async addPet(data: AddPetMutationRequest, config = {}) {
-      const { client: request = this.#client, ...requestConfig } = config
-      const requestData = data
-      const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
-        method: 'POST',
-        url: '/pet',
+      const { client: request = this.#client, ...requestConfig } = config;
+      const requestData = data;
+      const res = await request<
+        AddPetMutationResponse,
+        ResponseErrorConfig<AddPet405>,
+        AddPetMutationRequest
+      >({
+        method: "POST",
+        url: "/pet",
         data: requestData,
         ...requestConfig,
-      })
-      return res.data
+      });
+      return res.data;
     }
   }
   ```
 
   ```typescript [Usage]
-  import { Pet } from './gen/clients/Pet'
+  import { Pet } from "./gen/clients/Pet";
 
-  const petClient = new Pet()
+  const petClient = new Pet();
 
   // Get a pet by ID
-  const pet = await petClient.getPetById({ petId: 1 })
+  const pet = await petClient.getPetById({ petId: 1 });
 
   // Add a new pet
   const newPet = await petClient.addPet({
-    name: 'Fluffy',
-    status: 'available'
-  })
+    name: "Fluffy",
+    status: "available",
+  });
   ```
+
   :::
 
   **Key features:**
@@ -588,21 +777,25 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
   Add support for Zod Mini with the new `mini` option. When `mini: true`, generates functional syntax instead of chainable methods for better tree-shaking.
 
 ::: code-group
+
 ```typescript [Before]
-z.string().optional()
+z.string().optional();
 ```
 
 ```typescript [After (with mini: true)]
-z.optional(z.string())
+z.optional(z.string());
 ```
+
 :::
 
 Configuration automatically sets `version` to `'4'` and `importPath` to `'zod/mini'` when mini mode is enabled. Updated parser to support `.check()` syntax for constraints in mini mode.
 
 ::: code-group
+
 ```typescript [Mini Mode]
-z.string().check(z.minLength(5))
+z.string().check(z.minLength(5));
 ```
+
 :::
 
 ## 4.7.1
@@ -622,6 +815,7 @@ z.string().check(z.minLength(5))
   Add support for `nextParam` and `previousParam` in infinite queries with nested field access. This enables independent cursor extraction for bidirectional pagination.
 
 ::: code-group
+
 ```typescript [Dot Notation]
 {
   nextParam: 'pagination.next.id',
@@ -635,6 +829,7 @@ z.string().check(z.minLength(5))
   previousParam: ['pagination', 'prev', 'id']
 }
 ```
+
 :::
 
 ::: warning DEPRECATED
@@ -664,17 +859,19 @@ The existing `cursorParam` option is deprecated but remains functional for backw
   Skip coercion for email, url, uuid with Zod 4. In Zod 4, coerce does not support `z.uuid()`, `z.email()` or `z.url()` and coercion does not make sense with these specific string subtypes.
 
 ::: code-group
+
 ```typescript [Correct Output]
 // When coercion: true and version: '4' are both enabled
-z.uuid()
-z.email()
-z.url()
+z.uuid();
+z.email();
+z.url();
 ```
 
 ```typescript [Previous (Incorrect)]
 // Attempted to use unsupported coercion syntax
-z.coerce.uuid() // ❌ Not supported in Zod 4
+z.coerce.uuid(); // ❌ Not supported in Zod 4
 ```
+
 :::
 
 ## 4.6.1
@@ -684,7 +881,6 @@ z.coerce.uuid() // ❌ Not supported in Zod 4
 - **Query Plugins** - Fix missing buildFormData import
 
   Fix missing `buildFormData` import when using `multipart/form-data` operations without `plugin-client`:
-
   - [`plugin-react-query`](/plugins/plugin-react-query/)
   - [`plugin-swr`](/plugins/plugin-swr/)
   - [`plugin-vue-query`](/plugins/plugin-vue-query/)
@@ -704,9 +900,10 @@ z.coerce.uuid() // ❌ Not supported in Zod 4
 - Automatic validation of required query parameters and response fields
 
 ::: code-group
+
 ```typescript [Example Usage]
 // Generated hook name example
-useFindPetsByTagsSuspenseInfinite()
+useFindPetsByTagsSuspenseInfinite();
 ```
 
 ```typescript [Configuration]
@@ -715,6 +912,7 @@ useFindPetsByTagsSuspenseInfinite()
   infinite: true
 }
 ```
+
 :::
 
 ## 4.5.15
@@ -726,17 +924,19 @@ useFindPetsByTagsSuspenseInfinite()
   Fix FormData handling in fetch client to properly support multipart/form-data requests. FormData instances are now passed directly to the fetch API instead of being JSON.stringify-ed, allowing the browser to correctly set the Content-Type header with the multipart boundary.
 
 ::: code-group
+
 ```typescript [After (Correct)]
 fetch(url, {
-  body: formData // Passed directly
-})
+  body: formData, // Passed directly
+});
 ```
 
 ```typescript [Before (Incorrect)]
 fetch(url, {
-  body: JSON.stringify(formData) // ❌ Wrong
-})
+  body: JSON.stringify(formData), // ❌ Wrong
+});
 ```
+
 :::
 
 ## 4.5.14
@@ -750,7 +950,6 @@ fetch(url, {
 - **Enhanced FormData Support**
 
   Support for arrays in multipart/form-data with improved FormData handling across all query plugins:
-
   - [`plugin-mcp`](/plugins/plugin-mcp)
   - [`plugin-react-query`](/plugins/plugin-react-query)
   - [`plugin-solid-query`](/plugins/plugin-solid-query)
@@ -779,10 +978,12 @@ fetch(url, {
   Fix circular dependency issues by wrapping all schema references in `z.lazy()` to prevent "used before declaration" errors with `oneOf`/`anyOf` constructs.
 
 ::: code-group
+
 ```typescript [Solution]
 // All references wrapped in z.lazy()
-z.lazy(() => Schema)
+z.lazy(() => Schema);
 ```
+
 :::
 
 - **[`plugin-swr`](/plugins/plugin-swr/)** - Fix mutation type issue
@@ -790,8 +991,8 @@ z.lazy(() => Schema)
   Fix SWR mutation type issue by using `SWRMutationConfiguration` directly instead of `Parameters<typeof useSWRMutation>[2]`. This resolves type inference issues caused by SWR's function overloading based on `throwOnError`, allowing flexible definition and passing of mutation configuration options.
 
 - **[`plugin-vue-query`](/plugins/plugin-vue-query/)** - Fix undefined schema handling
-
   - Fixed potential runtime errors when handling undefined schemas
+
 - Improved queryKey extraction safety with reactive value resolution
 
 - **[`core`](/plugins/core)** - Fix undefined schema handling
@@ -877,7 +1078,6 @@ Update Fabric packages.
 - **Removed `@kubb` Dependency from Generated Files**
 
   All query plugins now generate self-contained code with a `.kubb` folder containing necessary utilities:
-
   - [`plugin-react-query`](/plugins/plugin-react-query/)
   - [`plugin-svelte-query`](/plugins/plugin-svelte-query/)
   - [`plugin-vue-query`](/plugins/plugin-vue-query/)
@@ -889,13 +1089,15 @@ Update Fabric packages.
   :::
 
   ::: code-group
+
   ```typescript [Before]
-  import { client } from '@kubb/plugin-client'
+  import { client } from "@kubb/plugin-client";
   ```
 
   ```typescript [After]
-  import { client } from './.kubb/client'
+  import { client } from "./.kubb/client";
   ```
+
   :::
 
 - **[`plugin-zod`](/plugins/plugin-zod)** - Remove @kubb dependency
@@ -943,10 +1145,12 @@ Add Fabric support for improved code generation.
   Add exclusive minimum and maximum support with Zod constraints.
 
 ::: code-group
+
 ```typescript [Example]
-z.number().gt(5)  // Greater than 5
-z.number().lt(10) // Less than 10
+z.number().gt(5); // Greater than 5
+z.number().lt(10); // Less than 10
 ```
+
 :::
 
 ## 4.2.2
@@ -1058,19 +1262,21 @@ Upgrade internal packages.
   Enums generated with "asConst" have a "Key" suffix.
 
 ::: code-group
+
 ```typescript [After]
 const StatusKey = {
-  Active: 'active',
-  Inactive: 'inactive'
-} as const
+  Active: "active",
+  Inactive: "inactive",
+} as const;
 ```
 
 ```typescript [Before]
 const Status = {
-  Active: 'active',
-  Inactive: 'inactive'
-} as const
+  Active: "active",
+  Inactive: "inactive",
+} as const;
 ```
+
 :::
 
 - **[`plugin-vue-query`](/plugins/plugin-vue-query/)**
@@ -1122,10 +1328,12 @@ const Status = {
 - **[`core`](/plugins/core)**
 
   **Custom Formatters Support:**
+
 - [Biome](https://biomejs.dev/)
 - [Prettier](https://prettier.io/)
 
 **Custom Linters Support:**
+
 - [Biome](https://biomejs.dev/)
 - [Eslint](https://eslint.org/)
 - [Oxlint](https://oxc.rs/docs/guide/usage/linter)
@@ -1154,6 +1362,7 @@ const Status = {
 
   Resolve typescript error related to `queryClient` not having a default value:
   - [`plugin-react-query`](/plugins/plugin-react-query/)
+
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/)
 - [`plugin-vue-query`](/plugins/plugin-vue-query/)
 - [`plugin-solid-query`](/plugins/plugin-solid-query/)
@@ -1203,8 +1412,8 @@ Upgrade of internal dependencies.
 ### 🐛 Bug Fixes
 
 - **[`plugin-ts`](/plugins/plugin-ts)**
-
   - Fix ERROR Warning: Encountered two children with the same key
+
 - Fix pattern property not considered for JSDoc
 
 ## 3.16.0
@@ -1228,13 +1437,15 @@ See [SWR Documentation](https://swr.vercel.app/docs/revalidation#disable-automat
 :::
 
 ::: code-group
+
 ```typescript [Before]
-const { data, error } = useGetOrderById(2)
+const { data, error } = useGetOrderById(2);
 ```
 
 ```typescript [After]
-const { data, error } = useGetOrderById(2, { immutable: true })
+const { data, error } = useGetOrderById(2, { immutable: true });
 ```
+
 :::
 
 ## 3.14.4
@@ -1246,6 +1457,7 @@ const { data, error } = useGetOrderById(2, { immutable: true })
   Fix AnyOf where `const` (empty string) is being used should not be converted to a nullable value.
 
 ::: code-group
+
 ```json [OpenAPI Schema]
 {
   "anyOf": [
@@ -1263,15 +1475,16 @@ const { data, error } = useGetOrderById(2, { immutable: true })
 
 ```typescript [Before]
 type Order = {
-  status?: null | string
-}
+  status?: null | string;
+};
 ```
 
 ```typescript [After (Fixed)]
 type Order = {
-  status?: string
-}
+  status?: string;
+};
 ```
+
 :::
 
 ## 3.14.3
@@ -1283,10 +1496,12 @@ type Order = {
   Support Google API format paths:
 
   ::: code-group
+
   ```typescript [Example]
   // Google API path format
   my-api/foo/v1/bar/{id}:search
   ```
+
   :::
 
 ## 3.14.2
@@ -1302,8 +1517,8 @@ type Order = {
 ### 🐛 Bug Fixes
 
 - **[`parser/ts`](/parsers/parser-ts/)**
-
   - Fixed order of import and export files when using `print` of TypeScript
+
 - Fixed TypeScript version
 
 ## 3.14.0
@@ -1315,6 +1530,7 @@ type Order = {
   **New CLI Commands:**
 
 ::: code-group
+
 ```bash [Validate]
 # Validate a Swagger/OpenAPI file
 npx kubb validate --input swagger.json
@@ -1324,6 +1540,7 @@ npx kubb validate --input swagger.json
 # Start the MCP client to interact with LLMs (like Claude)
 npx kubb mcp
 ```
+
 :::
 
 ## 3.13.2
@@ -1349,7 +1566,6 @@ npx kubb mcp
 - **Multiple Plugins** - Add emptySchemaType option
 
   Add `emptySchemaType` option across plugins. It is used whenever schema is "empty" and defaults to the value of unknownType when not specified which maintains backwards compatibility.
-
   - [`plugin-ts`](/plugins/plugin-ts)
   - [`plugin-zod`](/plugins/plugin-zod)
   - [`plugin-faker`](/plugins/plugin-faker)
@@ -1410,7 +1626,7 @@ npx kubb mcp
 
 - **[`plugin-ts`](/plugins/plugin-ts)**
 
-  ConstEnum should be treated as export * instead of export type *.
+  ConstEnum should be treated as export _ instead of export type _.
 
 ## 3.10.15
 
@@ -1467,7 +1683,6 @@ npx kubb mcp
 - **Query Plugins** - Resolve TypeScript errors
 
   Resolve TypeScript errors across all query plugins:
-
   - [`plugin-react-query`](/plugins/plugin-react-query/)
   - [`plugin-svelte-query`](/plugins/plugin-svelte-query/)
   - [`plugin-vue-query`](/plugins/plugin-vue-query/)
@@ -1601,42 +1816,54 @@ Reduce any's being used:
 - [`plugin-faker`](/plugins/plugin-faker)
 
 ## 3.9.0
+
 - [`core`](/plugins/core): add default banner feature to enhance generated file recognizability by [@akinoccc](https://github.com/akinoccc)
 
 ## 3.8.1
+
 - [`plugin-zod`](/plugins/plugin-zod): support for Zod v4(beta)
 
 ## 3.8.0
+
 - [`react`](/helpers/react/): Support for React 19 and expose `useState`, `useEffect`, `useRef` from `@kubb/react`
 
 ## 3.7.7
+
 - [`plugin-oas`](/plugins/plugin-oas): support for contentType override/exclude/include
 
 ## 3.7.6
+
 - [`plugin-client`](/plugins/plugin-client): Removing export of the url
 
 ## 3.7.5
+
 - [`plugin-react-query`](/plugins/plugin-react-query/): support for custom QueryClient
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support for custom QueryClient
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): support for custom QueryClient
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): support for custom QueryClient
 
 ## 3.7.4
+
 - [`plugin-redoc`](/plugins/plugin-redoc): setup redoc without React dependency
 
 ## 3.7.3
+
 - [`plugin-zod`](/plugins/plugin-zod): fixed version for [`@hono/zod-openapi`](https://github.com/honojs/middleware/issues/1109)
 
 ## 3.7.2
+
 - [`plugin-client`](/plugins/plugin-client): method should be optional for default fetch and axios client
 
 ## 3.7.1
+
 - [`plugin-faker`](/plugins/plugin-faker/): Improve formatting of fake dates and times
 
 ## 3.7.0
+
 - [`plugin-cypress`](/plugins/plugin-cypress): support for `cy.request` with new plugin `@kubb/plugin-cypress`
 
 ## 3.6.5
+
 - [`plugin-react-query`](/plugins/plugin-react-query/): `TVariables` set to `void` as default
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): `TVariables` set to `void` as default
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): `TVariables` set to `void` as default
@@ -1644,19 +1871,24 @@ Reduce any's being used:
 - [`plugin-zod`](/plugins/plugin-zod): zod omit instead of `z.never`
 
 ## 3.6.4
+
 - Update external packages
 
 ## 3.6.3
+
 - [`plugin-oas`](/plugins/plugin-oas): extra checks for empty values for properties of a discriminator type
 - [`plugin-react-query`](/plugins/plugin-react-query/): allow override of mutation context with TypeScript generic
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): allow override of mutation context with TypeScript generic
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): allow override of mutation context with TypeScript generic
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): allow override of mutation context with TypeScript generic
 -
+
 ## 3.6.2
+
 - [`plugin-zod`](/plugins/plugin-zod): handling circular dependency properly when using `ToZod` helper
 
 ## 3.6.1
+
 - [`plugin-react-query`](/plugins/plugin-react-query/): validating the request using zod before making the HTTP call
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): validating the request using zod before making the HTTP call
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): validating the request using zod before making the HTTP call
@@ -1673,8 +1905,9 @@ Reduce any's being used:
   Adds `wrapOutput` option to allow for further customizing the generated zod schemas, making it possible to use OpenAPI on top of your Zod schema.
 
 ::: code-group
+
 ```typescript [Example with @hono/zod-openapi]
-import { z } from '@hono/zod-openapi'
+import { z } from "@hono/zod-openapi";
 
 export const showPetByIdError = z
   .lazy(() => error)
@@ -1682,19 +1915,20 @@ export const showPetByIdError = z
     examples: [
       {
         sample: {
-          summary: 'A sample error',
-          value: { code: 1, message: 'A sample error message' }
-        }
+          summary: "A sample error",
+          value: { code: 1, message: "A sample error message" },
+        },
       },
       {
         other_example: {
-          summary: 'Another sample error',
-          value: { code: 2, message: 'A totally specific message' }
-        }
+          summary: "Another sample error",
+          value: { code: 2, message: "A totally specific message" },
+        },
       },
     ],
-  })
+  });
 ```
+
 :::
 
 - **[`plugin-oas`](/plugins/plugin-oas)**
@@ -1702,6 +1936,7 @@ export const showPetByIdError = z
   Discriminator mapping with literal types.
 
 ::: code-group
+
 ```typescript [Before]
 export type FooBase = {
   /**
@@ -1719,9 +1954,11 @@ export type FooBase = {
   $type: "type-string" | "type-number";
 };
 ```
+
 :::
 
 ::: code-group
+
 ```typescript [Before]
 export type FooNumber = FooBase {
   /**
@@ -1744,27 +1981,34 @@ export type FooNumber = FooBase & {
   value: number;
 };
 ```
+
 :::
 
 ## 3.5.13
+
 - [`plugin-oas`](/plugins/plugin-oas): enum with whitespaces
 
 ## 3.5.12
+
 - [`core`](/plugins/core): internal packages update
 
 ## 3.5.11
+
 - [`core`](/plugins/core): internal packages update
 
 ## 3.5.10
+
 - [`plugin-faker`](/plugins/plugin-faker/): returnType for faker functions
 
 ## 3.5.9
+
 - [`plugin-faker`](/plugins/plugin-faker/): returnType for faker functions
 - [`plugin-faker`](/plugins/plugin-faker/): only use min/max when both are set in the oas
 - [`plugin-client`](/plugins/plugin-client): correct use of baseURL for fetch client
 - [`plugin-msw`](/plugins/plugin-msw): support for `baseURL` without wildcards
 
 ## 3.5.8
+
 - [`plugin-react-query`](/plugins/plugin-react-query/): support custom `contentType` per plugin
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support custom `contentType` per plugin
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): support custom `contentType` per plugin
@@ -1773,9 +2017,11 @@ export type FooNumber = FooBase & {
 - [`plugin-client`](/plugins/plugin-client): support custom `contentType` per plugin
 
 ## 3.5.7
+
 - [`react`](/helpers/react/): Bun does not follow the same node_modules structure, to resolve this we need to include the React bundle inside of `@kubb/react`. This will increase the size with 4MB.
 
 ## 3.5.6
+
 - [`plugin-react-query`](/plugins/plugin-react-query/): support custom client in options
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): support custom client in options
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): support custom client in options
@@ -1783,13 +2029,16 @@ export type FooNumber = FooBase & {
 - [`plugin-swr`](/plugins/plugin-swr/): support custom client in options
 
 ## 3.5.5
+
 - [`plugin-client`](/plugins/plugin-client): support custom client in options
 - [`plugin-faker`](/plugins/plugin-zod): `faker.number.string` with default min `Number.MIN_VALUE` and max set to `Number.MAX_VALUE`
 
 ## 3.5.4
+
 - [`plugin-zod`](/plugins/plugin-zod): Support uniqueItems in Zod
 
 ## 3.5.3
+
 - [`plugin-client`](/plugins/plugin-client): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
 - [`plugin-react-query`](/plugins/plugin-react-query/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
@@ -1797,17 +2046,20 @@ export type FooNumber = FooBase & {
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
 - [`plugin-swr`](/plugins/plugin-swr/): allow exporting custom client fetch function and use generated fetch when `pluginClient` is available
 
-
 ## 3.5.2
+
 - [`plugin-faker`](/plugins/plugin-faker): `faker.number.float` with default min `Number.MIN_VALUE` and max set to `Number.MAX_VALUE`.
 - [`plugin-oas`](/plugins/plugin-oas): remove duplicated keys when using `allOf` and applying required on fields
 
 ## 3.5.1
+
 - [`core`](/plugins/core): build of `@kubb/core` with correct types
 - [`plugin-oas`](/plugins/plugin-oas): allow `grouping`
 
 ## 3.5.0
+
 - [`core`](/plugins/core): support banner with context for Oas
+
 ```typescript
 pluginTs({
   output: {
@@ -1820,57 +2072,70 @@ pluginTs({
 ```
 
 ## 3.4.6
+
 - [`core`](/plugins/core): ignore acronyms when doing casing switch to pascal or camelcase
 
 ## 3.4.5
+
 - [`plugin-client`](/plugins/plugin-client): if client receives no body (no content) then it throws JSON parsing error
 - [`plugin-zod`](/plugins/plugin-zod): use of `as ToZod` instead of `satisfies ToZod`
 
 ## 3.4.4
+
 - [`plugin-client`](/plugins/plugin-client): url in text format instead of using URL
 
 ## 3.4.3
+
 - [`plugin-oas`](/plugins/plugin-oas): correct use of grouping for path and tags
 
 ## 3.4.2
+
 - [`plugin-oas`](/plugins/plugin-oas): remove duplicated keys when set in required
 
 ## 3.4.1
+
 - [`plugin-faker`](/plugins/plugin-faker): min and max was not applied to the faker functions
 
 ## 3.4.0
+
 - [`plugin-client`](/plugins/plugin-client): decouple URI (with params) from fetching
 - [`plugin-client`](/plugins/plugin-client): add header in response object
 - [`plugin-client`](/plugins/plugin-client): use of URL and SearchParams to support queryParams for fetch
 
 ## 3.3.5
+
 - [`plugin-react-query`](/plugins/plugin-react-query/): queryOptions with custom Error type
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): queryOptions with custom Error type
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): queryOptions with custom Error type
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): queryOptions with custom Error type
 - [`react`](/helpers/react/): importPath without extensions
 
-
 ## 3.3.4
+
 - [`plugin-ts`](/plugins/plugin-ts): minLength, maxLength, pattern as part of the jsdocs
 - [`plugin-client`](/plugins/plugin-client): baseURL could be undefined, do not throw error if that is the case
 
 ## 3.3.3
+
 - [`react`](/helpers/react/): Use of `@kubb/react` as importSource for jsx(React 17, React 18, React 19 could be used next to Kubb)
 - [`cli`](/helpers/cli/): Use of `@kubb/react` as importSource for jsx(React 17, React 18, React 19 could be used next to Kubb)
 
 ## 3.3.2
+
 - [`react`](/helpers/react/): Support `div` and other basic elements to be returned by `@kubb/react`
 
 ## 3.3.1
+
 - [`plugin-zod`](/plugins/plugin-zod): Use of `tozod` util to create schema based on a type
 
 ## 3.3.0
+
 - [`plugin-client`](/plugins/plugin-client): `client` to use `fetch` or `axios` as HTTP client
 - [`plugin-zod`](/plugins/plugin-zod): Use Regular expression literal instead of RegExp-contructor
 - [`plugin-ts`](/plugins/plugin-ts): Switch between the use of type or interface when creating types
 
 ## 3.2.0
+
 - [`plugin-msw`](/plugins/plugin-msw): `paramsCasing` to define casing for params
 - [`plugin-react-query`](/plugins/plugin-react-query/): `paramsCasing` to define casing for params
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): `paramsCasing` to define casing for params
@@ -1885,7 +2150,6 @@ pluginTs({
 - **Group API Clients by Path Structure**
 
   Group API clients by path structure across all query plugins:
-
   - [`plugin-react-query`](/plugins/plugin-react-query/)
   - [`plugin-svelte-query`](/plugins/plugin-svelte-query/)
   - [`plugin-vue-query`](/plugins/plugin-vue-query/)
@@ -1893,6 +2157,7 @@ pluginTs({
   - [`plugin-msw`](/plugins/plugin-msw)
 
 ::: code-group
+
 ```typescript [Configuration]
 group: {
   type: 'path',
@@ -1905,75 +2170,87 @@ group: {
 
 ```typescript [Handler Example]
 findPetsByStatusHandler((info) => {
-  const { params } = info
+  const { params } = info;
   if (params.someKey) {
-    return new Response(
-      JSON.stringify({ error: 'some error response' }),
-      { status: 400 }
-    );
+    return new Response(JSON.stringify({ error: "some error response" }), {
+      status: 400,
+    });
   }
-  return new Response(
-    JSON.stringify({ newData: 'new data' }),
-    { status: 200 }
-  );
-})
+  return new Response(JSON.stringify({ newData: "new data" }), { status: 200 });
+});
 ```
+
 :::
 
 ## 3.0.14
+
 - [`core`](/plugins/core): Upgrade packages
 
 ## 3.0.13
+
 - [`core`](/plugins/core): Upgrade packages
 - [`plugin-oas`](/plugins/plugin-oas): Applying required on fields inherited using allOf
 
 ## 3.0.12
+
 - [`plugin-zod`](/plugins/plugin-zod): 2xx as part of `operations.ts`
 
 ## 3.0.11
+
 - [`core`](/plugins/core): Disabling output file extension
 - [`plugin-oas`](/plugins/plugin-oas): Correct use of Jsdocs syntax for links
 - [`core`](/plugins/core): Respect casing of parameters
 
 ## 3.0.10
+
 - [`plugin-faker`](/plugins/plugin-faker): `data` should have a higher priority than faker defaults generation
 
 ## 3.0.9
+
 - [`plugin-oas`](/plugins/plugin-oas): Allow nullable with default null option
 - [`core`](/plugins/core): Correct use of `barrelType` for single files
 
 ## 3.0.8
+
 - [`plugin-zod`](/plugins/plugin-zod): Blob as `z.instanceof(File)` instead of `string`
 
 ## 3.0.7
+
 - [`core`](/plugins/core): Include single file exports in the main index.ts file.
 
 ## 3.0.6
-- [`plugin-oas`](/plugins/plugin-oas/): Correct use of variables when a path/params contains _ or -
+
+- [`plugin-oas`](/plugins/plugin-oas/): Correct use of variables when a path/params contains \_ or -
 - [`core`](/plugins/core): `barrelType: 'propagate'` to make sure the core can still generate barrel files, even if the plugin will not have barrel files
 
 ## 3.0.5
+
 - [`react`](/helpers/react//): Better error logging + wider range for `@kubb/react` peerDependency
 
 ## 3.0.4
+
 - Upgrade external dependencies
 
 ## 3.0.3
+
 - [`plugin-ts`](/plugins/plugin-ts/): `@deprecated` jsdoc tag for schemas
 
 ## 3.0.2
+
 - [`plugin-react-query`](/plugins/plugin-react-query/): remove the requirement of [`plugin-client`](/plugins/plugin-client)
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): remove the requirement of [`plugin-client`](/plugins/plugin-client)
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): remove the requirement of [`plugin-client`](/plugins/plugin-client)
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): remove the requirement of [`plugin-client`](/plugins/plugin-client)
 
 ## 3.0.1
+
 - [`plugin-faker`](/plugins/plugin-faker): Correct faker functions for uuid, pattern and email
 - [`plugin-react-query`](/plugins/plugin-react-query/): allow disabling `useQuery`
 - [`plugin-react-query`](/plugins/plugin-react-query/): use of `InfiniteData` TypeScript helper for infiniteQueries
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): use of `InfiniteData` TypeScript helper for infiniteQueries
 
 ## 3.0.0-beta.12
+
 - [`plugin-react-query`](/plugins/plugin-react-query/): allow to disable the generation of useQuery or createQuery hooks.
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): allow to disable the generation of useQuery or createQuery hooks.
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): allow to disable the generation of useQuery or createQuery hooks.
@@ -1981,10 +2258,12 @@ findPetsByStatusHandler((info) => {
 - [`plugin-swr`](/plugins/plugin-swr/): allow to disable the generation of useQuery or createQuery hooks.
 
 ## 3.0.0-beta.11
+
 - [`plugin-ts`](/plugins/plugin-ts): enumType `'enum'` without export type in barrel files
 - [`plugin-client`](/plugins/plugin-client): Allows you to set a custom base url for all generated calls
 
 ## 3.0.0-beta.10
+
 - [`plugin-react-query`](/plugins/plugin-react-query/): `paramsType` with options `'inline'` and `'object'` to have control over the amount of parameters when calling one of the generated functions.
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): `paramsType` with options `'inline'` and `'object'` to have control over the amount of parameters when calling one of the generated functions.
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): `paramsType` with options `'inline'` and `'object'` to have control over the amount of parameters when calling one of the generated functions.
@@ -1992,76 +2271,91 @@ findPetsByStatusHandler((info) => {
 - [`plugin-client`](/plugins/plugin-client/): `paramsType` with options `'inline'` and `'object'` to have control over the amount of parameters when calling one of the generated functions.
 
 ## 3.0.0-beta.9
+
 - [`plugin-msw`](/plugins/plugin-msw): `parser` option to disable faker generation
   - `'faker'` will use `@kubb/plugin-faker` to generate the data for the response
   - `'data'` will use your custom data to generate the data for the response
 - [`plugin-msw`](/plugins/plugin-msw): Siblings for better AST manipulation
 
 ## 3.0.0-beta.8
+
 - [`plugin-zod`](/plugins/plugin-zod): Siblings for better AST manipulation
 
 ## 3.0.0-beta.7
+
 - Upgrade external packages
 
 ## 3.0.0-beta.6
+
 - [`plugin-faker`](/plugins/plugin-faker): Min/Max for type array to generate better `faker.helpers.arrayElements` functionality
 
 ## 3.0.0-beta.5
+
 - [`plugin-zod`](/plugins/plugin-zod): Discard `optional()` if there is a `default()` to ensure the output type is not `T | undefined`
 
 ## 3.0.0-beta.4
+
 - Upgrade external packages
 
 ## 3.0.0-beta.3
+
 - [`plugin-zod`](/plugins/plugin-zod/): Added coercion for specific types only
+
 ```typescript
-type coercion=  boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
+type coercion =
+  | boolean
+  | { dates?: boolean; strings?: boolean; numbers?: boolean };
 ```
 
 ## 3.0.0-beta.2
+
 - Upgrade external packages
 
 ## 3.0.0-beta.1
+
 - Upgrade external packages
 
 ## 3.0.0-alpha.31
+
 - [`plugin-client`](/plugins/plugin-client/): Generate `${tag}Service` controller file related to group x when using `group`(no need to specify `group.exportAs`)
 - [`plugin-core`](/plugins/core/): Removal of `group.exportAs`
 - [`plugin-core`](/plugins/core/): Removal of `group.output` in favour of `group.name`(no need to specify the output/root)
+
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core"
-import { pluginOas } from "@kubb/plugin-oas"
-import { pluginTs } from "@kubb/plugin-ts"
-import { pluginClient } from '@kubb/plugin-client'
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginClient } from "@kubb/plugin-client";
 
 export default defineConfig({
-  root: '.',
+  root: ".",
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginClient({
       output: {
-        path: './clients/axios',
+        path: "./clients/axios",
       },
       // group: { type: 'tag', output: './clients/axios/{{tag}}Service' }, // [!code --]
-      group: { type: 'tag', name: ({ group }) => `${group}Service` }, // [!code ++]
+      group: { type: "tag", name: ({ group }) => `${group}Service` }, // [!code ++]
     }),
   ],
-})
+});
 ```
 
 ## 3.0.0-alpha.30
+
 - [`plugin-core`](/plugins/core/): Removal of `output.extName` in favour of `output.extension`
 - [`plugin-core`](/plugins/core/): Removal of `exportType` in favour of `barrelType`
 
-
 ## 3.0.0-alpha.29
+
 - [`plugin-react-query`](/plugins/plugin-react-query/): Support for cancellation of queries with the help of `signal`
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Support for cancellation of queries with the help of `signal`
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): Support for cancellation of queries with the help of `signal`
@@ -2072,34 +2366,38 @@ export default defineConfig({
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): Use of `enabled` based on optional params
 
 ## 3.0.0-alpha.28
+
 - [`plugin-zod`](/plugins/plugin-zod/): Respect order of `z.tuple`
 
 ## 3.0.0-alpha.27
+
 - [`plugin-swr`](/plugins/plugin-swr/): Support for TypeScript `strict` mode
 - [`plugin-react-query`](/plugins/plugin-react-query/): Support for TypeScript `strict` mode and use of data object for `mutationFn: async(data: {})`
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Support for TypeScript `strict` mode and use of data object for `mutationFn: async(data: {})`
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): Support for TypeScript `strict` mode and use of data object for `mutationFn: async(data: {})`
 - [`plugin-solid-query`](/plugins/plugin-solid-query/): Support for TypeScript `strict` mode and use of data object for `mutationFn: async(data: {})`
 
-
 ## 3.0.0-alpha.26
+
 - [`plugin-swr`](/plugins/plugin-swr/): Expose queryKey and mutationKey for the SWR plugin
 - 'generators' option for all plugins
 
 ## 3.0.0-alpha.25
+
 - [`plugin-react-query`](/plugins/plugin-react-query/): Use of MutationKeys for `useMutation`
 - [`plugin-svelte-query`](/plugins/plugin-svelte-query/): Use of MutationKeys for `createMutation`
 - [`plugin-vue-query`](/plugins/plugin-vue-query/): Use of MutationKeys for `useMutation`
 
-
 ## 3.0.0-alpha.24
+
 - [`plugin-oas`](/plugins/plugin-oas/): Support for [discriminator](https://swagger.io/specification/?sbsearch=discriminator)
 
-
 ## 3.0.0-alpha.23
+
 - [`plugin-client`](/plugins/plugin-client/): Use of uppercase for httpMethods, `GET` instead of `get`, `POST` instead of `post`, ...
 
 ## 3.0.0-alpha.22
+
 - [`plugin-faker`](/plugins/plugin-faker/): Use of `faker.image.url()` instead of `faker.image.imageUrl()`
 - [`plugin-zod`](/plugins/plugin-zod/): Enums should use `z.literal` when format is set to number, string or boolean
 
@@ -2112,16 +2410,19 @@ enum:
     - true
     - false
 ```
+
 ```typescript [output]
-z.enum(["true", "false"]) // [!code --]
-z.union([z.literal(true), z.literal(false)]) // [!code ++]
+z.enum(["true", "false"]); // [!code --]
+z.union([z.literal(true), z.literal(false)]); // [!code ++]
 ```
+
 :::
+
 - [`plugin-ts`](/plugins/plugin-ts/): Use of `readonly` for references($ref)
 - [`plugin-client`](/plugins/plugin-client/): Use of type `Error` when no errors are set for an operation
 
-
 ## 3.0.0-alpha.21
+
 - [`plugin-zod`](/plugins/plugin-zod/): Use of `x-nullable` and `nullable` for additionalProperties.
 
 ## 3.0.0-alpha.20
@@ -2129,107 +2430,103 @@ z.union([z.literal(true), z.literal(false)]) // [!code ++]
 - Separate plugin/package for Solid-Query: `@kubb/plugin-solid-query`
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core"
-import { pluginOas } from "@kubb/plugin-oas"
-import { pluginTs } from "@kubb/plugin-ts"
-import { pluginSolidQuery } from '@kubb/plugin-solid-query' // [!code ++]
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'  // [!code --]
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginSolidQuery } from "@kubb/plugin-solid-query"; // [!code ++]
+import { pluginTanstackQuery } from "@kubb/plugin-tanstack-query"; // [!code --]
 
 export default defineConfig({
-  root: '.',
+  root: ".",
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
       output: {
-        path: 'models',
+        path: "models",
       },
     }),
     pluginSolidQuery({
       output: {
-        path: './hooks',
+        path: "./hooks",
       },
-    })
+    }),
   ],
-})
-
+});
 ```
 
 - Separate plugin/package for Svelte-Query: `@kubb/plugin-svelte-query`
 
 ```typescript [kubb.config.ts]
-import {defineConfig} from "@kubb/core"
-import {pluginOas} from "@kubb/plugin-oas"
-import {pluginTs} from "@kubb/plugin-ts"
-import { pluginSvelteQuery } from '@kubb/plugin-svelte-query' // [!code ++]
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'  // [!code --]
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginSvelteQuery } from "@kubb/plugin-svelte-query"; // [!code ++]
+import { pluginTanstackQuery } from "@kubb/plugin-tanstack-query"; // [!code --]
 
 export default defineConfig({
-  root: '.',
+  root: ".",
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
       output: {
-        path: 'models',
+        path: "models",
       },
     }),
     pluginSvelteQuery({
       output: {
-        path: './hooks',
+        path: "./hooks",
       },
-    })
+    }),
   ],
-})
-
+});
 ```
 
-
-- Separate plugin/package for Vue-Query:  `@kubb/plugin-vue-query`
+- Separate plugin/package for Vue-Query: `@kubb/plugin-vue-query`
 
 ```typescript [kubb.config.ts]
-import {defineConfig} from "@kubb/core"
-import {pluginOas} from "@kubb/plugin-oas"
-import {pluginTs} from "@kubb/plugin-ts"
-import { pluginVueQuery } from '@kubb/plugin-vue-query' // [!code ++]
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'  // [!code --]
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginVueQuery } from "@kubb/plugin-vue-query"; // [!code ++]
+import { pluginTanstackQuery } from "@kubb/plugin-tanstack-query"; // [!code --]
 
 export default defineConfig({
-  root: '.',
+  root: ".",
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
       output: {
-        path: 'models',
+        path: "models",
       },
     }),
     pluginVueQuery({
       output: {
-        path: './hooks',
+        path: "./hooks",
       },
-    })
+    }),
   ],
-})
-
+});
 ```
 
 ## 3.0.0-alpha.16
@@ -2237,34 +2534,33 @@ export default defineConfig({
 - Separate plugin/package for React-Query: `@kubb/plugin-react-query`
 
 ```typescript [kubb.config.ts]
-import {defineConfig} from "@kubb/core"
-import {pluginOas} from "@kubb/plugin-oas"
-import {pluginTs} from "@kubb/plugin-ts"
-import { pluginReactQuery } from '@kubb/plugin-react-query' // [!code ++]
-import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'  // [!code --]
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
+import { pluginReactQuery } from "@kubb/plugin-react-query"; // [!code ++]
+import { pluginTanstackQuery } from "@kubb/plugin-tanstack-query"; // [!code --]
 
 export default defineConfig({
-  root: '.',
+  root: ".",
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
       output: {
-        path: 'models',
+        path: "models",
       },
     }),
     pluginReactQuery({
       output: {
-        path: './hooks',
+        path: "./hooks",
       },
-    })
+    }),
   ],
-})
-
+});
 ```

@@ -1,10 +1,11 @@
 import { relative } from 'node:path'
+import process from 'node:process'
 import * as clack from '@clack/prompts'
 import { defineLogger, LogLevel } from '@kubb/core'
+import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import { default as gradientString } from 'gradient-string'
 import pc from 'picocolors'
-
 import { getSummary } from '../utils/getSummary.ts'
 import { ClackWritable } from '../utils/Writables.ts'
 
@@ -16,9 +17,62 @@ export const clackLogger = defineLogger({
   name: 'clack',
   install(context, options) {
     const logLevel = options?.logLevel || LogLevel.info
-    const activeProgress = new Map<string, { interval?: NodeJS.Timeout; progressBar: clack.ProgressResult }>()
-    const spinner = clack.spinner()
-    let isSpinning = false
+    const state = {
+      totalPlugins: 0,
+      completedPlugins: 0,
+      failedPlugins: 0,
+      totalFiles: 0,
+      processedFiles: 0,
+      hrStart: process.hrtime(),
+      spinner: clack.spinner(),
+      isSpinning: false,
+      activeProgress: new Map<string, { interval?: NodeJS.Timeout; progressBar: clack.ProgressResult }>(),
+    }
+
+    function reset() {
+      for (const [_key, active] of state.activeProgress) {
+        if (active.interval) {
+          clearInterval(active.interval)
+        }
+        active.progressBar?.stop()
+      }
+
+      state.totalPlugins = 0
+      state.completedPlugins = 0
+      state.failedPlugins = 0
+      state.totalFiles = 0
+      state.processedFiles = 0
+      state.hrStart = process.hrtime()
+      state.spinner = clack.spinner()
+      state.isSpinning = false
+      state.activeProgress.clear()
+    }
+
+    function showProgressStep() {
+      if (logLevel <= LogLevel.silent) {
+        return
+      }
+
+      const parts: string[] = []
+      const duration = formatHrtime(state.hrStart)
+
+      if (state.totalPlugins > 0) {
+        const pluginStr =
+          state.failedPlugins > 0
+            ? `Plugins ${pc.green(state.completedPlugins.toString())}/${state.totalPlugins} ${pc.red(`(${state.failedPlugins} failed)`)}`
+            : `Plugins ${pc.green(state.completedPlugins.toString())}/${state.totalPlugins}`
+        parts.push(pluginStr)
+      }
+
+      if (state.totalFiles > 0) {
+        parts.push(`Files ${pc.green(state.processedFiles.toString())}/${state.totalFiles}`)
+      }
+
+      if (parts.length > 0) {
+        parts.push(`${pc.green(duration)} elapsed`)
+        clack.log.step(getMessage(parts.join(pc.dim(' | '))))
+      }
+    }
 
     function getMessage(message: string): string {
       if (logLevel >= LogLevel.verbose) {
@@ -36,13 +90,13 @@ export const clackLogger = defineLogger({
     }
 
     function startSpinner(text?: string) {
-      spinner.start(text)
-      isSpinning = true
+      state.spinner.start(text)
+      state.isSpinning = true
     }
 
     function stopSpinner(text?: string) {
-      spinner.stop(text)
-      isSpinning = false
+      state.spinner.stop(text)
+      state.isSpinning = false
     }
 
     context.on('info', (message, info = '') => {
@@ -52,8 +106,8 @@ export const clackLogger = defineLogger({
 
       const text = getMessage([pc.blue('ℹ'), message, pc.dim(info)].join(' '))
 
-      if (isSpinning) {
-        spinner.message(text)
+      if (state.isSpinning) {
+        state.spinner.message(text)
       } else {
         clack.log.info(text)
       }
@@ -66,7 +120,7 @@ export const clackLogger = defineLogger({
 
       const text = getMessage([pc.blue('✓'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' '))
 
-      if (isSpinning) {
+      if (state.isSpinning) {
         stopSpinner(text)
       } else {
         clack.log.success(text)
@@ -88,7 +142,7 @@ export const clackLogger = defineLogger({
 
       const text = [pc.red('✗'), error.message].join(' ')
 
-      if (isSpinning) {
+      if (state.isSpinning) {
         stopSpinner(getMessage(text))
       } else {
         clack.log.error(getMessage(text))
@@ -134,6 +188,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
     context.on('lifecycle:start', (version) => {
       console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(`Kubb ${version} 🧩`))
+      reset()
     })
 
     context.on('config:start', () => {
@@ -147,7 +202,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       startSpinner(getMessage('Configuration loading'))
     })
 
-    context.on('config:end', () => {
+    context.on('config:end', (_configs) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
@@ -158,9 +213,13 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('generation:start', (config) => {
+      // Initialize progress tracking
+      state.totalPlugins = config.plugins?.length || 0
+
       const text = getMessage(['Generation started', config.name ? `for ${pc.dim(config.name)}` : undefined].filter(Boolean).join(' '))
 
       clack.intro(text)
+      reset()
     })
 
     context.on('plugin:start', (plugin) => {
@@ -180,15 +239,15 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       const interval = setInterval(() => {
         progressBar.advance()
-      }, 50)
+      }, 100)
 
-      activeProgress.set(plugin.name, { progressBar, interval })
+      state.activeProgress.set(plugin.name, { progressBar, interval })
     })
 
-    context.on('plugin:end', (plugin, duration) => {
+    context.on('plugin:end', (plugin, { duration, success }) => {
       stopSpinner()
 
-      const active = activeProgress.get(plugin.name)
+      const active = state.activeProgress.get(plugin.name)
 
       if (!active || logLevel === LogLevel.silent) {
         return
@@ -196,11 +255,22 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       clearInterval(active.interval)
 
-      const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
-      const text = getMessage(`${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}`)
+      if (success) {
+        state.completedPlugins++
+      } else {
+        state.failedPlugins++
+      }
+
+      const durationStr = formatMs(duration)
+      const text = getMessage(
+        success ? `${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}` : `${pc.bold(plugin.name)} failed in ${pc.red(durationStr)}`,
+      )
 
       active.progressBar.stop(text)
-      activeProgress.delete(plugin.name)
+      state.activeProgress.delete(plugin.name)
+
+      // Show progress step after each plugin
+      showProgressStep()
     })
 
     context.on('files:processing:start', (files) => {
@@ -209,6 +279,9 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
 
       stopSpinner()
+
+      state.totalFiles = files.length
+      state.processedFiles = 0
 
       const text = `Writing ${files.length} files`
       const progressBar = clack.progress({
@@ -219,7 +292,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       context.emit('info', text)
       progressBar.start(getMessage(text))
-      activeProgress.set('files', { progressBar })
+      state.activeProgress.set('files', { progressBar })
     })
 
     context.on('file:processing:update', ({ file, config }) => {
@@ -229,8 +302,10 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       stopSpinner()
 
+      state.processedFiles++
+
       const text = `Writing ${relative(config.root, file.path)}`
-      const active = activeProgress.get('files')
+      const active = state.activeProgress.get('files')
 
       if (!active) {
         return
@@ -246,81 +321,23 @@ Run \`npm install -g @kubb/cli\` to update`,
       stopSpinner()
 
       const text = getMessage('Files written successfully')
-      const active = activeProgress.get('files')
+      const active = state.activeProgress.get('files')
 
       if (!active) {
         return
       }
 
       active.progressBar.stop(text)
-      activeProgress.delete('files')
+      state.activeProgress.delete('files')
+
+      // Show final progress step after files are written
+      showProgressStep()
     })
 
     context.on('generation:end', (config) => {
       const text = getMessage(config.name ? `Generation completed for ${pc.dim(config.name)}` : 'Generation completed')
 
       clack.outro(text)
-    })
-
-    context.on('hook:execute', async ({ command, args }, cb) => {
-      if (logLevel <= LogLevel.silent) {
-        try {
-          const result = await execa(command, args, {
-            detached: true,
-            stripFinalNewline: true,
-          })
-
-          await context.emit('debug', {
-            date: new Date(),
-            logs: [result.stdout],
-          })
-
-          cb()
-        } catch (err) {
-          const error = new Error('Hook execute failed')
-          error.cause = err
-
-          await context.emit('debug', {
-            date: new Date(),
-            logs: [(err as any).stdout],
-          })
-
-          await context.emit('error', error)
-        }
-
-        return
-      }
-
-      const logger = clack.taskLog({
-        title: getMessage(['Executing hook', logLevel >= LogLevel.info ? pc.dim(`${command} ${args?.join(' ')}`) : undefined].filter(Boolean).join(' ')),
-      })
-
-      const writable = new ClackWritable(logger)
-
-      try {
-        const result = await execa(command, args, {
-          detached: true,
-          stdout: ['pipe', writable],
-          stripFinalNewline: true,
-        })
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [result.stdout],
-        })
-
-        cb()
-      } catch (err) {
-        const error = new Error('Hook execute failed')
-        error.cause = err
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [(err as any).stdout],
-        })
-
-        await context.emit('error', error)
-      }
     })
 
     context.on('format:start', () => {
@@ -363,22 +380,77 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.outro(text)
     })
 
-    context.on('hook:start', (command) => {
-      if (logLevel <= LogLevel.silent) {
-        return
-      }
-
+    context.on('hook:start', async ({ id, command, args }) => {
       const text = getMessage(`Hook ${pc.dim(command)} started`)
 
+      if (logLevel <= LogLevel.silent) {
+        try {
+          const result = await execa(command, args, {
+            detached: true,
+            stripFinalNewline: true,
+          })
+
+          await context.emit('debug', {
+            date: new Date(),
+            logs: [result.stdout],
+          })
+
+          await context.emit('hook:end', { command, id })
+        } catch (err) {
+          const error = new Error('Hook execute failed')
+          error.cause = err
+
+          await context.emit('debug', {
+            date: new Date(),
+            logs: [(err as any).stdout],
+          })
+
+          await context.emit('error', error)
+        }
+
+        return
+      }
+
       clack.intro(text)
+
+      const logger = clack.taskLog({
+        title: getMessage(['Executing hook', logLevel >= LogLevel.info ? pc.dim(`${command} ${args?.join(' ')}`) : undefined].filter(Boolean).join(' ')),
+      })
+
+      const writable = new ClackWritable(logger)
+
+      try {
+        const result = await execa(command, args, {
+          detached: true,
+          stdout: ['pipe', writable],
+          stripFinalNewline: true,
+        })
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [result.stdout],
+        })
+
+        await context.emit('hook:end', { command, id })
+      } catch (err) {
+        const error = new Error('Hook execute failed')
+        error.cause = err
+
+        await context.emit('debug', {
+          date: new Date(),
+          logs: [(err as any).stdout],
+        })
+
+        await context.emit('error', error)
+      }
     })
 
-    context.on('hook:end', (command) => {
+    context.on('hook:end', ({ command }) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
 
-      const text = getMessage(`Hook ${pc.dim(command)} completed`)
+      const text = getMessage(`Hook ${pc.dim(command)} successfully executed`)
 
       clack.outro(text)
     })
@@ -421,13 +493,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('lifecycle:end', () => {
-      for (const [_key, active] of activeProgress) {
-        if (active.interval) {
-          clearInterval(active.interval)
-        }
-        active.progressBar?.stop()
-      }
-      activeProgress.clear()
+      reset()
     })
   },
 })

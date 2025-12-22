@@ -1,5 +1,4 @@
-import { join, resolve } from 'node:path'
-import { performance } from 'node:perf_hooks'
+import { resolve } from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import { createFabric } from '@kubb/react-fabric'
@@ -11,6 +10,7 @@ import { PluginManager } from './PluginManager.ts'
 import type { Config, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
 import { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
+import { formatMs, getElapsedMs } from './utils/formatHrtime.ts'
 import { URLPath } from './utils/URLPath.ts'
 
 type BuildOptions = {
@@ -101,10 +101,9 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   if (definedConfig.output.clean) {
     await events.emit('debug', {
       date: new Date(),
-      logs: ['Cleaning output directories', `  • Output: ${definedConfig.output.path}`, '  • Cache: .kubb'],
+      logs: ['Cleaning output directories', `  • Output: ${definedConfig.output.path}`],
     })
     await clean(definedConfig.output.path)
-    await clean(join(definedConfig.root, '.kubb'))
   }
 
   const fabric = createFabric()
@@ -121,7 +120,11 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   fabric.context.on('file:processing:update', async (params) => {
     const { file, source } = params
-    await events.emit('file:processing:update', { ...params, config: definedConfig, source })
+    await events.emit('file:processing:update', {
+      ...params,
+      config: definedConfig,
+      source,
+    })
 
     if (source) {
       await write(file.path, source, { sanity: false })
@@ -132,7 +135,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     await events.emit('files:processing:end', files)
     await events.emit('debug', {
       date: new Date(),
-      logs: ['✓ File write process completed'],
+      logs: [`✓ File write process completed for ${files.length} files`],
     })
   })
 
@@ -179,40 +182,48 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
   const { fabric, pluginManager, events } = overrides ? overrides : await setup(options)
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
+  // in ms
   const pluginTimings = new Map<string, number>()
   const config = pluginManager.config
 
   try {
     for (const plugin of pluginManager.plugins) {
       const context = pluginManager.getContext(plugin)
+      const hrStart = process.hrtime()
 
       const installer = plugin.install.bind(context)
 
       try {
-        const startTime = performance.now()
         const timestamp = new Date()
 
         await events.emit('plugin:start', plugin)
 
         await events.emit('debug', {
           date: timestamp,
-          logs: ['Installing plugin...', `  • Plugin Key: ${JSON.stringify(plugin.key)}`],
+          logs: ['Installing plugin...', `  • Plugin Key: [${plugin.key.join(', ')}]`],
         })
 
         await installer(context)
 
-        const duration = Math.round(performance.now() - startTime)
+        const duration = getElapsedMs(hrStart)
         pluginTimings.set(plugin.name, duration)
 
-        await events.emit('plugin:end', plugin, duration)
+        await events.emit('plugin:end', plugin, { duration, success: true })
 
         await events.emit('debug', {
           date: new Date(),
-          logs: [`✓ Plugin installed successfully (${duration}ms)`],
+          logs: [`✓ Plugin installed successfully (${formatMs(duration)})`],
         })
       } catch (caughtError) {
         const error = caughtError as Error
         const errorTimestamp = new Date()
+        const duration = getElapsedMs(hrStart)
+
+        await events.emit('plugin:end', plugin, {
+          duration,
+          success: false,
+          error,
+        })
 
         await events.emit('debug', {
           date: errorTimestamp,

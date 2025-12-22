@@ -1,7 +1,7 @@
 import path from 'node:path'
-
+import { afterEach, describe, expect, test } from 'vitest'
 import { clean } from './clean.ts'
-import { read } from './read.ts'
+import { read, readSync } from './read.ts'
 import { getRelativePath } from './utils.ts'
 import { write } from './write.ts'
 
@@ -21,6 +21,17 @@ describe('read', () => {
     await write(filePath, text)
 
     const file = await read(filePath)
+
+    expect(file).toBeDefined()
+    expect(file).toBe(text)
+  })
+
+  test('readSync reads file synchronously', async () => {
+    const text = `export const hallo = 'world sync'`
+
+    await write(filePath, text)
+
+    const file = readSync(filePath)
 
     expect(file).toBeDefined()
     expect(file).toBe(text)

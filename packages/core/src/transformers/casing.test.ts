@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { camelCase, pascalCase } from './casing.ts'
 
 describe('casing', () => {

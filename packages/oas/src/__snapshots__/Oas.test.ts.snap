@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Oas filter > Filtering on operationId 1`] = `
+exports[`[oas] filter > Filtering on operationId 1`] = `
 "openapi: 3.0.3
 info:
   title: Swagger Petstore - OpenAPI 3.0

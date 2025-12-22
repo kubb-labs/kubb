@@ -25,7 +25,10 @@
       "xml": { "name": "customer" },
       "x-readme-ref-name": "Customer"
     },
-    { "type": "object", "properties": { "isHappy": { "type": "boolean", "const": true } } }
+    {
+      "type": "object",
+      "properties": { "isHappy": { "type": "boolean", "const": true } }
+    }
   ],
   "x-readme-ref-name": "HappyCustomer"
 }

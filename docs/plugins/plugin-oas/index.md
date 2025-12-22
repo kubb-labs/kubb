@@ -157,16 +157,25 @@ const plugin = pluginOas({ serverIndex: 1 })
 ### discriminator
 
 Defines how the discriminator value should be interpreted during processing.
-This has been mentioned in [issues/1736](https://github.com/kubb-labs/kubb/issues/1736).
 
+Kubb provides comprehensive support for OpenAPI discriminators in both **OpenAPI 3.0** and **OpenAPI 3.1** specifications, including:
+- Explicit and inferred mapping
+- `oneOf` and `anyOf` constructs
+- Inline schemas and `$ref` references
+- Extension properties (e.g., `x-custom-name`)
+- Const and enum values
+- Mixed types and edge cases
+
+See [Discriminators](/knowledge-base/oas#discriminators) in the knowledge base for detailed examples and supported patterns.
 
 |           |                          |
 |----------:|:-------------------------|
 |     Type: | ` 'strict' \| 'inherit'` |
-| Required: | `'strict'`                 |
+| Required: | `false`                  |
+|  Default: | `'strict'`               |
 
-- `'inherit'` Replaces the `oneOf` schema with the schema referenced by `discriminator.mapping[key]`.
-- `'strict'` Uses the `oneOf` schemas as defined, without modification.
+- `'strict'` Uses the `oneOf` schemas as defined, without modification. The discriminator is used for type narrowing but doesn't modify the child schemas.
+- `'inherit'` Adds the discriminator property with appropriate enum values to each child schema, ensuring type safety and enabling better code generation.
 
 ::: code-group
 
@@ -340,3 +349,4 @@ export default defineConfig({
 ## Links
 
 - [Oas](https://github.com/readmeio/oas)
+- [OpenAPI Discriminators](/knowledge-base/oas#discriminators)

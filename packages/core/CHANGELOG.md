@@ -1,5 +1,19 @@
 # @kubb/core
 
+## 4.12.11
+
+## 4.12.10
+
+## 4.12.9
+
+## 4.12.8
+
+## 4.12.7
+
+### Patch Changes
+
+- [#2219](https://github.com/kubb-labs/kubb/pull/2219) [`93b39af`](https://github.com/kubb-labs/kubb/commit/93b39aff5874c959ce1d3ee1203ea378a0cbe663) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Success and error for plugin:end event
+
 ## 4.12.6
 
 ## 4.12.5

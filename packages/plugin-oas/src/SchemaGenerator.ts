@@ -55,16 +55,16 @@ export type SchemaGeneratorOptions = {
      * TODO TODO add docs
      * @beta
      */
-    schema?: (schemaProps: SchemaProps, defaultSchemas: Schema[]) => Schema[] | undefined
+    schema?: (schemaProps: SchemaProps, defaultSchemas: Schema[]) => Array<Schema> | undefined
   }
 }
 
 export type SchemaGeneratorBuildOptions = Omit<OperationSchema, 'name' | 'schema'>
 
 type SchemaProps = {
-  schemaObject?: SchemaObject
-  name?: string
-  parentName?: string
+  schema: SchemaObject | null
+  name: string | null
+  parentName: string | null
 }
 
 export class SchemaGenerator<
@@ -84,7 +84,7 @@ export class SchemaGenerator<
    * optionally adds a union with null.
    */
   parse(props: SchemaProps): Schema[] {
-    const options = this.#getOptions(props)
+    const options = this.#getOptions(props.name)
 
     const defaultSchemas = this.#parseSchemaObject(props)
     const schemas = options.transformers?.schema?.(props, defaultSchemas) || defaultSchemas || []
@@ -234,7 +234,7 @@ export class SchemaGenerator<
     })
   }
 
-  #getOptions({ name }: SchemaProps): Partial<TOptions> {
+  #getOptions(name: string | null): Partial<TOptions> {
     const { override = [] } = this.context
 
     return {
@@ -249,8 +249,8 @@ export class SchemaGenerator<
     }
   }
 
-  #getUnknownType(props: SchemaProps) {
-    const options = this.#getOptions(props)
+  #getUnknownType(name: string | null): string {
+    const options = this.#getOptions(name)
 
     if (options.unknownType === 'any') {
       return schemaKeywords.any
@@ -262,8 +262,8 @@ export class SchemaGenerator<
     return schemaKeywords.unknown
   }
 
-  #getEmptyType(props: SchemaProps) {
-    const options = this.#getOptions(props)
+  #getEmptyType(name: string | null): string {
+    const options = this.#getOptions(name)
 
     if (options.emptySchemaType === 'any') {
       return schemaKeywords.any
@@ -278,10 +278,11 @@ export class SchemaGenerator<
   /**
    * Recursively creates a type literal with the given props.
    */
-  #parseProperties({ schemaObject, name }: SchemaProps): Schema[] {
+  #parseProperties(name: string | null, schemaObject: SchemaObject): Schema[] {
     const properties = schemaObject?.properties || {}
     const additionalProperties = schemaObject?.additionalProperties
     const required = schemaObject?.required
+    const patternProperties = schemaObject && 'patternProperties' in schemaObject ? schemaObject.patternProperties : undefined
 
     const propertiesSchemas = Object.keys(properties)
       .map((propertyName) => {
@@ -291,7 +292,7 @@ export class SchemaGenerator<
         const isRequired = Array.isArray(required) ? required?.includes(propertyName) : !!required
         const nullable = propertySchema.nullable ?? propertySchema['x-nullable'] ?? false
 
-        validationFunctions.push(...this.parse({ schemaObject: propertySchema, name: propertyName, parentName: name }))
+        validationFunctions.push(...this.parse({ schema: propertySchema, name: propertyName, parentName: name }))
 
         validationFunctions.push({
           keyword: schemaKeywords.name,
@@ -314,17 +315,43 @@ export class SchemaGenerator<
     if (additionalProperties) {
       additionalPropertiesSchemas =
         additionalProperties === true || !Object.keys(additionalProperties).length
-          ? [{ keyword: this.#getUnknownType({ schemaObject, name }) }]
-          : this.parse({ schemaObject: additionalProperties as SchemaObject, parentName: name })
+          ? [{ keyword: this.#getUnknownType(name) }]
+          : this.parse({ schema: additionalProperties as SchemaObject, name: null, parentName: name })
+    }
+
+    let patternPropertiesSchemas: Record<string, Schema[]> = {}
+
+    if (patternProperties && typeof patternProperties === 'object') {
+      patternPropertiesSchemas = Object.entries(patternProperties).reduce((acc, [pattern, patternSchema]) => {
+        const schemas =
+          patternSchema === true || !Object.keys(patternSchema as object).length
+            ? [{ keyword: this.#getUnknownType(name) }]
+            : this.parse({ schema: patternSchema, name: null, parentName: name })
+
+        return {
+          ...acc,
+          [pattern]: schemas,
+        }
+      }, {})
+    }
+
+    const args: {
+      properties: typeof propertiesSchemas
+      additionalProperties: typeof additionalPropertiesSchemas
+      patternProperties?: typeof patternPropertiesSchemas
+    } = {
+      properties: propertiesSchemas,
+      additionalProperties: additionalPropertiesSchemas,
+    }
+
+    if (Object.keys(patternPropertiesSchemas).length > 0) {
+      args['patternProperties'] = patternPropertiesSchemas
     }
 
     return [
       {
         keyword: schemaKeywords.object,
-        args: {
-          properties: propertiesSchemas,
-          additionalProperties: additionalPropertiesSchemas,
-        },
+        args,
       },
     ]
   }
@@ -332,7 +359,7 @@ export class SchemaGenerator<
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
-  #getRefAlias(schemaObject: OpenAPIV3.ReferenceObject, name: string | undefined): Schema[] {
+  #getRefAlias(schemaObject: OpenAPIV3.ReferenceObject, name: string | null): Schema[] {
     const { $ref } = schemaObject
     const ref = this.refs[$ref]
 
@@ -410,7 +437,7 @@ export class SchemaGenerator<
     return this.#getRefAlias(schemaObject, name)
   }
 
-  #getParsedSchemaObject(schema?: SchemaObject) {
+  #getParsedSchemaObject(schema: SchemaObject | null) {
     return getSchemaFactory(this.context.oas)(schema)
   }
 
@@ -427,13 +454,33 @@ export class SchemaGenerator<
       return schema
     }
 
-    const objectPropertySchema = SchemaGenerator.find(this.parse({ schemaObject: schemaObject }), schemaKeywords.object)
+    // If the discriminator property is an extension property (starts with x-),
+    // it's metadata and not an actual schema property, so we can't add constraints for it.
+    // In this case, return the union as-is without adding discriminator constraints.
+    if (discriminator.propertyName.startsWith('x-')) {
+      return schema
+    }
+
+    const objectPropertySchema = SchemaGenerator.find(this.parse({ schema: schemaObject, name: null, parentName: null }), schemaKeywords.object)
 
     return {
       ...schema,
       args: Object.entries(discriminator.mapping || {})
         .map(([key, value]) => {
-          const arg = schema.args.find((item) => isKeyword(item, schemaKeywords.ref) && item.args.$ref === value)
+          let arg: Schema | undefined
+
+          // Check if this is a synthetic ref for inline schemas (e.g., #kubb-inline-0)
+          if (value.startsWith('#kubb-inline-')) {
+            const index = Number.parseInt(value.replace('#kubb-inline-', ''), 10)
+            // Validate index is within bounds
+            if (!Number.isNaN(index) && index >= 0 && index < schema.args.length) {
+              arg = schema.args[index]
+            }
+          } else {
+            // Regular ref - find by $ref value
+            arg = schema.args.find((item) => isKeyword(item, schemaKeywords.ref) && item.args.$ref === value)
+          }
+
           // Skip discriminator mappings that don't have a corresponding schema in the oneOf/anyOf
           if (!arg) {
             return undefined
@@ -477,7 +524,7 @@ export class SchemaGenerator<
    * Without oneOf/anyOf, the discriminator is just for documentation/validation
    * purposes and doesn't create a TypeScript union type that would be circular.
    */
-  #wouldCreateCircularReference(item: unknown, childSchemaName: string | undefined): boolean {
+  #wouldCreateCircularReference(item: unknown, childSchemaName: string | null): boolean {
     if (!isReference(item) || !childSchemaName) {
       return false
     }
@@ -515,11 +562,13 @@ export class SchemaGenerator<
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  #parseSchemaObject({ schemaObject: _schemaObject, name, parentName }: SchemaProps): Schema[] {
-    const { schemaObject, version } = this.#getParsedSchemaObject(_schemaObject)
+  #parseSchemaObject({ schema: _schemaObject, name, parentName }: SchemaProps): Schema[] {
+    const normalizedSchema = this.context.oas.flattenSchema(_schemaObject)
 
-    const options = this.#getOptions({ schemaObject, name })
-    const emptyType = this.#getEmptyType({ schemaObject, name })
+    const { schemaObject, version } = this.#getParsedSchemaObject(normalizedSchema)
+
+    const options = this.#getOptions(name)
+    const emptyType = this.#getEmptyType(name)
 
     if (!schemaObject) {
       return [{ keyword: emptyType }]
@@ -620,7 +669,7 @@ export class SchemaGenerator<
               .map(
                 (item) =>
                   this.parse({
-                    schemaObject: { ...schemaObject, type: item },
+                    schema: { ...schemaObject, type: item },
                     name,
                     parentName,
                   })[0],
@@ -677,7 +726,7 @@ export class SchemaGenerator<
         args: (schemaObject.oneOf || schemaObject.anyOf)!
           .map((item) => {
             // first item, this will be ref
-            return item && this.parse({ schemaObject: item as SchemaObject, name, parentName })[0]
+            return item && this.parse({ schema: item as SchemaObject, name, parentName })[0]
           })
           .filter(Boolean),
       }
@@ -691,7 +740,7 @@ export class SchemaGenerator<
       }
 
       if (schemaWithoutOneOf.properties) {
-        const propertySchemas = this.parse({ schemaObject: schemaWithoutOneOf, name, parentName })
+        const propertySchemas = this.parse({ schema: schemaWithoutOneOf, name, parentName })
 
         union.args = [
           ...union.args.map((arg) => {
@@ -720,7 +769,8 @@ export class SchemaGenerator<
             if (this.#wouldCreateCircularReference(item, name)) {
               return []
             }
-            return item ? this.parse({ schemaObject: item as SchemaObject, name, parentName }) : []
+
+            return item ? this.parse({ schema: item, name, parentName }) : []
           })
           .filter(Boolean),
       }
@@ -760,7 +810,7 @@ export class SchemaGenerator<
         }
 
         for (const item of parsedItems) {
-          const parsed = this.parse({ schemaObject: item, name, parentName })
+          const parsed = this.parse({ schema: item, name, parentName })
 
           if (Array.isArray(parsed)) {
             and.args = and.args ? and.args.concat(parsed) : parsed
@@ -769,7 +819,7 @@ export class SchemaGenerator<
       }
 
       if (schemaWithoutAllOf.properties) {
-        and.args = [...(and.args || []), ...this.parse({ schemaObject: schemaWithoutAllOf, name, parentName })]
+        and.args = [...(and.args || []), ...this.parse({ schema: schemaWithoutAllOf, name, parentName })]
       }
 
       return SchemaGenerator.combineObjects([and, ...baseItems])
@@ -792,7 +842,7 @@ export class SchemaGenerator<
           items: normalizedItems,
         } as SchemaObject
 
-        return this.parse({ schemaObject: normalizedSchema, name, parentName })
+        return this.parse({ schema: normalizedSchema, name, parentName })
       }
 
       if (options.enumSuffix === '') {
@@ -932,11 +982,11 @@ export class SchemaGenerator<
             max,
             items: prefixItems
               .map((item) => {
-                return this.parse({ schemaObject: item, name, parentName })[0]
+                return this.parse({ schema: item, name, parentName })[0]
               })
               .filter(Boolean),
             rest: this.parse({
-              schemaObject: items,
+              schema: items,
               name,
               parentName,
             })[0],
@@ -1084,7 +1134,7 @@ export class SchemaGenerator<
     if ('items' in schemaObject || schemaObject.type === ('array' as 'string')) {
       const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
       const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
-      const items = this.parse({ schemaObject: 'items' in schemaObject ? (schemaObject.items as SchemaObject) : [], name, parentName })
+      const items = this.parse({ schema: 'items' in schemaObject ? (schemaObject.items as SchemaObject) : [], name, parentName })
       const unique = !!schemaObject.uniqueItems
 
       return [
@@ -1101,7 +1151,7 @@ export class SchemaGenerator<
       ]
     }
 
-    if (schemaObject.properties || schemaObject.additionalProperties) {
+    if (schemaObject.properties || schemaObject.additionalProperties || 'patternProperties' in schemaObject) {
       if (isDiscriminator(schemaObject)) {
         // override schema to set type to be based on discriminator mapping, use of enum to convert type string to type 'mapping1' | 'mapping2'
         const schemaObjectOverriden = Object.keys(schemaObject.properties || {}).reduce((acc, propertyName) => {
@@ -1121,16 +1171,10 @@ export class SchemaGenerator<
           return acc
         }, schemaObject || {}) as SchemaObject
 
-        return [
-          ...this.#parseProperties({
-            schemaObject: schemaObjectOverriden,
-            name,
-          }),
-          ...baseItems,
-        ]
+        return [...this.#parseProperties(name, schemaObjectOverriden), ...baseItems]
       }
 
-      return [...this.#parseProperties({ schemaObject, name }), ...baseItems]
+      return [...this.#parseProperties(name, schemaObject), ...baseItems]
     }
 
     if (schemaObject.type) {
@@ -1181,8 +1225,8 @@ export class SchemaGenerator<
       generatorLimit(async () => {
         const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {
-            const options = this.#getOptions({ name })
-            const tree = this.parse({ name, schemaObject })
+            const options = this.#getOptions(name)
+            const tree = this.parse({ schema: schemaObject, name, parentName: null })
 
             if (generator.type === 'react') {
               await buildSchema(

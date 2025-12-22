@@ -3378,6 +3378,17 @@
               },
               "name": {
                 "type": "string"
+              },
+              "image": {
+                "example": "linode/debian10",
+                "readOnly": true,
+                "allOf": [
+                  {
+                    "type": "string",
+                    "nullable": true
+                  }
+                ],
+                "x-readme-ref-name": "Image"
               }
             },
             "additionalProperties": false,
@@ -3428,6 +3439,17 @@
         "additionalProperties": false,
         "x-readme-ref-name": "Cat"
       },
+      "Image": {
+        "example": "linode/debian10",
+        "readOnly": true,
+        "allOf": [
+          {
+            "type": "string",
+            "nullable": true
+          }
+        ],
+        "x-readme-ref-name": "Image"
+      },
       "Dog": {
         "title": "Dog",
         "type": "object",
@@ -3443,6 +3465,17 @@
           },
           "name": {
             "type": "string"
+          },
+          "image": {
+            "example": "linode/debian10",
+            "readOnly": true,
+            "allOf": [
+              {
+                "type": "string",
+                "nullable": true
+              }
+            ],
+            "x-readme-ref-name": "Image"
           }
         },
         "additionalProperties": false,

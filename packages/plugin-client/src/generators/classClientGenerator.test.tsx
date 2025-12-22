@@ -71,7 +71,10 @@ describe('classClientGenerator operations', async () => {
     await (await import('@kubb/plugin-oas')).buildOperations(
       operations.map((item) => item.operation),
       {
-        config: { root: '.', output: { path: 'test' } } as import('@kubb/core').Config,
+        config: {
+          root: '.',
+          output: { path: 'test' },
+        } as import('@kubb/core').Config,
         fabric,
         generator,
         Component: classClientGenerator.Operations,

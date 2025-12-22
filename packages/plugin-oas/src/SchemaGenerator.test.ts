@@ -1,7 +1,8 @@
 import path from 'node:path'
 import type { Plugin } from '@kubb/core'
-import { parse } from '@kubb/oas'
+import { parse, type SchemaObject } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import { describe, expect, test } from 'vitest'
 import { mockedPluginManager } from '#mocks'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from './SchemaGenerator.ts'
 
@@ -98,12 +99,17 @@ describe('SchemaGenerator core', async () => {
       },
     },
     // Add discriminator test cases
-  ] as const satisfies Array<{ input: string; name: string; path: string; options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>> }>
+  ] as const satisfies Array<{
+    input: string
+    name: string
+    path: string
+    options: Partial<GetSchemaGeneratorOptions<SchemaGenerator>>
+  }>
 
   test.each(testData)('$name', async (props) => {
     const oas = await parse(path.resolve(__dirname, props.input))
     const schemas = oas.getDefinition().components?.schemas
-    const schema = schemas?.[props.path]
+    const schema = schemas?.[props.path] as SchemaObject
 
     const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
       emptySchemaType: 'unknown',
@@ -123,7 +129,7 @@ describe('SchemaGenerator core', async () => {
       override: undefined,
       mode: 'split',
     })
-    const tree = generator.parse({ schemaObject: schema, name: props.name })
+    const tree = generator.parse({ schema: schema, name: props.name, parentName: null })
 
     expect(tree).toMatchSnapshot()
   })
@@ -300,7 +306,7 @@ describe('SchemaGenerator core', async () => {
       items: {
         type: 'string',
       },
-    }
+    } as SchemaObject
 
     const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
       emptySchemaType: 'unknown',
@@ -322,7 +328,11 @@ describe('SchemaGenerator core', async () => {
       mode: 'split',
     })
 
-    const tree = generator.parse({ schemaObject: malformedSchema as any, name: 'TestArrayEnum' })
+    const tree = generator.parse({
+      schema: malformedSchema,
+      name: 'TestArrayEnum',
+      parentName: null,
+    })
 
     expect(tree).toMatchSnapshot()
   })

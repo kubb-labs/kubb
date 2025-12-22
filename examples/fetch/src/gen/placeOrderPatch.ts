@@ -8,7 +8,10 @@ import fetch from '@kubb/plugin-client/clients/fetch'
 import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from './models.ts'
 
 function getPlaceOrderPatchUrl() {
-  const res = { method: 'PATCH', url: 'https://petstore3.swagger.io/api/v3/store/order' as const }
+  const res = {
+    method: 'PATCH',
+    url: 'https://petstore3.swagger.io/api/v3/store/order' as const,
+  }
   return res
 }
 
@@ -19,7 +22,9 @@ function getPlaceOrderPatchUrl() {
  */
 export async function placeOrderPatch(
   data?: PlaceOrderPatchMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 

@@ -19,7 +19,12 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
  * @summary Add a new pet to the store
  * {@link /pet}
  */
-export async function addPetHook(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}) {
+export async function addPetHook(
+  data: AddPetMutationRequest,
+  config: Partial<RequestConfig<AddPetMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
+) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
@@ -33,7 +38,11 @@ export async function addPetHook(data: AddPetMutationRequest, config: Partial<Re
   return res.data
 }
 
-export function addPetMutationOptionsHook(config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}) {
+export function addPetMutationOptionsHook(
+  config: Partial<RequestConfig<AddPetMutationRequest>> & {
+    client?: typeof fetch
+  } = {},
+) {
   const mutationKey = addPetMutationKey()
   return mutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, typeof mutationKey>({
     mutationKey,
@@ -51,7 +60,9 @@ export function addPetMutationOptionsHook(config: Partial<RequestConfig<AddPetMu
 export function useAddPetHook<TContext>(
   options: {
     mutation?: UseMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext> & { client?: QueryClient }
-    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<AddPetMutationRequest>> & {
+      client?: typeof fetch
+    }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

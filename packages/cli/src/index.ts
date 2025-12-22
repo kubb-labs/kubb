@@ -1,5 +1,4 @@
 import { defineCommand, runCommand, runMain } from 'citty'
-
 import { version } from '../package.json'
 
 const main = defineCommand({
@@ -19,14 +18,6 @@ const main = defineCommand({
     if (args.version) {
       console.log(version)
       process.exit(0)
-    }
-
-    if (args.debug) {
-      args.logLevel = 'debug'
-    }
-
-    if (args.verbose) {
-      args.logLevel = 'verbose'
     }
 
     if (!['generate', 'validate', 'mcp'].includes(rawArgs[0] as string)) {

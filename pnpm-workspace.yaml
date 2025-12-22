@@ -6,11 +6,11 @@ packages:
 
 catalog:
   "@types/node": ^20.19.27
-  "@kubb/fabric-core": 0.7.1
-  "@kubb/react-fabric": 0.7.1
+  "@kubb/fabric-core": 0.7.4
+  "@kubb/react-fabric": 0.7.4
   "@size-limit/file": ^11.2.0
   "size-limit": ^11.2.0
   p-limit: ^7.2.0
   remeda: ^2.32.0
-  tsdown: ^0.18.1
+  tsdown: ^0.18.2
   typescript: ^5.9.3

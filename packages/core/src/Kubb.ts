@@ -49,7 +49,7 @@ type ExecutedMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
  *   console.log('Starting Kubb generation')
  * })
  *
- * events.on('plugin:end', (plugin, duration) => {
+ * events.on('plugin:end', (plugin, { duration }) => {
  *   console.log(`Plugin ${plugin.name} completed in ${duration}ms`)
  * })
  * ```
@@ -131,20 +131,14 @@ export interface KubbEvents {
   'hooks:end': []
 
   /**
-   * Emitted when a single hook execution starts.
-   */
-  'hook:start': [command: string]
-
-  /**
-   * Emitted to execute a hook command (e.g., format or lint).
+   * Emitted when a single hook execution starts. (e.g., format or lint).
    * The callback should be invoked when the command completes.
    */
-  'hook:execute': [{ command: string | URL; args?: readonly string[] }, cb: () => void]
-
+  'hook:start': [{ id?: string; command: string; args?: readonly string[] }]
   /**
    * Emitted when a single hook execution completes.
    */
-  'hook:end': [command: string]
+  'hook:end': [{ id?: string; command: string }]
 
   /**
    * Emitted when a new version of Kubb is available.
@@ -220,8 +214,9 @@ export interface KubbEvents {
 
   /**
    * Emitted when a plugin completes execution.
+   * Duration in ms
    */
-  'plugin:end': [plugin: Plugin, duration: number]
+  'plugin:end': [plugin: Plugin, meta: { duration: number; success: boolean; error?: Error }]
 
   /**
    * Emitted when plugin hook progress tracking starts.

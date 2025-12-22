@@ -1,11 +1,12 @@
 import path from 'node:path'
 import type { ZodOpenAPIMetadata } from '@asteasolutions/zod-to-openapi'
 import type { Config, Plugin } from '@kubb/core'
-import type { HttpMethod } from '@kubb/oas'
+import type { HttpMethod, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
+import { describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginZod } from '../types.ts'
 import { zodGenerator } from './zodGenerator.tsx'
@@ -41,6 +42,12 @@ describe('zodGenerator schema', async () => {
       options: {
         coercion: true,
       },
+    },
+    {
+      name: 'ImageNullable',
+      path: 'Image',
+      input: '../../mocks/petStore.yaml',
+      options: {},
     },
     {
       name: 'PetWithMapper',
@@ -309,8 +316,8 @@ describe('zodGenerator schema', async () => {
 
     const schemas = getSchemas({ oas })
     const name = props.path
-    const schema = schemas[name]!
-    const tree = generator.parse({ schemaObject: schema, name })
+    const schema = schemas[name] as SchemaObject
+    const tree = generator.parse({ schema, name, parentName: null })
 
     await buildSchema(
       {

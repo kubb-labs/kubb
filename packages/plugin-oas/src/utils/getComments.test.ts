@@ -1,4 +1,5 @@
 import type { Operation } from '@kubb/oas'
+import { describe, expect, test } from 'vitest'
 import { getComments } from './getComments.ts'
 
 describe('getComments', () => {
