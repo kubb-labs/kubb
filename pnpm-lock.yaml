@@ -1036,6 +1036,9 @@ importers:
       p-limit:
         specifier: 'catalog:'
         version: 7.2.0
+      picocolors:
+        specifier: ^1.1.1
+        version: 1.1.1
       remeda:
         specifier: 'catalog:'
         version: 2.32.0

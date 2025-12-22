@@ -1,3 +1,5 @@
+import pc from 'picocolors'
+
 /**
  * Calculates elapsed time in milliseconds from a high-resolution start time.
  * Rounds to 2 decimal places to provide sub-millisecond precision without noise.
@@ -30,4 +32,24 @@ export function formatMs(ms: number): string {
  */
 export function formatHrtime(hrStart: [number, number]): string {
   return formatMs(getElapsedMs(hrStart))
+}
+
+/**
+ * Formats milliseconds with color based on duration thresholds:
+ * - Green: <= 500ms
+ * - Yellow: > 500ms and <= 1000ms
+ * - Red: > 1000ms
+ */
+export function formatMsWithColor(ms: number): string {
+  const formatted = formatMs(ms)
+
+  if (ms <= 500) {
+    return pc.green(formatted)
+  }
+
+  if (ms <= 1000) {
+    return pc.yellow(formatted)
+  }
+
+  return pc.red(formatted)
 }
