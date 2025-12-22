@@ -1,8 +1,14 @@
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { build } from '@kubb/core'
+import { pluginClient } from '@kubb/plugin-client'
+import { pluginFaker } from '@kubb/plugin-faker'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
 import { bench, describe } from 'vitest'
-import { build } from '../../build.ts'
-import type { Config } from '../../types.ts'
-import { AsyncEventEmitter } from '../../utils/AsyncEventEmitter.ts'
+import type { Config } from '@kubb/core'
+import { AsyncEventEmitter } from '@kubb/core/utils'
 
 /**
  * Performance benchmarks for Kubb plugin generation
@@ -12,16 +18,15 @@ import { AsyncEventEmitter } from '../../utils/AsyncEventEmitter.ts'
  * identify optimization opportunities.
  */
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 describe('Plugin Generation Performance', () => {
-  const petStorePath = path.resolve(__dirname, '../../../mocks/petStore.yaml')
+  const petStorePath = path.resolve(__dirname, '../../../schemas/petStore.yaml')
 
   bench(
     'single plugin generation (plugin-ts)',
     async () => {
-      // Use dynamic import to avoid circular dependencies in tests
-      const { pluginOas } = await import('@kubb/plugin-oas')
-      const { pluginTs } = await import('@kubb/plugin-ts')
-
       const config: Config = {
         root: '.',
         input: {
@@ -48,17 +53,13 @@ describe('Plugin Generation Performance', () => {
       await build({ config, events })
     },
     {
-      iterations: 5,
+      time: 10000,
     },
   )
 
   bench(
     'multiple plugins generation (plugin-ts + plugin-client)',
     async () => {
-      const { pluginOas } = await import('@kubb/plugin-oas')
-      const { pluginTs } = await import('@kubb/plugin-ts')
-      const { pluginClient } = await import('@kubb/plugin-client')
-
       const config: Config = {
         root: '.',
         input: {
@@ -90,19 +91,13 @@ describe('Plugin Generation Performance', () => {
       await build({ config, events })
     },
     {
-      iterations: 5,
+      time: 10000,
     },
   )
 
   bench(
     'comprehensive plugin suite generation',
     async () => {
-      const { pluginOas } = await import('@kubb/plugin-oas')
-      const { pluginTs } = await import('@kubb/plugin-ts')
-      const { pluginClient } = await import('@kubb/plugin-client')
-      const { pluginZod } = await import('@kubb/plugin-zod')
-      const { pluginFaker } = await import('@kubb/plugin-faker')
-
       const config: Config = {
         root: '.',
         input: {
@@ -147,7 +142,7 @@ describe('Plugin Generation Performance', () => {
       await build({ config, events })
     },
     {
-      iterations: 3,
+      time: 10000,
     },
   )
 })
