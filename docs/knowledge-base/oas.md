@@ -271,7 +271,7 @@ components:
           type: integer
         message:
           type: string
-    
+
     Pet:
       type: object
       required: ['id', 'name']
@@ -324,10 +324,6 @@ Kubb supports all discriminator patterns from **OpenAPI 3.0** and **OpenAPI 3.1*
 - ✅ Title fallback
 - ✅ Mixed types in `oneOf` (with extension properties)
 
-::: info Note on OpenAPI 3.2
-OpenAPI 3.2 does not exist yet. The latest stable version is OpenAPI 3.1.x. Kubb fully supports OpenAPI 3.1 and will be updated for future versions as they are released.
-:::
-
 #### Discriminator with Explicit Mapping
 
 The most common pattern uses explicit mapping to connect discriminator values to specific schemas:
@@ -346,7 +342,7 @@ components:
       oneOf:
         - $ref: '#/components/schemas/Cat'
         - $ref: '#/components/schemas/Dog'
-    
+
     Cat:
       type: object
       properties:
@@ -355,7 +351,7 @@ components:
           enum: [cat]
         meow:
           type: boolean
-    
+
     Dog:
       type: object
       properties:
@@ -383,7 +379,13 @@ components:
         - $ref: '#/components/schemas/Dog'
 ```
 
-Kubb automatically creates mapping: `{ Cat: '#/components/schemas/Cat', Dog: '#/components/schemas/Dog' }`
+Kubb automatically creates mapping:
+```
+{
+  Cat: '#/components/schemas/Cat',
+  Dog: '#/components/schemas/Dog'
+}
+```
 
 #### Discriminator with Inline Schemas
 
