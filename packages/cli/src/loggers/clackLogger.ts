@@ -492,6 +492,23 @@ Run \`npm install -g @kubb/cli\` to update`,
       })
     })
 
+    context.on('debug', (meta) => {
+      if (logLevel < LogLevel.debug) {
+        return
+      }
+
+      const timestamp = meta.date.toLocaleTimeString('en-US', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })
+
+      for (const log of meta.logs) {
+        clack.log.message(getMessage(`[DEBUG ${timestamp}] ${log}`))
+      }
+    })
+
     context.on('lifecycle:end', () => {
       reset()
     })

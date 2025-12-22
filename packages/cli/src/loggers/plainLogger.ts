@@ -267,5 +267,22 @@ export const plainLogger = defineLogger({
       console.log(summary.join('\n'))
       console.log('---------------------------')
     })
+
+    context.on('debug', (meta) => {
+      if (logLevel < LogLevel.debug) {
+        return
+      }
+
+      const timestamp = meta.date.toLocaleTimeString('en-US', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })
+
+      for (const log of meta.logs) {
+        console.log(getMessage(`[DEBUG ${timestamp}] ${log}`))
+      }
+    })
   },
 })

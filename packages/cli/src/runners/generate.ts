@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
 import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/core'
@@ -10,6 +11,11 @@ type GenerateProps = {
   config: Config
   events: AsyncEventEmitter<KubbEvents>
   logLevel: number
+}
+
+function generateHookId(command: string, configName?: string): string {
+  const input = [command, configName].filter(Boolean).join('::')
+  return createHash('sha256').update(input).digest('hex')
 }
 
 export async function generate({ input, config: userConfig, events, logLevel }: GenerateProps): Promise<void> {
@@ -106,6 +112,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
     if (config.output.format === 'prettier') {
       try {
         await events.emit('hook:start', {
+          id: generateHookId('prettier', config.name),
           command: 'prettier',
           args: ['--ignore-unknown', '--write', path.resolve(config.root, config.output.path)],
         })
@@ -132,6 +139,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
     if (config.output.format === 'biome') {
       try {
         await events.emit('hook:start', {
+          id: generateHookId('biome-format', config.name),
           command: 'biome',
           args: ['format', '--write', path.resolve(config.root, config.output.path)],
         })
@@ -175,6 +183,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
     if (config.output.lint === 'eslint') {
       try {
         await events.emit('hook:start', {
+          id: generateHookId('eslint', config.name),
           command: 'eslint',
           args: [path.resolve(config.root, config.output.path), '--fix'],
         })
@@ -201,6 +210,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
     if (config.output.lint === 'biome') {
       try {
         await events.emit('hook:start', {
+          id: generateHookId('biome-lint', config.name),
           command: 'biome',
           args: ['lint', '--fix', path.resolve(config.root, config.output.path)],
         })
@@ -227,6 +237,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
     if (config.output.lint === 'oxlint') {
       try {
         await events.emit('hook:start', {
+          id: generateHookId('oxlint', config.name),
           command: 'oxlint',
           args: ['--fix', path.resolve(config.root, config.output.path)],
         })
@@ -255,7 +266,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
 
   if (config.hooks) {
     await events.emit('hooks:start')
-    await executeHooks({ hooks: config.hooks, events })
+    await executeHooks({ hooks: config.hooks, events, config })
 
     await events.emit('hooks:end')
   }

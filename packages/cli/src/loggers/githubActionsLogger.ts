@@ -223,19 +223,6 @@ export const githubActionsLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('files:processing:end', () => {
-      if (logLevel <= LogLevel.silent) {
-        return
-      }
-      const text = getMessage('Files written successfully')
-
-      console.log(text)
-
-      if (state.currentConfigs.length === 1) {
-        closeGroup('File Generation')
-      }
-    })
-
     context.on('file:processing:update', () => {
       if (logLevel <= LogLevel.silent) {
         return
@@ -247,6 +234,13 @@ export const githubActionsLogger = defineLogger({
     context.on('files:processing:end', () => {
       if (logLevel <= LogLevel.silent) {
         return
+      }
+      const text = getMessage('Files written successfully')
+
+      console.log(text)
+
+      if (state.currentConfigs.length === 1) {
+        closeGroup('File Generation')
       }
 
       // Show final progress step after files are written
@@ -378,12 +372,29 @@ export const githubActionsLogger = defineLogger({
 
       console.log(
         status === 'success'
-          ? `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ${pluginsCount} total, ${pc.green(duration)}`
-          : `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total, ${pc.green(duration)}`,
+          ? `kubb Summary: ${'✓'} ${successCount} successful, ${pluginsCount} total, ${duration}`
+          : `kubb Summary: ${'✓'} ${successCount} successful, ${'✗'} ${failedPlugins.size} failed, ${pluginsCount} total, ${duration}`,
       )
 
       if (state.currentConfigs.length > 1) {
         closeGroup(config.name ? `Generation for ${pc.bold(config.name)}` : 'Generation')
+      }
+    })
+
+    context.on('debug', (meta) => {
+      if (logLevel < LogLevel.debug) {
+        return
+      }
+
+      const timestamp = meta.date.toLocaleTimeString('en-US', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })
+
+      for (const log of meta.logs) {
+        console.log(getMessage(`[DEBUG ${timestamp}] ${log}`))
       }
     })
   },
