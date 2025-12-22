@@ -148,7 +148,7 @@ export class PluginManager {
   }
 
   resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): KubbFile.Path => {
-    const cacheKey = JSON.stringify({ baseName: params.baseName, mode: params.mode, pluginKey: params.pluginKey })
+    const cacheKey = `${params.baseName}|${params.mode || ''}|${params.pluginKey ? params.pluginKey.join(':') : ''}`
     const cached = this.#resolvePathCache.get(cacheKey)
     if (cached !== undefined) {
       return cached
@@ -181,7 +181,7 @@ export class PluginManager {
   }
   //TODO refactor by using the order of plugins and the cache of the fileManager instead of guessing and recreating the name/path
   resolveName = (params: ResolveNameParams): string => {
-    const cacheKey = JSON.stringify({ name: params.name, type: params.type, pluginKey: params.pluginKey })
+    const cacheKey = `${params.name}|${params.type || ''}|${params.pluginKey ? params.pluginKey.join(':') : ''}`
     const cached = this.#resolveNameCache.get(cacheKey)
     if (cached !== undefined) {
       return cached

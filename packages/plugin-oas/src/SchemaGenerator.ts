@@ -78,7 +78,6 @@ export class SchemaGenerator<
   // Keep track of already used type aliases
   #usedAliasNames: Record<string, number> = {}
   #optionsCache = new Map<string, Partial<TOptions>>()
-  #parseCache = new Map<string, Schema[]>()
 
   /**
    * Creates a type node from a given schema.
@@ -86,21 +85,12 @@ export class SchemaGenerator<
    * optionally adds a union with null.
    */
   parse(props: SchemaProps): Schema[] {
-    // Create a cache key based on schema content and context
-    const cacheKey = JSON.stringify({ schema: props.schema, name: props.name, parentName: props.parentName })
-    const cached = this.#parseCache.get(cacheKey)
-    if (cached !== undefined) {
-      return cached
-    }
-
     const options = this.#getOptions(props.name)
 
     const defaultSchemas = this.#parseSchemaObject(props)
     const schemas = options.transformers?.schema?.(props, defaultSchemas) || defaultSchemas || []
 
-    const result = uniqueWith(schemas, isDeepEqual)
-    this.#parseCache.set(cacheKey, result)
-    return result
+    return uniqueWith(schemas, isDeepEqual)
   }
 
   static deepSearch<T extends keyof SchemaKeywordMapper>(tree: Schema[] | undefined, keyword: T): Array<SchemaKeywordMapper[T]> {
