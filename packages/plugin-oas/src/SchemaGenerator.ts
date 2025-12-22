@@ -445,7 +445,10 @@ export class SchemaGenerator<
           // Check if this is a synthetic ref for inline schemas (e.g., #inline-0)
           if (value.startsWith('#inline-')) {
             const index = Number.parseInt(value.replace('#inline-', ''), 10)
-            arg = schema.args[index]
+            // Validate index is within bounds
+            if (!Number.isNaN(index) && index >= 0 && index < schema.args.length) {
+              arg = schema.args[index]
+            }
           } else {
             // Regular ref - find by $ref value
             arg = schema.args.find((item) => isKeyword(item, schemaKeywords.ref) && item.args.$ref === value)
