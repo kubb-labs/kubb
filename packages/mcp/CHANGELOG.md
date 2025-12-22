@@ -1,5 +1,15 @@
 # @kubb/mcp
 
+## 4.12.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/plugin-oas@4.12.12
+  - @kubb/plugin-react-query@4.12.12
+  - @kubb/plugin-ts@4.12.12
+  - @kubb/core@4.12.12
+
 ## 4.12.11
 
 ### Patch Changes

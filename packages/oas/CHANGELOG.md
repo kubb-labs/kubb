@@ -1,5 +1,14 @@
 # @kubb/oas
 
+## 4.12.12
+
+### Patch Changes
+
+- [#2242](https://github.com/kubb-labs/kubb/pull/2242) [`6e15732`](https://github.com/kubb-labs/kubb/commit/6e15732cc3fe4a5ae386d3dcff41527930755cb6) Thanks [@Ericlm](https://github.com/Ericlm)! - Fix schema traversal to include patternProperties.
+
+- Updated dependencies []:
+  - @kubb/core@4.12.12
+
 ## 4.12.11
 
 ### Patch Changes
