@@ -34,7 +34,6 @@ export class OperationGenerator<
 > extends BaseGenerator<TPluginOptions['resolvedOptions'], Context<TPluginOptions['resolvedOptions'], TPluginOptions>> {
   #optionsCache = new Map<string, Partial<TPluginOptions['resolvedOptions']>>()
   #filterCache = new Map<string, boolean>()
-  #schemasCache = new Map<string, OperationSchemas>()
 
   #getOptions(operation: Operation, method: HttpMethod): Partial<TPluginOptions['resolvedOptions']> {
     const operationId = operation.getOperationId({ friendlyCase: true })
