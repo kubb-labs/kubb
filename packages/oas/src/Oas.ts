@@ -115,41 +115,80 @@ export class Oas<const TOAS = unknown> extends BaseOas {
 
     const { mapping = {}, propertyName } = schema.discriminator
 
-    // loop over oneOf and add default mapping when none is defined
-    if (schema.oneOf) {
-      schema.oneOf.forEach((schema) => {
-        if (isReference(schema)) {
-          const key = this.getKey(schema.$ref)
-          const refSchema: OpenAPIV3.SchemaObject = this.get(schema.$ref)
-          // special case where enum in the schema is set without mapping being defined, see https://github.com/kubb-labs/kubb/issues/1669
-          const propertySchema = refSchema.properties?.[propertyName] as OpenAPIV3.SchemaObject
-          const canAdd = key && !Object.values(mapping).includes(schema.$ref)
+    /**
+     * Helper to extract discriminator value from a schema.
+     * Checks in order:
+     * 1. Extension property matching propertyName (e.g., x-linode-ref-name)
+     * 2. Property with const value
+     * 3. Property with single enum value
+     * 4. Title as fallback
+     */
+    const getDiscriminatorValue = (schemaObj: OpenAPIV3.SchemaObject): string | undefined => {
+      // Check extension properties first (e.g., x-linode-ref-name)
+      // Only check if propertyName starts with 'x-' to avoid conflicts with standard properties
+      if (propertyName.startsWith('x-')) {
+        const extensionValue = schemaObj[propertyName as keyof typeof schemaObj]
+        if (extensionValue && typeof extensionValue === 'string') {
+          return extensionValue
+        }
+      }
 
-          if (canAdd && propertySchema?.enum?.length === 1) {
-            mapping[propertySchema.enum[0]] = schema.$ref
+      // Check if property has const value
+      const propertySchema = schemaObj.properties?.[propertyName] as OpenAPIV3.SchemaObject
+      if (propertySchema?.const !== undefined) {
+        return String(propertySchema.const)
+      }
+
+      // Check if property has single enum value
+      if (propertySchema?.enum?.length === 1) {
+        return String(propertySchema.enum[0])
+      }
+
+      // Fallback to title if available
+      return schemaObj.title
+    }
+
+    /**
+     * Process oneOf/anyOf items to build mapping.
+     * Handles both $ref and inline schemas.
+     */
+    const processSchemas = (schemas: Array<OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>, existingMapping: Record<string, string>) => {
+      schemas.forEach((schemaItem, index) => {
+        if (isReference(schemaItem)) {
+          // Handle $ref case
+          const key = this.getKey(schemaItem.$ref)
+          const refSchema: OpenAPIV3.SchemaObject = this.get(schemaItem.$ref)
+          const discriminatorValue = getDiscriminatorValue(refSchema)
+          const canAdd = key && !Object.values(existingMapping).includes(schemaItem.$ref)
+
+          if (canAdd && discriminatorValue) {
+            existingMapping[discriminatorValue] = schemaItem.$ref
           } else if (canAdd) {
-            mapping[key] = schema.$ref
+            existingMapping[key] = schemaItem.$ref
+          }
+        } else {
+          // Handle inline schema case
+          const inlineSchema = schemaItem as OpenAPIV3.SchemaObject
+          const discriminatorValue = getDiscriminatorValue(inlineSchema)
+
+          if (discriminatorValue) {
+            // Create a synthetic ref for inline schemas using index
+            // The value points to the inline schema itself via a special marker
+            const syntheticRef = `#inline-${index}`
+            existingMapping[discriminatorValue] = syntheticRef
           }
         }
       })
     }
 
-    if (schema.anyOf) {
-      schema.anyOf.forEach((schema) => {
-        if (isReference(schema)) {
-          const key = this.getKey(schema.$ref)
-          const refSchema: OpenAPIV3.SchemaObject = this.get(schema.$ref)
-          // special case where enum in the schema is set without mapping being defined, see https://github.com/kubb-labs/kubb/issues/1669
-          const propertySchema = refSchema.properties?.[propertyName] as OpenAPIV3.SchemaObject
-          const canAdd = key && !Object.values(mapping).includes(schema.$ref)
+    // Process oneOf schemas
+    if (schema.oneOf) {
+      processSchemas(schema.oneOf, mapping)
+    }
 
-          if (canAdd && propertySchema?.enum?.length === 1) {
-            mapping[propertySchema.enum[0]] = schema.$ref
-          } else if (canAdd) {
-            mapping[key] = schema.$ref
-          }
-        }
-      })
+    // Process anyOf schemas
+    if (schema.anyOf) {
+      processSchemas(schema.anyOf, mapping)
     }
 
     return {

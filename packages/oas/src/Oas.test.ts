@@ -172,6 +172,175 @@ describe('discriminator inherit', () => {
     expect(catSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
     expect(dogSchema.required?.filter((value) => value === 'type')).toEqual(['type'])
   })
+
+  test('handles inline schemas with extension properties as discriminator values', () => {
+    const discriminatorSpec: OpenAPIV3.Document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Inline Discriminator with Extension',
+        version: '1.0.0',
+      },
+      paths: {},
+      components: {
+        schemas: {
+          TestData: {
+            type: 'object',
+            properties: {
+              data: {
+                discriminator: {
+                  propertyName: 'x-linode-ref-name',
+                },
+                oneOf: [
+                  {
+                    type: 'object',
+                    title: 'Stats Available',
+                    'x-linode-ref-name': 'Stats Available',
+                    properties: {
+                      cpu: {
+                        type: 'array',
+                        items: {
+                          type: 'number',
+                        },
+                      },
+                    },
+                  } as any,
+                  {
+                    type: 'array',
+                    title: 'Stats Unavailable',
+                    'x-linode-ref-name': 'Stats Unavailable',
+                    items: {
+                      type: 'string',
+                    },
+                  } as any,
+                ],
+              } as any,
+            },
+          },
+        },
+      },
+    }
+
+    const oas = new Oas({ oas: discriminatorSpec })
+    const testDataSchema = oas.get('#/components/schemas/TestData') as OpenAPIV3.SchemaObject
+    const dataProperty = testDataSchema.properties?.data as OpenAPIV3.SchemaObject
+
+    const discriminator = oas.getDiscriminator(dataProperty)
+
+    expect(discriminator).toBeDefined()
+    expect(discriminator?.propertyName).toBe('x-linode-ref-name')
+    expect(discriminator?.mapping).toBeDefined()
+    expect(discriminator?.mapping?.['Stats Available']).toBe('#inline-0')
+    expect(discriminator?.mapping?.['Stats Unavailable']).toBe('#inline-1')
+  })
+
+  test('handles inline schemas with const values as discriminator', () => {
+    const discriminatorSpec: OpenAPIV3.Document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Inline Discriminator with Const',
+        version: '1.0.0',
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Pet: {
+            discriminator: {
+              propertyName: 'petType',
+            },
+            oneOf: [
+              {
+                type: 'object',
+                properties: {
+                  petType: {
+                    type: 'string',
+                    const: 'cat',
+                  },
+                  meow: {
+                    type: 'boolean',
+                  },
+                },
+              },
+              {
+                type: 'object',
+                properties: {
+                  petType: {
+                    type: 'string',
+                    const: 'dog',
+                  },
+                  bark: {
+                    type: 'boolean',
+                  },
+                },
+              },
+            ],
+          } as any,
+        },
+      },
+    }
+
+    const oas = new Oas({ oas: discriminatorSpec })
+    const petSchema = oas.get('#/components/schemas/Pet') as OpenAPIV3.SchemaObject
+
+    const discriminator = oas.getDiscriminator(petSchema)
+
+    expect(discriminator).toBeDefined()
+    expect(discriminator?.propertyName).toBe('petType')
+    expect(discriminator?.mapping).toBeDefined()
+    expect(discriminator?.mapping?.['cat']).toBe('#inline-0')
+    expect(discriminator?.mapping?.['dog']).toBe('#inline-1')
+  })
+
+  test('handles mixed ref and inline schemas', () => {
+    const discriminatorSpec: OpenAPIV3.Document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Mixed Discriminator',
+        version: '1.0.0',
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Cat: {
+            type: 'object',
+            properties: {
+              type: {
+                type: 'string',
+                const: 'cat',
+              },
+            },
+          },
+          Animal: {
+            discriminator: {
+              propertyName: 'type',
+            },
+            oneOf: [
+              { $ref: '#/components/schemas/Cat' },
+              {
+                type: 'object',
+                properties: {
+                  type: {
+                    type: 'string',
+                    const: 'dog',
+                  },
+                },
+              },
+            ],
+          } as any,
+        },
+      },
+    }
+
+    const oas = new Oas({ oas: discriminatorSpec })
+    const animalSchema = oas.get('#/components/schemas/Animal') as OpenAPIV3.SchemaObject
+
+    const discriminator = oas.getDiscriminator(animalSchema)
+
+    expect(discriminator).toBeDefined()
+    expect(discriminator?.propertyName).toBe('type')
+    expect(discriminator?.mapping).toBeDefined()
+    expect(discriminator?.mapping?.['cat']).toBe('#/components/schemas/Cat')
+    expect(discriminator?.mapping?.['dog']).toBe('#inline-1')
+  })
 })
 
 describe('flattenSchema', () => {
