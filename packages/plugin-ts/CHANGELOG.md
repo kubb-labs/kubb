@@ -1,5 +1,16 @@
 # @kubb/plugin-ts
 
+## 4.12.10
+
+### Patch Changes
+
+- [#2235](https://github.com/kubb-labs/kubb/pull/2235) [`028f5e8`](https://github.com/kubb-labs/kubb/commit/028f5e85109853b1d9a10a17ff0d2d269975b61f) Thanks [@Ericlm](https://github.com/Ericlm)! - Better patternProperties handling for type generation.
+
+- Updated dependencies []:
+  - @kubb/core@4.12.10
+  - @kubb/oas@4.12.10
+  - @kubb/plugin-oas@4.12.10
+
 ## 4.12.9
 
 ### Patch Changes
