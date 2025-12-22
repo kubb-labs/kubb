@@ -1,5 +1,12 @@
 # @kubb/cli
 
+## 4.12.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.12.11
+
 ## 4.12.10
 
 ### Patch Changes

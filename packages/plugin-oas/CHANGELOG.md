@@ -1,5 +1,21 @@
 # @kubb/swagger
 
+## 4.12.11
+
+### Patch Changes
+
+- [#2234](https://github.com/kubb-labs/kubb/pull/2234) [`5334e6e`](https://github.com/kubb-labs/kubb/commit/5334e6eca99856560c46a774e30f4ddc085edbb0) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Improved discriminator handling for OpenAPI schemas:
+  - Support for inline schemas in oneOf/anyOf (not just $ref)
+  - Support for extension properties as discriminator names (e.g., x-linode-ref-name)
+  - Support for const and single-value enum discriminator values
+  - Synthetic ref handling for inline schemas with bounds validation
+  - Extension property discriminators treated as metadata (no runtime constraints)
+  - Full OpenAPI 3.0 and 3.1 compliance validated with comprehensive tests
+
+- Updated dependencies [[`5334e6e`](https://github.com/kubb-labs/kubb/commit/5334e6eca99856560c46a774e30f4ddc085edbb0)]:
+  - @kubb/oas@4.12.11
+  - @kubb/core@4.12.11
+
 ## 4.12.10
 
 ### Patch Changes
