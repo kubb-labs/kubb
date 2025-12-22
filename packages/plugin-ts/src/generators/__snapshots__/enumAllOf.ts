@@ -11,5 +11,8 @@ export const enumAllOfReasonEnum = {
 export type EnumAllOfReasonEnumKey = (typeof enumAllOfReasonEnum)[keyof typeof enumAllOfReasonEnum]
 
 export type enumAllOf = {
+  /**
+   * @type string | undefined
+   */
   reason?: EnumAllOfReasonEnumKey
 }

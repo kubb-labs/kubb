@@ -44,6 +44,12 @@ describe('zodGenerator schema', async () => {
       },
     },
     {
+      name: 'ImageNullable',
+      path: 'Image',
+      input: '../../mocks/petStore.yaml',
+      options: {},
+    },
+    {
       name: 'PetWithMapper',
       input: '../../mocks/petStore.yaml',
       path: 'Pet',

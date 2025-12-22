@@ -64,6 +64,7 @@ export type {
   GetUserByNameQuery,
   GetUserByNameQueryResponse,
 } from './GetUserByName.ts'
+export type { Image } from './Image.ts'
 export type { LoginUser200, LoginUser400, LoginUserQuery, LoginUserQueryParams, LoginUserQueryResponse } from './LoginUser.ts'
 export type { LogoutUserError, LogoutUserQuery, LogoutUserQueryResponse } from './LogoutUser.ts'
 export type { Order, OrderHttpStatusEnumKey, OrderOrderTypeEnumKey, OrderStatusEnumKey } from './Order.ts'
