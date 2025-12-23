@@ -111,11 +111,30 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('error', (error) => {
+      const caused = error.cause as Error
+
       if (logLevel <= LogLevel.silent) {
         return
       }
       const message = error.message || String(error)
       console.error(`::error::${message}`)
+
+      // Show stack trace in debug mode (first 3 frames)
+      if (logLevel >= LogLevel.debug && error.stack) {
+        const frames = error.stack.split('\n').slice(1, 4)
+        for (const frame of frames) {
+          console.log(getMessage(pc.dim(frame.trim())))
+        }
+
+        if (caused?.stack) {
+          console.log(pc.dim(`└─ caused by ${caused.message}`))
+
+          const frames = caused.stack.split('\n').slice(1, 4)
+          for (const frame of frames) {
+            console.log(getMessage(`    ${pc.dim(frame.trim())}`))
+          }
+        }
+      }
     })
 
     context.on('lifecycle:start', (version) => {
