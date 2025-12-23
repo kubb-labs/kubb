@@ -67,9 +67,8 @@ describe('AsyncEventEmitter', () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler = vi.fn()
 
-    const promise = emitter.onOnce('test', handler)
+    emitter.onOnce('test', handler)
     await emitter.emit('test', 'hello', 42)
-    await promise // Wait for the onOnce promise to resolve
     await emitter.emit('test', 'world', 24)
 
     expect(handler).toHaveBeenCalledTimes(1)

@@ -31,15 +31,12 @@ export class AsyncEventEmitter<TEvents extends Record<string, any>> {
     this.#emitter.on(eventName, handler as any)
   }
 
-  onOnce<TEventName extends keyof TEvents & string>(eventName: TEventName, handler: (...eventArgs: TEvents[TEventName]) => void): Promise<void> {
-    return new Promise((resolve) => {
-      const wrapper = (...args: TEvents[TEventName]) => {
-        this.off(eventName, wrapper)
-        handler(...args)
-        resolve()
-      }
-      this.on(eventName, wrapper)
-    })
+  onOnce<TEventName extends keyof TEvents & string>(eventName: TEventName, handler: (...eventArgs: TEvents[TEventName]) => void): void {
+    const wrapper = (...args: TEvents[TEventName]) => {
+      this.off(eventName, wrapper)
+      handler(...args)
+    }
+    this.on(eventName, wrapper)
   }
 
   off<TEventName extends keyof TEvents & string>(eventName: TEventName, handler: (...eventArg: TEvents[TEventName]) => void): void {
