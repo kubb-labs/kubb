@@ -384,6 +384,11 @@ Run \`npm install -g @kubb/cli\` to update`,
     context.on('hook:start', async ({ id, command, args }) => {
       const text = getMessage(`Hook ${pc.dim(command)} started`)
 
+      // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
+      if (!id) {
+        return
+      }
+
       if (logLevel <= LogLevel.silent) {
         try {
           const result = await execa(command, args, {

@@ -346,6 +346,11 @@ export const githubActionsLogger = defineLogger({
         console.log(text)
       }
 
+      // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
+      if (!id) {
+        return
+      }
+
       try {
         const result = await execa(command, args, {
           detached: true,
