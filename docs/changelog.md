@@ -15,6 +15,18 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.12.13
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/cli`](/getting-started/installation/)
+
+Fixed module resolution issue when loading TypeScript configuration files. Previously, jiti used the CLI's installation location for module resolution, which could cause errors like `Cannot find module './_baseIsArguments'` when the user's config imported Kubb plugins. Now jiti correctly resolves modules relative to the config file's location, matching standard Node.js module resolution behavior.
+
+::: info
+This fix resolves issues where users encountered module resolution errors when running `npx kubb generate` with a `kubb.config.ts` file that imports Kubb plugins.
+:::
+
 ## 4.12.11
 
 ### ✨ Features
