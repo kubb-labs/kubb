@@ -382,7 +382,8 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('hook:start', async ({ id, command, args }) => {
-      const text = getMessage(`Hook ${pc.dim(command)} started`)
+      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const text = getMessage(`Hook ${pc.dim(commandWithArgs)} started`)
 
       // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
       if (!id) {
@@ -401,7 +402,7 @@ Run \`npm install -g @kubb/cli\` to update`,
             logs: [result.stdout],
           })
 
-          await context.emit('hook:end', { command, id })
+          await context.emit('hook:end', { command, args, id })
         } catch (err) {
           const error = new Error('Hook execute failed')
           error.cause = err
@@ -420,7 +421,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.intro(text)
 
       const logger = clack.taskLog({
-        title: getMessage(['Executing hook', logLevel >= LogLevel.info ? pc.dim(`${command} ${args?.join(' ')}`) : undefined].filter(Boolean).join(' ')),
+        title: getMessage(['Executing hook', logLevel >= LogLevel.info ? pc.dim(commandWithArgs) : undefined].filter(Boolean).join(' ')),
       })
 
       const writable = new ClackWritable(logger)
@@ -437,7 +438,7 @@ Run \`npm install -g @kubb/cli\` to update`,
           logs: [result.stdout],
         })
 
-        await context.emit('hook:end', { command, id })
+        await context.emit('hook:end', { command, args, id })
       } catch (err) {
         const error = new Error('Hook execute failed')
         error.cause = err
@@ -451,12 +452,13 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
     })
 
-    context.on('hook:end', ({ command }) => {
+    context.on('hook:end', ({ command, args }) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
 
-      const text = getMessage(`Hook ${pc.dim(command)} successfully executed`)
+      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const text = getMessage(`Hook ${pc.dim(commandWithArgs)} successfully executed`)
 
       clack.outro(text)
     })

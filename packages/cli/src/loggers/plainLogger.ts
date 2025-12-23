@@ -210,7 +210,8 @@ export const plainLogger = defineLogger({
     })
 
     context.on('hook:start', async ({ id, command, args }) => {
-      const text = getMessage(`Hook ${command} started`)
+      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const text = getMessage(`Hook ${commandWithArgs} started`)
 
       if (logLevel > LogLevel.silent) {
         console.log(text)
@@ -234,7 +235,7 @@ export const plainLogger = defineLogger({
 
         console.log(result.stdout)
 
-        await context.emit('hook:end', { command, id })
+        await context.emit('hook:end', { command, args, id })
       } catch (err) {
         const error = new Error('Hook execute failed')
         error.cause = err
@@ -248,12 +249,13 @@ export const plainLogger = defineLogger({
       }
     })
 
-    context.on('hook:end', (command) => {
+    context.on('hook:end', ({ command, args }) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
 
-      const text = getMessage(`Hook ${command} completed`)
+      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const text = getMessage(`Hook ${commandWithArgs} completed`)
 
       console.log(text)
     })

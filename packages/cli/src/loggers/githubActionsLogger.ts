@@ -336,11 +336,12 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('hook:start', async ({ id, command, args }) => {
-      const text = getMessage(`Hook ${pc.dim(command)} started`)
+      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const text = getMessage(`Hook ${pc.dim(commandWithArgs)} started`)
 
       if (logLevel > LogLevel.silent) {
         if (state.currentConfigs.length === 1) {
-          openGroup(`Hook ${command}`)
+          openGroup(`Hook ${commandWithArgs}`)
         }
 
         console.log(text)
@@ -364,7 +365,7 @@ export const githubActionsLogger = defineLogger({
 
         console.log(result.stdout)
 
-        await context.emit('hook:end', { command, id })
+        await context.emit('hook:end', { command, args, id })
       } catch (err) {
         const error = new Error('Hook execute failed')
         error.cause = err
@@ -378,17 +379,18 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('hook:end', ({ command }) => {
+    context.on('hook:end', ({ command, args }) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
 
-      const text = getMessage(`Hook ${pc.dim(command)} completed`)
+      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const text = getMessage(`Hook ${pc.dim(commandWithArgs)} completed`)
 
       console.log(text)
 
       if (state.currentConfigs.length === 1) {
-        closeGroup(`Hook ${command}`)
+        closeGroup(`Hook ${commandWithArgs}`)
       }
     })
 
