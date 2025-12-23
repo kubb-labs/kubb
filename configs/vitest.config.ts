@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    exclude: ['**/node_modules/**', '**/dist/**', '**/mocks/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/mocks/**', '**/*.bench.ts'],
     coverage: {
       exclude: [
         '**/**/plugin.ts', // exclude because we have e2e
@@ -32,6 +32,7 @@ export default defineConfig({
         'test?(-*).?(c|m)[jt]s?(x)',
         '**/*{.,-}{test,spec}.?(c|m)[jt]s?(x)',
         '**/__tests__/**',
+        '**/*.bench.ts',
         '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsdown,build}.config.*',
         '**/.rc.{?(c|m)js,yml}',
       ],

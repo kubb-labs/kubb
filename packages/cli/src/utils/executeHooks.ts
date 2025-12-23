@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import type { Config, KubbEvents } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 
@@ -19,7 +20,8 @@ export async function executeHooks({ hooks, events }: ExecutingHooksProps): Prom
       continue
     }
 
-    await events.emit('hook:start', { command: cmd, args })
+    const hookId = createHash('sha256').update(command).digest('hex')
+    await events.emit('hook:start', { id: hookId, command: cmd, args })
 
     await events.onOnce('hook:end', async () => {
       await events.emit('success', `${pc.dim(command)} successfully executed`)

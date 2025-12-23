@@ -14,7 +14,7 @@
   "type": "module",
   "scripts": {
     "clean": "npx rimraf ./dist",
-    "format": "prettier --write **/*.{ts,tsx}",
+    "format": "echo 'empty'",
     "generate": "kubb generate",
     "generate:petstore": "kubb generate --config kubb-petstore.config.js",
     "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",

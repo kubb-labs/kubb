@@ -25,6 +25,7 @@
 		"build:docs": " cd docs && pnpm run build:ci",
 		"build:examples": "turbo run build --filter=./examples/*",
 		"perf": "npx ceviz analyze --json ceviz-report.json --html ceviz-report.html",
+		"perf:bench": "vitest bench --config ./configs/vitest.bench.config.ts",
 		"changeset": "changeset",
 		"clean": "turbo run clean",
 		"format": "biome format --write ./ && biome check --fix --unsafe",
