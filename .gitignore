@@ -58,4 +58,3 @@ hello
 packages/ui/static/**
 .nx
 ceviz-report.html
-/src/gen
