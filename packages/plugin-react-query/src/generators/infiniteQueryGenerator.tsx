@@ -163,6 +163,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
             parser={options.parser}
           />
         )}
+        {options.customOptions && <File.Import name={[options.customOptions.name]} path={options.customOptions.importPath} />}
         {infiniteOptions && (
           <>
             <File.Import name={['InfiniteData']} isTypeOnly path={importPath} />
@@ -201,6 +202,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
               queryKeyTypeName={queryKey.typeName}
               initialPageParam={infiniteOptions.initialPageParam}
               queryParam={infiniteOptions.queryParam}
+              customOptions={options.customOptions}
             />
           </>
         )}

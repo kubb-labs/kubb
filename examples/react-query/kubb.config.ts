@@ -50,6 +50,10 @@ export const config = {
         const keys = QueryKey.getTransformer(props)
         return ['"v5"', ...keys]
       },
+      customOptions: {
+        importPath: '../../../useCustomHookOptions.ts',
+        name: 'useCustomHookOptions',
+      },
       paramsType: 'inline',
       pathParamsType: 'object',
       suspense: {},

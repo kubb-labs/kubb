@@ -41,6 +41,24 @@ describe('suspenseInfiniteQueryGenerator operation', async () => {
         },
       },
     },
+    {
+      name: 'findSuspenseInfiniteByTagsWithCustomOptions',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        suspense: {},
+        infinite: {
+          queryParam: 'pageSize',
+          initialPageParam: 0,
+          cursorParam: undefined,
+        },
+        customOptions: {
+          importPath: 'useCustomHookOptions.ts',
+          name: 'useCustomHookOptions',
+        },
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -72,6 +90,7 @@ describe('suspenseInfiniteQueryGenerator operation', async () => {
         methods: ['post'],
         importPath: '@tanstack/react-query',
       },
+      customOptions: undefined,
       output: {
         path: '.',
       },

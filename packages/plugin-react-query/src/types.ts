@@ -85,6 +85,20 @@ export type Infinite = {
   initialPageParam: unknown
 }
 
+type CustomOptions = {
+  /**
+   * Path to the hook that will be used to customize the hook options.
+   * It will be used as `import ${customOption.name} from '${customOptions.importPath}'`.
+   * It allows both relative and absolute paths but be aware that we will not change the path.
+   */
+  importPath: string
+  /**
+   * Name of the exported hook that will be used to customize the hook options.
+   * It will be used as `import ${customOption.name} from '${customOptions.importPath}'`.
+   */
+  name: string
+}
+
 export type Options = {
   /**
    * Specify the export location for the files and define the behavior of the output
@@ -152,6 +166,11 @@ export type Options = {
    */
   mutation?: Partial<Mutation> | false
   /**
+   * When set, a custom hook will be used to customize the options of the generated hooks.
+   * It will also generate a `HookOptions` type that can be used to type the custom options of each hook for type-safety.
+   */
+  customOptions?: CustomOptions
+  /**
    * Which parser should be used before returning the data to `@tanstack/query`.
    * `'zod'` will use `@kubb/plugin-zod` to parse the data.
    */
@@ -185,6 +204,7 @@ type ResolvedOptions = {
   query: NonNullable<Required<Query>> | false
   mutationKey: MutationKey | undefined
   mutation: NonNullable<Required<Mutation>> | false
+  customOptions: CustomOptions | undefined
 }
 
 export type PluginReactQuery = PluginFactoryOptions<'plugin-react-query', Options, ResolvedOptions, never, ResolvePathOptions>

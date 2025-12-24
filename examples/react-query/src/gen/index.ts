@@ -1,3 +1,4 @@
+export type { HookOptions } from './hooks/HookOptions.ts'
 export type { AddPetMutationKey } from './hooks/pet/useAddPetHook.ts'
 export { addPetHook, addPetMutationKey, addPetMutationOptionsHook, useAddPetHook } from './hooks/pet/useAddPetHook.ts'
 export type { DeletePetMutationKey } from './hooks/pet/useDeletePetHook.ts'

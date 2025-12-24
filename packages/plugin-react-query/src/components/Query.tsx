@@ -21,6 +21,7 @@ type Props = {
   paramsType: PluginReactQuery['resolvedOptions']['paramsType']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
+  customOptions: PluginReactQuery['resolvedOptions']['customOptions']
 }
 
 type GetParamsProps = {
@@ -122,6 +123,7 @@ export function Query({
   dataReturnType,
   typeSchemas,
   operation,
+  customOptions,
 }: Props): KubbNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
@@ -164,9 +166,10 @@ export function Query({
        const { query: queryConfig = {}, client: config = {} } = options ?? {}
        const { client: queryClient, ...queryOptions } = queryConfig
        const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
+       ${customOptions ? `const customOptions = ${customOptions.name}({ hookName: '${name}', operationId: '${operation.getOperationId()}' })` : ''}
 
        const query = useQuery({
-        ...${queryOptions},
+        ...${queryOptions},${customOptions ? '\n...customOptions,' : ''}
         queryKey,
         ...queryOptions
        } as unknown as QueryObserverOptions, queryClient) as ${returnType}

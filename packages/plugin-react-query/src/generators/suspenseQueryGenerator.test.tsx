@@ -22,6 +22,19 @@ describe('suspenseQueryGenerator operation', async () => {
         suspense: {},
       },
     },
+    {
+      name: 'findSuspenseByTagsWithCustomOptions',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        suspense: {},
+        customOptions: {
+          importPath: 'useCustomHookOptions.ts',
+          name: 'useCustomHookOptions',
+        },
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -54,6 +67,7 @@ describe('suspenseQueryGenerator operation', async () => {
         importPath: '@tanstack/react-query',
       },
       infinite: false,
+      customOptions: undefined,
       output: {
         path: '.',
       },

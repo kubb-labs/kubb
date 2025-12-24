@@ -54,6 +54,18 @@ describe('mutationGenerator operation', async () => {
       },
     },
     {
+      name: 'updatePetByIdWithCustomOptions',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/{pet_id}',
+      method: 'post',
+      options: {
+        customOptions: {
+          importPath: 'useCustomHookOptions.ts',
+          name: 'useCustomHookOptions',
+        },
+      },
+    },
+    {
       name: 'deletePet',
       input: '../../mocks/petStore.yaml',
       path: '/pet/{pet_id}',
@@ -103,6 +115,7 @@ describe('mutationGenerator operation', async () => {
       },
       suspense: false,
       infinite: false,
+      customOptions: undefined,
       output: {
         path: '.',
       },
@@ -159,6 +172,7 @@ describe('mutationGenerator operation', async () => {
       mutation: false,
       suspense: false,
       infinite: false,
+      customOptions: undefined,
       output: {
         path: '.',
       },
