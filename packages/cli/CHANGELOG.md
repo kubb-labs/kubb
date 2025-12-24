@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 4.12.13
+
+### Patch Changes
+
+- [#2246](https://github.com/kubb-labs/kubb/pull/2246) [`f8c1b10`](https://github.com/kubb-labs/kubb/commit/f8c1b109626bae68a13403bd2be35ae6183ebbf6) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix module resolution issue when loading TypeScript config files. The jiti instance now uses the config file's location as the base for module resolution instead of the CLI's location. This prevents errors like "Cannot find module './\_baseIsArguments'" when loading user config files that import Kubb plugins.
+
+- Updated dependencies []:
+  - @kubb/core@4.12.13
+
 ## 4.12.12
 
 ### Patch Changes
