@@ -15,26 +15,16 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
-## Unreleased
+## 4.12.13
 
-### ✨ Features
+### 🐛 Bug Fixes
 
-#### [`@kubb/core`](/api/core/), [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+#### [`@kubb/cli`](/getting-started/installation/)
 
-**Performance Optimizations:**
+Fixed module resolution issue when loading TypeScript configuration files. Previously, jiti used the CLI's installation location for module resolution, which could cause errors like `Cannot find module './_baseIsArguments'` when the user's config imported Kubb plugins. Now jiti correctly resolves modules relative to the config file's location, matching standard Node.js module resolution behavior.
 
-Significant performance improvements through code optimizations and intelligent caching mechanisms:
-
-- **Increased Concurrency**: Generator processing now runs in parallel (up from sequential), and operation/schema processing limits increased from 10 to 20 concurrent operations
-- **Memoization**: Added caching for `resolveName` and `resolvePath` calls in PluginManager to avoid redundant computations
-- **Schema Parsing Cache**: Schema parsing results are now cached, dramatically reducing duplicate parsing work
-- **Filter Optimization**: Exclude/include checks are cached and include early returns for empty filter arrays
-- **Options Caching**: `#getOptions` results are cached to avoid repeated array iterations
-
-These optimizations provide noticeable performance improvements, especially for large OpenAPI specifications with many operations and schemas.
-
-::: tip Performance Impact
-For large specifications, these optimizations can reduce generation time by 30-50% depending on the complexity and size of your OpenAPI document.
+::: info
+This fix resolves issues where users encountered module resolution errors when running `npx kubb generate` with a `kubb.config.ts` file that imports Kubb plugins.
 :::
 
 ## 4.12.11
