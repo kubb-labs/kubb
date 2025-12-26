@@ -274,56 +274,46 @@ export class OperationGenerator<
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
-        // For React generators, use batched fabric approach with p-limit
+        // For React generators, use batched fabric approach
         if (generator.type === 'react') {
           const fabricChild = createReactFabric()
           const batchSize = 10 // Process 10 operations at a time
-          let processedCount = 0
           
-          // Use p-limit to control batching - process items but batch upserts
-          const batchLimit = pLimit(1) // Process one batch at a time
-          const batchTasks = []
-          
+          // Process batches sequentially using for...of
           for (let i = 0; i < operations.length; i += batchSize) {
-            const batchStart = i
             const batch = operations.slice(i, Math.min(i + batchSize, operations.length))
             
-            batchTasks.push(
-              batchLimit(async () => {
-                // Process batch with concurrency control
-                await Promise.all(
-                  batch.map(({ operation, method }) =>
-                    operationLimit(async () => {
-                      const options = this.#getOptions(operation, method)
-                      
-                      await buildOperation(operation, {
-                        config: this.context.pluginManager.config,
-                        fabric: this.context.fabric,
-                        fabricChild,
-                        Component: generator.Operation,
-                        generator: this,
-                        plugin: {
-                          ...this.context.plugin,
-                          options: {
-                            ...this.options,
-                            ...options,
-                          },
-                        },
-                      })
-                    })
-                  )
-                )
-                
-                // Batch upsert after each batch
-                if (fabricChild.files.length > 0) {
-                  await this.context.fabric.context.fileManager.upsert(...fabricChild.files)
-                  fabricChild.files = []
-                }
-              })
+            // Process batch with concurrency control
+            await Promise.all(
+              batch.map(({ operation, method }) =>
+                operationLimit(async () => {
+                  const options = this.#getOptions(operation, method)
+                  
+                  await buildOperation(operation, {
+                    config: this.context.pluginManager.config,
+                    fabric: this.context.fabric,
+                    fabricChild,
+                    Component: generator.Operation,
+                    generator: this,
+                    plugin: {
+                      ...this.context.plugin,
+                      options: {
+                        ...this.options,
+                        ...options,
+                      },
+                    },
+                  })
+                })
+              )
             )
+            
+            // Batch upsert after each batch
+            if (fabricChild.files.length > 0) {
+              await this.context.fabric.context.fileManager.upsert(...fabricChild.files)
+              fabricChild.files = []
+            }
           }
           
-          await Promise.all(batchTasks)
           return []
         }
         
