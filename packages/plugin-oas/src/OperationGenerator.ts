@@ -4,7 +4,7 @@ import transformers from '@kubb/core/transformers'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
-import type { Fabric } from '@kubb/react-fabric'
+import { createReactFabric, type Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import type { Generator } from './generators/types.ts'
 import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
@@ -265,7 +265,7 @@ export class OperationGenerator<
     const operations = await this.getOperations()
 
     const generatorLimit = pLimit(generators.length)
-    const operationLimit = pLimit(20)
+    const operationLimit = pLimit(30)
 
     this.context.events?.emit('debug', {
       date: new Date(),
@@ -274,27 +274,49 @@ export class OperationGenerator<
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
+        // For React generators, use batched fabric approach
+        if (generator.type === 'react') {
+          const fabricChild = createReactFabric()
+          const batchSize = 10 // Process 10 operations at a time
+          
+          for (let i = 0; i < operations.length; i += batchSize) {
+            const batch = operations.slice(i, i + batchSize)
+            
+            await Promise.all(
+              batch.map(({ operation, method }) =>
+                operationLimit(async () => {
+                  const options = this.#getOptions(operation, method)
+                  
+                  await buildOperation(operation, {
+                    config: this.context.pluginManager.config,
+                    fabric: this.context.fabric,
+                    fabricChild,
+                    Component: generator.Operation,
+                    generator: this,
+                    plugin: {
+                      ...this.context.plugin,
+                      options: {
+                        ...this.options,
+                        ...options,
+                      },
+                    },
+                  })
+                })
+              )
+            )
+            
+            // Batch upsert after each batch
+            await this.context.fabric.context.fileManager.upsert(...fabricChild.files)
+            fabricChild.files = []
+          }
+          
+          return []
+        }
+        
+        // For function generators, use parallel execution
         const operationTasks = operations.map(({ operation, method }) =>
           operationLimit(async () => {
             const options = this.#getOptions(operation, method)
-
-            if (generator.type === 'react') {
-              await buildOperation(operation, {
-                config: this.context.pluginManager.config,
-                fabric: this.context.fabric,
-                Component: generator.Operation,
-                generator: this,
-                plugin: {
-                  ...this.context.plugin,
-                  options: {
-                    ...this.options,
-                    ...options,
-                  },
-                },
-              })
-
-              return []
-            }
 
             const result = await generator.operation?.({
               generator: this,

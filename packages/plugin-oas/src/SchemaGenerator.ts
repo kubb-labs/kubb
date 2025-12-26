@@ -5,7 +5,7 @@ import { type AsyncEventEmitter, getUniqueName } from '@kubb/core/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference } from '@kubb/oas'
-import type { Fabric } from '@kubb/react-fabric'
+import { createReactFabric, type Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { Generator } from './generators/types.ts'
@@ -1240,39 +1240,62 @@ export class SchemaGenerator<
     })
 
     const generatorLimit = pLimit(generators.length)
-    const schemaLimit = pLimit(20)
+    const schemaLimit = pLimit(30)
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
+        // For React generators, use batched fabric approach
+        if (generator.type === 'react') {
+          const fabricChild = createReactFabric()
+          const batchSize = 10 // Process 10 schemas at a time
+          
+          for (let i = 0; i < schemaEntries.length; i += batchSize) {
+            const batch = schemaEntries.slice(i, i + batchSize)
+            
+            await Promise.all(
+              batch.map(([name, schemaObject]) =>
+                schemaLimit(async () => {
+                  const options = this.#getOptions(name)
+                  const tree = this.parse({ schema: schemaObject, name, parentName: null })
+                  
+                  await buildSchema(
+                    {
+                      name,
+                      value: schemaObject,
+                      tree,
+                    },
+                    {
+                      config: this.context.pluginManager.config,
+                      fabric: this.context.fabric,
+                      fabricChild,
+                      Component: generator.Schema,
+                      generator: this,
+                      plugin: {
+                        ...this.context.plugin,
+                        options: {
+                          ...this.options,
+                          ...options,
+                        },
+                      },
+                    },
+                  )
+                })
+              )
+            )
+            
+            // Batch upsert after each batch
+            await this.context.fabric.context.fileManager.upsert(...fabricChild.files)
+            fabricChild.files = []
+          }
+          
+          return []
+        }
+        
+        // For function generators, use parallel execution
         const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {
             const options = this.#getOptions(name)
             const tree = this.parse({ schema: schemaObject, name, parentName: null })
-
-            if (generator.type === 'react') {
-              await buildSchema(
-                {
-                  name,
-                  value: schemaObject,
-                  tree,
-                },
-                {
-                  config: this.context.pluginManager.config,
-                  fabric: this.context.fabric,
-                  Component: generator.Schema,
-                  generator: this,
-                  plugin: {
-                    ...this.context.plugin,
-                    options: {
-                      ...this.options,
-                      ...options,
-                    },
-                  },
-                },
-              )
-
-              return []
-            }
 
             const result = await generator.schema?.({
               config: this.context.pluginManager.config,

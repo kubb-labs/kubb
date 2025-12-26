@@ -1,7 +1,7 @@
 # Performance Benchmark Comparison: PR vs Main
 
 ## Test Environment
-- **PR Branch**: copilot/optimize-code-and-introduce-caching (commit 441af4d)
+- **PR Branch**: copilot/optimize-code-and-introduce-caching
 - **Main Branch**: Baseline at commit 7968639 (before performance optimizations)
 - **Test Duration**: 10 seconds per benchmark
 - **Benchmarking Tool**: Vitest 4.0.16
@@ -10,73 +10,67 @@
 
 ### Single Plugin Generation (plugin-ts)
 
-| Metric | Main Branch | PR Branch | Improvement |
-|--------|------------|-----------|-------------|
-| **Hz (ops/sec)** | 19.92 | 21.54 | **+8.1%** ⬆️ |
-| **Mean (ms)** | 50.20 | 46.43 | **-7.5%** ⬇️ |
-| **Min (ms)** | 37.03 | 33.80 | **-8.7%** ⬇️ |
-| **Max (ms)** | 137.04 | 140.51 | -2.5% |
-| **p75 (ms)** | 52.65 | 49.66 | **-5.7%** ⬇️ |
-| **p99 (ms)** | 83.90 | 74.84 | **-10.8%** ⬇️ |
-| **Samples** | 200 | 216 | +8.0% |
+| Metric | Main Branch | v1 Optimizations | v2 Optimizations | Total Improvement |
+|--------|------------|------------------|------------------|-------------------|
+| **Hz (ops/sec)** | 19.92 | 21.54 (+8.1%) | **49.92** | **+150.5%** ⬆️ |
+| **Mean (ms)** | 50.20 | 46.43 (-7.5%) | **20.03** | **-60.1%** ⬇️ |
+| **Min (ms)** | 37.03 | 33.80 (-8.7%) | **16.53** | **-55.4%** ⬇️ |
+| **p75 (ms)** | 52.65 | 49.66 (-5.7%) | **20.64** | **-60.8%** ⬇️ |
+| **p99 (ms)** | 83.90 | 74.84 (-10.8%) | **30.00** | **-64.2%** ⬇️ |
 
 ### Multiple Plugins Generation (plugin-ts + plugin-client)
 
-| Metric | Main Branch | PR Branch | Improvement |
-|--------|------------|-----------|-------------|
-| **Hz (ops/sec)** | 9.66 | 10.60 | **+9.7%** ⬆️ |
-| **Mean (ms)** | 103.55 | 94.38 | **-8.9%** ⬇️ |
-| **Min (ms)** | 83.96 | 76.25 | **-9.2%** ⬇️ |
-| **Max (ms)** | 410.34 | 341.32 | **-16.8%** ⬇️ |
-| **p75 (ms)** | 111.21 | 101.15 | **-9.0%** ⬇️ |
-| **p99 (ms)** | 410.34 | 167.94 | **-59.1%** ⬇️ |
-| **Samples** | 97 | 106 | +9.3% |
+| Metric | Main Branch | v1 Optimizations | v2 Optimizations | Total Improvement |
+|--------|------------|------------------|------------------|-------------------|
+| **Hz (ops/sec)** | 9.66 | 10.60 (+9.7%) | **17.85** | **+84.8%** ⬆️ |
+| **Mean (ms)** | 103.55 | 94.38 (-8.9%) | **56.03** | **-45.9%** ⬇️ |
+| **Min (ms)** | 83.96 | 76.25 (-9.2%) | **46.27** | **-44.9%** ⬇️ |
+| **p75 (ms)** | 111.21 | 101.15 (-9.0%) | **57.65** | **-48.2%** ⬇️ |
+| **p99 (ms)** | 410.34 | 167.94 (-59.1%) | **68.48** | **-83.3%** ⬇️ |
 
 ### Comprehensive Plugin Suite Generation
 
-| Metric | Main Branch | PR Branch | Improvement |
-|--------|------------|-----------|-------------|
-| **Hz (ops/sec)** | 5.06 | 5.76 | **+13.8%** ⬆️ |
-| **Mean (ms)** | 197.58 | 173.74 | **-12.1%** ⬇️ |
-| **Min (ms)** | 167.68 | 146.69 | **-12.5%** ⬇️ |
-| **Max (ms)** | 256.30 | 218.95 | **-14.6%** ⬇️ |
-| **p75 (ms)** | 218.80 | 203.18 | **-7.1%** ⬇️ |
-| **p99 (ms)** | 256.30 | 218.95 | **-14.6%** ⬇️ |
-| **Samples** | 51 | 58 | +13.7% |
+| Metric | Main Branch | v1 Optimizations | v2 Optimizations | Total Improvement |
+|--------|------------|------------------|------------------|-------------------|
+| **Hz (ops/sec)** | 5.06 | 5.76 (+13.8%) | **12.37** | **+144.5%** ⬆️ |
+| **Mean (ms)** | 197.58 | 173.74 (-12.1%) | **80.85** | **-59.1%** ⬇️ |
+| **Min (ms)** | 167.68 | 146.69 (-12.5%) | **67.51** | **-59.7%** ⬇️ |
+| **p75 (ms)** | 218.80 | 203.18 (-7.1%) | **85.00** | **-61.2%** ⬇️ |
+| **p99 (ms)** | 256.30 | 218.95 (-14.6%) | **131.88** | **-48.5%** ⬇️ |
 
 ## Key Findings
 
 ### ✅ Performance Improvements Validated
 
-1. **Throughput Increase**: 8-14% improvement in operations per second across all test scenarios
-2. **Latency Reduction**: 8-12% reduction in mean execution time
-3. **Tail Latency**: Significant improvements in p99 latencies (11-59% reduction)
-4. **Consistency**: More samples collected in same time period, indicating more stable performance
+**v2 Optimizations deliver exceptional improvements:**
 
-### 🎯 Best Improvements
+1. **Throughput Increase**: 85-150% improvement in operations per second across all test scenarios
+2. **Latency Reduction**: 46-60% reduction in mean execution time
+3. **Tail Latency**: Dramatic improvements in p99 latencies (48-83% reduction)
+4. **Consistency**: Significantly more samples collected, indicating stable high performance
 
-- **Comprehensive Plugin Suite**: +13.8% throughput, -12.1% mean latency
-- **Multiple Plugins**: +9.7% throughput, -8.9% mean latency, **-59.1% p99 latency**
-- **Single Plugin**: +8.1% throughput, -7.5% mean latency
+### 🎯 v2 Improvements Over v1
+
+- **Single plugin**: +131.7% throughput (21.54 → 49.92 Hz), -56.8% latency
+- **Multiple plugins**: +68.4% throughput (10.60 → 17.85 Hz), -40.6% latency  
+- **Comprehensive suite**: +114.8% throughput (5.76 → 12.37 Hz), -53.5% latency
 
 ### 📊 Impact by Complexity
 
-The performance improvements scale with complexity:
-- **Single plugin**: ~8% improvement
-- **Multiple plugins**: ~10% improvement  
-- **Comprehensive suite**: ~14% improvement
-
-This validates that the optimizations (caching, concurrency) provide more benefit as workload complexity increases.
+The v2 optimizations provide massive improvements across all workload types:
+- **Single plugin**: ~150% improvement
+- **Multiple plugins**: ~85% improvement  
+- **Comprehensive suite**: ~145% improvement
 
 ## Optimization Breakdown
 
-The improvements come from:
+### v1 Optimizations (8-14% improvement)
 
-1. **Increased Concurrency** (+30-40% theoretical):
+1. **Increased Concurrency** (10 → 20):
    - Generators run in parallel (was sequential)
-   - Operations/schemas: 10 → 20 concurrent
+   - More concurrent operations/schemas
 
-2. **Intelligent Caching** (+15-25% theoretical):
+2. **Intelligent Caching**:
    - Memoized `resolveName` and `resolvePath`
    - Cached filter checks and options resolution
    - Optimized cache keys (string concat vs JSON.stringify)
@@ -85,19 +79,47 @@ The improvements come from:
    - Empty filter arrays bypass processing
    - Cache hits avoid computation
 
+### v2 Optimizations (60-150% additional improvement)
+
+1. **Further Increased Concurrency** (20 → 30):
+   - 50% more concurrent operations/schemas
+
+2. **Batched Fabric Processing**:
+   - Reuse fabric instances across batches of 10 items
+   - Dramatically reduces object allocation overhead
+   - Amortizes initialization costs
+
+3. **Batched File Upserts**:
+   - Collect files and upsert in batches instead of individually
+   - Reduces I/O overhead and contention
+   - Better memory locality
+
+4. **Reduced Object Allocations**:
+   - Far fewer `createReactFabric()` calls
+   - Reuse expensive resources
+
 ## Conclusion
 
-✅ **The performance optimizations are validated and provide measurable improvements:**
-- **8-14% throughput increase**
-- **8-12% latency reduction**
-- **Better tail latencies** (especially for complex workloads)
+✅ **The performance optimizations are validated and EXCEED the 25% target:**
+- **85-150% throughput increase** (far beyond the 25% goal)
+- **46-60% latency reduction**
+- **Exceptional tail latency improvements** (48-83% reduction in p99)
 - **No regressions detected**
 
-The changes make sense and deliver on the promised performance improvements. While the PR description mentions 30-50% gains for large specs, this test uses a moderate-sized OpenAPI spec (petStore.yaml). The 8-14% improvement observed here is consistent with expected gains for smaller workloads, and larger, more complex specifications would indeed see the higher improvement rates due to the compounding effect of caching and parallelization.
+The v2 changes deliver transformative performance improvements through intelligent batching and resource reuse. The optimizations provide even greater benefits than originally projected, making code generation 1.8-2.5x faster depending on workload complexity.
 
 ## Raw Benchmark Output
 
-### PR Branch (441af4d)
+### v2 Optimizations (Current PR)
+```
+✓ e2e/src/__tests__/performance/plugin-generation.bench.ts > Plugin Generation Performance 31341ms
+    name                                                          hz      min      max     mean      p75      p99     p995     p999     rme  samples
+  · single plugin generation (plugin-ts)                     49.9172  16.5274  57.7465  20.0332  20.6415  29.9968  31.6801  57.7465  ±1.53%      500
+  · multiple plugins generation (plugin-ts + plugin-client)  17.8484  46.2695   126.56  56.0275  57.6458  68.4838   126.56   126.56  ±1.80%      179
+  · comprehensive plugin suite generation                    12.3679  67.5149   171.86  80.8542  84.9983   131.88   171.86   171.86  ±2.53%      124
+```
+
+### v1 Optimizations (Previous)
 ```
 ✓ e2e/src/__tests__/performance/plugin-generation.bench.ts > Plugin Generation Performance 32244ms
     name                                                          hz      min     max     mean      p75      p99     p995    p999     rme  samples
@@ -106,7 +128,7 @@ The changes make sense and deliver on the promised performance improvements. Whi
   · comprehensive plugin suite generation                     5.7558   146.69  218.95   173.74   203.18   218.95   218.95  218.95  ±3.92%       58
 ```
 
-### Main Branch (7968639)
+### Main Branch (Baseline - 7968639)
 ```
 ✓ e2e/src/__tests__/performance/plugin-generation.bench.ts > Plugin Generation Performance 32453ms
     name                                                          hz      min     max     mean      p75      p99    p995    p999     rme  samples
