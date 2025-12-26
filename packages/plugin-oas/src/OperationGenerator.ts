@@ -46,7 +46,7 @@ export class OperationGenerator<
     const { override = [] } = this.context
     const contentType = operation.getContentType()
 
-    const result = (
+    const result =
       override.find(({ pattern, type }) => {
         switch (type) {
           case 'tag':
@@ -63,7 +63,6 @@ export class OperationGenerator<
             return false
         }
       })?.options || {}
-    )
 
     this.#optionsCache.set(cacheKey, result)
     return result
@@ -78,7 +77,7 @@ export class OperationGenerator<
     }
 
     const { exclude = [] } = this.context
-    
+
     // Early return if no exclusion rules
     if (exclude.length === 0) {
       this.#filterCache.set(cacheKey, false)
@@ -117,7 +116,7 @@ export class OperationGenerator<
     }
 
     const { include = [] } = this.context
-    
+
     // Early return if no inclusion rules
     if (include.length === 0) {
       this.#filterCache.set(cacheKey, true)
@@ -278,17 +277,17 @@ export class OperationGenerator<
         if (generator.type === 'react') {
           const fabricChild = createReactFabric()
           const batchSize = 10 // Process 10 operations at a time
-          
+
           // Process batches sequentially using for...of
           for (let i = 0; i < operations.length; i += batchSize) {
             const batch = operations.slice(i, Math.min(i + batchSize, operations.length))
-            
+
             // Process batch with concurrency control
             await Promise.all(
               batch.map(({ operation, method }) =>
                 operationLimit(async () => {
                   const options = this.#getOptions(operation, method)
-                  
+
                   await buildOperation(operation, {
                     config: this.context.pluginManager.config,
                     fabric: this.context.fabric,
@@ -303,20 +302,20 @@ export class OperationGenerator<
                       },
                     },
                   })
-                })
-              )
+                }),
+              ),
             )
-            
+
             // Batch upsert after each batch
             if (fabricChild.files.length > 0) {
               await this.context.fabric.context.fileManager.upsert(...fabricChild.files)
               fabricChild.files = []
             }
           }
-          
+
           return []
         }
-        
+
         // For function generators, use parallel execution
         const operationTasks = operations.map(({ operation, method }) =>
           operationLimit(async () => {

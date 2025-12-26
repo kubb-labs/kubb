@@ -1248,18 +1248,18 @@ export class SchemaGenerator<
         if (generator.type === 'react') {
           const fabricChild = createReactFabric()
           const batchSize = 10 // Process 10 schemas at a time
-          
+
           // Process batches sequentially using for loop
           for (let i = 0; i < schemaEntries.length; i += batchSize) {
             const batch = schemaEntries.slice(i, Math.min(i + batchSize, schemaEntries.length))
-            
+
             // Process batch with concurrency control
             await Promise.all(
               batch.map(([name, schemaObject]) =>
                 schemaLimit(async () => {
                   const options = this.#getOptions(name)
                   const tree = this.parse({ schema: schemaObject, name, parentName: null })
-                  
+
                   await buildSchema(
                     {
                       name,
@@ -1281,20 +1281,20 @@ export class SchemaGenerator<
                       },
                     },
                   )
-                })
-              )
+                }),
+              ),
             )
-            
+
             // Batch upsert after each batch
             if (fabricChild.files.length > 0) {
               await this.context.fabric.context.fileManager.upsert(...fabricChild.files)
               fabricChild.files = []
             }
           }
-          
+
           return []
         }
-        
+
         // For function generators, use parallel execution
         const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {
