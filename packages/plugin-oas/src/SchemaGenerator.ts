@@ -5,7 +5,7 @@ import { type AsyncEventEmitter, getUniqueName } from '@kubb/core/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference } from '@kubb/oas'
-import type { Fabric } from '@kubb/react-fabric'
+import { createReactFabric, type Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { Generator } from './generators/types.ts'
@@ -77,6 +77,7 @@ export class SchemaGenerator<
 
   // Keep track of already used type aliases
   #usedAliasNames: Record<string, number> = {}
+  #optionsCache = new Map<string, Partial<TOptions>>()
 
   /**
    * Creates a type node from a given schema.
@@ -243,9 +244,18 @@ export class SchemaGenerator<
   }
 
   #getOptions(name: string | null): Partial<TOptions> {
+    if (!name) {
+      return this.options
+    }
+
+    const cached = this.#optionsCache.get(name)
+    if (cached !== undefined) {
+      return cached
+    }
+
     const { override = [] } = this.context
 
-    return {
+    const result = {
       ...this.options,
       ...(override.find(({ pattern, type }) => {
         if (name && type === 'schemaName') {
@@ -255,6 +265,9 @@ export class SchemaGenerator<
         return false
       })?.options || {}),
     }
+
+    this.#optionsCache.set(name, result)
+    return result
   }
 
   #getUnknownType(name: string | null): string {
@@ -1226,40 +1239,67 @@ export class SchemaGenerator<
       logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
     })
 
-    const generatorLimit = pLimit(1)
-    const schemaLimit = pLimit(10)
+    const generatorLimit = pLimit(generators.length)
+    const schemaLimit = pLimit(30)
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
+        // For React generators, use batched fabric approach
+        if (generator.type === 'react') {
+          const fabricChild = createReactFabric()
+          const batchSize = 10 // Process 10 schemas at a time
+
+          // Process batches sequentially using for loop
+          for (let i = 0; i < schemaEntries.length; i += batchSize) {
+            const batch = schemaEntries.slice(i, Math.min(i + batchSize, schemaEntries.length))
+
+            // Process batch with concurrency control
+            await Promise.all(
+              batch.map(([name, schemaObject]) =>
+                schemaLimit(async () => {
+                  const options = this.#getOptions(name)
+                  const tree = this.parse({ schema: schemaObject, name, parentName: null })
+
+                  await buildSchema(
+                    {
+                      name,
+                      value: schemaObject,
+                      tree,
+                    },
+                    {
+                      config: this.context.pluginManager.config,
+                      fabric: this.context.fabric,
+                      fabricChild,
+                      Component: generator.Schema,
+                      generator: this,
+                      plugin: {
+                        ...this.context.plugin,
+                        options: {
+                          ...this.options,
+                          ...options,
+                        },
+                      },
+                    },
+                  )
+                }),
+              ),
+            )
+
+            // Batch upsert after each batch
+            if (fabricChild.files.length > 0) {
+              await this.context.fabric.context.fileManager.upsert(...fabricChild.files)
+              fabricChild.files = []
+            }
+          }
+
+          return []
+        }
+
+        // For function generators, use parallel execution
         const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {
             const options = this.#getOptions(name)
             const tree = this.parse({ schema: schemaObject, name, parentName: null })
-
-            if (generator.type === 'react') {
-              await buildSchema(
-                {
-                  name,
-                  value: schemaObject,
-                  tree,
-                },
-                {
-                  config: this.context.pluginManager.config,
-                  fabric: this.context.fabric,
-                  Component: generator.Schema,
-                  generator: this,
-                  plugin: {
-                    ...this.context.plugin,
-                    options: {
-                      ...this.options,
-                      ...options,
-                    },
-                  },
-                },
-              )
-
-              return []
-            }
 
             const result = await generator.schema?.({
               config: this.context.pluginManager.config,

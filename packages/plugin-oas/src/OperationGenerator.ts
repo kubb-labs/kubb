@@ -4,7 +4,7 @@ import transformers from '@kubb/core/transformers'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
-import type { Fabric } from '@kubb/react-fabric'
+import { createReactFabric, type Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import type { Generator } from './generators/types.ts'
 import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
@@ -32,12 +32,21 @@ export class OperationGenerator<
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
 > extends BaseGenerator<TPluginOptions['resolvedOptions'], Context<TPluginOptions['resolvedOptions'], TPluginOptions>> {
+  #optionsCache = new Map<string, Partial<TPluginOptions['resolvedOptions']>>()
+  #filterCache = new Map<string, boolean>()
+
   #getOptions(operation: Operation, method: HttpMethod): Partial<TPluginOptions['resolvedOptions']> {
-    const { override = [] } = this.context
     const operationId = operation.getOperationId({ friendlyCase: true })
+    const cacheKey = `${operationId}:${method}`
+    const cached = this.#optionsCache.get(cacheKey)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    const { override = [] } = this.context
     const contentType = operation.getContentType()
 
-    return (
+    const result =
       override.find(({ pattern, type }) => {
         switch (type) {
           case 'tag':
@@ -54,15 +63,30 @@ export class OperationGenerator<
             return false
         }
       })?.options || {}
-    )
+
+    this.#optionsCache.set(cacheKey, result)
+    return result
   }
 
   #isExcluded(operation: Operation, method: HttpMethod): boolean {
-    const { exclude = [] } = this.context
     const operationId = operation.getOperationId({ friendlyCase: true })
+    const cacheKey = `exclude:${operationId}:${method}`
+    const cached = this.#filterCache.get(cacheKey)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    const { exclude = [] } = this.context
+
+    // Early return if no exclusion rules
+    if (exclude.length === 0) {
+      this.#filterCache.set(cacheKey, false)
+      return false
+    }
+
     const contentType = operation.getContentType()
 
-    return exclude.some(({ pattern, type }) => {
+    const result = exclude.some(({ pattern, type }) => {
       switch (type) {
         case 'tag':
           return operation.getTags().some((tag) => tag.name.match(pattern))
@@ -78,14 +102,30 @@ export class OperationGenerator<
           return false
       }
     })
+
+    this.#filterCache.set(cacheKey, result)
+    return result
   }
 
   #isIncluded(operation: Operation, method: HttpMethod): boolean {
-    const { include = [] } = this.context
     const operationId = operation.getOperationId({ friendlyCase: true })
+    const cacheKey = `include:${operationId}:${method}`
+    const cached = this.#filterCache.get(cacheKey)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    const { include = [] } = this.context
+
+    // Early return if no inclusion rules
+    if (include.length === 0) {
+      this.#filterCache.set(cacheKey, true)
+      return true
+    }
+
     const contentType = operation.getContentType()
 
-    return include.some(({ pattern, type }) => {
+    const result = include.some(({ pattern, type }) => {
       switch (type) {
         case 'tag':
           return operation.getTags().some((tag) => tag.name.match(pattern))
@@ -101,6 +141,9 @@ export class OperationGenerator<
           return false
       }
     })
+
+    this.#filterCache.set(cacheKey, result)
+    return result
   }
 
   getSchemas(
@@ -220,8 +263,8 @@ export class OperationGenerator<
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const operations = await this.getOperations()
 
-    const generatorLimit = pLimit(1)
-    const operationLimit = pLimit(10)
+    const generatorLimit = pLimit(generators.length)
+    const operationLimit = pLimit(30)
 
     this.context.events?.emit('debug', {
       date: new Date(),
@@ -230,27 +273,53 @@ export class OperationGenerator<
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
+        // For React generators, use batched fabric approach
+        if (generator.type === 'react') {
+          const fabricChild = createReactFabric()
+          const batchSize = 10 // Process 10 operations at a time
+
+          // Process batches sequentially using for...of
+          for (let i = 0; i < operations.length; i += batchSize) {
+            const batch = operations.slice(i, Math.min(i + batchSize, operations.length))
+
+            // Process batch with concurrency control
+            await Promise.all(
+              batch.map(({ operation, method }) =>
+                operationLimit(async () => {
+                  const options = this.#getOptions(operation, method)
+
+                  await buildOperation(operation, {
+                    config: this.context.pluginManager.config,
+                    fabric: this.context.fabric,
+                    fabricChild,
+                    Component: generator.Operation,
+                    generator: this,
+                    plugin: {
+                      ...this.context.plugin,
+                      options: {
+                        ...this.options,
+                        ...options,
+                      },
+                    },
+                  })
+                }),
+              ),
+            )
+
+            // Batch upsert after each batch
+            if (fabricChild.files.length > 0) {
+              await this.context.fabric.context.fileManager.upsert(...fabricChild.files)
+              fabricChild.files = []
+            }
+          }
+
+          return []
+        }
+
+        // For function generators, use parallel execution
         const operationTasks = operations.map(({ operation, method }) =>
           operationLimit(async () => {
             const options = this.#getOptions(operation, method)
-
-            if (generator.type === 'react') {
-              await buildOperation(operation, {
-                config: this.context.pluginManager.config,
-                fabric: this.context.fabric,
-                Component: generator.Operation,
-                generator: this,
-                plugin: {
-                  ...this.context.plugin,
-                  options: {
-                    ...this.options,
-                    ...options,
-                  },
-                },
-              })
-
-              return []
-            }
 
             const result = await generator.operation?.({
               generator: this,

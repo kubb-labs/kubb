@@ -42,11 +42,12 @@ type BuildOperationOptions<TOptions extends PluginFactoryOptions> = {
   Component: ReactGenerator<any>['Operation']
   generator: Omit<OperationGenerator<TOptions>, 'build'>
   plugin: Plugin<TOptions>
+  fabricChild?: Fabric
 }
 
 export async function buildOperation<TOptions extends PluginFactoryOptions>(
   operation: Operation,
-  { config, fabric, plugin, generator, Component }: BuildOperationOptions<TOptions>,
+  { config, fabric, plugin, generator, Component, fabricChild: sharedFabric }: BuildOperationOptions<TOptions>,
 ): Promise<void> {
   if (!Component) {
     return undefined
@@ -54,7 +55,7 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
 
   const { pluginManager, oas, mode } = generator.context
 
-  const fabricChild = createReactFabric()
+  const fabricChild = sharedFabric || createReactFabric()
   await fabricChild.render(() => {
     return (
       <App meta={{ pluginManager, plugin, mode, oas }}>
@@ -63,7 +64,9 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
     )
   })
 
-  await fabric.context.fileManager.upsert(...fabricChild.files)
+  if (!sharedFabric) {
+    await fabric.context.fileManager.upsert(...fabricChild.files)
+  }
 }
 
 type BuildSchemaOptions<TOptions extends PluginFactoryOptions> = {
@@ -72,6 +75,7 @@ type BuildSchemaOptions<TOptions extends PluginFactoryOptions> = {
   Component: ReactGenerator<any>['Schema']
   generator: Omit<SchemaGenerator<SchemaGeneratorOptions, TOptions>, 'build'>
   plugin: Plugin<TOptions>
+  fabricChild?: Fabric
 }
 
 export async function buildSchema<TOptions extends PluginFactoryOptions>(
@@ -80,7 +84,7 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
     tree: Array<Schema>
     value: SchemaObject
   },
-  { config, fabric, plugin, Component, generator }: BuildSchemaOptions<TOptions>,
+  { config, fabric, plugin, Component, generator, fabricChild: sharedFabric }: BuildSchemaOptions<TOptions>,
 ): Promise<void> {
   if (!Component) {
     return undefined
@@ -88,7 +92,7 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
 
   const { pluginManager, oas, mode } = generator.context
 
-  const fabricChild = createReactFabric()
+  const fabricChild = sharedFabric || createReactFabric()
   await fabricChild.render(() => {
     return (
       <App meta={{ pluginManager, plugin, mode, oas }}>
@@ -97,5 +101,7 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
     )
   })
 
-  await fabric.context.fileManager.upsert(...fabricChild.files)
+  if (!sharedFabric) {
+    await fabric.context.fileManager.upsert(...fabricChild.files)
+  }
 }
