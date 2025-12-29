@@ -51,10 +51,10 @@ export function Zod({
   const baseSchemas = mini ? parserZod.filterMiniModifiers(schemas) : schemas
 
   const output = baseSchemas
-    .map((schema, index) => {
+    .map((schemaKeyword, index) => {
       const siblings = baseSchemas.filter((_, i) => i !== index)
 
-      return parserZod.parse({ schema, parent: undefined, current: schema, siblings, name }, { mapper, coercion, wrapOutput, version, mini })
+      return parserZod.parse({ schema, parent: undefined, current: schemaKeyword, siblings, name }, { mapper, coercion, wrapOutput, version, mini })
     })
     .filter(Boolean)
     .join('')

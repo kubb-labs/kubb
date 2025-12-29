@@ -22,7 +22,7 @@ export const createPetsError = z
   })
 
 export const createPetsMutationRequest = z.object({
-  name: z.string(),
+  name: z.string().openapi({ example: 'Baxter' }),
   tag: z.string(),
 })
 

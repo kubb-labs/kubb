@@ -616,5 +616,86 @@ describe('zodGenerator operation', async () => {
 
       await matchFiles(files)
     })
+
+    test('ensures wrapOutput receives schema for all traversed nodes', async () => {
+      const entry = {
+        name: 'getPets with queryFilter',
+        input: '../../mocks/petStoreRef.yaml',
+        path: '/pets/{petId}',
+        method: 'get',
+        options: {
+          unknownType: 'unknown',
+        },
+      } as const satisfies {
+        input: string
+        name: string
+        path: string
+        method: HttpMethod
+        options: Partial<PluginZod['resolvedOptions']>
+      }
+
+      const oas = await parse(path.resolve(__dirname, '../../mocks/petStoreRef.yaml'))
+
+      const options: PluginZod['resolvedOptions'] = {
+        dateType: 'date',
+        transformers: {},
+        typed: false,
+        inferred: false,
+        mapper: {},
+        importPath: 'zod',
+        coercion: false,
+        operations: false,
+        override: [],
+        output: {
+          path: '.',
+        },
+        group: undefined,
+        version: '3',
+        emptySchemaType: 'unknown',
+        wrapOutput: ({ output, schema }) => {
+          if (schema) {
+            if (schema.description === 'A string array query parameter example') {
+              return `z.string().optional().transform((val) => (val ? val.split(",") : undefined)).pipe(${output})`
+            }
+            return `${output}.openapi(${JSON.stringify({ examples: [schema] })})`
+          }
+          return undefined
+        },
+        mini: false,
+        ...entry.options,
+      }
+      const plugin = { options } as Plugin<PluginZod>
+      const fabric = createReactFabric()
+      const mockedPluginManager = createMockedPluginManager(entry.name)
+      const generator = new OperationGenerator(options, {
+        fabric,
+        oas,
+        include: undefined,
+        pluginManager: mockedPluginManager,
+        plugin,
+        contentType: undefined,
+        override: undefined,
+        mode: 'split',
+        exclude: [],
+      })
+      const operation = oas.operation(entry.path, entry.method)
+
+      await buildOperation(operation, {
+        config: { root: '.', output: { path: 'test' } } as Config,
+        fabric,
+        generator,
+        Component: zodGenerator.Operation,
+        plugin,
+      })
+
+      let files = fabric.files
+      files = files?.map((file) => {
+        const [operation, extension] = file.path.split('.')
+        file.path = `${operation}_wrapOutput_all_.${extension}`
+        return file
+      })
+
+      await matchFiles(files)
+    })
   })
 })
