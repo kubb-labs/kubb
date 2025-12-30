@@ -113,8 +113,9 @@ export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
         const { role, prefix = '', suffix = '', casing } = options
         const strategy = casing || (role === 'type' || role === 'schema' ? 'PascalCase' : 'camelCase')
         
-        // Build name with prefix/suffix
-        const nameWithAffixes = `${prefix} ${name} ${suffix}`
+        // Build name with prefix/suffix, avoiding extra spaces
+        const parts = [prefix, name, suffix].filter(Boolean)
+        const nameWithAffixes = parts.join(' ')
         
         let resolvedName: string
         if (strategy === 'PascalCase') {
@@ -122,8 +123,8 @@ export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
         } else if (strategy === 'camelCase') {
           resolvedName = camelCase(nameWithAffixes, { isFile: role === 'file' })
         } else {
-          // preserve - just trim spaces
-          resolvedName = nameWithAffixes.trim()
+          // preserve
+          resolvedName = nameWithAffixes
         }
         
         return transformers?.name?.(resolvedName, role) || resolvedName

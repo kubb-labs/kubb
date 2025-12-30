@@ -101,8 +101,9 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
         const { role, prefix = '', suffix = '', casing } = options
         const strategy = casing || 'camelCase'
         
-        // Build name with prefix/suffix
-        const nameWithAffixes = `${prefix} ${name} ${suffix}`
+        // Build name with prefix/suffix, avoiding extra spaces
+        const parts = [prefix, name, suffix].filter(Boolean)
+        const nameWithAffixes = parts.join(' ')
         
         let resolvedName: string
         if (strategy === 'PascalCase') {
@@ -110,8 +111,8 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
         } else if (strategy === 'camelCase') {
           resolvedName = camelCase(nameWithAffixes, { isFile: role === 'file' })
         } else {
-          // preserve - just trim spaces
-          resolvedName = nameWithAffixes.trim()
+          // preserve
+          resolvedName = nameWithAffixes
         }
         
         return transformers?.name?.(resolvedName, role) || resolvedName
