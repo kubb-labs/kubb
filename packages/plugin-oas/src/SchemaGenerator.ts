@@ -431,13 +431,10 @@ export class SchemaGenerator<
     })
     
     // Get unique name based on the normalized (transformed) name
-    const originalName = getUniqueName(normalizedBaseName, this.#usedAliasNames)
-    
-    // Use the unique name for property and file names
-    const propertyName = originalName
+    const uniqueName = getUniqueName(normalizedBaseName, this.#usedAliasNames)
 
     const fileName = this.context.pluginManager.resolveName({
-      name: originalName,
+      name: uniqueName,
       pluginKey: this.context.plugin.key,
       type: 'file',
     })
@@ -448,8 +445,8 @@ export class SchemaGenerator<
     })
 
     this.refs[$ref] = {
-      propertyName,
-      originalName,
+      propertyName: uniqueName,
+      originalName: uniqueName,
       path: file.path,
     }
 
