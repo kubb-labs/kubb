@@ -87,7 +87,7 @@ exports[`SchemaGenerator core > 'FullAddress' 1`] = `
         "args": {
           "$ref": "#/components/schemas/Address",
           "isImportable": true,
-          "name": "address",
+          "name": "Address",
           "path": "address.ts",
         },
         "keyword": "ref",
@@ -404,7 +404,7 @@ exports[`SchemaGenerator core > 'Pets' 1`] = `
           "args": {
             "$ref": "#/components/schemas/Pet",
             "isImportable": true,
-            "name": "pet",
+            "name": "Pet",
             "path": "pet.ts",
           },
           "keyword": "ref",
@@ -444,7 +444,7 @@ exports[`SchemaGenerator core > 'PhoneWithMaxLength' 1`] = `
         "args": {
           "$ref": "#/components/schemas/PhoneNumber",
           "isImportable": true,
-          "name": "phoneNumber",
+          "name": "PhoneNumber",
           "path": "phoneNumber.ts",
         },
         "keyword": "ref",
@@ -495,7 +495,7 @@ exports[`SchemaGenerator core > 'PhoneWithMaxLengthExplicit' 1`] = `
         "args": {
           "$ref": "#/components/schemas/PhoneNumber",
           "isImportable": true,
-          "name": "phoneNumber",
+          "name": "PhoneNumber",
           "path": "phoneNumber.ts",
         },
         "keyword": "ref",
@@ -615,6 +615,168 @@ exports[`SchemaGenerator core > 'Toy' 1`] = `
   {
     "args": null,
     "keyword": "default",
+  },
+]
+`;
+
+exports[`SchemaGenerator core > 'Variant (uppercase)' 1`] = `
+[
+  {
+    "args": {
+      "additionalProperties": [],
+      "properties": {
+        "id": [
+          {
+            "keyword": "string",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "string",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "id",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
+        "name": [
+          {
+            "keyword": "string",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "string",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "name",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
+        "uppercase": [
+          {
+            "keyword": "boolean",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "boolean",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "This is the uppercase Variant schema",
+            "keyword": "describe",
+          },
+          {
+            "args": "uppercase",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
+      },
+    },
+    "keyword": "object",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "object",
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
+exports[`SchemaGenerator core > 'variant (lowercase)' 1`] = `
+[
+  {
+    "args": {
+      "additionalProperties": [],
+      "properties": {
+        "id": [
+          {
+            "keyword": "string",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "string",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "id",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
+        "lowercase": [
+          {
+            "keyword": "boolean",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "boolean",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "This is the lowercase variant schema",
+            "keyword": "describe",
+          },
+          {
+            "args": "lowercase",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
+        "name": [
+          {
+            "keyword": "string",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "string",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "name",
+            "keyword": "name",
+          },
+          {
+            "keyword": "optional",
+          },
+        ],
+      },
+    },
+    "keyword": "object",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "object",
+    },
+    "keyword": "schema",
   },
 ]
 `;

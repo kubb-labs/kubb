@@ -1,0 +1,46 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Duplicate Casing Test
+  description: Test spec with schemas that have the same name but different casing
+servers:
+  - url: http://api.example.com/v1
+paths:
+  /products:
+    get:
+      summary: Get products
+      operationId: getProducts
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  variant:
+                    $ref: '#/components/schemas/variant'
+                  Variant:
+                    $ref: '#/components/schemas/Variant'
+components:
+  schemas:
+    variant:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        lowercase:
+          type: boolean
+          description: This is the lowercase variant schema
+    Variant:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        uppercase:
+          type: boolean
+          description: This is the uppercase Variant schema

@@ -418,12 +418,23 @@ export class SchemaGenerator<
       ]
     }
 
-    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
-    const propertyName = this.context.pluginManager.resolveName({
-      name: originalName,
+    // Extract the base name from the $ref
+    const baseName = $ref.replace(/.+\//, '')
+    
+    // Normalize the name first to ensure case-insensitive uniqueness
+    // This prevents "Variant" and "variant" from being treated as different names
+    // Use 'type' to ensure PascalCase transformation
+    const normalizedBaseName = this.context.pluginManager.resolveName({
+      name: baseName,
       pluginKey: this.context.plugin.key,
-      type: 'function',
+      type: 'type',
     })
+    
+    // Get unique name based on the normalized (transformed) name
+    const originalName = getUniqueName(normalizedBaseName, this.#usedAliasNames)
+    
+    // Use the unique name for property and file names
+    const propertyName = originalName
 
     const fileName = this.context.pluginManager.resolveName({
       name: originalName,

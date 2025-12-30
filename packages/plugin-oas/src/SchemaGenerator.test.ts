@@ -98,6 +98,26 @@ describe('SchemaGenerator core', async () => {
         unknownType: 'unknown',
       },
     },
+    {
+      name: 'variant (lowercase)',
+      input: '../mocks/duplicateCasing.yaml',
+      path: 'variant',
+      options: {
+        dateType: 'date',
+        transformers: {},
+        unknownType: 'unknown',
+      },
+    },
+    {
+      name: 'Variant (uppercase)',
+      input: '../mocks/duplicateCasing.yaml',
+      path: 'Variant',
+      options: {
+        dateType: 'date',
+        transformers: {},
+        unknownType: 'unknown',
+      },
+    },
     // Add discriminator test cases
   ] as const satisfies Array<{
     input: string
@@ -335,5 +355,54 @@ describe('SchemaGenerator core', async () => {
     })
 
     expect(tree).toMatchSnapshot()
+  })
+
+  test('duplicate schema names with different casing should generate unique names', async () => {
+    const oas = await parse(path.resolve(__dirname, '../mocks/duplicateCasing.yaml'))
+    
+    const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
+      emptySchemaType: 'unknown',
+      dateType: 'date',
+      transformers: {},
+      unknownType: 'unknown',
+    }
+    const plugin = { options } as Plugin<any>
+    const fabric = createReactFabric()
+    
+    const generator = new SchemaGenerator(options, {
+      fabric,
+      oas,
+      include: undefined,
+      pluginManager: mockedPluginManager,
+      plugin,
+      contentType: undefined,
+      override: undefined,
+      mode: 'split',
+    })
+    
+    // Parse both schemas to ensure they both get registered
+    const lowercaseTree = generator.parse({
+      schema: { $ref: '#/components/schemas/variant' } as SchemaObject,
+      name: null,
+      parentName: null,
+    })
+    
+    const uppercaseTree = generator.parse({
+      schema: { $ref: '#/components/schemas/Variant' } as SchemaObject,
+      name: null,
+      parentName: null,
+    })
+    
+    // Extract the ref names from the trees
+    const lowercaseRef = lowercaseTree.find((item) => item.keyword === 'ref')
+    const uppercaseRef = uppercaseTree.find((item) => item.keyword === 'ref')
+    
+    expect(lowercaseRef).toBeDefined()
+    expect(uppercaseRef).toBeDefined()
+    
+    // The refs should have different names (one should have a suffix)
+    // Both should normalize to "Variant" but one should get "Variant2" to avoid collision
+    expect(lowercaseRef?.args?.name).toBe('Variant')
+    expect(uppercaseRef?.args?.name).toBe('Variant2')
   })
 })

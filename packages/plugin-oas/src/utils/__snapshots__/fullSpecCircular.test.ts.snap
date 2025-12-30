@@ -22,7 +22,7 @@ exports[`Full Spec Circular Discriminator References > should handle full Paymen
                     "args": {
                       "$ref": "#/components/schemas/AccountClass",
                       "isImportable": true,
-                      "name": "accountClass",
+                      "name": "AccountClass",
                       "path": "accountClass.ts",
                     },
                     "keyword": "ref",
@@ -78,7 +78,7 @@ exports[`Full Spec Circular Discriminator References > should handle full Paymen
                     "args": {
                       "$ref": "#/components/schemas/AccountType",
                       "isImportable": true,
-                      "name": "accountType",
+                      "name": "AccountType",
                       "path": "accountType.ts",
                     },
                     "keyword": "ref",
@@ -148,7 +148,7 @@ exports[`Full Spec Circular Discriminator References > should handle full Paymen
                 "args": {
                   "$ref": "#/components/schemas/PaymentDetailsTypeResponse",
                   "isImportable": true,
-                  "name": "paymentDetailsTypeResponse",
+                  "name": "PaymentDetailsTypeResponse",
                   "path": "paymentDetailsTypeResponse.ts",
                 },
                 "keyword": "ref",
@@ -192,7 +192,7 @@ exports[`Full Spec Circular Discriminator References > should handle full Paymen
             "args": {
               "$ref": "#/components/schemas/DomesticWireDetailsResponse",
               "isImportable": true,
-              "name": "domesticWireDetailsResponse",
+              "name": "DomesticWireDetailsResponse",
               "path": "domesticWireDetailsResponse.ts",
             },
             "keyword": "ref",
@@ -254,7 +254,7 @@ exports[`Full Spec Circular Discriminator References > should handle full Paymen
             "args": {
               "$ref": "#/components/schemas/ChequeDetailsResponse",
               "isImportable": true,
-              "name": "chequeDetailsResponse",
+              "name": "ChequeDetailsResponse",
               "path": "chequeDetailsResponse.ts",
             },
             "keyword": "ref",
@@ -285,7 +285,7 @@ exports[`Full Spec Circular Discriminator References > should handle full Paymen
             "args": {
               "$ref": "#/components/schemas/InternationalWireDetailsResponse",
               "isImportable": true,
-              "name": "internationalWireDetailsResponse",
+              "name": "InternationalWireDetailsResponse",
               "path": "internationalWireDetailsResponse.ts",
             },
             "keyword": "ref",
