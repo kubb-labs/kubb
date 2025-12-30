@@ -446,7 +446,7 @@ export class SchemaGenerator<
 
     this.refs[$ref] = {
       propertyName: uniqueName,
-      originalName: uniqueName,
+      originalName: baseName,
       path: file.path,
     }
 
