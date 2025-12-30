@@ -185,6 +185,88 @@ describe('PluginManager', () => {
     expect(hookForPluginSyncMock).toHaveBeenCalled()
   })
 
+  test('resolveName with options (role, prefix, suffix)', () => {
+    const optionsPlugin = definePlugin(() => {
+      return {
+        name: 'optionsPlugin',
+        options: undefined as any,
+        context: undefined as never,
+        key: ['optionsPlugin'],
+        resolveName(name, type, options) {
+          // Should receive the options and the base name (without prefix/suffix applied yet)
+          if (options) {
+            expect(options.role).toBe('function')
+            expect(options.prefix).toBe('use')
+            expect(options.suffix).toBe('Query')
+            // The plugin should apply the prefix/suffix
+            return `${options.prefix}${name}${options.suffix}`
+          }
+          return name
+        },
+      }
+    })
+
+    const optionsConfig = {
+      ...config,
+      plugins: [optionsPlugin({})] as Plugin[],
+    } satisfies Config
+
+    const optionsPluginManager = new PluginManager(optionsConfig, {
+      fabric: createFabric(),
+      events: new AsyncEventEmitter<KubbEvents>(),
+    })
+
+    const name = optionsPluginManager.resolveName({
+      name: 'getPet',
+      options: {
+        role: 'function',
+        prefix: 'use',
+        suffix: 'Query',
+      },
+    })
+
+    expect(name).toBe('usegetPetQuery')
+  })
+
+  test('resolveName with options (role=schema) should convert to legacy type', () => {
+    const schemaPlugin = definePlugin(() => {
+      return {
+        name: 'schemaPlugin',
+        options: undefined as any,
+        context: undefined as never,
+        key: ['schemaPlugin'],
+        resolveName(name, type, options) {
+          // When role is 'schema', type should be 'type' for backward compatibility
+          if (options?.role === 'schema') {
+            expect(type).toBe('type')
+            return 'SchemaName'
+          }
+          return name
+        },
+      }
+    })
+
+    const schemaConfig = {
+      ...config,
+      plugins: [schemaPlugin({})] as Plugin[],
+    } satisfies Config
+
+    const schemaPluginManager = new PluginManager(schemaConfig, {
+      fabric: createFabric(),
+      events: new AsyncEventEmitter<KubbEvents>(),
+    })
+
+    const name = schemaPluginManager.resolveName({
+      name: 'Pet',
+      options: {
+        role: 'schema',
+      },
+    })
+
+    expect(name).toBe('SchemaName')
+  })
+
+
   test('hookForPlugin', async () => {
     await pluginManager.hookForPlugin({
       pluginKey: ['pluginB'],
