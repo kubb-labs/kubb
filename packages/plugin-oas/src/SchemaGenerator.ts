@@ -1232,9 +1232,23 @@ export class SchemaGenerator<
     const schemas = getSchemas({ oas, contentType, includes: include })
     const schemaEntries = Object.entries(schemas)
 
+    // Normalize schema names to prevent duplicates when different casing is used
+    // e.g., "variant" and "Variant" both become "Variant" and "Variant2"
+    const normalizedSchemaEntries = schemaEntries.map(([name, schemaObject]) => {
+      // Normalize the name using the same logic as in #getRefAlias
+      const normalizedName = this.context.pluginManager.resolveName({
+        name,
+        pluginKey: this.context.plugin.key,
+        type: 'type',
+      })
+      const uniqueName = getUniqueName(normalizedName, this.#usedAliasNames)
+      
+      return [uniqueName, schemaObject, name] as const
+    })
+
     this.context.events?.emit('debug', {
       date: new Date(),
-      logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
+      logs: [`Building ${normalizedSchemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
     })
 
     const generatorLimit = pLimit(1)
@@ -1242,15 +1256,15 @@ export class SchemaGenerator<
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
-        const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
+        const schemaTasks = normalizedSchemaEntries.map(([uniqueName, schemaObject, originalName]) =>
           schemaLimit(async () => {
-            const options = this.#getOptions(name)
-            const tree = this.parse({ schema: schemaObject, name, parentName: null })
+            const options = this.#getOptions(originalName)
+            const tree = this.parse({ schema: schemaObject, name: originalName, parentName: null })
 
             if (generator.type === 'react') {
               await buildSchema(
                 {
-                  name,
+                  name: uniqueName, // Use normalized unique name
                   value: schemaObject,
                   tree,
                 },
@@ -1276,7 +1290,7 @@ export class SchemaGenerator<
               config: this.context.pluginManager.config,
               generator: this,
               schema: {
-                name,
+                name: uniqueName, // Use normalized unique name
                 value: schemaObject,
                 tree,
               },
