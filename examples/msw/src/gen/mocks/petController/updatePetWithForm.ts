@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams, UpdatePetWithFormMutationResponse } from '../../models/updatePetWithForm.ts'
 import { faker } from '@faker-js/faker'
+import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../models/updatePetWithForm.ts'
 
 export function createUpdatePetWithFormPathParams(data?: Partial<UpdatePetWithFormPathParams>): UpdatePetWithFormPathParams {
   faker.seed([220])

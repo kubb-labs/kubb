@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { Address } from '../models/address.ts'
 import { faker } from '@faker-js/faker'
+import type { Address } from '../models/address.ts'
 
 export function createAddress(data?: Partial<Address>): Address {
   return {

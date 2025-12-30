@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { FindPetsByStatusQueryParams, FindPetsByStatus200, FindPetsByStatusQueryResponse } from '../../models/findPetsByStatus.ts'
-import { createPet } from '../pet.ts'
 import { faker } from '@faker-js/faker'
+import type { FindPetsByStatus200, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../models/findPetsByStatus.ts'
+import { createPet } from '../pet.ts'
 
 export function createFindPetsByStatusQueryParams(data?: Partial<FindPetsByStatusQueryParams>): FindPetsByStatusQueryParams {
   faker.seed([220])

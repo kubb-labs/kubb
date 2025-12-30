@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { UploadFilePathParams, UploadFileQueryParams, UploadFileMutationResponse } from '../../models/uploadFile.ts'
-import { createApiResponse } from '../apiResponse.ts'
 import { faker } from '@faker-js/faker'
+import type { UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../../models/uploadFile.ts'
+import { createApiResponse } from '../apiResponse.ts'
 
 export function createUploadFilePathParams(data?: Partial<UploadFilePathParams>): UploadFilePathParams {
   faker.seed([220])

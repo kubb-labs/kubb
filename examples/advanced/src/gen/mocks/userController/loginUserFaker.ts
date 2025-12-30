@@ -1,5 +1,5 @@
-import type { LoginUserQueryParams, LoginUserQueryResponse } from '../../models/ts/userController/loginUser.ts'
 import { faker } from '@faker-js/faker'
+import type { LoginUserQueryParams, LoginUserQueryResponse } from '../../models/ts/userController/loginUser.ts'
 
 export function createLoginUserQueryParamsFaker(data?: Partial<LoginUserQueryParams>): LoginUserQueryParams {
   return {

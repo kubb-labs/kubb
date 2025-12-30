@@ -1,6 +1,6 @@
+import { faker } from '@faker-js/faker'
 import type { GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/ts/userController/getUserByName.ts'
 import { createUserFaker } from '../userFaker.ts'
-import { faker } from '@faker-js/faker'
 
 export function createGetUserByNamePathParamsFaker(data?: Partial<GetUserByNamePathParams>): GetUserByNamePathParams {
   return {

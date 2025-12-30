@@ -1,5 +1,5 @@
-import type { Category } from '../models/ts/category.ts'
 import { faker } from '@faker-js/faker'
+import type { Category } from '../models/ts/category.ts'
 
 export function createCategoryFaker(data?: Partial<Category>): Category {
   return {

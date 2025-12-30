@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
+import { faker } from '@faker-js/faker'
 import type { UpdatePetMutationResponse } from '../../models/updatePet.ts'
 import { createPet } from '../pet.ts'
-import { faker } from '@faker-js/faker'
 
 /**
  * @description Successful operation

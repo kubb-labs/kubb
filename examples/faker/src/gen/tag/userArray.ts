@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
+import { faker } from '@faker-js/faker'
 import type { UserArray } from '../models/userArray.ts'
 import { createUser } from './user.ts'
-import { faker } from '@faker-js/faker'
 
 export function createUserArray(data?: UserArray): UserArray {
   return [...faker.helpers.multiple(() => createUser()), ...(data || [])]

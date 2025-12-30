@@ -78,11 +78,11 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
     resolveName(name, options) {
       const { role, prefix = '', suffix = '', casing } = options
       const strategy = casing || 'camelCase'
-      
+
       // Build name with prefix/suffix, avoiding extra spaces
       const parts = [prefix, name, suffix].filter(Boolean)
       const nameWithAffixes = parts.join(' ')
-      
+
       let resolvedName: string
       if (strategy === 'PascalCase') {
         resolvedName = pascalCase(nameWithAffixes, { isFile: role === 'file' })
@@ -94,7 +94,7 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
         // preserve
         resolvedName = nameWithAffixes
       }
-      
+
       return transformers?.name?.(resolvedName, role) || resolvedName
     },
     async install() {

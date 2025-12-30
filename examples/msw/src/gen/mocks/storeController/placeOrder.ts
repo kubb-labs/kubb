@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
+import { faker } from '@faker-js/faker'
 import type { PlaceOrderMutationResponse } from '../../models/placeOrder.ts'
 import { createOrder } from '../order.ts'
-import { faker } from '@faker-js/faker'
 
 /**
  * @description successful operation

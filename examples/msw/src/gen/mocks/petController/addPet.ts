@@ -3,10 +3,10 @@
  * Do not edit manually.
  */
 
+import { faker } from '@faker-js/faker'
 import type { AddPet405, AddPetMutationResponse } from '../../models/addPet.ts'
 import { createAddPetRequest } from '../addPetRequest.ts'
 import { createPet } from '../pet.ts'
-import { faker } from '@faker-js/faker'
 
 /**
  * @description Successful operation

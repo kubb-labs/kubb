@@ -1,6 +1,6 @@
+import { faker } from '@faker-js/faker'
 import type { UpdatePet202, UpdatePetMutationResponse } from '../../models/ts/petController/updatePet.ts'
 import { createPetFaker } from '../petFaker.ts'
-import { faker } from '@faker-js/faker'
 
 /**
  * @description Successful operation

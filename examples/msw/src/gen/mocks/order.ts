@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { Order } from '../models/order.ts'
 import { faker } from '@faker-js/faker'
+import type { Order } from '../models/order.ts'
 
 export function createOrder(data?: Partial<Order>): Order {
   faker.seed([220])

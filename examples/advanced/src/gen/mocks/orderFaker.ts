@@ -1,5 +1,5 @@
-import type { Order } from '../models/ts/order.ts'
 import { faker } from '@faker-js/faker'
+import type { Order } from '../models/ts/order.ts'
 
 export function createOrderFaker(data?: Partial<Order>): Order {
   return {

@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { User } from '../models/user.ts'
 import { faker } from '@faker-js/faker'
+import type { User } from '../models/user.ts'
 
 export function createUser(data?: Partial<User>): User {
   return {

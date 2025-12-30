@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
+import { faker } from '@faker-js/faker'
 import type { GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/getPetById.ts'
 import { createPet } from '../pet.ts'
-import { faker } from '@faker-js/faker'
 
 export function createGetPetByIdPathParams(data?: Partial<GetPetByIdPathParams>): GetPetByIdPathParams {
   faker.seed([220])

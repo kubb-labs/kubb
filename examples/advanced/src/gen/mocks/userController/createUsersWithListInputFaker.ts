@@ -1,9 +1,9 @@
+import { faker } from '@faker-js/faker'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../models/ts/userController/createUsersWithListInput.ts'
 import { createUserFaker } from '../userFaker.ts'
-import { faker } from '@faker-js/faker'
 
 /**
  * @description Successful operation

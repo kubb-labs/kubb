@@ -1,5 +1,5 @@
-import type { PetNotFound } from '../models/ts/petNotFound.ts'
 import { faker } from '@faker-js/faker'
+import type { PetNotFound } from '../models/ts/petNotFound.ts'
 
 export function createPetNotFoundFaker(data?: Partial<PetNotFound>): PetNotFound {
   return {

@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
+import { faker } from '@faker-js/faker'
 import type { GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/getUserByName.ts'
 import { createUser } from '../user.ts'
-import { faker } from '@faker-js/faker'
 
 export function createGetUserByNamePathParams(data?: Partial<GetUserByNamePathParams>): GetUserByNamePathParams {
   faker.seed([220])

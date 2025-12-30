@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { UpdateUserPathParams, UpdateUserMutationResponse } from '../../models/updateUser.ts'
-import { createUser } from '../user.ts'
 import { faker } from '@faker-js/faker'
+import type { UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/updateUser.ts'
+import { createUser } from '../user.ts'
 
 export function createUpdateUserPathParams(data?: Partial<UpdateUserPathParams>): UpdateUserPathParams {
   faker.seed([220])
