@@ -284,8 +284,9 @@ export type ResolveNameParams = {
    * `function` can be used to customize the exported functions(use of camelCase)
    * `type` is a special type for TypeScript(use of PascalCase)
    * `const` can be used for variables(use of camelCase)
+   * `name` is used for schema names (use of PascalCase)
    */
-  type?: 'file' | 'function' | 'type' | 'const'
+  type?: 'file' | 'function' | 'type' | 'const' | 'name'
 }
 
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {

@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
+import { camelCase, pascalCase } from '@kubb/core/transformers'
 
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
@@ -70,9 +70,13 @@ export const pluginMsw = definePlugin<PluginMsw>((options) => {
     },
     resolveName(name, type) {
       const resolvedName = camelCase(name, {
-        suffix: type ? 'handler' : undefined,
+        suffix: type && type !== 'name' ? 'handler' : undefined,
         isFile: type === 'file',
       })
+
+      if (type === 'name') {
+        return transformers?.name?.(pascalCase(name), type) || pascalCase(name)
+      }
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName

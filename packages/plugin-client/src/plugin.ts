@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
+import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -97,6 +97,10 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
     },
     resolveName(name, type) {
       const resolvedName = camelCase(name, { isFile: type === 'file' })
+
+      if (type === 'name') {
+        return transformers?.name?.(pascalCase(name), type) || pascalCase(name)
+      }
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName

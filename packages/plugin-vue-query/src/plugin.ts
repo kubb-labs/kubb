@@ -126,7 +126,7 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
           isFile: type === 'file',
         })
       }
-      if (type === 'type') {
+      if (type === 'type' || type === 'name') {
         resolvedName = pascalCase(name)
       }
 

@@ -115,7 +115,7 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
         })
       }
 
-      if (type === 'type') {
+      if (type === 'type' || type === 'name') {
         resolvedName = pascalCase(name)
       }
 

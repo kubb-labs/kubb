@@ -129,7 +129,7 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
           isFile: type === 'file',
         })
       }
-      if (type === 'type') {
+      if (type === 'type' || type === 'name') {
         resolvedName = pascalCase(name)
       }
 

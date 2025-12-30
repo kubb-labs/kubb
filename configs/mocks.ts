@@ -36,7 +36,7 @@ export const createMockedPluginManager = (name?: string) =>
         return camelCase(name || result.name)
       }
 
-      if (result.type === 'type') {
+      if (result.type === 'type' || result.type === 'name') {
         return pascalCase(result.name)
       }
 

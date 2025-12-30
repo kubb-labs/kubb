@@ -423,11 +423,11 @@ export class SchemaGenerator<
     
     // Normalize the name first to ensure case-insensitive uniqueness
     // This prevents "Variant" and "variant" from being treated as different names
-    // Use 'type' to ensure PascalCase transformation
+    // Use 'name' for schema names to ensure PascalCase transformation
     const normalizedBaseName = this.context.pluginManager.resolveName({
       name: baseName,
       pluginKey: this.context.plugin.key,
-      type: 'type',
+      type: 'name',
     })
     
     // Get unique name based on the normalized (transformed) name
@@ -1236,7 +1236,7 @@ export class SchemaGenerator<
       const normalizedName = this.context.pluginManager.resolveName({
         name,
         pluginKey: this.context.plugin.key,
-        type: 'type',
+        type: 'name',
       })
       const uniqueName = getUniqueName(normalizedName, this.#usedAliasNames)
       

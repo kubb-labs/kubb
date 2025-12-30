@@ -115,7 +115,7 @@ export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
           isFile: type === 'file',
         })
       }
-      if (type === 'type') {
+      if (type === 'type' || type === 'name') {
         resolvedName = pascalCase(name)
       }
 

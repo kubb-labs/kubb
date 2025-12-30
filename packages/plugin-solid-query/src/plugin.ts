@@ -115,7 +115,7 @@ export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
           isFile: type === 'file',
         })
       }
-      if (type === 'type') {
+      if (type === 'type' || type === 'name') {
         resolvedName = pascalCase(name)
       }
 

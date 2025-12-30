@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
+import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { cypressGenerator } from './generators'
@@ -76,6 +76,10 @@ export const pluginCypress = definePlugin<PluginCypress>((options) => {
       const resolvedName = camelCase(name, {
         isFile: type === 'file',
       })
+
+      if (type === 'name') {
+        return transformers?.name?.(pascalCase(name), type) || pascalCase(name)
+      }
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName

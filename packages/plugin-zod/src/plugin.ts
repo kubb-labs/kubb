@@ -96,11 +96,11 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
     },
     resolveName(name, type) {
       let resolvedName = camelCase(name, {
-        suffix: type ? 'schema' : undefined,
+        suffix: type && type !== 'name' ? 'schema' : undefined,
         isFile: type === 'file',
       })
 
-      if (type === 'type') {
+      if (type === 'type' || type === 'name') {
         resolvedName = pascalCase(resolvedName)
       }
 

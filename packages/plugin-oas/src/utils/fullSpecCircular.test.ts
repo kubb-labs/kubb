@@ -13,7 +13,7 @@ const createMockedPluginManager = () =>
       if (result.type === 'file') {
         return camelCase(result.name)
       }
-      if (result.type === 'type') {
+      if (result.type === 'type' || result.type === 'name') {
         return pascalCase(result.name)
       }
       return camelCase(result.name)
