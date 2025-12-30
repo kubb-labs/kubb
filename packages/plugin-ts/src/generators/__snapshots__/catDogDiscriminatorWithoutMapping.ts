@@ -4,9 +4,9 @@
  */
 
 export type catDogWithoutMapping =
-  | (cat & {
+  | (Cat & {
       type: 'Cat'
     })
-  | (dog & {
+  | (Dog & {
       type: 'Dog'
     })

@@ -4,25 +4,25 @@
  */
 
 export type advanced =
-  | (enumerationValueSpecificationDto & {
+  | (EnumerationValueSpecificationDto & {
       /**
        * @type string
        */
       readonly type: 'enum'
     })
-  | (rangeValueSpecificationDto & {
+  | (RangeValueSpecificationDto & {
       /**
        * @type string
        */
       readonly type: 'range'
     })
-  | (regexValueSpecificationDto & {
+  | (RegexValueSpecificationDto & {
       /**
        * @type string
        */
       readonly type: 'regex'
     })
-  | (sliderValueSpecificationDto & {
+  | (SliderValueSpecificationDto & {
       /**
        * @type string
        */

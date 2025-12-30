@@ -14,14 +14,14 @@ export type ListPetsQueryParams = {
 /**
  * @description A paged array of pets
  */
-export type ListPets200 = pets
+export type ListPets200 = Pets
 
 /**
  * @description unexpected error
  */
-export type ListPetsError = error
+export type ListPetsError = Error
 
-export type ListPetsQueryResponse = listPets200
+export type ListPetsQueryResponse = ListPets200
 
 export type listPetsQuery = {
   Response: listPets200

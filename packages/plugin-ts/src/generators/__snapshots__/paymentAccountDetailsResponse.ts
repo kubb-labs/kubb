@@ -7,6 +7,6 @@ export type paymentAccountDetailsResponse =
   | (ACHDetailsResponse & {
       type: 'ACH'
     })
-  | (domesticWireDetailsResponse & {
+  | (DomesticWireDetailsResponse & {
       type: 'DOMESTIC_WIRE'
     })

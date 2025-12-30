@@ -19,5 +19,5 @@ export type pet = {
   /**
    * @type object | undefined
    */
-  category?: category | undefined
+  category?: Category | undefined
 }

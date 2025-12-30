@@ -6,11 +6,11 @@
 /**
  * @description Null response
  */
-export type CreatePets201 = error & {
+export type CreatePets201 = Error & {
   /**
    * @type object | undefined
    */
-  name?: errorCode
+  name?: ErrorCode
   /**
    * @type string
    */
@@ -25,7 +25,7 @@ export type CreatePets202 = unknown
 /**
  * @description unexpected error
  */
-export type CreatePetsError = error
+export type CreatePetsError = Error
 
 export type CreatePetsMutationRequest = {
   /**
@@ -38,7 +38,7 @@ export type CreatePetsMutationRequest = {
   tag: string
 }
 
-export type CreatePetsMutationResponse = createPets201 | createPets202
+export type CreatePetsMutationResponse = CreatePets201 | CreatePets202
 
 export type createPetsMutation = {
   Response: createPets201 | createPets202

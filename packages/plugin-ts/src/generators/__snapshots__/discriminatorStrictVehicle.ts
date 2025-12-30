@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type vehicle = car & {
+export type vehicle = Car & {
   /**
    * @type string
    */

@@ -15,7 +15,7 @@ export type SystemsQueryParams = {
  */
 export type Systems200 = object
 
-export type SystemsQueryResponse = systems200
+export type SystemsQueryResponse = Systems200
 
 export type systemsQuery = {
   Response: systems200

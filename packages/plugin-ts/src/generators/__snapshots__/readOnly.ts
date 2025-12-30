@@ -16,10 +16,10 @@ export type demo = {
   /**
    * @type integer | undefined
    */
-  readonly attribute_with_ref?: attributeReadonly
+  readonly attribute_with_ref?: AttributeReadonly
   /**
    * @description not required
    * @type integer | undefined
    */
-  attribute_with_ref_readonly?: attributeWriteOnly
+  attribute_with_ref_readonly?: AttributeWriteOnly
 }

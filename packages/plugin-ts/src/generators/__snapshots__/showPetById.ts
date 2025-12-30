@@ -19,14 +19,14 @@ export type ShowPetByIdPathParams = {
 /**
  * @description Expected response to a valid request
  */
-export type ShowPetById200 = pet
+export type ShowPetById200 = Pet
 
 /**
  * @description unexpected error
  */
-export type ShowPetByIdError = error
+export type ShowPetByIdError = Error
 
-export type ShowPetByIdQueryResponse = showPetById200
+export type ShowPetByIdQueryResponse = ShowPetById200
 
 export type showPetByIdQuery = {
   Response: showPetById200

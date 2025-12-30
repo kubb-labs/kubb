@@ -7,7 +7,7 @@ export type ACHDetailsResponse = {
   /**
    * @type string
    */
-  type: paymentDetailsTypeResponse
+  type: PaymentDetailsTypeResponse
   /**
    * @type string
    */

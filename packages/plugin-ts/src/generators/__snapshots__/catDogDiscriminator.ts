@@ -4,12 +4,12 @@
  */
 
 export type catDog =
-  | (cat & {
+  | (Cat & {
       type: 'Cat'
     })
-  | (dog & {
+  | (Dog & {
       type: 'Dog'
     })
-  | (dog & {
+  | (Dog & {
       type: 'Bulldog'
     })

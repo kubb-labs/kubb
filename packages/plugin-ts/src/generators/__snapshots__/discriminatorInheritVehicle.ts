@@ -9,7 +9,7 @@ export const vehicleTypeEnum = {
 
 export type VehicleTypeEnumKey = (typeof vehicleTypeEnum)[keyof typeof vehicleTypeEnum]
 
-export type vehicle = car & {
+export type vehicle = Car & {
   /**
    * @type string
    */

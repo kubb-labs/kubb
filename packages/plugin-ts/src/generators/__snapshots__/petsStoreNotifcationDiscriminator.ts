@@ -4,10 +4,10 @@
  */
 
 export type notification = (
-  | (documentDisapprovedNotification & {
+  | (DocumentDisapprovedNotification & {
       notificationType: 'DOCUMENT_DISAPPROVED'
     })
-  | (documentApprovedNotification & {
+  | (DocumentApprovedNotification & {
       notificationType: 'DOCUMENT_APPROVED'
     })
 ) & {
