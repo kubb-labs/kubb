@@ -1251,7 +1251,7 @@ export class SchemaGenerator<
           // Process batches sequentially using for loop
           for (let i = 0; i < schemaEntries.length; i += batchSize) {
             const batch = schemaEntries.slice(i, Math.min(i + batchSize, schemaEntries.length))
-            
+
             // Create a new fabric instance for each batch
             const fabricChild = createReactFabric()
 

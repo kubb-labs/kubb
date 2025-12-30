@@ -280,7 +280,7 @@ export class OperationGenerator<
           // Process batches sequentially using for...of
           for (let i = 0; i < operations.length; i += batchSize) {
             const batch = operations.slice(i, Math.min(i + batchSize, operations.length))
-            
+
             // Create a new fabric instance for each batch
             const fabricChild = createReactFabric()
 
