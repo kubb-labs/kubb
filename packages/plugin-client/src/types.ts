@@ -1,4 +1,4 @@
-import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Group, NameRole, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
 import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
@@ -110,7 +110,7 @@ export type Options = {
     /**
      * Customize the names based on the role that is provided by the plugin.
      */
-    name?: (name: ResolveNameParams['name'], role: import('@kubb/core').NameRole) => string
+    name?: (name: ResolveNameParams['name'], role: NameRole) => string
   }
   /**
    * Define some generators next to the client generators

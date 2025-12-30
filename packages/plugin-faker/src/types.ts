@@ -1,4 +1,4 @@
-import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Group, NameRole, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
 import type { contentType, Oas, SchemaObject } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
@@ -75,7 +75,7 @@ export type Options = {
     /**
      * Customize the names based on the role that is provided by the plugin.
      */
-    name?: (name: ResolveNameParams['name'], role: import('@kubb/core').NameRole) => string
+    name?: (name: ResolveNameParams['name'], role: NameRole) => string
     /**
      * Receive schema and baseName(propertName) and return FakerMeta array
      * TODO TODO add docs
