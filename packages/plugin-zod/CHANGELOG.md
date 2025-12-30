@@ -1,5 +1,17 @@
 # @kubb/plugin-zod
 
+## 4.12.14
+
+### Patch Changes
+
+- [#2248](https://github.com/kubb-labs/kubb/pull/2248) [`be95612`](https://github.com/kubb-labs/kubb/commit/be95612729e185d2919f9bf36093a809acb28924) Thanks [@kamilzki](https://github.com/kamilzki)! - Fixes the issue where the `wrapOutput` function in the Zod generator did not receive the correct `schema` argument for all traversed nodes
+
+- Updated dependencies []:
+  - @kubb/core@4.12.14
+  - @kubb/oas@4.12.14
+  - @kubb/plugin-oas@4.12.14
+  - @kubb/plugin-ts@4.12.14
+
 ## 4.12.13
 
 ### Patch Changes

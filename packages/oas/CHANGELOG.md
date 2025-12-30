@@ -1,5 +1,12 @@
 # @kubb/oas
 
+## 4.12.14
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.12.14
+
 ## 4.12.13
 
 ### Patch Changes
