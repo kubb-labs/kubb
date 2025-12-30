@@ -394,8 +394,8 @@ describe('SchemaGenerator core', async () => {
     })
     
     // Extract the ref names from the trees
-    const lowercaseRef = lowercaseTree.find((item) => item.keyword === 'ref')
-    const uppercaseRef = uppercaseTree.find((item) => item.keyword === 'ref')
+    const lowercaseRef = lowercaseTree.find((item) => item.keyword === 'ref') as any
+    const uppercaseRef = uppercaseTree.find((item) => item.keyword === 'ref') as any
     
     expect(lowercaseRef).toBeDefined()
     expect(uppercaseRef).toBeDefined()
