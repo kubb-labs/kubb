@@ -23,23 +23,23 @@ export const clientGenerator = createReactGenerator<PluginClient>({
     const { getSchemas, getName, getFile } = useOperationManager(generator)
 
     const client = {
-      name: getName(operation, { type: 'function' }),
+      name: getName(operation, { role: 'function' }),
       file: getFile(operation),
     }
 
     const url = {
-      name: getName(operation, { type: 'function', suffix: 'url', prefix: 'get' }),
+      name: getName(operation, { role: 'function', suffix: 'url', prefix: 'get' }),
       file: getFile(operation),
     }
 
     const type = {
       file: getFile(operation, { pluginKey: [pluginTsName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      schemas: getSchemas(operation, { pluginKey: [pluginTsName], role: 'type' }),
     }
 
     const zod = {
       file: getFile(operation, { pluginKey: [pluginZodName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+      schemas: getSchemas(operation, { pluginKey: [pluginZodName], role: 'function' }),
     }
 
     const isFormData = operation.getContentType() === 'multipart/form-data'

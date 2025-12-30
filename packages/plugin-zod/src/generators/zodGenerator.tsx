@@ -63,14 +63,14 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       const coercion = name.includes('Params') ? { numbers: true, strings: false, dates: true } : globalCoercion
 
       const zod = {
-        name: schemaManager.getName(name, { type: 'function' }),
-        inferTypeName: schemaManager.getName(name, { type: 'type' }),
+        name: schemaManager.getName(name, { role: 'function' }),
+        inferTypeName: schemaManager.getName(name, { role: 'type' }),
         file: schemaManager.getFile(name),
       }
 
       const type = {
         name: schemaManager.getName(name, {
-          type: 'type',
+          role: 'type',
           pluginKey: [pluginTsName],
         }),
         file: schemaManager.getFile(options.operationName || name, {
@@ -129,13 +129,13 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     const imports = getImports(schema.tree)
 
     const zod = {
-      name: getName(schema.name, { type: 'function' }),
-      inferTypeName: getName(schema.name, { type: 'type' }),
+      name: getName(schema.name, { role: 'function' }),
+      inferTypeName: getName(schema.name, { role: 'type' }),
       file: getFile(schema.name),
     }
 
     const type = {
-      name: getName(schema.name, { type: 'type', pluginKey: [pluginTsName] }),
+      name: getName(schema.name, { role: 'type', pluginKey: [pluginTsName] }),
       file: getFile(schema.name, { pluginKey: [pluginTsName] }),
     }
 

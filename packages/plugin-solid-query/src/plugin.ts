@@ -107,46 +107,25 @@ export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
 
       return path.resolve(root, output.path, baseName)
     },
-    resolveName(name, type, options) {
-      // Handle new options API
-      if (options) {
-        const { role, prefix = '', suffix = '', casing } = options
-        const strategy = casing || (role === 'type' || role === 'schema' ? 'PascalCase' : 'camelCase')
-        
-        // Build name with prefix/suffix, avoiding extra spaces
-        const parts = [prefix, name, suffix].filter(Boolean)
-        const nameWithAffixes = parts.join(' ')
-        
-        let resolvedName: string
-        if (strategy === 'PascalCase') {
-          resolvedName = pascalCase(nameWithAffixes, { isFile: role === 'file' })
-        } else if (strategy === 'camelCase') {
-          resolvedName = camelCase(nameWithAffixes, { isFile: role === 'file' })
-        } else {
-          // preserve
-          resolvedName = nameWithAffixes
-        }
-        
-        return transformers?.name?.(resolvedName, role) || resolvedName
+    resolveName(name, role, options) {
+      const { prefix = '', suffix = '', casing } = options
+      const strategy = casing || (role === 'type' || role === 'schema' ? 'PascalCase' : 'camelCase')
+      
+      // Build name with prefix/suffix, avoiding extra spaces
+      const parts = [prefix, name, suffix].filter(Boolean)
+      const nameWithAffixes = parts.join(' ')
+      
+      let resolvedName: string
+      if (strategy === 'PascalCase') {
+        resolvedName = pascalCase(nameWithAffixes, { isFile: role === 'file' })
+      } else if (strategy === 'camelCase') {
+        resolvedName = camelCase(nameWithAffixes, { isFile: role === 'file' })
+      } else {
+        // preserve
+        resolvedName = nameWithAffixes
       }
       
-      // Backward compatibility with old `type` parameter
-      let resolvedName = camelCase(name)
-
-      if (type === 'file' || type === 'function') {
-        resolvedName = camelCase(name, {
-          isFile: type === 'file',
-        })
-      }
-      if (type === 'type') {
-        resolvedName = pascalCase(name)
-      }
-
-      if (type) {
-        return transformers?.name?.(resolvedName, type) || resolvedName
-      }
-
-      return resolvedName
+      return transformers?.name?.(resolvedName, role) || resolvedName
     },
     async install() {
       const root = path.resolve(this.config.root, this.config.output.path)

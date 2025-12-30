@@ -1,4 +1,4 @@
-import type { FileMetaBase, NameRole, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { CasingStrategy, FileMetaBase, NameRole, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
@@ -33,13 +33,13 @@ type UseOperationManagerResult = {
       suffix?: string
       pluginKey?: Plugin['key']
       /**
-       * @deprecated Use `role` instead
-       */
-      type?: ResolveNameParams['type']
-      /**
        * Role of the name being resolved
        */
-      role?: NameRole
+      role: NameRole
+      /**
+       * Override casing strategy
+       */
+      casing?: CasingStrategy
     },
   ) => string
   getFile: (
@@ -59,10 +59,10 @@ type UseOperationManagerResult = {
     operation: OperationType,
     params: {
       pluginKey?: Plugin['key']
-      type: ResolveNameParams['type']
+      role: NameRole
     },
   ) => SchemaNames
-  getSchemas: (operation: Operation, params?: { pluginKey?: Plugin['key']; type?: ResolveNameParams['type'] }) => OperationSchemas
+  getSchemas: (operation: Operation, params?: { pluginKey?: Plugin['key']; role?: NameRole }) => OperationSchemas
   getGroup: (operation: Operation) => FileMeta['group'] | undefined
 }
 
@@ -75,32 +75,17 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
   const plugin = usePlugin()
   const pluginManager = usePluginManager()
 
-  const getName: UseOperationManagerResult['getName'] = (operation, { prefix, suffix, pluginKey = plugin.key, type, role }) => {
-    // New API: use role with options
-    if (role) {
-      return pluginManager.resolveName({
-        name: operation.getOperationId(),
-        pluginKey,
-        options: {
-          role,
-          prefix,
-          suffix,
-        },
-      })
-    }
-    
-    // Old API: backward compatibility - manually build name string
-    if (type) {
-      const prefixStr = prefix || ''
-      const suffixStr = suffix || ''
-      return pluginManager.resolveName({
-        name: `${prefixStr} ${operation.getOperationId()} ${suffixStr}`,
-        pluginKey,
-        type,
-      })
-    }
-    
-    throw new Error('Either `role` or `type` must be provided to getName')
+  const getName: UseOperationManagerResult['getName'] = (operation, { prefix, suffix, pluginKey = plugin.key, role, casing }) => {
+    return pluginManager.resolveName({
+      name: operation.getOperationId(),
+      pluginKey,
+      options: {
+        role,
+        prefix,
+        suffix,
+        casing,
+      },
+    })
   }
 
   const getGroup: UseOperationManagerResult['getGroup'] = (operation) => {
@@ -120,13 +105,15 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
         pluginManager.resolveName({
           name,
           pluginKey: params?.pluginKey,
-          type: params?.type,
+          options: {
+            role: params?.role || 'type',
+          },
         }),
     })
   }
 
   const getFile: UseOperationManagerResult['getFile'] = (operation, { prefix, suffix, pluginKey = plugin.key, extname = '.ts' } = {}) => {
-    const name = getName(operation, { type: 'file', pluginKey, prefix, suffix })
+    const name = getName(operation, { role: 'file', pluginKey, prefix, suffix })
     const group = getGroup(operation)
 
     const file = pluginManager.getFile({
@@ -147,7 +134,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
     }
   }
 
-  const groupSchemasByName: UseOperationManagerResult['groupSchemasByName'] = (operation, { pluginKey = plugin.key, type }) => {
+  const groupSchemasByName: UseOperationManagerResult['groupSchemasByName'] = (operation, { pluginKey = plugin.key, role }) => {
     if (!generator) {
       throw new Error(`'generator' is not defined`)
     }
@@ -163,7 +150,9 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
         prev[acc.statusCode] = pluginManager.resolveName({
           name: acc.name,
           pluginKey,
-          type,
+          options: {
+            role,
+          },
         })
 
         return prev
@@ -180,7 +169,9 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
         prev[acc.statusCode] = pluginManager.resolveName({
           name: acc.name,
           pluginKey,
-          type,
+          options: {
+            role,
+          },
         })
 
         return prev
@@ -193,7 +184,9 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
         ? pluginManager.resolveName({
             name: schemas.request.name,
             pluginKey,
-            type,
+            options: {
+              role,
+            },
           })
         : undefined,
       parameters: {
@@ -201,21 +194,27 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
           ? pluginManager.resolveName({
               name: schemas.pathParams.name,
               pluginKey,
-              type,
+              options: {
+                role,
+              },
             })
           : undefined,
         query: schemas.queryParams?.name
           ? pluginManager.resolveName({
               name: schemas.queryParams.name,
               pluginKey,
-              type,
+              options: {
+                role,
+              },
             })
           : undefined,
         header: schemas.headerParams?.name
           ? pluginManager.resolveName({
               name: schemas.headerParams.name,
               pluginKey,
-              type,
+              options: {
+                role,
+              },
             })
           : undefined,
       },
@@ -224,7 +223,9 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
         ['default']: pluginManager.resolveName({
           name: schemas.response.name,
           pluginKey,
-          type,
+          options: {
+            role,
+          },
         }),
         ...errors,
       },

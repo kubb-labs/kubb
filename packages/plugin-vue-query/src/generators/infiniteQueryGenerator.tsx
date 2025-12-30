@@ -33,11 +33,11 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
 
     const query = {
       name: getName(operation, {
-        type: 'function',
+        role: 'function',
         prefix: 'use',
         suffix: 'infinite',
       }),
-      typeName: getName(operation, { type: 'type' }),
+      typeName: getName(operation, { role: 'type' }),
       file: getFile(operation, { prefix: 'use', suffix: 'infinite' }),
     }
 
@@ -47,11 +47,11 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
     const client = {
       name: shouldUseClientPlugin
         ? getName(operation, {
-            type: 'function',
+            role: 'function',
             pluginKey: [pluginClientName],
           })
         : getName(operation, {
-            type: 'function',
+            role: 'function',
             suffix: 'infinite',
           }),
       file: getFile(operation, { pluginKey: [pluginClientName] }),
@@ -59,15 +59,15 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
 
     const queryOptions = {
       name: getName(operation, {
-        type: 'function',
+        role: 'function',
         suffix: 'InfiniteQueryOptions',
       }),
     }
 
     const queryKey = {
-      name: getName(operation, { type: 'const', suffix: 'InfiniteQueryKey' }),
+      name: getName(operation, { role: 'const', suffix: 'InfiniteQueryKey' }),
       typeName: getName(operation, {
-        type: 'type',
+        role: 'type',
         suffix: 'InfiniteQueryKey',
       }),
     }
@@ -77,7 +77,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
       //todo remove type?
       schemas: getSchemas(operation, {
         pluginKey: [pluginTsName],
-        type: 'type',
+        role: 'type',
       }),
     }
 
@@ -85,7 +85,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
       file: getFile(operation, { pluginKey: [pluginZodName] }),
       schemas: getSchemas(operation, {
         pluginKey: [pluginZodName],
-        type: 'function',
+        role: 'function',
       }),
     }
 

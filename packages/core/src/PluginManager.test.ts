@@ -164,6 +164,9 @@ describe('PluginManager', () => {
   test('resolveName without `pluginKey`', () => {
     const name = pluginManager.resolveName({
       name: 'name',
+      options: {
+        role: 'function',
+      },
     })
 
     // pluginA does not have `resolveName` so taking the first plugin that returns a name
@@ -179,6 +182,9 @@ describe('PluginManager', () => {
     const name = pluginManager.resolveName({
       name: 'nameB',
       pluginKey: ['pluginB', '1'],
+      options: {
+        role: 'function',
+      },
     })
 
     expect(name).toBe('pluginBName')
@@ -192,16 +198,14 @@ describe('PluginManager', () => {
         options: undefined as any,
         context: undefined as never,
         key: ['optionsPlugin'],
-        resolveName(name, type, options) {
+        resolveName(name, role, options) {
           // Should receive the options and the base name (without prefix/suffix applied yet)
-          if (options) {
-            expect(options.role).toBe('function')
-            expect(options.prefix).toBe('use')
-            expect(options.suffix).toBe('Query')
-            // The plugin should apply the prefix/suffix
-            return `${options.prefix}${name}${options.suffix}`
-          }
-          return name
+          expect(role).toBe('function')
+          expect(options.role).toBe('function')
+          expect(options.prefix).toBe('use')
+          expect(options.suffix).toBe('Query')
+          // The plugin should apply the prefix/suffix
+          return `${options.prefix}${name}${options.suffix}`
         },
       }
     })
@@ -228,20 +232,17 @@ describe('PluginManager', () => {
     expect(name).toBe('usegetPetQuery')
   })
 
-  test('resolveName with options (role=schema) should convert to legacy type', () => {
+  test('resolveName with role=schema', () => {
     const schemaPlugin = definePlugin(() => {
       return {
         name: 'schemaPlugin',
         options: undefined as any,
         context: undefined as never,
         key: ['schemaPlugin'],
-        resolveName(name, type, options) {
-          // When role is 'schema', type should be 'type' for backward compatibility
-          if (options?.role === 'schema') {
-            expect(type).toBe('type')
-            return 'SchemaName'
-          }
-          return name
+        resolveName(name, role, options) {
+          // Schema role is supported
+          expect(role).toBe('schema')
+          return 'SchemaName'
         },
       }
     })
@@ -265,7 +266,6 @@ describe('PluginManager', () => {
 
     expect(name).toBe('SchemaName')
   })
-
 
   test('hookForPlugin', async () => {
     await pluginManager.hookForPlugin({

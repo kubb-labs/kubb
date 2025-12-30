@@ -168,18 +168,13 @@ export class PluginManager {
   }
   //TODO refactor by using the order of plugins and the cache of the fileManager instead of guessing and recreating the name/path
   resolveName = (params: ResolveNameParams): string => {
-    // Support both old `type` and new `options` APIs
-    const options = params.options
-    const type = options?.role || params.type
-    
-    // For backward compatibility, convert 'schema' to 'type'
-    const legacyType = type === 'schema' ? 'type' : type
+    const { options } = params
 
     if (params.pluginKey) {
       const names = this.hookForPluginSync({
         pluginKey: params.pluginKey,
         hookName: 'resolveName',
-        parameters: [trim(params.name), legacyType, options],
+        parameters: [trim(params.name), options.role, options],
       })
 
       const uniqueNames = new Set(names)
@@ -189,7 +184,7 @@ export class PluginManager {
 
     const name = this.hookFirstSync({
       hookName: 'resolveName',
-      parameters: [trim(params.name), legacyType, options],
+      parameters: [trim(params.name), options.role, options],
     }).result
 
     return transformReservedWord(name)

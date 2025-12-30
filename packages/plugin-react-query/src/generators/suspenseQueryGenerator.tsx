@@ -35,11 +35,11 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
 
     const query = {
       name: getName(operation, {
-        type: 'function',
+        role: 'function',
         prefix: 'use',
         suffix: 'suspense',
       }),
-      typeName: getName(operation, { type: 'type' }),
+      typeName: getName(operation, { role: 'type' }),
       file: getFile(operation, { prefix: 'use', suffix: 'suspense' }),
     }
 
@@ -49,11 +49,11 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
     const client = {
       name: shouldUseClientPlugin
         ? getName(operation, {
-            type: 'function',
+            role: 'function',
             pluginKey: [pluginClientName],
           })
         : getName(operation, {
-            type: 'function',
+            role: 'function',
             suffix: 'suspense',
           }),
       file: getFile(operation, { pluginKey: [pluginClientName] }),
@@ -61,15 +61,15 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
 
     const queryOptions = {
       name: getName(operation, {
-        type: 'function',
+        role: 'function',
         suffix: 'SuspenseQueryOptions',
       }),
     }
 
     const queryKey = {
-      name: getName(operation, { type: 'const', suffix: 'SuspenseQueryKey' }),
+      name: getName(operation, { role: 'const', suffix: 'SuspenseQueryKey' }),
       typeName: getName(operation, {
-        type: 'type',
+        role: 'type',
         suffix: 'SuspenseQueryKey',
       }),
     }
@@ -79,7 +79,7 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
       //todo remove type?
       schemas: getSchemas(operation, {
         pluginKey: [pluginTsName],
-        type: 'type',
+        role: 'type',
       }),
     }
 
@@ -87,7 +87,7 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
       file: getFile(operation, { pluginKey: [pluginZodName] }),
       schemas: getSchemas(operation, {
         pluginKey: [pluginZodName],
-        type: 'function',
+        role: 'function',
       }),
     }
 

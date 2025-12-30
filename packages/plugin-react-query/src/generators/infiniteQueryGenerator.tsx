@@ -33,8 +33,8 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
     const importPath = options.query ? options.query.importPath : '@tanstack/react-query'
 
     const query = {
-      name: getName(operation, { type: 'function', prefix: 'use', suffix: 'infinite' }),
-      typeName: getName(operation, { type: 'type' }),
+      name: getName(operation, { role: 'function', prefix: 'use', suffix: 'infinite' }),
+      typeName: getName(operation, { role: 'type' }),
       file: getFile(operation, { prefix: 'use', suffix: 'infinite' }),
     }
 
@@ -44,34 +44,34 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
     const client = {
       name: shouldUseClientPlugin
         ? getName(operation, {
-            type: 'function',
+            role: 'function',
             pluginKey: [pluginClientName],
           })
         : getName(operation, {
-            type: 'function',
+            role: 'function',
             suffix: 'infinite',
           }),
       file: getFile(operation, { pluginKey: [pluginClientName] }),
     }
 
     const queryOptions = {
-      name: getName(operation, { type: 'function', suffix: 'InfiniteQueryOptions' }),
+      name: getName(operation, { role: 'function', suffix: 'InfiniteQueryOptions' }),
     }
 
     const queryKey = {
-      name: getName(operation, { type: 'const', suffix: 'InfiniteQueryKey' }),
-      typeName: getName(operation, { type: 'type', suffix: 'InfiniteQueryKey' }),
+      name: getName(operation, { role: 'const', suffix: 'InfiniteQueryKey' }),
+      typeName: getName(operation, { role: 'type', suffix: 'InfiniteQueryKey' }),
     }
 
     const type = {
       file: getFile(operation, { pluginKey: [pluginTsName] }),
       //todo remove type?
-      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      schemas: getSchemas(operation, { pluginKey: [pluginTsName], role: 'type' }),
     }
 
     const zod = {
       file: getFile(operation, { pluginKey: [pluginZodName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+      schemas: getSchemas(operation, { pluginKey: [pluginZodName], role: 'function' }),
     }
 
     if (!isQuery || isMutation || !infiniteOptions) {

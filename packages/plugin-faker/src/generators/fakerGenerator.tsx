@@ -44,12 +44,12 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       const group = options.operation ? getGroup(options.operation) : undefined
 
       const faker = {
-        name: schemaManager.getName(name, { type: 'function' }),
+        name: schemaManager.getName(name, { role: 'function' }),
         file: schemaManager.getFile(name),
       }
 
       const type = {
-        name: schemaManager.getName(name, { type: 'type', pluginKey: [pluginTsName] }),
+        name: schemaManager.getName(name, { role: 'type', pluginKey: [pluginTsName] }),
         file: schemaManager.getFile(options.operationName || name, { pluginKey: [pluginTsName], group }),
       }
 
@@ -108,12 +108,12 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     const imports = getImports(schema.tree)
 
     const faker = {
-      name: getName(schema.name, { type: 'function' }),
+      name: getName(schema.name, { role: 'function' }),
       file: getFile(schema.name),
     }
 
     const type = {
-      name: getName(schema.name, { type: 'type', pluginKey: [pluginTsName] }),
+      name: getName(schema.name, { role: 'type', pluginKey: [pluginTsName] }),
       file: getFile(schema.name, { pluginKey: [pluginTsName] }),
     }
 

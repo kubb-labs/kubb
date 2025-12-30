@@ -16,13 +16,13 @@ export const mcpGenerator = createReactGenerator<PluginMcp>({
     const { getSchemas, getName, getFile } = useOperationManager(generator)
 
     const mcp = {
-      name: getName(operation, { type: 'function', suffix: 'handler' }),
+      name: getName(operation, { role: 'function', suffix: 'handler' }),
       file: getFile(operation),
     }
 
     const type = {
       file: getFile(operation, { pluginKey: [pluginTsName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      schemas: getSchemas(operation, { pluginKey: [pluginTsName], role: 'type' }),
     }
 
     return (

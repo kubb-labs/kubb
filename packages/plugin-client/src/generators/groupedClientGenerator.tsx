@@ -34,7 +34,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
           })
 
           const client = {
-            name: getName(operation, { type: 'function' }),
+            name: getName(operation, { role: 'function' }),
             file: getFile(operation),
           }
 

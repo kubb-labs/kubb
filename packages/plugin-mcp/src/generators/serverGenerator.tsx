@@ -30,21 +30,21 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
         },
         mcp: {
           name: getName(operation, {
-            type: 'function',
+            role: 'function',
             suffix: 'handler',
           }),
           file: getFile(operation),
         },
         zod: {
           name: getName(operation, {
-            type: 'function',
+            role: 'function',
             pluginKey: [pluginZodName],
           }),
-          schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+          schemas: getSchemas(operation, { pluginKey: [pluginZodName], role: 'function' }),
           file: getFile(operation, { pluginKey: [pluginZodName] }),
         },
         type: {
-          schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+          schemas: getSchemas(operation, { pluginKey: [pluginTsName], role: 'type' }),
         },
       }
     })

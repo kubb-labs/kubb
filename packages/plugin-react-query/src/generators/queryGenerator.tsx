@@ -32,8 +32,8 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
     const importPath = options.query ? options.query.importPath : '@tanstack/react-query'
 
     const query = {
-      name: getName(operation, { type: 'function', prefix: 'use' }),
-      typeName: getName(operation, { type: 'type' }),
+      name: getName(operation, { role: 'function', prefix: 'use' }),
+      typeName: getName(operation, { role: 'type' }),
       file: getFile(operation, { prefix: 'use' }),
     }
 
@@ -43,22 +43,22 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
     const client = {
       name: shouldUseClientPlugin
         ? getName(operation, {
-            type: 'function',
+            role: 'function',
             pluginKey: [pluginClientName],
           })
         : getName(operation, {
-            type: 'function',
+            role: 'function',
           }),
       file: getFile(operation, { pluginKey: [pluginClientName] }),
     }
 
     const queryOptions = {
-      name: getName(operation, { type: 'function', suffix: 'QueryOptions' }),
+      name: getName(operation, { role: 'function', suffix: 'QueryOptions' }),
     }
 
     const queryKey = {
-      name: getName(operation, { type: 'const', suffix: 'QueryKey' }),
-      typeName: getName(operation, { type: 'type', suffix: 'QueryKey' }),
+      name: getName(operation, { role: 'const', suffix: 'QueryKey' }),
+      typeName: getName(operation, { role: 'type', suffix: 'QueryKey' }),
     }
 
     const type = {
@@ -66,7 +66,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
       //todo remove type?
       schemas: getSchemas(operation, {
         pluginKey: [pluginTsName],
-        type: 'type',
+        role: 'type',
       }),
     }
 
@@ -75,7 +75,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
       file: getFile(operation, { pluginKey: [pluginZodName] }),
       schemas: getSchemas(operation, {
         pluginKey: [pluginZodName],
-        type: 'function',
+        role: 'function',
       }),
     }
 

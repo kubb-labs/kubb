@@ -22,7 +22,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
         const identifier = pluginManager.resolveName({
           name: res.name,
           pluginKey: [pluginTsName],
-          type: 'function',
+          role: 'function',
         })
 
         return factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
@@ -34,7 +34,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
     const identifier = pluginManager.resolveName({
       name: schemas.request.name,
       pluginKey: [pluginTsName],
-      type: 'function',
+      role: 'function',
     })
     properties['request'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
@@ -43,7 +43,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
     const identifier = pluginManager.resolveName({
       name: schemas.pathParams.name,
       pluginKey: [pluginTsName],
-      type: 'function',
+      role: 'function',
     })
     properties['pathParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
@@ -52,7 +52,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
     const identifier = pluginManager.resolveName({
       name: schemas.queryParams.name,
       pluginKey: [pluginTsName],
-      type: 'function',
+      role: 'function',
     })
     properties['queryParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
@@ -61,7 +61,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
     const identifier = pluginManager.resolveName({
       name: schemas.headerParams.name,
       pluginKey: [pluginTsName],
-      type: 'function',
+      role: 'function',
     })
     properties['headerParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
@@ -72,7 +72,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
         const identifier = pluginManager.resolveName({
           name: error.name,
           pluginKey: [pluginTsName],
-          type: 'function',
+          role: 'function',
         })
 
         return factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
@@ -120,7 +120,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
     const file = getFile(operation)
     const schemas = getSchemas(operation)
-    const type = getName(operation, { type: 'function', pluginKey: [pluginTsName] })
+    const type = getName(operation, { role: 'function', pluginKey: [pluginTsName] })
     const combinedSchemaName = operation.method === 'get' ? `${type}Query` : `${type}Mutation`
     const schemaGenerator = new SchemaGenerator(options, {
       fabric: generator.context.fabric,
@@ -142,8 +142,8 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       const group = options.operation ? getGroup(options.operation) : undefined
 
       const type = {
-        name: schemaManager.getName(name, { type: 'type' }),
-        typedName: schemaManager.getName(name, { type: 'type' }),
+        name: schemaManager.getName(name, { role: 'type' }),
+        typedName: schemaManager.getName(name, { role: 'type' }),
         file: schemaManager.getFile(options.operationName || name, { group }),
       }
 
@@ -198,14 +198,14 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const imports = getImports(schema.tree)
     const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
 
-    let typedName = getName(schema.name, { type: 'type' })
+    let typedName = getName(schema.name, { role: 'type' })
 
     if (enumType === 'asConst' && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
       typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
     }
 
     const type = {
-      name: getName(schema.name, { type: 'function' }),
+      name: getName(schema.name, { role: 'function' }),
       typedName,
       file: getFile(schema.name),
     }

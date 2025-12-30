@@ -20,18 +20,18 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
     const { getSchemas, getName, getFile } = useOperationManager(generator)
 
     const mock = {
-      name: getName(operation, { type: 'function' }),
+      name: getName(operation, { role: 'function' }),
       file: getFile(operation),
     }
 
     const faker = {
       file: getFile(operation, { pluginKey: [pluginFakerName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginFakerName], type: 'function' }),
+      schemas: getSchemas(operation, { pluginKey: [pluginFakerName], role: 'function' }),
     }
 
     const type = {
       file: getFile(operation, { pluginKey: [pluginTsName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      schemas: getSchemas(operation, { pluginKey: [pluginTsName], role: 'type' }),
     }
 
     const responseStatusCodes = operation.getResponseStatusCodes()

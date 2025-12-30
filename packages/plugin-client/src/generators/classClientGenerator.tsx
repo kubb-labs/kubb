@@ -40,17 +40,17 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
     function buildOperationData(operation: Operation): OperationData {
       const type = {
         file: getFile(operation, { pluginKey: [pluginTsName] }),
-        schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+        schemas: getSchemas(operation, { pluginKey: [pluginTsName], role: 'type' }),
       }
 
       const zod = {
         file: getFile(operation, { pluginKey: [pluginZodName] }),
-        schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+        schemas: getSchemas(operation, { pluginKey: [pluginZodName], role: 'function' }),
       }
 
       return {
         operation,
-        name: getName(operation, { type: 'function' }),
+        name: getName(operation, { role: 'function' }),
         typeSchemas: type.schemas,
         zodSchemas: zod.schemas,
         typeFile: type.file,

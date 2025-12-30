@@ -34,20 +34,20 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
     const importPath = options.mutation ? options.mutation.importPath : '@tanstack/react-query'
 
     const mutation = {
-      name: getName(operation, { type: 'function', prefix: 'use' }),
-      typeName: getName(operation, { type: 'type' }),
+      name: getName(operation, { role: 'function', prefix: 'use' }),
+      typeName: getName(operation, { role: 'type' }),
       file: getFile(operation, { prefix: 'use' }),
     }
 
     const type = {
       file: getFile(operation, { pluginKey: [pluginTsName] }),
       //todo remove type?
-      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      schemas: getSchemas(operation, { pluginKey: [pluginTsName], role: 'type' }),
     }
 
     const zod = {
       file: getFile(operation, { pluginKey: [pluginZodName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+      schemas: getSchemas(operation, { pluginKey: [pluginZodName], role: 'function' }),
     }
 
     const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
@@ -56,22 +56,22 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
     const client = {
       name: shouldUseClientPlugin
         ? getName(operation, {
-            type: 'function',
+            role: 'function',
             pluginKey: [pluginClientName],
           })
         : getName(operation, {
-            type: 'function',
+            role: 'function',
           }),
       file: getFile(operation, { pluginKey: [pluginClientName] }),
     }
 
     const mutationOptions = {
-      name: getName(operation, { type: 'function', suffix: 'MutationOptions' }),
+      name: getName(operation, { role: 'function', suffix: 'MutationOptions' }),
     }
 
     const mutationKey = {
-      name: getName(operation, { type: 'const', suffix: 'MutationKey' }),
-      typeName: getName(operation, { type: 'type', suffix: 'MutationKey' }),
+      name: getName(operation, { role: 'const', suffix: 'MutationKey' }),
+      typeName: getName(operation, { role: 'type', suffix: 'MutationKey' }),
     }
 
     if (!isMutation) {

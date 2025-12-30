@@ -257,10 +257,10 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Resolve to a name based on a string.
    * Useful when converting to PascalCase or camelCase.
    * @type hookFirst
-   * @example ('pet') => 'Pet'
-   * @example ('pet', { role: 'function', prefix: 'use' }) => 'usePet'
+   * @example ('pet', 'type', { role: 'type' }) => 'Pet'
+   * @example ('pet', 'function', { role: 'function', prefix: 'use' }) => 'usePet'
    */
-  resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], type?: ResolveNameParams['type'], options?: ResolveNameOptions) => string
+  resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], role: NameRole, options: ResolveNameOptions) => string
 }
 
 export type PluginLifecycleHooks = keyof PluginLifecycle
@@ -318,17 +318,9 @@ export type ResolveNameParams = {
   name: string
   pluginKey?: Plugin['key']
   /**
-   * `file` will be used to customize the name of the created file(use of camelCase)
-   * `function` can be used to customize the exported functions(use of camelCase)
-   * `type` is a special type for TypeScript(use of PascalCase)
-   * `const` can be used for variables(use of camelCase)
-   * @deprecated Use `options` with `ResolveNameOptions` for enhanced control
+   * Options for name resolution with role, prefix, suffix, and casing support
    */
-  type?: 'file' | 'function' | 'type' | 'const'
-  /**
-   * Enhanced options for name resolution with prefix, suffix, and casing support
-   */
-  options?: ResolveNameOptions
+  options: ResolveNameOptions
 }
 
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {

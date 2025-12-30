@@ -19,13 +19,13 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
     const { getSchemas, getName, getFile } = useOperationManager(generator)
 
     const request = {
-      name: getName(operation, { type: 'function' }),
+      name: getName(operation, { role: 'function' }),
       file: getFile(operation),
     }
 
     const type = {
       file: getFile(operation, { pluginKey: [pluginTsName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      schemas: getSchemas(operation, { pluginKey: [pluginTsName], role: 'type' }),
     }
 
     return (

@@ -77,9 +77,9 @@ export type Options = {
   mapper?: Record<string, string>
   transformers?: {
     /**
-     * Customize the names based on the type that is provided by the plugin.
+     * Customize the names based on the role that is provided by the plugin.
      */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type'] | import('@kubb/core').NameRole) => string
+    name?: (name: ResolveNameParams['name'], role: import('@kubb/core').NameRole) => string
     /**
      * Receive schema and baseName(propertName) and return FakerMeta array
      * TODO TODO add docs

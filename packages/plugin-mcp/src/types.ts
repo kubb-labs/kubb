@@ -35,9 +35,9 @@ export type Options = {
   override?: Array<Override<ResolvedOptions>>
   transformers?: {
     /**
-     * Customize the names based on the type that is provided by the plugin.
+     * Customize the names based on the role that is provided by the plugin.
      */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type'] | import('@kubb/core').NameRole) => string
+    name?: (name: ResolveNameParams['name'], role: import('@kubb/core').NameRole) => string
   }
   /**
    * Define some generators next to the Mcp generators.
