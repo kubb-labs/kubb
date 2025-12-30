@@ -76,22 +76,31 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
   const pluginManager = usePluginManager()
 
   const getName: UseOperationManagerResult['getName'] = (operation, { prefix, suffix, pluginKey = plugin.key, type, role }) => {
-    // Support both old `type` and new `role` APIs
-    const resolvedRole = role || type
-    
-    if (!resolvedRole) {
-      throw new Error('Either `role` or `type` must be provided to getName')
+    // New API: use role with options
+    if (role) {
+      return pluginManager.resolveName({
+        name: operation.getOperationId(),
+        pluginKey,
+        options: {
+          role,
+          prefix,
+          suffix,
+        },
+      })
     }
     
-    return pluginManager.resolveName({
-      name: operation.getOperationId(),
-      pluginKey,
-      options: {
-        role: resolvedRole,
-        prefix,
-        suffix,
-      },
-    })
+    // Old API: backward compatibility - manually build name string
+    if (type) {
+      const prefixStr = prefix || ''
+      const suffixStr = suffix || ''
+      return pluginManager.resolveName({
+        name: `${prefixStr} ${operation.getOperationId()} ${suffixStr}`,
+        pluginKey,
+        type,
+      })
+    }
+    
+    throw new Error('Either `role` or `type` must be provided to getName')
   }
 
   const getGroup: UseOperationManagerResult['getGroup'] = (operation) => {
