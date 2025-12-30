@@ -4,7 +4,7 @@
  */
 import { faker } from '@faker-js/faker'
 
-export function pet(data?: Partial<Pet>): Pet {
+export function petWithDateString(data?: Partial<PetWithDateString>): PetWithDateString {
   return {
     ...{
       id: faker.number.int(),
@@ -13,7 +13,7 @@ export function pet(data?: Partial<Pet>): Pet {
       code: faker.helpers.fromRegExp('\b[1-9]\b'),
       shipDate: faker.date.anytime().toISOString().substring(0, 10),
       shipTime: faker.date.anytime().toISOString().substring(11, 19),
-      info: { animal: faker.helpers.arrayElement<NonNullable<NonNullable<Pet>['info']>['animal']>(['dog', 'cat', 'ant']) },
+      info: { animal: faker.helpers.arrayElement<NonNullable<NonNullable<PetWithDateString>['info']>['animal']>(['dog', 'cat', 'ant']) },
     },
     ...(data || {}),
   }

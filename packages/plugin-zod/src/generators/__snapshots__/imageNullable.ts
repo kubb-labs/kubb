@@ -4,4 +4,4 @@
  */
 import { z } from 'zod'
 
-export const image = z.string().nullable()
+export const imageNullable = z.string().nullable()

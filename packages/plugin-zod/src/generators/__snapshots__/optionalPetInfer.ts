@@ -4,10 +4,10 @@
  */
 import { z } from 'zod'
 
-export const optionalPet = z.object({
+export const optionalPetInfer = z.object({
   id: z.optional(z.number().int()),
   name: z.optional(z.string()),
   tag: z.optional(z.string()),
 })
 
-export type OptionalPet = z.infer<typeof optionalPet>
+export type OptionalPetInfer = z.infer<typeof optionalPetInfer>

@@ -6,7 +6,7 @@
 import type { RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
 import { fetch } from './test/.kubb/fetch'
 
-export function getFindPetsByTagsUrl() {
+export function getFindByTagsWithBaseURLUrl() {
   const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/pet/findByTags` as const }
   return res
 }
@@ -16,12 +16,12 @@ export function getFindPetsByTagsUrl() {
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findByTagsWithBaseURL(params?: FindByTagsWithBaseURL, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+  const res = await request<FindByTagsWithBaseURL, ResponseErrorConfig<FindByTagsWithBaseURL>, unknown>({
     method: 'GET',
-    url: getFindPetsByTagsUrl().url.toString(),
+    url: getFindByTagsWithBaseURLUrl().url.toString(),
     params,
     ...requestConfig,
   })

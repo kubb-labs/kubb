@@ -3,4 +3,4 @@
  * Do not edit manually.
  */
 
-export type pets = pet[]
+export type petsStoreRef = petsStoreRef[]

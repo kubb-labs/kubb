@@ -4,17 +4,17 @@
  */
 import { http } from 'msw'
 
-export function createPetsResponse201(data?: CreatePetsMutationResponse) {
+export function createPetFakerResponse201(data?: CreatePetFaker) {
   return new Response(JSON.stringify(data), {
     status: 201,
   })
 }
 
-export function createPets(data?: CreatePetsMutationResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
+export function createPetFaker(data?: CreatePetFaker | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
   return http.post('/pets', function handler(info) {
     if (typeof data === 'function') return data(info)
 
-    return new Response(JSON.stringify(data || createPetsMutationResponse(data)), {
+    return new Response(JSON.stringify(data || createPetFaker(data)), {
       status: 201,
     })
   })

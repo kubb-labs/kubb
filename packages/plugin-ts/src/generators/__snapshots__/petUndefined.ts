@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type pet = {
+export type petUndefined = {
   /**
    * @type integer, int64
    */
@@ -19,5 +19,5 @@ export type pet = {
   /**
    * @type object | undefined
    */
-  category: category | undefined
+  category: petUndefined | undefined
 }

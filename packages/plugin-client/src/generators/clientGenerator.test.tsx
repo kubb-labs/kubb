@@ -161,7 +161,6 @@ describe('clientGenerator operation', async () => {
       oas,
       include: undefined,
       pluginManager: mockedPluginManager,
-
       plugin,
       contentType: undefined,
       override: undefined,

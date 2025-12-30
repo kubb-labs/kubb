@@ -4,7 +4,7 @@
  */
 import { z } from 'zod'
 
-export const pet = z.object({
+export const petCoercion = z.object({
   id: z.coerce.number().int(),
   name: z.coerce.string(),
   date: z.optional(z.coerce.date()),

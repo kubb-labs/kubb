@@ -32,16 +32,21 @@ export async function format(source?: string): Promise<string> {
 export const createMockedPluginManager = (name?: string) =>
   ({
     resolveName: (result) => {
+      const { prefix = '', suffix = '' } = result.options
+
+      const parts = [prefix, name || result.name, suffix].filter(Boolean)
+      const nameWithAffixes = parts.join(' ')
+
       if (result.options.role === 'file') {
-        return camelCase(name || result.name)
+        return camelCase(nameWithAffixes)
       }
 
       if (result.options.role === 'type') {
-        return pascalCase(result.name)
+        return pascalCase(nameWithAffixes)
       }
 
       if (result.options.role === 'function') {
-        return camelCase(result.name)
+        return camelCase(nameWithAffixes)
       }
 
       return camelCase(result.name)

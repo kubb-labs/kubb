@@ -4,19 +4,6 @@
  */
 import { z } from 'zod'
 
-export const deletePetPathParams = z.object({
-  petId: z.coerce.number().int().describe('Pet id to delete'),
+export const deletePet = z.object({
+  petId: z.number().int().describe('Pet id to delete'),
 })
-
-export const deletePetHeaderParams = z
-  .object({
-    api_key: z.optional(z.string()),
-  })
-  .optional()
-
-/**
- * @description Invalid pet value
- */
-export const deletePet400 = z.unknown()
-
-export const deletePetMutationResponse = z.unknown()

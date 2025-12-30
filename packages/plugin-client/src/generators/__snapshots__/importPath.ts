@@ -6,7 +6,7 @@
 import fetch from 'axios'
 import type { RequestConfig, ResponseErrorConfig } from 'axios'
 
-export function getFindPetsByTagsUrl() {
+export function getImportPathUrl() {
   const res = { method: 'GET', url: `/pet/findByTags` as const }
   return res
 }
@@ -16,12 +16,12 @@ export function getFindPetsByTagsUrl() {
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function importPath(params?: ImportPath, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+  const res = await request<ImportPath, ResponseErrorConfig<ImportPath>, unknown>({
     method: 'GET',
-    url: getFindPetsByTagsUrl().url.toString(),
+    url: getImportPathUrl().url.toString(),
     params,
     ...requestConfig,
   })

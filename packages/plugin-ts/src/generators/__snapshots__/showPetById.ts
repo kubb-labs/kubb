@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type ShowPetByIdPathParams = {
+export type ShowPetById = {
   /**
    * @description The id of the pet to retrieve
    * @type string
@@ -16,20 +16,8 @@ export type ShowPetByIdPathParams = {
   testId: string
 }
 
-/**
- * @description Expected response to a valid request
- */
-export type ShowPetById200 = pet
-
-/**
- * @description unexpected error
- */
-export type ShowPetByIdError = error
-
-export type ShowPetByIdQueryResponse = showPetById200
-
 export type showPetByIdQuery = {
-  Response: showPetById200
-  PathParams: showPetByIdPathParams
+  Response: showPetById
+  PathParams: showPetById
   Errors: any
 }

@@ -3,23 +3,7 @@
  * Do not edit manually.
  */
 import type { RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
-import type {
-  GetInventoryQueryResponse,
-  PlaceOrderMutationRequest,
-  PlaceOrderMutationResponse,
-  PlaceOrder405,
-  PlaceOrderPatchMutationRequest,
-  PlaceOrderPatchMutationResponse,
-  PlaceOrderPatch405,
-  GetOrderByIdQueryResponse,
-  GetOrderByIdPathParams,
-  GetOrderById400,
-  GetOrderById404,
-  DeleteOrderMutationResponse,
-  DeleteOrderPathParams,
-  DeleteOrder400,
-  DeleteOrder404,
-} from './findByTags'
+import type { FindByTags } from './findByTags'
 import { fetch } from './test/.kubb/fetch'
 
 export class Store {
@@ -34,9 +18,9 @@ export class Store {
    * @summary Returns pet inventories by status
    * {@link /store/inventory}
    */
-  async getInventory(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async findByTags(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/store/inventory`, ...requestConfig })
+    const res = await request<FindByTags, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/store/inventory`, ...requestConfig })
     return res.data
   }
 
@@ -45,10 +29,10 @@ export class Store {
    * @summary Place an order for a pet
    * {@link /store/order}
    */
-  async placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch } = {}) {
+  async findByTags(data?: FindByTags, config: Partial<RequestConfig<FindByTags>> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
-    const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
+    const res = await request<FindByTags, ResponseErrorConfig<FindByTags>, FindByTags>({
       method: 'POST',
       url: `/store/order`,
       data: requestData,
@@ -62,13 +46,10 @@ export class Store {
    * @summary Place an order for a pet with patch
    * {@link /store/order}
    */
-  async placeOrderPatch(
-    data?: PlaceOrderPatchMutationRequest,
-    config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof fetch } = {},
-  ) {
+  async findByTags(data?: FindByTags, config: Partial<RequestConfig<FindByTags>> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
-    const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
+    const res = await request<FindByTags, ResponseErrorConfig<FindByTags>, FindByTags>({
       method: 'PATCH',
       url: `/store/order`,
       data: requestData,
@@ -82,9 +63,9 @@ export class Store {
    * @summary Find purchase order by ID
    * {@link /store/order/:orderId}
    */
-  async getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async findByTags(orderId: FindByTags['orderId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
+    const res = await request<FindByTags, ResponseErrorConfig<FindByTags | FindByTags>, unknown>({
       method: 'GET',
       url: `/store/order/${orderId}`,
       ...requestConfig,
@@ -97,9 +78,9 @@ export class Store {
    * @summary Delete purchase order by ID
    * {@link /store/order/:orderId}
    */
-  async deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async findByTags(orderId: FindByTags['orderId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
+    const res = await request<FindByTags, ResponseErrorConfig<FindByTags | FindByTags>, unknown>({
       method: 'DELETE',
       url: `/store/order/${orderId}`,
       ...requestConfig,

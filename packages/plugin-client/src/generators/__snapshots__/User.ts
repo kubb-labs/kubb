@@ -3,27 +3,7 @@
  * Do not edit manually.
  */
 import type { RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
-import type {
-  CreateUserMutationRequest,
-  CreateUserMutationResponse,
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
-  LoginUserQueryResponse,
-  LoginUserQueryParams,
-  LoginUser400,
-  LogoutUserQueryResponse,
-  GetUserByNameQueryResponse,
-  GetUserByNamePathParams,
-  GetUserByName400,
-  GetUserByName404,
-  UpdateUserMutationRequest,
-  UpdateUserMutationResponse,
-  UpdateUserPathParams,
-  DeleteUserMutationResponse,
-  DeleteUserPathParams,
-  DeleteUser400,
-  DeleteUser404,
-} from './findByTags'
+import type { FindByTags } from './findByTags'
 import { fetch } from './test/.kubb/fetch'
 
 export class User {
@@ -38,15 +18,10 @@ export class User {
    * @summary Create user
    * {@link /user}
    */
-  async createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {}) {
+  async findByTags(data?: FindByTags, config: Partial<RequestConfig<FindByTags>> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
-    const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
-      method: 'POST',
-      url: `/user`,
-      data: requestData,
-      ...requestConfig,
-    })
+    const res = await request<FindByTags, ResponseErrorConfig<Error>, FindByTags>({ method: 'POST', url: `/user`, data: requestData, ...requestConfig })
     return res.data
   }
 
@@ -55,13 +30,10 @@ export class User {
    * @summary Creates list of users with given input array
    * {@link /user/createWithList}
    */
-  async createUsersWithListInput(
-    data?: CreateUsersWithListInputMutationRequest,
-    config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch } = {},
-  ) {
+  async findByTags(data?: FindByTags, config: Partial<RequestConfig<FindByTags>> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
-    const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
+    const res = await request<FindByTags, ResponseErrorConfig<Error>, FindByTags>({
       method: 'POST',
       url: `/user/createWithList`,
       data: requestData,
@@ -74,14 +46,9 @@ export class User {
    * @summary Logs user into the system
    * {@link /user/login}
    */
-  async loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async findByTags(params?: FindByTags, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
-      method: 'GET',
-      url: `/user/login`,
-      params,
-      ...requestConfig,
-    })
+    const res = await request<FindByTags, ResponseErrorConfig<FindByTags>, unknown>({ method: 'GET', url: `/user/login`, params, ...requestConfig })
     return res.data
   }
 
@@ -89,9 +56,9 @@ export class User {
    * @summary Logs out current logged in user session
    * {@link /user/logout}
    */
-  async logoutUser(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async findByTags(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/user/logout`, ...requestConfig })
+    const res = await request<FindByTags, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/user/logout`, ...requestConfig })
     return res.data
   }
 
@@ -99,13 +66,9 @@ export class User {
    * @summary Get user by user name
    * {@link /user/:username}
    */
-  async getUserByName(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async findByTags(username: FindByTags['username'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
-      method: 'GET',
-      url: `/user/${username}`,
-      ...requestConfig,
-    })
+    const res = await request<FindByTags, ResponseErrorConfig<FindByTags | FindByTags>, unknown>({ method: 'GET', url: `/user/${username}`, ...requestConfig })
     return res.data
   }
 
@@ -114,14 +77,10 @@ export class User {
    * @summary Update user
    * {@link /user/:username}
    */
-  async updateUser(
-    username: UpdateUserPathParams['username'],
-    data?: UpdateUserMutationRequest,
-    config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch } = {},
-  ) {
+  async findByTags(username: FindByTags['username'], data?: FindByTags, config: Partial<RequestConfig<FindByTags>> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
-    const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
+    const res = await request<FindByTags, ResponseErrorConfig<Error>, FindByTags>({
       method: 'PUT',
       url: `/user/${username}`,
       data: requestData,
@@ -135,9 +94,9 @@ export class User {
    * @summary Delete user
    * {@link /user/:username}
    */
-  async deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async findByTags(username: FindByTags['username'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
+    const res = await request<FindByTags, ResponseErrorConfig<FindByTags | FindByTags>, unknown>({
       method: 'DELETE',
       url: `/user/${username}`,
       ...requestConfig,

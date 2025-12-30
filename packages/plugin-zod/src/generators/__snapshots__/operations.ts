@@ -3,21 +3,7 @@
  * Do not edit manually.
  */
 import type { z } from 'zod'
-import {
-  listPets200,
-  listPetsQueryResponse,
-  listPetsQueryParams,
-  createPetsMutationRequest,
-  createPets201,
-  createPetsMutationResponse,
-  showPetById200,
-  showPetByIdQueryResponse,
-  showPetByIdPathParams,
-  deletePet400,
-  deletePetMutationResponse,
-  deletePetPathParams,
-  deletePetHeaderParams,
-} from './showPetById'
+import { showPetById } from './showPetById'
 
 export type OperationSchema = {
   readonly request: z.ZodTypeAny | undefined
@@ -42,54 +28,54 @@ export const operations = {
     request: undefined,
     parameters: {
       path: undefined,
-      query: listPetsQueryParams,
+      query: showPetById,
       header: undefined,
     },
     responses: {
-      200: listPets200,
-      default: listPetsQueryResponse,
+      200: showPetById,
+      default: showPetById,
     },
     errors: {},
   },
   createPets: {
-    request: createPetsMutationRequest,
+    request: showPetById,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      201: createPets201,
-      default: createPetsMutationResponse,
+      201: showPetById,
+      default: showPetById,
     },
     errors: {},
   },
   showPetById: {
     request: undefined,
     parameters: {
-      path: showPetByIdPathParams,
+      path: showPetById,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: showPetById200,
-      default: showPetByIdQueryResponse,
+      200: showPetById,
+      default: showPetById,
     },
     errors: {},
   },
   deletePet: {
     request: undefined,
     parameters: {
-      path: deletePetPathParams,
+      path: showPetById,
       query: undefined,
-      header: deletePetHeaderParams,
+      header: showPetById,
     },
     responses: {
-      400: deletePet400,
-      default: deletePetMutationResponse,
+      400: showPetById,
+      default: showPetById,
     },
     errors: {
-      400: deletePet400,
+      400: showPetById,
     },
   },
 } as const

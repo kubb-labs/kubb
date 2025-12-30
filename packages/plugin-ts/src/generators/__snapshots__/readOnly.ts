@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type demo = {
+export type readOnly = {
   /**
    * @type integer | undefined
    */
@@ -16,10 +16,10 @@ export type demo = {
   /**
    * @type integer | undefined
    */
-  readonly attribute_with_ref?: attributeReadonly
+  readonly attribute_with_ref?: readOnly
   /**
    * @description not required
    * @type integer | undefined
    */
-  attribute_with_ref_readonly?: attributeWriteOnly
+  attribute_with_ref_readonly?: readOnly
 }

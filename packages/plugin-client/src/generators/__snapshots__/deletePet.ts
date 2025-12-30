@@ -6,7 +6,7 @@
 import type { RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
 import { fetch } from './test/.kubb/fetch'
 
-export function getDeletePetUrl(petId: DeletePetPathParams['petId']) {
+export function getDeletePetUrl(petId: DeletePet['petId']) {
   const res = { method: 'DELETE', url: `/pet/${petId}` as const }
   return res
 }
@@ -16,14 +16,10 @@ export function getDeletePetUrl(petId: DeletePetPathParams['petId']) {
  * @summary Deletes a pet
  * {@link /pet/:petId}
  */
-export async function deletePet(
-  petId: DeletePetPathParams['petId'],
-  headers?: DeletePetHeaderParams,
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
-) {
+export async function deletePet(petId: DeletePet['petId'], headers?: DeletePet, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
+  const res = await request<DeletePet, ResponseErrorConfig<DeletePet>, unknown>({
     method: 'DELETE',
     url: getDeletePetUrl(petId).url.toString(),
     ...requestConfig,

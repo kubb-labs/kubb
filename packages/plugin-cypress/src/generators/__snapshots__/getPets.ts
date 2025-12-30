@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-export function listPets(params?: ListPetsQueryParams, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<ListPetsQueryResponse> {
+export function getPets(params?: GetPets, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetPets> {
   return cy
-    .request<ListPetsQueryResponse>({
+    .request<GetPets>({
       method: 'get',
       url: `/pets`,
       qs: params,

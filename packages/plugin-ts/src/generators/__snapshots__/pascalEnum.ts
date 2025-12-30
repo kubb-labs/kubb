@@ -8,6 +8,6 @@ export const PASCALEnumsTypeEnum = {
   second: 'second',
 } as const
 
-export type PASCALEnumsTypeEnumKey = (typeof PASCALEnumsTypeEnum)[keyof typeof PASCALEnumsTypeEnum]
+export type PascalEnumKey = (typeof PASCALEnumsTypeEnum)[keyof typeof PASCALEnumsTypeEnum]
 
-export type PASCALEnumsType = PASCALEnumsTypeEnumKey | null
+export type pascalEnum = PascalEnumKey | null

@@ -6,7 +6,7 @@
 import type { RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
 import { fetch } from './test/.kubb/fetch'
 
-export function getFindPetsByTagsUrl() {
+export function getFindByTagsFullUrl() {
   const res = { method: 'GET', url: `/pet/findByTags` as const }
   return res
 }
@@ -16,12 +16,12 @@ export function getFindPetsByTagsUrl() {
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findByTagsFull(params?: FindByTagsFull, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+  const res = await request<FindByTagsFull, ResponseErrorConfig<FindByTagsFull>, unknown>({
     method: 'GET',
-    url: getFindPetsByTagsUrl().url.toString(),
+    url: getFindByTagsFullUrl().url.toString(),
     params,
     ...requestConfig,
   })

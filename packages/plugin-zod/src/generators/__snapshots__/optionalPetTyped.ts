@@ -5,8 +5,8 @@
 import { ToZod } from './test/.kubb/ToZod'
 import { z } from 'zod'
 
-export const optionalPet = z.object({
+export const optionalPetTyped = z.object({
   id: z.optional(z.number().int()),
   name: z.optional(z.string()),
   tag: z.optional(z.string()),
-}) as unknown as ToZod<OptionalPet>
+}) as unknown as ToZod<OptionalPetTyped>

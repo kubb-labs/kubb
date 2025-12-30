@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-export type DeletePetsPetidMutationResponse = any
+export type DeletePet = any
 
-export type deletePetsPetidMutation = {
+export type deletePetMutation = {
   Response: any
   Errors: any
 }

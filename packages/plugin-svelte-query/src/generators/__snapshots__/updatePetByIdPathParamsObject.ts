@@ -3,70 +3,7 @@
  * Do not edit manually.
  */
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation } from '@tanstack/svelte-query'
 
-export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
+export const updatePetWithForm = () => [{ url: '/pet/:petId' }] as const
 
-export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
-
-/**
- * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
- */
-export async function updatePetWithForm(
-  { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
-  data?: UpdatePetWithFormMutationRequest,
-  params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
-) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = updatePetWithFormMutationRequest.parse(data)
-
-  const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
-    method: 'POST',
-    url: `/pet/${petId}`,
-    params,
-    data: requestData,
-    ...requestConfig,
-  })
-  return updatePetWithFormMutationResponse.parse(res.data)
-}
-
-/**
- * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
- */
-export function createUpdatePetWithForm<TContext>(
-  options: {
-    mutation?: CreateMutationOptions<
-      UpdatePetWithFormMutationResponse,
-      ResponseErrorConfig<UpdatePetWithForm405>,
-      { petId: UpdatePetWithFormPathParams['petId']; data?: UpdatePetWithFormMutationRequest; params?: UpdatePetWithFormQueryParams },
-      TContext
-    > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch }
-  } = {},
-) {
-  const { mutation = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...mutationOptions } = mutation
-  const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey()
-
-  return createMutation<
-    UpdatePetWithFormMutationResponse,
-    ResponseErrorConfig<UpdatePetWithForm405>,
-    { petId: UpdatePetWithFormPathParams['petId']; data?: UpdatePetWithFormMutationRequest; params?: UpdatePetWithFormQueryParams },
-    TContext
-  >(
-    {
-      mutationFn: async ({ petId, data, params }) => {
-        return updatePetWithForm({ petId }, data, params, config)
-      },
-      mutationKey,
-      ...mutationOptions,
-    },
-    queryClient,
-  )
-}
+export type UpdatePetWithForm = ReturnType<typeof updatePetWithForm>

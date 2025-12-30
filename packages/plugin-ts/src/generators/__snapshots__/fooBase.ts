@@ -3,11 +3,4 @@
  * Do not edit manually.
  */
 
-export type FooBasetypeEnum = 'type-string' | 'type-number'
-
-export type fooBase = {
-  /**
-   * @type string
-   */
-  $type: FooBasetypeEnum
-}
+export type FooBase = 'type-string' | 'type-number'

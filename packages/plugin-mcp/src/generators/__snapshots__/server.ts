@@ -4,30 +4,30 @@
  */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
-import { listPetsHandler, listPetsQueryParams, createPetsHandler, createPetsMutationRequest, showPetByIdHandler, showPetByIdPathParams } from './showPetById'
+import { showPetByIdHandler, showPetById } from './showPetById'
 
 export const server = new McpServer({
   name: 'Swagger Petstore',
   version: '3.0.0',
 })
 
-server.tool('listPets', 'Returns all `pets` from the system \\n that the user has access to', { params: listPetsQueryParams }, async ({ params }) => {
-  return listPetsHandler({ params })
+server.tool('listPets', 'Returns all `pets` from the system \\n that the user has access to', { params: showPetById }, async ({ params }) => {
+  return showPetByIdHandler({ params })
 })
 
 server.tool(
   'createPets',
   'Creates a pet in the store.\nThis is an arbitrary description with lots of `strange` but likely formatting from the real world.\n- We like to make lists - And we need to escape: some, type, of `things`\n',
-  { data: createPetsMutationRequest },
+  { data: showPetById },
   async ({ data }) => {
-    return createPetsHandler({ data })
+    return showPetByIdHandler({ data })
   },
 )
 
 server.tool(
   'showPetById',
   'Make a GET request to /pets/{petId}',
-  { petId: showPetByIdPathParams.shape['petId'], testId: showPetByIdPathParams.shape['testId'] },
+  { petId: showPetById.shape['petId'], testId: showPetById.shape['testId'] },
   async ({ petId, testId }) => {
     return showPetByIdHandler({ petId, testId })
   },

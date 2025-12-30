@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-export type catDog =
-  | (cat & {
+export type catDogDiscriminator =
+  | (catDogDiscriminator & {
       type: 'Cat'
     })
-  | (dog & {
+  | (catDogDiscriminator & {
       type: 'Dog'
     })
-  | (dog & {
+  | (catDogDiscriminator & {
       type: 'Bulldog'
     })

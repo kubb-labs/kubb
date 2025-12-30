@@ -4,9 +4,9 @@
  */
 
 export type paymentAccountDetailsResponse =
-  | (ACHDetailsResponse & {
+  | (paymentAccountDetailsResponse & {
       type: 'ACH'
     })
-  | (domesticWireDetailsResponse & {
+  | (paymentAccountDetailsResponse & {
       type: 'DOMESTIC_WIRE'
     })

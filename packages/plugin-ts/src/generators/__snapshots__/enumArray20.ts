@@ -10,11 +10,11 @@ export const enumArrayIdentifierEnum = {
   SE: 'SE',
 } as const
 
-export type EnumArrayIdentifierEnumKey = (typeof enumArrayIdentifierEnum)[keyof typeof enumArrayIdentifierEnum]
+export type EnumArray20Key = (typeof enumArrayIdentifierEnum)[keyof typeof enumArrayIdentifierEnum]
 
-export type enumArray = {
+export type enumArray20 = {
   /**
    * @type array | undefined
    */
-  identifier?: [number, string, EnumArrayIdentifierEnumKey, ...unknown[]]
+  identifier?: [number, string, EnumArray20Key, ...unknown[]]
 }

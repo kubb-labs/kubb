@@ -4,30 +4,9 @@
  */
 import { faker } from '@faker-js/faker'
 
-export function listPetsQueryParams(data?: Partial<ListPetsQueryParams>): ListPetsQueryParams {
+export function getPets(data?: Partial<GetPets>): GetPets {
   return {
     ...{ limit: faker.string.alpha() },
     ...(data || {}),
   }
-}
-
-/**
- * @description A paged array of pets
- */
-export function listPets200(data?: Partial<ListPets200>): ListPets200 {
-  return {
-    ...{ ...pagination(), ...pets() },
-    ...(data || {}),
-  }
-}
-
-/**
- * @description unexpected error
- */
-export function listPetsError() {
-  return error()
-}
-
-export function listPetsQueryResponse(data?: Partial<ListPetsQueryResponse>): ListPetsQueryResponse {
-  return data || faker.helpers.arrayElement<any>([listPets200()])
 }

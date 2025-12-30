@@ -10,6 +10,6 @@ export const enumStringEnum = {
   'FILE.DOWNLOADED': 'FILE.DOWNLOADED',
 } as const
 
-export type EnumStringEnumKey = (typeof enumStringEnum)[keyof typeof enumStringEnum]
+export type EnumStringKey = (typeof enumStringEnum)[keyof typeof enumStringEnum]
 
-export type enumString = EnumStringEnumKey
+export type enumString = EnumStringKey

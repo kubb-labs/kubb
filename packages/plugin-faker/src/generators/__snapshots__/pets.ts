@@ -5,5 +5,5 @@
 import { faker } from '@faker-js/faker'
 
 export function pets(data?: Pets): Pets {
-  return [...faker.helpers.multiple(() => pet()), ...(data || [])]
+  return [...faker.helpers.multiple(() => pets()), ...(data || [])]
 }

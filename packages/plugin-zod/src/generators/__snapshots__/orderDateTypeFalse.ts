@@ -4,7 +4,7 @@
  */
 import { z } from 'zod'
 
-export const order = z.object({
+export const orderDateTypeFalse = z.object({
   id: z.optional(z.number().int()),
   petId: z.optional(z.number().int()),
   quantity: z.optional(z.number().int()),

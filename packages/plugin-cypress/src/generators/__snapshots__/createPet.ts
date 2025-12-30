@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-export function createPets(data: CreatePetsMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<CreatePetsMutationResponse> {
+export function createPet(data: CreatePet, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<CreatePet> {
   return cy
-    .request<CreatePetsMutationResponse>({
+    .request<CreatePet>({
       method: 'post',
       url: `/pets`,
       body: data,

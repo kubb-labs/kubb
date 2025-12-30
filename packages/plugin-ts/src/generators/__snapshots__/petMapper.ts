@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type pet = {
+export type petMapper = {
   /**
    * @type integer, int64
    */

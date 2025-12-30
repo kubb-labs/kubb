@@ -3,6 +3,6 @@
  * Do not edit manually.
  */
 
-export type nullConst = {
+export type nullConstNull = {
   withoutValue: null
 }

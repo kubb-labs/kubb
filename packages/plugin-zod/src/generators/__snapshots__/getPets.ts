@@ -4,19 +4,7 @@
  */
 import { z } from 'zod'
 
-export const listPetsQueryParams = z.object({
+export const getPets = z.object({
   limit: z.optional(z.string().describe('How many items to return at one time (max 100)')),
-  offset: z.coerce.number().int().default(0),
+  offset: z.number().int().default(0),
 })
-
-/**
- * @description A paged array of pets
- */
-export const listPets200 = z.lazy(() => pets)
-
-/**
- * @description unexpected error
- */
-export const listPetsError = z.lazy(() => error)
-
-export const listPetsQueryResponse = z.lazy(() => listPets200)

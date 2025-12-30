@@ -4,30 +4,30 @@
  */
 import { z } from 'zod'
 
-export const advanced = z.union([
+export const discriminator = z.union([
   z
-    .lazy(() => enumerationValueSpecificationDto)
+    .lazy(() => discriminator)
     .and(
       z.object({
         type: z.literal('enum'),
       }),
     ),
   z
-    .lazy(() => rangeValueSpecificationDto)
+    .lazy(() => discriminator)
     .and(
       z.object({
         type: z.literal('range'),
       }),
     ),
   z
-    .lazy(() => regexValueSpecificationDto)
+    .lazy(() => discriminator)
     .and(
       z.object({
         type: z.literal('regex'),
       }),
     ),
   z
-    .lazy(() => sliderValueSpecificationDto)
+    .lazy(() => discriminator)
     .and(
       z.object({
         type: z.literal('slider'),

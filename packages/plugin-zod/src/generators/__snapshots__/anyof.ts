@@ -4,7 +4,7 @@
  */
 import { z } from 'zod'
 
-export const test = z.union([
+export const anyof = z.union([
   z.object({
     propertyA: z.string(),
   }),

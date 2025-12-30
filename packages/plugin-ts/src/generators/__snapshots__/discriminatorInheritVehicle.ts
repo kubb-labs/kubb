@@ -7,11 +7,11 @@ export const vehicleTypeEnum = {
   car: 'car',
 } as const
 
-export type VehicleTypeEnumKey = (typeof vehicleTypeEnum)[keyof typeof vehicleTypeEnum]
+export type DiscriminatorInheritVehicleKey = (typeof vehicleTypeEnum)[keyof typeof vehicleTypeEnum]
 
-export type vehicle = car & {
+export type discriminatorInheritVehicle = discriminatorInheritVehicle & {
   /**
    * @type string
    */
-  type: VehicleTypeEnumKey
+  type: DiscriminatorInheritVehicleKey
 }

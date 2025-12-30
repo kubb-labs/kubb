@@ -8,6 +8,6 @@ export type petDict = {
    * @type object
    */
   matrix: {
-    [key: string]: pet
+    [key: string]: petDict
   }
 }

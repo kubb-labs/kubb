@@ -6,14 +6,8 @@ import { fetch } from './test/.kubb/fetch'
  * @summary Info for a specific pet
  * {@link /pets/:petId}
  */
-export async function showPetByIdHandler({
-  petId,
-  testId,
-}: {
-  petId: ShowPetByIdPathParams['petId']
-  testId: ShowPetByIdPathParams['testId']
-}): Promise<Promise<CallToolResult>> {
-  const res = await fetch<ShowPetByIdQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/pets/${petId}` })
+export async function showPetByIdHandler({ petId, testId }: { petId: ShowPetById['petId']; testId: ShowPetById['testId'] }): Promise<Promise<CallToolResult>> {
+  const res = await fetch<ShowPetById, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/pets/${petId}` })
   return {
     content: [
       {

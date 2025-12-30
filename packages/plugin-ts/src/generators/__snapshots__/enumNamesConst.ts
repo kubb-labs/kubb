@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-export const enum EnumNamesTypeEnum {
+export const enum EnumNamesConst {
   'Pending' = 0,
   'Received' = 1,
 }
 
-export type enumNamesType = EnumNamesTypeEnum
+export type enumNamesConst = EnumNamesConst

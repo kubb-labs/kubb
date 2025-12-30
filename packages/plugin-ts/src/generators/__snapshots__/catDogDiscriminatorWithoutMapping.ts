@@ -3,10 +3,10 @@
  * Do not edit manually.
  */
 
-export type catDogWithoutMapping =
-  | (cat & {
+export type catDogDiscriminatorWithoutMapping =
+  | (catDogDiscriminatorWithoutMapping & {
       type: 'Cat'
     })
-  | (dog & {
+  | (catDogDiscriminatorWithoutMapping & {
       type: 'Dog'
     })

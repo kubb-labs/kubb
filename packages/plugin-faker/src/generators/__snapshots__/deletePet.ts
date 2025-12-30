@@ -3,6 +3,6 @@
  * Do not edit manually.
  */
 
-export function deletePetsPetidMutationResponse(data?: Partial<DeletePetsPetidMutationResponse>): DeletePetsPetidMutationResponse {
+export function deletePet(data?: Partial<DeletePet>): DeletePet {
   return undefined
 }

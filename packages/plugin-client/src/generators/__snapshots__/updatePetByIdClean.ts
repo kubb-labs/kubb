@@ -6,7 +6,7 @@
 import type { RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
 import { fetch } from './test/.kubb/fetch'
 
-function getUpdatePetWithFormUrl(petId: UpdatePetWithFormPathParams['petId']) {
+function getUpdatePetByIdCleanUrl(petId: UpdatePetByIdClean['petId']) {
   const res = { method: 'POST', url: `/pet/${petId}` as const }
   return res
 }
@@ -15,16 +15,16 @@ function getUpdatePetWithFormUrl(petId: UpdatePetWithFormPathParams['petId']) {
  * @summary Updates a pet in the store with form data
  * {@link /pet/:petId}
  */
-export async function updatePetWithForm(
-  petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatePetWithFormQueryParams,
+export async function updatePetByIdClean(
+  petId: UpdatePetByIdClean['petId'],
+  params?: UpdatePetByIdClean,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
+  const res = await request<UpdatePetByIdClean, ResponseErrorConfig<UpdatePetByIdClean>, unknown>({
     method: 'POST',
-    url: getUpdatePetWithFormUrl(petId).url.toString(),
+    url: getUpdatePetByIdCleanUrl(petId).url.toString(),
     params,
     ...requestConfig,
   })

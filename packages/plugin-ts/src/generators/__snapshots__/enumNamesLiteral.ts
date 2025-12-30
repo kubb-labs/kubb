@@ -3,6 +3,4 @@
  * Do not edit manually.
  */
 
-export type EnumNamesTypeEnum = 0 | 1
-
-export type enumNamesType = EnumNamesTypeEnum
+export type EnumNamesLiteral = 0 | 1

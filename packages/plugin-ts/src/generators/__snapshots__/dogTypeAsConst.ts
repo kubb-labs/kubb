@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type dog = {
+export type dogTypeAsConst = {
   /**
    * @type string, uuid
    */

@@ -3,91 +3,11 @@
  * Do not edit manually.
  */
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
-import type { QueryKey, QueryClient, UseBaseQueryOptions, UseQueryResult } from 'custom-query'
-import { queryOptions, useQuery } from 'custom-query'
 
-export const updatePetWithFormQueryKey = (
+export const updatePetWithForm = (
   petId: UpdatePetWithFormPathParams['petId'],
   data?: UpdatePetWithFormMutationRequest,
   params?: UpdatePetWithFormQueryParams,
 ) => [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const
 
-export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
-
-/**
- * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
- */
-export async function updatePetWithForm(
-  petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
-  params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
-) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = updatePetWithFormMutationRequest.parse(data)
-
-  const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
-    method: 'POST',
-    url: `/pet/${petId}`,
-    params,
-    data: requestData,
-    ...requestConfig,
-  })
-  return updatePetWithFormMutationResponse.parse(res.data)
-}
-
-export function updatePetWithFormQueryOptions(
-  petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
-  params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
-) {
-  const queryKey = updatePetWithFormQueryKey(petId, data, params)
-  return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
-    enabled: !!petId,
-    queryKey,
-    queryFn: async ({ signal }) => {
-      config.signal = signal
-      return updatePetWithForm(petId, data, params, config)
-    },
-  })
-}
-
-/**
- * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
- */
-export function createUpdatePetWithForm<
-  TData = UpdatePetWithFormMutationResponse,
-  TQueryData = UpdatePetWithFormMutationResponse,
-  TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
->(
-  petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
-  params?: UpdatePetWithFormQueryParams,
-  options: {
-    query?: Partial<UseBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
-      client?: QueryClient
-    }
-    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch }
-  } = {},
-) {
-  const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, data, params)
-
-  const query = useQuery(
-    () => ({
-      ...(updatePetWithFormQueryOptions(petId, data, params, config) as unknown as UseBaseQueryOptions),
-      queryKey,
-      initialData: null,
-      ...(queryOptions as unknown as Omit<UseBaseQueryOptions, 'queryKey'>),
-    }),
-    queryClient ? () => queryClient : undefined,
-  ) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
-
-  return query
-}
+export type UpdatePetWithForm = ReturnType<typeof updatePetWithForm>

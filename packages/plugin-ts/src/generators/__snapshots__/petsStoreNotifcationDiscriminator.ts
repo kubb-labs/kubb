@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-export type notification = (
-  | (documentDisapprovedNotification & {
+export type petsStoreNotifcationDiscriminator = (
+  | (petsStoreNotifcationDiscriminator & {
       notificationType: 'DOCUMENT_DISAPPROVED'
     })
-  | (documentApprovedNotification & {
+  | (petsStoreNotifcationDiscriminator & {
       notificationType: 'DOCUMENT_APPROVED'
     })
 ) & {

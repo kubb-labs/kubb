@@ -3,26 +3,26 @@
  * Do not edit manually.
  */
 
-export type advanced =
-  | (enumerationValueSpecificationDto & {
+export type petsStoreAdvancedDiscriminator =
+  | (petsStoreAdvancedDiscriminator & {
       /**
        * @type string
        */
       readonly type: 'enum'
     })
-  | (rangeValueSpecificationDto & {
+  | (petsStoreAdvancedDiscriminator & {
       /**
        * @type string
        */
       readonly type: 'range'
     })
-  | (regexValueSpecificationDto & {
+  | (petsStoreAdvancedDiscriminator & {
       /**
        * @type string
        */
       readonly type: 'regex'
     })
-  | (sliderValueSpecificationDto & {
+  | (petsStoreAdvancedDiscriminator & {
       /**
        * @type string
        */

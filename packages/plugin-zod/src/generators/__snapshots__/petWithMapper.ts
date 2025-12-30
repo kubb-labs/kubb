@@ -4,7 +4,7 @@
  */
 import { z } from 'zod'
 
-export const pet = z.object({
+export const petWithMapper = z.object({
   id: z.number().int(),
   name: z.string().email(),
   date: z.optional(z.date()),

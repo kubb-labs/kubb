@@ -6,19 +6,12 @@
 /**
  * @example [object Object]
  */
-export type SystemsQueryParams = {
+export type SystemsWithExplodeForm = {
   [key: string]: string
 }
 
-/**
- * @description OK
- */
-export type Systems200 = object
-
-export type SystemsQueryResponse = systems200
-
-export type systemsQuery = {
-  Response: systems200
-  QueryParams: systemsQueryParams
+export type systemsWithExplodeFormQuery = {
+  Response: systemsWithExplodeForm
+  QueryParams: systemsWithExplodeForm
   Errors: any
 }

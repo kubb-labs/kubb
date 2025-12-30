@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type fooNumber = (fooBase & {
+export type fooNumber = (fooNumber & {
   $type: 'type-number'
 }) & {
   /**
