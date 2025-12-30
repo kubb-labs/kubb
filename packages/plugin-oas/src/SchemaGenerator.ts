@@ -1246,12 +1246,14 @@ export class SchemaGenerator<
       generatorLimit(async () => {
         // For React generators, use batched fabric approach
         if (generator.type === 'react') {
-          const fabricChild = createReactFabric()
           const batchSize = 10 // Process 10 schemas at a time
 
           // Process batches sequentially using for loop
           for (let i = 0; i < schemaEntries.length; i += batchSize) {
             const batch = schemaEntries.slice(i, Math.min(i + batchSize, schemaEntries.length))
+            
+            // Create a new fabric instance for each batch
+            const fabricChild = createReactFabric()
 
             // Process batch with concurrency control
             await Promise.all(
@@ -1288,7 +1290,6 @@ export class SchemaGenerator<
             // Batch upsert after each batch
             if (fabricChild.files.length > 0) {
               await this.context.fabric.context.fileManager.upsert(...fabricChild.files)
-              fabricChild.files = []
             }
           }
 
