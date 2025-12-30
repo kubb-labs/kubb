@@ -1,4 +1,4 @@
-import type { FileMetaBase, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { FileMetaBase, NameRole, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
@@ -32,7 +32,14 @@ type UseOperationManagerResult = {
       prefix?: string
       suffix?: string
       pluginKey?: Plugin['key']
-      type: ResolveNameParams['type']
+      /**
+       * @deprecated Use `role` instead
+       */
+      type?: ResolveNameParams['type']
+      /**
+       * Role of the name being resolved
+       */
+      role?: NameRole
     },
   ) => string
   getFile: (
@@ -68,11 +75,22 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
   const plugin = usePlugin()
   const pluginManager = usePluginManager()
 
-  const getName: UseOperationManagerResult['getName'] = (operation, { prefix = '', suffix = '', pluginKey = plugin.key, type }) => {
+  const getName: UseOperationManagerResult['getName'] = (operation, { prefix, suffix, pluginKey = plugin.key, type, role }) => {
+    // Support both old `type` and new `role` APIs
+    const resolvedRole = role || type
+    
+    if (!resolvedRole) {
+      throw new Error('Either `role` or `type` must be provided to getName')
+    }
+    
     return pluginManager.resolveName({
-      name: `${prefix} ${operation.getOperationId()} ${suffix}`,
+      name: operation.getOperationId(),
       pluginKey,
-      type,
+      options: {
+        role: resolvedRole,
+        prefix,
+        suffix,
+      },
     })
   }
 

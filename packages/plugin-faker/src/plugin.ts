@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
+import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { fakerGenerator } from './generators/fakerGenerator.tsx'
@@ -80,7 +80,33 @@ export const pluginFaker = definePlugin<PluginFaker>((options) => {
 
       return path.resolve(root, output.path, baseName)
     },
-    resolveName(name, type) {
+    resolveName(name, type, options) {
+      // Handle new options API
+      if (options) {
+        const { role, prefix = '', suffix = '', casing } = options
+        const strategy = casing || 'camelCase'
+        
+        // Build name with prefix/suffix
+        const nameWithAffixes = `${prefix} ${name} ${suffix}`
+        
+        let resolvedName: string
+        if (strategy === 'PascalCase') {
+          resolvedName = pascalCase(nameWithAffixes, { isFile: role === 'file' })
+        } else if (strategy === 'camelCase') {
+          // For faker, add 'create' prefix by default when role is not 'file'
+          resolvedName = camelCase(nameWithAffixes, {
+            prefix: role !== 'file' ? 'create' : undefined,
+            isFile: role === 'file',
+          })
+        } else {
+          // preserve - just trim spaces
+          resolvedName = nameWithAffixes.trim()
+        }
+        
+        return transformers?.name?.(resolvedName, role) || resolvedName
+      }
+      
+      // Backward compatibility with old `type` parameter
       const resolvedName = camelCase(name, {
         prefix: type ? 'create' : undefined,
         isFile: type === 'file',

@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
+import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
 import { pluginClientName } from '@kubb/plugin-client'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
@@ -75,7 +75,31 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
 
       return path.resolve(root, output.path, baseName)
     },
-    resolveName(name, type) {
+    resolveName(name, type, options) {
+      // Handle new options API
+      if (options) {
+        const { role, prefix = '', suffix = '', casing } = options
+        const strategy = casing || 'camelCase'
+        
+        // Build name with prefix/suffix
+        const nameWithAffixes = `${prefix} ${name} ${suffix}`
+        
+        let resolvedName: string
+        if (strategy === 'PascalCase') {
+          resolvedName = pascalCase(nameWithAffixes, { isFile: role === 'file' })
+        } else if (strategy === 'camelCase') {
+          resolvedName = camelCase(nameWithAffixes, {
+            isFile: role === 'file',
+          })
+        } else {
+          // preserve - just trim spaces
+          resolvedName = nameWithAffixes.trim()
+        }
+        
+        return transformers?.name?.(resolvedName, role) || resolvedName
+      }
+      
+      // Backward compatibility with old `type` parameter
       const resolvedName = camelCase(name, {
         isFile: type === 'file',
       })

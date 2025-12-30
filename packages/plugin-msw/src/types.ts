@@ -36,7 +36,7 @@ export type Options = {
     /**
      * Customize the names based on the type that is provided by the plugin.
      */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type'] | import('@kubb/core').NameRole) => string
   }
   /**
    * Create `handlers.ts` file with all handlers grouped by methods.

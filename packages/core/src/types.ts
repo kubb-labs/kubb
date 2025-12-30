@@ -258,8 +258,9 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Useful when converting to PascalCase or camelCase.
    * @type hookFirst
    * @example ('pet') => 'Pet'
+   * @example ('pet', { role: 'function', prefix: 'use' }) => 'usePet'
    */
-  resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+  resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], type?: ResolveNameParams['type'], options?: ResolveNameOptions) => string
 }
 
 export type PluginLifecycleHooks = keyof PluginLifecycle
@@ -276,6 +277,43 @@ export type ResolvePathParams<TOptions = object> = {
   options?: TOptions
 }
 
+/**
+ * Role that determines the default naming strategy
+ * - `file`: File names (camelCase)
+ * - `function`: Function names (camelCase)
+ * - `type`: TypeScript type names (PascalCase)
+ * - `const`: Constant variable names (camelCase)
+ * - `schema`: Schema names (PascalCase)
+ */
+export type NameRole = 'file' | 'function' | 'type' | 'const' | 'schema'
+
+/**
+ * Casing strategy for name resolution
+ */
+export type CasingStrategy = 'PascalCase' | 'camelCase' | 'preserve'
+
+/**
+ * Enhanced options for resolving names with support for prefix, suffix, and casing overrides
+ */
+export type ResolveNameOptions = {
+  /**
+   * Role that determines the default naming strategy
+   */
+  role: NameRole
+  /**
+   * Prefix to add to the name (e.g., 'use' for React hooks)
+   */
+  prefix?: string
+  /**
+   * Suffix to add to the name (e.g., 'Schema', 'QueryKey')
+   */
+  suffix?: string
+  /**
+   * Override the default casing strategy for this role
+   */
+  casing?: CasingStrategy
+}
+
 export type ResolveNameParams = {
   name: string
   pluginKey?: Plugin['key']
@@ -284,8 +322,13 @@ export type ResolveNameParams = {
    * `function` can be used to customize the exported functions(use of camelCase)
    * `type` is a special type for TypeScript(use of PascalCase)
    * `const` can be used for variables(use of camelCase)
+   * @deprecated Use `options` with `ResolveNameOptions` for enhanced control
    */
   type?: 'file' | 'function' | 'type' | 'const'
+  /**
+   * Enhanced options for name resolution with prefix, suffix, and casing support
+   */
+  options?: ResolveNameOptions
 }
 
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {

@@ -94,7 +94,33 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
 
       return path.resolve(root, output.path, baseName)
     },
-    resolveName(name, type) {
+    resolveName(name, type, options) {
+      // Handle new options API
+      if (options) {
+        const { role, prefix = '', suffix = '', casing } = options
+        const strategy = casing || (role === 'type' || role === 'schema' ? 'PascalCase' : 'camelCase')
+        
+        // Build name with prefix/suffix
+        const nameWithAffixes = `${prefix} ${name} ${suffix}`
+        
+        let resolvedName: string
+        if (strategy === 'PascalCase') {
+          resolvedName = pascalCase(nameWithAffixes, { isFile: role === 'file' })
+        } else if (strategy === 'camelCase') {
+          // For zod, add 'schema' suffix by default when role is not 'type'
+          resolvedName = camelCase(nameWithAffixes, {
+            suffix: role !== 'type' ? 'schema' : undefined,
+            isFile: role === 'file',
+          })
+        } else {
+          // preserve - just trim spaces
+          resolvedName = nameWithAffixes.trim()
+        }
+        
+        return transformers?.name?.(resolvedName, role) || resolvedName
+      }
+      
+      // Backward compatibility with old `type` parameter
       let resolvedName = camelCase(name, {
         suffix: type ? 'schema' : undefined,
         isFile: type === 'file',
