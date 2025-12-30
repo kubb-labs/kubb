@@ -1,4 +1,4 @@
-import type { KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
+import type { KubbEvents, NameRole, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import { BaseGenerator, type FileMetaBase } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { type AsyncEventEmitter, getUniqueName } from '@kubb/core/utils'
@@ -47,9 +47,9 @@ export type SchemaGeneratorOptions = {
   typed?: boolean
   transformers: {
     /**
-     * Customize the names based on the type that is provided by the plugin.
+     * Customize the names based on the role that is provided by the plugin.
      */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+    name?: (name: string, role: NameRole) => string
     /**
      * Receive schema and name(propertName) and return FakerMeta array
      * TODO TODO add docs
@@ -422,13 +422,17 @@ export class SchemaGenerator<
     const propertyName = this.context.pluginManager.resolveName({
       name: originalName,
       pluginKey: this.context.plugin.key,
-      type: 'function',
+      options: {
+        role: 'function',
+      },
     })
 
     const fileName = this.context.pluginManager.resolveName({
       name: originalName,
       pluginKey: this.context.plugin.key,
-      type: 'file',
+      options: {
+        role: 'file',
+      },
     })
     const file = this.context.pluginManager.getFile({
       name: fileName,
@@ -863,7 +867,9 @@ export class SchemaGenerator<
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,
         pluginKey: this.context.plugin.key,
-        type: 'type',
+        options: {
+          role: 'type',
+        },
       })
 
       const nullableEnum = schemaObject.enum.includes(null)

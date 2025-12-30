@@ -1,4 +1,4 @@
-import type { CasingStrategy, FileMetaBase, NameRole, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { CasingStrategy, FileMetaBase, NameRole, Plugin, PluginFactoryOptions } from '@kubb/core'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, Operation as OperationType } from '@kubb/oas'

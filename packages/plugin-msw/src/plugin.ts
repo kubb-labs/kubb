@@ -68,17 +68,14 @@ export const pluginMsw = definePlugin<PluginMsw>((options) => {
 
       return path.resolve(root, output.path, baseName)
     },
-    resolveName(name, type) {
+    resolveName(name, options) {
+      const { role } = options
       const resolvedName = camelCase(name, {
-        suffix: type ? 'handler' : undefined,
-        isFile: type === 'file',
+        suffix: role ? 'handler' : undefined,
+        isFile: role === 'file',
       })
 
-      if (type) {
-        return transformers?.name?.(resolvedName, type) || resolvedName
-      }
-
-      return resolvedName
+      return transformers?.name?.(resolvedName, role) || resolvedName
     },
     async install() {
       const root = path.resolve(this.config.root, this.config.output.path)

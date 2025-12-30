@@ -238,7 +238,7 @@ describe('PluginManager', () => {
         options: undefined as any,
         context: undefined as never,
         key: ['schemaPlugin'],
-        resolveName(name, options) {
+        resolveName(_name, options) {
           // Schema role is supported
           expect(options.role).toBe('schema')
           return 'SchemaName'

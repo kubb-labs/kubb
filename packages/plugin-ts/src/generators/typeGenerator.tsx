@@ -22,7 +22,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
         const identifier = pluginManager.resolveName({
           name: res.name,
           pluginKey: [pluginTsName],
-          role: 'function',
+          options: { role: 'function' },
         })
 
         return factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
@@ -34,7 +34,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
     const identifier = pluginManager.resolveName({
       name: schemas.request.name,
       pluginKey: [pluginTsName],
-      role: 'function',
+      options: { role: 'function' },
     })
     properties['request'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
@@ -43,7 +43,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
     const identifier = pluginManager.resolveName({
       name: schemas.pathParams.name,
       pluginKey: [pluginTsName],
-      role: 'function',
+      options: { role: 'function' },
     })
     properties['pathParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
@@ -52,7 +52,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
     const identifier = pluginManager.resolveName({
       name: schemas.queryParams.name,
       pluginKey: [pluginTsName],
-      role: 'function',
+      options: { role: 'function' },
     })
     properties['queryParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
@@ -61,7 +61,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
     const identifier = pluginManager.resolveName({
       name: schemas.headerParams.name,
       pluginKey: [pluginTsName],
-      role: 'function',
+      options: { role: 'function' },
     })
     properties['headerParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
@@ -72,7 +72,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
         const identifier = pluginManager.resolveName({
           name: error.name,
           pluginKey: [pluginTsName],
-          role: 'function',
+          options: { role: 'function' },
         })
 
         return factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)

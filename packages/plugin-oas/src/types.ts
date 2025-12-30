@@ -1,4 +1,4 @@
-import type { Group, Output, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Group, Output, Plugin, PluginFactoryOptions } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
 
 import type { contentType, HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
@@ -25,7 +25,6 @@ export type ResolvePathOptions = {
     tag?: string
     path?: string
   }
-  type?: ResolveNameParams['type']
 }
 
 export type Options = {

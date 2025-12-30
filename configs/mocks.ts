@@ -32,15 +32,15 @@ export async function format(source?: string): Promise<string> {
 export const createMockedPluginManager = (name?: string) =>
   ({
     resolveName: (result) => {
-      if (result.type === 'file') {
+      if (result.options.role === 'file') {
         return camelCase(name || result.name)
       }
 
-      if (result.type === 'type') {
+      if (result.options.role === 'type') {
         return pascalCase(result.name)
       }
 
-      if (result.type === 'function') {
+      if (result.options.role === 'function') {
         return camelCase(result.name)
       }
 

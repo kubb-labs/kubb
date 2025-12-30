@@ -1,4 +1,4 @@
-import type { FileMetaBase, Plugin, ResolveNameParams } from '@kubb/core'
+import type { FileMetaBase, NameRole, Plugin } from '@kubb/core'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { SchemaGenerator } from '../SchemaGenerator.ts'
@@ -14,7 +14,7 @@ type FileMeta = FileMetaBase & {
 }
 
 type UseSchemaManagerResult = {
-  getName: (name: string, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
+  getName: (name: string, params: { pluginKey?: Plugin['key']; role: NameRole }) => string
   getFile: (
     name: string,
     params?: {
@@ -37,16 +37,18 @@ export function useSchemaManager(): UseSchemaManagerResult {
   const plugin = usePlugin()
   const pluginManager = usePluginManager()
 
-  const getName: UseSchemaManagerResult['getName'] = (name, { pluginKey = plugin.key, type }) => {
+  const getName: UseSchemaManagerResult['getName'] = (name, { pluginKey = plugin.key, role }) => {
     return pluginManager.resolveName({
       name,
       pluginKey,
-      type,
+      options: {
+        role,
+      },
     })
   }
 
   const getFile: UseSchemaManagerResult['getFile'] = (name, { mode = 'split', pluginKey = plugin.key, extname = '.ts', group } = {}) => {
-    const resolvedName = mode === 'single' ? '' : getName(name, { type: 'file', pluginKey })
+    const resolvedName = mode === 'single' ? '' : getName(name, { role: 'file', pluginKey })
 
     const file = pluginManager.getFile({
       name: resolvedName,
