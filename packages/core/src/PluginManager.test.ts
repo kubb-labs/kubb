@@ -198,9 +198,8 @@ describe('PluginManager', () => {
         options: undefined as any,
         context: undefined as never,
         key: ['optionsPlugin'],
-        resolveName(name, role, options) {
+        resolveName(name, options) {
           // Should receive the options and the base name (without prefix/suffix applied yet)
-          expect(role).toBe('function')
           expect(options.role).toBe('function')
           expect(options.prefix).toBe('use')
           expect(options.suffix).toBe('Query')
@@ -239,9 +238,9 @@ describe('PluginManager', () => {
         options: undefined as any,
         context: undefined as never,
         key: ['schemaPlugin'],
-        resolveName(name, role, options) {
+        resolveName(name, options) {
           // Schema role is supported
-          expect(role).toBe('schema')
+          expect(options.role).toBe('schema')
           return 'SchemaName'
         },
       }

@@ -257,10 +257,10 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Resolve to a name based on a string.
    * Useful when converting to PascalCase or camelCase.
    * @type hookFirst
-   * @example ('pet', 'type', { role: 'type' }) => 'Pet'
-   * @example ('pet', 'function', { role: 'function', prefix: 'use' }) => 'usePet'
+   * @example ('pet', { role: 'type' }) => 'Pet'
+   * @example ('pet', { role: 'function', prefix: 'use' }) => 'usePet'
    */
-  resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], role: NameRole, options: ResolveNameOptions) => string
+  resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], options: ResolveNameOptions) => string
 }
 
 export type PluginLifecycleHooks = keyof PluginLifecycle

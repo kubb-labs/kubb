@@ -80,8 +80,8 @@ export const pluginFaker = definePlugin<PluginFaker>((options) => {
 
       return path.resolve(root, output.path, baseName)
     },
-    resolveName(name, role, options) {
-      const { prefix = '', suffix = '', casing } = options
+    resolveName(name, options) {
+      const { role, prefix = '', suffix = '', casing } = options
       const strategy = casing || 'camelCase'
       
       // Build name with prefix/suffix, avoiding extra spaces

@@ -174,7 +174,7 @@ export class PluginManager {
       const names = this.hookForPluginSync({
         pluginKey: params.pluginKey,
         hookName: 'resolveName',
-        parameters: [trim(params.name), options.role, options],
+        parameters: [trim(params.name), options],
       })
 
       const uniqueNames = new Set(names)
@@ -184,7 +184,7 @@ export class PluginManager {
 
     const name = this.hookFirstSync({
       hookName: 'resolveName',
-      parameters: [trim(params.name), options.role, options],
+      parameters: [trim(params.name), options],
     }).result
 
     return transformReservedWord(name)
