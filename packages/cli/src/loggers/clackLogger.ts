@@ -6,6 +6,7 @@ import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import { default as gradientString } from 'gradient-string'
 import pc from 'picocolors'
+import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 import { getSummary } from '../utils/getSummary.ts'
 import { ClackWritable } from '../utils/Writables.ts'
 
@@ -261,9 +262,9 @@ Run \`npm install -g @kubb/cli\` to update`,
         state.failedPlugins++
       }
 
-      const durationStr = formatMs(duration)
+      const durationStr = formatMsWithColor(duration)
       const text = getMessage(
-        success ? `${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}` : `${pc.bold(plugin.name)} failed in ${pc.red(durationStr)}`,
+        success ? `${pc.bold(plugin.name)} completed in ${durationStr}` : `${pc.bold(plugin.name)} failed in ${pc.red(formatMs(duration))}`,
       )
 
       active.progressBar.stop(text)
@@ -381,7 +382,13 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('hook:start', async ({ id, command, args }) => {
-      const text = getMessage(`Hook ${pc.dim(command)} started`)
+      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const text = getMessage(`Hook ${pc.dim(commandWithArgs)} started`)
+
+      // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
+      if (!id) {
+        return
+      }
 
       if (logLevel <= LogLevel.silent) {
         try {
@@ -395,7 +402,7 @@ Run \`npm install -g @kubb/cli\` to update`,
             logs: [result.stdout],
           })
 
-          await context.emit('hook:end', { command, id })
+          await context.emit('hook:end', { command, args, id })
         } catch (err) {
           const error = new Error('Hook execute failed')
           error.cause = err
@@ -414,7 +421,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.intro(text)
 
       const logger = clack.taskLog({
-        title: getMessage(['Executing hook', logLevel >= LogLevel.info ? pc.dim(`${command} ${args?.join(' ')}`) : undefined].filter(Boolean).join(' ')),
+        title: getMessage(['Executing hook', logLevel >= LogLevel.info ? pc.dim(commandWithArgs) : undefined].filter(Boolean).join(' ')),
       })
 
       const writable = new ClackWritable(logger)
@@ -431,7 +438,7 @@ Run \`npm install -g @kubb/cli\` to update`,
           logs: [result.stdout],
         })
 
-        await context.emit('hook:end', { command, id })
+        await context.emit('hook:end', { command, args, id })
       } catch (err) {
         const error = new Error('Hook execute failed')
         error.cause = err
@@ -445,12 +452,13 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
     })
 
-    context.on('hook:end', ({ command }) => {
+    context.on('hook:end', ({ command, args }) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
 
-      const text = getMessage(`Hook ${pc.dim(command)} successfully executed`)
+      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const text = getMessage(`Hook ${pc.dim(commandWithArgs)} successfully executed`)
 
       clack.outro(text)
     })

@@ -20,6 +20,13 @@ paths:
           required: false
           schema:
             type: string
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - $ref: '#/components/parameters/queryFilter'
       responses:
         '200':
           description: A paged array of pets
@@ -85,6 +92,7 @@ paths:
           description: The id of the pet to retrieve
           schema:
             type: string
+        - $ref: '#/components/parameters/queryFilter'
       responses:
         '200':
           description: Expected response to a valid request
@@ -128,3 +136,19 @@ components:
           format: int32
         message:
           type: string
+  parameters:
+    queryFilter:
+      name: queryFilter
+      in: query
+      description: A string array query parameter example
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - DOGS
+            - CATS
+            - RABBITS
+

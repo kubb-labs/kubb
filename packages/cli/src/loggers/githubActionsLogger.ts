@@ -2,6 +2,7 @@ import { type Config, defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import pc from 'picocolors'
+import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 
 /**
  * GitHub Actions adapter for CI environments
@@ -110,11 +111,30 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('error', (error) => {
+      const caused = error.cause as Error
+
       if (logLevel <= LogLevel.silent) {
         return
       }
       const message = error.message || String(error)
       console.error(`::error::${message}`)
+
+      // Show stack trace in debug mode (first 3 frames)
+      if (logLevel >= LogLevel.debug && error.stack) {
+        const frames = error.stack.split('\n').slice(1, 4)
+        for (const frame of frames) {
+          console.log(getMessage(pc.dim(frame.trim())))
+        }
+
+        if (caused?.stack) {
+          console.log(pc.dim(`└─ caused by ${caused.message}`))
+
+          const frames = caused.stack.split('\n').slice(1, 4)
+          for (const frame of frames) {
+            console.log(getMessage(`    ${pc.dim(frame.trim())}`))
+          }
+        }
+      }
     })
 
     context.on('lifecycle:start', (version) => {
@@ -189,9 +209,9 @@ export const githubActionsLogger = defineLogger({
         state.failedPlugins++
       }
 
-      const durationStr = formatMs(duration)
+      const durationStr = formatMsWithColor(duration)
       const text = getMessage(
-        success ? `${pc.bold(plugin.name)} completed in ${pc.green(durationStr)}` : `${pc.bold(plugin.name)} failed in ${pc.red(durationStr)}`,
+        success ? `${pc.bold(plugin.name)} completed in ${durationStr}` : `${pc.bold(plugin.name)} failed in ${pc.red(formatMs(duration))}`,
       )
 
       console.log(text)
@@ -316,14 +336,20 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('hook:start', async ({ id, command, args }) => {
-      const text = getMessage(`Hook ${pc.dim(command)} started`)
+      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const text = getMessage(`Hook ${pc.dim(commandWithArgs)} started`)
 
       if (logLevel > LogLevel.silent) {
         if (state.currentConfigs.length === 1) {
-          openGroup(`Hook ${command}`)
+          openGroup(`Hook ${commandWithArgs}`)
         }
 
         console.log(text)
+      }
+
+      // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
+      if (!id) {
+        return
       }
 
       try {
@@ -339,7 +365,7 @@ export const githubActionsLogger = defineLogger({
 
         console.log(result.stdout)
 
-        await context.emit('hook:end', { command, id })
+        await context.emit('hook:end', { command, args, id })
       } catch (err) {
         const error = new Error('Hook execute failed')
         error.cause = err
@@ -353,17 +379,18 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('hook:end', ({ command }) => {
+    context.on('hook:end', ({ command, args }) => {
       if (logLevel <= LogLevel.silent) {
         return
       }
 
-      const text = getMessage(`Hook ${pc.dim(command)} completed`)
+      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const text = getMessage(`Hook ${pc.dim(commandWithArgs)} completed`)
 
       console.log(text)
 
       if (state.currentConfigs.length === 1) {
-        closeGroup(`Hook ${command}`)
+        closeGroup(`Hook ${commandWithArgs}`)
       }
     })
 

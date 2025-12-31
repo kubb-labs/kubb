@@ -247,9 +247,7 @@ Enable debug mode to get detailed logs:
 kubb generate --debug
 ```
 
-This creates log files in the `.kubb` directory:
-- `.kubb/kubb-DATE.log` - Main execution log
-- `.kubb/kubb-files.log` - Generated files log
+This creates log files in the `.kubb` directory (e.g., `.kubb/kubb-{name}-{timestamp}.log`). The CLI will display the exact location of each debug log file after generation completes.
 
 ## Getting Help
 
