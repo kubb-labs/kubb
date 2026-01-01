@@ -106,6 +106,7 @@ export function getAllSymbols(): Map<string, SymbolInfo> {
 
 /**
  * Resolves imports needed for a file based on refkeys used
+ * Deduplicates imports from the same file path
  */
 export function resolveImportsForFile(
   currentFilePath: string,
@@ -116,12 +117,15 @@ export function resolveImportsForFile(
   isTypeOnly?: boolean
   isNameSpace?: boolean
 }> {
-  const imports: Array<{
-    name: string | Array<string>
-    path: string
-    isTypeOnly?: boolean
-    isNameSpace?: boolean
-  }> = []
+  // Group imports by file path to deduplicate
+  const importsByPath = new Map<
+    string,
+    {
+      names: Set<string>
+      isTypeOnly: boolean
+      isNameSpace: boolean
+    }
+  >()
 
   for (const refkey of refkeysUsed) {
     const symbolInfo = getSymbolInfo(refkey)
@@ -134,11 +138,38 @@ export function resolveImportsForFile(
       continue
     }
 
+    // Group symbols from the same path
+    const existing = importsByPath.get(symbolInfo.path)
+    if (existing) {
+      existing.names.add(symbolInfo.name)
+      // If any import is not type-only, the whole import is not type-only
+      if (!symbolInfo.isTypeOnly) {
+        existing.isTypeOnly = false
+      }
+    } else {
+      importsByPath.set(symbolInfo.path, {
+        names: new Set([symbolInfo.name]),
+        isTypeOnly: symbolInfo.isTypeOnly ?? false,
+        isNameSpace: symbolInfo.isNameSpace ?? false,
+      })
+    }
+  }
+
+  // Convert to array format
+  const imports: Array<{
+    name: string | Array<string>
+    path: string
+    isTypeOnly?: boolean
+    isNameSpace?: boolean
+  }> = []
+
+  for (const [path, { names, isTypeOnly, isNameSpace }] of importsByPath) {
+    const nameArray = Array.from(names)
     imports.push({
-      name: symbolInfo.name,
-      path: symbolInfo.path,
-      isTypeOnly: symbolInfo.isTypeOnly,
-      isNameSpace: symbolInfo.isNameSpace,
+      name: nameArray.length === 1 ? nameArray[0]! : nameArray,
+      path,
+      isTypeOnly: isTypeOnly || undefined,
+      isNameSpace: isNameSpace || undefined,
     })
   }
 

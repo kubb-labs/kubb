@@ -128,6 +128,78 @@ describe('refkey system', () => {
       expect(imports).toHaveLength(0)
     })
 
+    it('should deduplicate imports from the same file', () => {
+      const ref1 = createRef()
+      const ref2 = createRef()
+      const ref3 = createRef()
+
+      // Register multiple symbols from the same file
+      registerSymbol({
+        name: 'functionA',
+        path: './src/utils.ts',
+        refkey: ref1,
+      })
+
+      registerSymbol({
+        name: 'functionB',
+        path: './src/utils.ts',
+        refkey: ref2,
+      })
+
+      registerSymbol({
+        name: 'functionC',
+        path: './src/other.ts',
+        refkey: ref3,
+      })
+
+      const refkeysUsed = new Set([ref1, ref2, ref3])
+      const imports = resolveImportsForFile('./src/usage.ts', refkeysUsed)
+
+      expect(imports).toHaveLength(2)
+
+      // Should combine symbols from same file into one import
+      const utilsImport = imports.find((imp) => imp.path === './src/utils.ts')
+      expect(utilsImport).toBeDefined()
+      expect(utilsImport?.name).toEqual(['functionA', 'functionB'])
+
+      // Other file should be separate
+      const otherImport = imports.find((imp) => imp.path === './src/other.ts')
+      expect(otherImport).toBeDefined()
+      expect(otherImport?.name).toBe('functionC')
+    })
+
+    it('should handle mixed type-only and value imports from same file', () => {
+      const typeRef = createRef()
+      const valueRef = createRef()
+
+      // Type-only import
+      registerSymbol({
+        name: 'MyType',
+        path: './src/mixed.ts',
+        isTypeOnly: true,
+        refkey: typeRef,
+      })
+
+      // Value import
+      registerSymbol({
+        name: 'myFunction',
+        path: './src/mixed.ts',
+        isTypeOnly: false,
+        refkey: valueRef,
+      })
+
+      const refkeysUsed = new Set([typeRef, valueRef])
+      const imports = resolveImportsForFile('./src/usage.ts', refkeysUsed)
+
+      expect(imports).toHaveLength(1)
+
+      // When mixed, should not be type-only (value import takes precedence)
+      const mixedImport = imports[0]
+      expect(mixedImport?.path).toBe('./src/mixed.ts')
+      expect(mixedImport?.name).toEqual(['MyType', 'myFunction'])
+      expect(mixedImport?.isTypeOnly).toBeUndefined()
+    })
+
     it('should preserve isTypeOnly flag', () => {
       const ref1 = createRef()
 
