@@ -165,12 +165,25 @@ export function resolveImportsForFile(
 
   for (const [path, { names, isTypeOnly, isNameSpace }] of importsByPath) {
     const nameArray = Array.from(names)
-    imports.push({
-      name: nameArray.length === 1 ? nameArray[0]! : nameArray,
+    const importEntry: {
+      name: string | Array<string>
+      path: string
+      isTypeOnly?: boolean
+      isNameSpace?: boolean
+    } = {
+      name: nameArray.length === 1 ? nameArray[0] as string : nameArray,
       path,
-      isTypeOnly: isTypeOnly || undefined,
-      isNameSpace: isNameSpace || undefined,
-    })
+    }
+    
+    // Only include flags if they are true
+    if (isTypeOnly) {
+      importEntry.isTypeOnly = true
+    }
+    if (isNameSpace) {
+      importEntry.isNameSpace = true
+    }
+    
+    imports.push(importEntry)
   }
 
   return imports
