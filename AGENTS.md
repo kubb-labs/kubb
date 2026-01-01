@@ -374,6 +374,38 @@ if (generator.type === 'react') {
 - `useOperationManager()`: Utilities for operation-based generation
 - `usePlugin()`: Access current plugin instance
 
+### RefKey System (NEW)
+
+Kubb now supports automatic import management via the RefKey system, inspired by the Alloy framework.
+
+**Creating and using refkeys**:
+
+```typescript
+import { createRef, registerSymbol } from '@kubb/core/utils'
+
+// Create refkeys for symbols
+const requestRef = createRef()
+const typeRef = createRef()
+
+// Register symbols when defined
+registerSymbol({
+  name: 'request',
+  path: './src/request.ts',
+  refkey: requestRef,
+})
+
+// When using symbols, imports are auto-generated
+// No need to manually add <File.Import> elements
+```
+
+**Benefits**:
+- Automatic import generation based on symbol usage
+- Safer refactoring (references update automatically)
+- Type-safe symbol references
+- Reduced boilerplate
+
+See [RefKey documentation](docs/knowledge-base/refkey.md) for details.
+
 ### Common patterns
 
 **Accessing other plugins**:

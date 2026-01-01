@@ -15,6 +15,73 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## Unreleased
+
+### ✨ Features
+
+#### [`@kubb/core`](/api/core/)
+
+**RefKey System - Automatic Import Management**
+
+Introduced a new RefKey system inspired by the [Alloy framework](https://github.com/alloy-framework/alloy) that provides automatic import management for generated code. This feature significantly reduces manual import maintenance and makes refactoring safer.
+
+::: code-group
+
+```typescript [Before - Manual Imports]
+import { File, Function } from '@kubb/react-fabric'
+
+export function ApiFile() {
+  return (
+    <File baseName="api.ts" path="./gen/api.ts">
+      <File.Import name={['request']} path="./request" />
+      <File.Import name={['Todo']} path="./types" isTypeOnly />
+      <File.Source>
+        <Function export name="getTodos">
+          {`return request<Todo[]>('/api/todos')`}
+        </Function>
+      </File.Source>
+    </File>
+  )
+}
+```
+
+```typescript [After - With RefKeys]
+import { createRef, registerSymbol } from '@kubb/core/utils'
+import { File, Function } from '@kubb/react-fabric'
+
+const requestRef = createRef()
+const todoRef = createRef()
+
+// Imports are automatically generated based on refkey usage
+export function ApiFile() {
+  return (
+    <File baseName="api.ts" path="./gen/api.ts">
+      <File.Source>
+        <Function export name="getTodos">
+          {`return request<Todo[]>('/api/todos')`}
+        </Function>
+      </File.Source>
+    </File>
+  )
+}
+```
+
+:::
+
+**Key Benefits:**
+- No manual import management - imports are generated automatically
+- Safer refactoring - references update automatically if symbols move between files
+- Type-safe references - RefKeys can be typed to match their symbol type
+- Cross-file symbol references - easily reference symbols across generated files
+
+**New APIs:**
+- `createRef<T>()` - Create a unique reference key for a symbol
+- `registerSymbol(info)` - Register a symbol with its metadata
+- `getSymbolInfo(refkey)` - Retrieve registered symbol information
+- `resolveImportsForFile(path, refkeys)` - Resolve imports for a file
+
+See the [RefKey documentation](/knowledge-base/refkey) for detailed usage examples.
+
 ## 4.12.13
 
 ### 🐛 Bug Fixes

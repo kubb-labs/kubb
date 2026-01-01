@@ -11,6 +11,16 @@ export {
   isPromiseFulfilledResult,
   isPromiseRejectedResult,
 } from './promise.ts'
+export type { RefKey, SymbolInfo } from './refkey.ts'
+export {
+  clearSymbolRegistry,
+  createRef,
+  getAllSymbols,
+  getSymbolInfo,
+  hasSymbol,
+  registerSymbol,
+  resolveImportsForFile,
+} from './refkey.ts'
 export { renderTemplate } from './renderTemplate.ts'
 export { resolveModuleSource } from './resolveModuleSource.ts'
 export { timeout } from './timeout.ts'
