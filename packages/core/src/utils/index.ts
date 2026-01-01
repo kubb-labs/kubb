@@ -6,6 +6,14 @@ export { FunctionParams } from './FunctionParams.ts'
 export { formatHrtime, formatMs, getElapsedMs } from './formatHrtime.ts'
 export { getBarrelFiles } from './getBarrelFiles.ts'
 export { getNestedAccessor } from './getNestedAccessor.ts'
+export type { OutputDirectory, OutputFile } from './output.ts'
+export {
+  createOutputBuilder,
+  createOutputOrganizer,
+  defineOutputStructure,
+  OutputBuilder,
+  OutputOrganizer,
+} from './output.ts'
 export {
   isPromise,
   isPromiseFulfilledResult,
@@ -23,6 +31,21 @@ export {
 } from './refkey.ts'
 export { renderTemplate } from './renderTemplate.ts'
 export { resolveModuleSource } from './resolveModuleSource.ts'
+export type { Scope } from './scope.ts'
+export {
+  clearScopes,
+  createScope,
+  createScopedContext,
+  defineSymbolInScope,
+  getCurrentScope,
+  getScopeStack,
+  getSymbolsInScope,
+  hasSymbolInCurrentScope,
+  lookupSymbol,
+  popScope,
+  pushScope,
+  withScope,
+} from './scope.ts'
 export { timeout } from './timeout.ts'
 export type { URLObject } from './URLPath.ts'
 export { URLPath } from './URLPath.ts'

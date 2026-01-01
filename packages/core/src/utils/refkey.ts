@@ -171,10 +171,10 @@ export function resolveImportsForFile(
       isTypeOnly?: boolean
       isNameSpace?: boolean
     } = {
-      name: nameArray.length === 1 ? nameArray[0] as string : nameArray,
+      name: nameArray.length === 1 ? (nameArray[0] as string) : nameArray,
       path,
     }
-    
+
     // Only include flags if they are true
     if (isTypeOnly) {
       importEntry.isTypeOnly = true
@@ -182,7 +182,7 @@ export function resolveImportsForFile(
     if (isNameSpace) {
       importEntry.isNameSpace = true
     }
-    
+
     imports.push(importEntry)
   }
 

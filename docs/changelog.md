@@ -21,6 +21,133 @@ All notable changes to Kubb are documented here. Each version is organized with 
 
 #### [`@kubb/core`](/api/core/)
 
+**Scope Context System - Symbol Scoping for Code Generation**
+
+Added a Scope Context system inspired by Alloy's scope management, providing React-like context capabilities for managing symbol scoping and visibility during code generation.
+
+::: code-group
+
+```typescript [Create and Use Scopes]
+import { createScopedContext, defineSymbolInScope, createRef } from '@kubb/core/utils'
+
+// Create a scoped context for a class
+const classContext = createScopedContext({
+  type: 'class',
+  name: 'UserController'
+})
+
+// Run code within the scope
+classContext.run(() => {
+  const getUserRef = createRef()
+  defineSymbolInScope('getUser', getUserRef)
+  
+  const updateUserRef = createRef()
+  defineSymbolInScope('updateUser', updateUserRef)
+})
+
+// Symbols are tracked in scope hierarchy
+const foundRef = classContext.lookupSymbol('getUser')
+```
+
+```typescript [Nested Scopes]
+import { createScope, withScope, defineSymbolInScope } from '@kubb/core/utils'
+
+const classScope = createScope({ type: 'class' })
+const methodScope = createScope({ type: 'method' })
+
+withScope(classScope, () => {
+  defineSymbolInScope('classVar', createRef())
+  
+  withScope(methodScope, () => {
+    defineSymbolInScope('localVar', createRef())
+    
+    // Can lookup in current and parent scopes
+    const classVar = lookupSymbol('classVar')
+    const localVar = lookupSymbol('localVar')
+  })
+})
+```
+
+:::
+
+**Key Features:**
+- Hierarchical scope management with parent-child relationships
+- Symbol lookup walks up the scope chain
+- Support for symbol shadowing
+- Scoped context helper for convenient API
+- Integration with RefKey system
+
+**New APIs:**
+- `createScope(metadata?)` - Create a new scope
+- `pushScope(scope)` / `popScope()` - Manage scope stack
+- `withScope(scope, fn)` - Execute code in scope context
+- `defineSymbolInScope(name, refkey)` - Add symbol to current scope
+- `lookupSymbol(name)` - Lookup symbol in scope chain
+- `createScopedContext(metadata?)` - Create helper with convenient methods
+
+See the [Scope documentation](/knowledge-base/scope-system) for detailed usage examples.
+
+**Output Organization Helpers - Declarative File Structure**
+
+Added output organization utilities inspired by Alloy's Output and SourceDirectory concepts for declaratively organizing generated files into directory structures.
+
+::: code-group
+
+```typescript [Declarative Builder]
+import { defineOutputStructure } from '@kubb/core/utils'
+
+const organizer = defineOutputStructure('./gen', builder => {
+  builder
+    .file('index.ts')
+    .directory('models', () => {
+      builder.file('user.ts')
+      builder.file('post.ts')
+    })
+    .directory('controllers', () => {
+      builder.file('userController.ts')
+      builder.file('postController.ts')
+    })
+})
+
+// Get all generated files
+const files = organizer.getAllFiles()
+// Get files grouped by directory
+const grouped = organizer.getFilesByDirectory()
+```
+
+```typescript [Fluent API]
+import { createOutputBuilder } from '@kubb/core/utils'
+
+const builder = createOutputBuilder('./src')
+builder
+  .directory('api')
+  .directory('v1')
+  .file('users.ts')
+  .file('posts.ts')
+  .up()
+  .up()
+  .directory('types')
+  .file('index.ts')
+
+const organizer = builder.build()
+```
+
+:::
+
+**Key Features:**
+- Declarative directory structure definition
+- Automatic directory creation
+- Fluent builder API
+- File metadata support
+- Path grouping and organization
+
+**New APIs:**
+- `createOutputBuilder(rootPath)` - Create output builder
+- `createOutputOrganizer(rootPath)` - Create output organizer
+- `defineOutputStructure(rootPath, definition)` - Declaratively define structure
+- `OutputBuilder` class with `.directory()`, `.file()`, `.up()` methods
+- `OutputOrganizer` class for managing file structure
+
 **RefKey System - Automatic Import Management**
 
 Introduced a new RefKey system inspired by the [Alloy framework](https://github.com/alloy-framework/alloy) that provides automatic import management for generated code. This feature significantly reduces manual import maintenance and makes refactoring safer.

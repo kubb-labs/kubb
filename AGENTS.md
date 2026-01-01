@@ -374,11 +374,13 @@ if (generator.type === 'react') {
 - `useOperationManager()`: Utilities for operation-based generation
 - `usePlugin()`: Access current plugin instance
 
-### RefKey System (NEW)
+### Alloy-Inspired Features (NEW)
 
-Kubb now supports automatic import management via the RefKey system, inspired by the Alloy framework.
+Kubb includes several features inspired by the Alloy framework for improved code generation:
 
-**Creating and using refkeys**:
+#### RefKey System
+
+Automatic import management via the RefKey system.
 
 ```typescript
 import { createRef, registerSymbol } from '@kubb/core/utils'
@@ -398,13 +400,60 @@ registerSymbol({
 // No need to manually add <File.Import> elements
 ```
 
-**Benefits**:
-- Automatic import generation based on symbol usage
-- Safer refactoring (references update automatically)
-- Type-safe symbol references
-- Reduced boilerplate
-
 See [RefKey documentation](docs/knowledge-base/refkey.md) for details.
+
+#### Scope Context System
+
+Manage symbol scoping and visibility with hierarchical scopes.
+
+```typescript
+import { createScopedContext, defineSymbolInScope } from '@kubb/core/utils'
+
+// Create a scoped context for a class
+const classContext = createScopedContext({ type: 'class', name: 'UserController' })
+
+classContext.run(() => {
+  defineSymbolInScope('getUser', createRef())
+  defineSymbolInScope('updateUser', createRef())
+})
+
+// Lookup symbols in scope chain
+const foundRef = classContext.lookupSymbol('getUser')
+```
+
+See [Scope documentation](docs/knowledge-base/scope-system.md) for details.
+
+#### Output Organization
+
+Declaratively organize generated files into directory structures.
+
+```typescript
+import { defineOutputStructure } from '@kubb/core/utils'
+
+const organizer = defineOutputStructure('./gen', builder => {
+  builder
+    .file('index.ts')
+    .directory('models', () => {
+      builder.file('user.ts')
+      builder.file('post.ts')
+    })
+    .directory('controllers', () => {
+      builder.file('userController.ts')
+    })
+})
+
+// Get all files or grouped by directory
+const files = organizer.getAllFiles()
+const grouped = organizer.getFilesByDirectory()
+```
+
+**Benefits of Alloy-inspired features**:
+- Automatic import generation
+- Hierarchical symbol scoping
+- Declarative file organization
+- Safer refactoring
+- Type-safe references
+- Reduced boilerplate
 
 ### Common patterns
 
