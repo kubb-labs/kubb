@@ -163,7 +163,7 @@ jobs:
           path: ceviz-report.html
 
   benchmarks:
-    name: Performance benchmarks (Vitest)
+    name: Performance benchmarks (Mitata)
     timeout-minutes: 15
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
@@ -185,7 +185,7 @@ jobs:
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
-      - name: Run Vitest benchmarks
+      - name: Run Mitata benchmarks
         continue-on-error: true
         run: pnpm run perf:bench
 

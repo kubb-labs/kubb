@@ -77,6 +77,9 @@ importers:
       knip:
         specifier: ^5.78.0
         version: 5.78.0(@types/node@20.19.27)(typescript@5.9.3)
+      mitata:
+        specifier: ^1.0.34
+        version: 1.0.34
       prettier:
         specifier: ^3.7.4
         version: 3.7.4
@@ -95,6 +98,9 @@ importers:
       tsdown:
         specifier: 'catalog:'
         version: 0.18.4(oxc-resolver@11.16.0)(typescript@5.9.3)
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
       turbo:
         specifier: ^2.7.2
         version: 2.7.2
@@ -103,10 +109,10 @@ importers:
         version: 5.9.3
       vite-tsconfig-paths:
         specifier: ^6.0.3
-        version: 6.0.3(typescript@5.9.3)(vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))
+        version: 6.0.3(typescript@5.9.3)(vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1))
       vitest:
         specifier: ^4.0.16
-        version: 4.0.16(@types/node@20.19.27)(@vitest/ui@4.0.16)(jiti@2.6.1)(less@4.4.2)(msw@2.12.7(@types/node@20.19.27)(typescript@5.9.3))(terser@5.44.1)(yaml@2.8.1)
+        version: 4.0.16(@types/node@20.19.27)(@vitest/ui@4.0.16)(jiti@2.6.1)(less@4.4.2)(msw@2.12.7(@types/node@20.19.27)(typescript@5.9.3))(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
 
   docs:
     dependencies:
@@ -121,10 +127,10 @@ importers:
         version: 8.0.2
       vitepress:
         specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
+        version: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1)
       vitepress-plugin-group-icons:
         specifier: ^1.6.5
-        version: 1.6.5(vite@7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))
+        version: 1.6.5(vite@7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1))
       vitepress-plugin-llms:
         specifier: ^1.10.0
         version: 1.10.0
@@ -182,16 +188,16 @@ importers:
         version: 0.8.0
       '@mermaid-js/mermaid-cli':
         specifier: ^11.12.0
-        version: 11.12.0(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(puppeteer@23.11.1(typescript@5.9.3))(yaml@2.8.1)
+        version: 11.12.0(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(puppeteer@23.11.1(typescript@5.9.3))(tsx@4.21.0)(yaml@2.8.1)
       '@nolebase/vitepress-plugin-enhanced-readabilities':
         specifier: ^2.18.2
-        version: 2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
+        version: 2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
       '@nolebase/vitepress-plugin-highlight-targeted-heading':
         specifier: ^2.18.2
-        version: 2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))
+        version: 2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1))
       '@nolebase/vitepress-plugin-og-image':
         specifier: ^2.18.2
-        version: 2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))
+        version: 2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1))
       '@types/node':
         specifier: 'catalog:'
         version: 20.19.27
@@ -209,7 +215,7 @@ importers:
         version: link:../packages/unplugin-kubb
       vite:
         specifier: ^7.3.0
-        version: 7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)
+        version: 7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
 
   e2e:
     dependencies:
@@ -681,7 +687,7 @@ importers:
         version: 19.2.3(@types/react@19.2.7)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
-        version: 4.7.0(vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))
+        version: 4.7.0(vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1))
       msw:
         specifier: ^1.3.5
         version: 1.3.5(@types/node@24.10.1)(encoding@0.1.13)(typescript@5.9.3)
@@ -690,7 +696,7 @@ importers:
         version: 5.9.3
       vite:
         specifier: ^7.3.0
-        version: 7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)
+        version: 7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
 
   examples/simple-single:
     dependencies:
@@ -908,7 +914,7 @@ importers:
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^6.0.3
-        version: 6.0.3(vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
+        version: 6.0.3(vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
       msw:
         specifier: ^1.3.5
         version: 1.3.5(@types/node@24.10.1)(encoding@0.1.13)(typescript@5.9.3)
@@ -917,7 +923,7 @@ importers:
         version: 5.9.3
       vite:
         specifier: ^7.3.0
-        version: 7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)
+        version: 7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
 
   examples/zod:
     dependencies:
@@ -1475,7 +1481,7 @@ importers:
         version: 4.54.0
       vite:
         specifier: ^7.3.0
-        version: 7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)
+        version: 7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
       webpack:
         specifier: ^5.104.1
         version: 5.104.1(esbuild@0.27.0)
@@ -6031,6 +6037,9 @@ packages:
   minisearch@7.2.0:
     resolution: {integrity: sha512-dqT2XBYUOZOiC5t2HRnwADjhNS2cecp9u+TJRiJ1Qp/f5qjkeT5APcGPjHw+bz89Ms8Jp+cG4AlE+QZ/QnDglg==}
 
+  mitata@1.0.34:
+    resolution: {integrity: sha512-Mc3zrtNBKIMeHSCQ0XqRLo1vbdIx1wvFV9c8NJAiyho6AjNfMY8bVhbS12bwciUdd1t4rj8099CH3N3NFahaUA==}
+
   mitt@3.0.1:
     resolution: {integrity: sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==}
 
@@ -7458,6 +7467,11 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
+  tsx@4.21.0:
+    resolution: {integrity: sha512-5C1sg4USs1lfG0GFb2RLXsdpXqBSEhAaA/0kPL01wxzpMqLILNxIxIOKiILz+cdg/pLnOUxFYOR5yhHU666wbw==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+
   tunnel-agent@0.6.0:
     resolution: {integrity: sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w==}
 
@@ -8612,9 +8626,9 @@ snapshots:
       react-dom: 19.2.3(react@19.2.3)
       use-sync-external-store: 1.6.0(react@19.2.3)
 
-  '@headlessui/tailwindcss@0.2.2(tailwindcss@3.4.18(yaml@2.8.1))':
+  '@headlessui/tailwindcss@0.2.2(tailwindcss@3.4.18(tsx@4.21.0)(yaml@2.8.1))':
     dependencies:
-      tailwindcss: 3.4.18(yaml@2.8.1)
+      tailwindcss: 3.4.18(tsx@4.21.0)(yaml@2.8.1)
 
   '@humanwhocodes/momoa@2.0.4': {}
 
@@ -8852,9 +8866,9 @@ snapshots:
       js-yaml: 4.1.1
       tinyglobby: 0.2.15
 
-  '@mermaid-js/mermaid-cli@11.12.0(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(puppeteer@23.11.1(typescript@5.9.3))(yaml@2.8.1)':
+  '@mermaid-js/mermaid-cli@11.12.0(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(puppeteer@23.11.1(typescript@5.9.3))(tsx@4.21.0)(yaml@2.8.1)':
     dependencies:
-      '@mermaid-js/mermaid-zenuml': 0.2.2(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(mermaid@11.12.2)(yaml@2.8.1)
+      '@mermaid-js/mermaid-zenuml': 0.2.2(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(mermaid@11.12.2)(tsx@4.21.0)(yaml@2.8.1)
       chalk: 5.6.2
       commander: 14.0.2
       import-meta-resolve: 4.2.0
@@ -8868,9 +8882,9 @@ snapshots:
       - tsx
       - yaml
 
-  '@mermaid-js/mermaid-zenuml@0.2.2(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(mermaid@11.12.2)(yaml@2.8.1)':
+  '@mermaid-js/mermaid-zenuml@0.2.2(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(mermaid@11.12.2)(tsx@4.21.0)(yaml@2.8.1)':
     dependencies:
-      '@zenuml/core': 3.43.1(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(yaml@2.8.1)
+      '@zenuml/core': 3.43.1(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(tsx@4.21.0)(yaml@2.8.1)
       mermaid: 11.12.2
     transitivePeerDependencies:
       - '@babel/core'
@@ -8973,29 +8987,29 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@nolebase/ui@2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))':
+  '@nolebase/ui@2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))':
     dependencies:
       '@iconify-json/octicon': 1.2.19
       less: 4.4.2
-      vitepress: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
+      vitepress: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1)
       vue: 3.5.26(typescript@5.9.3)
 
-  '@nolebase/vitepress-plugin-enhanced-readabilities@2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))':
+  '@nolebase/vitepress-plugin-enhanced-readabilities@2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))':
     dependencies:
       '@iconify-json/carbon': 1.2.14
       '@iconify-json/icon-park-outline': 1.2.4
-      '@nolebase/ui': 2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
+      '@nolebase/ui': 2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
       less: 4.4.2
-      vitepress: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
+      vitepress: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1)
     transitivePeerDependencies:
       - vue
 
-  '@nolebase/vitepress-plugin-highlight-targeted-heading@2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))':
+  '@nolebase/vitepress-plugin-highlight-targeted-heading@2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1))':
     dependencies:
       less: 4.4.2
-      vitepress: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
+      vitepress: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1)
 
-  '@nolebase/vitepress-plugin-og-image@2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))':
+  '@nolebase/vitepress-plugin-og-image@2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1))':
     dependencies:
       '@resvg/resvg-wasm': 2.6.2
       colorette: 2.0.20
@@ -9011,7 +9025,7 @@ snapshots:
       tinyglobby: 0.2.15
       unified: 11.0.5
       unist-util-visit: 5.0.0
-      vitepress: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
+      vitepress: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1)
 
   '@nuxt/kit@4.2.2(magicast@0.5.1)':
     dependencies:
@@ -10045,7 +10059,7 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@vitejs/plugin-react@4.7.0(vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))':
+  '@vitejs/plugin-react@4.7.0(vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1))':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.5)
@@ -10053,20 +10067,20 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.27
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)
+      vite: 7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@6.0.3(vite@7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))':
+  '@vitejs/plugin-vue@6.0.3(vite@7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-beta.53
-      vite: 7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)
+      vite: 7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
       vue: 3.5.26(typescript@5.9.3)
 
-  '@vitejs/plugin-vue@6.0.3(vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))':
+  '@vitejs/plugin-vue@6.0.3(vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-beta.53
-      vite: 7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)
+      vite: 7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
       vue: 3.5.26(typescript@5.9.3)
 
   '@vitest/coverage-v8@4.0.16(vitest@4.0.16)':
@@ -10082,7 +10096,7 @@ snapshots:
       obug: 2.1.1
       std-env: 3.10.0
       tinyrainbow: 3.0.3
-      vitest: 4.0.16(@types/node@20.19.27)(@vitest/ui@4.0.16)(jiti@2.6.1)(less@4.4.2)(msw@2.12.7(@types/node@20.19.27)(typescript@5.9.3))(terser@5.44.1)(yaml@2.8.1)
+      vitest: 4.0.16(@types/node@20.19.27)(@vitest/ui@4.0.16)(jiti@2.6.1)(less@4.4.2)(msw@2.12.7(@types/node@20.19.27)(typescript@5.9.3))(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -10095,14 +10109,14 @@ snapshots:
       chai: 6.2.1
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@4.0.16(msw@2.12.7(@types/node@20.19.27)(typescript@5.9.3))(vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))':
+  '@vitest/mocker@4.0.16(msw@2.12.7(@types/node@20.19.27)(typescript@5.9.3))(vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1))':
     dependencies:
       '@vitest/spy': 4.0.16
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
       msw: 2.12.7(@types/node@20.19.27)(typescript@5.9.3)
-      vite: 7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)
+      vite: 7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
 
   '@vitest/pretty-format@4.0.16':
     dependencies:
@@ -10130,7 +10144,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vitest: 4.0.16(@types/node@20.19.27)(@vitest/ui@4.0.16)(jiti@2.6.1)(less@4.4.2)(msw@2.12.7(@types/node@20.19.27)(typescript@5.9.3))(terser@5.44.1)(yaml@2.8.1)
+      vitest: 4.0.16(@types/node@20.19.27)(@vitest/ui@4.0.16)(jiti@2.6.1)(less@4.4.2)(msw@2.12.7(@types/node@20.19.27)(typescript@5.9.3))(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
 
   '@vitest/utils@4.0.16':
     dependencies:
@@ -10348,11 +10362,11 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@zenuml/core@3.43.1(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(yaml@2.8.1)':
+  '@zenuml/core@3.43.1(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(tsx@4.21.0)(yaml@2.8.1)':
     dependencies:
       '@floating-ui/react': 0.27.16(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@headlessui/react': 2.2.9(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@headlessui/tailwindcss': 0.2.2(tailwindcss@3.4.18(yaml@2.8.1))
+      '@headlessui/tailwindcss': 0.2.2(tailwindcss@3.4.18(tsx@4.21.0)(yaml@2.8.1))
       antlr4: 4.11.0
       class-variance-authority: 0.7.1
       clsx: 2.1.1
@@ -10371,7 +10385,7 @@ snapshots:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
       tailwind-merge: 3.4.0
-      tailwindcss: 3.4.18(yaml@2.8.1)
+      tailwindcss: 3.4.18(tsx@4.21.0)(yaml@2.8.1)
     transitivePeerDependencies:
       - '@babel/core'
       - '@babel/template'
@@ -13146,6 +13160,8 @@ snapshots:
 
   minisearch@7.2.0: {}
 
+  mitata@1.0.34: {}
+
   mitt@3.0.1: {}
 
   mlly@1.8.0:
@@ -13772,12 +13788,13 @@ snapshots:
       camelcase-css: 2.0.1
       postcss: 8.5.6
 
-  postcss-load-config@6.0.1(jiti@1.21.7)(postcss@8.5.6)(yaml@2.8.1):
+  postcss-load-config@6.0.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.21.0)(yaml@2.8.1):
     dependencies:
       lilconfig: 3.1.3
     optionalDependencies:
       jiti: 1.21.7
       postcss: 8.5.6
+      tsx: 4.21.0
       yaml: 2.8.1
 
   postcss-nested@6.2.0(postcss@8.5.6):
@@ -14713,7 +14730,7 @@ snapshots:
 
   tailwind-merge@3.4.0: {}
 
-  tailwindcss@3.4.18(yaml@2.8.1):
+  tailwindcss@3.4.18(tsx@4.21.0)(yaml@2.8.1):
     dependencies:
       '@alloc/quick-lru': 5.2.0
       arg: 5.0.2
@@ -14732,7 +14749,7 @@ snapshots:
       postcss: 8.5.6
       postcss-import: 15.1.0(postcss@8.5.6)
       postcss-js: 4.1.0(postcss@8.5.6)
-      postcss-load-config: 6.0.1(jiti@1.21.7)(postcss@8.5.6)(yaml@2.8.1)
+      postcss-load-config: 6.0.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.21.0)(yaml@2.8.1)
       postcss-nested: 6.2.0(postcss@8.5.6)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.11
@@ -14942,6 +14959,13 @@ snapshots:
       - vue-tsc
 
   tslib@2.8.1: {}
+
+  tsx@4.21.0:
+    dependencies:
+      esbuild: 0.27.0
+      get-tsconfig: 4.13.0
+    optionalDependencies:
+      fsevents: 2.3.3
 
   tunnel-agent@0.6.0:
     dependencies:
@@ -15213,18 +15237,18 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-tsconfig-paths@6.0.3(typescript@5.9.3)(vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)):
+  vite-tsconfig-paths@6.0.3(typescript@5.9.3)(vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)):
     dependencies:
       debug: 4.4.3(supports-color@8.1.1)
       globrex: 0.1.2
       tsconfck: 3.1.6(typescript@5.9.3)
     optionalDependencies:
-      vite: 7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)
+      vite: 7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1):
+  vite@7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1):
     dependencies:
       esbuild: 0.27.0
       fdir: 6.5.0(picomatch@4.0.3)
@@ -15238,9 +15262,10 @@ snapshots:
       jiti: 1.21.7
       less: 4.4.2
       terser: 5.44.1
+      tsx: 4.21.0
       yaml: 2.8.1
 
-  vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1):
+  vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1):
     dependencies:
       esbuild: 0.27.0
       fdir: 6.5.0(picomatch@4.0.3)
@@ -15254,9 +15279,10 @@ snapshots:
       jiti: 2.6.1
       less: 4.4.2
       terser: 5.44.1
+      tsx: 4.21.0
       yaml: 2.8.1
 
-  vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1):
+  vite@7.3.0(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1):
     dependencies:
       esbuild: 0.27.0
       fdir: 6.5.0(picomatch@4.0.3)
@@ -15270,15 +15296,16 @@ snapshots:
       jiti: 2.6.1
       less: 4.4.2
       terser: 5.44.1
+      tsx: 4.21.0
       yaml: 2.8.1
 
-  vitepress-plugin-group-icons@1.6.5(vite@7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)):
+  vitepress-plugin-group-icons@1.6.5(vite@7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)):
     dependencies:
       '@iconify-json/logos': 1.2.10
       '@iconify-json/vscode-icons': 1.2.36
       '@iconify/utils': 3.0.2
     optionalDependencies:
-      vite: 7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)
+      vite: 7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -15301,7 +15328,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1):
+  vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1):
     dependencies:
       '@docsearch/css': 4.3.2
       '@docsearch/js': 4.3.2
@@ -15310,7 +15337,7 @@ snapshots:
       '@shikijs/transformers': 3.15.0
       '@shikijs/types': 3.20.0
       '@types/markdown-it': 14.1.2
-      '@vitejs/plugin-vue': 6.0.3(vite@7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
+      '@vitejs/plugin-vue': 6.0.3(vite@7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
       '@vue/devtools-api': 8.0.5
       '@vue/shared': 3.5.25
       '@vueuse/core': 14.0.0(vue@3.5.26(typescript@5.9.3))
@@ -15319,7 +15346,7 @@ snapshots:
       mark.js: 8.11.1
       minisearch: 7.2.0
       shiki: 3.20.0
-      vite: 7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)
+      vite: 7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
       vue: 3.5.26(typescript@5.9.3)
     optionalDependencies:
       postcss: 8.5.6
@@ -15348,10 +15375,10 @@ snapshots:
       - universal-cookie
       - yaml
 
-  vitest@4.0.16(@types/node@20.19.27)(@vitest/ui@4.0.16)(jiti@2.6.1)(less@4.4.2)(msw@2.12.7(@types/node@20.19.27)(typescript@5.9.3))(terser@5.44.1)(yaml@2.8.1):
+  vitest@4.0.16(@types/node@20.19.27)(@vitest/ui@4.0.16)(jiti@2.6.1)(less@4.4.2)(msw@2.12.7(@types/node@20.19.27)(typescript@5.9.3))(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1):
     dependencies:
       '@vitest/expect': 4.0.16
-      '@vitest/mocker': 4.0.16(msw@2.12.7(@types/node@20.19.27)(typescript@5.9.3))(vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))
+      '@vitest/mocker': 4.0.16(msw@2.12.7(@types/node@20.19.27)(typescript@5.9.3))(vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1))
       '@vitest/pretty-format': 4.0.16
       '@vitest/runner': 4.0.16
       '@vitest/snapshot': 4.0.16
@@ -15368,7 +15395,7 @@ snapshots:
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vite: 7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1)
+      vite: 7.3.0(@types/node@20.19.27)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 20.19.27

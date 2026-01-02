@@ -36,12 +36,14 @@ This project includes several code quality tools to help maintain code standards
 - **Formatting**: Run `pnpm run format` to auto-format code
 - **Type checking**: Run `pnpm run typecheck` to verify TypeScript types
 - **Testing**: Run `pnpm run test` to run the test suite
-- **Performance benchmarks**: Run `pnpm run perf:bench` to run performance benchmarks
+- **Performance benchmarks**: Run `pnpm run perf:bench` to run performance benchmarks (uses Mitata)
 - **Unused code detection**: Run `pnpm run knip` to detect unused exports, dependencies, and files
 
 #### Performance Testing
 
 Performance benchmarks are located in `e2e/src/__tests__/performance/` and test the code generation speed of various plugin combinations. These benchmarks help ensure performance doesn't regress over time.
+
+We use [Mitata](https://github.com/evanwashere/mitata), a fast and accurate benchmarking library, for performance testing.
 
 To run benchmarks:
 ```bash

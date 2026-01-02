@@ -8,7 +8,7 @@ import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
-import { bench, describe } from 'vitest'
+import { bench, group, run } from 'mitata'
 
 /**
  * Performance benchmarks for Kubb plugin generation
@@ -21,128 +21,112 @@ import { bench, describe } from 'vitest'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-describe('Plugin Generation Performance', () => {
-  const petStorePath = path.resolve(__dirname, '../../../schemas/petStore.yaml')
+const petStorePath = path.resolve(__dirname, '../../../schemas/petStore.yaml')
 
-  bench(
-    'single plugin generation (plugin-ts)',
-    async () => {
-      const config: Config = {
-        root: '.',
-        input: {
-          path: petStorePath,
-        },
-        output: {
-          path: './src/gen',
-          clean: false,
-          write: false,
-        },
-        plugins: [
-          pluginOas({ validate: false }),
-          pluginTs({
-            output: {
-              path: 'types',
-              barrelType: false,
-            },
-            enumType: 'asConst',
-          }),
-        ],
-      }
+group('Plugin Generation Performance', () => {
+  bench('single plugin generation (plugin-ts)', async () => {
+    const config: Config = {
+      root: '.',
+      input: {
+        path: petStorePath,
+      },
+      output: {
+        path: './src/gen',
+        clean: false,
+        write: false,
+      },
+      plugins: [
+        pluginOas({ validate: false }),
+        pluginTs({
+          output: {
+            path: 'types',
+            barrelType: false,
+          },
+          enumType: 'asConst',
+        }),
+      ],
+    }
 
-      const events = new AsyncEventEmitter()
-      await build({ config, events })
-    },
-    {
-      time: 10000,
-    },
-  )
+    const events = new AsyncEventEmitter()
+    await build({ config, events })
+  })
 
-  bench(
-    'multiple plugins generation (plugin-ts + plugin-client)',
-    async () => {
-      const config: Config = {
-        root: '.',
-        input: {
-          path: petStorePath,
-        },
-        output: {
-          path: './src/gen',
-          clean: false,
-          write: false,
-        },
-        plugins: [
-          pluginOas({ validate: false }),
-          pluginTs({
-            output: {
-              path: 'types',
-              barrelType: false,
-            },
-            enumType: 'asConst',
-          }),
-          pluginClient({
-            output: {
-              path: 'clients',
-            },
-          }),
-        ],
-      }
+  bench('multiple plugins generation (plugin-ts + plugin-client)', async () => {
+    const config: Config = {
+      root: '.',
+      input: {
+        path: petStorePath,
+      },
+      output: {
+        path: './src/gen',
+        clean: false,
+        write: false,
+      },
+      plugins: [
+        pluginOas({ validate: false }),
+        pluginTs({
+          output: {
+            path: 'types',
+            barrelType: false,
+          },
+          enumType: 'asConst',
+        }),
+        pluginClient({
+          output: {
+            path: 'clients',
+          },
+        }),
+      ],
+    }
 
-      const events = new AsyncEventEmitter()
-      await build({ config, events })
-    },
-    {
-      time: 10000,
-    },
-  )
+    const events = new AsyncEventEmitter()
+    await build({ config, events })
+  })
 
-  bench(
-    'comprehensive plugin suite generation',
-    async () => {
-      const config: Config = {
-        root: '.',
-        input: {
-          path: petStorePath,
-        },
-        output: {
-          path: './src/gen',
-          clean: false,
-          write: false,
-        },
-        plugins: [
-          pluginOas({ validate: false }),
-          pluginTs({
-            output: {
-              path: 'types',
-              barrelType: false,
-            },
-            enumType: 'asConst',
-          }),
-          pluginClient({
-            output: {
-              path: 'clients',
-            },
-          }),
-          pluginZod({
-            output: {
-              path: 'zod',
-              barrelType: false,
-            },
-            inferred: true,
-          }),
-          pluginFaker({
-            output: {
-              path: 'mocks',
-              barrelType: false,
-            },
-          }),
-        ],
-      }
+  bench('comprehensive plugin suite generation', async () => {
+    const config: Config = {
+      root: '.',
+      input: {
+        path: petStorePath,
+      },
+      output: {
+        path: './src/gen',
+        clean: false,
+        write: false,
+      },
+      plugins: [
+        pluginOas({ validate: false }),
+        pluginTs({
+          output: {
+            path: 'types',
+            barrelType: false,
+          },
+          enumType: 'asConst',
+        }),
+        pluginClient({
+          output: {
+            path: 'clients',
+          },
+        }),
+        pluginZod({
+          output: {
+            path: 'zod',
+            barrelType: false,
+          },
+          inferred: true,
+        }),
+        pluginFaker({
+          output: {
+            path: 'mocks',
+            barrelType: false,
+          },
+        }),
+      ],
+    }
 
-      const events = new AsyncEventEmitter()
-      await build({ config, events })
-    },
-    {
-      time: 10000,
-    },
-  )
+    const events = new AsyncEventEmitter()
+    await build({ config, events })
+  })
 })
+
+await run()
