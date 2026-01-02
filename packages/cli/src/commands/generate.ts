@@ -146,6 +146,7 @@ const command = defineCommand({
       await events.emit('lifecycle:end')
     } catch (error) {
       await events.emit('error', error as Error)
+      process.exit(1)
     }
   },
 })
