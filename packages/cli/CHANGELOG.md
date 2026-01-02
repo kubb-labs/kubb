@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 4.12.15
+
+### Patch Changes
+
+- [#2256](https://github.com/kubb-labs/kubb/pull/2256) [`5c0201f`](https://github.com/kubb-labs/kubb/commit/5c0201f667644999a4896921850faf225a148d3c) Thanks [@kamilzki](https://github.com/kamilzki)! - Ensure the CLI exits with code 1 on generation errors, improving error detection.
+
+- Updated dependencies []:
+  - @kubb/core@4.12.15
+
 ## 4.12.14
 
 ### Patch Changes
