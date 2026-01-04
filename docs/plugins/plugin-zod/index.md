@@ -159,23 +159,23 @@ See [datetimes](https://zod.dev/?id=datetimes).
 
 ::: code-group
 
-```typescript twoslash [false]
+```typescript [false]
 z.string();
 ```
 
-```typescript twoslash ['string']
+```typescript ['string']
 z.string().datetime();
 ```
 
-```typescript twoslash ['stringOffset']
+```typescript ['stringOffset']
 z.string().datetime({ offset: true });
 ```
 
-```typescript twoslash ['stringLocal']
+```typescript ['stringLocal']
 z.string().datetime({ local: true });
 ```
 
-```typescript twoslash ['date']
+```typescript ['date']
 z.date();
 ```
 
@@ -193,15 +193,15 @@ Which type to use when the Swagger/OpenAPI file is not providing more informatio
 
 ::: code-group
 
-```typescript twoslash ['any']
+```typescript ['any']
 z.any();
 ```
 
-```typescript twoslash ['unknown']
+```typescript ['unknown']
 z.unknown();
 ```
 
-```typescript twoslash ['void']
+```typescript ['void']
 z.void()
 ```
 :::
@@ -217,13 +217,13 @@ Which type to use for empty schema values.
 |  Default: | `unknownType`                  |
 
 ::: code-group
-```typescript twoslash ['any']
+```typescript ['any']
 z.any()
 ```
-```typescript twoslash ['unknown']
+```typescript ['unknown']
 z.unknown()
 ```
-```typescript twoslash ['void']
+```typescript ['void']
 z.void()
 ```
 :::
@@ -241,19 +241,19 @@ Use of z.coerce.string() instead of z.string().
 
 ::: code-group
 
-```typescript twoslash [true]
+```typescript [true]
 z.coerce.string();
 z.coerce.date();
 z.coerce.number();
 ```
 
-```typescript twoslash [false]
+```typescript [false]
 z.string();
 z.date();
 z.number();
 ```
 
-```typescript twoslash [{numbers: true, strings: false, dates: false}]
+```typescript [{numbers: true, strings: false, dates: false}]
 z.string();
 z.date();
 z.coerce.number();
@@ -308,7 +308,7 @@ Requires Zod v4 or later. When `mini: true`, `version` will be set to `'4'` and 
 
 ::: code-group
 
-```typescript twoslash [mini: true]
+```typescript [mini: true]
 // Import from zod/mini
 import { z } from 'zod/mini'
 
@@ -318,7 +318,7 @@ z.nullable(z.number())
 z.array(z.string()).check(z.minLength(1), z.maxLength(10))
 ```
 
-```typescript twoslash [mini: false (default)]
+```typescript [mini: false (default)]
 // Import from zod or zod/v4
 import { z } from 'zod'
 
@@ -380,7 +380,7 @@ Modify the generated zod schema.
 > [!TIP]
 > This is useful for cases where you need to extend the generated zod output with additional properties from an OpenAPI schema. E.g. in the case of `OpenAPI -> Zod -> OpenAPI`, you could include the examples from the schema for a given property and then ultimately provide a modified schema to a router that supports zod and OpenAPI spec generation.
 
-```typescript twoslash [Conditionally append .openapi() to the generated schema]
+```typescript [Conditionally append .openapi() to the generated schema]
 wrapOutput: ({ output, schema }) => {
   const metadata: ZodOpenAPIMetadata = {};
 

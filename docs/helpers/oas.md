@@ -44,11 +44,11 @@ Start by creating a TypeScript file that exports your OpenAPI document. Due to l
 
 ::: code-group
 
-```typescript twoslash [oas.ts]
+```typescript [oas.ts]
 export default { openapi: '3.0.0' /* ... */ } as const
 ```
 
-```typescript twoslash [oas.ts]
+```typescript [oas.ts]
 const oas = {
   'openapi': '3.0.1',
   'info': {
@@ -167,7 +167,7 @@ const oas = {
 
 To infer models from an OpenAPI document, use the Model type.
 
-```typescript
+```typescript twoslash
 import type { Infer, Model } from '@kubb/oas'
 
 const oas = {
@@ -289,7 +289,7 @@ export type Pet = Model<Oas, 'Pet'>
 
 To infer request body parameters from an OpenAPI document, utilize the RequestParams type
 
-```typescript
+```typescript twoslash
 import type { Infer, RequestParams } from '@kubb/oas'
 
 const oas = {
@@ -412,7 +412,7 @@ export type GetPet = RequestParams<Oas, '/pets', 'get'>
 
 To infer the response body of an OpenAPI document, utilize the Response type
 
-```typescript
+```typescript twoslash
 import type { Infer, Response } from '@kubb/oas'
 
 const oas = {

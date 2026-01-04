@@ -9,7 +9,7 @@ How to style your params, by default no casing is applied.
 - `'camelcase'` will use camelcase for the params names
 
 ::: code-group
-```typescript twoslash ['camelcase']
+```typescript ['camelcase']
 export async function deletePet(
   petId: DeletePetPathParams['pet_id'],
   headers?: DeletePetHeaderParams,
@@ -19,7 +19,7 @@ export async function deletePet(
 }
 ```
 
-```typescript twoslash ['']
+```typescript ['']
 export async function deletePet(
   pet_id: DeletePetPathParams['pet_id'],
   headers?: DeletePetHeaderParams,

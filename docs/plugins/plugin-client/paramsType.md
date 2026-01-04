@@ -14,7 +14,7 @@ How to pass your params. Here you can switch between object-style parameters and
 - `'inline'` will return the params as comma separated params.
 
 ::: code-group
-```typescript twoslash ['object']
+```typescript ['object']
 export async function deletePet(
   {
     petId,
@@ -29,7 +29,7 @@ export async function deletePet(
 }
 ```
 
-```typescript twoslash ['inline']
+```typescript ['inline']
 export async function deletePet(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePetHeaderParams,

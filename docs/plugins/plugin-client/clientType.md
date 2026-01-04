@@ -8,7 +8,7 @@ How to generate the client code
 
 - `'function'` will generate standalone functions for each operation.
 ::: code-group
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -34,7 +34,7 @@ export default defineConfig({
 })
 ```
 
-```typescript twoslash [getPetById.ts]
+```typescript [getPetById.ts]
 import fetch from '@kubb/plugin-client/clients/fetch'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.js'
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
@@ -67,7 +67,7 @@ When using `clientType: 'class'`, it is not compatible with query plugins like `
 :::
 
 ::: code-group
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -96,7 +96,7 @@ export default defineConfig({
 })
 ```
 
-```typescript twoslash [Pet.ts]
+```typescript [Pet.ts]
 import fetch from '@kubb/plugin-client/clients/fetch'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.js'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.js'
@@ -149,7 +149,7 @@ export class Pet {
 }
 ```
 
-```typescript twoslash [usage.ts]
+```typescript [usage.ts]
 import { Pet } from './gen/clients/Pet'
 
 const petClient = new Pet()

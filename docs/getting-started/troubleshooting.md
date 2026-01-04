@@ -85,7 +85,7 @@ kubb generate --config ./configs/kubb.config.ts
 2. Ensure the file path is correct in your config
 3. If using a URL, verify it's accessible
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -121,7 +121,7 @@ export default defineConfig({
 
 Most plugins require `@kubb/plugin-oas`:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -208,11 +208,8 @@ NODE_OPTIONS="--max-old-space-size=4096" kubb generate
 1. Verify the output path matches your import path
 2. Check the `output.extension` option:
 
-```typescript twoslash [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-
+```typescript [kubb.config.ts]
 export default defineConfig({
-  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
     extension: {

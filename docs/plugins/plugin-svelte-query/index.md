@@ -280,7 +280,7 @@ To disable the creation of hooks pass `false`, this will result in only creating
 |     Type: | `Query` |
 | Required: | `false` |
 
-```typescript twoslash [Query]
+```typescript [Query]
 type Query = {
   methods: Array<HttpMethod>
   importPath?: string
@@ -320,7 +320,7 @@ To disable queries pass `false`.
 |     Type: | `Mutation` |
 | Required: | `false`    |
 
-```typescript twoslash [Query]
+```typescript [Query]
 type Mutation = {
   methods: Array<HttpMethod>
   importPath?: string

@@ -121,35 +121,35 @@ Choose to use `enum` or `as const` for enums.
 
 ::: code-group
 
-```typescript twoslash ['enum']
+```typescript ['enum']
 enum PetType {
   Dog = 'dog',
   Cat = 'cat',
 }
 ```
 
-```typescript twoslash ['asConst']
+```typescript ['asConst']
 const petType = {
   Dog: 'dog',
   Cat: 'cat',
 } as const
 ```
 
-```typescript twoslash ['asPascalConst']
+```typescript ['asPascalConst']
 const PetType = {
   Dog: 'dog',
   Cat: 'cat',
 } as const
 ```
 
-```typescript twoslash ['constEnum']
+```typescript ['constEnum']
 const enum PetType {
   Dog = 'dog',
   Cat = 'cat',
 }
 ```
 
-```typescript twoslash ['literal']
+```typescript ['literal']
 type PetType = 'dog' | 'cat'
 ```
 :::
@@ -174,13 +174,13 @@ Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
 ::: code-group
 
-```typescript twoslash ['string']
+```typescript ['string']
 type Pet = {
   date: string
 }
 ```
 
-```typescript twoslash ['date']
+```typescript ['date']
 type Pet = {
   date: Date
 }
@@ -200,13 +200,13 @@ See [Type vs Interface: Which Should You Use](https://www.totaltypescript.com/ty
 
 ::: code-group
 
-```typescript twoslash ['type']
+```typescript ['type']
 type Pet = {
   name: string
 }
 ```
 
-```typescript twoslash ['interface']
+```typescript ['interface']
 interface Pet {
   name: string
 }
@@ -225,19 +225,19 @@ Which type to use when the Swagger/OpenAPI file is not providing more informatio
 
 ::: code-group
 
-```typescript twoslash ['any']
+```typescript ['any']
 type Pet = {
   name: any
 }
 ```
 
-```typescript twoslash ['unknown']
+```typescript ['unknown']
 type Pet = {
   name: unknown
 }
 ```
 
-```typescript twoslash ['void']
+```typescript ['void']
 type Pet = {
   name: void
 }
@@ -256,19 +256,19 @@ Which type to use for empty schema values.
 
 ::: code-group
 
-```typescript twoslash ['any']
+```typescript ['any']
 type Pet = {
   name: any
 }
 ```
 
-```typescript twoslash ['unknown']
+```typescript ['unknown']
 type Pet = {
   name: unknown
 }
 ```
 
-```typescript twoslash ['void']
+```typescript ['void']
 type Pet = {
   name: void
 }
@@ -285,19 +285,19 @@ Choose what to use as mode for an optional value.
 |  Default: | `'questionToken'`                                                            |
 
 ::: code-group
-```typescript twoslash ['questionToken']
+```typescript ['questionToken']
 type Pet = {
   type?: string
 }
 ```
 
-```typescript twoslash ['undefined']
+```typescript ['undefined']
 type Pet = {
   type: string | undefined
 }
 ```
 
-```typescript twoslash ['questionTokenAndUndefined']
+```typescript ['questionTokenAndUndefined']
 type Pet = {
   type?: string | undefined
 }
