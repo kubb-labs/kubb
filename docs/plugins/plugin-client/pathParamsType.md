@@ -11,7 +11,7 @@ How to pass your pathParams.
 - `'inline'` will return the pathParams as comma separated params.
 
 ::: code-group
-```typescript ['object']
+```typescript twoslash ['object']
 export async function getPetById (
   { petId }: GetPetByIdPathParams,
 ) {
@@ -19,7 +19,7 @@ export async function getPetById (
 }
 ```
 
-```typescript ['inline']
+```typescript twoslash ['inline']
 export async function getPetById(
   petId: GetPetByIdPathParams,
 ) {

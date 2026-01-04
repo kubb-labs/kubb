@@ -141,13 +141,13 @@ servers:
 - url: http://localhost:3000
 ```
 
-```typescript [serverIndex 0]
+```typescript twoslash [serverIndex 0]
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({ serverIndex: 0 })
 ```
 
-```typescript [serverIndex 1]
+```typescript twoslash [serverIndex 1]
 import { pluginOas } from '@kubb/plugin-oas'
 
 const plugin = pluginOas({ serverIndex: 1 })
@@ -230,7 +230,7 @@ components:
           type: string
 ```
 
-```typescript [discriminator 'strict']
+```typescript twoslash [discriminator 'strict']
 export type Cat = {
   type: string
   name?: string
@@ -251,7 +251,7 @@ export type Animal =
 })
 ```
 
-```typescript [discriminator 'inherit']
+```typescript twoslash [discriminator 'inherit']
 export const catTypeEnum = {
   cat: 'cat',
 } as const

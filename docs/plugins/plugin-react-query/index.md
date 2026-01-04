@@ -157,7 +157,7 @@ To disable infinite queries pass `false`.
 | Required: | `false`             |
 |  Default: | `false`             |
 
-```typescript [Infinite]
+```typescript twoslash [Infinite]
 type Infinite = {
   /**
    * Specify the params key used for `pageParam`.
@@ -252,7 +252,7 @@ To disable the creation of hooks pass `false`, this will result in only creating
 |     Type: | `Query` |
 | Required: | `false` |
 
-```typescript [Query]
+```typescript twoslash [Query]
 type Query = {
   methods: Array<HttpMethod>
   importPath?: string
@@ -425,7 +425,7 @@ To disable queries pass `false`.
 |     Type: | `Mutation` |
 | Required: | `false`    |
 
-```typescript [Query]
+```typescript twoslash [Query]
 type Mutation = {
   methods: Array<HttpMethod>
   importPath?: string

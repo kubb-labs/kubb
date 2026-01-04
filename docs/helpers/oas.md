@@ -44,11 +44,11 @@ Start by creating a TypeScript file that exports your OpenAPI document. Due to l
 
 ::: code-group
 
-```typescript [oas.ts]
+```typescript twoslash [oas.ts]
 export default { openapi: '3.0.0' /* ... */ } as const
 ```
 
-```typescript [oas.ts]
+```typescript twoslash [oas.ts]
 const oas = {
   'openapi': '3.0.1',
   'info': {

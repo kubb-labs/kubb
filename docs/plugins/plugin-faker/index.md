@@ -117,11 +117,11 @@ Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 |  Default: | `'string'`           |
 
 ::: code-group
-```typescript ['string']
+```typescript twoslash ['string']
 faker.date.anytime().toISOString()
 ```
 
-```typescript ['date']
+```typescript twoslash ['date']
 faker.date.anytime()
 ```
 :::
@@ -142,7 +142,7 @@ Which parser should be used when dateType is set to 'string'.
 
 ::: code-group
 
-```typescript [undefined]
+```typescript twoslash [undefined]
 // schema with format set to 'date'
 faker.date.anytime().toISOString().substring(0, 10)
 
@@ -151,7 +151,7 @@ faker.date.anytime().toISOString().substring(11, 19)
 
 ```
 
-```typescript ['dayjs']
+```typescript twoslash ['dayjs']
 // schema with format set to 'date'
 dayjs(faker.date.anytime()).format("YYYY-MM-DD")
 
@@ -160,7 +160,7 @@ dayjs(faker.date.anytime()).format("HH:mm:ss")
 
 ```
 
-```typescript ['moment']
+```typescript twoslash ['moment']
 // schema with format set to 'date'
 moment(faker.date.anytime()).format("YYYY-MM-DD")
 
@@ -210,11 +210,11 @@ Choose which generator to use when using Regexp.
 |  Default: | `'faker'`                |
 
 ::: code-group
-```typescript ['faker']
+```typescript twoslash ['faker']
 faker.helpers.fromRegExp(new RegExp(/test/))
 ```
 
-```typescript ['randexp']
+```typescript twoslash ['randexp']
 new RandExp(/test/).gen()
 ```
 :::
