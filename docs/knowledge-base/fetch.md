@@ -14,7 +14,7 @@ However, there are cases where you might want to customize the client. For examp
 `importPath` can be a relative, import alias, or an import to another library(default `@kubb/plugin-client/templates/axios` will be used).
 
 See [plugins/plugin-client](/plugins/plugin-client/#client).
-```typescript twoslash
+```typescript
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
