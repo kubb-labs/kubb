@@ -120,8 +120,8 @@ importers:
         specifier: ^8.0.2
         version: 8.0.2
       vitepress:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
+        specifier: 2.0.0-alpha.15
+        version: 2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
       vitepress-plugin-group-icons:
         specifier: ^1.6.5
         version: 1.6.5(vite@7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))
@@ -185,13 +185,13 @@ importers:
         version: 11.12.0(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.7)(puppeteer@23.11.1(typescript@5.9.3))(yaml@2.8.1)
       '@nolebase/vitepress-plugin-enhanced-readabilities':
         specifier: ^2.18.2
-        version: 2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
+        version: 2.18.2(vitepress@2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
       '@nolebase/vitepress-plugin-highlight-targeted-heading':
         specifier: ^2.18.2
-        version: 2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))
+        version: 2.18.2(vitepress@2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))
       '@nolebase/vitepress-plugin-og-image':
         specifier: ^2.18.2
-        version: 2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))
+        version: 2.18.2(vitepress@2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))
       '@types/node':
         specifier: 'catalog:'
         version: 20.19.27
@@ -7780,8 +7780,8 @@ packages:
   vitepress-plugin-llms@1.10.0:
     resolution: {integrity: sha512-dgD5KV8D9vXlQtAf/KUjSgr3QymH1fHT7XkQ/UuIqvIjnKdzZI+0gT3puGxUBuqgvlFjYWA6f8k80tXl6gwWkw==}
 
-  vitepress@2.0.0-alpha.13:
-    resolution: {integrity: sha512-bnUfnyL3TRqqYvOxQ68MxbFyI6qkQ8IQnhwIiGLSMF9GXloyfBCV1hnVJE6yA+Rlk+T+y19gzDKjKIMpiCIUvA==}
+  vitepress@2.0.0-alpha.15:
+    resolution: {integrity: sha512-jhjSYd10Z6RZiKOa7jy0xMVf5NB5oSc/lS3bD/QoUc6V8PrvQR5JhC9104NEt6+oTGY/ftieVWxY9v7YI+1IjA==}
     hasBin: true
     peerDependencies:
       markdown-it-mathjax3: ^4
@@ -8969,29 +8969,29 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@nolebase/ui@2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))':
+  '@nolebase/ui@2.18.2(vitepress@2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))':
     dependencies:
       '@iconify-json/octicon': 1.2.19
       less: 4.4.2
-      vitepress: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
+      vitepress: 2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
       vue: 3.5.26(typescript@5.9.3)
 
-  '@nolebase/vitepress-plugin-enhanced-readabilities@2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))':
+  '@nolebase/vitepress-plugin-enhanced-readabilities@2.18.2(vitepress@2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))':
     dependencies:
       '@iconify-json/carbon': 1.2.14
       '@iconify-json/icon-park-outline': 1.2.4
-      '@nolebase/ui': 2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
+      '@nolebase/ui': 2.18.2(vitepress@2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
       less: 4.4.2
-      vitepress: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
+      vitepress: 2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
     transitivePeerDependencies:
       - vue
 
-  '@nolebase/vitepress-plugin-highlight-targeted-heading@2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))':
+  '@nolebase/vitepress-plugin-highlight-targeted-heading@2.18.2(vitepress@2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))':
     dependencies:
       less: 4.4.2
-      vitepress: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
+      vitepress: 2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
 
-  '@nolebase/vitepress-plugin-og-image@2.18.2(vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))':
+  '@nolebase/vitepress-plugin-og-image@2.18.2(vitepress@2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1))':
     dependencies:
       '@resvg/resvg-wasm': 2.6.2
       colorette: 2.0.20
@@ -9007,7 +9007,7 @@ snapshots:
       tinyglobby: 0.2.15
       unified: 11.0.5
       unist-util-visit: 5.0.0
-      vitepress: 2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
+      vitepress: 2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1)
 
   '@nuxt/kit@4.2.2(magicast@0.5.1)':
     dependencies:
@@ -15293,7 +15293,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vitepress@2.0.0-alpha.13(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1):
+  vitepress@2.0.0-alpha.15(@types/node@20.19.27)(axios@1.13.2)(jiti@1.21.7)(less@4.4.2)(postcss@8.5.6)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.1):
     dependencies:
       '@docsearch/css': 4.3.2
       '@docsearch/js': 4.3.2
@@ -15304,7 +15304,7 @@ snapshots:
       '@types/markdown-it': 14.1.2
       '@vitejs/plugin-vue': 6.0.3(vite@7.3.0(@types/node@20.19.27)(jiti@1.21.7)(less@4.4.2)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
       '@vue/devtools-api': 8.0.5
-      '@vue/shared': 3.5.25
+      '@vue/shared': 3.5.26
       '@vueuse/core': 14.0.0(vue@3.5.26(typescript@5.9.3))
       '@vueuse/integrations': 14.0.0(axios@1.13.2)(focus-trap@7.6.6)(vue@3.5.26(typescript@5.9.3))
       focus-trap: 7.6.6
