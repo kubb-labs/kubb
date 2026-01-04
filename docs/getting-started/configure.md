@@ -46,7 +46,7 @@ import { defineConfig } from '@kubb/core'
 export default defineConfig(({ config, watch, logLevel }) => {
   return {
     input: { path: './petStore.yaml' },
-    output: { 
+    output: {
       path: './src/gen',
       clean: !watch, // Don't clean in watch mode
     },
@@ -357,7 +357,6 @@ Banner comment added to generated files. Indicates the file was auto-generated.
   ```
 - `'full'` - Detailed banner with API title, description, and OpenAPI version
 - `false` - No banner
-
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
@@ -366,11 +365,6 @@ export default defineConfig({
   output: {
     path: './src/gen',
     defaultBanner: 'full', // Include full API details
-  },
-})
-```
-    clean: true,
-    defaultBanner: false,
   },
 })
 ```
