@@ -111,7 +111,8 @@ Path to your OpenAPI file - absolute or relative to `root`.
 |     Type: | `string` |
 | Required: | `true`*  |
 
-**Note**: Required if `input.data` is not provided.
+> [!NOTE]
+> Required if `input.data` is not provided.
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
@@ -133,7 +134,8 @@ OpenAPI specification as a string or object. Useful for programmatic generation.
 |     Type: | `string \| unknown` |
 | Required: | `true`*             |
 
-**Note**: Required if `input.path` is not provided.
+> [!NOTE]
+> Required if `input.path` is not provided.
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
