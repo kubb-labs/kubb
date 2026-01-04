@@ -6,7 +6,7 @@ Array containing override parameters to override `options` based on tags/operati
 | Required: | `false`           |
 
 
-```typescript [Override]
+```typescript twoslash [Override]
 export type Override = {
   type: 'tag' | 'operationId' | 'path' | 'method' | 'contentType'
   pattern: string | RegExp

@@ -6,7 +6,7 @@ Array containing exclude parameters to exclude/skip tags/operations/methods/path
 | Required: | `false`          |
 
 
-```typescript [Exclude]
+```typescript twoslash [Exclude]
 export type Exclude = {
   type: 'tag' | 'operationId' | 'path' | 'method' | 'contentType'
   pattern: string | RegExp

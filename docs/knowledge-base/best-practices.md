@@ -23,7 +23,7 @@ For large projects with many endpoints, organize your generated code strategical
 
 Use tags from your OpenAPI specification to organize generated code by feature:
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -78,7 +78,7 @@ src/gen/
 
 For very large APIs, generate only what you need using `include` and `exclude`:
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 pluginTs({
   include: [
     {
@@ -107,7 +107,7 @@ For massive OpenAPI specifications (1000+ endpoints), consider:
 - Creating multiple Kubb configurations for different parts of your API
 - Using the `include` option to generate subsets incrementally
 
-```typescript [kubb.config.pets.ts]
+```typescript twoslash [kubb.config.pets.ts]
 export default defineConfig({
   input: {
     path: './openapi.yaml',
@@ -131,7 +131,7 @@ export default defineConfig({
 
 Control barrel file generation to improve build performance:
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 export default defineConfig({
   output: {
     path: './src/gen',
@@ -154,7 +154,7 @@ kubb generate --watch
 
 Or integrate with your build tool using `unplugin-kubb`:
 
-```typescript [vite.config.ts]
+```typescript twoslash [vite.config.ts]
 import kubb from 'unplugin-kubb/vite'
 
 export default {
@@ -322,7 +322,7 @@ function PetsList() {
 
 Set up your API client once, use everywhere:
 
-```typescript [src/api/client.ts]
+```typescript twoslash [src/api/client.ts]
 import { client } from './gen/client'
 
 // Configure base URL and auth
@@ -358,7 +358,7 @@ This creates log files in `.kubb/`:
 
 Most issues stem from OpenAPI specification problems:
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 pluginOas({
   validate: true, // Enable OpenAPI validation
 })
@@ -477,7 +477,7 @@ Kubb excels when:
 
 You can use Kubb selectively:
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 // Generate only for stable parts of your API
 export default defineConfig({
   plugins: [
@@ -505,7 +505,7 @@ This lets you:
 
 Use an array in `defineConfig` to handle multiple API specifications in a single configuration file:
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -547,7 +547,7 @@ export default defineConfig([
 
 You can also dynamically generate configs from a list of schemas:
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -598,7 +598,7 @@ export interface Pet extends GeneratedPet {
 
 Customize how names are generated:
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -620,7 +620,7 @@ export default defineConfig({
 
 Set up authentication in a central location:
 
-```typescript [src/lib/api.ts]
+```typescript twoslash [src/lib/api.ts]
 import { client } from './gen/client'
 
 // Configure once, use everywhere

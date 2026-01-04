@@ -28,7 +28,7 @@ Plugins provide a function similar to `(options?: PluginOptions) => KubbUserPlug
 
 ::: code-group
 
-```typescript [plugin.ts]
+```typescript twoslash [plugin.ts]
 import path from 'node:path'
 
 import { camelCase } from '@kubb/core/transformers'
@@ -72,7 +72,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 })
 ```
 
-```typescript [types.ts]
+```typescript twoslash [types.ts]
 export type Options = {
   name: string
 }
@@ -87,7 +87,7 @@ declare module '@kubb/core' {
 }
 ```
 
-```typescript [index.ts]
+```typescript twoslash [index.ts]
 import { definePlugin } from './plugin.ts'
 
 export { definePlugin, pluginKey, pluginName } from './plugin.ts'
@@ -98,7 +98,7 @@ export * from './types.ts'
 
 Registering the plugin:
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { definePlugin } from './index.ts'
 

@@ -144,7 +144,7 @@ In this examples, we will focus on the `src/mcp` folder, containing the generate
 The `addPetHandler` function sends a POST request to the **Swagger Petstore API** to add a new pet.
 It takes pet data as input, handles the response, and returns it as a JSON-formatted message for [MCP](https://modelcontextprotocol.io) to use in a conversation.
 
-```typescript [src/mcp/addPet.ts]
+```typescript twoslash [src/mcp/addPet.ts]
 import client from "@kubb/plugin-clients/client/axios"
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
@@ -194,7 +194,7 @@ This code sets up and starts an [MCP](https://modelcontextprotocol.io) server th
 4.	The `startServer` function connects the server to a `stdio transport`, meaning it will communicate through standard input/output. If successful, [Claude](https://claude.ai) could interact with your API.
 
 In short, this code sets up an [MCP](https://modelcontextprotocol.io) server that processes API requests to 'add a new pet' by using the `addPetHandler`.
-```typescript [src/mcp/server.ts]
+```typescript twoslash [src/mcp/server.ts]
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
 

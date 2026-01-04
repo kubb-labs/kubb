@@ -170,7 +170,7 @@ specs/
 
 Then use separate Kubb configurations for each:
 
-```typescript [kubb.config.pets.ts]
+```typescript twoslash [kubb.config.pets.ts]
 export default defineConfig({
   input: { path: './specs/pets-api.yaml' },
   output: { path: './src/gen/pets' },

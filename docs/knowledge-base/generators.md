@@ -28,15 +28,15 @@ Generators can be used with our [React](/helpers/react/) renderer or define your
 
 
 ::: code-group
-```typescript [createGenerator]
+```typescript twoslash [createGenerator]
 export function createGenerator(parseOptions: GeneratorOptions): Generator {
   return parseOptions
 }
 ```
-```typescript [Generator]
+```typescript twoslash [Generator]
 export type Generator = GeneratorOptions
 ```
-```typescript [GeneratorOptions]
+```typescript twoslash [GeneratorOptions]
 export type Generator = {
   name: string
   operations?: (this: GeneratorOptions, props: OperationsProps) => Promise<KubbFile.File[]>
@@ -122,15 +122,15 @@ The following properties will be accessible when `schema` is being called:
 
 
 ::: code-group
-```typescript [createGenerator]
+```typescript twoslash [createGenerator]
 export function createReactGenerator(parseOptions: ReactGeneratorOptions): Generator {
   return parseOptions
 }
 ```
-```typescript [Generator]
+```typescript twoslash [Generator]
 export type Generator = GeneratorOptions
 ```
-```typescript [ReactGeneratorOptions]
+```typescript twoslash [ReactGeneratorOptions]
 export type Generator = {
   name: string
   Operations?: (this: ReactGeneratorOptions, props: OperationsProps) => KubbNode
@@ -215,7 +215,7 @@ export const clientOperationGenerator = createGenerator<PluginClient>({
 ```
 
 Use of the generator:
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
 import { pluginOas } from "@kubb/plugin-oas"
 
@@ -282,7 +282,7 @@ export const clientOperationGenerator = createReactGenerator({
 ```
 
 Use of the generator:
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
 import { pluginOas } from "@kubb/plugin-oas"
 

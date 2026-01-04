@@ -28,7 +28,7 @@ Instance of the [FileManager](/reference/filemManager).
 
 The `PluginManager` triggers some events when a plugin will be executed(`execute`), when a plugin has been executed (`executed`) and when something goes wrong (`error`).
 
-```typescript [Events]
+```typescript twoslash [Events]
 type Events = {
   execute: [executer: Executer]
   executed: [executer: Executer]

@@ -11,7 +11,7 @@ ReturnType that will be used when calling the client.
 - `'full'` will return ResponseConfig.
 
 ::: code-group
-```typescript ['data']
+```typescript twoslash ['data']
 export async function getPetById<TData>(
   petId: GetPetByIdPathParams,
 ): Promise<ResponseConfig<TData>["data"]> {
@@ -19,7 +19,7 @@ export async function getPetById<TData>(
 }
 ```
 
-```typescript ['full']
+```typescript twoslash ['full']
 export async function getPetById<TData>(
   petId: GetPetByIdPathParams,
 ): Promise<ResponseConfig<TData>> {

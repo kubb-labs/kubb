@@ -84,7 +84,7 @@ Additionally, each framework will now be packaged separately instead of being in
 |    `'vue'` | `'@kubb/plugin-vue-query'`    |
 
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTanstackQuery } from '@kubb/swagger-tanstack-query' // [!code --]
@@ -123,7 +123,7 @@ We will discontinue support for (MSW](https://mswjs.io/) v1 in favour of using v
 - `output.banner`: Add some code in the beginning of every file
 - `output.footer`: Add some code in the end of every file
 - `output.exportType`: Behaviour stayed the same, we renamed the option to `output.barrelType` and simplified the values.
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
 import { pluginOas } from "@kubb/plugin-oas"
 import { pluginTs } from "@kubb/plugin-ts"
@@ -161,7 +161,7 @@ export default defineConfig({
 })
 ```
 - `output.extName`: Rather than defining this in every plugin, we chose to move it to [`output.extension`](/getting-started/configure#output-extension).
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
 import { pluginOas } from "@kubb/plugin-oas"
 import { pluginTs } from "@kubb/plugin-ts"
@@ -191,7 +191,7 @@ export default defineConfig({
 ```
 - `output.exportAs`: This property was only usable for `@kubb/plugin-client` where we aimed to consolidate the functionality into one single controller. In v3, using `group` will already create the controller file.
 ::: code-group
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
 import { pluginOas } from "@kubb/plugin-oas"
 import { pluginTs } from "@kubb/plugin-ts"
@@ -222,7 +222,7 @@ export default defineConfig({
   ],
 })
 ```
-```typescript [src/gen/clients/axios/petController/petService.ts]
+```typescript twoslash [src/gen/clients/axios/petController/petService.ts]
 import { addPet } from './addPet.js'
 import { deletePet } from './deletePet.js'
 
@@ -235,7 +235,7 @@ export function petService() {
 
 ### Group
 - `group.output`: Removed in favour of using `group.name`, the output will automatically be created based on the `root`, `output.path` and `output.path` of the selected plugin.
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
 import { pluginOas } from "@kubb/plugin-oas"
 import { pluginTs } from "@kubb/plugin-ts"
@@ -263,7 +263,7 @@ export default defineConfig({
 ```
 - `group.exportAs`: This property was only usable for `@kubb/plugin-client` where we aimed to consolidate the functionality into one single controller. In v3, using `group` will already create the controller file.
 ::: code-group
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
 import { pluginOas } from "@kubb/plugin-oas"
 import { pluginTs } from "@kubb/plugin-ts"
@@ -293,7 +293,7 @@ export default defineConfig({
   ],
 })
 ```
-```typescript [src/gen/clients/axios/petController/petService.ts]
+```typescript twoslash [src/gen/clients/axios/petController/petService.ts]
 import { addPet } from './addPet.js'
 import { deletePet } from './deletePet.js'
 

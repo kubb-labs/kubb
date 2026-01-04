@@ -1,12 +1,12 @@
 ::: code-group
-```typescript [all]
+```typescript twoslash [all]
 export * from "./gen/petService.ts"
 ```
-```typescript [named]
+```typescript twoslash [named]
 export { PetService } from "./gen/petService.ts"
 ```
-```typescript [propagate]
+```typescript twoslash [propagate]
 ```
-```typescript [false]
+```typescript twoslash [false]
 ```
 :::
