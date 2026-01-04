@@ -23,76 +23,60 @@ This helper provides TypeScript friendly type hints and autocompletion, which ca
 > [!TIP]
 > You can also use `configs/kubb.config.ts` or `.config/kubb.config.ts` instead of `kubb.config.ts` in the root of your project.
 
-## DefineConfig
+## defineConfig
 
-When using TypeScript/JavaScript you should consider using `defineConfig`.
+The `defineConfig` helper provides TypeScript type checking and IntelliSense for your configuration:
 
-```typescript
-export const defineConfig = (
-  options:
-    | MaybePromise<KubbUserConfig>
-    | ((
-      /** The options derived from the CLI flags */
-      args: Args,
-    ) => MaybePromise<KubbUserConfig>),
-) => options
-```
-
-## Options
-This page is a reference to the different options you can use for configuring your Kubb config.
-By setting the following options you can override the default behavior of Kubb and even extend it with your plugins.
-
-### name
-The name to display in the CLI output.
-
-|       |          |
-| ----: |:---------|
-| Type: | `string` |
-| Required: | `false`  |
-
-::: code-group
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
-  name: 'petStore',
-  root: '.',
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
+  // Type-safe configuration
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
+  plugins: [],
 })
 ```
+
+**Function form** - Access CLI arguments:
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
-export default defineConfig([
-  {
-    name: 'petStore',
-    root: '.',
-    input: {
-      path: './petStore.yaml',
-    },
-    output: {
+export default defineConfig(({ config, watch, logLevel }) => {
+  return {
+    input: { path: './petStore.yaml' },
+    output: { 
       path: './src/gen',
+      clean: !watch, // Don't clean in watch mode
     },
-  },
-  {
-    name: 'petStoreV2',
-    root: '.',
-    input: {
-      path: './petStoreV2.yaml',
-    },
-    output: {
-      path: './src/gen-v2',
-    },
-  },
-])
+    plugins: [],
+  }
+})
 ```
-:::
+
+## Configuration Options
+
+Configure Kubb's behavior with these options. All are optional unless marked as required.
+
+### name
+
+Display name for this configuration in CLI output. Useful when running multiple configs.
+
+|           |          |
+|----------:|:---------|
+|     Type: | `string` |
+| Required: | `false`  |
+
+```typescript [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig({
+  name: 'petStore', // Shows "Generating petStore..." in CLI
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
+})
+```
 
 ### root
 The project root directory, which can be either an absolute path or a path relative to the location of your `kubb.config.ts` file.
