@@ -13,7 +13,7 @@ In Kubb, there are multiple ways to specify a baseURL. This can be done with a c
 When [defining your own client](/knowledge-base/fetch), you can also set a baseURL that will be used in every HTTP call.
 
 ::: code-group
-```typescript twoslash [client.ts]
+```typescript [client.ts]
 import axios from 'axios'
 
 import type { AxiosError, AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios'

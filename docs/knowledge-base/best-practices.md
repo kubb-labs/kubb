@@ -78,7 +78,7 @@ src/gen/
 
 For very large APIs, generate only what you need using `include` and `exclude`:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 pluginTs({
   include: [
     {
@@ -107,7 +107,7 @@ For massive OpenAPI specifications (1000+ endpoints), consider:
 - Creating multiple Kubb configurations for different parts of your API
 - Using the `include` option to generate subsets incrementally
 
-```typescript twoslash [kubb.config.pets.ts]
+```typescript [kubb.config.pets.ts]
 export default defineConfig({
   input: {
     path: './openapi.yaml',
@@ -132,7 +132,10 @@ export default defineConfig({
 Control barrel file generation to improve build performance:
 
 ```typescript twoslash [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+
 export default defineConfig({
+  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
     barrelType: 'named', // or 'all', false
@@ -481,7 +484,7 @@ Kubb excels when:
 
 You can use Kubb selectively:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 // Generate only for stable parts of your API
 export default defineConfig({
   plugins: [
@@ -602,7 +605,7 @@ export interface Pet extends GeneratedPet {
 
 Customize how names are generated:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({

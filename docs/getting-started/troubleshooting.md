@@ -209,7 +209,10 @@ NODE_OPTIONS="--max-old-space-size=4096" kubb generate
 2. Check the `output.extension` option:
 
 ```typescript twoslash [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+
 export default defineConfig({
+  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
     extension: {
