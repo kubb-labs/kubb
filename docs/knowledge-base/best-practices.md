@@ -23,7 +23,7 @@ For large projects with many endpoints, organize your generated code strategical
 
 Use tags from your OpenAPI specification to organize generated code by feature:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -131,7 +131,7 @@ export default defineConfig({
 
 Control barrel file generation to improve build performance:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -157,7 +157,7 @@ kubb generate --watch
 
 Or integrate with your build tool using `unplugin-kubb`:
 
-```typescript twoslash [vite.config.ts]
+```typescript [vite.config.ts]
 import kubb from 'unplugin-kubb/vite'
 
 export default {
@@ -326,7 +326,7 @@ function PetsList() {
 
 Set up your API client once, use everywhere:
 
-```typescript twoslash [src/api/client.ts]
+```typescript [src/api/client.ts]
 import { client } from './gen/client'
 
 // Configure base URL and auth
@@ -362,7 +362,7 @@ This creates log files in `.kubb/`:
 
 Most issues stem from OpenAPI specification problems:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 pluginOas({
   validate: true, // Enable OpenAPI validation
 })
@@ -512,7 +512,7 @@ This lets you:
 
 Use an array in `defineConfig` to handle multiple API specifications in a single configuration file:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -554,7 +554,7 @@ export default defineConfig([
 
 You can also dynamically generate configs from a list of schemas:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -565,8 +565,8 @@ const schemas = [
   { name: 'payments', path: 'https://api.example.com/openapi.json' },
 ]
 
-export default defineConfig(() => {
-  return schemas.map(({ name, path }) => ({
+export default defineConfig(
+  schemas.map(({ name, path }) => ({
     name,
     input: { path },
     output: {
@@ -578,7 +578,7 @@ export default defineConfig(() => {
       pluginTs(),
     ],
   }))
-})
+)
 ```
 
 Run once to generate all APIs:
@@ -627,7 +627,7 @@ export default defineConfig({
 
 Set up authentication in a central location:
 
-```typescript twoslash [src/lib/api.ts]
+```typescript [src/lib/api.ts]
 import { client } from './gen/client'
 
 // Configure once, use everywhere
