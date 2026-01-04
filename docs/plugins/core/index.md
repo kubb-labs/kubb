@@ -33,7 +33,6 @@ yarn add -D @kubb/core
 ## Usage
 
 ```typescript
-import { write } from '@kubb/fs'
 import { build, getSource } from '@kubb/core'
 
 const { error, files, pluginManager } = await build({
@@ -52,7 +51,7 @@ const { error, files, pluginManager } = await build({
 for (const file of files) {
   const source = await getSource(file)
 
-  await write(file.path, file)
+  // await write(file.path, file)
 }
 ```
 

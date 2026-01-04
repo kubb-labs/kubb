@@ -273,7 +273,8 @@ Kubb uses your OpenAPI `operationId` to generate predictable names:
 | `createPet` | `createPet()` | `useCreatePet()` | `CreatePetRequest` |
 | `updatePetById` | `updatePetById()` | `useUpdatePetById()` | `UpdatePetByIdRequest` |
 
-**Tip**: Use consistent `operationId` naming in your OpenAPI spec for predictable generated names.
+> [!TIP]
+> Use consistent `operationId` naming in your OpenAPI spec for predictable generated names.
 
 ### Using Generated Code Effectively
 
@@ -392,7 +393,8 @@ Kubb requires a valid OpenAPI/Swagger file. If you're working with a REST API th
 
 See [Creating OpenAPI Specifications](/knowledge-base/oas/#creating-openapi-specifications) for tools and approaches to generate specs from existing APIs or code.
 
-**Alternative**: Consider [tRPC](https://trpc.io/) for end-to-end typesafety without OpenAPI.
+> [!NOTE]
+> **Alternative**: Consider [tRPC](https://trpc.io/) for end-to-end typesafety without OpenAPI.
 
 **2. Your API Changes Constantly**
 
@@ -401,7 +403,8 @@ If your API has breaking changes multiple times per day during active developmen
 - Git conflicts in generated code become frequent
 - Manual coding might be faster initially
 
-**Better approach**: Wait until your API stabilizes, or use feature flags to control when to regenerate.
+> [!TIP]
+> **Better approach**: Wait until your API stabilizes, or use feature flags to control when to regenerate.
 
 **3. You Need Full Control Over Generated Code**
 
@@ -428,7 +431,8 @@ For tiny APIs (5-10 endpoints), manual coding might be faster:
 - Simpler project structure
 - Easier for beginners
 
-**Rule of thumb**: If you can write all API clients in under an hour, Kubb might be overkill.
+> [!NOTE]
+> **Rule of thumb**: If you can write all API clients in under an hour, Kubb might be overkill.
 
 ### ✅ DO Use Kubb When:
 
