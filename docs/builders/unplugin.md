@@ -105,7 +105,7 @@ export default defineConfig({
 })
 ```
 
-```js [Rollup]
+```typescript [Rollup]
 // rollup.config.js
 import kubb from 'unplugin-kubb/rollup'
 
@@ -116,7 +116,7 @@ export default {
 }
 ```
 
-```js [webpack]
+```typescript [webpack]
 // webpack.config.js
 module.exports = {
   /* ... */
@@ -126,7 +126,7 @@ module.exports = {
 }
 ```
 
-```js [Rspack]
+```typescript [Rspack]
 // rspack.config.js
 module.exports = {
   /* ... */
@@ -136,7 +136,7 @@ module.exports = {
 }
 ```
 
-```js [esbuild]
+```typescript [esbuild]
 // esbuild.config.js
 import { build } from 'esbuild'
 import kubb from 'unplugin-kubb/esbuild'
@@ -148,7 +148,7 @@ build({
 })
 ```
 
-```js [Vue-CLI]
+```typescript [Vue-CLI]
 // vue.config.js
 module.exports = {
   configureWebpack: {
@@ -159,7 +159,7 @@ module.exports = {
 }
 ```
 
-```js [Nuxt]
+```typescript [Nuxt]
 // nuxt.config.js
 export default defineNuxtConfig({
   modules: [
@@ -167,7 +167,7 @@ export default defineNuxtConfig({
   ],
 })
 ```
-```js [Astro]
+```typescript [Astro]
 // astro.config.mjs
 import { defineConfig } from 'astro/config'
 import Kubb from 'unplugin-kubb/astro'

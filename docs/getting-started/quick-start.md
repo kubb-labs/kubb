@@ -100,7 +100,7 @@ yarn run generate
 
 Use `@kubb/core` directly when the CLI isn't suitable (e.g., custom build scripts, monorepo tooling).
 
-```typescript twoslash [generate.ts]
+```typescript [generate.ts]
 import { build } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
