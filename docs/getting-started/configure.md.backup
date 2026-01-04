@@ -27,7 +27,7 @@ This helper provides TypeScript friendly type hints and autocompletion, which ca
 
 The `defineConfig` helper provides TypeScript type checking and IntelliSense for your configuration:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -40,7 +40,7 @@ export default defineConfig({
 
 **Function form** - Access CLI arguments:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig(({ config, watch, logLevel }) => {
@@ -68,7 +68,7 @@ Display name for this configuration in CLI output. Useful when running multiple 
 |     Type: | `string` |
 | Required: | `false`  |
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -88,7 +88,7 @@ Project root directory - can be absolute or relative to the config file location
 | Required: | `false`        |
 |  Default: | `process.cwd()` |
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -113,7 +113,7 @@ Path to your OpenAPI file - absolute or relative to `root`.
 
 **Note**: Required if `input.data` is not provided.
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -135,13 +135,13 @@ OpenAPI specification as a string or object. Useful for programmatic generation.
 
 **Note**: Required if `input.path` is not provided.
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
+import petStore from './petStore.json' assert { type: 'json' }
 
-// You can import a JSON file and pass it as data
 export default defineConfig({
   input: {
-    data: { /* your OpenAPI spec object */ },
+    data: petStore, // Pre-loaded OpenAPI spec
   },
   output: { path: './src/gen' },
 })
@@ -160,7 +160,7 @@ Directory for generated files - absolute or relative to `root`.
 |     Type: | `string` |
 | Required: | `true`   |
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -184,11 +184,8 @@ Remove the output directory before generating new files.
 > [!WARNING]
 > This deletes the entire `output.path` directory. Only use with dedicated output folders.
 
-```typescript twoslash [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-
+```typescript [kubb.config.ts]
 export default defineConfig({
-  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
     clean: true, // Deletes ./src/gen before generating
@@ -213,11 +210,8 @@ Code formatter to use on generated files.
 > [!NOTE]
 > Kubb respects your local `.prettierrc` or `biome.json` configuration files.
 
-```typescript twoslash [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-
+```typescript [kubb.config.ts]
 export default defineConfig({
-  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
     format: 'biome', // Use Biome instead of Prettier
@@ -243,11 +237,8 @@ Linter to run on generated files.
 > [!WARNING]
 > Linting large outputs can slow down generation. Consider running linters separately in CI.
 
-```typescript twoslash [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-
+```typescript [kubb.config.ts]
 export default defineConfig({
-  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
     format: 'biome',
@@ -266,11 +257,8 @@ Write generated files to disk. Set to `false` to generate in-memory only (useful
 | Required: | `false`   |
 |  Default: | `true`    |
 
-```typescript twoslash [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-
+```typescript [kubb.config.ts]
 export default defineConfig({
-  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
     write: false, // Don't write to disk (testing mode)
@@ -291,11 +279,8 @@ Override file extensions in generated imports/exports. Useful for ESM compatibil
 > [!TIP]
 > Use `{ '.ts': '.js' }` for ESM compatibility when transpiling TypeScript to JavaScript.
 
-```typescript twoslash [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-
+```typescript [kubb.config.ts]
 export default defineConfig({
-  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
     extension: {
@@ -322,11 +307,8 @@ Controls generation of barrel files (`index.ts`). This sets the root barrel file
 > [!NOTE]
 > Individual plugins have their own `barrelType` option. This controls the root `src/gen/index.ts` file.
 
-```typescript twoslash [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-
+```typescript [kubb.config.ts]
 export default defineConfig({
-  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
     barrelType: 'all', // Export everything
@@ -356,11 +338,8 @@ Banner comment added to generated files. Indicates the file was auto-generated.
 - `'full'` - Detailed banner with API title, description, and OpenAPI version
 - `false` - No banner
 
-```typescript twoslash [kubb.config.ts]
-import { defineConfig } from '@kubb/core'
-
+```typescript [kubb.config.ts]
 export default defineConfig({
-  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
     defaultBanner: 'full', // Include full API details
@@ -384,7 +363,7 @@ export default defineConfig({
 An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Refer to “pre” for more details.
 How to use and set up plugins, see [plugins](/knowledge-base/plugins/).
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 
@@ -433,7 +412,7 @@ export default defineConfig({
 If the config needs to be conditionally determined based on CLI options flags, it can be exported as a function instead.
 Here you can choose between returning the config options **synchronously** or **asynchronously**.
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig(({ config, watch, logLevel }) => {
@@ -455,7 +434,7 @@ export default defineConfig(({ config, watch, logLevel }) => {
 > [!TIP]
 > With version `2.x.x` or higher we also support using multiple versions of the same plugin.
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 
@@ -493,7 +472,7 @@ export default defineConfig(() => {
 > [!TIP]
 > Since version `2.x.x` or higher we also support using multiple configs.
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 

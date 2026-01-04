@@ -101,37 +101,36 @@ yarn run generate
 Use `@kubb/core` directly when the CLI isn't suitable (e.g., custom build scripts, monorepo tooling).
 
 ```typescript [generate.ts]
-import { build } from '@kubb/core'
+import { write } from '@kubb/fs'
+import { build, getSource } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
-async function generate() {
-  const { error, files } = await build({
-    config: {
-      root: '.',
-      input: {
-        path: './petStore.yaml',
-      },
-      output: {
-        path: './gen',
-        write: true, // Write files to disk
-      },
-      plugins: [
-        pluginOas(),
-        pluginTs(),
-      ]
+const { error, files, pluginManager } = await build({
+  config: {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
     },
-  })
+    output: {
+      path: './gen',
+    },
+    plugins: [
+      pluginOas(),
+      pluginTs(),
+    ]
+  },
+})
 
-  if (error) {
-    console.error(error)
-    process.exit(1)
-  }
-
-  console.log(`Generated ${files.length} files`)
+if (error) {
+  console.error(error)
+  process.exit(1)
 }
 
-generate()
+for (const file of files) {
+  const source = await getSource(file)
+  await write(source, file.path)
+}
 ```
 
 > [!NOTE]
