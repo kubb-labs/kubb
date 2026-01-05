@@ -58,8 +58,9 @@ export const client = async <TData, TError = unknown, TVariables = unknown>(conf
 ```
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
 import { pluginClient } from '@kubb/plugin-client'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: {
@@ -70,8 +71,9 @@ export default defineConfig({
   },
   plugins: [
     pluginOas(),
+    pluginTs(),
     pluginClient({
-      importPath: './client.ts' // [!code ++]
+      importPath: '../../client.ts' // [!code ++]
     }),
   ],
 })
