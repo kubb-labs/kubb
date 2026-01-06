@@ -519,6 +519,9 @@ export const parse = createParser<string, ParserOptions>({
     for (const schema of schemas) {
       if (schema.safeParse(value).success) {
         matches++;
+        if (matches > 1) {
+          break;
+        }
       }
     }
     if (matches === 0) {
