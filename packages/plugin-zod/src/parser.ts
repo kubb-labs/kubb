@@ -511,8 +511,9 @@ export const parse = createParser<string, ParserOptions>({
       const unionSchema = zodKeywordMapper.union(parsedSchemas)
 
       // For oneOf, add validation to ensure exactly one schema matches
+      // Use z.any().superRefine().pipe() pattern to validate BEFORE union processes the value
       if (current.oneOf) {
-        return `${unionSchema}.superRefine((value, ctx) => {
+        return `z.any().superRefine((value, ctx) => {
     const schemas = [${parsedSchemas.join(', ')}];
     let matches = 0;
     for (const schema of schemas) {
@@ -531,7 +532,7 @@ export const parse = createParser<string, ParserOptions>({
         message: "Invalid input: Should pass only one schema in oneOf"
       });
     }
-  })`
+  }).pipe(${unionSchema})`
       }
 
       return unionSchema
