@@ -115,7 +115,7 @@ export class OperationGenerator<
     } = {},
   ): OperationSchemas {
     const operationId = operation.getOperationId({ friendlyCase: true })
-    
+
     // Create cache key with safe delimiter (| cannot appear in these values)
     // Format: "operationId|method|path" for collision-free caching
     const cacheKey = `${operationId}|${operation.method}|${operation.path}`

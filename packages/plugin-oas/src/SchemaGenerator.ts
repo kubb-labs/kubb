@@ -94,17 +94,17 @@ export class SchemaGenerator<
     // and doesn't have transformers that could affect the result
     const shouldCache = props.schema && typeof props.schema === 'object' && !options.transformers?.schema
     let cacheKey = ''
-    
+
     if (shouldCache) {
       // Create cache key using stable JSON stringify for correctness
       // Cache hit rate is still high for identical schemas across operations
       try {
-        cacheKey = JSON.stringify({ 
-          schema: props.schema, 
-          name: props.name, 
-          parentName: props.parentName 
+        cacheKey = JSON.stringify({
+          schema: props.schema,
+          name: props.name,
+          parentName: props.parentName,
         })
-        
+
         const cached = this.#parseCache.get(cacheKey)
         if (cached) {
           return cached
@@ -119,12 +119,12 @@ export class SchemaGenerator<
     const schemas = options.transformers?.schema?.(props, defaultSchemas) || defaultSchemas || []
 
     const result = uniqueWith(schemas, isDeepEqual)
-    
+
     // Cache the result only if we created a valid cache key
     if (shouldCache && cacheKey) {
       this.#parseCache.set(cacheKey, result)
     }
-    
+
     return result
   }
 
