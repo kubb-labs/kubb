@@ -78,7 +78,7 @@ describe('type parse', () => {
 
     // Should generate a valid TypeScript node with unknown type for the property
     expect(result).toBeTruthy()
-    if (result && 'members' in result) {
+    if (result && 'members' in result && Array.isArray(result.members)) {
       expect(result.members.length).toBeGreaterThan(0)
     }
   })
