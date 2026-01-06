@@ -35,14 +35,14 @@ Changed the mapper check to use `Object.prototype.hasOwnProperty.call()` to only
 
 ::: code-group
 
-```typescript [Before - Buggy]
+```typescript [Before]
 // Matches inherited properties from Object.prototype
 if (options.mapper?.[mappedName]) {
   return options.mapper?.[mappedName]  // Returns Object.prototype.toString
 }
 ```
 
-```typescript [After - Fixed]
+```typescript [After]
 // Only matches own properties, not inherited ones
 if (options.mapper && Object.prototype.hasOwnProperty.call(options.mapper, mappedName)) {
   return options.mapper[mappedName]
@@ -72,21 +72,6 @@ components:
         toString: { type: string }  # Previously crashed, now works
         valueOf: { type: string }    # Previously crashed, now works
 ```
-
-**Additional Improvements:**
-
-- Added null/undefined filtering in factory functions to prevent invalid AST nodes
-- Added fallback to `unknown` type when parser produces no valid type
-- Removed spread operator from `appendJSDocToNode` to prevent Unknown node creation
-- Added type validation in `createPropertySignature`
-
-**Testing:**
-
-Verified with the [Jira Software Data Center OpenAPI spec](https://dac-static.atlassian.com/server/jira/platform/jira_software_dc_11002_swagger.v3.json) - successfully generates 1091 TypeScript files with no errors (previously crashed).
-
-::: warning
-If you previously worked around this issue by disabling generators (`generators: []`), you can now remove that workaround.
-:::
 
 ## 4.13.0
 
@@ -232,7 +217,7 @@ components:
 ```
 
 ```typescript [Generated]
-export type Response = 
+export type Response =
   | {
       status?: "success"
       data?: object
@@ -271,7 +256,7 @@ components:
 ```
 
 ```typescript [Generated]
-export type Data = 
+export type Data =
   | {
       result?: object
     }
