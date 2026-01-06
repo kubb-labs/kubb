@@ -101,7 +101,7 @@
 		"@nuxt/schema": "^4.2.2",
 		"esbuild": "*",
 		"rimraf": "^6.1.2",
-		"rollup": "^4.54.0",
+		"rollup": "^4.55.1",
 		"vite": "^7.3.0",
 		"webpack": "^5.104.1"
 	},
