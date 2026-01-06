@@ -23,279 +23,293 @@ This helper provides TypeScript friendly type hints and autocompletion, which ca
 > [!TIP]
 > You can also use `configs/kubb.config.ts` or `.config/kubb.config.ts` instead of `kubb.config.ts` in the root of your project.
 
-## DefineConfig
+## defineConfig
 
-When using TypeScript/JavaScript you should consider using `defineConfig`.
+The `defineConfig` helper provides TypeScript type checking and IntelliSense for your configuration:
 
-```typescript
-export const defineConfig = (
-  options:
-    | MaybePromise<KubbUserConfig>
-    | ((
-      /** The options derived from the CLI flags */
-      args: Args,
-    ) => MaybePromise<KubbUserConfig>),
-) => options
-```
-
-## Options
-This page is a reference to the different options you can use for configuring your Kubb config.
-By setting the following options you can override the default behavior of Kubb and even extend it with your plugins.
-
-### name
-The name to display in the CLI output.
-
-|       |          |
-| ----: |:---------|
-| Type: | `string` |
-| Required: | `false`  |
-
-::: code-group
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
-  name: 'petStore',
-  root: '.',
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
+  // Type-safe configuration
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
+  plugins: [],
 })
 ```
 
-```typescript [kubb.config.ts]
+**Function form** - Access CLI arguments:
+
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
-export default defineConfig([
-  {
-    name: 'petStore',
-    root: '.',
-    input: {
-      path: './petStore.yaml',
-    },
+export default defineConfig(({ config, watch, logLevel }) => {
+  return {
+    input: { path: './petStore.yaml' },
     output: {
       path: './src/gen',
+      clean: !watch, // Don't clean in watch mode
     },
-  },
-  {
-    name: 'petStoreV2',
-    root: '.',
-    input: {
-      path: './petStoreV2.yaml',
-    },
-    output: {
-      path: './src/gen-v2',
-    },
-  },
-])
+    plugins: [],
+  }
+})
 ```
-:::
 
-### root
-The project root directory, which can be either an absolute path or a path relative to the location of your `kubb.config.ts` file.
+## Configuration Options
 
-|          |                |
-|---------:|:---------------|
-|    Type: | `string`       |
+Configure Kubb's behavior with these options. All are optional unless marked as required.
+
+### name
+
+Display name for this configuration in CLI output. Useful when running multiple configs.
+
+|           |          |
+|----------:|:---------|
+|     Type: | `string` |
 | Required: | `false`  |
-| Default: | `process.cwd()` |
 
-
-```typescript [kubb.config.js]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
-  root: '.',
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
+  name: 'petStore', // Shows "Generating petStore..." in CLI
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
+})
+```
+
+### root
+
+Project root directory - can be absolute or relative to the config file location.
+
+|           |                |
+|----------:|:---------------|
+|     Type: | `string`       |
+| Required: | `false`        |
+|  Default: | `process.cwd()` |
+
+```typescript twoslash [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig({
+  root: '.', // Relative to kubb.config.ts location
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
 })
 ```
 
 ### input
-You can use either `input.path` or `input.data`, depending on your specific needs.
+
+OpenAPI specification source. Use either `input.path` or `input.data` (not both).
 
 #### input.path
-Specify your Swagger/OpenAPI file, either as an absolute path or a path relative to the [root](#root).
 
-|           |                 |
-|----------:|:----------------|
-|     Type: | `string`        |
-| Required: | `true`            |
+Path to your OpenAPI file - absolute or relative to `root`.
 
-```typescript [kubb.config.ts]
+|           |          |
+|----------:|:---------|
+|     Type: | `string` |
+| Required: | `true`*  |
+
+> [!NOTE]
+> Required if `input.data` is not provided.
+
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
   input: {
-    path: './petStore.yaml',
+    path: './petStore.yaml', // or .json, or a URL
   },
-  output: {
-    path: './src/gen',
-  },
+  output: { path: './src/gen' },
 })
 ```
 
 #### input.data
-A `string` or `object` that contains your Swagger/OpenAPI data.
+
+OpenAPI specification as a string or object. Useful for programmatic generation.
 
 |           |                     |
 |----------:|:--------------------|
 |     Type: | `string \| unknown` |
-| Required: | `true`              |
+| Required: | `true`*             |
 
+> [!NOTE]
+> Required if `input.path` is not provided.
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
-import petStore from './petStore.yaml'
-
+// You can import a JSON file and pass it as data
 export default defineConfig({
   input: {
-    data: petStore,
+    data: { /* your OpenAPI spec object */ },
   },
-  output: {
-    path: './src/gen',
-  },
+  output: { path: './src/gen' },
 })
 ```
 
 ### output
 
+Controls where and how files are generated.
+
 #### output.path
-The path where all generated files will be exported.
-This can be an absolute path or a path relative to the specified [root](#root) option.
 
-|           |                 |
-|----------:|:----------------|
-|     Type: | `string`        |
-| Required: | `true`            |
+Directory for generated files - absolute or relative to `root`.
 
+|           |          |
+|----------:|:---------|
+|     Type: | `string` |
+| Required: | `true`   |
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+  input: { path: './petStore.yaml' },
   output: {
-    path: './src/gen',
+    path: './src/gen', // All generated files go here
   },
 })
 ```
 
 #### output.clean
-Clean the output directory before each build.
+
+Remove the output directory before generating new files.
 
 |           |           |
 |----------:|:----------|
 |     Type: | `boolean` |
 | Required: | `false`   |
+|  Default: | `false`   |
 
-```typescript [kubb.config.ts]
+> [!WARNING]
+> This deletes the entire `output.path` directory. Only use with dedicated output folders.
+
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
-    clean: true,
+    clean: true, // Deletes ./src/gen before generating
   },
 })
 ```
 
 #### output.format
-Specifies the formatting tool to be used.
 
-
-> [!IMPORTANT]
-> By default, we use [Prettier](https://prettier.io/). Since Kubb `v3.17.1` included Prettier as a dependency, this ensures backward compatibility.
-
-
-- `'prettier'`: Uses [Prettier](https://prettier.io/) for code formatting.
-- `'biome'`: Uses [Biome](https://biomejs.dev/) for code formatting.
+Code formatter to use on generated files.
 
 |           |                                  |
 |----------:|:---------------------------------|
 |     Type: | `'prettier' \| 'biome' \| false` |
 | Required: | `false`                          |
-|  Default: | `prettier`                       |
+|  Default: | `'prettier'`                     |
 
+- `'prettier'` - Format with [Prettier](https://prettier.io/) (default, included since v3.17.1)
+- `'biome'` - Format with [Biome](https://biomejs.dev/)
+- `false` - Skip formatting
+
+> [!NOTE]
+> Kubb respects your local `.prettierrc` or `biome.json` configuration files.
+
+```typescript twoslash [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    format: 'biome', // Use Biome instead of Prettier
+  },
+})
+```
 
 #### output.lint
-Specifies the formatting tool to be used.
 
-- `'eslint'`: Represents the use of [Eslint](https://eslint.org/), a widely used JavaScript linter.
-- `'biome'`: Represents the [Biome](https://biomejs.dev/) linter, a modern tool for code scanning.
-- `'oxlint'`: Represents the [Oxlint](https://oxc.rs/docs/guide/usage/linter) tool for linting purposes.
+Linter to run on generated files.
 
 |           |                                            |
 |----------:|:-------------------------------------------|
 |     Type: | `'eslint' \| 'biome' \| 'oxlint' \| false` |
 | Required: | `false`                                    |
+|  Default: | `false`                                    |
+
+- `'eslint'` - Lint with [ESLint](https://eslint.org/)
+- `'biome'` - Lint with [Biome](https://biomejs.dev/)
+- `'oxlint'` - Lint with [Oxlint](https://oxc.rs/docs/guide/usage/linter)
+- `false` - Skip linting (default)
+
+> [!WARNING]
+> Linting large outputs can slow down generation. Consider running linters separately in CI.
+
+```typescript twoslash [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    format: 'biome',
+    lint: 'biome', // Use same tool for formatting and linting
+  },
+})
+```
 
 #### output.write
-Save files to the file system.
+
+Write generated files to disk. Set to `false` to generate in-memory only (useful for testing).
 
 |           |           |
 |----------:|:----------|
 |     Type: | `boolean` |
-| Required: | `true`    |
-|  Default: | `true`     |
+| Required: | `false`   |
+|  Default: | `true`    |
 
-
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
-    clean: true,
-    write: true,
+    write: false, // Don't write to disk (testing mode)
   },
 })
 ```
 
 #### output.extension
-Override the extension to the generated imports and exports, by default each plugin will add an extension.
 
-|           |                          |
-|----------:|:-------------------------|
-|     Type: | `Record<KubbFile.Extname, KubbFile.Extname>`                |
-| Required: | `false`                  |
-|  Default: | `{ '.ts': '.ts'}` |
+Override file extensions in generated imports/exports. Useful for ESM compatibility.
 
+|           |                                              |
+|----------:|:---------------------------------------------|
+|     Type: | `Record<KubbFile.Extname, KubbFile.Extname>` |
+| Required: | `false`                                      |
+|  Default: | `{ '.ts': '.ts' }`                           |
 
-```typescript [kubb.config.ts]
+> [!TIP]
+> Use `{ '.ts': '.js' }` for ESM compatibility when transpiling TypeScript to JavaScript.
+
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
     extension: {
-      '.ts': '.js',
+      '.ts': '.js', // Import as .js instead of .ts
     },
   },
 })
 ```
 
 #### output.barrelType
-Specify how `index.ts` files should be created. You can also disable the generation of barrel files here. While each plugin has its own `barrelType` option, this setting controls the creation of the root barrel file, such as` src/gen/index.ts`.
+
+Controls generation of barrel files (`index.ts`). This sets the root barrel file behavior.
 
 |           |                             |
 |----------:|:----------------------------|
@@ -303,53 +317,54 @@ Specify how `index.ts` files should be created. You can also disable the generat
 | Required: | `false`                     |
 |  Default: | `'named'`                   |
 
+- `'all'` - Export everything with `export *`
+- `'named'` - Export named exports only
+- `false` - Don't create barrel files
 
-```typescript [kubb.config.ts]
+> [!NOTE]
+> Individual plugins have their own `barrelType` option. This controls the root `src/gen/index.ts` file.
+
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
-    clean: true,
-    barrelType: 'all',
+    barrelType: 'all', // Export everything
   },
 })
 ```
 
 #### output.defaultBanner
-Add a default banner to the beginning of every generated file. This makes it clear that the file was generated by Kubb.
-|           |                             |
-|----------:|:----------------------------|
-|     Type: | `'simple' | 'full' | false` |
-| Required: | `false`                     |
+
+Banner comment added to generated files. Indicates the file was auto-generated.
+
+|           |                              |
+|----------:|:-----------------------------|
+|     Type: | `'simple' \| 'full' \| false` |
+| Required: | `false`                      |
 |  Default: | `'simple'`                   |
 
-- `'simple'`: will only add banner with link to Kubb
-```
-/**
-* Generated by Kubb (https://kubb.dev/).
-* Do not edit manually.
-*
-* Source: petStore.yaml
-*/
-```
-- `'full'`: will add source, title, description and the OpenAPI version used
-
-
-```typescript [kubb.config.ts]
+- `'simple'` - Basic banner with link and source file
+  ```typescript
+  /**
+   * Generated by Kubb (https://kubb.dev/).
+   * Do not edit manually.
+   *
+   * Source: petStore.yaml
+   */
+  ```
+- `'full'` - Detailed banner with API title, description, and OpenAPI version
+- `false` - No banner
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
+  input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
-    clean: true,
-    defaultBanner: false,
+    defaultBanner: 'full', // Include full API details
   },
 })
 ```
@@ -365,7 +380,7 @@ export default defineConfig({
 An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Refer to “pre” for more details.
 How to use and set up plugins, see [plugins](/knowledge-base/plugins/).
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 
@@ -414,7 +429,7 @@ export default defineConfig({
 If the config needs to be conditionally determined based on CLI options flags, it can be exported as a function instead.
 Here you can choose between returning the config options **synchronously** or **asynchronously**.
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig(({ config, watch, logLevel }) => {
@@ -436,7 +451,7 @@ export default defineConfig(({ config, watch, logLevel }) => {
 > [!TIP]
 > With version `2.x.x` or higher we also support using multiple versions of the same plugin.
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 
@@ -474,7 +489,7 @@ export default defineConfig(() => {
 > [!TIP]
 > Since version `2.x.x` or higher we also support using multiple configs.
 
-```typescript [kubb.config.ts]
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 

@@ -1,10 +1,22 @@
 # AGENTS.md
 
-This document provides essential guidelines for AI coding assistants (Cursor, GitHub Copilot) working on Kubb documentation. Repository docs are located in the `docs/` folder and use Markdown (MD or MDX) with VitePress.
+This document provides guidelines for AI coding assistants working on Kubb documentation.
 
-## When to update documentation
+**Scope**: Documentation in the `docs/` folder (Markdown/MDX with VitePress)
 
-See root `AGENTS.md` for general guidance on when to update documentation. This section covers documentation-specific details.
+**Goal**: Create clear, concise, practical documentation optimized for developer experience
+
+## When to Update Documentation
+
+**Always update docs when:**
+- Adding a new plugin, feature, or option
+- Changing plugin behavior or API signatures
+- Fixing bugs that affect user-facing behavior
+
+**See root `AGENTS.md` for:**
+- General PR requirements
+- Changelog update process
+- Testing requirements
 
 ## Folder structure
 
@@ -57,57 +69,95 @@ outline: deep
 ---
 ```
 
-## Documentation structure
+## Documentation Structure by Section
 
-### Plugin documentation template
+### Plugin Documentation Template
 
-All plugin docs follow this structure:
+Every plugin doc follows this order:
 
-1. **Title and description**
-2. **Installation** (code-group with package managers)
-3. **Options** (with tables and descriptions)
-4. **Examples** (at the bottom)
-5. **Links** (if applicable, at the very end)
+1. **Title and one-sentence description**
+   ```markdown
+   # @kubb/plugin-name
+   
+   Generate TypeScript types from OpenAPI schemas.
+   ```
 
-### Options documentation format
+2. **Installation** (with code-group for all package managers)
 
-For each option, use this table format:
+3. **Options** (one section per option, in logical order)
+   - Start with `output` options (path, barrelType, etc.)
+   - Then feature-specific options
+   - End with advanced/rare options
+
+4. **Examples** (complete working configurations)
+
+5. **Links** (optional, if relevant)
+
+### Getting Started Documentation
+
+Focus on speed to productivity:
+- **Quick Start**: Get user running in <5 minutes
+- **Configure**: Reference for all config options
+- **At Glance**: Overview and value proposition
+- **Troubleshooting**: Common issues and solutions
+
+### Knowledge Base Documentation
+
+Deep-dives into specific topics:
+- Start with concrete use case or problem
+- Explain how it works
+- Provide working examples
+- Link to related plugins/concepts
+
+## Options Documentation Format
+
+For each option, use this structure:
 
 ```markdown
 ### optionName
 
-Brief description of what this option does.
+Brief one-sentence description of what this option does.
 
 > [!TIP]
-> Optional tip or important note
+> Additional context: when to use it, performance implications, or helpful notes
 
 |           |             |
 |----------:|:------------|
 |     Type: | `string`    |
-| Required: | `true`      |
+| Required: | `false`     |
 |  Default: | `'default'` |
+
+**Example:**
+
+\`\`\`typescript
+// Show minimal usage example
+\`\`\`
 ```
 
 **Rules:**
-- Use right-aligned column headers (`|----------:|`)
-- Type should be formatted as code (backticks)
-- Include `Required` field (true/false)
-- Include `Default` if there's a default value
-- Add tips using `> [!TIP]`, `> [!WARNING]`, `> [!NOTE]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]` blocks and don't use the Vitepress syntax (`::: tip``).
-```md
-> [!TIP]
-> Use the outline navigation (right sidebar) to quickly jump to specific versions.
-```
+- **One sentence description**: Start with what it does, not why
+- **Type accuracy**: Use exact TypeScript types from the code
+- **Always include Required**: `true` or `false`, never omit
+- **Always include Default**: If there's a default, specify it. If no default, omit this row
+- **Use callouts correctly**: `> [!TIP]`, `> [!WARNING]`, `> [!NOTE]`, `> [!IMPORTANT]`, `> [!CAUTION]` (not VitePress `:::` syntax)
+- **Add examples**: For complex options, show a working example
 
 ### Code examples
 
-**Always include working examples** at the bottom of plugin docs:
+**Structure**: Place examples at the bottom of each page, after all options are documented.
+
+**Always include:**
+- All required imports
+- Minimal but complete configuration
+- Standard example file: `petStore.yaml`
+- All prerequisite plugins (e.g., `pluginOas()`)
+
+**Example structure:**
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
-import { pluginName } from '@kubb/plugin-name'
 
 export default defineConfig({
   input: {
@@ -118,20 +168,20 @@ export default defineConfig({
   },
   plugins: [
     pluginOas(),
-    pluginTs(),
-    pluginName({
-      // Show relevant options
+    pluginTs({
+      // Show the relevant options being documented
+      output: { path: 'models' },
+      enumType: 'asConst',
     }),
   ],
 })
 ```
 
-**Code example guidelines:**
-- Use `twoslash` annotation for TypeScript examples (enables type checking)
-- Show realistic, complete configurations
-- Include all required plugins
-- Use `petStore.yaml` as the standard example input
-- Place examples at the bottom of the page
+**Guidelines:**
+- Use `twoslash` annotation for TypeScript: enables type checking
+- Show only relevant options, omit unrelated configuration
+- Use code groups for multiple package managers (installation examples)
+- Include expected output when helpful (for CLI commands, generated code samples)
 
 ### Including shared content
 
@@ -150,31 +200,69 @@ Use VitePress `@include` directive to reuse shared content:
 
 **Location**: `docs/plugins/core/`
 
-## Documenting new features
+## Documenting New Features
 
-When adding a new feature:
+### New Plugin
+1. Create `docs/plugins/plugin-name/index.md`
+2. Use existing plugin docs as template
+3. Include: installation, all options, working examples
+4. Update `.vitepress/config.ts` sidebar
+5. Link from relevant getting-started or knowledge-base pages
 
-1. **Create or update relevant docs**:
-   - New plugin → Create `docs/plugins/plugin-name/index.md`
-   - New option → Add to existing plugin doc
-   - New concept → Add to `knowledge-base/` or appropriate section
+### New Option
+1. Add to existing plugin doc in the Options section
+2. Follow the standard option format
+3. Update examples if the new option is commonly used
+4. Note any dependencies or prerequisites
 
-2. **Follow the template**:
-   - Use existing plugin docs as reference
-   - Include installation, options, and examples
-   - Link to related plugins/concepts
+### New Concept/Feature
+1. Add to `docs/knowledge-base/` if it's a deep-dive
+2. Add to `docs/getting-started/` if it's foundational
+3. Use clear section headers (What, Why, How)
+4. Include complete working examples
+5. Link from related docs
 
-3. **Update navigation**:
-   - Check `.vitepress/config.ts` for sidebar structure
-   - Add new items to appropriate sections
+### New Tutorial
+1. Create in `docs/tutorials/`
+2. Step-by-step format with clear objectives
+3. Each step should be runnable and verifiable
+4. Include complete code samples
+5. Link from getting-started or README
 
-4. **Add examples**:
-   - Ensure examples work with `petStore.yaml`
-   - Test examples locally before committing
+## Documenting Bug Fixes
 
-## Documenting bug fixes
+When fixing bugs that affect user-facing behavior:
 
-See root `AGENTS.md` for general guidance on documenting bug fixes. Focus on documentation-specific details here.
+1. **Update relevant documentation**
+   - Fix incorrect examples
+   - Clarify ambiguous descriptions
+   - Update troubleshooting guide if applicable
+
+2. **Add to changelog** (via `pnpm changeset`)
+   - Explain what was broken
+   - Show correct usage
+   - Link to relevant docs
+
+3. **Consider migration notes**
+   - If fix changes expected behavior
+   - Add to migration guide with before/after examples
+
+**Example:**
+
+```markdown
+## Fixed incorrect enum type output
+
+**Issue**: `enumType: 'asConst'` generated invalid TypeScript
+
+**Fixed**: Now correctly generates:
+
+\`\`\`typescript
+const petType = {
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
+\`\`\`
+```
 
 ## Code groups
 
@@ -227,54 +315,118 @@ yarn add -D @kubb/plugin-name
 - [Getting Started](/getting-started/at-glance/)
 ```
 
-## Writing style
+## Writing Style Guidelines
 
-- **Be concise**: Short paragraphs, clear sentences
-- **Be actionable**: Use imperative mood ("Set the option to...")
-- **Use examples**: Show, don't just tell
-- **Include outputs**: Show expected results for commands
-- **Be consistent**: Follow existing documentation patterns
+### Clarity Over Marketing
+- **Direct and technical**: Avoid marketing language like "powerful", "amazing", "seamless"
+- **Concrete over abstract**: Prefer "Generates TypeScript types from OpenAPI schemas" over "Transforms your API into typed code"
+- **Short paragraphs**: 1-3 sentences per paragraph
+- **Active voice**: "The plugin generates types" not "Types are generated"
 
-## Testing documentation
+### Structure: What → Why → When → How
+1. **What**: Brief description of the feature/option
+2. **Why**: Use case or problem it solves (optional, if not obvious)
+3. **When**: When to use it vs alternatives (optional)
+4. **How**: Example showing usage
 
-Before submitting docs changes:
+### Examples Must Be:
+- **Realistic**: Use actual OpenAPI schema snippets, not placeholders
+- **Complete**: Include all required configuration
+- **Tested**: Verify examples work before committing
+- **Minimal**: Show only what's necessary to understand the feature
 
-1. **Preview locally**: Run `pnpm start` in `docs/` folder (see root `AGENTS.md` for general testing)
-2. **Check links**: Verify all internal/external links work
-3. **Verify examples**: Ensure code examples are correct
-4. **Check formatting**: Tables, code blocks render correctly
-5. **Test navigation**: Verify sidebar navigation works
+### Defaults and Behavior
+- **Always document defaults**: Never leave default values unspecified
+- **Explain omission**: What happens if a config option is omitted?
+- **Call out side effects**: Does this option affect performance, file size, or other plugins?
+- **Note requirements**: List any prerequisites or dependencies
 
-## PR checklist for documentation
+### Common Mistakes to Avoid
+- **Don't invent features**: Only document what exists in the code
+- **Don't reference internals**: Unless they're part of the public API
+- **Don't assume knowledge**: Explain acronyms and concepts on first use
+- **Don't hide gotchas**: Call out edge cases and limitations explicitly
 
-- [ ] Documentation updated for all code changes
-- [ ] Frontmatter is correct (`layout: doc`, `title`, `outline: deep`)
-- [ ] Options documented with proper table format
-- [ ] Examples included and tested
-- [ ] Links verified (internal and external)
-- [ ] Images optimized and properly referenced
-- [ ] Code groups include all package managers
+## Testing Documentation Changes
+
+**Before committing documentation:**
+
+1. **Preview locally**
+   ```shell
+   cd docs
+   pnpm start
+   ```
+
+2. **Verify all changes**
+   - [ ] Frontmatter is correct (`layout: doc`, `title`, `outline: deep`)
+   - [ ] Tables render properly
+   - [ ] Code blocks have correct syntax highlighting
+   - [ ] Links work (internal and external)
+   - [ ] Images load and display correctly
+   - [ ] Navigation sidebar shows the page
+
+3. **Test examples**
+   - Copy example code into a test project
+   - Verify it runs without errors
+   - Ensure imports resolve correctly
+
+4. **Check for common mistakes**
+   - No broken internal links (`/path/to/page/` not `/path/to/page`)
+   - No invented features or options
+   - No references to code internals unless part of public API
+   - Defaults match the actual code behavior
+
+## PR Checklist for Documentation
+
+**Before submitting:**
+
+- [ ] All code changes have corresponding documentation updates
+- [ ] Frontmatter is complete and correct
+- [ ] Options follow the standard format (table with Type, Required, Default)
+- [ ] Examples are complete, tested, and use `petStore.yaml`
+- [ ] All links verified (end with `/` for internal links)
+- [ ] No marketing language or vague descriptions
+- [ ] Defaults explicitly stated or marked as optional
+- [ ] Edge cases and limitations documented
+- [ ] Code groups include all package managers (bun, pnpm, npm, yarn)
 - [ ] Shared content uses `@include` where appropriate
-- [ ] Navigation updated if needed (`.vitepress/config.ts`)
-- [ ] Changelog updated via `pnpm changeset`
+- [ ] Callouts use `> [!TYPE]` syntax (not `:::`)
+- [ ] Navigation updated in `.vitepress/config.ts` if needed
+- [ ] Changelog updated via `pnpm changeset` (for code changes)
+- [ ] Previewed locally with `pnpm start` in docs folder
 
-## Common patterns
+**Review for quality:**
+- [ ] Clear: No ambiguity, technical jargon explained
+- [ ] Concise: Short paragraphs, no redundancy
+- [ ] Correct: Examples work, defaults match code
+- [ ] Complete: Edge cases documented, gotchas called out
+- [ ] Consistent: Follows existing patterns and terminology
+
+## Common Documentation Patterns
 
 ### Documenting a new plugin option
 
 ```markdown
 ### newOption
 
-Description of what this option does and when to use it.
+Description of what this option does (one sentence, technical).
 
 > [!TIP]
-> Optional helpful tip
+> When to use this: [specific use case]. Default behavior is [X].
 
 |           |             |
 |----------:|:------------|
 |     Type: | `string \| boolean` |
 | Required: | `false`     |
-|  Default: | `'default'` |
+|  Default: | `true`      |
+
+**Example:**
+
+\`\`\`typescript
+pluginName({
+  newOption: false,
+})
+\`\`\`
 ```
 
 ### Documenting breaking changes
@@ -286,32 +438,93 @@ Add to `migration-guide.md`:
 
 ### Plugin Name
 
-**Before:**
-```typescript
+**Changed**: `oldOption` renamed to `newOption`
+
+::: code-group
+
+\`\`\`typescript [Before]
 pluginName({ oldOption: true })
-```
+\`\`\`
 
-**After:**
-```typescript
+\`\`\`typescript [After]
 pluginName({ newOption: true })
+\`\`\`
+
+:::
+
+**Migration**: Update all references to `oldOption` in your config.
 ```
+
+### Adding a code example with output
+
+```markdown
+**Example:**
+
+\`\`\`typescript [kubb.config.ts]
+export default defineConfig({
+  // config
+})
+\`\`\`
+
+**Generated output:**
+
+\`\`\`typescript [models/Pet.ts]
+export type Pet = {
+  id: number
+  name: string
+}
+\`\`\`
 ```
 
-### Adding a new tutorial
+### Documenting monorepo behavior
 
-1. Create file in `docs/tutorials/`
-2. Use step-by-step format
-3. Include complete working examples
-4. Link from getting-started or relevant plugin docs
+```markdown
+> [!NOTE]
+> In monorepos: Run `kubb generate` from the workspace root, or use separate configs per package. See [Best Practices](/knowledge-base/best-practices/) for details.
+```
 
-## Review guidance for agent-created docs
+## Quality Standards for AI-Generated Documentation
 
-See root `AGENTS.md` for general review checklist. Documentation-specific checks:
+When reviewing AI-generated documentation, verify:
 
-- **No hallucinations**: Check that examples and code actually work
-- **Navigation**: Confirm frontmatter and file placement are correct
-- **Links**: Ensure all links resolve correctly
-- **VitePress formatting**: Verify frontmatter, code groups, and includes work correctly
+### Accuracy
+- [ ] No invented features or options
+- [ ] Types match actual TypeScript types in code
+- [ ] Defaults match actual code behavior
+- [ ] Examples run without errors
+- [ ] Links point to existing pages
+
+### Clarity
+- [ ] One clear idea per paragraph
+- [ ] Technical terms defined on first use
+- [ ] No marketing fluff ("powerful", "seamless", etc.)
+- [ ] Concrete examples over abstract descriptions
+
+### Completeness
+- [ ] All options documented
+- [ ] Defaults explicitly stated
+- [ ] Side effects called out
+- [ ] Prerequisites listed
+- [ ] Edge cases and limitations noted
+
+### Consistency
+- [ ] Terminology matches rest of docs
+- [ ] Format matches existing plugin docs
+- [ ] Code style matches repository conventions
+- [ ] File naming follows kebab-case pattern
+
+### Helpful Context
+- [ ] When to use this vs alternatives
+- [ ] Performance implications if relevant
+- [ ] Monorepo/CI considerations if applicable
+- [ ] Common mistakes section if relevant
+
+**Red flags:**
+- Vague descriptions without examples
+- Missing default values
+- References to "internal implementation"
+- Broken or placeholder links
+- Examples that don't match documented behavior
 
 ## Getting help
 

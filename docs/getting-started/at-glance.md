@@ -6,39 +6,51 @@ outline: deep
 ---
 
 # At Glance
-Kubb is a library and toolkit that transforms your [Swagger/OpenAPI](/knowledge-base/oas) specification into various client libraries, including:
-- [TypeScript](/plugins/plugin-ts/)
-- [React-Query](/plugins/plugin-react-query/)
-- [Vue-Query](/plugins/plugin-vue-query/)
-- [Solid-Query](/plugins/plugin-solid-query/)
-- [Svelte-Query](/plugins/plugin-svelte-query/)
-- [Zod](/plugins/plugin-zod/) `v4 support`
-- [Faker.js](/plugins/plugin-faker/)
-- [Axios](/plugins/plugin-client/)
-- [Redoc](/plugins/plugin-redoc/)
-- [MCP](https://modelcontextprotocol.io/)
-- ...
 
-Additionally, Kubb features a plugin system, enabling you to build custom implementations and integrate other libraries.
+Kubb generates TypeScript code from OpenAPI/Swagger specifications.
+
+## What It Generates
+
+Transform your OpenAPI spec into:
+
+- **[TypeScript types](/plugins/plugin-ts/)** - Type-safe interfaces and schemas
+- **HTTP clients** - [Axios](/plugins/plugin-client/), Fetch, or custom clients
+- **React Query hooks** - [React](/plugins/plugin-react-query/), [Vue](/plugins/plugin-vue-query/), [Solid](/plugins/plugin-solid-query/), [Svelte](/plugins/plugin-svelte-query/)
+- **Validators** - [Zod](/plugins/plugin-zod/) schemas (v4 support)
+- **Mock data** - [Faker.js](/plugins/plugin-faker/) generators
+- **API mocks** - [MSW](/plugins/plugin-msw/) handlers
+- **Test utilities** - [Cypress](/plugins/plugin-cypress/) commands
+- **API documentation** - [Redoc](/plugins/plugin-redoc/) integration
+- **MCP servers** - [Model Context Protocol](https://modelcontextprotocol.io/) for AI assistants
+
+Extend Kubb with custom plugins to integrate other libraries or generate additional code.
 
 <iframe src="https://github.com/sponsors/stijnvanhulle/button" title="Sponsor stijnvanhulle" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
 
-## Features
-- Works with Node.js 20+.
-- Supports Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1.
-- Plugin Ecosystem of Kubb to extend beyond the default plugins we provide.
-- CLI support with progressbar and logs.
-- Debug tools with [React DevTools](/knowledge-base/debugging).
-- Generate barrel files(index.ts).
-- And so much more ...
+## Key Features
 
-## Philosophy
+- **Node.js 20+** - Modern JavaScript runtime support
+- **OpenAPI 2.0, 3.0, 3.1** - All major OpenAPI versions supported
+- **Plugin system** - Extend with custom generators or use community plugins
+- **CLI with progress tracking** - Monitor generation with progress bars and detailed logs
+- **Debug mode** - Inspect generation with [React DevTools](/knowledge-base/debugging)
+- **Barrel files** - Automatic `index.ts` generation for clean imports
+- **Type-safe** - Full TypeScript support with strict type checking
+- **Fast** - Parallel processing for large API specifications
 
-Imagine that your backend team is writing an API in Java/Kotlin, how do you connect your frontend to their system without the need of communicating on every API change.
-This is not a new problem and has already been resolved with the use of a Swagger/OpenAPI specification combined with a <a href="https://tools.openapis.org/categories/code-generators.html">code generator</a>. This concept is called [contract-first development](https://medium.com/@dxloop/contract-first-approach-with-node-js-and-openapi-for-rest-services-d2283a7ffd9d) and one of our maintainer wrote this amazing article showing casing the use cases of Kubb.
+## Why Kubb?
 
-The problem is that most of them are good at one _thing_: generating TypeScript types or generating React-Query hooks.
-Kubb is trying to resolve that with a plugin system where we already provide you with some plugins but also giving you the possibility to create [your own plugin](/knowledge-base/plugins/).
+**Problem**: Keeping frontend code in sync with backend APIs requires manual updates when the API changes.
+
+**Solution**: Contract-first development with OpenAPI specifications and code generation.
+
+**Kubb's approach**: Most code generators focus on a single output (types *or* React Query hooks). Kubb uses a plugin system to generate multiple outputs from one OpenAPI spec:
+
+- Generate types, hooks, validators, and mocks in one command
+- Maintain consistency across your codebase
+- Extend with [custom plugins](/knowledge-base/plugins/) for specific needs
+
+This eliminates manual API client maintenance and reduces type mismatches between frontend and backend.
 
 
 ## Sponsoring

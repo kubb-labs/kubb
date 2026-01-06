@@ -110,10 +110,6 @@ const mainSidebar = [
         text: '@kubb/cli',
         link: '/helpers/cli/',
       },
-      {
-        text: '@kubb/oas',
-        link: '/helpers/oas/',
-      },
     ],
   },
   {
@@ -348,10 +344,6 @@ const documentationMenu = [
       {
         text: '@kubb/cli',
         link: '/helpers/cli/',
-      },
-      {
-        text: '@kubb/oas',
-        link: '/helpers/oas/',
       },
     ],
   },
