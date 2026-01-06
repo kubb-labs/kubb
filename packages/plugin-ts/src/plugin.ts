@@ -108,15 +108,8 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
         output: output.path,
       })
 
-      try {
-        const schemaFiles = await schemaGenerator.build(...generators)
-        await this.upsertFile(...schemaFiles)
-      } catch (error) {
-        // Re-throw to ensure errors propagate to build.ts failedPlugins
-        throw new Error(`Failed to generate TypeScript types for schemas: ${error instanceof Error ? error.message : String(error)}`, {
-          cause: error,
-        })
-      }
+      const schemaFiles = await schemaGenerator.build(...generators)
+      await this.upsertFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
@@ -131,15 +124,8 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
         mode,
       })
 
-      try {
-        const operationFiles = await operationGenerator.build(...generators)
-        await this.upsertFile(...operationFiles)
-      } catch (error) {
-        // Re-throw to ensure errors propagate to build.ts failedPlugins
-        throw new Error(`Failed to generate TypeScript types for operations: ${error instanceof Error ? error.message : String(error)}`, {
-          cause: error,
-        })
-      }
+      const operationFiles = await operationGenerator.build(...generators)
+      await this.upsertFile(...operationFiles)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
