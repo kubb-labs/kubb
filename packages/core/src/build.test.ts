@@ -1,6 +1,6 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
-import { build } from './build.ts'
+import { build, safeBuild } from './build.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbEvents, Plugin } from './types.ts'
 import { AsyncEventEmitter } from './utils'
@@ -112,7 +112,7 @@ describe('build', () => {
       plugins: [errorPlugin({})] as Plugin[],
     }
 
-    const { failedPlugins } = await build({
+    const { failedPlugins } = await safeBuild({
       config: errorConfig,
       events: new AsyncEventEmitter<KubbEvents>(),
     })
@@ -252,7 +252,7 @@ describe('build', () => {
       plugins: [throwingPlugin({})] as Plugin[],
     }
 
-    const result = await build({
+    const result = await safeBuild({
       config: throwingConfig,
       events: new AsyncEventEmitter<KubbEvents>(),
     })
