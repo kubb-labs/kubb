@@ -46,15 +46,18 @@ export function createQuestionToken(token?: boolean | ts.QuestionToken) {
 }
 
 export function createIntersectionDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
-  if (!nodes.length) {
+  // Filter out undefined/null nodes to prevent creating invalid AST
+  const validNodes = nodes.filter((node): node is ts.TypeNode => node != null)
+
+  if (!validNodes.length) {
     return null
   }
 
-  if (nodes.length === 1) {
-    return nodes[0] || null
+  if (validNodes.length === 1) {
+    return validNodes[0] || null
   }
 
-  const node = factory.createIntersectionTypeNode(nodes)
+  const node = factory.createIntersectionTypeNode(validNodes)
 
   if (withParentheses) {
     return factory.createParenthesizedType(node)
@@ -68,15 +71,18 @@ export function createIntersectionDeclaration({ nodes, withParentheses }: { node
  * @example `string & number`
  */
 export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
-  if (!nodes.length) {
+  // Filter out undefined/null nodes to prevent creating invalid AST
+  const validNodes = nodes.filter((node): node is ts.TypeNode => node != null)
+
+  if (!validNodes.length) {
     return null
   }
 
-  if (nodes.length === 1) {
-    return nodes[0] || null
+  if (validNodes.length === 1) {
+    return validNodes[0] || null
   }
 
-  const node = factory.createTupleTypeNode(nodes)
+  const node = factory.createTupleTypeNode(validNodes)
 
   if (withParentheses) {
     return factory.createParenthesizedType(node)
@@ -86,15 +92,18 @@ export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Arra
 }
 
 export function createArrayDeclaration({ nodes }: { nodes: Array<ts.TypeNode> }): ts.TypeNode | null {
-  if (!nodes.length) {
+  // Filter out undefined/null nodes to prevent creating invalid AST
+  const validNodes = nodes.filter((node): node is ts.TypeNode => node != null)
+
+  if (!validNodes.length) {
     return factory.createTupleTypeNode([])
   }
 
-  if (nodes.length === 1) {
-    return factory.createArrayTypeNode(nodes.at(0)!)
+  if (validNodes.length === 1) {
+    return factory.createArrayTypeNode(validNodes.at(0)!)
   }
 
-  return factory.createExpressionWithTypeArguments(factory.createIdentifier('Array'), [factory.createUnionTypeNode(nodes)])
+  return factory.createExpressionWithTypeArguments(factory.createIdentifier('Array'), [factory.createUnionTypeNode(validNodes)])
 }
 
 /**
@@ -102,15 +111,18 @@ export function createArrayDeclaration({ nodes }: { nodes: Array<ts.TypeNode> })
  * @example `string | number`
  */
 export function createUnionDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode {
-  if (!nodes.length) {
+  // Filter out undefined/null nodes to prevent creating invalid AST
+  const validNodes = nodes.filter((node): node is ts.TypeNode => node != null)
+
+  if (!validNodes.length) {
     return keywordTypeNodes.any
   }
 
-  if (nodes.length === 1) {
-    return nodes[0] as ts.TypeNode
+  if (validNodes.length === 1) {
+    return validNodes[0] as ts.TypeNode
   }
 
-  const node = factory.createUnionTypeNode(nodes)
+  const node = factory.createUnionTypeNode(validNodes)
 
   if (withParentheses) {
     return factory.createParenthesizedType(node)
@@ -191,8 +203,9 @@ export function appendJSDocToNode<TNode extends ts.Node>({ node, comments }: { n
     return `${acc}\n * ${comment.replaceAll('*/', '*\\/')}`
   }, '*')
 
-  // node: {...node}, with that ts.addSyntheticLeadingComment is appending
-  return ts.addSyntheticLeadingComment({ ...node }, ts.SyntaxKind.MultiLineCommentTrivia, `${text || '*'}\n`, true)
+  // Use the node directly instead of spreading to avoid creating Unknown nodes
+  // TypeScript's addSyntheticLeadingComment accepts the node as-is
+  return ts.addSyntheticLeadingComment(node, ts.SyntaxKind.MultiLineCommentTrivia, `${text || '*'}\n`, true)
 }
 
 export function createIndexSignature(
