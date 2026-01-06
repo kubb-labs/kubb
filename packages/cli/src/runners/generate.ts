@@ -185,10 +185,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
     if (linter && linter !== 'auto') {
       await events.emit(
         'info',
-        [
-          `Linting with ${pc.dim(linter as string)}`,
-          logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
-        ]
+        [`Linting with ${pc.dim(linter as string)}`, logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined]
           .filter(Boolean)
           .join(' '),
       )
