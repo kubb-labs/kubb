@@ -50,7 +50,7 @@ export type SchemaKeywordMapper = {
       value?: string | number | boolean
     }
   }
-  union: { keyword: 'union'; args: Schema[] }
+  union: { keyword: 'union'; args: Schema[]; oneOf?: boolean }
   ref: {
     keyword: 'ref'
     args: {

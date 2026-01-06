@@ -504,11 +504,37 @@ export const parse = createParser<string, ParserOptions>({
         return ''
       }
 
-      return zodKeywordMapper.union(
-        sort(current.args)
-          .map((it, _index, siblings) => this.parse({ schema, parent: current, name, current: it, siblings }, options))
-          .filter(Boolean),
-      )
+      const parsedSchemas = sort(current.args)
+        .map((it, _index, siblings) => this.parse({ schema, parent: current, name, current: it, siblings }, options))
+        .filter(Boolean)
+
+      const unionSchema = zodKeywordMapper.union(parsedSchemas)
+
+      // For oneOf, add validation to ensure exactly one schema matches
+      if (current.oneOf) {
+        return `${unionSchema}.superRefine((value, ctx) => {
+    const schemas = [${parsedSchemas.join(', ')}];
+    let matches = 0;
+    for (const schema of schemas) {
+      if (schema.safeParse(value).success) {
+        matches++;
+      }
+    }
+    if (matches === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid input: Should pass one schema in oneOf"
+      });
+    } else if (matches > 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid input: Should pass only one schema in oneOf"
+      });
+    }
+  })`
+      }
+
+      return unionSchema
     },
     and(tree, options) {
       const { current, schema, name } = tree
