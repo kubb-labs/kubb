@@ -1,10 +1,6 @@
 {
   "allOf": [
-    {
-      "type": "object",
-      "properties": { "name": { "type": "string" } },
-      "x-readme-ref-name": "Person"
-    },
+    { "type": "object", "properties": { "name": { "type": "string" } }, "x-readme-ref-name": "Person" },
     {
       "type": "object",
       "properties": {
@@ -15,12 +11,7 @@
         "email": { "type": "string", "example": "john@email.com" },
         "password": { "type": "string", "example": "12345" },
         "phone": { "type": "string", "example": "12345" },
-        "userStatus": {
-          "type": "integer",
-          "description": "User Status",
-          "format": "int32",
-          "example": 1
-        }
+        "userStatus": { "type": "integer", "description": "User Status", "format": "int32", "example": 1 }
       }
     }
   ],
