@@ -2,7 +2,7 @@ import { safeBuild } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
-const jiraSpecUrl = 'https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json'
+const jiraSpecUrl = 'https://dac-static.atlassian.com/server/jira/platform/jira_software_dc_11002_swagger.v3.json?_v=1.1203.0'
 
 const result = await safeBuild({
   config: {
