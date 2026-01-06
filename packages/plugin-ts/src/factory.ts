@@ -193,7 +193,7 @@ export function createJSDoc({ comments }: { comments: string[] }) {
  * Recursively validates a TypeScript AST node and all its children for Unknown SyntaxKind.
  * Throws an error if any Unknown nodes are found in the tree.
  */
-function validateNodeRecursively(node: ts.Node, path: string = 'root'): void {
+function validateNodeRecursively(node: ts.Node | null | undefined, path: string = 'root'): void {
   if (!node) {
     return
   }
@@ -206,9 +206,12 @@ function validateNodeRecursively(node: ts.Node, path: string = 'root'): void {
   }
 
   // Recursively validate all children
+  // Note: Using childIndex to track position for better error messages
   let childIndex = 0
   ts.forEachChild(node, (child) => {
-    validateNodeRecursively(child, `${path}.child[${childIndex++}]`)
+    const childPath = `${path}.child[${childIndex}]`
+    childIndex++
+    validateNodeRecursively(child, childPath)
   })
 }
 
