@@ -15,6 +15,100 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.13.0
+
+### ✨ Features
+
+#### [`@kubb/cli`](/getting-started/installation/), [`@kubb/core`](/api/core/)
+
+**Auto-Detection for Formatters and Linters**
+
+Added `'auto'` option for both `output.format` and `output.lint` configurations. When set to `'auto'`, Kubb automatically detects and uses available tools, eliminating the need to explicitly specify which formatter or linter to use.
+
+**Format Auto-Detection:**
+
+When `format: 'auto'` is set, Kubb checks for formatters in this order:
+1. **biome** (first choice)
+2. **prettier** (second choice)
+
+::: code-group
+
+```typescript [Before]
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    format: 'prettier', // Had to specify which formatter
+  },
+})
+```
+
+```typescript [After]
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    format: 'auto', // Automatically detects biome or prettier
+  },
+})
+```
+
+:::
+
+**Lint Auto-Detection:**
+
+When `lint: 'auto'` is set, Kubb checks for linters in this order:
+1. **biome** (first choice)
+2. **oxlint** (second choice)
+3. **eslint** (third choice)
+
+::: code-group
+
+```typescript [Before]
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    lint: 'eslint', // Had to specify which linter
+  },
+})
+```
+
+```typescript [After]
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    lint: 'auto', // Automatically detects biome, oxlint, or eslint
+  },
+})
+```
+
+:::
+
+**Combined Usage:**
+
+::: code-group
+
+```typescript [kubb.config.ts]
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    format: 'auto', // Detects biome or prettier
+    lint: 'auto',   // Detects biome, oxlint, or eslint
+  },
+})
+```
+
+:::
+
+If no formatter or linter is detected, Kubb will emit a warning and skip the respective operation, ensuring your build continues smoothly.
+
+::: tip
+This feature provides a convenient default for users who want formatting/linting without having to configure which specific tool to use. The detection uses the `--version` flag to check tool availability.
+:::
+
 ## 4.12.13
 
 ### 🐛 Bug Fixes

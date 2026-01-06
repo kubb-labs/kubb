@@ -28,9 +28,6 @@ export default defineConfig(() => {
         barrelType: 'named',
         defaultBanner: false,
       },
-      hooks: {
-        done: [],
-      },
       plugins: [
         pluginOas({
           output: {
