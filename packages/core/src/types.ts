@@ -88,11 +88,12 @@ export type Config<TInput = Input> = {
      * @default prettier
      *
      * Possible values:
+     * - 'auto': Automatically detects and uses biome or prettier (in that order of preference).
      * - 'prettier': Uses Prettier for code formatting.
      * - 'biome': Uses Biome for code formatting.
      *
      */
-    format?: 'prettier' | 'biome' | false
+    format?: 'auto' | 'prettier' | 'biome' | false
     /**
      * Specifies the linter that should be used to analyze the code.
      * The accepted values indicate different linting tools.

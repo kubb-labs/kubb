@@ -202,12 +202,13 @@ export default defineConfig({
 
 Code formatter to use on generated files.
 
-|           |                                  |
-|----------:|:---------------------------------|
-|     Type: | `'prettier' \| 'biome' \| false` |
-| Required: | `false`                          |
-|  Default: | `'prettier'`                     |
+|           |                                             |
+|----------:|:--------------------------------------------|
+|     Type: | `'auto' \| 'prettier' \| 'biome' \| false` |
+| Required: | `false`                                     |
+|  Default: | `'prettier'`                                |
 
+- `'auto'` - Automatically detect and use available formatter (checks for biome, then prettier)
 - `'prettier'` - Format with [Prettier](https://prettier.io/) (default, included since v3.17.1)
 - `'biome'` - Format with [Biome](https://biomejs.dev/)
 - `false` - Skip formatting
@@ -222,7 +223,7 @@ export default defineConfig({
   input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
-    format: 'biome', // Use Biome instead of Prettier
+    format: 'auto', // Automatically detect and use available formatter
   },
 })
 ```
