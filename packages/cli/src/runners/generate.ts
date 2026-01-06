@@ -174,7 +174,6 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
       const detectedLinter = await detectLinter()
       if (!detectedLinter) {
         await events.emit('warn', 'No linter found (biome, oxlint, or eslint). Skipping linting.')
-        await events.emit('lint:end')
       } else {
         linter = detectedLinter
         await events.emit('info', `Auto-detected linter: ${pc.dim(linter)}`)

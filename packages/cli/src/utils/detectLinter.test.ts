@@ -1,3 +1,4 @@
+import type { ExecaReturnValue } from 'execa'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { detectLinter } from './detectLinter.ts'
 
@@ -15,7 +16,7 @@ describe('detectLinter', () => {
     const { execaCommand } = await import('execa')
     vi.mocked(execaCommand).mockImplementation(async (command: string) => {
       if (command === 'biome --version') {
-        return {} as any
+        return {} as ExecaReturnValue
       }
       throw new Error('Command not found')
     })
@@ -28,7 +29,7 @@ describe('detectLinter', () => {
     const { execaCommand } = await import('execa')
     vi.mocked(execaCommand).mockImplementation(async (command: string) => {
       if (command === 'oxlint --version') {
-        return {} as any
+        return {} as ExecaReturnValue
       }
       throw new Error('Command not found')
     })
@@ -41,7 +42,7 @@ describe('detectLinter', () => {
     const { execaCommand } = await import('execa')
     vi.mocked(execaCommand).mockImplementation(async (command: string) => {
       if (command === 'eslint --version') {
-        return {} as any
+        return {} as ExecaReturnValue
       }
       throw new Error('Command not found')
     })
@@ -63,7 +64,7 @@ describe('detectLinter', () => {
   it('should prioritize biome over other linters', async () => {
     const { execaCommand } = await import('execa')
     // All linters are available
-    vi.mocked(execaCommand).mockResolvedValue({} as any)
+    vi.mocked(execaCommand).mockResolvedValue({} as ExecaReturnValue)
 
     const result = await detectLinter()
     expect(result).toBe('biome')
