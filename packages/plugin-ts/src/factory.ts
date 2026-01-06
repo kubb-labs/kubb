@@ -190,6 +190,29 @@ export function createJSDoc({ comments }: { comments: string[] }) {
 }
 
 /**
+ * Recursively validates a TypeScript AST node and all its children for Unknown SyntaxKind.
+ * Throws an error if any Unknown nodes are found in the tree.
+ */
+function validateNodeRecursively(node: ts.Node, path: string = 'root'): void {
+  if (!node) {
+    return
+  }
+
+  if (node.kind === ts.SyntaxKind.Unknown) {
+    throw new Error(
+      `Invalid TypeScript AST node detected with SyntaxKind.Unknown at ${path}. ` +
+        `This indicates a schema pattern that couldn't be properly converted to TypeScript.`,
+    )
+  }
+
+  // Recursively validate all children
+  let childIndex = 0
+  ts.forEachChild(node, (child) => {
+    validateNodeRecursively(child, `${path}.child[${childIndex++}]`)
+  })
+}
+
+/**
  * @link https://github.com/microsoft/TypeScript/issues/44151
  */
 export function appendJSDocToNode<TNode extends ts.Node>({ node, comments }: { node: TNode; comments: Array<string | undefined> }) {
@@ -198,6 +221,9 @@ export function appendJSDocToNode<TNode extends ts.Node>({ node, comments }: { n
   if (!filteredComments.length) {
     return node
   }
+
+  // Validate the node doesn't contain any Unknown nodes before processing
+  validateNodeRecursively(node, 'JSDoc.node')
 
   const text = filteredComments.reduce((acc = '', comment = '') => {
     return `${acc}\n * ${comment.replaceAll('*/', '*\\/')}`
@@ -264,6 +290,9 @@ export function createTypeDeclaration({
   name: string | ts.Identifier
   type: ts.TypeNode
 }) {
+  // Validate the type node doesn't contain Unknown nodes
+  validateNodeRecursively(type, `TypeDeclaration(${typeof name === 'string' ? name : name.text}).type`)
+
   if (syntax === 'interface' && 'members' in type) {
     const node = createInterfaceDeclaration({
       members: type.members as Array<ts.TypeElement>,
