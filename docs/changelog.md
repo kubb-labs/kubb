@@ -15,6 +15,79 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.13.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Fixed TypeScript Printer Crash with Object Prototype Property Names**
+
+Resolved a critical issue where schemas containing properties named after JavaScript built-in methods (e.g., `toString`, `valueOf`, `hasOwnProperty`) would crash the TypeScript printer with `"Debug Failure. Unhandled SyntaxKind: Unknown"`.
+
+**Root Cause:**
+
+The mapper lookup was using bracket notation (`options.mapper?.[mappedName]`), which searches the entire prototype chain. For property names like `"toString"`, it would find `Object.prototype.toString` and treat it as a custom mapping function instead of creating a proper TypeScript property signature.
+
+**Solution:**
+
+Changed the mapper check to use `Object.prototype.hasOwnProperty.call()` to only match user-defined mapper properties:
+
+::: code-group
+
+```typescript [Before - Buggy]
+// Matches inherited properties from Object.prototype
+if (options.mapper?.[mappedName]) {
+  return options.mapper?.[mappedName]  // Returns Object.prototype.toString
+}
+```
+
+```typescript [After - Fixed]
+// Only matches own properties, not inherited ones
+if (options.mapper && Object.prototype.hasOwnProperty.call(options.mapper, mappedName)) {
+  return options.mapper[mappedName]
+}
+```
+
+:::
+
+**Affected Schemas:**
+
+This bug affected any OpenAPI schema with properties named after JavaScript built-in methods, including:
+- `toString`
+- `valueOf`
+- `hasOwnProperty`
+- `constructor`
+- Other Object.prototype methods
+
+**Example Schema:**
+
+```yaml
+components:
+  schemas:
+    ChangeItemBean:
+      type: object
+      properties:
+        field: { type: string }
+        toString: { type: string }  # Previously crashed, now works
+        valueOf: { type: string }    # Previously crashed, now works
+```
+
+**Additional Improvements:**
+
+- Added null/undefined filtering in factory functions to prevent invalid AST nodes
+- Added fallback to `unknown` type when parser produces no valid type
+- Removed spread operator from `appendJSDocToNode` to prevent Unknown node creation
+- Added type validation in `createPropertySignature`
+
+**Testing:**
+
+Verified with the [Jira Software Data Center OpenAPI spec](https://dac-static.atlassian.com/server/jira/platform/jira_software_dc_11002_swagger.v3.json) - successfully generates 1091 TypeScript files with no errors (previously crashed).
+
+::: warning
+If you previously worked around this issue by disabling generators (`generators: []`), you can now remove that workaround.
+:::
+
 ## 4.13.0
 
 ### ✨ Features
