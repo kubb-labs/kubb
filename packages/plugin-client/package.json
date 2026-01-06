@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-client",
-  "version": "4.12.15",
+  "version": "4.13.0",
   "description": "API client generator plugin for Kubb, creating type-safe HTTP clients (Axios, Fetch) from OpenAPI specifications for making API requests.",
   "keywords": [
     "api-client",
@@ -108,7 +108,7 @@
     "axios": "^1.13.2"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.8.0",
+    "@kubb/react-fabric": "0.9.0",
     "axios": "^1.7.2"
   },
   "peerDependenciesMeta": {

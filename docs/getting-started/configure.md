@@ -202,12 +202,13 @@ export default defineConfig({
 
 Code formatter to use on generated files.
 
-|           |                                  |
-|----------:|:---------------------------------|
-|     Type: | `'prettier' \| 'biome' \| false` |
-| Required: | `false`                          |
-|  Default: | `'prettier'`                     |
+|           |                                             |
+|----------:|:--------------------------------------------|
+|     Type: | `'auto' \| 'prettier' \| 'biome' \| false` |
+| Required: | `false`                                     |
+|  Default: | `'prettier'`                                |
 
+- `'auto'` - Automatically detect and use available formatter (checks for biome, then prettier)
 - `'prettier'` - Format with [Prettier](https://prettier.io/) (default, included since v3.17.1)
 - `'biome'` - Format with [Biome](https://biomejs.dev/)
 - `false` - Skip formatting
@@ -222,7 +223,7 @@ export default defineConfig({
   input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
-    format: 'biome', // Use Biome instead of Prettier
+    format: 'auto', // Automatically detect and use available formatter
   },
 })
 ```
@@ -231,12 +232,13 @@ export default defineConfig({
 
 Linter to run on generated files.
 
-|           |                                            |
-|----------:|:-------------------------------------------|
-|     Type: | `'eslint' \| 'biome' \| 'oxlint' \| false` |
-| Required: | `false`                                    |
-|  Default: | `false`                                    |
+|           |                                                       |
+|----------:|:------------------------------------------------------|
+|     Type: | `'auto' \| 'eslint' \| 'biome' \| 'oxlint' \| false` |
+| Required: | `false`                                               |
+|  Default: | `false`                                               |
 
+- `'auto'` - Automatically detect and use available linter (checks for biome, oxlint, then eslint)
 - `'eslint'` - Lint with [ESLint](https://eslint.org/)
 - `'biome'` - Lint with [Biome](https://biomejs.dev/)
 - `'oxlint'` - Lint with [Oxlint](https://oxc.rs/docs/guide/usage/linter)
@@ -253,7 +255,7 @@ export default defineConfig({
   output: {
     path: './src/gen',
     format: 'biome',
-    lint: 'biome', // Use same tool for formatting and linting
+    lint: 'auto', // Automatically detect and use available linter
   },
 })
 ```

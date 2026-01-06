@@ -1,5 +1,31 @@
 # @kubb/core
 
+## 4.13.0
+
+### Minor Changes
+
+- [#2272](https://github.com/kubb-labs/kubb/pull/2272) [`f5a38da`](https://github.com/kubb-labs/kubb/commit/f5a38da05b1bf0553ee523628f7bedcccda51d94) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add 'auto' option for output.lint and output.format to automatically detect available tools
+
+  **Format Auto-Detection:**
+  When `format: 'auto'` is set, Kubb automatically detects and uses available formatters in this order: biome → prettier
+
+  **Lint Auto-Detection:**
+  When `lint: 'auto'` is set, Kubb automatically detects and uses available linters in this order: biome → oxlint → eslint
+
+  This provides a convenient default for users who want formatting/linting without specifying which tool to use.
+
+  ```typescript
+  // kubb.config.ts
+  export default defineConfig({
+    input: { path: "./petStore.yaml" },
+    output: {
+      path: "./src/gen",
+      format: "auto", // Detects biome or prettier
+      lint: "auto", // Detects biome, oxlint, or eslint
+    },
+  });
+  ```
+
 ## 4.12.15
 
 ## 4.12.14
