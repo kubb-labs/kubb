@@ -17,6 +17,7 @@ exports[`SchemaGenerator core > 'EmptyAnyOf' 1`] = `
               },
             ],
             "keyword": "union",
+            "oneOf": false,
           },
           {
             "args": {
@@ -45,6 +46,7 @@ exports[`SchemaGenerator core > 'EmptyAnyOf' 1`] = `
               },
             ],
             "keyword": "union",
+            "oneOf": false,
           },
           {
             "args": {

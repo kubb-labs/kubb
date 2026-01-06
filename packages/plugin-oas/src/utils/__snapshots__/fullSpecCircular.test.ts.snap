@@ -312,6 +312,7 @@ exports[`Full Spec Circular Discriminator References > should handle full Paymen
       },
     ],
     "keyword": "union",
+    "oneOf": true,
   },
   {
     "args": {
