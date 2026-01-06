@@ -1,5 +1,5 @@
 import transformers from '@kubb/core/transformers'
-import { print } from '@kubb/fabric-core/parsers/typescript'
+import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { SchemaObject } from '@kubb/oas'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { File } from '@kubb/react-fabric'
@@ -141,7 +141,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
         <>
           {nameNode && (
             <File.Source name={name} isExportable isIndexable>
-              {print(nameNode)}
+              {safePrint(nameNode)}
             </File.Source>
           )}
           {
@@ -151,14 +151,14 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
               isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
               isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
             >
-              {print(typeNode)}
+              {safePrint(typeNode)}
             </File.Source>
           }
         </>
       ))}
       {enums.every((item) => item.typeName !== name) && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
-          {print(...typeNodes)}
+          {safePrint(...typeNodes)}
         </File.Source>
       )}
     </>

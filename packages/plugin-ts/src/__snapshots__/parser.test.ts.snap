@@ -768,7 +768,7 @@ NodeObject {
   "kind": 188,
   "localSymbol": undefined,
   "members": [
-    {
+    NodeObject {
       "emitNode": {
         "leadingComments": [
           {
@@ -822,7 +822,7 @@ NodeObject {
         "transformFlags": 1,
       },
     },
-    {
+    NodeObject {
       "emitNode": {
         "leadingComments": [
           {
@@ -931,7 +931,7 @@ NodeObject {
   "kind": 188,
   "localSymbol": undefined,
   "members": [
-    {
+    NodeObject {
       "emitNode": {
         "leadingComments": [
           {
@@ -987,7 +987,7 @@ NodeObject {
         "transformFlags": 1,
       },
     },
-    {
+    NodeObject {
       "emitNode": {
         "leadingComments": [
           {
@@ -1043,7 +1043,7 @@ NodeObject {
         "transformFlags": 1,
       },
     },
-    {
+    NodeObject {
       "emitNode": {
         "leadingComments": [
           {
@@ -1397,7 +1397,7 @@ NodeObject {
           "kind": 188,
           "localSymbol": undefined,
           "members": [
-            {
+            NodeObject {
               "emitNode": {
                 "leadingComments": [
                   {
@@ -1724,7 +1724,7 @@ NodeObject {
   "kind": 188,
   "localSymbol": undefined,
   "members": [
-    {
+    NodeObject {
       "emitNode": {
         "leadingComments": [
           {
@@ -1855,7 +1855,7 @@ NodeObject {
         "kind": 188,
         "localSymbol": undefined,
         "members": [
-          {
+          NodeObject {
             "emitNode": {
               "leadingComments": [
                 {
@@ -1954,7 +1954,7 @@ NodeObject {
   "kind": 188,
   "localSymbol": undefined,
   "members": [
-    {
+    NodeObject {
       "emitNode": {
         "leadingComments": [
           {
@@ -2017,7 +2017,7 @@ NodeObject {
         "transformFlags": 1,
       },
     },
-    {
+    NodeObject {
       "emitNode": {
         "leadingComments": [
           {

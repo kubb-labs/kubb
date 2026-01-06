@@ -15,6 +15,64 @@ All notable changes to Kubb are documented here. Each version is organized with 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
 
+## 4.13.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Fixed TypeScript Printer Crash with Object Prototype Property Names**
+
+Resolved a critical issue where schemas containing properties named after JavaScript built-in methods (e.g., `toString`, `valueOf`, `hasOwnProperty`) would crash the TypeScript printer with `"Debug Failure. Unhandled SyntaxKind: Unknown"`.
+
+**Root Cause:**
+
+The mapper lookup was using bracket notation (`options.mapper?.[mappedName]`), which searches the entire prototype chain. For property names like `"toString"`, it would find `Object.prototype.toString` and treat it as a custom mapping function instead of creating a proper TypeScript property signature.
+
+**Solution:**
+
+Changed the mapper check to use `Object.prototype.hasOwnProperty.call()` to only match user-defined mapper properties:
+
+::: code-group
+
+```typescript [Before]
+// Matches inherited properties from Object.prototype
+if (options.mapper?.[mappedName]) {
+  return options.mapper?.[mappedName]  // Returns Object.prototype.toString
+}
+```
+
+```typescript [After]
+// Only matches own properties, not inherited ones
+if (options.mapper && Object.prototype.hasOwnProperty.call(options.mapper, mappedName)) {
+  return options.mapper[mappedName]
+}
+```
+
+:::
+
+**Affected Schemas:**
+
+This bug affected any OpenAPI schema with properties named after JavaScript built-in methods, including:
+- `toString`
+- `valueOf`
+- `hasOwnProperty`
+- `constructor`
+- Other Object.prototype methods
+
+**Example Schema:**
+
+```yaml
+components:
+  schemas:
+    ChangeItemBean:
+      type: object
+      properties:
+        field: { type: string }
+        toString: { type: string }  # Previously crashed, now works
+        valueOf: { type: string }    # Previously crashed, now works
+```
+
 ## 4.13.0
 
 ### ✨ Features
@@ -159,7 +217,7 @@ components:
 ```
 
 ```typescript [Generated]
-export type Response = 
+export type Response =
   | {
       status?: "success"
       data?: object
@@ -198,7 +256,7 @@ components:
 ```
 
 ```typescript [Generated]
-export type Data = 
+export type Data =
   | {
       result?: object
     }

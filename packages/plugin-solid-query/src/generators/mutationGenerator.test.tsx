@@ -28,7 +28,7 @@ describe('mutationGenerator operation', async () => {
     {
       name: 'clientPostImportPath',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{pet_id}',
+      path: '/pet/{petId}',
       method: 'post',
       options: {
         client: {
@@ -40,14 +40,14 @@ describe('mutationGenerator operation', async () => {
     {
       name: 'updatePetById',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{pet_id}',
+      path: '/pet/{petId}',
       method: 'post',
       options: {},
     },
     {
       name: 'updatePetByIdPathParamsObject',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{pet_id}',
+      path: '/pet/{petId}',
       method: 'post',
       options: {
         pathParamsType: 'object',
@@ -56,7 +56,7 @@ describe('mutationGenerator operation', async () => {
     {
       name: 'deletePet',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{pet_id}',
+      path: '/pet/{petId}',
       method: 'delete',
       options: {},
     },
@@ -115,7 +115,6 @@ describe('mutationGenerator operation', async () => {
       oas,
       include: undefined,
       pluginManager: mockedPluginManager,
-
       plugin,
       contentType: undefined,
       override: undefined,

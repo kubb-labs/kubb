@@ -28,7 +28,8 @@ function isValidIdentifier(str: string): boolean {
 
 function propertyName(name: string | ts.PropertyName): ts.PropertyName {
   if (typeof name === 'string') {
-    return isValidIdentifier(name) ? factory.createIdentifier(name) : factory.createStringLiteral(name)
+    const isValid = isValidIdentifier(name)
+    return isValid ? factory.createIdentifier(name) : factory.createStringLiteral(name)
   }
   return name
 }
@@ -191,8 +192,9 @@ export function appendJSDocToNode<TNode extends ts.Node>({ node, comments }: { n
     return `${acc}\n * ${comment.replaceAll('*/', '*\\/')}`
   }, '*')
 
-  // node: {...node}, with that ts.addSyntheticLeadingComment is appending
-  return ts.addSyntheticLeadingComment({ ...node }, ts.SyntaxKind.MultiLineCommentTrivia, `${text || '*'}\n`, true)
+  // Use the node directly instead of spreading to avoid creating Unknown nodes
+  // TypeScript's addSyntheticLeadingComment accepts the node as-is
+  return ts.addSyntheticLeadingComment(node, ts.SyntaxKind.MultiLineCommentTrivia, `${text || '*'}\n`, true)
 }
 
 export function createIndexSignature(
