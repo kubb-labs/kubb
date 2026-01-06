@@ -116,8 +116,9 @@ export class OperationGenerator<
   ): OperationSchemas {
     const operationId = operation.getOperationId({ friendlyCase: true })
     
-    // Check cache first
-    const cacheKey = `${operationId}_${operation.method}_${operation.path}`
+    // Create cache key with safe delimiter (| cannot appear in these values)
+    // Format: "operationId|method|path" for collision-free caching
+    const cacheKey = `${operationId}|${operation.method}|${operation.path}`
     const cached = this.#operationSchemasCache.get(cacheKey)
     if (cached) {
       return cached

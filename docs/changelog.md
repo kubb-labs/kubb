@@ -43,9 +43,6 @@ All changes are backward compatible with no breaking changes to APIs or plugin b
 
 ---
 
-# Changelog
-
-
 All notable changes to Kubb are documented here. Each version is organized with clear categories (Features, Bug Fixes, Breaking Changes, Dependencies) and includes code examples where applicable. Use the outline navigation in the right sidebar to quickly jump to any version.
 
 - ✨ **Features** - New functionality and enhancements

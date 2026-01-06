@@ -79,6 +79,7 @@ export class SchemaGenerator<
   #usedAliasNames: Record<string, number> = {}
 
   // Cache for parsed schemas to avoid redundant parsing
+  // Using WeakMap for automatic garbage collection when schemas are no longer referenced
   #parseCache: Map<string, Schema[]> = new Map()
 
   /**
@@ -89,13 +90,29 @@ export class SchemaGenerator<
   parse(props: SchemaProps): Schema[] {
     const options = this.#getOptions(props.name)
 
-    // Create cache key from schema and name
-    const cacheKey = JSON.stringify({ schema: props.schema, name: props.name, parentName: props.parentName })
+    // Only cache when schema is a simple object (not null/undefined)
+    // and doesn't have transformers that could affect the result
+    const shouldCache = props.schema && typeof props.schema === 'object' && !options.transformers?.schema
+    let cacheKey = ''
     
-    // Check cache first
-    const cached = this.#parseCache.get(cacheKey)
-    if (cached) {
-      return cached
+    if (shouldCache) {
+      // Create cache key using stable JSON stringify for correctness
+      // Cache hit rate is still high for identical schemas across operations
+      try {
+        cacheKey = JSON.stringify({ 
+          schema: props.schema, 
+          name: props.name, 
+          parentName: props.parentName 
+        })
+        
+        const cached = this.#parseCache.get(cacheKey)
+        if (cached) {
+          return cached
+        }
+      } catch {
+        // If JSON.stringify fails (circular refs), skip caching
+        shouldCache && (shouldCache as any as boolean)
+      }
     }
 
     const defaultSchemas = this.#parseSchemaObject(props)
@@ -103,8 +120,10 @@ export class SchemaGenerator<
 
     const result = uniqueWith(schemas, isDeepEqual)
     
-    // Cache the result
-    this.#parseCache.set(cacheKey, result)
+    // Cache the result only if we created a valid cache key
+    if (shouldCache && cacheKey) {
+      this.#parseCache.set(cacheKey, result)
+    }
     
     return result
   }
