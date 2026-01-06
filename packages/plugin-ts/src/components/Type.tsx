@@ -21,9 +21,9 @@ function validateNodes(...nodes: tsTypes.Node[]): void {
     }
     if (node.kind === ts.SyntaxKind.Unknown) {
       throw new Error(
-        `Invalid TypeScript AST node detected with SyntaxKind.Unknown. ` +
-        `This typically indicates a schema pattern that couldn't be properly converted to TypeScript. ` +
-        `Node: ${JSON.stringify(node, null, 2)}`
+        'Invalid TypeScript AST node detected with SyntaxKind.Unknown. ' +
+          `This typically indicates a schema pattern that couldn't be properly converted to TypeScript. ` +
+          `Node: ${JSON.stringify(node, null, 2)}`,
       )
     }
   }
@@ -37,7 +37,6 @@ function safePrint(...nodes: tsTypes.Node[]): string {
   validateNodes(...nodes)
   return print(...nodes)
 }
-
 
 type Props = {
   name: string
