@@ -1,46 +1,17 @@
 import type { PluginManager } from '@kubb/core'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
 import transformers from '@kubb/core/transformers'
-import { print } from '@kubb/fabric-core/parsers/typescript'
+import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
-import type * as tsTypes from 'typescript'
-import ts from 'typescript'
+import type ts from 'typescript'
 import { Type } from '../components'
 import * as factory from '../factory.ts'
 import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types'
-
-/**
- * Validates TypeScript AST nodes before printing to catch invalid nodes early.
- * Throws an error if any node has SyntaxKind.Unknown which would cause the TypeScript printer to crash.
- */
-function validateNodes(...nodes: tsTypes.Node[]): void {
-  for (const node of nodes) {
-    if (!node) {
-      throw new Error('Attempted to print undefined or null TypeScript node')
-    }
-    if (node.kind === ts.SyntaxKind.Unknown) {
-      throw new Error(
-        'Invalid TypeScript AST node detected with SyntaxKind.Unknown. ' +
-          `This typically indicates a schema pattern that couldn't be properly converted to TypeScript. ` +
-          `Node: ${JSON.stringify(node, null, 2)}`,
-      )
-    }
-  }
-}
-
-/**
- * Safely prints TypeScript nodes after validation.
- * Throws an error if nodes are invalid instead of allowing the TypeScript printer to crash.
- */
-function safePrint(...nodes: tsTypes.Node[]): string {
-  validateNodes(...nodes)
-  return print(...nodes)
-}
 
 function printCombinedSchema({ name, schemas, pluginManager }: { name: string; schemas: OperationSchemas; pluginManager: PluginManager }): string {
   const properties: Record<string, ts.TypeNode> = {}
