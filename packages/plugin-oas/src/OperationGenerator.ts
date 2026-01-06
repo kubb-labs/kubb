@@ -32,6 +32,9 @@ export class OperationGenerator<
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
 > extends BaseGenerator<TPluginOptions['resolvedOptions'], Context<TPluginOptions['resolvedOptions'], TPluginOptions>> {
+  // Cache for operation schemas to avoid redundant schema parsing
+  #operationSchemasCache: Map<string, OperationSchemas> = new Map()
+
   #getOptions(operation: Operation, method: HttpMethod): Partial<TPluginOptions['resolvedOptions']> {
     const { override = [] } = this.context
     const operationId = operation.getOperationId({ friendlyCase: true })
@@ -112,6 +115,14 @@ export class OperationGenerator<
     } = {},
   ): OperationSchemas {
     const operationId = operation.getOperationId({ friendlyCase: true })
+    
+    // Check cache first
+    const cacheKey = `${operationId}_${operation.method}_${operation.path}`
+    const cached = this.#operationSchemasCache.get(cacheKey)
+    if (cached) {
+      return cached
+    }
+
     const method = operation.method
     const operationName = transformers.pascalCase(operationId)
 
@@ -141,7 +152,7 @@ export class OperationGenerator<
     const successful = statusCodes.filter((item) => item.statusCode?.toString().startsWith('2'))
     const errors = statusCodes.filter((item) => item.statusCode?.toString().startsWith('4') || item.statusCode?.toString().startsWith('5'))
 
-    return {
+    const result: OperationSchemas = {
       pathParams: pathParamsSchema
         ? {
             name: resolveName(transformers.pascalCase(`${operationId} PathParams`)),
@@ -192,6 +203,11 @@ export class OperationGenerator<
       errors,
       statusCodes,
     }
+
+    // Cache the result
+    this.#operationSchemasCache.set(cacheKey, result)
+
+    return result
   }
 
   async getOperations(): Promise<Array<{ path: string; method: HttpMethod; operation: Operation }>> {
@@ -220,8 +236,11 @@ export class OperationGenerator<
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const operations = await this.getOperations()
 
-    const generatorLimit = pLimit(1)
-    const operationLimit = pLimit(10)
+    // Increased parallelism for better performance
+    // - generatorLimit increased from 1 to 3 to allow parallel generator processing
+    // - operationLimit increased from 10 to 30 to process more operations concurrently
+    const generatorLimit = pLimit(3)
+    const operationLimit = pLimit(30)
 
     this.context.events?.emit('debug', {
       date: new Date(),
