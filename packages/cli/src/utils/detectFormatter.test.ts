@@ -1,5 +1,4 @@
 import { execaCommand } from 'execa'
-import type { ExecaReturnValue } from 'execa'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { detectFormatter } from './detectFormatter.ts'
 
@@ -14,9 +13,9 @@ describe('detectFormatter', () => {
   })
 
   it('should detect biome when available', async () => {
-    vi.mocked(execaCommand).mockImplementation(async (command: string) => {
+    vi.mocked(execaCommand).mockImplementation((command: string) => {
       if (command === 'biome --version') {
-        return {} as ExecaReturnValue
+        return {} as ReturnType<typeof execaCommand>
       }
       throw new Error('Command not found')
     })
@@ -26,9 +25,9 @@ describe('detectFormatter', () => {
   })
 
   it('should detect prettier when biome is not available', async () => {
-    vi.mocked(execaCommand).mockImplementation(async (command: string) => {
+    vi.mocked(execaCommand).mockImplementation((command: string) => {
       if (command === 'prettier --version') {
-        return {} as ExecaReturnValue
+        return {} as ReturnType<typeof execaCommand>
       }
       throw new Error('Command not found')
     })
@@ -38,7 +37,7 @@ describe('detectFormatter', () => {
   })
 
   it('should return undefined when no formatter is available', async () => {
-    vi.mocked(execaCommand).mockImplementation(async () => {
+    vi.mocked(execaCommand).mockImplementation(() => {
       throw new Error('Command not found')
     })
 
@@ -48,8 +47,9 @@ describe('detectFormatter', () => {
 
   it('should prioritize biome over prettier', async () => {
     // All formatters are available
-    vi.mocked(execaCommand).mockResolvedValue({} as ExecaReturnValue)
-
+    vi.mocked(execaCommand).mockImplementation((_command: string) => {
+      return {} as ReturnType<typeof execaCommand>
+    })
     const result = await detectFormatter()
     expect(result).toBe('biome')
     expect(execaCommand).toHaveBeenCalledWith('biome --version', { stdio: 'ignore' })
