@@ -276,6 +276,11 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
             )
             .filter(Boolean)[0] as ts.TypeNode
 
+          // If no valid type was generated, use unknown as fallback
+          if (!type) {
+            type = factory.keywordTypeNodes.unknown
+          }
+
           if (isNullable) {
             type = factory.createUnionDeclaration({
               nodes: [type, factory.keywordTypeNodes.null],

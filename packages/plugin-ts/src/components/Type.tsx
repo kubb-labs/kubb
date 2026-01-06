@@ -4,10 +4,40 @@ import type { SchemaObject } from '@kubb/oas'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { File } from '@kubb/react-fabric'
 import type { KubbNode } from '@kubb/react-fabric/types'
-import type ts from 'typescript'
+import ts from 'typescript'
+import type * as tsTypes from 'typescript'
 import * as factory from '../factory.ts'
 import { parse, typeKeywordMapper } from '../parser.ts'
 import type { PluginTs } from '../types.ts'
+
+/**
+ * Validates TypeScript AST nodes before printing to catch invalid nodes early.
+ * Throws an error if any node has SyntaxKind.Unknown which would cause the TypeScript printer to crash.
+ */
+function validateNodes(...nodes: tsTypes.Node[]): void {
+  for (const node of nodes) {
+    if (!node) {
+      throw new Error('Attempted to print undefined or null TypeScript node')
+    }
+    if (node.kind === ts.SyntaxKind.Unknown) {
+      throw new Error(
+        `Invalid TypeScript AST node detected with SyntaxKind.Unknown. ` +
+        `This typically indicates a schema pattern that couldn't be properly converted to TypeScript. ` +
+        `Node: ${JSON.stringify(node, null, 2)}`
+      )
+    }
+  }
+}
+
+/**
+ * Safely prints TypeScript nodes after validation.
+ * Throws an error if nodes are invalid instead of allowing the TypeScript printer to crash.
+ */
+function safePrint(...nodes: tsTypes.Node[]): string {
+  validateNodes(...nodes)
+  return print(...nodes)
+}
+
 
 type Props = {
   name: string
@@ -141,7 +171,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
         <>
           {nameNode && (
             <File.Source name={name} isExportable isIndexable>
-              {print(nameNode)}
+              {safePrint(nameNode)}
             </File.Source>
           )}
           {
@@ -151,14 +181,14 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
               isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
               isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
             >
-              {print(typeNode)}
+              {safePrint(typeNode)}
             </File.Source>
           }
         </>
       ))}
       {enums.every((item) => item.typeName !== name) && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
-          {print(...typeNodes)}
+          {safePrint(...typeNodes)}
         </File.Source>
       )}
     </>

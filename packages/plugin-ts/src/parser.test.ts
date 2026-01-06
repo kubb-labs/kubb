@@ -59,4 +59,27 @@ describe('type parse', () => {
     expect(result).toBeTruthy()
     expect(result).toMatchSnapshot()
   })
+
+  it('should handle object with properties that map to undefined gracefully', () => {
+    const schema = {
+      keyword: 'object',
+      args: {
+        properties: {
+          testProp: [
+            { keyword: 'catchall' }, // This maps to undefined in typeKeywordMapper
+          ],
+        },
+      },
+    }
+    const result = parserType.parse(
+      { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] },
+      { optionalType: 'questionToken', enumType: 'asConst' },
+    )
+
+    // Should generate a valid TypeScript node with unknown type for the property
+    expect(result).toBeTruthy()
+    if (result && 'members' in result) {
+      expect(result.members.length).toBeGreaterThan(0)
+    }
+  })
 })
