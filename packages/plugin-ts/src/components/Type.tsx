@@ -35,19 +35,26 @@ function findUnknownNodes(node: ts.Node, path: string = 'root'): string[] {
 /**
  * Wrapper around safePrint that validates and logs Unknown nodes
  */
-function debugSafePrint(...nodes: ts.Node[]): string {
+function debugSafePrint(schemaName: string, ...nodes: ts.Node[]): string {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     const unknownPaths = findUnknownNodes(node, `node[${i}]`)
     if (unknownPaths.length > 0) {
       const nodeKind = node ? ts.SyntaxKind[node.kind] : 'null'
-      console.error(`❌ Unknown nodes found before printing:`)
+      console.error(`❌ Unknown nodes found before printing schema "${schemaName}":`)
       console.error(`   Node[${i}] kind: ${nodeKind}`)
       console.error(`   Paths with Unknown: ${unknownPaths.join(', ')}`)
       console.error(`   Node structure:`, JSON.stringify(node, null, 2).substring(0, 500))
     }
   }
-  return safePrint(...nodes)
+  
+  try {
+    return safePrint(...nodes)
+  } catch (error) {
+    console.error(`❌ Error printing schema "${schemaName}":`, error.message)
+    console.error(`   This is the problematic schema!`)
+    throw error
+  }
 }
 
 type Props = {
@@ -182,7 +189,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
         <>
           {nameNode && (
             <File.Source name={name} isExportable isIndexable>
-              {debugSafePrint(nameNode)}
+              {debugSafePrint(name, nameNode)}
             </File.Source>
           )}
           {
@@ -192,14 +199,14 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
               isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
               isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
             >
-              {debugSafePrint(typeNode)}
+              {debugSafePrint(name, typeNode)}
             </File.Source>
           }
         </>
       ))}
       {enums.every((item) => item.typeName !== name) && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
-          {debugSafePrint(...typeNodes)}
+          {debugSafePrint(name, ...typeNodes)}
         </File.Source>
       )}
     </>

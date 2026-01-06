@@ -28,7 +28,13 @@ function isValidIdentifier(str: string): boolean {
 
 function propertyName(name: string | ts.PropertyName): ts.PropertyName {
   if (typeof name === 'string') {
-    return isValidIdentifier(name) ? factory.createIdentifier(name) : factory.createStringLiteral(name)
+    const isValid = isValidIdentifier(name)
+    const result = isValid ? factory.createIdentifier(name) : factory.createStringLiteral(name)
+    // Debug: Log problematic property names
+    if (name === 'from' || name === 'to' || name === 'toString') {
+      console.log(`⚠️  Property "${name}": isValid=${isValid}, kind=${ts.SyntaxKind[result.kind]}`)
+    }
+    return result
   }
   return name
 }
@@ -146,6 +152,12 @@ export function createPropertySignature({
 }) {
   // Validate that type is not null/undefined - if missing, use unknown type
   const validType = type || keywordTypeNodes.unknown
+  
+  // Debug: Log when creating properties for ChangeItemBean
+  const nameStr = typeof name === 'string' ? name : 'unknown'
+  if (nameStr === 'from' || nameStr === 'to' || nameStr === 'toString') {
+    console.log(`⚠️  Creating property "${nameStr}": type exists=${!!type}, type.kind=${type ? ts.SyntaxKind[type.kind] : 'none'}, validType.kind=${ts.SyntaxKind[validType.kind]}`)
+  }
   
   return factory.createPropertySignature(
     [...modifiers, readOnly ? factory.createToken(ts.SyntaxKind.ReadonlyKeyword) : undefined].filter(Boolean),
