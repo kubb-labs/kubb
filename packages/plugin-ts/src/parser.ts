@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import type { SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 import { createParser, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
-import type ts from 'typescript'
+import ts from 'typescript'
 import * as factory from './factory.ts'
 
 export const typeKeywordMapper = {
@@ -244,8 +244,9 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
           const mappedName = nameSchema?.args || name
 
           // custom mapper(pluginOptions)
-          if (options.mapper?.[mappedName]) {
-            return options.mapper?.[mappedName]
+          // Use hasOwnProperty to avoid matching inherited properties like 'toString', 'valueOf', etc.
+          if (options.mapper && Object.prototype.hasOwnProperty.call(options.mapper, mappedName)) {
+            return options.mapper[mappedName]
           }
 
           const isNullish = schemas.some((schema) => schema.keyword === schemaKeywords.nullish)
