@@ -2,12 +2,10 @@ import { safeBuild } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
-const jiraSpecUrl = 'https://dac-static.atlassian.com/server/jira/platform/jira_software_dc_11002_swagger.v3.json?_v=1.1203.0'
-
 const result = await safeBuild({
   config: {
     root: '.',
-    input: { path: jiraSpecUrl },
+    input: { path: './schemas/petStore.yaml' },
     output: { path: './out', clean: true, write: false },
     plugins: [pluginOas({ validate: false }), pluginTs({ output: { path: './types', barrelType: false } })],
   },
@@ -15,6 +13,6 @@ const result = await safeBuild({
 
 console.log('build resolved:', {
   files: Array.isArray(result.files) ? result.files.length : null,
-  hasError: Boolean(result.error),
+  error: Boolean(result.error),
   failedPlugins: result.failedPlugins ?? null,
 })

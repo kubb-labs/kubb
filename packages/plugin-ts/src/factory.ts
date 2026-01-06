@@ -47,18 +47,15 @@ export function createQuestionToken(token?: boolean | ts.QuestionToken) {
 }
 
 export function createIntersectionDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
-  // Filter out undefined/null nodes to prevent creating invalid AST
-  const validNodes = nodes.filter((node): node is ts.TypeNode => node != null)
-
-  if (!validNodes.length) {
+  if (!nodes.length) {
     return null
   }
 
-  if (validNodes.length === 1) {
-    return validNodes[0] || null
+  if (nodes.length === 1) {
+    return nodes[0] || null
   }
 
-  const node = factory.createIntersectionTypeNode(validNodes)
+  const node = factory.createIntersectionTypeNode(nodes)
 
   if (withParentheses) {
     return factory.createParenthesizedType(node)
@@ -72,18 +69,15 @@ export function createIntersectionDeclaration({ nodes, withParentheses }: { node
  * @example `string & number`
  */
 export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
-  // Filter out undefined/null nodes to prevent creating invalid AST
-  const validNodes = nodes.filter((node): node is ts.TypeNode => node != null)
-
-  if (!validNodes.length) {
+  if (!nodes.length) {
     return null
   }
 
-  if (validNodes.length === 1) {
-    return validNodes[0] || null
+  if (nodes.length === 1) {
+    return nodes[0] || null
   }
 
-  const node = factory.createTupleTypeNode(validNodes)
+  const node = factory.createTupleTypeNode(nodes)
 
   if (withParentheses) {
     return factory.createParenthesizedType(node)
@@ -93,18 +87,15 @@ export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Arra
 }
 
 export function createArrayDeclaration({ nodes }: { nodes: Array<ts.TypeNode> }): ts.TypeNode | null {
-  // Filter out undefined/null nodes to prevent creating invalid AST
-  const validNodes = nodes.filter((node): node is ts.TypeNode => node != null)
-
-  if (!validNodes.length) {
+  if (!nodes.length) {
     return factory.createTupleTypeNode([])
   }
 
-  if (validNodes.length === 1) {
-    return factory.createArrayTypeNode(validNodes.at(0)!)
+  if (nodes.length === 1) {
+    return factory.createArrayTypeNode(nodes.at(0)!)
   }
 
-  return factory.createExpressionWithTypeArguments(factory.createIdentifier('Array'), [factory.createUnionTypeNode(validNodes)])
+  return factory.createExpressionWithTypeArguments(factory.createIdentifier('Array'), [factory.createUnionTypeNode(nodes)])
 }
 
 /**
@@ -112,18 +103,15 @@ export function createArrayDeclaration({ nodes }: { nodes: Array<ts.TypeNode> })
  * @example `string | number`
  */
 export function createUnionDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode {
-  // Filter out undefined/null nodes to prevent creating invalid AST
-  const validNodes = nodes.filter((node): node is ts.TypeNode => node != null)
-
-  if (!validNodes.length) {
+  if (!nodes.length) {
     return keywordTypeNodes.any
   }
 
-  if (validNodes.length === 1) {
-    return validNodes[0] as ts.TypeNode
+  if (nodes.length === 1) {
+    return nodes[0] as ts.TypeNode
   }
 
-  const node = factory.createUnionTypeNode(validNodes)
+  const node = factory.createUnionTypeNode(nodes)
 
   if (withParentheses) {
     return factory.createParenthesizedType(node)
@@ -145,14 +133,11 @@ export function createPropertySignature({
   questionToken?: ts.QuestionToken | boolean
   type?: ts.TypeNode
 }) {
-  // Validate that type is not null/undefined - if missing, use unknown type
-  const validType = type || keywordTypeNodes.unknown
-  
   return factory.createPropertySignature(
     [...modifiers, readOnly ? factory.createToken(ts.SyntaxKind.ReadonlyKeyword) : undefined].filter(Boolean),
     propertyName(name),
     createQuestionToken(questionToken),
-    validType,
+    type,
   )
 }
 

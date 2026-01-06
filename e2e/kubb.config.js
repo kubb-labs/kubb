@@ -13,7 +13,7 @@ import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
 const schemas = [
-  { name: 'test', path: './schemas/test.json' },
+  // { name: 'test', path: './schemas/test.json' },
   { name: 'train-travel', path: './schemas/train-travel.yaml' },
   { name: 'discriminator', path: './schemas/discriminator.yaml' },
   { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },
