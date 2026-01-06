@@ -9,11 +9,7 @@ const result = await safeBuild({
     root: '.',
     input: { path: jiraSpecUrl },
     output: { path: './out', clean: true, write: false },
-    plugins: [
-      pluginOas({ validate: false }),
-      // IMPORTANT: leaving plugin-ts generators at defaults triggers the crash.
-      pluginTs({ output: { path: './types', barrelType: false } }),
-    ],
+    plugins: [pluginOas({ validate: false }), pluginTs({ output: { path: './types', barrelType: false } })],
   },
 })
 
