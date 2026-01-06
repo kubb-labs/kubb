@@ -98,12 +98,13 @@ export type Config<TInput = Input> = {
      * The accepted values indicate different linting tools.
      *
      * Possible values:
+     * - 'auto': Automatically detects and uses biome, oxlint, or eslint (in that order of preference).
      * - 'eslint': Represents the use of ESLint, a widely used JavaScript linter.
      * - 'biome': Represents the Biome linter, a modern tool for code scanning.
      * - 'oxlint': Represents the Oxlint tool for linting purposes.
      *
      */
-    lint?: 'eslint' | 'biome' | 'oxlint' | false
+    lint?: 'auto' | 'eslint' | 'biome' | 'oxlint' | false
     /**
      * Override the extension to the generated imports and exports, by default each plugin will add an extension
      * @default { '.ts': '.ts'}
