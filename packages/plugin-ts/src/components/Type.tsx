@@ -4,10 +4,51 @@ import type { SchemaObject } from '@kubb/oas'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { File } from '@kubb/react-fabric'
 import type { KubbNode } from '@kubb/react-fabric/types'
-import type ts from 'typescript'
+import ts from 'typescript'
 import * as factory from '../factory.ts'
 import { parse, typeKeywordMapper } from '../parser.ts'
 import type { PluginTs } from '../types.ts'
+
+/**
+ * Deep validation to find Unknown nodes in the AST tree
+ */
+function findUnknownNodes(node: ts.Node, path: string = 'root'): string[] {
+  const unknownPaths: string[] = []
+  
+  if (!node) {
+    return unknownPaths
+  }
+  
+  if (node.kind === ts.SyntaxKind.Unknown) {
+    unknownPaths.push(path)
+  }
+  
+  // Recursively check children
+  ts.forEachChild(node, (child, index) => {
+    const childPaths = findUnknownNodes(child, `${path}.child[${index ?? 'unknown'}]`)
+    unknownPaths.push(...childPaths)
+  })
+  
+  return unknownPaths
+}
+
+/**
+ * Wrapper around safePrint that validates and logs Unknown nodes
+ */
+function debugSafePrint(...nodes: ts.Node[]): string {
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i]
+    const unknownPaths = findUnknownNodes(node, `node[${i}]`)
+    if (unknownPaths.length > 0) {
+      const nodeKind = node ? ts.SyntaxKind[node.kind] : 'null'
+      console.error(`❌ Unknown nodes found before printing:`)
+      console.error(`   Node[${i}] kind: ${nodeKind}`)
+      console.error(`   Paths with Unknown: ${unknownPaths.join(', ')}`)
+      console.error(`   Node structure:`, JSON.stringify(node, null, 2).substring(0, 500))
+    }
+  }
+  return safePrint(...nodes)
+}
 
 type Props = {
   name: string
@@ -141,7 +182,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
         <>
           {nameNode && (
             <File.Source name={name} isExportable isIndexable>
-              {safePrint(nameNode)}
+              {debugSafePrint(nameNode)}
             </File.Source>
           )}
           {
@@ -151,14 +192,14 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
               isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
               isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
             >
-              {safePrint(typeNode)}
+              {debugSafePrint(typeNode)}
             </File.Source>
           }
         </>
       ))}
       {enums.every((item) => item.typeName !== name) && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
-          {safePrint(...typeNodes)}
+          {debugSafePrint(...typeNodes)}
         </File.Source>
       )}
     </>

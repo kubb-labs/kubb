@@ -144,11 +144,14 @@ export function createPropertySignature({
   questionToken?: ts.QuestionToken | boolean
   type?: ts.TypeNode
 }) {
+  // Validate that type is not null/undefined - if missing, use unknown type
+  const validType = type || keywordTypeNodes.unknown
+  
   return factory.createPropertySignature(
     [...modifiers, readOnly ? factory.createToken(ts.SyntaxKind.ReadonlyKeyword) : undefined].filter(Boolean),
     propertyName(name),
     createQuestionToken(questionToken),
-    type,
+    validType,
   )
 }
 
