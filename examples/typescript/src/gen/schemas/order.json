@@ -7,7 +7,10 @@
     "shipDate": { "type": "string", "format": "date-time" },
     "status": {
       "description": "Order Status",
-      "anyOf": [{ "type": "string", "const": "" }, { "type": "string", "format": "email" }]
+      "anyOf": [
+        { "type": "string", "const": "" },
+        { "type": "string", "format": "email" }
+      ]
     },
     "http_status": {
       "type": "number",
