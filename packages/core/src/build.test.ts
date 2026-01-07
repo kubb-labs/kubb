@@ -322,14 +322,15 @@ describe('build', () => {
       }
     })
 
-    const excludeConfig = {
+    const excludeConfig = defineConfig({
       ...config,
       output: {
         ...config.output,
         barrelType: 'named' as const,
+        write: false,
       },
       plugins: [excludedPlugin({})] as Plugin[],
-    }
+    })
 
     const { fabric } = await build({
       config: excludeConfig,
