@@ -11,7 +11,7 @@ import { lt } from 'semver'
 import { version } from '../../package.json'
 import { setupLogger } from '../loggers/utils.ts'
 import { generate } from '../runners/generate.ts'
-import { getConfig } from '../utils/getConfig.ts'
+import { getConfigs } from '../utils/getConfigs.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { startWatcher } from '../utils/watcher.ts'
 
@@ -109,8 +109,7 @@ const command = defineCommand({
 
       await events.emit('info', 'Config loaded', path.relative(process.cwd(), result.filepath))
 
-      const config = await getConfig(result, args)
-      const configs = Array.isArray(config) ? config : [config]
+      const configs = await getConfigs(result, args)
 
       await events.emit('success', 'Config loaded successfully', path.relative(process.cwd(), result.filepath))
       await events.emit('config:end', configs)

@@ -138,7 +138,15 @@ export interface KubbEvents {
   /**
    * Emitted when a single hook execution completes.
    */
-  'hook:end': [{ id?: string; command: string; args?: readonly string[] }]
+  'hook:end': [
+    {
+      id?: string
+      command: string
+      args?: readonly string[]
+      success: boolean
+      error: Error | null
+    },
+  ]
 
   /**
    * Emitted when a new version of Kubb is available.

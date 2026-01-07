@@ -365,7 +365,13 @@ export const githubActionsLogger = defineLogger({
 
         console.log(result.stdout)
 
-        await context.emit('hook:end', { command, args, id })
+        await context.emit('hook:end', {
+          command,
+          args,
+          id,
+          success: true,
+          error: null,
+        })
       } catch (err) {
         const error = new Error('Hook execute failed')
         error.cause = err
@@ -375,6 +381,13 @@ export const githubActionsLogger = defineLogger({
           logs: [(err as any).stdout],
         })
 
+        await context.emit('hook:end', {
+          command,
+          args,
+          id,
+          success: false,
+          error,
+        })
         await context.emit('error', error)
       }
     })

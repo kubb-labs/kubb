@@ -1,5 +1,20 @@
 # @kubb/plugin-ts
 
+## 4.13.1
+
+### Patch Changes
+
+- [#2270](https://github.com/kubb-labs/kubb/pull/2270) [`77f931f`](https://github.com/kubb-labs/kubb/commit/77f931ff4cfa03fec479e8337b5913acf3c58384) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix TypeScript printer crash caused by prototype chain bug in mapper lookup
+
+  Properties named after JavaScript built-in methods (e.g., "toString", "valueOf", "hasOwnProperty") were incorrectly matched against Object.prototype methods, causing the TypeScript printer to crash with "Debug Failure. Unhandled SyntaxKind: Unknown".
+
+  Changed mapper check from `options.mapper?.[mappedName]` to `Object.prototype.hasOwnProperty.call(options.mapper, mappedName)` to only match user-defined mapper properties, not inherited ones.
+
+- Updated dependencies []:
+  - @kubb/core@4.13.1
+  - @kubb/oas@4.13.1
+  - @kubb/plugin-oas@4.13.1
+
 ## 4.13.0
 
 ### Patch Changes

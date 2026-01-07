@@ -41,7 +41,7 @@ This project includes several code quality tools to help maintain code standards
 
 #### Performance Testing
 
-Performance benchmarks are located in `e2e/src/__tests__/performance/` and test the code generation speed of various plugin combinations. These benchmarks help ensure performance doesn't regress over time.
+Performance benchmarks are located in `tests/performance/` and test the code generation speed of various plugin combinations. These benchmarks help ensure performance doesn't regress over time.
 
 To run benchmarks:
 ```bash
@@ -50,7 +50,7 @@ pnpm run perf:bench
 
 When making changes that might affect generation performance (e.g., changes to core build process, plugin generators, or file processing), consider running the benchmarks before and after your changes to verify there are no significant regressions.
 
-See [e2e/src/__tests__/performance/README.md](e2e/src/__tests__/performance/README.md) for more details on adding new benchmarks.
+See [tests/performance/README.md](tests/performance/README.md) for more details on adding new benchmarks.
 
 When making commits, make sure to follow the [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) guidelines, i.e. prepending the message with `feat:`, `fix:`, `chore:`, `docs:`, etc... You can use `git status` to double check which files have not yet been staged for commit:
 

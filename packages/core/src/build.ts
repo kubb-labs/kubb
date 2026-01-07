@@ -5,6 +5,7 @@ import { createFabric } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
 import { isInputPath } from './config.ts'
+import { BuildError } from './errors.ts'
 import { clean, exists, getRelativePath, write } from './fs/index.ts'
 import { PluginManager } from './PluginManager.ts'
 import type { Config, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
@@ -168,13 +169,19 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
     throw error
   }
 
+  if (failedPlugins.size > 0) {
+    const errors = [...failedPlugins].map(({ error }) => error)
+
+    throw new BuildError(`Build Error with ${failedPlugins.size} failed plugins`, { errors })
+  }
+
   return {
     failedPlugins,
     fabric,
     files,
     pluginManager,
     pluginTimings,
-    error,
+    error: undefined,
   }
 }
 

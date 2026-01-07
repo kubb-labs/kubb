@@ -1,7 +1,7 @@
 import type { PluginManager } from '@kubb/core'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
 import transformers from '@kubb/core/transformers'
-import { print } from '@kubb/fabric-core/parsers/typescript'
+import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
@@ -100,7 +100,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
     modifiers: [factory.modifiers.export],
   })
 
-  return print(namespaceNode)
+  return safePrint(namespaceNode)
 }
 
 export const typeGenerator = createReactGenerator<PluginTs>({

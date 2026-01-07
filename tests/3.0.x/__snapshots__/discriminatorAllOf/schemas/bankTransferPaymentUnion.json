@@ -1,0 +1,1 @@
+{"type":"object","properties":{"type":{"type":"string","enum":["bank_transfer"]},"iban":{"type":"string"}},"required":["type"],"x-readme-ref-name":"BankTransferPaymentUnion"}

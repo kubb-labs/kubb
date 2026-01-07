@@ -1,8 +1,8 @@
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { describe, test } from 'vitest'
@@ -10,6 +10,9 @@ import { createMockedPluginManager, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginSolidQuery } from '../types.ts'
 import { mutationGenerator } from './mutationGenerator.tsx'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 describe('mutationGenerator operation', async () => {
   const testData = [
@@ -28,7 +31,7 @@ describe('mutationGenerator operation', async () => {
     {
       name: 'clientPostImportPath',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{pet_id}',
+      path: '/pet/{petId}',
       method: 'post',
       options: {
         client: {
@@ -40,14 +43,14 @@ describe('mutationGenerator operation', async () => {
     {
       name: 'updatePetById',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{pet_id}',
+      path: '/pet/{petId}',
       method: 'post',
       options: {},
     },
     {
       name: 'updatePetByIdPathParamsObject',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{pet_id}',
+      path: '/pet/{petId}',
       method: 'post',
       options: {
         pathParamsType: 'object',
@@ -56,7 +59,7 @@ describe('mutationGenerator operation', async () => {
     {
       name: 'deletePet',
       input: '../../mocks/petStore.yaml',
-      path: '/pet/{pet_id}',
+      path: '/pet/{petId}',
       method: 'delete',
       options: {},
     },
@@ -115,7 +118,6 @@ describe('mutationGenerator operation', async () => {
       oas,
       include: undefined,
       pluginManager: mockedPluginManager,
-
       plugin,
       contentType: undefined,
       override: undefined,

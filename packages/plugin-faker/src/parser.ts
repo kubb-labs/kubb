@@ -217,7 +217,12 @@ export const parse = createParser<string, ParserOptions>({
         current.args.items
           .map((it) =>
             this.parse(
-              { schema, parent: current, current: it, siblings: current.args.items },
+              {
+                schema,
+                parent: current,
+                current: it,
+                siblings: current.args.items,
+              },
               {
                 ...options,
                 typeName: `NonNullable<${options.typeName}>[number]`,
@@ -293,7 +298,8 @@ export const parse = createParser<string, ParserOptions>({
           const mappedName = nameSchema?.args || name
 
           // custom mapper(pluginOptions)
-          if (options.mapper?.[mappedName]) {
+          // Use Object.hasOwn to avoid matching inherited properties like 'toString', 'valueOf', etc.
+          if (options.mapper && Object.hasOwn(options.mapper, mappedName)) {
             return `"${name}": ${options.mapper?.[mappedName]}`
           }
 
@@ -302,7 +308,13 @@ export const parse = createParser<string, ParserOptions>({
               .sort(schemaKeywordSorter)
               .map((it) =>
                 this.parse(
-                  { schema, name, parent: current, current: it, siblings: schemas },
+                  {
+                    schema,
+                    name,
+                    parent: current,
+                    current: it,
+                    siblings: schemas,
+                  },
                   {
                     ...options,
                     typeName: `NonNullable<${options.typeName}>[${JSON.stringify(name)}]`,
