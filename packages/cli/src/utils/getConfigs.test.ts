@@ -1,13 +1,7 @@
-import { defineConfig, definePlugin } from '@kubb/core'
+import { defineConfig } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { getConfigs } from './getConfigs.ts'
 import type { CosmiconfigResult } from './getCosmiConfig.ts'
-
-const _plugin = definePlugin(() => {
-  return {
-    name: 'test',
-  } as any
-})
 
 describe('getConfigs', () => {
   it('should return Config when config is set with defineConfig', async () => {
