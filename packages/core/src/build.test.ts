@@ -1,9 +1,10 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { build, safeBuild } from './build.ts'
+import { defineConfig } from './config.ts'
 import { definePlugin } from './definePlugin.ts'
-import type { Config, KubbEvents, Plugin } from './types.ts'
-import { AsyncEventEmitter } from './utils'
+import type { KubbEvents, Plugin, UserConfig } from './types.ts'
+import { AsyncEventEmitter, isPromise } from './utils'
 
 describe('build', () => {
   const pluginMocks = {
@@ -40,7 +41,60 @@ describe('build', () => {
       clean: true,
     },
     plugins: [plugin({})] as Plugin[],
-  } satisfies Config
+  }
+
+  const configs = [
+    {
+      name: 'simple',
+      config,
+    },
+    {
+      name: 'array',
+      config: defineConfig([
+        {
+          root: '.',
+          input: {
+            path: 'https://petstore3.swagger.io/api/v3/openapi.json',
+          },
+          output: {
+            path: './src/gen',
+            clean: true,
+          },
+          plugins: [plugin({})] as Plugin[],
+        },
+      ]),
+    },
+    {
+      name: 'function',
+      config: defineConfig(() => ({
+        root: '.',
+        input: {
+          path: 'https://petstore3.swagger.io/api/v3/openapi.json',
+        },
+        output: {
+          path: './src/gen',
+          clean: true,
+        },
+        plugins: [plugin({})] as Plugin[],
+      })),
+    },
+    {
+      name: 'functionArray',
+      config: defineConfig(() => [
+        {
+          root: '.',
+          input: {
+            path: 'https://petstore3.swagger.io/api/v3/openapi.json',
+          },
+          output: {
+            path: './src/gen',
+            clean: true,
+          },
+          plugins: [plugin({})] as Plugin[],
+        },
+      ]),
+    },
+  ]
 
   afterEach(() => {
     Object.keys(pluginMocks).forEach((key) => {
@@ -48,6 +102,37 @@ describe('build', () => {
 
       mock.mockClear()
     })
+  })
+
+  test.each(configs)('adding file with config as $name', async ({ config }) => {
+    let kubbUserConfig = Promise.resolve(config) as Promise<UserConfig | Array<UserConfig>>
+
+    if (typeof config === 'function') {
+      const possiblePromise = config({})
+      if (isPromise(possiblePromise)) {
+        kubbUserConfig = possiblePromise
+      }
+      kubbUserConfig = Promise.resolve(possiblePromise)
+    }
+
+    let JSONConfig = await kubbUserConfig
+
+    if (!Array.isArray(JSONConfig)) {
+      JSONConfig = [JSONConfig]
+    }
+
+    for (const config of JSONConfig) {
+      const { fabric, pluginManager } = await build({
+        config,
+        events: new AsyncEventEmitter<KubbEvents>(),
+      })
+
+      await fabric.addFile(file)
+
+      expect(fabric.files).toBeDefined()
+      expect(pluginManager).toBeDefined()
+      expect(fabric.files.length).toBe(1)
+    }
   })
 
   test('if build can run and return created files and the pluginManager', async () => {
@@ -154,85 +239,9 @@ describe('build', () => {
     expect(warnSpy).toHaveBeenCalledWith('This feature is still under development — use with caution')
   })
 
-  it.skip('should generate barrel file when barrelType is set', async () => {
-    const indexableFile: KubbFile.File = {
-      path: './src/gen/test.ts',
-      baseName: 'test.ts',
-      sources: [{ value: 'export const test = "test"', isIndexable: true, name: 'test' }],
-      meta: { pluginKey: ['plugin'] },
-    }
+  it.todo('should generate barrel file when barrelType is set')
 
-    const barrelPlugin = definePlugin(() => {
-      return {
-        name: 'barrelPlugin',
-        options: { output: { barrelType: 'named' } } as any,
-        context: undefined as never,
-        key: ['plugin'],
-        async install() {
-          await this.addFile(indexableFile)
-        },
-      }
-    })
-
-    const barrelConfig = {
-      ...config,
-      output: {
-        ...config.output,
-        barrelType: 'named' as const,
-        write: false,
-      },
-      plugins: [barrelPlugin({})] as Plugin[],
-    }
-
-    const { fabric } = await build({
-      config: barrelConfig,
-      events: new AsyncEventEmitter<KubbEvents>(),
-    })
-
-    // Check if barrel exports were created
-    const hasIndexableFiles = fabric.files.some((f) => f.sources.some((s) => s.isIndexable))
-    expect(hasIndexableFiles).toBe(true)
-  })
-
-  it.skip('should handle "all" barrel type', async () => {
-    const indexableFile: KubbFile.File = {
-      path: './src/gen/test.ts',
-      baseName: 'test.ts',
-      sources: [{ value: 'export const test = "test"', isIndexable: true, name: 'test' }],
-      meta: { pluginKey: ['plugin'] },
-    }
-
-    const allBarrelPlugin = definePlugin(() => {
-      return {
-        name: 'allBarrelPlugin',
-        options: { output: { barrelType: 'all' } } as any,
-        context: undefined as never,
-        key: ['plugin'],
-        async install() {
-          await this.addFile(indexableFile)
-        },
-      }
-    })
-
-    const allBarrelConfig = {
-      ...config,
-      output: {
-        ...config.output,
-        barrelType: 'all' as const,
-        write: false,
-      },
-      plugins: [allBarrelPlugin({})] as Plugin[],
-    }
-
-    const { fabric } = await build({
-      config: allBarrelConfig,
-      events: new AsyncEventEmitter<KubbEvents>(),
-    })
-
-    // Check if indexable files exist
-    const hasIndexableFiles = fabric.files.some((f) => f.sources.some((s) => s.isIndexable))
-    expect(hasIndexableFiles).toBe(true)
-  })
+  it.todo('should handle "all" barrel type')
 
   test('safeBuild should return error instead of throwing', async () => {
     const throwingPlugin = definePlugin(() => {
@@ -291,7 +300,13 @@ describe('build', () => {
     const indexableFile: KubbFile.File = {
       path: 'src/gen/mocks/excluded.ts',
       baseName: 'excluded.ts',
-      sources: [{ value: 'export const excluded = "excluded"', isIndexable: true, name: 'excluded' }],
+      sources: [
+        {
+          value: 'export const excluded = "excluded"',
+          isIndexable: true,
+          name: 'excluded',
+        },
+      ],
       meta: { pluginKey: ['excludedPlugin'] },
     }
 
@@ -307,11 +322,12 @@ describe('build', () => {
       }
     })
 
-    const excludeConfig = {
+    const excludeConfig: UserConfig = {
       ...config,
       output: {
         ...config.output,
         barrelType: 'named' as const,
+        write: false,
       },
       plugins: [excludedPlugin({})] as Plugin[],
     }

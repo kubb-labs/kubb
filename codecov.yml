@@ -18,7 +18,7 @@ comment: false # do not comment PR with the result
 
 ignore:
   - '**/examples/**'
-  - '**/e2e/**'
+  - '**/tests/**'
 coverage:
   range: 50..90 # coverage lower than 50 is red, higher than 90 green, between color code
 
@@ -43,27 +43,27 @@ component_management:
         - packages/core/**
     - component_id: kubb
       name: 'kubb'
-      paths: 
+      paths:
         - packages/kubb/**
     - component_id: mcp
       name: '@kubb/mcp'
-      paths: 
+      paths:
         - packages/mcp/**
     - component_id: oas
       name: '@kubb/oas'
-      paths: 
+      paths:
         - packages/oas/**
     - component_id: plugin-client
       name: '@kubb/plugin-client'
-      paths: 
+      paths:
         - packages/plugin-client/**
     - component_id:  plugin-cypress
       name: '@kubb/plugin-cypress'
-      paths: 
+      paths:
         - packages/plugin-cypress/**
     - component_id:  plugin-faker
       name: '@kubb/plugin-faker'
-      paths: 
+      paths:
         - packages/plugin-faker/**
     - component_id:  plugin-mcp
       name: '@kubb/plugin-mcp'
@@ -91,7 +91,7 @@ component_management:
         - packages/plugin-solid-query/**
     - component_id: plugin-svelte-query
       name:  '@kubb/plugin-svelte-query'
-      paths: 
+      paths:
         - packages/plugin-svelte-query/**
     - component_id: plugin-swr
       name: '@kubb/plugin-swr'

@@ -1,0 +1,1 @@
+{"type":"object","properties":{"id":{"type":"string","enum":["baz"]},"baz":{"type":"string"}},"required":["id"],"x-readme-ref-name":"BazUnion"}

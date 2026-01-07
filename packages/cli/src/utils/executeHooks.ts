@@ -23,7 +23,11 @@ export async function executeHooks({ hooks, events }: ExecutingHooksProps): Prom
     const hookId = createHash('sha256').update(command).digest('hex')
     await events.emit('hook:start', { id: hookId, command: cmd, args })
 
-    await events.onOnce('hook:end', async () => {
+    await events.onOnce('hook:end', async ({ success, error }) => {
+      if (!success) {
+        throw error
+      }
+
       await events.emit('success', `${pc.dim(command)} successfully executed`)
     })
   }

@@ -2,7 +2,7 @@ packages:
   - packages/*
   - docs
   - examples/*
-  - e2e
+  - tests/**
 
 catalog:
   "@types/node": ^20.19.27

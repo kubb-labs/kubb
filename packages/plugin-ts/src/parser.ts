@@ -244,7 +244,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
           const mappedName = nameSchema?.args || name
 
           // custom mapper(pluginOptions)
-          // Use hasOwnProperty to avoid matching inherited properties like 'toString', 'valueOf', etc.
+          // Use Object.hasOwn to avoid matching inherited properties like 'toString', 'valueOf', etc.
           if (options.mapper && Object.hasOwn(options.mapper, mappedName)) {
             return options.mapper[mappedName]
           }

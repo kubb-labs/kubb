@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "strictNullChecks": true,
+    "jsx": "react-jsx",
+    "outDir": "dist",
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "alwaysStrict": true,
+    "strict": false,
+    "types": ["cypress", "node"]
+  },
+  "include": ["./**/*"],
+  "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]
+}

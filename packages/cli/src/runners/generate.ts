@@ -129,7 +129,11 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
             args: ['--ignore-unknown', '--write', path.resolve(config.root, config.output.path)],
           })
 
-          await events.onOnce('hook:end', async () => {
+          await events.onOnce('hook:end', async ({ success, error }) => {
+            if (!success) {
+              throw error
+            }
+
             await events.emit(
               'success',
               [
@@ -157,7 +161,11 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
             args: ['format', '--write', path.resolve(config.root, config.output.path)],
           })
 
-          await events.onOnce('hook:end', async () => {
+          await events.onOnce('hook:end', async ({ success, error }) => {
+            if (!success) {
+              throw error
+            }
+
             await events.emit(
               'success',
               [
@@ -214,7 +222,11 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
             args: [path.resolve(config.root, config.output.path), '--fix'],
           })
 
-          await events.onOnce('hook:end', async () => {
+          await events.onOnce('hook:end', async ({ success, error }) => {
+            if (!success) {
+              throw error
+            }
+
             await events.emit(
               'success',
               [
@@ -242,7 +254,11 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
             args: ['lint', '--fix', path.resolve(config.root, config.output.path)],
           })
 
-          await events.onOnce('hook:end', async () => {
+          await events.onOnce('hook:end', async ({ success, error }) => {
+            if (!success) {
+              throw error
+            }
+
             await events.emit(
               'success',
               [
@@ -270,7 +286,11 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
             args: ['--fix', path.resolve(config.root, config.output.path)],
           })
 
-          await events.onOnce('hook:end', async () => {
+          await events.onOnce('hook:end', async ({ success, error }) => {
+            if (!success) {
+              throw error
+            }
+
             await events.emit(
               'success',
               [
@@ -285,6 +305,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
         } catch (caughtError) {
           const error = new Error('Oxlint not found')
           error.cause = caughtError
+
           await events.emit('error', error)
         }
       }

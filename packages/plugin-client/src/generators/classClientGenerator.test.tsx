@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { Plugin } from '@kubb/core'
 import { parse } from '@kubb/oas'
 import { OperationGenerator } from '@kubb/plugin-oas'
@@ -7,6 +8,9 @@ import { describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
 import { classClientGenerator } from './classClientGenerator.tsx'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 describe('classClientGenerator operations', async () => {
   const testData = [

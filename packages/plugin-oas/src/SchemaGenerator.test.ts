@@ -1,10 +1,14 @@
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { Plugin } from '@kubb/core'
 import { parse, type SchemaObject } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, test } from 'vitest'
 import { mockedPluginManager } from '#mocks'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from './SchemaGenerator.ts'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 describe('SchemaGenerator core', async () => {
   const testData = [
@@ -129,7 +133,11 @@ describe('SchemaGenerator core', async () => {
       override: undefined,
       mode: 'split',
     })
-    const tree = generator.parse({ schema: schema, name: props.name, parentName: null })
+    const tree = generator.parse({
+      schema: schema,
+      name: props.name,
+      parentName: null,
+    })
 
     expect(tree).toMatchSnapshot()
   })
