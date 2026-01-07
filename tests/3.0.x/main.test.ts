@@ -23,7 +23,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       output: {
         path: './gen',
-        clean: true,
         barrelType: false,
       },
       plugins: [pluginOas({ validate: false }), pluginTs({ output: { path: './types', barrelType: false } })],
@@ -38,8 +37,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       output: {
         path: './gen',
-        clean: true,
-        barrelType: 'named',
+        barrelType: false,
       },
       plugins: [
         pluginOas({
@@ -65,8 +63,34 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       output: {
         path: './gen',
+        barrelType: false,
+      },
+      plugins: [
+        pluginOas({
+          output: {
+            path: 'schemas',
+          },
+          group: {
+            type: 'tag',
+          },
+          validate: false,
+          discriminator: 'inherit',
+        }),
+        pluginTs({}),
+      ],
+    },
+  },
+  {
+    name: 'discriminatorAnyOf',
+    config: {
+      root: __dirname,
+      input: {
+        path: '../../schemas/3.0.x/discriminatorAnyOf.yaml',
+      },
+      output: {
+        path: './gen',
         clean: true,
-        barrelType: 'named',
+        barrelType: false,
       },
       plugins: [
         pluginOas({
