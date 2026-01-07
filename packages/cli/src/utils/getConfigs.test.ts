@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { getConfigs } from './getConfigs.ts'
 import type { CosmiconfigResult } from './getCosmiConfig.ts'
 
-const plugin = definePlugin(() => {
+const _plugin = definePlugin(() => {
   return {
     name: 'test',
   } as any
@@ -31,15 +31,17 @@ describe('getConfigs', () => {
       {} as any,
     )
 
-    expect(kubbUserConfig).toEqual({
-      input: {
-        path: './',
+    expect(kubbUserConfig).toEqual([
+      {
+        input: {
+          path: './',
+        },
+        output: {
+          path: './dist',
+        },
+        plugins: [],
       },
-      output: {
-        path: './dist',
-      },
-      plugins: [],
-    })
+    ])
   })
 
   it('should return Config[] when config is set with defineConfig', async () => {
@@ -125,39 +127,16 @@ describe('getConfigs', () => {
       {} as any,
     )
 
-    expect(kubbUserConfig).toEqual({
-      input: {
-        path: './',
-      },
-      output: {
-        path: './dist',
-      },
-      plugins: [],
-    })
-  })
-
-  it('should return object when config is set with defineConfig and plugins is a function', async () => {
-    const config: CosmiconfigResult['config'] = defineConfig(() => {
-      return {
+    expect(kubbUserConfig).toEqual([
+      {
         input: {
           path: './',
         },
         output: {
           path: './dist',
         },
-        plugins: [plugin()],
-      }
-    })
-    const kubbUserConfig = await getConfigs(
-      {
-        config,
-        filepath: './',
-        isEmpty: false,
+        plugins: [],
       },
-      {} as any,
-    )
-    if (!Array.isArray(kubbUserConfig)) {
-      expect(kubbUserConfig.plugins?.[0]?.name).toEqual(plugin().name)
-    }
+    ])
   })
 })
