@@ -737,6 +737,7 @@ export class SchemaGenerator<
             return item && this.parse({ schema: item as SchemaObject, name, parentName })[0]
           })
           .filter(Boolean),
+        oneOf: !!schemaObject.oneOf,
       }
 
       if (discriminator) {
