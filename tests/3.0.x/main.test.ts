@@ -25,7 +25,18 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      plugins: [pluginOas({ validate: false }), pluginTs({ output: { path: './types', barrelType: false } })],
+      plugins: [
+        pluginOas({
+          validate: false,
+          generators: [],
+        }),
+        pluginTs({
+          output: {
+            path: './types',
+            barrelType: false,
+          },
+        }),
+      ],
     },
   },
   {
@@ -41,16 +52,16 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       plugins: [
         pluginOas({
-          output: {
-            path: 'schemas',
-          },
-          group: {
-            type: 'tag',
-          },
           validate: false,
+          generators: [],
           discriminator: 'inherit',
         }),
-        pluginTs({}),
+        pluginTs({
+          output: {
+            path: './types',
+            barrelType: false,
+          },
+        }),
       ],
     },
   },
@@ -67,16 +78,15 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       plugins: [
         pluginOas({
-          output: {
-            path: 'schemas',
-          },
-          group: {
-            type: 'tag',
-          },
           validate: false,
-          discriminator: 'inherit',
+          generators: [],
         }),
-        pluginTs({}),
+        pluginTs({
+          output: {
+            path: './types',
+            barrelType: false,
+          },
+        }),
       ],
     },
   },
@@ -94,16 +104,35 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       plugins: [
         pluginOas({
-          output: {
-            path: 'schemas',
-          },
-          group: {
-            type: 'tag',
-          },
           validate: false,
-          discriminator: 'inherit',
+          generators: [],
         }),
         pluginTs({}),
+      ],
+    },
+  },
+  {
+    name: 'discriminatorOneOf',
+    config: {
+      root: __dirname,
+      input: {
+        path: '../../schemas/3.0.x/discriminatorOneOf.yaml',
+      },
+      output: {
+        path: './gen',
+        barrelType: false,
+      },
+      plugins: [
+        pluginOas({
+          validate: false,
+          generators: [],
+        }),
+        pluginTs({
+          output: {
+            path: './types',
+            barrelType: false,
+          },
+        }),
       ],
     },
   },

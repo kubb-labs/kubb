@@ -5,12 +5,6 @@
 
 import type { PaymentMethodMapped } from "./PaymentMethodMapped.ts";
 
-export const bankTransferPaymentMappedTypeEnum = {
-    "bank_transfer": "bank_transfer"
-} as const;
-
-export type BankTransferPaymentMappedTypeEnumKey = (typeof bankTransferPaymentMappedTypeEnum)[keyof typeof bankTransferPaymentMappedTypeEnum];
-
 export type BankTransferPaymentMapped = ((PaymentMethodMapped & {
     type: "bank_transfer";
 }) & {
@@ -18,5 +12,4 @@ export type BankTransferPaymentMapped = ((PaymentMethodMapped & {
      * @type string | undefined
     */
     iban?: string;
-    type: BankTransferPaymentMappedTypeEnumKey;
 });

@@ -5,12 +5,6 @@
 
 import type { PaymentMethodMapped } from "./PaymentMethodMapped.ts";
 
-export const cardPaymentMappedTypeEnum = {
-    "card": "card"
-} as const;
-
-export type CardPaymentMappedTypeEnumKey = (typeof cardPaymentMappedTypeEnum)[keyof typeof cardPaymentMappedTypeEnum];
-
 export type CardPaymentMapped = ((PaymentMethodMapped & {
     type: "card";
 }) & {
@@ -18,5 +12,4 @@ export type CardPaymentMapped = ((PaymentMethodMapped & {
      * @type string | undefined
     */
     cardNumber?: string;
-    type: CardPaymentMappedTypeEnumKey;
 });

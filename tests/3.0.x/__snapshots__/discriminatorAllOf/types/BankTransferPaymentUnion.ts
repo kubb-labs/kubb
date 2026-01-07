@@ -4,17 +4,11 @@
 */
 
 
-export const bankTransferPaymentUnionTypeEnum = {
-    "bank_transfer": "bank_transfer"
-} as const;
-
-export type BankTransferPaymentUnionTypeEnumKey = (typeof bankTransferPaymentUnionTypeEnum)[keyof typeof bankTransferPaymentUnionTypeEnum];
-
 export type BankTransferPaymentUnion = {
     /**
-     * @type string
+     * @type string | undefined
     */
-    type: BankTransferPaymentUnionTypeEnumKey;
+    type?: string;
     /**
      * @type string | undefined
     */

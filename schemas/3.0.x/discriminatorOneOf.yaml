@@ -1,0 +1,78 @@
+openapi: 3.0.3
+info:
+  title: Discriminator One Of
+  version: 1.0.0
+components:
+  schemas:
+    # Base vehicle type
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique vehicle identifier
+        type:
+          type: string
+          description: Vehicle type (used for discriminator)
+      required:
+        - id
+        - type
+
+    # Specific vehicle types
+    Sedan:
+      oneOf:
+        - $ref: '#/components/schemas/Vehicle'
+      properties:
+        type:
+          type: string
+          enum: [Sedan]
+        seats:
+          type: integer
+          description: Number of seats
+
+    SUV:
+      oneOf:
+        - $ref: '#/components/schemas/Vehicle'
+      properties:
+        type:
+          type: string
+          enum: [SUV]
+        offroadCapability:
+          type: boolean
+          description: Can handle offroad terrain
+
+    ElectricCar:
+      oneOf:
+        - $ref: '#/components/schemas/Vehicle'
+      properties:
+        type:
+          type: string
+          enum: [ElectricCar]
+        batteryCapacity:
+          type: number
+          format: float
+          description: Battery capacity in kWh
+
+    # OneOf example with discriminator
+    Car:
+      oneOf:
+        - $ref: '#/components/schemas/Sedan'
+        - $ref: '#/components/schemas/SUV'
+      discriminator:
+        propertyName: type
+        mapping:
+          Sedan: '#/components/schemas/Sedan'
+          SUV: '#/components/schemas/SUV'
+
+    # OneOf including ElectricCar
+    VehicleChoice:
+      oneOf:
+        - $ref: '#/components/schemas/Sedan'
+        - $ref: '#/components/schemas/SUV'
+        - $ref: '#/components/schemas/ElectricCar'
+      discriminator:
+        propertyName: type
+        mapping:
+          Sedan: '#/components/schemas/Sedan'
+          SUV: '#/components/schemas/SUV'
+          ElectricCar: '#/components/schemas/ElectricCar'
