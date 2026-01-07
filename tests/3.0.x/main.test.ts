@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { defineConfig, type KubbEvents, safeBuild } from '@kubb/core'
+import { type KubbEvents, safeBuild, type UserConfig } from '@kubb/core'
 import { getRelativePath } from '@kubb/core/fs'
 import { AsyncEventEmitter } from '@kubb/core/utils'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -13,25 +13,79 @@ const __dirname = path.dirname(__filename)
 
 const version = '3.0.x'
 
-describe(`OpenAPI ${version}`, () => {
-  const configs = [
-    {
-      name: 'simple',
-      config: defineConfig({
-        root: __dirname,
-        input: {
-          path: '../../schemas/3.0.x/petStore.yaml',
-        },
-        output: {
-          path: './gen',
-          clean: true,
-          barrelType: false,
-        },
-        plugins: [pluginOas({ validate: false }), pluginTs({ output: { path: './types', barrelType: false } })],
-      }),
+const configs: Array<{ name: string; config: UserConfig }> = [
+  {
+    name: 'simple',
+    config: {
+      root: __dirname,
+      input: {
+        path: '../../schemas/3.0.x/petStore.yaml',
+      },
+      output: {
+        path: './gen',
+        clean: true,
+        barrelType: false,
+      },
+      plugins: [pluginOas({ validate: false }), pluginTs({ output: { path: './types', barrelType: false } })],
     },
-  ]
+  },
+  {
+    name: 'petStore',
+    config: {
+      root: __dirname,
+      input: {
+        path: '../../schemas/3.0.x/petStore.yaml',
+      },
+      output: {
+        path: './gen',
+        clean: true,
+        barrelType: 'named',
+      },
+      plugins: [
+        pluginOas({
+          output: {
+            path: 'schemas',
+          },
+          group: {
+            type: 'tag',
+          },
+          validate: false,
+          discriminator: 'inherit',
+        }),
+        pluginTs({}),
+      ],
+    },
+  },
+  {
+    name: 'discriminatorAllOf',
+    config: {
+      root: __dirname,
+      input: {
+        path: '../../schemas/3.0.x/discriminatorAllOf.yaml',
+      },
+      output: {
+        path: './gen',
+        clean: true,
+        barrelType: 'named',
+      },
+      plugins: [
+        pluginOas({
+          output: {
+            path: 'schemas',
+          },
+          group: {
+            type: 'tag',
+          },
+          validate: false,
+          discriminator: 'inherit',
+        }),
+        pluginTs({}),
+      ],
+    },
+  },
+]
 
+describe(`Main OpenAPI ${version}`, () => {
   test.each(configs)('config testing with config as $name', async ({ name, config }) => {
     const output = path.join(__dirname, 'gen', name)
     const { files, failedPlugins, error } = await safeBuild({

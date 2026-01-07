@@ -1,0 +1,95 @@
+openapi: 3.0.3
+info:
+  title: Discriminator All Of
+  version: 1.0.0
+components:
+  schemas:
+    PaymentMethod:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+      discriminator:
+        propertyName: type
+    CardPayment:
+      allOf:
+        - $ref: '#/components/schemas/PaymentMethod'
+        - type: object
+          properties:
+            cardNumber:
+              type: string
+    BankTransferPayment:
+      allOf:
+        - $ref: '#/components/schemas/PaymentMethod'
+        - type: object
+          properties:
+            iban:
+              type: string
+    WalletPayment:
+      allOf:
+        - $ref: '#/components/schemas/PaymentMethod'
+        - type: object
+          properties:
+            walletId:
+              type: string
+    PaymentMethodMapped:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+      discriminator:
+        propertyName: type
+        mapping:
+          card: '#/components/schemas/CardPaymentMapped'
+          bank_transfer: '#/components/schemas/BankTransferPaymentMapped'
+    CardPaymentMapped:
+      allOf:
+        - $ref: '#/components/schemas/PaymentMethodMapped'
+        - type: object
+          properties:
+            cardNumber:
+              type: string
+    BankTransferPaymentMapped:
+      allOf:
+        - $ref: '#/components/schemas/PaymentMethodMapped'
+        - type: object
+          properties:
+            iban:
+              type: string
+    WalletPaymentMapped:
+      allOf:
+        - $ref: '#/components/schemas/PaymentMethodMapped'
+        - type: object
+          properties:
+            walletId:
+              type: string
+    PaymentMethodUnion:
+      oneOf:
+        - $ref: '#/components/schemas/CardPaymentUnion'
+        - $ref: '#/components/schemas/BankTransferPaymentUnion'
+      discriminator:
+        propertyName: type
+        mapping:
+          card: '#/components/schemas/CardPaymentUnion'
+          bank_transfer: '#/components/schemas/BankTransferPaymentUnion'
+    CardPaymentUnion:
+      type: object
+      properties:
+        type:
+          type: string
+        cardNumber:
+          type: string
+    BankTransferPaymentUnion:
+      type: object
+      properties:
+        type:
+          type: string
+        iban:
+          type: string
+    ExtendedPaymentMethodUnion:
+      allOf:
+        - $ref: '#/components/schemas/PaymentMethodUnion'

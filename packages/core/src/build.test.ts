@@ -31,7 +31,7 @@ describe('build', () => {
     }
   })
 
-  const config = defineConfig({
+  const config = {
     root: '.',
     input: {
       path: 'https://petstore3.swagger.io/api/v3/openapi.json',
@@ -41,7 +41,7 @@ describe('build', () => {
       clean: true,
     },
     plugins: [plugin({})] as Plugin[],
-  })
+  }
 
   const configs = [
     {
@@ -108,7 +108,7 @@ describe('build', () => {
     let kubbUserConfig = Promise.resolve(config) as Promise<UserConfig | Array<UserConfig>>
 
     if (typeof config === 'function') {
-      const possiblePromise = config()
+      const possiblePromise = config({})
       if (isPromise(possiblePromise)) {
         kubbUserConfig = possiblePromise
       }
@@ -322,7 +322,7 @@ describe('build', () => {
       }
     })
 
-    const excludeConfig = defineConfig({
+    const excludeConfig: UserConfig = {
       ...config,
       output: {
         ...config.output,
@@ -330,7 +330,7 @@ describe('build', () => {
         write: false,
       },
       plugins: [excludedPlugin({})] as Plugin[],
-    })
+    }
 
     const { fabric } = await build({
       config: excludeConfig,

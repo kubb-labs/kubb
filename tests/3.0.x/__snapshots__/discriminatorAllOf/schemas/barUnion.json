@@ -1,0 +1,1 @@
+{"type":"object","properties":{"id":{"type":"string","enum":["bar"]},"bar":{"type":"string"}},"required":["id"],"x-readme-ref-name":"BarUnion"}
