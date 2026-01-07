@@ -18,7 +18,7 @@ From the repository root:
 pnpm perf:bench
 
 # Run specific benchmark file
-pnpm vitest bench --config ./configs/vitest.bench.config.ts e2e/src/__tests__/performance/plugin-generation.bench.ts
+pnpm vitest bench --config ./configs/vitest.bench.config.ts tests/performance/main.bench.ts
 ```
 
 ## Benchmark Scenarios
@@ -59,7 +59,7 @@ Benchmark results show:
 
 Example output:
 ```
-✓ e2e/src/__tests__/performance/plugin-generation.bench.ts
+✓ test/performance/main.bench.ts
     name                                                          hz      min     max     mean      p75     p99
   · single plugin generation (plugin-ts)                     19.0873  38.1352  136.95  52.3908  55.1142  113.74
   · multiple plugins generation (plugin-ts + plugin-client)   9.4499  85.0752  315.47   105.82   112.78  315.47
@@ -93,7 +93,7 @@ describe('My Benchmark Suite', () => {
 
 ## Notes
 
-- Benchmarks use the `petStore.yaml` OpenAPI spec from `e2e/schemas/`
+- Benchmarks use the `petStore.yaml` OpenAPI spec from `schemas/`
 - File writing is disabled (`write: false`) to focus on generation performance
 - The `time` option specifies how long (in milliseconds) to run the benchmark
 - Benchmarks are excluded from regular test coverage

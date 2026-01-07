@@ -1,12 +1,12 @@
 {
   "name": "e2e",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "private": true,
   "description": "",
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "e2e"
+    "directory": "tests/e2e"
   },
   "license": "MIT",
   "author": "stijnvanhulle",

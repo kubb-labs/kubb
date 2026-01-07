@@ -15,7 +15,7 @@
 			"packages/*",
 			"docs",
 			"examples/*",
-			"e2e"
+			"tests/*"
 		]
 	},
 	"scripts": {

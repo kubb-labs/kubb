@@ -41,7 +41,7 @@ const baseConfig = {
     path: 'https://petstore3.swagger.io/api/v3/openapi.json',
   },
   output: {
-    path: './src/gen',
+    path: './gen',
     clean: true,
   },
   plugins: [

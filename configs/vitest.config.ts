@@ -23,7 +23,7 @@ export default defineConfig({
         '**/packages/kubb/**',
         '**/packages/plugin-ts/src/oas/**',
         '**/packages/plugin-client/client.ts',
-        '**/e2e/**',
+        '**/tests/**',
         '**/coverage/**',
         '**/__snapshots__/**',
         '**/packages/*/test?(s)/**',
