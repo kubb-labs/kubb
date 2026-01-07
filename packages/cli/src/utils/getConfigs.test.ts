@@ -1,6 +1,6 @@
 import { defineConfig, definePlugin } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { getConfig } from './getConfig.ts'
+import { getConfigs } from './getConfigs.ts'
 import type { CosmiconfigResult } from './getCosmiConfig.ts'
 
 const plugin = definePlugin(() => {
@@ -9,7 +9,7 @@ const plugin = definePlugin(() => {
   } as any
 })
 
-describe('getConfig', () => {
+describe('getConfigs', () => {
   it('should return Config when config is set with defineConfig', async () => {
     const config: CosmiconfigResult['config'] = defineConfig(() => {
       return {
@@ -22,7 +22,7 @@ describe('getConfig', () => {
         plugins: [],
       }
     })
-    const kubbUserConfig = await getConfig(
+    const kubbUserConfig = await getConfigs(
       {
         config,
         filepath: './',
@@ -67,7 +67,7 @@ describe('getConfig', () => {
         },
       ]
     })
-    const loadedConfig = await getConfig(
+    const loadedConfig = await getConfigs(
       {
         config,
         filepath: './',
@@ -116,7 +116,7 @@ describe('getConfig', () => {
         plugins: [],
       })
     })
-    const kubbUserConfig = await getConfig(
+    const kubbUserConfig = await getConfigs(
       {
         config,
         filepath: './',
@@ -148,7 +148,7 @@ describe('getConfig', () => {
         plugins: [plugin()],
       }
     })
-    const kubbUserConfig = await getConfig(
+    const kubbUserConfig = await getConfigs(
       {
         config,
         filepath: './',

@@ -16,7 +16,6 @@
     "clean": "npx rimraf ./dist",
     "format": "echo 'empty'",
     "generate": "kubb generate",
-    "generate:build": "node ./build.js",
     "generate:petstore": "kubb generate --config kubb-petstore.config.js",
     "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"

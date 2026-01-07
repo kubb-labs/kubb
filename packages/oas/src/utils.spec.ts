@@ -1,8 +1,12 @@
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { Config } from '@kubb/core'
 import yaml from '@stoplight/yaml'
 import { describe, expect, test } from 'vitest'
 import { merge, parse, parseFromConfig } from './utils.ts'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 describe('utils', () => {
   test('merge of 2 oas documents', async () => {

@@ -25,23 +25,9 @@ export type CLIOptions = {
   bun?: boolean
 }
 
-/**
- * Helper for defining a Kubb configuration.
- *
- * Accepts either:
- * - A config object or array of configs
- * - A function returning the config(s), optionally async,
- *   receiving the CLI options as argument
- *
- * @example
- * export default defineConfig(({ logLevel }) => ({
- *   root: 'src',
- *   plugins: [myPlugin()],
- * }))
- */
-export function defineConfig(
-  config: PossiblePromise<UserConfig | UserConfig[]> | ((cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>),
-): typeof config {
+export function defineConfig<T extends UserConfig | UserConfig[]>(config: T & (T extends any[] ? UserConfig[] : UserConfig)): T
+export function defineConfig<T extends (cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>>(config: T): T
+export function defineConfig(config: any) {
   return config
 }
 

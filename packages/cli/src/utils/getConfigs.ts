@@ -5,9 +5,9 @@ import type { CosmiconfigResult } from './getCosmiConfig.ts'
 import { getPlugins } from './getPlugins.ts'
 
 /**
- * Converting UserConfig to Config without a change in the object beside the JSON convert.
+ * Converting UserConfig to Config Array without a change in the object beside the JSON convert.
  */
-export async function getConfig(result: CosmiconfigResult, args: Args): Promise<Array<Config> | Config> {
+export async function getConfigs(result: CosmiconfigResult, args: Args): Promise<Array<Config>> {
   const config = result?.config
   let kubbUserConfig = Promise.resolve(config) as Promise<UserConfig | Array<UserConfig>>
 
@@ -22,25 +22,20 @@ export async function getConfig(result: CosmiconfigResult, args: Args): Promise<
 
   let JSONConfig = await kubbUserConfig
 
-  if (Array.isArray(JSONConfig)) {
-    const results: Array<Config> = []
-
-    for (const item of JSONConfig) {
-      const plugins = item.plugins ? await getPlugins(item.plugins) : undefined
-
-      results.push({
-        ...item,
-        plugins,
-      } as Config)
-    }
-
-    return results
+  if (!Array.isArray(JSONConfig)) {
+    JSONConfig = [JSONConfig]
   }
 
-  JSONConfig = {
-    ...JSONConfig,
-    plugins: JSONConfig.plugins ? await getPlugins(JSONConfig.plugins) : undefined,
+  const results: Array<Config> = []
+
+  for (const item of JSONConfig) {
+    const plugins = item.plugins ? await getPlugins(item.plugins) : undefined
+
+    results.push({
+      ...item,
+      plugins,
+    } as Config)
   }
 
-  return JSONConfig as Config
+  return results
 }

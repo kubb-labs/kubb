@@ -1,0 +1,1 @@
+{"type":"object","properties":{"street":{"type":"string","example":"437 Lytton"},"city":{"type":"string","example":"Palo Alto"},"state":{"type":"string","example":"CA"},"zip":{"type":"string","example":"94301"}},"xml":{"name":"address"},"x-readme-ref-name":"Address"}

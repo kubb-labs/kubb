@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
@@ -10,6 +11,9 @@ import { describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 describe('typeGenerator schema', async () => {
   const testData = [
