@@ -129,10 +129,10 @@ export class OperationGenerator<
       const keys = resolveKeys(schema)
 
       // Generate base name with 'status' keyword for clarity and ensure uniqueness
-      const name = resolveName(transformers.pascalCase(`${operationId} status ${name}`))
+      const resolvedName = resolveName(transformers.pascalCase(`${operationId} status ${name}`))
 
       return {
-        name,
+        name: resolvedName,
         description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
         schema,
         operation,
