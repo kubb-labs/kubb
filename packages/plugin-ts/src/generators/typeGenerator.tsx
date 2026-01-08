@@ -1,7 +1,9 @@
 import type { PluginManager } from '@kubb/core'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
+import { getUniqueName } from '@kubb/core/utils'
 import type { Operation } from '@kubb/oas'
+import { isReference } from '@kubb/oas'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
@@ -249,6 +251,9 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
     const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request].flat().filter(Boolean)
 
+    // Track used type names to avoid conflicts
+    const usedTypeNames: Record<string, number> = {}
+
     const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType) => {
       const tree = schemaGenerator.parse({ schema, name, parentName: null })
       const imports = schemaManager.getImports(tree)
@@ -259,6 +264,9 @@ export const typeGenerator = createReactGenerator<PluginTs>({
         typedName: schemaManager.getName(name, { type: 'type' }),
         file: schemaManager.getFile(options.operationName || name, { group }),
       }
+
+      // Track this type name
+      usedTypeNames[type.name] = (usedTypeNames[type.name] || 0) + 1
 
       return (
         <>
@@ -286,6 +294,9 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       type: 'type',
     })
 
+    // Make the Request wrapper type name unique to avoid conflicts with schema names
+    const requestWrapperName = getUniqueName(`${name}Request`, usedTypeNames)
+
     return (
       <File
         baseName={file.baseName}
@@ -296,7 +307,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       >
         {operationSchemas.map(mapOperationSchema)}
 
-        <File.Source name={`${name}Request`} isExportable isIndexable isTypeOnly>
+        <File.Source name={requestWrapperName} isExportable isIndexable isTypeOnly>
           {printRequestSchema({ baseName: name, operation, schemas, pluginManager })}
         </File.Source>
         <File.Source name={responseName} isExportable isIndexable isTypeOnly>
