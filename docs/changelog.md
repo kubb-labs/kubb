@@ -7,6 +7,43 @@ outline: deep
 
 ## Unreleased
 
+### 🚀 Performance Improvements
+
+Achieved 18-27% performance improvement for OpenAPI code generation through advanced optimizations including increased parallelism and schema caching.
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Increased Processing Parallelism:**
+- Operation processing concurrency increased from 10 to 30 concurrent operations
+- Schema processing concurrency increased from 10 to 30 concurrent schemas
+- Generator parallelism increased from 1 to 3 concurrent generators
+
+**Added Schema Caching:**
+- Implemented schema parse caching to eliminate redundant parsing
+
+::: tip Performance Impact
+These optimizations provide:
+- **10-15%** faster operation processing
+- **8-12%** faster schema generation
+- **3-5%** reduction from schema caching
+- **Overall: 18-27% faster code generation**
+:::
+
+#### [`@kubb/core`](/core/)
+
+**Improved Parallelism:**
+- PluginManager concurrency increased from 5 to 15 for better parallel plugin execution
+- Better resource utilization on multi-core systems
+- **4-7%** performance improvement
+
+::: info Compatibility
+All changes are backward compatible with no breaking changes to APIs or plugin behavior.
+:::
+
+---
+
+## 4.14.0
+
 ### ✨ Features
 
 #### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
@@ -48,39 +85,6 @@ pluginTs({
 
 > [!NOTE]
 > In Kubb v5, `inlineLiteral` will become the default `enumType`.
-
-### 🚀 Performance Improvements
-
-Achieved 18-27% performance improvement for OpenAPI code generation through advanced optimizations including increased parallelism and schema caching.
-
-#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
-
-**Increased Processing Parallelism:**
-- Operation processing concurrency increased from 10 to 30 concurrent operations
-- Schema processing concurrency increased from 10 to 30 concurrent schemas
-- Generator parallelism increased from 1 to 3 concurrent generators
-
-**Added Schema Caching:**
-- Implemented schema parse caching to eliminate redundant parsing
-
-::: tip Performance Impact
-These optimizations provide:
-- **10-15%** faster operation processing
-- **8-12%** faster schema generation
-- **3-5%** reduction from schema caching
-- **Overall: 18-27% faster code generation**
-:::
-
-#### [`@kubb/core`](/core/)
-
-**Improved Parallelism:**
-- PluginManager concurrency increased from 5 to 15 for better parallel plugin execution
-- Better resource utilization on multi-core systems
-- **4-7%** performance improvement
-
-::: info Compatibility
-All changes are backward compatible with no breaking changes to APIs or plugin behavior.
-:::
 
 ---
 
