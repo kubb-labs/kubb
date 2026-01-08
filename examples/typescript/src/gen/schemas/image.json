@@ -1,6 +1,0 @@
-{
-  "example": "linode/debian10",
-  "readOnly": true,
-  "allOf": [{ "type": "string", "nullable": true }],
-  "x-readme-ref-name": "Image"
-}
