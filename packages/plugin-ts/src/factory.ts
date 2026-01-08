@@ -419,7 +419,7 @@ export function createEnumDeclaration({
   typeName: string
   enums: [key: string | number, value: string | number | boolean][]
 }): [name: ts.Node | undefined, type: ts.Node] {
-  if (type === 'literal' || type ==="inlineLiteral") {
+  if (type === 'literal' || type === 'inlineLiteral') {
     return [
       undefined,
       factory.createTypeAliasDeclaration(
