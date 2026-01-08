@@ -19,67 +19,48 @@ import type { PluginTs } from '../types'
  * like `/pet/${string}/uploadImage`
  */
 function createUrlTemplateType(path: string): ts.TypeNode {
-  // Check if path has parameters
+  // If no parameters, return literal string type
   if (!path.includes('{')) {
-    // No parameters, return literal string type
     return factory.createLiteralTypeNode(factory.createStringLiteral(path))
   }
 
-  // Split path into parts and parameter placeholders
+  // Split path by parameter placeholders, e.g. '/pet/{petId}/upload' -> ['/pet/', 'petId', '/upload']
+  const segments = path.split(/(\{[^}]+\})/)
+  
+  // Separate static parts from parameter placeholders
   const parts: string[] = []
-  const types: ts.TypeNode[] = []
-
-  let currentPart = ''
-  let inParam = false
-
-  for (let i = 0; i < path.length; i++) {
-    const char = path[i]
-
-    if (char === '{') {
-      if (currentPart) {
-        parts.push(currentPart)
-        currentPart = ''
-      }
-      inParam = true
-    } else if (char === '}') {
-      inParam = false
-      // Add string type for the parameter
-      types.push(keywordTypeNodes.string)
-    } else if (!inParam) {
-      currentPart += char
+  const parameterIndices: number[] = []
+  
+  segments.forEach((segment, index) => {
+    if (segment.startsWith('{') && segment.endsWith('}')) {
+      // This is a parameter placeholder
+      parameterIndices.push(parts.length)
+      parts.push(segment) // Will be replaced with ${string}
+    } else if (segment) {
+      // This is a static part
+      parts.push(segment)
     }
-  }
-
-  // Add remaining part
-  if (currentPart) {
-    parts.push(currentPart)
-  }
+  })
 
   // Build template literal type
-  // For a path like '/pet/{petId}/uploadImage', we want:
-  // - head: '/pet/'
-  // - templateSpans: [{ type: string, literal: '/uploadImage' }]
-
-  if (parts.length === 0) {
-    // Edge case: only parameters
-    parts.push('')
-  }
-
+  // Template literal structure: head + templateSpans[]
+  // For '/pet/{petId}/upload': head = '/pet/', spans = [{ type: string, literal: '/upload' }]
+  
   const head = ts.factory.createTemplateHead(parts[0] || '')
   const templateSpans: ts.TemplateLiteralTypeSpan[] = []
 
-  for (let i = 0; i < types.length; i++) {
-    const type = types[i]
-    const nextPart = parts[i + 1] || ''
-
-    if (i < types.length - 1) {
-      // Middle span
-      templateSpans.push(ts.factory.createTemplateLiteralTypeSpan(type, ts.factory.createTemplateMiddle(nextPart)))
-    } else {
-      // Last span
-      templateSpans.push(ts.factory.createTemplateLiteralTypeSpan(type, ts.factory.createTemplateTail(nextPart)))
-    }
-  }
+  parameterIndices.forEach((paramIndex, i) => {
+    const isLast = i === parameterIndices.length - 1
+    const nextPart = parts[paramIndex + 1] || ''
+    
+    const literal = isLast
+      ? ts.factory.createTemplateTail(nextPart)
+      : ts.factory.createTemplateMiddle(nextPart)
+    
+    templateSpans.push(
+      ts.factory.createTemplateLiteralTypeSpan(keywordTypeNodes.string, literal)
+    )
+  })
 
   return ts.factory.createTemplateLiteralType(head, templateSpans)
 }
