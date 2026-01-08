@@ -40,8 +40,17 @@ export type CreatePetsMutationRequest = {
 
 export type CreatePetsMutationResponse = createPets201 | createPets202
 
-export type createPetsMutation = {
-  Response: createPets201 | createPets202
-  Request: createPetsMutationRequest
-  Errors: any
+export type createPetsDataRequest = {
+  body?: createPetsMutationRequest
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/pets'
 }
+
+export type createPetsResponses = {
+  '201': createPets201
+  '202': createPets202
+}
+
+export type createPetsResponse = createPetsResponses[keyof createPetsResponses]

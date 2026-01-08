@@ -23,8 +23,15 @@ export type ListPetsError = error
 
 export type ListPetsQueryResponse = listPets200
 
-export type listPetsQuery = {
-  Response: listPets200
-  QueryParams: listPetsQueryParams
-  Errors: any
+export type listPetsDataRequest = {
+  pathParams?: never
+  queryParams?: listPetsQueryParams
+  headerParams?: never
+  url: '/pets'
 }
+
+export type listPetsResponses = {
+  '200': listPets200
+}
+
+export type listPetsResponse = listPetsResponses[keyof listPetsResponses]

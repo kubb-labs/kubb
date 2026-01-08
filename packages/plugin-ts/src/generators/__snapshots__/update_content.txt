@@ -1,0 +1,14 @@
+export type createPetsDataRequest = {
+  body?: createPetsMutationRequest
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/pets'
+}
+
+export type createPetsResponses = {
+  '201': createPets201
+  '202': createPets202
+}
+
+export type createPetsResponse = createPetsResponses[keyof createPetsResponses]

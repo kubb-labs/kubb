@@ -5,7 +5,9 @@
 
 export type DeletePetsPetidMutationResponse = any
 
-export type deletePetsPetidMutation = {
-  Response: any
-  Errors: any
+export type deletePetsPetidDataRequest = {
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/pets/{petId}'
 }

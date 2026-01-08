@@ -17,8 +17,15 @@ export type Systems200 = object
 
 export type SystemsQueryResponse = systems200
 
-export type systemsQuery = {
-  Response: systems200
-  QueryParams: systemsQueryParams
-  Errors: any
+export type systemsDataRequest = {
+  pathParams?: never
+  queryParams?: systemsQueryParams
+  headerParams?: never
+  url: '/systems'
 }
+
+export type systemsResponses = {
+  '200': systems200
+}
+
+export type systemsResponse = systemsResponses[keyof systemsResponses]

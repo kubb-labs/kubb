@@ -28,8 +28,15 @@ export type ShowPetByIdError = error
 
 export type ShowPetByIdQueryResponse = showPetById200
 
-export type showPetByIdQuery = {
-  Response: showPetById200
-  PathParams: showPetByIdPathParams
-  Errors: any
+export type showPetByIdDataRequest = {
+  pathParams: showPetByIdPathParams
+  queryParams?: never
+  headerParams?: never
+  url: '/pets/{petId}'
 }
+
+export type showPetByIdResponses = {
+  '200': showPetById200
+}
+
+export type showPetByIdResponse = showPetByIdResponses[keyof showPetByIdResponses]
