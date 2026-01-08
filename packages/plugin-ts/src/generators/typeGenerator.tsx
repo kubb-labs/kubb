@@ -28,13 +28,13 @@ function createUrlTemplateType(path: string): ts.TypeNode {
   // Split path into parts and parameter placeholders
   const parts: string[] = []
   const types: ts.TypeNode[] = []
-  
+
   let currentPart = ''
   let inParam = false
-  
+
   for (let i = 0; i < path.length; i++) {
     const char = path[i]
-    
+
     if (char === '{') {
       if (currentPart) {
         parts.push(currentPart)
@@ -49,7 +49,7 @@ function createUrlTemplateType(path: string): ts.TypeNode {
       currentPart += char
     }
   }
-  
+
   // Add remaining part
   if (currentPart) {
     parts.push(currentPart)
@@ -59,7 +59,7 @@ function createUrlTemplateType(path: string): ts.TypeNode {
   // For a path like '/pet/{petId}/uploadImage', we want:
   // - head: '/pet/'
   // - templateSpans: [{ type: string, literal: '/uploadImage' }]
-  
+
   if (parts.length === 0) {
     // Edge case: only parameters
     parts.push('')
@@ -67,27 +67,17 @@ function createUrlTemplateType(path: string): ts.TypeNode {
 
   const head = ts.factory.createTemplateHead(parts[0] || '')
   const templateSpans: ts.TemplateLiteralTypeSpan[] = []
-  
+
   for (let i = 0; i < types.length; i++) {
     const type = types[i]
     const nextPart = parts[i + 1] || ''
-    
+
     if (i < types.length - 1) {
       // Middle span
-      templateSpans.push(
-        ts.factory.createTemplateLiteralTypeSpan(
-          type,
-          ts.factory.createTemplateMiddle(nextPart)
-        )
-      )
+      templateSpans.push(ts.factory.createTemplateLiteralTypeSpan(type, ts.factory.createTemplateMiddle(nextPart)))
     } else {
       // Last span
-      templateSpans.push(
-        ts.factory.createTemplateLiteralTypeSpan(
-          type,
-          ts.factory.createTemplateTail(nextPart)
-        )
-      )
+      templateSpans.push(ts.factory.createTemplateLiteralTypeSpan(type, ts.factory.createTemplateTail(nextPart)))
     }
   }
 
