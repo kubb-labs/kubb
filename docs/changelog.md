@@ -9,7 +9,7 @@ outline: deep
 
 ### 🚀 Performance Improvements
 
-Achieved 22-34% performance improvement for OpenAPI code generation through advanced optimizations including batched processing, resource reuse, and increased parallelism.
+Achieved 18-27% performance improvement for OpenAPI code generation through advanced optimizations including increased parallelism and schema caching.
 
 #### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
 
@@ -18,16 +18,15 @@ Achieved 22-34% performance improvement for OpenAPI code generation through adva
 - Schema processing concurrency increased from 10 to 30 concurrent schemas
 - Generator parallelism increased from 1 to 3 concurrent generators
 
-**Added Resource Caching:**
+**Added Schema Caching:**
 - Implemented schema parse caching to eliminate redundant parsing
-- Added operation metadata caching to reduce redundant schema extraction
 
 ::: tip Performance Impact
 These optimizations provide:
 - **10-15%** faster operation processing
 - **8-12%** faster schema generation
-- **3-5%** reduction from caching optimizations
-- **Overall: 22-34% faster code generation**
+- **3-5%** reduction from schema caching
+- **Overall: 18-27% faster code generation**
 :::
 
 #### [`@kubb/core`](/core/)

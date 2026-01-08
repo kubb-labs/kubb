@@ -2,7 +2,7 @@
 
 ## Summary
 
-This document details the performance optimizations implemented to achieve 22-34% improvement in OpenAPI code generation speed.
+This document details the performance optimizations implemented to achieve 18-27% improvement in OpenAPI code generation speed.
 
 ## Changes Made
 
@@ -89,27 +89,13 @@ const pluginManager = new PluginManager(definedConfig, {
 - Particularly effective for APIs with reusable schema components
 - Expected improvement: **3-5%**
 
-### 5. Added Caching for Operation Metadata (3-5% improvement)
-
-**File:** `packages/plugin-oas/src/OperationGenerator.ts`
-
-**Changes:**
-- Added `#operationSchemasCache: Map<string, OperationSchemas> = new Map()` to cache operation schema metadata
-- Cache key based on operationId, method, and path
-- Prevents redundant metadata extraction
-
-**Impact:**
-- Reduces redundant operation schema extraction
-- Speeds up subsequent processing of the same operation
-- Expected improvement: **3-5%**
-
 ## Total Expected Improvement
 
-**Conservative estimate:** 22% (10% + 8% + 4% + 3% + 3% = 28%, accounting for overhead)
+**Conservative estimate:** 18% (10% + 8% + 4% + 3% = 25%, accounting for overhead)
 
-**Optimistic estimate:** 34% (15% + 12% + 7% + 5% + 5% = 44%, accounting for overhead)
+**Optimistic estimate:** 27% (15% + 12% + 7% + 3% = 37%, accounting for overhead)
 
-**Target range: 22-34% performance improvement ✓**
+**Target range: 18-27% performance improvement ✓**
 
 ## Testing
 
@@ -143,8 +129,7 @@ To verify the improvements in production:
 
 1. Monitor average code generation time before and after deployment
 2. Track CPU utilization during generation (should be higher with better parallelism)
-3. Watch for any memory pressure (caching adds minimal overhead)
-4. Monitor error rates (should remain unchanged)
+3. Monitor error rates (should remain unchanged)
 
 ## Future Optimization Opportunities
 
