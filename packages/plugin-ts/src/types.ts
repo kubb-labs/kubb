@@ -32,15 +32,17 @@ export type Options = {
    */
   override?: Array<Override<ResolvedOptions>>
   /**
-   * Choose to use `enum`, `asConst`, `asPascalConst`, `constEnum`, or `literal` for enums.
+   * Choose to use `enum`, `asConst`, `asPascalConst`, `constEnum`, `literal`, or `inlineLiteral` for enums.
    * - `enum`: TypeScript enum
    * - `asConst`: const with camelCase name (e.g., `petType`)
    * - `asPascalConst`: const with PascalCase name (e.g., `PetType`)
    * - `constEnum`: const enum
    * - `literal`: literal union type
+   * - `inlineLiteral`: inline enum values directly into the type (default in v5)
    * @default 'asConst'
+   * @note In Kubb v5, `inlineLiteral` will become the default.
    */
-  enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
+  enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   /**
    * Switch between type or interface for creating TypeScript types
    * @default 'type'
@@ -95,6 +97,10 @@ export type Options = {
    * Define some generators next to the ts generators
    */
   generators?: Array<Generator<PluginTs>>
+  /**
+   * Unstable naming for v5
+   */
+  UNSTABLE_NAMING?: true
 }
 
 type ResolvedOptions = {

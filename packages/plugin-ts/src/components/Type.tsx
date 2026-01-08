@@ -135,28 +135,33 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
     }
   })
 
+  // Skip enum exports when using inlineLiteral
+  const shouldExportEnums = enumType !== 'inlineLiteral'
+  const shouldExportType = enumType === 'inlineLiteral' || enums.every((item) => item.typeName !== name)
+
   return (
     <>
-      {enums.map(({ name, nameNode, typeName, typeNode }) => (
-        <>
-          {nameNode && (
-            <File.Source name={name} isExportable isIndexable>
-              {safePrint(nameNode)}
-            </File.Source>
-          )}
-          {
-            <File.Source
-              name={typeName}
-              isIndexable
-              isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
-              isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
-            >
-              {safePrint(typeNode)}
-            </File.Source>
-          }
-        </>
-      ))}
-      {enums.every((item) => item.typeName !== name) && (
+      {shouldExportEnums &&
+        enums.map(({ name, nameNode, typeName, typeNode }) => (
+          <>
+            {nameNode && (
+              <File.Source name={name} isExportable isIndexable>
+                {safePrint(nameNode)}
+              </File.Source>
+            )}
+            {
+              <File.Source
+                name={typeName}
+                isIndexable
+                isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
+                isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
+              >
+                {safePrint(typeNode)}
+              </File.Source>
+            }
+          </>
+        ))}
+      {shouldExportType && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
           {safePrint(...typeNodes)}
         </File.Source>

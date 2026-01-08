@@ -1,5 +1,53 @@
 # @kubb/plugin-ts
 
+## 4.14.0
+
+### Minor Changes
+
+- [#2284](https://github.com/kubb-labs/kubb/pull/2284) [`092f78c`](https://github.com/kubb-labs/kubb/commit/092f78c7a8432468c57599b156e9b23337a38120) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add `inlineLiteral` enum type to inline enum values directly into types
+
+  You can now use `enumType: 'inlineLiteral'` to inline enum values as literal union types instead of creating separate enum declarations:
+
+  ```typescript
+  pluginTs({
+    enumType: "inlineLiteral",
+  });
+  ```
+
+  **Before (enumType: 'asConst' - default):**
+
+  ```typescript
+  export const petStatusEnum = {
+    available: "available",
+    pending: "pending",
+    sold: "sold",
+  } as const;
+
+  export type PetStatusEnumKey =
+    (typeof petStatusEnum)[keyof typeof petStatusEnum];
+
+  export interface Pet {
+    status?: PetStatusEnumKey;
+  }
+  ```
+
+  **After (enumType: 'inlineLiteral'):**
+
+  ```typescript
+  export interface Pet {
+    status?: "available" | "pending" | "sold";
+  }
+  ```
+
+  > **Note**: In Kubb v5, `inlineLiteral` will become the default `enumType`.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.14.0
+  - @kubb/oas@4.14.0
+  - @kubb/plugin-oas@4.14.0
+
 ## 4.13.1
 
 ### Patch Changes

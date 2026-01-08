@@ -158,7 +158,7 @@ const zodKeywordMapper = {
       return version === '4' ? `z.iso.datetime({ local: ${local} })` : `z.string().datetime({ local: ${local} })`
     }
 
-    return 'z.string().datetime()'
+    return version === '4' ? 'z.iso.datetime()' : 'z.string().datetime()'
   },
   /**
    * Type `'date'` Date

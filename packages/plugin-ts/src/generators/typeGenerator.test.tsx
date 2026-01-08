@@ -290,6 +290,15 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
+      name: 'EnumNamesInlineLiteral',
+      input: '../../mocks/enums.yaml',
+      path: 'enumNames.Type',
+      options: {
+        enumType: 'inlineLiteral',
+        optionalType: 'questionToken',
+      },
+    },
+    {
       name: 'Body_upload_file_api_assets_post',
       input: '../../mocks/typeAssertions.yaml',
       path: 'Body_upload_file_api_assets_post',

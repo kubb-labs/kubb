@@ -42,6 +42,52 @@ All changes are backward compatible with no breaking changes to APIs or plugin b
 
 ---
 
+## 4.14.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**New `inlineLiteral` enum type for cleaner TypeScript definitions**
+
+Added `inlineLiteral` as a new value for the `enumType` option, allowing enum values to be inlined directly into type properties instead of generating separate enum declarations.
+
+::: code-group
+
+```typescript [Before (asConst)]
+export const petStatusEnum = {
+  available: 'available',
+  pending: 'pending',
+  sold: 'sold',
+} as const
+
+export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
+
+export interface Pet {
+  status?: PetStatusEnumKey
+}
+```
+
+```typescript [After (inlineLiteral)]
+export interface Pet {
+  status?: "available" | "pending" | "sold"
+}
+```
+
+:::
+
+**Usage:**
+```typescript
+pluginTs({
+  enumType: 'inlineLiteral',
+})
+```
+
+> [!NOTE]
+> In Kubb v5, `inlineLiteral` will become the default `enumType`.
+
+---
+
 All notable changes to Kubb are documented here. Each version is organized with clear categories (Features, Bug Fixes, Breaking Changes, Dependencies) and includes code examples where applicable. Use the outline navigation in the right sidebar to quickly jump to any version.
 
 - ✨ **Features** - New functionality and enhancements

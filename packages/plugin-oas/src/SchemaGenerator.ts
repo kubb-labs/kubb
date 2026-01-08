@@ -9,8 +9,7 @@ import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { Generator } from './generators/types.ts'
-import type { Schema, SchemaKeywordMapper } from './SchemaMapper.ts'
-import { isKeyword, schemaKeywords } from './SchemaMapper.ts'
+import { isKeyword, type Schema, type SchemaKeywordMapper, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
 import { getSchemas } from './utils/getSchemas.ts'
@@ -40,7 +39,7 @@ export type SchemaGeneratorOptions = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   unknownType: 'any' | 'unknown' | 'void'
   emptySchemaType: 'any' | 'unknown' | 'void'
-  enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
+  enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   enumSuffix?: string
   usedEnumNames?: Record<string, number>
   mapper?: Record<string, string>

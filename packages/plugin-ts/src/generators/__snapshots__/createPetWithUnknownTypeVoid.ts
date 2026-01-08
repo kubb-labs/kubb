@@ -40,7 +40,7 @@ export type CreatePetsMutationRequest = {
 
 export type CreatePetsMutationResponse = createPets201 | createPets202
 
-export type createPetsMutation = {
+export type CreatePetsMutation = {
   Response: createPets201 | createPets202
   Request: createPetsMutationRequest
   Errors: any

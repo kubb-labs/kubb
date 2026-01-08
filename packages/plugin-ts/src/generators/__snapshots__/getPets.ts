@@ -23,7 +23,7 @@ export type ListPetsError = error
 
 export type ListPetsQueryResponse = listPets200
 
-export type listPetsQuery = {
+export type ListPetsQuery = {
   Response: listPets200
   QueryParams: listPetsQueryParams
   Errors: any

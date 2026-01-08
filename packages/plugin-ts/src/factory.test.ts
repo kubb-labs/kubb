@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noTemplateCurlyInString: just for testing */
 import { print } from '@kubb/fabric-core/parsers/typescript'
 import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
@@ -14,6 +15,7 @@ import {
   createPropertySignature,
   createQuestionToken,
   createUnionDeclaration,
+  createUrlTemplateType,
   modifiers,
 } from './factory.ts'
 
@@ -446,5 +448,40 @@ describe('Import/Export Sorting Consistency', () => {
     expect(output1).toBe(output2)
     expect(output2).toBe(output3)
     expect(output1).toContain('AuthService, CacheService, DatabaseService, UserService')
+  })
+
+  it('should create URL template type for path without parameters', () => {
+    const result = createUrlTemplateType('/pets')
+    expect(print(result).trim()).toBe('"/pets"')
+  })
+
+  it('should create URL template type for path with single parameter', () => {
+    const result = createUrlTemplateType('/pets/{petId}')
+    expect(print(result).trim()).toBe('`/pets/${string}`')
+  })
+
+  it('should create URL template type for path with multiple parameters', () => {
+    const result = createUrlTemplateType('/pets/{petId}/owner/{ownerId}')
+    expect(print(result).trim()).toBe('`/pets/${string}/owner/${string}`')
+  })
+
+  it('should create URL template type for path with parameter at start', () => {
+    const result = createUrlTemplateType('/{category}/pets')
+    expect(print(result).trim()).toBe('`/${string}/pets`')
+  })
+
+  it('should create URL template type for path with parameter at end', () => {
+    const result = createUrlTemplateType('/user/{username}')
+    expect(print(result).trim()).toBe('`/user/${string}`')
+  })
+
+  it('should create URL template type for complex path', () => {
+    const result = createUrlTemplateType('/pet/findByStatus/{step_id}')
+    expect(print(result).trim()).toBe('`/pet/findByStatus/${string}`')
+  })
+
+  it('should create URL template type for path with consecutive parameters', () => {
+    const result = createUrlTemplateType('/api/{version}/{resource}')
+    expect(print(result).trim()).toBe('`/api/${string}/${string}`')
   })
 })

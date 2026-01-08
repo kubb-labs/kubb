@@ -143,15 +143,17 @@ type ParserOptions = {
    */
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
   /**
-   * Choose to use `enum`, `asConst`, `asPascalConst`, `constEnum`, or `literal` for enums.
+   * Choose to use `enum`, `asConst`, `asPascalConst`, `constEnum`, `literal`, or `inlineLiteral` for enums.
    * - `enum`: TypeScript enum
    * - `asConst`: const with camelCase name (e.g., `petType`)
    * - `asPascalConst`: const with PascalCase name (e.g., `PetType`)
    * - `constEnum`: const enum
    * - `literal`: literal union type
+   * - `inlineLiteral`: inline enum values directly into the type (default in v5)
    * @default `'asConst'`
+   * @note In Kubb v5, `inlineLiteral` will become the default.
    */
-  enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
+  enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   mapper?: Record<string, ts.PropertySignature>
 }
 
@@ -196,6 +198,20 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
     enum(tree, options) {
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.enum)) return undefined
+
+      // If enumType is 'inlineLiteral', generate the literal union inline instead of a type reference
+      if (options.enumType === 'inlineLiteral') {
+        const enumValues = current.args.items
+          .map((item) => item.value)
+          .filter((value): value is string | number | boolean => value !== undefined && value !== null)
+          .map((value) => {
+            const format = typeof value === 'number' ? 'number' : typeof value === 'boolean' ? 'boolean' : 'string'
+            return typeKeywordMapper.const(value, format)
+          })
+          .filter(Boolean) as ts.TypeNode[]
+
+        return typeKeywordMapper.union(enumValues)
+      }
 
       // Adding suffix to enum (see https://github.com/kubb-labs/kubb/issues/1873)
       return typeKeywordMapper.enum(options.enumType === 'asConst' ? `${current.args.typeName}Key` : current.args.typeName)

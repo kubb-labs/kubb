@@ -25,6 +25,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     mapper = {},
     generators = [typeGenerator].filter(Boolean),
     contentType,
+    UNSTABLE_NAMING,
   } = options
 
   const usedEnumNames = {}
@@ -122,6 +123,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
         include,
         override,
         mode,
+        UNSTABLE_NAMING,
       })
 
       const operationFiles = await operationGenerator.build(...generators)
