@@ -246,6 +246,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       pluginManager,
       mode,
       override: options.override,
+      usedAliasNames: generator.context.usedAliasNames,
     })
 
     const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request].flat().filter(Boolean)
