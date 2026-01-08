@@ -14,8 +14,6 @@ type Props = {
   typedName: string
   schema: SchemaObject
   tree: Array<Schema>
-  isExportable: boolean
-  isIndexable: boolean
   optionalType: PluginTs['resolvedOptions']['optionalType']
   enumType: PluginTs['resolvedOptions']['enumType']
   mapper: PluginTs['resolvedOptions']['mapper']
@@ -31,8 +29,6 @@ export function Type({
   keysToOmit,
   schema,
   optionalType,
-  isExportable,
-  isIndexable,
   syntaxType,
   enumType,
   mapper,
@@ -108,7 +104,7 @@ export function Type({
   typeNodes.push(
     factory.createTypeDeclaration({
       name,
-      isExportable,
+      isExportable: true,
       type: keysToOmit?.length
         ? factory.createOmitDeclaration({
             keys: keysToOmit,
@@ -150,29 +146,34 @@ export function Type({
     }
   })
 
+  // Skip enum exports when using inlineLiteral
+  const shouldExportEnums = enumType !== 'inlineLiteral'
+  const shouldExportType = enumType === 'inlineLiteral' || enums.every((item) => item.typeName !== name)
+
   return (
     <>
-      {enums.map(({ name, nameNode, typeName, typeNode }) => (
-        <>
-          {nameNode && (
-            <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
-              {safePrint(nameNode)}
-            </File.Source>
-          )}
-          {
-            <File.Source
-              name={typeName}
-              isIndexable={isIndexable}
-              isExportable={isExportable ? ['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType) : false}
-              isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
-            >
-              {safePrint(typeNode)}
-            </File.Source>
-          }
-        </>
-      ))}
-      {enums.every((item) => item.typeName !== name) && (
-        <File.Source name={typedName} isTypeOnly isExportable={isExportable} isIndexable={isIndexable}>
+      {shouldExportEnums &&
+        enums.map(({ name, nameNode, typeName, typeNode }) => (
+          <>
+            {nameNode && (
+              <File.Source name={name} isExportable isIndexable>
+                {safePrint(nameNode)}
+              </File.Source>
+            )}
+            {
+              <File.Source
+                name={typeName}
+                isIndexable
+                isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
+                isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
+              >
+                {safePrint(typeNode)}
+              </File.Source>
+            }
+          </>
+        ))}
+      {shouldExportType && (
+        <File.Source name={typedName} isTypeOnly isExportable isIndexable>
           {safePrint(...typeNodes)}
         </File.Source>
       )}
