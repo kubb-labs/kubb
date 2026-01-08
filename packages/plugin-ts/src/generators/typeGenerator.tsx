@@ -1,6 +1,5 @@
 import type { PluginManager } from '@kubb/core'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
-import { getUniqueName } from '@kubb/core/utils'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
@@ -246,7 +245,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       pluginManager,
       mode,
       override: options.override,
-      usedAliasNames: generator.context.usedAliasNames,
     })
 
     const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request].flat().filter(Boolean)
@@ -288,9 +286,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       type: 'type',
     })
 
-    // Make the Request wrapper type name unique to avoid conflicts with schema names
-    const requestWrapperName = getUniqueName(`${name}Request`, generator.context.usedAliasNames || {})
-
     return (
       <File
         baseName={file.baseName}
@@ -301,7 +296,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       >
         {operationSchemas.map(mapOperationSchema)}
 
-        <File.Source name={requestWrapperName} isExportable isIndexable isTypeOnly>
+        <File.Source name={`${name}Request`} isExportable isIndexable isTypeOnly>
           {printRequestSchema({ baseName: name, operation, schemas, pluginManager })}
         </File.Source>
         <File.Source name={responseName} isExportable isIndexable isTypeOnly>
