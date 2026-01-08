@@ -1,10 +1,10 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
+  FindPetsByStatus200,
+  FindPetsByStatus400,
   FindPetsByStatusPathParams,
-  FindPetsByStatusResponseData,
-  FindPetsByStatusStatus200,
-  FindPetsByStatusStatus400,
+  FindPetsByStatusQueryResponse,
 } from '../../models/ts/petController/FindPetsByStatus.ts'
 import { petSchema } from '../petSchema.ts'
 
@@ -17,21 +17,21 @@ export type FindPetsByStatusPathParamsSchema = FindPetsByStatusPathParams
 /**
  * @description successful operation
  */
-export const findPetsByStatusStatus200Schema = z
+export const findPetsByStatus200Schema = z
   .array(z.lazy(() => petSchema))
   .min(1)
   .max(3)
-  .refine((items) => new Set(items).size === items.length, { message: 'Array entries must be unique' }) as unknown as ToZod<FindPetsByStatusStatus200>
+  .refine((items) => new Set(items).size === items.length, { message: 'Array entries must be unique' }) as unknown as ToZod<FindPetsByStatus200>
 
-export type FindPetsByStatusStatus200Schema = FindPetsByStatusStatus200
+export type FindPetsByStatus200Schema = FindPetsByStatus200
 
 /**
  * @description Invalid status value
  */
-export const findPetsByStatusStatus400Schema = z.any() as unknown as ToZod<FindPetsByStatusStatus400>
+export const findPetsByStatus400Schema = z.any() as unknown as ToZod<FindPetsByStatus400>
 
-export type FindPetsByStatusStatus400Schema = FindPetsByStatusStatus400
+export type FindPetsByStatus400Schema = FindPetsByStatus400
 
-export const findPetsByStatusResponseDataSchema = z.lazy(() => findPetsByStatusStatus200Schema) as unknown as ToZod<FindPetsByStatusResponseData>
+export const findPetsByStatusQueryResponseSchema = z.lazy(() => findPetsByStatus200Schema) as unknown as ToZod<FindPetsByStatusQueryResponse>
 
-export type FindPetsByStatusResponseDataSchema = FindPetsByStatusResponseData
+export type FindPetsByStatusQueryResponseSchema = FindPetsByStatusQueryResponse

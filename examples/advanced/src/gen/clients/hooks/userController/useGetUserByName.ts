@@ -3,10 +3,10 @@ import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.
 import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import type {
+  GetUserByName400,
+  GetUserByName404,
   GetUserByNamePathParams,
-  GetUserByNameResponseData,
-  GetUserByNameStatus400,
-  GetUserByNameStatus404,
+  GetUserByNameQueryResponse,
 } from '../../../models/ts/userController/GetUserByName.ts'
 import { getUserByName } from '../../axios/userService/getUserByName.ts'
 
@@ -21,9 +21,9 @@ export function getUserByNameQueryOptions(
 ) {
   const queryKey = getUserByNameQueryKey({ username })
   return queryOptions<
-    ResponseConfig<GetUserByNameResponseData>,
-    ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>,
-    ResponseConfig<GetUserByNameResponseData>,
+    ResponseConfig<GetUserByNameQueryResponse>,
+    ResponseErrorConfig<GetUserByName400 | GetUserByName404>,
+    ResponseConfig<GetUserByNameQueryResponse>,
     typeof queryKey
   >({
     enabled: !!username,
@@ -40,20 +40,14 @@ export function getUserByNameQueryOptions(
  * {@link /user/:username}
  */
 export function useGetUserByName<
-  TData = ResponseConfig<GetUserByNameResponseData>,
-  TQueryData = ResponseConfig<GetUserByNameResponseData>,
+  TData = ResponseConfig<GetUserByNameQueryResponse>,
+  TQueryData = ResponseConfig<GetUserByNameQueryResponse>,
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
   { username }: { username: GetUserByNamePathParams['username'] },
   options: {
     query?: Partial<
-      QueryObserverOptions<
-        ResponseConfig<GetUserByNameResponseData>,
-        ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>,
-        TData,
-        TQueryData,
-        TQueryKey
-      >
+      QueryObserverOptions<ResponseConfig<GetUserByNameQueryResponse>, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>
     > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
@@ -69,7 +63,7 @@ export function useGetUserByName<
       ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>> & { queryKey: TQueryKey }
+  ) as UseQueryResult<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

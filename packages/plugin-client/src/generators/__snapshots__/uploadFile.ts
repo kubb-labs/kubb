@@ -18,15 +18,15 @@ export function getUploadFileUrl(petId: UploadFilePathParams['petId']) {
  */
 export async function uploadFile(
   petId: UploadFilePathParams['petId'],
-  data: UploadFileRequestData,
+  data: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileRequestData>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
   const formData = buildFormData(requestData)
-  const res = await request<UploadFileResponseData, ResponseErrorConfig<Error>, UploadFileRequestData>({
+  const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: getUploadFileUrl(petId).url.toString(),
     params,

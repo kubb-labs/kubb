@@ -8,7 +8,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
-import type { DeleteUserPathParams, DeleteUserResponseData, DeleteUserStatus400, DeleteUserStatus404 } from '../models/DeleteUser.ts'
+import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../models/DeleteUser.ts'
 
 export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const
 
@@ -25,7 +25,7 @@ export async function deleteUser(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<DeleteUserResponseData, ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>, unknown>({
+  const res = await request<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
     url: `/user/${username}`,
     ...requestConfig,
@@ -41,8 +41,8 @@ export async function deleteUser(
 export function useDeleteUser<TContext>(
   options: {
     mutation?: MutationObserverOptions<
-      DeleteUserResponseData,
-      ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>,
+      DeleteUserMutationResponse,
+      ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
       { username: MaybeRefOrGetter<DeleteUserPathParams['username']> },
       TContext
     > & { client?: QueryClient }
@@ -53,12 +53,7 @@ export function useDeleteUser<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
 
-  return useMutation<
-    DeleteUserResponseData,
-    ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>,
-    { username: DeleteUserPathParams['username'] },
-    TContext
-  >(
+  return useMutation<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, { username: DeleteUserPathParams['username'] }, TContext>(
     {
       mutationFn: async ({ username }) => {
         return deleteUser({ username }, config)

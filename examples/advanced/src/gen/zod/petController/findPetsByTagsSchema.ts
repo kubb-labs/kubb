@@ -1,11 +1,11 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
+  FindPetsByTags200,
+  FindPetsByTags400,
   FindPetsByTagsHeaderParams,
   FindPetsByTagsQueryParams,
-  FindPetsByTagsResponseData,
-  FindPetsByTagsStatus200,
-  FindPetsByTagsStatus400,
+  FindPetsByTagsQueryResponse,
 } from '../../models/ts/petController/FindPetsByTags.ts'
 import { petSchema } from '../petSchema.ts'
 
@@ -28,17 +28,17 @@ export type FindPetsByTagsHeaderParamsSchema = FindPetsByTagsHeaderParams
 /**
  * @description successful operation
  */
-export const findPetsByTagsStatus200Schema = z.array(z.lazy(() => petSchema)) as unknown as ToZod<FindPetsByTagsStatus200>
+export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema)) as unknown as ToZod<FindPetsByTags200>
 
-export type FindPetsByTagsStatus200Schema = FindPetsByTagsStatus200
+export type FindPetsByTags200Schema = FindPetsByTags200
 
 /**
  * @description Invalid tag value
  */
-export const findPetsByTagsStatus400Schema = z.any() as unknown as ToZod<FindPetsByTagsStatus400>
+export const findPetsByTags400Schema = z.any() as unknown as ToZod<FindPetsByTags400>
 
-export type FindPetsByTagsStatus400Schema = FindPetsByTagsStatus400
+export type FindPetsByTags400Schema = FindPetsByTags400
 
-export const findPetsByTagsResponseDataSchema = z.lazy(() => findPetsByTagsStatus200Schema) as unknown as ToZod<FindPetsByTagsResponseData>
+export const findPetsByTagsQueryResponseSchema = z.lazy(() => findPetsByTags200Schema) as unknown as ToZod<FindPetsByTagsQueryResponse>
 
-export type FindPetsByTagsResponseDataSchema = FindPetsByTagsResponseData
+export type FindPetsByTagsQueryResponseSchema = FindPetsByTagsQueryResponse

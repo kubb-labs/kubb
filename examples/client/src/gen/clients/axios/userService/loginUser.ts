@@ -6,7 +6,7 @@
 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { LoginUserQueryParams, LoginUserResponseData, LoginUserStatus400 } from '../../../models/ts/userController/LoginUser.js'
+import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../../models/ts/userController/LoginUser.js'
 
 function getLoginUserUrl() {
   const res = { method: 'GET', url: '/user/login' as const }
@@ -20,7 +20,7 @@ function getLoginUserUrl() {
 export async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<LoginUserResponseData, ResponseErrorConfig<LoginUserStatus400>, unknown>({
+  const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
     method: 'GET',
     url: getLoginUserUrl().url.toString(),
     params,

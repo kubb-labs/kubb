@@ -7,7 +7,7 @@
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
 import { buildFormData } from '../../../.kubb/config.js'
-import type { AddFilesRequestData, AddFilesResponseData, AddFilesStatus405 } from '../../../models/ts/petController/AddFiles.js'
+import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../../models/ts/petController/AddFiles.js'
 
 function getAddFilesUrl() {
   const res = { method: 'POST', url: '/pet/files' as const }
@@ -20,8 +20,8 @@ function getAddFilesUrl() {
  * {@link /pet/files}
  */
 export async function addFiles(
-  data: AddFilesRequestData,
-  config: Partial<RequestConfig<AddFilesRequestData>> & {
+  data: AddFilesMutationRequest,
+  config: Partial<RequestConfig<AddFilesMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -29,7 +29,7 @@ export async function addFiles(
 
   const requestData = data
   const formData = buildFormData(requestData)
-  const res = await request<AddFilesResponseData, ResponseErrorConfig<AddFilesStatus405>, AddFilesRequestData>({
+  const res = await request<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({
     method: 'POST',
     url: getAddFilesUrl().url.toString(),
     data: formData as FormData,

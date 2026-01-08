@@ -6,7 +6,7 @@
 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { CreateUserRequestData, CreateUserResponseData } from '../../../models/ts/userController/CreateUser.js'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.js'
 
 function getCreateUserUrl() {
   const res = { method: 'POST', url: '/user' as const }
@@ -19,8 +19,8 @@ function getCreateUserUrl() {
  * {@link /user}
  */
 export async function createUser(
-  data?: CreateUserRequestData,
-  config: Partial<RequestConfig<CreateUserRequestData>> & {
+  data?: CreateUserMutationRequest,
+  config: Partial<RequestConfig<CreateUserMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -28,7 +28,7 @@ export async function createUser(
 
   const requestData = data
 
-  const res = await request<CreateUserResponseData, ResponseErrorConfig<Error>, CreateUserRequestData>({
+  const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
     url: getCreateUserUrl().url.toString(),
     data: requestData,

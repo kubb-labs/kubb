@@ -1,34 +1,34 @@
 export type {
+  DeleteOrder400,
+  DeleteOrder404,
+  DeleteOrderMutation,
+  DeleteOrderMutationResponse,
   DeleteOrderPathParams,
-  DeleteOrderRequest,
-  DeleteOrderResponseData,
-  DeleteOrderStatus400,
-  DeleteOrderStatus404,
 } from './DeleteOrder.js'
 export type {
-  GetInventoryRequest,
-  GetInventoryResponseData,
-  GetInventoryStatus200,
+  GetInventory200,
+  GetInventoryQuery,
+  GetInventoryQueryResponse,
 } from './GetInventory.js'
 export type {
+  GetOrderById200,
+  GetOrderById400,
+  GetOrderById404,
   GetOrderByIdPathParams,
-  GetOrderByIdRequest,
-  GetOrderByIdResponseData,
-  GetOrderByIdStatus200,
-  GetOrderByIdStatus400,
-  GetOrderByIdStatus404,
+  GetOrderByIdQuery,
+  GetOrderByIdQueryResponse,
 } from './GetOrderById.js'
 export type {
-  PlaceOrderRequest,
-  PlaceOrderRequestData,
-  PlaceOrderResponseData,
-  PlaceOrderStatus200,
-  PlaceOrderStatus405,
+  PlaceOrder200,
+  PlaceOrder405,
+  PlaceOrderMutation,
+  PlaceOrderMutationRequest,
+  PlaceOrderMutationResponse,
 } from './PlaceOrder.js'
 export type {
-  PlaceOrderPatchRequest,
-  PlaceOrderPatchRequestData,
-  PlaceOrderPatchResponseData,
-  PlaceOrderPatchStatus200,
-  PlaceOrderPatchStatus405,
+  PlaceOrderPatch200,
+  PlaceOrderPatch405,
+  PlaceOrderPatchMutation,
+  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchMutationResponse,
 } from './PlaceOrderPatch.js'

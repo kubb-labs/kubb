@@ -4,13 +4,13 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { CreateUsersWithListInputRequestData, CreateUsersWithListInputResponseData } from '../../models/CreateUsersWithListInput.ts'
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../../models/CreateUsersWithListInput.ts'
 import { createUser } from '../createUser.ts'
 
 /**
  * @description Successful operation
  */
-export function createCreateUsersWithListInputStatus200() {
+export function createCreateUsersWithListInput200() {
   faker.seed([220])
   return createUser()
 }
@@ -18,17 +18,19 @@ export function createCreateUsersWithListInputStatus200() {
 /**
  * @description successful operation
  */
-export function createCreateUsersWithListInputStatusError() {
+export function createCreateUsersWithListInputError() {
   faker.seed([220])
   return undefined
 }
 
-export function createCreateUsersWithListInputRequestData(data?: CreateUsersWithListInputRequestData): CreateUsersWithListInputRequestData {
+export function createCreateUsersWithListInputMutationRequest(data?: CreateUsersWithListInputMutationRequest): CreateUsersWithListInputMutationRequest {
   faker.seed([220])
   return [...faker.helpers.multiple(() => createUser()), ...(data || [])]
 }
 
-export function createCreateUsersWithListInputResponseData(data?: Partial<CreateUsersWithListInputResponseData>): CreateUsersWithListInputResponseData {
+export function createCreateUsersWithListInputMutationResponse(
+  data?: Partial<CreateUsersWithListInputMutationResponse>,
+): CreateUsersWithListInputMutationResponse {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([createCreateUsersWithListInputStatus200()])
+  return data || faker.helpers.arrayElement<any>([createCreateUsersWithListInput200()])
 }

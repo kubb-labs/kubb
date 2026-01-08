@@ -16,17 +16,17 @@ export type GetThingsQueryParamsSchema = z.infer<typeof getThingsQueryParamsSche
 /**
  * @description Null response
  */
-export const getThingsStatus201Schema = z.any()
+export const getThings201Schema = z.any()
 
-export type GetThingsStatus201Schema = z.infer<typeof getThingsStatus201Schema>
+export type GetThings201Schema = z.infer<typeof getThings201Schema>
 
 /**
  * @description unexpected error
  */
-export const getThingsStatusErrorSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found')
+export const getThingsErrorSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found')
 
-export type GetThingsStatusErrorSchema = z.infer<typeof getThingsStatusErrorSchema>
+export type GetThingsErrorSchema = z.infer<typeof getThingsErrorSchema>
 
-export const getThingsResponseDataSchema = z.lazy(() => getThingsStatus201Schema)
+export const getThingsQueryResponseSchema = z.lazy(() => getThings201Schema)
 
-export type GetThingsResponseDataSchema = z.infer<typeof getThingsResponseDataSchema>
+export type GetThingsQueryResponseSchema = z.infer<typeof getThingsQueryResponseSchema>

@@ -2,7 +2,10 @@ import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { CreateUsersWithListInputRequestData, CreateUsersWithListInputResponseData } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
+import type {
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
+} from '../../../models/ts/userController/CreateUsersWithListInput.ts'
 import { createUsersWithListInput } from '../../axios/userService/createUsersWithListInput.ts'
 
 export const createUsersWithListInputMutationKeySWR = () => [{ url: '/user/createWithList' }] as const
@@ -17,12 +20,12 @@ export type CreateUsersWithListInputMutationKeySWR = ReturnType<typeof createUse
 export function useCreateUsersWithListInputSWR(
   options: {
     mutation?: SWRMutationConfiguration<
-      ResponseConfig<CreateUsersWithListInputResponseData>,
+      ResponseConfig<CreateUsersWithListInputMutationResponse>,
       ResponseErrorConfig<Error>,
       CreateUsersWithListInputMutationKeySWR | null,
-      CreateUsersWithListInputRequestData
+      CreateUsersWithListInputMutationRequest
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig<CreateUsersWithListInputRequestData>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {
@@ -30,10 +33,10 @@ export function useCreateUsersWithListInputSWR(
   const mutationKey = createUsersWithListInputMutationKeySWR()
 
   return useSWRMutation<
-    ResponseConfig<CreateUsersWithListInputResponseData>,
+    ResponseConfig<CreateUsersWithListInputMutationResponse>,
     ResponseErrorConfig<Error>,
     CreateUsersWithListInputMutationKeySWR | null,
-    CreateUsersWithListInputRequestData
+    CreateUsersWithListInputMutationRequest
   >(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {

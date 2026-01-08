@@ -4,13 +4,13 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { UpdatePetResponseData, UpdatePetStatus202 } from '../../models/UpdatePet.ts'
+import type { UpdatePet202, UpdatePetMutationResponse } from '../../models/UpdatePet.ts'
 import { createPet } from '../createPet.ts'
 
 /**
  * @description Successful operation
  */
-export function createUpdatePetStatus200() {
+export function createUpdatePet200() {
   faker.seed([220])
   return createPet()
 }
@@ -18,7 +18,7 @@ export function createUpdatePetStatus200() {
 /**
  * @description accepted operation
  */
-export function createUpdatePetStatus202(data?: Partial<UpdatePetStatus202>): UpdatePetStatus202 {
+export function createUpdatePet202(data?: Partial<UpdatePet202>): UpdatePet202 {
   faker.seed([220])
   return {
     ...{ id: faker.number.int() },
@@ -29,7 +29,7 @@ export function createUpdatePetStatus202(data?: Partial<UpdatePetStatus202>): Up
 /**
  * @description Invalid ID supplied
  */
-export function createUpdatePetStatus400() {
+export function createUpdatePet400() {
   faker.seed([220])
   return undefined
 }
@@ -37,7 +37,7 @@ export function createUpdatePetStatus400() {
 /**
  * @description Pet not found
  */
-export function createUpdatePetStatus404() {
+export function createUpdatePet404() {
   faker.seed([220])
   return undefined
 }
@@ -45,7 +45,7 @@ export function createUpdatePetStatus404() {
 /**
  * @description Validation exception
  */
-export function createUpdatePetStatus405() {
+export function createUpdatePet405() {
   faker.seed([220])
   return undefined
 }
@@ -53,12 +53,12 @@ export function createUpdatePetStatus405() {
 /**
  * @description Update an existent pet in the store
  */
-export function createUpdatePetRequestData() {
+export function createUpdatePetMutationRequest() {
   faker.seed([220])
   return createPet()
 }
 
-export function createUpdatePetResponseData(data?: Partial<UpdatePetResponseData>): UpdatePetResponseData {
+export function createUpdatePetMutationResponse(data?: Partial<UpdatePetMutationResponse>): UpdatePetMutationResponse {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([createUpdatePetStatus200(), createUpdatePetStatus202()])
+  return data || faker.helpers.arrayElement<any>([createUpdatePet200(), createUpdatePet202()])
 }

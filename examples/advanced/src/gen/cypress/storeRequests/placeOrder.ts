@@ -1,8 +1,8 @@
-import type { PlaceOrderRequestData, PlaceOrderResponseData } from '../../models/ts/storeController/PlaceOrder.ts'
+import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../../models/ts/storeController/PlaceOrder.ts'
 
-export function placeOrder(data?: PlaceOrderRequestData, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<PlaceOrderResponseData> {
+export function placeOrder(data?: PlaceOrderMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<PlaceOrderMutationResponse> {
   return cy
-    .request<PlaceOrderResponseData>({
+    .request<PlaceOrderMutationResponse>({
       method: 'post',
       url: '/store/order',
       body: data,

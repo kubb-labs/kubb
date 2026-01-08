@@ -8,25 +8,19 @@ import type { Pet } from '../Pet.js'
 /**
  * @description successful operation
  */
-export type AddFilesStatus200 = Omit<NonNullable<Pet>, 'name'>
+export type AddFiles200 = Omit<NonNullable<Pet>, 'name'>
 
 /**
  * @description Invalid input
  */
-export type AddFilesStatus405 = any
+export type AddFiles405 = any
 
-export type AddFilesRequestData = Omit<NonNullable<Pet>, 'id'>
+export type AddFilesMutationRequest = Omit<NonNullable<Pet>, 'id'>
 
-export type AddFilesRequest = {
-  data?: AddFilesRequestData
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
-  url: '/pet/files'
+export type AddFilesMutationResponse = AddFiles200
+
+export type AddFilesMutation = {
+  Response: AddFiles200
+  Request: AddFilesMutationRequest
+  Errors: AddFiles405
 }
-
-export type AddFilesResponses = {
-  '200': AddFilesStatus200
-}
-
-export type AddFilesResponseData = AddFilesResponses[keyof AddFilesResponses]

@@ -29,24 +29,24 @@ export type CreatePetsHeaderParamsSchema = z.infer<typeof createPetsHeaderParams
 /**
  * @description Null response
  */
-export const createPetsStatus201Schema = z.any()
+export const createPets201Schema = z.any()
 
-export type CreatePetsStatus201Schema = z.infer<typeof createPetsStatus201Schema>
+export type CreatePets201Schema = z.infer<typeof createPets201Schema>
 
 /**
  * @description unexpected error
  */
-export const createPetsStatusErrorSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found')
+export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found')
 
-export type CreatePetsStatusErrorSchema = z.infer<typeof createPetsStatusErrorSchema>
+export type CreatePetsErrorSchema = z.infer<typeof createPetsErrorSchema>
 
-export const createPetsRequestDataSchema = z.object({
+export const createPetsMutationRequestSchema = z.object({
   name: z.string(),
   tag: z.string(),
 })
 
-export type CreatePetsRequestDataSchema = z.infer<typeof createPetsRequestDataSchema>
+export type CreatePetsMutationRequestSchema = z.infer<typeof createPetsMutationRequestSchema>
 
-export const createPetsResponseDataSchema = z.lazy(() => createPetsStatus201Schema)
+export const createPetsMutationResponseSchema = z.lazy(() => createPets201Schema)
 
-export type CreatePetsResponseDataSchema = z.infer<typeof createPetsResponseDataSchema>
+export type CreatePetsMutationResponseSchema = z.infer<typeof createPetsMutationResponseSchema>

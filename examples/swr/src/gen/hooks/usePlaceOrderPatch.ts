@@ -7,7 +7,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { PlaceOrderPatchRequestData, PlaceOrderPatchResponseData, PlaceOrderPatchStatus405 } from '../models/PlaceOrderPatch.ts'
+import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../models/PlaceOrderPatch.ts'
 
 export const placeOrderPatchMutationKey = () => [{ url: '/store/order' }] as const
 
@@ -19,8 +19,8 @@ export type PlaceOrderPatchMutationKey = ReturnType<typeof placeOrderPatchMutati
  * {@link /store/order}
  */
 export async function placeOrderPatch(
-  data?: PlaceOrderPatchRequestData,
-  config: Partial<RequestConfig<PlaceOrderPatchRequestData>> & {
+  data?: PlaceOrderPatchMutationRequest,
+  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -28,7 +28,7 @@ export async function placeOrderPatch(
 
   const requestData = data
 
-  const res = await request<PlaceOrderPatchResponseData, ResponseErrorConfig<PlaceOrderPatchStatus405>, PlaceOrderPatchRequestData>({
+  const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
     method: 'PATCH',
     url: '/store/order',
     data: requestData,
@@ -37,7 +37,9 @@ export async function placeOrderPatch(
   return res.data
 }
 
-export type PlaceOrderPatchMutationArg = { data?: PlaceOrderPatchRequestData }
+export type PlaceOrderPatchMutationArg = {
+  data?: PlaceOrderPatchMutationRequest
+}
 
 /**
  * @description Place a new order in the store with patch
@@ -47,12 +49,12 @@ export type PlaceOrderPatchMutationArg = { data?: PlaceOrderPatchRequestData }
 export function usePlaceOrderPatch(
   options: {
     mutation?: SWRMutationConfiguration<
-      PlaceOrderPatchResponseData,
-      ResponseErrorConfig<PlaceOrderPatchStatus405>,
+      PlaceOrderPatchMutationResponse,
+      ResponseErrorConfig<PlaceOrderPatch405>,
       PlaceOrderPatchMutationKey | null,
       PlaceOrderPatchMutationArg
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig<PlaceOrderPatchRequestData>> & {
+    client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
       client?: typeof fetch
     }
     shouldFetch?: boolean
@@ -62,8 +64,8 @@ export function usePlaceOrderPatch(
   const mutationKey = placeOrderPatchMutationKey()
 
   return useSWRMutation<
-    PlaceOrderPatchResponseData,
-    ResponseErrorConfig<PlaceOrderPatchStatus405>,
+    PlaceOrderPatchMutationResponse,
+    ResponseErrorConfig<PlaceOrderPatch405>,
     PlaceOrderPatchMutationKey | null,
     PlaceOrderPatchMutationArg
   >(

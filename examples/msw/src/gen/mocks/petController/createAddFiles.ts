@@ -4,13 +4,13 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { AddFilesResponseData } from '../../models/AddFiles.ts'
+import type { AddFilesMutationResponse } from '../../models/AddFiles.ts'
 import { createPet } from '../createPet.ts'
 
 /**
  * @description successful operation
  */
-export function createAddFilesStatus200() {
+export function createAddFiles200() {
   faker.seed([220])
   return createPet()
 }
@@ -18,17 +18,17 @@ export function createAddFilesStatus200() {
 /**
  * @description Invalid input
  */
-export function createAddFilesStatus405() {
+export function createAddFiles405() {
   faker.seed([220])
   return undefined
 }
 
-export function createAddFilesRequestData() {
+export function createAddFilesMutationRequest() {
   faker.seed([220])
   return createPet()
 }
 
-export function createAddFilesResponseData(data?: Partial<AddFilesResponseData>): AddFilesResponseData {
+export function createAddFilesMutationResponse(data?: Partial<AddFilesMutationResponse>): AddFilesMutationResponse {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([createAddFilesStatus200()])
+  return data || faker.helpers.arrayElement<any>([createAddFiles200()])
 }

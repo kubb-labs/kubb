@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { GetPetByIdPathParams, GetPetByIdResponseData, GetPetByIdStatus400, GetPetByIdStatus404 } from '../../../models/ts/petController/GetPetById.ts'
+import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById.ts'
 import { getPetById } from '../../axios/petService/getPetById.ts'
 
 export const getPetByIdQueryKeySWR = ({ petId }: { petId: GetPetByIdPathParams['petId'] }) => [{ url: '/pet/:petId:search', params: { petId: petId } }] as const
@@ -27,7 +27,7 @@ export function getPetByIdQueryOptionsSWR(
 export function useGetPetByIdSWR(
   { petId }: { petId: GetPetByIdPathParams['petId'] },
   options: {
-    query?: Parameters<typeof useSWR<ResponseConfig<GetPetByIdResponseData>, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>>>[2]
+    query?: Parameters<typeof useSWR<ResponseConfig<GetPetByIdQueryResponse>, ResponseErrorConfig<GetPetById400 | GetPetById404>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
     immutable?: boolean
@@ -37,7 +37,7 @@ export function useGetPetByIdSWR(
 
   const queryKey = getPetByIdQueryKeySWR({ petId })
 
-  return useSWR<ResponseConfig<GetPetByIdResponseData>, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>, GetPetByIdQueryKeySWR | null>(
+  return useSWR<ResponseConfig<GetPetByIdQueryResponse>, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryKeySWR | null>(
     shouldFetch ? queryKey : null,
     {
       ...getPetByIdQueryOptionsSWR({ petId }, config),

@@ -7,18 +7,18 @@ export { createOrder } from './createOrder.ts'
 export { createPet } from './createPet.ts'
 export { createTag } from './createTag.ts'
 export {
-  createUpdatePetRequestData,
-  createUpdatePetResponseData,
-  createUpdatePetStatus200,
-  createUpdatePetStatus400,
-  createUpdatePetStatus404,
-  createUpdatePetStatus405,
+  createUpdatePet200,
+  createUpdatePet400,
+  createUpdatePet404,
+  createUpdatePet405,
+  createUpdatePetMutationRequest,
+  createUpdatePetMutationResponse,
 } from './createUpdatePet.ts'
 export {
+  createUpdatePetWithForm405,
+  createUpdatePetWithFormMutationResponse,
   createUpdatePetWithFormPathParams,
   createUpdatePetWithFormQueryParams,
-  createUpdatePetWithFormResponseData,
-  createUpdatePetWithFormStatus405,
 } from './createUpdatePetWithForm.ts'
 export { createUser } from './createUser.ts'
 export { createUserArray } from './createUserArray.ts'

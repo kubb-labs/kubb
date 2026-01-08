@@ -8,28 +8,22 @@ import type { Pet } from './Pet.ts'
 /**
  * @description Successful operation
  */
-export type AddPetStatus200 = Pet
+export type AddPet200 = Pet
 
 /**
  * @description Invalid input
  */
-export type AddPetStatus405 = any
+export type AddPet405 = any
 
 /**
  * @description Create a new pet in the store
  */
-export type AddPetRequestData = Pet
+export type AddPetMutationRequest = Pet
 
-export type AddPetRequest = {
-  data?: AddPetRequestData
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
-  url: '/pet'
+export type AddPetMutationResponse = AddPet200
+
+export type AddPetMutation = {
+  Response: AddPet200
+  Request: AddPetMutationRequest
+  Errors: AddPet405
 }
-
-export type AddPetResponses = {
-  '200': AddPetStatus200
-}
-
-export type AddPetResponseData = AddPetResponses[keyof AddPetResponses]

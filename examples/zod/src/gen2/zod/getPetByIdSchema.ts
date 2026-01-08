@@ -13,16 +13,16 @@ export const getPetByIdPathParamsSchema = z.object({
 /**
  * @description successful operation
  */
-export const getPetByIdStatus200Schema = z.lazy(() => petSchema)
+export const getPetById200Schema = z.lazy(() => petSchema)
 
 /**
  * @description Invalid ID supplied
  */
-export const getPetByIdStatus400Schema = z.any()
+export const getPetById400Schema = z.any()
 
 /**
  * @description Pet not found
  */
-export const getPetByIdStatus404Schema = z.any()
+export const getPetById404Schema = z.any()
 
-export const getPetByIdResponseDataSchema = z.lazy(() => getPetByIdStatus200Schema)
+export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema)

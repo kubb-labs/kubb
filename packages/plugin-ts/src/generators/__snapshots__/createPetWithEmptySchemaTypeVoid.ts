@@ -6,7 +6,7 @@
 /**
  * @description Null response
  */
-export type CreatePetsStatus201 = error & {
+export type CreatePets201 = error & {
   /**
    * @type object | undefined
    */
@@ -20,14 +20,14 @@ export type CreatePetsStatus201 = error & {
 /**
  * @description Accepted response
  */
-export type CreatePetsStatus202 = void
+export type CreatePets202 = void
 
 /**
  * @description unexpected error
  */
-export type CreatePetsStatusError = error
+export type CreatePetsError = error
 
-export type CreatePetsRequestData = {
+export type CreatePetsMutationRequest = {
   /**
    * @type string
    */
@@ -38,17 +38,10 @@ export type CreatePetsRequestData = {
   tag: string
 }
 
-export type CreatePetsRequest = {
-  data?: CreatePetsRequestData
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
-  url: '/pets'
-}
+export type CreatePetsMutationResponse = createPets201 | createPets202
 
-export type CreatePetsResponses = {
-  '201': CreatePetsStatus201
-  '202': CreatePetsStatus202
+export type CreatePetsMutation = {
+  Response: createPets201 | createPets202
+  Request: createPetsMutationRequest
+  Errors: any
 }
-
-export type CreatePetsResponseData = CreatePetsResponses[keyof CreatePetsResponses]

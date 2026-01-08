@@ -17,20 +17,13 @@
 /**
  * @description successful operation
  */
-export type GetInventoryStatus200 = {
+export type GetInventory200 = {
   [key: string]: number
 }
 
-export type GetInventoryRequest = {
-  data?: never
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
-  url: '/store/inventory'
-}
+export type GetInventoryQueryResponse = GetInventory200
 
-export type GetInventoryResponses = {
-  '200': GetInventoryStatus200
+export type GetInventoryQuery = {
+  Response: GetInventory200
+  Errors: any
 }
-
-export type GetInventoryResponseData = GetInventoryResponses[keyof GetInventoryResponses]

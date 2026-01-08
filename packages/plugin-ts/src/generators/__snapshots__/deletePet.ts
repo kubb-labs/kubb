@@ -3,12 +3,9 @@
  * Do not edit manually.
  */
 
-export type DeletePetsPetidRequest = {
-  data?: never
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
-  url: `/pets/${string}`
-}
+export type DeletePetsPetidMutationResponse = any
 
-export type DeletePetsPetidResponseData = any
+export type DeletePetsPetidMutation = {
+  Response: any
+  Errors: any
+}

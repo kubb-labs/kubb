@@ -18,7 +18,7 @@ import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { AddPetRequestData, AddPetResponseData, AddPetStatus405 } from '../models/AddPet.ts'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/AddPet.ts'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
 
@@ -30,8 +30,8 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
  * {@link /pet}
  */
 export async function addPet(
-  data: AddPetRequestData,
-  config: Partial<RequestConfig<AddPetRequestData>> & {
+  data: AddPetMutationRequest,
+  config: Partial<RequestConfig<AddPetMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -39,7 +39,7 @@ export async function addPet(
 
   const requestData = data
 
-  const res = await request<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, AddPetRequestData>({
+  const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
     method: 'POST',
     url: '/pet',
     data: requestData,
@@ -55,8 +55,10 @@ export async function addPet(
  */
 export function createAddPet<TContext>(
   options: {
-    mutation?: CreateMutationOptions<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, { data: AddPetRequestData }, TContext> & { client?: QueryClient }
-    client?: Partial<RequestConfig<AddPetRequestData>> & {
+    mutation?: CreateMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext> & {
+      client?: QueryClient
+    }
+    client?: Partial<RequestConfig<AddPetMutationRequest>> & {
       client?: typeof fetch
     }
   } = {},
@@ -65,7 +67,7 @@ export function createAddPet<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
 
-  return createMutation<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, { data: AddPetRequestData }, TContext>(
+  return createMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>(
     {
       mutationFn: async ({ data }) => {
         return addPet(data, config)

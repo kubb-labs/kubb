@@ -19,7 +19,7 @@ import { createMutation } from '@tanstack/svelte-query'
 import { buildFormData } from '../.kubb/config.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { AddFilesRequestData, AddFilesResponseData, AddFilesStatus405 } from '../models/AddFiles.ts'
+import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../models/AddFiles.ts'
 
 export const addFilesMutationKey = () => [{ url: '/pet/files' }] as const
 
@@ -31,8 +31,8 @@ export type AddFilesMutationKey = ReturnType<typeof addFilesMutationKey>
  * {@link /pet/files}
  */
 export async function addFiles(
-  data: AddFilesRequestData,
-  config: Partial<RequestConfig<AddFilesRequestData>> & {
+  data: AddFilesMutationRequest,
+  config: Partial<RequestConfig<AddFilesMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -40,7 +40,7 @@ export async function addFiles(
 
   const requestData = data
   const formData = buildFormData(requestData)
-  const res = await request<AddFilesResponseData, ResponseErrorConfig<AddFilesStatus405>, AddFilesRequestData>({
+  const res = await request<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({
     method: 'POST',
     url: '/pet/files',
     data: formData as FormData,
@@ -56,10 +56,10 @@ export async function addFiles(
  */
 export function createAddFiles<TContext>(
   options: {
-    mutation?: CreateMutationOptions<AddFilesResponseData, ResponseErrorConfig<AddFilesStatus405>, { data: AddFilesRequestData }, TContext> & {
+    mutation?: CreateMutationOptions<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, { data: AddFilesMutationRequest }, TContext> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<AddFilesRequestData>> & {
+    client?: Partial<RequestConfig<AddFilesMutationRequest>> & {
       client?: typeof fetch
     }
   } = {},
@@ -68,7 +68,7 @@ export function createAddFiles<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions?.mutationKey ?? addFilesMutationKey()
 
-  return createMutation<AddFilesResponseData, ResponseErrorConfig<AddFilesStatus405>, { data: AddFilesRequestData }, TContext>(
+  return createMutation<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, { data: AddFilesMutationRequest }, TContext>(
     {
       mutationFn: async ({ data }) => {
         return addFiles(data, config)

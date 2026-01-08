@@ -1,9 +1,9 @@
 export {
+  createCreatePets201Faker,
+  createCreatePetsErrorFaker,
   createCreatePetsHeaderParamsFaker,
+  createCreatePetsMutationRequestFaker,
+  createCreatePetsMutationResponseFaker,
   createCreatePetsPathParamsFaker,
   createCreatePetsQueryParamsFaker,
-  createCreatePetsRequestDataFaker,
-  createCreatePetsResponseDataFaker,
-  createCreatePetsStatus201Faker,
-  createCreatePetsStatusErrorFaker,
 } from './createCreatePetsFaker.ts'

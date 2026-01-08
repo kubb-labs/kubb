@@ -7,7 +7,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { UploadFilePathParams, UploadFileQueryParams, UploadFileRequestData, UploadFileResponseData } from '../models/UploadFile.ts'
+import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile.ts'
 
 export const uploadFileMutationKey = () => [{ url: '/pet/:petId/uploadImage' }] as const
 
@@ -19,9 +19,9 @@ export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
  */
 export async function uploadFile(
   petId: UploadFilePathParams['petId'],
-  data?: UploadFileRequestData,
+  data?: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileRequestData>> & {
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -29,7 +29,7 @@ export async function uploadFile(
 
   const requestData = data
 
-  const res = await request<UploadFileResponseData, ResponseErrorConfig<Error>, UploadFileRequestData>({
+  const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     params,
@@ -45,7 +45,7 @@ export async function uploadFile(
 
 export type UploadFileMutationArg = {
   petId: UploadFilePathParams['petId']
-  data?: UploadFileRequestData
+  data?: UploadFileMutationRequest
   params?: UploadFileQueryParams
 }
 
@@ -55,10 +55,10 @@ export type UploadFileMutationArg = {
  */
 export function useUploadFile(
   options: {
-    mutation?: SWRMutationConfiguration<UploadFileResponseData, ResponseErrorConfig<Error>, UploadFileMutationKey | null, UploadFileMutationArg> & {
+    mutation?: SWRMutationConfiguration<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationKey | null, UploadFileMutationArg> & {
       throwOnError?: boolean
     }
-    client?: Partial<RequestConfig<UploadFileRequestData>> & {
+    client?: Partial<RequestConfig<UploadFileMutationRequest>> & {
       client?: typeof fetch
     }
     shouldFetch?: boolean
@@ -67,7 +67,7 @@ export function useUploadFile(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = uploadFileMutationKey()
 
-  return useSWRMutation<UploadFileResponseData, ResponseErrorConfig<Error>, UploadFileMutationKey | null, UploadFileMutationArg>(
+  return useSWRMutation<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationKey | null, UploadFileMutationArg>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: { petId, data, params } }) => {
       return uploadFile(petId, data, params, config)

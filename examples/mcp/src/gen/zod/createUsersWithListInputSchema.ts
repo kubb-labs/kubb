@@ -9,13 +9,13 @@ import { userSchema } from './userSchema.js'
 /**
  * @description Successful operation
  */
-export const createUsersWithListInputStatus200Schema = z.lazy(() => userSchema)
+export const createUsersWithListInput200Schema = z.lazy(() => userSchema)
 
 /**
  * @description successful operation
  */
-export const createUsersWithListInputStatusErrorSchema = z.any()
+export const createUsersWithListInputErrorSchema = z.any()
 
-export const createUsersWithListInputRequestDataSchema = z.array(z.lazy(() => userSchema))
+export const createUsersWithListInputMutationRequestSchema = z.array(z.lazy(() => userSchema))
 
-export const createUsersWithListInputResponseDataSchema = z.lazy(() => createUsersWithListInputStatus200Schema)
+export const createUsersWithListInputMutationResponseSchema = z.lazy(() => createUsersWithListInput200Schema)

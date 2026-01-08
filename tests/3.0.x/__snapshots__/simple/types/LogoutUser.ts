@@ -7,14 +7,11 @@
 /**
  * @description successful operation
 */
-export type LogoutUserStatusError = any;
+export type LogoutUserError = any;
 
-export type LogoutUserRequest = {
-    data?: never;
-    pathParams?: never;
-    queryParams?: never;
-    headerParams?: never;
-    url: "/user/logout";
+export type LogoutUserQueryResponse = any;
+
+export type LogoutUserQuery = {
+    Response: any;
+    Errors: any;
 };
-
-export type LogoutUserResponseData = any;

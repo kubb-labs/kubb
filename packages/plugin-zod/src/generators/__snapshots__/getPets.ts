@@ -12,11 +12,11 @@ export const listPetsQueryParams = z.object({
 /**
  * @description A paged array of pets
  */
-export const listPetsStatus200 = z.lazy(() => pets)
+export const listPets200 = z.lazy(() => pets)
 
 /**
  * @description unexpected error
  */
-export const listPetsStatusError = z.lazy(() => error)
+export const listPetsError = z.lazy(() => error)
 
-export const listPetsResponseData = z.lazy(() => listPetsStatus200)
+export const listPetsQueryResponse = z.lazy(() => listPets200)

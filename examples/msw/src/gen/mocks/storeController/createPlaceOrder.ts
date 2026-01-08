@@ -4,13 +4,13 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { PlaceOrderResponseData } from '../../models/PlaceOrder.ts'
+import type { PlaceOrderMutationResponse } from '../../models/PlaceOrder.ts'
 import { createOrder } from '../createOrder.ts'
 
 /**
  * @description successful operation
  */
-export function createPlaceOrderStatus200() {
+export function createPlaceOrder200() {
   faker.seed([220])
   return createOrder()
 }
@@ -18,17 +18,17 @@ export function createPlaceOrderStatus200() {
 /**
  * @description Invalid input
  */
-export function createPlaceOrderStatus405() {
+export function createPlaceOrder405() {
   faker.seed([220])
   return undefined
 }
 
-export function createPlaceOrderRequestData() {
+export function createPlaceOrderMutationRequest() {
   faker.seed([220])
   return createOrder()
 }
 
-export function createPlaceOrderResponseData(data?: Partial<PlaceOrderResponseData>): PlaceOrderResponseData {
+export function createPlaceOrderMutationResponse(data?: Partial<PlaceOrderMutationResponse>): PlaceOrderMutationResponse {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([createPlaceOrderStatus200()])
+  return data || faker.helpers.arrayElement<any>([createPlaceOrder200()])
 }

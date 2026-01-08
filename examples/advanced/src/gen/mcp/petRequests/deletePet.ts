@@ -1,7 +1,7 @@
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import type { DeletePetHeaderParams, DeletePetPathParams, DeletePetResponseData, DeletePetStatus400 } from '../../models/ts/petController/DeletePet.ts'
+import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models/ts/petController/DeletePet.ts'
 
 /**
  * @description delete a pet
@@ -15,7 +15,7 @@ export async function deletePetHandler({
   petId: DeletePetPathParams['petId']
   headers?: DeletePetHeaderParams
 }): Promise<Promise<CallToolResult>> {
-  const res = await fetch<DeletePetResponseData, ResponseErrorConfig<DeletePetStatus400>, unknown>({
+  const res = await fetch<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}:search`,
     baseURL: 'https://petstore.swagger.io/v2',

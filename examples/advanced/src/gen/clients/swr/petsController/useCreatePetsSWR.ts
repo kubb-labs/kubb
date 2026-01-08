@@ -4,10 +4,10 @@ import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   CreatePetsHeaderParams,
+  CreatePetsMutationRequest,
+  CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsRequestData,
-  CreatePetsResponseData,
 } from '../../../models/ts/petsController/CreatePets.ts'
 import { createPets } from '../../axios/petsService/createPets.ts'
 
@@ -25,19 +25,19 @@ export function useCreatePetsSWR(
   params?: CreatePetsQueryParams,
   options: {
     mutation?: SWRMutationConfiguration<
-      ResponseConfig<CreatePetsResponseData>,
+      ResponseConfig<CreatePetsMutationResponse>,
       ResponseErrorConfig<Error>,
       CreatePetsMutationKeySWR | null,
-      CreatePetsRequestData
+      CreatePetsMutationRequest
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig<CreatePetsRequestData>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createPetsMutationKeySWR()
 
-  return useSWRMutation<ResponseConfig<CreatePetsResponseData>, ResponseErrorConfig<Error>, CreatePetsMutationKeySWR | null, CreatePetsRequestData>(
+  return useSWRMutation<ResponseConfig<CreatePetsMutationResponse>, ResponseErrorConfig<Error>, CreatePetsMutationKeySWR | null, CreatePetsMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return createPets({ uuid, data, headers, params }, config)

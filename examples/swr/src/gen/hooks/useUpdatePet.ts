@@ -7,7 +7,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { UpdatePetRequestData, UpdatePetResponseData, UpdatePetStatus400, UpdatePetStatus404, UpdatePetStatus405 } from '../models/UpdatePet.ts'
+import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../models/UpdatePet.ts'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const
 
@@ -19,8 +19,8 @@ export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
  * {@link /pet}
  */
 export async function updatePet(
-  data: UpdatePetRequestData,
-  config: Partial<RequestConfig<UpdatePetRequestData>> & {
+  data: UpdatePetMutationRequest,
+  config: Partial<RequestConfig<UpdatePetMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -28,7 +28,7 @@ export async function updatePet(
 
   const requestData = data
 
-  const res = await request<UpdatePetResponseData, ResponseErrorConfig<UpdatePetStatus400 | UpdatePetStatus404 | UpdatePetStatus405>, UpdatePetRequestData>({
+  const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
     method: 'PUT',
     url: '/pet',
     data: requestData,
@@ -37,7 +37,7 @@ export async function updatePet(
   return res.data
 }
 
-export type UpdatePetMutationArg = { data: UpdatePetRequestData }
+export type UpdatePetMutationArg = { data: UpdatePetMutationRequest }
 
 /**
  * @description Update an existing pet by Id
@@ -47,12 +47,12 @@ export type UpdatePetMutationArg = { data: UpdatePetRequestData }
 export function useUpdatePet(
   options: {
     mutation?: SWRMutationConfiguration<
-      UpdatePetResponseData,
-      ResponseErrorConfig<UpdatePetStatus400 | UpdatePetStatus404 | UpdatePetStatus405>,
+      UpdatePetMutationResponse,
+      ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
       UpdatePetMutationKey | null,
       UpdatePetMutationArg
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig<UpdatePetRequestData>> & {
+    client?: Partial<RequestConfig<UpdatePetMutationRequest>> & {
       client?: typeof fetch
     }
     shouldFetch?: boolean
@@ -62,8 +62,8 @@ export function useUpdatePet(
   const mutationKey = updatePetMutationKey()
 
   return useSWRMutation<
-    UpdatePetResponseData,
-    ResponseErrorConfig<UpdatePetStatus400 | UpdatePetStatus404 | UpdatePetStatus405>,
+    UpdatePetMutationResponse,
+    ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
     UpdatePetMutationKey | null,
     UpdatePetMutationArg
   >(

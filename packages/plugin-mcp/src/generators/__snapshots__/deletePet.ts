@@ -6,7 +6,7 @@ import { fetch } from './test/.kubb/fetch'
  * {@link /pets/:petId}
  */
 export async function deletePetsPetidHandler(): Promise<Promise<CallToolResult>> {
-  const res = await fetch<DeletePetsPetidResponseData, ResponseErrorConfig<Error>, unknown>({ method: 'DELETE', url: `/pets/${petId}` })
+  const res = await fetch<DeletePetsPetidMutationResponse, ResponseErrorConfig<Error>, unknown>({ method: 'DELETE', url: `/pets/${petId}` })
   return {
     content: [
       {

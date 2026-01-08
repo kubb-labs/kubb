@@ -2,7 +2,7 @@ import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData } from '../../../models/ts/userController/UpdateUser.ts'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 import { updateUser } from '../../axios/userService/updateUser.ts'
 
 export const updateUserMutationKeySWR = () => [{ url: '/user/:username' }] as const
@@ -18,19 +18,19 @@ export function useUpdateUserSWR(
   { username }: { username: UpdateUserPathParams['username'] },
   options: {
     mutation?: SWRMutationConfiguration<
-      ResponseConfig<UpdateUserResponseData>,
+      ResponseConfig<UpdateUserMutationResponse>,
       ResponseErrorConfig<Error>,
       UpdateUserMutationKeySWR | null,
-      UpdateUserRequestData
+      UpdateUserMutationRequest
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig<UpdateUserRequestData>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updateUserMutationKeySWR()
 
-  return useSWRMutation<ResponseConfig<UpdateUserResponseData>, ResponseErrorConfig<Error>, UpdateUserMutationKeySWR | null, UpdateUserRequestData>(
+  return useSWRMutation<ResponseConfig<UpdateUserMutationResponse>, ResponseErrorConfig<Error>, UpdateUserMutationKeySWR | null, UpdateUserMutationRequest>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return updateUser({ username, data }, config)

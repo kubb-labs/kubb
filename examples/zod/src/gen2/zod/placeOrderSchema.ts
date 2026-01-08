@@ -9,13 +9,13 @@ import { orderSchema } from './orderSchema.ts'
 /**
  * @description successful operation
  */
-export const placeOrderStatus200Schema = z.lazy(() => orderSchema)
+export const placeOrder200Schema = z.lazy(() => orderSchema)
 
 /**
  * @description Invalid input
  */
-export const placeOrderStatus405Schema = z.any()
+export const placeOrder405Schema = z.any()
 
-export const placeOrderRequestDataSchema = z.lazy(() => orderSchema)
+export const placeOrderMutationRequestSchema = z.lazy(() => orderSchema)
 
-export const placeOrderResponseDataSchema = z.lazy(() => placeOrderStatus200Schema)
+export const placeOrderMutationResponseSchema = z.lazy(() => placeOrder200Schema)

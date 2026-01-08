@@ -2,7 +2,7 @@ import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
-import type { GetPetByIdPathParams, GetPetByIdResponseData, GetPetByIdStatus400, GetPetByIdStatus404 } from '../../../models/ts/petController/GetPetById.ts'
+import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById.ts'
 import { getPetById } from '../../axios/petService/getPetById.ts'
 
 export const getPetByIdQueryKey = ({ petId }: { petId: GetPetByIdPathParams['petId'] }) => [{ url: '/pet/:petId:search', params: { petId: petId } }] as const
@@ -12,9 +12,9 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 export function getPetByIdQueryOptions({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = getPetByIdQueryKey({ petId })
   return queryOptions<
-    ResponseConfig<GetPetByIdResponseData>,
-    ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>,
-    ResponseConfig<GetPetByIdResponseData>,
+    ResponseConfig<GetPetByIdQueryResponse>,
+    ResponseErrorConfig<GetPetById400 | GetPetById404>,
+    ResponseConfig<GetPetByIdQueryResponse>,
     typeof queryKey
   >({
     enabled: !!petId,
@@ -32,14 +32,14 @@ export function getPetByIdQueryOptions({ petId }: { petId: GetPetByIdPathParams[
  * {@link /pet/:petId:search}
  */
 export function useGetPetById<
-  TData = ResponseConfig<GetPetByIdResponseData>,
-  TQueryData = ResponseConfig<GetPetByIdResponseData>,
+  TData = ResponseConfig<GetPetByIdQueryResponse>,
+  TQueryData = ResponseConfig<GetPetByIdQueryResponse>,
   TQueryKey extends QueryKey = GetPetByIdQueryKey,
 >(
   { petId }: { petId: GetPetByIdPathParams['petId'] },
   options: {
     query?: Partial<
-      QueryObserverOptions<ResponseConfig<GetPetByIdResponseData>, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>, TData, TQueryData, TQueryKey>
+      QueryObserverOptions<ResponseConfig<GetPetByIdQueryResponse>, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryData, TQueryKey>
     > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
@@ -55,7 +55,7 @@ export function useGetPetById<
       ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>> & { queryKey: TQueryKey }
+  ) as UseQueryResult<TData, ResponseErrorConfig<GetPetById400 | GetPetById404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

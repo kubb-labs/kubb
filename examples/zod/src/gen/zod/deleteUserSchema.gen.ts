@@ -14,17 +14,17 @@ export type DeleteUserPathParamsSchema = z.infer<typeof deleteUserPathParamsSche
 /**
  * @description Invalid username supplied
  */
-export const deleteUserStatus400Schema = z.any()
+export const deleteUser400Schema = z.any()
 
-export type DeleteUserStatus400Schema = z.infer<typeof deleteUserStatus400Schema>
+export type DeleteUser400Schema = z.infer<typeof deleteUser400Schema>
 
 /**
  * @description User not found
  */
-export const deleteUserStatus404Schema = z.any()
+export const deleteUser404Schema = z.any()
 
-export type DeleteUserStatus404Schema = z.infer<typeof deleteUserStatus404Schema>
+export type DeleteUser404Schema = z.infer<typeof deleteUser404Schema>
 
-export const deleteUserResponseDataSchema = z.any()
+export const deleteUserMutationResponseSchema = z.any()
 
-export type DeleteUserResponseDataSchema = z.infer<typeof deleteUserResponseDataSchema>
+export type DeleteUserMutationResponseSchema = z.infer<typeof deleteUserMutationResponseSchema>

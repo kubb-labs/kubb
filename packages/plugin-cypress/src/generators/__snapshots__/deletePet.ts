@@ -7,9 +7,9 @@ export function deletePet(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePetHeaderParams,
   options?: Partial<Cypress.RequestOptions>,
-): Cypress.Chainable<DeletePetResponseData> {
+): Cypress.Chainable<DeletePetMutationResponse> {
   return cy
-    .request<DeletePetResponseData>({
+    .request<DeletePetMutationResponse>({
       method: 'delete',
       url: `/pets/${petId}`,
       headers,

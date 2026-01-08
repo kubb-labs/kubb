@@ -1,11 +1,11 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
+  UploadFile200,
+  UploadFileMutationRequest,
+  UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
-  UploadFileRequestData,
-  UploadFileResponseData,
-  UploadFileStatus200,
 } from '../../models/ts/petController/UploadFile.ts'
 import { apiResponseSchema } from '../apiResponseSchema.ts'
 
@@ -26,14 +26,14 @@ export type UploadFileQueryParamsSchema = UploadFileQueryParams
 /**
  * @description successful operation
  */
-export const uploadFileStatus200Schema = z.lazy(() => apiResponseSchema) as unknown as ToZod<UploadFileStatus200>
+export const uploadFile200Schema = z.lazy(() => apiResponseSchema) as unknown as ToZod<UploadFile200>
 
-export type UploadFileStatus200Schema = UploadFileStatus200
+export type UploadFile200Schema = UploadFile200
 
-export const uploadFileRequestDataSchema = z.instanceof(File) as unknown as ToZod<UploadFileRequestData>
+export const uploadFileMutationRequestSchema = z.instanceof(File) as unknown as ToZod<UploadFileMutationRequest>
 
-export type UploadFileRequestDataSchema = UploadFileRequestData
+export type UploadFileMutationRequestSchema = UploadFileMutationRequest
 
-export const uploadFileResponseDataSchema = z.lazy(() => uploadFileStatus200Schema) as unknown as ToZod<UploadFileResponseData>
+export const uploadFileMutationResponseSchema = z.lazy(() => uploadFile200Schema) as unknown as ToZod<UploadFileMutationResponse>
 
-export type UploadFileResponseDataSchema = UploadFileResponseData
+export type UploadFileMutationResponseSchema = UploadFileMutationResponse

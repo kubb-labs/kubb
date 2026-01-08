@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { CreateUserRequestData, CreateUserResponseData } from '../../models/CreateUser.ts'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/CreateUser.ts'
 
-export function createUser(data?: CreateUserRequestData, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<CreateUserResponseData> {
+export function createUser(data?: CreateUserMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<CreateUserMutationResponse> {
   return cy
-    .request<CreateUserResponseData>({
+    .request<CreateUserMutationResponse>({
       method: 'post',
       url: 'http://localhost:3000/user',
       body: data,

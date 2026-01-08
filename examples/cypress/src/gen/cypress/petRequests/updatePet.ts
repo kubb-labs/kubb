@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { UpdatePetRequestData, UpdatePetResponseData } from '../../models/UpdatePet.ts'
+import type { UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../models/UpdatePet.ts'
 
-export function updatePet(data: UpdatePetRequestData, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<UpdatePetResponseData> {
+export function updatePet(data: UpdatePetMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<UpdatePetMutationResponse> {
   return cy
-    .request<UpdatePetResponseData>({
+    .request<UpdatePetMutationResponse>({
       method: 'put',
       url: 'http://localhost:3000/pet',
       body: data,

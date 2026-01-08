@@ -1,60 +1,60 @@
 export {
-  createAddFilesRequestData,
-  createAddFilesResponseData,
-  createAddFilesStatus200,
-  createAddFilesStatus405,
+  createAddFiles200,
+  createAddFiles405,
+  createAddFilesMutationRequest,
+  createAddFilesMutationResponse,
 } from './createAddFiles.ts'
 export {
-  createAddPetRequestData,
-  createAddPetResponseData,
-  createAddPetStatus200,
-  createAddPetStatus405,
+  createAddPet200,
+  createAddPet405,
+  createAddPetMutationRequest,
+  createAddPetMutationResponse,
 } from './createAddPet.ts'
 export {
+  createDeletePet400,
   createDeletePetHeaderParams,
+  createDeletePetMutationResponse,
   createDeletePetPathParams,
-  createDeletePetResponseData,
-  createDeletePetStatus400,
 } from './createDeletePet.ts'
 export {
+  createFindPetsByStatus200,
+  createFindPetsByStatus400,
   createFindPetsByStatusPathParams,
-  createFindPetsByStatusResponseData,
-  createFindPetsByStatusStatus200,
-  createFindPetsByStatusStatus400,
+  createFindPetsByStatusQueryResponse,
 } from './createFindPetsByStatus.ts'
 export {
+  createFindPetsByTags200,
+  createFindPetsByTags400,
   createFindPetsByTagsHeaderParams,
   createFindPetsByTagsQueryParams,
-  createFindPetsByTagsResponseData,
-  createFindPetsByTagsStatus200,
-  createFindPetsByTagsStatus400,
+  createFindPetsByTagsQueryResponse,
 } from './createFindPetsByTags.ts'
 export {
+  createGetPetById200,
+  createGetPetById400,
+  createGetPetById404,
   createGetPetByIdPathParams,
-  createGetPetByIdResponseData,
-  createGetPetByIdStatus200,
-  createGetPetByIdStatus400,
-  createGetPetByIdStatus404,
+  createGetPetByIdQueryResponse,
 } from './createGetPetById.ts'
 export {
-  createUpdatePetRequestData,
-  createUpdatePetResponseData,
-  createUpdatePetStatus200,
-  createUpdatePetStatus202,
-  createUpdatePetStatus400,
-  createUpdatePetStatus404,
-  createUpdatePetStatus405,
+  createUpdatePet200,
+  createUpdatePet202,
+  createUpdatePet400,
+  createUpdatePet404,
+  createUpdatePet405,
+  createUpdatePetMutationRequest,
+  createUpdatePetMutationResponse,
 } from './createUpdatePet.ts'
 export {
+  createUpdatePetWithForm405,
+  createUpdatePetWithFormMutationResponse,
   createUpdatePetWithFormPathParams,
   createUpdatePetWithFormQueryParams,
-  createUpdatePetWithFormResponseData,
-  createUpdatePetWithFormStatus405,
 } from './createUpdatePetWithForm.ts'
 export {
+  createUploadFile200,
+  createUploadFileMutationRequest,
+  createUploadFileMutationResponse,
   createUploadFilePathParams,
   createUploadFileQueryParams,
-  createUploadFileRequestData,
-  createUploadFileResponseData,
-  createUploadFileStatus200,
 } from './createUploadFile.ts'

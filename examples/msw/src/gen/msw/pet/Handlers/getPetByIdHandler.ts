@@ -4,9 +4,9 @@
  */
 
 import { http } from 'msw'
-import type { GetPetByIdResponseData, GetPetByIdStatus400, GetPetByIdStatus404 } from '../../../models/GetPetById.ts'
+import type { GetPetById400, GetPetById404, GetPetByIdQueryResponse } from '../../../models/GetPetById.ts'
 
-export function getPetByIdHandlerResponse200(data: GetPetByIdResponseData) {
+export function getPetByIdHandlerResponse200(data: GetPetByIdQueryResponse) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -15,19 +15,19 @@ export function getPetByIdHandlerResponse200(data: GetPetByIdResponseData) {
   })
 }
 
-export function getPetByIdHandlerResponse400(data?: GetPetByIdStatus400) {
+export function getPetByIdHandlerResponse400(data?: GetPetById400) {
   return new Response(JSON.stringify(data), {
     status: 400,
   })
 }
 
-export function getPetByIdHandlerResponse404(data?: GetPetByIdStatus404) {
+export function getPetByIdHandlerResponse404(data?: GetPetById404) {
   return new Response(JSON.stringify(data), {
     status: 404,
   })
 }
 
-export function getPetByIdHandler(data?: GetPetByIdResponseData | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
+export function getPetByIdHandler(data?: GetPetByIdQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
   return http.get('http://localhost:3000/pet/:petId\\\\:search', function handler(info) {
     if (typeof data === 'function') return data(info)
 

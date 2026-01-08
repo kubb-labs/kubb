@@ -18,7 +18,7 @@ import type { CreateBaseQueryOptions, CreateQueryResult, QueryClient, QueryKey }
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { GetUserByNamePathParams, GetUserByNameResponseData, GetUserByNameStatus400, GetUserByNameStatus404 } from '../models/GetUserByName.ts'
+import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName.ts'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 
@@ -31,7 +31,7 @@ export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 export async function getUserByName(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<GetUserByNameResponseData, ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>, unknown>({
+  const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
     method: 'GET',
     url: `/user/${username}`,
     ...requestConfig,
@@ -41,12 +41,7 @@ export async function getUserByName(username: GetUserByNamePathParams['username'
 
 export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = getUserByNameQueryKey(username)
-  return queryOptions<
-    GetUserByNameResponseData,
-    ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>,
-    GetUserByNameResponseData,
-    typeof queryKey
-  >({
+  return queryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryResponse, typeof queryKey>({
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -61,14 +56,14 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
  * {@link /user/:username}
  */
 export function createGetUserByName<
-  TData = GetUserByNameResponseData,
-  TQueryData = GetUserByNameResponseData,
+  TData = GetUserByNameQueryResponse,
+  TQueryData = GetUserByNameQueryResponse,
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
   username: GetUserByNamePathParams['username'],
   options: {
     query?: Partial<
-      CreateBaseQueryOptions<GetUserByNameResponseData, ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>, TData, TQueryData, TQueryKey>
+      CreateBaseQueryOptions<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, TData, TQueryData, TQueryKey>
     > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
@@ -84,7 +79,7 @@ export function createGetUserByName<
       ...queryOptions,
     } as unknown as CreateBaseQueryOptions,
     queryClient,
-  ) as CreateQueryResult<TData, ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>> & { queryKey: TQueryKey }
+  ) as CreateQueryResult<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

@@ -19,6 +19,6 @@ export const updatePetWithFormQueryParamsSchema = z.optional(
 /**
  * @description Invalid input
  */
-export const updatePetWithFormStatus405Schema = z.any()
+export const updatePetWithForm405Schema = z.any()
 
-export const updatePetWithFormResponseDataSchema = z.any()
+export const updatePetWithFormMutationResponseSchema = z.any()

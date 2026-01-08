@@ -1,8 +1,8 @@
-import type { AddFilesRequestData, AddFilesResponseData } from '../../models/ts/petController/AddFiles.ts'
+import type { AddFilesMutationRequest, AddFilesMutationResponse } from '../../models/ts/petController/AddFiles.ts'
 
-export function addFiles(data: AddFilesRequestData, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<AddFilesResponseData> {
+export function addFiles(data: AddFilesMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<AddFilesMutationResponse> {
   return cy
-    .request<AddFilesResponseData>({
+    .request<AddFilesMutationResponse>({
       method: 'post',
       url: '/pet/files',
       body: data,

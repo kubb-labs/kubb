@@ -7,10 +7,10 @@
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
 import type {
+  FindPetsByTags400,
   FindPetsByTagsHeaderParams,
   FindPetsByTagsQueryParams,
-  FindPetsByTagsResponseData,
-  FindPetsByTagsStatus400,
+  FindPetsByTagsQueryResponse,
 } from '../../../models/ts/petController/FindPetsByTags.js'
 
 function getFindPetsByTagsUrl() {
@@ -30,7 +30,7 @@ export async function findPetsByTags(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
+  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: getFindPetsByTagsUrl().url.toString(),
     params,

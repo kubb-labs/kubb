@@ -23,10 +23,10 @@ export type UpdatePetWithFormQueryParamsSchema = z.infer<typeof updatePetWithFor
 /**
  * @description Invalid input
  */
-export const updatePetWithFormStatus405Schema = z.any()
+export const updatePetWithForm405Schema = z.any()
 
-export type UpdatePetWithFormStatus405Schema = z.infer<typeof updatePetWithFormStatus405Schema>
+export type UpdatePetWithForm405Schema = z.infer<typeof updatePetWithForm405Schema>
 
-export const updatePetWithFormResponseDataSchema = z.any()
+export const updatePetWithFormMutationResponseSchema = z.any()
 
-export type UpdatePetWithFormResponseDataSchema = z.infer<typeof updatePetWithFormResponseDataSchema>
+export type UpdatePetWithFormMutationResponseSchema = z.infer<typeof updatePetWithFormMutationResponseSchema>

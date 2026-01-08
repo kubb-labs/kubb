@@ -1,12 +1,12 @@
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
 import type {
+  FindPetsByTags400,
   FindPetsByTagsHeaderParams,
   FindPetsByTagsQueryParams,
-  FindPetsByTagsResponseData,
-  FindPetsByTagsStatus400,
+  FindPetsByTagsQueryResponse,
 } from '../../../models/ts/petController/FindPetsByTags.ts'
-import { findPetsByTagsResponseDataSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
+import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 
 export function getFindPetsByTagsUrl() {
   const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/pet/findByTags' as const }
@@ -24,12 +24,12 @@ export async function findPetsByTags(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
+  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: getFindPetsByTagsUrl().url.toString(),
     params,
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
-  return { ...res, data: findPetsByTagsResponseDataSchema.parse(res.data) }
+  return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
 }

@@ -13,157 +13,157 @@ export { createPostPetRequest } from './mocks/createPostPetRequest.ts'
 export { createUser } from './mocks/createUser.ts'
 export { createUserArray } from './mocks/createUserArray.ts'
 export {
-  createAddFilesRequestData,
-  createAddFilesResponseData,
-  createAddFilesStatus200,
-  createAddFilesStatus405,
+  createAddFiles200,
+  createAddFiles405,
+  createAddFilesMutationRequest,
+  createAddFilesMutationResponse,
 } from './mocks/petController/createAddFiles.ts'
 export {
-  createAddPetRequestData,
-  createAddPetResponseData,
-  createAddPetStatus200,
-  createAddPetStatus405,
+  createAddPet200,
+  createAddPet405,
+  createAddPetMutationRequest,
+  createAddPetMutationResponse,
 } from './mocks/petController/createAddPet.ts'
 export {
+  createDeletePet400,
   createDeletePetHeaderParams,
+  createDeletePetMutationResponse,
   createDeletePetPathParams,
-  createDeletePetResponseData,
-  createDeletePetStatus400,
 } from './mocks/petController/createDeletePet.ts'
 export {
+  createFindPetsByStatus200,
+  createFindPetsByStatus400,
   createFindPetsByStatusPathParams,
-  createFindPetsByStatusResponseData,
-  createFindPetsByStatusStatus200,
-  createFindPetsByStatusStatus400,
+  createFindPetsByStatusQueryResponse,
 } from './mocks/petController/createFindPetsByStatus.ts'
 export {
+  createFindPetsByTags200,
+  createFindPetsByTags400,
   createFindPetsByTagsHeaderParams,
   createFindPetsByTagsQueryParams,
-  createFindPetsByTagsResponseData,
-  createFindPetsByTagsStatus200,
-  createFindPetsByTagsStatus400,
+  createFindPetsByTagsQueryResponse,
 } from './mocks/petController/createFindPetsByTags.ts'
 export {
+  createGetPetById200,
+  createGetPetById400,
+  createGetPetById404,
   createGetPetByIdPathParams,
-  createGetPetByIdResponseData,
-  createGetPetByIdStatus200,
-  createGetPetByIdStatus400,
-  createGetPetByIdStatus404,
+  createGetPetByIdQueryResponse,
 } from './mocks/petController/createGetPetById.ts'
 export {
-  createUpdatePetRequestData,
-  createUpdatePetResponseData,
-  createUpdatePetStatus200,
-  createUpdatePetStatus202,
-  createUpdatePetStatus400,
-  createUpdatePetStatus404,
-  createUpdatePetStatus405,
+  createUpdatePet200,
+  createUpdatePet202,
+  createUpdatePet400,
+  createUpdatePet404,
+  createUpdatePet405,
+  createUpdatePetMutationRequest,
+  createUpdatePetMutationResponse,
 } from './mocks/petController/createUpdatePet.ts'
 export {
+  createUpdatePetWithForm405,
+  createUpdatePetWithFormMutationResponse,
   createUpdatePetWithFormPathParams,
   createUpdatePetWithFormQueryParams,
-  createUpdatePetWithFormResponseData,
-  createUpdatePetWithFormStatus405,
 } from './mocks/petController/createUpdatePetWithForm.ts'
 export {
+  createUploadFile200,
+  createUploadFileMutationRequest,
+  createUploadFileMutationResponse,
   createUploadFilePathParams,
   createUploadFileQueryParams,
-  createUploadFileRequestData,
-  createUploadFileResponseData,
-  createUploadFileStatus200,
 } from './mocks/petController/createUploadFile.ts'
 export {
+  createCreatePets201,
+  createCreatePetsError,
   createCreatePetsHeaderParams,
+  createCreatePetsMutationRequest,
+  createCreatePetsMutationResponse,
   createCreatePetsPathParams,
   createCreatePetsQueryParams,
-  createCreatePetsRequestData,
-  createCreatePetsResponseData,
-  createCreatePetsStatus201,
-  createCreatePetsStatusError,
 } from './mocks/petsController/createCreatePets.ts'
 export {
+  createDeleteOrder400,
+  createDeleteOrder404,
+  createDeleteOrderMutationResponse,
   createDeleteOrderPathParams,
-  createDeleteOrderResponseData,
-  createDeleteOrderStatus400,
-  createDeleteOrderStatus404,
 } from './mocks/storeController/createDeleteOrder.ts'
 export {
-  createGetInventoryResponseData,
-  createGetInventoryStatus200,
+  createGetInventory200,
+  createGetInventoryQueryResponse,
 } from './mocks/storeController/createGetInventory.ts'
 export {
+  createGetOrderById200,
+  createGetOrderById400,
+  createGetOrderById404,
   createGetOrderByIdPathParams,
-  createGetOrderByIdResponseData,
-  createGetOrderByIdStatus200,
-  createGetOrderByIdStatus400,
-  createGetOrderByIdStatus404,
+  createGetOrderByIdQueryResponse,
 } from './mocks/storeController/createGetOrderById.ts'
 export {
-  createPlaceOrderRequestData,
-  createPlaceOrderResponseData,
-  createPlaceOrderStatus200,
-  createPlaceOrderStatus405,
+  createPlaceOrder200,
+  createPlaceOrder405,
+  createPlaceOrderMutationRequest,
+  createPlaceOrderMutationResponse,
 } from './mocks/storeController/createPlaceOrder.ts'
 export {
-  createPlaceOrderPatchRequestData,
-  createPlaceOrderPatchResponseData,
-  createPlaceOrderPatchStatus200,
-  createPlaceOrderPatchStatus405,
+  createPlaceOrderPatch200,
+  createPlaceOrderPatch405,
+  createPlaceOrderPatchMutationRequest,
+  createPlaceOrderPatchMutationResponse,
 } from './mocks/storeController/createPlaceOrderPatch.ts'
 export { createTagTag } from './mocks/tag/createTag.ts'
 export {
-  createCreateUserRequestData,
-  createCreateUserResponseData,
-  createCreateUserStatusError,
+  createCreateUserError,
+  createCreateUserMutationRequest,
+  createCreateUserMutationResponse,
 } from './mocks/userController/createCreateUser.ts'
 export {
-  createCreateUsersWithListInputRequestData,
-  createCreateUsersWithListInputResponseData,
-  createCreateUsersWithListInputStatus200,
-  createCreateUsersWithListInputStatusError,
+  createCreateUsersWithListInput200,
+  createCreateUsersWithListInputError,
+  createCreateUsersWithListInputMutationRequest,
+  createCreateUsersWithListInputMutationResponse,
 } from './mocks/userController/createCreateUsersWithListInput.ts'
 export {
+  createDeleteUser400,
+  createDeleteUser404,
+  createDeleteUserMutationResponse,
   createDeleteUserPathParams,
-  createDeleteUserResponseData,
-  createDeleteUserStatus400,
-  createDeleteUserStatus404,
 } from './mocks/userController/createDeleteUser.ts'
 export {
+  createGetUserByName200,
+  createGetUserByName400,
+  createGetUserByName404,
   createGetUserByNamePathParams,
-  createGetUserByNameResponseData,
-  createGetUserByNameStatus200,
-  createGetUserByNameStatus400,
-  createGetUserByNameStatus404,
+  createGetUserByNameQueryResponse,
 } from './mocks/userController/createGetUserByName.ts'
 export {
+  createLoginUser200,
+  createLoginUser400,
   createLoginUserQueryParams,
-  createLoginUserResponseData,
-  createLoginUserStatus200,
-  createLoginUserStatus400,
+  createLoginUserQueryResponse,
 } from './mocks/userController/createLoginUser.ts'
 export {
-  createLogoutUserResponseData,
-  createLogoutUserStatusError,
+  createLogoutUserError,
+  createLogoutUserQueryResponse,
 } from './mocks/userController/createLogoutUser.ts'
 export {
+  createUpdateUserError,
+  createUpdateUserMutationRequest,
+  createUpdateUserMutationResponse,
   createUpdateUserPathParams,
-  createUpdateUserRequestData,
-  createUpdateUserResponseData,
-  createUpdateUserStatusError,
 } from './mocks/userController/createUpdateUser.ts'
 export type {
-  AddFilesRequest,
-  AddFilesRequestData,
-  AddFilesResponseData,
-  AddFilesStatus200,
-  AddFilesStatus405,
+  AddFiles200,
+  AddFiles405,
+  AddFilesMutation,
+  AddFilesMutationRequest,
+  AddFilesMutationResponse,
 } from './models/AddFiles.ts'
 export type {
-  AddPetRequest,
-  AddPetRequestData,
-  AddPetResponseData,
-  AddPetStatus200,
-  AddPetStatus405,
+  AddPet200,
+  AddPet405,
+  AddPetMutation,
+  AddPetMutationRequest,
+  AddPetMutationResponse,
 } from './models/AddPet.ts'
 export type { Address } from './models/Address.ts'
 export type { Animal } from './models/Animal.ts'
@@ -171,112 +171,112 @@ export type { ApiResponse } from './models/ApiResponse.ts'
 export type { Cat } from './models/Cat.ts'
 export type { Category } from './models/Category.ts'
 export type {
+  CreatePets201,
+  CreatePetsError,
   CreatePetsHeaderParams,
   CreatePetsHeaderParamsXEXAMPLEEnumKey,
+  CreatePetsMutation,
+  CreatePetsMutationRequest,
+  CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsQueryParamsBoolParamEnumKey,
-  CreatePetsRequest,
-  CreatePetsRequestData,
-  CreatePetsResponseData,
-  CreatePetsStatus201,
-  CreatePetsStatusError,
 } from './models/CreatePets.ts'
 export { createPetsHeaderParamsXEXAMPLEEnum, createPetsQueryParamsBoolParamEnum } from './models/CreatePets.ts'
 export type {
-  CreateUserRequest,
-  CreateUserRequestData,
-  CreateUserResponseData,
-  CreateUserStatusError,
+  CreateUserError,
+  CreateUserMutation,
+  CreateUserMutationRequest,
+  CreateUserMutationResponse,
 } from './models/CreateUser.ts'
 export type {
-  CreateUsersWithListInputRequest,
-  CreateUsersWithListInputRequestData,
-  CreateUsersWithListInputResponseData,
-  CreateUsersWithListInputStatus200,
-  CreateUsersWithListInputStatusError,
+  CreateUsersWithListInput200,
+  CreateUsersWithListInputError,
+  CreateUsersWithListInputMutation,
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
 } from './models/CreateUsersWithListInput.ts'
 export type { Customer } from './models/Customer.ts'
 export type {
+  DeleteOrder400,
+  DeleteOrder404,
+  DeleteOrderMutation,
+  DeleteOrderMutationResponse,
   DeleteOrderPathParams,
-  DeleteOrderRequest,
-  DeleteOrderResponseData,
-  DeleteOrderStatus400,
-  DeleteOrderStatus404,
 } from './models/DeleteOrder.ts'
 export type {
+  DeletePet400,
   DeletePetHeaderParams,
+  DeletePetMutation,
+  DeletePetMutationResponse,
   DeletePetPathParams,
-  DeletePetRequest,
-  DeletePetResponseData,
-  DeletePetStatus400,
 } from './models/DeletePet.ts'
 export type {
+  DeleteUser400,
+  DeleteUser404,
+  DeleteUserMutation,
+  DeleteUserMutationResponse,
   DeleteUserPathParams,
-  DeleteUserRequest,
-  DeleteUserResponseData,
-  DeleteUserStatus400,
-  DeleteUserStatus404,
 } from './models/DeleteUser.ts'
 export type { Dog } from './models/Dog.ts'
 export type {
+  FindPetsByStatus200,
+  FindPetsByStatus400,
   FindPetsByStatusPathParams,
-  FindPetsByStatusRequest,
-  FindPetsByStatusResponseData,
-  FindPetsByStatusStatus200,
-  FindPetsByStatusStatus400,
+  FindPetsByStatusQuery,
+  FindPetsByStatusQueryResponse,
 } from './models/FindPetsByStatus.ts'
 export type {
+  FindPetsByTags200,
+  FindPetsByTags400,
   FindPetsByTagsHeaderParams,
   FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
+  FindPetsByTagsQuery,
   FindPetsByTagsQueryParams,
-  FindPetsByTagsRequest,
-  FindPetsByTagsResponseData,
-  FindPetsByTagsStatus200,
-  FindPetsByTagsStatus400,
+  FindPetsByTagsQueryResponse,
 } from './models/FindPetsByTags.ts'
 export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './models/FindPetsByTags.ts'
 export type {
-  GetInventoryRequest,
-  GetInventoryResponseData,
-  GetInventoryStatus200,
+  GetInventory200,
+  GetInventoryQuery,
+  GetInventoryQueryResponse,
 } from './models/GetInventory.ts'
 export type {
+  GetOrderById200,
+  GetOrderById400,
+  GetOrderById404,
   GetOrderByIdPathParams,
-  GetOrderByIdRequest,
-  GetOrderByIdResponseData,
-  GetOrderByIdStatus200,
-  GetOrderByIdStatus400,
-  GetOrderByIdStatus404,
+  GetOrderByIdQuery,
+  GetOrderByIdQueryResponse,
 } from './models/GetOrderById.ts'
 export type {
+  GetPetById200,
+  GetPetById400,
+  GetPetById404,
   GetPetByIdPathParams,
-  GetPetByIdRequest,
-  GetPetByIdResponseData,
-  GetPetByIdStatus200,
-  GetPetByIdStatus400,
-  GetPetByIdStatus404,
+  GetPetByIdQuery,
+  GetPetByIdQueryResponse,
 } from './models/GetPetById.ts'
 export type {
+  GetUserByName200,
+  GetUserByName400,
+  GetUserByName404,
   GetUserByNamePathParams,
-  GetUserByNameRequest,
-  GetUserByNameResponseData,
-  GetUserByNameStatus200,
-  GetUserByNameStatus400,
-  GetUserByNameStatus404,
+  GetUserByNameQuery,
+  GetUserByNameQueryResponse,
 } from './models/GetUserByName.ts'
 export type { Image } from './models/Image.ts'
 export type {
+  LoginUser200,
+  LoginUser400,
+  LoginUserQuery,
   LoginUserQueryParams,
-  LoginUserRequest,
-  LoginUserResponseData,
-  LoginUserStatus200,
-  LoginUserStatus400,
+  LoginUserQueryResponse,
 } from './models/LoginUser.ts'
 export type {
-  LogoutUserRequest,
-  LogoutUserResponseData,
-  LogoutUserStatusError,
+  LogoutUserError,
+  LogoutUserQuery,
+  LogoutUserQueryResponse,
 } from './models/LogoutUser.ts'
 export type {
   Order,
@@ -289,18 +289,18 @@ export type { Pet, PetStatusEnumKey } from './models/Pet.ts'
 export { petStatusEnum } from './models/Pet.ts'
 export type { PetNotFound } from './models/PetNotFound.ts'
 export type {
-  PlaceOrderRequest,
-  PlaceOrderRequestData,
-  PlaceOrderResponseData,
-  PlaceOrderStatus200,
-  PlaceOrderStatus405,
+  PlaceOrder200,
+  PlaceOrder405,
+  PlaceOrderMutation,
+  PlaceOrderMutationRequest,
+  PlaceOrderMutationResponse,
 } from './models/PlaceOrder.ts'
 export type {
-  PlaceOrderPatchRequest,
-  PlaceOrderPatchRequestData,
-  PlaceOrderPatchResponseData,
-  PlaceOrderPatchStatus200,
-  PlaceOrderPatchStatus405,
+  PlaceOrderPatch200,
+  PlaceOrderPatch405,
+  PlaceOrderPatchMutation,
+  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchMutationResponse,
 } from './models/PlaceOrderPatch.ts'
 export type {
   PostPetRequest,
@@ -309,36 +309,36 @@ export type {
 export { postPetRequestStatusEnum } from './models/PostPetRequest.ts'
 export type { TagTag } from './models/tag/Tag.ts'
 export type {
-  UpdatePetRequest,
-  UpdatePetRequestData,
-  UpdatePetResponseData,
-  UpdatePetStatus200,
-  UpdatePetStatus202,
-  UpdatePetStatus400,
-  UpdatePetStatus404,
-  UpdatePetStatus405,
+  UpdatePet200,
+  UpdatePet202,
+  UpdatePet400,
+  UpdatePet404,
+  UpdatePet405,
+  UpdatePetMutation,
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
 } from './models/UpdatePet.ts'
 export type {
+  UpdatePetWithForm405,
+  UpdatePetWithFormMutation,
+  UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithFormRequest,
-  UpdatePetWithFormResponseData,
-  UpdatePetWithFormStatus405,
 } from './models/UpdatePetWithForm.ts'
 export type {
+  UpdateUserError,
+  UpdateUserMutation,
+  UpdateUserMutationRequest,
+  UpdateUserMutationResponse,
   UpdateUserPathParams,
-  UpdateUserRequest,
-  UpdateUserRequestData,
-  UpdateUserResponseData,
-  UpdateUserStatusError,
 } from './models/UpdateUser.ts'
 export type {
+  UploadFile200,
+  UploadFileMutation,
+  UploadFileMutationRequest,
+  UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
-  UploadFileRequest,
-  UploadFileRequestData,
-  UploadFileResponseData,
-  UploadFileStatus200,
 } from './models/UploadFile.ts'
 export type { User } from './models/User.ts'
 export type { UserArray } from './models/UserArray.ts'

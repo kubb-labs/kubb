@@ -25,17 +25,17 @@ export type FindPetsByTagsHeaderParamsSchema = z.infer<typeof findPetsByTagsHead
 /**
  * @description successful operation
  */
-export const findPetsByTagsStatus200Schema = z.array(z.lazy(() => petSchema))
+export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema))
 
-export type FindPetsByTagsStatus200Schema = z.infer<typeof findPetsByTagsStatus200Schema>
+export type FindPetsByTags200Schema = z.infer<typeof findPetsByTags200Schema>
 
 /**
  * @description Invalid tag value
  */
-export const findPetsByTagsStatus400Schema = z.any()
+export const findPetsByTags400Schema = z.any()
 
-export type FindPetsByTagsStatus400Schema = z.infer<typeof findPetsByTagsStatus400Schema>
+export type FindPetsByTags400Schema = z.infer<typeof findPetsByTags400Schema>
 
-export const findPetsByTagsResponseDataSchema = z.lazy(() => findPetsByTagsStatus200Schema)
+export const findPetsByTagsQueryResponseSchema = z.lazy(() => findPetsByTags200Schema)
 
-export type FindPetsByTagsResponseDataSchema = z.infer<typeof findPetsByTagsResponseDataSchema>
+export type FindPetsByTagsQueryResponseSchema = z.infer<typeof findPetsByTagsQueryResponseSchema>

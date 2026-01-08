@@ -4,7 +4,7 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { GetPetByIdPathParams, GetPetByIdResponseData } from '../../models/GetPetById.ts'
+import type { GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/GetPetById.ts'
 import { createPet } from '../createPet.ts'
 
 export function createGetPetByIdPathParams(data?: Partial<GetPetByIdPathParams>): GetPetByIdPathParams {
@@ -18,7 +18,7 @@ export function createGetPetByIdPathParams(data?: Partial<GetPetByIdPathParams>)
 /**
  * @description successful operation
  */
-export function createGetPetByIdStatus200() {
+export function createGetPetById200() {
   faker.seed([220])
   return createPet()
 }
@@ -26,7 +26,7 @@ export function createGetPetByIdStatus200() {
 /**
  * @description Invalid ID supplied
  */
-export function createGetPetByIdStatus400() {
+export function createGetPetById400() {
   faker.seed([220])
   return undefined
 }
@@ -34,12 +34,12 @@ export function createGetPetByIdStatus400() {
 /**
  * @description Pet not found
  */
-export function createGetPetByIdStatus404() {
+export function createGetPetById404() {
   faker.seed([220])
   return undefined
 }
 
-export function createGetPetByIdResponseData(data?: Partial<GetPetByIdResponseData>): GetPetByIdResponseData {
+export function createGetPetByIdQueryResponse(data?: Partial<GetPetByIdQueryResponse>): GetPetByIdQueryResponse {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([createGetPetByIdStatus200()])
+  return data || faker.helpers.arrayElement<any>([createGetPetById200()])
 }

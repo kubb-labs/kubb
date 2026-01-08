@@ -12,11 +12,11 @@ export const showPetByIdPathParams = z.object({
 /**
  * @description Expected response to a valid request
  */
-export const showPetByIdStatus200 = z.lazy(() => pet)
+export const showPetById200 = z.lazy(() => pet)
 
 /**
  * @description unexpected error
  */
-export const showPetByIdStatusError = z.lazy(() => error)
+export const showPetByIdError = z.lazy(() => error)
 
-export const showPetByIdResponseData = z.lazy(() => showPetByIdStatus200)
+export const showPetByIdQueryResponse = z.lazy(() => showPetById200)

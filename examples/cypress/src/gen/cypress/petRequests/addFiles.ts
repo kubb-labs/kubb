@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { AddFilesRequestData, AddFilesResponseData } from '../../models/AddFiles.ts'
+import type { AddFilesMutationRequest, AddFilesMutationResponse } from '../../models/AddFiles.ts'
 
-export function addFiles(data: AddFilesRequestData, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<AddFilesResponseData> {
+export function addFiles(data: AddFilesMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<AddFilesMutationResponse> {
   return cy
-    .request<AddFilesResponseData>({
+    .request<AddFilesMutationResponse>({
       method: 'post',
       url: 'http://localhost:3000/pet/files',
       body: data,

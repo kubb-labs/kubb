@@ -7,7 +7,7 @@ import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from
 import { queryOptions, useQuery } from '@tanstack/react-query'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { FindPetsByTagsQueryParams, FindPetsByTagsResponseData, FindPetsByTagsStatus400 } from '../../models/FindPetsByTags.ts'
+import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
@@ -21,7 +21,7 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export async function findPetsByTagsHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
+  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: '/pet/findByTags',
     params,
@@ -33,9 +33,9 @@ export async function findPetsByTagsHook(params?: FindPetsByTagsQueryParams, con
 export function findPetsByTagsQueryOptionsHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions<
-    ResponseConfig<FindPetsByTagsResponseData>,
-    ResponseErrorConfig<FindPetsByTagsStatus400>,
-    ResponseConfig<FindPetsByTagsResponseData>,
+    ResponseConfig<FindPetsByTagsQueryResponse>,
+    ResponseErrorConfig<FindPetsByTags400>,
+    ResponseConfig<FindPetsByTagsQueryResponse>,
     typeof queryKey
   >({
     queryKey,
@@ -52,15 +52,15 @@ export function findPetsByTagsQueryOptionsHook(params?: FindPetsByTagsQueryParam
  * {@link /pet/findByTags}
  */
 export function useFindPetsByTagsHook<
-  TData = ResponseConfig<FindPetsByTagsResponseData>,
-  TQueryData = ResponseConfig<FindPetsByTagsResponseData>,
+  TData = ResponseConfig<FindPetsByTagsQueryResponse>,
+  TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: Partial<
-      QueryObserverOptions<ResponseConfig<FindPetsByTagsResponseData>, ResponseErrorConfig<FindPetsByTagsStatus400>, TData, TQueryData, TQueryKey>
-    > & { client?: QueryClient }
+    query?: Partial<QueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>> & {
+      client?: QueryClient
+    }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
@@ -75,7 +75,7 @@ export function useFindPetsByTagsHook<
       ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByTagsStatus400>> & {
+  ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & {
     queryKey: TQueryKey
   }
 

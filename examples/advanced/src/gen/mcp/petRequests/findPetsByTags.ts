@@ -2,10 +2,10 @@ import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type {
+  FindPetsByTags400,
   FindPetsByTagsHeaderParams,
   FindPetsByTagsQueryParams,
-  FindPetsByTagsResponseData,
-  FindPetsByTagsStatus400,
+  FindPetsByTagsQueryResponse,
 } from '../../models/ts/petController/FindPetsByTags.ts'
 
 /**
@@ -20,7 +20,7 @@ export async function findPetsByTagsHandler({
   headers: FindPetsByTagsHeaderParams
   params?: FindPetsByTagsQueryParams
 }): Promise<Promise<CallToolResult>> {
-  const res = await fetch<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
+  const res = await fetch<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: '/pet/findByTags',
     baseURL: 'https://petstore.swagger.io/v2',

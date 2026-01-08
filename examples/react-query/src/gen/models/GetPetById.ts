@@ -17,28 +17,22 @@ export type GetPetByIdPathParams = {
 /**
  * @description successful operation
  */
-export type GetPetByIdStatus200 = Pet
+export type GetPetById200 = Pet
 
 /**
  * @description Invalid ID supplied
  */
-export type GetPetByIdStatus400 = any
+export type GetPetById400 = any
 
 /**
  * @description Pet not found
  */
-export type GetPetByIdStatus404 = any
+export type GetPetById404 = any
 
-export type GetPetByIdRequest = {
-  data?: never
-  pathParams: GetPetByIdPathParams
-  queryParams?: never
-  headerParams?: never
-  url: `/pet/${string}`
+export type GetPetByIdQueryResponse = GetPetById200
+
+export type GetPetByIdQuery = {
+  Response: GetPetById200
+  PathParams: GetPetByIdPathParams
+  Errors: GetPetById400 | GetPetById404
 }
-
-export type GetPetByIdResponses = {
-  '200': GetPetByIdStatus200
-}
-
-export type GetPetByIdResponseData = GetPetByIdResponses[keyof GetPetByIdResponses]

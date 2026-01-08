@@ -26,14 +26,14 @@ export async function findPetsByTagsInfinite(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
+  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: `/pet/findByTags`,
     params,
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
-  return findPetsByTagsResponseData.parse(res.data)
+  return findPetsByTagsQueryResponse.parse(res.data)
 }
 
 export function findPetsByTagsInfiniteQueryOptions(
@@ -42,7 +42,7 @@ export function findPetsByTagsInfiniteQueryOptions(
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
-  return infiniteQueryOptions<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, FindPetsByTagsResponseData, typeof queryKey, number>({
+  return infiniteQueryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey, number>({
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
       config.signal = signal
@@ -65,14 +65,14 @@ export function findPetsByTagsInfiniteQueryOptions(
  * {@link /pet/findByTags}
  */
 export function useFindPetsByTagsInfinite<
-  TData = InfiniteData<FindPetsByTagsResponseData>,
-  TQueryData = FindPetsByTagsResponseData,
+  TData = InfiniteData<FindPetsByTagsQueryResponse>,
+  TQueryData = FindPetsByTagsQueryResponse,
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(
   headers: MaybeRefOrGetter<FindPetsByTagsHeaderParams>,
   params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>,
   options: {
-    query?: Partial<UseInfiniteQueryOptions<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, TQueryData, TQueryKey, TQueryData>> & {
+    query?: Partial<UseInfiniteQueryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TQueryData, TQueryKey, TQueryData>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -88,14 +88,14 @@ export function useFindPetsByTagsInfinite<
       ...queryOptions,
       queryKey,
     } as unknown as UseInfiniteQueryOptions<
-      FindPetsByTagsResponseData,
-      ResponseErrorConfig<FindPetsByTagsStatus400>,
-      FindPetsByTagsResponseData,
+      FindPetsByTagsQueryResponse,
+      ResponseErrorConfig<FindPetsByTags400>,
+      FindPetsByTagsQueryResponse,
       TQueryKey,
-      FindPetsByTagsResponseData
+      FindPetsByTagsQueryResponse
     >,
     toValue(queryClient),
-  ) as UseInfiniteQueryReturnType<TData, ResponseErrorConfig<FindPetsByTagsStatus400>> & { queryKey: TQueryKey }
+  ) as UseInfiniteQueryReturnType<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

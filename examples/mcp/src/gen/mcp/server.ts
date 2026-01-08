@@ -5,11 +5,16 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
-import { addFilesRequestDataSchema } from '../zod/addFilesSchema.js'
-import { addPetRequestDataSchema } from '../zod/addPetSchema.js'
-import { createPetsHeaderParamsSchema, createPetsPathParamsSchema, createPetsQueryParamsSchema, createPetsRequestDataSchema } from '../zod/createPetsSchema.js'
-import { createUserRequestDataSchema } from '../zod/createUserSchema.js'
-import { createUsersWithListInputRequestDataSchema } from '../zod/createUsersWithListInputSchema.js'
+import { addFilesMutationRequestSchema } from '../zod/addFilesSchema.js'
+import { addPetMutationRequestSchema } from '../zod/addPetSchema.js'
+import {
+  createPetsHeaderParamsSchema,
+  createPetsMutationRequestSchema,
+  createPetsPathParamsSchema,
+  createPetsQueryParamsSchema,
+} from '../zod/createPetsSchema.js'
+import { createUserMutationRequestSchema } from '../zod/createUserSchema.js'
+import { createUsersWithListInputMutationRequestSchema } from '../zod/createUsersWithListInputSchema.js'
 import { deleteOrderPathParamsSchema } from '../zod/deleteOrderSchema.js'
 import { deletePetHeaderParamsSchema, deletePetPathParamsSchema } from '../zod/deletePetSchema.js'
 import { deleteUserPathParamsSchema } from '../zod/deleteUserSchema.js'
@@ -19,11 +24,11 @@ import { getOrderByIdPathParamsSchema } from '../zod/getOrderByIdSchema.js'
 import { getPetByIdPathParamsSchema } from '../zod/getPetByIdSchema.js'
 import { getUserByNamePathParamsSchema } from '../zod/getUserByNameSchema.js'
 import { loginUserQueryParamsSchema } from '../zod/loginUserSchema.js'
-import { placeOrderPatchRequestDataSchema } from '../zod/placeOrderPatchSchema.js'
-import { placeOrderRequestDataSchema } from '../zod/placeOrderSchema.js'
-import { updatePetRequestDataSchema } from '../zod/updatePetSchema.js'
+import { placeOrderPatchMutationRequestSchema } from '../zod/placeOrderPatchSchema.js'
+import { placeOrderMutationRequestSchema } from '../zod/placeOrderSchema.js'
+import { updatePetMutationRequestSchema } from '../zod/updatePetSchema.js'
 import { updatePetWithFormPathParamsSchema, updatePetWithFormQueryParamsSchema } from '../zod/updatePetWithFormSchema.js'
-import { updateUserPathParamsSchema, updateUserRequestDataSchema } from '../zod/updateUserSchema.js'
+import { updateUserMutationRequestSchema, updateUserPathParamsSchema } from '../zod/updateUserSchema.js'
 import { addFilesHandler } from './addFiles.js'
 import { addPetHandler } from './addPet.js'
 import { createPetsHandler } from './createPets.js'
@@ -56,7 +61,7 @@ server.tool(
   'Make a POST request to /pets/{uuid}',
   {
     uuid: createPetsPathParamsSchema.shape['uuid'],
-    data: createPetsRequestDataSchema,
+    data: createPetsMutationRequestSchema,
     headers: createPetsHeaderParamsSchema,
     params: createPetsQueryParamsSchema,
   },
@@ -65,11 +70,11 @@ server.tool(
   },
 )
 
-server.tool('updatePet', 'Update an existing pet by Id', { data: updatePetRequestDataSchema }, async ({ data }) => {
+server.tool('updatePet', 'Update an existing pet by Id', { data: updatePetMutationRequestSchema }, async ({ data }) => {
   return updatePetHandler({ data })
 })
 
-server.tool('addPet', 'Add a new pet to the store', { data: addPetRequestDataSchema }, async ({ data }) => {
+server.tool('addPet', 'Add a new pet to the store', { data: addPetMutationRequestSchema }, async ({ data }) => {
   return addPetHandler({ data })
 })
 
@@ -122,7 +127,7 @@ server.tool(
   },
 )
 
-server.tool('addFiles', 'Place a new file in the store', { data: addFilesRequestDataSchema }, async ({ data }) => {
+server.tool('addFiles', 'Place a new file in the store', { data: addFilesMutationRequestSchema }, async ({ data }) => {
   return addFilesHandler({ data })
 })
 
@@ -130,11 +135,11 @@ server.tool('getInventory', 'Returns a map of status codes to quantities', async
   return getInventoryHandler()
 })
 
-server.tool('placeOrder', 'Place a new order in the store', { data: placeOrderRequestDataSchema }, async ({ data }) => {
+server.tool('placeOrder', 'Place a new order in the store', { data: placeOrderMutationRequestSchema }, async ({ data }) => {
   return placeOrderHandler({ data })
 })
 
-server.tool('placeOrderPatch', 'Place a new order in the store with patch', { data: placeOrderPatchRequestDataSchema }, async ({ data }) => {
+server.tool('placeOrderPatch', 'Place a new order in the store with patch', { data: placeOrderPatchMutationRequestSchema }, async ({ data }) => {
   return placeOrderPatchHandler({ data })
 })
 
@@ -156,14 +161,14 @@ server.tool(
   },
 )
 
-server.tool('createUser', 'This can only be done by the logged in user.', { data: createUserRequestDataSchema }, async ({ data }) => {
+server.tool('createUser', 'This can only be done by the logged in user.', { data: createUserMutationRequestSchema }, async ({ data }) => {
   return createUserHandler({ data })
 })
 
 server.tool(
   'createUsersWithListInput',
   'Creates list of users with given input array',
-  { data: createUsersWithListInputRequestDataSchema },
+  { data: createUsersWithListInputMutationRequestSchema },
   async ({ data }) => {
     return createUsersWithListInputHandler({ data })
   },
@@ -186,7 +191,7 @@ server.tool(
   'This can only be done by the logged in user.',
   {
     username: updateUserPathParamsSchema.shape['username'],
-    data: updateUserRequestDataSchema,
+    data: updateUserMutationRequestSchema,
   },
   async ({ username, data }) => {
     return updateUserHandler({ username, data })

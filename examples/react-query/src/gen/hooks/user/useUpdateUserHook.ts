@@ -7,7 +7,7 @@ import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tansta
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData } from '../../models/UpdateUser.ts'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/UpdateUser.ts'
 
 export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
@@ -20,8 +20,8 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
  */
 export async function updateUserHook(
   { username }: { username: UpdateUserPathParams['username'] },
-  data?: UpdateUserRequestData,
-  config: Partial<RequestConfig<UpdateUserRequestData>> & {
+  data?: UpdateUserMutationRequest,
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -29,7 +29,7 @@ export async function updateUserHook(
 
   const requestData = data
 
-  const res = await request<UpdateUserResponseData, ResponseErrorConfig<Error>, UpdateUserRequestData>({
+  const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
     url: `/user/${username}`,
     data: requestData,
@@ -39,17 +39,17 @@ export async function updateUserHook(
 }
 
 export function updateUserMutationOptionsHook(
-  config: Partial<RequestConfig<UpdateUserRequestData>> & {
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
   const mutationKey = updateUserMutationKey()
   return mutationOptions<
-    UpdateUserResponseData,
+    UpdateUserMutationResponse,
     ResponseErrorConfig<Error>,
     {
       username: UpdateUserPathParams['username']
-      data?: UpdateUserRequestData
+      data?: UpdateUserMutationRequest
     },
     typeof mutationKey
   >({
@@ -68,15 +68,15 @@ export function updateUserMutationOptionsHook(
 export function useUpdateUserHook<TContext>(
   options: {
     mutation?: UseMutationOptions<
-      UpdateUserResponseData,
+      UpdateUserMutationResponse,
       ResponseErrorConfig<Error>,
       {
         username: UpdateUserPathParams['username']
-        data?: UpdateUserRequestData
+        data?: UpdateUserMutationRequest
       },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UpdateUserRequestData>> & {
+    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & {
       client?: typeof fetch
     }
   } = {},
@@ -86,21 +86,21 @@ export function useUpdateUserHook<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? updateUserMutationKey()
 
   const baseOptions = updateUserMutationOptionsHook(config) as UseMutationOptions<
-    UpdateUserResponseData,
+    UpdateUserMutationResponse,
     ResponseErrorConfig<Error>,
     {
       username: UpdateUserPathParams['username']
-      data?: UpdateUserRequestData
+      data?: UpdateUserMutationRequest
     },
     TContext
   >
 
   return useMutation<
-    UpdateUserResponseData,
+    UpdateUserMutationResponse,
     ResponseErrorConfig<Error>,
     {
       username: UpdateUserPathParams['username']
-      data?: UpdateUserRequestData
+      data?: UpdateUserMutationRequest
     },
     TContext
   >(
@@ -111,11 +111,11 @@ export function useUpdateUserHook<TContext>(
     },
     queryClient,
   ) as UseMutationResult<
-    UpdateUserResponseData,
+    UpdateUserMutationResponse,
     ResponseErrorConfig<Error>,
     {
       username: UpdateUserPathParams['username']
-      data?: UpdateUserRequestData
+      data?: UpdateUserMutationRequest
     },
     TContext
   >

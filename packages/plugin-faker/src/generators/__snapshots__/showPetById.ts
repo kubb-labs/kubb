@@ -14,17 +14,17 @@ export function showPetByIdPathParams(data?: Partial<ShowPetByIdPathParams>): Sh
 /**
  * @description Expected response to a valid request
  */
-export function showPetByIdStatus200() {
+export function showPetById200() {
   return pet()
 }
 
 /**
  * @description unexpected error
  */
-export function showPetByIdStatusError() {
+export function showPetByIdError() {
   return error()
 }
 
-export function showPetByIdResponseData(data?: Partial<ShowPetByIdResponseData>): ShowPetByIdResponseData {
-  return data || faker.helpers.arrayElement<any>([showPetByIdStatus200()])
+export function showPetByIdQueryResponse(data?: Partial<ShowPetByIdQueryResponse>): ShowPetByIdQueryResponse {
+  return data || faker.helpers.arrayElement<any>([showPetById200()])
 }

@@ -7,7 +7,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { DeleteOrderPathParams, DeleteOrderResponseData, DeleteOrderStatus400, DeleteOrderStatus404 } from '../models/DeleteOrder.ts'
+import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderPathParams } from '../models/DeleteOrder.ts'
 
 export const deleteOrderMutationKey = () => [{ url: '/store/order/:orderId' }] as const
 
@@ -21,7 +21,7 @@ export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
 export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<DeleteOrderResponseData, ResponseErrorConfig<DeleteOrderStatus400 | DeleteOrderStatus404>, unknown>({
+  const res = await request<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,
     ...requestConfig,
@@ -41,8 +41,8 @@ export type DeleteOrderMutationArg = {
 export function useDeleteOrder(
   options: {
     mutation?: SWRMutationConfiguration<
-      DeleteOrderResponseData,
-      ResponseErrorConfig<DeleteOrderStatus400 | DeleteOrderStatus404>,
+      DeleteOrderMutationResponse,
+      ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
       DeleteOrderMutationKey | null,
       DeleteOrderMutationArg
     > & { throwOnError?: boolean }
@@ -54,8 +54,8 @@ export function useDeleteOrder(
   const mutationKey = deleteOrderMutationKey()
 
   return useSWRMutation<
-    DeleteOrderResponseData,
-    ResponseErrorConfig<DeleteOrderStatus400 | DeleteOrderStatus404>,
+    DeleteOrderMutationResponse,
+    ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
     DeleteOrderMutationKey | null,
     DeleteOrderMutationArg
   >(

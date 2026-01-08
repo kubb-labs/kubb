@@ -21,7 +21,7 @@ export async function updatePetWithForm(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
+  const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
     url: `/pet/${petId}`,
     params,
@@ -48,7 +48,7 @@ export function updatePetWithFormQueryOptions(
 export function useUpdatePetWithForm(
   { petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
   options: {
-    query?: Parameters<typeof useSWR<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>>>[2]
+    query?: Parameters<typeof useSWR<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
     immutable?: boolean
@@ -58,18 +58,15 @@ export function useUpdatePetWithForm(
 
   const queryKey = updatePetWithFormQueryKey(petId, params)
 
-  return useSWR<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, UpdatePetWithFormQueryKey | null>(
-    shouldFetch ? queryKey : null,
-    {
-      ...updatePetWithFormQueryOptions({ petId, params }, config),
-      ...(immutable
-        ? {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-          }
-        : {}),
-      ...queryOptions,
-    },
-  )
+  return useSWR<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormQueryKey | null>(shouldFetch ? queryKey : null, {
+    ...updatePetWithFormQueryOptions({ petId, params }, config),
+    ...(immutable
+      ? {
+          revalidateIfStale: false,
+          revalidateOnFocus: false,
+          revalidateOnReconnect: false,
+        }
+      : {}),
+    ...queryOptions,
+  })
 }

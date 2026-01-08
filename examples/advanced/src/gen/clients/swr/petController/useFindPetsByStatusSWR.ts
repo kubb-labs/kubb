@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { FindPetsByStatusPathParams, FindPetsByStatusResponseData, FindPetsByStatusStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
+import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.ts'
 import { findPetsByStatus } from '../../axios/petService/findPetsByStatus.ts'
 
 export const findPetsByStatusQueryKeySWR = ({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }) =>
@@ -28,7 +28,7 @@ export function findPetsByStatusQueryOptionsSWR(
 export function useFindPetsByStatusSWR(
   { step_id }: { step_id: FindPetsByStatusPathParams['step_id'] },
   options: {
-    query?: Parameters<typeof useSWR<ResponseConfig<FindPetsByStatusResponseData>, ResponseErrorConfig<FindPetsByStatusStatus400>>>[2]
+    query?: Parameters<typeof useSWR<ResponseConfig<FindPetsByStatusQueryResponse>, ResponseErrorConfig<FindPetsByStatus400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
     immutable?: boolean
@@ -38,7 +38,7 @@ export function useFindPetsByStatusSWR(
 
   const queryKey = findPetsByStatusQueryKeySWR({ step_id })
 
-  return useSWR<ResponseConfig<FindPetsByStatusResponseData>, ResponseErrorConfig<FindPetsByStatusStatus400>, FindPetsByStatusQueryKeySWR | null>(
+  return useSWR<ResponseConfig<FindPetsByStatusQueryResponse>, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryKeySWR | null>(
     shouldFetch ? queryKey : null,
     {
       ...findPetsByStatusQueryOptionsSWR({ step_id }, config),

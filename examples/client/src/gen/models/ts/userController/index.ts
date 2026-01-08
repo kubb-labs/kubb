@@ -1,47 +1,47 @@
 export type {
-  CreateUserRequest,
-  CreateUserRequestData,
-  CreateUserResponseData,
-  CreateUserStatusError,
+  CreateUserError,
+  CreateUserMutation,
+  CreateUserMutationRequest,
+  CreateUserMutationResponse,
 } from './CreateUser.js'
 export type {
-  CreateUsersWithListInputRequest,
-  CreateUsersWithListInputRequestData,
-  CreateUsersWithListInputResponseData,
-  CreateUsersWithListInputStatus200,
-  CreateUsersWithListInputStatusError,
+  CreateUsersWithListInput200,
+  CreateUsersWithListInputError,
+  CreateUsersWithListInputMutation,
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
 } from './CreateUsersWithListInput.js'
 export type {
+  DeleteUser400,
+  DeleteUser404,
+  DeleteUserMutation,
+  DeleteUserMutationResponse,
   DeleteUserPathParams,
-  DeleteUserRequest,
-  DeleteUserResponseData,
-  DeleteUserStatus400,
-  DeleteUserStatus404,
 } from './DeleteUser.js'
 export type {
+  GetUserByName200,
+  GetUserByName400,
+  GetUserByName404,
   GetUserByNamePathParams,
-  GetUserByNameRequest,
-  GetUserByNameResponseData,
-  GetUserByNameStatus200,
-  GetUserByNameStatus400,
-  GetUserByNameStatus404,
+  GetUserByNameQuery,
+  GetUserByNameQueryResponse,
 } from './GetUserByName.js'
 export type {
+  LoginUser200,
+  LoginUser400,
+  LoginUserQuery,
   LoginUserQueryParams,
-  LoginUserRequest,
-  LoginUserResponseData,
-  LoginUserStatus200,
-  LoginUserStatus400,
+  LoginUserQueryResponse,
 } from './LoginUser.js'
 export type {
-  LogoutUserRequest,
-  LogoutUserResponseData,
-  LogoutUserStatusError,
+  LogoutUserError,
+  LogoutUserQuery,
+  LogoutUserQueryResponse,
 } from './LogoutUser.js'
 export type {
+  UpdateUserError,
+  UpdateUserMutation,
+  UpdateUserMutationRequest,
+  UpdateUserMutationResponse,
   UpdateUserPathParams,
-  UpdateUserRequest,
-  UpdateUserRequestData,
-  UpdateUserResponseData,
-  UpdateUserStatusError,
 } from './UpdateUser.js'

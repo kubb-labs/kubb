@@ -13,16 +13,16 @@ export const getUserByNamePathParamsSchema = z.object({
 /**
  * @description successful operation
  */
-export const getUserByNameStatus200Schema = z.lazy(() => userSchema)
+export const getUserByName200Schema = z.lazy(() => userSchema)
 
 /**
  * @description Invalid username supplied
  */
-export const getUserByNameStatus400Schema = z.any()
+export const getUserByName400Schema = z.any()
 
 /**
  * @description User not found
  */
-export const getUserByNameStatus404Schema = z.any()
+export const getUserByName404Schema = z.any()
 
-export const getUserByNameResponseDataSchema = z.lazy(() => getUserByNameStatus200Schema)
+export const getUserByNameQueryResponseSchema = z.lazy(() => getUserByName200Schema)

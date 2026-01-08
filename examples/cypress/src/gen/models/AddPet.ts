@@ -9,12 +9,12 @@ import type { PostPetRequest } from './PostPetRequest.ts'
 /**
  * @description Successful operation
  */
-export type AddPetStatus200 = Omit<NonNullable<Pet>, 'name'>
+export type AddPet200 = Omit<NonNullable<Pet>, 'name'>
 
 /**
  * @description Pet not found
  */
-export type AddPetStatus405 = {
+export type AddPet405 = {
   /**
    * @type integer | undefined, int32
    */
@@ -28,18 +28,12 @@ export type AddPetStatus405 = {
 /**
  * @description Create a new pet in the store
  */
-export type AddPetRequestData = PostPetRequest
+export type AddPetMutationRequest = PostPetRequest
 
-export type AddPetRequest = {
-  data?: AddPetRequestData
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
-  url: '/pet'
+export type AddPetMutationResponse = AddPet200
+
+export type AddPetMutation = {
+  Response: AddPet200
+  Request: AddPetMutationRequest
+  Errors: AddPet405
 }
-
-export type AddPetResponses = {
-  '200': AddPetStatus200
-}
-
-export type AddPetResponseData = AddPetResponses[keyof AddPetResponses]

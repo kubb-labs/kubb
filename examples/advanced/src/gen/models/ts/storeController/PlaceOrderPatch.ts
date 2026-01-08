@@ -3,25 +3,19 @@ import type { Order } from '../Order.ts'
 /**
  * @description successful operation
  */
-export type PlaceOrderPatchStatus200 = Order
+export type PlaceOrderPatch200 = Order
 
 /**
  * @description Invalid input
  */
-export type PlaceOrderPatchStatus405 = any
+export type PlaceOrderPatch405 = any
 
-export type PlaceOrderPatchRequestData = Order
+export type PlaceOrderPatchMutationRequest = Order
 
-export type PlaceOrderPatchRequest = {
-  data?: PlaceOrderPatchRequestData
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
-  url: '/store/order'
+export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
+
+export type PlaceOrderPatchMutation = {
+  Response: PlaceOrderPatch200
+  Request: PlaceOrderPatchMutationRequest
+  Errors: PlaceOrderPatch405
 }
-
-export type PlaceOrderPatchResponses = {
-  '200': PlaceOrderPatchStatus200
-}
-
-export type PlaceOrderPatchResponseData = PlaceOrderPatchResponses[keyof PlaceOrderPatchResponses]

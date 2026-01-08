@@ -1,104 +1,104 @@
 export {
-  addPetRequestDataSchema,
-  addPetResponseDataSchema,
-  addPetStatus200Schema,
-  addPetStatus405Schema,
+  addPet200Schema,
+  addPet405Schema,
+  addPetMutationRequestSchema,
+  addPetMutationResponseSchema,
 } from './zod/addPetSchema.ts'
 export { addressSchema } from './zod/addressSchema.ts'
 export { apiResponseSchema } from './zod/apiResponseSchema.ts'
 export { categorySchema } from './zod/categorySchema.ts'
 export {
+  createPets201Schema,
+  createPetsErrorSchema,
   createPetsHeaderParamsSchema,
+  createPetsMutationRequestSchema,
+  createPetsMutationResponseSchema,
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
-  createPetsRequestDataSchema,
-  createPetsResponseDataSchema,
-  createPetsStatus201Schema,
-  createPetsStatusErrorSchema,
 } from './zod/createPetsSchema.ts'
 export {
-  createUserRequestDataSchema,
-  createUserResponseDataSchema,
-  createUserStatusErrorSchema,
+  createUserErrorSchema,
+  createUserMutationRequestSchema,
+  createUserMutationResponseSchema,
 } from './zod/createUserSchema.ts'
 export {
-  createUsersWithListInputRequestDataSchema,
-  createUsersWithListInputResponseDataSchema,
-  createUsersWithListInputStatus200Schema,
-  createUsersWithListInputStatusErrorSchema,
+  createUsersWithListInput200Schema,
+  createUsersWithListInputErrorSchema,
+  createUsersWithListInputMutationRequestSchema,
+  createUsersWithListInputMutationResponseSchema,
 } from './zod/createUsersWithListInputSchema.ts'
 export { customerSchema } from './zod/customerSchema.ts'
 export {
+  deleteOrder400Schema,
+  deleteOrder404Schema,
+  deleteOrderMutationResponseSchema,
   deleteOrderPathParamsSchema,
-  deleteOrderResponseDataSchema,
-  deleteOrderStatus400Schema,
-  deleteOrderStatus404Schema,
 } from './zod/deleteOrderSchema.ts'
 export {
+  deletePet400Schema,
   deletePetHeaderParamsSchema,
+  deletePetMutationResponseSchema,
   deletePetPathParamsSchema,
-  deletePetResponseDataSchema,
-  deletePetStatus400Schema,
 } from './zod/deletePetSchema.ts'
 export {
+  deleteUser400Schema,
+  deleteUser404Schema,
+  deleteUserMutationResponseSchema,
   deleteUserPathParamsSchema,
-  deleteUserResponseDataSchema,
-  deleteUserStatus400Schema,
-  deleteUserStatus404Schema,
 } from './zod/deleteUserSchema.ts'
 export {
+  findPetsByStatus200Schema,
+  findPetsByStatus400Schema,
   findPetsByStatusQueryParamsSchema,
-  findPetsByStatusResponseDataSchema,
-  findPetsByStatusStatus200Schema,
-  findPetsByStatusStatus400Schema,
+  findPetsByStatusQueryResponseSchema,
 } from './zod/findPetsByStatusSchema.ts'
 export {
+  findPetsByTags200Schema,
+  findPetsByTags400Schema,
   findPetsByTagsHeaderParamsSchema,
   findPetsByTagsQueryParamsSchema,
-  findPetsByTagsResponseDataSchema,
-  findPetsByTagsStatus200Schema,
-  findPetsByTagsStatus400Schema,
+  findPetsByTagsQueryResponseSchema,
 } from './zod/findPetsByTagsSchema.ts'
 export {
-  getInventoryResponseDataSchema,
-  getInventoryStatus200Schema,
+  getInventory200Schema,
+  getInventoryQueryResponseSchema,
 } from './zod/getInventorySchema.ts'
 export {
+  getOrderById200Schema,
+  getOrderById400Schema,
+  getOrderById404Schema,
   getOrderByIdPathParamsSchema,
-  getOrderByIdResponseDataSchema,
-  getOrderByIdStatus200Schema,
-  getOrderByIdStatus400Schema,
-  getOrderByIdStatus404Schema,
+  getOrderByIdQueryResponseSchema,
 } from './zod/getOrderByIdSchema.ts'
 export {
+  getPetById200Schema,
+  getPetById400Schema,
+  getPetById404Schema,
   getPetByIdPathParamsSchema,
-  getPetByIdResponseDataSchema,
-  getPetByIdStatus200Schema,
-  getPetByIdStatus400Schema,
-  getPetByIdStatus404Schema,
+  getPetByIdQueryResponseSchema,
 } from './zod/getPetByIdSchema.ts'
 export {
+  getThings201Schema,
+  getThingsErrorSchema,
   getThingsQueryParamsSchema,
-  getThingsResponseDataSchema,
-  getThingsStatus201Schema,
-  getThingsStatusErrorSchema,
+  getThingsQueryResponseSchema,
 } from './zod/getThingsSchema.ts'
 export {
+  getUserByName200Schema,
+  getUserByName400Schema,
+  getUserByName404Schema,
   getUserByNamePathParamsSchema,
-  getUserByNameResponseDataSchema,
-  getUserByNameStatus200Schema,
-  getUserByNameStatus400Schema,
-  getUserByNameStatus404Schema,
+  getUserByNameQueryResponseSchema,
 } from './zod/getUserByNameSchema.ts'
 export {
+  loginUser200Schema,
+  loginUser400Schema,
   loginUserQueryParamsSchema,
-  loginUserResponseDataSchema,
-  loginUserStatus200Schema,
-  loginUserStatus400Schema,
+  loginUserQueryResponseSchema,
 } from './zod/loginUserSchema.ts'
 export {
-  logoutUserResponseDataSchema,
-  logoutUserStatusErrorSchema,
+  logoutUserErrorSchema,
+  logoutUserQueryResponseSchema,
 } from './zod/logoutUserSchema.ts'
 export { orderSchema } from './zod/orderSchema.ts'
 export { petNotFoundSchema } from './zod/petNotFoundSchema.ts'
@@ -107,45 +107,45 @@ export { phoneNumberSchema } from './zod/phoneNumberSchema.ts'
 export { phoneWithMaxLengthExplicitSchema } from './zod/phoneWithMaxLengthExplicitSchema.ts'
 export { phoneWithMaxLengthSchema } from './zod/phoneWithMaxLengthSchema.ts'
 export {
-  placeOrderPatchRequestDataSchema,
-  placeOrderPatchResponseDataSchema,
-  placeOrderPatchStatus200Schema,
-  placeOrderPatchStatus405Schema,
+  placeOrderPatch200Schema,
+  placeOrderPatch405Schema,
+  placeOrderPatchMutationRequestSchema,
+  placeOrderPatchMutationResponseSchema,
 } from './zod/placeOrderPatchSchema.ts'
 export {
-  placeOrderRequestDataSchema,
-  placeOrderResponseDataSchema,
-  placeOrderStatus200Schema,
-  placeOrderStatus405Schema,
+  placeOrder200Schema,
+  placeOrder405Schema,
+  placeOrderMutationRequestSchema,
+  placeOrderMutationResponseSchema,
 } from './zod/placeOrderSchema.ts'
 export { postPetRequestSchema } from './zod/postPetRequestSchema.ts'
 export { tagSchema } from './zod/tagSchema.ts'
 export {
-  updatePetRequestDataSchema,
-  updatePetResponseDataSchema,
-  updatePetStatus200Schema,
-  updatePetStatus400Schema,
-  updatePetStatus404Schema,
-  updatePetStatus405Schema,
+  updatePet200Schema,
+  updatePet400Schema,
+  updatePet404Schema,
+  updatePet405Schema,
+  updatePetMutationRequestSchema,
+  updatePetMutationResponseSchema,
 } from './zod/updatePetSchema.ts'
 export {
+  updatePetWithForm405Schema,
+  updatePetWithFormMutationResponseSchema,
   updatePetWithFormPathParamsSchema,
   updatePetWithFormQueryParamsSchema,
-  updatePetWithFormResponseDataSchema,
-  updatePetWithFormStatus405Schema,
 } from './zod/updatePetWithFormSchema.ts'
 export {
+  updateUserErrorSchema,
+  updateUserMutationRequestSchema,
+  updateUserMutationResponseSchema,
   updateUserPathParamsSchema,
-  updateUserRequestDataSchema,
-  updateUserResponseDataSchema,
-  updateUserStatusErrorSchema,
 } from './zod/updateUserSchema.ts'
 export {
+  uploadFile200Schema,
+  uploadFileMutationRequestSchema,
+  uploadFileMutationResponseSchema,
   uploadFilePathParamsSchema,
   uploadFileQueryParamsSchema,
-  uploadFileRequestDataSchema,
-  uploadFileResponseDataSchema,
-  uploadFileStatus200Schema,
 } from './zod/uploadFileSchema.ts'
 export { userArraySchema } from './zod/userArraySchema.ts'
 export { userSchema } from './zod/userSchema.ts'

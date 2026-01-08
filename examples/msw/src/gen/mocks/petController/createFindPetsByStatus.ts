@@ -4,7 +4,7 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { FindPetsByStatusPathParams, FindPetsByStatusResponseData, FindPetsByStatusStatus200 } from '../../models/FindPetsByStatus.ts'
+import type { FindPetsByStatus200, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus.ts'
 import { createPet } from '../createPet.ts'
 
 export function createFindPetsByStatusPathParams(data?: Partial<FindPetsByStatusPathParams>): FindPetsByStatusPathParams {
@@ -18,7 +18,7 @@ export function createFindPetsByStatusPathParams(data?: Partial<FindPetsByStatus
 /**
  * @description successful operation
  */
-export function createFindPetsByStatusStatus200(data?: FindPetsByStatusStatus200): FindPetsByStatusStatus200 {
+export function createFindPetsByStatus200(data?: FindPetsByStatus200): FindPetsByStatus200 {
   faker.seed([220])
   return [...faker.helpers.multiple(() => createPet(), { count: { min: 1, max: 3 } }), ...(data || [])]
 }
@@ -26,12 +26,12 @@ export function createFindPetsByStatusStatus200(data?: FindPetsByStatusStatus200
 /**
  * @description Invalid status value
  */
-export function createFindPetsByStatusStatus400() {
+export function createFindPetsByStatus400() {
   faker.seed([220])
   return undefined
 }
 
-export function createFindPetsByStatusResponseData(data?: Partial<FindPetsByStatusResponseData>): FindPetsByStatusResponseData {
+export function createFindPetsByStatusQueryResponse(data?: Partial<FindPetsByStatusQueryResponse>): FindPetsByStatusQueryResponse {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([createFindPetsByStatusStatus200()])
+  return data || faker.helpers.arrayElement<any>([createFindPetsByStatus200()])
 }

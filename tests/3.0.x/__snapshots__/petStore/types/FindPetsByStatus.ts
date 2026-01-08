@@ -25,24 +25,17 @@ export type FindPetsByStatusQueryParams = {
 /**
  * @description successful operation
 */
-export type FindPetsByStatusStatus200 = Pet[];
+export type FindPetsByStatus200 = Pet[];
 
 /**
  * @description Invalid status value
 */
-export type FindPetsByStatusStatus400 = any;
+export type FindPetsByStatus400 = any;
 
-export type FindPetsByStatusRequest = {
-    data?: never;
-    pathParams?: never;
-    queryParams?: FindPetsByStatusQueryParams;
-    headerParams?: never;
-    url: "/pet/findByStatus";
+export type FindPetsByStatusQueryResponse = FindPetsByStatus200;
+
+export type FindPetsByStatusQuery = {
+    Response: FindPetsByStatus200;
+    QueryParams: FindPetsByStatusQueryParams;
+    Errors: FindPetsByStatus400;
 };
-
-export type FindPetsByStatusResponses = {
-    "200": FindPetsByStatusStatus200;
-};
-
-
-export type FindPetsByStatusResponseData = FindPetsByStatusResponses[keyof FindPetsByStatusResponses];

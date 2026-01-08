@@ -4,14 +4,14 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { AddPetResponseData, AddPetStatus405 } from '../../models/AddPet.ts'
+import type { AddPet405, AddPetMutationResponse } from '../../models/AddPet.ts'
 import { createPet } from '../createPet.ts'
 import { createPostPetRequest } from '../createPostPetRequest.ts'
 
 /**
  * @description Successful operation
  */
-export function createAddPetStatus200() {
+export function createAddPet200() {
   faker.seed([220])
   return createPet()
 }
@@ -19,7 +19,7 @@ export function createAddPetStatus200() {
 /**
  * @description Pet not found
  */
-export function createAddPetStatus405(data?: Partial<AddPetStatus405>): AddPetStatus405 {
+export function createAddPet405(data?: Partial<AddPet405>): AddPet405 {
   faker.seed([220])
   return {
     ...{ code: faker.number.int(), message: faker.string.alpha() },
@@ -30,12 +30,12 @@ export function createAddPetStatus405(data?: Partial<AddPetStatus405>): AddPetSt
 /**
  * @description Create a new pet in the store
  */
-export function createAddPetRequestData() {
+export function createAddPetMutationRequest() {
   faker.seed([220])
   return createPostPetRequest()
 }
 
-export function createAddPetResponseData(data?: Partial<AddPetResponseData>): AddPetResponseData {
+export function createAddPetMutationResponse(data?: Partial<AddPetMutationResponse>): AddPetMutationResponse {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([createAddPetStatus200()])
+  return data || faker.helpers.arrayElement<any>([createAddPet200()])
 }

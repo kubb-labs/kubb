@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { LoginUserQueryParams, LoginUserResponseData, LoginUserStatus400 } from '../../../models/ts/userController/LoginUser.ts'
+import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../../models/ts/userController/LoginUser.ts'
 import { loginUser } from '../../axios/userService/loginUser.ts'
 
 export const loginUserQueryKeySWR = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
@@ -23,7 +23,7 @@ export function loginUserQueryOptionsSWR({ params }: { params?: LoginUserQueryPa
 export function useLoginUserSWR(
   { params }: { params?: LoginUserQueryParams },
   options: {
-    query?: Parameters<typeof useSWR<ResponseConfig<LoginUserResponseData>, ResponseErrorConfig<LoginUserStatus400>>>[2]
+    query?: Parameters<typeof useSWR<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
     immutable?: boolean
@@ -33,7 +33,7 @@ export function useLoginUserSWR(
 
   const queryKey = loginUserQueryKeySWR(params)
 
-  return useSWR<ResponseConfig<LoginUserResponseData>, ResponseErrorConfig<LoginUserStatus400>, LoginUserQueryKeySWR | null>(shouldFetch ? queryKey : null, {
+  return useSWR<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>, LoginUserQueryKeySWR | null>(shouldFetch ? queryKey : null, {
     ...loginUserQueryOptionsSWR({ params }, config),
     ...(immutable
       ? {

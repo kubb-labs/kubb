@@ -26,23 +26,17 @@ export type GetThingsQueryParams = {
 /**
  * @description Null response
  */
-export type GetThingsStatus201 = any
+export type GetThings201 = any
 
 /**
  * @description unexpected error
  */
-export type GetThingsStatusError = PetNotFound
+export type GetThingsError = PetNotFound
 
-export type GetThingsRequest = {
-  data?: never
-  pathParams?: never
-  queryParams?: GetThingsQueryParams
-  headerParams?: never
-  url: `/pets/${string}`
+export type GetThingsQueryResponse = GetThings201
+
+export type GetThingsQuery = {
+  Response: GetThings201
+  QueryParams: GetThingsQueryParams
+  Errors: any
 }
-
-export type GetThingsResponses = {
-  '201': GetThingsStatus201
-}
-
-export type GetThingsResponseData = GetThingsResponses[keyof GetThingsResponses]

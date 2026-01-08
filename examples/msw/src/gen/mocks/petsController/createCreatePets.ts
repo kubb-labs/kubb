@@ -6,10 +6,10 @@
 import { faker } from '@faker-js/faker'
 import type {
   CreatePetsHeaderParams,
+  CreatePetsMutationRequest,
+  CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsRequestData,
-  CreatePetsResponseData,
 } from '../../models/CreatePets.ts'
 import { createPetNotFound } from '../createPetNotFound.ts'
 
@@ -45,7 +45,7 @@ export function createCreatePetsHeaderParams(data?: Partial<CreatePetsHeaderPara
 /**
  * @description Null response
  */
-export function createCreatePetsStatus201() {
+export function createCreatePets201() {
   faker.seed([220])
   return undefined
 }
@@ -53,12 +53,12 @@ export function createCreatePetsStatus201() {
 /**
  * @description unexpected error
  */
-export function createCreatePetsStatusError() {
+export function createCreatePetsError() {
   faker.seed([220])
   return createPetNotFound()
 }
 
-export function createCreatePetsRequestData(data?: Partial<CreatePetsRequestData>): CreatePetsRequestData {
+export function createCreatePetsMutationRequest(data?: Partial<CreatePetsMutationRequest>): CreatePetsMutationRequest {
   faker.seed([220])
   return {
     ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
@@ -66,7 +66,7 @@ export function createCreatePetsRequestData(data?: Partial<CreatePetsRequestData
   }
 }
 
-export function createCreatePetsResponseData(data?: Partial<CreatePetsResponseData>): CreatePetsResponseData {
+export function createCreatePetsMutationResponse(data?: Partial<CreatePetsMutationResponse>): CreatePetsMutationResponse {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([createCreatePetsStatus201()])
+  return data || faker.helpers.arrayElement<any>([createCreatePets201()])
 }

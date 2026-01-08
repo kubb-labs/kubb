@@ -11,28 +11,22 @@ export type GetUserByNamePathParams = {
 /**
  * @description successful operation
  */
-export type GetUserByNameStatus200 = User
+export type GetUserByName200 = User
 
 /**
  * @description Invalid username supplied
  */
-export type GetUserByNameStatus400 = any
+export type GetUserByName400 = any
 
 /**
  * @description User not found
  */
-export type GetUserByNameStatus404 = any
+export type GetUserByName404 = any
 
-export type GetUserByNameRequest = {
-  data?: never
-  pathParams: GetUserByNamePathParams
-  queryParams?: never
-  headerParams?: never
-  url: `/user/${string}`
+export type GetUserByNameQueryResponse = GetUserByName200
+
+export type GetUserByNameQuery = {
+  Response: GetUserByName200
+  PathParams: GetUserByNamePathParams
+  Errors: GetUserByName400 | GetUserByName404
 }
-
-export type GetUserByNameResponses = {
-  '200': GetUserByNameStatus200
-}
-
-export type GetUserByNameResponseData = GetUserByNameResponses[keyof GetUserByNameResponses]

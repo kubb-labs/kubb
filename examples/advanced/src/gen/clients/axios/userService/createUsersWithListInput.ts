@@ -1,9 +1,12 @@
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
-import type { CreateUsersWithListInputRequestData, CreateUsersWithListInputResponseData } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
+import type {
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
+} from '../../../models/ts/userController/CreateUsersWithListInput.ts'
 import {
-  createUsersWithListInputRequestDataSchema,
-  createUsersWithListInputResponseDataSchema,
+  createUsersWithListInputMutationRequestSchema,
+  createUsersWithListInputMutationResponseSchema,
 } from '../../../zod/userController/createUsersWithListInputSchema.ts'
 
 export function getCreateUsersWithListInputUrl() {
@@ -17,18 +20,18 @@ export function getCreateUsersWithListInputUrl() {
  * {@link /user/createWithList}
  */
 export async function createUsersWithListInput(
-  { data }: { data?: CreateUsersWithListInputRequestData },
-  config: Partial<RequestConfig<CreateUsersWithListInputRequestData>> & { client?: typeof fetch } = {},
+  { data }: { data?: CreateUsersWithListInputMutationRequest },
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const requestData = createUsersWithListInputRequestDataSchema.parse(data)
+  const requestData = createUsersWithListInputMutationRequestSchema.parse(data)
 
-  const res = await request<CreateUsersWithListInputResponseData, ResponseErrorConfig<Error>, CreateUsersWithListInputRequestData>({
+  const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
     method: 'POST',
     url: getCreateUsersWithListInputUrl().url.toString(),
     data: requestData,
     ...requestConfig,
   })
-  return { ...res, data: createUsersWithListInputResponseDataSchema.parse(res.data) }
+  return { ...res, data: createUsersWithListInputMutationResponseSchema.parse(res.data) }
 }

@@ -18,7 +18,7 @@ import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData } from '../models/UpdateUser.ts'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
 
 export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
@@ -31,8 +31,8 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
  */
 export async function updateUser(
   username: UpdateUserPathParams['username'],
-  data?: UpdateUserRequestData,
-  config: Partial<RequestConfig<UpdateUserRequestData>> & {
+  data?: UpdateUserMutationRequest,
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -40,7 +40,7 @@ export async function updateUser(
 
   const requestData = data
 
-  const res = await request<UpdateUserResponseData, ResponseErrorConfig<Error>, UpdateUserRequestData>({
+  const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
     method: 'PUT',
     url: `/user/${username}`,
     data: requestData,
@@ -57,15 +57,15 @@ export async function updateUser(
 export function createUpdateUser<TContext>(
   options: {
     mutation?: CreateMutationOptions<
-      UpdateUserResponseData,
+      UpdateUserMutationResponse,
       ResponseErrorConfig<Error>,
       {
         username: UpdateUserPathParams['username']
-        data?: UpdateUserRequestData
+        data?: UpdateUserMutationRequest
       },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UpdateUserRequestData>> & {
+    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & {
       client?: typeof fetch
     }
   } = {},
@@ -75,11 +75,11 @@ export function createUpdateUser<TContext>(
   const mutationKey = mutationOptions?.mutationKey ?? updateUserMutationKey()
 
   return createMutation<
-    UpdateUserResponseData,
+    UpdateUserMutationResponse,
     ResponseErrorConfig<Error>,
     {
       username: UpdateUserPathParams['username']
-      data?: UpdateUserRequestData
+      data?: UpdateUserMutationRequest
     },
     TContext
   >(

@@ -8,10 +8,10 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import fetch from '@kubb/plugin-client/clients/fetch'
 import type {
   CreatePetsHeaderParams,
+  CreatePetsMutationRequest,
+  CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsRequestData,
-  CreatePetsResponseData,
 } from '../../../models/ts/petsController/CreatePets.js'
 
 function getCreatePetsUrl({ uuid }: { uuid: CreatePetsPathParams['uuid'] }) {
@@ -25,10 +25,10 @@ function getCreatePetsUrl({ uuid }: { uuid: CreatePetsPathParams['uuid'] }) {
  */
 export async function createPets(
   { uuid }: { uuid: CreatePetsPathParams['uuid'] },
-  data: CreatePetsRequestData,
+  data: CreatePetsMutationRequest,
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,
-  config: Partial<RequestConfig<CreatePetsRequestData>> & {
+  config: Partial<RequestConfig<CreatePetsMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -36,7 +36,7 @@ export async function createPets(
 
   const requestData = data
 
-  const res = await request<CreatePetsResponseData, ResponseErrorConfig<Error>, CreatePetsRequestData>({
+  const res = await request<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
     url: getCreatePetsUrl({ uuid }).url.toString(),
     params,

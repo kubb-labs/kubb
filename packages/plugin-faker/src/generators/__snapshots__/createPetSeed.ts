@@ -7,7 +7,7 @@ import { faker } from '@faker-js/faker'
 /**
  * @description Null response
  */
-export function createPetsStatus201() {
+export function createPets201() {
   faker.seed([222])
   return undefined
 }
@@ -15,12 +15,12 @@ export function createPetsStatus201() {
 /**
  * @description unexpected error
  */
-export function createPetsStatusError() {
+export function createPetsError() {
   faker.seed([222])
   return error()
 }
 
-export function createPetsRequestData(data?: Partial<CreatePetsRequestData>): CreatePetsRequestData {
+export function createPetsMutationRequest(data?: Partial<CreatePetsMutationRequest>): CreatePetsMutationRequest {
   faker.seed([222])
   return {
     ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
@@ -28,7 +28,7 @@ export function createPetsRequestData(data?: Partial<CreatePetsRequestData>): Cr
   }
 }
 
-export function createPetsResponseData(data?: Partial<CreatePetsResponseData>): CreatePetsResponseData {
+export function createPetsMutationResponse(data?: Partial<CreatePetsMutationResponse>): CreatePetsMutationResponse {
   faker.seed([222])
-  return data || faker.helpers.arrayElement<any>([createPetsStatus201()])
+  return data || faker.helpers.arrayElement<any>([createPets201()])
 }

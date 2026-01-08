@@ -8,7 +8,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import { buildFormData } from '../.kubb/config.ts'
-import type { AddFilesRequestData, AddFilesResponseData, AddFilesStatus405 } from '../models/AddFiles.ts'
+import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../models/AddFiles.ts'
 
 export const addFilesMutationKey = () => [{ url: '/pet/files' }] as const
 
@@ -20,8 +20,8 @@ export type AddFilesMutationKey = ReturnType<typeof addFilesMutationKey>
  * {@link /pet/files}
  */
 export async function addFiles(
-  data: AddFilesRequestData,
-  config: Partial<RequestConfig<AddFilesRequestData>> & {
+  data: AddFilesMutationRequest,
+  config: Partial<RequestConfig<AddFilesMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -29,7 +29,7 @@ export async function addFiles(
 
   const requestData = data
   const formData = buildFormData(requestData)
-  const res = await request<AddFilesResponseData, ResponseErrorConfig<AddFilesStatus405>, AddFilesRequestData>({
+  const res = await request<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({
     method: 'POST',
     url: '/pet/files',
     data: formData as FormData,
@@ -38,7 +38,7 @@ export async function addFiles(
   return res.data
 }
 
-export type AddFilesMutationArg = { data: AddFilesRequestData }
+export type AddFilesMutationArg = { data: AddFilesMutationRequest }
 
 /**
  * @description Place a new file in the store
@@ -47,10 +47,10 @@ export type AddFilesMutationArg = { data: AddFilesRequestData }
  */
 export function useAddFiles(
   options: {
-    mutation?: SWRMutationConfiguration<AddFilesResponseData, ResponseErrorConfig<AddFilesStatus405>, AddFilesMutationKey | null, AddFilesMutationArg> & {
+    mutation?: SWRMutationConfiguration<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationKey | null, AddFilesMutationArg> & {
       throwOnError?: boolean
     }
-    client?: Partial<RequestConfig<AddFilesRequestData>> & {
+    client?: Partial<RequestConfig<AddFilesMutationRequest>> & {
       client?: typeof fetch
     }
     shouldFetch?: boolean
@@ -59,7 +59,7 @@ export function useAddFiles(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = addFilesMutationKey()
 
-  return useSWRMutation<AddFilesResponseData, ResponseErrorConfig<AddFilesStatus405>, AddFilesMutationKey | null, AddFilesMutationArg>(
+  return useSWRMutation<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationKey | null, AddFilesMutationArg>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: { data } }) => {
       return addFiles(data, config)

@@ -4,18 +4,18 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { GetInventoryResponseData, GetInventoryStatus200 } from '../models/GetInventory.ts'
+import type { GetInventory200, GetInventoryQueryResponse } from '../models/GetInventory.ts'
 
 /**
  * @description successful operation
  */
-export function createGetInventoryStatus200(data?: Partial<GetInventoryStatus200>): GetInventoryStatus200 {
+export function createGetInventory200(data?: Partial<GetInventory200>): GetInventory200 {
   return {
     ...{},
     ...(data || {}),
   }
 }
 
-export function createGetInventoryResponseData(data?: Partial<GetInventoryResponseData>): GetInventoryResponseData {
-  return data || faker.helpers.arrayElement<any>([createGetInventoryStatus200()])
+export function createGetInventoryQueryResponse(data?: Partial<GetInventoryQueryResponse>): GetInventoryQueryResponse {
+  return data || faker.helpers.arrayElement<any>([createGetInventory200()])
 }

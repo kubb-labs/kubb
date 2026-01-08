@@ -27,28 +27,22 @@ export type GetOrderByIdPathParams = {
 /**
  * @description successful operation
  */
-export type GetOrderByIdStatus200 = Order
+export type GetOrderById200 = Order
 
 /**
  * @description Invalid ID supplied
  */
-export type GetOrderByIdStatus400 = any
+export type GetOrderById400 = any
 
 /**
  * @description Order not found
  */
-export type GetOrderByIdStatus404 = any
+export type GetOrderById404 = any
 
-export type GetOrderByIdRequest = {
-  data?: never
-  pathParams: GetOrderByIdPathParams
-  queryParams?: never
-  headerParams?: never
-  url: `/store/order/${string}`
+export type GetOrderByIdQueryResponse = GetOrderById200
+
+export type GetOrderByIdQuery = {
+  Response: GetOrderById200
+  PathParams: GetOrderByIdPathParams
+  Errors: GetOrderById400 | GetOrderById404
 }
-
-export type GetOrderByIdResponses = {
-  '200': GetOrderByIdStatus200
-}
-
-export type GetOrderByIdResponseData = GetOrderByIdResponses[keyof GetOrderByIdResponses]

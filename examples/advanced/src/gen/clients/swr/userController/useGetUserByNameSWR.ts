@@ -2,10 +2,10 @@ import useSWR from 'swr'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
+  GetUserByName400,
+  GetUserByName404,
   GetUserByNamePathParams,
-  GetUserByNameResponseData,
-  GetUserByNameStatus400,
-  GetUserByNameStatus404,
+  GetUserByNameQueryResponse,
 } from '../../../models/ts/userController/GetUserByName.ts'
 import { getUserByName } from '../../axios/userService/getUserByName.ts'
 
@@ -32,7 +32,7 @@ export function getUserByNameQueryOptionsSWR(
 export function useGetUserByNameSWR(
   { username }: { username: GetUserByNamePathParams['username'] },
   options: {
-    query?: Parameters<typeof useSWR<ResponseConfig<GetUserByNameResponseData>, ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>>>[2]
+    query?: Parameters<typeof useSWR<ResponseConfig<GetUserByNameQueryResponse>, ResponseErrorConfig<GetUserByName400 | GetUserByName404>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
     immutable?: boolean
@@ -42,19 +42,18 @@ export function useGetUserByNameSWR(
 
   const queryKey = getUserByNameQueryKeySWR({ username })
 
-  return useSWR<
-    ResponseConfig<GetUserByNameResponseData>,
-    ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>,
-    GetUserByNameQueryKeySWR | null
-  >(shouldFetch ? queryKey : null, {
-    ...getUserByNameQueryOptionsSWR({ username }, config),
-    ...(immutable
-      ? {
-          revalidateIfStale: false,
-          revalidateOnFocus: false,
-          revalidateOnReconnect: false,
-        }
-      : {}),
-    ...queryOptions,
-  })
+  return useSWR<ResponseConfig<GetUserByNameQueryResponse>, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, GetUserByNameQueryKeySWR | null>(
+    shouldFetch ? queryKey : null,
+    {
+      ...getUserByNameQueryOptionsSWR({ username }, config),
+      ...(immutable
+        ? {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+          }
+        : {}),
+      ...queryOptions,
+    },
+  )
 }

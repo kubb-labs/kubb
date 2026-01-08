@@ -12,11 +12,11 @@ export const deleteOrderPathParamsSchema = z.object({
 /**
  * @description Invalid ID supplied
  */
-export const deleteOrderStatus400Schema = z.any()
+export const deleteOrder400Schema = z.any()
 
 /**
  * @description Order not found
  */
-export const deleteOrderStatus404Schema = z.any()
+export const deleteOrder404Schema = z.any()
 
-export const deleteOrderResponseDataSchema = z.any()
+export const deleteOrderMutationResponseSchema = z.any()

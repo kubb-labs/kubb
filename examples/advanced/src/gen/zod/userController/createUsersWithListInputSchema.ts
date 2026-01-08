@@ -1,33 +1,33 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  CreateUsersWithListInputRequestData,
-  CreateUsersWithListInputResponseData,
-  CreateUsersWithListInputStatus200,
-  CreateUsersWithListInputStatusError,
+  CreateUsersWithListInput200,
+  CreateUsersWithListInputError,
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
 } from '../../models/ts/userController/CreateUsersWithListInput.ts'
 import { userSchema } from '../userSchema.ts'
 
 /**
  * @description Successful operation
  */
-export const createUsersWithListInputStatus200Schema = z.lazy(() => userSchema) as unknown as ToZod<CreateUsersWithListInputStatus200>
+export const createUsersWithListInput200Schema = z.lazy(() => userSchema) as unknown as ToZod<CreateUsersWithListInput200>
 
-export type CreateUsersWithListInputStatus200Schema = CreateUsersWithListInputStatus200
+export type CreateUsersWithListInput200Schema = CreateUsersWithListInput200
 
 /**
  * @description successful operation
  */
-export const createUsersWithListInputStatusErrorSchema = z.any() as unknown as ToZod<CreateUsersWithListInputStatusError>
+export const createUsersWithListInputErrorSchema = z.any() as unknown as ToZod<CreateUsersWithListInputError>
 
-export type CreateUsersWithListInputStatusErrorSchema = CreateUsersWithListInputStatusError
+export type CreateUsersWithListInputErrorSchema = CreateUsersWithListInputError
 
-export const createUsersWithListInputRequestDataSchema = z.array(z.lazy(() => userSchema)) as unknown as ToZod<CreateUsersWithListInputRequestData>
+export const createUsersWithListInputMutationRequestSchema = z.array(z.lazy(() => userSchema)) as unknown as ToZod<CreateUsersWithListInputMutationRequest>
 
-export type CreateUsersWithListInputRequestDataSchema = CreateUsersWithListInputRequestData
+export type CreateUsersWithListInputMutationRequestSchema = CreateUsersWithListInputMutationRequest
 
-export const createUsersWithListInputResponseDataSchema = z.lazy(
-  () => createUsersWithListInputStatus200Schema,
-) as unknown as ToZod<CreateUsersWithListInputResponseData>
+export const createUsersWithListInputMutationResponseSchema = z.lazy(
+  () => createUsersWithListInput200Schema,
+) as unknown as ToZod<CreateUsersWithListInputMutationResponse>
 
-export type CreateUsersWithListInputResponseDataSchema = CreateUsersWithListInputResponseData
+export type CreateUsersWithListInputMutationResponseSchema = CreateUsersWithListInputMutationResponse

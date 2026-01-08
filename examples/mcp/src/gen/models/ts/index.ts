@@ -1,124 +1,124 @@
 export type {
-  AddFilesRequest,
-  AddFilesRequestData,
-  AddFilesResponseData,
-  AddFilesStatus200,
-  AddFilesStatus405,
+  AddFiles200,
+  AddFiles405,
+  AddFilesMutation,
+  AddFilesMutationRequest,
+  AddFilesMutationResponse,
 } from './AddFiles.js'
 export type {
-  AddPetRequest,
-  AddPetRequestData,
-  AddPetResponseData,
-  AddPetStatus200,
-  AddPetStatus405,
+  AddPet200,
+  AddPet405,
+  AddPetMutation,
+  AddPetMutationRequest,
+  AddPetMutationResponse,
 } from './AddPet.js'
 export type { Address } from './Address.js'
 export type { ApiResponse } from './ApiResponse.js'
 export type { Category } from './Category.js'
 export type {
+  CreatePets201,
+  CreatePetsError,
   CreatePetsHeaderParams,
   CreatePetsHeaderParamsXEXAMPLEEnumKey,
+  CreatePetsMutation,
+  CreatePetsMutationRequest,
+  CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsRequest,
-  CreatePetsRequestData,
-  CreatePetsResponseData,
-  CreatePetsStatus201,
-  CreatePetsStatusError,
 } from './CreatePets.js'
 export { createPetsHeaderParamsXEXAMPLEEnum } from './CreatePets.js'
 export type {
-  CreateUserRequest,
-  CreateUserRequestData,
-  CreateUserResponseData,
-  CreateUserStatusError,
+  CreateUserError,
+  CreateUserMutation,
+  CreateUserMutationRequest,
+  CreateUserMutationResponse,
 } from './CreateUser.js'
 export type {
-  CreateUsersWithListInputRequest,
-  CreateUsersWithListInputRequestData,
-  CreateUsersWithListInputResponseData,
-  CreateUsersWithListInputStatus200,
-  CreateUsersWithListInputStatusError,
+  CreateUsersWithListInput200,
+  CreateUsersWithListInputError,
+  CreateUsersWithListInputMutation,
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
 } from './CreateUsersWithListInput.js'
 export type { Customer } from './Customer.js'
 export type {
+  DeleteOrder400,
+  DeleteOrder404,
+  DeleteOrderMutation,
+  DeleteOrderMutationResponse,
   DeleteOrderPathParams,
-  DeleteOrderRequest,
-  DeleteOrderResponseData,
-  DeleteOrderStatus400,
-  DeleteOrderStatus404,
 } from './DeleteOrder.js'
 export type {
+  DeletePet400,
   DeletePetHeaderParams,
+  DeletePetMutation,
+  DeletePetMutationResponse,
   DeletePetPathParams,
-  DeletePetRequest,
-  DeletePetResponseData,
-  DeletePetStatus400,
 } from './DeletePet.js'
 export type {
+  DeleteUser400,
+  DeleteUser404,
+  DeleteUserMutation,
+  DeleteUserMutationResponse,
   DeleteUserPathParams,
-  DeleteUserRequest,
-  DeleteUserResponseData,
-  DeleteUserStatus400,
-  DeleteUserStatus404,
 } from './DeleteUser.js'
 export type {
+  FindPetsByStatus200,
+  FindPetsByStatus400,
   FindPetsByStatusPathParams,
-  FindPetsByStatusRequest,
-  FindPetsByStatusResponseData,
-  FindPetsByStatusStatus200,
-  FindPetsByStatusStatus400,
+  FindPetsByStatusQuery,
+  FindPetsByStatusQueryResponse,
 } from './FindPetsByStatus.js'
 export type {
+  FindPetsByTags200,
+  FindPetsByTags400,
   FindPetsByTagsHeaderParams,
   FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
+  FindPetsByTagsQuery,
   FindPetsByTagsQueryParams,
-  FindPetsByTagsRequest,
-  FindPetsByTagsResponseData,
-  FindPetsByTagsStatus200,
-  FindPetsByTagsStatus400,
+  FindPetsByTagsQueryResponse,
 } from './FindPetsByTags.js'
 export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './FindPetsByTags.js'
 export type {
-  GetInventoryRequest,
-  GetInventoryResponseData,
-  GetInventoryStatus200,
+  GetInventory200,
+  GetInventoryQuery,
+  GetInventoryQueryResponse,
 } from './GetInventory.js'
 export type {
+  GetOrderById200,
+  GetOrderById400,
+  GetOrderById404,
   GetOrderByIdPathParams,
-  GetOrderByIdRequest,
-  GetOrderByIdResponseData,
-  GetOrderByIdStatus200,
-  GetOrderByIdStatus400,
-  GetOrderByIdStatus404,
+  GetOrderByIdQuery,
+  GetOrderByIdQueryResponse,
 } from './GetOrderById.js'
 export type {
+  GetPetById200,
+  GetPetById400,
+  GetPetById404,
   GetPetByIdPathParams,
-  GetPetByIdRequest,
-  GetPetByIdResponseData,
-  GetPetByIdStatus200,
-  GetPetByIdStatus400,
-  GetPetByIdStatus404,
+  GetPetByIdQuery,
+  GetPetByIdQueryResponse,
 } from './GetPetById.js'
 export type {
+  GetUserByName200,
+  GetUserByName400,
+  GetUserByName404,
   GetUserByNamePathParams,
-  GetUserByNameRequest,
-  GetUserByNameResponseData,
-  GetUserByNameStatus200,
-  GetUserByNameStatus400,
-  GetUserByNameStatus404,
+  GetUserByNameQuery,
+  GetUserByNameQueryResponse,
 } from './GetUserByName.js'
 export type {
+  LoginUser200,
+  LoginUser400,
+  LoginUserQuery,
   LoginUserQueryParams,
-  LoginUserRequest,
-  LoginUserResponseData,
-  LoginUserStatus200,
-  LoginUserStatus400,
+  LoginUserQueryResponse,
 } from './LoginUser.js'
 export type {
-  LogoutUserRequest,
-  LogoutUserResponseData,
-  LogoutUserStatusError,
+  LogoutUserError,
+  LogoutUserQuery,
+  LogoutUserQueryResponse,
 } from './LogoutUser.js'
 export type {
   Order,
@@ -131,18 +131,18 @@ export type { Pet, PetStatusEnumKey } from './Pet.js'
 export { petStatusEnum } from './Pet.js'
 export type { PetNotFound } from './PetNotFound.js'
 export type {
-  PlaceOrderRequest,
-  PlaceOrderRequestData,
-  PlaceOrderResponseData,
-  PlaceOrderStatus200,
-  PlaceOrderStatus405,
+  PlaceOrder200,
+  PlaceOrder405,
+  PlaceOrderMutation,
+  PlaceOrderMutationRequest,
+  PlaceOrderMutationResponse,
 } from './PlaceOrder.js'
 export type {
-  PlaceOrderPatchRequest,
-  PlaceOrderPatchRequestData,
-  PlaceOrderPatchResponseData,
-  PlaceOrderPatchStatus200,
-  PlaceOrderPatchStatus405,
+  PlaceOrderPatch200,
+  PlaceOrderPatch405,
+  PlaceOrderPatchMutation,
+  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchMutationResponse,
 } from './PlaceOrderPatch.js'
 export type {
   PostPetRequest,
@@ -151,28 +151,28 @@ export type {
 export { postPetRequestStatusEnum } from './PostPetRequest.js'
 export type { TagTag } from './tag/Tag.js'
 export type {
-  UpdatePetRequest,
-  UpdatePetRequestData,
-  UpdatePetResponseData,
-  UpdatePetStatus200,
-  UpdatePetStatus202,
-  UpdatePetStatus400,
-  UpdatePetStatus404,
-  UpdatePetStatus405,
+  UpdatePet200,
+  UpdatePet202,
+  UpdatePet400,
+  UpdatePet404,
+  UpdatePet405,
+  UpdatePetMutation,
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
 } from './UpdatePet.js'
 export type {
+  UpdatePetWithForm405,
+  UpdatePetWithFormMutation,
+  UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithFormRequest,
-  UpdatePetWithFormResponseData,
-  UpdatePetWithFormStatus405,
 } from './UpdatePetWithForm.js'
 export type {
+  UpdateUserError,
+  UpdateUserMutation,
+  UpdateUserMutationRequest,
+  UpdateUserMutationResponse,
   UpdateUserPathParams,
-  UpdateUserRequest,
-  UpdateUserRequestData,
-  UpdateUserResponseData,
-  UpdateUserStatusError,
 } from './UpdateUser.js'
 export type { User } from './User.js'
 export type { UserArray } from './UserArray.js'

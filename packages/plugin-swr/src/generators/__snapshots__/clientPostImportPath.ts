@@ -22,7 +22,7 @@ export async function updatePetWithForm(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
+  const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
     url: `/pet/${petId}`,
     params,
@@ -40,8 +40,8 @@ export function useUpdatePetWithForm(
   params?: UpdatePetWithFormQueryParams,
   options: {
     mutation?: SWRMutationConfiguration<
-      UpdatePetWithFormResponseData,
-      ResponseErrorConfig<UpdatePetWithFormStatus405>,
+      UpdatePetWithFormMutationResponse,
+      ResponseErrorConfig<UpdatePetWithForm405>,
       UpdatePetWithFormMutationKey | null,
       never
     > & { throwOnError?: boolean }
@@ -52,7 +52,7 @@ export function useUpdatePetWithForm(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updatePetWithFormMutationKey()
 
-  return useSWRMutation<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, UpdatePetWithFormMutationKey | null>(
+  return useSWRMutation<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationKey | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return updatePetWithForm(petId, params, config)

@@ -4,17 +4,17 @@
  */
 import type { z } from 'zod'
 import {
-  listPetsStatus200,
-  listPetsResponseData,
+  listPets200,
+  listPetsQueryResponse,
   listPetsQueryParams,
-  createPetsRequestData,
-  createPetsStatus201,
-  createPetsResponseData,
-  showPetByIdStatus200,
-  showPetByIdResponseData,
+  createPetsMutationRequest,
+  createPets201,
+  createPetsMutationResponse,
+  showPetById200,
+  showPetByIdQueryResponse,
   showPetByIdPathParams,
-  deletePetStatus400,
-  deletePetResponseData,
+  deletePet400,
+  deletePetMutationResponse,
   deletePetPathParams,
   deletePetHeaderParams,
 } from './showPetById'
@@ -46,21 +46,21 @@ export const operations = {
       header: undefined,
     },
     responses: {
-      200: listPetsStatus200,
-      default: listPetsResponseData,
+      200: listPets200,
+      default: listPetsQueryResponse,
     },
     errors: {},
   },
   createPets: {
-    request: createPetsRequestData,
+    request: createPetsMutationRequest,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      201: createPetsStatus201,
-      default: createPetsResponseData,
+      201: createPets201,
+      default: createPetsMutationResponse,
     },
     errors: {},
   },
@@ -72,8 +72,8 @@ export const operations = {
       header: undefined,
     },
     responses: {
-      200: showPetByIdStatus200,
-      default: showPetByIdResponseData,
+      200: showPetById200,
+      default: showPetByIdQueryResponse,
     },
     errors: {},
   },
@@ -85,11 +85,11 @@ export const operations = {
       header: deletePetHeaderParams,
     },
     responses: {
-      400: deletePetStatus400,
-      default: deletePetResponseData,
+      400: deletePet400,
+      default: deletePetMutationResponse,
     },
     errors: {
-      400: deletePetStatus400,
+      400: deletePet400,
     },
   },
 } as const

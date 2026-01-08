@@ -6,7 +6,7 @@
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
-import type { FindPetsByStatusPathParams, FindPetsByStatusResponseData, FindPetsByStatusStatus400 } from '../models/FindPetsByStatus.ts'
+import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus.ts'
 
 export const findPetsByStatusQueryKey = (step_id: FindPetsByStatusPathParams['step_id']) =>
   [{ url: '/pet/findByStatus/:step_id', params: { step_id: step_id } }] as const
@@ -21,7 +21,7 @@ export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKe
 export async function findPetsByStatus(step_id: FindPetsByStatusPathParams['step_id'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, unknown>({
+  const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
     url: `/pet/findByStatus/${step_id}`,
     ...requestConfig,
@@ -45,7 +45,7 @@ export function findPetsByStatusQueryOptions(step_id: FindPetsByStatusPathParams
 export function useFindPetsByStatus(
   step_id: FindPetsByStatusPathParams['step_id'],
   options: {
-    query?: Parameters<typeof useSWR<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>>>[2]
+    query?: Parameters<typeof useSWR<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
     immutable?: boolean
@@ -55,7 +55,7 @@ export function useFindPetsByStatus(
 
   const queryKey = findPetsByStatusQueryKey(step_id)
 
-  return useSWR<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, FindPetsByStatusQueryKey | null>(shouldFetch ? queryKey : null, {
+  return useSWR<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryKey | null>(shouldFetch ? queryKey : null, {
     ...findPetsByStatusQueryOptions(step_id, config),
     ...(immutable
       ? {

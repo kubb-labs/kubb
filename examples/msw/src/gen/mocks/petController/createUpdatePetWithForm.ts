@@ -4,7 +4,7 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams, UpdatePetWithFormResponseData } from '../../models/UpdatePetWithForm.ts'
+import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../models/UpdatePetWithForm.ts'
 
 export function createUpdatePetWithFormPathParams(data?: Partial<UpdatePetWithFormPathParams>): UpdatePetWithFormPathParams {
   faker.seed([220])
@@ -25,12 +25,12 @@ export function createUpdatePetWithFormQueryParams(data?: Partial<UpdatePetWithF
 /**
  * @description Invalid input
  */
-export function createUpdatePetWithFormStatus405() {
+export function createUpdatePetWithForm405() {
   faker.seed([220])
   return undefined
 }
 
-export function createUpdatePetWithFormResponseData(_data?: Partial<UpdatePetWithFormResponseData>): UpdatePetWithFormResponseData {
+export function createUpdatePetWithFormMutationResponse(_data?: Partial<UpdatePetWithFormMutationResponse>): UpdatePetWithFormMutationResponse {
   faker.seed([220])
   return undefined
 }

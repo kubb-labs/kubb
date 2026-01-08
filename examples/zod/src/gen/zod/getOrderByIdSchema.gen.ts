@@ -15,24 +15,24 @@ export type GetOrderByIdPathParamsSchema = z.infer<typeof getOrderByIdPathParams
 /**
  * @description successful operation
  */
-export const getOrderByIdStatus200Schema = z.lazy(() => orderSchema)
+export const getOrderById200Schema = z.lazy(() => orderSchema)
 
-export type GetOrderByIdStatus200Schema = z.infer<typeof getOrderByIdStatus200Schema>
+export type GetOrderById200Schema = z.infer<typeof getOrderById200Schema>
 
 /**
  * @description Invalid ID supplied
  */
-export const getOrderByIdStatus400Schema = z.any()
+export const getOrderById400Schema = z.any()
 
-export type GetOrderByIdStatus400Schema = z.infer<typeof getOrderByIdStatus400Schema>
+export type GetOrderById400Schema = z.infer<typeof getOrderById400Schema>
 
 /**
  * @description Order not found
  */
-export const getOrderByIdStatus404Schema = z.any()
+export const getOrderById404Schema = z.any()
 
-export type GetOrderByIdStatus404Schema = z.infer<typeof getOrderByIdStatus404Schema>
+export type GetOrderById404Schema = z.infer<typeof getOrderById404Schema>
 
-export const getOrderByIdResponseDataSchema = z.lazy(() => getOrderByIdStatus200Schema)
+export const getOrderByIdQueryResponseSchema = z.lazy(() => getOrderById200Schema)
 
-export type GetOrderByIdResponseDataSchema = z.infer<typeof getOrderByIdResponseDataSchema>
+export type GetOrderByIdQueryResponseSchema = z.infer<typeof getOrderByIdQueryResponseSchema>

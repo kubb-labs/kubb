@@ -5,11 +5,11 @@
 
 export function updatePet(
   petId: UpdatePetPathParams['petId'],
-  data: UpdatePetRequestData,
+  data: UpdatePetMutationRequest,
   options?: Partial<Cypress.RequestOptions>,
-): Cypress.Chainable<UpdatePetResponseData> {
+): Cypress.Chainable<UpdatePetMutationResponse> {
   return cy
-    .request<UpdatePetResponseData>({
+    .request<UpdatePetMutationResponse>({
       method: 'put',
       url: `/pets/${petId}`,
       body: data,

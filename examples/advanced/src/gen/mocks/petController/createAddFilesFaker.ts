@@ -1,25 +1,25 @@
 import { faker } from '@faker-js/faker'
-import type { AddFilesResponseData } from '../../models/ts/petController/AddFiles.ts'
+import type { AddFilesMutationResponse } from '../../models/ts/petController/AddFiles.ts'
 import { createPetFaker } from '../createPetFaker.ts'
 
 /**
  * @description successful operation
  */
-export function createAddFilesStatus200Faker() {
+export function createAddFiles200Faker() {
   return createPetFaker()
 }
 
 /**
  * @description Invalid input
  */
-export function createAddFilesStatus405Faker() {
+export function createAddFiles405Faker() {
   return undefined
 }
 
-export function createAddFilesRequestDataFaker() {
+export function createAddFilesMutationRequestFaker() {
   return createPetFaker()
 }
 
-export function createAddFilesResponseDataFaker(data?: Partial<AddFilesResponseData>): AddFilesResponseData {
-  return data || faker.helpers.arrayElement<any>([createAddFilesStatus200Faker()])
+export function createAddFilesMutationResponseFaker(data?: Partial<AddFilesMutationResponse>): AddFilesMutationResponse {
+  return data || faker.helpers.arrayElement<any>([createAddFiles200Faker()])
 }

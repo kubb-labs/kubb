@@ -7,16 +7,16 @@ import { z } from 'zod'
 /**
  * @description Null response
  */
-export const createPetsStatus201 = z.unknown()
+export const createPets201 = z.unknown()
 
 /**
  * @description unexpected error
  */
-export const createPetsStatusError = z.lazy(() => error)
+export const createPetsError = z.lazy(() => error)
 
-export const createPetsRequestData = z.object({
+export const createPetsMutationRequest = z.object({
   name: z.string(),
   tag: z.string(),
 })
 
-export const createPetsResponseData = z.lazy(() => createPetsStatus201)
+export const createPetsMutationResponse = z.lazy(() => createPets201)

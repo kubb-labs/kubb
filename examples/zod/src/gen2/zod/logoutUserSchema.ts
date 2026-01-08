@@ -8,6 +8,6 @@ import { z } from 'zod/mini'
 /**
  * @description successful operation
  */
-export const logoutUserStatusErrorSchema = z.any()
+export const logoutUserErrorSchema = z.any()
 
-export const logoutUserResponseDataSchema = z.any()
+export const logoutUserQueryResponseSchema = z.any()

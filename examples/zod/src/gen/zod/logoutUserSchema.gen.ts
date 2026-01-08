@@ -8,10 +8,10 @@ import { z } from '../../zod.ts'
 /**
  * @description successful operation
  */
-export const logoutUserStatusErrorSchema = z.any()
+export const logoutUserErrorSchema = z.any()
 
-export type LogoutUserStatusErrorSchema = z.infer<typeof logoutUserStatusErrorSchema>
+export type LogoutUserErrorSchema = z.infer<typeof logoutUserErrorSchema>
 
-export const logoutUserResponseDataSchema = z.any()
+export const logoutUserQueryResponseSchema = z.any()
 
-export type LogoutUserResponseDataSchema = z.infer<typeof logoutUserResponseDataSchema>
+export type LogoutUserQueryResponseSchema = z.infer<typeof logoutUserQueryResponseSchema>

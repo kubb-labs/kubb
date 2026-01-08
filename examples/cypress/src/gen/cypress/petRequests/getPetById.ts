@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { GetPetByIdPathParams, GetPetByIdResponseData } from '../../models/GetPetById.ts'
+import type { GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/GetPetById.ts'
 
-export function getPetById(petId: GetPetByIdPathParams['petId'], options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetPetByIdResponseData> {
+export function getPetById(petId: GetPetByIdPathParams['petId'], options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetPetByIdQueryResponse> {
   return cy
-    .request<GetPetByIdResponseData>({
+    .request<GetPetByIdQueryResponse>({
       method: 'get',
       url: `http://localhost:3000/pet/${petId}:search`,
       ...options,

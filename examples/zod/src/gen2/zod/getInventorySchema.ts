@@ -8,6 +8,6 @@ import { z } from 'zod/mini'
 /**
  * @description successful operation
  */
-export const getInventoryStatus200Schema = z.object({})
+export const getInventory200Schema = z.object({})
 
-export const getInventoryResponseDataSchema = z.lazy(() => getInventoryStatus200Schema)
+export const getInventoryQueryResponseSchema = z.lazy(() => getInventory200Schema)

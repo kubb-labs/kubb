@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { LoginUserQueryParams, LoginUserResponseData, LoginUserStatus200, LoginUserStatus400 } from '../../models/ts/userController/LoginUser.ts'
+import type { LoginUser200, LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../models/ts/userController/LoginUser.ts'
 
 export const loginUserQueryParamsSchema = z
   .object({
@@ -14,17 +14,17 @@ export type LoginUserQueryParamsSchema = LoginUserQueryParams
 /**
  * @description successful operation
  */
-export const loginUserStatus200Schema = z.string() as unknown as ToZod<LoginUserStatus200>
+export const loginUser200Schema = z.string() as unknown as ToZod<LoginUser200>
 
-export type LoginUserStatus200Schema = LoginUserStatus200
+export type LoginUser200Schema = LoginUser200
 
 /**
  * @description Invalid username/password supplied
  */
-export const loginUserStatus400Schema = z.any() as unknown as ToZod<LoginUserStatus400>
+export const loginUser400Schema = z.any() as unknown as ToZod<LoginUser400>
 
-export type LoginUserStatus400Schema = LoginUserStatus400
+export type LoginUser400Schema = LoginUser400
 
-export const loginUserResponseDataSchema = z.lazy(() => loginUserStatus200Schema) as unknown as ToZod<LoginUserResponseData>
+export const loginUserQueryResponseSchema = z.lazy(() => loginUser200Schema) as unknown as ToZod<LoginUserQueryResponse>
 
-export type LoginUserResponseDataSchema = LoginUserResponseData
+export type LoginUserQueryResponseSchema = LoginUserQueryResponse

@@ -8,7 +8,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
-import type { DeleteOrderPathParams, DeleteOrderResponseData, DeleteOrderStatus400, DeleteOrderStatus404 } from '../models/DeleteOrder.ts'
+import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderPathParams } from '../models/DeleteOrder.ts'
 
 export const deleteOrderMutationKey = () => [{ url: '/store/order/:orderId' }] as const
 
@@ -22,7 +22,7 @@ export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
 export async function deleteOrder({ orderId }: { orderId: DeleteOrderPathParams['orderId'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<DeleteOrderResponseData, ResponseErrorConfig<DeleteOrderStatus400 | DeleteOrderStatus404>, unknown>({
+  const res = await request<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,
     ...requestConfig,
@@ -38,8 +38,8 @@ export async function deleteOrder({ orderId }: { orderId: DeleteOrderPathParams[
 export function useDeleteOrder<TContext>(
   options: {
     mutation?: MutationObserverOptions<
-      DeleteOrderResponseData,
-      ResponseErrorConfig<DeleteOrderStatus400 | DeleteOrderStatus404>,
+      DeleteOrderMutationResponse,
+      ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
       { orderId: MaybeRefOrGetter<DeleteOrderPathParams['orderId']> },
       TContext
     > & { client?: QueryClient }
@@ -51,8 +51,8 @@ export function useDeleteOrder<TContext>(
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
 
   return useMutation<
-    DeleteOrderResponseData,
-    ResponseErrorConfig<DeleteOrderStatus400 | DeleteOrderStatus404>,
+    DeleteOrderMutationResponse,
+    ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
     { orderId: DeleteOrderPathParams['orderId'] },
     TContext
   >(

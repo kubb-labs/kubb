@@ -19,8 +19,8 @@ export const uploadFileQueryParamsSchema = z.optional(
 /**
  * @description successful operation
  */
-export const uploadFileStatus200Schema = z.lazy(() => apiResponseSchema)
+export const uploadFile200Schema = z.lazy(() => apiResponseSchema)
 
-export const uploadFileRequestDataSchema = z.instanceof(File)
+export const uploadFileMutationRequestSchema = z.instanceof(File)
 
-export const uploadFileResponseDataSchema = z.lazy(() => uploadFileStatus200Schema)
+export const uploadFileMutationResponseSchema = z.lazy(() => uploadFile200Schema)

@@ -2,10 +2,10 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
 import type {
+  UpdatePetWithForm405,
+  UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithFormResponseData,
-  UpdatePetWithFormStatus405,
 } from '../models/ts/UpdatePetWithForm.js'
 
 /**
@@ -19,7 +19,7 @@ export async function updatePetWithFormHandler({
   petId: UpdatePetWithFormPathParams['petId']
   params?: UpdatePetWithFormQueryParams
 }): Promise<Promise<CallToolResult>> {
-  const res = await fetch<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
+  const res = await fetch<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
     url: `/pet/${petId}`,
     baseURL: 'https://petstore.swagger.io/v2',

@@ -7,7 +7,7 @@ import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tansta
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { CreateUserRequestData, CreateUserResponseData } from '../../models/CreateUser.ts'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/CreateUser.ts'
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
 
@@ -19,8 +19,8 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  * {@link /user}
  */
 export async function createUserHook(
-  data?: CreateUserRequestData,
-  config: Partial<RequestConfig<CreateUserRequestData>> & {
+  data?: CreateUserMutationRequest,
+  config: Partial<RequestConfig<CreateUserMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -28,7 +28,7 @@ export async function createUserHook(
 
   const requestData = data
 
-  const res = await request<CreateUserResponseData, ResponseErrorConfig<Error>, CreateUserRequestData>({
+  const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
     url: '/user',
     data: requestData,
@@ -38,12 +38,12 @@ export async function createUserHook(
 }
 
 export function createUserMutationOptionsHook(
-  config: Partial<RequestConfig<CreateUserRequestData>> & {
+  config: Partial<RequestConfig<CreateUserMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
   const mutationKey = createUserMutationKey()
-  return mutationOptions<CreateUserResponseData, ResponseErrorConfig<Error>, { data?: CreateUserRequestData }, typeof mutationKey>({
+  return mutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, typeof mutationKey>({
     mutationKey,
     mutationFn: async ({ data }) => {
       return createUserHook(data, config)
@@ -58,8 +58,10 @@ export function createUserMutationOptionsHook(
  */
 export function useCreateUserHook<TContext>(
   options: {
-    mutation?: UseMutationOptions<CreateUserResponseData, ResponseErrorConfig<Error>, { data?: CreateUserRequestData }, TContext> & { client?: QueryClient }
-    client?: Partial<RequestConfig<CreateUserRequestData>> & {
+    mutation?: UseMutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext> & {
+      client?: QueryClient
+    }
+    client?: Partial<RequestConfig<CreateUserMutationRequest>> & {
       client?: typeof fetch
     }
   } = {},
@@ -69,18 +71,18 @@ export function useCreateUserHook<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? createUserMutationKey()
 
   const baseOptions = createUserMutationOptionsHook(config) as UseMutationOptions<
-    CreateUserResponseData,
+    CreateUserMutationResponse,
     ResponseErrorConfig<Error>,
-    { data?: CreateUserRequestData },
+    { data?: CreateUserMutationRequest },
     TContext
   >
 
-  return useMutation<CreateUserResponseData, ResponseErrorConfig<Error>, { data?: CreateUserRequestData }, TContext>(
+  return useMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>(
     {
       ...baseOptions,
       mutationKey,
       ...mutationOptions,
     },
     queryClient,
-  ) as UseMutationResult<CreateUserResponseData, ResponseErrorConfig<Error>, { data?: CreateUserRequestData }, TContext>
+  ) as UseMutationResult<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>
 }

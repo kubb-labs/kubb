@@ -1,7 +1,7 @@
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
-import type { DeleteUserPathParams, DeleteUserResponseData, DeleteUserStatus400, DeleteUserStatus404 } from '../../../models/ts/userController/DeleteUser.ts'
-import { deleteUserResponseDataSchema } from '../../../zod/userController/deleteUserSchema.ts'
+import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser.ts'
+import { deleteUserMutationResponseSchema } from '../../../zod/userController/deleteUserSchema.ts'
 
 export function getDeleteUserUrl({ username }: { username: DeleteUserPathParams['username'] }) {
   const res = { method: 'DELETE', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
@@ -19,10 +19,10 @@ export async function deleteUser(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<DeleteUserResponseData, ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>, unknown>({
+  const res = await request<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
     url: getDeleteUserUrl({ username }).url.toString(),
     ...requestConfig,
   })
-  return { ...res, data: deleteUserResponseDataSchema.parse(res.data) }
+  return { ...res, data: deleteUserMutationResponseSchema.parse(res.data) }
 }

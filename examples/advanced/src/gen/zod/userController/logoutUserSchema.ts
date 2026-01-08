@@ -1,14 +1,14 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { LogoutUserResponseData, LogoutUserStatusError } from '../../models/ts/userController/LogoutUser.ts'
+import type { LogoutUserError, LogoutUserQueryResponse } from '../../models/ts/userController/LogoutUser.ts'
 
 /**
  * @description successful operation
  */
-export const logoutUserStatusErrorSchema = z.any() as unknown as ToZod<LogoutUserStatusError>
+export const logoutUserErrorSchema = z.any() as unknown as ToZod<LogoutUserError>
 
-export type LogoutUserStatusErrorSchema = LogoutUserStatusError
+export type LogoutUserErrorSchema = LogoutUserError
 
-export const logoutUserResponseDataSchema = z.any() as unknown as ToZod<LogoutUserResponseData>
+export const logoutUserQueryResponseSchema = z.any() as unknown as ToZod<LogoutUserQueryResponse>
 
-export type LogoutUserResponseDataSchema = LogoutUserResponseData
+export type LogoutUserQueryResponseSchema = LogoutUserQueryResponse

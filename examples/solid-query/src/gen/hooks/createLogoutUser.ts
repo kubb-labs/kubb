@@ -6,7 +6,7 @@
 import { queryOptions } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { LogoutUserResponseData } from '../models/LogoutUser.ts'
+import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 
@@ -19,13 +19,13 @@ export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
 export async function logoutUser(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<LogoutUserResponseData, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
+  const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
   return res.data
 }
 
 export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = logoutUserQueryKey()
-  return queryOptions<LogoutUserResponseData, ResponseErrorConfig<Error>, LogoutUserResponseData, typeof queryKey>({
+  return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

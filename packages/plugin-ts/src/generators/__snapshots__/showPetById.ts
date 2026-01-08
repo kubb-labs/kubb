@@ -19,23 +19,17 @@ export type ShowPetByIdPathParams = {
 /**
  * @description Expected response to a valid request
  */
-export type ShowPetByIdStatus200 = pet
+export type ShowPetById200 = pet
 
 /**
  * @description unexpected error
  */
-export type ShowPetByIdStatusError = error
+export type ShowPetByIdError = error
 
-export type ShowPetByIdRequest = {
-  data?: never
-  pathParams: ShowPetByIdPathParams
-  queryParams?: never
-  headerParams?: never
-  url: `/pets/${string}`
+export type ShowPetByIdQueryResponse = showPetById200
+
+export type ShowPetByIdQuery = {
+  Response: showPetById200
+  PathParams: showPetByIdPathParams
+  Errors: any
 }
-
-export type ShowPetByIdResponses = {
-  '200': ShowPetByIdStatus200
-}
-
-export type ShowPetByIdResponseData = ShowPetByIdResponses[keyof ShowPetByIdResponses]

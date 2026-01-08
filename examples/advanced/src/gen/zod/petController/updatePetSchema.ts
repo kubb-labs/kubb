@@ -1,63 +1,63 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  UpdatePetRequestData,
-  UpdatePetResponseData,
-  UpdatePetStatus200,
-  UpdatePetStatus202,
-  UpdatePetStatus400,
-  UpdatePetStatus404,
-  UpdatePetStatus405,
+  UpdatePet200,
+  UpdatePet202,
+  UpdatePet400,
+  UpdatePet404,
+  UpdatePet405,
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
 } from '../../models/ts/petController/UpdatePet.ts'
 import { petSchema } from '../petSchema.ts'
 
 /**
  * @description Successful operation
  */
-export const updatePetStatus200Schema = z.lazy(() => petSchema).schema.omit({ name: true }) as unknown as ToZod<UpdatePetStatus200>
+export const updatePet200Schema = z.lazy(() => petSchema).schema.omit({ name: true }) as unknown as ToZod<UpdatePet200>
 
-export type UpdatePetStatus200Schema = UpdatePetStatus200
+export type UpdatePet200Schema = UpdatePet200
 
 /**
  * @description accepted operation
  */
-export const updatePetStatus202Schema = z.object({
+export const updatePet202Schema = z.object({
   id: z.optional(z.number().int()),
-}) as unknown as ToZod<UpdatePetStatus202>
+}) as unknown as ToZod<UpdatePet202>
 
-export type UpdatePetStatus202Schema = UpdatePetStatus202
+export type UpdatePet202Schema = UpdatePet202
 
 /**
  * @description Invalid ID supplied
  */
-export const updatePetStatus400Schema = z.any() as unknown as ToZod<UpdatePetStatus400>
+export const updatePet400Schema = z.any() as unknown as ToZod<UpdatePet400>
 
-export type UpdatePetStatus400Schema = UpdatePetStatus400
+export type UpdatePet400Schema = UpdatePet400
 
 /**
  * @description Pet not found
  */
-export const updatePetStatus404Schema = z.any() as unknown as ToZod<UpdatePetStatus404>
+export const updatePet404Schema = z.any() as unknown as ToZod<UpdatePet404>
 
-export type UpdatePetStatus404Schema = UpdatePetStatus404
+export type UpdatePet404Schema = UpdatePet404
 
 /**
  * @description Validation exception
  */
-export const updatePetStatus405Schema = z.any() as unknown as ToZod<UpdatePetStatus405>
+export const updatePet405Schema = z.any() as unknown as ToZod<UpdatePet405>
 
-export type UpdatePetStatus405Schema = UpdatePetStatus405
+export type UpdatePet405Schema = UpdatePet405
 
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetRequestDataSchema = z.lazy(() => petSchema).schema.omit({ id: true }) as unknown as ToZod<UpdatePetRequestData>
+export const updatePetMutationRequestSchema = z.lazy(() => petSchema).schema.omit({ id: true }) as unknown as ToZod<UpdatePetMutationRequest>
 
-export type UpdatePetRequestDataSchema = UpdatePetRequestData
+export type UpdatePetMutationRequestSchema = UpdatePetMutationRequest
 
-export const updatePetResponseDataSchema = z.union([
-  z.lazy(() => updatePetStatus200Schema),
-  z.lazy(() => updatePetStatus202Schema),
-]) as unknown as ToZod<UpdatePetResponseData>
+export const updatePetMutationResponseSchema = z.union([
+  z.lazy(() => updatePet200Schema),
+  z.lazy(() => updatePet202Schema),
+]) as unknown as ToZod<UpdatePetMutationResponse>
 
-export type UpdatePetResponseDataSchema = UpdatePetResponseData
+export type UpdatePetMutationResponseSchema = UpdatePetMutationResponse

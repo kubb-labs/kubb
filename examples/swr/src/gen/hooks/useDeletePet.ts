@@ -7,7 +7,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { DeletePetHeaderParams, DeletePetPathParams, DeletePetResponseData, DeletePetStatus400 } from '../models/DeletePet.ts'
+import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../models/DeletePet.ts'
 
 export const deletePetMutationKey = () => [{ url: '/pet/:petId:search' }] as const
 
@@ -25,7 +25,7 @@ export async function deletePet(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<DeletePetResponseData, ResponseErrorConfig<DeletePetStatus400>, unknown>({
+  const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}:search`,
     ...requestConfig,
@@ -46,7 +46,7 @@ export type DeletePetMutationArg = {
  */
 export function useDeletePet(
   options: {
-    mutation?: SWRMutationConfiguration<DeletePetResponseData, ResponseErrorConfig<DeletePetStatus400>, DeletePetMutationKey | null, DeletePetMutationArg> & {
+    mutation?: SWRMutationConfiguration<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, DeletePetMutationKey | null, DeletePetMutationArg> & {
       throwOnError?: boolean
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -56,7 +56,7 @@ export function useDeletePet(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deletePetMutationKey()
 
-  return useSWRMutation<DeletePetResponseData, ResponseErrorConfig<DeletePetStatus400>, DeletePetMutationKey | null, DeletePetMutationArg>(
+  return useSWRMutation<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, DeletePetMutationKey | null, DeletePetMutationArg>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: { petId, headers } }) => {
       return deletePet(petId, headers, config)

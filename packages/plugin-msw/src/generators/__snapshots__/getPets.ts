@@ -4,7 +4,7 @@
  */
 import { http } from 'msw'
 
-export function listPetsResponse200(data: ListPetsResponseData) {
+export function listPetsResponse200(data: ListPetsQueryResponse) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -13,13 +13,13 @@ export function listPetsResponse200(data: ListPetsResponseData) {
   })
 }
 
-export function listPetsResponse400(data?: ListPetsStatus400) {
+export function listPetsResponse400(data?: ListPets400) {
   return new Response(JSON.stringify(data), {
     status: 400,
   })
 }
 
-export function listPets(data?: ListPetsResponseData | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
+export function listPets(data?: ListPetsQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
   return http.get(`/pets`, function handler(info) {
     if (typeof data === 'function') return data(info)
 

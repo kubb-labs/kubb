@@ -14,17 +14,17 @@ export type DeleteOrderPathParamsSchema = z.infer<typeof deleteOrderPathParamsSc
 /**
  * @description Invalid ID supplied
  */
-export const deleteOrderStatus400Schema = z.any()
+export const deleteOrder400Schema = z.any()
 
-export type DeleteOrderStatus400Schema = z.infer<typeof deleteOrderStatus400Schema>
+export type DeleteOrder400Schema = z.infer<typeof deleteOrder400Schema>
 
 /**
  * @description Order not found
  */
-export const deleteOrderStatus404Schema = z.any()
+export const deleteOrder404Schema = z.any()
 
-export type DeleteOrderStatus404Schema = z.infer<typeof deleteOrderStatus404Schema>
+export type DeleteOrder404Schema = z.infer<typeof deleteOrder404Schema>
 
-export const deleteOrderResponseDataSchema = z.any()
+export const deleteOrderMutationResponseSchema = z.any()
 
-export type DeleteOrderResponseDataSchema = z.infer<typeof deleteOrderResponseDataSchema>
+export type DeleteOrderMutationResponseSchema = z.infer<typeof deleteOrderMutationResponseSchema>

@@ -14,11 +14,11 @@ export const getThingsQueryParamsSchema = z.object({
 /**
  * @description Null response
  */
-export const getThingsStatus201Schema = z.any()
+export const getThings201Schema = z.any()
 
 /**
  * @description unexpected error
  */
-export const getThingsStatusErrorSchema = z.lazy(() => petNotFoundSchema)
+export const getThingsErrorSchema = z.lazy(() => petNotFoundSchema)
 
-export const getThingsResponseDataSchema = z.lazy(() => getThingsStatus201Schema)
+export const getThingsQueryResponseSchema = z.lazy(() => getThings201Schema)

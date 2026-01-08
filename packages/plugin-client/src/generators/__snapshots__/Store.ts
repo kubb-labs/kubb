@@ -4,21 +4,21 @@
  */
 import type { RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
 import type {
-  GetInventoryResponseData,
-  PlaceOrderRequestData,
-  PlaceOrderResponseData,
-  PlaceOrderStatus405,
-  PlaceOrderPatchRequestData,
-  PlaceOrderPatchResponseData,
-  PlaceOrderPatchStatus405,
-  GetOrderByIdResponseData,
+  GetInventoryQueryResponse,
+  PlaceOrderMutationRequest,
+  PlaceOrderMutationResponse,
+  PlaceOrder405,
+  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchMutationResponse,
+  PlaceOrderPatch405,
+  GetOrderByIdQueryResponse,
   GetOrderByIdPathParams,
-  GetOrderByIdStatus400,
-  GetOrderByIdStatus404,
-  DeleteOrderResponseData,
+  GetOrderById400,
+  GetOrderById404,
+  DeleteOrderMutationResponse,
   DeleteOrderPathParams,
-  DeleteOrderStatus400,
-  DeleteOrderStatus404,
+  DeleteOrder400,
+  DeleteOrder404,
 } from './findByTags'
 import { fetch } from './test/.kubb/fetch'
 
@@ -36,7 +36,7 @@ export class Store {
    */
   async getInventory(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<GetInventoryResponseData, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/store/inventory`, ...requestConfig })
+    const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/store/inventory`, ...requestConfig })
     return res.data
   }
 
@@ -45,10 +45,10 @@ export class Store {
    * @summary Place an order for a pet
    * {@link /store/order}
    */
-  async placeOrder(data?: PlaceOrderRequestData, config: Partial<RequestConfig<PlaceOrderRequestData>> & { client?: typeof fetch } = {}) {
+  async placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
-    const res = await request<PlaceOrderResponseData, ResponseErrorConfig<PlaceOrderStatus405>, PlaceOrderRequestData>({
+    const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
       method: 'POST',
       url: `/store/order`,
       data: requestData,
@@ -62,10 +62,13 @@ export class Store {
    * @summary Place an order for a pet with patch
    * {@link /store/order}
    */
-  async placeOrderPatch(data?: PlaceOrderPatchRequestData, config: Partial<RequestConfig<PlaceOrderPatchRequestData>> & { client?: typeof fetch } = {}) {
+  async placeOrderPatch(
+    data?: PlaceOrderPatchMutationRequest,
+    config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: typeof fetch } = {},
+  ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
-    const res = await request<PlaceOrderPatchResponseData, ResponseErrorConfig<PlaceOrderPatchStatus405>, PlaceOrderPatchRequestData>({
+    const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
       method: 'PATCH',
       url: `/store/order`,
       data: requestData,
@@ -81,7 +84,7 @@ export class Store {
    */
   async getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<GetOrderByIdResponseData, ResponseErrorConfig<GetOrderByIdStatus400 | GetOrderByIdStatus404>, unknown>({
+    const res = await request<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
       method: 'GET',
       url: `/store/order/${orderId}`,
       ...requestConfig,
@@ -96,7 +99,7 @@ export class Store {
    */
   async deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<DeleteOrderResponseData, ResponseErrorConfig<DeleteOrderStatus400 | DeleteOrderStatus404>, unknown>({
+    const res = await request<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
       method: 'DELETE',
       url: `/store/order/${orderId}`,
       ...requestConfig,

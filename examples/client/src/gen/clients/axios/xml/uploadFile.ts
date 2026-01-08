@@ -6,7 +6,12 @@
 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { UploadFilePathParams, UploadFileQueryParams, UploadFileRequestData, UploadFileResponseData } from '../../../models/ts/petController/UploadFile.js'
+import type {
+  UploadFileMutationRequest,
+  UploadFileMutationResponse,
+  UploadFilePathParams,
+  UploadFileQueryParams,
+} from '../../../models/ts/petController/UploadFile.js'
 
 function getUploadFileUrlXML({ petId }: { petId: UploadFilePathParams['petId'] }) {
   const res = { method: 'POST', url: `/pet/${petId}/uploadImage` as const }
@@ -19,9 +24,9 @@ function getUploadFileUrlXML({ petId }: { petId: UploadFilePathParams['petId'] }
  */
 export async function uploadFileXML(
   { petId }: { petId: UploadFilePathParams['petId'] },
-  data?: UploadFileRequestData,
+  data?: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileRequestData>> & {
+  config: Partial<RequestConfig<UploadFileMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -29,7 +34,7 @@ export async function uploadFileXML(
 
   const requestData = data
 
-  const res = await request<UploadFileResponseData, ResponseErrorConfig<Error>, UploadFileRequestData>({
+  const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: getUploadFileUrlXML({ petId }).url.toString(),
     params,

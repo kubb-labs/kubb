@@ -6,7 +6,7 @@
 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { LogoutUserResponseData } from '../../../models/ts/userController/LogoutUser.js'
+import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.js'
 
 function getLogoutUserUrl() {
   const res = { method: 'GET', url: '/user/logout' as const }
@@ -20,7 +20,7 @@ function getLogoutUserUrl() {
 export async function logoutUser(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<LogoutUserResponseData, ResponseErrorConfig<Error>, unknown>({
+  const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
     url: getLogoutUserUrl().url.toString(),
     ...requestConfig,

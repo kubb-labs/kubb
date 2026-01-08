@@ -5,7 +5,7 @@
 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { GetUserByNamePathParams, GetUserByNameResponseData, GetUserByNameStatus400, GetUserByNameStatus404 } from './models.ts'
+import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from './models.ts'
 
 function getGetUserByNameUrl(username: GetUserByNamePathParams['username']) {
   const res = {
@@ -22,7 +22,7 @@ function getGetUserByNameUrl(username: GetUserByNamePathParams['username']) {
 export async function getUserByName(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<GetUserByNameResponseData, ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>, unknown>({
+  const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
     method: 'GET',
     url: getGetUserByNameUrl(username).url.toString(),
     ...requestConfig,

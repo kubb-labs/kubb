@@ -1,36 +1,41 @@
-export type { CreateUserRequestDataSchema, CreateUserResponseDataSchema, CreateUserStatusErrorSchema } from './createUserSchema.ts'
-export { createUserRequestDataSchema, createUserResponseDataSchema, createUserStatusErrorSchema } from './createUserSchema.ts'
+export type { CreateUserErrorSchema, CreateUserMutationRequestSchema, CreateUserMutationResponseSchema } from './createUserSchema.ts'
+export { createUserErrorSchema, createUserMutationRequestSchema, createUserMutationResponseSchema } from './createUserSchema.ts'
 export type {
-  CreateUsersWithListInputRequestDataSchema,
-  CreateUsersWithListInputResponseDataSchema,
-  CreateUsersWithListInputStatus200Schema,
-  CreateUsersWithListInputStatusErrorSchema,
+  CreateUsersWithListInput200Schema,
+  CreateUsersWithListInputErrorSchema,
+  CreateUsersWithListInputMutationRequestSchema,
+  CreateUsersWithListInputMutationResponseSchema,
 } from './createUsersWithListInputSchema.ts'
 export {
-  createUsersWithListInputRequestDataSchema,
-  createUsersWithListInputResponseDataSchema,
-  createUsersWithListInputStatus200Schema,
-  createUsersWithListInputStatusErrorSchema,
+  createUsersWithListInput200Schema,
+  createUsersWithListInputErrorSchema,
+  createUsersWithListInputMutationRequestSchema,
+  createUsersWithListInputMutationResponseSchema,
 } from './createUsersWithListInputSchema.ts'
-export type { DeleteUserPathParamsSchema, DeleteUserResponseDataSchema, DeleteUserStatus400Schema, DeleteUserStatus404Schema } from './deleteUserSchema.ts'
-export { deleteUserPathParamsSchema, deleteUserResponseDataSchema, deleteUserStatus400Schema, deleteUserStatus404Schema } from './deleteUserSchema.ts'
+export type { DeleteUser400Schema, DeleteUser404Schema, DeleteUserMutationResponseSchema, DeleteUserPathParamsSchema } from './deleteUserSchema.ts'
+export { deleteUser400Schema, deleteUser404Schema, deleteUserMutationResponseSchema, deleteUserPathParamsSchema } from './deleteUserSchema.ts'
 export type {
+  GetUserByName200Schema,
+  GetUserByName400Schema,
+  GetUserByName404Schema,
   GetUserByNamePathParamsSchema,
-  GetUserByNameResponseDataSchema,
-  GetUserByNameStatus200Schema,
-  GetUserByNameStatus400Schema,
-  GetUserByNameStatus404Schema,
+  GetUserByNameQueryResponseSchema,
 } from './getUserByNameSchema.ts'
 export {
+  getUserByName200Schema,
+  getUserByName400Schema,
+  getUserByName404Schema,
   getUserByNamePathParamsSchema,
-  getUserByNameResponseDataSchema,
-  getUserByNameStatus200Schema,
-  getUserByNameStatus400Schema,
-  getUserByNameStatus404Schema,
+  getUserByNameQueryResponseSchema,
 } from './getUserByNameSchema.ts'
-export type { LoginUserQueryParamsSchema, LoginUserResponseDataSchema, LoginUserStatus200Schema, LoginUserStatus400Schema } from './loginUserSchema.ts'
-export { loginUserQueryParamsSchema, loginUserResponseDataSchema, loginUserStatus200Schema, loginUserStatus400Schema } from './loginUserSchema.ts'
-export type { LogoutUserResponseDataSchema, LogoutUserStatusErrorSchema } from './logoutUserSchema.ts'
-export { logoutUserResponseDataSchema, logoutUserStatusErrorSchema } from './logoutUserSchema.ts'
-export type { UpdateUserPathParamsSchema, UpdateUserRequestDataSchema, UpdateUserResponseDataSchema, UpdateUserStatusErrorSchema } from './updateUserSchema.ts'
-export { updateUserPathParamsSchema, updateUserRequestDataSchema, updateUserResponseDataSchema, updateUserStatusErrorSchema } from './updateUserSchema.ts'
+export type { LoginUser200Schema, LoginUser400Schema, LoginUserQueryParamsSchema, LoginUserQueryResponseSchema } from './loginUserSchema.ts'
+export { loginUser200Schema, loginUser400Schema, loginUserQueryParamsSchema, loginUserQueryResponseSchema } from './loginUserSchema.ts'
+export type { LogoutUserErrorSchema, LogoutUserQueryResponseSchema } from './logoutUserSchema.ts'
+export { logoutUserErrorSchema, logoutUserQueryResponseSchema } from './logoutUserSchema.ts'
+export type {
+  UpdateUserErrorSchema,
+  UpdateUserMutationRequestSchema,
+  UpdateUserMutationResponseSchema,
+  UpdateUserPathParamsSchema,
+} from './updateUserSchema.ts'
+export { updateUserErrorSchema, updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './updateUserSchema.ts'

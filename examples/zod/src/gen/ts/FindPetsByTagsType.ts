@@ -42,23 +42,18 @@ export type FindPetsByTagsHeaderParams = {
 /**
  * @description successful operation
  */
-export type FindPetsByTagsStatus200 = Pet[]
+export type FindPetsByTags200 = Pet[]
 
 /**
  * @description Invalid tag value
  */
-export type FindPetsByTagsStatus400 = any
+export type FindPetsByTags400 = any
 
-export type FindPetsByTagsRequest = {
-  data?: never
-  pathParams?: never
-  queryParams?: FindPetsByTagsQueryParams
-  headerParams?: FindPetsByTagsHeaderParams
-  url: '/pet/findByTags'
+export type FindPetsByTagsQueryResponse = FindPetsByTags200
+
+export type FindPetsByTagsQuery = {
+  Response: FindPetsByTags200
+  QueryParams: FindPetsByTagsQueryParams
+  HeaderParams: FindPetsByTagsHeaderParams
+  Errors: FindPetsByTags400
 }
-
-export type FindPetsByTagsResponses = {
-  '200': FindPetsByTagsStatus200
-}
-
-export type FindPetsByTagsResponseData = FindPetsByTagsResponses[keyof FindPetsByTagsResponses]

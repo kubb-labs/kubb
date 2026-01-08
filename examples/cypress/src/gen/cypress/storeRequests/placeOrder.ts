@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { PlaceOrderRequestData, PlaceOrderResponseData } from '../../models/PlaceOrder.ts'
+import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../../models/PlaceOrder.ts'
 
-export function placeOrder(data?: PlaceOrderRequestData, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<PlaceOrderResponseData> {
+export function placeOrder(data?: PlaceOrderMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<PlaceOrderMutationResponse> {
   return cy
-    .request<PlaceOrderResponseData>({
+    .request<PlaceOrderMutationResponse>({
       method: 'post',
       url: 'http://localhost:3000/store/order',
       body: data,

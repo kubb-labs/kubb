@@ -54,7 +54,7 @@ export const showPetByIdQueryParams = z
 /**
  * @description Expected response to a valid request
  */
-export const showPetByIdStatus200 = z
+export const showPetById200 = z
   .lazy(() => pet)
   .openapi({
     examples: [
@@ -70,7 +70,7 @@ export const showPetByIdStatus200 = z
 /**
  * @description unexpected error
  */
-export const showPetByIdStatusError = z
+export const showPetByIdError = z
   .lazy(() => error)
   .openapi({
     examples: [
@@ -83,14 +83,14 @@ export const showPetByIdStatusError = z
     ],
   })
 
-export const showPetByIdResponseData = z
-  .lazy(() => showPetByIdStatus200)
+export const showPetByIdQueryResponse = z
+  .lazy(() => showPetById200)
   .openapi({
     examples: [
       {
         oneOf: [
           {
-            $ref: 'showPetByIdStatus200',
+            $ref: 'showPetById200',
             type: 'object',
             required: ['id', 'name'],
             properties: { id: { type: 'integer', format: 'int64' }, name: { type: 'string' }, tag: { type: 'string' } },

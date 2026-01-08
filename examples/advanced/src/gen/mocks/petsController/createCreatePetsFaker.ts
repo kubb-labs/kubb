@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker'
 import type {
   CreatePetsHeaderParams,
+  CreatePetsMutationRequest,
+  CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsRequestData,
-  CreatePetsResponseData,
 } from '../../models/ts/petsController/CreatePets.ts'
 import { createPetNotFoundFaker } from '../createPetNotFoundFaker.ts'
 
@@ -32,24 +32,24 @@ export function createCreatePetsHeaderParamsFaker(data?: Partial<CreatePetsHeade
 /**
  * @description Null response
  */
-export function createCreatePetsStatus201Faker() {
+export function createCreatePets201Faker() {
   return undefined
 }
 
 /**
  * @description unexpected error
  */
-export function createCreatePetsStatusErrorFaker() {
+export function createCreatePetsErrorFaker() {
   return createPetNotFoundFaker()
 }
 
-export function createCreatePetsRequestDataFaker(data?: Partial<CreatePetsRequestData>): CreatePetsRequestData {
+export function createCreatePetsMutationRequestFaker(data?: Partial<CreatePetsMutationRequest>): CreatePetsMutationRequest {
   return {
     ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
     ...(data || {}),
   }
 }
 
-export function createCreatePetsResponseDataFaker(data?: Partial<CreatePetsResponseData>): CreatePetsResponseData {
-  return data || faker.helpers.arrayElement<any>([createCreatePetsStatus201Faker()])
+export function createCreatePetsMutationResponseFaker(data?: Partial<CreatePetsMutationResponse>): CreatePetsMutationResponse {
+  return data || faker.helpers.arrayElement<any>([createCreatePets201Faker()])
 }

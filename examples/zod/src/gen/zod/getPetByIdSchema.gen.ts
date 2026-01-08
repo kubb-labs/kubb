@@ -15,24 +15,24 @@ export type GetPetByIdPathParamsSchema = z.infer<typeof getPetByIdPathParamsSche
 /**
  * @description successful operation
  */
-export const getPetByIdStatus200Schema = z.lazy(() => petSchema)
+export const getPetById200Schema = z.lazy(() => petSchema)
 
-export type GetPetByIdStatus200Schema = z.infer<typeof getPetByIdStatus200Schema>
+export type GetPetById200Schema = z.infer<typeof getPetById200Schema>
 
 /**
  * @description Invalid ID supplied
  */
-export const getPetByIdStatus400Schema = z.any()
+export const getPetById400Schema = z.any()
 
-export type GetPetByIdStatus400Schema = z.infer<typeof getPetByIdStatus400Schema>
+export type GetPetById400Schema = z.infer<typeof getPetById400Schema>
 
 /**
  * @description Pet not found
  */
-export const getPetByIdStatus404Schema = z.any()
+export const getPetById404Schema = z.any()
 
-export type GetPetByIdStatus404Schema = z.infer<typeof getPetByIdStatus404Schema>
+export type GetPetById404Schema = z.infer<typeof getPetById404Schema>
 
-export const getPetByIdResponseDataSchema = z.lazy(() => getPetByIdStatus200Schema)
+export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema)
 
-export type GetPetByIdResponseDataSchema = z.infer<typeof getPetByIdResponseDataSchema>
+export type GetPetByIdQueryResponseSchema = z.infer<typeof getPetByIdQueryResponseSchema>

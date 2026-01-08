@@ -7,24 +7,24 @@ import { faker } from '@faker-js/faker'
 /**
  * @description Null response
  */
-export function createPetsStatus201() {
+export function createPets201() {
   return undefined
 }
 
 /**
  * @description unexpected error
  */
-export function createPetsStatusError() {
+export function createPetsError() {
   return error()
 }
 
-export function createPetsRequestData(data?: Partial<CreatePetsRequestData>): CreatePetsRequestData {
+export function createPetsMutationRequest(data?: Partial<CreatePetsMutationRequest>): CreatePetsMutationRequest {
   return {
     ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
     ...(data || {}),
   }
 }
 
-export function createPetsResponseData(data?: Partial<CreatePetsResponseData>): CreatePetsResponseData {
-  return data || faker.helpers.arrayElement<any>([createPetsStatus201()])
+export function createPetsMutationResponse(data?: Partial<CreatePetsMutationResponse>): CreatePetsMutationResponse {
+  return data || faker.helpers.arrayElement<any>([createPets201()])
 }

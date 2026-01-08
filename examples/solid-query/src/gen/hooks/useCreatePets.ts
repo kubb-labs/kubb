@@ -9,10 +9,10 @@ import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
 import type {
   CreatePetsHeaderParams,
+  CreatePetsMutationRequest,
+  CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsRequestData,
-  CreatePetsResponseData,
 } from '../models/CreatePets.ts'
 
 export const createPetsMutationKey = () => [{ url: '/pets/:uuid' }] as const
@@ -25,10 +25,10 @@ export type CreatePetsMutationKey = ReturnType<typeof createPetsMutationKey>
  */
 export async function createPets(
   uuid: CreatePetsPathParams['uuid'],
-  data: CreatePetsRequestData,
+  data: CreatePetsMutationRequest,
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,
-  config: Partial<RequestConfig<CreatePetsRequestData>> & {
+  config: Partial<RequestConfig<CreatePetsMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -36,7 +36,7 @@ export async function createPets(
 
   const requestData = data
 
-  const res = await request<CreatePetsResponseData, ResponseErrorConfig<Error>, CreatePetsRequestData>({
+  const res = await request<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
     url: `/pets/${uuid}`,
     params,
@@ -55,18 +55,18 @@ export function useCreatePets<TContext>(
   options: {
     mutation?: ReturnType<
       UseMutationOptions<
-        CreatePetsResponseData,
+        CreatePetsMutationResponse,
         ResponseErrorConfig<Error>,
         {
           uuid: CreatePetsPathParams['uuid']
-          data: CreatePetsRequestData
+          data: CreatePetsMutationRequest
           headers: CreatePetsHeaderParams
           params?: CreatePetsQueryParams
         },
         TContext
       >
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<CreatePetsRequestData>> & {
+    client?: Partial<RequestConfig<CreatePetsMutationRequest>> & {
       client?: typeof fetch
     }
   } = {},
@@ -76,11 +76,11 @@ export function useCreatePets<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? createPetsMutationKey()
 
   return useMutation<
-    CreatePetsResponseData,
+    CreatePetsMutationResponse,
     ResponseErrorConfig<Error>,
     {
       uuid: CreatePetsPathParams['uuid']
-      data: CreatePetsRequestData
+      data: CreatePetsMutationRequest
       headers: CreatePetsHeaderParams
       params?: CreatePetsQueryParams
     },

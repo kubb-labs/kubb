@@ -21,14 +21,13 @@ export type DeletePetHeaderParams = {
 /**
  * @description Invalid pet value
  */
-export type DeletePetStatus400 = any
+export type DeletePet400 = any
 
-export type DeletePetRequest = {
-  data?: never
-  pathParams: DeletePetPathParams
-  queryParams?: never
-  headerParams?: DeletePetHeaderParams
-  url: `/pet/${string}`
+export type DeletePetMutationResponse = any
+
+export type DeletePetMutation = {
+  Response: any
+  PathParams: DeletePetPathParams
+  HeaderParams: DeletePetHeaderParams
+  Errors: DeletePet400
 }
-
-export type DeletePetResponseData = any

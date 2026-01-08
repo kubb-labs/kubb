@@ -1,19 +1,19 @@
 import { faker } from '@faker-js/faker'
-import type { AddPetResponseData, AddPetStatus405 } from '../../models/ts/petController/AddPet.ts'
+import type { AddPet405, AddPetMutationResponse } from '../../models/ts/petController/AddPet.ts'
 import { createPetFaker } from '../createPetFaker.ts'
 import { createPostPetRequestFaker } from '../createPostPetRequestFaker.ts'
 
 /**
  * @description Successful operation
  */
-export function createAddPetStatus200Faker() {
+export function createAddPet200Faker() {
   return createPetFaker()
 }
 
 /**
  * @description Pet not found
  */
-export function createAddPetStatus405Faker(data?: Partial<AddPetStatus405>): AddPetStatus405 {
+export function createAddPet405Faker(data?: Partial<AddPet405>): AddPet405 {
   return {
     ...{ code: faker.number.int(), message: faker.string.alpha() },
     ...(data || {}),
@@ -23,10 +23,10 @@ export function createAddPetStatus405Faker(data?: Partial<AddPetStatus405>): Add
 /**
  * @description Create a new pet in the store
  */
-export function createAddPetRequestDataFaker() {
+export function createAddPetMutationRequestFaker() {
   return createPostPetRequestFaker()
 }
 
-export function createAddPetResponseDataFaker(data?: Partial<AddPetResponseData>): AddPetResponseData {
-  return data || faker.helpers.arrayElement<any>([createAddPetStatus200Faker()])
+export function createAddPetMutationResponseFaker(data?: Partial<AddPetMutationResponse>): AddPetMutationResponse {
+  return data || faker.helpers.arrayElement<any>([createAddPet200Faker()])
 }

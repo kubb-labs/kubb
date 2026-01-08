@@ -1,12 +1,12 @@
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
 import type {
+  GetUserByName400,
+  GetUserByName404,
   GetUserByNamePathParams,
-  GetUserByNameResponseData,
-  GetUserByNameStatus400,
-  GetUserByNameStatus404,
+  GetUserByNameQueryResponse,
 } from '../../../models/ts/userController/GetUserByName.ts'
-import { getUserByNameResponseDataSchema } from '../../../zod/userController/getUserByNameSchema.ts'
+import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
 
 export function getGetUserByNameUrl({ username }: { username: GetUserByNamePathParams['username'] }) {
   const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
@@ -23,10 +23,10 @@ export async function getUserByName(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<GetUserByNameResponseData, ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>, unknown>({
+  const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
     method: 'GET',
     url: getGetUserByNameUrl({ username }).url.toString(),
     ...requestConfig,
   })
-  return { ...res, data: getUserByNameResponseDataSchema.parse(res.data) }
+  return { ...res, data: getUserByNameQueryResponseSchema.parse(res.data) }
 }

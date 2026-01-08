@@ -8,7 +8,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
-import type { CreateUserRequestData, CreateUserResponseData } from '../models/CreateUser.ts'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
 
@@ -19,12 +19,12 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  * @summary Create user
  * {@link /user}
  */
-export async function createUser(data?: CreateUserRequestData, config: Partial<RequestConfig<CreateUserRequestData>> & { client?: typeof fetch } = {}) {
+export async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
 
-  const res = await request<CreateUserResponseData, ResponseErrorConfig<Error>, CreateUserRequestData>({
+  const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
     method: 'POST',
     url: '/user',
     data: requestData,
@@ -40,17 +40,20 @@ export async function createUser(data?: CreateUserRequestData, config: Partial<R
  */
 export function useCreateUser<TContext>(
   options: {
-    mutation?: MutationObserverOptions<CreateUserResponseData, ResponseErrorConfig<Error>, { data?: MaybeRefOrGetter<CreateUserRequestData> }, TContext> & {
-      client?: QueryClient
-    }
-    client?: Partial<RequestConfig<CreateUserRequestData>> & { client?: typeof fetch }
+    mutation?: MutationObserverOptions<
+      CreateUserMutationResponse,
+      ResponseErrorConfig<Error>,
+      { data?: MaybeRefOrGetter<CreateUserMutationRequest> },
+      TContext
+    > & { client?: QueryClient }
+    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions?.mutationKey ?? createUserMutationKey()
 
-  return useMutation<CreateUserResponseData, ResponseErrorConfig<Error>, { data?: CreateUserRequestData }, TContext>(
+  return useMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>(
     {
       mutationFn: async ({ data }) => {
         return createUser(data, config)

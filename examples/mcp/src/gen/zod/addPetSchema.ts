@@ -10,12 +10,12 @@ import { postPetRequestSchema } from './postPetRequestSchema.js'
 /**
  * @description Successful operation
  */
-export const addPetStatus200Schema = z.lazy(() => petSchema).schema.omit({ name: true })
+export const addPet200Schema = z.lazy(() => petSchema).schema.omit({ name: true })
 
 /**
  * @description Pet not found
  */
-export const addPetStatus405Schema = z.object({
+export const addPet405Schema = z.object({
   code: z.optional(z.number().int()),
   message: z.optional(z.string()),
 })
@@ -23,6 +23,6 @@ export const addPetStatus405Schema = z.object({
 /**
  * @description Create a new pet in the store
  */
-export const addPetRequestDataSchema = z.lazy(() => postPetRequestSchema)
+export const addPetMutationRequestSchema = z.lazy(() => postPetRequestSchema)
 
-export const addPetResponseDataSchema = z.lazy(() => addPetStatus200Schema)
+export const addPetMutationResponseSchema = z.lazy(() => addPet200Schema)

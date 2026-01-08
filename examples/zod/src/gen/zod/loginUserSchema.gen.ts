@@ -17,17 +17,17 @@ export type LoginUserQueryParamsSchema = z.infer<typeof loginUserQueryParamsSche
 /**
  * @description successful operation
  */
-export const loginUserStatus200Schema = z.string()
+export const loginUser200Schema = z.string()
 
-export type LoginUserStatus200Schema = z.infer<typeof loginUserStatus200Schema>
+export type LoginUser200Schema = z.infer<typeof loginUser200Schema>
 
 /**
  * @description Invalid username/password supplied
  */
-export const loginUserStatus400Schema = z.any()
+export const loginUser400Schema = z.any()
 
-export type LoginUserStatus400Schema = z.infer<typeof loginUserStatus400Schema>
+export type LoginUser400Schema = z.infer<typeof loginUser400Schema>
 
-export const loginUserResponseDataSchema = z.lazy(() => loginUserStatus200Schema)
+export const loginUserQueryResponseSchema = z.lazy(() => loginUser200Schema)
 
-export type LoginUserResponseDataSchema = z.infer<typeof loginUserResponseDataSchema>
+export type LoginUserQueryResponseSchema = z.infer<typeof loginUserQueryResponseSchema>
