@@ -2,105 +2,176 @@ import type { PluginManager } from '@kubb/core'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
 import transformers from '@kubb/core/transformers'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
-import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { isKeyword, type Operation, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
-import type ts from 'typescript'
+import ts from 'typescript'
 import { Type } from '../components'
 import * as factory from '../factory.ts'
 import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types'
 
-function printCombinedSchema({ name, schemas, pluginManager }: { name: string; schemas: OperationSchemas; pluginManager: PluginManager }): string {
-  const properties: Record<string, ts.TypeNode> = {}
+function printCombinedSchema({
+  baseName,
+  operation,
+  schemas,
+  pluginManager,
+}: {
+  baseName: string
+  operation: Operation
+  schemas: OperationSchemas
+  pluginManager: PluginManager
+}): string {
+  const results: string[] = []
 
-  if (schemas.response) {
-    properties['response'] = factory.createUnionDeclaration({
-      nodes: schemas.responses.map((res) => {
-        const identifier = pluginManager.resolveName({
-          name: res.name,
-          pluginKey: [pluginTsName],
-          type: 'function',
-        })
+  // Generate DataRequest type
+  const dataRequestProperties: ts.PropertySignature[] = []
 
-        return factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
-      }),
-    })!
-  }
-
+  // Add body property (from request schema)
   if (schemas.request) {
     const identifier = pluginManager.resolveName({
       name: schemas.request.name,
       pluginKey: [pluginTsName],
       type: 'function',
     })
-    properties['request'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'body',
+        questionToken: true,
+        type: factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined),
+      }),
+    )
   }
 
+  // Add pathParams property
   if (schemas.pathParams) {
     const identifier = pluginManager.resolveName({
       name: schemas.pathParams.name,
       pluginKey: [pluginTsName],
       type: 'function',
     })
-    properties['pathParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'pathParams',
+        type: factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined),
+      }),
+    )
+  } else {
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'pathParams',
+        questionToken: true,
+        type: factory.keywordTypeNodes.never,
+      }),
+    )
   }
 
+  // Add queryParams property
   if (schemas.queryParams) {
     const identifier = pluginManager.resolveName({
       name: schemas.queryParams.name,
       pluginKey: [pluginTsName],
       type: 'function',
     })
-    properties['queryParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'queryParams',
+        questionToken: true,
+        type: factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined),
+      }),
+    )
+  } else {
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'queryParams',
+        questionToken: true,
+        type: factory.keywordTypeNodes.never,
+      }),
+    )
   }
 
+  // Add headerParams property
   if (schemas.headerParams) {
     const identifier = pluginManager.resolveName({
       name: schemas.headerParams.name,
       pluginKey: [pluginTsName],
       type: 'function',
     })
-    properties['headerParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
-  }
-
-  if (schemas.errors) {
-    properties['errors'] = factory.createUnionDeclaration({
-      nodes: schemas.errors.map((error) => {
-        const identifier = pluginManager.resolveName({
-          name: error.name,
-          pluginKey: [pluginTsName],
-          type: 'function',
-        })
-
-        return factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'headerParams',
+        questionToken: true,
+        type: factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined),
       }),
-    })!
+    )
+  } else {
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'headerParams',
+        questionToken: true,
+        type: factory.keywordTypeNodes.never,
+      }),
+    )
   }
 
-  const namespaceNode = factory.createTypeAliasDeclaration({
-    name,
-    type: factory.createTypeLiteralNode(
-      Object.keys(properties)
-        .map((key) => {
-          const type = properties[key]
-          if (!type) {
-            return undefined
-          }
+  // Add url property with literal type
+  dataRequestProperties.push(
+    factory.createPropertySignature({
+      name: 'url',
+      type: factory.createLiteralTypeNode(factory.createStringLiteral(operation.path)),
+    }),
+  )
 
-          return factory.createPropertySignature({
-            name: transformers.pascalCase(key),
-            type,
-          })
-        })
-        .filter(Boolean),
-    ),
+  const dataRequestNode = factory.createTypeAliasDeclaration({
+    name: `${baseName}DataRequest`,
+    type: factory.createTypeLiteralNode(dataRequestProperties),
     modifiers: [factory.modifiers.export],
   })
 
-  return safePrint(namespaceNode)
+  results.push(safePrint(dataRequestNode))
+
+  // Generate Responses type (mapping status codes to response types)
+  if (schemas.responses && schemas.responses.length > 0) {
+    const responsesProperties: ts.PropertySignature[] = schemas.responses.map((res) => {
+      const identifier = pluginManager.resolveName({
+        name: res.name,
+        pluginKey: [pluginTsName],
+        type: 'function',
+      })
+
+      return factory.createPropertySignature({
+        name: res.statusCode?.toString() || 'default',
+        type: factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined),
+      })
+    })
+
+    const responsesNode = factory.createTypeAliasDeclaration({
+      name: `${baseName}Responses`,
+      type: factory.createTypeLiteralNode(responsesProperties),
+      modifiers: [factory.modifiers.export],
+    })
+
+    results.push(safePrint(responsesNode))
+
+    // Generate Response type (union via indexed access)
+    const responseNode = factory.createTypeAliasDeclaration({
+      name: `${baseName}Response`,
+      type: factory.createIndexedAccessTypeNode(
+        factory.createTypeReferenceNode(factory.createIdentifier(`${baseName}Responses`), undefined),
+        factory.createTypeOperatorNode(
+          ts.SyntaxKind.KeyOfKeyword,
+          factory.createTypeReferenceNode(factory.createIdentifier(`${baseName}Responses`), undefined),
+        ),
+      ),
+      modifiers: [factory.modifiers.export],
+    })
+
+    results.push(safePrint(responseNode))
+  }
+
+  return results.join('\n\n')
 }
 
 export const typeGenerator = createReactGenerator<PluginTs>({
@@ -179,8 +250,8 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       >
         {operationSchemas.map(mapOperationSchema)}
 
-        <File.Source name={combinedSchemaName} isExportable isIndexable isTypeOnly>
-          {printCombinedSchema({ name: combinedSchemaName, schemas, pluginManager })}
+        <File.Source name={`${type}DataRequest`} isExportable isIndexable isTypeOnly>
+          {printCombinedSchema({ baseName: type, operation, schemas, pluginManager })}
         </File.Source>
       </File>
     )

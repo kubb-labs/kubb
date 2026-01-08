@@ -572,6 +572,7 @@ export const keywordTypeNodes = {
   boolean: factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword),
   undefined: factory.createKeywordTypeNode(ts.SyntaxKind.UndefinedKeyword),
   null: factory.createLiteralTypeNode(factory.createToken(ts.SyntaxKind.NullKeyword)),
+  never: factory.createKeywordTypeNode(ts.SyntaxKind.NeverKeyword),
 } as const
 
 export const createTypeLiteralNode = factory.createTypeLiteralNode
@@ -591,3 +592,5 @@ export const createTupleTypeNode = factory.createTupleTypeNode
 export const createRestTypeNode = factory.createRestTypeNode
 export const createTrue = factory.createTrue
 export const createFalse = factory.createFalse
+export const createIndexedAccessTypeNode = factory.createIndexedAccessTypeNode
+export const createTypeOperatorNode = factory.createTypeOperatorNode
