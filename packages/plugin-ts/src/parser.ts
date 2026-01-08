@@ -23,7 +23,7 @@ function getEnumValueFormat(value: unknown): 'number' | 'boolean' | 'string' {
 function generateInlineEnumUnion(items: Array<{ value?: unknown }>): ts.TypeNode[] {
   return items
     .map((item) => item.value)
-    .filter((value) => value !== undefined)
+    .filter((value): value is string | number | boolean => value !== undefined && value !== null)
     .map((value) => typeKeywordMapper.const(value, getEnumValueFormat(value)))
     .filter(Boolean) as ts.TypeNode[]
 }
