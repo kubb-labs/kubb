@@ -1,7 +1,7 @@
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
-import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.ts'
-import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
+import type { FindPetsByStatusPathParams, FindPetsByStatusResponseData, FindPetsByStatusStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
+import { findPetsByStatusResponseDataSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
 
 export function getFindPetsByStatusUrl({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }) {
   const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/pet/findByStatus/${step_id}` as const }
@@ -19,10 +19,10 @@ export async function findPetsByStatus(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
+  const res = await request<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, unknown>({
     method: 'GET',
     url: getFindPetsByStatusUrl({ step_id }).url.toString(),
     ...requestConfig,
   })
-  return { ...res, data: findPetsByStatusQueryResponseSchema.parse(res.data) }
+  return { ...res, data: findPetsByStatusResponseDataSchema.parse(res.data) }
 }

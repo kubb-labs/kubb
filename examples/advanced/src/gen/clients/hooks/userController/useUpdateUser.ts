@@ -2,19 +2,19 @@ import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tansta
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
+import type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData } from '../../../models/ts/userController/UpdateUser.ts'
 import { updateUser } from '../../axios/userService/updateUser.ts'
 
 export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 
-export function updateUserMutationOptions(config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch } = {}) {
+export function updateUserMutationOptions(config: Partial<RequestConfig<UpdateUserRequestData>> & { client?: typeof fetch } = {}) {
   const mutationKey = updateUserMutationKey()
   return mutationOptions<
-    ResponseConfig<UpdateUserMutationResponse>,
+    ResponseConfig<UpdateUserResponseData>,
     ResponseErrorConfig<Error>,
-    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    { username: UpdateUserPathParams['username']; data?: UpdateUserRequestData },
     typeof mutationKey
   >({
     mutationKey,
@@ -32,12 +32,12 @@ export function updateUserMutationOptions(config: Partial<RequestConfig<UpdateUs
 export function useUpdateUser<TContext>(
   options: {
     mutation?: UseMutationOptions<
-      ResponseConfig<UpdateUserMutationResponse>,
+      ResponseConfig<UpdateUserResponseData>,
       ResponseErrorConfig<Error>,
-      { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+      { username: UpdateUserPathParams['username']; data?: UpdateUserRequestData },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<UpdateUserRequestData>> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
@@ -45,16 +45,16 @@ export function useUpdateUser<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? updateUserMutationKey()
 
   const baseOptions = updateUserMutationOptions(config) as UseMutationOptions<
-    ResponseConfig<UpdateUserMutationResponse>,
+    ResponseConfig<UpdateUserResponseData>,
     ResponseErrorConfig<Error>,
-    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    { username: UpdateUserPathParams['username']; data?: UpdateUserRequestData },
     TContext
   >
 
   return useMutation<
-    ResponseConfig<UpdateUserMutationResponse>,
+    ResponseConfig<UpdateUserResponseData>,
     ResponseErrorConfig<Error>,
-    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    { username: UpdateUserPathParams['username']; data?: UpdateUserRequestData },
     TContext
   >(
     {
@@ -64,9 +64,9 @@ export function useUpdateUser<TContext>(
     },
     queryClient,
   ) as UseMutationResult<
-    ResponseConfig<UpdateUserMutationResponse>,
+    ResponseConfig<UpdateUserResponseData>,
     ResponseErrorConfig<Error>,
-    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    { username: UpdateUserPathParams['username']; data?: UpdateUserRequestData },
     TContext
   >
 }

@@ -13,16 +13,16 @@ export const getOrderByIdPathParamsSchema = z.object({
 /**
  * @description successful operation
  */
-export const getOrderById200Schema = z.lazy(() => orderSchema)
+export const getOrderByIdStatus200Schema = z.lazy(() => orderSchema)
 
 /**
  * @description Invalid ID supplied
  */
-export const getOrderById400Schema = z.any()
+export const getOrderByIdStatus400Schema = z.any()
 
 /**
  * @description Order not found
  */
-export const getOrderById404Schema = z.any()
+export const getOrderByIdStatus404Schema = z.any()
 
-export const getOrderByIdQueryResponseSchema = z.lazy(() => getOrderById200Schema)
+export const getOrderByIdResponseDataSchema = z.lazy(() => getOrderByIdStatus200Schema)

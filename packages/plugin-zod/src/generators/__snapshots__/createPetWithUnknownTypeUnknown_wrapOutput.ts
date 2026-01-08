@@ -7,12 +7,12 @@ import { z } from '@hono/zod-openapi'
 /**
  * @description Null response
  */
-export const createPets201 = z.unknown()
+export const createPetsStatus201 = z.unknown()
 
 /**
  * @description unexpected error
  */
-export const createPetsError = z
+export const createPetsStatusError = z
   .lazy(() => error)
   .openapi({
     examples: [
@@ -21,9 +21,9 @@ export const createPetsError = z
     ],
   })
 
-export const createPetsMutationRequest = z.object({
+export const createPetsRequestData = z.object({
   name: z.string().openapi({ example: 'Baxter' }),
   tag: z.string(),
 })
 
-export const createPetsMutationResponse = z.lazy(() => createPets201)
+export const createPetsResponseData = z.lazy(() => createPetsStatus201)

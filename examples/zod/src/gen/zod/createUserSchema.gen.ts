@@ -9,17 +9,17 @@ import { userSchema } from './userSchema.gen.ts'
 /**
  * @description successful operation
  */
-export const createUserErrorSchema = z.lazy(() => userSchema)
+export const createUserStatusErrorSchema = z.lazy(() => userSchema)
 
-export type CreateUserErrorSchema = z.infer<typeof createUserErrorSchema>
+export type CreateUserStatusErrorSchema = z.infer<typeof createUserStatusErrorSchema>
 
 /**
  * @description Created user object
  */
-export const createUserMutationRequestSchema = z.lazy(() => userSchema)
+export const createUserRequestDataSchema = z.lazy(() => userSchema)
 
-export type CreateUserMutationRequestSchema = z.infer<typeof createUserMutationRequestSchema>
+export type CreateUserRequestDataSchema = z.infer<typeof createUserRequestDataSchema>
 
-export const createUserMutationResponseSchema = z.any()
+export const createUserResponseDataSchema = z.any()
 
-export type CreateUserMutationResponseSchema = z.infer<typeof createUserMutationResponseSchema>
+export type CreateUserResponseDataSchema = z.infer<typeof createUserResponseDataSchema>

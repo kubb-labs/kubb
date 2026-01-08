@@ -112,7 +112,6 @@ export class OperationGenerator<
     } = {},
   ): OperationSchemas {
     const operationId = operation.getOperationId({ friendlyCase: true })
-    const method = operation.method
     const operationName = transformers.pascalCase(operationId)
 
     const resolveKeys = (schema?: SchemaObject) => (schema?.properties ? Object.keys(schema.properties) : undefined)
@@ -127,7 +126,7 @@ export class OperationGenerator<
       const keys = resolveKeys(schema)
 
       return {
-        name: resolveName(transformers.pascalCase(`${operationId} ${name}`)),
+        name: resolveName(transformers.pascalCase(`${operationId} status ${name}`)),
         description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
         schema,
         operation,
@@ -171,7 +170,7 @@ export class OperationGenerator<
         : undefined,
       request: requestSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operationId} ${method === 'get' ? 'queryRequest' : 'mutationRequest'}`)),
+            name: resolveName(transformers.pascalCase(`${operationId} RequestData`)),
             description: (operation.schema.requestBody as OasTypes.RequestBodyObject)?.description,
             operation,
             operationName,
@@ -181,7 +180,7 @@ export class OperationGenerator<
           }
         : undefined,
       response: {
-        name: resolveName(transformers.pascalCase(`${operationId} ${method === 'get' ? 'queryResponse' : 'mutationResponse'}`)),
+        name: resolveName(transformers.pascalCase(`${operationId} ResponseData`)),
         operation,
         operationName,
         schema: {

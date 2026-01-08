@@ -7,7 +7,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
+import type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData } from '../models/UpdateUser.ts'
 
 export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
@@ -20,8 +20,8 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
  */
 export async function updateUser(
   username: UpdateUserPathParams['username'],
-  data?: UpdateUserMutationRequest,
-  config: Partial<RequestConfig<UpdateUserMutationRequest>> & {
+  data?: UpdateUserRequestData,
+  config: Partial<RequestConfig<UpdateUserRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -29,7 +29,7 @@ export async function updateUser(
 
   const requestData = data
 
-  const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
+  const res = await request<UpdateUserResponseData, ResponseErrorConfig<Error>, UpdateUserRequestData>({
     method: 'PUT',
     url: `/user/${username}`,
     data: requestData,
@@ -40,7 +40,7 @@ export async function updateUser(
 
 export type UpdateUserMutationArg = {
   username: UpdateUserPathParams['username']
-  data?: UpdateUserMutationRequest
+  data?: UpdateUserRequestData
 }
 
 /**
@@ -50,10 +50,10 @@ export type UpdateUserMutationArg = {
  */
 export function useUpdateUser(
   options: {
-    mutation?: SWRMutationConfiguration<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationKey | null, UpdateUserMutationArg> & {
+    mutation?: SWRMutationConfiguration<UpdateUserResponseData, ResponseErrorConfig<Error>, UpdateUserMutationKey | null, UpdateUserMutationArg> & {
       throwOnError?: boolean
     }
-    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & {
+    client?: Partial<RequestConfig<UpdateUserRequestData>> & {
       client?: typeof fetch
     }
     shouldFetch?: boolean
@@ -62,7 +62,7 @@ export function useUpdateUser(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updateUserMutationKey()
 
-  return useSWRMutation<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationKey | null, UpdateUserMutationArg>(
+  return useSWRMutation<UpdateUserResponseData, ResponseErrorConfig<Error>, UpdateUserMutationKey | null, UpdateUserMutationArg>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: { username, data } }) => {
       return updateUser(username, data, config)

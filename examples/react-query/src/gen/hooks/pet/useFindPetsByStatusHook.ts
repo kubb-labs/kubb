@@ -7,7 +7,7 @@ import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from
 import { queryOptions, useQuery } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus.ts'
+import type { FindPetsByStatusQueryParams, FindPetsByStatusResponseData, FindPetsByStatusStatus400 } from '../../models/FindPetsByStatus.ts'
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => ['v5', { url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 
@@ -21,7 +21,7 @@ export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKe
 export async function findPetsByStatusHook(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
+  const res = await request<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, unknown>({
     method: 'GET',
     url: '/pet/findByStatus',
     params,
@@ -32,7 +32,7 @@ export async function findPetsByStatusHook(params?: FindPetsByStatusQueryParams,
 
 export function findPetsByStatusQueryOptionsHook(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = findPetsByStatusQueryKey(params)
-  return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
+  return queryOptions<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, FindPetsByStatusResponseData, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -47,13 +47,13 @@ export function findPetsByStatusQueryOptionsHook(params?: FindPetsByStatusQueryP
  * {@link /pet/findByStatus}
  */
 export function useFindPetsByStatusHook<
-  TData = FindPetsByStatusQueryResponse,
-  TQueryData = FindPetsByStatusQueryResponse,
+  TData = FindPetsByStatusResponseData,
+  TQueryData = FindPetsByStatusResponseData,
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
 >(
   params?: FindPetsByStatusQueryParams,
   options: {
-    query?: Partial<QueryObserverOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, TData, TQueryData, TQueryKey>> & {
+    query?: Partial<QueryObserverOptions<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -70,7 +70,7 @@ export function useFindPetsByStatusHook<
       ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByStatus400>> & {
+  ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByStatusStatus400>> & {
     queryKey: TQueryKey
   }
 

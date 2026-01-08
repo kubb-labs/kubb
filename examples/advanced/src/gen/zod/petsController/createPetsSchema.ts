@@ -1,13 +1,13 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  CreatePets201,
-  CreatePetsError,
   CreatePetsHeaderParams,
-  CreatePetsMutationRequest,
-  CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsRequestData,
+  CreatePetsResponseData,
+  CreatePetsStatus201,
+  CreatePetsStatusError,
 } from '../../models/ts/petsController/CreatePets.ts'
 import { petNotFoundSchema } from '../petNotFoundSchema.ts'
 
@@ -35,24 +35,24 @@ export type CreatePetsHeaderParamsSchema = CreatePetsHeaderParams
 /**
  * @description Null response
  */
-export const createPets201Schema = z.any() as unknown as ToZod<CreatePets201>
+export const createPetsStatus201Schema = z.any() as unknown as ToZod<CreatePetsStatus201>
 
-export type CreatePets201Schema = CreatePets201
+export type CreatePetsStatus201Schema = CreatePetsStatus201
 
 /**
  * @description unexpected error
  */
-export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found') as unknown as ToZod<CreatePetsError>
+export const createPetsStatusErrorSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found') as unknown as ToZod<CreatePetsStatusError>
 
-export type CreatePetsErrorSchema = CreatePetsError
+export type CreatePetsStatusErrorSchema = CreatePetsStatusError
 
-export const createPetsMutationRequestSchema = z.object({
+export const createPetsRequestDataSchema = z.object({
   name: z.string(),
   tag: z.string(),
-}) as unknown as ToZod<CreatePetsMutationRequest>
+}) as unknown as ToZod<CreatePetsRequestData>
 
-export type CreatePetsMutationRequestSchema = CreatePetsMutationRequest
+export type CreatePetsRequestDataSchema = CreatePetsRequestData
 
-export const createPetsMutationResponseSchema = z.lazy(() => createPets201Schema) as unknown as ToZod<CreatePetsMutationResponse>
+export const createPetsResponseDataSchema = z.lazy(() => createPetsStatus201Schema) as unknown as ToZod<CreatePetsResponseData>
 
-export type CreatePetsMutationResponseSchema = CreatePetsMutationResponse
+export type CreatePetsResponseDataSchema = CreatePetsResponseData

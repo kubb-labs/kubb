@@ -9,7 +9,7 @@ import { queryOptions, createQuery } from 'custom-query'
 
 export const updatePetWithFormQueryKey = (
   petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
+  data?: UpdatePetWithFormRequestData,
   params?: UpdatePetWithFormQueryParams,
 ) => [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const
 
@@ -21,32 +21,32 @@ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQuery
  */
 export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
+  data?: UpdatePetWithFormRequestData,
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<UpdatePetWithFormRequestData>> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const requestData = updatePetWithFormMutationRequest.parse(data)
+  const requestData = updatePetWithFormRequestData.parse(data)
 
-  const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationRequest>({
+  const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, UpdatePetWithFormRequestData>({
     method: 'POST',
     url: `/pet/${petId}`,
     params,
     data: requestData,
     ...requestConfig,
   })
-  return updatePetWithFormMutationResponse.parse(res.data)
+  return updatePetWithFormResponseData.parse(res.data)
 }
 
 export function updatePetWithFormQueryOptions(
   petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
+  data?: UpdatePetWithFormRequestData,
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<UpdatePetWithFormRequestData>> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, data, params)
-  return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
+  return queryOptions<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, UpdatePetWithFormResponseData, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -61,18 +61,18 @@ export function updatePetWithFormQueryOptions(
  * {@link /pet/:petId}
  */
 export function createUpdatePetWithForm<
-  TData = UpdatePetWithFormMutationResponse,
-  TQueryData = UpdatePetWithFormMutationResponse,
+  TData = UpdatePetWithFormResponseData,
+  TQueryData = UpdatePetWithFormResponseData,
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
 >(
   petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
+  data?: UpdatePetWithFormRequestData,
   params?: UpdatePetWithFormQueryParams,
   options: {
-    query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
+    query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<UpdatePetWithFormRequestData>> & { client?: typeof fetch }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
@@ -86,7 +86,7 @@ export function createUpdatePetWithForm<
       ...queryOptions,
     } as unknown as CreateBaseQueryOptions,
     queryClient,
-  ) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
+  ) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithFormStatus405>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

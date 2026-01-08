@@ -4,27 +4,27 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { PlaceOrderMutationResponse } from '../models/PlaceOrder.ts'
+import type { PlaceOrderResponseData } from '../models/PlaceOrder.ts'
 import { createOrder } from './createOrder.ts'
 
 /**
  * @description successful operation
  */
-export function createPlaceOrder200() {
+export function createPlaceOrderStatus200() {
   return createOrder()
 }
 
 /**
  * @description Invalid input
  */
-export function createPlaceOrder405() {
+export function createPlaceOrderStatus405() {
   return undefined
 }
 
-export function createPlaceOrderMutationRequest() {
+export function createPlaceOrderRequestData() {
   return createOrder()
 }
 
-export function createPlaceOrderMutationResponse(data?: Partial<PlaceOrderMutationResponse>): PlaceOrderMutationResponse {
-  return data || faker.helpers.arrayElement<any>([createPlaceOrder200()])
+export function createPlaceOrderResponseData(data?: Partial<PlaceOrderResponseData>): PlaceOrderResponseData {
+  return data || faker.helpers.arrayElement<any>([createPlaceOrderStatus200()])
 }

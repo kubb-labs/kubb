@@ -8,7 +8,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/AddPet.ts'
+import type { AddPetRequestData, AddPetResponseData, AddPetStatus405 } from '../models/AddPet.ts'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
 
@@ -19,12 +19,12 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
  * @summary Add a new pet to the store
  * {@link /pet}
  */
-export async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}) {
+export async function addPet(data: AddPetRequestData, config: Partial<RequestConfig<AddPetRequestData>> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
 
-  const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
+  const res = await request<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, AddPetRequestData>({
     method: 'POST',
     url: '/pet',
     data: requestData,
@@ -40,17 +40,17 @@ export async function addPet(data: AddPetMutationRequest, config: Partial<Reques
  */
 export function useAddPet<TContext>(
   options: {
-    mutation?: MutationObserverOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: MaybeRefOrGetter<AddPetMutationRequest> }, TContext> & {
+    mutation?: MutationObserverOptions<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, { data: MaybeRefOrGetter<AddPetRequestData> }, TContext> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<AddPetRequestData>> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions?.mutationKey ?? addPetMutationKey()
 
-  return useMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>(
+  return useMutation<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, { data: AddPetRequestData }, TContext>(
     {
       mutationFn: async ({ data }) => {
         return addPet(data, config)

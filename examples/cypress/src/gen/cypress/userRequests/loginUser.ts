@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { LoginUserQueryParams, LoginUserQueryResponse } from '../../models/LoginUser.ts'
+import type { LoginUserQueryParams, LoginUserResponseData } from '../../models/LoginUser.ts'
 
-export function loginUser(params?: LoginUserQueryParams, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<LoginUserQueryResponse> {
+export function loginUser(params?: LoginUserQueryParams, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<LoginUserResponseData> {
   return cy
-    .request<LoginUserQueryResponse>({
+    .request<LoginUserResponseData>({
       method: 'get',
       url: 'http://localhost:3000/user/login',
       qs: params,

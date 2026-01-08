@@ -1,11 +1,12 @@
-export type { DeleteOrder400, DeleteOrder404, DeleteOrderMutation, DeleteOrderMutationResponse, DeleteOrderPathParams } from './DeleteOrder.ts'
-export type { GetInventory200, GetInventoryQuery, GetInventoryQueryResponse } from './GetInventory.ts'
-export type { GetOrderById200, GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQuery, GetOrderByIdQueryResponse } from './GetOrderById.ts'
-export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutation, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from './PlaceOrder.ts'
+export type { DeleteOrderPathParams, DeleteOrderRequest, DeleteOrderResponseData, DeleteOrderStatus400, DeleteOrderStatus404 } from './DeleteOrder.ts'
+export type { GetInventoryRequest, GetInventoryResponseData, GetInventoryStatus200 } from './GetInventory.ts'
 export type {
-  PlaceOrderPatch200,
-  PlaceOrderPatch405,
-  PlaceOrderPatchMutation,
-  PlaceOrderPatchMutationRequest,
-  PlaceOrderPatchMutationResponse,
-} from './PlaceOrderPatch.ts'
+  GetOrderByIdPathParams,
+  GetOrderByIdRequest,
+  GetOrderByIdResponseData,
+  GetOrderByIdStatus200,
+  GetOrderByIdStatus400,
+  GetOrderByIdStatus404,
+} from './GetOrderById.ts'
+export type { PlaceOrderRequestData, PlaceOrderResponseData, PlaceOrderStatus200, PlaceOrderStatus405 } from './PlaceOrder.ts'
+export type { PlaceOrderPatchRequestData, PlaceOrderPatchResponseData, PlaceOrderPatchStatus200, PlaceOrderPatchStatus405 } from './PlaceOrderPatch.ts'

@@ -15,17 +15,17 @@ export type FindPetsByStatusQueryParamsSchema = z.infer<typeof findPetsByStatusQ
 /**
  * @description successful operation
  */
-export const findPetsByStatus200Schema = z.array(z.lazy(() => petSchema))
+export const findPetsByStatusStatus200Schema = z.array(z.lazy(() => petSchema))
 
-export type FindPetsByStatus200Schema = z.infer<typeof findPetsByStatus200Schema>
+export type FindPetsByStatusStatus200Schema = z.infer<typeof findPetsByStatusStatus200Schema>
 
 /**
  * @description Invalid status value
  */
-export const findPetsByStatus400Schema = z.any()
+export const findPetsByStatusStatus400Schema = z.any()
 
-export type FindPetsByStatus400Schema = z.infer<typeof findPetsByStatus400Schema>
+export type FindPetsByStatusStatus400Schema = z.infer<typeof findPetsByStatusStatus400Schema>
 
-export const findPetsByStatusQueryResponseSchema = z.lazy(() => findPetsByStatus200Schema)
+export const findPetsByStatusResponseDataSchema = z.lazy(() => findPetsByStatusStatus200Schema)
 
-export type FindPetsByStatusQueryResponseSchema = z.infer<typeof findPetsByStatusQueryResponseSchema>
+export type FindPetsByStatusResponseDataSchema = z.infer<typeof findPetsByStatusResponseDataSchema>

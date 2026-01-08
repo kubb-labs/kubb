@@ -1,18 +1,18 @@
 export type {
-  CreatePets201Schema,
-  CreatePetsErrorSchema,
   CreatePetsHeaderParamsSchema,
-  CreatePetsMutationRequestSchema,
-  CreatePetsMutationResponseSchema,
   CreatePetsPathParamsSchema,
   CreatePetsQueryParamsSchema,
+  CreatePetsRequestDataSchema,
+  CreatePetsResponseDataSchema,
+  CreatePetsStatus201Schema,
+  CreatePetsStatusErrorSchema,
 } from './createPetsSchema.ts'
 export {
-  createPets201Schema,
-  createPetsErrorSchema,
   createPetsHeaderParamsSchema,
-  createPetsMutationRequestSchema,
-  createPetsMutationResponseSchema,
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
+  createPetsRequestDataSchema,
+  createPetsResponseDataSchema,
+  createPetsStatus201Schema,
+  createPetsStatusErrorSchema,
 } from './createPetsSchema.ts'

@@ -1,12 +1,12 @@
-import type { LogoutUserQueryResponse } from '../../models/ts/userController/LogoutUser.ts'
+import type { LogoutUserResponseData } from '../../models/ts/userController/LogoutUser.ts'
 
 /**
  * @description successful operation
  */
-export function createLogoutUserErrorFaker() {
+export function createLogoutUserStatusErrorFaker() {
   return undefined
 }
 
-export function createLogoutUserQueryResponseFaker(_data?: Partial<LogoutUserQueryResponse>): LogoutUserQueryResponse {
+export function createLogoutUserResponseDataFaker(_data?: Partial<LogoutUserResponseData>): LogoutUserResponseData {
   return undefined
 }

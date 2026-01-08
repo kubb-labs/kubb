@@ -22,7 +22,7 @@ export async function updatePetWithForm(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
+  const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
     method: 'POST',
     url: getUpdatePetWithFormUrl(petId).url.toString(),
     params,

@@ -1,17 +1,17 @@
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/ts/userController/CreateUser.ts'
+import type { CreateUserRequestData, CreateUserResponseData } from '../../models/ts/userController/CreateUser.ts'
 
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
  * {@link /user}
  */
-export async function createUserHandler({ data }: { data?: CreateUserMutationRequest }): Promise<Promise<CallToolResult>> {
+export async function createUserHandler({ data }: { data?: CreateUserRequestData }): Promise<Promise<CallToolResult>> {
   const requestData = data
 
-  const res = await fetch<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
+  const res = await fetch<CreateUserResponseData, ResponseErrorConfig<Error>, CreateUserRequestData>({
     method: 'POST',
     url: '/user',
     baseURL: 'https://petstore.swagger.io/v2',

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/ts/userController/UpdateUser.ts'
+import type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData, UpdateUserStatusError } from '../../models/ts/userController/UpdateUser.ts'
 import { userSchema } from '../userSchema.ts'
 
 export const updateUserPathParamsSchema = z.object({
@@ -12,17 +12,17 @@ export type UpdateUserPathParamsSchema = UpdateUserPathParams
 /**
  * @description successful operation
  */
-export const updateUserErrorSchema = z.any() as unknown as ToZod<UpdateUserError>
+export const updateUserStatusErrorSchema = z.any() as unknown as ToZod<UpdateUserStatusError>
 
-export type UpdateUserErrorSchema = UpdateUserError
+export type UpdateUserStatusErrorSchema = UpdateUserStatusError
 
 /**
  * @description Update an existent user in the store
  */
-export const updateUserMutationRequestSchema = z.lazy(() => userSchema).schema.omit({ tag: true }) as unknown as ToZod<UpdateUserMutationRequest>
+export const updateUserRequestDataSchema = z.lazy(() => userSchema).schema.omit({ tag: true }) as unknown as ToZod<UpdateUserRequestData>
 
-export type UpdateUserMutationRequestSchema = UpdateUserMutationRequest
+export type UpdateUserRequestDataSchema = UpdateUserRequestData
 
-export const updateUserMutationResponseSchema = z.any() as unknown as ToZod<UpdateUserMutationResponse>
+export const updateUserResponseDataSchema = z.any() as unknown as ToZod<UpdateUserResponseData>
 
-export type UpdateUserMutationResponseSchema = UpdateUserMutationResponse
+export type UpdateUserResponseDataSchema = UpdateUserResponseData

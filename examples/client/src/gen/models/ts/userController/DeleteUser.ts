@@ -14,17 +14,19 @@ export type DeleteUserPathParams = {
 /**
  * @description Invalid username supplied
  */
-export type DeleteUser400 = any
+export type DeleteUserStatus400 = any
 
 /**
  * @description User not found
  */
-export type DeleteUser404 = any
+export type DeleteUserStatus404 = any
 
-export type DeleteUserMutationResponse = any
-
-export type DeleteUserMutation = {
-  Response: any
-  PathParams: DeleteUserPathParams
-  Errors: DeleteUser400 | DeleteUser404
+export type DeleteUserRequest = {
+  data?: never
+  pathParams: DeleteUserPathParams
+  queryParams?: never
+  headerParams?: never
+  url: '/user/{username}'
 }
+
+export type DeleteUserResponseData = any

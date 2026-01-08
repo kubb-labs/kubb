@@ -14,7 +14,7 @@ export function listPetsQueryParams(data?: Partial<ListPetsQueryParams>): ListPe
 /**
  * @description A paged array of pets
  */
-export function listPets200(data?: Partial<ListPets200>): ListPets200 {
+export function listPetsStatus200(data?: Partial<ListPetsStatus200>): ListPetsStatus200 {
   return {
     ...{ ...pagination(), ...pets() },
     ...(data || {}),
@@ -24,10 +24,10 @@ export function listPets200(data?: Partial<ListPets200>): ListPets200 {
 /**
  * @description unexpected error
  */
-export function listPetsError() {
+export function listPetsStatusError() {
   return error()
 }
 
-export function listPetsQueryResponse(data?: Partial<ListPetsQueryResponse>): ListPetsQueryResponse {
-  return data || faker.helpers.arrayElement<any>([listPets200()])
+export function listPetsResponseData(data?: Partial<ListPetsResponseData>): ListPetsResponseData {
+  return data || faker.helpers.arrayElement<any>([listPetsStatus200()])
 }

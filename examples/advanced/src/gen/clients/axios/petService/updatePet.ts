@@ -1,13 +1,13 @@
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
 import type {
-  UpdatePet400,
-  UpdatePet404,
-  UpdatePet405,
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
+  UpdatePetRequestData,
+  UpdatePetResponseData,
+  UpdatePetStatus400,
+  UpdatePetStatus404,
+  UpdatePetStatus405,
 } from '../../../models/ts/petController/UpdatePet.ts'
-import { updatePetMutationRequestSchema, updatePetMutationResponseSchema } from '../../../zod/petController/updatePetSchema.ts'
+import { updatePetRequestDataSchema, updatePetResponseDataSchema } from '../../../zod/petController/updatePetSchema.ts'
 
 export function getUpdatePetUrl() {
   const res = { method: 'PUT', url: 'https://petstore3.swagger.io/api/v3/pet' as const }
@@ -20,18 +20,18 @@ export function getUpdatePetUrl() {
  * {@link /pet}
  */
 export async function updatePet(
-  { data }: { data: UpdatePetMutationRequest },
-  config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch } = {},
+  { data }: { data: UpdatePetRequestData },
+  config: Partial<RequestConfig<UpdatePetRequestData>> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const requestData = updatePetMutationRequestSchema.parse(data)
+  const requestData = updatePetRequestDataSchema.parse(data)
 
-  const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
+  const res = await request<UpdatePetResponseData, ResponseErrorConfig<UpdatePetStatus400 | UpdatePetStatus404 | UpdatePetStatus405>, UpdatePetRequestData>({
     method: 'PUT',
     url: getUpdatePetUrl().url.toString(),
     data: requestData,
     ...requestConfig,
   })
-  return { ...res, data: updatePetMutationResponseSchema.parse(res.data) }
+  return { ...res, data: updatePetResponseDataSchema.parse(res.data) }
 }

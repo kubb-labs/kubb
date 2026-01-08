@@ -4,7 +4,7 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/UpdateUser.ts'
+import type { UpdateUserPathParams, UpdateUserResponseData } from '../../models/UpdateUser.ts'
 import { createUser } from '../createUser.ts'
 
 export function createUpdateUserPathParams(data?: Partial<UpdateUserPathParams>): UpdateUserPathParams {
@@ -18,7 +18,7 @@ export function createUpdateUserPathParams(data?: Partial<UpdateUserPathParams>)
 /**
  * @description successful operation
  */
-export function createUpdateUserError() {
+export function createUpdateUserStatusError() {
   faker.seed([220])
   return undefined
 }
@@ -26,12 +26,12 @@ export function createUpdateUserError() {
 /**
  * @description Update an existent user in the store
  */
-export function createUpdateUserMutationRequest() {
+export function createUpdateUserRequestData() {
   faker.seed([220])
   return createUser()
 }
 
-export function createUpdateUserMutationResponse(_data?: Partial<UpdateUserMutationResponse>): UpdateUserMutationResponse {
+export function createUpdateUserResponseData(_data?: Partial<UpdateUserResponseData>): UpdateUserResponseData {
   faker.seed([220])
   return undefined
 }

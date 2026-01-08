@@ -46,11 +46,13 @@ export const setConfig = (config: RequestConfig) => {
 
 export const axiosInstance = axios.create(getConfig())
 
-export const client = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
+export const client = async <TResponseData, TError = unknown, TRequestData = unknown>(
+  config: RequestConfig<TRequestData>,
+): Promise<ResponseConfig<TResponseData>> => {
   const globalConfig = getConfig()
 
   return axiosInstance
-    .request<TData, ResponseConfig<TData>>({
+    .request<TResponseData, ResponseConfig<TResponseData>>({
       ...globalConfig,
       ...config,
       headers: {

@@ -1,12 +1,7 @@
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import type {
-  UploadFileMutationRequest,
-  UploadFileMutationResponse,
-  UploadFilePathParams,
-  UploadFileQueryParams,
-} from '../../models/ts/petController/UploadFile.ts'
+import type { UploadFilePathParams, UploadFileQueryParams, UploadFileRequestData, UploadFileResponseData } from '../../models/ts/petController/UploadFile.ts'
 
 /**
  * @summary uploads an image
@@ -18,12 +13,12 @@ export async function uploadFileHandler({
   params,
 }: {
   petId: UploadFilePathParams['petId']
-  data?: UploadFileMutationRequest
+  data?: UploadFileRequestData
   params?: UploadFileQueryParams
 }): Promise<Promise<CallToolResult>> {
   const requestData = data
 
-  const res = await fetch<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
+  const res = await fetch<UploadFileResponseData, ResponseErrorConfig<Error>, UploadFileRequestData>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     baseURL: 'https://petstore.swagger.io/v2',

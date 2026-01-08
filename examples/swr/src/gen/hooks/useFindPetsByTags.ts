@@ -6,7 +6,7 @@
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/FindPetsByTags.ts'
+import type { FindPetsByTagsQueryParams, FindPetsByTagsResponseData, FindPetsByTagsStatus400 } from '../models/FindPetsByTags.ts'
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
@@ -20,7 +20,7 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+  const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
     method: 'GET',
     url: '/pet/findByTags',
     params,
@@ -45,7 +45,7 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, c
 export function useFindPetsByTags(
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: Parameters<typeof useSWR<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>>>[2]
+    query?: Parameters<typeof useSWR<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
     immutable?: boolean
@@ -55,7 +55,7 @@ export function useFindPetsByTags(
 
   const queryKey = findPetsByTagsQueryKey(params)
 
-  return useSWR<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryKey | null>(shouldFetch ? queryKey : null, {
+  return useSWR<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, FindPetsByTagsQueryKey | null>(shouldFetch ? queryKey : null, {
     ...findPetsByTagsQueryOptions(params, config),
     ...(immutable
       ? {

@@ -2,7 +2,7 @@ import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tansta
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser.ts'
+import type { DeleteUserPathParams, DeleteUserResponseData, DeleteUserStatus400, DeleteUserStatus404 } from '../../../models/ts/userController/DeleteUser.ts'
 import { deleteUser } from '../../axios/userService/deleteUser.ts'
 
 export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const
@@ -12,8 +12,8 @@ export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
 export function deleteUserMutationOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const mutationKey = deleteUserMutationKey()
   return mutationOptions<
-    ResponseConfig<DeleteUserMutationResponse>,
-    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    ResponseConfig<DeleteUserResponseData>,
+    ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>,
     { username: DeleteUserPathParams['username'] },
     typeof mutationKey
   >({
@@ -32,8 +32,8 @@ export function deleteUserMutationOptions(config: Partial<RequestConfig> & { cli
 export function useDeleteUser<TContext>(
   options: {
     mutation?: UseMutationOptions<
-      ResponseConfig<DeleteUserMutationResponse>,
-      ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+      ResponseConfig<DeleteUserResponseData>,
+      ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>,
       { username: DeleteUserPathParams['username'] },
       TContext
     > & { client?: QueryClient }
@@ -45,15 +45,15 @@ export function useDeleteUser<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? deleteUserMutationKey()
 
   const baseOptions = deleteUserMutationOptions(config) as UseMutationOptions<
-    ResponseConfig<DeleteUserMutationResponse>,
-    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    ResponseConfig<DeleteUserResponseData>,
+    ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>,
     { username: DeleteUserPathParams['username'] },
     TContext
   >
 
   return useMutation<
-    ResponseConfig<DeleteUserMutationResponse>,
-    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    ResponseConfig<DeleteUserResponseData>,
+    ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>,
     { username: DeleteUserPathParams['username'] },
     TContext
   >(
@@ -64,8 +64,8 @@ export function useDeleteUser<TContext>(
     },
     queryClient,
   ) as UseMutationResult<
-    ResponseConfig<DeleteUserMutationResponse>,
-    ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+    ResponseConfig<DeleteUserResponseData>,
+    ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>,
     { username: DeleteUserPathParams['username'] },
     TContext
   >

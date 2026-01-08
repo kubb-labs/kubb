@@ -2,24 +2,19 @@ import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tansta
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type {
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
-} from '../../../models/ts/userController/CreateUsersWithListInput.ts'
+import type { CreateUsersWithListInputRequestData, CreateUsersWithListInputResponseData } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
 import { createUsersWithListInput } from '../../axios/userService/createUsersWithListInput.ts'
 
 export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
 
 export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersWithListInputMutationKey>
 
-export function createUsersWithListInputMutationOptions(
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch } = {},
-) {
+export function createUsersWithListInputMutationOptions(config: Partial<RequestConfig<CreateUsersWithListInputRequestData>> & { client?: typeof fetch } = {}) {
   const mutationKey = createUsersWithListInputMutationKey()
   return mutationOptions<
-    ResponseConfig<CreateUsersWithListInputMutationResponse>,
+    ResponseConfig<CreateUsersWithListInputResponseData>,
     ResponseErrorConfig<Error>,
-    { data?: CreateUsersWithListInputMutationRequest },
+    { data?: CreateUsersWithListInputRequestData },
     typeof mutationKey
   >({
     mutationKey,
@@ -37,12 +32,12 @@ export function createUsersWithListInputMutationOptions(
 export function useCreateUsersWithListInput<TContext>(
   options: {
     mutation?: UseMutationOptions<
-      ResponseConfig<CreateUsersWithListInputMutationResponse>,
+      ResponseConfig<CreateUsersWithListInputResponseData>,
       ResponseErrorConfig<Error>,
-      { data?: CreateUsersWithListInputMutationRequest },
+      { data?: CreateUsersWithListInputRequestData },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<CreateUsersWithListInputRequestData>> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
@@ -50,16 +45,16 @@ export function useCreateUsersWithListInput<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? createUsersWithListInputMutationKey()
 
   const baseOptions = createUsersWithListInputMutationOptions(config) as UseMutationOptions<
-    ResponseConfig<CreateUsersWithListInputMutationResponse>,
+    ResponseConfig<CreateUsersWithListInputResponseData>,
     ResponseErrorConfig<Error>,
-    { data?: CreateUsersWithListInputMutationRequest },
+    { data?: CreateUsersWithListInputRequestData },
     TContext
   >
 
   return useMutation<
-    ResponseConfig<CreateUsersWithListInputMutationResponse>,
+    ResponseConfig<CreateUsersWithListInputResponseData>,
     ResponseErrorConfig<Error>,
-    { data?: CreateUsersWithListInputMutationRequest },
+    { data?: CreateUsersWithListInputRequestData },
     TContext
   >(
     {
@@ -69,9 +64,9 @@ export function useCreateUsersWithListInput<TContext>(
     },
     queryClient,
   ) as UseMutationResult<
-    ResponseConfig<CreateUsersWithListInputMutationResponse>,
+    ResponseConfig<CreateUsersWithListInputResponseData>,
     ResponseErrorConfig<Error>,
-    { data?: CreateUsersWithListInputMutationRequest },
+    { data?: CreateUsersWithListInputRequestData },
     TContext
   >
 }

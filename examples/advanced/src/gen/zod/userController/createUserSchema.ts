@@ -1,22 +1,22 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/ts/userController/CreateUser.ts'
+import type { CreateUserRequestData, CreateUserResponseData, CreateUserStatusError } from '../../models/ts/userController/CreateUser.ts'
 import { userSchema } from '../userSchema.ts'
 
 /**
  * @description successful operation
  */
-export const createUserErrorSchema = z.lazy(() => userSchema) as unknown as ToZod<CreateUserError>
+export const createUserStatusErrorSchema = z.lazy(() => userSchema) as unknown as ToZod<CreateUserStatusError>
 
-export type CreateUserErrorSchema = CreateUserError
+export type CreateUserStatusErrorSchema = CreateUserStatusError
 
 /**
  * @description Created user object
  */
-export const createUserMutationRequestSchema = z.lazy(() => userSchema).schema.omit({ tag: true }) as unknown as ToZod<CreateUserMutationRequest>
+export const createUserRequestDataSchema = z.lazy(() => userSchema).schema.omit({ tag: true }) as unknown as ToZod<CreateUserRequestData>
 
-export type CreateUserMutationRequestSchema = CreateUserMutationRequest
+export type CreateUserRequestDataSchema = CreateUserRequestData
 
-export const createUserMutationResponseSchema = z.any() as unknown as ToZod<CreateUserMutationResponse>
+export const createUserResponseDataSchema = z.any() as unknown as ToZod<CreateUserResponseData>
 
-export type CreateUserMutationResponseSchema = CreateUserMutationResponse
+export type CreateUserResponseDataSchema = CreateUserResponseData

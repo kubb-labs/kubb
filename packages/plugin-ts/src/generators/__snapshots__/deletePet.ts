@@ -3,11 +3,12 @@
  * Do not edit manually.
  */
 
-export type DeletePetsPetidMutationResponse = any
-
-export type deletePetsPetidDataRequest = {
+export type DeletePetsPetidRequest = {
+  data?: never
   pathParams?: never
   queryParams?: never
   headerParams?: never
   url: '/pets/{petId}'
 }
+
+export type DeletePetsPetidResponseData = any

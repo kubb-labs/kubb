@@ -17,148 +17,140 @@ export type { Pet, PetStatusEnumKey } from './Pet.js'
 export { petStatusEnum } from './Pet.js'
 export type { PetNotFound } from './PetNotFound.js'
 export type {
-  AddPet200,
-  AddPet405,
-  AddPetMutation,
-  AddPetMutationRequest,
-  AddPetMutationResponse,
+  AddPetRequestData,
+  AddPetResponseData,
+  AddPetStatus200,
+  AddPetStatus405,
 } from './petController/AddPet.js'
 export type {
-  DeletePet400,
   DeletePetHeaderParams,
-  DeletePetMutation,
-  DeletePetMutationResponse,
   DeletePetPathParams,
+  DeletePetRequest,
+  DeletePetResponseData,
+  DeletePetStatus400,
 } from './petController/DeletePet.js'
 export type {
-  FindPetsByStatus200,
-  FindPetsByStatus400,
-  FindPetsByStatusQuery,
   FindPetsByStatusQueryParams,
   FindPetsByStatusQueryParamsStatusEnumKey,
-  FindPetsByStatusQueryResponse,
+  FindPetsByStatusRequest,
+  FindPetsByStatusResponseData,
+  FindPetsByStatusStatus200,
+  FindPetsByStatusStatus400,
 } from './petController/FindPetsByStatus.js'
 export { findPetsByStatusQueryParamsStatusEnum } from './petController/FindPetsByStatus.js'
 export type {
-  FindPetsByTags200,
-  FindPetsByTags400,
-  FindPetsByTagsQuery,
   FindPetsByTagsQueryParams,
-  FindPetsByTagsQueryResponse,
+  FindPetsByTagsRequest,
+  FindPetsByTagsResponseData,
+  FindPetsByTagsStatus200,
+  FindPetsByTagsStatus400,
 } from './petController/FindPetsByTags.js'
 export type {
-  GetPetById200,
-  GetPetById400,
-  GetPetById404,
   GetPetByIdPathParams,
-  GetPetByIdQuery,
-  GetPetByIdQueryResponse,
+  GetPetByIdRequest,
+  GetPetByIdResponseData,
+  GetPetByIdStatus200,
+  GetPetByIdStatus400,
+  GetPetByIdStatus404,
 } from './petController/GetPetById.js'
 export type {
-  UpdatePet200,
-  UpdatePet400,
-  UpdatePet404,
-  UpdatePet405,
-  UpdatePetMutation,
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
+  UpdatePetRequestData,
+  UpdatePetResponseData,
+  UpdatePetStatus200,
+  UpdatePetStatus400,
+  UpdatePetStatus404,
+  UpdatePetStatus405,
 } from './petController/UpdatePet.js'
 export type {
-  UpdatePetWithForm405,
-  UpdatePetWithFormMutation,
-  UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithFormRequest,
+  UpdatePetWithFormResponseData,
+  UpdatePetWithFormStatus405,
 } from './petController/UpdatePetWithForm.js'
 export type {
-  UploadFile200,
-  UploadFileMutation,
-  UploadFileMutationRequest,
-  UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
+  UploadFileRequestData,
+  UploadFileResponseData,
+  UploadFileStatus200,
 } from './petController/UploadFile.js'
 export type {
-  DeleteOrder400,
-  DeleteOrder404,
-  DeleteOrderMutation,
-  DeleteOrderMutationResponse,
   DeleteOrderPathParams,
+  DeleteOrderRequest,
+  DeleteOrderResponseData,
+  DeleteOrderStatus400,
+  DeleteOrderStatus404,
 } from './storeController/DeleteOrder.js'
 export type {
-  GetInventory200,
-  GetInventoryQuery,
-  GetInventoryQueryResponse,
+  GetInventoryRequest,
+  GetInventoryResponseData,
+  GetInventoryStatus200,
 } from './storeController/GetInventory.js'
 export type {
-  GetOrderById200,
-  GetOrderById400,
-  GetOrderById404,
   GetOrderByIdPathParams,
-  GetOrderByIdQuery,
-  GetOrderByIdQueryResponse,
+  GetOrderByIdRequest,
+  GetOrderByIdResponseData,
+  GetOrderByIdStatus200,
+  GetOrderByIdStatus400,
+  GetOrderByIdStatus404,
 } from './storeController/GetOrderById.js'
 export type {
-  PlaceOrder200,
-  PlaceOrder405,
-  PlaceOrderMutation,
-  PlaceOrderMutationRequest,
-  PlaceOrderMutationResponse,
+  PlaceOrderRequestData,
+  PlaceOrderResponseData,
+  PlaceOrderStatus200,
+  PlaceOrderStatus405,
 } from './storeController/PlaceOrder.js'
 export type {
-  PlaceOrderPatch200,
-  PlaceOrderPatch405,
-  PlaceOrderPatchMutation,
-  PlaceOrderPatchMutationRequest,
-  PlaceOrderPatchMutationResponse,
+  PlaceOrderPatchRequestData,
+  PlaceOrderPatchResponseData,
+  PlaceOrderPatchStatus200,
+  PlaceOrderPatchStatus405,
 } from './storeController/PlaceOrderPatch.js'
 export type { Tag } from './Tag.js'
 export type { User } from './User.js'
 export type { UserArray } from './UserArray.js'
 export type {
-  CreateUserError,
-  CreateUserMutation,
-  CreateUserMutationRequest,
-  CreateUserMutationResponse,
+  CreateUserRequestData,
+  CreateUserResponseData,
+  CreateUserStatusError,
 } from './userController/CreateUser.js'
 export type {
-  CreateUsersWithListInput200,
-  CreateUsersWithListInputError,
-  CreateUsersWithListInputMutation,
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
+  CreateUsersWithListInputRequestData,
+  CreateUsersWithListInputResponseData,
+  CreateUsersWithListInputStatus200,
+  CreateUsersWithListInputStatusError,
 } from './userController/CreateUsersWithListInput.js'
 export type {
-  DeleteUser400,
-  DeleteUser404,
-  DeleteUserMutation,
-  DeleteUserMutationResponse,
   DeleteUserPathParams,
+  DeleteUserRequest,
+  DeleteUserResponseData,
+  DeleteUserStatus400,
+  DeleteUserStatus404,
 } from './userController/DeleteUser.js'
 export type {
-  GetUserByName200,
-  GetUserByName400,
-  GetUserByName404,
   GetUserByNamePathParams,
-  GetUserByNameQuery,
-  GetUserByNameQueryResponse,
+  GetUserByNameRequest,
+  GetUserByNameResponseData,
+  GetUserByNameStatus200,
+  GetUserByNameStatus400,
+  GetUserByNameStatus404,
 } from './userController/GetUserByName.js'
 export type {
-  LoginUser200,
-  LoginUser400,
-  LoginUserQuery,
   LoginUserQueryParams,
-  LoginUserQueryResponse,
+  LoginUserRequest,
+  LoginUserResponseData,
+  LoginUserStatus200,
+  LoginUserStatus400,
 } from './userController/LoginUser.js'
 export type {
-  LogoutUserError,
-  LogoutUserQuery,
-  LogoutUserQueryResponse,
+  LogoutUserRequest,
+  LogoutUserResponseData,
+  LogoutUserStatusError,
 } from './userController/LogoutUser.js'
 export type {
-  UpdateUserError,
-  UpdateUserMutation,
-  UpdateUserMutationRequest,
-  UpdateUserMutationResponse,
   UpdateUserPathParams,
+  UpdateUserRequestData,
+  UpdateUserResponseData,
+  UpdateUserStatusError,
 } from './userController/UpdateUser.js'

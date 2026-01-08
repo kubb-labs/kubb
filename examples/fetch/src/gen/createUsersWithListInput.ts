@@ -5,7 +5,7 @@
 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from './models.ts'
+import type { CreateUsersWithListInputRequestData, CreateUsersWithListInputResponseData } from './models.ts'
 
 function getCreateUsersWithListInputUrl() {
   const res = {
@@ -21,8 +21,8 @@ function getCreateUsersWithListInputUrl() {
  * {@link /user/createWithList}
  */
 export async function createUsersWithListInput(
-  data?: CreateUsersWithListInputMutationRequest,
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
+  data?: CreateUsersWithListInputRequestData,
+  config: Partial<RequestConfig<CreateUsersWithListInputRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -30,7 +30,7 @@ export async function createUsersWithListInput(
 
   const requestData = data
 
-  const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
+  const res = await request<CreateUsersWithListInputResponseData, ResponseErrorConfig<Error>, CreateUsersWithListInputRequestData>({
     method: 'POST',
     url: getCreateUsersWithListInputUrl().url.toString(),
     data: requestData,

@@ -9,12 +9,12 @@ import type { Pet } from './Pet.ts'
 /**
  * @description Successful operation
  */
-export type AddPet200 = Pet
+export type AddPetStatus200 = Pet
 
 /**
  * @description Pet not found
  */
-export type AddPet405 = {
+export type AddPetStatus405 = {
   /**
    * @type integer | undefined, int32
    */
@@ -28,12 +28,10 @@ export type AddPet405 = {
 /**
  * @description Create a new pet in the store
  */
-export type AddPetMutationRequest = AddPetRequest
+export type AddPetRequestData = AddPetRequest
 
-export type AddPetMutationResponse = AddPet200
-
-export type AddPetMutation = {
-  Response: AddPet200
-  Request: AddPetMutationRequest
-  Errors: AddPet405
+export type AddPetResponses = {
+  '200': AddPetStatus200
 }
+
+export type AddPetResponseData = AddPetResponses[keyof AddPetResponses]

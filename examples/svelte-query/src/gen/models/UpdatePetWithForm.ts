@@ -38,13 +38,14 @@ export type UpdatePetWithFormQueryParams = {
 /**
  * @description Invalid input
  */
-export type UpdatePetWithForm405 = any
+export type UpdatePetWithFormStatus405 = any
 
-export type UpdatePetWithFormMutationResponse = any
-
-export type UpdatePetWithFormMutation = {
-  Response: any
-  PathParams: UpdatePetWithFormPathParams
-  QueryParams: UpdatePetWithFormQueryParams
-  Errors: UpdatePetWithForm405
+export type UpdatePetWithFormRequest = {
+  data?: never
+  pathParams: UpdatePetWithFormPathParams
+  queryParams?: UpdatePetWithFormQueryParams
+  headerParams?: never
+  url: '/pet/{pet_id}'
 }
+
+export type UpdatePetWithFormResponseData = any

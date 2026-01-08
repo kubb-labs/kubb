@@ -8,11 +8,18 @@ import type { Pet } from './Pet.ts'
 /**
  * @description successful operation
  */
-export type OptionsFindPetsByStatus200 = Pet[]
+export type OptionsFindPetsByStatusStatus200 = Pet[]
 
-export type OptionsFindPetsByStatusMutationResponse = OptionsFindPetsByStatus200
-
-export type OptionsFindPetsByStatusMutation = {
-  Response: OptionsFindPetsByStatus200
-  Errors: any
+export type OptionsFindPetsByStatusRequest = {
+  data?: never
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/pet/findByStatus'
 }
+
+export type OptionsFindPetsByStatusResponses = {
+  '200': OptionsFindPetsByStatusStatus200
+}
+
+export type OptionsFindPetsByStatusResponseData = OptionsFindPetsByStatusResponses[keyof OptionsFindPetsByStatusResponses]

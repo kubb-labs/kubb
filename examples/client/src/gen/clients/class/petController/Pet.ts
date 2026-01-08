@@ -7,30 +7,25 @@
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
 import { buildFormData } from '../../../.kubb/config.js'
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet.js'
-import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet.js'
-import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.js'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../../models/ts/petController/FindPetsByTags.js'
-import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById.js'
+import type { AddPetRequestData, AddPetResponseData, AddPetStatus405 } from '../../../models/ts/petController/AddPet.js'
+import type { DeletePetHeaderParams, DeletePetPathParams, DeletePetResponseData, DeletePetStatus400 } from '../../../models/ts/petController/DeletePet.js'
+import type { FindPetsByStatusQueryParams, FindPetsByStatusResponseData, FindPetsByStatusStatus400 } from '../../../models/ts/petController/FindPetsByStatus.js'
+import type { FindPetsByTagsQueryParams, FindPetsByTagsResponseData, FindPetsByTagsStatus400 } from '../../../models/ts/petController/FindPetsByTags.js'
+import type { GetPetByIdPathParams, GetPetByIdResponseData, GetPetByIdStatus400, GetPetByIdStatus404 } from '../../../models/ts/petController/GetPetById.js'
 import type {
-  UpdatePet400,
-  UpdatePet404,
-  UpdatePet405,
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
+  UpdatePetRequestData,
+  UpdatePetResponseData,
+  UpdatePetStatus400,
+  UpdatePetStatus404,
+  UpdatePetStatus405,
 } from '../../../models/ts/petController/UpdatePet.js'
 import type {
-  UpdatePetWithForm405,
-  UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithFormResponseData,
+  UpdatePetWithFormStatus405,
 } from '../../../models/ts/petController/UpdatePetWithForm.js'
-import type {
-  UploadFileMutationRequest,
-  UploadFileMutationResponse,
-  UploadFilePathParams,
-  UploadFileQueryParams,
-} from '../../../models/ts/petController/UploadFile.js'
+import type { UploadFilePathParams, UploadFileQueryParams, UploadFileRequestData, UploadFileResponseData } from '../../../models/ts/petController/UploadFile.js'
 
 export class Pet {
   #client: typeof fetch
@@ -45,14 +40,14 @@ export class Pet {
    * {@link /pet}
    */
   async updatePet(
-    data: UpdatePetMutationRequest,
-    config: Partial<RequestConfig<UpdatePetMutationRequest>> & {
+    data: UpdatePetRequestData,
+    config: Partial<RequestConfig<UpdatePetRequestData>> & {
       client?: typeof fetch
     } = {},
   ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
-    const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
+    const res = await request<UpdatePetResponseData, ResponseErrorConfig<UpdatePetStatus400 | UpdatePetStatus404 | UpdatePetStatus405>, UpdatePetRequestData>({
       method: 'PUT',
       url: '/pet',
       data: requestData,
@@ -67,14 +62,14 @@ export class Pet {
    * {@link /pet}
    */
   async addPet(
-    data: AddPetMutationRequest,
-    config: Partial<RequestConfig<AddPetMutationRequest>> & {
+    data: AddPetRequestData,
+    config: Partial<RequestConfig<AddPetRequestData>> & {
       client?: typeof fetch
     } = {},
   ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
-    const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
+    const res = await request<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, AddPetRequestData>({
       method: 'POST',
       url: '/pet',
       data: requestData,
@@ -90,7 +85,7 @@ export class Pet {
    */
   async findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
+    const res = await request<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, unknown>({
       method: 'GET',
       url: '/pet/findByStatus',
       params,
@@ -106,7 +101,7 @@ export class Pet {
    */
   async findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+    const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
       method: 'GET',
       url: '/pet/findByTags',
       params,
@@ -122,7 +117,7 @@ export class Pet {
    */
   async getPetById({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
+    const res = await request<GetPetByIdResponseData, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>, unknown>({
       method: 'GET',
       url: `/pet/${petId}`,
       ...requestConfig,
@@ -140,7 +135,7 @@ export class Pet {
     config: Partial<RequestConfig> & { client?: typeof fetch } = {},
   ) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
+    const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
       method: 'POST',
       url: `/pet/${petId}`,
       params,
@@ -160,7 +155,7 @@ export class Pet {
     config: Partial<RequestConfig> & { client?: typeof fetch } = {},
   ) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
+    const res = await request<DeletePetResponseData, ResponseErrorConfig<DeletePetStatus400>, unknown>({
       method: 'DELETE',
       url: `/pet/${petId}`,
       ...requestConfig,
@@ -175,16 +170,16 @@ export class Pet {
    */
   async uploadFile(
     { petId }: { petId: UploadFilePathParams['petId'] },
-    data: UploadFileMutationRequest,
+    data: UploadFileRequestData,
     params?: UploadFileQueryParams,
-    config: Partial<RequestConfig<UploadFileMutationRequest>> & {
+    config: Partial<RequestConfig<UploadFileRequestData>> & {
       client?: typeof fetch
     } = {},
   ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
     const formData = buildFormData(requestData)
-    const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
+    const res = await request<UploadFileResponseData, ResponseErrorConfig<Error>, UploadFileRequestData>({
       method: 'POST',
       url: `/pet/${petId}/uploadImage`,
       params,

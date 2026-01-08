@@ -7,12 +7,7 @@
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
 import { buildFormData } from '../../../.kubb/config.js'
-import type {
-  UploadFileMutationRequest,
-  UploadFileMutationResponse,
-  UploadFilePathParams,
-  UploadFileQueryParams,
-} from '../../../models/ts/petController/UploadFile.js'
+import type { UploadFilePathParams, UploadFileQueryParams, UploadFileRequestData, UploadFileResponseData } from '../../../models/ts/petController/UploadFile.js'
 
 function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
   const res = { method: 'POST', url: `/pet/${petId}/uploadImage` as const }
@@ -25,9 +20,9 @@ function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
  */
 export async function uploadFile(
   { petId }: { petId: UploadFilePathParams['petId'] },
-  data: UploadFileMutationRequest,
+  data: UploadFileRequestData,
   params?: UploadFileQueryParams,
-  config: Partial<RequestConfig<UploadFileMutationRequest>> & {
+  config: Partial<RequestConfig<UploadFileRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -35,7 +30,7 @@ export async function uploadFile(
 
   const requestData = data
   const formData = buildFormData(requestData)
-  const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
+  const res = await request<UploadFileResponseData, ResponseErrorConfig<Error>, UploadFileRequestData>({
     method: 'POST',
     url: getUploadFileUrl({ petId }).url.toString(),
     params,

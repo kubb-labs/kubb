@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import type { GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/ts/userController/GetUserByName.ts'
+import type { GetUserByNamePathParams, GetUserByNameResponseData } from '../../models/ts/userController/GetUserByName.ts'
 import { createUserFaker } from '../createUserFaker.ts'
 
 export function createGetUserByNamePathParamsFaker(data?: Partial<GetUserByNamePathParams>): GetUserByNamePathParams {
@@ -12,24 +12,24 @@ export function createGetUserByNamePathParamsFaker(data?: Partial<GetUserByNameP
 /**
  * @description successful operation
  */
-export function createGetUserByName200Faker() {
+export function createGetUserByNameStatus200Faker() {
   return createUserFaker()
 }
 
 /**
  * @description Invalid username supplied
  */
-export function createGetUserByName400Faker() {
+export function createGetUserByNameStatus400Faker() {
   return undefined
 }
 
 /**
  * @description User not found
  */
-export function createGetUserByName404Faker() {
+export function createGetUserByNameStatus404Faker() {
   return undefined
 }
 
-export function createGetUserByNameQueryResponseFaker(data?: Partial<GetUserByNameQueryResponse>): GetUserByNameQueryResponse {
-  return data || faker.helpers.arrayElement<any>([createGetUserByName200Faker()])
+export function createGetUserByNameResponseDataFaker(data?: Partial<GetUserByNameResponseData>): GetUserByNameResponseData {
+  return data || faker.helpers.arrayElement<any>([createGetUserByNameStatus200Faker()])
 }

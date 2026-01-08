@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { PetType } from './PetType.ts'
+import type { Pet } from './PetType.ts'
 
-export type GetPetByIdPathParamsType = {
+export type GetPetByIdPathParams = {
   /**
    * @description ID of pet to return
    * @type integer, int64
@@ -16,22 +16,28 @@ export type GetPetByIdPathParamsType = {
 /**
  * @description successful operation
  */
-export type GetPetById200Type = PetType
+export type GetPetByIdStatus200 = Pet
 
 /**
  * @description Invalid ID supplied
  */
-export type GetPetById400Type = any
+export type GetPetByIdStatus400 = any
 
 /**
  * @description Pet not found
  */
-export type GetPetById404Type = any
+export type GetPetByIdStatus404 = any
 
-export type GetPetByIdQueryResponseType = GetPetById200Type
-
-export type GetPetByIdTypeQuery = {
-  Response: GetPetById200Type
-  PathParams: GetPetByIdPathParamsType
-  Errors: GetPetById400Type | GetPetById404Type
+export type GetPetByIdRequest = {
+  data?: never
+  pathParams: GetPetByIdPathParams
+  queryParams?: never
+  headerParams?: never
+  url: '/pet/{petId}'
 }
+
+export type GetPetByIdResponses = {
+  '200': GetPetByIdStatus200
+}
+
+export type GetPetByIdResponseData = GetPetByIdResponses[keyof GetPetByIdResponses]

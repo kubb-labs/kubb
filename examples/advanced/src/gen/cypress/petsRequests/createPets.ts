@@ -1,20 +1,20 @@
 import type {
   CreatePetsHeaderParams,
-  CreatePetsMutationRequest,
-  CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsRequestData,
+  CreatePetsResponseData,
 } from '../../models/ts/petsController/CreatePets.ts'
 
 export function createPets(
   uuid: CreatePetsPathParams['uuid'],
-  data: CreatePetsMutationRequest,
+  data: CreatePetsRequestData,
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,
   options?: Partial<Cypress.RequestOptions>,
-): Cypress.Chainable<CreatePetsMutationResponse> {
+): Cypress.Chainable<CreatePetsResponseData> {
   return cy
-    .request<CreatePetsMutationResponse>({
+    .request<CreatePetsResponseData>({
       method: 'post',
       url: `/pets/${uuid}`,
       qs: params,

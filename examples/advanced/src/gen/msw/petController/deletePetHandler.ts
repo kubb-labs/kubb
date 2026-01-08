@@ -1,7 +1,7 @@
 import { http } from 'msw'
-import type { DeletePet400 } from '../../models/ts/petController/DeletePet.ts'
+import type { DeletePetStatus400 } from '../../models/ts/petController/DeletePet.ts'
 
-export function deletePetHandlerResponse400(data?: DeletePet400) {
+export function deletePetHandlerResponse400(data?: DeletePetStatus400) {
   return new Response(JSON.stringify(data), {
     status: 400,
   })

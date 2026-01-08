@@ -13,109 +13,111 @@ export { orderHttpStatusEnum, orderOrderTypeEnum, orderStatusEnum } from './Orde
 export type { Pet, PetStatusEnumKey } from './Pet.ts'
 export { petStatusEnum } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'
-export type { AddFiles200, AddFiles405, AddFilesMutation, AddFilesMutationRequest, AddFilesMutationResponse } from './petController/AddFiles.ts'
-export type { AddPet200, AddPet405, AddPetMutation, AddPetMutationRequest, AddPetMutationResponse } from './petController/AddPet.ts'
-export type { DeletePet400, DeletePetHeaderParams, DeletePetMutation, DeletePetMutationResponse, DeletePetPathParams } from './petController/DeletePet.ts'
+export type { AddFilesRequestData, AddFilesResponseData, AddFilesStatus200, AddFilesStatus405 } from './petController/AddFiles.ts'
+export type { AddPetRequestData, AddPetResponseData, AddPetStatus200, AddPetStatus405 } from './petController/AddPet.ts'
+export type { DeletePetHeaderParams, DeletePetPathParams, DeletePetRequest, DeletePetResponseData, DeletePetStatus400 } from './petController/DeletePet.ts'
 export type {
-  FindPetsByStatus200,
-  FindPetsByStatus400,
   FindPetsByStatusPathParams,
-  FindPetsByStatusQuery,
-  FindPetsByStatusQueryResponse,
+  FindPetsByStatusRequest,
+  FindPetsByStatusResponseData,
+  FindPetsByStatusStatus200,
+  FindPetsByStatusStatus400,
 } from './petController/FindPetsByStatus.ts'
 export type {
-  FindPetsByTags200,
-  FindPetsByTags400,
   FindPetsByTagsHeaderParams,
   FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
-  FindPetsByTagsQuery,
   FindPetsByTagsQueryParams,
-  FindPetsByTagsQueryResponse,
+  FindPetsByTagsRequest,
+  FindPetsByTagsResponseData,
+  FindPetsByTagsStatus200,
+  FindPetsByTagsStatus400,
 } from './petController/FindPetsByTags.ts'
 export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './petController/FindPetsByTags.ts'
-export type { GetPetById200, GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQuery, GetPetByIdQueryResponse } from './petController/GetPetById.ts'
 export type {
-  UpdatePet200,
-  UpdatePet202,
-  UpdatePet400,
-  UpdatePet404,
-  UpdatePet405,
-  UpdatePetMutation,
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
+  GetPetByIdPathParams,
+  GetPetByIdRequest,
+  GetPetByIdResponseData,
+  GetPetByIdStatus200,
+  GetPetByIdStatus400,
+  GetPetByIdStatus404,
+} from './petController/GetPetById.ts'
+export type {
+  UpdatePetRequestData,
+  UpdatePetResponseData,
+  UpdatePetStatus200,
+  UpdatePetStatus202,
+  UpdatePetStatus400,
+  UpdatePetStatus404,
+  UpdatePetStatus405,
 } from './petController/UpdatePet.ts'
 export type {
-  UpdatePetWithForm405,
-  UpdatePetWithFormMutation,
-  UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithFormRequest,
+  UpdatePetWithFormResponseData,
+  UpdatePetWithFormStatus405,
 } from './petController/UpdatePetWithForm.ts'
 export type {
-  UploadFile200,
-  UploadFileMutation,
-  UploadFileMutationRequest,
-  UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
+  UploadFileRequestData,
+  UploadFileResponseData,
+  UploadFileStatus200,
 } from './petController/UploadFile.ts'
 export type {
-  CreatePets201,
-  CreatePetsError,
   CreatePetsHeaderParams,
   CreatePetsHeaderParamsXEXAMPLEEnumKey,
-  CreatePetsMutation,
-  CreatePetsMutationRequest,
-  CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsQueryParamsBoolParamEnumKey,
+  CreatePetsRequestData,
+  CreatePetsResponseData,
+  CreatePetsStatus201,
+  CreatePetsStatusError,
 } from './petsController/CreatePets.ts'
 export { createPetsHeaderParamsXEXAMPLEEnum, createPetsQueryParamsBoolParamEnum } from './petsController/CreatePets.ts'
-export type { DeleteOrder400, DeleteOrder404, DeleteOrderMutation, DeleteOrderMutationResponse, DeleteOrderPathParams } from './storeController/DeleteOrder.ts'
-export type { GetInventory200, GetInventoryQuery, GetInventoryQueryResponse } from './storeController/GetInventory.ts'
 export type {
-  GetOrderById200,
-  GetOrderById400,
-  GetOrderById404,
+  DeleteOrderPathParams,
+  DeleteOrderRequest,
+  DeleteOrderResponseData,
+  DeleteOrderStatus400,
+  DeleteOrderStatus404,
+} from './storeController/DeleteOrder.ts'
+export type { GetInventoryRequest, GetInventoryResponseData, GetInventoryStatus200 } from './storeController/GetInventory.ts'
+export type {
   GetOrderByIdPathParams,
-  GetOrderByIdQuery,
-  GetOrderByIdQueryResponse,
+  GetOrderByIdRequest,
+  GetOrderByIdResponseData,
+  GetOrderByIdStatus200,
+  GetOrderByIdStatus400,
+  GetOrderByIdStatus404,
 } from './storeController/GetOrderById.ts'
-export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutation, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from './storeController/PlaceOrder.ts'
+export type { PlaceOrderRequestData, PlaceOrderResponseData, PlaceOrderStatus200, PlaceOrderStatus405 } from './storeController/PlaceOrder.ts'
 export type {
-  PlaceOrderPatch200,
-  PlaceOrderPatch405,
-  PlaceOrderPatchMutation,
-  PlaceOrderPatchMutationRequest,
-  PlaceOrderPatchMutationResponse,
+  PlaceOrderPatchRequestData,
+  PlaceOrderPatchResponseData,
+  PlaceOrderPatchStatus200,
+  PlaceOrderPatchStatus405,
 } from './storeController/PlaceOrderPatch.ts'
 export type { TagTag } from './tag/Tag.ts'
 export type { User } from './User.ts'
 export type { UserArray } from './UserArray.ts'
-export type { CreateUserError, CreateUserMutation, CreateUserMutationRequest, CreateUserMutationResponse } from './userController/CreateUser.ts'
+export type { CreateUserRequestData, CreateUserResponseData, CreateUserStatusError } from './userController/CreateUser.ts'
 export type {
-  CreateUsersWithListInput200,
-  CreateUsersWithListInputError,
-  CreateUsersWithListInputMutation,
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
+  CreateUsersWithListInputRequestData,
+  CreateUsersWithListInputResponseData,
+  CreateUsersWithListInputStatus200,
+  CreateUsersWithListInputStatusError,
 } from './userController/CreateUsersWithListInput.ts'
-export type { DeleteUser400, DeleteUser404, DeleteUserMutation, DeleteUserMutationResponse, DeleteUserPathParams } from './userController/DeleteUser.ts'
+export type { DeleteUserPathParams, DeleteUserRequest, DeleteUserResponseData, DeleteUserStatus400, DeleteUserStatus404 } from './userController/DeleteUser.ts'
 export type {
-  GetUserByName200,
-  GetUserByName400,
-  GetUserByName404,
   GetUserByNamePathParams,
-  GetUserByNameQuery,
-  GetUserByNameQueryResponse,
+  GetUserByNameRequest,
+  GetUserByNameResponseData,
+  GetUserByNameStatus200,
+  GetUserByNameStatus400,
+  GetUserByNameStatus404,
 } from './userController/GetUserByName.ts'
-export type { LoginUser200, LoginUser400, LoginUserQuery, LoginUserQueryParams, LoginUserQueryResponse } from './userController/LoginUser.ts'
-export type { LogoutUserError, LogoutUserQuery, LogoutUserQueryResponse } from './userController/LogoutUser.ts'
-export type {
-  UpdateUserError,
-  UpdateUserMutation,
-  UpdateUserMutationRequest,
-  UpdateUserMutationResponse,
-  UpdateUserPathParams,
-} from './userController/UpdateUser.ts'
+export type { LoginUserQueryParams, LoginUserRequest, LoginUserResponseData, LoginUserStatus200, LoginUserStatus400 } from './userController/LoginUser.ts'
+export type { LogoutUserRequest, LogoutUserResponseData, LogoutUserStatusError } from './userController/LogoutUser.ts'
+export type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData, UpdateUserStatusError } from './userController/UpdateUser.ts'

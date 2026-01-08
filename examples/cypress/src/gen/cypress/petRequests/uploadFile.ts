@@ -3,16 +3,16 @@
  * Do not edit manually.
  */
 
-import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../../models/UploadFile.ts'
+import type { UploadFilePathParams, UploadFileQueryParams, UploadFileRequestData, UploadFileResponseData } from '../../models/UploadFile.ts'
 
 export function uploadFile(
   petId: UploadFilePathParams['petId'],
-  data?: UploadFileMutationRequest,
+  data?: UploadFileRequestData,
   params?: UploadFileQueryParams,
   options?: Partial<Cypress.RequestOptions>,
-): Cypress.Chainable<UploadFileMutationResponse> {
+): Cypress.Chainable<UploadFileResponseData> {
   return cy
-    .request<UploadFileMutationResponse>({
+    .request<UploadFileResponseData>({
       method: 'post',
       url: `http://localhost:3000/pet/${petId}/uploadImage`,
       qs: params,

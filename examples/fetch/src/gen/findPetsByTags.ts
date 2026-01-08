@@ -5,7 +5,7 @@
 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from './models.ts'
+import type { FindPetsByTagsQueryParams, FindPetsByTagsResponseData, FindPetsByTagsStatus400 } from './models.ts'
 
 function getFindPetsByTagsUrl() {
   const res = {
@@ -23,7 +23,7 @@ function getFindPetsByTagsUrl() {
 export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+  const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
     method: 'GET',
     url: getFindPetsByTagsUrl().url.toString(),
     params,

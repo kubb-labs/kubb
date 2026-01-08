@@ -6,7 +6,7 @@
 import { queryOptions } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/GetPetById.ts'
+import type { GetPetByIdPathParams, GetPetByIdResponseData, GetPetByIdStatus400, GetPetByIdStatus404 } from '../models/GetPetById.ts'
 
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 
@@ -20,7 +20,7 @@ export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 export async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
+  const res = await request<GetPetByIdResponseData, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>, unknown>({
     method: 'GET',
     url: `/pet/${petId}`,
     ...requestConfig,
@@ -30,7 +30,7 @@ export async function getPetById(petId: GetPetByIdPathParams['petId'], config: P
 
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = getPetByIdQueryKey(petId)
-  return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
+  return queryOptions<GetPetByIdResponseData, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>, GetPetByIdResponseData, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {

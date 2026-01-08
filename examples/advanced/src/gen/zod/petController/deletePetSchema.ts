@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models/ts/petController/DeletePet.ts'
+import type { DeletePetHeaderParams, DeletePetPathParams, DeletePetResponseData, DeletePetStatus400 } from '../../models/ts/petController/DeletePet.ts'
 
 export const deletePetPathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('Pet id to delete'),
@@ -19,10 +19,10 @@ export type DeletePetHeaderParamsSchema = DeletePetHeaderParams
 /**
  * @description Invalid pet value
  */
-export const deletePet400Schema = z.any() as unknown as ToZod<DeletePet400>
+export const deletePetStatus400Schema = z.any() as unknown as ToZod<DeletePetStatus400>
 
-export type DeletePet400Schema = DeletePet400
+export type DeletePetStatus400Schema = DeletePetStatus400
 
-export const deletePetMutationResponseSchema = z.any() as unknown as ToZod<DeletePetMutationResponse>
+export const deletePetResponseDataSchema = z.any() as unknown as ToZod<DeletePetResponseData>
 
-export type DeletePetMutationResponseSchema = DeletePetMutationResponse
+export type DeletePetResponseDataSchema = DeletePetResponseData

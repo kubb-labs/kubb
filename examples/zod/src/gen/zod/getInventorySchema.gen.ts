@@ -8,10 +8,10 @@ import { z } from '../../zod.ts'
 /**
  * @description successful operation
  */
-export const getInventory200Schema = z.object({}).catchall(z.int())
+export const getInventoryStatus200Schema = z.object({}).catchall(z.int())
 
-export type GetInventory200Schema = z.infer<typeof getInventory200Schema>
+export type GetInventoryStatus200Schema = z.infer<typeof getInventoryStatus200Schema>
 
-export const getInventoryQueryResponseSchema = z.lazy(() => getInventory200Schema)
+export const getInventoryResponseDataSchema = z.lazy(() => getInventoryStatus200Schema)
 
-export type GetInventoryQueryResponseSchema = z.infer<typeof getInventoryQueryResponseSchema>
+export type GetInventoryResponseDataSchema = z.infer<typeof getInventoryResponseDataSchema>

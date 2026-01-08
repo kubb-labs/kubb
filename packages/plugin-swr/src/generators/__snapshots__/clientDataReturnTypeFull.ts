@@ -18,7 +18,7 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export async function findPetsByTags({ params }: { params?: FindPetsByTagsQueryParams }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+  const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
     method: 'GET',
     url: `/pet/findByTags`,
     params,
@@ -46,7 +46,7 @@ export function findPetsByTagsQueryOptions(
 export function useFindPetsByTags(
   { params }: { params?: FindPetsByTagsQueryParams },
   options: {
-    query?: Parameters<typeof useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>>>[2]
+    query?: Parameters<typeof useSWR<ResponseConfig<FindPetsByTagsResponseData>, ResponseErrorConfig<FindPetsByTagsStatus400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
     immutable?: boolean
@@ -56,7 +56,7 @@ export function useFindPetsByTags(
 
   const queryKey = findPetsByTagsQueryKey(params)
 
-  return useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryKey | null>(
+  return useSWR<ResponseConfig<FindPetsByTagsResponseData>, ResponseErrorConfig<FindPetsByTagsStatus400>, FindPetsByTagsQueryKey | null>(
     shouldFetch ? queryKey : null,
     {
       ...findPetsByTagsQueryOptions({ params }, config),

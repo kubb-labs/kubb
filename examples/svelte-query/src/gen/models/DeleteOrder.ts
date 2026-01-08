@@ -25,17 +25,19 @@ export type DeleteOrderPathParams = {
 /**
  * @description Invalid ID supplied
  */
-export type DeleteOrder400 = any
+export type DeleteOrderStatus400 = any
 
 /**
  * @description Order not found
  */
-export type DeleteOrder404 = any
+export type DeleteOrderStatus404 = any
 
-export type DeleteOrderMutationResponse = any
-
-export type DeleteOrderMutation = {
-  Response: any
-  PathParams: DeleteOrderPathParams
-  Errors: DeleteOrder400 | DeleteOrder404
+export type DeleteOrderRequest = {
+  data?: never
+  pathParams: DeleteOrderPathParams
+  queryParams?: never
+  headerParams?: never
+  url: '/store/order/{orderId}'
 }
+
+export type DeleteOrderResponseData = any

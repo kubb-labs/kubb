@@ -13,11 +13,11 @@ export const findPetsByStatusQueryParamsSchema = z.object({
 /**
  * @description successful operation
  */
-export const findPetsByStatus200Schema = z.array(z.lazy(() => petSchema))
+export const findPetsByStatusStatus200Schema = z.array(z.lazy(() => petSchema))
 
 /**
  * @description Invalid status value
  */
-export const findPetsByStatus400Schema = z.any()
+export const findPetsByStatusStatus400Schema = z.any()
 
-export const findPetsByStatusQueryResponseSchema = z.lazy(() => findPetsByStatus200Schema)
+export const findPetsByStatusResponseDataSchema = z.lazy(() => findPetsByStatusStatus200Schema)

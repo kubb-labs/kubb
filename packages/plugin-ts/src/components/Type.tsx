@@ -14,6 +14,8 @@ type Props = {
   typedName: string
   schema: SchemaObject
   tree: Array<Schema>
+  isExportable: boolean
+  isIndexable: boolean
   optionalType: PluginTs['resolvedOptions']['optionalType']
   enumType: PluginTs['resolvedOptions']['enumType']
   mapper: PluginTs['resolvedOptions']['mapper']
@@ -22,7 +24,20 @@ type Props = {
   keysToOmit?: string[]
 }
 
-export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, syntaxType, enumType, mapper, description }: Props): KubbNode {
+export function Type({
+  name,
+  typedName,
+  tree,
+  keysToOmit,
+  schema,
+  optionalType,
+  isExportable,
+  isIndexable,
+  syntaxType,
+  enumType,
+  mapper,
+  description,
+}: Props): KubbNode {
   const typeNodes: ts.Node[] = []
 
   if (!tree.length) {
@@ -93,7 +108,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
   typeNodes.push(
     factory.createTypeDeclaration({
       name,
-      isExportable: true,
+      isExportable,
       type: keysToOmit?.length
         ? factory.createOmitDeclaration({
             keys: keysToOmit,
@@ -140,15 +155,15 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
       {enums.map(({ name, nameNode, typeName, typeNode }) => (
         <>
           {nameNode && (
-            <File.Source name={name} isExportable isIndexable>
+            <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
               {safePrint(nameNode)}
             </File.Source>
           )}
           {
             <File.Source
               name={typeName}
-              isIndexable
-              isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
+              isIndexable={isIndexable}
+              isExportable={isExportable ? ['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType) : false}
               isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
             >
               {safePrint(typeNode)}
@@ -157,7 +172,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
         </>
       ))}
       {enums.every((item) => item.typeName !== name) && (
-        <File.Source name={typedName} isTypeOnly isExportable isIndexable>
+        <File.Source name={typedName} isTypeOnly isExportable={isExportable} isIndexable={isIndexable}>
           {safePrint(...typeNodes)}
         </File.Source>
       )}

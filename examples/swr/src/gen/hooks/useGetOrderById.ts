@@ -6,7 +6,7 @@
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
-import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById.ts'
+import type { GetOrderByIdPathParams, GetOrderByIdResponseData, GetOrderByIdStatus400, GetOrderByIdStatus404 } from '../models/GetOrderById.ts'
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
@@ -20,7 +20,7 @@ export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 export async function getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
+  const res = await request<GetOrderByIdResponseData, ResponseErrorConfig<GetOrderByIdStatus400 | GetOrderByIdStatus404>, unknown>({
     method: 'GET',
     url: `/store/order/${orderId}`,
     ...requestConfig,
@@ -44,7 +44,7 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
 export function useGetOrderById(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: Parameters<typeof useSWR<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>>>[2]
+    query?: Parameters<typeof useSWR<GetOrderByIdResponseData, ResponseErrorConfig<GetOrderByIdStatus400 | GetOrderByIdStatus404>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
     immutable?: boolean
@@ -54,15 +54,18 @@ export function useGetOrderById(
 
   const queryKey = getOrderByIdQueryKey(orderId)
 
-  return useSWR<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, GetOrderByIdQueryKey | null>(shouldFetch ? queryKey : null, {
-    ...getOrderByIdQueryOptions(orderId, config),
-    ...(immutable
-      ? {
-          revalidateIfStale: false,
-          revalidateOnFocus: false,
-          revalidateOnReconnect: false,
-        }
-      : {}),
-    ...queryOptions,
-  })
+  return useSWR<GetOrderByIdResponseData, ResponseErrorConfig<GetOrderByIdStatus400 | GetOrderByIdStatus404>, GetOrderByIdQueryKey | null>(
+    shouldFetch ? queryKey : null,
+    {
+      ...getOrderByIdQueryOptions(orderId, config),
+      ...(immutable
+        ? {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+          }
+        : {}),
+      ...queryOptions,
+    },
+  )
 }

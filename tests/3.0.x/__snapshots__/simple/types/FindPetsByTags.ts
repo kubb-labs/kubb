@@ -16,17 +16,24 @@ export type FindPetsByTagsQueryParams = {
 /**
  * @description successful operation
 */
-export type FindPetsByTags200 = Pet[];
+export type FindPetsByTagsStatus200 = Pet[];
 
 /**
  * @description Invalid tag value
 */
-export type FindPetsByTags400 = any;
+export type FindPetsByTagsStatus400 = any;
 
-export type FindPetsByTagsQueryResponse = FindPetsByTags200;
-
-export type FindPetsByTagsQuery = {
-    Response: FindPetsByTags200;
-    QueryParams: FindPetsByTagsQueryParams;
-    Errors: FindPetsByTags400;
+export type FindPetsByTagsRequest = {
+    data?: never;
+    pathParams?: never;
+    queryParams?: FindPetsByTagsQueryParams;
+    headerParams?: never;
+    url: "/pet/findByTags";
 };
+
+export type FindPetsByTagsResponses = {
+    "200": FindPetsByTagsStatus200;
+};
+
+
+export type FindPetsByTagsResponseData = FindPetsByTagsResponses[keyof FindPetsByTagsResponses];

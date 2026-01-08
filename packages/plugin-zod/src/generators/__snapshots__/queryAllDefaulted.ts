@@ -12,8 +12,8 @@ export const getThingsQueryParams = z.object({
 /**
  * @description A list of things
  */
-export const getThings200 = z.object({
+export const getThingsStatus200 = z.object({
   items: z.array(z.lazy(() => thing)),
 })
 
-export const getThingsQueryResponse = z.lazy(() => getThings200)
+export const getThingsResponseData = z.lazy(() => getThingsStatus200)

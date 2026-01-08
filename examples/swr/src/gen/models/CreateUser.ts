@@ -8,17 +8,11 @@ import type { User } from './User.ts'
 /**
  * @description successful operation
  */
-export type CreateUserError = User
+export type CreateUserStatusError = User
 
 /**
  * @description Created user object
  */
-export type CreateUserMutationRequest = User
+export type CreateUserRequestData = User
 
-export type CreateUserMutationResponse = any
-
-export type CreateUserMutation = {
-  Response: any
-  Request: CreateUserMutationRequest
-  Errors: any
-}
+export type CreateUserResponseData = any

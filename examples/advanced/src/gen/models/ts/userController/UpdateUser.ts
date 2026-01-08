@@ -11,18 +11,11 @@ export type UpdateUserPathParams = {
 /**
  * @description successful operation
  */
-export type UpdateUserError = any
+export type UpdateUserStatusError = any
 
 /**
  * @description Update an existent user in the store
  */
-export type UpdateUserMutationRequest = Omit<NonNullable<User>, 'tag'>
+export type UpdateUserRequestData = Omit<NonNullable<User>, 'tag'>
 
-export type UpdateUserMutationResponse = any
-
-export type UpdateUserMutation = {
-  Response: any
-  Request: UpdateUserMutationRequest
-  PathParams: UpdateUserPathParams
-  Errors: any
-}
+export type UpdateUserResponseData = any

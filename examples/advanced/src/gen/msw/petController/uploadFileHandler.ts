@@ -1,7 +1,7 @@
 import { http } from 'msw'
-import type { UploadFileMutationResponse } from '../../models/ts/petController/UploadFile.ts'
+import type { UploadFileResponseData } from '../../models/ts/petController/UploadFile.ts'
 
-export function uploadFileHandlerResponse200(data: UploadFileMutationResponse) {
+export function uploadFileHandlerResponse200(data: UploadFileResponseData) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -10,9 +10,7 @@ export function uploadFileHandlerResponse200(data: UploadFileMutationResponse) {
   })
 }
 
-export function uploadFileHandler(
-  data?: UploadFileMutationResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>),
-) {
+export function uploadFileHandler(data?: UploadFileResponseData | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
   return http.post('/pet/:petId/uploadImage', function handler(info) {
     if (typeof data === 'function') return data(info)
 

@@ -313,45 +313,43 @@ export type UserArray = User[]
 /**
  * @description Successful operation
  */
-export type UpdatePet200 = Pet
+export type UpdatePetStatus200 = Pet
 
 /**
  * @description Invalid ID supplied
  */
-export type UpdatePet400 = any
+export type UpdatePetStatus400 = any
 
 /**
  * @description Pet not found
  */
-export type UpdatePet404 = any
+export type UpdatePetStatus404 = any
 
 /**
  * @description Validation exception
  */
-export type UpdatePet405 = any
+export type UpdatePetStatus405 = any
 
 /**
  * @description Update an existent pet in the store
  */
-export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type' | 'tags'>
+export type UpdatePetRequestData = Omit<NonNullable<Pet>, 'type' | 'tags'>
 
-export type UpdatePetMutationResponse = UpdatePet200
-
-export type UpdatePetMutation = {
-  Response: UpdatePet200
-  Request: UpdatePetMutationRequest
-  Errors: UpdatePet400 | UpdatePet404 | UpdatePet405
+export type UpdatePetResponses = {
+  '200': UpdatePetStatus200
 }
+
+export type UpdatePetResponseData = UpdatePetResponses[keyof UpdatePetResponses]
 
 /**
  * @description Successful operation
  */
-export type AddPet200 = Pet
+export type AddPetStatus200 = Pet
 
 /**
  * @description Pet not found
  */
-export type AddPet405 = {
+export type AddPetStatus405 = {
   /**
    * @type integer | undefined, int32
    */
@@ -365,15 +363,13 @@ export type AddPet405 = {
 /**
  * @description Create a new pet in the store
  */
-export type AddPetMutationRequest = AddPetRequest
+export type AddPetRequestData = AddPetRequest
 
-export type AddPetMutationResponse = AddPet200
-
-export type AddPetMutation = {
-  Response: AddPet200
-  Request: AddPetMutationRequest
-  Errors: AddPet405
+export type AddPetResponses = {
+  '200': AddPetStatus200
 }
+
+export type AddPetResponseData = AddPetResponses[keyof AddPetResponses]
 
 export type FindPetsByStatusQueryParamsStatusEnum = 'available' | 'pending' | 'sold'
 
@@ -389,20 +385,26 @@ export type FindPetsByStatusQueryParams = {
 /**
  * @description successful operation
  */
-export type FindPetsByStatus200 = Pet[]
+export type FindPetsByStatusStatus200 = Pet[]
 
 /**
  * @description Invalid status value
  */
-export type FindPetsByStatus400 = any
+export type FindPetsByStatusStatus400 = any
 
-export type FindPetsByStatusQueryResponse = FindPetsByStatus200
-
-export type FindPetsByStatusQuery = {
-  Response: FindPetsByStatus200
-  QueryParams: FindPetsByStatusQueryParams
-  Errors: FindPetsByStatus400
+export type FindPetsByStatusRequest = {
+  data?: never
+  pathParams?: never
+  queryParams?: FindPetsByStatusQueryParams
+  headerParams?: never
+  url: '/pet/findByStatus'
 }
+
+export type FindPetsByStatusResponses = {
+  '200': FindPetsByStatusStatus200
+}
+
+export type FindPetsByStatusResponseData = FindPetsByStatusResponses[keyof FindPetsByStatusResponses]
 
 export type FindPetsByTagsQueryParams = {
   /**
@@ -425,20 +427,26 @@ export type FindPetsByTagsQueryParams = {
 /**
  * @description successful operation
  */
-export type FindPetsByTags200 = Pet[]
+export type FindPetsByTagsStatus200 = Pet[]
 
 /**
  * @description Invalid tag value
  */
-export type FindPetsByTags400 = any
+export type FindPetsByTagsStatus400 = any
 
-export type FindPetsByTagsQueryResponse = FindPetsByTags200
-
-export type FindPetsByTagsQuery = {
-  Response: FindPetsByTags200
-  QueryParams: FindPetsByTagsQueryParams
-  Errors: FindPetsByTags400
+export type FindPetsByTagsRequest = {
+  data?: never
+  pathParams?: never
+  queryParams?: FindPetsByTagsQueryParams
+  headerParams?: never
+  url: '/pet/findByTags'
 }
+
+export type FindPetsByTagsResponses = {
+  '200': FindPetsByTagsStatus200
+}
+
+export type FindPetsByTagsResponseData = FindPetsByTagsResponses[keyof FindPetsByTagsResponses]
 
 export type GetPetByIdPathParams = {
   /**
@@ -451,25 +459,31 @@ export type GetPetByIdPathParams = {
 /**
  * @description successful operation
  */
-export type GetPetById200 = Pet
+export type GetPetByIdStatus200 = Pet
 
 /**
  * @description Invalid ID supplied
  */
-export type GetPetById400 = any
+export type GetPetByIdStatus400 = any
 
 /**
  * @description Pet not found
  */
-export type GetPetById404 = any
+export type GetPetByIdStatus404 = any
 
-export type GetPetByIdQueryResponse = GetPetById200
-
-export type GetPetByIdQuery = {
-  Response: GetPetById200
-  PathParams: GetPetByIdPathParams
-  Errors: GetPetById400 | GetPetById404
+export type GetPetByIdRequest = {
+  data?: never
+  pathParams: GetPetByIdPathParams
+  queryParams?: never
+  headerParams?: never
+  url: '/pet/{petId}'
 }
+
+export type GetPetByIdResponses = {
+  '200': GetPetByIdStatus200
+}
+
+export type GetPetByIdResponseData = GetPetByIdResponses[keyof GetPetByIdResponses]
 
 export type UpdatePetWithFormPathParams = {
   /**
@@ -495,16 +509,17 @@ export type UpdatePetWithFormQueryParams = {
 /**
  * @description Invalid input
  */
-export type UpdatePetWithForm405 = any
+export type UpdatePetWithFormStatus405 = any
 
-export type UpdatePetWithFormMutationResponse = any
-
-export type UpdatePetWithFormMutation = {
-  Response: any
-  PathParams: UpdatePetWithFormPathParams
-  QueryParams: UpdatePetWithFormQueryParams
-  Errors: UpdatePetWithForm405
+export type UpdatePetWithFormRequest = {
+  data?: never
+  pathParams: UpdatePetWithFormPathParams
+  queryParams?: UpdatePetWithFormQueryParams
+  headerParams?: never
+  url: '/pet/{petId}'
 }
+
+export type UpdatePetWithFormResponseData = any
 
 export type DeletePetPathParams = {
   /**
@@ -521,26 +536,31 @@ export type DeletePetHeaderParams = {
   api_key?: string
 }
 
-export type DeletePet200Enum = 'TYPE1' | 'TYPE2' | 'TYPE3'
+export type DeletePetStatus200Enum = 'TYPE1' | 'TYPE2' | 'TYPE3'
 
 /**
  * @description items
  */
-export type DeletePet200 = DeletePet200Enum[]
+export type DeletePetStatus200 = DeletePetStatus200Enum[]
 
 /**
  * @description Invalid pet value
  */
-export type DeletePet400 = any
+export type DeletePetStatus400 = any
 
-export type DeletePetMutationResponse = DeletePet200
-
-export type DeletePetMutation = {
-  Response: DeletePet200
-  PathParams: DeletePetPathParams
-  HeaderParams: DeletePetHeaderParams
-  Errors: DeletePet400
+export type DeletePetRequest = {
+  data?: never
+  pathParams: DeletePetPathParams
+  queryParams?: never
+  headerParams?: DeletePetHeaderParams
+  url: '/pet/{petId}'
 }
+
+export type DeletePetResponses = {
+  '200': DeletePetStatus200
+}
+
+export type DeletePetResponseData = DeletePetResponses[keyof DeletePetResponses]
 
 export type UploadFilePathParams = {
   /**
@@ -561,76 +581,75 @@ export type UploadFileQueryParams = {
 /**
  * @description successful operation
  */
-export type UploadFile200 = ApiResponse
+export type UploadFileStatus200 = ApiResponse
 
-export type UploadFileMutationRequest = Blob
+export type UploadFileRequestData = Blob
 
-export type UploadFileMutationResponse = UploadFile200
-
-export type UploadFileMutation = {
-  Response: UploadFile200
-  Request: UploadFileMutationRequest
-  PathParams: UploadFilePathParams
-  QueryParams: UploadFileQueryParams
-  Errors: any
+export type UploadFileResponses = {
+  '200': UploadFileStatus200
 }
+
+export type UploadFileResponseData = UploadFileResponses[keyof UploadFileResponses]
 
 /**
  * @description successful operation
  */
-export type GetInventory200 = {
+export type GetInventoryStatus200 = {
   [key: string]: number
 }
 
-export type GetInventoryQueryResponse = GetInventory200
-
-export type GetInventoryQuery = {
-  Response: GetInventory200
-  Errors: any
+export type GetInventoryRequest = {
+  data?: never
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/store/inventory'
 }
+
+export type GetInventoryResponses = {
+  '200': GetInventoryStatus200
+}
+
+export type GetInventoryResponseData = GetInventoryResponses[keyof GetInventoryResponses]
 
 /**
  * @description successful operation
  */
-export type PlaceOrder200 = Order
+export type PlaceOrderStatus200 = Order
 
 /**
  * @description Invalid input
  */
-export type PlaceOrder405 = any
+export type PlaceOrderStatus405 = any
 
 /**
  * @pattern ^[a-zA-Z0-9]{1,13}$
  */
-export type PlaceOrderMutationRequest = Order
+export type PlaceOrderRequestData = Order
 
-export type PlaceOrderMutationResponse = PlaceOrder200
-
-export type PlaceOrderMutation = {
-  Response: PlaceOrder200
-  Request: PlaceOrderMutationRequest
-  Errors: PlaceOrder405
+export type PlaceOrderResponses = {
+  '200': PlaceOrderStatus200
 }
+
+export type PlaceOrderResponseData = PlaceOrderResponses[keyof PlaceOrderResponses]
 
 /**
  * @description successful operation
  */
-export type PlaceOrderPatch200 = Order
+export type PlaceOrderPatchStatus200 = Order
 
 /**
  * @description Invalid input
  */
-export type PlaceOrderPatch405 = any
+export type PlaceOrderPatchStatus405 = any
 
-export type PlaceOrderPatchMutationRequest = Order
+export type PlaceOrderPatchRequestData = Order
 
-export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
-
-export type PlaceOrderPatchMutation = {
-  Response: PlaceOrderPatch200
-  Request: PlaceOrderPatchMutationRequest
-  Errors: PlaceOrderPatch405
+export type PlaceOrderPatchResponses = {
+  '200': PlaceOrderPatchStatus200
 }
+
+export type PlaceOrderPatchResponseData = PlaceOrderPatchResponses[keyof PlaceOrderPatchResponses]
 
 export type GetOrderByIdPathParams = {
   /**
@@ -643,25 +662,31 @@ export type GetOrderByIdPathParams = {
 /**
  * @description successful operation
  */
-export type GetOrderById200 = Order
+export type GetOrderByIdStatus200 = Order
 
 /**
  * @description Invalid ID supplied
  */
-export type GetOrderById400 = any
+export type GetOrderByIdStatus400 = any
 
 /**
  * @description Order not found
  */
-export type GetOrderById404 = any
+export type GetOrderByIdStatus404 = any
 
-export type GetOrderByIdQueryResponse = GetOrderById200
-
-export type GetOrderByIdQuery = {
-  Response: GetOrderById200
-  PathParams: GetOrderByIdPathParams
-  Errors: GetOrderById400 | GetOrderById404
+export type GetOrderByIdRequest = {
+  data?: never
+  pathParams: GetOrderByIdPathParams
+  queryParams?: never
+  headerParams?: never
+  url: '/store/order/{orderId}'
 }
+
+export type GetOrderByIdResponses = {
+  '200': GetOrderByIdStatus200
+}
+
+export type GetOrderByIdResponseData = GetOrderByIdResponses[keyof GetOrderByIdResponses]
 
 export type DeleteOrderPathParams = {
   /**
@@ -674,58 +699,52 @@ export type DeleteOrderPathParams = {
 /**
  * @description Invalid ID supplied
  */
-export type DeleteOrder400 = any
+export type DeleteOrderStatus400 = any
 
 /**
  * @description Order not found
  */
-export type DeleteOrder404 = any
+export type DeleteOrderStatus404 = any
 
-export type DeleteOrderMutationResponse = any
-
-export type DeleteOrderMutation = {
-  Response: any
-  PathParams: DeleteOrderPathParams
-  Errors: DeleteOrder400 | DeleteOrder404
+export type DeleteOrderRequest = {
+  data?: never
+  pathParams: DeleteOrderPathParams
+  queryParams?: never
+  headerParams?: never
+  url: '/store/order/{orderId}'
 }
+
+export type DeleteOrderResponseData = any
 
 /**
  * @description successful operation
  */
-export type CreateUserError = User
+export type CreateUserStatusError = User
 
 /**
  * @description Created user object
  */
-export type CreateUserMutationRequest = User
+export type CreateUserRequestData = User
 
-export type CreateUserMutationResponse = any
-
-export type CreateUserMutation = {
-  Response: any
-  Request: CreateUserMutationRequest
-  Errors: any
-}
+export type CreateUserResponseData = any
 
 /**
  * @description Successful operation
  */
-export type CreateUsersWithListInput200 = User
+export type CreateUsersWithListInputStatus200 = User
 
 /**
  * @description successful operation
  */
-export type CreateUsersWithListInputError = any
+export type CreateUsersWithListInputStatusError = any
 
-export type CreateUsersWithListInputMutationRequest = User[]
+export type CreateUsersWithListInputRequestData = User[]
 
-export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200
-
-export type CreateUsersWithListInputMutation = {
-  Response: CreateUsersWithListInput200
-  Request: CreateUsersWithListInputMutationRequest
-  Errors: any
+export type CreateUsersWithListInputResponses = {
+  '200': CreateUsersWithListInputStatus200
 }
+
+export type CreateUsersWithListInputResponseData = CreateUsersWithListInputResponses[keyof CreateUsersWithListInputResponses]
 
 export type LoginUserQueryParams = {
   /**
@@ -743,32 +762,41 @@ export type LoginUserQueryParams = {
 /**
  * @description successful operation
  */
-export type LoginUser200 = string
+export type LoginUserStatus200 = string
 
 /**
  * @description Invalid username/password supplied
  */
-export type LoginUser400 = any
+export type LoginUserStatus400 = any
 
-export type LoginUserQueryResponse = LoginUser200
-
-export type LoginUserQuery = {
-  Response: LoginUser200
-  QueryParams: LoginUserQueryParams
-  Errors: LoginUser400
+export type LoginUserRequest = {
+  data?: never
+  pathParams?: never
+  queryParams?: LoginUserQueryParams
+  headerParams?: never
+  url: '/user/login'
 }
+
+export type LoginUserResponses = {
+  '200': LoginUserStatus200
+}
+
+export type LoginUserResponseData = LoginUserResponses[keyof LoginUserResponses]
 
 /**
  * @description successful operation
  */
-export type LogoutUserError = any
+export type LogoutUserStatusError = any
 
-export type LogoutUserQueryResponse = any
-
-export type LogoutUserQuery = {
-  Response: any
-  Errors: any
+export type LogoutUserRequest = {
+  data?: never
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/user/logout'
 }
+
+export type LogoutUserResponseData = any
 
 export type GetUserByNamePathParams = {
   /**
@@ -781,25 +809,31 @@ export type GetUserByNamePathParams = {
 /**
  * @description successful operation
  */
-export type GetUserByName200 = User
+export type GetUserByNameStatus200 = User
 
 /**
  * @description Invalid username supplied
  */
-export type GetUserByName400 = any
+export type GetUserByNameStatus400 = any
 
 /**
  * @description User not found
  */
-export type GetUserByName404 = any
+export type GetUserByNameStatus404 = any
 
-export type GetUserByNameQueryResponse = GetUserByName200
-
-export type GetUserByNameQuery = {
-  Response: GetUserByName200
-  PathParams: GetUserByNamePathParams
-  Errors: GetUserByName400 | GetUserByName404
+export type GetUserByNameRequest = {
+  data?: never
+  pathParams: GetUserByNamePathParams
+  queryParams?: never
+  headerParams?: never
+  url: '/user/{username}'
 }
+
+export type GetUserByNameResponses = {
+  '200': GetUserByNameStatus200
+}
+
+export type GetUserByNameResponseData = GetUserByNameResponses[keyof GetUserByNameResponses]
 
 export type UpdateUserPathParams = {
   /**
@@ -812,21 +846,14 @@ export type UpdateUserPathParams = {
 /**
  * @description successful operation
  */
-export type UpdateUserError = any
+export type UpdateUserStatusError = any
 
 /**
  * @description Update an existent user in the store
  */
-export type UpdateUserMutationRequest = User
+export type UpdateUserRequestData = User
 
-export type UpdateUserMutationResponse = any
-
-export type UpdateUserMutation = {
-  Response: any
-  Request: UpdateUserMutationRequest
-  PathParams: UpdateUserPathParams
-  Errors: any
-}
+export type UpdateUserResponseData = any
 
 export type DeleteUserPathParams = {
   /**
@@ -839,17 +866,19 @@ export type DeleteUserPathParams = {
 /**
  * @description Invalid username supplied
  */
-export type DeleteUser400 = any
+export type DeleteUserStatus400 = any
 
 /**
  * @description User not found
  */
-export type DeleteUser404 = any
+export type DeleteUserStatus404 = any
 
-export type DeleteUserMutationResponse = any
-
-export type DeleteUserMutation = {
-  Response: any
-  PathParams: DeleteUserPathParams
-  Errors: DeleteUser400 | DeleteUser404
+export type DeleteUserRequest = {
+  data?: never
+  pathParams: DeleteUserPathParams
+  queryParams?: never
+  headerParams?: never
+  url: '/user/{username}'
 }
+
+export type DeleteUserResponseData = any

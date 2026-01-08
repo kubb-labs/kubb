@@ -3,18 +3,18 @@
  * Do not edit manually.
  */
 
-import type { AddPetRequestType } from './AddPetRequestType.ts'
-import type { PetType } from './PetType.ts'
+import type { AddPetRequest } from './AddPetRequestType.ts'
+import type { Pet } from './PetType.ts'
 
 /**
  * @description Successful operation
  */
-export type AddPet200Type = PetType
+export type AddPetStatus200 = Pet
 
 /**
  * @description Pet not found
  */
-export type AddPet405Type = {
+export type AddPetStatus405 = {
   /**
    * @type integer | undefined, int32
    */
@@ -28,12 +28,10 @@ export type AddPet405Type = {
 /**
  * @description Create a new pet in the store
  */
-export type AddPetMutationRequestType = AddPetRequestType
+export type AddPetRequestData = AddPetRequest
 
-export type AddPetMutationResponseType = AddPet200Type
-
-export type AddPetTypeMutation = {
-  Response: AddPet200Type
-  Request: AddPetMutationRequestType
-  Errors: AddPet405Type
+export type AddPetResponses = {
+  '200': AddPetStatus200
 }
+
+export type AddPetResponseData = AddPetResponses[keyof AddPetResponses]

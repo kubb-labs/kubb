@@ -13,11 +13,11 @@ export const updateUserPathParamsSchema = z.object({
 /**
  * @description successful operation
  */
-export const updateUserErrorSchema = z.any()
+export const updateUserStatusErrorSchema = z.any()
 
 /**
  * @description Update an existent user in the store
  */
-export const updateUserMutationRequestSchema = z.lazy(() => userSchema)
+export const updateUserRequestDataSchema = z.lazy(() => userSchema)
 
-export const updateUserMutationResponseSchema = z.any()
+export const updateUserResponseDataSchema = z.any()

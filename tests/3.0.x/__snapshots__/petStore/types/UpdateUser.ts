@@ -16,18 +16,11 @@ export type UpdateUserPathParams = {
 /**
  * @description successful operation
 */
-export type UpdateUserError = any;
+export type UpdateUserStatusError = any;
 
 /**
  * @description Update an existent user in the store
 */
-export type UpdateUserMutationRequest = User;
+export type UpdateUserRequestData = User;
 
-export type UpdateUserMutationResponse = any;
-
-export type UpdateUserMutation = {
-    Response: any;
-    Request: UpdateUserMutationRequest;
-    PathParams: UpdateUserPathParams;
-    Errors: any;
-};
+export type UpdateUserResponseData = any;

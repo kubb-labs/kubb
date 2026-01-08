@@ -1,26 +1,26 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
-import { addFilesMutationRequestSchema } from '../zod/petController/addFilesSchema.ts'
-import { addPetMutationRequestSchema } from '../zod/petController/addPetSchema.ts'
+import { addFilesRequestDataSchema } from '../zod/petController/addFilesSchema.ts'
+import { addPetRequestDataSchema } from '../zod/petController/addPetSchema.ts'
 import { deletePetHeaderParamsSchema, deletePetPathParamsSchema } from '../zod/petController/deletePetSchema.ts'
 import { findPetsByStatusPathParamsSchema } from '../zod/petController/findPetsByStatusSchema.ts'
 import { findPetsByTagsHeaderParamsSchema, findPetsByTagsQueryParamsSchema } from '../zod/petController/findPetsByTagsSchema.ts'
 import { getPetByIdPathParamsSchema } from '../zod/petController/getPetByIdSchema.ts'
-import { updatePetMutationRequestSchema } from '../zod/petController/updatePetSchema.ts'
+import { updatePetRequestDataSchema } from '../zod/petController/updatePetSchema.ts'
 import { updatePetWithFormPathParamsSchema, updatePetWithFormQueryParamsSchema } from '../zod/petController/updatePetWithFormSchema.ts'
-import { uploadFileMutationRequestSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from '../zod/petController/uploadFileSchema.ts'
+import { uploadFilePathParamsSchema, uploadFileQueryParamsSchema, uploadFileRequestDataSchema } from '../zod/petController/uploadFileSchema.ts'
 import {
   createPetsHeaderParamsSchema,
-  createPetsMutationRequestSchema,
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
+  createPetsRequestDataSchema,
 } from '../zod/petsController/createPetsSchema.ts'
-import { createUserMutationRequestSchema } from '../zod/userController/createUserSchema.ts'
-import { createUsersWithListInputMutationRequestSchema } from '../zod/userController/createUsersWithListInputSchema.ts'
+import { createUserRequestDataSchema } from '../zod/userController/createUserSchema.ts'
+import { createUsersWithListInputRequestDataSchema } from '../zod/userController/createUsersWithListInputSchema.ts'
 import { deleteUserPathParamsSchema } from '../zod/userController/deleteUserSchema.ts'
 import { getUserByNamePathParamsSchema } from '../zod/userController/getUserByNameSchema.ts'
 import { loginUserQueryParamsSchema } from '../zod/userController/loginUserSchema.ts'
-import { updateUserMutationRequestSchema, updateUserPathParamsSchema } from '../zod/userController/updateUserSchema.ts'
+import { updateUserPathParamsSchema, updateUserRequestDataSchema } from '../zod/userController/updateUserSchema.ts'
 import { addFilesHandler } from './petRequests/addFiles.ts'
 import { addPetHandler } from './petRequests/addPet.ts'
 import { deletePetHandler } from './petRequests/deletePet.ts'
@@ -49,7 +49,7 @@ server.tool(
   'Make a POST request to /pets/{uuid}',
   {
     uuid: createPetsPathParamsSchema.shape['uuid'],
-    data: createPetsMutationRequestSchema,
+    data: createPetsRequestDataSchema,
     headers: createPetsHeaderParamsSchema,
     params: createPetsQueryParamsSchema,
   },
@@ -58,11 +58,11 @@ server.tool(
   },
 )
 
-server.tool('updatePet', 'Update an existing pet by Id', { data: updatePetMutationRequestSchema }, async ({ data }) => {
+server.tool('updatePet', 'Update an existing pet by Id', { data: updatePetRequestDataSchema }, async ({ data }) => {
   return updatePetHandler({ data })
 })
 
-server.tool('addPet', 'Add a new pet to the store', { data: addPetMutationRequestSchema }, async ({ data }) => {
+server.tool('addPet', 'Add a new pet to the store', { data: addPetRequestDataSchema }, async ({ data }) => {
   return addPetHandler({ data })
 })
 
@@ -106,27 +106,27 @@ server.tool(
   },
 )
 
-server.tool('addFiles', 'Place a new file in the store', { data: addFilesMutationRequestSchema }, async ({ data }) => {
+server.tool('addFiles', 'Place a new file in the store', { data: addFilesRequestDataSchema }, async ({ data }) => {
   return addFilesHandler({ data })
 })
 
 server.tool(
   'uploadFile',
   'Make a POST request to /pet/{petId}/uploadImage',
-  { petId: uploadFilePathParamsSchema.shape['petId'], data: uploadFileMutationRequestSchema, params: uploadFileQueryParamsSchema },
+  { petId: uploadFilePathParamsSchema.shape['petId'], data: uploadFileRequestDataSchema, params: uploadFileQueryParamsSchema },
   async ({ petId, data, params }) => {
     return uploadFileHandler({ petId, data, params })
   },
 )
 
-server.tool('createUser', 'This can only be done by the logged in user.', { data: createUserMutationRequestSchema }, async ({ data }) => {
+server.tool('createUser', 'This can only be done by the logged in user.', { data: createUserRequestDataSchema }, async ({ data }) => {
   return createUserHandler({ data })
 })
 
 server.tool(
   'createUsersWithListInput',
   'Creates list of users with given input array',
-  { data: createUsersWithListInputMutationRequestSchema },
+  { data: createUsersWithListInputRequestDataSchema },
   async ({ data }) => {
     return createUsersWithListInputHandler({ data })
   },
@@ -147,7 +147,7 @@ server.tool('getUserByName', 'Make a GET request to /user/{username}', { usernam
 server.tool(
   'updateUser',
   'This can only be done by the logged in user.',
-  { username: updateUserPathParamsSchema.shape['username'], data: updateUserMutationRequestSchema },
+  { username: updateUserPathParamsSchema.shape['username'], data: updateUserRequestDataSchema },
   async ({ username, data }) => {
     return updateUserHandler({ username, data })
   },

@@ -2,7 +2,7 @@ import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser.ts'
+import type { DeleteUserPathParams, DeleteUserResponseData, DeleteUserStatus400, DeleteUserStatus404 } from '../../../models/ts/userController/DeleteUser.ts'
 import { deleteUser } from '../../axios/userService/deleteUser.ts'
 
 export const deleteUserMutationKeySWR = () => [{ url: '/user/:username' }] as const
@@ -18,8 +18,8 @@ export function useDeleteUserSWR(
   { username }: { username: DeleteUserPathParams['username'] },
   options: {
     mutation?: SWRMutationConfiguration<
-      ResponseConfig<DeleteUserMutationResponse>,
-      ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
+      ResponseConfig<DeleteUserResponseData>,
+      ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>,
       DeleteUserMutationKeySWR | null,
       never
     > & { throwOnError?: boolean }
@@ -30,7 +30,11 @@ export function useDeleteUserSWR(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = deleteUserMutationKeySWR()
 
-  return useSWRMutation<ResponseConfig<DeleteUserMutationResponse>, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, DeleteUserMutationKeySWR | null>(
+  return useSWRMutation<
+    ResponseConfig<DeleteUserResponseData>,
+    ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>,
+    DeleteUserMutationKeySWR | null
+  >(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return deleteUser({ username }, config)

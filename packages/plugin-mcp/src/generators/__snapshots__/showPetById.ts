@@ -13,7 +13,7 @@ export async function showPetByIdHandler({
   petId: ShowPetByIdPathParams['petId']
   testId: ShowPetByIdPathParams['testId']
 }): Promise<Promise<CallToolResult>> {
-  const res = await fetch<ShowPetByIdQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/pets/${petId}` })
+  const res = await fetch<ShowPetByIdResponseData, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/pets/${petId}` })
   return {
     content: [
       {

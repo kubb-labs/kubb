@@ -4,20 +4,18 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { OptionsFindPetsByStatus200, OptionsFindPetsByStatusMutationResponse } from '../../models/OptionsFindPetsByStatus.ts'
+import type { OptionsFindPetsByStatusResponseData, OptionsFindPetsByStatusStatus200 } from '../../models/OptionsFindPetsByStatus.ts'
 import { createPet } from '../createPet.ts'
 
 /**
  * @description successful operation
  */
-export function createOptionsFindPetsByStatus200(data?: OptionsFindPetsByStatus200): OptionsFindPetsByStatus200 {
+export function createOptionsFindPetsByStatusStatus200(data?: OptionsFindPetsByStatusStatus200): OptionsFindPetsByStatusStatus200 {
   faker.seed([220])
   return [...faker.helpers.multiple(() => createPet()), ...(data || [])]
 }
 
-export function createOptionsFindPetsByStatusMutationResponse(
-  data?: Partial<OptionsFindPetsByStatusMutationResponse>,
-): OptionsFindPetsByStatusMutationResponse {
+export function createOptionsFindPetsByStatusResponseData(data?: Partial<OptionsFindPetsByStatusResponseData>): OptionsFindPetsByStatusResponseData {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([createOptionsFindPetsByStatus200()])
+  return data || faker.helpers.arrayElement<any>([createOptionsFindPetsByStatusStatus200()])
 }

@@ -4,13 +4,13 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { CreateUserMutationResponse } from '../../models/CreateUser.ts'
+import type { CreateUserResponseData } from '../../models/CreateUser.ts'
 import { createUser } from '../createUser.ts'
 
 /**
  * @description successful operation
  */
-export function createCreateUserError() {
+export function createCreateUserStatusError() {
   faker.seed([220])
   return createUser()
 }
@@ -18,12 +18,12 @@ export function createCreateUserError() {
 /**
  * @description Created user object
  */
-export function createCreateUserMutationRequest() {
+export function createCreateUserRequestData() {
   faker.seed([220])
   return createUser()
 }
 
-export function createCreateUserMutationResponse(_data?: Partial<CreateUserMutationResponse>): CreateUserMutationResponse {
+export function createCreateUserResponseData(_data?: Partial<CreateUserResponseData>): CreateUserResponseData {
   faker.seed([220])
   return undefined
 }

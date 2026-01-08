@@ -17,6 +17,6 @@ export const deletePetHeaderParams = z
 /**
  * @description Invalid pet value
  */
-export const deletePet400 = z.unknown()
+export const deletePetStatus400 = z.unknown()
 
-export const deletePetMutationResponse = z.unknown()
+export const deletePetResponseData = z.unknown()

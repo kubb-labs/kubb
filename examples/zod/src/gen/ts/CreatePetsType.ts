@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { PetNotFoundType } from './PetNotFoundType.ts'
+import type { PetNotFound } from './PetNotFoundType.ts'
 
-export type CreatePetsPathParamsType = {
+export type CreatePetsPathParams = {
   /**
    * @description UUID
    * @type string
@@ -13,7 +13,7 @@ export type CreatePetsPathParamsType = {
   uuid: string
 }
 
-export type CreatePetsQueryParamsType = {
+export type CreatePetsQueryParams = {
   /**
    * @description Offset
    * @type integer | undefined
@@ -27,27 +27,27 @@ export const createPetsHeaderParamsXEXAMPLEEnum = {
   THREE: 'THREE',
 } as const
 
-export type CreatePetsHeaderParamsXEXAMPLEEnumTypeKey = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
+export type CreatePetsHeaderParamsXEXAMPLEEnumKey = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
 
-export type CreatePetsHeaderParamsType = {
+export type CreatePetsHeaderParams = {
   /**
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumTypeKey
+  'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumKey
 }
 
 /**
  * @description Null response
  */
-export type CreatePets201Type = any
+export type CreatePetsStatus201 = any
 
 /**
  * @description unexpected error
  */
-export type CreatePetsErrorType = PetNotFoundType
+export type CreatePetsStatusError = PetNotFound
 
-export type CreatePetsMutationRequestType = {
+export type CreatePetsRequestData = {
   /**
    * @type string
    */
@@ -58,13 +58,8 @@ export type CreatePetsMutationRequestType = {
   tag: string
 }
 
-export type CreatePetsMutationResponseType = CreatePets201Type
-
-export type CreatePetsTypeMutation = {
-  Response: CreatePets201Type
-  Request: CreatePetsMutationRequestType
-  PathParams: CreatePetsPathParamsType
-  QueryParams: CreatePetsQueryParamsType
-  HeaderParams: CreatePetsHeaderParamsType
-  Errors: any
+export type CreatePetsResponses = {
+  '201': CreatePetsStatus201
 }
+
+export type CreatePetsResponseData = CreatePetsResponses[keyof CreatePetsResponses]

@@ -12,12 +12,12 @@ export const showPetByIdPathParams = z.object({
 /**
  * @description Expected response to a valid request
  */
-export const showPetById200 = z.lazy(() => pet)
+export const showPetByIdStatus200 = z.lazy(() => pet)
 
 /**
  * @description unexpected error
  */
-export const showPetByIdError = z
+export const showPetByIdStatusError = z
   .lazy(() => error)
   .openapi({
     examples: [
@@ -26,4 +26,4 @@ export const showPetByIdError = z
     ],
   })
 
-export const showPetByIdQueryResponse = z.lazy(() => showPetById200)
+export const showPetByIdResponseData = z.lazy(() => showPetByIdStatus200)

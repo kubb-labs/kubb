@@ -4,10 +4,10 @@ import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   CreatePetsHeaderParams,
-  CreatePetsMutationRequest,
-  CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsRequestData,
+  CreatePetsResponseData,
 } from '../../../models/ts/petsController/CreatePets.ts'
 import { createPets } from '../../axios/petsService/createPets.ts'
 
@@ -15,12 +15,12 @@ export const createPetsMutationKey = () => [{ url: '/pets/:uuid' }] as const
 
 export type CreatePetsMutationKey = ReturnType<typeof createPetsMutationKey>
 
-export function createPetsMutationOptions(config: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof fetch } = {}) {
+export function createPetsMutationOptions(config: Partial<RequestConfig<CreatePetsRequestData>> & { client?: typeof fetch } = {}) {
   const mutationKey = createPetsMutationKey()
   return mutationOptions<
-    ResponseConfig<CreatePetsMutationResponse>,
+    ResponseConfig<CreatePetsResponseData>,
     ResponseErrorConfig<Error>,
-    { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
+    { uuid: CreatePetsPathParams['uuid']; data: CreatePetsRequestData; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
     typeof mutationKey
   >({
     mutationKey,
@@ -37,12 +37,12 @@ export function createPetsMutationOptions(config: Partial<RequestConfig<CreatePe
 export function useCreatePets<TContext>(
   options: {
     mutation?: UseMutationOptions<
-      ResponseConfig<CreatePetsMutationResponse>,
+      ResponseConfig<CreatePetsResponseData>,
       ResponseErrorConfig<Error>,
-      { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
+      { uuid: CreatePetsPathParams['uuid']; data: CreatePetsRequestData; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<CreatePetsRequestData>> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
@@ -50,16 +50,16 @@ export function useCreatePets<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? createPetsMutationKey()
 
   const baseOptions = createPetsMutationOptions(config) as UseMutationOptions<
-    ResponseConfig<CreatePetsMutationResponse>,
+    ResponseConfig<CreatePetsResponseData>,
     ResponseErrorConfig<Error>,
-    { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
+    { uuid: CreatePetsPathParams['uuid']; data: CreatePetsRequestData; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
     TContext
   >
 
   return useMutation<
-    ResponseConfig<CreatePetsMutationResponse>,
+    ResponseConfig<CreatePetsResponseData>,
     ResponseErrorConfig<Error>,
-    { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
+    { uuid: CreatePetsPathParams['uuid']; data: CreatePetsRequestData; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
     TContext
   >(
     {
@@ -69,9 +69,9 @@ export function useCreatePets<TContext>(
     },
     queryClient,
   ) as UseMutationResult<
-    ResponseConfig<CreatePetsMutationResponse>,
+    ResponseConfig<CreatePetsResponseData>,
     ResponseErrorConfig<Error>,
-    { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
+    { uuid: CreatePetsPathParams['uuid']; data: CreatePetsRequestData; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
     TContext
   >
 }

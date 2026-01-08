@@ -1,7 +1,7 @@
 import { http } from 'msw'
-import type { AddFiles405, AddFilesMutationResponse } from '../../models/ts/petController/AddFiles.ts'
+import type { AddFilesResponseData, AddFilesStatus405 } from '../../models/ts/petController/AddFiles.ts'
 
-export function addFilesHandlerResponse200(data: AddFilesMutationResponse) {
+export function addFilesHandlerResponse200(data: AddFilesResponseData) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -10,13 +10,13 @@ export function addFilesHandlerResponse200(data: AddFilesMutationResponse) {
   })
 }
 
-export function addFilesHandlerResponse405(data?: AddFiles405) {
+export function addFilesHandlerResponse405(data?: AddFilesStatus405) {
   return new Response(JSON.stringify(data), {
     status: 405,
   })
 }
 
-export function addFilesHandler(data?: AddFilesMutationResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
+export function addFilesHandler(data?: AddFilesResponseData | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
   return http.post('/pet/files', function handler(info) {
     if (typeof data === 'function') return data(info)
 

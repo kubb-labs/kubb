@@ -2,7 +2,7 @@ import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
-import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
+import type { LogoutUserResponseData } from '../../../models/ts/userController/LogoutUser.ts'
 import { logoutUser } from '../../axios/userService/logoutUser.ts'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
@@ -11,7 +11,7 @@ export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
 
 export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = logoutUserQueryKey()
-  return queryOptions<ResponseConfig<LogoutUserQueryResponse>, ResponseErrorConfig<Error>, ResponseConfig<LogoutUserQueryResponse>, typeof queryKey>({
+  return queryOptions<ResponseConfig<LogoutUserResponseData>, ResponseErrorConfig<Error>, ResponseConfig<LogoutUserResponseData>, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -25,12 +25,12 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client
  * {@link /user/logout}
  */
 export function useLogoutUser<
-  TData = ResponseConfig<LogoutUserQueryResponse>,
-  TQueryData = ResponseConfig<LogoutUserQueryResponse>,
+  TData = ResponseConfig<LogoutUserResponseData>,
+  TQueryData = ResponseConfig<LogoutUserResponseData>,
   TQueryKey extends QueryKey = LogoutUserQueryKey,
 >(
   options: {
-    query?: Partial<QueryObserverOptions<ResponseConfig<LogoutUserQueryResponse>, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>> & {
+    query?: Partial<QueryObserverOptions<ResponseConfig<LogoutUserResponseData>, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }

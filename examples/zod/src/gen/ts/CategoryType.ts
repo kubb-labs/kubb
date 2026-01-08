@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type CategoryType = {
+export type Category = {
   /**
    * @type integer | undefined, int64
    */
@@ -15,5 +15,5 @@ export type CategoryType = {
   /**
    * @type object | undefined
    */
-  parent?: CategoryType
+  parent?: Category
 }

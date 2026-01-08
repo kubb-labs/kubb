@@ -4,7 +4,7 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/DeleteUser.ts'
+import type { DeleteUserPathParams, DeleteUserResponseData } from '../../models/DeleteUser.ts'
 
 export function createDeleteUserPathParams(data?: Partial<DeleteUserPathParams>): DeleteUserPathParams {
   faker.seed([220])
@@ -17,7 +17,7 @@ export function createDeleteUserPathParams(data?: Partial<DeleteUserPathParams>)
 /**
  * @description Invalid username supplied
  */
-export function createDeleteUser400() {
+export function createDeleteUserStatus400() {
   faker.seed([220])
   return undefined
 }
@@ -25,12 +25,12 @@ export function createDeleteUser400() {
 /**
  * @description User not found
  */
-export function createDeleteUser404() {
+export function createDeleteUserStatus404() {
   faker.seed([220])
   return undefined
 }
 
-export function createDeleteUserMutationResponse(_data?: Partial<DeleteUserMutationResponse>): DeleteUserMutationResponse {
+export function createDeleteUserResponseData(_data?: Partial<DeleteUserResponseData>): DeleteUserResponseData {
   faker.seed([220])
   return undefined
 }

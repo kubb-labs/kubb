@@ -6,7 +6,7 @@
 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById.js'
+import type { GetPetByIdPathParams, GetPetByIdResponseData, GetPetByIdStatus400, GetPetByIdStatus404 } from '../../../models/ts/petController/GetPetById.js'
 
 function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
   const res = { method: 'GET', url: `/pet/${petId}` as const }
@@ -21,7 +21,7 @@ function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
 export async function getPetById({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
+  const res = await request<GetPetByIdResponseData, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>, unknown>({
     method: 'GET',
     url: getGetPetByIdUrl({ petId }).url.toString(),
     ...requestConfig,

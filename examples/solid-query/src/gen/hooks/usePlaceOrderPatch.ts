@@ -7,7 +7,7 @@ import type { QueryClient, UseMutationOptions } from '@tanstack/solid-query'
 import { useMutation } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../models/PlaceOrderPatch.ts'
+import type { PlaceOrderPatchRequestData, PlaceOrderPatchResponseData, PlaceOrderPatchStatus405 } from '../models/PlaceOrderPatch.ts'
 
 export const placeOrderPatchMutationKey = () => [{ url: '/store/order' }] as const
 
@@ -19,8 +19,8 @@ export type PlaceOrderPatchMutationKey = ReturnType<typeof placeOrderPatchMutati
  * {@link /store/order}
  */
 export async function placeOrderPatch(
-  data?: PlaceOrderPatchMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
+  data?: PlaceOrderPatchRequestData,
+  config: Partial<RequestConfig<PlaceOrderPatchRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -28,7 +28,7 @@ export async function placeOrderPatch(
 
   const requestData = data
 
-  const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
+  const res = await request<PlaceOrderPatchResponseData, ResponseErrorConfig<PlaceOrderPatchStatus405>, PlaceOrderPatchRequestData>({
     method: 'PATCH',
     url: '/store/order',
     data: requestData,
@@ -45,9 +45,9 @@ export async function placeOrderPatch(
 export function usePlaceOrderPatch<TContext>(
   options: {
     mutation?: ReturnType<
-      UseMutationOptions<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>
+      UseMutationOptions<PlaceOrderPatchResponseData, ResponseErrorConfig<PlaceOrderPatchStatus405>, { data?: PlaceOrderPatchRequestData }, TContext>
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
+    client?: Partial<RequestConfig<PlaceOrderPatchRequestData>> & {
       client?: typeof fetch
     }
   } = {},
@@ -56,7 +56,7 @@ export function usePlaceOrderPatch<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? placeOrderPatchMutationKey()
 
-  return useMutation<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>(
+  return useMutation<PlaceOrderPatchResponseData, ResponseErrorConfig<PlaceOrderPatchStatus405>, { data?: PlaceOrderPatchRequestData }, TContext>(
     () => ({
       mutationFn: async ({ data }) => {
         return placeOrderPatch(data, config)

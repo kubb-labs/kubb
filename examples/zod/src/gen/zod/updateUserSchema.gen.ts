@@ -15,17 +15,17 @@ export type UpdateUserPathParamsSchema = z.infer<typeof updateUserPathParamsSche
 /**
  * @description successful operation
  */
-export const updateUserErrorSchema = z.any()
+export const updateUserStatusErrorSchema = z.any()
 
-export type UpdateUserErrorSchema = z.infer<typeof updateUserErrorSchema>
+export type UpdateUserStatusErrorSchema = z.infer<typeof updateUserStatusErrorSchema>
 
 /**
  * @description Update an existent user in the store
  */
-export const updateUserMutationRequestSchema = z.lazy(() => userSchema)
+export const updateUserRequestDataSchema = z.lazy(() => userSchema)
 
-export type UpdateUserMutationRequestSchema = z.infer<typeof updateUserMutationRequestSchema>
+export type UpdateUserRequestDataSchema = z.infer<typeof updateUserRequestDataSchema>
 
-export const updateUserMutationResponseSchema = z.any()
+export const updateUserResponseDataSchema = z.any()
 
-export type UpdateUserMutationResponseSchema = z.infer<typeof updateUserMutationResponseSchema>
+export type UpdateUserResponseDataSchema = z.infer<typeof updateUserResponseDataSchema>

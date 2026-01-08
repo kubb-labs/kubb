@@ -17,6 +17,16 @@ export const syntaxKind = {
   union: SyntaxKind.UnionType as 192,
 } as const
 
+export function getUnknownType(unknownType: 'any' | 'unknown' | 'void' | undefined) {
+  if (unknownType === 'any') {
+    return keywordTypeNodes.any
+  }
+  if (unknownType === 'void') {
+    return keywordTypeNodes.void
+  }
+
+  return keywordTypeNodes.unknown
+}
 function isValidIdentifier(str: string): boolean {
   if (!str.length || str.trim() !== str) {
     return false

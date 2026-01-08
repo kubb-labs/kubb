@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { LogoutUserQueryResponse } from '../../models/LogoutUser.ts'
+import type { LogoutUserResponseData } from '../../models/LogoutUser.ts'
 
-export function logoutUser(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<LogoutUserQueryResponse> {
+export function logoutUser(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<LogoutUserResponseData> {
   return cy
-    .request<LogoutUserQueryResponse>({
+    .request<LogoutUserResponseData>({
       method: 'get',
       url: 'http://localhost:3000/user/logout',
       ...options,

@@ -4,44 +4,44 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { UpdatePetMutationResponse } from '../models/UpdatePet.ts'
+import type { UpdatePetResponseData } from '../models/UpdatePet.ts'
 import { createPet } from './createPet.ts'
 
 /**
  * @description Successful operation
  */
-export function createUpdatePet200() {
+export function createUpdatePetStatus200() {
   return createPet()
 }
 
 /**
  * @description Invalid ID supplied
  */
-export function createUpdatePet400() {
+export function createUpdatePetStatus400() {
   return undefined
 }
 
 /**
  * @description Pet not found
  */
-export function createUpdatePet404() {
+export function createUpdatePetStatus404() {
   return undefined
 }
 
 /**
  * @description Validation exception
  */
-export function createUpdatePet405() {
+export function createUpdatePetStatus405() {
   return undefined
 }
 
 /**
  * @description Update an existent pet in the store
  */
-export function createUpdatePetMutationRequest() {
+export function createUpdatePetRequestData() {
   return createPet()
 }
 
-export function createUpdatePetMutationResponse(data?: Partial<UpdatePetMutationResponse>): UpdatePetMutationResponse {
-  return data || faker.helpers.arrayElement<any>([createUpdatePet200()])
+export function createUpdatePetResponseData(data?: Partial<UpdatePetResponseData>): UpdatePetResponseData {
+  return data || faker.helpers.arrayElement<any>([createUpdatePetStatus200()])
 }

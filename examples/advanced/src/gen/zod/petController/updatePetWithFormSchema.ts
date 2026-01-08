@@ -1,10 +1,10 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  UpdatePetWithForm405,
-  UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithFormResponseData,
+  UpdatePetWithFormStatus405,
 } from '../../models/ts/petController/UpdatePetWithForm.ts'
 
 export const updatePetWithFormPathParamsSchema = z.object({
@@ -25,10 +25,10 @@ export type UpdatePetWithFormQueryParamsSchema = UpdatePetWithFormQueryParams
 /**
  * @description Invalid input
  */
-export const updatePetWithForm405Schema = z.any() as unknown as ToZod<UpdatePetWithForm405>
+export const updatePetWithFormStatus405Schema = z.any() as unknown as ToZod<UpdatePetWithFormStatus405>
 
-export type UpdatePetWithForm405Schema = UpdatePetWithForm405
+export type UpdatePetWithFormStatus405Schema = UpdatePetWithFormStatus405
 
-export const updatePetWithFormMutationResponseSchema = z.any() as unknown as ToZod<UpdatePetWithFormMutationResponse>
+export const updatePetWithFormResponseDataSchema = z.any() as unknown as ToZod<UpdatePetWithFormResponseData>
 
-export type UpdatePetWithFormMutationResponseSchema = UpdatePetWithFormMutationResponse
+export type UpdatePetWithFormResponseDataSchema = UpdatePetWithFormResponseData

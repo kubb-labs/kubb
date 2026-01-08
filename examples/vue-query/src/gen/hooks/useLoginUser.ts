@@ -9,7 +9,7 @@ import type { QueryClient, QueryKey, UseQueryOptions, UseQueryReturnType } from 
 import { queryOptions, useQuery } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
 import { toValue } from 'vue'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser.ts'
+import type { LoginUserQueryParams, LoginUserResponseData, LoginUserStatus400 } from '../models/LoginUser.ts'
 
 export const loginUserQueryKey = (params?: MaybeRefOrGetter<LoginUserQueryParams>) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 
@@ -22,13 +22,18 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 export async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...requestConfig })
+  const res = await request<LoginUserResponseData, ResponseErrorConfig<LoginUserStatus400>, unknown>({
+    method: 'GET',
+    url: '/user/login',
+    params,
+    ...requestConfig,
+  })
   return res.data
 }
 
 export function loginUserQueryOptions(params?: MaybeRefOrGetter<LoginUserQueryParams>, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = loginUserQueryKey(params)
-  return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
+  return queryOptions<LoginUserResponseData, ResponseErrorConfig<LoginUserStatus400>, LoginUserResponseData, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -41,10 +46,10 @@ export function loginUserQueryOptions(params?: MaybeRefOrGetter<LoginUserQueryPa
  * @summary Logs user into the system
  * {@link /user/login}
  */
-export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginUserQueryResponse, TQueryKey extends QueryKey = LoginUserQueryKey>(
+export function useLoginUser<TData = LoginUserResponseData, TQueryData = LoginUserResponseData, TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: MaybeRefOrGetter<LoginUserQueryParams>,
   options: {
-    query?: Partial<UseQueryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, TData, TQueryData, TQueryKey>> & { client?: QueryClient }
+    query?: Partial<UseQueryOptions<LoginUserResponseData, ResponseErrorConfig<LoginUserStatus400>, TData, TQueryData, TQueryKey>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
@@ -57,9 +62,9 @@ export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginU
       ...loginUserQueryOptions(params, config),
       ...queryOptions,
       queryKey,
-    } as unknown as UseQueryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, TData, LoginUserQueryResponse, TQueryKey>,
+    } as unknown as UseQueryOptions<LoginUserResponseData, ResponseErrorConfig<LoginUserStatus400>, TData, LoginUserResponseData, TQueryKey>,
     toValue(queryClient),
-  ) as UseQueryReturnType<TData, ResponseErrorConfig<LoginUser400>> & { queryKey: TQueryKey }
+  ) as UseQueryReturnType<TData, ResponseErrorConfig<LoginUserStatus400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

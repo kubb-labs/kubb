@@ -9,19 +9,17 @@ import type { Order } from './Order.ts'
 /**
  * @description successful operation
  */
-export type PlaceOrderPatch200 = Order
+export type PlaceOrderPatchStatus200 = Order
 
 /**
  * @description Invalid input
  */
-export type PlaceOrderPatch405 = any
+export type PlaceOrderPatchStatus405 = any
 
-export type PlaceOrderPatchMutationRequest = Order
+export type PlaceOrderPatchRequestData = Order
 
-export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
-
-export type PlaceOrderPatchMutation = {
-  Response: PlaceOrderPatch200
-  Request: PlaceOrderPatchMutationRequest
-  Errors: PlaceOrderPatch405
+export type PlaceOrderPatchResponses = {
+  '200': PlaceOrderPatchStatus200
 }
+
+export type PlaceOrderPatchResponseData = PlaceOrderPatchResponses[keyof PlaceOrderPatchResponses]

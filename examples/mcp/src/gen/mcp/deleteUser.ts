@@ -1,7 +1,7 @@
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
-import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../models/ts/DeleteUser.js'
+import type { DeleteUserPathParams, DeleteUserResponseData, DeleteUserStatus400, DeleteUserStatus404 } from '../models/ts/DeleteUser.js'
 
 /**
  * @description This can only be done by the logged in user.
@@ -9,7 +9,7 @@ import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUs
  * {@link /user/:username}
  */
 export async function deleteUserHandler({ username }: { username: DeleteUserPathParams['username'] }): Promise<Promise<CallToolResult>> {
-  const res = await fetch<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
+  const res = await fetch<DeleteUserResponseData, ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>, unknown>({
     method: 'DELETE',
     url: `/user/${username}`,
     baseURL: 'https://petstore.swagger.io/v2',

@@ -16,22 +16,29 @@ export type GetPetByIdPathParams = {
 /**
  * @description successful operation
 */
-export type GetPetById200 = Pet;
+export type GetPetByIdStatus200 = Pet;
 
 /**
  * @description Invalid ID supplied
 */
-export type GetPetById400 = any;
+export type GetPetByIdStatus400 = any;
 
 /**
  * @description Pet not found
 */
-export type GetPetById404 = any;
+export type GetPetByIdStatus404 = any;
 
-export type GetPetByIdQueryResponse = GetPetById200;
-
-export type GetPetByIdQuery = {
-    Response: GetPetById200;
-    PathParams: GetPetByIdPathParams;
-    Errors: GetPetById400 | GetPetById404;
+export type GetPetByIdRequest = {
+    data?: never;
+    pathParams: GetPetByIdPathParams;
+    queryParams?: never;
+    headerParams?: never;
+    url: "/pet/{petId}";
 };
+
+export type GetPetByIdResponses = {
+    "200": GetPetByIdStatus200;
+};
+
+
+export type GetPetByIdResponseData = GetPetByIdResponses[keyof GetPetByIdResponses];

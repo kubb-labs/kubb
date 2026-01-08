@@ -12,12 +12,12 @@ export const listPetsQueryParams = z.object({
 /**
  * @description A paged array of pets
  */
-export const listPets200 = z.lazy(() => pets)
+export const listPetsStatus200 = z.lazy(() => pets)
 
 /**
  * @description unexpected error
  */
-export const listPetsError = z
+export const listPetsStatusError = z
   .lazy(() => error)
   .openapi({
     examples: [
@@ -26,4 +26,4 @@ export const listPetsError = z
     ],
   })
 
-export const listPetsQueryResponse = z.lazy(() => listPets200)
+export const listPetsResponseData = z.lazy(() => listPetsStatus200)

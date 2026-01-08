@@ -4,34 +4,34 @@
  */
 import type { RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
 import type {
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
-  UpdatePet400,
-  UpdatePet404,
-  UpdatePet405,
-  AddPetMutationRequest,
-  AddPetMutationResponse,
-  AddPet405,
-  FindPetsByStatusQueryResponse,
+  UpdatePetRequestData,
+  UpdatePetResponseData,
+  UpdatePetStatus400,
+  UpdatePetStatus404,
+  UpdatePetStatus405,
+  AddPetRequestData,
+  AddPetResponseData,
+  AddPetStatus405,
+  FindPetsByStatusResponseData,
   FindPetsByStatusQueryParams,
-  FindPetsByStatus400,
-  FindPetsByTagsQueryResponse,
+  FindPetsByStatusStatus400,
+  FindPetsByTagsResponseData,
   FindPetsByTagsQueryParams,
-  FindPetsByTags400,
-  GetPetByIdQueryResponse,
+  FindPetsByTagsStatus400,
+  GetPetByIdResponseData,
   GetPetByIdPathParams,
-  GetPetById400,
-  GetPetById404,
-  UpdatePetWithFormMutationResponse,
+  GetPetByIdStatus400,
+  GetPetByIdStatus404,
+  UpdatePetWithFormResponseData,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
-  DeletePetMutationResponse,
+  UpdatePetWithFormStatus405,
+  DeletePetResponseData,
   DeletePetPathParams,
   DeletePetHeaderParams,
-  DeletePet400,
-  UploadFileMutationRequest,
-  UploadFileMutationResponse,
+  DeletePetStatus400,
+  UploadFileRequestData,
+  UploadFileResponseData,
   UploadFilePathParams,
   UploadFileQueryParams,
 } from './findByTags'
@@ -50,10 +50,10 @@ export class Pet {
    * @summary Update an existing pet
    * {@link /pet}
    */
-  async updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch } = {}) {
+  async updatePet(data: UpdatePetRequestData, config: Partial<RequestConfig<UpdatePetRequestData>> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
-    const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
+    const res = await request<UpdatePetResponseData, ResponseErrorConfig<UpdatePetStatus400 | UpdatePetStatus404 | UpdatePetStatus405>, UpdatePetRequestData>({
       method: 'PUT',
       url: `/pet`,
       data: requestData,
@@ -67,10 +67,10 @@ export class Pet {
    * @summary Add a new pet to the store
    * {@link /pet}
    */
-  async addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}) {
+  async addPet(data: AddPetRequestData, config: Partial<RequestConfig<AddPetRequestData>> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
-    const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
+    const res = await request<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, AddPetRequestData>({
       method: 'POST',
       url: `/pet`,
       data: requestData,
@@ -86,7 +86,7 @@ export class Pet {
    */
   async findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
+    const res = await request<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, unknown>({
       method: 'GET',
       url: `/pet/findByStatus`,
       params,
@@ -102,7 +102,7 @@ export class Pet {
    */
   async findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+    const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
       method: 'GET',
       url: `/pet/findByTags`,
       params,
@@ -118,7 +118,7 @@ export class Pet {
    */
   async getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
+    const res = await request<GetPetByIdResponseData, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>, unknown>({
       method: 'GET',
       url: `/pet/${petId}`,
       ...requestConfig,
@@ -136,7 +136,7 @@ export class Pet {
     config: Partial<RequestConfig> & { client?: typeof fetch } = {},
   ) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
+    const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
       method: 'POST',
       url: `/pet/${petId}`,
       params,
@@ -152,7 +152,7 @@ export class Pet {
    */
   async deletePet(petId: DeletePetPathParams['petId'], headers?: DeletePetHeaderParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
+    const res = await request<DeletePetResponseData, ResponseErrorConfig<DeletePetStatus400>, unknown>({
       method: 'DELETE',
       url: `/pet/${petId}`,
       ...requestConfig,
@@ -167,14 +167,14 @@ export class Pet {
    */
   async uploadFile(
     petId: UploadFilePathParams['petId'],
-    data: UploadFileMutationRequest,
+    data: UploadFileRequestData,
     params?: UploadFileQueryParams,
-    config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch } = {},
+    config: Partial<RequestConfig<UploadFileRequestData>> & { client?: typeof fetch } = {},
   ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
     const formData = buildFormData(requestData)
-    const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
+    const res = await request<UploadFileResponseData, ResponseErrorConfig<Error>, UploadFileRequestData>({
       method: 'POST',
       url: `/pet/${petId}/uploadImage`,
       params,

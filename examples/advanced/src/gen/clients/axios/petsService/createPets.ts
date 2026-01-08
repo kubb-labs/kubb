@@ -2,12 +2,12 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-clien
 import fetch from '../../../../axios-client.ts'
 import type {
   CreatePetsHeaderParams,
-  CreatePetsMutationRequest,
-  CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsRequestData,
+  CreatePetsResponseData,
 } from '../../../models/ts/petsController/CreatePets.ts'
-import { createPetsMutationRequestSchema, createPetsMutationResponseSchema } from '../../../zod/petsController/createPetsSchema.ts'
+import { createPetsRequestDataSchema, createPetsResponseDataSchema } from '../../../zod/petsController/createPetsSchema.ts'
 
 export function getCreatePetsUrl({ uuid }: { uuid: CreatePetsPathParams['uuid'] }) {
   const res = { method: 'POST', url: `https://petstore3.swagger.io/api/v3/pets/${uuid}` as const }
@@ -24,14 +24,14 @@ export async function createPets(
     data,
     headers,
     params,
-  }: { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
-  config: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof fetch } = {},
+  }: { uuid: CreatePetsPathParams['uuid']; data: CreatePetsRequestData; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
+  config: Partial<RequestConfig<CreatePetsRequestData>> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const requestData = createPetsMutationRequestSchema.parse(data)
+  const requestData = createPetsRequestDataSchema.parse(data)
 
-  const res = await request<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
+  const res = await request<CreatePetsResponseData, ResponseErrorConfig<Error>, CreatePetsRequestData>({
     method: 'POST',
     url: getCreatePetsUrl({ uuid }).url.toString(),
     params,
@@ -39,5 +39,5 @@ export async function createPets(
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
-  return { ...res, data: createPetsMutationResponseSchema.parse(res.data) }
+  return { ...res, data: createPetsResponseDataSchema.parse(res.data) }
 }

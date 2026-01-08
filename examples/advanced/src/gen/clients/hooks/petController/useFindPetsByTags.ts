@@ -3,10 +3,10 @@ import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.
 import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import type {
-  FindPetsByTags400,
   FindPetsByTagsHeaderParams,
   FindPetsByTagsQueryParams,
-  FindPetsByTagsQueryResponse,
+  FindPetsByTagsResponseData,
+  FindPetsByTagsStatus400,
 } from '../../../models/ts/petController/FindPetsByTags.ts'
 import { findPetsByTags } from '../../axios/petService/findPetsByTags.ts'
 
@@ -20,9 +20,9 @@ export function findPetsByTagsQueryOptions(
 ) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions<
-    ResponseConfig<FindPetsByTagsQueryResponse>,
-    ResponseErrorConfig<FindPetsByTags400>,
-    ResponseConfig<FindPetsByTagsQueryResponse>,
+    ResponseConfig<FindPetsByTagsResponseData>,
+    ResponseErrorConfig<FindPetsByTagsStatus400>,
+    ResponseConfig<FindPetsByTagsResponseData>,
     typeof queryKey
   >({
     queryKey,
@@ -39,15 +39,15 @@ export function findPetsByTagsQueryOptions(
  * {@link /pet/findByTags}
  */
 export function useFindPetsByTags<
-  TData = ResponseConfig<FindPetsByTagsQueryResponse>,
-  TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
+  TData = ResponseConfig<FindPetsByTagsResponseData>,
+  TQueryData = ResponseConfig<FindPetsByTagsResponseData>,
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(
   { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   options: {
-    query?: Partial<QueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>> & {
-      client?: QueryClient
-    }
+    query?: Partial<
+      QueryObserverOptions<ResponseConfig<FindPetsByTagsResponseData>, ResponseErrorConfig<FindPetsByTagsStatus400>, TData, TQueryData, TQueryKey>
+    > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
@@ -62,7 +62,7 @@ export function useFindPetsByTags<
       ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
+  ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByTagsStatus400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

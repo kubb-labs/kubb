@@ -1,20 +1,20 @@
-import type { CreateUserMutationResponse } from '../../models/ts/userController/CreateUser.ts'
+import type { CreateUserResponseData } from '../../models/ts/userController/CreateUser.ts'
 import { createUserFaker } from '../createUserFaker.ts'
 
 /**
  * @description successful operation
  */
-export function createCreateUserErrorFaker() {
+export function createCreateUserStatusErrorFaker() {
   return createUserFaker()
 }
 
 /**
  * @description Created user object
  */
-export function createCreateUserMutationRequestFaker() {
+export function createCreateUserRequestDataFaker() {
   return createUserFaker()
 }
 
-export function createCreateUserMutationResponseFaker(_data?: Partial<CreateUserMutationResponse>): CreateUserMutationResponse {
+export function createCreateUserResponseDataFaker(_data?: Partial<CreateUserResponseData>): CreateUserResponseData {
   return undefined
 }

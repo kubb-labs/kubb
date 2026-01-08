@@ -9,13 +9,13 @@ import { petSchema } from './petSchema.js'
 /**
  * @description successful operation
  */
-export const addFiles200Schema = z.lazy(() => petSchema).schema.omit({ name: true })
+export const addFilesStatus200Schema = z.lazy(() => petSchema).schema.omit({ name: true })
 
 /**
  * @description Invalid input
  */
-export const addFiles405Schema = z.any()
+export const addFilesStatus405Schema = z.any()
 
-export const addFilesMutationRequestSchema = z.lazy(() => petSchema).schema.omit({ id: true })
+export const addFilesRequestDataSchema = z.lazy(() => petSchema).schema.omit({ id: true })
 
-export const addFilesMutationResponseSchema = z.lazy(() => addFiles200Schema)
+export const addFilesResponseDataSchema = z.lazy(() => addFilesStatus200Schema)

@@ -15,11 +15,11 @@ export const loginUserQueryParamsSchema = z.optional(
 /**
  * @description successful operation
  */
-export const loginUser200Schema = z.string()
+export const loginUserStatus200Schema = z.string()
 
 /**
  * @description Invalid username/password supplied
  */
-export const loginUser400Schema = z.any()
+export const loginUserStatus400Schema = z.any()
 
-export const loginUserQueryResponseSchema = z.lazy(() => loginUser200Schema)
+export const loginUserResponseDataSchema = z.lazy(() => loginUserStatus200Schema)

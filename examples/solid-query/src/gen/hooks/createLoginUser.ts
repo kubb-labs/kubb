@@ -6,7 +6,7 @@
 import { queryOptions } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser.ts'
+import type { LoginUserQueryParams, LoginUserResponseData, LoginUserStatus400 } from '../models/LoginUser.ts'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 
@@ -19,13 +19,18 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 export async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...requestConfig })
+  const res = await request<LoginUserResponseData, ResponseErrorConfig<LoginUserStatus400>, unknown>({
+    method: 'GET',
+    url: '/user/login',
+    params,
+    ...requestConfig,
+  })
   return res.data
 }
 
 export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = loginUserQueryKey(params)
-  return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
+  return queryOptions<LoginUserResponseData, ResponseErrorConfig<LoginUserStatus400>, LoginUserResponseData, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

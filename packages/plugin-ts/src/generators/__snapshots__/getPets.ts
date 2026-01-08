@@ -14,24 +14,23 @@ export type ListPetsQueryParams = {
 /**
  * @description A paged array of pets
  */
-export type ListPets200 = pets
+export type ListPetsStatus200 = pets
 
 /**
  * @description unexpected error
  */
-export type ListPetsError = error
+export type ListPetsStatusError = error
 
-export type ListPetsQueryResponse = listPets200
-
-export type listPetsDataRequest = {
+export type ListPetsRequest = {
+  data?: never
   pathParams?: never
-  queryParams?: listPetsQueryParams
+  queryParams?: ListPetsQueryParams
   headerParams?: never
   url: '/pets'
 }
 
-export type listPetsResponses = {
-  '200': listPets200
+export type ListPetsResponses = {
+  '200': ListPetsStatus200
 }
 
-export type listPetsResponse = listPetsResponses[keyof listPetsResponses]
+export type ListPetsResponseData = ListPetsResponses[keyof ListPetsResponses]

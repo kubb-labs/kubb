@@ -4,9 +4,9 @@
  */
 
 import { http } from 'msw'
-import type { GetInventoryQueryResponse } from '../../../models/GetInventory.ts'
+import type { GetInventoryResponseData } from '../../../models/GetInventory.ts'
 
-export function getInventoryHandlerResponse200(data: GetInventoryQueryResponse) {
+export function getInventoryHandlerResponse200(data: GetInventoryResponseData) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -15,9 +15,7 @@ export function getInventoryHandlerResponse200(data: GetInventoryQueryResponse) 
   })
 }
 
-export function getInventoryHandler(
-  data?: GetInventoryQueryResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>),
-) {
+export function getInventoryHandler(data?: GetInventoryResponseData | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
   return http.get('http://localhost:3000/store/inventory', function handler(info) {
     if (typeof data === 'function') return data(info)
 

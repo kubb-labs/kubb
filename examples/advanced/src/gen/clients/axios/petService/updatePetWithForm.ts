@@ -1,12 +1,12 @@
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
 import type {
-  UpdatePetWithForm405,
-  UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithFormResponseData,
+  UpdatePetWithFormStatus405,
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
-import { updatePetWithFormMutationResponseSchema } from '../../../zod/petController/updatePetWithFormSchema.ts'
+import { updatePetWithFormResponseDataSchema } from '../../../zod/petController/updatePetWithFormSchema.ts'
 
 export function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) {
   const res = { method: 'POST', url: `https://petstore3.swagger.io/api/v3/pet/${petId}:search` as const }
@@ -23,11 +23,11 @@ export async function updatePetWithForm(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
+  const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
     method: 'POST',
     url: getUpdatePetWithFormUrl({ petId }).url.toString(),
     params,
     ...requestConfig,
   })
-  return { ...res, data: updatePetWithFormMutationResponseSchema.parse(res.data) }
+  return { ...res, data: updatePetWithFormResponseDataSchema.parse(res.data) }
 }

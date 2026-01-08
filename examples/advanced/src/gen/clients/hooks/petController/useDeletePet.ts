@@ -2,7 +2,7 @@ import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tansta
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 import type fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet.ts'
+import type { DeletePetHeaderParams, DeletePetPathParams, DeletePetResponseData, DeletePetStatus400 } from '../../../models/ts/petController/DeletePet.ts'
 import { deletePet } from '../../axios/petService/deletePet.ts'
 
 export const deletePetMutationKey = () => [{ url: '/pet/:petId:search' }] as const
@@ -12,8 +12,8 @@ export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 export function deletePetMutationOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const mutationKey = deletePetMutationKey()
   return mutationOptions<
-    ResponseConfig<DeletePetMutationResponse>,
-    ResponseErrorConfig<DeletePet400>,
+    ResponseConfig<DeletePetResponseData>,
+    ResponseErrorConfig<DeletePetStatus400>,
     { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
     typeof mutationKey
   >({
@@ -32,8 +32,8 @@ export function deletePetMutationOptions(config: Partial<RequestConfig> & { clie
 export function useDeletePet<TContext>(
   options: {
     mutation?: UseMutationOptions<
-      ResponseConfig<DeletePetMutationResponse>,
-      ResponseErrorConfig<DeletePet400>,
+      ResponseConfig<DeletePetResponseData>,
+      ResponseErrorConfig<DeletePetStatus400>,
       { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
       TContext
     > & { client?: QueryClient }
@@ -45,15 +45,15 @@ export function useDeletePet<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? deletePetMutationKey()
 
   const baseOptions = deletePetMutationOptions(config) as UseMutationOptions<
-    ResponseConfig<DeletePetMutationResponse>,
-    ResponseErrorConfig<DeletePet400>,
+    ResponseConfig<DeletePetResponseData>,
+    ResponseErrorConfig<DeletePetStatus400>,
     { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
     TContext
   >
 
   return useMutation<
-    ResponseConfig<DeletePetMutationResponse>,
-    ResponseErrorConfig<DeletePet400>,
+    ResponseConfig<DeletePetResponseData>,
+    ResponseErrorConfig<DeletePetStatus400>,
     { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
     TContext
   >(
@@ -64,8 +64,8 @@ export function useDeletePet<TContext>(
     },
     queryClient,
   ) as UseMutationResult<
-    ResponseConfig<DeletePetMutationResponse>,
-    ResponseErrorConfig<DeletePet400>,
+    ResponseConfig<DeletePetResponseData>,
+    ResponseErrorConfig<DeletePetStatus400>,
     { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
     TContext
   >

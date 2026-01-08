@@ -4,9 +4,9 @@
  */
 
 import { http } from 'msw'
-import type { CreateUsersWithListInputMutationResponse } from '../../../models/CreateUsersWithListInput.ts'
+import type { CreateUsersWithListInputResponseData } from '../../../models/CreateUsersWithListInput.ts'
 
-export function createUsersWithListInputHandlerResponse200(data: CreateUsersWithListInputMutationResponse) {
+export function createUsersWithListInputHandlerResponse200(data: CreateUsersWithListInputResponseData) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -16,7 +16,7 @@ export function createUsersWithListInputHandlerResponse200(data: CreateUsersWith
 }
 
 export function createUsersWithListInputHandler(
-  data?: CreateUsersWithListInputMutationResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>),
+  data?: CreateUsersWithListInputResponseData | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>),
 ) {
   return http.post('http://localhost:3000/user/createWithList', function handler(info) {
     if (typeof data === 'function') return data(info)

@@ -13,109 +13,109 @@ export { createPetNotFoundFaker } from './createPetNotFoundFaker.ts'
 export { createUserArrayFaker } from './createUserArrayFaker.ts'
 export { createUserFaker } from './createUserFaker.ts'
 export {
-  createAddFiles200Faker,
-  createAddFiles405Faker,
-  createAddFilesMutationRequestFaker,
-  createAddFilesMutationResponseFaker,
+  createAddFilesRequestDataFaker,
+  createAddFilesResponseDataFaker,
+  createAddFilesStatus200Faker,
+  createAddFilesStatus405Faker,
 } from './petController/createAddFilesFaker.ts'
 export {
-  createAddPet200Faker,
-  createAddPet405Faker,
-  createAddPetMutationRequestFaker,
-  createAddPetMutationResponseFaker,
+  createAddPetRequestDataFaker,
+  createAddPetResponseDataFaker,
+  createAddPetStatus200Faker,
+  createAddPetStatus405Faker,
 } from './petController/createAddPetFaker.ts'
 export {
-  createDeletePet400Faker,
   createDeletePetHeaderParamsFaker,
-  createDeletePetMutationResponseFaker,
   createDeletePetPathParamsFaker,
+  createDeletePetResponseDataFaker,
+  createDeletePetStatus400Faker,
 } from './petController/createDeletePetFaker.ts'
 export {
-  createFindPetsByStatus200Faker,
-  createFindPetsByStatus400Faker,
   createFindPetsByStatusPathParamsFaker,
-  createFindPetsByStatusQueryResponseFaker,
+  createFindPetsByStatusResponseDataFaker,
+  createFindPetsByStatusStatus200Faker,
+  createFindPetsByStatusStatus400Faker,
 } from './petController/createFindPetsByStatusFaker.ts'
 export {
-  createFindPetsByTags200Faker,
-  createFindPetsByTags400Faker,
   createFindPetsByTagsHeaderParamsFaker,
   createFindPetsByTagsQueryParamsFaker,
-  createFindPetsByTagsQueryResponseFaker,
+  createFindPetsByTagsResponseDataFaker,
+  createFindPetsByTagsStatus200Faker,
+  createFindPetsByTagsStatus400Faker,
 } from './petController/createFindPetsByTagsFaker.ts'
 export {
-  createGetPetById200Faker,
-  createGetPetById400Faker,
-  createGetPetById404Faker,
   createGetPetByIdPathParamsFaker,
-  createGetPetByIdQueryResponseFaker,
+  createGetPetByIdResponseDataFaker,
+  createGetPetByIdStatus200Faker,
+  createGetPetByIdStatus400Faker,
+  createGetPetByIdStatus404Faker,
 } from './petController/createGetPetByIdFaker.ts'
 export {
-  createUpdatePet200Faker,
-  createUpdatePet202Faker,
-  createUpdatePet400Faker,
-  createUpdatePet404Faker,
-  createUpdatePet405Faker,
-  createUpdatePetMutationRequestFaker,
-  createUpdatePetMutationResponseFaker,
+  createUpdatePetRequestDataFaker,
+  createUpdatePetResponseDataFaker,
+  createUpdatePetStatus200Faker,
+  createUpdatePetStatus202Faker,
+  createUpdatePetStatus400Faker,
+  createUpdatePetStatus404Faker,
+  createUpdatePetStatus405Faker,
 } from './petController/createUpdatePetFaker.ts'
 export {
-  createUpdatePetWithForm405Faker,
-  createUpdatePetWithFormMutationResponseFaker,
   createUpdatePetWithFormPathParamsFaker,
   createUpdatePetWithFormQueryParamsFaker,
+  createUpdatePetWithFormResponseDataFaker,
+  createUpdatePetWithFormStatus405Faker,
 } from './petController/createUpdatePetWithFormFaker.ts'
 export {
-  createUploadFile200Faker,
-  createUploadFileMutationRequestFaker,
-  createUploadFileMutationResponseFaker,
   createUploadFilePathParamsFaker,
   createUploadFileQueryParamsFaker,
+  createUploadFileRequestDataFaker,
+  createUploadFileResponseDataFaker,
+  createUploadFileStatus200Faker,
 } from './petController/createUploadFileFaker.ts'
 export {
-  createCreatePets201Faker,
-  createCreatePetsErrorFaker,
   createCreatePetsHeaderParamsFaker,
-  createCreatePetsMutationRequestFaker,
-  createCreatePetsMutationResponseFaker,
   createCreatePetsPathParamsFaker,
   createCreatePetsQueryParamsFaker,
+  createCreatePetsRequestDataFaker,
+  createCreatePetsResponseDataFaker,
+  createCreatePetsStatus201Faker,
+  createCreatePetsStatusErrorFaker,
 } from './petsController/createCreatePetsFaker.ts'
 export { createTagTagFaker } from './tag/createTagFaker.ts'
 export {
-  createCreateUserErrorFaker,
-  createCreateUserMutationRequestFaker,
-  createCreateUserMutationResponseFaker,
+  createCreateUserRequestDataFaker,
+  createCreateUserResponseDataFaker,
+  createCreateUserStatusErrorFaker,
 } from './userController/createCreateUserFaker.ts'
 export {
-  createCreateUsersWithListInput200Faker,
-  createCreateUsersWithListInputErrorFaker,
-  createCreateUsersWithListInputMutationRequestFaker,
-  createCreateUsersWithListInputMutationResponseFaker,
+  createCreateUsersWithListInputRequestDataFaker,
+  createCreateUsersWithListInputResponseDataFaker,
+  createCreateUsersWithListInputStatus200Faker,
+  createCreateUsersWithListInputStatusErrorFaker,
 } from './userController/createCreateUsersWithListInputFaker.ts'
 export {
-  createDeleteUser400Faker,
-  createDeleteUser404Faker,
-  createDeleteUserMutationResponseFaker,
   createDeleteUserPathParamsFaker,
+  createDeleteUserResponseDataFaker,
+  createDeleteUserStatus400Faker,
+  createDeleteUserStatus404Faker,
 } from './userController/createDeleteUserFaker.ts'
 export {
-  createGetUserByName200Faker,
-  createGetUserByName400Faker,
-  createGetUserByName404Faker,
   createGetUserByNamePathParamsFaker,
-  createGetUserByNameQueryResponseFaker,
+  createGetUserByNameResponseDataFaker,
+  createGetUserByNameStatus200Faker,
+  createGetUserByNameStatus400Faker,
+  createGetUserByNameStatus404Faker,
 } from './userController/createGetUserByNameFaker.ts'
 export {
-  createLoginUser200Faker,
-  createLoginUser400Faker,
   createLoginUserQueryParamsFaker,
-  createLoginUserQueryResponseFaker,
+  createLoginUserResponseDataFaker,
+  createLoginUserStatus200Faker,
+  createLoginUserStatus400Faker,
 } from './userController/createLoginUserFaker.ts'
-export { createLogoutUserErrorFaker, createLogoutUserQueryResponseFaker } from './userController/createLogoutUserFaker.ts'
+export { createLogoutUserResponseDataFaker, createLogoutUserStatusErrorFaker } from './userController/createLogoutUserFaker.ts'
 export {
-  createUpdateUserErrorFaker,
-  createUpdateUserMutationRequestFaker,
-  createUpdateUserMutationResponseFaker,
   createUpdateUserPathParamsFaker,
+  createUpdateUserRequestDataFaker,
+  createUpdateUserResponseDataFaker,
+  createUpdateUserStatusErrorFaker,
 } from './userController/createUpdateUserFaker.ts'

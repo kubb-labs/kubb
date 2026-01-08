@@ -8,10 +8,10 @@ import { queryOptions, useQuery } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
 import type {
-  UpdatePetWithForm405,
-  UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithFormResponseData,
+  UpdatePetWithFormStatus405,
 } from '../models/UpdatePetWithForm.ts'
 
 export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
@@ -30,7 +30,7 @@ export async function updatePetWithForm(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
+  const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
     method: 'POST',
     url: `/pet/${petId}`,
     params,
@@ -45,7 +45,7 @@ export function updatePetWithFormQueryOptions(
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, params)
-  return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
+  return queryOptions<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, UpdatePetWithFormResponseData, typeof queryKey>({
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -60,14 +60,14 @@ export function updatePetWithFormQueryOptions(
  * {@link /pet/:petId}
  */
 export function createUpdatePetWithForm<
-  TData = UpdatePetWithFormMutationResponse,
-  TQueryData = UpdatePetWithFormMutationResponse,
+  TData = UpdatePetWithFormResponseData,
+  TQueryData = UpdatePetWithFormResponseData,
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
 >(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options: {
-    query?: Partial<UseBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
+    query?: Partial<UseBaseQueryOptions<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -85,9 +85,7 @@ export function createUpdatePetWithForm<
       ...(queryOptions as unknown as Omit<UseBaseQueryOptions, 'queryKey'>),
     }),
     queryClient ? () => queryClient : undefined,
-  ) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & {
-    queryKey: TQueryKey
-  }
+  ) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithFormStatus405>> & { queryKey: TQueryKey }
 
   return query
 }

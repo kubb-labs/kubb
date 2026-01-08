@@ -6,7 +6,7 @@
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
-import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus.ts'
+import type { FindPetsByStatusQueryParams, FindPetsByStatusResponseData, FindPetsByStatusStatus400 } from '../models/FindPetsByStatus.ts'
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 
@@ -20,7 +20,7 @@ export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKe
 export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
+  const res = await request<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, unknown>({
     method: 'GET',
     url: '/pet/findByStatus',
     params,
@@ -45,7 +45,7 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParam
 export function useFindPetsByStatus(
   params?: FindPetsByStatusQueryParams,
   options: {
-    query?: Parameters<typeof useSWR<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>>>[2]
+    query?: Parameters<typeof useSWR<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }
     shouldFetch?: boolean
     immutable?: boolean
@@ -55,7 +55,7 @@ export function useFindPetsByStatus(
 
   const queryKey = findPetsByStatusQueryKey(params)
 
-  return useSWR<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryKey | null>(shouldFetch ? queryKey : null, {
+  return useSWR<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, FindPetsByStatusQueryKey | null>(shouldFetch ? queryKey : null, {
     ...findPetsByStatusQueryOptions(params, config),
     ...(immutable
       ? {

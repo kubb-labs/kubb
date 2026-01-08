@@ -4,7 +4,7 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById.ts'
+import type { GetOrderByIdPathParams, GetOrderByIdResponseData } from '../models/GetOrderById.ts'
 import { createOrder } from './createOrder.ts'
 
 export function createGetOrderByIdPathParams(data?: Partial<GetOrderByIdPathParams>): GetOrderByIdPathParams {
@@ -17,24 +17,24 @@ export function createGetOrderByIdPathParams(data?: Partial<GetOrderByIdPathPara
 /**
  * @description successful operation
  */
-export function createGetOrderById200() {
+export function createGetOrderByIdStatus200() {
   return createOrder()
 }
 
 /**
  * @description Invalid ID supplied
  */
-export function createGetOrderById400() {
+export function createGetOrderByIdStatus400() {
   return undefined
 }
 
 /**
  * @description Order not found
  */
-export function createGetOrderById404() {
+export function createGetOrderByIdStatus404() {
   return undefined
 }
 
-export function createGetOrderByIdQueryResponse(data?: Partial<GetOrderByIdQueryResponse>): GetOrderByIdQueryResponse {
-  return data || faker.helpers.arrayElement<any>([createGetOrderById200()])
+export function createGetOrderByIdResponseData(data?: Partial<GetOrderByIdResponseData>): GetOrderByIdResponseData {
+  return data || faker.helpers.arrayElement<any>([createGetOrderByIdStatus200()])
 }

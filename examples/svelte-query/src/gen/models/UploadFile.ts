@@ -35,16 +35,12 @@ export type UploadFileQueryParams = {
 /**
  * @description successful operation
  */
-export type UploadFile200 = ApiResponse
+export type UploadFileStatus200 = ApiResponse
 
-export type UploadFileMutationRequest = Blob
+export type UploadFileRequestData = Blob
 
-export type UploadFileMutationResponse = UploadFile200
-
-export type UploadFileMutation = {
-  Response: UploadFile200
-  Request: UploadFileMutationRequest
-  PathParams: UploadFilePathParams
-  QueryParams: UploadFileQueryParams
-  Errors: any
+export type UploadFileResponses = {
+  '200': UploadFileStatus200
 }
+
+export type UploadFileResponseData = UploadFileResponses[keyof UploadFileResponses]

@@ -5,7 +5,7 @@
 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { UpdatePetWithForm405, UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from './models.ts'
+import type { UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams, UpdatePetWithFormResponseData, UpdatePetWithFormStatus405 } from './models.ts'
 
 function getUpdatePetWithFormUrl(petId: UpdatePetWithFormPathParams['petId']) {
   const res = {
@@ -26,7 +26,7 @@ export async function updatePetWithForm(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
+  const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
     method: 'POST',
     url: getUpdatePetWithFormUrl(petId).url.toString(),
     params,

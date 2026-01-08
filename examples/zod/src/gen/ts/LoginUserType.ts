@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type LoginUserQueryParamsType = {
+export type LoginUserQueryParams = {
   /**
    * @description The user name for login
    * @type string | undefined
@@ -19,17 +19,23 @@ export type LoginUserQueryParamsType = {
 /**
  * @description successful operation
  */
-export type LoginUser200Type = string
+export type LoginUserStatus200 = string
 
 /**
  * @description Invalid username/password supplied
  */
-export type LoginUser400Type = any
+export type LoginUserStatus400 = any
 
-export type LoginUserQueryResponseType = LoginUser200Type
-
-export type LoginUserTypeQuery = {
-  Response: LoginUser200Type
-  QueryParams: LoginUserQueryParamsType
-  Errors: LoginUser400Type
+export type LoginUserRequest = {
+  data?: never
+  pathParams?: never
+  queryParams?: LoginUserQueryParams
+  headerParams?: never
+  url: '/user/login'
 }
+
+export type LoginUserResponses = {
+  '200': LoginUserStatus200
+}
+
+export type LoginUserResponseData = LoginUserResponses[keyof LoginUserResponses]

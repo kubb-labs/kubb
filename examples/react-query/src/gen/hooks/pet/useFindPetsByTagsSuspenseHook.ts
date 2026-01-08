@@ -7,7 +7,7 @@ import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
+import type { FindPetsByTagsQueryParams, FindPetsByTagsResponseData, FindPetsByTagsStatus400 } from '../../models/FindPetsByTags.ts'
 
 export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTagsQueryParams) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
@@ -21,7 +21,7 @@ export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSus
 export async function findPetsByTagsSuspenseHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+  const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
     method: 'GET',
     url: '/pet/findByTags',
     params,
@@ -33,9 +33,9 @@ export async function findPetsByTagsSuspenseHook(params?: FindPetsByTagsQueryPar
 export function findPetsByTagsSuspenseQueryOptionsHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
   return queryOptions<
-    ResponseConfig<FindPetsByTagsQueryResponse>,
-    ResponseErrorConfig<FindPetsByTags400>,
-    ResponseConfig<FindPetsByTagsQueryResponse>,
+    ResponseConfig<FindPetsByTagsResponseData>,
+    ResponseErrorConfig<FindPetsByTagsStatus400>,
+    ResponseConfig<FindPetsByTagsResponseData>,
     typeof queryKey
   >({
     queryKey,
@@ -51,10 +51,10 @@ export function findPetsByTagsSuspenseQueryOptionsHook(params?: FindPetsByTagsQu
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByTagsQueryResponse>, TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey>(
+export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByTagsResponseData>, TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey>(
   params?: FindPetsByTagsQueryParams,
   options: {
-    query?: Partial<UseSuspenseQueryOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryKey>> & {
+    query?: Partial<UseSuspenseQueryOptions<ResponseConfig<FindPetsByTagsResponseData>, ResponseErrorConfig<FindPetsByTagsStatus400>, TData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -71,9 +71,7 @@ export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByT
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
-  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & {
-    queryKey: TQueryKey
-  }
+  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<FindPetsByTagsStatus400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

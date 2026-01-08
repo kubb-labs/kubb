@@ -39,7 +39,9 @@ export const setConfig = (config: Partial<RequestConfig>) => {
 
 export type ResponseErrorConfig<TError = unknown> = TError
 
-export const client = async <TData, _TError = unknown, TVariables = unknown>(paramsConfig: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
+export const client = async <TResponseData, _TError = unknown, RequestData = unknown>(
+  paramsConfig: RequestConfig<RequestData>,
+): Promise<ResponseConfig<TResponseData>> => {
   const normalizedParams = new URLSearchParams()
 
   const globalConfig = getConfig()
@@ -75,7 +77,7 @@ export const client = async <TData, _TError = unknown, TVariables = unknown>(par
   const data = [204, 205, 304].includes(response.status) || !response.body ? {} : await response.json()
 
   return {
-    data: data as TData,
+    data: data as TResponseData,
     status: response.status,
     statusText: response.statusText,
     headers: response.headers as Headers,

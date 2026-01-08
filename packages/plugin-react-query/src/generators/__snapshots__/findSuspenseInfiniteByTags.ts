@@ -23,14 +23,14 @@ export async function findPetsByTagsSuspenseInfinite(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+  const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
     method: 'GET',
     url: `/pet/findByTags`,
     params,
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
-  return findPetsByTagsQueryResponse.parse(res.data)
+  return findPetsByTagsResponseData.parse(res.data)
 }
 
 export function findPetsByTagsSuspenseInfiniteQueryOptions(
@@ -40,9 +40,9 @@ export function findPetsByTagsSuspenseInfiniteQueryOptions(
 ) {
   const queryKey = findPetsByTagsSuspenseInfiniteQueryKey(params)
   return infiniteQueryOptions<
-    FindPetsByTagsQueryResponse,
-    ResponseErrorConfig<FindPetsByTags400>,
-    InfiniteData<FindPetsByTagsQueryResponse>,
+    FindPetsByTagsResponseData,
+    ResponseErrorConfig<FindPetsByTagsStatus400>,
+    InfiniteData<FindPetsByTagsResponseData>,
     typeof queryKey,
     NonNullable<FindPetsByTagsQueryParams['pageSize']>
   >({
@@ -68,8 +68,8 @@ export function findPetsByTagsSuspenseInfiniteQueryOptions(
  * {@link /pet/findByTags}
  */
 export function useFindPetsByTagsSuspenseInfinite<
-  TQueryFnData = FindPetsByTagsQueryResponse,
-  TError = ResponseErrorConfig<FindPetsByTags400>,
+  TQueryFnData = FindPetsByTagsResponseData,
+  TError = ResponseErrorConfig<FindPetsByTagsStatus400>,
   TData = InfiniteData<TQueryFnData>,
   TQueryKey extends QueryKey = FindPetsByTagsSuspenseInfiniteQueryKey,
   TPageParam = NonNullable<FindPetsByTagsQueryParams['pageSize']>,

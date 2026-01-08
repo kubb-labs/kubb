@@ -18,29 +18,34 @@ export type DeletePetHeaderParams = {
   api_key?: string
 }
 
-export const deletePet200Enum = {
+export const deletePetStatus200Enum = {
   TYPE1: 'TYPE1',
   TYPE2: 'TYPE2',
   TYPE3: 'TYPE3',
 } as const
 
-export type DeletePet200EnumKey = (typeof deletePet200Enum)[keyof typeof deletePet200Enum]
+export type DeletePetStatus200EnumKey = (typeof deletePetStatus200Enum)[keyof typeof deletePetStatus200Enum]
 
 /**
  * @description items
  */
-export type DeletePet200 = DeletePet200EnumKey[]
+export type DeletePetStatus200 = DeletePetStatus200EnumKey[]
 
 /**
  * @description Invalid pet value
  */
-export type DeletePet400 = any
+export type DeletePetStatus400 = any
 
-export type DeletePetMutationResponse = DeletePet200
-
-export type DeletePetMutation = {
-  Response: DeletePet200
-  PathParams: DeletePetPathParams
-  HeaderParams: DeletePetHeaderParams
-  Errors: DeletePet400
+export type DeletePetRequest = {
+  data?: never
+  pathParams: DeletePetPathParams
+  queryParams?: never
+  headerParams?: DeletePetHeaderParams
+  url: '/pet/{petId}'
 }
+
+export type DeletePetResponses = {
+  '200': DeletePetStatus200
+}
+
+export type DeletePetResponseData = DeletePetResponses[keyof DeletePetResponses]

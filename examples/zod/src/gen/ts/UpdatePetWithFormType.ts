@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type UpdatePetWithFormPathParamsType = {
+export type UpdatePetWithFormPathParams = {
   /**
    * @description ID of pet that needs to be updated
    * @type integer, int64
@@ -11,7 +11,7 @@ export type UpdatePetWithFormPathParamsType = {
   petId: number
 }
 
-export type UpdatePetWithFormQueryParamsType = {
+export type UpdatePetWithFormQueryParams = {
   /**
    * @description Name of pet that needs to be updated
    * @type string | undefined
@@ -27,13 +27,14 @@ export type UpdatePetWithFormQueryParamsType = {
 /**
  * @description Invalid input
  */
-export type UpdatePetWithForm405Type = any
+export type UpdatePetWithFormStatus405 = any
 
-export type UpdatePetWithFormMutationResponseType = any
-
-export type UpdatePetWithFormTypeMutation = {
-  Response: any
-  PathParams: UpdatePetWithFormPathParamsType
-  QueryParams: UpdatePetWithFormQueryParamsType
-  Errors: UpdatePetWithForm405Type
+export type UpdatePetWithFormRequest = {
+  data?: never
+  pathParams: UpdatePetWithFormPathParams
+  queryParams?: UpdatePetWithFormQueryParams
+  headerParams?: never
+  url: '/pet/{petId}'
 }
+
+export type UpdatePetWithFormResponseData = any

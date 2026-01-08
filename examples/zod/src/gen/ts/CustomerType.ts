@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { AddressType } from './AddressType.ts'
+import type { Address } from './AddressType.ts'
 
-export type CustomerType = {
+export type Customer = {
   /**
    * @type integer | undefined, int64
    */
@@ -17,5 +17,5 @@ export type CustomerType = {
   /**
    * @type array | undefined
    */
-  address?: AddressType[]
+  address?: Address[]
 }

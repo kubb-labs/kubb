@@ -3,24 +3,22 @@
  * Do not edit manually.
  */
 
-import type { OrderType } from './OrderType.ts'
+import type { Order } from './OrderType.ts'
 
 /**
  * @description successful operation
  */
-export type PlaceOrder200Type = OrderType
+export type PlaceOrderStatus200 = Order
 
 /**
  * @description Invalid input
  */
-export type PlaceOrder405Type = any
+export type PlaceOrderStatus405 = any
 
-export type PlaceOrderMutationRequestType = OrderType
+export type PlaceOrderRequestData = Order
 
-export type PlaceOrderMutationResponseType = PlaceOrder200Type
-
-export type PlaceOrderTypeMutation = {
-  Response: PlaceOrder200Type
-  Request: PlaceOrderMutationRequestType
-  Errors: PlaceOrder405Type
+export type PlaceOrderResponses = {
+  '200': PlaceOrderStatus200
 }
+
+export type PlaceOrderResponseData = PlaceOrderResponses[keyof PlaceOrderResponses]

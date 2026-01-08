@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-export function showPetById(petId: ShowPetByIdPathParams['petId'], options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<ShowPetByIdQueryResponse> {
+export function showPetById(petId: ShowPetByIdPathParams['petId'], options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<ShowPetByIdResponseData> {
   return cy
-    .request<ShowPetByIdQueryResponse>({
+    .request<ShowPetByIdResponseData>({
       method: 'get',
       url: `/pets/${petId}`,
       ...options,

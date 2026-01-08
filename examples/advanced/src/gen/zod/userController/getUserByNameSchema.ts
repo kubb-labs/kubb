@@ -1,11 +1,11 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  GetUserByName200,
-  GetUserByName400,
-  GetUserByName404,
   GetUserByNamePathParams,
-  GetUserByNameQueryResponse,
+  GetUserByNameResponseData,
+  GetUserByNameStatus200,
+  GetUserByNameStatus400,
+  GetUserByNameStatus404,
 } from '../../models/ts/userController/GetUserByName.ts'
 import { userSchema } from '../userSchema.ts'
 
@@ -18,24 +18,24 @@ export type GetUserByNamePathParamsSchema = GetUserByNamePathParams
 /**
  * @description successful operation
  */
-export const getUserByName200Schema = z.lazy(() => userSchema) as unknown as ToZod<GetUserByName200>
+export const getUserByNameStatus200Schema = z.lazy(() => userSchema) as unknown as ToZod<GetUserByNameStatus200>
 
-export type GetUserByName200Schema = GetUserByName200
+export type GetUserByNameStatus200Schema = GetUserByNameStatus200
 
 /**
  * @description Invalid username supplied
  */
-export const getUserByName400Schema = z.any() as unknown as ToZod<GetUserByName400>
+export const getUserByNameStatus400Schema = z.any() as unknown as ToZod<GetUserByNameStatus400>
 
-export type GetUserByName400Schema = GetUserByName400
+export type GetUserByNameStatus400Schema = GetUserByNameStatus400
 
 /**
  * @description User not found
  */
-export const getUserByName404Schema = z.any() as unknown as ToZod<GetUserByName404>
+export const getUserByNameStatus404Schema = z.any() as unknown as ToZod<GetUserByNameStatus404>
 
-export type GetUserByName404Schema = GetUserByName404
+export type GetUserByNameStatus404Schema = GetUserByNameStatus404
 
-export const getUserByNameQueryResponseSchema = z.lazy(() => getUserByName200Schema) as unknown as ToZod<GetUserByNameQueryResponse>
+export const getUserByNameResponseDataSchema = z.lazy(() => getUserByNameStatus200Schema) as unknown as ToZod<GetUserByNameResponseData>
 
-export type GetUserByNameQueryResponseSchema = GetUserByNameQueryResponse
+export type GetUserByNameResponseDataSchema = GetUserByNameResponseData

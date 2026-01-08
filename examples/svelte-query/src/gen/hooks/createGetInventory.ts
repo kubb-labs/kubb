@@ -18,7 +18,7 @@ import type { CreateBaseQueryOptions, CreateQueryResult, QueryClient, QueryKey }
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
+import type { GetInventoryResponseData } from '../models/GetInventory.ts'
 
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 
@@ -32,13 +32,13 @@ export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 export async function getInventory(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...requestConfig })
+  const res = await request<GetInventoryResponseData, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...requestConfig })
   return res.data
 }
 
 export function getInventoryQueryOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = getInventoryQueryKey()
-  return queryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryResponse, typeof queryKey>({
+  return queryOptions<GetInventoryResponseData, ResponseErrorConfig<Error>, GetInventoryResponseData, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -52,13 +52,9 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> & { clie
  * @summary Returns pet inventories by status
  * {@link /store/inventory}
  */
-export function createGetInventory<
-  TData = GetInventoryQueryResponse,
-  TQueryData = GetInventoryQueryResponse,
-  TQueryKey extends QueryKey = GetInventoryQueryKey,
->(
+export function createGetInventory<TData = GetInventoryResponseData, TQueryData = GetInventoryResponseData, TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
-    query?: Partial<CreateBaseQueryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>> & { client?: QueryClient }
+    query?: Partial<CreateBaseQueryOptions<GetInventoryResponseData, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {

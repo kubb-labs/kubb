@@ -19,11 +19,11 @@ export function getFindPetsByTagsUrl() {
 export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
+  const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
     method: 'GET',
     url: getFindPetsByTagsUrl().url.toString(),
     params,
     ...requestConfig,
   })
-  return { ...res, data: findPetsByTagsQueryResponse.parse(res.data) }
+  return { ...res, data: findPetsByTagsResponseData.parse(res.data) }
 }

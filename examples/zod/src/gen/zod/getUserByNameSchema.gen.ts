@@ -15,24 +15,24 @@ export type GetUserByNamePathParamsSchema = z.infer<typeof getUserByNamePathPara
 /**
  * @description successful operation
  */
-export const getUserByName200Schema = z.lazy(() => userSchema)
+export const getUserByNameStatus200Schema = z.lazy(() => userSchema)
 
-export type GetUserByName200Schema = z.infer<typeof getUserByName200Schema>
+export type GetUserByNameStatus200Schema = z.infer<typeof getUserByNameStatus200Schema>
 
 /**
  * @description Invalid username supplied
  */
-export const getUserByName400Schema = z.any()
+export const getUserByNameStatus400Schema = z.any()
 
-export type GetUserByName400Schema = z.infer<typeof getUserByName400Schema>
+export type GetUserByNameStatus400Schema = z.infer<typeof getUserByNameStatus400Schema>
 
 /**
  * @description User not found
  */
-export const getUserByName404Schema = z.any()
+export const getUserByNameStatus404Schema = z.any()
 
-export type GetUserByName404Schema = z.infer<typeof getUserByName404Schema>
+export type GetUserByNameStatus404Schema = z.infer<typeof getUserByNameStatus404Schema>
 
-export const getUserByNameQueryResponseSchema = z.lazy(() => getUserByName200Schema)
+export const getUserByNameResponseDataSchema = z.lazy(() => getUserByNameStatus200Schema)
 
-export type GetUserByNameQueryResponseSchema = z.infer<typeof getUserByNameQueryResponseSchema>
+export type GetUserByNameResponseDataSchema = z.infer<typeof getUserByNameResponseDataSchema>

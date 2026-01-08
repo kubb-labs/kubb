@@ -40,14 +40,14 @@ export type CreatePetsHeaderParams = {
 /**
  * @description Null response
  */
-export type CreatePets201 = any
+export type CreatePetsStatus201 = any
 
 /**
  * @description unexpected error
  */
-export type CreatePetsError = PetNotFound
+export type CreatePetsStatusError = PetNotFound
 
-export type CreatePetsMutationRequest = {
+export type CreatePetsRequestData = {
   /**
    * @type string
    */
@@ -58,13 +58,8 @@ export type CreatePetsMutationRequest = {
   tag: string
 }
 
-export type CreatePetsMutationResponse = CreatePets201
-
-export type CreatePetsMutation = {
-  Response: CreatePets201
-  Request: CreatePetsMutationRequest
-  PathParams: CreatePetsPathParams
-  QueryParams: CreatePetsQueryParams
-  HeaderParams: CreatePetsHeaderParams
-  Errors: any
+export type CreatePetsResponses = {
+  '201': CreatePetsStatus201
 }
+
+export type CreatePetsResponseData = CreatePetsResponses[keyof CreatePetsResponses]

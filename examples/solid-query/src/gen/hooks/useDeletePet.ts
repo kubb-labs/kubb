@@ -7,7 +7,7 @@ import type { QueryClient, UseMutationOptions } from '@tanstack/solid-query'
 import { useMutation } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../models/DeletePet.ts'
+import type { DeletePetHeaderParams, DeletePetPathParams, DeletePetResponseData, DeletePetStatus400 } from '../models/DeletePet.ts'
 
 export const deletePetMutationKey = () => [{ url: '/pet/:petId' }] as const
 
@@ -25,7 +25,7 @@ export async function deletePet(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
+  const res = await request<DeletePetResponseData, ResponseErrorConfig<DeletePetStatus400>, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}`,
     ...requestConfig,
@@ -43,8 +43,8 @@ export function useDeletePet<TContext>(
   options: {
     mutation?: ReturnType<
       UseMutationOptions<
-        DeletePetMutationResponse,
-        ResponseErrorConfig<DeletePet400>,
+        DeletePetResponseData,
+        ResponseErrorConfig<DeletePetStatus400>,
         {
           petId: DeletePetPathParams['petId']
           headers?: DeletePetHeaderParams
@@ -60,8 +60,8 @@ export function useDeletePet<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? deletePetMutationKey()
 
   return useMutation<
-    DeletePetMutationResponse,
-    ResponseErrorConfig<DeletePet400>,
+    DeletePetResponseData,
+    ResponseErrorConfig<DeletePetStatus400>,
     { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
     TContext
   >(

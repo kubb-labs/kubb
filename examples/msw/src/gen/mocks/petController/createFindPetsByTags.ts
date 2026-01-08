@@ -4,7 +4,7 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { FindPetsByTags200, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
+import type { FindPetsByTagsQueryParams, FindPetsByTagsResponseData, FindPetsByTagsStatus200 } from '../../models/FindPetsByTags.ts'
 import { createPet } from '../createPet.ts'
 
 export function createFindPetsByTagsQueryParams(data?: Partial<FindPetsByTagsQueryParams>): FindPetsByTagsQueryParams {
@@ -22,7 +22,7 @@ export function createFindPetsByTagsQueryParams(data?: Partial<FindPetsByTagsQue
 /**
  * @description successful operation
  */
-export function createFindPetsByTags200(data?: FindPetsByTags200): FindPetsByTags200 {
+export function createFindPetsByTagsStatus200(data?: FindPetsByTagsStatus200): FindPetsByTagsStatus200 {
   faker.seed([220])
   return [...faker.helpers.multiple(() => createPet()), ...(data || [])]
 }
@@ -30,12 +30,12 @@ export function createFindPetsByTags200(data?: FindPetsByTags200): FindPetsByTag
 /**
  * @description Invalid tag value
  */
-export function createFindPetsByTags400() {
+export function createFindPetsByTagsStatus400() {
   faker.seed([220])
   return undefined
 }
 
-export function createFindPetsByTagsQueryResponse(data?: Partial<FindPetsByTagsQueryResponse>): FindPetsByTagsQueryResponse {
+export function createFindPetsByTagsResponseData(data?: Partial<FindPetsByTagsResponseData>): FindPetsByTagsResponseData {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([createFindPetsByTags200()])
+  return data || faker.helpers.arrayElement<any>([createFindPetsByTagsStatus200()])
 }

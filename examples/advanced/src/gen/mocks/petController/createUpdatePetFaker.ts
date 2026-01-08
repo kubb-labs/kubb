@@ -1,18 +1,18 @@
 import { faker } from '@faker-js/faker'
-import type { UpdatePet202, UpdatePetMutationResponse } from '../../models/ts/petController/UpdatePet.ts'
+import type { UpdatePetResponseData, UpdatePetStatus202 } from '../../models/ts/petController/UpdatePet.ts'
 import { createPetFaker } from '../createPetFaker.ts'
 
 /**
  * @description Successful operation
  */
-export function createUpdatePet200Faker() {
+export function createUpdatePetStatus200Faker() {
   return createPetFaker()
 }
 
 /**
  * @description accepted operation
  */
-export function createUpdatePet202Faker(data?: Partial<UpdatePet202>): UpdatePet202 {
+export function createUpdatePetStatus202Faker(data?: Partial<UpdatePetStatus202>): UpdatePetStatus202 {
   return {
     ...{ id: faker.number.int() },
     ...(data || {}),
@@ -22,31 +22,31 @@ export function createUpdatePet202Faker(data?: Partial<UpdatePet202>): UpdatePet
 /**
  * @description Invalid ID supplied
  */
-export function createUpdatePet400Faker() {
+export function createUpdatePetStatus400Faker() {
   return undefined
 }
 
 /**
  * @description Pet not found
  */
-export function createUpdatePet404Faker() {
+export function createUpdatePetStatus404Faker() {
   return undefined
 }
 
 /**
  * @description Validation exception
  */
-export function createUpdatePet405Faker() {
+export function createUpdatePetStatus405Faker() {
   return undefined
 }
 
 /**
  * @description Update an existent pet in the store
  */
-export function createUpdatePetMutationRequestFaker() {
+export function createUpdatePetRequestDataFaker() {
   return createPetFaker()
 }
 
-export function createUpdatePetMutationResponseFaker(data?: Partial<UpdatePetMutationResponse>): UpdatePetMutationResponse {
-  return data || faker.helpers.arrayElement<any>([createUpdatePet200Faker(), createUpdatePet202Faker()])
+export function createUpdatePetResponseDataFaker(data?: Partial<UpdatePetResponseData>): UpdatePetResponseData {
+  return data || faker.helpers.arrayElement<any>([createUpdatePetStatus200Faker(), createUpdatePetStatus202Faker()])
 }

@@ -9,33 +9,33 @@ import { petSchema } from './petSchema.js'
 /**
  * @description Successful operation
  */
-export const updatePet200Schema = z.lazy(() => petSchema).schema.omit({ name: true })
+export const updatePetStatus200Schema = z.lazy(() => petSchema).schema.omit({ name: true })
 
 /**
  * @description accepted operation
  */
-export const updatePet202Schema = z.object({
+export const updatePetStatus202Schema = z.object({
   id: z.optional(z.number().int()),
 })
 
 /**
  * @description Invalid ID supplied
  */
-export const updatePet400Schema = z.any()
+export const updatePetStatus400Schema = z.any()
 
 /**
  * @description Pet not found
  */
-export const updatePet404Schema = z.any()
+export const updatePetStatus404Schema = z.any()
 
 /**
  * @description Validation exception
  */
-export const updatePet405Schema = z.any()
+export const updatePetStatus405Schema = z.any()
 
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetMutationRequestSchema = z.lazy(() => petSchema).schema.omit({ id: true })
+export const updatePetRequestDataSchema = z.lazy(() => petSchema).schema.omit({ id: true })
 
-export const updatePetMutationResponseSchema = z.union([z.lazy(() => updatePet200Schema), z.lazy(() => updatePet202Schema)])
+export const updatePetResponseDataSchema = z.union([z.lazy(() => updatePetStatus200Schema), z.lazy(() => updatePetStatus202Schema)])

@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { CategoryType } from './CategoryType.ts'
-import type { TagType } from './TagType.ts'
+import type { Category } from './CategoryType.ts'
+import type { Tag } from './TagType.ts'
 
 export const petStatusEnum = {
   available: 'available',
@@ -12,9 +12,9 @@ export const petStatusEnum = {
   sold: 'sold',
 } as const
 
-export type PetStatusEnumTypeKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
+export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
 
-export type PetType = {
+export type Pet = {
   /**
    * @type integer | undefined, int64
    */
@@ -22,7 +22,7 @@ export type PetType = {
   /**
    * @type array | undefined
    */
-  parent?: PetType[]
+  parent?: Pet[]
   /**
    * @pattern ^[0-9]{1,19}$
    * @type string | undefined
@@ -35,7 +35,7 @@ export type PetType = {
   /**
    * @type object | undefined
    */
-  category?: CategoryType
+  category?: Category
   /**
    * @type array
    */
@@ -43,10 +43,10 @@ export type PetType = {
   /**
    * @type array | undefined
    */
-  tags?: TagType[]
+  tags?: Tag[]
   /**
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: PetStatusEnumTypeKey
+  status?: PetStatusEnumKey
 }
