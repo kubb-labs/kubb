@@ -28,7 +28,6 @@ export const pluginFaker = definePlugin<PluginFaker>((options) => {
   } = options
 
   const usedEnumNames = {}
-  const usedAliasNames = {}
 
   return {
     name: pluginFakerName,
@@ -44,6 +43,7 @@ export const pluginFaker = definePlugin<PluginFaker>((options) => {
       override,
       regexGenerator,
       group,
+      usedEnumNames,
     },
     pre: [pluginOasName, pluginTsName],
     resolvePath(baseName, pathMode, options) {
@@ -108,8 +108,6 @@ export const pluginFaker = definePlugin<PluginFaker>((options) => {
         override,
         mode,
         output: output.path,
-        usedEnumNames,
-        usedAliasNames,
       })
 
       const schemaFiles = await schemaGenerator.build(...generators)
@@ -126,7 +124,6 @@ export const pluginFaker = definePlugin<PluginFaker>((options) => {
         include,
         override,
         mode,
-        usedAliasNames,
       })
 
       const operationFiles = await operationGenerator.build(...generators)

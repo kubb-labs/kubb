@@ -32,9 +32,6 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   include?: Array<'schemas' | 'responses' | 'requestBodies'>
   override: Array<Override<TOptions>> | undefined
   contentType?: contentType
-  // Keep track of already used type aliases
-  usedAliasNames?: Record<string, number>
-  usedEnumNames?: Record<string, number>
   output?: string
 }
 
@@ -44,6 +41,7 @@ export type SchemaGeneratorOptions = {
   emptySchemaType: 'any' | 'unknown' | 'void'
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   enumSuffix?: string
+  usedEnumNames?: Record<string, number>
   mapper?: Record<string, string>
   typed?: boolean
   transformers: {
@@ -75,6 +73,9 @@ export class SchemaGenerator<
 > extends BaseGenerator<TOptions, Context<TOptions, TPluginOptions>> {
   // Collect the types of all referenced schemas, so we can export them later
   refs: Refs = {}
+
+  // Keep track of already used type aliases
+  #usedAliasNames: Record<string, number> = {}
 
   // Cache for parsed schemas to avoid redundant parsing
   // Using WeakMap for automatic garbage collection when schemas are no longer referenced
@@ -452,7 +453,7 @@ export class SchemaGenerator<
       ]
     }
 
-    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.context.usedAliasNames || {})
+    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
     const propertyName = this.context.pluginManager.resolveName({
       name: originalName,
       pluginKey: this.context.plugin.key,
@@ -893,7 +894,7 @@ export class SchemaGenerator<
 
       // Removed verbose enum parsing debug log - too noisy for hundreds of enums
 
-      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.context.usedEnumNames || {})
+      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.options.usedEnumNames || {})
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,
         pluginKey: this.context.plugin.key,

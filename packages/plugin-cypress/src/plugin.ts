@@ -25,8 +25,6 @@ export const pluginCypress = definePlugin<PluginCypress>((options) => {
     pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
   } = options
 
-  const usedAliasNames = {}
-
   return {
     name: pluginCypressName,
     options: {
@@ -101,7 +99,6 @@ export const pluginCypress = definePlugin<PluginCypress>((options) => {
         include,
         override,
         mode,
-        usedAliasNames,
       })
 
       const files = await operationGenerator.build(...generators)

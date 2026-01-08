@@ -36,8 +36,6 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
   const clientName = client?.client ?? 'axios'
   const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
 
-  const usedAliasNames = {}
-
   return {
     name: pluginSwrName,
     options: {
@@ -183,7 +181,6 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
         include,
         override,
         mode,
-        usedAliasNames,
       })
 
       const files = await operationGenerator.build(...generators)
