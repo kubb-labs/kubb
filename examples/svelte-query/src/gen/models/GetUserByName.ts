@@ -44,7 +44,7 @@ export type GetUserByNameRequest = {
   pathParams: GetUserByNamePathParams
   queryParams?: never
   headerParams?: never
-  url: '/user/{username}'
+  url: `/user/${string}`
 }
 
 export type GetUserByNameResponses = {

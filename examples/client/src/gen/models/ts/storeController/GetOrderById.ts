@@ -33,7 +33,7 @@ export type GetOrderByIdRequest = {
   pathParams: GetOrderByIdPathParams
   queryParams?: never
   headerParams?: never
-  url: '/store/order/{orderId}'
+  url: `/store/order/${string}`
 }
 
 export type GetOrderByIdResponses = {

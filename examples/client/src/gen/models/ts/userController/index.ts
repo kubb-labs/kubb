@@ -1,9 +1,11 @@
 export type {
+  CreateUserRequest,
   CreateUserRequestData,
   CreateUserResponseData,
   CreateUserStatusError,
 } from './CreateUser.js'
 export type {
+  CreateUsersWithListInputRequest,
   CreateUsersWithListInputRequestData,
   CreateUsersWithListInputResponseData,
   CreateUsersWithListInputStatus200,
@@ -38,6 +40,7 @@ export type {
 } from './LogoutUser.js'
 export type {
   UpdateUserPathParams,
+  UpdateUserRequest,
   UpdateUserRequestData,
   UpdateUserResponseData,
   UpdateUserStatusError,

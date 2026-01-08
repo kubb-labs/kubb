@@ -33,6 +33,14 @@ export type UploadFileRequestData = {
   file: Blob
 }
 
+export type UploadFileRequest = {
+  data?: UploadFileRequestData
+  pathParams: UploadFilePathParams
+  queryParams?: UploadFileQueryParams
+  headerParams?: never
+  url: `/pet/${string}/uploadImage`
+}
+
 export type UploadFileResponses = {
   '200': UploadFileStatus200
 }

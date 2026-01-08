@@ -1,10 +1,12 @@
 export type {
+  AddFilesRequest,
   AddFilesRequestData,
   AddFilesResponseData,
   AddFilesStatus200,
   AddFilesStatus405,
 } from './AddFiles.js'
 export type {
+  AddPetRequest,
   AddPetRequestData,
   AddPetResponseData,
   AddPetStatus200,
@@ -23,6 +25,7 @@ export type {
   CreatePetsHeaderParamsXEXAMPLEEnumKey,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsRequest,
   CreatePetsRequestData,
   CreatePetsResponseData,
   CreatePetsStatus201,
@@ -30,11 +33,13 @@ export type {
 } from './CreatePets.js'
 export { createPetsHeaderParamsXEXAMPLEEnum } from './CreatePets.js'
 export type {
+  CreateUserRequest,
   CreateUserRequestData,
   CreateUserResponseData,
   CreateUserStatusError,
 } from './CreateUser.js'
 export type {
+  CreateUsersWithListInputRequest,
   CreateUsersWithListInputRequestData,
   CreateUsersWithListInputResponseData,
   CreateUsersWithListInputStatus200,
@@ -131,12 +136,14 @@ export type { Pet, PetStatusEnumKey } from './Pet.js'
 export { petStatusEnum } from './Pet.js'
 export type { PetNotFound } from './PetNotFound.js'
 export type {
+  PlaceOrderRequest,
   PlaceOrderRequestData,
   PlaceOrderResponseData,
   PlaceOrderStatus200,
   PlaceOrderStatus405,
 } from './PlaceOrder.js'
 export type {
+  PlaceOrderPatchRequest,
   PlaceOrderPatchRequestData,
   PlaceOrderPatchResponseData,
   PlaceOrderPatchStatus200,
@@ -144,6 +151,7 @@ export type {
 } from './PlaceOrderPatch.js'
 export type { TagTag } from './tag/Tag.js'
 export type {
+  UpdatePetRequest,
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
@@ -161,6 +169,7 @@ export type {
 } from './UpdatePetWithForm.js'
 export type {
   UpdateUserPathParams,
+  UpdateUserRequest,
   UpdateUserRequestData,
   UpdateUserResponseData,
   UpdateUserStatusError,

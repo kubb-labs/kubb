@@ -1,10 +1,11 @@
-export type { AddPetRequestData, AddPetResponseData, AddPetStatus200, AddPetStatus405 } from './AddPet.ts'
+export type { AddPetRequest, AddPetRequestData, AddPetResponseData, AddPetStatus200, AddPetStatus405 } from './AddPet.ts'
 export type { Address, AddressIdentifierEnumKey } from './Address.ts'
 export { addressIdentifierEnum } from './Address.ts'
 export type { ApiResponse } from './ApiResponse.ts'
 export type { Category } from './Category.ts'
-export type { CreateUserRequestData, CreateUserResponseData, CreateUserStatusError } from './CreateUser.ts'
+export type { CreateUserRequest, CreateUserRequestData, CreateUserResponseData, CreateUserStatusError } from './CreateUser.ts'
 export type {
+  CreateUsersWithListInputRequest,
   CreateUsersWithListInputRequestData,
   CreateUsersWithListInputResponseData,
   CreateUsersWithListInputStatus200,
@@ -61,9 +62,10 @@ export type { Order, OrderStatusEnumKey } from './Order.ts'
 export { orderStatusEnum } from './Order.ts'
 export type { Pet, PetStatusEnumKey } from './Pet.ts'
 export { petStatusEnum } from './Pet.ts'
-export type { PlaceOrderRequestData, PlaceOrderResponseData, PlaceOrderStatus200, PlaceOrderStatus405 } from './PlaceOrder.ts'
+export type { PlaceOrderRequest, PlaceOrderRequestData, PlaceOrderResponseData, PlaceOrderStatus200, PlaceOrderStatus405 } from './PlaceOrder.ts'
 export type { Tag } from './Tag.ts'
 export type {
+  UpdatePetRequest,
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
@@ -78,7 +80,14 @@ export type {
   UpdatePetWithFormResponseData,
   UpdatePetWithFormStatus405,
 } from './UpdatePetWithForm.ts'
-export type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData, UpdateUserStatusError } from './UpdateUser.ts'
-export type { UploadFilePathParams, UploadFileQueryParams, UploadFileRequestData, UploadFileResponseData, UploadFileStatus200 } from './UploadFile.ts'
+export type { UpdateUserPathParams, UpdateUserRequest, UpdateUserRequestData, UpdateUserResponseData, UpdateUserStatusError } from './UpdateUser.ts'
+export type {
+  UploadFilePathParams,
+  UploadFileQueryParams,
+  UploadFileRequest,
+  UploadFileRequestData,
+  UploadFileResponseData,
+  UploadFileStatus200,
+} from './UploadFile.ts'
 export type { User } from './User.ts'
 export type { UserArray } from './UserArray.ts'

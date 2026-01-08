@@ -38,7 +38,7 @@ export type GetThingsRequest = {
   pathParams?: never
   queryParams?: GetThingsQueryParams
   headerParams?: never
-  url: '/pets/{uuid}'
+  url: `/pets/${string}`
 }
 
 export type GetThingsResponses = {

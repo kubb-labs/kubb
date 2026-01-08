@@ -36,6 +36,7 @@ export type { Pet, PetStatusEnumKey } from './models/ts/Pet.js'
 export { petStatusEnum } from './models/ts/Pet.js'
 export type { PetNotFound } from './models/ts/PetNotFound.js'
 export type {
+  AddPetRequest,
   AddPetRequestData,
   AddPetResponseData,
   AddPetStatus200,
@@ -73,6 +74,7 @@ export type {
   GetPetByIdStatus404,
 } from './models/ts/petController/GetPetById.js'
 export type {
+  UpdatePetRequest,
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
@@ -90,6 +92,7 @@ export type {
 export type {
   UploadFilePathParams,
   UploadFileQueryParams,
+  UploadFileRequest,
   UploadFileRequestData,
   UploadFileResponseData,
   UploadFileStatus200,
@@ -115,12 +118,14 @@ export type {
   GetOrderByIdStatus404,
 } from './models/ts/storeController/GetOrderById.js'
 export type {
+  PlaceOrderRequest,
   PlaceOrderRequestData,
   PlaceOrderResponseData,
   PlaceOrderStatus200,
   PlaceOrderStatus405,
 } from './models/ts/storeController/PlaceOrder.js'
 export type {
+  PlaceOrderPatchRequest,
   PlaceOrderPatchRequestData,
   PlaceOrderPatchResponseData,
   PlaceOrderPatchStatus200,
@@ -130,11 +135,13 @@ export type { Tag } from './models/ts/Tag.js'
 export type { User } from './models/ts/User.js'
 export type { UserArray } from './models/ts/UserArray.js'
 export type {
+  CreateUserRequest,
   CreateUserRequestData,
   CreateUserResponseData,
   CreateUserStatusError,
 } from './models/ts/userController/CreateUser.js'
 export type {
+  CreateUsersWithListInputRequest,
   CreateUsersWithListInputRequestData,
   CreateUsersWithListInputResponseData,
   CreateUsersWithListInputStatus200,
@@ -169,6 +176,7 @@ export type {
 } from './models/ts/userController/LogoutUser.js'
 export type {
   UpdateUserPathParams,
+  UpdateUserRequest,
   UpdateUserRequestData,
   UpdateUserResponseData,
   UpdateUserStatusError,

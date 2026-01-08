@@ -18,6 +18,14 @@ export type CreateUsersWithListInputStatusError = any
 
 export type CreateUsersWithListInputRequestData = User[]
 
+export type CreateUsersWithListInputRequest = {
+  data?: CreateUsersWithListInputRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/user/createWithList'
+}
+
 export type CreateUsersWithListInputResponses = {
   '200': CreateUsersWithListInputStatus200
 }

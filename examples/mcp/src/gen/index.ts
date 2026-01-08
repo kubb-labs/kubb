@@ -21,12 +21,14 @@ export { updatePetHandler } from './mcp/updatePet.js'
 export { updatePetWithFormHandler } from './mcp/updatePetWithForm.js'
 export { updateUserHandler } from './mcp/updateUser.js'
 export type {
+  AddFilesRequest,
   AddFilesRequestData,
   AddFilesResponseData,
   AddFilesStatus200,
   AddFilesStatus405,
 } from './models/ts/AddFiles.js'
 export type {
+  AddPetRequest,
   AddPetRequestData,
   AddPetResponseData,
   AddPetStatus200,
@@ -45,6 +47,7 @@ export type {
   CreatePetsHeaderParamsXEXAMPLEEnumKey,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsRequest,
   CreatePetsRequestData,
   CreatePetsResponseData,
   CreatePetsStatus201,
@@ -52,11 +55,13 @@ export type {
 } from './models/ts/CreatePets.js'
 export { createPetsHeaderParamsXEXAMPLEEnum } from './models/ts/CreatePets.js'
 export type {
+  CreateUserRequest,
   CreateUserRequestData,
   CreateUserResponseData,
   CreateUserStatusError,
 } from './models/ts/CreateUser.js'
 export type {
+  CreateUsersWithListInputRequest,
   CreateUsersWithListInputRequestData,
   CreateUsersWithListInputResponseData,
   CreateUsersWithListInputStatus200,
@@ -153,12 +158,14 @@ export type { Pet, PetStatusEnumKey } from './models/ts/Pet.js'
 export { petStatusEnum } from './models/ts/Pet.js'
 export type { PetNotFound } from './models/ts/PetNotFound.js'
 export type {
+  PlaceOrderRequest,
   PlaceOrderRequestData,
   PlaceOrderResponseData,
   PlaceOrderStatus200,
   PlaceOrderStatus405,
 } from './models/ts/PlaceOrder.js'
 export type {
+  PlaceOrderPatchRequest,
   PlaceOrderPatchRequestData,
   PlaceOrderPatchResponseData,
   PlaceOrderPatchStatus200,
@@ -166,6 +173,7 @@ export type {
 } from './models/ts/PlaceOrderPatch.js'
 export type { TagTag } from './models/ts/tag/Tag.js'
 export type {
+  UpdatePetRequest,
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
@@ -183,6 +191,7 @@ export type {
 } from './models/ts/UpdatePetWithForm.js'
 export type {
   UpdateUserPathParams,
+  UpdateUserRequest,
   UpdateUserRequestData,
   UpdateUserResponseData,
   UpdateUserStatusError,

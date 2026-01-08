@@ -1,4 +1,5 @@
 export type {
+  AddPetRequest,
   AddPetRequestData,
   AddPetResponseData,
   AddPetStatus200,
@@ -14,11 +15,13 @@ export type { ApiResponse } from './ApiResponse.ts'
 export type { Cat } from './Cat.ts'
 export type { Category } from './Category.ts'
 export type {
+  CreateUserRequest,
   CreateUserRequestData,
   CreateUserResponseData,
   CreateUserStatusError,
 } from './CreateUser.ts'
 export type {
+  CreateUsersWithListInputRequest,
   CreateUsersWithListInputRequestData,
   CreateUsersWithListInputResponseData,
   CreateUsersWithListInputStatus200,
@@ -115,12 +118,14 @@ export type { Pet, StatusEnumKey } from './Pet.ts'
 export { statusEnum } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'
 export type {
+  PlaceOrderRequest,
   PlaceOrderRequestData,
   PlaceOrderResponseData,
   PlaceOrderStatus200,
   PlaceOrderStatus405,
 } from './PlaceOrder.ts'
 export type {
+  PlaceOrderPatchRequest,
   PlaceOrderPatchRequestData,
   PlaceOrderPatchResponseData,
   PlaceOrderPatchStatus200,
@@ -129,6 +134,7 @@ export type {
 export type { Tag } from './Tag.ts'
 export type { UnhappyCustomer } from './UnhappyCustomer.ts'
 export type {
+  UpdatePetRequest,
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
@@ -145,6 +151,7 @@ export type {
 } from './UpdatePetWithForm.ts'
 export type {
   UpdateUserPathParams,
+  UpdateUserRequest,
   UpdateUserRequestData,
   UpdateUserResponseData,
   UpdateUserStatusError,
@@ -152,6 +159,7 @@ export type {
 export type {
   UploadFilePathParams,
   UploadFileQueryParams,
+  UploadFileRequest,
   UploadFileRequestData,
   UploadFileResponseData,
   UploadFileStatus200,

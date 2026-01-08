@@ -26,4 +26,12 @@ export type CreateUserStatusError = User
  */
 export type CreateUserRequestData = User
 
+export type CreateUserRequest = {
+  data?: CreateUserRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/user'
+}
+
 export type CreateUserResponseData = any

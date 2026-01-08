@@ -4,6 +4,7 @@ export type {
 } from './ts/AddPetRequestType.ts'
 export { addPetRequestStatusEnum } from './ts/AddPetRequestType.ts'
 export type {
+  AddPetRequest,
   AddPetRequestData,
   AddPetResponseData,
   AddPetStatus200,
@@ -17,6 +18,7 @@ export type {
   CreatePetsHeaderParamsXEXAMPLEEnumKey,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsRequest,
   CreatePetsRequestData,
   CreatePetsResponseData,
   CreatePetsStatus201,
@@ -24,12 +26,14 @@ export type {
 } from './ts/CreatePetsType.ts'
 export { createPetsHeaderParamsXEXAMPLEEnum } from './ts/CreatePetsType.ts'
 export type {
+  CreateUsersWithListInputRequest,
   CreateUsersWithListInputRequestData,
   CreateUsersWithListInputResponseData,
   CreateUsersWithListInputStatus200,
   CreateUsersWithListInputStatusError,
 } from './ts/CreateUsersWithListInputType.ts'
 export type {
+  CreateUserRequest,
   CreateUserRequestData,
   CreateUserResponseData,
   CreateUserStatusError,
@@ -137,12 +141,14 @@ export type { PhoneNumber } from './ts/PhoneNumberType.ts'
 export type { PhoneWithMaxLengthExplicit } from './ts/PhoneWithMaxLengthExplicitType.ts'
 export type { PhoneWithMaxLength } from './ts/PhoneWithMaxLengthType.ts'
 export type {
+  PlaceOrderPatchRequest,
   PlaceOrderPatchRequestData,
   PlaceOrderPatchResponseData,
   PlaceOrderPatchStatus200,
   PlaceOrderPatchStatus405,
 } from './ts/PlaceOrderPatchType.ts'
 export type {
+  PlaceOrderRequest,
   PlaceOrderRequestData,
   PlaceOrderResponseData,
   PlaceOrderStatus200,
@@ -150,6 +156,7 @@ export type {
 } from './ts/PlaceOrderType.ts'
 export type { Tag } from './ts/TagType.ts'
 export type {
+  UpdatePetRequest,
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
@@ -166,6 +173,7 @@ export type {
 } from './ts/UpdatePetWithFormType.ts'
 export type {
   UpdateUserPathParams,
+  UpdateUserRequest,
   UpdateUserRequestData,
   UpdateUserResponseData,
   UpdateUserStatusError,
@@ -173,6 +181,7 @@ export type {
 export type {
   UploadFilePathParams,
   UploadFileQueryParams,
+  UploadFileRequest,
   UploadFileRequestData,
   UploadFileResponseData,
   UploadFileStatus200,

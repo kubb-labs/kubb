@@ -1,4 +1,5 @@
 export type {
+  AddPetRequest,
   AddPetRequestData,
   AddPetResponseData,
   AddPetStatus200,
@@ -36,6 +37,7 @@ export type {
   GetPetByIdStatus404,
 } from './GetPetById.js'
 export type {
+  UpdatePetRequest,
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
@@ -53,6 +55,7 @@ export type {
 export type {
   UploadFilePathParams,
   UploadFileQueryParams,
+  UploadFileRequest,
   UploadFileRequestData,
   UploadFileResponseData,
   UploadFileStatus200,

@@ -135,6 +135,7 @@ export {
   createUpdateUserStatusError,
 } from './mocks/userController/createUpdateUser.ts'
 export type {
+  AddPetRequest,
   AddPetRequestData,
   AddPetResponseData,
   AddPetStatus200,
@@ -149,11 +150,13 @@ export type { Address } from './models/Address.ts'
 export type { ApiResponse } from './models/ApiResponse.ts'
 export type { Category } from './models/Category.ts'
 export type {
+  CreateUserRequest,
   CreateUserRequestData,
   CreateUserResponseData,
   CreateUserStatusError,
 } from './models/CreateUser.ts'
 export type {
+  CreateUsersWithListInputRequest,
   CreateUsersWithListInputRequestData,
   CreateUsersWithListInputResponseData,
   CreateUsersWithListInputStatus200,
@@ -253,12 +256,14 @@ export type { Pet, PetStatusEnumKey } from './models/Pet.ts'
 export { petStatusEnum } from './models/Pet.ts'
 export type { PetNotFound } from './models/PetNotFound.ts'
 export type {
+  PlaceOrderRequest,
   PlaceOrderRequestData,
   PlaceOrderResponseData,
   PlaceOrderStatus200,
   PlaceOrderStatus405,
 } from './models/PlaceOrder.ts'
 export type {
+  PlaceOrderPatchRequest,
   PlaceOrderPatchRequestData,
   PlaceOrderPatchResponseData,
   PlaceOrderPatchStatus200,
@@ -266,6 +271,7 @@ export type {
 } from './models/PlaceOrderPatch.ts'
 export type { Tag } from './models/Tag.ts'
 export type {
+  UpdatePetRequest,
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
@@ -282,6 +288,7 @@ export type {
 } from './models/UpdatePetWithForm.ts'
 export type {
   UpdateUserPathParams,
+  UpdateUserRequest,
   UpdateUserRequestData,
   UpdateUserResponseData,
   UpdateUserStatusError,
@@ -289,6 +296,7 @@ export type {
 export type {
   UploadFilePathParams,
   UploadFileQueryParams,
+  UploadFileRequest,
   UploadFileRequestData,
   UploadFileResponseData,
   UploadFileStatus200,

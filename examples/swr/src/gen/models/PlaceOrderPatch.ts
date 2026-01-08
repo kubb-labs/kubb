@@ -17,6 +17,14 @@ export type PlaceOrderPatchStatus405 = any
 
 export type PlaceOrderPatchRequestData = Order
 
+export type PlaceOrderPatchRequest = {
+  data?: PlaceOrderPatchRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/store/order'
+}
+
 export type PlaceOrderPatchResponses = {
   '200': PlaceOrderPatchStatus200
 }

@@ -29,7 +29,7 @@ export type UpdatePetWithFormRequest = {
   pathParams: UpdatePetWithFormPathParams
   queryParams?: UpdatePetWithFormQueryParams
   headerParams?: never
-  url: '/pet/{petId}:search'
+  url: `/pet/${string}:search`
 }
 
 export type UpdatePetWithFormResponseData = any

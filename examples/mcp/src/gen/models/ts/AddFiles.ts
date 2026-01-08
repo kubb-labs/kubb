@@ -17,6 +17,14 @@ export type AddFilesStatus405 = any
 
 export type AddFilesRequestData = Omit<NonNullable<Pet>, 'id'>
 
+export type AddFilesRequest = {
+  data?: AddFilesRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/pet/files'
+}
+
 export type AddFilesResponses = {
   '200': AddFilesStatus200
 }

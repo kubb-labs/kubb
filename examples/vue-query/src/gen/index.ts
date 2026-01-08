@@ -36,13 +36,14 @@ export type { UpdateUserMutationKey } from './hooks/useUpdateUser.ts'
 export { updateUser, updateUserMutationKey, useUpdateUser } from './hooks/useUpdateUser.ts'
 export type { UploadFileMutationKey } from './hooks/useUploadFile.ts'
 export { uploadFile, uploadFileMutationKey, useUploadFile } from './hooks/useUploadFile.ts'
-export type { AddPetRequestData, AddPetResponseData, AddPetStatus200, AddPetStatus405 } from './models/AddPet.ts'
+export type { AddPetRequest, AddPetRequestData, AddPetResponseData, AddPetStatus200, AddPetStatus405 } from './models/AddPet.ts'
 export type { Address, AddressIdentifierEnumKey } from './models/Address.ts'
 export { addressIdentifierEnum } from './models/Address.ts'
 export type { ApiResponse } from './models/ApiResponse.ts'
 export type { Category } from './models/Category.ts'
-export type { CreateUserRequestData, CreateUserResponseData, CreateUserStatusError } from './models/CreateUser.ts'
+export type { CreateUserRequest, CreateUserRequestData, CreateUserResponseData, CreateUserStatusError } from './models/CreateUser.ts'
 export type {
+  CreateUsersWithListInputRequest,
   CreateUsersWithListInputRequestData,
   CreateUsersWithListInputResponseData,
   CreateUsersWithListInputStatus200,
@@ -99,9 +100,10 @@ export type { Order, OrderStatusEnumKey } from './models/Order.ts'
 export { orderStatusEnum } from './models/Order.ts'
 export type { Pet, PetStatusEnumKey } from './models/Pet.ts'
 export { petStatusEnum } from './models/Pet.ts'
-export type { PlaceOrderRequestData, PlaceOrderResponseData, PlaceOrderStatus200, PlaceOrderStatus405 } from './models/PlaceOrder.ts'
+export type { PlaceOrderRequest, PlaceOrderRequestData, PlaceOrderResponseData, PlaceOrderStatus200, PlaceOrderStatus405 } from './models/PlaceOrder.ts'
 export type { Tag } from './models/Tag.ts'
 export type {
+  UpdatePetRequest,
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
@@ -116,7 +118,14 @@ export type {
   UpdatePetWithFormResponseData,
   UpdatePetWithFormStatus405,
 } from './models/UpdatePetWithForm.ts'
-export type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData, UpdateUserStatusError } from './models/UpdateUser.ts'
-export type { UploadFilePathParams, UploadFileQueryParams, UploadFileRequestData, UploadFileResponseData, UploadFileStatus200 } from './models/UploadFile.ts'
+export type { UpdateUserPathParams, UpdateUserRequest, UpdateUserRequestData, UpdateUserResponseData, UpdateUserStatusError } from './models/UpdateUser.ts'
+export type {
+  UploadFilePathParams,
+  UploadFileQueryParams,
+  UploadFileRequest,
+  UploadFileRequestData,
+  UploadFileResponseData,
+  UploadFileStatus200,
+} from './models/UploadFile.ts'
 export type { User } from './models/User.ts'
 export type { UserArray } from './models/UserArray.ts'

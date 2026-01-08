@@ -44,7 +44,7 @@ export type GetPetByIdRequest = {
   pathParams: GetPetByIdPathParams
   queryParams?: never
   headerParams?: never
-  url: '/pet/{pet_id}'
+  url: `/pet/${string}`
 }
 
 export type GetPetByIdResponses = {

@@ -233,8 +233,8 @@ export { orderHttpStatusEnum, orderOrderTypeEnum, orderStatusEnum } from './mode
 export type { Pet, PetStatusEnumKey } from './models/ts/Pet.ts'
 export { petStatusEnum } from './models/ts/Pet.ts'
 export type { PetNotFound } from './models/ts/PetNotFound.ts'
-export type { AddFilesRequestData, AddFilesResponseData, AddFilesStatus200, AddFilesStatus405 } from './models/ts/petController/AddFiles.ts'
-export type { AddPetRequestData, AddPetResponseData, AddPetStatus200, AddPetStatus405 } from './models/ts/petController/AddPet.ts'
+export type { AddFilesRequest, AddFilesRequestData, AddFilesResponseData, AddFilesStatus200, AddFilesStatus405 } from './models/ts/petController/AddFiles.ts'
+export type { AddPetRequest, AddPetRequestData, AddPetResponseData, AddPetStatus200, AddPetStatus405 } from './models/ts/petController/AddPet.ts'
 export type {
   DeletePetHeaderParams,
   DeletePetPathParams,
@@ -268,6 +268,7 @@ export type {
   GetPetByIdStatus404,
 } from './models/ts/petController/GetPetById.ts'
 export type {
+  UpdatePetRequest,
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
@@ -286,6 +287,7 @@ export type {
 export type {
   UploadFilePathParams,
   UploadFileQueryParams,
+  UploadFileRequest,
   UploadFileRequestData,
   UploadFileResponseData,
   UploadFileStatus200,
@@ -296,6 +298,7 @@ export type {
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsQueryParamsBoolParamEnumKey,
+  CreatePetsRequest,
   CreatePetsRequestData,
   CreatePetsResponseData,
   CreatePetsStatus201,
@@ -318,8 +321,15 @@ export type {
   GetOrderByIdStatus400,
   GetOrderByIdStatus404,
 } from './models/ts/storeController/GetOrderById.ts'
-export type { PlaceOrderRequestData, PlaceOrderResponseData, PlaceOrderStatus200, PlaceOrderStatus405 } from './models/ts/storeController/PlaceOrder.ts'
 export type {
+  PlaceOrderRequest,
+  PlaceOrderRequestData,
+  PlaceOrderResponseData,
+  PlaceOrderStatus200,
+  PlaceOrderStatus405,
+} from './models/ts/storeController/PlaceOrder.ts'
+export type {
+  PlaceOrderPatchRequest,
   PlaceOrderPatchRequestData,
   PlaceOrderPatchResponseData,
   PlaceOrderPatchStatus200,
@@ -328,8 +338,9 @@ export type {
 export type { TagTag } from './models/ts/tag/Tag.ts'
 export type { User } from './models/ts/User.ts'
 export type { UserArray } from './models/ts/UserArray.ts'
-export type { CreateUserRequestData, CreateUserResponseData, CreateUserStatusError } from './models/ts/userController/CreateUser.ts'
+export type { CreateUserRequest, CreateUserRequestData, CreateUserResponseData, CreateUserStatusError } from './models/ts/userController/CreateUser.ts'
 export type {
+  CreateUsersWithListInputRequest,
   CreateUsersWithListInputRequestData,
   CreateUsersWithListInputResponseData,
   CreateUsersWithListInputStatus200,
@@ -358,7 +369,13 @@ export type {
   LoginUserStatus400,
 } from './models/ts/userController/LoginUser.ts'
 export type { LogoutUserRequest, LogoutUserResponseData, LogoutUserStatusError } from './models/ts/userController/LogoutUser.ts'
-export type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData, UpdateUserStatusError } from './models/ts/userController/UpdateUser.ts'
+export type {
+  UpdateUserPathParams,
+  UpdateUserRequest,
+  UpdateUserRequestData,
+  UpdateUserResponseData,
+  UpdateUserStatusError,
+} from './models/ts/userController/UpdateUser.ts'
 export { handlers } from './msw/handlers.ts'
 export { addFilesHandler, addFilesHandlerResponse200, addFilesHandlerResponse405 } from './msw/petController/addFilesHandler.ts'
 export { addPetHandler, addPetHandlerResponse200, addPetHandlerResponse405 } from './msw/petController/addPetHandler.ts'

@@ -18,6 +18,14 @@ export type PlaceOrderStatus405 = any
 
 export type PlaceOrderRequestData = Order
 
+export type PlaceOrderRequest = {
+  data?: PlaceOrderRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/store/order'
+}
+
 export type PlaceOrderResponses = {
   '200': PlaceOrderStatus200
 }

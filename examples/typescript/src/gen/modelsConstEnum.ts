@@ -348,6 +348,14 @@ export type UpdatePetStatus405 = any
  */
 export type UpdatePetRequestData = Omit<NonNullable<Pet>, 'type' | 'tags'>
 
+export type UpdatePetRequest = {
+  data?: UpdatePetRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/pet'
+}
+
 export type UpdatePetResponses = {
   '200': UpdatePetStatus200
 }
@@ -493,7 +501,7 @@ export type GetPetByIdRequest = {
   pathParams: GetPetByIdPathParams
   queryParams?: never
   headerParams?: never
-  url: '/pet/{petId}'
+  url: `/pet/${string}`
 }
 
 export type GetPetByIdResponses = {
@@ -533,7 +541,7 @@ export type UpdatePetWithFormRequest = {
   pathParams: UpdatePetWithFormPathParams
   queryParams?: UpdatePetWithFormQueryParams
   headerParams?: never
-  url: '/pet/{petId}'
+  url: `/pet/${string}`
 }
 
 export type UpdatePetWithFormResponseData = any
@@ -574,7 +582,7 @@ export type DeletePetRequest = {
   pathParams: DeletePetPathParams
   queryParams?: never
   headerParams?: DeletePetHeaderParams
-  url: '/pet/{petId}'
+  url: `/pet/${string}`
 }
 
 export type DeletePetResponses = {
@@ -605,6 +613,14 @@ export type UploadFileQueryParams = {
 export type UploadFileStatus200 = ApiResponse
 
 export type UploadFileRequestData = Blob
+
+export type UploadFileRequest = {
+  data?: UploadFileRequestData
+  pathParams: UploadFilePathParams
+  queryParams?: UploadFileQueryParams
+  headerParams?: never
+  url: `/pet/${string}/uploadImage`
+}
 
 export type UploadFileResponses = {
   '200': UploadFileStatus200
@@ -648,6 +664,14 @@ export type PlaceOrderStatus405 = any
  */
 export type PlaceOrderRequestData = Order
 
+export type PlaceOrderRequest = {
+  data?: PlaceOrderRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/store/order'
+}
+
 export type PlaceOrderResponses = {
   '200': PlaceOrderStatus200
 }
@@ -665,6 +689,14 @@ export type PlaceOrderPatchStatus200 = Order
 export type PlaceOrderPatchStatus405 = any
 
 export type PlaceOrderPatchRequestData = Order
+
+export type PlaceOrderPatchRequest = {
+  data?: PlaceOrderPatchRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/store/order'
+}
 
 export type PlaceOrderPatchResponses = {
   '200': PlaceOrderPatchStatus200
@@ -700,7 +732,7 @@ export type GetOrderByIdRequest = {
   pathParams: GetOrderByIdPathParams
   queryParams?: never
   headerParams?: never
-  url: '/store/order/{orderId}'
+  url: `/store/order/${string}`
 }
 
 export type GetOrderByIdResponses = {
@@ -732,7 +764,7 @@ export type DeleteOrderRequest = {
   pathParams: DeleteOrderPathParams
   queryParams?: never
   headerParams?: never
-  url: '/store/order/{orderId}'
+  url: `/store/order/${string}`
 }
 
 export type DeleteOrderResponseData = any
@@ -747,6 +779,14 @@ export type CreateUserStatusError = User
  */
 export type CreateUserRequestData = User
 
+export type CreateUserRequest = {
+  data?: CreateUserRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/user'
+}
+
 export type CreateUserResponseData = any
 
 /**
@@ -760,6 +800,14 @@ export type CreateUsersWithListInputStatus200 = User
 export type CreateUsersWithListInputStatusError = any
 
 export type CreateUsersWithListInputRequestData = User[]
+
+export type CreateUsersWithListInputRequest = {
+  data?: CreateUsersWithListInputRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/user/createWithList'
+}
 
 export type CreateUsersWithListInputResponses = {
   '200': CreateUsersWithListInputStatus200
@@ -847,7 +895,7 @@ export type GetUserByNameRequest = {
   pathParams: GetUserByNamePathParams
   queryParams?: never
   headerParams?: never
-  url: '/user/{username}'
+  url: `/user/${string}`
 }
 
 export type GetUserByNameResponses = {
@@ -874,6 +922,14 @@ export type UpdateUserStatusError = any
  */
 export type UpdateUserRequestData = User
 
+export type UpdateUserRequest = {
+  data?: UpdateUserRequestData
+  pathParams: UpdateUserPathParams
+  queryParams?: never
+  headerParams?: never
+  url: `/user/${string}`
+}
+
 export type UpdateUserResponseData = any
 
 export type DeleteUserPathParams = {
@@ -899,7 +955,7 @@ export type DeleteUserRequest = {
   pathParams: DeleteUserPathParams
   queryParams?: never
   headerParams?: never
-  url: '/user/{username}'
+  url: `/user/${string}`
 }
 
 export type DeleteUserResponseData = any

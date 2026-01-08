@@ -27,7 +27,7 @@ export type FindPetsByStatusRequest = {
   pathParams: FindPetsByStatusPathParams
   queryParams?: never
   headerParams?: never
-  url: '/pet/findByStatus/{step_id}'
+  url: `/pet/findByStatus/${string}`
 }
 
 export type FindPetsByStatusResponses = {

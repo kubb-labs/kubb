@@ -4,6 +4,7 @@ export type {
 } from './AddPetRequestType.ts'
 export { addPetRequestStatusEnum } from './AddPetRequestType.ts'
 export type {
+  AddPetRequest,
   AddPetRequestData,
   AddPetResponseData,
   AddPetStatus200,
@@ -17,6 +18,7 @@ export type {
   CreatePetsHeaderParamsXEXAMPLEEnumKey,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsRequest,
   CreatePetsRequestData,
   CreatePetsResponseData,
   CreatePetsStatus201,
@@ -24,12 +26,14 @@ export type {
 } from './CreatePetsType.ts'
 export { createPetsHeaderParamsXEXAMPLEEnum } from './CreatePetsType.ts'
 export type {
+  CreateUsersWithListInputRequest,
   CreateUsersWithListInputRequestData,
   CreateUsersWithListInputResponseData,
   CreateUsersWithListInputStatus200,
   CreateUsersWithListInputStatusError,
 } from './CreateUsersWithListInputType.ts'
 export type {
+  CreateUserRequest,
   CreateUserRequestData,
   CreateUserResponseData,
   CreateUserStatusError,
@@ -137,12 +141,14 @@ export type { PhoneNumber } from './PhoneNumberType.ts'
 export type { PhoneWithMaxLengthExplicit } from './PhoneWithMaxLengthExplicitType.ts'
 export type { PhoneWithMaxLength } from './PhoneWithMaxLengthType.ts'
 export type {
+  PlaceOrderPatchRequest,
   PlaceOrderPatchRequestData,
   PlaceOrderPatchResponseData,
   PlaceOrderPatchStatus200,
   PlaceOrderPatchStatus405,
 } from './PlaceOrderPatchType.ts'
 export type {
+  PlaceOrderRequest,
   PlaceOrderRequestData,
   PlaceOrderResponseData,
   PlaceOrderStatus200,
@@ -150,6 +156,7 @@ export type {
 } from './PlaceOrderType.ts'
 export type { Tag } from './TagType.ts'
 export type {
+  UpdatePetRequest,
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
@@ -166,6 +173,7 @@ export type {
 } from './UpdatePetWithFormType.ts'
 export type {
   UpdateUserPathParams,
+  UpdateUserRequest,
   UpdateUserRequestData,
   UpdateUserResponseData,
   UpdateUserStatusError,
@@ -173,6 +181,7 @@ export type {
 export type {
   UploadFilePathParams,
   UploadFileQueryParams,
+  UploadFileRequest,
   UploadFileRequestData,
   UploadFileResponseData,
   UploadFileStatus200,

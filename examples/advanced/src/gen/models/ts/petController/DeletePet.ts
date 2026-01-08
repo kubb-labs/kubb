@@ -23,7 +23,7 @@ export type DeletePetRequest = {
   pathParams: DeletePetPathParams
   queryParams?: never
   headerParams?: DeletePetHeaderParams
-  url: '/pet/{petId}:search'
+  url: `/pet/${string}:search`
 }
 
 export type DeletePetResponseData = any

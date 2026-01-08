@@ -18,4 +18,12 @@ export type UpdateUserStatusError = any
  */
 export type UpdateUserRequestData = Omit<NonNullable<User>, 'tag'>
 
+export type UpdateUserRequest = {
+  data?: UpdateUserRequestData
+  pathParams: UpdateUserPathParams
+  queryParams?: never
+  headerParams?: never
+  url: `/user/${string}`
+}
+
 export type UpdateUserResponseData = any

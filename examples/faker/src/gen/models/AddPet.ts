@@ -20,6 +20,14 @@ export type AddPetStatus405 = any
  */
 export type AddPetRequestData = Pet
 
+export type AddPetRequest = {
+  data?: AddPetRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/pet'
+}
+
 export type AddPetResponses = {
   '200': AddPetStatus200
 }

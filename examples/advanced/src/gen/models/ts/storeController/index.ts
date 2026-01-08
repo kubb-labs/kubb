@@ -8,5 +8,11 @@ export type {
   GetOrderByIdStatus400,
   GetOrderByIdStatus404,
 } from './GetOrderById.ts'
-export type { PlaceOrderRequestData, PlaceOrderResponseData, PlaceOrderStatus200, PlaceOrderStatus405 } from './PlaceOrder.ts'
-export type { PlaceOrderPatchRequestData, PlaceOrderPatchResponseData, PlaceOrderPatchStatus200, PlaceOrderPatchStatus405 } from './PlaceOrderPatch.ts'
+export type { PlaceOrderRequest, PlaceOrderRequestData, PlaceOrderResponseData, PlaceOrderStatus200, PlaceOrderStatus405 } from './PlaceOrder.ts'
+export type {
+  PlaceOrderPatchRequest,
+  PlaceOrderPatchRequestData,
+  PlaceOrderPatchResponseData,
+  PlaceOrderPatchStatus200,
+  PlaceOrderPatchStatus405,
+} from './PlaceOrderPatch.ts'

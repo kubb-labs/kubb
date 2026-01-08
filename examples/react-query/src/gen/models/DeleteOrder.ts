@@ -27,7 +27,7 @@ export type DeleteOrderRequest = {
   pathParams: DeleteOrderPathParams
   queryParams?: never
   headerParams?: never
-  url: '/store/order/{orderId}'
+  url: `/store/order/${string}`
 }
 
 export type DeleteOrderResponseData = any

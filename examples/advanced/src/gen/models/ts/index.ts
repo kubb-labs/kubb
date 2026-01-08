@@ -13,8 +13,8 @@ export { orderHttpStatusEnum, orderOrderTypeEnum, orderStatusEnum } from './Orde
 export type { Pet, PetStatusEnumKey } from './Pet.ts'
 export { petStatusEnum } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'
-export type { AddFilesRequestData, AddFilesResponseData, AddFilesStatus200, AddFilesStatus405 } from './petController/AddFiles.ts'
-export type { AddPetRequestData, AddPetResponseData, AddPetStatus200, AddPetStatus405 } from './petController/AddPet.ts'
+export type { AddFilesRequest, AddFilesRequestData, AddFilesResponseData, AddFilesStatus200, AddFilesStatus405 } from './petController/AddFiles.ts'
+export type { AddPetRequest, AddPetRequestData, AddPetResponseData, AddPetStatus200, AddPetStatus405 } from './petController/AddPet.ts'
 export type { DeletePetHeaderParams, DeletePetPathParams, DeletePetRequest, DeletePetResponseData, DeletePetStatus400 } from './petController/DeletePet.ts'
 export type {
   FindPetsByStatusPathParams,
@@ -42,6 +42,7 @@ export type {
   GetPetByIdStatus404,
 } from './petController/GetPetById.ts'
 export type {
+  UpdatePetRequest,
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
@@ -60,6 +61,7 @@ export type {
 export type {
   UploadFilePathParams,
   UploadFileQueryParams,
+  UploadFileRequest,
   UploadFileRequestData,
   UploadFileResponseData,
   UploadFileStatus200,
@@ -70,6 +72,7 @@ export type {
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsQueryParamsBoolParamEnumKey,
+  CreatePetsRequest,
   CreatePetsRequestData,
   CreatePetsResponseData,
   CreatePetsStatus201,
@@ -92,8 +95,15 @@ export type {
   GetOrderByIdStatus400,
   GetOrderByIdStatus404,
 } from './storeController/GetOrderById.ts'
-export type { PlaceOrderRequestData, PlaceOrderResponseData, PlaceOrderStatus200, PlaceOrderStatus405 } from './storeController/PlaceOrder.ts'
 export type {
+  PlaceOrderRequest,
+  PlaceOrderRequestData,
+  PlaceOrderResponseData,
+  PlaceOrderStatus200,
+  PlaceOrderStatus405,
+} from './storeController/PlaceOrder.ts'
+export type {
+  PlaceOrderPatchRequest,
   PlaceOrderPatchRequestData,
   PlaceOrderPatchResponseData,
   PlaceOrderPatchStatus200,
@@ -102,8 +112,9 @@ export type {
 export type { TagTag } from './tag/Tag.ts'
 export type { User } from './User.ts'
 export type { UserArray } from './UserArray.ts'
-export type { CreateUserRequestData, CreateUserResponseData, CreateUserStatusError } from './userController/CreateUser.ts'
+export type { CreateUserRequest, CreateUserRequestData, CreateUserResponseData, CreateUserStatusError } from './userController/CreateUser.ts'
 export type {
+  CreateUsersWithListInputRequest,
   CreateUsersWithListInputRequestData,
   CreateUsersWithListInputResponseData,
   CreateUsersWithListInputStatus200,
@@ -120,4 +131,10 @@ export type {
 } from './userController/GetUserByName.ts'
 export type { LoginUserQueryParams, LoginUserRequest, LoginUserResponseData, LoginUserStatus200, LoginUserStatus400 } from './userController/LoginUser.ts'
 export type { LogoutUserRequest, LogoutUserResponseData, LogoutUserStatusError } from './userController/LogoutUser.ts'
-export type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData, UpdateUserStatusError } from './userController/UpdateUser.ts'
+export type {
+  UpdateUserPathParams,
+  UpdateUserRequest,
+  UpdateUserRequestData,
+  UpdateUserResponseData,
+  UpdateUserStatusError,
+} from './userController/UpdateUser.ts'

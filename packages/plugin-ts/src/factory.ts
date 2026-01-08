@@ -585,6 +585,53 @@ export const keywordTypeNodes = {
   never: factory.createKeywordTypeNode(ts.SyntaxKind.NeverKeyword),
 } as const
 
+/**
+ * Converts a path like '/pet/{petId}/uploadImage' to a template literal type
+ * like `/pet/${string}/uploadImage`
+ */
+export function createUrlTemplateType(path: string): ts.TypeNode {
+  // If no parameters, return literal string type
+  if (!path.includes('{')) {
+    return factory.createLiteralTypeNode(factory.createStringLiteral(path))
+  }
+
+  // Split path by parameter placeholders, e.g. '/pet/{petId}/upload' -> ['/pet/', 'petId', '/upload']
+  const segments = path.split(/(\{[^}]+\})/)
+
+  // Separate static parts from parameter placeholders
+  const parts: string[] = []
+  const parameterIndices: number[] = []
+
+  segments.forEach((segment) => {
+    if (segment.startsWith('{') && segment.endsWith('}')) {
+      // This is a parameter placeholder
+      parameterIndices.push(parts.length)
+      parts.push(segment) // Will be replaced with ${string}
+    } else if (segment) {
+      // This is a static part
+      parts.push(segment)
+    }
+  })
+
+  // Build template literal type
+  // Template literal structure: head + templateSpans[]
+  // For '/pet/{petId}/upload': head = '/pet/', spans = [{ type: string, literal: '/upload' }]
+
+  const head = ts.factory.createTemplateHead(parts[0] || '')
+  const templateSpans: ts.TemplateLiteralTypeSpan[] = []
+
+  parameterIndices.forEach((paramIndex, i) => {
+    const isLast = i === parameterIndices.length - 1
+    const nextPart = parts[paramIndex + 1] || ''
+
+    const literal = isLast ? ts.factory.createTemplateTail(nextPart) : ts.factory.createTemplateMiddle(nextPart)
+
+    templateSpans.push(ts.factory.createTemplateLiteralTypeSpan(keywordTypeNodes.string, literal))
+  })
+
+  return ts.factory.createTemplateLiteralType(head, templateSpans)
+}
+
 export const createTypeLiteralNode = factory.createTypeLiteralNode
 
 export const createTypeReferenceNode = factory.createTypeReferenceNode

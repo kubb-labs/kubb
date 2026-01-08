@@ -21,7 +21,7 @@ export type DeleteUserRequest = {
   pathParams: DeleteUserPathParams
   queryParams?: never
   headerParams?: never
-  url: '/user/{username}'
+  url: `/user/${string}`
 }
 
 export type DeleteUserResponseData = any

@@ -33,7 +33,7 @@ export type GetPetByIdRequest = {
   pathParams: GetPetByIdPathParams
   queryParams?: never
   headerParams?: never
-  url: '/pet/{petId}'
+  url: `/pet/${string}`
 }
 
 export type GetPetByIdResponses = {

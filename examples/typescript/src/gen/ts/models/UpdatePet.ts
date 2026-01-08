@@ -30,6 +30,14 @@ export type UpdatePetStatus405 = any
  */
 export type UpdatePetRequestData = Omit<NonNullable<Pet>, 'type' | 'tags'>
 
+export type UpdatePetRequest = {
+  data?: UpdatePetRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/pet'
+}
+
 export type UpdatePetResponses = {
   '200': UpdatePetStatus200
 }
