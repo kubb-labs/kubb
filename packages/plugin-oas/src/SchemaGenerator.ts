@@ -40,7 +40,7 @@ export type SchemaGeneratorOptions = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   unknownType: 'any' | 'unknown' | 'void'
   emptySchemaType: 'any' | 'unknown' | 'void'
-  enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
+  enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   enumSuffix?: string
   usedEnumNames?: Record<string, number>
   mapper?: Record<string, string>

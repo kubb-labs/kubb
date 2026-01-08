@@ -108,16 +108,19 @@ Return the name of a group based on the group name, this will be used for the fi
 
 Choose to use `enum` or `as const` for enums.
 
-|           |                                                                      |
-|----------:|:---------------------------------------------------------------------|
-|     Type: | `'enum' \| 'asConst' \| 'asPascalConst' \| 'constEnum' \| 'literal'` |
-| Required: | `false`                                                              |
-|  Default: | `'asConst'`                                                               |
+|           |                                                                                         |
+|----------:|:----------------------------------------------------------------------------------------|
+|     Type: | `'enum' \| 'asConst' \| 'asPascalConst' \| 'constEnum' \| 'literal' \| 'inlineLiteral'` |
+| Required: | `false`                                                                                 |
+|  Default: | `'asConst'`                                                                                  |
 
 > [!TIP]
 > The difference between `asConst` and `asPascalConst` is the casing of the constant variable name:
 > - `asConst`: generates a camelCase constant name (e.g., `petType`)
 > - `asPascalConst`: generates a PascalCase constant name (e.g., `PetType`)
+
+> [!NOTE]
+> In Kubb v5, `inlineLiteral` will become the default.
 
 ::: code-group
 
@@ -151,6 +154,13 @@ const enum PetType {
 
 ```typescript ['literal']
 type PetType = 'dog' | 'cat'
+```
+
+```typescript ['inlineLiteral']
+// Enum values are inlined directly into the type
+export interface Pet {
+  status?: "available" | "pending" | "sold"
+}
 ```
 :::
 
