@@ -1,3 +1,4 @@
+export { createAddPetRequestFaker } from './createAddPetRequestFaker.ts'
 export { createAddressFaker } from './createAddressFaker.ts'
 export { createAnimalFaker } from './createAnimalFaker.ts'
 export { createApiResponseFaker } from './createApiResponseFaker.ts'
@@ -9,7 +10,6 @@ export { createImageFaker } from './createImageFaker.ts'
 export { createOrderFaker } from './createOrderFaker.ts'
 export { createPetFaker } from './createPetFaker.ts'
 export { createPetNotFoundFaker } from './createPetNotFoundFaker.ts'
-export { createPostPetRequestFaker } from './createPostPetRequestFaker.ts'
 export { createUserArrayFaker } from './createUserArrayFaker.ts'
 export { createUserFaker } from './createUserFaker.ts'
 export {

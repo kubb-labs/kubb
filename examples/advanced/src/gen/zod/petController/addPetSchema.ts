@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
 import type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/petController/AddPet.ts'
+import { addPetRequestSchema } from '../addPetRequestSchema.ts'
 import { petSchema } from '../petSchema.ts'
-import { postPetRequestSchema } from '../postPetRequestSchema.ts'
 
 /**
  * @description Successful operation
@@ -24,7 +24,7 @@ export type AddPet405Schema = AddPet405
 /**
  * @description Create a new pet in the store
  */
-export const addPetMutationRequestSchema = z.lazy(() => postPetRequestSchema) as unknown as ToZod<AddPetMutationRequest>
+export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema) as unknown as ToZod<AddPetMutationRequest>
 
 export type AddPetMutationRequestSchema = AddPetMutationRequest
 

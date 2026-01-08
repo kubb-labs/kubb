@@ -1,3 +1,4 @@
+export { addPetRequestSchema } from './addPetRequestSchema.ts'
 export {
   addPet200Schema,
   addPet405Schema,
@@ -118,7 +119,6 @@ export {
   placeOrderMutationRequestSchema,
   placeOrderMutationResponseSchema,
 } from './placeOrderSchema.ts'
-export { postPetRequestSchema } from './postPetRequestSchema.ts'
 export { tagSchema } from './tagSchema.ts'
 export {
   updatePet200Schema,

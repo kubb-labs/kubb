@@ -34,6 +34,11 @@ export type {
   AddPetMutationRequest,
   AddPetMutationResponse,
 } from './models/ts/AddPet.js'
+export type {
+  AddPetRequest,
+  AddPetRequestStatusEnumKey,
+} from './models/ts/AddPetRequest.js'
+export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.js'
 export type { Address } from './models/ts/Address.js'
 export type { ApiResponse } from './models/ts/ApiResponse.js'
 export type { Category } from './models/ts/Category.js'
@@ -166,11 +171,6 @@ export type {
   PlaceOrderPatchMutationRequest,
   PlaceOrderPatchMutationResponse,
 } from './models/ts/PlaceOrderPatch.js'
-export type {
-  PostPetRequest,
-  PostPetRequestStatusEnumKey,
-} from './models/ts/PostPetRequest.js'
-export { postPetRequestStatusEnum } from './models/ts/PostPetRequest.js'
 export type { TagTag } from './models/ts/tag/Tag.js'
 export type {
   UpdatePet200,
@@ -204,6 +204,7 @@ export {
   addFilesMutationRequestSchema,
   addFilesMutationResponseSchema,
 } from './zod/addFilesSchema.js'
+export { addPetRequestSchema } from './zod/addPetRequestSchema.js'
 export {
   addPet200Schema,
   addPet405Schema,
@@ -315,7 +316,6 @@ export {
   placeOrderMutationRequestSchema,
   placeOrderMutationResponseSchema,
 } from './zod/placeOrderSchema.js'
-export { postPetRequestSchema } from './zod/postPetRequestSchema.js'
 export { tagTagSchema } from './zod/tag/tagSchema.js'
 export {
   updatePet200Schema,

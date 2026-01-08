@@ -1,33 +1,21 @@
+export type {
+  AddPetRequest,
+  AddPetRequestStatusEnumKey,
+} from './AddPetRequest.js'
+export { addPetRequestStatusEnum } from './AddPetRequest.js'
 export type { Address } from './Address.js'
-export type { Animal } from './Animal.js'
 export type { ApiResponse } from './ApiResponse.js'
-export type { Cat } from './Cat.js'
 export type { Category } from './Category.js'
 export type { Customer } from './Customer.js'
-export type { Dog } from './Dog.js'
-export type { Image } from './Image.js'
 export type {
   Order,
   OrderHttpStatusEnumKey,
-  OrderOrderTypeEnumKey,
   OrderStatusEnumKey,
 } from './Order.js'
-export { orderHttpStatusEnum, orderOrderTypeEnum, orderStatusEnum } from './Order.js'
+export { orderHttpStatusEnum, orderStatusEnum } from './Order.js'
 export type { Pet, PetStatusEnumKey } from './Pet.js'
 export { petStatusEnum } from './Pet.js'
 export type { PetNotFound } from './PetNotFound.js'
-export type {
-  PostPetRequest,
-  PostPetRequestStatusEnumKey,
-} from './PostPetRequest.js'
-export { postPetRequestStatusEnum } from './PostPetRequest.js'
-export type {
-  AddFiles200,
-  AddFiles405,
-  AddFilesMutation,
-  AddFilesMutationRequest,
-  AddFilesMutationResponse,
-} from './petController/AddFiles.js'
 export type {
   AddPet200,
   AddPet405,
@@ -45,20 +33,19 @@ export type {
 export type {
   FindPetsByStatus200,
   FindPetsByStatus400,
-  FindPetsByStatusPathParams,
   FindPetsByStatusQuery,
+  FindPetsByStatusQueryParams,
+  FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './petController/FindPetsByStatus.js'
+export { findPetsByStatusQueryParamsStatusEnum } from './petController/FindPetsByStatus.js'
 export type {
   FindPetsByTags200,
   FindPetsByTags400,
-  FindPetsByTagsHeaderParams,
-  FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
   FindPetsByTagsQuery,
   FindPetsByTagsQueryParams,
   FindPetsByTagsQueryResponse,
 } from './petController/FindPetsByTags.js'
-export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './petController/FindPetsByTags.js'
 export type {
   GetPetById200,
   GetPetById400,
@@ -69,7 +56,6 @@ export type {
 } from './petController/GetPetById.js'
 export type {
   UpdatePet200,
-  UpdatePet202,
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,
@@ -92,19 +78,6 @@ export type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from './petController/UploadFile.js'
-export type {
-  CreatePets201,
-  CreatePetsError,
-  CreatePetsHeaderParams,
-  CreatePetsHeaderParamsXEXAMPLEEnumKey,
-  CreatePetsMutation,
-  CreatePetsMutationRequest,
-  CreatePetsMutationResponse,
-  CreatePetsPathParams,
-  CreatePetsQueryParams,
-  CreatePetsQueryParamsBoolParamEnumKey,
-} from './petsController/CreatePets.js'
-export { createPetsHeaderParamsXEXAMPLEEnum, createPetsQueryParamsBoolParamEnum } from './petsController/CreatePets.js'
 export type {
   DeleteOrder400,
   DeleteOrder404,
@@ -139,7 +112,7 @@ export type {
   PlaceOrderPatchMutationRequest,
   PlaceOrderPatchMutationResponse,
 } from './storeController/PlaceOrderPatch.js'
-export type { TagTag } from './tag/Tag.js'
+export type { Tag } from './Tag.js'
 export type { User } from './User.js'
 export type { UserArray } from './UserArray.js'
 export type {

@@ -9,14 +9,14 @@ import fetch from '@kubb/plugin-client/clients/fetch'
 import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet.js'
 
 function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
-  const res = { method: 'DELETE', url: `/pet/${petId}:search` as const }
+  const res = { method: 'DELETE', url: `/pet/${petId}` as const }
   return res
 }
 
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * {@link /pet/:petId:search}
+ * {@link /pet/:petId}
  */
 export async function deletePet(
   { petId }: { petId: DeletePetPathParams['petId'] },

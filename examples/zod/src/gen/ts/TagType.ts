@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type Tag = {
+export type TagType = {
   /**
    * @type integer | undefined, int64
    */

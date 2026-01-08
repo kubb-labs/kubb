@@ -9,7 +9,7 @@ export function getPetById(petId: GetPetByIdPathParams['petId'], options?: Parti
   return cy
     .request<GetPetByIdQueryResponse>({
       method: 'get',
-      url: `http://localhost:3000/pet/${petId}:search`,
+      url: `http://localhost:3000/pet/${petId}`,
       ...options,
     })
     .then((res) => res.body)

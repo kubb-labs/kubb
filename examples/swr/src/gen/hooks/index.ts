@@ -1,15 +1,5 @@
-export type {
-  AddFilesMutationArg,
-  AddFilesMutationKey,
-} from './useAddFiles.ts'
-export { addFiles, addFilesMutationKey, useAddFiles } from './useAddFiles.ts'
 export type { AddPetMutationArg, AddPetMutationKey } from './useAddPet.ts'
 export { addPet, addPetMutationKey, useAddPet } from './useAddPet.ts'
-export type {
-  CreatePetsMutationArg,
-  CreatePetsMutationKey,
-} from './useCreatePets.ts'
-export { createPets, createPetsMutationKey, useCreatePets } from './useCreatePets.ts'
 export type {
   CreateUserMutationArg,
   CreateUserMutationKey,

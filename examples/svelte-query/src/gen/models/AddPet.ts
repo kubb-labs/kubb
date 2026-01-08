@@ -14,13 +14,13 @@
  * OpenAPI spec version: 1.0.11
  */
 
+import type { AddPetRequest } from './AddPetRequest.ts'
 import type { Pet } from './Pet.ts'
-import type { PostPetRequest } from './PostPetRequest.ts'
 
 /**
  * @description Successful operation
  */
-export type AddPet200 = Omit<NonNullable<Pet>, 'name'>
+export type AddPet200 = Pet
 
 /**
  * @description Pet not found
@@ -39,7 +39,7 @@ export type AddPet405 = {
 /**
  * @description Create a new pet in the store
  */
-export type AddPetMutationRequest = PostPetRequest
+export type AddPetMutationRequest = AddPetRequest
 
 export type AddPetMutationResponse = AddPet200
 

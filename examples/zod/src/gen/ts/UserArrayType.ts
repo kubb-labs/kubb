@@ -6,4 +6,4 @@
 /**
  * @description List of user object
  */
-export type UserArray = any
+export type UserArrayType = any

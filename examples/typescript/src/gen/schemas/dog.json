@@ -1,17 +1,8 @@
 {
-  "title": "Dog",
   "type": "object",
-  "required": ["name", "type"],
   "properties": {
-    "type": { "type": "string", "minLength": 1, "readOnly": true },
-    "name": { "type": "string" },
-    "image": {
-      "example": "linode/debian10",
-      "readOnly": true,
-      "allOf": [{ "type": "string", "nullable": true }],
-      "x-readme-ref-name": "Image"
-    }
+    "type": { "minLength": 1, "type": "string", "readOnly": true },
+    "bark": { "type": "string" }
   },
-  "additionalProperties": false,
   "x-readme-ref-name": "Dog"
 }

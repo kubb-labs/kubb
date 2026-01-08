@@ -4,6 +4,7 @@ export {
   addFilesMutationRequestSchema,
   addFilesMutationResponseSchema,
 } from './addFilesSchema.js'
+export { addPetRequestSchema } from './addPetRequestSchema.js'
 export {
   addPet200Schema,
   addPet405Schema,
@@ -115,7 +116,6 @@ export {
   placeOrderMutationRequestSchema,
   placeOrderMutationResponseSchema,
 } from './placeOrderSchema.js'
-export { postPetRequestSchema } from './postPetRequestSchema.js'
 export { tagTagSchema } from './tag/tagSchema.js'
 export {
   updatePet200Schema,

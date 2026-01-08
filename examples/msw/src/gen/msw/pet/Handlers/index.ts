@@ -1,9 +1,4 @@
 export {
-  addFilesHandler,
-  addFilesHandlerResponse200,
-  addFilesHandlerResponse405,
-} from './addFilesHandler.ts'
-export {
   addPetHandler,
   addPetHandlerResponse200,
   addPetHandlerResponse405,
@@ -29,9 +24,12 @@ export {
   getPetByIdHandlerResponse404,
 } from './getPetByIdHandler.ts'
 export {
+  optionsFindPetsByStatusHandler,
+  optionsFindPetsByStatusHandlerResponse200,
+} from './optionsFindPetsByStatusHandler.ts'
+export {
   updatePetHandler,
   updatePetHandlerResponse200,
-  updatePetHandlerResponse202,
   updatePetHandlerResponse400,
   updatePetHandlerResponse404,
   updatePetHandlerResponse405,

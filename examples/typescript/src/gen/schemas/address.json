@@ -1,7 +1,8 @@
 {
   "type": "object",
   "properties": {
-    "street": { "type": "string", "example": "437 Lytton" },
+    "streetName": { "type": "string" },
+    "streetNumber": { "type": "string" },
     "city": { "type": "string", "example": "Palo Alto" },
     "state": { "type": "string", "example": "CA" },
     "zip": { "type": "string", "example": "94301" }

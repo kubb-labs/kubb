@@ -6,27 +6,25 @@
 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.js'
+import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.js'
 
-function getFindPetsByStatusUrl({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }) {
-  const res = { method: 'GET', url: `/pet/findByStatus/${step_id}` as const }
+function getFindPetsByStatusUrl() {
+  const res = { method: 'GET', url: '/pet/findByStatus' as const }
   return res
 }
 
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * {@link /pet/findByStatus/:step_id}
+ * {@link /pet/findByStatus}
  */
-export async function findPetsByStatus(
-  { step_id }: { step_id: FindPetsByStatusPathParams['step_id'] },
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
-) {
+export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
-    url: getFindPetsByStatusUrl({ step_id }).url.toString(),
+    url: getFindPetsByStatusUrl().url.toString(),
+    params,
     ...requestConfig,
   })
   return res.data

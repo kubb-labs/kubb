@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type Address = {
+export type AddressType = {
   /**
    * @type string | undefined
    */

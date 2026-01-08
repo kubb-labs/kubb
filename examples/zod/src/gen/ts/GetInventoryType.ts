@@ -6,13 +6,13 @@
 /**
  * @description successful operation
  */
-export type GetInventory200 = {
+export type GetInventory200Type = {
   [key: string]: number
 }
 
-export type GetInventoryQueryResponse = GetInventory200
+export type GetInventoryQueryResponseType = GetInventory200Type
 
-export type GetInventoryQuery = {
-  Response: GetInventory200
+export type GetInventoryTypeQuery = {
+  Response: GetInventory200Type
   Errors: any
 }

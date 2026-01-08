@@ -7,12 +7,12 @@ declare const AXIOS_HEADERS: string
 /**
  * Subset of AxiosRequestConfig
  */
-export type RequestConfig<TBody = unknown> = {
+export type RequestConfig<TData = unknown> = {
   baseURL?: string
   url?: string
   method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE'
   params?: unknown
-  data?: TBody | FormData
+  data?: TData | FormData
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
   signal?: AbortSignal
   headers?: AxiosRequestConfig['headers']
@@ -34,8 +34,8 @@ export const axiosInstance = axios.create({
   headers: typeof AXIOS_HEADERS !== 'undefined' ? (JSON.parse(AXIOS_HEADERS) as AxiosHeaders) : undefined,
 })
 
-export const client = async <TResponse, TError = unknown, TBody = unknown>(config: RequestConfig<TBody>): Promise<ResponseConfig<TResponse>> => {
-  const promise = axiosInstance.request<TBody, ResponseConfig<TResponse>>(config).catch((e: AxiosError<TError>) => {
+export const client = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
+  const promise = axiosInstance.request<TVariables, ResponseConfig<TData>>(config).catch((e: AxiosError<TError>) => {
     throw e
   })
 

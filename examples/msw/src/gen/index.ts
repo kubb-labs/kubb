@@ -1,23 +1,14 @@
+export { createAddPetRequest } from './mocks/createAddPetRequest.ts'
 export { createAddress } from './mocks/createAddress.ts'
-export { createAnimal } from './mocks/createAnimal.ts'
 export { createApiResponse } from './mocks/createApiResponse.ts'
-export { createCat } from './mocks/createCat.ts'
 export { createCategory } from './mocks/createCategory.ts'
 export { createCustomer } from './mocks/createCustomer.ts'
-export { createDog } from './mocks/createDog.ts'
-export { createImage } from './mocks/createImage.ts'
 export { createOrder } from './mocks/createOrder.ts'
 export { createPet } from './mocks/createPet.ts'
 export { createPetNotFound } from './mocks/createPetNotFound.ts'
-export { createPostPetRequest } from './mocks/createPostPetRequest.ts'
+export { createTag } from './mocks/createTag.ts'
 export { createUser } from './mocks/createUser.ts'
 export { createUserArray } from './mocks/createUserArray.ts'
-export {
-  createAddFiles200,
-  createAddFiles405,
-  createAddFilesMutationRequest,
-  createAddFilesMutationResponse,
-} from './mocks/petController/createAddFiles.ts'
 export {
   createAddPet200,
   createAddPet405,
@@ -33,13 +24,12 @@ export {
 export {
   createFindPetsByStatus200,
   createFindPetsByStatus400,
-  createFindPetsByStatusPathParams,
+  createFindPetsByStatusQueryParams,
   createFindPetsByStatusQueryResponse,
 } from './mocks/petController/createFindPetsByStatus.ts'
 export {
   createFindPetsByTags200,
   createFindPetsByTags400,
-  createFindPetsByTagsHeaderParams,
   createFindPetsByTagsQueryParams,
   createFindPetsByTagsQueryResponse,
 } from './mocks/petController/createFindPetsByTags.ts'
@@ -51,8 +41,11 @@ export {
   createGetPetByIdQueryResponse,
 } from './mocks/petController/createGetPetById.ts'
 export {
+  createOptionsFindPetsByStatus200,
+  createOptionsFindPetsByStatusMutationResponse,
+} from './mocks/petController/createOptionsFindPetsByStatus.ts'
+export {
   createUpdatePet200,
-  createUpdatePet202,
   createUpdatePet400,
   createUpdatePet404,
   createUpdatePet405,
@@ -72,15 +65,6 @@ export {
   createUploadFilePathParams,
   createUploadFileQueryParams,
 } from './mocks/petController/createUploadFile.ts'
-export {
-  createCreatePets201,
-  createCreatePetsError,
-  createCreatePetsHeaderParams,
-  createCreatePetsMutationRequest,
-  createCreatePetsMutationResponse,
-  createCreatePetsPathParams,
-  createCreatePetsQueryParams,
-} from './mocks/petsController/createCreatePets.ts'
 export {
   createDeleteOrder400,
   createDeleteOrder404,
@@ -110,7 +94,6 @@ export {
   createPlaceOrderPatchMutationRequest,
   createPlaceOrderPatchMutationResponse,
 } from './mocks/storeController/createPlaceOrderPatch.ts'
-export { createTagTag } from './mocks/tag/createTag.ts'
 export {
   createCreateUserError,
   createCreateUserMutationRequest,
@@ -152,37 +135,20 @@ export {
   createUpdateUserPathParams,
 } from './mocks/userController/createUpdateUser.ts'
 export type {
-  AddFiles200,
-  AddFiles405,
-  AddFilesMutation,
-  AddFilesMutationRequest,
-  AddFilesMutationResponse,
-} from './models/AddFiles.ts'
-export type {
   AddPet200,
   AddPet405,
   AddPetMutation,
   AddPetMutationRequest,
   AddPetMutationResponse,
 } from './models/AddPet.ts'
-export type { Address } from './models/Address.ts'
-export type { Animal } from './models/Animal.ts'
-export type { ApiResponse } from './models/ApiResponse.ts'
-export type { Cat } from './models/Cat.ts'
-export type { Category } from './models/Category.ts'
 export type {
-  CreatePets201,
-  CreatePetsError,
-  CreatePetsHeaderParams,
-  CreatePetsHeaderParamsXEXAMPLEEnumKey,
-  CreatePetsMutation,
-  CreatePetsMutationRequest,
-  CreatePetsMutationResponse,
-  CreatePetsPathParams,
-  CreatePetsQueryParams,
-  CreatePetsQueryParamsBoolParamEnumKey,
-} from './models/CreatePets.ts'
-export { createPetsHeaderParamsXEXAMPLEEnum, createPetsQueryParamsBoolParamEnum } from './models/CreatePets.ts'
+  AddPetRequest,
+  AddPetRequestStatusEnumKey,
+} from './models/AddPetRequest.ts'
+export { addPetRequestStatusEnum } from './models/AddPetRequest.ts'
+export type { Address } from './models/Address.ts'
+export type { ApiResponse } from './models/ApiResponse.ts'
+export type { Category } from './models/Category.ts'
 export type {
   CreateUserError,
   CreateUserMutation,
@@ -218,24 +184,22 @@ export type {
   DeleteUserMutationResponse,
   DeleteUserPathParams,
 } from './models/DeleteUser.ts'
-export type { Dog } from './models/Dog.ts'
 export type {
   FindPetsByStatus200,
   FindPetsByStatus400,
-  FindPetsByStatusPathParams,
   FindPetsByStatusQuery,
+  FindPetsByStatusQueryParams,
+  FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './models/FindPetsByStatus.ts'
+export { findPetsByStatusQueryParamsStatusEnum } from './models/FindPetsByStatus.ts'
 export type {
   FindPetsByTags200,
   FindPetsByTags400,
-  FindPetsByTagsHeaderParams,
-  FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
   FindPetsByTagsQuery,
   FindPetsByTagsQueryParams,
   FindPetsByTagsQueryResponse,
 } from './models/FindPetsByTags.ts'
-export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './models/FindPetsByTags.ts'
 export type {
   GetInventory200,
   GetInventoryQuery,
@@ -265,7 +229,6 @@ export type {
   GetUserByNameQuery,
   GetUserByNameQueryResponse,
 } from './models/GetUserByName.ts'
-export type { Image } from './models/Image.ts'
 export type {
   LoginUser200,
   LoginUser400,
@@ -279,12 +242,16 @@ export type {
   LogoutUserQueryResponse,
 } from './models/LogoutUser.ts'
 export type {
+  OptionsFindPetsByStatus200,
+  OptionsFindPetsByStatusMutation,
+  OptionsFindPetsByStatusMutationResponse,
+} from './models/OptionsFindPetsByStatus.ts'
+export type {
   Order,
   OrderHttpStatusEnumKey,
-  OrderOrderTypeEnumKey,
   OrderStatusEnumKey,
 } from './models/Order.ts'
-export { orderHttpStatusEnum, orderOrderTypeEnum, orderStatusEnum } from './models/Order.ts'
+export { orderHttpStatusEnum, orderStatusEnum } from './models/Order.ts'
 export type { Pet, PetStatusEnumKey } from './models/Pet.ts'
 export { petStatusEnum } from './models/Pet.ts'
 export type { PetNotFound } from './models/PetNotFound.ts'
@@ -302,15 +269,9 @@ export type {
   PlaceOrderPatchMutationRequest,
   PlaceOrderPatchMutationResponse,
 } from './models/PlaceOrderPatch.ts'
-export type {
-  PostPetRequest,
-  PostPetRequestStatusEnumKey,
-} from './models/PostPetRequest.ts'
-export { postPetRequestStatusEnum } from './models/PostPetRequest.ts'
-export type { TagTag } from './models/tag/Tag.ts'
+export type { Tag } from './models/Tag.ts'
 export type {
   UpdatePet200,
-  UpdatePet202,
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,
@@ -344,11 +305,6 @@ export type { User } from './models/User.ts'
 export type { UserArray } from './models/UserArray.ts'
 export { handlers } from './msw/handlers.ts'
 export {
-  addFilesHandler,
-  addFilesHandlerResponse200,
-  addFilesHandlerResponse405,
-} from './msw/pet/Handlers/addFilesHandler.ts'
-export {
   addPetHandler,
   addPetHandlerResponse200,
   addPetHandlerResponse405,
@@ -374,9 +330,12 @@ export {
   getPetByIdHandlerResponse404,
 } from './msw/pet/Handlers/getPetByIdHandler.ts'
 export {
+  optionsFindPetsByStatusHandler,
+  optionsFindPetsByStatusHandlerResponse200,
+} from './msw/pet/Handlers/optionsFindPetsByStatusHandler.ts'
+export {
   updatePetHandler,
   updatePetHandlerResponse200,
-  updatePetHandlerResponse202,
   updatePetHandlerResponse400,
   updatePetHandlerResponse404,
   updatePetHandlerResponse405,
@@ -389,10 +348,6 @@ export {
   uploadFileHandler,
   uploadFileHandlerResponse200,
 } from './msw/pet/Handlers/uploadFileHandler.ts'
-export {
-  createPetsHandler,
-  createPetsHandlerResponse201,
-} from './msw/pets/Handlers/createPetsHandler.ts'
 export {
   deleteOrderHandler,
   deleteOrderHandlerResponse400,

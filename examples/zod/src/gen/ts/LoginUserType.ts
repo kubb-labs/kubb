@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type LoginUserQueryParams = {
+export type LoginUserQueryParamsType = {
   /**
    * @description The user name for login
    * @type string | undefined
@@ -19,17 +19,17 @@ export type LoginUserQueryParams = {
 /**
  * @description successful operation
  */
-export type LoginUser200 = string
+export type LoginUser200Type = string
 
 /**
  * @description Invalid username/password supplied
  */
-export type LoginUser400 = any
+export type LoginUser400Type = any
 
-export type LoginUserQueryResponse = LoginUser200
+export type LoginUserQueryResponseType = LoginUser200Type
 
-export type LoginUserQuery = {
-  Response: LoginUser200
-  QueryParams: LoginUserQueryParams
-  Errors: LoginUser400
+export type LoginUserTypeQuery = {
+  Response: LoginUser200Type
+  QueryParams: LoginUserQueryParamsType
+  Errors: LoginUser400Type
 }

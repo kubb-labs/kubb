@@ -15,15 +15,6 @@ export function updatePetHandlerResponse200(data: UpdatePetMutationResponse) {
   })
 }
 
-export function updatePetHandlerResponse202(data: UpdatePetMutationResponse) {
-  return new Response(JSON.stringify(data), {
-    status: 202,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-}
-
 export function updatePetHandlerResponse400(data?: UpdatePet400) {
   return new Response(JSON.stringify(data), {
     status: 400,

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type DeletePetPathParams = {
+export type DeletePetPathParamsType = {
   /**
    * @description Pet id to delete
    * @type integer, int64
@@ -11,7 +11,7 @@ export type DeletePetPathParams = {
   petId: number
 }
 
-export type DeletePetHeaderParams = {
+export type DeletePetHeaderParamsType = {
   /**
    * @type string | undefined
    */
@@ -21,13 +21,13 @@ export type DeletePetHeaderParams = {
 /**
  * @description Invalid pet value
  */
-export type DeletePet400 = any
+export type DeletePet400Type = any
 
-export type DeletePetMutationResponse = any
+export type DeletePetMutationResponseType = any
 
-export type DeletePetMutation = {
+export type DeletePetTypeMutation = {
   Response: any
-  PathParams: DeletePetPathParams
-  HeaderParams: DeletePetHeaderParams
-  Errors: DeletePet400
+  PathParams: DeletePetPathParamsType
+  HeaderParams: DeletePetHeaderParamsType
+  Errors: DeletePet400Type
 }

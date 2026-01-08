@@ -4,7 +4,6 @@
  * Do not edit manually.
  */
 
-import { addFiles } from './addFiles.js'
 import { addPet } from './addPet.js'
 import { deletePet } from './deletePet.js'
 import { findPetsByStatus } from './findPetsByStatus.js'
@@ -23,7 +22,6 @@ export function petService() {
     getPetById,
     updatePetWithForm,
     deletePet,
-    addFiles,
     uploadFile,
   }
 }

@@ -1,3 +1,5 @@
+export type { AddPetRequestSchema } from './addPetRequestSchema.ts'
+export { addPetRequestSchema } from './addPetRequestSchema.ts'
 export type { AddressSchema } from './addressSchema.ts'
 export { addressSchema } from './addressSchema.ts'
 export type { AnimalSchema } from './animalSchema.ts'
@@ -133,8 +135,6 @@ export {
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
 } from './petsController/createPetsSchema.ts'
-export type { PostPetRequestSchema } from './postPetRequestSchema.ts'
-export { postPetRequestSchema } from './postPetRequestSchema.ts'
 export type { TagTagSchema } from './tag/tagSchema.ts'
 export { tagTagSchema } from './tag/tagSchema.ts'
 export type { UserArraySchema } from './userArraySchema.ts'

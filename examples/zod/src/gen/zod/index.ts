@@ -1,3 +1,5 @@
+export type { AddPetRequestSchema } from './addPetRequestSchema.gen.ts'
+export { addPetRequestSchema } from './addPetRequestSchema.gen.ts'
 export type {
   AddPet200Schema,
   AddPet405Schema,
@@ -199,8 +201,6 @@ export type {
   PlaceOrderMutationResponseSchema,
 } from './placeOrderSchema.gen.ts'
 export { placeOrder200Schema, placeOrder405Schema, placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from './placeOrderSchema.gen.ts'
-export type { PostPetRequestSchema } from './postPetRequestSchema.gen.ts'
-export { postPetRequestSchema } from './postPetRequestSchema.gen.ts'
 export type { TagSchema } from './tagSchema.gen.ts'
 export { tagSchema } from './tagSchema.gen.ts'
 export type {

@@ -97,6 +97,7 @@ export type { LogoutUserQueryKeySWR } from './clients/swr/userController/useLogo
 export { logoutUserQueryKeySWR, logoutUserQueryOptionsSWR, useLogoutUserSWR } from './clients/swr/userController/useLogoutUserSWR.ts'
 export type { UpdateUserMutationKeySWR } from './clients/swr/userController/useUpdateUserSWR.ts'
 export { updateUserMutationKeySWR, useUpdateUserSWR } from './clients/swr/userController/useUpdateUserSWR.ts'
+export { createAddPetRequestFaker } from './mocks/createAddPetRequestFaker.ts'
 export { createAddressFaker } from './mocks/createAddressFaker.ts'
 export { createAnimalFaker } from './mocks/createAnimalFaker.ts'
 export { createApiResponseFaker } from './mocks/createApiResponseFaker.ts'
@@ -108,7 +109,6 @@ export { createImageFaker } from './mocks/createImageFaker.ts'
 export { createOrderFaker } from './mocks/createOrderFaker.ts'
 export { createPetFaker } from './mocks/createPetFaker.ts'
 export { createPetNotFoundFaker } from './mocks/createPetNotFoundFaker.ts'
-export { createPostPetRequestFaker } from './mocks/createPostPetRequestFaker.ts'
 export { createUserArrayFaker } from './mocks/createUserArrayFaker.ts'
 export { createUserFaker } from './mocks/createUserFaker.ts'
 export {
@@ -218,6 +218,8 @@ export {
   createUpdateUserMutationResponseFaker,
   createUpdateUserPathParamsFaker,
 } from './mocks/userController/createUpdateUserFaker.ts'
+export type { AddPetRequest, AddPetRequestStatusEnumKey } from './models/ts/AddPetRequest.ts'
+export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.ts'
 export type { Address } from './models/ts/Address.ts'
 export type { Animal } from './models/ts/Animal.ts'
 export type { ApiResponse } from './models/ts/ApiResponse.ts'
@@ -231,8 +233,6 @@ export { orderHttpStatusEnum, orderOrderTypeEnum, orderStatusEnum } from './mode
 export type { Pet, PetStatusEnumKey } from './models/ts/Pet.ts'
 export { petStatusEnum } from './models/ts/Pet.ts'
 export type { PetNotFound } from './models/ts/PetNotFound.ts'
-export type { PostPetRequest, PostPetRequestStatusEnumKey } from './models/ts/PostPetRequest.ts'
-export { postPetRequestStatusEnum } from './models/ts/PostPetRequest.ts'
 export type { AddFiles200, AddFiles405, AddFilesMutation, AddFilesMutationRequest, AddFilesMutationResponse } from './models/ts/petController/AddFiles.ts'
 export type { AddPet200, AddPet405, AddPetMutation, AddPetMutationRequest, AddPetMutationResponse } from './models/ts/petController/AddPet.ts'
 export type {
@@ -405,6 +405,8 @@ export {
 export { loginUserHandler, loginUserHandlerResponse200, loginUserHandlerResponse400 } from './msw/userController/loginUserHandler.ts'
 export { logoutUserHandler } from './msw/userController/logoutUserHandler.ts'
 export { updateUserHandler } from './msw/userController/updateUserHandler.ts'
+export type { AddPetRequestSchema } from './zod/addPetRequestSchema.ts'
+export { addPetRequestSchema } from './zod/addPetRequestSchema.ts'
 export type { AddressSchema } from './zod/addressSchema.ts'
 export { addressSchema } from './zod/addressSchema.ts'
 export type { AnimalSchema } from './zod/animalSchema.ts'
@@ -545,8 +547,6 @@ export {
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
 } from './zod/petsController/createPetsSchema.ts'
-export type { PostPetRequestSchema } from './zod/postPetRequestSchema.ts'
-export { postPetRequestSchema } from './zod/postPetRequestSchema.ts'
 export type { TagTagSchema } from './zod/tag/tagSchema.ts'
 export { tagTagSchema } from './zod/tag/tagSchema.ts'
 export type { UserArraySchema } from './zod/userArraySchema.ts'

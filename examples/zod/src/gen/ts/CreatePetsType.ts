@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { PetNotFound } from './PetNotFoundType.ts'
+import type { PetNotFoundType } from './PetNotFoundType.ts'
 
-export type CreatePetsPathParams = {
+export type CreatePetsPathParamsType = {
   /**
    * @description UUID
    * @type string
@@ -13,7 +13,7 @@ export type CreatePetsPathParams = {
   uuid: string
 }
 
-export type CreatePetsQueryParams = {
+export type CreatePetsQueryParamsType = {
   /**
    * @description Offset
    * @type integer | undefined
@@ -27,27 +27,27 @@ export const createPetsHeaderParamsXEXAMPLEEnum = {
   THREE: 'THREE',
 } as const
 
-export type CreatePetsHeaderParamsXEXAMPLEEnumKey = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
+export type CreatePetsHeaderParamsXEXAMPLEEnumTypeKey = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
 
-export type CreatePetsHeaderParams = {
+export type CreatePetsHeaderParamsType = {
   /**
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumKey
+  'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumTypeKey
 }
 
 /**
  * @description Null response
  */
-export type CreatePets201 = any
+export type CreatePets201Type = any
 
 /**
  * @description unexpected error
  */
-export type CreatePetsError = PetNotFound
+export type CreatePetsErrorType = PetNotFoundType
 
-export type CreatePetsMutationRequest = {
+export type CreatePetsMutationRequestType = {
   /**
    * @type string
    */
@@ -58,13 +58,13 @@ export type CreatePetsMutationRequest = {
   tag: string
 }
 
-export type CreatePetsMutationResponse = CreatePets201
+export type CreatePetsMutationResponseType = CreatePets201Type
 
-export type CreatePetsMutation = {
-  Response: CreatePets201
-  Request: CreatePetsMutationRequest
-  PathParams: CreatePetsPathParams
-  QueryParams: CreatePetsQueryParams
-  HeaderParams: CreatePetsHeaderParams
+export type CreatePetsTypeMutation = {
+  Response: CreatePets201Type
+  Request: CreatePetsMutationRequestType
+  PathParams: CreatePetsPathParamsType
+  QueryParams: CreatePetsQueryParamsType
+  HeaderParams: CreatePetsHeaderParamsType
   Errors: any
 }

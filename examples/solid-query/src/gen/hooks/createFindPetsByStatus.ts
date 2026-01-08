@@ -6,37 +6,36 @@
 import { queryOptions } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus.ts'
+import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus.ts'
 
-export const findPetsByStatusQueryKey = (step_id: FindPetsByStatusPathParams['step_id']) =>
-  [{ url: '/pet/findByStatus/:step_id', params: { step_id: step_id } }] as const
+export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
 
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * {@link /pet/findByStatus/:step_id}
+ * {@link /pet/findByStatus}
  */
-export async function findPetsByStatus(step_id: FindPetsByStatusPathParams['step_id'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
-    url: `/pet/findByStatus/${step_id}`,
+    url: '/pet/findByStatus',
+    params,
     ...requestConfig,
   })
   return res.data
 }
 
-export function findPetsByStatusQueryOptions(step_id: FindPetsByStatusPathParams['step_id'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-  const queryKey = findPetsByStatusQueryKey(step_id)
+export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const queryKey = findPetsByStatusQueryKey(params)
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
-    enabled: !!step_id,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return findPetsByStatus(step_id, config)
+      return findPetsByStatus(params, config)
     },
   })
 }

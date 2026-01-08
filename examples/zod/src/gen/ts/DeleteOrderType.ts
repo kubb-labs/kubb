@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type DeleteOrderPathParams = {
+export type DeleteOrderPathParamsType = {
   /**
    * @description ID of the order that needs to be deleted
    * @type integer, int64
@@ -14,17 +14,17 @@ export type DeleteOrderPathParams = {
 /**
  * @description Invalid ID supplied
  */
-export type DeleteOrder400 = any
+export type DeleteOrder400Type = any
 
 /**
  * @description Order not found
  */
-export type DeleteOrder404 = any
+export type DeleteOrder404Type = any
 
-export type DeleteOrderMutationResponse = any
+export type DeleteOrderMutationResponseType = any
 
-export type DeleteOrderMutation = {
+export type DeleteOrderTypeMutation = {
   Response: any
-  PathParams: DeleteOrderPathParams
-  Errors: DeleteOrder400 | DeleteOrder404
+  PathParams: DeleteOrderPathParamsType
+  Errors: DeleteOrder400Type | DeleteOrder404Type
 }

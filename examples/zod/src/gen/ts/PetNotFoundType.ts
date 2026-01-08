@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type PetNotFound = {
+export type PetNotFoundType = {
   /**
    * @type integer | undefined, int32
    */

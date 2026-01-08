@@ -5,6 +5,11 @@ export type {
   AddPetMutationRequest,
   AddPetMutationResponse,
 } from './AddPet.ts'
+export type {
+  AddPetRequest,
+  AddPetRequestStatusEnumKey,
+} from './AddPetRequest.ts'
+export { addPetRequestStatusEnum } from './AddPetRequest.ts'
 export type { Address } from './Address.ts'
 export type { ApiResponse } from './ApiResponse.ts'
 export type { Category } from './Category.ts'
@@ -123,11 +128,6 @@ export type {
   PlaceOrderPatchMutationRequest,
   PlaceOrderPatchMutationResponse,
 } from './PlaceOrderPatch.ts'
-export type {
-  PostPetRequest,
-  PostPetRequestStatusEnumKey,
-} from './PostPetRequest.ts'
-export { postPetRequestStatusEnum } from './PostPetRequest.ts'
 export type { Tag } from './Tag.ts'
 export type {
   UpdatePet200,

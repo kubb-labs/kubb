@@ -3,19 +3,14 @@
  * Do not edit manually.
  */
 
-import type { FindPetsByTagsHeaderParams, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
+import type { FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
 
-export function findPetsByTags(
-  headers: FindPetsByTagsHeaderParams,
-  params?: FindPetsByTagsQueryParams,
-  options?: Partial<Cypress.RequestOptions>,
-): Cypress.Chainable<FindPetsByTagsQueryResponse> {
+export function findPetsByTags(params?: FindPetsByTagsQueryParams, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<FindPetsByTagsQueryResponse> {
   return cy
     .request<FindPetsByTagsQueryResponse>({
       method: 'get',
       url: 'http://localhost:3000/pet/findByTags',
       qs: params,
-      headers,
       ...options,
     })
     .then((res) => res.body)

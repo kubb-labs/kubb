@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import type { AddPet405, AddPetMutationResponse } from '../../models/ts/petController/AddPet.ts'
+import { createAddPetRequestFaker } from '../createAddPetRequestFaker.ts'
 import { createPetFaker } from '../createPetFaker.ts'
-import { createPostPetRequestFaker } from '../createPostPetRequestFaker.ts'
 
 /**
  * @description Successful operation
@@ -24,7 +24,7 @@ export function createAddPet405Faker(data?: Partial<AddPet405>): AddPet405 {
  * @description Create a new pet in the store
  */
 export function createAddPetMutationRequestFaker() {
-  return createPostPetRequestFaker()
+  return createAddPetRequestFaker()
 }
 
 export function createAddPetMutationResponseFaker(data?: Partial<AddPetMutationResponse>): AddPetMutationResponse {

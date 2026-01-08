@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { User } from './UserType.ts'
+import type { UserType } from './UserType.ts'
 
-export type GetUserByNamePathParams = {
+export type GetUserByNamePathParamsType = {
   /**
    * @description The name that needs to be fetched. Use user1 for testing.
    * @type string
@@ -16,22 +16,22 @@ export type GetUserByNamePathParams = {
 /**
  * @description successful operation
  */
-export type GetUserByName200 = User
+export type GetUserByName200Type = UserType
 
 /**
  * @description Invalid username supplied
  */
-export type GetUserByName400 = any
+export type GetUserByName400Type = any
 
 /**
  * @description User not found
  */
-export type GetUserByName404 = any
+export type GetUserByName404Type = any
 
-export type GetUserByNameQueryResponse = GetUserByName200
+export type GetUserByNameQueryResponseType = GetUserByName200Type
 
-export type GetUserByNameQuery = {
-  Response: GetUserByName200
-  PathParams: GetUserByNamePathParams
-  Errors: GetUserByName400 | GetUserByName404
+export type GetUserByNameTypeQuery = {
+  Response: GetUserByName200Type
+  PathParams: GetUserByNamePathParamsType
+  Errors: GetUserByName400Type | GetUserByName404Type
 }

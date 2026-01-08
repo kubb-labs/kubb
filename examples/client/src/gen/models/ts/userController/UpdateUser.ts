@@ -21,7 +21,7 @@ export type UpdateUserError = any
 /**
  * @description Update an existent user in the store
  */
-export type UpdateUserMutationRequest = Omit<NonNullable<User>, 'tag'>
+export type UpdateUserMutationRequest = User
 
 export type UpdateUserMutationResponse = any
 

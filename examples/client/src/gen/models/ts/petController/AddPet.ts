@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
+import type { AddPetRequest } from '../AddPetRequest.js'
 import type { Pet } from '../Pet.js'
-import type { PostPetRequest } from '../PostPetRequest.js'
 
 /**
  * @description Successful operation
  */
-export type AddPet200 = Omit<NonNullable<Pet>, 'name'>
+export type AddPet200 = Pet
 
 /**
  * @description Pet not found
@@ -28,7 +28,7 @@ export type AddPet405 = {
 /**
  * @description Create a new pet in the store
  */
-export type AddPetMutationRequest = PostPetRequest
+export type AddPetMutationRequest = AddPetRequest
 
 export type AddPetMutationResponse = AddPet200
 

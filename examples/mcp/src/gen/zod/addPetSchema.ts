@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod'
+import { addPetRequestSchema } from './addPetRequestSchema.js'
 import { petSchema } from './petSchema.js'
-import { postPetRequestSchema } from './postPetRequestSchema.js'
 
 /**
  * @description Successful operation
@@ -23,6 +23,6 @@ export const addPet405Schema = z.object({
 /**
  * @description Create a new pet in the store
  */
-export const addPetMutationRequestSchema = z.lazy(() => postPetRequestSchema)
+export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema)
 
 export const addPetMutationResponseSchema = z.lazy(() => addPet200Schema)

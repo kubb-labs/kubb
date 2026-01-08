@@ -3,6 +3,6 @@
  * Do not edit manually.
  */
 
-import type { PhoneNumber } from './PhoneNumberType.ts'
+import type { PhoneNumberType } from './PhoneNumberType.ts'
 
-export type PhoneWithMaxLengthExplicit = PhoneNumber & string & string
+export type PhoneWithMaxLengthExplicitType = PhoneNumberType & string & string

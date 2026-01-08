@@ -6,33 +6,33 @@
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
-import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus.ts'
+import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus.ts'
 
-export const findPetsByStatusQueryKey = (step_id: FindPetsByStatusPathParams['step_id']) =>
-  [{ url: '/pet/findByStatus/:step_id', params: { step_id: step_id } }] as const
+export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
 
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * {@link /pet/findByStatus/:step_id}
+ * {@link /pet/findByStatus}
  */
-export async function findPetsByStatus(step_id: FindPetsByStatusPathParams['step_id'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
-    url: `/pet/findByStatus/${step_id}`,
+    url: '/pet/findByStatus',
+    params,
     ...requestConfig,
   })
   return res.data
 }
 
-export function findPetsByStatusQueryOptions(step_id: FindPetsByStatusPathParams['step_id'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   return {
     fetcher: async () => {
-      return findPetsByStatus(step_id, config)
+      return findPetsByStatus(params, config)
     },
   }
 }
@@ -40,10 +40,10 @@ export function findPetsByStatusQueryOptions(step_id: FindPetsByStatusPathParams
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * {@link /pet/findByStatus/:step_id}
+ * {@link /pet/findByStatus}
  */
 export function useFindPetsByStatus(
-  step_id: FindPetsByStatusPathParams['step_id'],
+  params?: FindPetsByStatusQueryParams,
   options: {
     query?: Parameters<typeof useSWR<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -53,10 +53,10 @@ export function useFindPetsByStatus(
 ) {
   const { query: queryOptions, client: config = {}, shouldFetch = true, immutable } = options ?? {}
 
-  const queryKey = findPetsByStatusQueryKey(step_id)
+  const queryKey = findPetsByStatusQueryKey(params)
 
   return useSWR<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryKey | null>(shouldFetch ? queryKey : null, {
-    ...findPetsByStatusQueryOptions(step_id, config),
+    ...findPetsByStatusQueryOptions(params, config),
     ...(immutable
       ? {
           revalidateIfStale: false,

@@ -5,11 +5,21 @@
 
 import type { Pet } from '../Pet.js'
 
-export type FindPetsByStatusPathParams = {
+export const findPetsByStatusQueryParamsStatusEnum = {
+  available: 'available',
+  pending: 'pending',
+  sold: 'sold',
+} as const
+
+export type FindPetsByStatusQueryParamsStatusEnumKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
+
+export type FindPetsByStatusQueryParams = {
   /**
-   * @type string
+   * @description Status values that need to be considered for filter
+   * @default "available"
+   * @type string | undefined
    */
-  step_id: string
+  status?: FindPetsByStatusQueryParamsStatusEnumKey
 }
 
 /**
@@ -26,6 +36,6 @@ export type FindPetsByStatusQueryResponse = FindPetsByStatus200
 
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatus200
-  PathParams: FindPetsByStatusPathParams
+  QueryParams: FindPetsByStatusQueryParams
   Errors: FindPetsByStatus400
 }

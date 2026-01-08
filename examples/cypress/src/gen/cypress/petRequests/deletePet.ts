@@ -13,7 +13,7 @@ export function deletePet(
   return cy
     .request<DeletePetMutationResponse>({
       method: 'delete',
-      url: `http://localhost:3000/pet/${petId}:search`,
+      url: `http://localhost:3000/pet/${petId}`,
       headers,
       ...options,
     })

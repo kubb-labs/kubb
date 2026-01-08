@@ -7,16 +7,10 @@
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
 import { buildFormData } from '../../../.kubb/config.js'
-import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../../models/ts/petController/AddFiles.js'
 import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet.js'
 import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet.js'
-import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.js'
-import type {
-  FindPetsByTags400,
-  FindPetsByTagsHeaderParams,
-  FindPetsByTagsQueryParams,
-  FindPetsByTagsQueryResponse,
-} from '../../../models/ts/petController/FindPetsByTags.js'
+import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.js'
+import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../../models/ts/petController/FindPetsByTags.js'
 import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById.js'
 import type {
   UpdatePet400,
@@ -92,13 +86,14 @@ export class Pet {
   /**
    * @description Multiple status values can be provided with comma separated strings
    * @summary Finds Pets by status
-   * {@link /pet/findByStatus/:step_id}
+   * {@link /pet/findByStatus}
    */
-  async findPetsByStatus({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
       method: 'GET',
-      url: `/pet/findByStatus/${step_id}`,
+      url: '/pet/findByStatus',
+      params,
       ...requestConfig,
     })
     return res.data
@@ -109,18 +104,13 @@ export class Pet {
    * @summary Finds Pets by tags
    * {@link /pet/findByTags}
    */
-  async findPetsByTags(
-    headers: FindPetsByTagsHeaderParams,
-    params?: FindPetsByTagsQueryParams,
-    config: Partial<RequestConfig> & { client?: typeof fetch } = {},
-  ) {
+  async findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
       method: 'GET',
       url: '/pet/findByTags',
       params,
       ...requestConfig,
-      headers: { ...headers, ...requestConfig.headers },
     })
     return res.data
   }
@@ -128,13 +118,13 @@ export class Pet {
   /**
    * @description Returns a single pet
    * @summary Find pet by ID
-   * {@link /pet/:petId:search}
+   * {@link /pet/:petId}
    */
   async getPetById({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
       method: 'GET',
-      url: `/pet/${petId}:search`,
+      url: `/pet/${petId}`,
       ...requestConfig,
     })
     return res.data
@@ -142,7 +132,7 @@ export class Pet {
 
   /**
    * @summary Updates a pet in the store with form data
-   * {@link /pet/:petId:search}
+   * {@link /pet/:petId}
    */
   async updatePetWithForm(
     { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
@@ -152,7 +142,7 @@ export class Pet {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
       method: 'POST',
-      url: `/pet/${petId}:search`,
+      url: `/pet/${petId}`,
       params,
       ...requestConfig,
     })
@@ -162,7 +152,7 @@ export class Pet {
   /**
    * @description delete a pet
    * @summary Deletes a pet
-   * {@link /pet/:petId:search}
+   * {@link /pet/:petId}
    */
   async deletePet(
     { petId }: { petId: DeletePetPathParams['petId'] },
@@ -172,32 +162,9 @@ export class Pet {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
       method: 'DELETE',
-      url: `/pet/${petId}:search`,
+      url: `/pet/${petId}`,
       ...requestConfig,
       headers: { ...headers, ...requestConfig.headers },
-    })
-    return res.data
-  }
-
-  /**
-   * @description Place a new file in the store
-   * @summary Place an file for a pet
-   * {@link /pet/files}
-   */
-  async addFiles(
-    data: AddFilesMutationRequest,
-    config: Partial<RequestConfig<AddFilesMutationRequest>> & {
-      client?: typeof fetch
-    } = {},
-  ) {
-    const { client: request = this.#client, ...requestConfig } = config
-    const requestData = data
-    const formData = buildFormData(requestData)
-    const res = await request<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({
-      method: 'POST',
-      url: '/pet/files',
-      data: formData as FormData,
-      ...requestConfig,
     })
     return res.data
   }
@@ -208,7 +175,7 @@ export class Pet {
    */
   async uploadFile(
     { petId }: { petId: UploadFilePathParams['petId'] },
-    data?: UploadFileMutationRequest,
+    data: UploadFileMutationRequest,
     params?: UploadFileQueryParams,
     config: Partial<RequestConfig<UploadFileMutationRequest>> & {
       client?: typeof fetch
@@ -216,16 +183,13 @@ export class Pet {
   ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
+    const formData = buildFormData(requestData)
     const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
       method: 'POST',
       url: `/pet/${petId}/uploadImage`,
       params,
-      data: requestData,
+      data: formData as FormData,
       ...requestConfig,
-      headers: {
-        'Content-Type': 'application/octet-stream',
-        ...requestConfig.headers,
-      },
     })
     return res.data
   }

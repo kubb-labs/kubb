@@ -25,10 +25,8 @@ export default defineConfig([
           path: './ts',
         },
         transformers: {
-          name: (name, type) => {
-            if (type === 'file') {
-              return `${name}Type`
-            }
+          name: (name, _type) => {
+            return `${name}Type`
           },
         },
       }),

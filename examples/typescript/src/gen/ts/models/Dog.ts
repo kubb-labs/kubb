@@ -3,17 +3,14 @@
  * Do not edit manually.
  */
 
-import type { Image } from './Image.ts'
-
 export type Dog = {
   /**
    * @minLength 1
-   * @type string
+   * @type string | undefined
    */
-  readonly type: string
+  readonly type?: string
   /**
-   * @type string
+   * @type string | undefined
    */
-  name: string
-  readonly image?: Image
+  bark?: string
 }

@@ -1,3 +1,4 @@
+export { addPetRequestSchema } from './zod/addPetRequestSchema.ts'
 export {
   addPet200Schema,
   addPet405Schema,
@@ -118,7 +119,6 @@ export {
   placeOrderMutationRequestSchema,
   placeOrderMutationResponseSchema,
 } from './zod/placeOrderSchema.ts'
-export { postPetRequestSchema } from './zod/postPetRequestSchema.ts'
 export { tagSchema } from './zod/tagSchema.ts'
 export {
   updatePet200Schema,

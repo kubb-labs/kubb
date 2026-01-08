@@ -20,34 +20,34 @@ import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
 import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/GetPetById.ts'
 
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId:search', params: { petId: petId } }] as const
+export const getPetByIdQueryKey = (pet_id: GetPetByIdPathParams['pet_id']) => [{ url: '/pet/:pet_id', params: { pet_id: pet_id } }] as const
 
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * {@link /pet/:petId:search}
+ * {@link /pet/:pet_id}
  */
-export async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function getPetById(pet_id: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
     method: 'GET',
-    url: `/pet/${petId}:search`,
+    url: `/pet/${pet_id}`,
     ...requestConfig,
   })
   return res.data
 }
 
-export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-  const queryKey = getPetByIdQueryKey(petId)
+export function getPetByIdQueryOptions(pet_id: GetPetByIdPathParams['pet_id'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const queryKey = getPetByIdQueryKey(pet_id)
   return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
-    enabled: !!petId,
+    enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getPetById(petId, config)
+      return getPetById(pet_id, config)
     },
   })
 }
@@ -55,10 +55,10 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], con
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * {@link /pet/:petId:search}
+ * {@link /pet/:pet_id}
  */
 export function createGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetPetByIdQueryResponse, TQueryKey extends QueryKey = GetPetByIdQueryKey>(
-  petId: GetPetByIdPathParams['petId'],
+  pet_id: GetPetByIdPathParams['pet_id'],
   options: {
     query?: Partial<CreateBaseQueryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
@@ -68,11 +68,11 @@ export function createGetPetById<TData = GetPetByIdQueryResponse, TQueryData = G
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
+  const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(pet_id)
 
   const query = createQuery(
     {
-      ...getPetByIdQueryOptions(petId, config),
+      ...getPetByIdQueryOptions(pet_id, config),
       queryKey,
       ...queryOptions,
     } as unknown as CreateBaseQueryOptions,

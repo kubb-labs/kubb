@@ -5,10 +5,6 @@
  */
 
 export const operations = {
-  createPets: {
-    path: '/pets/:uuid',
-    method: 'post',
-  },
   updatePet: {
     path: '/pet',
     method: 'put',
@@ -18,7 +14,7 @@ export const operations = {
     method: 'post',
   },
   findPetsByStatus: {
-    path: '/pet/findByStatus/:step_id',
+    path: '/pet/findByStatus',
     method: 'get',
   },
   findPetsByTags: {
@@ -26,20 +22,16 @@ export const operations = {
     method: 'get',
   },
   getPetById: {
-    path: '/pet/:petId:search',
+    path: '/pet/:petId',
     method: 'get',
   },
   updatePetWithForm: {
-    path: '/pet/:petId:search',
+    path: '/pet/:petId',
     method: 'post',
   },
   deletePet: {
-    path: '/pet/:petId:search',
+    path: '/pet/:petId',
     method: 'delete',
-  },
-  addFiles: {
-    path: '/pet/files',
-    method: 'post',
   },
   uploadFile: {
     path: '/pet/:petId/uploadImage',

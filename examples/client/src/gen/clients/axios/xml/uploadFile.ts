@@ -6,6 +6,7 @@
 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
+import { buildFormData } from '../../../.kubb/config.js'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -24,7 +25,7 @@ function getUploadFileUrlXML({ petId }: { petId: UploadFilePathParams['petId'] }
  */
 export async function uploadFileXML(
   { petId }: { petId: UploadFilePathParams['petId'] },
-  data?: UploadFileMutationRequest,
+  data: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
   config: Partial<RequestConfig<UploadFileMutationRequest>> & {
     client?: typeof fetch
@@ -33,17 +34,13 @@ export async function uploadFileXML(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
-
+  const formData = buildFormData(requestData)
   const res = await request<UploadFileMutationResponse, ResponseErrorConfig<Error>, UploadFileMutationRequest>({
     method: 'POST',
     url: getUploadFileUrlXML({ petId }).url.toString(),
     params,
-    data: requestData,
+    data: formData as FormData,
     ...requestConfig,
-    headers: {
-      'Content-Type': 'application/octet-stream',
-      ...requestConfig.headers,
-    },
   })
   return res.data
 }

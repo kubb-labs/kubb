@@ -21,13 +21,13 @@ export type GetPetByIdPathParams = {
    * @description ID of pet to return
    * @type integer, int64
    */
-  petId: number
+  pet_id: number
 }
 
 /**
  * @description successful operation
  */
-export type GetPetById200 = Omit<NonNullable<Pet>, 'name'>
+export type GetPetById200 = Pet
 
 /**
  * @description Invalid ID supplied

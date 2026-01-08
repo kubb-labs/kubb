@@ -12,6 +12,11 @@ export type {
   AddPetMutationRequest,
   AddPetMutationResponse,
 } from './AddPet.js'
+export type {
+  AddPetRequest,
+  AddPetRequestStatusEnumKey,
+} from './AddPetRequest.js'
+export { addPetRequestStatusEnum } from './AddPetRequest.js'
 export type { Address } from './Address.js'
 export type { ApiResponse } from './ApiResponse.js'
 export type { Category } from './Category.js'
@@ -144,11 +149,6 @@ export type {
   PlaceOrderPatchMutationRequest,
   PlaceOrderPatchMutationResponse,
 } from './PlaceOrderPatch.js'
-export type {
-  PostPetRequest,
-  PostPetRequestStatusEnumKey,
-} from './PostPetRequest.js'
-export { postPetRequestStatusEnum } from './PostPetRequest.js'
 export type { TagTag } from './tag/Tag.js'
 export type {
   UpdatePet200,

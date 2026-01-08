@@ -20,17 +20,17 @@ import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
 import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../models/DeletePet.ts'
 
-export const deletePetMutationKey = () => [{ url: '/pet/:petId:search' }] as const
+export const deletePetMutationKey = () => [{ url: '/pet/:pet_id' }] as const
 
 export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * {@link /pet/:petId:search}
+ * {@link /pet/:pet_id}
  */
 export async function deletePet(
-  petId: DeletePetPathParams['petId'],
+  pet_id: DeletePetPathParams['pet_id'],
   headers?: DeletePetHeaderParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -38,7 +38,7 @@ export async function deletePet(
 
   const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
-    url: `/pet/${petId}:search`,
+    url: `/pet/${pet_id}`,
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
@@ -48,14 +48,17 @@ export async function deletePet(
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * {@link /pet/:petId:search}
+ * {@link /pet/:pet_id}
  */
 export function createDeletePet<TContext>(
   options: {
     mutation?: CreateMutationOptions<
       DeletePetMutationResponse,
       ResponseErrorConfig<DeletePet400>,
-      { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
+      {
+        pet_id: DeletePetPathParams['pet_id']
+        headers?: DeletePetHeaderParams
+      },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -68,12 +71,12 @@ export function createDeletePet<TContext>(
   return createMutation<
     DeletePetMutationResponse,
     ResponseErrorConfig<DeletePet400>,
-    { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
+    { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },
     TContext
   >(
     {
-      mutationFn: async ({ petId, headers }) => {
-        return deletePet(petId, headers, config)
+      mutationFn: async ({ pet_id, headers }) => {
+        return deletePet(pet_id, headers, config)
       },
       mutationKey,
       ...mutationOptions,
