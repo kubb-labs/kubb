@@ -7,6 +7,28 @@ outline: deep
 
 ## Unreleased
 
+### ✨ Features
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+Added `arrayType` option to switch between `Array<Type>` and `Type[]` syntax for array types.
+
+::: code-group
+
+```typescript [array (default)]
+type Pet = {
+  tags: string[]
+}
+```
+
+```typescript [generic]
+type Pet = {
+  tags: Array<string>
+}
+```
+
+:::
+
 ### 🚀 Performance Improvements
 
 Achieved 18-27% performance improvement for OpenAPI code generation through advanced optimizations including increased parallelism and schema caching.
