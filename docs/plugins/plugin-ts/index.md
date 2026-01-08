@@ -314,6 +314,31 @@ type Pet = {
 ```
 :::
 
+### arrayType
+
+Choose between `Array<Type>` or `Type[]` syntax for array types.
+
+|           |                         |
+|----------:|:------------------------|
+|     Type: | `'array' \| 'generic'`  |
+| Required: | `false`                 |
+|  Default: | `'array'`               |
+
+::: code-group
+
+```typescript ['array']
+type Pet = {
+  tags: string[]
+}
+```
+
+```typescript ['generic']
+type Pet = {
+  tags: Array<string>
+}
+```
+:::
+
 ### include
 <!--@include: ../core/include.md-->
 

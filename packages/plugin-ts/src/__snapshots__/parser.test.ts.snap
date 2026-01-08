@@ -2370,6 +2370,72 @@ TokenObject {
 }
 `;
 
+exports[`type parse > arrayType option > should create array syntax (string[]) when arrayType is "array" 1`] = `
+NodeObject {
+  "elementType": TokenObject {
+    "emitNode": undefined,
+    "end": -1,
+    "flags": 16,
+    "id": 0,
+    "kind": 154,
+    "parent": undefined,
+    "pos": -1,
+    "transformFlags": 1,
+  },
+  "emitNode": undefined,
+  "end": -1,
+  "flags": 16,
+  "id": 0,
+  "kind": 189,
+  "modifierFlagsCache": 0,
+  "original": undefined,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+}
+`;
+
+exports[`type parse > arrayType option > should create generic syntax (Array<string>) when arrayType is "generic" 1`] = `
+NodeObject {
+  "emitNode": undefined,
+  "end": -1,
+  "flags": 16,
+  "id": 0,
+  "kind": 184,
+  "modifierFlagsCache": 0,
+  "original": undefined,
+  "parent": undefined,
+  "pos": -1,
+  "transformFlags": 1,
+  "typeArguments": [
+    TokenObject {
+      "emitNode": undefined,
+      "end": -1,
+      "flags": 16,
+      "id": 0,
+      "kind": 154,
+      "parent": undefined,
+      "pos": -1,
+      "transformFlags": 1,
+    },
+  ],
+  "typeName": IdentifierObject {
+    "emitNode": undefined,
+    "end": -1,
+    "escapedText": "Array",
+    "flags": 16,
+    "flowNode": undefined,
+    "id": 0,
+    "jsDoc": undefined,
+    "kind": 80,
+    "parent": undefined,
+    "pos": -1,
+    "symbol": undefined,
+    "transformFlags": 0,
+  },
+}
+`;
+
 exports[`type parse > should preserve both unknown and null types in union 1`] = `
 NodeObject {
   "emitNode": undefined,
