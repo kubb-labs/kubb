@@ -102,16 +102,20 @@ export function createArrayDeclaration({ nodes, arrayType = 'array' }: { nodes: 
   }
 
   if (nodes.length === 1) {
-    if (arrayType === 'generic') {
-      return factory.createTypeReferenceNode(factory.createIdentifier('Array'), [nodes.at(0)!])
+    const node = nodes[0]
+    if (!node) {
+      return null
     }
-    return factory.createArrayTypeNode(nodes.at(0)!)
+    if (arrayType === 'generic') {
+      return factory.createTypeReferenceNode(factory.createIdentifier('Array'), [node])
+    }
+    return factory.createArrayTypeNode(node)
   }
 
   // For union types (multiple nodes), respect arrayType preference
   const unionType = factory.createUnionTypeNode(nodes)
   if (arrayType === 'generic') {
-    return factory.createExpressionWithTypeArguments(factory.createIdentifier('Array'), [unionType])
+    return factory.createTypeReferenceNode(factory.createIdentifier('Array'), [unionType])
   }
   // For array syntax with unions, we need parentheses: (string | number)[]
   return factory.createArrayTypeNode(factory.createParenthesizedType(unionType))
