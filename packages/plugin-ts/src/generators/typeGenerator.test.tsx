@@ -290,6 +290,16 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
+      name: 'EnumNamesInline',
+      input: '../../mocks/enums.yaml',
+      path: 'enumNames.Type',
+      options: {
+        enumType: 'asConst',
+        enumInline: true,
+        optionalType: 'questionToken',
+      },
+    },
+    {
       name: 'Body_upload_file_api_assets_post',
       input: '../../mocks/typeAssertions.yaml',
       path: 'Body_upload_file_api_assets_post',
@@ -465,6 +475,7 @@ describe('typeGenerator schema', async () => {
     const options: PluginTs['resolvedOptions'] = {
       enumType: 'asConst',
       enumSuffix: 'enum',
+      enumInline: false,
       dateType: 'string',
       transformers: {},
       unknownType: 'any',
@@ -609,6 +620,7 @@ describe('typeGenerator operation', async () => {
     const options: PluginTs['resolvedOptions'] = {
       enumType: 'asConst',
       enumSuffix: '',
+      enumInline: false,
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
