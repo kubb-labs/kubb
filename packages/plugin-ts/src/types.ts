@@ -97,6 +97,10 @@ export type Options = {
    * Define some generators next to the ts generators
    */
   generators?: Array<Generator<PluginTs>>
+  /**
+   * Unstable naming for v5
+   */
+  UNSTABLE_NAMING?: true
 }
 
 type ResolvedOptions = {

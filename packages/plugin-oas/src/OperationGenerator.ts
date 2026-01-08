@@ -26,6 +26,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
    */
   plugin: Plugin<TPluginOptions>
   mode: KubbFile.Mode
+  UNSTABLE_NAMING?: true
 }
 
 export class OperationGenerator<
@@ -126,7 +127,9 @@ export class OperationGenerator<
       const keys = resolveKeys(schema)
 
       return {
-        name: resolveName(transformers.pascalCase(`${operationId} status ${name}`)),
+        name: this.context.UNSTABLE_NAMING
+          ? resolveName(transformers.pascalCase(`${operationId} status ${name}`))
+          : resolveName(transformers.pascalCase(`${operationId} ${name}`)),
         description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
         schema,
         operation,
@@ -170,7 +173,9 @@ export class OperationGenerator<
         : undefined,
       request: requestSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operationId} RequestData`)),
+            name: this.context.UNSTABLE_NAMING
+              ? resolveName(transformers.pascalCase(`${operationId} RequestData`))
+              : resolveName(transformers.pascalCase(`${operationId} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`)),
             description: (operation.schema.requestBody as OasTypes.RequestBodyObject)?.description,
             operation,
             operationName,
@@ -180,7 +185,9 @@ export class OperationGenerator<
           }
         : undefined,
       response: {
-        name: resolveName(transformers.pascalCase(`${operationId} ResponseData`)),
+        name: this.context.UNSTABLE_NAMING
+          ? resolveName(transformers.pascalCase(`${operationId} ResponseData`))
+          : resolveName(transformers.pascalCase(`${operationId} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`)),
         operation,
         operationName,
         schema: {
