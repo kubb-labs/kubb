@@ -14,6 +14,86 @@ import { getUnknownType, keywordTypeNodes } from '../factory.ts'
 import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types'
 
+/**
+ * Converts a path like '/pet/{petId}/uploadImage' to a template literal type
+ * like `/pet/${string}/uploadImage`
+ */
+function createUrlTemplateType(path: string): ts.TypeNode {
+  // Check if path has parameters
+  if (!path.includes('{')) {
+    // No parameters, return literal string type
+    return factory.createLiteralTypeNode(factory.createStringLiteral(path))
+  }
+
+  // Split path into parts and parameter placeholders
+  const parts: string[] = []
+  const types: ts.TypeNode[] = []
+  
+  let currentPart = ''
+  let inParam = false
+  
+  for (let i = 0; i < path.length; i++) {
+    const char = path[i]
+    
+    if (char === '{') {
+      if (currentPart) {
+        parts.push(currentPart)
+        currentPart = ''
+      }
+      inParam = true
+    } else if (char === '}') {
+      inParam = false
+      // Add string type for the parameter
+      types.push(keywordTypeNodes.string)
+    } else if (!inParam) {
+      currentPart += char
+    }
+  }
+  
+  // Add remaining part
+  if (currentPart) {
+    parts.push(currentPart)
+  }
+
+  // Build template literal type
+  // For a path like '/pet/{petId}/uploadImage', we want:
+  // - head: '/pet/'
+  // - templateSpans: [{ type: string, literal: '/uploadImage' }]
+  
+  if (parts.length === 0) {
+    // Edge case: only parameters
+    parts.push('')
+  }
+
+  const head = ts.factory.createTemplateHead(parts[0] || '')
+  const templateSpans: ts.TemplateLiteralTypeSpan[] = []
+  
+  for (let i = 0; i < types.length; i++) {
+    const type = types[i]
+    const nextPart = parts[i + 1] || ''
+    
+    if (i < types.length - 1) {
+      // Middle span
+      templateSpans.push(
+        ts.factory.createTemplateLiteralTypeSpan(
+          type,
+          ts.factory.createTemplateMiddle(nextPart)
+        )
+      )
+    } else {
+      // Last span
+      templateSpans.push(
+        ts.factory.createTemplateLiteralTypeSpan(
+          type,
+          ts.factory.createTemplateTail(nextPart)
+        )
+      )
+    }
+  }
+
+  return ts.factory.createTemplateLiteralType(head, templateSpans)
+}
+
 function printRequestSchema({
   baseName,
   operation,
@@ -130,11 +210,11 @@ function printRequestSchema({
     )
   }
 
-  // Add url property with literal type
+  // Add url property with template literal type
   dataRequestProperties.push(
     factory.createPropertySignature({
       name: 'url',
-      type: factory.createLiteralTypeNode(factory.createStringLiteral(operation.path)),
+      type: createUrlTemplateType(operation.path),
     }),
   )
 
