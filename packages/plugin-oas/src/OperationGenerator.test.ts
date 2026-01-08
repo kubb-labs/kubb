@@ -382,3 +382,44 @@ describe('OperationGenerator include and exclude', async () => {
     expect(operations.map((op) => ({ path: op.path, method: op.method }))).toMatchSnapshot()
   })
 })
+
+describe('OperationGenerator unique response names', async () => {
+  const oas = await parseFromConfig({
+    root: './',
+    output: { path: 'test', clean: true },
+    input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
+  })
+
+  test('should generate unique names for response schemas when duplicates would occur', async () => {
+    const fabric = createReactFabric()
+
+    const og = new OperationGenerator(
+      {},
+      {
+        fabric,
+        oas,
+        include: undefined,
+        exclude: [],
+        pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as Plugin,
+        contentType: undefined,
+        override: undefined,
+        mode: 'split',
+      },
+    )
+
+    // Get schemas for two different operations that might have similar response names
+    const firstOperation = oas.operation('/pets', 'get')
+    const secondOperation = oas.operation('/pets/{petId}', 'get')
+
+    const firstSchemas = og.getSchemas(firstOperation)
+    const secondSchemas = og.getSchemas(secondOperation)
+
+    // Collect all response names
+    const allResponseNames = [...firstSchemas.statusCodes.map((sc) => sc.name), ...secondSchemas.statusCodes.map((sc) => sc.name)]
+
+    // Check that all names are unique
+    const uniqueNames = new Set(allResponseNames)
+    expect(uniqueNames.size).toBe(allResponseNames.length)
+  })
+})
