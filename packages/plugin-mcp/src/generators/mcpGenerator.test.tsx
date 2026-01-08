@@ -1,5 +1,6 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
@@ -9,6 +10,9 @@ import { describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginMcp } from '../types.ts'
 import { mcpGenerator } from './mcpGenerator.tsx'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 describe('mcpGenerator operation', async () => {
   const testData = [

@@ -1,9 +1,13 @@
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, test } from 'vitest'
 import { clean } from './clean.ts'
 import { read, readSync } from './read.ts'
 import { getRelativePath } from './utils.ts'
 import { write } from './write.ts'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 describe('read', () => {
   const mocksPath = path.resolve(__dirname, '../../mocks')

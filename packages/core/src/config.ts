@@ -24,7 +24,6 @@ export type CLIOptions = {
   /** Run Kubb with Bun */
   bun?: boolean
 }
-
 /**
  * Helper for defining a Kubb configuration.
  *

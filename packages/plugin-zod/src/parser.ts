@@ -608,7 +608,8 @@ export const parse = createParser<string, ParserOptions>({
           const mappedName = nameSchema?.args || propertyName
 
           // custom mapper(pluginOptions)
-          if (options.mapper?.[mappedName]) {
+          // Use Object.hasOwn to avoid matching inherited properties like 'toString', 'valueOf', etc.
+          if (options.mapper && Object.hasOwn(options.mapper, mappedName)) {
             return `"${propertyName}": ${options.mapper?.[mappedName]}`
           }
 

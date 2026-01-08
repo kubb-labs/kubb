@@ -1,7 +1,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { OasTypes } from '@kubb/oas'
 import pkg from 'handlebars'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 type BuildDocsOptions = {
   title?: string

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-oas",
-  "version": "4.12.15",
+  "version": "4.13.1",
   "description": "OpenAPI Specification (OAS) plugin for Kubb, providing core functionality for parsing and processing OpenAPI/Swagger schemas for code generation.",
   "keywords": [
     "openapi",
@@ -97,7 +97,7 @@
     "remeda": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.8.0"
+    "@kubb/react-fabric": "0.9.2"
   },
   "engines": {
     "node": ">=20"

@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { ZodOpenAPIMetadata } from '@asteasolutions/zod-to-openapi'
 import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod, SchemaObject } from '@kubb/oas'
@@ -10,6 +11,9 @@ import { describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginZod } from '../types.ts'
 import { zodGenerator } from './zodGenerator.tsx'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 describe('zodGenerator schema', async () => {
   const testData = [

@@ -1,8 +1,12 @@
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { OasTypes } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { describe, expect, it } from 'vitest'
 import { getSchemas } from './getSchemas.ts'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 describe('getSchemas', () => {
   it('should return schemas from components.schemas', async () => {
@@ -20,7 +24,10 @@ describe('getSchemas', () => {
           GetUserResponse: {
             content: {
               'application/json': {
-                schema: { type: 'object', properties: { id: { type: 'string' } } },
+                schema: {
+                  type: 'object',
+                  properties: { id: { type: 'string' } },
+                },
               },
             },
           },
@@ -40,7 +47,10 @@ describe('getSchemas', () => {
           CreateUserRequest: {
             content: {
               'application/json': {
-                schema: { type: 'object', properties: { username: { type: 'string' } } },
+                schema: {
+                  type: 'object',
+                  properties: { username: { type: 'string' } },
+                },
               },
             },
           },
@@ -106,10 +116,16 @@ describe('getSchemas', () => {
           TestResponse: {
             content: {
               'application/xml': {
-                schema: { type: 'object', properties: { xml: { type: 'string' } } },
+                schema: {
+                  type: 'object',
+                  properties: { xml: { type: 'string' } },
+                },
               },
               'application/json': {
-                schema: { type: 'object', properties: { json: { type: 'boolean' } } },
+                schema: {
+                  type: 'object',
+                  properties: { json: { type: 'boolean' } },
+                },
               },
             },
           },
@@ -127,7 +143,10 @@ describe('getSchemas', () => {
   })
 
   it('should skip missing components', async () => {
-    const oas = await parse({ openapi: '3.0.0', components: {} } as unknown as OasTypes.OASDocument)
+    const oas = await parse({
+      openapi: '3.0.0',
+      components: {},
+    } as unknown as OasTypes.OASDocument)
     const result = getSchemas({ oas })
 
     expect(result).toEqual({})

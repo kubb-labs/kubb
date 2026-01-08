@@ -35,6 +35,6 @@
       "unplugin-kubb": ["packages/unplugin/src/index.ts"]
     }
   },
-  "include": ["./package.json", "./tsdown.config.ts", "./vitest.config.ts", "./src/**/*"],
+  "include": ["./package.json", "./tsdown.config.ts", "./vitest.config.ts", "./src/**/*", "tests"],
   "exclude": ["node_modules", "dist", "tmp", "coverage", "**/__snapshots__/**"]
 }

@@ -244,8 +244,9 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
           const mappedName = nameSchema?.args || name
 
           // custom mapper(pluginOptions)
-          if (options.mapper?.[mappedName]) {
-            return options.mapper?.[mappedName]
+          // Use Object.hasOwn to avoid matching inherited properties like 'toString', 'valueOf', etc.
+          if (options.mapper && Object.hasOwn(options.mapper, mappedName)) {
+            return options.mapper[mappedName]
           }
 
           const isNullish = schemas.some((schema) => schema.keyword === schemaKeywords.nullish)

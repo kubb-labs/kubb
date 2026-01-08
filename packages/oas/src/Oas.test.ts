@@ -1,10 +1,13 @@
 import path from 'node:path'
-
+import { fileURLToPath } from 'node:url'
 import yaml from '@stoplight/yaml'
 import { describe, expect, test } from 'vitest'
 import { Oas } from './Oas.ts'
 import type { Document, SchemaObject } from './types.ts'
 import { parse } from './utils.ts'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 describe('[oas] filter', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')

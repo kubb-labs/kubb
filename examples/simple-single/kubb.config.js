@@ -19,9 +19,11 @@ export default defineConfig([
       extension: {
         '.ts': '',
       },
+      format: 'auto',
+      lint: 'auto',
     },
     hooks: {
-      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+      done: ['npm run typecheck'],
     },
     plugins: [
       pluginOas({
@@ -43,28 +45,6 @@ export default defineConfig([
       pluginZod({
         output: {
           path: './zod.ts',
-        },
-        operations: false,
-      }),
-    ],
-  },
-  {
-    name: 'openapi3',
-    root: '.',
-    input: {
-      path: 'https://docs.machines.dev/spec/openapi3.json',
-    },
-    output: {
-      path: './src/gen2',
-      barrelType: false,
-      clean: true,
-    },
-    plugins: [
-      pluginOas({ validate: false, generators: [] }),
-      pluginZod({
-        output: {
-          path: 'zod.ts',
-          barrelType: false,
         },
         operations: false,
       }),

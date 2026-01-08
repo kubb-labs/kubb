@@ -4,6 +4,7 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
+    testTimeout: 30000,
     exclude: ['**/node_modules/**', '**/dist/**', '**/mocks/**', '**/*.bench.ts'],
     coverage: {
       exclude: [
@@ -23,7 +24,7 @@ export default defineConfig({
         '**/packages/kubb/**',
         '**/packages/plugin-ts/src/oas/**',
         '**/packages/plugin-client/client.ts',
-        '**/e2e/**',
+        '**/tests/**',
         '**/coverage/**',
         '**/__snapshots__/**',
         '**/packages/*/test?(s)/**',

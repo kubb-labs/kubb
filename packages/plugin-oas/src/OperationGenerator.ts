@@ -220,8 +220,11 @@ export class OperationGenerator<
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const operations = await this.getOperations()
 
-    const generatorLimit = pLimit(1)
-    const operationLimit = pLimit(10)
+    // Increased parallelism for better performance
+    // - generatorLimit increased from 1 to 3 to allow parallel generator processing
+    // - operationLimit increased from 10 to 30 to process more operations concurrently
+    const generatorLimit = pLimit(3)
+    const operationLimit = pLimit(30)
 
     this.context.events?.emit('debug', {
       date: new Date(),

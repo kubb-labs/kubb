@@ -1,0 +1,59 @@
+{
+  "name": "e2e",
+  "version": "0.0.0",
+  "private": true,
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubb-labs/kubb.git",
+    "directory": "tests/e2e"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "clean": "npx rimraf ./dist",
+    "format": "echo 'empty'",
+    "generate": "kubb generate",
+    "generate:petstore": "kubb generate --config kubb-petstore.config.js",
+    "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "@kubb/cli": "workspace:*",
+    "@kubb/core": "workspace:*",
+    "@kubb/plugin-client": "workspace:*",
+    "@kubb/plugin-cypress": "workspace:*",
+    "@kubb/plugin-faker": "workspace:*",
+    "@kubb/plugin-msw": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
+    "@kubb/plugin-react-query": "workspace:*",
+    "@kubb/plugin-swr": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
+    "@kubb/plugin-zod": "workspace:*",
+    "@kubb/react-fabric": "catalog:",
+    "@tanstack/react-query": "^5.90.16",
+    "@tanstack/solid-query": "^5.90.19",
+    "@tanstack/svelte-query": "^5.90.2",
+    "@tanstack/vue-query": "^5.92.5",
+    "axios": "^1.13.2",
+    "cypress": "~14.2.1",
+    "msw": "^2.12.7",
+    "react": "^18.3.1",
+    "solid-js": "^1.9.10",
+    "svelte": "^4.2.20",
+    "swr": "^2.3.8",
+    "vue": "^3.5.26",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  },
+  "packageManager": "pnpm@10.18.3",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10.0.0"
+  }
+}

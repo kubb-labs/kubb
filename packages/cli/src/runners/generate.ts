@@ -4,6 +4,8 @@ import process from 'node:process'
 import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import pc from 'picocolors'
+import { detectFormatter } from '../utils/detectFormatter.ts'
+import { detectLinter } from '../utils/detectLinter.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
 
 type GenerateProps = {
@@ -94,69 +96,92 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
   if (config.output.format) {
     await events.emit('format:start')
 
-    await events.emit(
-      'info',
-      [
-        `Formatting with ${pc.dim(config.output.format as string)}`,
-        logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
-      ]
-        .filter(Boolean)
-        .join(' '),
-    )
-
-    if (config.output.format === 'prettier') {
-      try {
-        const hookId = createHash('sha256').update([config.name, config.output.format].filter(Boolean).join('-')).digest('hex')
-        await events.emit('hook:start', {
-          id: hookId,
-          command: 'prettier',
-          args: ['--ignore-unknown', '--write', path.resolve(config.root, config.output.path)],
-        })
-
-        await events.onOnce('hook:end', async () => {
-          await events.emit(
-            'success',
-            [
-              `Formatting with ${pc.dim(config.output.format as string)}`,
-              logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
-              'successfully',
-            ]
-              .filter(Boolean)
-              .join(' '),
-          )
-        })
-      } catch (caughtError) {
-        await events.emit('error', caughtError as Error)
+    // Detect formatter if set to 'auto'
+    let formatter = config.output.format
+    if (formatter === 'auto') {
+      const detectedFormatter = await detectFormatter()
+      if (!detectedFormatter) {
+        await events.emit('warn', 'No formatter found (biome or prettier). Skipping formatting.')
+      } else {
+        formatter = detectedFormatter
+        await events.emit('info', `Auto-detected formatter: ${pc.dim(formatter)}`)
       }
-
-      await events.emit('success', `Formatted with ${config.output.format}`)
     }
 
-    if (config.output.format === 'biome') {
-      try {
-        const hookId = createHash('sha256').update([config.name, config.output.format].filter(Boolean).join('-')).digest('hex')
-        await events.emit('hook:start', {
-          id: hookId,
-          command: 'biome',
-          args: ['format', '--write', path.resolve(config.root, config.output.path)],
-        })
+    // Only proceed with formatting if we have a valid formatter
+    if (formatter && formatter !== 'auto') {
+      await events.emit(
+        'info',
+        [
+          `Formatting with ${pc.dim(formatter as string)}`,
+          logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
+        ]
+          .filter(Boolean)
+          .join(' '),
+      )
 
-        await events.onOnce('hook:end', async () => {
-          await events.emit(
-            'success',
-            [
-              `Formatting with ${pc.dim(config.output.format as string)}`,
-              logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
-              'successfully',
-            ]
-              .filter(Boolean)
-              .join(' '),
-          )
-        })
-      } catch (caughtError) {
-        const error = new Error('Biome not found')
-        error.cause = caughtError
-        await events.emit('error', error)
+      if (formatter === 'prettier') {
+        try {
+          const hookId = createHash('sha256').update([config.name, formatter].filter(Boolean).join('-')).digest('hex')
+          await events.emit('hook:start', {
+            id: hookId,
+            command: 'prettier',
+            args: ['--ignore-unknown', '--write', path.resolve(config.root, config.output.path)],
+          })
+
+          await events.onOnce('hook:end', async ({ success, error }) => {
+            if (!success) {
+              throw error
+            }
+
+            await events.emit(
+              'success',
+              [
+                `Formatting with ${pc.dim(formatter as string)}`,
+                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
+                'successfully',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+          })
+        } catch (caughtError) {
+          await events.emit('error', caughtError as Error)
+        }
+
+        await events.emit('success', `Formatted with ${formatter}`)
+      }
+
+      if (formatter === 'biome') {
+        try {
+          const hookId = createHash('sha256').update([config.name, formatter].filter(Boolean).join('-')).digest('hex')
+          await events.emit('hook:start', {
+            id: hookId,
+            command: 'biome',
+            args: ['format', '--write', path.resolve(config.root, config.output.path)],
+          })
+
+          await events.onOnce('hook:end', async ({ success, error }) => {
+            if (!success) {
+              throw error
+            }
+
+            await events.emit(
+              'success',
+              [
+                `Formatting with ${pc.dim(formatter as string)}`,
+                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
+                'successfully',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+          })
+        } catch (caughtError) {
+          const error = new Error('Biome not found')
+          error.cause = caughtError
+          await events.emit('error', error)
+        }
       }
     }
 
@@ -167,97 +192,122 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
   if (config.output.lint) {
     await events.emit('lint:start')
 
-    await events.emit(
-      'info',
-      [
-        `Linting with ${pc.dim(config.output.lint as string)}`,
-        logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
-      ]
-        .filter(Boolean)
-        .join(' '),
-    )
-
-    if (config.output.lint === 'eslint') {
-      try {
-        const hookId = createHash('sha256').update([config.name, config.output.lint].filter(Boolean).join('-')).digest('hex')
-        await events.emit('hook:start', {
-          id: hookId,
-          command: 'eslint',
-          args: [path.resolve(config.root, config.output.path), '--fix'],
-        })
-
-        await events.onOnce('hook:end', async () => {
-          await events.emit(
-            'success',
-            [
-              `Linted with ${pc.dim(config.output.lint as string)}`,
-              logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
-              'successfully',
-            ]
-              .filter(Boolean)
-              .join(' '),
-          )
-        })
-      } catch (caughtError) {
-        const error = new Error('Eslint not found')
-        error.cause = caughtError
-        await events.emit('error', error)
+    // Detect linter if set to 'auto'
+    let linter = config.output.lint
+    if (linter === 'auto') {
+      const detectedLinter = await detectLinter()
+      if (!detectedLinter) {
+        await events.emit('warn', 'No linter found (biome, oxlint, or eslint). Skipping linting.')
+      } else {
+        linter = detectedLinter
+        await events.emit('info', `Auto-detected linter: ${pc.dim(linter)}`)
       }
     }
 
-    if (config.output.lint === 'biome') {
-      try {
-        const hookId = createHash('sha256').update([config.name, config.output.lint].filter(Boolean).join('-')).digest('hex')
-        await events.emit('hook:start', {
-          id: hookId,
-          command: 'biome',
-          args: ['lint', '--fix', path.resolve(config.root, config.output.path)],
-        })
+    // Only proceed with linting if we have a valid linter
+    if (linter && linter !== 'auto') {
+      await events.emit(
+        'info',
+        [`Linting with ${pc.dim(linter as string)}`, logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined]
+          .filter(Boolean)
+          .join(' '),
+      )
 
-        await events.onOnce('hook:end', async () => {
-          await events.emit(
-            'success',
-            [
-              `Linted with ${pc.dim(config.output.lint as string)}`,
-              logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
-              'successfully',
-            ]
-              .filter(Boolean)
-              .join(' '),
-          )
-        })
-      } catch (caughtError) {
-        const error = new Error('Biome not found')
-        error.cause = caughtError
-        await events.emit('error', error)
+      if (linter === 'eslint') {
+        try {
+          const hookId = createHash('sha256').update([config.name, linter].filter(Boolean).join('-')).digest('hex')
+          await events.emit('hook:start', {
+            id: hookId,
+            command: 'eslint',
+            args: [path.resolve(config.root, config.output.path), '--fix'],
+          })
+
+          await events.onOnce('hook:end', async ({ success, error }) => {
+            if (!success) {
+              throw error
+            }
+
+            await events.emit(
+              'success',
+              [
+                `Linted with ${pc.dim(linter as string)}`,
+                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
+                'successfully',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+          })
+        } catch (caughtError) {
+          const error = new Error('Eslint not found')
+          error.cause = caughtError
+          await events.emit('error', error)
+        }
       }
-    }
 
-    if (config.output.lint === 'oxlint') {
-      try {
-        const hookId = createHash('sha256').update([config.name, config.output.lint].filter(Boolean).join('-')).digest('hex')
-        await events.emit('hook:start', {
-          id: hookId,
-          command: 'oxlint',
-          args: ['--fix', path.resolve(config.root, config.output.path)],
-        })
+      if (linter === 'biome') {
+        try {
+          const hookId = createHash('sha256').update([config.name, linter].filter(Boolean).join('-')).digest('hex')
+          await events.emit('hook:start', {
+            id: hookId,
+            command: 'biome',
+            args: ['lint', '--fix', path.resolve(config.root, config.output.path)],
+          })
 
-        await events.onOnce('hook:end', async () => {
-          await events.emit(
-            'success',
-            [
-              `Linted with ${pc.dim(config.output.lint as string)}`,
-              logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
-              'successfully',
-            ]
-              .filter(Boolean)
-              .join(' '),
-          )
-        })
-      } catch (caughtError) {
-        const error = new Error('Oxlint not found')
-        error.cause = caughtError
-        await events.emit('error', error)
+          await events.onOnce('hook:end', async ({ success, error }) => {
+            if (!success) {
+              throw error
+            }
+
+            await events.emit(
+              'success',
+              [
+                `Linted with ${pc.dim(linter as string)}`,
+                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
+                'successfully',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+          })
+        } catch (caughtError) {
+          const error = new Error('Biome not found')
+          error.cause = caughtError
+          await events.emit('error', error)
+        }
+      }
+
+      if (linter === 'oxlint') {
+        try {
+          const hookId = createHash('sha256').update([config.name, linter].filter(Boolean).join('-')).digest('hex')
+          await events.emit('hook:start', {
+            id: hookId,
+            command: 'oxlint',
+            args: ['--fix', path.resolve(config.root, config.output.path)],
+          })
+
+          await events.onOnce('hook:end', async ({ success, error }) => {
+            if (!success) {
+              throw error
+            }
+
+            await events.emit(
+              'success',
+              [
+                `Linted with ${pc.dim(linter as string)}`,
+                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
+                'successfully',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+          })
+        } catch (caughtError) {
+          const error = new Error('Oxlint not found')
+          error.cause = caughtError
+
+          await events.emit('error', error)
+        }
       }
     }
 

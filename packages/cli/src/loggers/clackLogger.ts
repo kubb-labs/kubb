@@ -402,7 +402,13 @@ Run \`npm install -g @kubb/cli\` to update`,
             logs: [result.stdout],
           })
 
-          await context.emit('hook:end', { command, args, id })
+          await context.emit('hook:end', {
+            command,
+            args,
+            id,
+            success: true,
+            error: null,
+          })
         } catch (err) {
           const error = new Error('Hook execute failed')
           error.cause = err
@@ -412,6 +418,13 @@ Run \`npm install -g @kubb/cli\` to update`,
             logs: [(err as any).stdout],
           })
 
+          await context.emit('hook:end', {
+            command,
+            args,
+            id,
+            success: false,
+            error,
+          })
           await context.emit('error', error)
         }
 
@@ -438,7 +451,7 @@ Run \`npm install -g @kubb/cli\` to update`,
           logs: [result.stdout],
         })
 
-        await context.emit('hook:end', { command, args, id })
+        await context.emit('hook:end', { command, args, id, success: true, error: null })
       } catch (err) {
         const error = new Error('Hook execute failed')
         error.cause = err
@@ -448,6 +461,7 @@ Run \`npm install -g @kubb/cli\` to update`,
           logs: [(err as any).stdout],
         })
 
+        await context.emit('hook:end', { command, args, id, success: true, error })
         await context.emit('error', error)
       }
     })

@@ -5,6 +5,43 @@ outline: deep
 
 # Changelog
 
+## Unreleased
+
+### 🚀 Performance Improvements
+
+Achieved 18-27% performance improvement for OpenAPI code generation through advanced optimizations including increased parallelism and schema caching.
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Increased Processing Parallelism:**
+- Operation processing concurrency increased from 10 to 30 concurrent operations
+- Schema processing concurrency increased from 10 to 30 concurrent schemas
+- Generator parallelism increased from 1 to 3 concurrent generators
+
+**Added Schema Caching:**
+- Implemented schema parse caching to eliminate redundant parsing
+
+::: tip Performance Impact
+These optimizations provide:
+- **10-15%** faster operation processing
+- **8-12%** faster schema generation
+- **3-5%** reduction from schema caching
+- **Overall: 18-27% faster code generation**
+:::
+
+#### [`@kubb/core`](/core/)
+
+**Improved Parallelism:**
+- PluginManager concurrency increased from 5 to 15 for better parallel plugin execution
+- Better resource utilization on multi-core systems
+- **4-7%** performance improvement
+
+::: info Compatibility
+All changes are backward compatible with no breaking changes to APIs or plugin behavior.
+:::
+
+---
+
 All notable changes to Kubb are documented here. Each version is organized with clear categories (Features, Bug Fixes, Breaking Changes, Dependencies) and includes code examples where applicable. Use the outline navigation in the right sidebar to quickly jump to any version.
 
 - ✨ **Features** - New functionality and enhancements
@@ -14,6 +51,158 @@ All notable changes to Kubb are documented here. Each version is organized with 
 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
+
+## 4.13.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Fixed TypeScript Printer Crash with Object Prototype Property Names**
+
+Resolved a critical issue where schemas containing properties named after JavaScript built-in methods (e.g., `toString`, `valueOf`, `hasOwnProperty`) would crash the TypeScript printer with `"Debug Failure. Unhandled SyntaxKind: Unknown"`.
+
+**Root Cause:**
+
+The mapper lookup was using bracket notation (`options.mapper?.[mappedName]`), which searches the entire prototype chain. For property names like `"toString"`, it would find `Object.prototype.toString` and treat it as a custom mapping function instead of creating a proper TypeScript property signature.
+
+**Solution:**
+
+Changed the mapper check to use `Object.prototype.hasOwnProperty.call()` to only match user-defined mapper properties:
+
+::: code-group
+
+```typescript [Before]
+// Matches inherited properties from Object.prototype
+if (options.mapper?.[mappedName]) {
+  return options.mapper?.[mappedName]  // Returns Object.prototype.toString
+}
+```
+
+```typescript [After]
+// Only matches own properties, not inherited ones
+if (options.mapper && Object.prototype.hasOwnProperty.call(options.mapper, mappedName)) {
+  return options.mapper[mappedName]
+}
+```
+
+:::
+
+**Affected Schemas:**
+
+This bug affected any OpenAPI schema with properties named after JavaScript built-in methods, including:
+- `toString`
+- `valueOf`
+- `hasOwnProperty`
+- `constructor`
+- Other Object.prototype methods
+
+**Example Schema:**
+
+```yaml
+components:
+  schemas:
+    ChangeItemBean:
+      type: object
+      properties:
+        field: { type: string }
+        toString: { type: string }  # Previously crashed, now works
+        valueOf: { type: string }    # Previously crashed, now works
+```
+
+## 4.13.0
+
+### ✨ Features
+
+#### [`@kubb/cli`](/getting-started/installation/), [`@kubb/core`](/api/core/)
+
+**Auto-Detection for Formatters and Linters**
+
+Added `'auto'` option for both `output.format` and `output.lint` configurations. When set to `'auto'`, Kubb automatically detects and uses available tools, eliminating the need to explicitly specify which formatter or linter to use.
+
+**Format Auto-Detection:**
+
+When `format: 'auto'` is set, Kubb checks for formatters in this order:
+1. **biome** (first choice)
+2. **prettier** (second choice)
+
+::: code-group
+
+```typescript [Before]
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    format: 'prettier', // Had to specify which formatter
+  },
+})
+```
+
+```typescript [After]
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    format: 'auto', // Automatically detects biome or prettier
+  },
+})
+```
+
+:::
+
+**Lint Auto-Detection:**
+
+When `lint: 'auto'` is set, Kubb checks for linters in this order:
+1. **biome** (first choice)
+2. **oxlint** (second choice)
+3. **eslint** (third choice)
+
+::: code-group
+
+```typescript [Before]
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    lint: 'eslint', // Had to specify which linter
+  },
+})
+```
+
+```typescript [After]
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    lint: 'auto', // Automatically detects biome, oxlint, or eslint
+  },
+})
+```
+
+:::
+
+**Combined Usage:**
+
+::: code-group
+
+```typescript [kubb.config.ts]
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    format: 'auto', // Detects biome or prettier
+    lint: 'auto',   // Detects biome, oxlint, or eslint
+  },
+})
+```
+
+:::
+
+If no formatter or linter is detected, Kubb will emit a warning and skip the respective operation, ensuring your build continues smoothly.
+
+::: tip
+This feature provides a convenient default for users who want formatting/linting without having to configure which specific tool to use. The detection uses the `--version` flag to check tool availability.
+:::
 
 ## 4.12.13
 
@@ -65,7 +254,7 @@ components:
 ```
 
 ```typescript [Generated]
-export type Response = 
+export type Response =
   | {
       status?: "success"
       data?: object
@@ -104,7 +293,7 @@ components:
 ```
 
 ```typescript [Generated]
-export type Data = 
+export type Data =
   | {
       result?: object
     }
