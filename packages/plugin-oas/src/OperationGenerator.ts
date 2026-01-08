@@ -32,9 +32,6 @@ export class OperationGenerator<
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
 > extends BaseGenerator<TPluginOptions['resolvedOptions'], Context<TPluginOptions['resolvedOptions'], TPluginOptions>> {
-  // Cache for operation schemas to avoid redundant schema parsing
-  #operationSchemasCache: Map<string, OperationSchemas> = new Map()
-
   #getOptions(operation: Operation, method: HttpMethod): Partial<TPluginOptions['resolvedOptions']> {
     const { override = [] } = this.context
     const operationId = operation.getOperationId({ friendlyCase: true })
@@ -115,15 +112,6 @@ export class OperationGenerator<
     } = {},
   ): OperationSchemas {
     const operationId = operation.getOperationId({ friendlyCase: true })
-
-    // Create cache key with safe delimiter (| cannot appear in these values)
-    // Format: "operationId|method|path" for collision-free caching
-    const cacheKey = `${operationId}|${operation.method}|${operation.path}`
-    const cached = this.#operationSchemasCache.get(cacheKey)
-    if (cached) {
-      return cached
-    }
-
     const method = operation.method
     const operationName = transformers.pascalCase(operationId)
 
@@ -153,7 +141,7 @@ export class OperationGenerator<
     const successful = statusCodes.filter((item) => item.statusCode?.toString().startsWith('2'))
     const errors = statusCodes.filter((item) => item.statusCode?.toString().startsWith('4') || item.statusCode?.toString().startsWith('5'))
 
-    const result: OperationSchemas = {
+    return {
       pathParams: pathParamsSchema
         ? {
             name: resolveName(transformers.pascalCase(`${operationId} PathParams`)),
@@ -204,11 +192,6 @@ export class OperationGenerator<
       errors,
       statusCodes,
     }
-
-    // Cache the result
-    this.#operationSchemasCache.set(cacheKey, result)
-
-    return result
   }
 
   async getOperations(): Promise<Array<{ path: string; method: HttpMethod; operation: Operation }>> {
