@@ -5,7 +5,7 @@ outline: deep
 
 # Changelog
 
-## Unreleased
+## 4.14.0
 
 ### ✨ Features
 
@@ -61,12 +61,6 @@ These optimizations provide:
 ::: info Compatibility
 All changes are backward compatible with no breaking changes to APIs or plugin behavior.
 :::
-
----
-
-## 4.14.0
-
-### ✨ Features
 
 #### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
 
