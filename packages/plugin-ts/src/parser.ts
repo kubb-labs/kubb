@@ -179,6 +179,7 @@ type ParserOptions = {
   /**
    * Inline enum types directly into the type instead of creating a separate type reference.
    * @default false
+   * @note In Kubb v5, this will be the default behavior (true).
    */
   enumInline?: boolean
   mapper?: Record<string, ts.PropertySignature>

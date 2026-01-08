@@ -175,6 +175,9 @@ When enabled, enum values will be inlined as literal union types in the property
 | Required: | `false`   |
 |  Default: | `false`   |
 
+> [!NOTE]
+> In Kubb v5, this will become the default behavior (`true`).
+
 ::: code-group
 
 ```typescript [false]

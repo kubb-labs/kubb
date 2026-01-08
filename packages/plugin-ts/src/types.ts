@@ -55,6 +55,7 @@ export type Options = {
    * Inline enum types directly into the interface/type instead of exporting them separately.
    * When enabled, enum values will be inlined as literal union types in the property definition.
    * @default false
+   * @note In Kubb v5, this will be the default behavior (true).
    */
   enumInline?: boolean
   /**
