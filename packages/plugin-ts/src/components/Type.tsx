@@ -22,18 +22,7 @@ type Props = {
   keysToOmit?: string[]
 }
 
-export function Type({
-  name,
-  typedName,
-  tree,
-  keysToOmit,
-  schema,
-  optionalType,
-  syntaxType,
-  enumType,
-  mapper,
-  description,
-}: Props): KubbNode {
+export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, syntaxType, enumType, mapper, description }: Props): KubbNode {
   const typeNodes: ts.Node[] = []
 
   if (!tree.length) {
