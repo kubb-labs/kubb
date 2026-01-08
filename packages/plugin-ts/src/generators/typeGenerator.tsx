@@ -142,7 +142,7 @@ function printCombinedSchema({
       })
 
       return factory.createPropertySignature({
-        name: res.statusCode?.toString() || 'default',
+        name: res.statusCode?.toString() ?? 'default',
         type: factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined),
       })
     })
