@@ -337,7 +337,10 @@ describe('PluginManager', () => {
         resolveName(name: string) {
           // Simulate pascalCase transformation that could create duplicates
           // e.g., "get-maintenance-200" -> "GetMaintenance200"
-          return name.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('')
+          return name
+            .split('-')
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join('')
         },
       }
     })
