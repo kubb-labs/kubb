@@ -4,6 +4,19 @@ import { createParser, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 import * as factory from './factory.ts'
 
+/**
+ * Helper function to get the TypeScript format for an enum value
+ */
+function getEnumValueFormat(value: unknown): 'number' | 'boolean' | 'string' {
+  if (typeof value === 'number') {
+    return 'number'
+  }
+  if (typeof value === 'boolean') {
+    return 'boolean'
+  }
+  return 'string'
+}
+
 export const typeKeywordMapper = {
   any: () => factory.keywordTypeNodes.any,
   unknown: () => factory.keywordTypeNodes.unknown,
@@ -207,7 +220,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
         const enumValues = current.args.items
           .map((item) => item.value)
           .filter((value) => value !== undefined)
-          .map((value) => typeKeywordMapper.const(value, typeof value === 'number' ? 'number' : typeof value === 'boolean' ? 'boolean' : 'string'))
+          .map((value) => typeKeywordMapper.const(value, getEnumValueFormat(value)))
           .filter(Boolean) as ts.TypeNode[]
 
         return typeKeywordMapper.union(enumValues)

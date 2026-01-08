@@ -137,6 +137,11 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
     }
   })
 
+  // Check if type should be exported
+  // When enumInline is true, always export the type
+  // When enumInline is false, export only if no enum has the same name as the type
+  const shouldExportType = enumInline || enums.every((item) => item.typeName !== name)
+
   return (
     <>
       {!enumInline &&
@@ -159,7 +164,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
             }
           </>
         ))}
-      {(enumInline || enums.every((item) => item.typeName !== name)) && (
+      {shouldExportType && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
           {safePrint(...typeNodes)}
         </File.Source>
