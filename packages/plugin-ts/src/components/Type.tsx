@@ -15,6 +15,7 @@ type Props = {
   schema: SchemaObject
   tree: Array<Schema>
   optionalType: PluginTs['resolvedOptions']['optionalType']
+  arrayType: PluginTs['resolvedOptions']['arrayType']
   enumType: PluginTs['resolvedOptions']['enumType']
   mapper: PluginTs['resolvedOptions']['mapper']
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
@@ -22,7 +23,7 @@ type Props = {
   keysToOmit?: string[]
 }
 
-export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, syntaxType, enumType, mapper, description }: Props): KubbNode {
+export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, arrayType, syntaxType, enumType, mapper, description }: Props): KubbNode {
   const typeNodes: ts.Node[] = []
 
   if (!tree.length) {
@@ -39,6 +40,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
           { name, schema, parent: undefined, current, siblings },
           {
             optionalType,
+            arrayType,
             enumType,
             mapper,
           },
@@ -59,7 +61,11 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
       type = factory.createTypeReferenceNode(typeNameWithKey)
 
       if (schema.type === 'array') {
-        type = factory.createArrayTypeNode(type)
+        if (arrayType === 'generic') {
+          type = factory.createTypeReferenceNode(factory.createIdentifier('Array'), [type])
+        } else {
+          type = factory.createArrayTypeNode(type)
+        }
       }
     }
   }

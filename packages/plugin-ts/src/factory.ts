@@ -96,12 +96,15 @@ export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Arra
   return node
 }
 
-export function createArrayDeclaration({ nodes }: { nodes: Array<ts.TypeNode> }): ts.TypeNode | null {
+export function createArrayDeclaration({ nodes, arrayType = 'array' }: { nodes: Array<ts.TypeNode>; arrayType?: 'array' | 'generic' }): ts.TypeNode | null {
   if (!nodes.length) {
     return factory.createTupleTypeNode([])
   }
 
   if (nodes.length === 1) {
+    if (arrayType === 'generic') {
+      return factory.createTypeReferenceNode(factory.createIdentifier('Array'), [nodes.at(0)!])
+    }
     return factory.createArrayTypeNode(nodes.at(0)!)
   }
 

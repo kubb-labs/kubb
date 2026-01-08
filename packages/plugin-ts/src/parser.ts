@@ -23,12 +23,12 @@ export const typeKeywordMapper = {
   nullable: undefined,
   null: () => factory.keywordTypeNodes.null,
   nullish: undefined,
-  array: (nodes?: ts.TypeNode[]) => {
+  array: (nodes?: ts.TypeNode[], arrayType?: 'array' | 'generic') => {
     if (!nodes) {
       return undefined
     }
 
-    return factory.createArrayDeclaration({ nodes })
+    return factory.createArrayDeclaration({ nodes, arrayType })
   },
   tuple: (nodes?: ts.TypeNode[], rest?: ts.TypeNode, min?: number, max?: number) => {
     if (!nodes) {
@@ -143,6 +143,10 @@ type ParserOptions = {
    */
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
   /**
+   * @default `'array'`
+   */
+  arrayType: 'array' | 'generic'
+  /**
    * Choose to use `enum`, `asConst`, `asPascalConst`, `constEnum`, `literal`, or `inlineLiteral` for enums.
    * - `enum`: TypeScript enum
    * - `asConst`: const with camelCase name (e.g., `petType`)
@@ -193,6 +197,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
 
       return typeKeywordMapper.array(
         current.args.items.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
+        options.arrayType,
       )
     },
     enum(tree, options) {
