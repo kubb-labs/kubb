@@ -152,7 +152,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   const pluginManager = new PluginManager(definedConfig, {
     fabric,
     events,
-    concurrency: 5,
+    concurrency: 15, // Increased from 5 to 15 for better parallel plugin execution
   })
 
   return {
