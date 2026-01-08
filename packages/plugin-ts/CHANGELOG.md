@@ -1,5 +1,16 @@
 # @kubb/plugin-ts
 
+## 4.14.1
+
+### Patch Changes
+
+- [#2288](https://github.com/kubb-labs/kubb/pull/2288) [`f66a49e`](https://github.com/kubb-labs/kubb/commit/f66a49e1a44726a1e8887df59ce531474deec7db) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add `arrayType` option to switch between `Array<Type>` and `Type[]` syntax for array types. Defaults to `'array'` (Type[] syntax).
+
+- Updated dependencies []:
+  - @kubb/core@4.14.1
+  - @kubb/oas@4.14.1
+  - @kubb/plugin-oas@4.14.1
+
 ## 4.14.0
 
 ### Minor Changes
