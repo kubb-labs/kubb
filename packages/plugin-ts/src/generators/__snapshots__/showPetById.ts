@@ -28,7 +28,7 @@ export type ShowPetByIdError = error
 
 export type ShowPetByIdQueryResponse = showPetById200
 
-export type showPetByIdQuery = {
+export type ShowPetByIdQuery = {
   Response: showPetById200
   PathParams: showPetByIdPathParams
   Errors: any

@@ -5,7 +5,7 @@
 
 export type DeletePetsPetidMutationResponse = any
 
-export type deletePetsPetidMutation = {
+export type DeletePetsPetidMutation = {
   Response: any
   Errors: any
 }
