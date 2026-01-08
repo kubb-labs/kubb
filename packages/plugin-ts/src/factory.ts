@@ -108,7 +108,13 @@ export function createArrayDeclaration({ nodes, arrayType = 'array' }: { nodes: 
     return factory.createArrayTypeNode(nodes.at(0)!)
   }
 
-  return factory.createExpressionWithTypeArguments(factory.createIdentifier('Array'), [factory.createUnionTypeNode(nodes)])
+  // For union types (multiple nodes), respect arrayType preference
+  const unionType = factory.createUnionTypeNode(nodes)
+  if (arrayType === 'generic') {
+    return factory.createExpressionWithTypeArguments(factory.createIdentifier('Array'), [unionType])
+  }
+  // For array syntax with unions, we need parentheses: (string | number)[]
+  return factory.createArrayTypeNode(factory.createParenthesizedType(unionType))
 }
 
 /**
@@ -642,6 +648,7 @@ export const createNumericLiteral = factory.createNumericLiteral
 export const createStringLiteral = factory.createStringLiteral
 
 export const createArrayTypeNode = factory.createArrayTypeNode
+export const createParenthesizedType = factory.createParenthesizedType
 
 export const createLiteralTypeNode = factory.createLiteralTypeNode
 export const createNull = factory.createNull
