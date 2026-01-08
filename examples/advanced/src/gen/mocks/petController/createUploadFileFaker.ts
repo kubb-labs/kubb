@@ -1,6 +1,6 @@
-import { faker } from '@faker-js/faker'
 import type { UploadFilePathParams, UploadFileQueryParams, UploadFileResponseData } from '../../models/ts/petController/UploadFile.ts'
 import { createApiResponseFaker } from '../createApiResponseFaker.ts'
+import { faker } from '@faker-js/faker'
 
 export function createUploadFilePathParamsFaker(data?: Partial<UploadFilePathParams>): UploadFilePathParams {
   return {

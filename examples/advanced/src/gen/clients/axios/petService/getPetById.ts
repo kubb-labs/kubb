@@ -1,7 +1,7 @@
-import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
-import type { GetPetByIdPathParams, GetPetByIdResponseData, GetPetByIdStatus400, GetPetByIdStatus404 } from '../../../models/ts/petController/GetPetById.ts'
-import { getPetByIdResponseDataSchema } from '../../../zod/petController/getPetByIdSchema.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { GetPetByIdResponseData, GetPetByIdPathParams, GetPetByIdStatus400, GetPetByIdStatus404 } from '../../../models/ts/petController/GetPetById.ts'
+import { getPetByIdResponseData2Schema } from '../../../zod/petController/getPetByIdSchema.ts'
 
 export function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
   const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/pet/${petId}:search` as const }
@@ -21,5 +21,5 @@ export async function getPetById({ petId }: { petId: GetPetByIdPathParams['petId
     url: getGetPetByIdUrl({ petId }).url.toString(),
     ...requestConfig,
   })
-  return { ...res, data: getPetByIdResponseDataSchema.parse(res.data) }
+  return { ...res, data: getPetByIdResponseData2Schema.parse(res.data) }
 }

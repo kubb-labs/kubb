@@ -1,6 +1,4 @@
-import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type {
   UpdatePetRequestData,
   UpdatePetResponseData,
@@ -8,6 +6,8 @@ import type {
   UpdatePetStatus404,
   UpdatePetStatus405,
 } from '../../models/ts/petController/UpdatePet.ts'
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**
  * @description Update an existing pet by Id

@@ -7,7 +7,7 @@ import type { QueryClient, UseMutationOptions } from '@tanstack/solid-query'
 import { useMutation } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { AddPetRequestData, AddPetResponseData, AddPetStatus405 } from '../models/AddPet.ts'
+import type { AddPetRequestData3, AddPetResponseData3, AddPetStatus4053 } from '../models/AddPet.ts'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
 
@@ -19,8 +19,8 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
  * {@link /pet}
  */
 export async function addPet(
-  data: AddPetRequestData,
-  config: Partial<RequestConfig<AddPetRequestData>> & {
+  data: AddPetRequestData3,
+  config: Partial<RequestConfig<AddPetRequestData3>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -28,7 +28,7 @@ export async function addPet(
 
   const requestData = data
 
-  const res = await request<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, AddPetRequestData>({
+  const res = await request<AddPetResponseData3, ResponseErrorConfig<AddPetStatus4053>, AddPetRequestData3>({
     method: 'POST',
     url: '/pet',
     data: requestData,
@@ -44,10 +44,10 @@ export async function addPet(
  */
 export function useAddPet<TContext>(
   options: {
-    mutation?: ReturnType<UseMutationOptions<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, { data: AddPetRequestData }, TContext>> & {
+    mutation?: ReturnType<UseMutationOptions<AddPetResponseData3, ResponseErrorConfig<AddPetStatus4053>, { data: AddPetRequestData3 }, TContext>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<AddPetRequestData>> & {
+    client?: Partial<RequestConfig<AddPetRequestData3>> & {
       client?: typeof fetch
     }
   } = {},
@@ -56,7 +56,7 @@ export function useAddPet<TContext>(
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions.mutationKey ?? addPetMutationKey()
 
-  return useMutation<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, { data: AddPetRequestData }, TContext>(
+  return useMutation<AddPetResponseData3, ResponseErrorConfig<AddPetStatus4053>, { data: AddPetRequestData3 }, TContext>(
     () => ({
       mutationFn: async ({ data }) => {
         return addPet(data, config)

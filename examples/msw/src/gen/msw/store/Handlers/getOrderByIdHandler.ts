@@ -4,9 +4,9 @@
  */
 
 import { http } from 'msw'
-import type { GetOrderByIdResponseData, GetOrderByIdStatus400, GetOrderByIdStatus404 } from '../../../models/GetOrderById.ts'
+import type { GetOrderByIdResponseData2, GetOrderByIdStatus4002, GetOrderByIdStatus4042 } from '../../../models/GetOrderById.ts'
 
-export function getOrderByIdHandlerResponse200(data: GetOrderByIdResponseData) {
+export function getOrderByIdHandlerResponse200(data: GetOrderByIdResponseData2) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -15,19 +15,21 @@ export function getOrderByIdHandlerResponse200(data: GetOrderByIdResponseData) {
   })
 }
 
-export function getOrderByIdHandlerResponse400(data?: GetOrderByIdStatus400) {
+export function getOrderByIdHandlerResponse400(data?: GetOrderByIdStatus4002) {
   return new Response(JSON.stringify(data), {
     status: 400,
   })
 }
 
-export function getOrderByIdHandlerResponse404(data?: GetOrderByIdStatus404) {
+export function getOrderByIdHandlerResponse404(data?: GetOrderByIdStatus4042) {
   return new Response(JSON.stringify(data), {
     status: 404,
   })
 }
 
-export function getOrderByIdHandler(data?: GetOrderByIdResponseData | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
+export function getOrderByIdHandler(
+  data?: GetOrderByIdResponseData2 | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>),
+) {
   return http.get('http://localhost:3000/store/order/:orderId', function handler(info) {
     if (typeof data === 'function') return data(info)
 

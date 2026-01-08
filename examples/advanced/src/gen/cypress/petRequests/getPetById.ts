@@ -1,4 +1,4 @@
-import type { GetPetByIdPathParams, GetPetByIdResponseData } from '../../models/ts/petController/GetPetById.ts'
+import type { GetPetByIdResponseData, GetPetByIdPathParams } from '../../models/ts/petController/GetPetById.ts'
 
 export function getPetById(petId: GetPetByIdPathParams['petId'], options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetPetByIdResponseData> {
   return cy

@@ -4,9 +4,9 @@
  */
 
 import { http } from 'msw'
-import type { OptionsFindPetsByStatusResponseData } from '../../../models/OptionsFindPetsByStatus.ts'
+import type { OptionsFindPetsByStatusResponseData2 } from '../../../models/OptionsFindPetsByStatus.ts'
 
-export function optionsFindPetsByStatusHandlerResponse200(data: OptionsFindPetsByStatusResponseData) {
+export function optionsFindPetsByStatusHandlerResponse200(data: OptionsFindPetsByStatusResponseData2) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -16,7 +16,7 @@ export function optionsFindPetsByStatusHandlerResponse200(data: OptionsFindPetsB
 }
 
 export function optionsFindPetsByStatusHandler(
-  data?: OptionsFindPetsByStatusResponseData | ((info: Parameters<Parameters<typeof http.options>[1]>[0]) => Response | Promise<Response>),
+  data?: OptionsFindPetsByStatusResponseData2 | ((info: Parameters<Parameters<typeof http.options>[1]>[0]) => Response | Promise<Response>),
 ) {
   return http.options('http://localhost:3000/pet/findByStatus', function handler(info) {
     if (typeof data === 'function') return data(info)

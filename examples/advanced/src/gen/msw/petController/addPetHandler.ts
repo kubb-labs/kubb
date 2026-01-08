@@ -1,7 +1,7 @@
+import type { AddPetResponseData2, AddPetStatus4052 } from '../../models/ts/petController/AddPet.ts'
 import { http } from 'msw'
-import type { AddPetResponseData, AddPetStatus405 } from '../../models/ts/petController/AddPet.ts'
 
-export function addPetHandlerResponse200(data: AddPetResponseData) {
+export function addPetHandlerResponse200(data: AddPetResponseData2) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -10,7 +10,7 @@ export function addPetHandlerResponse200(data: AddPetResponseData) {
   })
 }
 
-export function addPetHandlerResponse405(data: AddPetStatus405) {
+export function addPetHandlerResponse405(data: AddPetStatus4052) {
   return new Response(JSON.stringify(data), {
     status: 405,
     headers: {
@@ -19,7 +19,7 @@ export function addPetHandlerResponse405(data: AddPetStatus405) {
   })
 }
 
-export function addPetHandler(data?: AddPetResponseData | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
+export function addPetHandler(data?: AddPetResponseData2 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
   return http.post('/pet', function handler(info) {
     if (typeof data === 'function') return data(info)
 

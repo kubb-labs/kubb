@@ -4,90 +4,95 @@
  */
 
 import type { z } from '../../zod.ts'
-import { addPetRequestDataSchema, addPetResponseDataSchema, addPetStatus200Schema, addPetStatus405Schema } from './addPetSchema.gen.ts'
+import { addPetRequestData2Schema, addPetResponseData2Schema, addPetStatus2002Schema, addPetStatus4052Schema } from './addPetSchema.gen.ts'
 import {
-  createPetsHeaderParamsSchema,
-  createPetsPathParamsSchema,
-  createPetsQueryParamsSchema,
-  createPetsRequestDataSchema,
-  createPetsResponseDataSchema,
-  createPetsStatus201Schema,
+  createPetsHeaderParams2Schema,
+  createPetsPathParams2Schema,
+  createPetsQueryParams2Schema,
+  createPetsRequestData2Schema,
+  createPetsResponseData2Schema,
+  createPetsStatus2012Schema,
 } from './createPetsSchema.gen.ts'
-import { createUserRequestDataSchema, createUserResponseDataSchema } from './createUserSchema.gen.ts'
+import { createUserRequestData2Schema, createUserResponseData2Schema } from './createUserSchema.gen.ts'
 import {
-  createUsersWithListInputRequestDataSchema,
-  createUsersWithListInputResponseDataSchema,
-  createUsersWithListInputStatus200Schema,
+  createUsersWithListInputRequestData2Schema,
+  createUsersWithListInputResponseData2Schema,
+  createUsersWithListInputStatus2002Schema,
 } from './createUsersWithListInputSchema.gen.ts'
-import { deleteOrderPathParamsSchema, deleteOrderResponseDataSchema, deleteOrderStatus400Schema, deleteOrderStatus404Schema } from './deleteOrderSchema.gen.ts'
-import { deletePetHeaderParamsSchema, deletePetPathParamsSchema, deletePetResponseDataSchema, deletePetStatus400Schema } from './deletePetSchema.gen.ts'
-import { deleteUserPathParamsSchema, deleteUserResponseDataSchema, deleteUserStatus400Schema, deleteUserStatus404Schema } from './deleteUserSchema.gen.ts'
 import {
-  findPetsByStatusQueryParamsSchema,
-  findPetsByStatusResponseDataSchema,
-  findPetsByStatusStatus200Schema,
-  findPetsByStatusStatus400Schema,
+  deleteOrderPathParams2Schema,
+  deleteOrderResponseData2Schema,
+  deleteOrderStatus4002Schema,
+  deleteOrderStatus4042Schema,
+} from './deleteOrderSchema.gen.ts'
+import { deletePetHeaderParams2Schema, deletePetPathParams2Schema, deletePetResponseData2Schema, deletePetStatus4002Schema } from './deletePetSchema.gen.ts'
+import { deleteUserPathParams2Schema, deleteUserResponseData2Schema, deleteUserStatus4002Schema, deleteUserStatus4042Schema } from './deleteUserSchema.gen.ts'
+import {
+  findPetsByStatusQueryParams2Schema,
+  findPetsByStatusResponseData2Schema,
+  findPetsByStatusStatus2002Schema,
+  findPetsByStatusStatus4002Schema,
 } from './findPetsByStatusSchema.gen.ts'
 import {
-  findPetsByTagsHeaderParamsSchema,
-  findPetsByTagsQueryParamsSchema,
-  findPetsByTagsResponseDataSchema,
-  findPetsByTagsStatus200Schema,
-  findPetsByTagsStatus400Schema,
+  findPetsByTagsHeaderParams2Schema,
+  findPetsByTagsQueryParams2Schema,
+  findPetsByTagsResponseData2Schema,
+  findPetsByTagsStatus2002Schema,
+  findPetsByTagsStatus4002Schema,
 } from './findPetsByTagsSchema.gen.ts'
-import { getInventoryResponseDataSchema, getInventoryStatus200Schema } from './getInventorySchema.gen.ts'
+import { getInventoryResponseData2Schema, getInventoryStatus2002Schema } from './getInventorySchema.gen.ts'
 import {
-  getOrderByIdPathParamsSchema,
-  getOrderByIdResponseDataSchema,
-  getOrderByIdStatus200Schema,
-  getOrderByIdStatus400Schema,
-  getOrderByIdStatus404Schema,
+  getOrderByIdPathParams2Schema,
+  getOrderByIdResponseData2Schema,
+  getOrderByIdStatus2002Schema,
+  getOrderByIdStatus4002Schema,
+  getOrderByIdStatus4042Schema,
 } from './getOrderByIdSchema.gen.ts'
 import {
-  getPetByIdPathParamsSchema,
-  getPetByIdResponseDataSchema,
-  getPetByIdStatus200Schema,
-  getPetByIdStatus400Schema,
-  getPetByIdStatus404Schema,
+  getPetByIdPathParams2Schema,
+  getPetByIdResponseData2Schema,
+  getPetByIdStatus2002Schema,
+  getPetByIdStatus4002Schema,
+  getPetByIdStatus4042Schema,
 } from './getPetByIdSchema.gen.ts'
-import { getThingsQueryParamsSchema, getThingsResponseDataSchema, getThingsStatus201Schema } from './getThingsSchema.gen.ts'
+import { getThingsQueryParams2Schema, getThingsResponseData2Schema, getThingsStatus2012Schema } from './getThingsSchema.gen.ts'
 import {
-  getUserByNamePathParamsSchema,
-  getUserByNameResponseDataSchema,
-  getUserByNameStatus200Schema,
-  getUserByNameStatus400Schema,
-  getUserByNameStatus404Schema,
+  getUserByNamePathParams2Schema,
+  getUserByNameResponseData2Schema,
+  getUserByNameStatus2002Schema,
+  getUserByNameStatus4002Schema,
+  getUserByNameStatus4042Schema,
 } from './getUserByNameSchema.gen.ts'
-import { loginUserQueryParamsSchema, loginUserResponseDataSchema, loginUserStatus200Schema, loginUserStatus400Schema } from './loginUserSchema.gen.ts'
-import { logoutUserResponseDataSchema } from './logoutUserSchema.gen.ts'
+import { loginUserQueryParams2Schema, loginUserResponseData2Schema, loginUserStatus2002Schema, loginUserStatus4002Schema } from './loginUserSchema.gen.ts'
+import { logoutUserResponseData2Schema } from './logoutUserSchema.gen.ts'
 import {
-  placeOrderPatchRequestDataSchema,
-  placeOrderPatchResponseDataSchema,
-  placeOrderPatchStatus200Schema,
-  placeOrderPatchStatus405Schema,
+  placeOrderPatchRequestData2Schema,
+  placeOrderPatchResponseData2Schema,
+  placeOrderPatchStatus2002Schema,
+  placeOrderPatchStatus4052Schema,
 } from './placeOrderPatchSchema.gen.ts'
-import { placeOrderRequestDataSchema, placeOrderResponseDataSchema, placeOrderStatus200Schema, placeOrderStatus405Schema } from './placeOrderSchema.gen.ts'
+import { placeOrderRequestData2Schema, placeOrderResponseData2Schema, placeOrderStatus2002Schema, placeOrderStatus4052Schema } from './placeOrderSchema.gen.ts'
 import {
-  updatePetRequestDataSchema,
-  updatePetResponseDataSchema,
-  updatePetStatus200Schema,
-  updatePetStatus400Schema,
-  updatePetStatus404Schema,
-  updatePetStatus405Schema,
+  updatePetRequestData2Schema,
+  updatePetResponseData2Schema,
+  updatePetStatus2002Schema,
+  updatePetStatus4002Schema,
+  updatePetStatus4042Schema,
+  updatePetStatus4052Schema,
 } from './updatePetSchema.gen.ts'
 import {
-  updatePetWithFormPathParamsSchema,
-  updatePetWithFormQueryParamsSchema,
-  updatePetWithFormResponseDataSchema,
-  updatePetWithFormStatus405Schema,
+  updatePetWithFormPathParams2Schema,
+  updatePetWithFormQueryParams2Schema,
+  updatePetWithFormResponseData2Schema,
+  updatePetWithFormStatus4052Schema,
 } from './updatePetWithFormSchema.gen.ts'
-import { updateUserPathParamsSchema, updateUserRequestDataSchema, updateUserResponseDataSchema } from './updateUserSchema.gen.ts'
+import { updateUserPathParams2Schema, updateUserRequestData2Schema, updateUserResponseData2Schema } from './updateUserSchema.gen.ts'
 import {
-  uploadFilePathParamsSchema,
-  uploadFileQueryParamsSchema,
-  uploadFileRequestDataSchema,
-  uploadFileResponseDataSchema,
-  uploadFileStatus200Schema,
+  uploadFilePathParams2Schema,
+  uploadFileQueryParams2Schema,
+  uploadFileRequestData2Schema,
+  uploadFileResponseData2Schema,
+  uploadFileStatus2002Schema,
 } from './uploadFileSchema.gen.ts'
 
 export type OperationSchema = {
@@ -113,154 +118,154 @@ export const operations = {
     request: undefined,
     parameters: {
       path: undefined,
-      query: getThingsQueryParamsSchema,
+      query: getThingsQueryParams2Schema,
       header: undefined,
     },
     responses: {
-      201: getThingsStatus201Schema,
-      default: getThingsResponseDataSchema,
+      201: getThingsStatus2012Schema,
+      default: getThingsResponseData2Schema,
     },
     errors: {},
   },
   createPets: {
-    request: createPetsRequestDataSchema,
+    request: createPetsRequestData2Schema,
     parameters: {
-      path: createPetsPathParamsSchema,
-      query: createPetsQueryParamsSchema,
-      header: createPetsHeaderParamsSchema,
+      path: createPetsPathParams2Schema,
+      query: createPetsQueryParams2Schema,
+      header: createPetsHeaderParams2Schema,
     },
     responses: {
-      201: createPetsStatus201Schema,
-      default: createPetsResponseDataSchema,
+      201: createPetsStatus2012Schema,
+      default: createPetsResponseData2Schema,
     },
     errors: {},
   },
   updatePet: {
-    request: updatePetRequestDataSchema,
+    request: updatePetRequestData2Schema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: updatePetStatus200Schema,
-      400: updatePetStatus400Schema,
-      404: updatePetStatus404Schema,
-      405: updatePetStatus405Schema,
-      default: updatePetResponseDataSchema,
+      200: updatePetStatus2002Schema,
+      400: updatePetStatus4002Schema,
+      404: updatePetStatus4042Schema,
+      405: updatePetStatus4052Schema,
+      default: updatePetResponseData2Schema,
     },
     errors: {
-      400: updatePetStatus400Schema,
-      404: updatePetStatus404Schema,
-      405: updatePetStatus405Schema,
+      400: updatePetStatus4002Schema,
+      404: updatePetStatus4042Schema,
+      405: updatePetStatus4052Schema,
     },
   },
   addPet: {
-    request: addPetRequestDataSchema,
+    request: addPetRequestData2Schema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: addPetStatus200Schema,
-      405: addPetStatus405Schema,
-      default: addPetResponseDataSchema,
+      200: addPetStatus2002Schema,
+      405: addPetStatus4052Schema,
+      default: addPetResponseData2Schema,
     },
     errors: {
-      405: addPetStatus405Schema,
+      405: addPetStatus4052Schema,
     },
   },
   findPetsByStatus: {
     request: undefined,
     parameters: {
       path: undefined,
-      query: findPetsByStatusQueryParamsSchema,
+      query: findPetsByStatusQueryParams2Schema,
       header: undefined,
     },
     responses: {
-      200: findPetsByStatusStatus200Schema,
-      400: findPetsByStatusStatus400Schema,
-      default: findPetsByStatusResponseDataSchema,
+      200: findPetsByStatusStatus2002Schema,
+      400: findPetsByStatusStatus4002Schema,
+      default: findPetsByStatusResponseData2Schema,
     },
     errors: {
-      400: findPetsByStatusStatus400Schema,
+      400: findPetsByStatusStatus4002Schema,
     },
   },
   findPetsByTags: {
     request: undefined,
     parameters: {
       path: undefined,
-      query: findPetsByTagsQueryParamsSchema,
-      header: findPetsByTagsHeaderParamsSchema,
+      query: findPetsByTagsQueryParams2Schema,
+      header: findPetsByTagsHeaderParams2Schema,
     },
     responses: {
-      200: findPetsByTagsStatus200Schema,
-      400: findPetsByTagsStatus400Schema,
-      default: findPetsByTagsResponseDataSchema,
+      200: findPetsByTagsStatus2002Schema,
+      400: findPetsByTagsStatus4002Schema,
+      default: findPetsByTagsResponseData2Schema,
     },
     errors: {
-      400: findPetsByTagsStatus400Schema,
+      400: findPetsByTagsStatus4002Schema,
     },
   },
   getPetById: {
     request: undefined,
     parameters: {
-      path: getPetByIdPathParamsSchema,
+      path: getPetByIdPathParams2Schema,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: getPetByIdStatus200Schema,
-      400: getPetByIdStatus400Schema,
-      404: getPetByIdStatus404Schema,
-      default: getPetByIdResponseDataSchema,
+      200: getPetByIdStatus2002Schema,
+      400: getPetByIdStatus4002Schema,
+      404: getPetByIdStatus4042Schema,
+      default: getPetByIdResponseData2Schema,
     },
     errors: {
-      400: getPetByIdStatus400Schema,
-      404: getPetByIdStatus404Schema,
+      400: getPetByIdStatus4002Schema,
+      404: getPetByIdStatus4042Schema,
     },
   },
   updatePetWithForm: {
     request: undefined,
     parameters: {
-      path: updatePetWithFormPathParamsSchema,
-      query: updatePetWithFormQueryParamsSchema,
+      path: updatePetWithFormPathParams2Schema,
+      query: updatePetWithFormQueryParams2Schema,
       header: undefined,
     },
     responses: {
-      405: updatePetWithFormStatus405Schema,
-      default: updatePetWithFormResponseDataSchema,
+      405: updatePetWithFormStatus4052Schema,
+      default: updatePetWithFormResponseData2Schema,
     },
     errors: {
-      405: updatePetWithFormStatus405Schema,
+      405: updatePetWithFormStatus4052Schema,
     },
   },
   deletePet: {
     request: undefined,
     parameters: {
-      path: deletePetPathParamsSchema,
+      path: deletePetPathParams2Schema,
       query: undefined,
-      header: deletePetHeaderParamsSchema,
+      header: deletePetHeaderParams2Schema,
     },
     responses: {
-      400: deletePetStatus400Schema,
-      default: deletePetResponseDataSchema,
+      400: deletePetStatus4002Schema,
+      default: deletePetResponseData2Schema,
     },
     errors: {
-      400: deletePetStatus400Schema,
+      400: deletePetStatus4002Schema,
     },
   },
   uploadFile: {
-    request: uploadFileRequestDataSchema,
+    request: uploadFileRequestData2Schema,
     parameters: {
-      path: uploadFilePathParamsSchema,
-      query: uploadFileQueryParamsSchema,
+      path: uploadFilePathParams2Schema,
+      query: uploadFileQueryParams2Schema,
       header: undefined,
     },
     responses: {
-      200: uploadFileStatus200Schema,
-      default: uploadFileResponseDataSchema,
+      200: uploadFileStatus2002Schema,
+      default: uploadFileResponseData2Schema,
     },
     errors: {},
   },
@@ -272,100 +277,100 @@ export const operations = {
       header: undefined,
     },
     responses: {
-      200: getInventoryStatus200Schema,
-      default: getInventoryResponseDataSchema,
+      200: getInventoryStatus2002Schema,
+      default: getInventoryResponseData2Schema,
     },
     errors: {},
   },
   placeOrder: {
-    request: placeOrderRequestDataSchema,
+    request: placeOrderRequestData2Schema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: placeOrderStatus200Schema,
-      405: placeOrderStatus405Schema,
-      default: placeOrderResponseDataSchema,
+      200: placeOrderStatus2002Schema,
+      405: placeOrderStatus4052Schema,
+      default: placeOrderResponseData2Schema,
     },
     errors: {
-      405: placeOrderStatus405Schema,
+      405: placeOrderStatus4052Schema,
     },
   },
   placeOrderPatch: {
-    request: placeOrderPatchRequestDataSchema,
+    request: placeOrderPatchRequestData2Schema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: placeOrderPatchStatus200Schema,
-      405: placeOrderPatchStatus405Schema,
-      default: placeOrderPatchResponseDataSchema,
+      200: placeOrderPatchStatus2002Schema,
+      405: placeOrderPatchStatus4052Schema,
+      default: placeOrderPatchResponseData2Schema,
     },
     errors: {
-      405: placeOrderPatchStatus405Schema,
+      405: placeOrderPatchStatus4052Schema,
     },
   },
   getOrderById: {
     request: undefined,
     parameters: {
-      path: getOrderByIdPathParamsSchema,
+      path: getOrderByIdPathParams2Schema,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: getOrderByIdStatus200Schema,
-      400: getOrderByIdStatus400Schema,
-      404: getOrderByIdStatus404Schema,
-      default: getOrderByIdResponseDataSchema,
+      200: getOrderByIdStatus2002Schema,
+      400: getOrderByIdStatus4002Schema,
+      404: getOrderByIdStatus4042Schema,
+      default: getOrderByIdResponseData2Schema,
     },
     errors: {
-      400: getOrderByIdStatus400Schema,
-      404: getOrderByIdStatus404Schema,
+      400: getOrderByIdStatus4002Schema,
+      404: getOrderByIdStatus4042Schema,
     },
   },
   deleteOrder: {
     request: undefined,
     parameters: {
-      path: deleteOrderPathParamsSchema,
+      path: deleteOrderPathParams2Schema,
       query: undefined,
       header: undefined,
     },
     responses: {
-      400: deleteOrderStatus400Schema,
-      404: deleteOrderStatus404Schema,
-      default: deleteOrderResponseDataSchema,
+      400: deleteOrderStatus4002Schema,
+      404: deleteOrderStatus4042Schema,
+      default: deleteOrderResponseData2Schema,
     },
     errors: {
-      400: deleteOrderStatus400Schema,
-      404: deleteOrderStatus404Schema,
+      400: deleteOrderStatus4002Schema,
+      404: deleteOrderStatus4042Schema,
     },
   },
   createUser: {
-    request: createUserRequestDataSchema,
+    request: createUserRequestData2Schema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      default: createUserResponseDataSchema,
+      default: createUserResponseData2Schema,
     },
     errors: {},
   },
   createUsersWithListInput: {
-    request: createUsersWithListInputRequestDataSchema,
+    request: createUsersWithListInputRequestData2Schema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: createUsersWithListInputStatus200Schema,
-      default: createUsersWithListInputResponseDataSchema,
+      200: createUsersWithListInputStatus2002Schema,
+      default: createUsersWithListInputResponseData2Schema,
     },
     errors: {},
   },
@@ -373,16 +378,16 @@ export const operations = {
     request: undefined,
     parameters: {
       path: undefined,
-      query: loginUserQueryParamsSchema,
+      query: loginUserQueryParams2Schema,
       header: undefined,
     },
     responses: {
-      200: loginUserStatus200Schema,
-      400: loginUserStatus400Schema,
-      default: loginUserResponseDataSchema,
+      200: loginUserStatus2002Schema,
+      400: loginUserStatus4002Schema,
+      default: loginUserResponseData2Schema,
     },
     errors: {
-      400: loginUserStatus400Schema,
+      400: loginUserStatus4002Schema,
     },
   },
   logoutUser: {
@@ -393,55 +398,55 @@ export const operations = {
       header: undefined,
     },
     responses: {
-      default: logoutUserResponseDataSchema,
+      default: logoutUserResponseData2Schema,
     },
     errors: {},
   },
   getUserByName: {
     request: undefined,
     parameters: {
-      path: getUserByNamePathParamsSchema,
+      path: getUserByNamePathParams2Schema,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: getUserByNameStatus200Schema,
-      400: getUserByNameStatus400Schema,
-      404: getUserByNameStatus404Schema,
-      default: getUserByNameResponseDataSchema,
+      200: getUserByNameStatus2002Schema,
+      400: getUserByNameStatus4002Schema,
+      404: getUserByNameStatus4042Schema,
+      default: getUserByNameResponseData2Schema,
     },
     errors: {
-      400: getUserByNameStatus400Schema,
-      404: getUserByNameStatus404Schema,
+      400: getUserByNameStatus4002Schema,
+      404: getUserByNameStatus4042Schema,
     },
   },
   updateUser: {
-    request: updateUserRequestDataSchema,
+    request: updateUserRequestData2Schema,
     parameters: {
-      path: updateUserPathParamsSchema,
+      path: updateUserPathParams2Schema,
       query: undefined,
       header: undefined,
     },
     responses: {
-      default: updateUserResponseDataSchema,
+      default: updateUserResponseData2Schema,
     },
     errors: {},
   },
   deleteUser: {
     request: undefined,
     parameters: {
-      path: deleteUserPathParamsSchema,
+      path: deleteUserPathParams2Schema,
       query: undefined,
       header: undefined,
     },
     responses: {
-      400: deleteUserStatus400Schema,
-      404: deleteUserStatus404Schema,
-      default: deleteUserResponseDataSchema,
+      400: deleteUserStatus4002Schema,
+      404: deleteUserStatus4042Schema,
+      default: deleteUserResponseData2Schema,
     },
     errors: {
-      400: deleteUserStatus400Schema,
-      404: deleteUserStatus404Schema,
+      400: deleteUserStatus4002Schema,
+      404: deleteUserStatus4042Schema,
     },
   },
 } as const

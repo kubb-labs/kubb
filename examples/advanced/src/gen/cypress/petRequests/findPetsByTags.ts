@@ -1,4 +1,4 @@
-import type { FindPetsByTagsHeaderParams, FindPetsByTagsQueryParams, FindPetsByTagsResponseData } from '../../models/ts/petController/FindPetsByTags.ts'
+import type { FindPetsByTagsResponseData, FindPetsByTagsQueryParams, FindPetsByTagsHeaderParams } from '../../models/ts/petController/FindPetsByTags.ts'
 
 export function findPetsByTags(
   headers: FindPetsByTagsHeaderParams,

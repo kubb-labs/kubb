@@ -1,13 +1,13 @@
-import { z } from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
   UploadFilePathParams,
   UploadFileQueryParams,
+  UploadFileStatus200,
   UploadFileRequestData,
   UploadFileResponseData,
-  UploadFileStatus200,
 } from '../../models/ts/petController/UploadFile.ts'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import { apiResponseSchema } from '../apiResponseSchema.ts'
+import { z } from 'zod'
 
 export const uploadFilePathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet to update'),

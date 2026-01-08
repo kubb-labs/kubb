@@ -1,4 +1,4 @@
-import type { DeletePetHeaderParams, DeletePetPathParams, DeletePetResponseData } from '../../models/ts/petController/DeletePet.ts'
+import type { DeletePetResponseData, DeletePetPathParams, DeletePetHeaderParams } from '../../models/ts/petController/DeletePet.ts'
 
 export function deletePet(
   petId: DeletePetPathParams['petId'],

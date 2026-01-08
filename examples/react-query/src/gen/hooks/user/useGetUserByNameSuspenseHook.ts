@@ -7,9 +7,9 @@ import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { GetUserByNamePathParams, GetUserByNameResponseData, GetUserByNameStatus400, GetUserByNameStatus404 } from '../../models/GetUserByName.ts'
+import type { GetUserByNamePathParams3, GetUserByNameResponseData3, GetUserByNameStatus4003, GetUserByNameStatus4043 } from '../../models/GetUserByName.ts'
 
-export const getUserByNameSuspenseQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) =>
+export const getUserByNameSuspenseQueryKey = ({ username }: { username: GetUserByNamePathParams3['username'] }) =>
   ['v5', { url: '/user/:username', params: { username: username } }] as const
 
 export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspenseQueryKey>
@@ -19,12 +19,12 @@ export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspe
  * {@link /user/:username}
  */
 export async function getUserByNameSuspenseHook(
-  { username }: { username: GetUserByNamePathParams['username'] },
+  { username }: { username: GetUserByNamePathParams3['username'] },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<GetUserByNameResponseData, ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>, unknown>({
+  const res = await request<GetUserByNameResponseData3, ResponseErrorConfig<GetUserByNameStatus4003 | GetUserByNameStatus4043>, unknown>({
     method: 'GET',
     url: `/user/${username}`,
     ...requestConfig,
@@ -33,14 +33,14 @@ export async function getUserByNameSuspenseHook(
 }
 
 export function getUserByNameSuspenseQueryOptionsHook(
-  { username }: { username: GetUserByNamePathParams['username'] },
+  { username }: { username: GetUserByNamePathParams3['username'] },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = getUserByNameSuspenseQueryKey({ username })
   return queryOptions<
-    GetUserByNameResponseData,
-    ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>,
-    GetUserByNameResponseData,
+    GetUserByNameResponseData3,
+    ResponseErrorConfig<GetUserByNameStatus4003 | GetUserByNameStatus4043>,
+    GetUserByNameResponseData3,
     typeof queryKey
   >({
     enabled: !!username,
@@ -56,11 +56,11 @@ export function getUserByNameSuspenseQueryOptionsHook(
  * @summary Get user by user name
  * {@link /user/:username}
  */
-export function useGetUserByNameSuspenseHook<TData = GetUserByNameResponseData, TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey>(
-  { username }: { username: GetUserByNamePathParams['username'] },
+export function useGetUserByNameSuspenseHook<TData = GetUserByNameResponseData3, TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey>(
+  { username }: { username: GetUserByNamePathParams3['username'] },
   options: {
     query?: Partial<
-      UseSuspenseQueryOptions<GetUserByNameResponseData, ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>, TData, TQueryKey>
+      UseSuspenseQueryOptions<GetUserByNameResponseData3, ResponseErrorConfig<GetUserByNameStatus4003 | GetUserByNameStatus4043>, TData, TQueryKey>
     > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
@@ -76,7 +76,7 @@ export function useGetUserByNameSuspenseHook<TData = GetUserByNameResponseData, 
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
-  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetUserByNameStatus400 | GetUserByNameStatus404>> & { queryKey: TQueryKey }
+  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetUserByNameStatus4003 | GetUserByNameStatus4043>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

@@ -1,11 +1,11 @@
-import { faker } from '@faker-js/faker'
 import type {
-  FindPetsByTagsHeaderParams,
   FindPetsByTagsQueryParams,
-  FindPetsByTagsResponseData,
+  FindPetsByTagsHeaderParams,
   FindPetsByTagsStatus200,
+  FindPetsByTagsResponseData,
 } from '../../models/ts/petController/FindPetsByTags.ts'
 import { createPetFaker } from '../createPetFaker.ts'
+import { faker } from '@faker-js/faker'
 
 export function createFindPetsByTagsQueryParamsFaker(data?: Partial<FindPetsByTagsQueryParams>): FindPetsByTagsQueryParams {
   return {

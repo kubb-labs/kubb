@@ -5,25 +5,30 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
-import { addFilesRequestDataSchema } from '../zod/addFilesSchema.js'
-import { addPetRequestDataSchema } from '../zod/addPetSchema.js'
-import { createPetsHeaderParamsSchema, createPetsPathParamsSchema, createPetsQueryParamsSchema, createPetsRequestDataSchema } from '../zod/createPetsSchema.js'
-import { createUserRequestDataSchema } from '../zod/createUserSchema.js'
-import { createUsersWithListInputRequestDataSchema } from '../zod/createUsersWithListInputSchema.js'
-import { deleteOrderPathParamsSchema } from '../zod/deleteOrderSchema.js'
-import { deletePetHeaderParamsSchema, deletePetPathParamsSchema } from '../zod/deletePetSchema.js'
-import { deleteUserPathParamsSchema } from '../zod/deleteUserSchema.js'
-import { findPetsByStatusPathParamsSchema } from '../zod/findPetsByStatusSchema.js'
-import { findPetsByTagsHeaderParamsSchema, findPetsByTagsQueryParamsSchema } from '../zod/findPetsByTagsSchema.js'
-import { getOrderByIdPathParamsSchema } from '../zod/getOrderByIdSchema.js'
-import { getPetByIdPathParamsSchema } from '../zod/getPetByIdSchema.js'
-import { getUserByNamePathParamsSchema } from '../zod/getUserByNameSchema.js'
-import { loginUserQueryParamsSchema } from '../zod/loginUserSchema.js'
-import { placeOrderPatchRequestDataSchema } from '../zod/placeOrderPatchSchema.js'
-import { placeOrderRequestDataSchema } from '../zod/placeOrderSchema.js'
-import { updatePetRequestDataSchema } from '../zod/updatePetSchema.js'
-import { updatePetWithFormPathParamsSchema, updatePetWithFormQueryParamsSchema } from '../zod/updatePetWithFormSchema.js'
-import { updateUserPathParamsSchema, updateUserRequestDataSchema } from '../zod/updateUserSchema.js'
+import { addFilesRequestData2Schema } from '../zod/addFilesSchema.js'
+import { addPetRequestData2Schema } from '../zod/addPetSchema.js'
+import {
+  createPetsHeaderParams2Schema,
+  createPetsPathParams2Schema,
+  createPetsQueryParams2Schema,
+  createPetsRequestData2Schema,
+} from '../zod/createPetsSchema.js'
+import { createUserRequestData2Schema } from '../zod/createUserSchema.js'
+import { createUsersWithListInputRequestData2Schema } from '../zod/createUsersWithListInputSchema.js'
+import { deleteOrderPathParams2Schema } from '../zod/deleteOrderSchema.js'
+import { deletePetHeaderParams2Schema, deletePetPathParams2Schema } from '../zod/deletePetSchema.js'
+import { deleteUserPathParams2Schema } from '../zod/deleteUserSchema.js'
+import { findPetsByStatusPathParams2Schema } from '../zod/findPetsByStatusSchema.js'
+import { findPetsByTagsHeaderParams2Schema, findPetsByTagsQueryParams2Schema } from '../zod/findPetsByTagsSchema.js'
+import { getOrderByIdPathParams2Schema } from '../zod/getOrderByIdSchema.js'
+import { getPetByIdPathParams2Schema } from '../zod/getPetByIdSchema.js'
+import { getUserByNamePathParams2Schema } from '../zod/getUserByNameSchema.js'
+import { loginUserQueryParams2Schema } from '../zod/loginUserSchema.js'
+import { placeOrderPatchRequestData2Schema } from '../zod/placeOrderPatchSchema.js'
+import { placeOrderRequestData2Schema } from '../zod/placeOrderSchema.js'
+import { updatePetRequestData2Schema } from '../zod/updatePetSchema.js'
+import { updatePetWithFormPathParams2Schema, updatePetWithFormQueryParams2Schema } from '../zod/updatePetWithFormSchema.js'
+import { updateUserPathParams2Schema, updateUserRequestData2Schema } from '../zod/updateUserSchema.js'
 import { addFilesHandler } from './addFiles.js'
 import { addPetHandler } from './addPet.js'
 import { createPetsHandler } from './createPets.js'
@@ -55,28 +60,28 @@ server.tool(
   'createPets',
   'Make a POST request to /pets/{uuid}',
   {
-    uuid: createPetsPathParamsSchema.shape['uuid'],
-    data: createPetsRequestDataSchema,
-    headers: createPetsHeaderParamsSchema,
-    params: createPetsQueryParamsSchema,
+    uuid: createPetsPathParams2Schema.shape['uuid'],
+    data: createPetsRequestData2Schema,
+    headers: createPetsHeaderParams2Schema,
+    params: createPetsQueryParams2Schema,
   },
   async ({ uuid, data, headers, params }) => {
     return createPetsHandler({ uuid, data, headers, params })
   },
 )
 
-server.tool('updatePet', 'Update an existing pet by Id', { data: updatePetRequestDataSchema }, async ({ data }) => {
+server.tool('updatePet', 'Update an existing pet by Id', { data: updatePetRequestData2Schema }, async ({ data }) => {
   return updatePetHandler({ data })
 })
 
-server.tool('addPet', 'Add a new pet to the store', { data: addPetRequestDataSchema }, async ({ data }) => {
+server.tool('addPet', 'Add a new pet to the store', { data: addPetRequestData2Schema }, async ({ data }) => {
   return addPetHandler({ data })
 })
 
 server.tool(
   'findPetsByStatus',
   'Multiple status values can be provided with comma separated strings',
-  { stepId: findPetsByStatusPathParamsSchema.shape['step_id'] },
+  { stepId: findPetsByStatusPathParams2Schema.shape['step_id'] },
   async ({ stepId }) => {
     return findPetsByStatusHandler({ stepId })
   },
@@ -86,15 +91,15 @@ server.tool(
   'findPetsByTags',
   'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
   {
-    headers: findPetsByTagsHeaderParamsSchema,
-    params: findPetsByTagsQueryParamsSchema,
+    headers: findPetsByTagsHeaderParams2Schema,
+    params: findPetsByTagsQueryParams2Schema,
   },
   async ({ headers, params }) => {
     return findPetsByTagsHandler({ headers, params })
   },
 )
 
-server.tool('getPetById', 'Returns a single pet', { petId: getPetByIdPathParamsSchema.shape['petId'] }, async ({ petId }) => {
+server.tool('getPetById', 'Returns a single pet', { petId: getPetByIdPathParams2Schema.shape['petId'] }, async ({ petId }) => {
   return getPetByIdHandler({ petId })
 })
 
@@ -102,8 +107,8 @@ server.tool(
   'updatePetWithForm',
   'Make a POST request to /pet/{petId}',
   {
-    petId: updatePetWithFormPathParamsSchema.shape['petId'],
-    params: updatePetWithFormQueryParamsSchema,
+    petId: updatePetWithFormPathParams2Schema.shape['petId'],
+    params: updatePetWithFormQueryParams2Schema,
   },
   async ({ petId, params }) => {
     return updatePetWithFormHandler({ petId, params })
@@ -114,15 +119,15 @@ server.tool(
   'deletePet',
   'delete a pet',
   {
-    petId: deletePetPathParamsSchema.shape['petId'],
-    headers: deletePetHeaderParamsSchema,
+    petId: deletePetPathParams2Schema.shape['petId'],
+    headers: deletePetHeaderParams2Schema,
   },
   async ({ petId, headers }) => {
     return deletePetHandler({ petId, headers })
   },
 )
 
-server.tool('addFiles', 'Place a new file in the store', { data: addFilesRequestDataSchema }, async ({ data }) => {
+server.tool('addFiles', 'Place a new file in the store', { data: addFilesRequestData2Schema }, async ({ data }) => {
   return addFilesHandler({ data })
 })
 
@@ -130,18 +135,18 @@ server.tool('getInventory', 'Returns a map of status codes to quantities', async
   return getInventoryHandler()
 })
 
-server.tool('placeOrder', 'Place a new order in the store', { data: placeOrderRequestDataSchema }, async ({ data }) => {
+server.tool('placeOrder', 'Place a new order in the store', { data: placeOrderRequestData2Schema }, async ({ data }) => {
   return placeOrderHandler({ data })
 })
 
-server.tool('placeOrderPatch', 'Place a new order in the store with patch', { data: placeOrderPatchRequestDataSchema }, async ({ data }) => {
+server.tool('placeOrderPatch', 'Place a new order in the store with patch', { data: placeOrderPatchRequestData2Schema }, async ({ data }) => {
   return placeOrderPatchHandler({ data })
 })
 
 server.tool(
   'getOrderById',
   'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
-  { orderId: getOrderByIdPathParamsSchema.shape['orderId'] },
+  { orderId: getOrderByIdPathParams2Schema.shape['orderId'] },
   async ({ orderId }) => {
     return getOrderByIdHandler({ orderId })
   },
@@ -150,26 +155,26 @@ server.tool(
 server.tool(
   'deleteOrder',
   'For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors',
-  { orderId: deleteOrderPathParamsSchema.shape['orderId'] },
+  { orderId: deleteOrderPathParams2Schema.shape['orderId'] },
   async ({ orderId }) => {
     return deleteOrderHandler({ orderId })
   },
 )
 
-server.tool('createUser', 'This can only be done by the logged in user.', { data: createUserRequestDataSchema }, async ({ data }) => {
+server.tool('createUser', 'This can only be done by the logged in user.', { data: createUserRequestData2Schema }, async ({ data }) => {
   return createUserHandler({ data })
 })
 
 server.tool(
   'createUsersWithListInput',
   'Creates list of users with given input array',
-  { data: createUsersWithListInputRequestDataSchema },
+  { data: createUsersWithListInputRequestData2Schema },
   async ({ data }) => {
     return createUsersWithListInputHandler({ data })
   },
 )
 
-server.tool('loginUser', 'Make a GET request to /user/login', { params: loginUserQueryParamsSchema }, async ({ params }) => {
+server.tool('loginUser', 'Make a GET request to /user/login', { params: loginUserQueryParams2Schema }, async ({ params }) => {
   return loginUserHandler({ params })
 })
 
@@ -177,7 +182,7 @@ server.tool('logoutUser', 'Make a GET request to /user/logout', async () => {
   return logoutUserHandler()
 })
 
-server.tool('getUserByName', 'Make a GET request to /user/{username}', { username: getUserByNamePathParamsSchema.shape['username'] }, async ({ username }) => {
+server.tool('getUserByName', 'Make a GET request to /user/{username}', { username: getUserByNamePathParams2Schema.shape['username'] }, async ({ username }) => {
   return getUserByNameHandler({ username })
 })
 
@@ -185,15 +190,15 @@ server.tool(
   'updateUser',
   'This can only be done by the logged in user.',
   {
-    username: updateUserPathParamsSchema.shape['username'],
-    data: updateUserRequestDataSchema,
+    username: updateUserPathParams2Schema.shape['username'],
+    data: updateUserRequestData2Schema,
   },
   async ({ username, data }) => {
     return updateUserHandler({ username, data })
   },
 )
 
-server.tool('deleteUser', 'This can only be done by the logged in user.', { username: deleteUserPathParamsSchema.shape['username'] }, async ({ username }) => {
+server.tool('deleteUser', 'This can only be done by the logged in user.', { username: deleteUserPathParams2Schema.shape['username'] }, async ({ username }) => {
   return deleteUserHandler({ username })
 })
 

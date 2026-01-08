@@ -18,7 +18,7 @@ import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { DeletePetHeaderParams, DeletePetPathParams, DeletePetResponseData, DeletePetStatus400 } from '../models/DeletePet.ts'
+import type { DeletePetHeaderParams3, DeletePetPathParams3, DeletePetResponseData3, DeletePetStatus4003 } from '../models/DeletePet.ts'
 
 export const deletePetMutationKey = () => [{ url: '/pet/:pet_id' }] as const
 
@@ -30,13 +30,13 @@ export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
  * {@link /pet/:pet_id}
  */
 export async function deletePet(
-  pet_id: DeletePetPathParams['pet_id'],
-  headers?: DeletePetHeaderParams,
+  pet_id: DeletePetPathParams3['pet_id'],
+  headers?: DeletePetHeaderParams3,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<DeletePetResponseData, ResponseErrorConfig<DeletePetStatus400>, unknown>({
+  const res = await request<DeletePetResponseData3, ResponseErrorConfig<DeletePetStatus4003>, unknown>({
     method: 'DELETE',
     url: `/pet/${pet_id}`,
     ...requestConfig,
@@ -53,11 +53,11 @@ export async function deletePet(
 export function createDeletePet<TContext>(
   options: {
     mutation?: CreateMutationOptions<
-      DeletePetResponseData,
-      ResponseErrorConfig<DeletePetStatus400>,
+      DeletePetResponseData3,
+      ResponseErrorConfig<DeletePetStatus4003>,
       {
-        pet_id: DeletePetPathParams['pet_id']
-        headers?: DeletePetHeaderParams
+        pet_id: DeletePetPathParams3['pet_id']
+        headers?: DeletePetHeaderParams3
       },
       TContext
     > & { client?: QueryClient }
@@ -69,9 +69,12 @@ export function createDeletePet<TContext>(
   const mutationKey = mutationOptions?.mutationKey ?? deletePetMutationKey()
 
   return createMutation<
-    DeletePetResponseData,
-    ResponseErrorConfig<DeletePetStatus400>,
-    { pet_id: DeletePetPathParams['pet_id']; headers?: DeletePetHeaderParams },
+    DeletePetResponseData3,
+    ResponseErrorConfig<DeletePetStatus4003>,
+    {
+      pet_id: DeletePetPathParams3['pet_id']
+      headers?: DeletePetHeaderParams3
+    },
     TContext
   >(
     {

@@ -18,7 +18,7 @@ import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { DeleteOrderPathParams, DeleteOrderResponseData, DeleteOrderStatus400, DeleteOrderStatus404 } from '../models/DeleteOrder.ts'
+import type { DeleteOrderPathParams3, DeleteOrderResponseData3, DeleteOrderStatus4003, DeleteOrderStatus4043 } from '../models/DeleteOrder.ts'
 
 export const deleteOrderMutationKey = () => [{ url: '/store/order/:orderId' }] as const
 
@@ -29,10 +29,10 @@ export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
  * @summary Delete purchase order by ID
  * {@link /store/order/:orderId}
  */
-export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function deleteOrder(orderId: DeleteOrderPathParams3['orderId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<DeleteOrderResponseData, ResponseErrorConfig<DeleteOrderStatus400 | DeleteOrderStatus404>, unknown>({
+  const res = await request<DeleteOrderResponseData3, ResponseErrorConfig<DeleteOrderStatus4003 | DeleteOrderStatus4043>, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,
     ...requestConfig,
@@ -48,9 +48,9 @@ export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], con
 export function createDeleteOrder<TContext>(
   options: {
     mutation?: CreateMutationOptions<
-      DeleteOrderResponseData,
-      ResponseErrorConfig<DeleteOrderStatus400 | DeleteOrderStatus404>,
-      { orderId: DeleteOrderPathParams['orderId'] },
+      DeleteOrderResponseData3,
+      ResponseErrorConfig<DeleteOrderStatus4003 | DeleteOrderStatus4043>,
+      { orderId: DeleteOrderPathParams3['orderId'] },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -61,9 +61,9 @@ export function createDeleteOrder<TContext>(
   const mutationKey = mutationOptions?.mutationKey ?? deleteOrderMutationKey()
 
   return createMutation<
-    DeleteOrderResponseData,
-    ResponseErrorConfig<DeleteOrderStatus400 | DeleteOrderStatus404>,
-    { orderId: DeleteOrderPathParams['orderId'] },
+    DeleteOrderResponseData3,
+    ResponseErrorConfig<DeleteOrderStatus4003 | DeleteOrderStatus4043>,
+    { orderId: DeleteOrderPathParams3['orderId'] },
     TContext
   >(
     {

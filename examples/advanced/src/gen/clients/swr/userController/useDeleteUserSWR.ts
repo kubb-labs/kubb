@@ -1,8 +1,13 @@
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import useSWRMutation from 'swr/mutation'
 import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { DeleteUserPathParams, DeleteUserResponseData, DeleteUserStatus400, DeleteUserStatus404 } from '../../../models/ts/userController/DeleteUser.ts'
+import useSWRMutation from 'swr/mutation'
+import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type {
+  DeleteUserResponseData3,
+  DeleteUserPathParams3,
+  DeleteUserStatus4003,
+  DeleteUserStatus4043,
+} from '../../../models/ts/userController/DeleteUser.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import { deleteUser } from '../../axios/userService/deleteUser.ts'
 
 export const deleteUserMutationKeySWR = () => [{ url: '/user/:username' }] as const
@@ -15,11 +20,11 @@ export type DeleteUserMutationKeySWR = ReturnType<typeof deleteUserMutationKeySW
  * {@link /user/:username}
  */
 export function useDeleteUserSWR(
-  { username }: { username: DeleteUserPathParams['username'] },
+  { username }: { username: DeleteUserPathParams3['username'] },
   options: {
     mutation?: SWRMutationConfiguration<
-      ResponseConfig<DeleteUserResponseData>,
-      ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>,
+      ResponseConfig<DeleteUserResponseData3>,
+      ResponseErrorConfig<DeleteUserStatus4003 | DeleteUserStatus4043>,
       DeleteUserMutationKeySWR | null,
       never
     > & { throwOnError?: boolean }
@@ -31,8 +36,8 @@ export function useDeleteUserSWR(
   const mutationKey = deleteUserMutationKeySWR()
 
   return useSWRMutation<
-    ResponseConfig<DeleteUserResponseData>,
-    ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>,
+    ResponseConfig<DeleteUserResponseData3>,
+    ResponseErrorConfig<DeleteUserStatus4003 | DeleteUserStatus4043>,
     DeleteUserMutationKeySWR | null
   >(
     shouldFetch ? mutationKey : null,

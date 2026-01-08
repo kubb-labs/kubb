@@ -1,12 +1,12 @@
-import { faker } from '@faker-js/faker'
 import type {
-  CreatePetsHeaderParams,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsHeaderParams,
   CreatePetsRequestData,
   CreatePetsResponseData,
 } from '../../models/ts/petsController/CreatePets.ts'
 import { createPetNotFoundFaker } from '../createPetNotFoundFaker.ts'
+import { faker } from '@faker-js/faker'
 
 export function createCreatePetsPathParamsFaker(data?: Partial<CreatePetsPathParams>): CreatePetsPathParams {
   return {

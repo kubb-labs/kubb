@@ -1,15 +1,15 @@
-import { z } from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  CreatePetsHeaderParams,
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsRequestData,
-  CreatePetsResponseData,
+  CreatePetsHeaderParams,
   CreatePetsStatus201,
   CreatePetsStatusError,
+  CreatePetsRequestData,
+  CreatePetsResponseData,
 } from '../../models/ts/petsController/CreatePets.ts'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import { petNotFoundSchema } from '../petNotFoundSchema.ts'
+import { z } from 'zod'
 
 export const createPetsPathParamsSchema = z.object({
   uuid: z.string().describe('UUID'),

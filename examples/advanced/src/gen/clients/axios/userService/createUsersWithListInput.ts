@@ -1,9 +1,9 @@
-import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { CreateUsersWithListInputRequestData, CreateUsersWithListInputResponseData } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
 import {
-  createUsersWithListInputRequestDataSchema,
-  createUsersWithListInputResponseDataSchema,
+  createUsersWithListInputResponseData2Schema,
+  createUsersWithListInputRequestData2Schema,
 } from '../../../zod/userController/createUsersWithListInputSchema.ts'
 
 export function getCreateUsersWithListInputUrl() {
@@ -22,7 +22,7 @@ export async function createUsersWithListInput(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const requestData = createUsersWithListInputRequestDataSchema.parse(data)
+  const requestData = createUsersWithListInputRequestData2Schema.parse(data)
 
   const res = await request<CreateUsersWithListInputResponseData, ResponseErrorConfig<Error>, CreateUsersWithListInputRequestData>({
     method: 'POST',
@@ -30,5 +30,5 @@ export async function createUsersWithListInput(
     data: requestData,
     ...requestConfig,
   })
-  return { ...res, data: createUsersWithListInputResponseDataSchema.parse(res.data) }
+  return { ...res, data: createUsersWithListInputResponseData2Schema.parse(res.data) }
 }

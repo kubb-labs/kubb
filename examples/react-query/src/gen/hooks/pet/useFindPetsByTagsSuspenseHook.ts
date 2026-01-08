@@ -7,9 +7,9 @@ import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { FindPetsByTagsQueryParams, FindPetsByTagsResponseData, FindPetsByTagsStatus400 } from '../../models/FindPetsByTags.ts'
+import type { FindPetsByTagsQueryParams3, FindPetsByTagsResponseData3, FindPetsByTagsStatus4003 } from '../../models/FindPetsByTags.ts'
 
-export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTagsQueryParams) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTagsQueryParams3) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSuspenseQueryKey>
 
@@ -18,10 +18,10 @@ export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSus
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTagsSuspenseHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findPetsByTagsSuspenseHook(params?: FindPetsByTagsQueryParams3, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
+  const res = await request<FindPetsByTagsResponseData3, ResponseErrorConfig<FindPetsByTagsStatus4003>, unknown>({
     method: 'GET',
     url: '/pet/findByTags',
     params,
@@ -30,12 +30,12 @@ export async function findPetsByTagsSuspenseHook(params?: FindPetsByTagsQueryPar
   return res
 }
 
-export function findPetsByTagsSuspenseQueryOptionsHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function findPetsByTagsSuspenseQueryOptionsHook(params?: FindPetsByTagsQueryParams3, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
   return queryOptions<
-    ResponseConfig<FindPetsByTagsResponseData>,
-    ResponseErrorConfig<FindPetsByTagsStatus400>,
-    ResponseConfig<FindPetsByTagsResponseData>,
+    ResponseConfig<FindPetsByTagsResponseData3>,
+    ResponseErrorConfig<FindPetsByTagsStatus4003>,
+    ResponseConfig<FindPetsByTagsResponseData3>,
     typeof queryKey
   >({
     queryKey,
@@ -51,10 +51,10 @@ export function findPetsByTagsSuspenseQueryOptionsHook(params?: FindPetsByTagsQu
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByTagsResponseData>, TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey>(
-  params?: FindPetsByTagsQueryParams,
+export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByTagsResponseData3>, TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey>(
+  params?: FindPetsByTagsQueryParams3,
   options: {
-    query?: Partial<UseSuspenseQueryOptions<ResponseConfig<FindPetsByTagsResponseData>, ResponseErrorConfig<FindPetsByTagsStatus400>, TData, TQueryKey>> & {
+    query?: Partial<UseSuspenseQueryOptions<ResponseConfig<FindPetsByTagsResponseData3>, ResponseErrorConfig<FindPetsByTagsStatus4003>, TData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -71,7 +71,7 @@ export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByT
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
-  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<FindPetsByTagsStatus400>> & { queryKey: TQueryKey }
+  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<FindPetsByTagsStatus4003>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

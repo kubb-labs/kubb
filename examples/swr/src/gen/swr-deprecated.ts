@@ -8,10 +8,10 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import type {
-  UpdatePetWithFormPathParams,
-  UpdatePetWithFormQueryParams,
-  UpdatePetWithFormResponseData,
-  UpdatePetWithFormStatus405,
+  UpdatePetWithFormPathParams3,
+  UpdatePetWithFormQueryParams3,
+  UpdatePetWithFormResponseData3,
+  UpdatePetWithFormStatus4053,
 } from './models/UpdatePetWithForm.ts'
 
 export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
@@ -23,13 +23,13 @@ export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMu
  * {@link /pet/:petId}
  */
 export async function updatePetWithForm(
-  petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatePetWithFormQueryParams,
+  petId: UpdatePetWithFormPathParams3['petId'],
+  params?: UpdatePetWithFormQueryParams3,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
+  const res = await request<UpdatePetWithFormResponseData3, ResponseErrorConfig<UpdatePetWithFormStatus4053>, unknown>({
     method: 'POST',
     url: `/pet/${petId}`,
     params,
@@ -43,12 +43,12 @@ export async function updatePetWithForm(
  * {@link /pet/:petId}
  */
 export function useUpdatePetWithForm(
-  petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatePetWithFormQueryParams,
+  petId: UpdatePetWithFormPathParams3['petId'],
+  params?: UpdatePetWithFormQueryParams3,
   options: {
     mutation?: SWRMutationConfiguration<
-      UpdatePetWithFormResponseData,
-      ResponseErrorConfig<UpdatePetWithFormStatus405>,
+      UpdatePetWithFormResponseData3,
+      ResponseErrorConfig<UpdatePetWithFormStatus4053>,
       UpdatePetWithFormMutationKey | null,
       never
     > & { throwOnError?: boolean }
@@ -59,7 +59,7 @@ export function useUpdatePetWithForm(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updatePetWithFormMutationKey()
 
-  return useSWRMutation<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, UpdatePetWithFormMutationKey | null>(
+  return useSWRMutation<UpdatePetWithFormResponseData3, ResponseErrorConfig<UpdatePetWithFormStatus4053>, UpdatePetWithFormMutationKey | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return updatePetWithForm(petId, params, config)

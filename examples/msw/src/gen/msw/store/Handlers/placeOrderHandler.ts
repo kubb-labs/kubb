@@ -4,9 +4,9 @@
  */
 
 import { http } from 'msw'
-import type { PlaceOrderResponseData, PlaceOrderStatus405 } from '../../../models/PlaceOrder.ts'
+import type { PlaceOrderResponseData2, PlaceOrderStatus4052 } from '../../../models/PlaceOrder.ts'
 
-export function placeOrderHandlerResponse200(data: PlaceOrderResponseData) {
+export function placeOrderHandlerResponse200(data: PlaceOrderResponseData2) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -15,13 +15,13 @@ export function placeOrderHandlerResponse200(data: PlaceOrderResponseData) {
   })
 }
 
-export function placeOrderHandlerResponse405(data?: PlaceOrderStatus405) {
+export function placeOrderHandlerResponse405(data?: PlaceOrderStatus4052) {
   return new Response(JSON.stringify(data), {
     status: 405,
   })
 }
 
-export function placeOrderHandler(data?: PlaceOrderResponseData | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
+export function placeOrderHandler(data?: PlaceOrderResponseData2 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
   return http.post('http://localhost:3000/store/order', function handler(info) {
     if (typeof data === 'function') return data(info)
 

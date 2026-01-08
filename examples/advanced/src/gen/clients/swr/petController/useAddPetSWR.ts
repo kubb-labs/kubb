@@ -1,8 +1,8 @@
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import useSWRMutation from 'swr/mutation'
 import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { AddPetRequestData, AddPetResponseData, AddPetStatus405 } from '../../../models/ts/petController/AddPet.ts'
+import useSWRMutation from 'swr/mutation'
+import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { AddPetRequestData3, AddPetResponseData3, AddPetStatus4053 } from '../../../models/ts/petController/AddPet.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import { addPet } from '../../axios/petService/addPet.ts'
 
 export const addPetMutationKeySWR = () => [{ url: '/pet' }] as const
@@ -17,19 +17,19 @@ export type AddPetMutationKeySWR = ReturnType<typeof addPetMutationKeySWR>
 export function useAddPetSWR(
   options: {
     mutation?: SWRMutationConfiguration<
-      ResponseConfig<AddPetResponseData>,
-      ResponseErrorConfig<AddPetStatus405>,
+      ResponseConfig<AddPetResponseData3>,
+      ResponseErrorConfig<AddPetStatus4053>,
       AddPetMutationKeySWR | null,
-      AddPetRequestData
+      AddPetRequestData3
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig<AddPetRequestData>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<AddPetRequestData3>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = addPetMutationKeySWR()
 
-  return useSWRMutation<ResponseConfig<AddPetResponseData>, ResponseErrorConfig<AddPetStatus405>, AddPetMutationKeySWR | null, AddPetRequestData>(
+  return useSWRMutation<ResponseConfig<AddPetResponseData3>, ResponseErrorConfig<AddPetStatus4053>, AddPetMutationKeySWR | null, AddPetRequestData3>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return addPet({ data }, config)

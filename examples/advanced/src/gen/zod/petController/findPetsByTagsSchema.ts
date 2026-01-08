@@ -1,13 +1,13 @@
-import { z } from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  FindPetsByTagsHeaderParams,
   FindPetsByTagsQueryParams,
-  FindPetsByTagsResponseData,
+  FindPetsByTagsHeaderParams,
   FindPetsByTagsStatus200,
   FindPetsByTagsStatus400,
+  FindPetsByTagsResponseData,
 } from '../../models/ts/petController/FindPetsByTags.ts'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import { petSchema } from '../petSchema.ts'
+import { z } from 'zod'
 
 export const findPetsByTagsQueryParamsSchema = z
   .object({

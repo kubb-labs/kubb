@@ -1,6 +1,6 @@
-import { faker } from '@faker-js/faker'
 import type { UpdateUserPathParams, UpdateUserResponseData } from '../../models/ts/userController/UpdateUser.ts'
 import { createUserFaker } from '../createUserFaker.ts'
+import { faker } from '@faker-js/faker'
 
 export function createUpdateUserPathParamsFaker(data?: Partial<UpdateUserPathParams>): UpdateUserPathParams {
   return {
@@ -23,6 +23,6 @@ export function createUpdateUserRequestDataFaker() {
   return createUserFaker()
 }
 
-export function createUpdateUserResponseDataFaker(_data?: Partial<UpdateUserResponseData>): UpdateUserResponseData {
+export function createUpdateUserResponseDataFaker(data?: Partial<UpdateUserResponseData>): UpdateUserResponseData {
   return undefined
 }

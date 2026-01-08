@@ -15,6 +15,6 @@ export function createCreateUserRequestDataFaker() {
   return createUserFaker()
 }
 
-export function createCreateUserResponseDataFaker(_data?: Partial<CreateUserResponseData>): CreateUserResponseData {
+export function createCreateUserResponseDataFaker(data?: Partial<CreateUserResponseData>): CreateUserResponseData {
   return undefined
 }

@@ -1,8 +1,8 @@
-import { z } from 'zod'
+import type { AddPetStatus200, AddPetStatus405, AddPetRequestData, AddPetResponseData } from '../../models/ts/petController/AddPet.ts'
 import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { AddPetRequestData, AddPetResponseData, AddPetStatus200, AddPetStatus405 } from '../../models/ts/petController/AddPet.ts'
 import { addPetRequestSchema } from '../addPetRequestSchema.ts'
 import { petSchema } from '../petSchema.ts'
+import { z } from 'zod'
 
 /**
  * @description Successful operation

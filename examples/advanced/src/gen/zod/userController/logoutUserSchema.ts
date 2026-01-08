@@ -1,6 +1,6 @@
-import { z } from 'zod'
+import type { LogoutUserStatusError, LogoutUserResponseData } from '../../models/ts/userController/LogoutUser.ts'
 import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { LogoutUserResponseData, LogoutUserStatusError } from '../../models/ts/userController/LogoutUser.ts'
+import { z } from 'zod'
 
 /**
  * @description successful operation

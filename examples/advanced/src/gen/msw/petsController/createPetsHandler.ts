@@ -1,7 +1,7 @@
+import type { CreatePetsResponseData2 } from '../../models/ts/petsController/CreatePets.ts'
 import { http } from 'msw'
-import type { CreatePetsResponseData } from '../../models/ts/petsController/CreatePets.ts'
 
-export function createPetsHandlerResponse201(data?: CreatePetsResponseData) {
+export function createPetsHandlerResponse201(data?: CreatePetsResponseData2) {
   return new Response(JSON.stringify(data), {
     status: 201,
   })

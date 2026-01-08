@@ -7,7 +7,7 @@ import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { LogoutUserResponseData } from '../../models/LogoutUser.ts'
+import type { LogoutUserResponseData3 } from '../../models/LogoutUser.ts'
 
 export const logoutUserSuspenseQueryKey = () => ['v5', { url: '/user/logout' }] as const
 
@@ -20,13 +20,13 @@ export type LogoutUserSuspenseQueryKey = ReturnType<typeof logoutUserSuspenseQue
 export async function logoutUserSuspenseHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<LogoutUserResponseData, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
+  const res = await request<LogoutUserResponseData3, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
   return res.data
 }
 
 export function logoutUserSuspenseQueryOptionsHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = logoutUserSuspenseQueryKey()
-  return queryOptions<LogoutUserResponseData, ResponseErrorConfig<Error>, LogoutUserResponseData, typeof queryKey>({
+  return queryOptions<LogoutUserResponseData3, ResponseErrorConfig<Error>, LogoutUserResponseData3, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -39,9 +39,9 @@ export function logoutUserSuspenseQueryOptionsHook(config: Partial<RequestConfig
  * @summary Logs out current logged in user session
  * {@link /user/logout}
  */
-export function useLogoutUserSuspenseHook<TData = LogoutUserResponseData, TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey>(
+export function useLogoutUserSuspenseHook<TData = LogoutUserResponseData3, TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey>(
   options: {
-    query?: Partial<UseSuspenseQueryOptions<LogoutUserResponseData, ResponseErrorConfig<Error>, TData, TQueryKey>> & { client?: QueryClient }
+    query?: Partial<UseSuspenseQueryOptions<LogoutUserResponseData3, ResponseErrorConfig<Error>, TData, TQueryKey>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {

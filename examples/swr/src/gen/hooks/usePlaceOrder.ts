@@ -7,7 +7,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { PlaceOrderRequestData, PlaceOrderResponseData, PlaceOrderStatus405 } from '../models/PlaceOrder.ts'
+import type { PlaceOrderRequestData3, PlaceOrderResponseData3, PlaceOrderStatus4053 } from '../models/PlaceOrder.ts'
 
 export const placeOrderMutationKey = () => [{ url: '/store/order' }] as const
 
@@ -19,8 +19,8 @@ export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
  * {@link /store/order}
  */
 export async function placeOrder(
-  data?: PlaceOrderRequestData,
-  config: Partial<RequestConfig<PlaceOrderRequestData>> & {
+  data?: PlaceOrderRequestData3,
+  config: Partial<RequestConfig<PlaceOrderRequestData3>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -28,7 +28,7 @@ export async function placeOrder(
 
   const requestData = data
 
-  const res = await request<PlaceOrderResponseData, ResponseErrorConfig<PlaceOrderStatus405>, PlaceOrderRequestData>({
+  const res = await request<PlaceOrderResponseData3, ResponseErrorConfig<PlaceOrderStatus4053>, PlaceOrderRequestData3>({
     method: 'POST',
     url: '/store/order',
     data: requestData,
@@ -37,7 +37,7 @@ export async function placeOrder(
   return res.data
 }
 
-export type PlaceOrderMutationArg = { data?: PlaceOrderRequestData }
+export type PlaceOrderMutationArg = { data?: PlaceOrderRequestData3 }
 
 /**
  * @description Place a new order in the store
@@ -47,12 +47,12 @@ export type PlaceOrderMutationArg = { data?: PlaceOrderRequestData }
 export function usePlaceOrder(
   options: {
     mutation?: SWRMutationConfiguration<
-      PlaceOrderResponseData,
-      ResponseErrorConfig<PlaceOrderStatus405>,
+      PlaceOrderResponseData3,
+      ResponseErrorConfig<PlaceOrderStatus4053>,
       PlaceOrderMutationKey | null,
       PlaceOrderMutationArg
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig<PlaceOrderRequestData>> & {
+    client?: Partial<RequestConfig<PlaceOrderRequestData3>> & {
       client?: typeof fetch
     }
     shouldFetch?: boolean
@@ -61,7 +61,7 @@ export function usePlaceOrder(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = placeOrderMutationKey()
 
-  return useSWRMutation<PlaceOrderResponseData, ResponseErrorConfig<PlaceOrderStatus405>, PlaceOrderMutationKey | null, PlaceOrderMutationArg>(
+  return useSWRMutation<PlaceOrderResponseData3, ResponseErrorConfig<PlaceOrderStatus4053>, PlaceOrderMutationKey | null, PlaceOrderMutationArg>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: { data } }) => {
       return placeOrder(data, config)

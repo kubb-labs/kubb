@@ -1,7 +1,7 @@
-import { z } from 'zod'
+import type { AddFilesStatus200, AddFilesStatus405, AddFilesRequestData, AddFilesResponseData } from '../../models/ts/petController/AddFiles.ts'
 import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { AddFilesRequestData, AddFilesResponseData, AddFilesStatus200, AddFilesStatus405 } from '../../models/ts/petController/AddFiles.ts'
 import { petSchema } from '../petSchema.ts'
+import { z } from 'zod'
 
 /**
  * @description successful operation

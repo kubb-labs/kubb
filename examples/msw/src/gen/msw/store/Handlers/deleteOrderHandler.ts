@@ -4,15 +4,15 @@
  */
 
 import { http } from 'msw'
-import type { DeleteOrderStatus400, DeleteOrderStatus404 } from '../../../models/DeleteOrder.ts'
+import type { DeleteOrderStatus4002, DeleteOrderStatus4042 } from '../../../models/DeleteOrder.ts'
 
-export function deleteOrderHandlerResponse400(data?: DeleteOrderStatus400) {
+export function deleteOrderHandlerResponse400(data?: DeleteOrderStatus4002) {
   return new Response(JSON.stringify(data), {
     status: 400,
   })
 }
 
-export function deleteOrderHandlerResponse404(data?: DeleteOrderStatus404) {
+export function deleteOrderHandlerResponse404(data?: DeleteOrderStatus4042) {
   return new Response(JSON.stringify(data), {
     status: 404,
   })

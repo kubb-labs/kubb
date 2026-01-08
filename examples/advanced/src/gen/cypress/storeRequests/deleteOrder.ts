@@ -1,4 +1,4 @@
-import type { DeleteOrderPathParams, DeleteOrderResponseData } from '../../models/ts/storeController/DeleteOrder.ts'
+import type { DeleteOrderResponseData, DeleteOrderPathParams } from '../../models/ts/storeController/DeleteOrder.ts'
 
 export function deleteOrder(orderId: DeleteOrderPathParams['orderId'], options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<DeleteOrderResponseData> {
   return cy
