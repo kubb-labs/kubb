@@ -4,7 +4,7 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { UpdatePetResponseData } from '../../models/UpdatePet.ts'
+import type { UpdatePetResponseData, UpdatePetStatus202 } from '../../models/UpdatePet.ts'
 import { createPet } from '../createPet.ts'
 
 /**
@@ -13,6 +13,17 @@ import { createPet } from '../createPet.ts'
 export function createUpdatePetStatus200() {
   faker.seed([220])
   return createPet()
+}
+
+/**
+ * @description accepted operation
+ */
+export function createUpdatePetStatus202(data?: Partial<UpdatePetStatus202>): UpdatePetStatus202 {
+  faker.seed([220])
+  return {
+    ...{ id: faker.number.int() },
+    ...(data || {}),
+  }
 }
 
 /**
@@ -49,5 +60,5 @@ export function createUpdatePetRequestData() {
 
 export function createUpdatePetResponseData(data?: Partial<UpdatePetResponseData>): UpdatePetResponseData {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([createUpdatePetStatus200()])
+  return data || faker.helpers.arrayElement<any>([createUpdatePetStatus200(), createUpdatePetStatus202()])
 }

@@ -1,4 +1,3 @@
-export { addPetRequestSchema } from './zod/addPetRequestSchema.ts'
 export {
   addPetRequestDataSchema,
   addPetResponseDataSchema,
@@ -119,6 +118,7 @@ export {
   placeOrderStatus200Schema,
   placeOrderStatus405Schema,
 } from './zod/placeOrderSchema.ts'
+export { postPetRequestSchema } from './zod/postPetRequestSchema.ts'
 export { tagSchema } from './zod/tagSchema.ts'
 export {
   updatePetRequestDataSchema,

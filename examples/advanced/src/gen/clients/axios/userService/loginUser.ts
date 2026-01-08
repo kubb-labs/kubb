@@ -1,7 +1,7 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { LoginUserResponseData, LoginUserQueryParams, LoginUserStatus400 } from '../../../models/ts/userController/LoginUser.ts'
-import { loginUserResponseData2Schema } from '../../../zod/userController/loginUserSchema.ts'
+import fetch from '../../../../axios-client.ts'
+import type { LoginUserQueryParams, LoginUserResponseData, LoginUserStatus400 } from '../../../models/ts/userController/LoginUser.ts'
+import { loginUserResponseDataSchema } from '../../../zod/userController/loginUserSchema.ts'
 
 export function getLoginUserUrl() {
   const res = { method: 'GET', url: 'https://petstore3.swagger.io/api/v3/user/login' as const }
@@ -21,5 +21,5 @@ export async function loginUser({ params }: { params?: LoginUserQueryParams }, c
     params,
     ...requestConfig,
   })
-  return { ...res, data: loginUserResponseData2Schema.parse(res.data) }
+  return { ...res, data: loginUserResponseDataSchema.parse(res.data) }
 }

@@ -7,7 +7,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { AddPetRequestData3, AddPetResponseData3, AddPetStatus4053 } from '../models/AddPet.ts'
+import type { AddPetRequestData, AddPetResponseData, AddPetStatus405 } from '../models/AddPet.ts'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
 
@@ -19,8 +19,8 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
  * {@link /pet}
  */
 export async function addPet(
-  data: AddPetRequestData3,
-  config: Partial<RequestConfig<AddPetRequestData3>> & {
+  data: AddPetRequestData,
+  config: Partial<RequestConfig<AddPetRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -28,7 +28,7 @@ export async function addPet(
 
   const requestData = data
 
-  const res = await request<AddPetResponseData3, ResponseErrorConfig<AddPetStatus4053>, AddPetRequestData3>({
+  const res = await request<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, AddPetRequestData>({
     method: 'POST',
     url: '/pet',
     data: requestData,
@@ -37,7 +37,7 @@ export async function addPet(
   return res.data
 }
 
-export type AddPetMutationArg = { data: AddPetRequestData3 }
+export type AddPetMutationArg = { data: AddPetRequestData }
 
 /**
  * @description Add a new pet to the store
@@ -46,10 +46,10 @@ export type AddPetMutationArg = { data: AddPetRequestData3 }
  */
 export function useAddPet(
   options: {
-    mutation?: SWRMutationConfiguration<AddPetResponseData3, ResponseErrorConfig<AddPetStatus4053>, AddPetMutationKey | null, AddPetMutationArg> & {
+    mutation?: SWRMutationConfiguration<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, AddPetMutationKey | null, AddPetMutationArg> & {
       throwOnError?: boolean
     }
-    client?: Partial<RequestConfig<AddPetRequestData3>> & {
+    client?: Partial<RequestConfig<AddPetRequestData>> & {
       client?: typeof fetch
     }
     shouldFetch?: boolean
@@ -58,7 +58,7 @@ export function useAddPet(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = addPetMutationKey()
 
-  return useSWRMutation<AddPetResponseData3, ResponseErrorConfig<AddPetStatus4053>, AddPetMutationKey | null, AddPetMutationArg>(
+  return useSWRMutation<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, AddPetMutationKey | null, AddPetMutationArg>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: { data } }) => {
       return addPet(data, config)

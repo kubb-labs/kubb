@@ -8,7 +8,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
-import type { DeleteUserPathParams5, DeleteUserResponseData5, DeleteUserStatus4005, DeleteUserStatus4045 } from '../models/DeleteUser.ts'
+import type { DeleteUserPathParams, DeleteUserResponseData, DeleteUserStatus400, DeleteUserStatus404 } from '../models/DeleteUser.ts'
 
 export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const
 
@@ -20,12 +20,12 @@ export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
  * {@link /user/:username}
  */
 export async function deleteUser(
-  { username }: { username: DeleteUserPathParams5['username'] },
+  { username }: { username: DeleteUserPathParams['username'] },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<DeleteUserResponseData5, ResponseErrorConfig<DeleteUserStatus4005 | DeleteUserStatus4045>, unknown>({
+  const res = await request<DeleteUserResponseData, ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>, unknown>({
     method: 'DELETE',
     url: `/user/${username}`,
     ...requestConfig,
@@ -41,9 +41,9 @@ export async function deleteUser(
 export function useDeleteUser<TContext>(
   options: {
     mutation?: MutationObserverOptions<
-      DeleteUserResponseData5,
-      ResponseErrorConfig<DeleteUserStatus4005 | DeleteUserStatus4045>,
-      { username: MaybeRefOrGetter<DeleteUserPathParams5['username']> },
+      DeleteUserResponseData,
+      ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>,
+      { username: MaybeRefOrGetter<DeleteUserPathParams['username']> },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -54,9 +54,9 @@ export function useDeleteUser<TContext>(
   const mutationKey = mutationOptions?.mutationKey ?? deleteUserMutationKey()
 
   return useMutation<
-    DeleteUserResponseData5,
-    ResponseErrorConfig<DeleteUserStatus4005 | DeleteUserStatus4045>,
-    { username: DeleteUserPathParams5['username'] },
+    DeleteUserResponseData,
+    ResponseErrorConfig<DeleteUserStatus400 | DeleteUserStatus404>,
+    { username: DeleteUserPathParams['username'] },
     TContext
   >(
     {

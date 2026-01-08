@@ -1,7 +1,7 @@
-import fetch from '@kubb/plugin-client/clients/axios'
-import type { DeletePetResponseData, DeletePetPathParams, DeletePetHeaderParams, DeletePetStatus400 } from '../../models/ts/petController/DeletePet.ts'
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import fetch from '@kubb/plugin-client/clients/axios'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
+import type { DeletePetHeaderParams, DeletePetPathParams, DeletePetResponseData, DeletePetStatus400 } from '../../models/ts/petController/DeletePet.ts'
 
 /**
  * @description delete a pet

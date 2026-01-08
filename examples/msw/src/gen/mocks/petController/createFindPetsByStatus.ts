@@ -4,15 +4,13 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { FindPetsByStatusQueryParams, FindPetsByStatusResponseData, FindPetsByStatusStatus200 } from '../../models/FindPetsByStatus.ts'
+import type { FindPetsByStatusPathParams, FindPetsByStatusResponseData, FindPetsByStatusStatus200 } from '../../models/FindPetsByStatus.ts'
 import { createPet } from '../createPet.ts'
 
-export function createFindPetsByStatusQueryParams(data?: Partial<FindPetsByStatusQueryParams>): FindPetsByStatusQueryParams {
+export function createFindPetsByStatusPathParams(data?: Partial<FindPetsByStatusPathParams>): FindPetsByStatusPathParams {
   faker.seed([220])
   return {
-    ...{
-      status: faker.helpers.arrayElement<NonNullable<FindPetsByStatusQueryParams>['status']>(['available', 'pending', 'sold']),
-    },
+    ...{ step_id: faker.string.alpha() },
     ...(data || {}),
   }
 }
@@ -22,7 +20,7 @@ export function createFindPetsByStatusQueryParams(data?: Partial<FindPetsByStatu
  */
 export function createFindPetsByStatusStatus200(data?: FindPetsByStatusStatus200): FindPetsByStatusStatus200 {
   faker.seed([220])
-  return [...faker.helpers.multiple(() => createPet()), ...(data || [])]
+  return [...faker.helpers.multiple(() => createPet(), { count: { min: 1, max: 3 } }), ...(data || [])]
 }
 
 /**

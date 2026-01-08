@@ -4,7 +4,7 @@
  */
 
 import type { Category } from './Category.ts'
-import type { Tag } from './Tag.ts'
+import type { TagTag } from './tag/Tag.ts'
 
 export const petStatusEnum = {
   available: 'available',
@@ -18,11 +18,25 @@ export type Pet = {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  readonly id?: number
+  /**
+   * @type array | undefined
+   */
+  parent?: Pet[]
+  /**
+   * @pattern ^data:image\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$
+   * @type string | undefined
+   */
+  signature?: string
   /**
    * @type string
    */
   name: string
+  /**
+   * @maxLength 255
+   * @type string | undefined, uri
+   */
+  url?: string
   /**
    * @type object | undefined
    */
@@ -34,7 +48,7 @@ export type Pet = {
   /**
    * @type array | undefined
    */
-  tags?: Tag[]
+  tags?: TagTag[]
   /**
    * @description pet status in the store
    * @type string | undefined

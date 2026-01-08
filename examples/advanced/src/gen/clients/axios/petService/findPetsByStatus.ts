@@ -1,7 +1,7 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { FindPetsByStatusResponseData, FindPetsByStatusPathParams, FindPetsByStatusStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
-import { findPetsByStatusResponseData2Schema } from '../../../zod/petController/findPetsByStatusSchema.ts'
+import fetch from '../../../../axios-client.ts'
+import type { FindPetsByStatusPathParams, FindPetsByStatusResponseData, FindPetsByStatusStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
+import { findPetsByStatusResponseDataSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
 
 export function getFindPetsByStatusUrl({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }) {
   const res = { method: 'GET', url: `https://petstore3.swagger.io/api/v3/pet/findByStatus/${step_id}` as const }
@@ -24,5 +24,5 @@ export async function findPetsByStatus(
     url: getFindPetsByStatusUrl({ step_id }).url.toString(),
     ...requestConfig,
   })
-  return { ...res, data: findPetsByStatusResponseData2Schema.parse(res.data) }
+  return { ...res, data: findPetsByStatusResponseDataSchema.parse(res.data) }
 }

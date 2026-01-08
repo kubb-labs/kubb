@@ -1,4 +1,3 @@
-export { addPetRequestSchema } from './addPetRequestSchema.ts'
 export {
   addPetRequestDataSchema,
   addPetResponseDataSchema,
@@ -119,6 +118,7 @@ export {
   placeOrderStatus200Schema,
   placeOrderStatus405Schema,
 } from './placeOrderSchema.ts'
+export { postPetRequestSchema } from './postPetRequestSchema.ts'
 export { tagSchema } from './tagSchema.ts'
 export {
   updatePetRequestDataSchema,

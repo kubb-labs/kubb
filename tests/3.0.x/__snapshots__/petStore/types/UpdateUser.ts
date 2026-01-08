@@ -23,4 +23,12 @@ export type UpdateUserStatusError = any;
 */
 export type UpdateUserRequestData = User;
 
+export type UpdateUserRequest = {
+    data?: UpdateUserRequestData;
+    pathParams: UpdateUserPathParams;
+    queryParams?: never;
+    headerParams?: never;
+    url: `/user/${string}`;
+};
+
 export type UpdateUserResponseData = any;

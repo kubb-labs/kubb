@@ -1,7 +1,7 @@
-import type { CreateUserStatusError, CreateUserRequestData, CreateUserResponseData } from '../../models/ts/userController/CreateUser.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
-import { userSchema } from '../userSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
+import type { CreateUserRequestData, CreateUserResponseData, CreateUserStatusError } from '../../models/ts/userController/CreateUser.ts'
+import { userSchema } from '../userSchema.ts'
 
 /**
  * @description successful operation

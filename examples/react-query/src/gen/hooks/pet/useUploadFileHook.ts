@@ -7,7 +7,7 @@ import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tansta
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { UploadFilePathParams9, UploadFileQueryParams9, UploadFileRequestData9, UploadFileResponseData9 } from '../../models/UploadFile.ts'
+import type { UploadFilePathParams, UploadFileQueryParams, UploadFileRequestData, UploadFileResponseData } from '../../models/UploadFile.ts'
 
 export const uploadFileMutationKey = () => [{ url: '/pet/:petId/uploadImage' }] as const
 
@@ -18,10 +18,10 @@ export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
  * {@link /pet/:petId/uploadImage}
  */
 export async function uploadFileHook(
-  { petId }: { petId: UploadFilePathParams9['petId'] },
-  data?: UploadFileRequestData9,
-  params?: UploadFileQueryParams9,
-  config: Partial<RequestConfig<UploadFileRequestData9>> & {
+  { petId }: { petId: UploadFilePathParams['petId'] },
+  data?: UploadFileRequestData,
+  params?: UploadFileQueryParams,
+  config: Partial<RequestConfig<UploadFileRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -29,7 +29,7 @@ export async function uploadFileHook(
 
   const requestData = data
 
-  const res = await request<UploadFileResponseData9, ResponseErrorConfig<Error>, UploadFileRequestData9>({
+  const res = await request<UploadFileResponseData, ResponseErrorConfig<Error>, UploadFileRequestData>({
     method: 'POST',
     url: `/pet/${petId}/uploadImage`,
     params,
@@ -44,18 +44,18 @@ export async function uploadFileHook(
 }
 
 export function uploadFileMutationOptionsHook(
-  config: Partial<RequestConfig<UploadFileRequestData9>> & {
+  config: Partial<RequestConfig<UploadFileRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
   const mutationKey = uploadFileMutationKey()
   return mutationOptions<
-    UploadFileResponseData9,
+    UploadFileResponseData,
     ResponseErrorConfig<Error>,
     {
-      petId: UploadFilePathParams9['petId']
-      data?: UploadFileRequestData9
-      params?: UploadFileQueryParams9
+      petId: UploadFilePathParams['petId']
+      data?: UploadFileRequestData
+      params?: UploadFileQueryParams
     },
     typeof mutationKey
   >({
@@ -73,16 +73,16 @@ export function uploadFileMutationOptionsHook(
 export function useUploadFileHook<TContext>(
   options: {
     mutation?: UseMutationOptions<
-      UploadFileResponseData9,
+      UploadFileResponseData,
       ResponseErrorConfig<Error>,
       {
-        petId: UploadFilePathParams9['petId']
-        data?: UploadFileRequestData9
-        params?: UploadFileQueryParams9
+        petId: UploadFilePathParams['petId']
+        data?: UploadFileRequestData
+        params?: UploadFileQueryParams
       },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UploadFileRequestData9>> & {
+    client?: Partial<RequestConfig<UploadFileRequestData>> & {
       client?: typeof fetch
     }
   } = {},
@@ -92,23 +92,23 @@ export function useUploadFileHook<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? uploadFileMutationKey()
 
   const baseOptions = uploadFileMutationOptionsHook(config) as UseMutationOptions<
-    UploadFileResponseData9,
+    UploadFileResponseData,
     ResponseErrorConfig<Error>,
     {
-      petId: UploadFilePathParams9['petId']
-      data?: UploadFileRequestData9
-      params?: UploadFileQueryParams9
+      petId: UploadFilePathParams['petId']
+      data?: UploadFileRequestData
+      params?: UploadFileQueryParams
     },
     TContext
   >
 
   return useMutation<
-    UploadFileResponseData9,
+    UploadFileResponseData,
     ResponseErrorConfig<Error>,
     {
-      petId: UploadFilePathParams9['petId']
-      data?: UploadFileRequestData9
-      params?: UploadFileQueryParams9
+      petId: UploadFilePathParams['petId']
+      data?: UploadFileRequestData
+      params?: UploadFileQueryParams
     },
     TContext
   >(
@@ -119,12 +119,12 @@ export function useUploadFileHook<TContext>(
     },
     queryClient,
   ) as UseMutationResult<
-    UploadFileResponseData9,
+    UploadFileResponseData,
     ResponseErrorConfig<Error>,
     {
-      petId: UploadFilePathParams9['petId']
-      data?: UploadFileRequestData9
-      params?: UploadFileQueryParams9
+      petId: UploadFilePathParams['petId']
+      data?: UploadFileRequestData
+      params?: UploadFileQueryParams
     },
     TContext
   >

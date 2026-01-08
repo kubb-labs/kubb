@@ -26,12 +26,7 @@ export type UploadFileQueryParams = {
  */
 export type UploadFileStatus200 = ApiResponse
 
-export type UploadFileRequestData = {
-  /**
-   * @type string, binary
-   */
-  file: Blob
-}
+export type UploadFileRequestData = Blob
 
 export type UploadFileRequest = {
   data?: UploadFileRequestData

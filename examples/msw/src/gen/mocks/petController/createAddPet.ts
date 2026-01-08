@@ -5,8 +5,8 @@
 
 import { faker } from '@faker-js/faker'
 import type { AddPetResponseData, AddPetStatus405 } from '../../models/AddPet.ts'
-import { createAddPetRequest } from '../createAddPetRequest.ts'
 import { createPet } from '../createPet.ts'
+import { createPostPetRequest } from '../createPostPetRequest.ts'
 
 /**
  * @description Successful operation
@@ -32,7 +32,7 @@ export function createAddPetStatus405(data?: Partial<AddPetStatus405>): AddPetSt
  */
 export function createAddPetRequestData() {
   faker.seed([220])
-  return createAddPetRequest()
+  return createPostPetRequest()
 }
 
 export function createAddPetResponseData(data?: Partial<AddPetResponseData>): AddPetResponseData {

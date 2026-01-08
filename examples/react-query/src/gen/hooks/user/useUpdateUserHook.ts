@@ -7,7 +7,7 @@ import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tansta
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { UpdateUserPathParams9, UpdateUserRequestData9, UpdateUserResponseData9 } from '../../models/UpdateUser.ts'
+import type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData } from '../../models/UpdateUser.ts'
 
 export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
@@ -19,9 +19,9 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
  * {@link /user/:username}
  */
 export async function updateUserHook(
-  { username }: { username: UpdateUserPathParams9['username'] },
-  data?: UpdateUserRequestData9,
-  config: Partial<RequestConfig<UpdateUserRequestData9>> & {
+  { username }: { username: UpdateUserPathParams['username'] },
+  data?: UpdateUserRequestData,
+  config: Partial<RequestConfig<UpdateUserRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -29,7 +29,7 @@ export async function updateUserHook(
 
   const requestData = data
 
-  const res = await request<UpdateUserResponseData9, ResponseErrorConfig<Error>, UpdateUserRequestData9>({
+  const res = await request<UpdateUserResponseData, ResponseErrorConfig<Error>, UpdateUserRequestData>({
     method: 'PUT',
     url: `/user/${username}`,
     data: requestData,
@@ -39,17 +39,17 @@ export async function updateUserHook(
 }
 
 export function updateUserMutationOptionsHook(
-  config: Partial<RequestConfig<UpdateUserRequestData9>> & {
+  config: Partial<RequestConfig<UpdateUserRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
   const mutationKey = updateUserMutationKey()
   return mutationOptions<
-    UpdateUserResponseData9,
+    UpdateUserResponseData,
     ResponseErrorConfig<Error>,
     {
-      username: UpdateUserPathParams9['username']
-      data?: UpdateUserRequestData9
+      username: UpdateUserPathParams['username']
+      data?: UpdateUserRequestData
     },
     typeof mutationKey
   >({
@@ -68,15 +68,15 @@ export function updateUserMutationOptionsHook(
 export function useUpdateUserHook<TContext>(
   options: {
     mutation?: UseMutationOptions<
-      UpdateUserResponseData9,
+      UpdateUserResponseData,
       ResponseErrorConfig<Error>,
       {
-        username: UpdateUserPathParams9['username']
-        data?: UpdateUserRequestData9
+        username: UpdateUserPathParams['username']
+        data?: UpdateUserRequestData
       },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UpdateUserRequestData9>> & {
+    client?: Partial<RequestConfig<UpdateUserRequestData>> & {
       client?: typeof fetch
     }
   } = {},
@@ -86,21 +86,21 @@ export function useUpdateUserHook<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? updateUserMutationKey()
 
   const baseOptions = updateUserMutationOptionsHook(config) as UseMutationOptions<
-    UpdateUserResponseData9,
+    UpdateUserResponseData,
     ResponseErrorConfig<Error>,
     {
-      username: UpdateUserPathParams9['username']
-      data?: UpdateUserRequestData9
+      username: UpdateUserPathParams['username']
+      data?: UpdateUserRequestData
     },
     TContext
   >
 
   return useMutation<
-    UpdateUserResponseData9,
+    UpdateUserResponseData,
     ResponseErrorConfig<Error>,
     {
-      username: UpdateUserPathParams9['username']
-      data?: UpdateUserRequestData9
+      username: UpdateUserPathParams['username']
+      data?: UpdateUserRequestData
     },
     TContext
   >(
@@ -111,11 +111,11 @@ export function useUpdateUserHook<TContext>(
     },
     queryClient,
   ) as UseMutationResult<
-    UpdateUserResponseData9,
+    UpdateUserResponseData,
     ResponseErrorConfig<Error>,
     {
-      username: UpdateUserPathParams9['username']
-      data?: UpdateUserRequestData9
+      username: UpdateUserPathParams['username']
+      data?: UpdateUserRequestData
     },
     TContext
   >

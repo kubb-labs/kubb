@@ -8,13 +8,13 @@ import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type {
-  UpdatePetWithFormPathParams3,
-  UpdatePetWithFormQueryParams3,
-  UpdatePetWithFormResponseData3,
-  UpdatePetWithFormStatus4053,
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
+  UpdatePetWithFormResponseData,
+  UpdatePetWithFormStatus405,
 } from '../../models/UpdatePetWithForm.ts'
 
-export const updatePetWithFormSuspenseQueryKey = (pet_id: UpdatePetWithFormPathParams3['pet_id'], params?: UpdatePetWithFormQueryParams3) =>
+export const updatePetWithFormSuspenseQueryKey = (pet_id: UpdatePetWithFormPathParams['pet_id'], params?: UpdatePetWithFormQueryParams) =>
   ['v5', { url: '/pet/:pet_id', params: { pet_id: pet_id } }, ...(params ? [params] : [])] as const
 
 export type UpdatePetWithFormSuspenseQueryKey = ReturnType<typeof updatePetWithFormSuspenseQueryKey>
@@ -24,13 +24,13 @@ export type UpdatePetWithFormSuspenseQueryKey = ReturnType<typeof updatePetWithF
  * {@link /pet/:pet_id}
  */
 export async function updatePetWithFormSuspenseHook(
-  pet_id: UpdatePetWithFormPathParams3['pet_id'],
-  params?: UpdatePetWithFormQueryParams3,
+  pet_id: UpdatePetWithFormPathParams['pet_id'],
+  params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<UpdatePetWithFormResponseData3, ResponseErrorConfig<UpdatePetWithFormStatus4053>, unknown>({
+  const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
     method: 'POST',
     url: `/pet/${pet_id}`,
     params,
@@ -40,12 +40,12 @@ export async function updatePetWithFormSuspenseHook(
 }
 
 export function updatePetWithFormSuspenseQueryOptionsHook(
-  pet_id: UpdatePetWithFormPathParams3['pet_id'],
-  params?: UpdatePetWithFormQueryParams3,
+  pet_id: UpdatePetWithFormPathParams['pet_id'],
+  params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormSuspenseQueryKey(pet_id, params)
-  return queryOptions<UpdatePetWithFormResponseData3, ResponseErrorConfig<UpdatePetWithFormStatus4053>, UpdatePetWithFormResponseData3, typeof queryKey>({
+  return queryOptions<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, UpdatePetWithFormResponseData, typeof queryKey>({
     enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -59,11 +59,11 @@ export function updatePetWithFormSuspenseQueryOptionsHook(
  * @summary Updates a pet in the store with form data
  * {@link /pet/:pet_id}
  */
-export function useUpdatePetWithFormSuspenseHook<TData = UpdatePetWithFormResponseData3, TQueryKey extends QueryKey = UpdatePetWithFormSuspenseQueryKey>(
-  pet_id: UpdatePetWithFormPathParams3['pet_id'],
-  params?: UpdatePetWithFormQueryParams3,
+export function useUpdatePetWithFormSuspenseHook<TData = UpdatePetWithFormResponseData, TQueryKey extends QueryKey = UpdatePetWithFormSuspenseQueryKey>(
+  pet_id: UpdatePetWithFormPathParams['pet_id'],
+  params?: UpdatePetWithFormQueryParams,
   options: {
-    query?: Partial<UseSuspenseQueryOptions<UpdatePetWithFormResponseData3, ResponseErrorConfig<UpdatePetWithFormStatus4053>, TData, TQueryKey>> & {
+    query?: Partial<UseSuspenseQueryOptions<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, TData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -80,7 +80,7 @@ export function useUpdatePetWithFormSuspenseHook<TData = UpdatePetWithFormRespon
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
-  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<UpdatePetWithFormStatus4053>> & { queryKey: TQueryKey }
+  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<UpdatePetWithFormStatus405>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

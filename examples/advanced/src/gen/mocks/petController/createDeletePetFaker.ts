@@ -1,5 +1,5 @@
-import type { DeletePetPathParams, DeletePetHeaderParams, DeletePetResponseData } from '../../models/ts/petController/DeletePet.ts'
 import { faker } from '@faker-js/faker'
+import type { DeletePetHeaderParams, DeletePetPathParams, DeletePetResponseData } from '../../models/ts/petController/DeletePet.ts'
 
 export function createDeletePetPathParamsFaker(data?: Partial<DeletePetPathParams>): DeletePetPathParams {
   return {
@@ -22,6 +22,6 @@ export function createDeletePetStatus400Faker() {
   return undefined
 }
 
-export function createDeletePetResponseDataFaker(data?: Partial<DeletePetResponseData>): DeletePetResponseData {
+export function createDeletePetResponseDataFaker(_data?: Partial<DeletePetResponseData>): DeletePetResponseData {
   return undefined
 }

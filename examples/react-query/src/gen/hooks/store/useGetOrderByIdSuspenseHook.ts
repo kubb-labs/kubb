@@ -7,9 +7,9 @@ import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { GetOrderByIdPathParams3, GetOrderByIdResponseData3, GetOrderByIdStatus4003, GetOrderByIdStatus4043 } from '../../models/GetOrderById.ts'
+import type { GetOrderByIdPathParams, GetOrderByIdResponseData, GetOrderByIdStatus400, GetOrderByIdStatus404 } from '../../models/GetOrderById.ts'
 
-export const getOrderByIdSuspenseQueryKey = ({ orderId }: { orderId: GetOrderByIdPathParams3['orderId'] }) =>
+export const getOrderByIdSuspenseQueryKey = ({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }) =>
   ['v5', { url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
 export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspenseQueryKey>
@@ -20,12 +20,12 @@ export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspens
  * {@link /store/order/:orderId}
  */
 export async function getOrderByIdSuspenseHook(
-  { orderId }: { orderId: GetOrderByIdPathParams3['orderId'] },
+  { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<GetOrderByIdResponseData3, ResponseErrorConfig<GetOrderByIdStatus4003 | GetOrderByIdStatus4043>, unknown>({
+  const res = await request<GetOrderByIdResponseData, ResponseErrorConfig<GetOrderByIdStatus400 | GetOrderByIdStatus404>, unknown>({
     method: 'GET',
     url: `/store/order/${orderId}`,
     ...requestConfig,
@@ -34,16 +34,11 @@ export async function getOrderByIdSuspenseHook(
 }
 
 export function getOrderByIdSuspenseQueryOptionsHook(
-  { orderId }: { orderId: GetOrderByIdPathParams3['orderId'] },
+  { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = getOrderByIdSuspenseQueryKey({ orderId })
-  return queryOptions<
-    GetOrderByIdResponseData3,
-    ResponseErrorConfig<GetOrderByIdStatus4003 | GetOrderByIdStatus4043>,
-    GetOrderByIdResponseData3,
-    typeof queryKey
-  >({
+  return queryOptions<GetOrderByIdResponseData, ResponseErrorConfig<GetOrderByIdStatus400 | GetOrderByIdStatus404>, GetOrderByIdResponseData, typeof queryKey>({
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -58,12 +53,12 @@ export function getOrderByIdSuspenseQueryOptionsHook(
  * @summary Find purchase order by ID
  * {@link /store/order/:orderId}
  */
-export function useGetOrderByIdSuspenseHook<TData = GetOrderByIdResponseData3, TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey>(
-  { orderId }: { orderId: GetOrderByIdPathParams3['orderId'] },
+export function useGetOrderByIdSuspenseHook<TData = GetOrderByIdResponseData, TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey>(
+  { orderId }: { orderId: GetOrderByIdPathParams['orderId'] },
   options: {
-    query?: Partial<
-      UseSuspenseQueryOptions<GetOrderByIdResponseData3, ResponseErrorConfig<GetOrderByIdStatus4003 | GetOrderByIdStatus4043>, TData, TQueryKey>
-    > & { client?: QueryClient }
+    query?: Partial<UseSuspenseQueryOptions<GetOrderByIdResponseData, ResponseErrorConfig<GetOrderByIdStatus400 | GetOrderByIdStatus404>, TData, TQueryKey>> & {
+      client?: QueryClient
+    }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
   } = {},
 ) {
@@ -78,7 +73,7 @@ export function useGetOrderByIdSuspenseHook<TData = GetOrderByIdResponseData3, T
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
-  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetOrderByIdStatus4003 | GetOrderByIdStatus4043>> & { queryKey: TQueryKey }
+  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetOrderByIdStatus400 | GetOrderByIdStatus404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

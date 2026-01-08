@@ -1,14 +1,13 @@
 export type {
-  CreatePetsPathParams,
-  CreatePetsQueryParamsBoolParamEnumKey,
-  CreatePetsQueryParams,
-  CreatePetsHeaderParamsXEXAMPLEEnumKey,
   CreatePetsHeaderParams,
+  CreatePetsHeaderParamsXEXAMPLEEnumKey,
+  CreatePetsPathParams,
+  CreatePetsQueryParams,
+  CreatePetsQueryParamsBoolParamEnumKey,
+  CreatePetsRequest,
+  CreatePetsRequestData,
+  CreatePetsResponseData,
   CreatePetsStatus201,
   CreatePetsStatusError,
-  CreatePetsRequestData,
-  CreatePetsRequest,
-  CreatePetsResponseData,
 } from './CreatePets.ts'
-export { createPetsQueryParamsBoolParamEnum } from './CreatePets.ts'
-export { createPetsHeaderParamsXEXAMPLEEnum } from './CreatePets.ts'
+export { createPetsHeaderParamsXEXAMPLEEnum, createPetsQueryParamsBoolParamEnum } from './CreatePets.ts'

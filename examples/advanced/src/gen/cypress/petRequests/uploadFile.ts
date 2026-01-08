@@ -1,4 +1,4 @@
-import type { UploadFileRequestData, UploadFileResponseData, UploadFilePathParams, UploadFileQueryParams } from '../../models/ts/petController/UploadFile.ts'
+import type { UploadFilePathParams, UploadFileQueryParams, UploadFileRequestData, UploadFileResponseData } from '../../models/ts/petController/UploadFile.ts'
 
 export function uploadFile(
   petId: UploadFilePathParams['petId'],

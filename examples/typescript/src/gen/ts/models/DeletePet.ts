@@ -18,19 +18,6 @@ export type DeletePetHeaderParams = {
   api_key?: string
 }
 
-export const deletePetStatus200Enum = {
-  TYPE1: 'TYPE1',
-  TYPE2: 'TYPE2',
-  TYPE3: 'TYPE3',
-} as const
-
-export type DeletePetStatus200EnumKey = (typeof deletePetStatus200Enum)[keyof typeof deletePetStatus200Enum]
-
-/**
- * @description items
- */
-export type DeletePetStatus200 = DeletePetStatus200EnumKey[]
-
 /**
  * @description Invalid pet value
  */
@@ -41,11 +28,7 @@ export type DeletePetRequest = {
   pathParams: DeletePetPathParams
   queryParams?: never
   headerParams?: DeletePetHeaderParams
-  url: `/pet/${string}`
+  url: `/pet/${string}:search`
 }
 
-export type DeletePetResponses = {
-  '200': DeletePetStatus200
-}
-
-export type DeletePetResponseData = DeletePetResponses[keyof DeletePetResponses]
+export type DeletePetResponseData = any

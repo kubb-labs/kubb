@@ -7,7 +7,7 @@ import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tansta
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { PlaceOrderPatchRequestData9, PlaceOrderPatchResponseData9, PlaceOrderPatchStatus4059 } from '../../models/PlaceOrderPatch.ts'
+import type { PlaceOrderPatchRequestData, PlaceOrderPatchResponseData, PlaceOrderPatchStatus405 } from '../../models/PlaceOrderPatch.ts'
 
 export const placeOrderPatchMutationKey = () => [{ url: '/store/order' }] as const
 
@@ -19,8 +19,8 @@ export type PlaceOrderPatchMutationKey = ReturnType<typeof placeOrderPatchMutati
  * {@link /store/order}
  */
 export async function placeOrderPatchHook(
-  data?: PlaceOrderPatchRequestData9,
-  config: Partial<RequestConfig<PlaceOrderPatchRequestData9>> & {
+  data?: PlaceOrderPatchRequestData,
+  config: Partial<RequestConfig<PlaceOrderPatchRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -28,7 +28,7 @@ export async function placeOrderPatchHook(
 
   const requestData = data
 
-  const res = await request<PlaceOrderPatchResponseData9, ResponseErrorConfig<PlaceOrderPatchStatus4059>, PlaceOrderPatchRequestData9>({
+  const res = await request<PlaceOrderPatchResponseData, ResponseErrorConfig<PlaceOrderPatchStatus405>, PlaceOrderPatchRequestData>({
     method: 'PATCH',
     url: '/store/order',
     data: requestData,
@@ -38,22 +38,19 @@ export async function placeOrderPatchHook(
 }
 
 export function placeOrderPatchMutationOptionsHook(
-  config: Partial<RequestConfig<PlaceOrderPatchRequestData9>> & {
+  config: Partial<RequestConfig<PlaceOrderPatchRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
   const mutationKey = placeOrderPatchMutationKey()
-  return mutationOptions<
-    PlaceOrderPatchResponseData9,
-    ResponseErrorConfig<PlaceOrderPatchStatus4059>,
-    { data?: PlaceOrderPatchRequestData9 },
-    typeof mutationKey
-  >({
-    mutationKey,
-    mutationFn: async ({ data }) => {
-      return placeOrderPatchHook(data, config)
+  return mutationOptions<PlaceOrderPatchResponseData, ResponseErrorConfig<PlaceOrderPatchStatus405>, { data?: PlaceOrderPatchRequestData }, typeof mutationKey>(
+    {
+      mutationKey,
+      mutationFn: async ({ data }) => {
+        return placeOrderPatchHook(data, config)
+      },
     },
-  })
+  )
 }
 
 /**
@@ -64,12 +61,12 @@ export function placeOrderPatchMutationOptionsHook(
 export function usePlaceOrderPatchHook<TContext>(
   options: {
     mutation?: UseMutationOptions<
-      PlaceOrderPatchResponseData9,
-      ResponseErrorConfig<PlaceOrderPatchStatus4059>,
-      { data?: PlaceOrderPatchRequestData9 },
+      PlaceOrderPatchResponseData,
+      ResponseErrorConfig<PlaceOrderPatchStatus405>,
+      { data?: PlaceOrderPatchRequestData },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<PlaceOrderPatchRequestData9>> & {
+    client?: Partial<RequestConfig<PlaceOrderPatchRequestData>> & {
       client?: typeof fetch
     }
   } = {},
@@ -79,18 +76,18 @@ export function usePlaceOrderPatchHook<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? placeOrderPatchMutationKey()
 
   const baseOptions = placeOrderPatchMutationOptionsHook(config) as UseMutationOptions<
-    PlaceOrderPatchResponseData9,
-    ResponseErrorConfig<PlaceOrderPatchStatus4059>,
-    { data?: PlaceOrderPatchRequestData9 },
+    PlaceOrderPatchResponseData,
+    ResponseErrorConfig<PlaceOrderPatchStatus405>,
+    { data?: PlaceOrderPatchRequestData },
     TContext
   >
 
-  return useMutation<PlaceOrderPatchResponseData9, ResponseErrorConfig<PlaceOrderPatchStatus4059>, { data?: PlaceOrderPatchRequestData9 }, TContext>(
+  return useMutation<PlaceOrderPatchResponseData, ResponseErrorConfig<PlaceOrderPatchStatus405>, { data?: PlaceOrderPatchRequestData }, TContext>(
     {
       ...baseOptions,
       mutationKey,
       ...mutationOptions,
     },
     queryClient,
-  ) as UseMutationResult<PlaceOrderPatchResponseData9, ResponseErrorConfig<PlaceOrderPatchStatus4059>, { data?: PlaceOrderPatchRequestData9 }, TContext>
+  ) as UseMutationResult<PlaceOrderPatchResponseData, ResponseErrorConfig<PlaceOrderPatchStatus405>, { data?: PlaceOrderPatchRequestData }, TContext>
 }

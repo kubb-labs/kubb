@@ -13,7 +13,7 @@ export function updatePetWithForm(
   return cy
     .request<UpdatePetWithFormResponseData>({
       method: 'post',
-      url: `http://localhost:3000/pet/${petId}`,
+      url: `http://localhost:3000/pet/${petId}:search`,
       qs: params,
       ...options,
     })

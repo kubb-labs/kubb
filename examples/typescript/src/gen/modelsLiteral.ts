@@ -3,10 +3,16 @@
  * Do not edit manually.
  */
 
-export type OrderHttpStatusEnum = 200 | 400 | 500
+export type OrderOrderTypeEnum = 'foo' | 'bar'
+
+export type OrderStatusEnum = 'placed' | 'approved' | 'delivered'
+
+export type OrderHttpStatusEnum = 200 | 400
 
 export type Order = {
   /**
+   * @minLength 3
+   * @maxLength 100
    * @type integer | undefined, int64
    */
   id?: number
@@ -19,13 +25,23 @@ export type Order = {
    */
   quantity?: number
   /**
+   * @type string | undefined
+   */
+  orderType?: OrderOrderTypeEnum
+  /**
+   * @description Order Status
+   * @type string | undefined
+   */
+  type?: string
+  /**
    * @type string | undefined, date-time
    */
   shipDate?: string
   /**
    * @description Order Status
+   * @type string | undefined
    */
-  status?: string
+  status?: OrderStatusEnum
   /**
    * @description HTTP Status
    * @type number | undefined
@@ -41,11 +57,7 @@ export type Address = {
   /**
    * @type string | undefined
    */
-  streetName?: string
-  /**
-   * @type string | undefined
-   */
-  streetNumber?: string
+  street?: string
   /**
    * @type string | undefined
    */
@@ -75,26 +87,26 @@ export type Customer = {
   address?: Address[]
 }
 
-export type HappyCustomer = Customer & {
+export type Category = {
   /**
-   * @type boolean | undefined
+   * @type integer | undefined, int64
    */
-  isHappy?: true
-}
-
-export type UnhappyCustomer = Customer & {
+  id?: number
   /**
    * @type string | undefined
    */
-  reasonToBeUnhappy?: string
-  /**
-   * @type boolean | undefined
-   */
-  isHappy?: false
+  name?: string
 }
 
-export type Category = {
+/**
+ * @deprecated
+ */
+export type TagTag = {
   /**
+   * @deprecated
+   * @minLength 5
+   * @maxLength 7
+   * @default 1
    * @type integer | undefined, int64
    */
   id?: number
@@ -114,6 +126,16 @@ export type User = {
    */
   username?: string
   /**
+   * @deprecated
+   * @type string | undefined, uuid
+   */
+  uuid?: string
+  /**
+   * @description The active tag
+   * @type object | undefined
+   */
+  readonly tag?: TagTag
+  /**
    * @type string | undefined
    */
   firstName?: string
@@ -122,7 +144,7 @@ export type User = {
    */
   lastName?: string
   /**
-   * @type string | undefined
+   * @type string | undefined, email
    */
   email?: string
   /**
@@ -140,121 +162,53 @@ export type User = {
   userStatus?: number
 }
 
-export type Tag = {
+export type PetStatusEnum = 'available' | 'pending' | 'sold'
+
+export type Pet = {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  readonly id?: number
   /**
+   * @type array | undefined
+   */
+  parent?: Pet[]
+  /**
+   * @pattern ^data:image\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$
    * @type string | undefined
    */
-  name?: string
-}
-
-export type Dog = {
-  /**
-   * @minLength 1
-   * @type string | undefined
-   */
-  readonly type?: string
-  /**
-   * @type string | undefined
-   */
-  bark?: string
-}
-
-export type Cat = {
-  /**
-   * @minLength 1
-   * @type string | undefined
-   */
-  readonly type?: string
-  /**
-   * @type string | undefined
-   */
-  name?: string
-}
-
-export type StatusEnum = 'available' | 'pending' | 'sold'
-
-export type Pet =
-  | (Dog & {
-      /**
-       * @type integer | undefined, int64
-       */
-      id?: number
-      /**
-       * @type string
-       */
-      readonly type: 'dog'
-      /**
-       * @type string
-       */
-      name: string
-      /**
-       * @type object | undefined
-       */
-      category?: Category
-      /**
-       * @type array
-       */
-      photoUrls: string[]
-      /**
-       * @type array | undefined
-       */
-      readonly tags?: Tag[]
-      /**
-       * @description pet status in the store
-       * @type string | undefined
-       */
-      status?: StatusEnum
-    })
-  | (Cat & {
-      /**
-       * @type integer | undefined, int64
-       */
-      id?: number
-      /**
-       * @type string
-       */
-      readonly type: 'cat'
-      /**
-       * @type string
-       */
-      name: string
-      /**
-       * @type object | undefined
-       */
-      category?: Category
-      /**
-       * @type array
-       */
-      photoUrls: string[]
-      /**
-       * @type array | undefined
-       */
-      readonly tags?: Tag[]
-      /**
-       * @description pet status in the store
-       * @type string | undefined
-       */
-      status?: StatusEnum
-    })
-
-export type FullAddress = Address & {
+  signature?: string
   /**
    * @type string
    */
-  streetNumber: string
+  name: string
   /**
-   * @type string
+   * @maxLength 255
+   * @type string | undefined, uri
    */
-  streetName: string
+  url?: string
+  /**
+   * @type object | undefined
+   */
+  category?: Category
+  /**
+   * @type array
+   */
+  photoUrls: string[]
+  /**
+   * @type array | undefined
+   */
+  tags?: TagTag[]
+  /**
+   * @description pet status in the store
+   * @type string | undefined
+   */
+  status?: PetStatusEnum
 }
 
-export type AddPetRequestStatusEnum = 'available' | 'pending' | 'sold' | 'in store'
+export type PostPetRequestStatusEnum = 'available' | 'pending' | 'sold'
 
-export type AddPetRequest = {
+export type PostPetRequest = {
   /**
    * @type integer | undefined, int64
    */
@@ -274,12 +228,12 @@ export type AddPetRequest = {
   /**
    * @type array | undefined
    */
-  tags?: Tag[]
+  tags?: TagTag[]
   /**
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: AddPetRequestStatusEnum
+  status?: PostPetRequestStatusEnum
 }
 
 export type ApiResponse = {
@@ -297,6 +251,54 @@ export type ApiResponse = {
   message?: string
 }
 
+export type Cat = {
+  /**
+   * @minLength 1
+   * @type string
+   */
+  readonly type: string
+  /**
+   * @type string | undefined
+   */
+  name?: string
+  /**
+   * @type boolean
+   */
+  indoor: boolean
+}
+
+/**
+ * @example linode/debian10
+ */
+export type Image = string | null
+
+export type Dog = {
+  /**
+   * @minLength 1
+   * @type string
+   */
+  readonly type: string
+  /**
+   * @type string
+   */
+  name: string
+  readonly image?: Image
+}
+
+export type Animal =
+  | (Cat & {
+      /**
+       * @type string
+       */
+      readonly type: 'cat'
+    })
+  | (Dog & {
+      /**
+       * @type string
+       */
+      readonly type: 'dog'
+    })
+
 export type PetNotFound = {
   /**
    * @type integer | undefined, int32
@@ -310,10 +312,87 @@ export type PetNotFound = {
 
 export type UserArray = User[]
 
+export type CreatePetsPathParams = {
+  /**
+   * @description UUID
+   * @type string
+   */
+  uuid: string
+}
+
+export type CreatePetsQueryParamsBoolParamEnum = 'true'
+
+export type CreatePetsQueryParams = {
+  /**
+   * @type string | undefined
+   */
+  bool_param?: CreatePetsQueryParamsBoolParamEnum
+  /**
+   * @description Offset *\/
+   * @type integer | undefined
+   */
+  offset?: number
+}
+
+export type CreatePetsHeaderParamsXEXAMPLEEnum = 'ONE' | 'TWO' | 'THREE'
+
+export type CreatePetsHeaderParams = {
+  /**
+   * @description Header parameters
+   * @type string
+   */
+  'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnum
+}
+
+/**
+ * @description Null response
+ */
+export type CreatePetsStatus201 = any
+
+/**
+ * @description unexpected error
+ */
+export type CreatePetsStatusError = PetNotFound
+
+export type CreatePetsRequestData = {
+  /**
+   * @type string
+   */
+  name: string
+  /**
+   * @type string
+   */
+  tag: string
+}
+
+export type CreatePetsRequest = {
+  data?: CreatePetsRequestData
+  pathParams: CreatePetsPathParams
+  queryParams?: CreatePetsQueryParams
+  headerParams?: CreatePetsHeaderParams
+  url: `/pets/${string}`
+}
+
+export type CreatePetsResponses = {
+  '201': CreatePetsStatus201
+}
+
+export type CreatePetsResponseData = CreatePetsResponses[keyof CreatePetsResponses]
+
 /**
  * @description Successful operation
  */
-export type UpdatePetStatus200 = Pet
+export type UpdatePetStatus200 = Omit<NonNullable<Pet>, 'name'>
+
+/**
+ * @description accepted operation
+ */
+export type UpdatePetStatus202 = {
+  /**
+   * @type integer | undefined, int64
+   */
+  id?: number
+}
 
 /**
  * @description Invalid ID supplied
@@ -333,7 +412,7 @@ export type UpdatePetStatus405 = any
 /**
  * @description Update an existent pet in the store
  */
-export type UpdatePetRequestData = Omit<NonNullable<Pet>, 'type' | 'tags'>
+export type UpdatePetRequestData = Omit<NonNullable<Pet>, 'id'>
 
 export type UpdatePetRequest = {
   data?: UpdatePetRequestData
@@ -345,6 +424,7 @@ export type UpdatePetRequest = {
 
 export type UpdatePetResponses = {
   '200': UpdatePetStatus200
+  '202': UpdatePetStatus202
 }
 
 export type UpdatePetResponseData = UpdatePetResponses[keyof UpdatePetResponses]
@@ -352,7 +432,7 @@ export type UpdatePetResponseData = UpdatePetResponses[keyof UpdatePetResponses]
 /**
  * @description Successful operation
  */
-export type AddPetStatus200 = Pet
+export type AddPetStatus200 = Omit<NonNullable<Pet>, 'name'>
 
 /**
  * @description Pet not found
@@ -371,7 +451,15 @@ export type AddPetStatus405 = {
 /**
  * @description Create a new pet in the store
  */
-export type AddPetRequestData = AddPetRequest
+export type AddPetRequestData = PostPetRequest
+
+export type AddPetRequest = {
+  data?: AddPetRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/pet'
+}
 
 export type AddPetResponses = {
   '200': AddPetStatus200
@@ -379,15 +467,11 @@ export type AddPetResponses = {
 
 export type AddPetResponseData = AddPetResponses[keyof AddPetResponses]
 
-export type FindPetsByStatusQueryParamsStatusEnum = 'available' | 'pending' | 'sold'
-
-export type FindPetsByStatusQueryParams = {
+export type FindPetsByStatusPathParams = {
   /**
-   * @description Status values that need to be considered for filter
-   * @default "available"
-   * @type string | undefined
+   * @type string
    */
-  status?: FindPetsByStatusQueryParamsStatusEnum
+  step_id: string
 }
 
 /**
@@ -402,10 +486,10 @@ export type FindPetsByStatusStatus400 = any
 
 export type FindPetsByStatusRequest = {
   data?: never
-  pathParams?: never
-  queryParams?: FindPetsByStatusQueryParams
+  pathParams: FindPetsByStatusPathParams
+  queryParams?: never
   headerParams?: never
-  url: '/pet/findByStatus'
+  url: `/pet/findByStatus/${string}`
 }
 
 export type FindPetsByStatusResponses = {
@@ -427,9 +511,19 @@ export type FindPetsByTagsQueryParams = {
   page?: string
   /**
    * @description to request with required page size
-   * @type string | undefined
+   * @type number | undefined
    */
-  pageSize?: string
+  pageSize?: number
+}
+
+export type FindPetsByTagsHeaderParamsXEXAMPLEEnum = 'ONE' | 'TWO' | 'THREE'
+
+export type FindPetsByTagsHeaderParams = {
+  /**
+   * @description Header parameters
+   * @type string
+   */
+  'X-EXAMPLE': FindPetsByTagsHeaderParamsXEXAMPLEEnum
 }
 
 /**
@@ -446,7 +540,7 @@ export type FindPetsByTagsRequest = {
   data?: never
   pathParams?: never
   queryParams?: FindPetsByTagsQueryParams
-  headerParams?: never
+  headerParams?: FindPetsByTagsHeaderParams
   url: '/pet/findByTags'
 }
 
@@ -467,7 +561,7 @@ export type GetPetByIdPathParams = {
 /**
  * @description successful operation
  */
-export type GetPetByIdStatus200 = Pet
+export type GetPetByIdStatus200 = Omit<NonNullable<Pet>, 'name'>
 
 /**
  * @description Invalid ID supplied
@@ -484,7 +578,7 @@ export type GetPetByIdRequest = {
   pathParams: GetPetByIdPathParams
   queryParams?: never
   headerParams?: never
-  url: `/pet/${string}`
+  url: `/pet/${string}:search`
 }
 
 export type GetPetByIdResponses = {
@@ -524,7 +618,7 @@ export type UpdatePetWithFormRequest = {
   pathParams: UpdatePetWithFormPathParams
   queryParams?: UpdatePetWithFormQueryParams
   headerParams?: never
-  url: `/pet/${string}`
+  url: `/pet/${string}:search`
 }
 
 export type UpdatePetWithFormResponseData = any
@@ -544,13 +638,6 @@ export type DeletePetHeaderParams = {
   api_key?: string
 }
 
-export type DeletePetStatus200Enum = 'TYPE1' | 'TYPE2' | 'TYPE3'
-
-/**
- * @description items
- */
-export type DeletePetStatus200 = DeletePetStatus200Enum[]
-
 /**
  * @description Invalid pet value
  */
@@ -561,14 +648,36 @@ export type DeletePetRequest = {
   pathParams: DeletePetPathParams
   queryParams?: never
   headerParams?: DeletePetHeaderParams
-  url: `/pet/${string}`
+  url: `/pet/${string}:search`
 }
 
-export type DeletePetResponses = {
-  '200': DeletePetStatus200
+export type DeletePetResponseData = any
+
+/**
+ * @description successful operation
+ */
+export type AddFilesStatus200 = Omit<NonNullable<Pet>, 'name'>
+
+/**
+ * @description Invalid input
+ */
+export type AddFilesStatus405 = any
+
+export type AddFilesRequestData = Omit<NonNullable<Pet>, 'id'>
+
+export type AddFilesRequest = {
+  data?: AddFilesRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/pet/files'
 }
 
-export type DeletePetResponseData = DeletePetResponses[keyof DeletePetResponses]
+export type AddFilesResponses = {
+  '200': AddFilesStatus200
+}
+
+export type AddFilesResponseData = AddFilesResponses[keyof AddFilesResponses]
 
 export type UploadFilePathParams = {
   /**
@@ -638,9 +747,6 @@ export type PlaceOrderStatus200 = Order
  */
 export type PlaceOrderStatus405 = any
 
-/**
- * @pattern ^[a-zA-Z0-9]{1,13}$
- */
 export type PlaceOrderRequestData = Order
 
 export type PlaceOrderRequest = {
@@ -756,7 +862,7 @@ export type CreateUserStatusError = User
 /**
  * @description Created user object
  */
-export type CreateUserRequestData = User
+export type CreateUserRequestData = Omit<NonNullable<User>, 'tag'>
 
 export type CreateUserRequest = {
   data?: CreateUserRequestData
@@ -899,7 +1005,7 @@ export type UpdateUserStatusError = any
 /**
  * @description Update an existent user in the store
  */
-export type UpdateUserRequestData = User
+export type UpdateUserRequestData = Omit<NonNullable<User>, 'tag'>
 
 export type UpdateUserRequest = {
   data?: UpdateUserRequestData
@@ -916,7 +1022,7 @@ export type DeleteUserPathParams = {
    * @description The name that needs to be deleted
    * @type string
    */
-  username: string | null
+  username: string
 }
 
 /**

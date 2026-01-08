@@ -1,8 +1,8 @@
-import type { AddPetStatus200, AddPetStatus405, AddPetRequestData, AddPetResponseData } from '../../models/ts/petController/AddPet.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
-import { addPetRequestSchema } from '../addPetRequestSchema.ts'
-import { petSchema } from '../petSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
+import type { AddPetRequestData, AddPetResponseData, AddPetStatus200, AddPetStatus405 } from '../../models/ts/petController/AddPet.ts'
+import { petSchema } from '../petSchema.ts'
+import { postPetRequestSchema } from '../postPetRequestSchema.ts'
 
 /**
  * @description Successful operation
@@ -24,7 +24,7 @@ export type AddPetStatus405Schema = AddPetStatus405
 /**
  * @description Create a new pet in the store
  */
-export const addPetRequestDataSchema = z.lazy(() => addPetRequestSchema) as unknown as ToZod<AddPetRequestData>
+export const addPetRequestDataSchema = z.lazy(() => postPetRequestSchema) as unknown as ToZod<AddPetRequestData>
 
 export type AddPetRequestDataSchema = AddPetRequestData
 

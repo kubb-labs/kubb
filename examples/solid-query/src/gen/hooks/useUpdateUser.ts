@@ -7,7 +7,7 @@ import type { QueryClient, UseMutationOptions } from '@tanstack/solid-query'
 import { useMutation } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { UpdateUserPathParams3, UpdateUserRequestData3, UpdateUserResponseData3 } from '../models/UpdateUser.ts'
+import type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData } from '../models/UpdateUser.ts'
 
 export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
@@ -19,9 +19,9 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
  * {@link /user/:username}
  */
 export async function updateUser(
-  username: UpdateUserPathParams3['username'],
-  data?: UpdateUserRequestData3,
-  config: Partial<RequestConfig<UpdateUserRequestData3>> & {
+  username: UpdateUserPathParams['username'],
+  data?: UpdateUserRequestData,
+  config: Partial<RequestConfig<UpdateUserRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -29,7 +29,7 @@ export async function updateUser(
 
   const requestData = data
 
-  const res = await request<UpdateUserResponseData3, ResponseErrorConfig<Error>, UpdateUserRequestData3>({
+  const res = await request<UpdateUserResponseData, ResponseErrorConfig<Error>, UpdateUserRequestData>({
     method: 'PUT',
     url: `/user/${username}`,
     data: requestData,
@@ -47,16 +47,16 @@ export function useUpdateUser<TContext>(
   options: {
     mutation?: ReturnType<
       UseMutationOptions<
-        UpdateUserResponseData3,
+        UpdateUserResponseData,
         ResponseErrorConfig<Error>,
         {
-          username: UpdateUserPathParams3['username']
-          data?: UpdateUserRequestData3
+          username: UpdateUserPathParams['username']
+          data?: UpdateUserRequestData
         },
         TContext
       >
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UpdateUserRequestData3>> & {
+    client?: Partial<RequestConfig<UpdateUserRequestData>> & {
       client?: typeof fetch
     }
   } = {},
@@ -66,11 +66,11 @@ export function useUpdateUser<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? updateUserMutationKey()
 
   return useMutation<
-    UpdateUserResponseData3,
+    UpdateUserResponseData,
     ResponseErrorConfig<Error>,
     {
-      username: UpdateUserPathParams3['username']
-      data?: UpdateUserRequestData3
+      username: UpdateUserPathParams['username']
+      data?: UpdateUserRequestData
     },
     TContext
   >(

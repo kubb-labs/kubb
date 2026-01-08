@@ -1,9 +1,9 @@
 import type {
-  CreatePetsRequestData,
-  CreatePetsResponseData,
+  CreatePetsHeaderParams,
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsHeaderParams,
+  CreatePetsRequestData,
+  CreatePetsResponseData,
 } from '../../models/ts/petsController/CreatePets.ts'
 
 export function createPets(

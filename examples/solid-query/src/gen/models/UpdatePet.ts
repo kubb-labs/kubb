@@ -8,7 +8,17 @@ import type { Pet } from './Pet.ts'
 /**
  * @description Successful operation
  */
-export type UpdatePetStatus200 = Pet
+export type UpdatePetStatus200 = Omit<NonNullable<Pet>, 'name'>
+
+/**
+ * @description accepted operation
+ */
+export type UpdatePetStatus202 = {
+  /**
+   * @type integer | undefined, int64
+   */
+  id?: number
+}
 
 /**
  * @description Invalid ID supplied
@@ -28,7 +38,7 @@ export type UpdatePetStatus405 = any
 /**
  * @description Update an existent pet in the store
  */
-export type UpdatePetRequestData = Pet
+export type UpdatePetRequestData = Omit<NonNullable<Pet>, 'id'>
 
 export type UpdatePetRequest = {
   data?: UpdatePetRequestData
@@ -40,6 +50,7 @@ export type UpdatePetRequest = {
 
 export type UpdatePetResponses = {
   '200': UpdatePetStatus200
+  '202': UpdatePetStatus202
 }
 
 export type UpdatePetResponseData = UpdatePetResponses[keyof UpdatePetResponses]

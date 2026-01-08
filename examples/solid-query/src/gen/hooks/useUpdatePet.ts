@@ -7,7 +7,7 @@ import type { QueryClient, UseMutationOptions } from '@tanstack/solid-query'
 import { useMutation } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { UpdatePetRequestData3, UpdatePetResponseData3, UpdatePetStatus4003, UpdatePetStatus4043, UpdatePetStatus4053 } from '../models/UpdatePet.ts'
+import type { UpdatePetRequestData, UpdatePetResponseData, UpdatePetStatus400, UpdatePetStatus404, UpdatePetStatus405 } from '../models/UpdatePet.ts'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const
 
@@ -19,8 +19,8 @@ export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
  * {@link /pet}
  */
 export async function updatePet(
-  data: UpdatePetRequestData3,
-  config: Partial<RequestConfig<UpdatePetRequestData3>> & {
+  data: UpdatePetRequestData,
+  config: Partial<RequestConfig<UpdatePetRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -28,11 +28,12 @@ export async function updatePet(
 
   const requestData = data
 
-  const res = await request<
-    UpdatePetResponseData3,
-    ResponseErrorConfig<UpdatePetStatus4003 | UpdatePetStatus4043 | UpdatePetStatus4053>,
-    UpdatePetRequestData3
-  >({ method: 'PUT', url: '/pet', data: requestData, ...requestConfig })
+  const res = await request<UpdatePetResponseData, ResponseErrorConfig<UpdatePetStatus400 | UpdatePetStatus404 | UpdatePetStatus405>, UpdatePetRequestData>({
+    method: 'PUT',
+    url: '/pet',
+    data: requestData,
+    ...requestConfig,
+  })
   return res.data
 }
 
@@ -45,13 +46,13 @@ export function useUpdatePet<TContext>(
   options: {
     mutation?: ReturnType<
       UseMutationOptions<
-        UpdatePetResponseData3,
-        ResponseErrorConfig<UpdatePetStatus4003 | UpdatePetStatus4043 | UpdatePetStatus4053>,
-        { data: UpdatePetRequestData3 },
+        UpdatePetResponseData,
+        ResponseErrorConfig<UpdatePetStatus400 | UpdatePetStatus404 | UpdatePetStatus405>,
+        { data: UpdatePetRequestData },
         TContext
       >
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UpdatePetRequestData3>> & {
+    client?: Partial<RequestConfig<UpdatePetRequestData>> & {
       client?: typeof fetch
     }
   } = {},
@@ -61,9 +62,9 @@ export function useUpdatePet<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? updatePetMutationKey()
 
   return useMutation<
-    UpdatePetResponseData3,
-    ResponseErrorConfig<UpdatePetStatus4003 | UpdatePetStatus4043 | UpdatePetStatus4053>,
-    { data: UpdatePetRequestData3 },
+    UpdatePetResponseData,
+    ResponseErrorConfig<UpdatePetStatus400 | UpdatePetStatus404 | UpdatePetStatus405>,
+    { data: UpdatePetRequestData },
     TContext
   >(
     () => ({

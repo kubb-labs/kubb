@@ -25,17 +25,17 @@ import type {
   UpdatePetWithFormStatus405,
 } from '../models/UpdatePetWithForm.ts'
 
-export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['pet_id'], params?: UpdatePetWithFormQueryParams) =>
-  [{ url: '/pet/:pet_id', params: { petId: petId } }, ...(params ? [params] : [])] as const
+export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
+  [{ url: '/pet/:petId:search', params: { petId: petId } }, ...(params ? [params] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
 
 /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:pet_id}
+ * {@link /pet/:petId:search}
  */
 export async function updatePetWithForm(
-  petId: UpdatePetWithFormPathParams['pet_id'],
+  petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -43,7 +43,7 @@ export async function updatePetWithForm(
 
   const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
     method: 'POST',
-    url: `/pet/${petId}`,
+    url: `/pet/${petId}:search`,
     params,
     ...requestConfig,
   })
@@ -51,7 +51,7 @@ export async function updatePetWithForm(
 }
 
 export function updatePetWithFormQueryOptions(
-  petId: UpdatePetWithFormPathParams['pet_id'],
+  petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -68,14 +68,14 @@ export function updatePetWithFormQueryOptions(
 
 /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:pet_id}
+ * {@link /pet/:petId:search}
  */
 export function createUpdatePetWithForm<
   TData = UpdatePetWithFormResponseData,
   TQueryData = UpdatePetWithFormResponseData,
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
 >(
-  petId: UpdatePetWithFormPathParams['pet_id'],
+  petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options: {
     query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, TData, TQueryData, TQueryKey>> & {

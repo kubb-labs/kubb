@@ -7,9 +7,9 @@ import type { InfiniteData, InfiniteQueryObserverOptions, QueryClient, QueryKey,
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { FindPetsByTagsQueryParams5, FindPetsByTagsResponseData5, FindPetsByTagsStatus4005 } from '../../models/FindPetsByTags.ts'
+import type { FindPetsByTagsQueryParams, FindPetsByTagsResponseData, FindPetsByTagsStatus400 } from '../../models/FindPetsByTags.ts'
 
-export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTagsQueryParams5) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTagsQueryParams) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
 
@@ -18,10 +18,10 @@ export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInf
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTagsInfiniteHook(params?: FindPetsByTagsQueryParams5, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findPetsByTagsInfiniteHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<FindPetsByTagsResponseData5, ResponseErrorConfig<FindPetsByTagsStatus4005>, unknown>({
+  const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
     method: 'GET',
     url: '/pet/findByTags',
     params,
@@ -30,14 +30,14 @@ export async function findPetsByTagsInfiniteHook(params?: FindPetsByTagsQueryPar
   return res
 }
 
-export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQueryParams5, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return infiniteQueryOptions<
-    ResponseConfig<FindPetsByTagsResponseData5>,
-    ResponseErrorConfig<FindPetsByTagsStatus4005>,
-    InfiniteData<ResponseConfig<FindPetsByTagsResponseData5>>,
+    ResponseConfig<FindPetsByTagsResponseData>,
+    ResponseErrorConfig<FindPetsByTagsStatus400>,
+    InfiniteData<ResponseConfig<FindPetsByTagsResponseData>>,
     typeof queryKey,
-    NonNullable<FindPetsByTagsQueryParams5['pageSize']>
+    NonNullable<FindPetsByTagsQueryParams['pageSize']>
   >({
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
@@ -45,8 +45,8 @@ export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQu
 
       params = {
         ...(params ?? {}),
-        ['pageSize']: pageParam as unknown as FindPetsByTagsQueryParams5['pageSize'],
-      } as FindPetsByTagsQueryParams5
+        ['pageSize']: pageParam as unknown as FindPetsByTagsQueryParams['pageSize'],
+      } as FindPetsByTagsQueryParams
       return findPetsByTagsInfiniteHook(params, config)
     },
     initialPageParam: 0,
@@ -61,13 +61,13 @@ export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQu
  * {@link /pet/findByTags}
  */
 export function useFindPetsByTagsInfiniteHook<
-  TQueryFnData = ResponseConfig<FindPetsByTagsResponseData5>,
-  TError = ResponseErrorConfig<FindPetsByTagsStatus4005>,
+  TQueryFnData = ResponseConfig<FindPetsByTagsResponseData>,
+  TError = ResponseErrorConfig<FindPetsByTagsStatus400>,
   TData = InfiniteData<TQueryFnData>,
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
-  TPageParam = NonNullable<FindPetsByTagsQueryParams5['pageSize']>,
+  TPageParam = NonNullable<FindPetsByTagsQueryParams['pageSize']>,
 >(
-  params?: FindPetsByTagsQueryParams5,
+  params?: FindPetsByTagsQueryParams,
   options: {
     query?: Partial<InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }

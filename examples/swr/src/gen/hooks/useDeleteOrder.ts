@@ -7,7 +7,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { DeleteOrderPathParams3, DeleteOrderResponseData3, DeleteOrderStatus4003, DeleteOrderStatus4043 } from '../models/DeleteOrder.ts'
+import type { DeleteOrderPathParams, DeleteOrderResponseData, DeleteOrderStatus400, DeleteOrderStatus404 } from '../models/DeleteOrder.ts'
 
 export const deleteOrderMutationKey = () => [{ url: '/store/order/:orderId' }] as const
 
@@ -18,10 +18,10 @@ export type DeleteOrderMutationKey = ReturnType<typeof deleteOrderMutationKey>
  * @summary Delete purchase order by ID
  * {@link /store/order/:orderId}
  */
-export async function deleteOrder(orderId: DeleteOrderPathParams3['orderId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<DeleteOrderResponseData3, ResponseErrorConfig<DeleteOrderStatus4003 | DeleteOrderStatus4043>, unknown>({
+  const res = await request<DeleteOrderResponseData, ResponseErrorConfig<DeleteOrderStatus400 | DeleteOrderStatus404>, unknown>({
     method: 'DELETE',
     url: `/store/order/${orderId}`,
     ...requestConfig,
@@ -30,7 +30,7 @@ export async function deleteOrder(orderId: DeleteOrderPathParams3['orderId'], co
 }
 
 export type DeleteOrderMutationArg = {
-  orderId: DeleteOrderPathParams3['orderId']
+  orderId: DeleteOrderPathParams['orderId']
 }
 
 /**
@@ -41,8 +41,8 @@ export type DeleteOrderMutationArg = {
 export function useDeleteOrder(
   options: {
     mutation?: SWRMutationConfiguration<
-      DeleteOrderResponseData3,
-      ResponseErrorConfig<DeleteOrderStatus4003 | DeleteOrderStatus4043>,
+      DeleteOrderResponseData,
+      ResponseErrorConfig<DeleteOrderStatus400 | DeleteOrderStatus404>,
       DeleteOrderMutationKey | null,
       DeleteOrderMutationArg
     > & { throwOnError?: boolean }
@@ -54,8 +54,8 @@ export function useDeleteOrder(
   const mutationKey = deleteOrderMutationKey()
 
   return useSWRMutation<
-    DeleteOrderResponseData3,
-    ResponseErrorConfig<DeleteOrderStatus4003 | DeleteOrderStatus4043>,
+    DeleteOrderResponseData,
+    ResponseErrorConfig<DeleteOrderStatus400 | DeleteOrderStatus404>,
     DeleteOrderMutationKey | null,
     DeleteOrderMutationArg
   >(

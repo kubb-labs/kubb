@@ -1,10 +1,5 @@
 export type {
   AddPetRequest,
-  AddPetRequestStatusEnumKey,
-} from './ts/AddPetRequestType.ts'
-export { addPetRequestStatusEnum } from './ts/AddPetRequestType.ts'
-export type {
-  AddPetRequest,
   AddPetRequestData,
   AddPetResponseData,
   AddPetStatus200,
@@ -154,6 +149,11 @@ export type {
   PlaceOrderStatus200,
   PlaceOrderStatus405,
 } from './ts/PlaceOrderType.ts'
+export type {
+  PostPetRequest,
+  PostPetRequestStatusEnumKey,
+} from './ts/PostPetRequestType.ts'
+export { postPetRequestStatusEnum } from './ts/PostPetRequestType.ts'
 export type { Tag } from './ts/TagType.ts'
 export type {
   UpdatePetRequest,
@@ -188,8 +188,6 @@ export type {
 } from './ts/UploadFileType.ts'
 export type { UserArray } from './ts/UserArrayType.ts'
 export type { User } from './ts/UserType.ts'
-export type { AddPetRequestSchema } from './zod/addPetRequestSchema.gen.ts'
-export { addPetRequestSchema } from './zod/addPetRequestSchema.gen.ts'
 export type {
   AddPetRequestDataSchema,
   AddPetResponseDataSchema,
@@ -396,6 +394,8 @@ export type {
   PlaceOrderStatus405Schema,
 } from './zod/placeOrderSchema.gen.ts'
 export { placeOrderRequestDataSchema, placeOrderResponseDataSchema, placeOrderStatus200Schema, placeOrderStatus405Schema } from './zod/placeOrderSchema.gen.ts'
+export type { PostPetRequestSchema } from './zod/postPetRequestSchema.gen.ts'
+export { postPetRequestSchema } from './zod/postPetRequestSchema.gen.ts'
 export type { TagSchema } from './zod/tagSchema.gen.ts'
 export { tagSchema } from './zod/tagSchema.gen.ts'
 export type {

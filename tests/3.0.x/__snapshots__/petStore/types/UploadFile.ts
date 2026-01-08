@@ -28,6 +28,14 @@ export type UploadFileStatus200 = ApiResponse;
 
 export type UploadFileRequestData = Blob;
 
+export type UploadFileRequest = {
+    data?: UploadFileRequestData;
+    pathParams: UploadFilePathParams;
+    queryParams?: UploadFileQueryParams;
+    headerParams?: never;
+    url: `/pet/${string}/uploadImage`;
+};
+
 export type UploadFileResponses = {
     "200": UploadFileStatus200;
 };

@@ -5,6 +5,7 @@
 
 import { faker } from '@faker-js/faker'
 import type { User } from '../models/User.ts'
+import { createTagTag } from './tag/createTag.ts'
 
 export function createUser(data?: Partial<User>): User {
   faker.seed([220])
@@ -12,9 +13,11 @@ export function createUser(data?: Partial<User>): User {
     ...{
       id: faker.number.int(),
       username: faker.string.alpha(),
+      uuid: faker.string.uuid(),
+      tag: createTagTag(),
       firstName: faker.string.alpha(),
       lastName: faker.string.alpha(),
-      email: faker.string.alpha(),
+      email: faker.internet.email(),
       password: faker.string.alpha(),
       phone: faker.string.alpha(),
       userStatus: faker.number.int(),

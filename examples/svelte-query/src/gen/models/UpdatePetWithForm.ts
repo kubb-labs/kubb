@@ -19,7 +19,7 @@ export type UpdatePetWithFormPathParams = {
    * @description ID of pet that needs to be updated
    * @type integer, int64
    */
-  pet_id: number
+  petId: number
 }
 
 export type UpdatePetWithFormQueryParams = {
@@ -45,7 +45,7 @@ export type UpdatePetWithFormRequest = {
   pathParams: UpdatePetWithFormPathParams
   queryParams?: UpdatePetWithFormQueryParams
   headerParams?: never
-  url: `/pet/${string}`
+  url: `/pet/${string}:search`
 }
 
 export type UpdatePetWithFormResponseData = any

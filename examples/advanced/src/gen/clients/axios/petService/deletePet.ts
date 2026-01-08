@@ -1,7 +1,7 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { DeletePetResponseData, DeletePetPathParams, DeletePetHeaderParams, DeletePetStatus400 } from '../../../models/ts/petController/DeletePet.ts'
-import { deletePetResponseData2Schema } from '../../../zod/petController/deletePetSchema.ts'
+import fetch from '../../../../axios-client.ts'
+import type { DeletePetHeaderParams, DeletePetPathParams, DeletePetResponseData, DeletePetStatus400 } from '../../../models/ts/petController/DeletePet.ts'
+import { deletePetResponseDataSchema } from '../../../zod/petController/deletePetSchema.ts'
 
 export function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
   const res = { method: 'DELETE', url: `https://petstore3.swagger.io/api/v3/pet/${petId}:search` as const }
@@ -25,5 +25,5 @@ export async function deletePet(
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
-  return { ...res, data: deletePetResponseData2Schema.parse(res.data) }
+  return { ...res, data: deletePetResponseDataSchema.parse(res.data) }
 }

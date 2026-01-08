@@ -1,4 +1,10 @@
 export {
+  createAddFilesRequestData,
+  createAddFilesResponseData,
+  createAddFilesStatus200,
+  createAddFilesStatus405,
+} from './createAddFiles.ts'
+export {
   createAddPetRequestData,
   createAddPetResponseData,
   createAddPetStatus200,
@@ -11,12 +17,13 @@ export {
   createDeletePetStatus400,
 } from './createDeletePet.ts'
 export {
-  createFindPetsByStatusQueryParams,
+  createFindPetsByStatusPathParams,
   createFindPetsByStatusResponseData,
   createFindPetsByStatusStatus200,
   createFindPetsByStatusStatus400,
 } from './createFindPetsByStatus.ts'
 export {
+  createFindPetsByTagsHeaderParams,
   createFindPetsByTagsQueryParams,
   createFindPetsByTagsResponseData,
   createFindPetsByTagsStatus200,
@@ -30,13 +37,10 @@ export {
   createGetPetByIdStatus404,
 } from './createGetPetById.ts'
 export {
-  createOptionsFindPetsByStatusResponseData,
-  createOptionsFindPetsByStatusStatus200,
-} from './createOptionsFindPetsByStatus.ts'
-export {
   createUpdatePetRequestData,
   createUpdatePetResponseData,
   createUpdatePetStatus200,
+  createUpdatePetStatus202,
   createUpdatePetStatus400,
   createUpdatePetStatus404,
   createUpdatePetStatus405,

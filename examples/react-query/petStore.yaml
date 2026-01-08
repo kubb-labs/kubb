@@ -88,7 +88,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddPetRequest'
+              $ref: '#/components/schemas/PostPetRequest'
           application/xml:
             schema:
               $ref: '#/components/schemas/Pet'
@@ -795,7 +795,7 @@ components:
             - sold
       xml:
         name: pet
-    AddPetRequest:
+    PostPetRequest:
       required:
         - name
         - photoUrls

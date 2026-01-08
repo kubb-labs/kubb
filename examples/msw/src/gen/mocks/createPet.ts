@@ -6,17 +6,20 @@
 import { faker } from '@faker-js/faker'
 import type { Pet } from '../models/Pet.ts'
 import { createCategory } from './createCategory.ts'
-import { createTag } from './createTag.ts'
+import { createTagTag } from './tag/createTag.ts'
 
 export function createPet(data?: Partial<Pet>): Pet {
   faker.seed([220])
   return {
     ...{
       id: faker.number.int(),
+      parent: faker.helpers.multiple(() => createPet()),
+      signature: faker.helpers.fromRegExp('^data:image/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$'),
       name: faker.string.alpha(),
+      url: faker.internet.url(),
       category: createCategory(),
       photoUrls: faker.helpers.multiple(() => faker.string.alpha()),
-      tags: faker.helpers.multiple(() => createTag()),
+      tags: faker.helpers.multiple(() => createTagTag()),
       status: faker.helpers.arrayElement<NonNullable<Pet>['status']>(['available', 'pending', 'sold']),
     },
     ...(data || {}),

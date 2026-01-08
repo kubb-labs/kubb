@@ -7,7 +7,7 @@ import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/cli
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { CreateUserRequestData3, CreateUserResponseData3 } from '../models/CreateUser.ts'
+import type { CreateUserRequestData, CreateUserResponseData } from '../models/CreateUser.ts'
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
 
@@ -19,8 +19,8 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  * {@link /user}
  */
 export async function createUser(
-  data?: CreateUserRequestData3,
-  config: Partial<RequestConfig<CreateUserRequestData3>> & {
+  data?: CreateUserRequestData,
+  config: Partial<RequestConfig<CreateUserRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -28,7 +28,7 @@ export async function createUser(
 
   const requestData = data
 
-  const res = await request<CreateUserResponseData3, ResponseErrorConfig<Error>, CreateUserRequestData3>({
+  const res = await request<CreateUserResponseData, ResponseErrorConfig<Error>, CreateUserRequestData>({
     method: 'POST',
     url: '/user',
     data: requestData,
@@ -37,7 +37,7 @@ export async function createUser(
   return res.data
 }
 
-export type CreateUserMutationArg = { data?: CreateUserRequestData3 }
+export type CreateUserMutationArg = { data?: CreateUserRequestData }
 
 /**
  * @description This can only be done by the logged in user.
@@ -46,10 +46,10 @@ export type CreateUserMutationArg = { data?: CreateUserRequestData3 }
  */
 export function useCreateUser(
   options: {
-    mutation?: SWRMutationConfiguration<CreateUserResponseData3, ResponseErrorConfig<Error>, CreateUserMutationKey | null, CreateUserMutationArg> & {
+    mutation?: SWRMutationConfiguration<CreateUserResponseData, ResponseErrorConfig<Error>, CreateUserMutationKey | null, CreateUserMutationArg> & {
       throwOnError?: boolean
     }
-    client?: Partial<RequestConfig<CreateUserRequestData3>> & {
+    client?: Partial<RequestConfig<CreateUserRequestData>> & {
       client?: typeof fetch
     }
     shouldFetch?: boolean
@@ -58,7 +58,7 @@ export function useCreateUser(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = createUserMutationKey()
 
-  return useSWRMutation<CreateUserResponseData3, ResponseErrorConfig<Error>, CreateUserMutationKey | null, CreateUserMutationArg>(
+  return useSWRMutation<CreateUserResponseData, ResponseErrorConfig<Error>, CreateUserMutationKey | null, CreateUserMutationArg>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: { data } }) => {
       return createUser(data, config)

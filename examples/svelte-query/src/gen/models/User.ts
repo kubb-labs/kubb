@@ -14,6 +14,8 @@
  * OpenAPI spec version: 1.0.11
  */
 
+import type { TagTag } from './tag/Tag.ts'
+
 export type User = {
   /**
    * @type integer | undefined, int64
@@ -24,6 +26,16 @@ export type User = {
    */
   username?: string
   /**
+   * @deprecated
+   * @type string | undefined, uuid
+   */
+  uuid?: string
+  /**
+   * @description The active tag
+   * @type object | undefined
+   */
+  readonly tag?: TagTag
+  /**
    * @type string | undefined
    */
   firstName?: string
@@ -32,7 +44,7 @@ export type User = {
    */
   lastName?: string
   /**
-   * @type string | undefined
+   * @type string | undefined, email
    */
   email?: string
   /**

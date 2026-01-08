@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noTemplateCurlyInString: just for testing */
 import { print } from '@kubb/fabric-core/parsers/typescript'
 import ts from 'typescript'
 import { describe, expect, it } from 'vitest'

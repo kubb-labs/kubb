@@ -10,11 +10,11 @@ import type { GetInventoryResponseData } from './ts/GetInventoryType.ts'
 import type { GetOrderByIdPathParams, GetOrderByIdResponseData, GetOrderByIdStatus400, GetOrderByIdStatus404 } from './ts/GetOrderByIdType.ts'
 import type { PlaceOrderPatchRequestData, PlaceOrderPatchResponseData, PlaceOrderPatchStatus405 } from './ts/PlaceOrderPatchType.ts'
 import type { PlaceOrderRequestData, PlaceOrderResponseData, PlaceOrderStatus405 } from './ts/PlaceOrderType.ts'
-import { deleteOrderResponseData2Schema } from './zod/deleteOrderSchema.gen.ts'
-import { getInventoryResponseData2Schema } from './zod/getInventorySchema.gen.ts'
-import { getOrderByIdResponseData2Schema } from './zod/getOrderByIdSchema.gen.ts'
-import { placeOrderPatchRequestData2Schema, placeOrderPatchResponseData2Schema } from './zod/placeOrderPatchSchema.gen.ts'
-import { placeOrderRequestData2Schema, placeOrderResponseData2Schema } from './zod/placeOrderSchema.gen.ts'
+import { deleteOrderResponseDataSchema } from './zod/deleteOrderSchema.gen.ts'
+import { getInventoryResponseDataSchema } from './zod/getInventorySchema.gen.ts'
+import { getOrderByIdResponseDataSchema } from './zod/getOrderByIdSchema.gen.ts'
+import { placeOrderPatchRequestDataSchema, placeOrderPatchResponseDataSchema } from './zod/placeOrderPatchSchema.gen.ts'
+import { placeOrderRequestDataSchema, placeOrderResponseDataSchema } from './zod/placeOrderSchema.gen.ts'
 
 function getGetInventoryUrl() {
   const res = { method: 'GET', url: '/store/inventory' as const }
@@ -34,7 +34,7 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: t
     url: getGetInventoryUrl().url.toString(),
     ...requestConfig,
   })
-  return getInventoryResponseData2Schema.parse(res.data)
+  return getInventoryResponseDataSchema.parse(res.data)
 }
 
 function getPlaceOrderUrl() {
@@ -55,7 +55,7 @@ export async function placeOrder(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const requestData = placeOrderRequestData2Schema.parse(data)
+  const requestData = placeOrderRequestDataSchema.parse(data)
 
   const res = await request<PlaceOrderResponseData, ResponseErrorConfig<PlaceOrderStatus405>, PlaceOrderRequestData>({
     method: 'POST',
@@ -63,7 +63,7 @@ export async function placeOrder(
     data: requestData,
     ...requestConfig,
   })
-  return placeOrderResponseData2Schema.parse(res.data)
+  return placeOrderResponseDataSchema.parse(res.data)
 }
 
 function getPlaceOrderPatchUrl() {
@@ -84,7 +84,7 @@ export async function placeOrderPatch(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const requestData = placeOrderPatchRequestData2Schema.parse(data)
+  const requestData = placeOrderPatchRequestDataSchema.parse(data)
 
   const res = await request<PlaceOrderPatchResponseData, ResponseErrorConfig<PlaceOrderPatchStatus405>, PlaceOrderPatchRequestData>({
     method: 'PATCH',
@@ -92,7 +92,7 @@ export async function placeOrderPatch(
     data: requestData,
     ...requestConfig,
   })
-  return placeOrderPatchResponseData2Schema.parse(res.data)
+  return placeOrderPatchResponseDataSchema.parse(res.data)
 }
 
 function getGetOrderByIdUrl({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }) {
@@ -116,7 +116,7 @@ export async function getOrderById(
     url: getGetOrderByIdUrl({ orderId }).url.toString(),
     ...requestConfig,
   })
-  return getOrderByIdResponseData2Schema.parse(res.data)
+  return getOrderByIdResponseDataSchema.parse(res.data)
 }
 
 function getDeleteOrderUrl({ orderId }: { orderId: DeleteOrderPathParams['orderId'] }) {
@@ -137,5 +137,5 @@ export async function deleteOrder({ orderId }: { orderId: DeleteOrderPathParams[
     url: getDeleteOrderUrl({ orderId }).url.toString(),
     ...requestConfig,
   })
-  return deleteOrderResponseData2Schema.parse(res.data)
+  return deleteOrderResponseDataSchema.parse(res.data)
 }

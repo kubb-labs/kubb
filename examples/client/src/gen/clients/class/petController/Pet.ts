@@ -7,10 +7,16 @@
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
 import { buildFormData } from '../../../.kubb/config.js'
+import type { AddFilesRequestData, AddFilesResponseData, AddFilesStatus405 } from '../../../models/ts/petController/AddFiles.js'
 import type { AddPetRequestData, AddPetResponseData, AddPetStatus405 } from '../../../models/ts/petController/AddPet.js'
 import type { DeletePetHeaderParams, DeletePetPathParams, DeletePetResponseData, DeletePetStatus400 } from '../../../models/ts/petController/DeletePet.js'
-import type { FindPetsByStatusQueryParams, FindPetsByStatusResponseData, FindPetsByStatusStatus400 } from '../../../models/ts/petController/FindPetsByStatus.js'
-import type { FindPetsByTagsQueryParams, FindPetsByTagsResponseData, FindPetsByTagsStatus400 } from '../../../models/ts/petController/FindPetsByTags.js'
+import type { FindPetsByStatusPathParams, FindPetsByStatusResponseData, FindPetsByStatusStatus400 } from '../../../models/ts/petController/FindPetsByStatus.js'
+import type {
+  FindPetsByTagsHeaderParams,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsResponseData,
+  FindPetsByTagsStatus400,
+} from '../../../models/ts/petController/FindPetsByTags.js'
 import type { GetPetByIdPathParams, GetPetByIdResponseData, GetPetByIdStatus400, GetPetByIdStatus404 } from '../../../models/ts/petController/GetPetById.js'
 import type {
   UpdatePetRequestData,
@@ -81,14 +87,13 @@ export class Pet {
   /**
    * @description Multiple status values can be provided with comma separated strings
    * @summary Finds Pets by status
-   * {@link /pet/findByStatus}
+   * {@link /pet/findByStatus/:step_id}
    */
-  async findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async findPetsByStatus({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, unknown>({
       method: 'GET',
-      url: '/pet/findByStatus',
-      params,
+      url: `/pet/findByStatus/${step_id}`,
       ...requestConfig,
     })
     return res.data
@@ -99,13 +104,18 @@ export class Pet {
    * @summary Finds Pets by tags
    * {@link /pet/findByTags}
    */
-  async findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async findPetsByTags(
+    headers: FindPetsByTagsHeaderParams,
+    params?: FindPetsByTagsQueryParams,
+    config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+  ) {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<FindPetsByTagsResponseData, ResponseErrorConfig<FindPetsByTagsStatus400>, unknown>({
       method: 'GET',
       url: '/pet/findByTags',
       params,
       ...requestConfig,
+      headers: { ...headers, ...requestConfig.headers },
     })
     return res.data
   }
@@ -113,13 +123,13 @@ export class Pet {
   /**
    * @description Returns a single pet
    * @summary Find pet by ID
-   * {@link /pet/:petId}
+   * {@link /pet/:petId:search}
    */
   async getPetById({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<GetPetByIdResponseData, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>, unknown>({
       method: 'GET',
-      url: `/pet/${petId}`,
+      url: `/pet/${petId}:search`,
       ...requestConfig,
     })
     return res.data
@@ -127,7 +137,7 @@ export class Pet {
 
   /**
    * @summary Updates a pet in the store with form data
-   * {@link /pet/:petId}
+   * {@link /pet/:petId:search}
    */
   async updatePetWithForm(
     { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
@@ -137,7 +147,7 @@ export class Pet {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
       method: 'POST',
-      url: `/pet/${petId}`,
+      url: `/pet/${petId}:search`,
       params,
       ...requestConfig,
     })
@@ -147,7 +157,7 @@ export class Pet {
   /**
    * @description delete a pet
    * @summary Deletes a pet
-   * {@link /pet/:petId}
+   * {@link /pet/:petId:search}
    */
   async deletePet(
     { petId }: { petId: DeletePetPathParams['petId'] },
@@ -157,9 +167,32 @@ export class Pet {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<DeletePetResponseData, ResponseErrorConfig<DeletePetStatus400>, unknown>({
       method: 'DELETE',
-      url: `/pet/${petId}`,
+      url: `/pet/${petId}:search`,
       ...requestConfig,
       headers: { ...headers, ...requestConfig.headers },
+    })
+    return res.data
+  }
+
+  /**
+   * @description Place a new file in the store
+   * @summary Place an file for a pet
+   * {@link /pet/files}
+   */
+  async addFiles(
+    data: AddFilesRequestData,
+    config: Partial<RequestConfig<AddFilesRequestData>> & {
+      client?: typeof fetch
+    } = {},
+  ) {
+    const { client: request = this.#client, ...requestConfig } = config
+    const requestData = data
+    const formData = buildFormData(requestData)
+    const res = await request<AddFilesResponseData, ResponseErrorConfig<AddFilesStatus405>, AddFilesRequestData>({
+      method: 'POST',
+      url: '/pet/files',
+      data: formData as FormData,
+      ...requestConfig,
     })
     return res.data
   }
@@ -170,7 +203,7 @@ export class Pet {
    */
   async uploadFile(
     { petId }: { petId: UploadFilePathParams['petId'] },
-    data: UploadFileRequestData,
+    data?: UploadFileRequestData,
     params?: UploadFileQueryParams,
     config: Partial<RequestConfig<UploadFileRequestData>> & {
       client?: typeof fetch
@@ -178,13 +211,16 @@ export class Pet {
   ) {
     const { client: request = this.#client, ...requestConfig } = config
     const requestData = data
-    const formData = buildFormData(requestData)
     const res = await request<UploadFileResponseData, ResponseErrorConfig<Error>, UploadFileRequestData>({
       method: 'POST',
       url: `/pet/${petId}/uploadImage`,
       params,
-      data: formData as FormData,
+      data: requestData,
       ...requestConfig,
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        ...requestConfig.headers,
+      },
     })
     return res.data
   }

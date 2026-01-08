@@ -1,11 +1,11 @@
+import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithFormStatus405,
   UpdatePetWithFormResponseData,
+  UpdatePetWithFormStatus405,
 } from '../../models/ts/petController/UpdatePetWithForm.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
-import { z } from 'zod'
 
 export const updatePetWithFormPathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet that needs to be updated'),

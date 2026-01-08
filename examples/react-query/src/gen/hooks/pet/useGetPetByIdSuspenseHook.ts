@@ -7,9 +7,9 @@ import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { GetPetByIdPathParams3, GetPetByIdResponseData3, GetPetByIdStatus4003, GetPetByIdStatus4043 } from '../../models/GetPetById.ts'
+import type { GetPetByIdPathParams, GetPetByIdResponseData, GetPetByIdStatus400, GetPetByIdStatus404 } from '../../models/GetPetById.ts'
 
-export const getPetByIdSuspenseQueryKey = ({ pet_id }: { pet_id: GetPetByIdPathParams3['pet_id'] }) =>
+export const getPetByIdSuspenseQueryKey = ({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] }) =>
   ['v5', { url: '/pet/:pet_id', params: { pet_id: pet_id } }] as const
 
 export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQueryKey>
@@ -20,12 +20,12 @@ export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQue
  * {@link /pet/:pet_id}
  */
 export async function getPetByIdSuspenseHook(
-  { pet_id }: { pet_id: GetPetByIdPathParams3['pet_id'] },
+  { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<GetPetByIdResponseData3, ResponseErrorConfig<GetPetByIdStatus4003 | GetPetByIdStatus4043>, unknown>({
+  const res = await request<GetPetByIdResponseData, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>, unknown>({
     method: 'GET',
     url: `/pet/${pet_id}`,
     ...requestConfig,
@@ -34,11 +34,11 @@ export async function getPetByIdSuspenseHook(
 }
 
 export function getPetByIdSuspenseQueryOptionsHook(
-  { pet_id }: { pet_id: GetPetByIdPathParams3['pet_id'] },
+  { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = getPetByIdSuspenseQueryKey({ pet_id })
-  return queryOptions<GetPetByIdResponseData3, ResponseErrorConfig<GetPetByIdStatus4003 | GetPetByIdStatus4043>, GetPetByIdResponseData3, typeof queryKey>({
+  return queryOptions<GetPetByIdResponseData, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>, GetPetByIdResponseData, typeof queryKey>({
     enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
@@ -53,10 +53,10 @@ export function getPetByIdSuspenseQueryOptionsHook(
  * @summary Find pet by ID
  * {@link /pet/:pet_id}
  */
-export function useGetPetByIdSuspenseHook<TData = GetPetByIdResponseData3, TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey>(
-  { pet_id }: { pet_id: GetPetByIdPathParams3['pet_id'] },
+export function useGetPetByIdSuspenseHook<TData = GetPetByIdResponseData, TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey>(
+  { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] },
   options: {
-    query?: Partial<UseSuspenseQueryOptions<GetPetByIdResponseData3, ResponseErrorConfig<GetPetByIdStatus4003 | GetPetByIdStatus4043>, TData, TQueryKey>> & {
+    query?: Partial<UseSuspenseQueryOptions<GetPetByIdResponseData, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>, TData, TQueryKey>> & {
       client?: QueryClient
     }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -73,7 +73,7 @@ export function useGetPetByIdSuspenseHook<TData = GetPetByIdResponseData3, TQuer
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
-  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetPetByIdStatus4003 | GetPetByIdStatus4043>> & { queryKey: TQueryKey }
+  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

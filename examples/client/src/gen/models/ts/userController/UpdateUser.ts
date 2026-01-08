@@ -21,7 +21,7 @@ export type UpdateUserStatusError = any
 /**
  * @description Update an existent user in the store
  */
-export type UpdateUserRequestData = User
+export type UpdateUserRequestData = Omit<NonNullable<User>, 'tag'>
 
 export type UpdateUserRequest = {
   data?: UpdateUserRequestData

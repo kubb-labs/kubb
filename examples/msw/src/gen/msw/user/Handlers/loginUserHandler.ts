@@ -4,9 +4,9 @@
  */
 
 import { http } from 'msw'
-import type { LoginUserResponseData2, LoginUserStatus4002 } from '../../../models/LoginUser.ts'
+import type { LoginUserResponseData, LoginUserStatus400 } from '../../../models/LoginUser.ts'
 
-export function loginUserHandlerResponse200(data: LoginUserResponseData2) {
+export function loginUserHandlerResponse200(data: LoginUserResponseData) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -15,13 +15,13 @@ export function loginUserHandlerResponse200(data: LoginUserResponseData2) {
   })
 }
 
-export function loginUserHandlerResponse400(data?: LoginUserStatus4002) {
+export function loginUserHandlerResponse400(data?: LoginUserStatus400) {
   return new Response(JSON.stringify(data), {
     status: 400,
   })
 }
 
-export function loginUserHandler(data?: LoginUserResponseData2 | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
+export function loginUserHandler(data?: LoginUserResponseData | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Response | Promise<Response>)) {
   return http.get('http://localhost:3000/user/login', function handler(info) {
     if (typeof data === 'function') return data(info)
 

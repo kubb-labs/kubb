@@ -8,7 +8,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
-import type { CreateUsersWithListInputRequestData5, CreateUsersWithListInputResponseData5 } from '../models/CreateUsersWithListInput.ts'
+import type { CreateUsersWithListInputRequestData, CreateUsersWithListInputResponseData } from '../models/CreateUsersWithListInput.ts'
 
 export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWithList' }] as const
 
@@ -20,14 +20,14 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
  * {@link /user/createWithList}
  */
 export async function createUsersWithListInput(
-  data?: CreateUsersWithListInputRequestData5,
-  config: Partial<RequestConfig<CreateUsersWithListInputRequestData5>> & { client?: typeof fetch } = {},
+  data?: CreateUsersWithListInputRequestData,
+  config: Partial<RequestConfig<CreateUsersWithListInputRequestData>> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
 
-  const res = await request<CreateUsersWithListInputResponseData5, ResponseErrorConfig<Error>, CreateUsersWithListInputRequestData5>({
+  const res = await request<CreateUsersWithListInputResponseData, ResponseErrorConfig<Error>, CreateUsersWithListInputRequestData>({
     method: 'POST',
     url: '/user/createWithList',
     data: requestData,
@@ -44,19 +44,19 @@ export async function createUsersWithListInput(
 export function useCreateUsersWithListInput<TContext>(
   options: {
     mutation?: MutationObserverOptions<
-      CreateUsersWithListInputResponseData5,
+      CreateUsersWithListInputResponseData,
       ResponseErrorConfig<Error>,
-      { data?: MaybeRefOrGetter<CreateUsersWithListInputRequestData5> },
+      { data?: MaybeRefOrGetter<CreateUsersWithListInputRequestData> },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<CreateUsersWithListInputRequestData5>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<CreateUsersWithListInputRequestData>> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...mutationOptions } = mutation
   const mutationKey = mutationOptions?.mutationKey ?? createUsersWithListInputMutationKey()
 
-  return useMutation<CreateUsersWithListInputResponseData5, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputRequestData5 }, TContext>(
+  return useMutation<CreateUsersWithListInputResponseData, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputRequestData }, TContext>(
     {
       mutationFn: async ({ data }) => {
         return createUsersWithListInput(data, config)

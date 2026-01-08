@@ -1,4 +1,4 @@
-import type { UpdateUserRequestData, UpdateUserResponseData, UpdateUserPathParams } from '../../models/ts/userController/UpdateUser.ts'
+import type { UpdateUserPathParams, UpdateUserRequestData, UpdateUserResponseData } from '../../models/ts/userController/UpdateUser.ts'
 
 export function updateUser(
   username: UpdateUserPathParams['username'],

@@ -1,4 +1,4 @@
-import type { GetOrderByIdResponseData, GetOrderByIdPathParams } from '../../models/ts/storeController/GetOrderById.ts'
+import type { GetOrderByIdPathParams, GetOrderByIdResponseData } from '../../models/ts/storeController/GetOrderById.ts'
 
 export function getOrderById(
   orderId: GetOrderByIdPathParams['orderId'],

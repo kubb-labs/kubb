@@ -8,30 +8,30 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
 import type {
-  UpdatePetWithFormPathParams3,
-  UpdatePetWithFormQueryParams3,
-  UpdatePetWithFormResponseData3,
-  UpdatePetWithFormStatus4053,
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
+  UpdatePetWithFormResponseData,
+  UpdatePetWithFormStatus405,
 } from './models/UpdatePetWithForm.ts'
 
-export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
+export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId:search' }] as const
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
 
 /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export async function updatePetWithForm(
-  petId: UpdatePetWithFormPathParams3['petId'],
-  params?: UpdatePetWithFormQueryParams3,
+  petId: UpdatePetWithFormPathParams['petId'],
+  params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const res = await request<UpdatePetWithFormResponseData3, ResponseErrorConfig<UpdatePetWithFormStatus4053>, unknown>({
+  const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
     method: 'POST',
-    url: `/pet/${petId}`,
+    url: `/pet/${petId}:search`,
     params,
     ...requestConfig,
   })
@@ -40,15 +40,15 @@ export async function updatePetWithForm(
 
 /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export function useUpdatePetWithForm(
-  petId: UpdatePetWithFormPathParams3['petId'],
-  params?: UpdatePetWithFormQueryParams3,
+  petId: UpdatePetWithFormPathParams['petId'],
+  params?: UpdatePetWithFormQueryParams,
   options: {
     mutation?: SWRMutationConfiguration<
-      UpdatePetWithFormResponseData3,
-      ResponseErrorConfig<UpdatePetWithFormStatus4053>,
+      UpdatePetWithFormResponseData,
+      ResponseErrorConfig<UpdatePetWithFormStatus405>,
       UpdatePetWithFormMutationKey | null,
       never
     > & { throwOnError?: boolean }
@@ -59,7 +59,7 @@ export function useUpdatePetWithForm(
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = updatePetWithFormMutationKey()
 
-  return useSWRMutation<UpdatePetWithFormResponseData3, ResponseErrorConfig<UpdatePetWithFormStatus4053>, UpdatePetWithFormMutationKey | null>(
+  return useSWRMutation<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, UpdatePetWithFormMutationKey | null>(
     shouldFetch ? mutationKey : null,
     async (_url) => {
       return updatePetWithForm(petId, params, config)

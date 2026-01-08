@@ -21,13 +21,13 @@ export type GetPetByIdPathParams = {
    * @description ID of pet to return
    * @type integer, int64
    */
-  pet_id: number
+  petId: number
 }
 
 /**
  * @description successful operation
  */
-export type GetPetByIdStatus200 = Pet
+export type GetPetByIdStatus200 = Omit<NonNullable<Pet>, 'name'>
 
 /**
  * @description Invalid ID supplied
@@ -44,7 +44,7 @@ export type GetPetByIdRequest = {
   pathParams: GetPetByIdPathParams
   queryParams?: never
   headerParams?: never
-  url: `/pet/${string}`
+  url: `/pet/${string}:search`
 }
 
 export type GetPetByIdResponses = {

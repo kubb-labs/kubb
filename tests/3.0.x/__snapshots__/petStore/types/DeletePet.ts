@@ -29,7 +29,7 @@ export type DeletePetRequest = {
     pathParams: DeletePetPathParams;
     queryParams?: never;
     headerParams?: DeletePetHeaderParams;
-    url: "/pet/{petId}";
+    url: `/pet/${string}`;
 };
 
 export type DeletePetResponseData = any;

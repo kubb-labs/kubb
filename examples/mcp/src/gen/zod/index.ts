@@ -4,7 +4,6 @@ export {
   addFilesStatus200Schema,
   addFilesStatus405Schema,
 } from './addFilesSchema.js'
-export { addPetRequestSchema } from './addPetRequestSchema.js'
 export {
   addPetRequestDataSchema,
   addPetResponseDataSchema,
@@ -116,6 +115,7 @@ export {
   placeOrderStatus200Schema,
   placeOrderStatus405Schema,
 } from './placeOrderSchema.js'
+export { postPetRequestSchema } from './postPetRequestSchema.js'
 export { tagTagSchema } from './tag/tagSchema.js'
 export {
   updatePetRequestDataSchema,

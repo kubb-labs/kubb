@@ -15,9 +15,6 @@ export type PlaceOrderStatus200 = Order
  */
 export type PlaceOrderStatus405 = any
 
-/**
- * @pattern ^[a-zA-Z0-9]{1,13}$
- */
 export type PlaceOrderRequestData = Order
 
 export type PlaceOrderRequest = {

@@ -1,19 +1,35 @@
 export type {
+  AddFilesRequest,
+  AddFilesRequestData,
+  AddFilesResponseData,
+  AddFilesStatus200,
+  AddFilesStatus405,
+} from './ts/models/AddFiles.ts'
+export type {
   AddPetRequest,
   AddPetRequestData,
   AddPetResponseData,
   AddPetStatus200,
   AddPetStatus405,
 } from './ts/models/AddPet.ts'
-export type {
-  AddPetRequest,
-  AddPetRequestStatusEnumKey,
-} from './ts/models/AddPetRequest.ts'
-export { addPetRequestStatusEnum } from './ts/models/AddPetRequest.ts'
 export type { Address } from './ts/models/Address.ts'
+export type { Animal } from './ts/models/Animal.ts'
 export type { ApiResponse } from './ts/models/ApiResponse.ts'
 export type { Cat } from './ts/models/Cat.ts'
 export type { Category } from './ts/models/Category.ts'
+export type {
+  CreatePetsHeaderParams,
+  CreatePetsHeaderParamsXEXAMPLEEnumKey,
+  CreatePetsPathParams,
+  CreatePetsQueryParams,
+  CreatePetsQueryParamsBoolParamEnumKey,
+  CreatePetsRequest,
+  CreatePetsRequestData,
+  CreatePetsResponseData,
+  CreatePetsStatus201,
+  CreatePetsStatusError,
+} from './ts/models/CreatePets.ts'
+export { createPetsHeaderParamsXEXAMPLEEnum, createPetsQueryParamsBoolParamEnum } from './ts/models/CreatePets.ts'
 export type {
   CreateUserRequest,
   CreateUserRequestData,
@@ -40,11 +56,8 @@ export type {
   DeletePetPathParams,
   DeletePetRequest,
   DeletePetResponseData,
-  DeletePetStatus200,
-  DeletePetStatus200EnumKey,
   DeletePetStatus400,
 } from './ts/models/DeletePet.ts'
-export { deletePetStatus200Enum } from './ts/models/DeletePet.ts'
 export type {
   DeleteUserPathParams,
   DeleteUserRequest,
@@ -54,22 +67,22 @@ export type {
 } from './ts/models/DeleteUser.ts'
 export type { Dog } from './ts/models/Dog.ts'
 export type {
-  FindPetsByStatusQueryParams,
-  FindPetsByStatusQueryParamsStatusEnumKey,
+  FindPetsByStatusPathParams,
   FindPetsByStatusRequest,
   FindPetsByStatusResponseData,
   FindPetsByStatusStatus200,
   FindPetsByStatusStatus400,
 } from './ts/models/FindPetsByStatus.ts'
-export { findPetsByStatusQueryParamsStatusEnum } from './ts/models/FindPetsByStatus.ts'
 export type {
+  FindPetsByTagsHeaderParams,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
   FindPetsByTagsQueryParams,
   FindPetsByTagsRequest,
   FindPetsByTagsResponseData,
   FindPetsByTagsStatus200,
   FindPetsByTagsStatus400,
 } from './ts/models/FindPetsByTags.ts'
-export type { FullAddress } from './ts/models/FullAddress.ts'
+export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './ts/models/FindPetsByTags.ts'
 export type {
   GetInventoryRequest,
   GetInventoryResponseData,
@@ -99,7 +112,7 @@ export type {
   GetUserByNameStatus400,
   GetUserByNameStatus404,
 } from './ts/models/GetUserByName.ts'
-export type { HappyCustomer } from './ts/models/HappyCustomer.ts'
+export type { Image } from './ts/models/Image.ts'
 export type {
   LoginUserQueryParams,
   LoginUserRequest,
@@ -112,10 +125,15 @@ export type {
   LogoutUserResponseData,
   LogoutUserStatusError,
 } from './ts/models/LogoutUser.ts'
-export type { Order, OrderHttpStatusEnumKey } from './ts/models/Order.ts'
-export { orderHttpStatusEnum } from './ts/models/Order.ts'
-export type { Pet, StatusEnumKey } from './ts/models/Pet.ts'
-export { statusEnum } from './ts/models/Pet.ts'
+export type {
+  Order,
+  OrderHttpStatusEnumKey,
+  OrderOrderTypeEnumKey,
+  OrderStatusEnumKey,
+} from './ts/models/Order.ts'
+export { orderHttpStatusEnum, orderOrderTypeEnum, orderStatusEnum } from './ts/models/Order.ts'
+export type { Pet, PetStatusEnumKey } from './ts/models/Pet.ts'
+export { petStatusEnum } from './ts/models/Pet.ts'
 export type { PetNotFound } from './ts/models/PetNotFound.ts'
 export type {
   PlaceOrderRequest,
@@ -131,13 +149,18 @@ export type {
   PlaceOrderPatchStatus200,
   PlaceOrderPatchStatus405,
 } from './ts/models/PlaceOrderPatch.ts'
-export type { Tag } from './ts/models/Tag.ts'
-export type { UnhappyCustomer } from './ts/models/UnhappyCustomer.ts'
+export type {
+  PostPetRequest,
+  PostPetRequestStatusEnumKey,
+} from './ts/models/PostPetRequest.ts'
+export { postPetRequestStatusEnum } from './ts/models/PostPetRequest.ts'
+export type { TagTag } from './ts/models/tag/Tag.ts'
 export type {
   UpdatePetRequest,
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
+  UpdatePetStatus202,
   UpdatePetStatus400,
   UpdatePetStatus404,
   UpdatePetStatus405,

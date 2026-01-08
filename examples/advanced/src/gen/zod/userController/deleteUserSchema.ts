@@ -1,6 +1,6 @@
-import type { DeleteUserPathParams, DeleteUserStatus400, DeleteUserStatus404, DeleteUserResponseData } from '../../models/ts/userController/DeleteUser.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import { z } from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
+import type { DeleteUserPathParams, DeleteUserResponseData, DeleteUserStatus400, DeleteUserStatus404 } from '../../models/ts/userController/DeleteUser.ts'
 
 export const deleteUserPathParamsSchema = z.object({
   username: z.string().describe('The name that needs to be deleted'),

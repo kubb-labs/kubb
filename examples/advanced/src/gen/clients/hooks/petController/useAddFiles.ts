@@ -1,17 +1,17 @@
-import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { AddFilesRequestData9, AddFilesResponseData9, AddFilesStatus4059 } from '../../../models/ts/petController/AddFiles.ts'
-import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
-import { addFiles } from '../../axios/petService/addFiles.ts'
+import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
+import type fetch from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { AddFilesRequestData, AddFilesResponseData, AddFilesStatus405 } from '../../../models/ts/petController/AddFiles.ts'
+import { addFiles } from '../../axios/petService/addFiles.ts'
 
 export const addFilesMutationKey = () => [{ url: '/pet/files' }] as const
 
 export type AddFilesMutationKey = ReturnType<typeof addFilesMutationKey>
 
-export function addFilesMutationOptions(config: Partial<RequestConfig<AddFilesRequestData9>> & { client?: typeof fetch } = {}) {
+export function addFilesMutationOptions(config: Partial<RequestConfig<AddFilesRequestData>> & { client?: typeof fetch } = {}) {
   const mutationKey = addFilesMutationKey()
-  return mutationOptions<ResponseConfig<AddFilesResponseData9>, ResponseErrorConfig<AddFilesStatus4059>, { data: AddFilesRequestData9 }, typeof mutationKey>({
+  return mutationOptions<ResponseConfig<AddFilesResponseData>, ResponseErrorConfig<AddFilesStatus405>, { data: AddFilesRequestData }, typeof mutationKey>({
     mutationKey,
     mutationFn: async ({ data }) => {
       return addFiles({ data }, config)
@@ -26,10 +26,10 @@ export function addFilesMutationOptions(config: Partial<RequestConfig<AddFilesRe
  */
 export function useAddFiles<TContext>(
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<AddFilesResponseData9>, ResponseErrorConfig<AddFilesStatus4059>, { data: AddFilesRequestData9 }, TContext> & {
+    mutation?: UseMutationOptions<ResponseConfig<AddFilesResponseData>, ResponseErrorConfig<AddFilesStatus405>, { data: AddFilesRequestData }, TContext> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<AddFilesRequestData9>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<AddFilesRequestData>> & { client?: typeof fetch }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
@@ -37,18 +37,18 @@ export function useAddFiles<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? addFilesMutationKey()
 
   const baseOptions = addFilesMutationOptions(config) as UseMutationOptions<
-    ResponseConfig<AddFilesResponseData9>,
-    ResponseErrorConfig<AddFilesStatus4059>,
-    { data: AddFilesRequestData9 },
+    ResponseConfig<AddFilesResponseData>,
+    ResponseErrorConfig<AddFilesStatus405>,
+    { data: AddFilesRequestData },
     TContext
   >
 
-  return useMutation<ResponseConfig<AddFilesResponseData9>, ResponseErrorConfig<AddFilesStatus4059>, { data: AddFilesRequestData9 }, TContext>(
+  return useMutation<ResponseConfig<AddFilesResponseData>, ResponseErrorConfig<AddFilesStatus405>, { data: AddFilesRequestData }, TContext>(
     {
       ...baseOptions,
       mutationKey,
       ...mutationOptions,
     },
     queryClient,
-  ) as UseMutationResult<ResponseConfig<AddFilesResponseData9>, ResponseErrorConfig<AddFilesStatus4059>, { data: AddFilesRequestData9 }, TContext>
+  ) as UseMutationResult<ResponseConfig<AddFilesResponseData>, ResponseErrorConfig<AddFilesStatus405>, { data: AddFilesRequestData }, TContext>
 }

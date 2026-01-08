@@ -14,13 +14,13 @@ import type {
 } from '../../../models/ts/petController/UpdatePetWithForm.js'
 
 function getUpdatePetWithFormUrl({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) {
-  const res = { method: 'POST', url: `/pet/${petId}` as const }
+  const res = { method: 'POST', url: `/pet/${petId}:search` as const }
   return res
 }
 
 /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export async function updatePetWithForm(
   { petId }: { petId: UpdatePetWithFormPathParams['petId'] },

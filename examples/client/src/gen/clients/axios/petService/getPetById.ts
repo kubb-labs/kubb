@@ -9,14 +9,14 @@ import fetch from '@kubb/plugin-client/clients/fetch'
 import type { GetPetByIdPathParams, GetPetByIdResponseData, GetPetByIdStatus400, GetPetByIdStatus404 } from '../../../models/ts/petController/GetPetById.js'
 
 function getGetPetByIdUrl({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
-  const res = { method: 'GET', url: `/pet/${petId}` as const }
+  const res = { method: 'GET', url: `/pet/${petId}:search` as const }
   return res
 }
 
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export async function getPetById({ petId }: { petId: GetPetByIdPathParams['petId'] }, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config

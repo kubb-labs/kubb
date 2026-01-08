@@ -1,14 +1,23 @@
-export { createAddPetRequest } from './createAddPetRequest.ts'
 export { createAddress } from './createAddress.ts'
+export { createAnimal } from './createAnimal.ts'
 export { createApiResponse } from './createApiResponse.ts'
+export { createCat } from './createCat.ts'
 export { createCategory } from './createCategory.ts'
 export { createCustomer } from './createCustomer.ts'
+export { createDog } from './createDog.ts'
+export { createImage } from './createImage.ts'
 export { createOrder } from './createOrder.ts'
 export { createPet } from './createPet.ts'
 export { createPetNotFound } from './createPetNotFound.ts'
-export { createTag } from './createTag.ts'
+export { createPostPetRequest } from './createPostPetRequest.ts'
 export { createUser } from './createUser.ts'
 export { createUserArray } from './createUserArray.ts'
+export {
+  createAddFilesRequestData,
+  createAddFilesResponseData,
+  createAddFilesStatus200,
+  createAddFilesStatus405,
+} from './petController/createAddFiles.ts'
 export {
   createAddPetRequestData,
   createAddPetResponseData,
@@ -22,12 +31,13 @@ export {
   createDeletePetStatus400,
 } from './petController/createDeletePet.ts'
 export {
-  createFindPetsByStatusQueryParams,
+  createFindPetsByStatusPathParams,
   createFindPetsByStatusResponseData,
   createFindPetsByStatusStatus200,
   createFindPetsByStatusStatus400,
 } from './petController/createFindPetsByStatus.ts'
 export {
+  createFindPetsByTagsHeaderParams,
   createFindPetsByTagsQueryParams,
   createFindPetsByTagsResponseData,
   createFindPetsByTagsStatus200,
@@ -41,13 +51,10 @@ export {
   createGetPetByIdStatus404,
 } from './petController/createGetPetById.ts'
 export {
-  createOptionsFindPetsByStatusResponseData,
-  createOptionsFindPetsByStatusStatus200,
-} from './petController/createOptionsFindPetsByStatus.ts'
-export {
   createUpdatePetRequestData,
   createUpdatePetResponseData,
   createUpdatePetStatus200,
+  createUpdatePetStatus202,
   createUpdatePetStatus400,
   createUpdatePetStatus404,
   createUpdatePetStatus405,
@@ -65,6 +72,15 @@ export {
   createUploadFileResponseData,
   createUploadFileStatus200,
 } from './petController/createUploadFile.ts'
+export {
+  createCreatePetsHeaderParams,
+  createCreatePetsPathParams,
+  createCreatePetsQueryParams,
+  createCreatePetsRequestData,
+  createCreatePetsResponseData,
+  createCreatePetsStatus201,
+  createCreatePetsStatusError,
+} from './petsController/createCreatePets.ts'
 export {
   createDeleteOrderPathParams,
   createDeleteOrderResponseData,
@@ -94,6 +110,7 @@ export {
   createPlaceOrderPatchStatus200,
   createPlaceOrderPatchStatus405,
 } from './storeController/createPlaceOrderPatch.ts'
+export { createTagTag } from './tag/createTag.ts'
 export {
   createCreateUserRequestData,
   createCreateUserResponseData,

@@ -29,9 +29,25 @@ export type FindPetsByTagsQueryParams = {
   page?: string
   /**
    * @description to request with required page size
-   * @type string | undefined
+   * @type number | undefined
    */
-  pageSize?: string
+  pageSize?: number
+}
+
+export const findPetsByTagsHeaderParamsXEXAMPLEEnum = {
+  ONE: 'ONE',
+  TWO: 'TWO',
+  THREE: 'THREE',
+} as const
+
+export type FindPetsByTagsHeaderParamsXEXAMPLEEnumKey = (typeof findPetsByTagsHeaderParamsXEXAMPLEEnum)[keyof typeof findPetsByTagsHeaderParamsXEXAMPLEEnum]
+
+export type FindPetsByTagsHeaderParams = {
+  /**
+   * @description Header parameters
+   * @type string
+   */
+  'X-EXAMPLE': FindPetsByTagsHeaderParamsXEXAMPLEEnumKey
 }
 
 /**
@@ -48,7 +64,7 @@ export type FindPetsByTagsRequest = {
   data?: never
   pathParams?: never
   queryParams?: FindPetsByTagsQueryParams
-  headerParams?: never
+  headerParams?: FindPetsByTagsHeaderParams
   url: '/pet/findByTags'
 }
 

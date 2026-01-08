@@ -7,7 +7,7 @@ import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tansta
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { AddPetRequestData9, AddPetResponseData9, AddPetStatus4059 } from '../../models/AddPet.ts'
+import type { AddPetRequestData, AddPetResponseData, AddPetStatus405 } from '../../models/AddPet.ts'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
 
@@ -19,8 +19,8 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
  * {@link /pet}
  */
 export async function addPetHook(
-  data: AddPetRequestData9,
-  config: Partial<RequestConfig<AddPetRequestData9>> & {
+  data: AddPetRequestData,
+  config: Partial<RequestConfig<AddPetRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
@@ -28,7 +28,7 @@ export async function addPetHook(
 
   const requestData = data
 
-  const res = await request<AddPetResponseData9, ResponseErrorConfig<AddPetStatus4059>, AddPetRequestData9>({
+  const res = await request<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, AddPetRequestData>({
     method: 'POST',
     url: '/pet',
     data: requestData,
@@ -38,12 +38,12 @@ export async function addPetHook(
 }
 
 export function addPetMutationOptionsHook(
-  config: Partial<RequestConfig<AddPetRequestData9>> & {
+  config: Partial<RequestConfig<AddPetRequestData>> & {
     client?: typeof fetch
   } = {},
 ) {
   const mutationKey = addPetMutationKey()
-  return mutationOptions<AddPetResponseData9, ResponseErrorConfig<AddPetStatus4059>, { data: AddPetRequestData9 }, typeof mutationKey>({
+  return mutationOptions<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, { data: AddPetRequestData }, typeof mutationKey>({
     mutationKey,
     mutationFn: async ({ data }) => {
       return addPetHook(data, config)
@@ -58,8 +58,8 @@ export function addPetMutationOptionsHook(
  */
 export function useAddPetHook<TContext>(
   options: {
-    mutation?: UseMutationOptions<AddPetResponseData9, ResponseErrorConfig<AddPetStatus4059>, { data: AddPetRequestData9 }, TContext> & { client?: QueryClient }
-    client?: Partial<RequestConfig<AddPetRequestData9>> & {
+    mutation?: UseMutationOptions<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, { data: AddPetRequestData }, TContext> & { client?: QueryClient }
+    client?: Partial<RequestConfig<AddPetRequestData>> & {
       client?: typeof fetch
     }
   } = {},
@@ -69,18 +69,18 @@ export function useAddPetHook<TContext>(
   const mutationKey = mutationOptions.mutationKey ?? addPetMutationKey()
 
   const baseOptions = addPetMutationOptionsHook(config) as UseMutationOptions<
-    AddPetResponseData9,
-    ResponseErrorConfig<AddPetStatus4059>,
-    { data: AddPetRequestData9 },
+    AddPetResponseData,
+    ResponseErrorConfig<AddPetStatus405>,
+    { data: AddPetRequestData },
     TContext
   >
 
-  return useMutation<AddPetResponseData9, ResponseErrorConfig<AddPetStatus4059>, { data: AddPetRequestData9 }, TContext>(
+  return useMutation<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, { data: AddPetRequestData }, TContext>(
     {
       ...baseOptions,
       mutationKey,
       ...mutationOptions,
     },
     queryClient,
-  ) as UseMutationResult<AddPetResponseData9, ResponseErrorConfig<AddPetStatus4059>, { data: AddPetRequestData9 }, TContext>
+  ) as UseMutationResult<AddPetResponseData, ResponseErrorConfig<AddPetStatus405>, { data: AddPetRequestData }, TContext>
 }

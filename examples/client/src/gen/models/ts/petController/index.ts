@@ -1,4 +1,11 @@
 export type {
+  AddFilesRequest,
+  AddFilesRequestData,
+  AddFilesResponseData,
+  AddFilesStatus200,
+  AddFilesStatus405,
+} from './AddFiles.js'
+export type {
   AddPetRequest,
   AddPetRequestData,
   AddPetResponseData,
@@ -13,21 +20,22 @@ export type {
   DeletePetStatus400,
 } from './DeletePet.js'
 export type {
-  FindPetsByStatusQueryParams,
-  FindPetsByStatusQueryParamsStatusEnumKey,
+  FindPetsByStatusPathParams,
   FindPetsByStatusRequest,
   FindPetsByStatusResponseData,
   FindPetsByStatusStatus200,
   FindPetsByStatusStatus400,
 } from './FindPetsByStatus.js'
-export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus.js'
 export type {
+  FindPetsByTagsHeaderParams,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
   FindPetsByTagsQueryParams,
   FindPetsByTagsRequest,
   FindPetsByTagsResponseData,
   FindPetsByTagsStatus200,
   FindPetsByTagsStatus400,
 } from './FindPetsByTags.js'
+export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './FindPetsByTags.js'
 export type {
   GetPetByIdPathParams,
   GetPetByIdRequest,
@@ -41,6 +49,7 @@ export type {
   UpdatePetRequestData,
   UpdatePetResponseData,
   UpdatePetStatus200,
+  UpdatePetStatus202,
   UpdatePetStatus400,
   UpdatePetStatus404,
   UpdatePetStatus405,

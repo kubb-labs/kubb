@@ -19,7 +19,7 @@ export type DeletePetPathParams = {
    * @description Pet id to delete
    * @type integer, int64
    */
-  pet_id: number
+  petId: number
 }
 
 export type DeletePetHeaderParams = {
@@ -39,7 +39,7 @@ export type DeletePetRequest = {
   pathParams: DeletePetPathParams
   queryParams?: never
   headerParams?: DeletePetHeaderParams
-  url: `/pet/${string}`
+  url: `/pet/${string}:search`
 }
 
 export type DeletePetResponseData = any

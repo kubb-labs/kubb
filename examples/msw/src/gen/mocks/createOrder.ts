@@ -10,12 +10,14 @@ export function createOrder(data?: Partial<Order>): Order {
   faker.seed([220])
   return {
     ...{
-      id: faker.number.int(),
+      id: faker.number.int({ min: 3, max: 100 }),
       petId: faker.number.int(),
       quantity: faker.number.int(),
+      orderType: faker.helpers.arrayElement<NonNullable<Order>['orderType']>(['foo', 'bar']),
+      type: faker.string.alpha(),
       shipDate: faker.date.anytime().toISOString(),
       status: faker.helpers.arrayElement<NonNullable<Order>['status']>(['placed', 'approved', 'delivered']),
-      http_status: faker.helpers.arrayElement<NonNullable<Order>['http_status']>([200, 400, 500]),
+      http_status: faker.helpers.arrayElement<NonNullable<Order>['http_status']>([200, 400]),
       complete: faker.datatype.boolean(),
     },
     ...(data || {}),

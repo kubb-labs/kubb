@@ -4,7 +4,7 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { FindPetsByTagsQueryParams, FindPetsByTagsResponseData, FindPetsByTagsStatus200 } from '../../models/FindPetsByTags.ts'
+import type { FindPetsByTagsHeaderParams, FindPetsByTagsQueryParams, FindPetsByTagsResponseData, FindPetsByTagsStatus200 } from '../../models/FindPetsByTags.ts'
 import { createPet } from '../createPet.ts'
 
 export function createFindPetsByTagsQueryParams(data?: Partial<FindPetsByTagsQueryParams>): FindPetsByTagsQueryParams {
@@ -13,7 +13,17 @@ export function createFindPetsByTagsQueryParams(data?: Partial<FindPetsByTagsQue
     ...{
       tags: faker.helpers.multiple(() => faker.string.alpha()),
       page: faker.string.alpha(),
-      pageSize: faker.string.alpha(),
+      pageSize: faker.number.float(),
+    },
+    ...(data || {}),
+  }
+}
+
+export function createFindPetsByTagsHeaderParams(data?: Partial<FindPetsByTagsHeaderParams>): FindPetsByTagsHeaderParams {
+  faker.seed([220])
+  return {
+    ...{
+      'X-EXAMPLE': faker.helpers.arrayElement<NonNullable<FindPetsByTagsHeaderParams>['X-EXAMPLE']>(['ONE', 'TWO', 'THREE']),
     },
     ...(data || {}),
   }

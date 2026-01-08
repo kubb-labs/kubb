@@ -24,7 +24,7 @@ export type CreateUserStatusError = User
 /**
  * @description Created user object
  */
-export type CreateUserRequestData = User
+export type CreateUserRequestData = Omit<NonNullable<User>, 'tag'>
 
 export type CreateUserRequest = {
   data?: CreateUserRequestData

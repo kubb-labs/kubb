@@ -1,10 +1,5 @@
 export type {
   AddPetRequest,
-  AddPetRequestStatusEnumKey,
-} from './AddPetRequestType.ts'
-export { addPetRequestStatusEnum } from './AddPetRequestType.ts'
-export type {
-  AddPetRequest,
   AddPetRequestData,
   AddPetResponseData,
   AddPetStatus200,
@@ -154,6 +149,11 @@ export type {
   PlaceOrderStatus200,
   PlaceOrderStatus405,
 } from './PlaceOrderType.ts'
+export type {
+  PostPetRequest,
+  PostPetRequestStatusEnumKey,
+} from './PostPetRequestType.ts'
+export { postPetRequestStatusEnum } from './PostPetRequestType.ts'
 export type { Tag } from './TagType.ts'
 export type {
   UpdatePetRequest,

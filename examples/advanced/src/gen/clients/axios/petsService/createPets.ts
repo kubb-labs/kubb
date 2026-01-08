@@ -1,13 +1,13 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import fetch from '../../../../axios-client.ts'
 import type {
-  CreatePetsRequestData,
-  CreatePetsResponseData,
+  CreatePetsHeaderParams,
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsHeaderParams,
+  CreatePetsRequestData,
+  CreatePetsResponseData,
 } from '../../../models/ts/petsController/CreatePets.ts'
-import { createPetsResponseData2Schema, createPetsRequestData2Schema } from '../../../zod/petsController/createPetsSchema.ts'
+import { createPetsRequestDataSchema, createPetsResponseDataSchema } from '../../../zod/petsController/createPetsSchema.ts'
 
 export function getCreatePetsUrl({ uuid }: { uuid: CreatePetsPathParams['uuid'] }) {
   const res = { method: 'POST', url: `https://petstore3.swagger.io/api/v3/pets/${uuid}` as const }
@@ -29,7 +29,7 @@ export async function createPets(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const requestData = createPetsRequestData2Schema.parse(data)
+  const requestData = createPetsRequestDataSchema.parse(data)
 
   const res = await request<CreatePetsResponseData, ResponseErrorConfig<Error>, CreatePetsRequestData>({
     method: 'POST',
@@ -39,5 +39,5 @@ export async function createPets(
     ...requestConfig,
     headers: { ...headers, ...requestConfig.headers },
   })
-  return { ...res, data: createPetsResponseData2Schema.parse(res.data) }
+  return { ...res, data: createPetsResponseDataSchema.parse(res.data) }
 }

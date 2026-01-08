@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { AddPetRequest } from './AddPetRequestType.ts'
 import type { Pet } from './PetType.ts'
+import type { PostPetRequest } from './PostPetRequestType.ts'
 
 /**
  * @description Successful operation
@@ -28,7 +28,7 @@ export type AddPetStatus405 = {
 /**
  * @description Create a new pet in the store
  */
-export type AddPetRequestData = AddPetRequest
+export type AddPetRequestData = PostPetRequest
 
 export type AddPetRequest = {
   data?: AddPetRequestData

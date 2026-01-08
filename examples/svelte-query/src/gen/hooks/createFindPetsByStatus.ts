@@ -18,36 +18,37 @@ import type { CreateBaseQueryOptions, CreateQueryResult, QueryClient, QueryKey }
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
-import type { FindPetsByStatusQueryParams, FindPetsByStatusResponseData, FindPetsByStatusStatus400 } from '../models/FindPetsByStatus.ts'
+import type { FindPetsByStatusPathParams, FindPetsByStatusResponseData, FindPetsByStatusStatus400 } from '../models/FindPetsByStatus.ts'
 
-export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+export const findPetsByStatusQueryKey = (step_id: FindPetsByStatusPathParams['step_id']) =>
+  [{ url: '/pet/findByStatus/:step_id', params: { step_id: step_id } }] as const
 
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
 
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * {@link /pet/findByStatus}
+ * {@link /pet/findByStatus/:step_id}
  */
-export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findPetsByStatus(step_id: FindPetsByStatusPathParams['step_id'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, unknown>({
     method: 'GET',
-    url: '/pet/findByStatus',
-    params,
+    url: `/pet/findByStatus/${step_id}`,
     ...requestConfig,
   })
   return res.data
 }
 
-export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-  const queryKey = findPetsByStatusQueryKey(params)
+export function findPetsByStatusQueryOptions(step_id: FindPetsByStatusPathParams['step_id'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const queryKey = findPetsByStatusQueryKey(step_id)
   return queryOptions<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, FindPetsByStatusResponseData, typeof queryKey>({
+    enabled: !!step_id,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return findPetsByStatus(params, config)
+      return findPetsByStatus(step_id, config)
     },
   })
 }
@@ -55,14 +56,14 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParam
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * {@link /pet/findByStatus}
+ * {@link /pet/findByStatus/:step_id}
  */
 export function createFindPetsByStatus<
   TData = FindPetsByStatusResponseData,
   TQueryData = FindPetsByStatusResponseData,
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
 >(
-  params?: FindPetsByStatusQueryParams,
+  step_id: FindPetsByStatusPathParams['step_id'],
   options: {
     query?: Partial<CreateBaseQueryOptions<FindPetsByStatusResponseData, ResponseErrorConfig<FindPetsByStatusStatus400>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
@@ -72,11 +73,11 @@ export function createFindPetsByStatus<
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
+  const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(step_id)
 
   const query = createQuery(
     {
-      ...findPetsByStatusQueryOptions(params, config),
+      ...findPetsByStatusQueryOptions(step_id, config),
       queryKey,
       ...queryOptions,
     } as unknown as CreateBaseQueryOptions,

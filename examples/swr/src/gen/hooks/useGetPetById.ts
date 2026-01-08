@@ -8,21 +8,21 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
 import type { GetPetByIdPathParams, GetPetByIdResponseData, GetPetByIdStatus400, GetPetByIdStatus404 } from '../models/GetPetById.ts'
 
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId:search', params: { petId: petId } }] as const
 
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export async function getPetById(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetPetByIdResponseData, ResponseErrorConfig<GetPetByIdStatus400 | GetPetByIdStatus404>, unknown>({
     method: 'GET',
-    url: `/pet/${petId}`,
+    url: `/pet/${petId}:search`,
     ...requestConfig,
   })
   return res.data
@@ -39,7 +39,7 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], con
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export function useGetPetById(
   petId: GetPetByIdPathParams['petId'],

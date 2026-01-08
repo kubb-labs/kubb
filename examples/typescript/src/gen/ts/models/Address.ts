@@ -7,11 +7,7 @@ export type Address = {
   /**
    * @type string | undefined
    */
-  streetName?: string
-  /**
-   * @type string | undefined
-   */
-  streetNumber?: string
+  street?: string
   /**
    * @type string | undefined
    */

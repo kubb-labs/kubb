@@ -1,5 +1,10 @@
 export { handlers } from './handlers.ts'
 export {
+  addFilesHandler,
+  addFilesHandlerResponse200,
+  addFilesHandlerResponse405,
+} from './pet/Handlers/addFilesHandler.ts'
+export {
   addPetHandler,
   addPetHandlerResponse200,
   addPetHandlerResponse405,
@@ -25,12 +30,9 @@ export {
   getPetByIdHandlerResponse404,
 } from './pet/Handlers/getPetByIdHandler.ts'
 export {
-  optionsFindPetsByStatusHandler,
-  optionsFindPetsByStatusHandlerResponse200,
-} from './pet/Handlers/optionsFindPetsByStatusHandler.ts'
-export {
   updatePetHandler,
   updatePetHandlerResponse200,
+  updatePetHandlerResponse202,
   updatePetHandlerResponse400,
   updatePetHandlerResponse404,
   updatePetHandlerResponse405,
@@ -43,6 +45,10 @@ export {
   uploadFileHandler,
   uploadFileHandlerResponse200,
 } from './pet/Handlers/uploadFileHandler.ts'
+export {
+  createPetsHandler,
+  createPetsHandlerResponse201,
+} from './pets/Handlers/createPetsHandler.ts'
 export {
   deleteOrderHandler,
   deleteOrderHandlerResponse400,

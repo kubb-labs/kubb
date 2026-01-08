@@ -4,9 +4,9 @@
  */
 
 import { http } from 'msw'
-import type { AddPetResponseData2, AddPetStatus4052 } from '../../../models/AddPet.ts'
+import type { AddPetResponseData, AddPetStatus405 } from '../../../models/AddPet.ts'
 
-export function addPetHandlerResponse200(data: AddPetResponseData2) {
+export function addPetHandlerResponse200(data: AddPetResponseData) {
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -15,7 +15,7 @@ export function addPetHandlerResponse200(data: AddPetResponseData2) {
   })
 }
 
-export function addPetHandlerResponse405(data: AddPetStatus4052) {
+export function addPetHandlerResponse405(data: AddPetStatus405) {
   return new Response(JSON.stringify(data), {
     status: 405,
     headers: {
@@ -24,7 +24,7 @@ export function addPetHandlerResponse405(data: AddPetStatus4052) {
   })
 }
 
-export function addPetHandler(data?: AddPetResponseData2 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
+export function addPetHandler(data?: AddPetResponseData | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
   return http.post('http://localhost:3000/pet', function handler(info) {
     if (typeof data === 'function') return data(info)
 

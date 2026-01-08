@@ -6,7 +6,6 @@
 
 import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import { buildFormData } from '../../../.kubb/config.js'
 import type { UploadFilePathParams, UploadFileQueryParams, UploadFileRequestData, UploadFileResponseData } from '../../../models/ts/petController/UploadFile.js'
 
 function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
@@ -20,7 +19,7 @@ function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
  */
 export async function uploadFile(
   { petId }: { petId: UploadFilePathParams['petId'] },
-  data: UploadFileRequestData,
+  data?: UploadFileRequestData,
   params?: UploadFileQueryParams,
   config: Partial<RequestConfig<UploadFileRequestData>> & {
     client?: typeof fetch
@@ -29,13 +28,17 @@ export async function uploadFile(
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
-  const formData = buildFormData(requestData)
+
   const res = await request<UploadFileResponseData, ResponseErrorConfig<Error>, UploadFileRequestData>({
     method: 'POST',
     url: getUploadFileUrl({ petId }).url.toString(),
     params,
-    data: formData as FormData,
+    data: requestData,
     ...requestConfig,
+    headers: {
+      'Content-Type': 'application/octet-stream',
+      ...requestConfig.headers,
+    },
   })
   return res.data
 }

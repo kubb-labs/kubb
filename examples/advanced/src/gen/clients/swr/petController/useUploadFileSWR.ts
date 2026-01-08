@@ -1,13 +1,8 @@
-import type fetch from '../../../../axios-client.ts'
-import useSWRMutation from 'swr/mutation'
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type {
-  UploadFileRequestData3,
-  UploadFileResponseData3,
-  UploadFilePathParams3,
-  UploadFileQueryParams3,
-} from '../../../models/ts/petController/UploadFile.ts'
 import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
+import type fetch from '../../../../axios-client.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { UploadFilePathParams, UploadFileQueryParams, UploadFileRequestData, UploadFileResponseData } from '../../../models/ts/petController/UploadFile.ts'
 import { uploadFile } from '../../axios/petService/uploadFile.ts'
 
 export const uploadFileMutationKeySWR = () => [{ url: '/pet/:petId/uploadImage' }] as const
@@ -19,23 +14,23 @@ export type UploadFileMutationKeySWR = ReturnType<typeof uploadFileMutationKeySW
  * {@link /pet/:petId/uploadImage}
  */
 export function useUploadFileSWR(
-  { petId }: { petId: UploadFilePathParams3['petId'] },
-  params?: UploadFileQueryParams3,
+  { petId }: { petId: UploadFilePathParams['petId'] },
+  params?: UploadFileQueryParams,
   options: {
     mutation?: SWRMutationConfiguration<
-      ResponseConfig<UploadFileResponseData3>,
+      ResponseConfig<UploadFileResponseData>,
       ResponseErrorConfig<Error>,
       UploadFileMutationKeySWR | null,
-      UploadFileRequestData3
+      UploadFileRequestData
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig<UploadFileRequestData3>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<UploadFileRequestData>> & { client?: typeof fetch }
     shouldFetch?: boolean
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
   const mutationKey = uploadFileMutationKeySWR()
 
-  return useSWRMutation<ResponseConfig<UploadFileResponseData3>, ResponseErrorConfig<Error>, UploadFileMutationKeySWR | null, UploadFileRequestData3>(
+  return useSWRMutation<ResponseConfig<UploadFileResponseData>, ResponseErrorConfig<Error>, UploadFileMutationKeySWR | null, UploadFileRequestData>(
     shouldFetch ? mutationKey : null,
     async (_url, { arg: data }) => {
       return uploadFile({ petId, data, params }, config)

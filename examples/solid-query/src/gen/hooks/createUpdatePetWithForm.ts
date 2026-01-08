@@ -15,13 +15,13 @@ import type {
 } from '../models/UpdatePetWithForm.ts'
 
 export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
-  [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const
+  [{ url: '/pet/:petId:search', params: { petId: petId } }, ...(params ? [params] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
 
 /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
@@ -32,7 +32,7 @@ export async function updatePetWithForm(
 
   const res = await request<UpdatePetWithFormResponseData, ResponseErrorConfig<UpdatePetWithFormStatus405>, unknown>({
     method: 'POST',
-    url: `/pet/${petId}`,
+    url: `/pet/${petId}:search`,
     params,
     ...requestConfig,
   })
@@ -57,7 +57,7 @@ export function updatePetWithFormQueryOptions(
 
 /**
  * @summary Updates a pet in the store with form data
- * {@link /pet/:petId}
+ * {@link /pet/:petId:search}
  */
 export function createUpdatePetWithForm<
   TData = UpdatePetWithFormResponseData,
