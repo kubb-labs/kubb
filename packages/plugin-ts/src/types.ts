@@ -32,15 +32,17 @@ export type Options = {
    */
   override?: Array<Override<ResolvedOptions>>
   /**
-   * Choose to use `enum`, `asConst`, `asPascalConst`, `constEnum`, or `literal` for enums.
+   * Choose to use `enum`, `asConst`, `asPascalConst`, `constEnum`, `literal`, or `inlineLiteral` for enums.
    * - `enum`: TypeScript enum
    * - `asConst`: const with camelCase name (e.g., `petType`)
    * - `asPascalConst`: const with PascalCase name (e.g., `PetType`)
    * - `constEnum`: const enum
    * - `literal`: literal union type
+   * - `inlineLiteral`: inline enum values directly into the type (default in v5)
    * @default 'asConst'
+   * @note In Kubb v5, `inlineLiteral` will become the default.
    */
-  enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
+  enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   /**
    * Switch between type or interface for creating TypeScript types
    * @default 'type'
@@ -51,13 +53,6 @@ export type Options = {
    * @default 'enum'
    */
   enumSuffix?: string
-  /**
-   * Inline enum types directly into the interface/type instead of exporting them separately.
-   * When enabled, enum values will be inlined as literal union types in the property definition.
-   * @default false
-   * @note In Kubb v5, this will be the default behavior (true).
-   */
-  enumInline?: boolean
   /**
    * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
    * @default 'string'
@@ -110,7 +105,6 @@ type ResolvedOptions = {
   override: NonNullable<Options['override']>
   enumType: NonNullable<Options['enumType']>
   enumSuffix: NonNullable<Options['enumSuffix']>
-  enumInline: NonNullable<Options['enumInline']>
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
   emptySchemaType: NonNullable<Options['emptySchemaType']>

@@ -4,30 +4,6 @@ import { createParser, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 import * as factory from './factory.ts'
 
-/**
- * Helper function to get the TypeScript format for an enum value
- */
-function getEnumValueFormat(value: unknown): 'number' | 'boolean' | 'string' {
-  if (typeof value === 'number') {
-    return 'number'
-  }
-  if (typeof value === 'boolean') {
-    return 'boolean'
-  }
-  return 'string'
-}
-
-/**
- * Helper function to generate inline enum union type from enum items
- */
-function generateInlineEnumUnion(items: Array<{ value?: unknown }>): ts.TypeNode[] {
-  return items
-    .map((item) => item.value)
-    .filter((value): value is string | number | boolean => value !== undefined && value !== null)
-    .map((value) => typeKeywordMapper.const(value, getEnumValueFormat(value)))
-    .filter(Boolean) as ts.TypeNode[]
-}
-
 export const typeKeywordMapper = {
   any: () => factory.keywordTypeNodes.any,
   unknown: () => factory.keywordTypeNodes.unknown,
@@ -167,21 +143,17 @@ type ParserOptions = {
    */
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
   /**
-   * Choose to use `enum`, `asConst`, `asPascalConst`, `constEnum`, or `literal` for enums.
+   * Choose to use `enum`, `asConst`, `asPascalConst`, `constEnum`, `literal`, or `inlineLiteral` for enums.
    * - `enum`: TypeScript enum
    * - `asConst`: const with camelCase name (e.g., `petType`)
    * - `asPascalConst`: const with PascalCase name (e.g., `PetType`)
    * - `constEnum`: const enum
    * - `literal`: literal union type
+   * - `inlineLiteral`: inline enum values directly into the type (default in v5)
    * @default `'asConst'`
+   * @note In Kubb v5, `inlineLiteral` will become the default.
    */
-  enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
-  /**
-   * Inline enum types directly into the type instead of creating a separate type reference.
-   * @default false
-   * @note In Kubb v5, this will be the default behavior (true).
-   */
-  enumInline?: boolean
+  enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   mapper?: Record<string, ts.PropertySignature>
 }
 
@@ -227,9 +199,17 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.enum)) return undefined
 
-      // If enumInline is true, generate the literal union inline instead of a type reference
-      if (options.enumInline) {
-        const enumValues = generateInlineEnumUnion(current.args.items)
+      // If enumType is 'inlineLiteral', generate the literal union inline instead of a type reference
+      if (options.enumType === 'inlineLiteral') {
+        const enumValues = current.args.items
+          .map((item) => item.value)
+          .filter((value): value is string | number | boolean => value !== undefined && value !== null)
+          .map((value) => {
+            const format = typeof value === 'number' ? 'number' : typeof value === 'boolean' ? 'boolean' : 'string'
+            return typeKeywordMapper.const(value, format)
+          })
+          .filter(Boolean) as ts.TypeNode[]
+
         return typeKeywordMapper.union(enumValues)
       }
 

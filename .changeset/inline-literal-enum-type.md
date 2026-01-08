@@ -2,17 +2,17 @@
 "@kubb/plugin-ts": minor
 ---
 
-Add `enumInline` option to inline enum values directly into types
+Add `inlineLiteral` enum type to inline enum values directly into types
 
-You can now use the `enumInline` option to inline enum values as literal union types instead of creating separate enum declarations:
+You can now use `enumType: 'inlineLiteral'` to inline enum values as literal union types instead of creating separate enum declarations:
 
 ```typescript
 pluginTs({
-  enumInline: true,
+  enumType: 'inlineLiteral',
 })
 ```
 
-**Before (enumInline: false - default):**
+**Before (enumType: 'asConst' - default):**
 ```typescript
 export const petStatusEnum = {
   available: 'available',
@@ -27,9 +27,11 @@ export interface Pet {
 }
 ```
 
-**After (enumInline: true):**
+**After (enumType: 'inlineLiteral'):**
 ```typescript
 export interface Pet {
   status?: "available" | "pending" | "sold"
 }
 ```
+
+> **Note**: In Kubb v5, `inlineLiteral` will become the default `enumType`.

@@ -290,12 +290,11 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
-      name: 'EnumNamesInline',
+      name: 'EnumNamesInlineLiteral',
       input: '../../mocks/enums.yaml',
       path: 'enumNames.Type',
       options: {
-        enumType: 'asConst',
-        enumInline: true,
+        enumType: 'inlineLiteral',
         optionalType: 'questionToken',
       },
     },
@@ -475,7 +474,6 @@ describe('typeGenerator schema', async () => {
     const options: PluginTs['resolvedOptions'] = {
       enumType: 'asConst',
       enumSuffix: 'enum',
-      enumInline: false,
       dateType: 'string',
       transformers: {},
       unknownType: 'any',
@@ -620,7 +618,6 @@ describe('typeGenerator operation', async () => {
     const options: PluginTs['resolvedOptions'] = {
       enumType: 'asConst',
       enumSuffix: '',
-      enumInline: false,
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},

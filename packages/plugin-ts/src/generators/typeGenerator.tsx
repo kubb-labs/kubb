@@ -108,7 +108,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   Operation({ operation, generator, plugin }) {
     const {
       options,
-      options: { mapper, enumType, enumInline, syntaxType, optionalType },
+      options: { mapper, enumType, syntaxType, optionalType },
     } = plugin
 
     const mode = useMode()
@@ -161,7 +161,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
             schema={schema}
             mapper={mapper}
             enumType={enumType}
-            enumInline={enumInline}
             optionalType={optionalType}
             keysToOmit={keysToOmit}
             syntaxType={syntaxType}
@@ -188,7 +187,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   },
   Schema({ schema, plugin }) {
     const {
-      options: { mapper, enumType, enumInline, syntaxType, optionalType, output },
+      options: { mapper, enumType, syntaxType, optionalType, output },
     } = plugin
     const mode = useMode()
 
@@ -201,7 +200,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
     let typedName = getName(schema.name, { type: 'type' })
 
-    if (enumType === 'asConst' && !enumInline && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
+    if (enumType === 'asConst' && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
       typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
     }
 
@@ -231,7 +230,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
           schema={schema.value}
           mapper={mapper}
           enumType={enumType}
-          enumInline={enumInline}
           optionalType={optionalType}
           syntaxType={syntaxType}
         />

@@ -16,14 +16,13 @@ type Props = {
   tree: Array<Schema>
   optionalType: PluginTs['resolvedOptions']['optionalType']
   enumType: PluginTs['resolvedOptions']['enumType']
-  enumInline: PluginTs['resolvedOptions']['enumInline']
   mapper: PluginTs['resolvedOptions']['mapper']
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
   description?: string
   keysToOmit?: string[]
 }
 
-export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, syntaxType, enumType, enumInline, mapper, description }: Props): KubbNode {
+export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, syntaxType, enumType, mapper, description }: Props): KubbNode {
   const typeNodes: ts.Node[] = []
 
   if (!tree.length) {
@@ -41,7 +40,6 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
           {
             optionalType,
             enumType,
-            enumInline,
             mapper,
           },
         ),
@@ -50,7 +48,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
 
   // Add a "Key" suffix to avoid collisions where necessary
-  if (enumType === 'asConst' && !enumInline && enumSchemas.length > 0) {
+  if (enumType === 'asConst' && enumSchemas.length > 0) {
     const isDirectEnum = schema.type === 'array' && schema.items !== undefined
     const isEnumOnly = 'enum' in schema && schema.enum
 
@@ -137,14 +135,13 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
     }
   })
 
-  // Determine if the main type should be exported
-  // When enumInline is true: separate enum declarations are skipped, so the main type is always exported with inlined values
-  // When enumInline is false: export the main type only if no enum type shares the same name (to avoid duplicate exports)
-  const shouldExportType = enumInline || enums.every((item) => item.typeName !== name)
+  // Skip enum exports when using inlineLiteral
+  const shouldExportEnums = enumType !== 'inlineLiteral'
+  const shouldExportType = enumType === 'inlineLiteral' || enums.every((item) => item.typeName !== name)
 
   return (
     <>
-      {!enumInline &&
+      {shouldExportEnums &&
         enums.map(({ name, nameNode, typeName, typeNode }) => (
           <>
             {nameNode && (

@@ -11,13 +11,13 @@ outline: deep
 
 #### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
 
-**New `enumInline` Option for Cleaner Type Definitions**
+**New `inlineLiteral` enum type for cleaner TypeScript definitions**
 
-Added `enumInline` option to inline enum values directly as literal union types instead of creating separate enum declarations. This results in simpler, more readable type definitions.
+Added `inlineLiteral` as a new value for the `enumType` option, allowing enum values to be inlined directly into type properties instead of generating separate enum declarations.
 
 ::: code-group
 
-```typescript [Before (default)]
+```typescript [Before (asConst)]
 export const petStatusEnum = {
   available: 'available',
   pending: 'pending',
@@ -31,7 +31,7 @@ export interface Pet {
 }
 ```
 
-```typescript [After (enumInline: true)]
+```typescript [After (inlineLiteral)]
 export interface Pet {
   status?: "available" | "pending" | "sold"
 }
@@ -42,9 +42,12 @@ export interface Pet {
 **Usage:**
 ```typescript
 pluginTs({
-  enumInline: true,
+  enumType: 'inlineLiteral',
 })
 ```
+
+> [!NOTE]
+> In Kubb v5, `inlineLiteral` will become the default `enumType`.
 
 ### 🚀 Performance Improvements
 
