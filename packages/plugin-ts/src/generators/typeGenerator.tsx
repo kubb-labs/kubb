@@ -270,8 +270,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
             name={type.name}
             typedName={type.typedName}
             description={description}
-            isIndexable
-            isExportable
             tree={tree}
             schema={schema}
             mapper={mapper}
@@ -350,8 +348,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
           description={schema.value.description}
           tree={schema.tree}
           schema={schema.value}
-          isExportable
-          isIndexable
           mapper={mapper}
           enumType={enumType}
           optionalType={optionalType}
