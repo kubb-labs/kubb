@@ -4,17 +4,11 @@
 */
 
 
-export const cardPaymentUnionTypeEnum = {
-    "card": "card"
-} as const;
-
-export type CardPaymentUnionTypeEnumKey = (typeof cardPaymentUnionTypeEnum)[keyof typeof cardPaymentUnionTypeEnum];
-
 export type CardPaymentUnion = {
     /**
-     * @type string
+     * @type string | undefined
     */
-    type: CardPaymentUnionTypeEnumKey;
+    type?: string;
     /**
      * @type string | undefined
     */
