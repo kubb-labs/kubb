@@ -17,6 +17,17 @@ function getEnumValueFormat(value: unknown): 'number' | 'boolean' | 'string' {
   return 'string'
 }
 
+/**
+ * Helper function to generate inline enum union type from enum items
+ */
+function generateInlineEnumUnion(items: Array<{ value?: unknown }>): ts.TypeNode[] {
+  return items
+    .map((item) => item.value)
+    .filter((value) => value !== undefined)
+    .map((value) => typeKeywordMapper.const(value, getEnumValueFormat(value)))
+    .filter(Boolean) as ts.TypeNode[]
+}
+
 export const typeKeywordMapper = {
   any: () => factory.keywordTypeNodes.any,
   unknown: () => factory.keywordTypeNodes.unknown,
@@ -217,12 +228,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
 
       // If enumInline is true, generate the literal union inline instead of a type reference
       if (options.enumInline) {
-        const enumValues = current.args.items
-          .map((item) => item.value)
-          .filter((value) => value !== undefined)
-          .map((value) => typeKeywordMapper.const(value, getEnumValueFormat(value)))
-          .filter(Boolean) as ts.TypeNode[]
-
+        const enumValues = generateInlineEnumUnion(current.args.items)
         return typeKeywordMapper.union(enumValues)
       }
 

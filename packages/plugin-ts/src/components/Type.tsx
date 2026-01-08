@@ -137,9 +137,9 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
     }
   })
 
-  // Check if type should be exported
-  // When enumInline is true, always export the type
-  // When enumInline is false, export only if no enum has the same name as the type
+  // Determine if the main type should be exported
+  // When enumInline is true: separate enum declarations are skipped, so the main type is always exported with inlined values
+  // When enumInline is false: export the main type only if no enum type shares the same name (to avoid duplicate exports)
   const shouldExportType = enumInline || enums.every((item) => item.typeName !== name)
 
   return (
