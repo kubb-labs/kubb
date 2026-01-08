@@ -181,7 +181,8 @@ describe('PluginManager', () => {
       pluginKey: ['pluginB', '1'],
     })
 
-    expect(name).toBe('pluginBName')
+    // Since 'pluginBName' was already used in the previous test, this should return 'pluginBName2'
+    expect(name).toBe('pluginBName2')
     expect(hookForPluginSyncMock).toHaveBeenCalled()
   })
 
@@ -324,5 +325,56 @@ describe('PluginManager', () => {
     const plugins = pluginManager.getPluginsByKey('install', ['nonExistent'])
 
     expect(plugins).toEqual([])
+  })
+
+  test('resolveName should handle duplicate schema names', () => {
+    const resolvePlugin = definePlugin(() => {
+      return {
+        name: 'resolvePlugin',
+        options: undefined as any,
+        context: undefined as never,
+        key: ['resolvePlugin'],
+        resolveName(name: string) {
+          // Simulate pascalCase transformation that could create duplicates
+          // e.g., "get-maintenance-200" -> "GetMaintenance200"
+          return name.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('')
+        },
+      }
+    })
+
+    const resolveConfig = {
+      ...config,
+      plugins: [resolvePlugin({})] as Plugin[],
+    } satisfies Config
+
+    const resolvePluginManager = new PluginManager(resolveConfig, {
+      fabric: createFabric(),
+      events: new AsyncEventEmitter<KubbEvents>(),
+    })
+
+    // First call with "get-maintenance-200" should return "GetMaintenance200"
+    const name1 = resolvePluginManager.resolveName({
+      name: 'get-maintenance-200',
+      pluginKey: ['resolvePlugin'],
+      type: 'type',
+    })
+
+    // Second call with similar name should return "GetMaintenance2002" (with number suffix)
+    const name2 = resolvePluginManager.resolveName({
+      name: 'get-maintenance-200',
+      pluginKey: ['resolvePlugin'],
+      type: 'type',
+    })
+
+    // Third call with different input that resolves to same name should also get unique suffix
+    const name3 = resolvePluginManager.resolveName({
+      name: 'getMaintenance200',
+      pluginKey: ['resolvePlugin'],
+      type: 'type',
+    })
+
+    expect(name1).toBe('GetMaintenance200')
+    expect(name2).toBe('GetMaintenance2002')
+    expect(name3).toBe('GetMaintenance2003')
   })
 })

@@ -22,7 +22,7 @@ import type {
   UserPlugin,
 } from './types.ts'
 import type { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
-import { setUniqueName } from './utils/uniqueName.ts'
+import { getUniqueName, setUniqueName } from './utils/uniqueName.ts'
 
 type RequiredPluginLifecycle = Required<PluginLifecycle>
 
@@ -67,6 +67,7 @@ export class PluginManager {
 
   readonly #plugins = new Set<Plugin<GetPluginFactoryOptions<any>>>()
   readonly #usedPluginNames: Record<string, number> = {}
+  readonly #usedResolvedNames: Record<string, number> = {}
   readonly #promiseManager: PromiseManager
 
   constructor(config: Config, options: Options) {
@@ -168,6 +169,8 @@ export class PluginManager {
   }
   //TODO refactor by using the order of plugins and the cache of the fileManager instead of guessing and recreating the name/path
   resolveName = (params: ResolveNameParams): string => {
+    let resolvedName: string
+
     if (params.pluginKey) {
       const names = this.hookForPluginSync({
         pluginKey: params.pluginKey,
@@ -177,15 +180,18 @@ export class PluginManager {
 
       const uniqueNames = new Set(names)
 
-      return transformReservedWord([...uniqueNames].at(0) || params.name)
+      resolvedName = transformReservedWord([...uniqueNames].at(0) || params.name)
+    } else {
+      const name = this.hookFirstSync({
+        hookName: 'resolveName',
+        parameters: [trim(params.name), params.type],
+      }).result
+
+      resolvedName = transformReservedWord(name)
     }
 
-    const name = this.hookFirstSync({
-      hookName: 'resolveName',
-      parameters: [trim(params.name), params.type],
-    }).result
-
-    return transformReservedWord(name)
+    // Ensure the resolved name is unique across all schema/type names
+    return getUniqueName(resolvedName, this.#usedResolvedNames)
   }
 
   /**
