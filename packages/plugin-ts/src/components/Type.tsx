@@ -16,13 +16,14 @@ type Props = {
   tree: Array<Schema>
   optionalType: PluginTs['resolvedOptions']['optionalType']
   enumType: PluginTs['resolvedOptions']['enumType']
+  enumInline: PluginTs['resolvedOptions']['enumInline']
   mapper: PluginTs['resolvedOptions']['mapper']
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
   description?: string
   keysToOmit?: string[]
 }
 
-export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, syntaxType, enumType, mapper, description }: Props): KubbNode {
+export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, syntaxType, enumType, enumInline, mapper, description }: Props): KubbNode {
   const typeNodes: ts.Node[] = []
 
   if (!tree.length) {
@@ -40,6 +41,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
           {
             optionalType,
             enumType,
+            enumInline,
             mapper,
           },
         ),
@@ -48,7 +50,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
 
   // Add a "Key" suffix to avoid collisions where necessary
-  if (enumType === 'asConst' && enumSchemas.length > 0) {
+  if (enumType === 'asConst' && !enumInline && enumSchemas.length > 0) {
     const isDirectEnum = schema.type === 'array' && schema.items !== undefined
     const isEnumOnly = 'enum' in schema && schema.enum
 
@@ -137,26 +139,27 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
 
   return (
     <>
-      {enums.map(({ name, nameNode, typeName, typeNode }) => (
-        <>
-          {nameNode && (
-            <File.Source name={name} isExportable isIndexable>
-              {safePrint(nameNode)}
-            </File.Source>
-          )}
-          {
-            <File.Source
-              name={typeName}
-              isIndexable
-              isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
-              isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
-            >
-              {safePrint(typeNode)}
-            </File.Source>
-          }
-        </>
-      ))}
-      {enums.every((item) => item.typeName !== name) && (
+      {!enumInline &&
+        enums.map(({ name, nameNode, typeName, typeNode }) => (
+          <>
+            {nameNode && (
+              <File.Source name={name} isExportable isIndexable>
+                {safePrint(nameNode)}
+              </File.Source>
+            )}
+            {
+              <File.Source
+                name={typeName}
+                isIndexable
+                isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
+                isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
+              >
+                {safePrint(typeNode)}
+              </File.Source>
+            }
+          </>
+        ))}
+      {(enumInline || enums.every((item) => item.typeName !== name)) && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
           {safePrint(...typeNodes)}
         </File.Source>

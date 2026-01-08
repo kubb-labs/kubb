@@ -52,6 +52,12 @@ export type Options = {
    */
   enumSuffix?: string
   /**
+   * Inline enum types directly into the interface/type instead of exporting them separately.
+   * When enabled, enum values will be inlined as literal union types in the property definition.
+   * @default false
+   */
+  enumInline?: boolean
+  /**
    * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
    * @default 'string'
    */
@@ -103,6 +109,7 @@ type ResolvedOptions = {
   override: NonNullable<Options['override']>
   enumType: NonNullable<Options['enumType']>
   enumSuffix: NonNullable<Options['enumSuffix']>
+  enumInline: NonNullable<Options['enumInline']>
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
   emptySchemaType: NonNullable<Options['emptySchemaType']>

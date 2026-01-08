@@ -152,6 +152,11 @@ type ParserOptions = {
    * @default `'asConst'`
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
+  /**
+   * Inline enum types directly into the type instead of creating a separate type reference.
+   * @default false
+   */
+  enumInline?: boolean
   mapper?: Record<string, ts.PropertySignature>
 }
 
@@ -196,6 +201,17 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
     enum(tree, options) {
       const { current } = tree
       if (!isKeyword(current, schemaKeywords.enum)) return undefined
+
+      // If enumInline is true, generate the literal union inline instead of a type reference
+      if (options.enumInline) {
+        const enumValues = current.args.items
+          .map((item) => item.value)
+          .filter((value) => value !== undefined)
+          .map((value) => typeKeywordMapper.const(value, typeof value === 'number' ? 'number' : typeof value === 'boolean' ? 'boolean' : 'string'))
+          .filter(Boolean) as ts.TypeNode[]
+
+        return typeKeywordMapper.union(enumValues)
+      }
 
       // Adding suffix to enum (see https://github.com/kubb-labs/kubb/issues/1873)
       return typeKeywordMapper.enum(options.enumType === 'asConst' ? `${current.args.typeName}Key` : current.args.typeName)
