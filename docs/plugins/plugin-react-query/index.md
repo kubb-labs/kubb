@@ -469,6 +469,117 @@ When using a string you need to use `JSON.stringify`.
 | Required: | `false`                                                                     |
 
 
+### customOptions
+
+When set, a custom hook will be used to customize the options of the generated hooks.
+It will also generate a `HookOptions` type that can be used to type the custom options of each hook for type-safety.
+
+|           |                 |
+|----------:|:----------------|
+|     Type: | `CustomOptions` |
+| Required: | `false`         |
+
+```typescript [CustomOptions]
+type CustomOptions = {
+  importPath: string
+  name?: string
+}
+```
+
+#### importPath
+
+|           |          |
+|----------:|:---------|
+|     Type: | `string` |
+| Required: | `true`   |
+
+Path to the hook that will be used to customize the hook options.
+It will be used as `import ${customOptions.name} from '${customOptions.importPath}'`.
+It allows both relative and absolute paths.
+However, the path will be applied as is, so relative paths should be based on the file being generated.
+
+#### name
+
+|           |                        |
+|----------:|:-----------------------|
+|     Type: | `string`               |
+| Required: | `false`                |
+|  Default: | `useCustomHookOptions` |
+
+Name of the exported hook that will be used to customize the hook options.
+It will be used as `import ${customOptions.name} from '${customOptions.importPath}'`.
+If not provided, it defaults to `useCustomHookOptions`.
+
+#### Examples
+
+**Add custom hook options to invalidate queries**
+
+```typescript [useCustomHookOptions.ts]
+function getCustomHookOptions({ queryClient }: { queryClient: QueryClient }): Partial<HookOptions> {
+  return {
+    useUpdatePetHook: {
+      onSuccess: () => {
+        // Invalidate queries using a constant
+        void queryClient.invalidateQueries({ queryKey: ['pet'] })
+      },
+    },
+    useDeletePetHook: {
+      onSuccess: (_data, variables, _onMutateResult, _context) => {
+        // Invalidate queries using the provided variables
+        void queryClient.invalidateQueries({ queryKey: ['pet', variables.pet_id] })
+      },
+    },
+    useUpdateUserHook: {
+      onSuccess: (_data, variables, _onMutateResult, _context) => {
+        // Invalidate queries using the provided query key generator function
+        void queryClient.invalidateQueries({ queryKey: getUserByNameQueryKey({ username: variables.username }) })
+      },
+    },
+    // Add more custom hook options here...
+  }
+}
+
+export function useCustomHookOptions<T extends keyof HookOptions>({ hookName, operationId }: { hookName: T; operationId: string }): HookOptions[T] {
+  const queryClient = useQueryClient()
+  const customOptions = getCustomHookOptions({ queryClient })
+  return customOptions[hookName] ?? {}
+}
+```
+
+**Add custom hook options to implement custom error handling**
+
+```typescript [useCustomHookOptions.ts]
+function getCustomHookOptions({queryClient}: { queryClient: QueryClient }): Partial<HookOptions> {
+  return {
+    useUpdatePetHook: {
+      onError: (error, _variables, _onMutateResult, _context) => {
+        // Log the error
+        console.error(`Failed to update pet:`, error);
+      },
+    },
+    useDeletePetHook: {
+      onError: (_error, variables, _onMutateResult, _context) => {
+        // Show a toast notification
+        toast.error(`Failed to delete pet with id '${variables.pet_id}'`);
+      },
+    },
+    useUpdateUserHook: {
+      onError: (_error, variables, _onMutateResult, _context) => {
+        // Post the error to a custom analytics service
+        postEvent("user_updated_failed", { username: variables.username, message: error.message, date: Date.now() })
+      },
+    },
+    // Add more custom hook options here...
+  }
+}
+
+export function useCustomHookOptions<T extends keyof HookOptions>({ hookName, operationId }: { hookName: T; operationId: string }): HookOptions[T] {
+  const queryClient = useQueryClient()
+  const customOptions = getCustomHookOptions({queryClient})
+  return customOptions[hookName] ?? {}
+}
+```
+
 ### include
 <!--@include: ../core/include.md-->
 
