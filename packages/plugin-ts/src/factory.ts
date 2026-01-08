@@ -408,7 +408,7 @@ export function createEnumDeclaration({
    * - `literal`: literal union type
    * @default `'enum'`
    */
-  type?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
+  type?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   /**
    * Enum name in camelCase.
    */
@@ -419,7 +419,7 @@ export function createEnumDeclaration({
   typeName: string
   enums: [key: string | number, value: string | number | boolean][]
 }): [name: ts.Node | undefined, type: ts.Node] {
-  if (type === 'literal') {
+  if (type === 'literal' || type ==="inlineLiteral") {
     return [
       undefined,
       factory.createTypeAliasDeclaration(
