@@ -33,8 +33,6 @@ export class OperationGenerator<
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
 > extends BaseGenerator<TPluginOptions['resolvedOptions'], Context<TPluginOptions['resolvedOptions'], TPluginOptions>> {
-  // Keep track of already used response schema names to prevent duplicates
-  #usedResponseNames: Record<string, number> = {}
 
   #getOptions(operation: Operation, method: HttpMethod): Partial<TPluginOptions['resolvedOptions']> {
     const { override = [] } = this.context
@@ -131,11 +129,10 @@ export class OperationGenerator<
       const keys = resolveKeys(schema)
 
       // Generate base name with 'status' keyword for clarity and ensure uniqueness
-      const baseName = resolveName(transformers.pascalCase(`${operationId} status ${name}`))
-      const uniqueName = getUniqueName(baseName, this.#usedResponseNames)
+      const name = resolveName(transformers.pascalCase(`${operationId} status ${name}`))
 
       return {
-        name: uniqueName,
+        name,
         description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
         schema,
         operation,
