@@ -284,12 +284,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       )
     }
 
-    const requestName = schemas.request?.name
-      ? schemaManager.getName(schemas.request?.name, {
-          type: 'type',
-        })
-      : undefined
-
     const responseName = schemaManager.getName(schemas.response.name, {
       type: 'type',
     })
@@ -304,7 +298,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       >
         {operationSchemas.map(mapOperationSchema)}
 
-        <File.Source name={requestName || `${name}Request`} isExportable isIndexable isTypeOnly>
+        <File.Source name={`${name}Request`} isExportable isIndexable isTypeOnly>
           {printRequestSchema({ baseName: name, operation, schemas, pluginManager })}
         </File.Source>
         <File.Source name={responseName} isExportable isIndexable isTypeOnly>

@@ -38,6 +38,14 @@ export type CreatePetsRequestData = {
   tag: string
 }
 
+export type CreatePetsRequest = {
+  data?: CreatePetsRequestData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/pets'
+}
+
 export type CreatePetsResponses = {
   '201': CreatePetsStatus201
   '202': CreatePetsStatus202
