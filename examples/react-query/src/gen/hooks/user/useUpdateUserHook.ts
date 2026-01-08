@@ -95,10 +95,16 @@ export function useUpdateUserHook<TContext>(
     },
     TContext
   >
-  const customOptions = useCustomHookOptions({ hookName: 'useUpdateUserHook', operationId: 'updateUser' }) as UseMutationOptions<
+  const customOptions = useCustomHookOptions({
+    hookName: 'useUpdateUserHook',
+    operationId: 'updateUser',
+  }) as UseMutationOptions<
     UpdateUserMutationResponse,
     ResponseErrorConfig<Error>,
-    { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
+    {
+      username: UpdateUserPathParams['username']
+      data?: UpdateUserMutationRequest
+    },
     TContext
   >
 

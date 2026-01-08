@@ -50,7 +50,10 @@ export function useLoginUserHook<TData = LoginUserQueryResponse, TQueryData = Lo
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
-  const customOptions = useCustomHookOptions({ hookName: 'useLoginUserHook', operationId: 'loginUser' })
+  const customOptions = useCustomHookOptions({
+    hookName: 'useLoginUserHook',
+    operationId: 'loginUser',
+  })
 
   const query = useQuery(
     {

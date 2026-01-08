@@ -74,7 +74,10 @@ export function useDeleteOrderHook<TContext>(
     { orderId: DeleteOrderPathParams['orderId'] },
     TContext
   >
-  const customOptions = useCustomHookOptions({ hookName: 'useDeleteOrderHook', operationId: 'deleteOrder' }) as UseMutationOptions<
+  const customOptions = useCustomHookOptions({
+    hookName: 'useDeleteOrderHook',
+    operationId: 'deleteOrder',
+  }) as UseMutationOptions<
     DeleteOrderMutationResponse,
     ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
     { orderId: DeleteOrderPathParams['orderId'] },

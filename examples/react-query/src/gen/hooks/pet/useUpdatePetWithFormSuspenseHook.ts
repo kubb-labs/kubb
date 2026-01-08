@@ -73,7 +73,10 @@ export function useUpdatePetWithFormSuspenseHook<TData = UpdatePetWithFormMutati
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormSuspenseQueryKey(pet_id, params)
-  const customOptions = useCustomHookOptions({ hookName: 'useUpdatePetWithFormSuspenseHook', operationId: 'updatePetWithForm' })
+  const customOptions = useCustomHookOptions({
+    hookName: 'useUpdatePetWithFormSuspenseHook',
+    operationId: 'updatePetWithForm',
+  })
 
   const query = useSuspenseQuery(
     {
