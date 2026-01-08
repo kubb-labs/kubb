@@ -97,7 +97,7 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
               importPath: '@tanstack/react-query',
               ...mutation,
             },
-      customOptions,
+      customOptions: customOptions ? { name: 'useCustomHookOptions', ...customOptions } : undefined,
       paramsType,
       pathParamsType,
       parser,

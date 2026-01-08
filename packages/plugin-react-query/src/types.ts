@@ -88,15 +88,16 @@ export type Infinite = {
 type CustomOptions = {
   /**
    * Path to the hook that will be used to customize the hook options.
-   * It will be used as `import ${customOption.name} from '${customOptions.importPath}'`.
+   * It will be used as `import ${customOptions.name} from '${customOptions.importPath}'`.
    * It allows both relative and absolute paths but be aware that we will not change the path.
    */
   importPath: string
   /**
    * Name of the exported hook that will be used to customize the hook options.
-   * It will be used as `import ${customOption.name} from '${customOptions.importPath}'`.
+   * It will be used as `import ${customOptions.name} from '${customOptions.importPath}'`.
+   * @default 'useCustomHookOptions'
    */
-  name: string
+  name?: string
 }
 
 export type Options = {
@@ -204,7 +205,7 @@ type ResolvedOptions = {
   query: NonNullable<Required<Query>> | false
   mutationKey: MutationKey | undefined
   mutation: NonNullable<Required<Mutation>> | false
-  customOptions: CustomOptions | undefined
+  customOptions: NonNullable<Required<CustomOptions>> | undefined
 }
 
 export type PluginReactQuery = PluginFactoryOptions<'plugin-react-query', Options, ResolvedOptions, never, ResolvePathOptions>
