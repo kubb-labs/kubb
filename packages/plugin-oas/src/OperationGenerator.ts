@@ -130,8 +130,8 @@ export class OperationGenerator<
       const schema = this.context.oas.getResponseSchema(operation, statusCode)
       const keys = resolveKeys(schema)
 
-      // Generate base name and ensure uniqueness across all response schemas
-      const baseName = resolveName(transformers.pascalCase(`${operationId} ${name}`))
+      // Generate base name with 'status' keyword for clarity and ensure uniqueness
+      const baseName = resolveName(transformers.pascalCase(`${operationId} status ${name}`))
       const uniqueName = getUniqueName(baseName, this.#usedResponseNames)
 
       return {

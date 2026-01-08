@@ -416,7 +416,7 @@ describe('OperationGenerator unique response names', async () => {
     const secondSchemas = og.getSchemas(secondOperation)
 
     // Collect all response names
-    const allResponseNames = [...firstSchemas.statusCodes.map((sc) => sc.name), ...secondSchemas.statusCodes.map((sc) => sc.name)]
+    const allResponseNames = [...(firstSchemas.statusCodes?.map((sc) => sc.name) || []), ...(secondSchemas.statusCodes?.map((sc) => sc.name) || [])]
 
     // Check that all names are unique
     const uniqueNames = new Set(allResponseNames)
