@@ -7,6 +7,45 @@ outline: deep
 
 ## Unreleased
 
+### ✨ Features
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**New `enumInline` Option for Cleaner Type Definitions**
+
+Added `enumInline` option to inline enum values directly as literal union types instead of creating separate enum declarations. This results in simpler, more readable type definitions.
+
+::: code-group
+
+```typescript [Before (default)]
+export const petStatusEnum = {
+  available: 'available',
+  pending: 'pending',
+  sold: 'sold',
+} as const
+
+export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
+
+export interface Pet {
+  status?: PetStatusEnumKey
+}
+```
+
+```typescript [After (enumInline: true)]
+export interface Pet {
+  status?: "available" | "pending" | "sold"
+}
+```
+
+:::
+
+**Usage:**
+```typescript
+pluginTs({
+  enumInline: true,
+})
+```
+
 ### 🚀 Performance Improvements
 
 Achieved 18-27% performance improvement for OpenAPI code generation through advanced optimizations including increased parallelism and schema caching.

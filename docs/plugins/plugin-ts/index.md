@@ -163,6 +163,42 @@ Set a suffix for the generated enums.
 | Required: | `false`  |
 |  Default: | `'enum'` |
 
+### enumInline
+
+Inline enum types directly into the interface/type instead of exporting them separately.
+
+When enabled, enum values will be inlined as literal union types in the property definition instead of creating a separate enum declaration and type reference.
+
+|           |           |
+|----------:|:----------|
+|     Type: | `boolean` |
+| Required: | `false`   |
+|  Default: | `false`   |
+
+::: code-group
+
+```typescript [false]
+export const petStatusEnum = {
+  available: 'available',
+  pending: 'pending',
+  sold: 'sold',
+} as const
+
+export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
+
+export interface Pet {
+  status?: PetStatusEnumKey
+}
+```
+
+```typescript [true]
+export interface Pet {
+  status?: "available" | "pending" | "sold"
+}
+```
+
+:::
+
 ### dateType
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
