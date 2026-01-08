@@ -173,7 +173,6 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
   handlers: {
     union(tree, options) {
       const { current, schema, name } = tree
-      if (!isKeyword(current, schemaKeywords.union)) return undefined
 
       return typeKeywordMapper.union(
         current.args.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
@@ -181,7 +180,6 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
     },
     and(tree, options) {
       const { current, schema, name } = tree
-      if (!isKeyword(current, schemaKeywords.and)) return undefined
 
       return typeKeywordMapper.and(
         current.args.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
@@ -189,7 +187,6 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
     },
     array(tree, options) {
       const { current, schema, name } = tree
-      if (!isKeyword(current, schemaKeywords.array)) return undefined
 
       return typeKeywordMapper.array(
         current.args.items.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
@@ -197,7 +194,6 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
     },
     enum(tree, options) {
       const { current } = tree
-      if (!isKeyword(current, schemaKeywords.enum)) return undefined
 
       // If enumType is 'inlineLiteral', generate the literal union inline instead of a type reference
       if (options.enumType === 'inlineLiteral') {
@@ -218,19 +214,14 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
     },
     ref(tree, _options) {
       const { current } = tree
-      if (!isKeyword(current, schemaKeywords.ref)) return undefined
 
       return typeKeywordMapper.ref(current.args.name)
     },
-    blob(tree) {
-      const { current } = tree
-      if (!isKeyword(current, schemaKeywords.blob)) return undefined
-
+    blob() {
       return typeKeywordMapper.blob()
     },
     tuple(tree, options) {
       const { current, schema, name } = tree
-      if (!isKeyword(current, schemaKeywords.tuple)) return undefined
 
       return typeKeywordMapper.tuple(
         current.args.items.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
@@ -242,13 +233,11 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
     },
     const(tree, _options) {
       const { current } = tree
-      if (!isKeyword(current, schemaKeywords.const)) return undefined
 
       return typeKeywordMapper.const(current.args.name, current.args.format)
     },
     object(tree, options) {
       const { current, schema, name } = tree
-      if (!isKeyword(current, schemaKeywords.object)) return undefined
 
       const properties = Object.entries(current.args?.properties || {})
         .filter((item) => {
@@ -377,21 +366,16 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
 
       return typeKeywordMapper.object([...properties, additionalProperties, patternProperties].filter(Boolean))
     },
-    datetime(tree) {
-      const { current } = tree
-      if (!isKeyword(current, schemaKeywords.datetime)) return undefined
-
+    datetime() {
       return typeKeywordMapper.datetime()
     },
     date(tree) {
       const { current } = tree
-      if (!isKeyword(current, schemaKeywords.date)) return undefined
 
       return typeKeywordMapper.date(current.args.type)
     },
     time(tree) {
       const { current } = tree
-      if (!isKeyword(current, schemaKeywords.time)) return undefined
 
       return typeKeywordMapper.time(current.args.type)
     },

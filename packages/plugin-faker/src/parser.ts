@@ -191,7 +191,6 @@ export const parse = createParser<string, ParserOptions>({
   handlers: {
     union(tree, options) {
       const { current, schema, name, siblings } = tree
-      if (!isKeyword(current, schemaKeywords.union)) return undefined
 
       if (Array.isArray(current.args) && !current.args.length) {
         return ''
@@ -203,7 +202,6 @@ export const parse = createParser<string, ParserOptions>({
     },
     and(tree, options) {
       const { current, schema, siblings } = tree
-      if (!isKeyword(current, schemaKeywords.and)) return undefined
 
       return fakerKeywordMapper.and(
         current.args.map((it) => this.parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
@@ -211,7 +209,6 @@ export const parse = createParser<string, ParserOptions>({
     },
     array(tree, options) {
       const { current, schema } = tree
-      if (!isKeyword(current, schemaKeywords.array)) return undefined
 
       return fakerKeywordMapper.array(
         current.args.items
@@ -237,7 +234,6 @@ export const parse = createParser<string, ParserOptions>({
     },
     enum(tree, options) {
       const { current, parent, name } = tree
-      if (!isKeyword(current, schemaKeywords.enum)) return undefined
 
       const isParentTuple = parent ? isKeyword(parent, schemaKeywords.tuple) : false
 
@@ -272,7 +268,6 @@ export const parse = createParser<string, ParserOptions>({
     },
     ref(tree, options) {
       const { current } = tree
-      if (!isKeyword(current, schemaKeywords.ref)) return undefined
 
       if (!current.args?.name) {
         throw new Error(`Name not defined for keyword ${current.keyword}`)
@@ -286,7 +281,6 @@ export const parse = createParser<string, ParserOptions>({
     },
     object(tree, options) {
       const { current, schema } = tree
-      if (!isKeyword(current, schemaKeywords.object)) return undefined
 
       const argsObject = Object.entries(current.args?.properties || {})
         .filter((item) => {
@@ -331,7 +325,6 @@ export const parse = createParser<string, ParserOptions>({
     },
     tuple(tree, options) {
       const { current, schema, siblings } = tree
-      if (!isKeyword(current, schemaKeywords.tuple)) return undefined
 
       if (Array.isArray(current.args.items)) {
         return fakerKeywordMapper.tuple(
@@ -343,7 +336,6 @@ export const parse = createParser<string, ParserOptions>({
     },
     const(tree, _options) {
       const { current } = tree
-      if (!isKeyword(current, schemaKeywords.const)) return undefined
 
       if (current.args.format === 'number' && current.args.name !== undefined) {
         return fakerKeywordMapper.const(current.args.name?.toString())
@@ -352,34 +344,23 @@ export const parse = createParser<string, ParserOptions>({
     },
     matches(tree, options) {
       const { current } = tree
-      if (!isKeyword(current, schemaKeywords.matches)) return undefined
 
       if (current.args) {
         return fakerKeywordMapper.matches(current.args, options.regexGenerator)
       }
       return undefined
     },
-    null(tree) {
-      const { current } = tree
-      if (!isKeyword(current, schemaKeywords.null)) return undefined
-
+    null() {
       return fakerKeywordMapper.null()
     },
-    undefined(tree) {
-      const { current } = tree
-      if (!isKeyword(current, schemaKeywords.undefined)) return undefined
-
+    undefined() {
       return fakerKeywordMapper.undefined()
     },
-    any(tree) {
-      const { current } = tree
-      if (!isKeyword(current, schemaKeywords.any)) return undefined
-
+    any() {
       return fakerKeywordMapper.any()
     },
     string(tree, _options) {
-      const { current, siblings } = tree
-      if (!isKeyword(current, schemaKeywords.string)) return undefined
+      const { siblings } = tree
 
       if (siblings) {
         const minSchema = findSchemaKeyword(siblings, 'min')
@@ -391,8 +372,7 @@ export const parse = createParser<string, ParserOptions>({
       return fakerKeywordMapper.string()
     },
     number(tree, _options) {
-      const { current, siblings } = tree
-      if (!isKeyword(current, schemaKeywords.number)) return undefined
+      const { siblings } = tree
 
       if (siblings) {
         const minSchema = findSchemaKeyword(siblings, 'min')
@@ -404,8 +384,7 @@ export const parse = createParser<string, ParserOptions>({
       return fakerKeywordMapper.number()
     },
     integer(tree, _options) {
-      const { current, siblings } = tree
-      if (!isKeyword(current, schemaKeywords.integer)) return undefined
+      const { siblings } = tree
 
       if (siblings) {
         const minSchema = findSchemaKeyword(siblings, 'min')
@@ -416,21 +395,16 @@ export const parse = createParser<string, ParserOptions>({
 
       return fakerKeywordMapper.integer()
     },
-    datetime(tree) {
-      const { current } = tree
-      if (!isKeyword(current, schemaKeywords.datetime)) return undefined
-
+    datetime() {
       return fakerKeywordMapper.datetime()
     },
     date(tree, options) {
       const { current } = tree
-      if (!isKeyword(current, schemaKeywords.date)) return undefined
 
       return fakerKeywordMapper.date(current.args.type, options.dateParser)
     },
     time(tree, options) {
       const { current } = tree
-      if (!isKeyword(current, schemaKeywords.time)) return undefined
 
       return fakerKeywordMapper.time(current.args.type, options.dateParser)
     },

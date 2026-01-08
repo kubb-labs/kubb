@@ -5,7 +5,7 @@ import { schemaKeywords } from './SchemaMapper.ts'
 /**
  * Helper type to create a SchemaTree with a specific current schema type
  */
-export type SchemaTreeWithKeyword<K extends keyof SchemaKeywordMapper> = Omit<SchemaTree, 'current'> & {
+type SchemaTreeWithKeyword<K extends keyof SchemaKeywordMapper> = Omit<SchemaTree, 'current'> & {
   current: SchemaKeywordMapper[K]
 }
 
