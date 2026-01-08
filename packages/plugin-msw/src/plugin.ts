@@ -25,6 +25,8 @@ export const pluginMsw = definePlugin<PluginMsw>((options) => {
     baseURL,
   } = options
 
+  const usedAliasNames = {}
+
   return {
     name: pluginMswName,
     options: {
@@ -96,6 +98,7 @@ export const pluginMsw = definePlugin<PluginMsw>((options) => {
         include,
         override,
         mode,
+        usedAliasNames,
       })
 
       const files = await operationGenerator.build(...generators)

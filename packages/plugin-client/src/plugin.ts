@@ -43,6 +43,8 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
 
   const generators = options.generators ?? defaultGenerators
 
+  const usedAliasNames = {}
+
   return {
     name: pluginClientName,
     options: {
@@ -159,6 +161,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
           include,
           override,
           mode,
+          usedAliasNames,
         },
       )
 

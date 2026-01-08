@@ -1,7 +1,7 @@
 import type { KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import { BaseGenerator, type FileMetaBase } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
-import type { AsyncEventEmitter } from '@kubb/core/utils'
+import { type AsyncEventEmitter, getUniqueName } from '@kubb/core/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
 import type { Fabric } from '@kubb/react-fabric'
@@ -26,6 +26,8 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
    */
   plugin: Plugin<TPluginOptions>
   mode: KubbFile.Mode
+  // Keep track of already used type aliases
+  usedAliasNames?: Record<string, number>
 }
 
 export class OperationGenerator<
@@ -103,6 +105,10 @@ export class OperationGenerator<
     })
   }
 
+  #getUniqueName(name: string) {
+    return getUniqueName(name, this.context.usedAliasNames || {})
+  }
+
   getSchemas(
     operation: Operation,
     {
@@ -126,7 +132,7 @@ export class OperationGenerator<
       const keys = resolveKeys(schema)
 
       return {
-        name: resolveName(transformers.pascalCase(`${operationId} status ${name}`)),
+        name: resolveName(this.#getUniqueName(transformers.pascalCase(`${operationId} status ${name}`))),
         description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
         schema,
         operation,
@@ -143,7 +149,7 @@ export class OperationGenerator<
     return {
       pathParams: pathParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operationId} PathParams`)),
+            name: resolveName(this.#getUniqueName(transformers.pascalCase(`${operationId} PathParams`))),
             operation,
             operationName,
             schema: pathParamsSchema,
@@ -152,7 +158,7 @@ export class OperationGenerator<
         : undefined,
       queryParams: queryParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operationId} QueryParams`)),
+            name: resolveName(this.#getUniqueName(transformers.pascalCase(`${operationId} QueryParams`))),
             operation,
             operationName,
             schema: queryParamsSchema,
@@ -161,7 +167,7 @@ export class OperationGenerator<
         : undefined,
       headerParams: headerParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operationId} HeaderParams`)),
+            name: resolveName(this.#getUniqueName(transformers.pascalCase(`${operationId} HeaderParams`))),
             operation,
             operationName,
             schema: headerParamsSchema,
@@ -170,7 +176,7 @@ export class OperationGenerator<
         : undefined,
       request: requestSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operationId} RequestData`)),
+            name: resolveName(this.#getUniqueName(transformers.pascalCase(`${operationId} RequestData`))),
             description: (operation.schema.requestBody as OasTypes.RequestBodyObject)?.description,
             operation,
             operationName,
@@ -180,7 +186,7 @@ export class OperationGenerator<
           }
         : undefined,
       response: {
-        name: resolveName(transformers.pascalCase(`${operationId} ResponseData`)),
+        name: resolveName(this.#getUniqueName(transformers.pascalCase(`${operationId} ResponseData`))),
         operation,
         operationName,
         schema: {

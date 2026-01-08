@@ -35,6 +35,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
   } = options
 
   const usedEnumNames = {}
+  const usedAliasNames = {}
 
   return {
     name: pluginZodName,
@@ -57,7 +58,6 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
       wrapOutput,
       version,
       mini,
-      usedEnumNames,
     },
     pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
@@ -140,6 +140,8 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
         override,
         mode,
         output: output.path,
+        usedAliasNames,
+        usedEnumNames,
       })
 
       const schemaFiles = await schemaGenerator.build(...generators)
@@ -156,6 +158,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
         include,
         override,
         mode,
+        usedAliasNames,
       })
 
       const operationFiles = await operationGenerator.build(...generators)

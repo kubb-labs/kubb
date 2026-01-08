@@ -27,6 +27,8 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
   const clientName = client?.client ?? 'axios'
   const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
 
+  const usedAliasNames = {}
+
   return {
     name: pluginMcpName,
     options: {
@@ -142,6 +144,7 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
         include,
         override,
         mode,
+        usedAliasNames,
       })
 
       const files = await operationGenerator.build(...generators)

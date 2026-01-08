@@ -36,6 +36,7 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
     client,
   } = options
 
+  const usedAliasNames = {}
   const clientName = client?.client ?? 'axios'
   const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
 
@@ -195,6 +196,7 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
         include,
         override,
         mode,
+        usedAliasNames,
       })
 
       const files = await operationGenerator.build(...generators)

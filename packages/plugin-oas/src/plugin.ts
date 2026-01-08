@@ -25,6 +25,9 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
     discriminator = 'strict',
   } = options
 
+  const usedAliasNames = {}
+  const usedEnumNames = {}
+
   const getOas = async ({ validate, config, events }: { validate: boolean; config: Config; events: AsyncEventEmitter<KubbEvents> }): Promise<Oas> => {
     // needs to be in a different variable or the catch here will not work(return of a promise instead)
     const oas = await parseFromConfig(config, oasClass)
@@ -149,6 +152,8 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
           override: undefined,
           mode: 'split',
           output: output.path,
+          usedAliasNames,
+          usedEnumNames,
         },
       )
 

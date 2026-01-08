@@ -28,6 +28,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
   } = options
 
   const usedEnumNames = {}
+  const usedAliasNames = {}
 
   return {
     name: pluginTsName,
@@ -44,7 +45,6 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       group,
       override,
       mapper,
-      usedEnumNames,
     },
     pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {
@@ -106,6 +106,8 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
         override,
         mode,
         output: output.path,
+        usedEnumNames,
+        usedAliasNames,
       })
 
       const schemaFiles = await schemaGenerator.build(...generators)
@@ -122,6 +124,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
         include,
         override,
         mode,
+        usedAliasNames,
       })
 
       const operationFiles = await operationGenerator.build(...generators)

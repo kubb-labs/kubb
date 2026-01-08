@@ -37,6 +37,8 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
   const clientName = client?.client ?? 'axios'
   const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
 
+  const usedAliasNames = {}
+
   return {
     name: pluginVueQueryName,
     options: {
@@ -192,6 +194,7 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
         include,
         override,
         mode,
+        usedAliasNames,
       })
 
       const files = await operationGenerator.build(...generators)

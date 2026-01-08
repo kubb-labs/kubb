@@ -36,6 +36,8 @@ export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
   const clientName = client?.client ?? 'axios'
   const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
 
+  const usedAliasNames = {}
+
   return {
     name: pluginSolidQueryName,
     options: {
@@ -181,6 +183,7 @@ export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
         include,
         override,
         mode,
+        usedAliasNames,
       })
 
       const files = await operationGenerator.build(...generators)
