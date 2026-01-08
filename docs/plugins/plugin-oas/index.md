@@ -76,6 +76,8 @@ Add a footer text at the end of every file.
 |     Type: | `string \| (oas: Oas) => string`        |
 | Required: | `false` |
 
+#### output.override
+<!--@include: ../core/outputOverride.md-->
 
 ### group
 <!--@include: ../core/group.md-->

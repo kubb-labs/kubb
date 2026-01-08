@@ -80,6 +80,9 @@ Add a footer text at the end of every file.
 |     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                               |
 
+#### output.override
+<!--@include: ../core/outputOverride.md-->
+
 ### contentType
 <!--@include: ../core/contentType.md-->
 
