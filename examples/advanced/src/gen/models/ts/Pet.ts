@@ -17,7 +17,7 @@ export type Pet = {
   /**
    * @type array | undefined
    */
-  parent?: Pet[]
+  parent?: Array<Pet>
   /**
    * @pattern ^data:image\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$
    * @type string | undefined
@@ -39,11 +39,11 @@ export type Pet = {
   /**
    * @type array
    */
-  photoUrls: string[]
+  photoUrls: Array<string>
   /**
    * @type array | undefined
    */
-  tags?: TagTag[]
+  tags?: Array<TagTag>
   /**
    * @description pet status in the store
    * @type string | undefined

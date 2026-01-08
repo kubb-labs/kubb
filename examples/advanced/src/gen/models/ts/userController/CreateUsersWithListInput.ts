@@ -10,7 +10,7 @@ export type CreateUsersWithListInput200 = User
  */
 export type CreateUsersWithListInputError = any
 
-export type CreateUsersWithListInputMutationRequest = User[]
+export type CreateUsersWithListInputMutationRequest = Array<User>
 
 export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200
 

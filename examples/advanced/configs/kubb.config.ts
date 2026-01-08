@@ -44,6 +44,7 @@ export default defineConfig({
       group: {
         type: 'tag',
       },
+      arrayType: 'generic',
       enumType: 'asConst',
       enumSuffix: 'enum',
       dateType: 'string',
