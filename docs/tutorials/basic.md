@@ -132,4 +132,4 @@ yarn run generate
 
 Drink a 🍺 and watch Kubb generate your files.
 
-<img src="/kubb-generate.gif" style="{ display: 'inline' }" alt="Kubb generation" />
+<img src="../public/kubb-generate.gif" style="{ display: 'inline' }" alt="Kubb generation" />
