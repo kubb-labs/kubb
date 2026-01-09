@@ -1,5 +1,11 @@
 # @kubb/core
 
+## 4.15.0
+
+### Minor Changes
+
+- [#2185](https://github.com/kubb-labs/kubb/pull/2185) [`4990f00`](https://github.com/kubb-labs/kubb/commit/4990f00c90367a5f1550ad4d54e76343a9c4d625) Thanks [@JoaoBrlt](https://github.com/JoaoBrlt)! - Add support for custom TanStack Query hook options.
+
 ## 4.14.1
 
 ## 4.14.0
