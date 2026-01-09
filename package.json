@@ -47,8 +47,6 @@
 		"typecheck:examples": "turbo run typecheck --continue --filter='./examples/*'",
 		"upgrade": "npx taze -r -w --exclude pnpm",
 		"version": "changeset version",
-		"//postversion": "Automatically updates docs/config.json with the new version after running `changeset version`",
-		"postversion": "node scripts/update-docs-version.js",
 		"version:canary": "changeset version --snapshot canary"
 	},
 	"manypkg": {
