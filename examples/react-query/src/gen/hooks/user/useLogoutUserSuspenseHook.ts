@@ -5,6 +5,7 @@
 
 import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { LogoutUserQueryResponse } from '../../models/LogoutUser.ts'
@@ -48,10 +49,15 @@ export function useLogoutUserSuspenseHook<TData = LogoutUserQueryResponse, TQuer
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? logoutUserSuspenseQueryKey()
+  const customOptions = useCustomHookOptions({
+    hookName: 'useLogoutUserSuspenseHook',
+    operationId: 'logoutUser',
+  })
 
   const query = useSuspenseQuery(
     {
       ...logoutUserSuspenseQueryOptionsHook(config),
+      ...customOptions,
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

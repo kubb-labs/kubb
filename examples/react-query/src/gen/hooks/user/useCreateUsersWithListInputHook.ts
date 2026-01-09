@@ -5,6 +5,7 @@
 
 import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../../models/CreateUsersWithListInput.ts'
@@ -84,10 +85,15 @@ export function useCreateUsersWithListInputHook<TContext>(
     { data?: CreateUsersWithListInputMutationRequest },
     TContext
   >
+  const customOptions = useCustomHookOptions({
+    hookName: 'useCreateUsersWithListInputHook',
+    operationId: 'createUsersWithListInput',
+  }) as UseMutationOptions<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }, TContext>
 
   return useMutation<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }, TContext>(
     {
       ...baseOptions,
+      ...customOptions,
       mutationKey,
       ...mutationOptions,
     },

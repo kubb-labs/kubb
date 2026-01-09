@@ -5,6 +5,7 @@
 
 import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
@@ -63,10 +64,15 @@ export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByT
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
+  const customOptions = useCustomHookOptions({
+    hookName: 'useFindPetsByTagsSuspenseHook',
+    operationId: 'findPetsByTags',
+  })
 
   const query = useSuspenseQuery(
     {
       ...findPetsByTagsSuspenseQueryOptionsHook(params, config),
+      ...customOptions,
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

@@ -69,6 +69,23 @@ describe('infiniteQueryGenerator operation', async () => {
         },
       },
     },
+    {
+      name: 'findInfiniteByTagsWithCustomOptions',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        infinite: {
+          queryParam: 'pageSize',
+          initialPageParam: 0,
+          cursorParam: undefined,
+        },
+        customOptions: {
+          importPath: 'useCustomHookOptions.ts',
+          name: 'useCustomHookOptions',
+        },
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -101,6 +118,7 @@ describe('infiniteQueryGenerator operation', async () => {
         importPath: '@tanstack/react-query',
       },
       suspense: false,
+      customOptions: undefined,
       output: {
         path: '.',
       },

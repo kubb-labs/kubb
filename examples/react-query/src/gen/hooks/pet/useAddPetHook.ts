@@ -5,6 +5,7 @@
 
 import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/AddPet.ts'
@@ -74,10 +75,15 @@ export function useAddPetHook<TContext>(
     { data: AddPetMutationRequest },
     TContext
   >
+  const customOptions = useCustomHookOptions({
+    hookName: 'useAddPetHook',
+    operationId: 'addPet',
+  }) as UseMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>
 
   return useMutation<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>(
     {
       ...baseOptions,
+      ...customOptions,
       mutationKey,
       ...mutationOptions,
     },

@@ -70,6 +70,18 @@ describe('queryGenerator operation', async () => {
       },
     },
     {
+      name: 'findByTagsWithCustomOptions',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
+      options: {
+        customOptions: {
+          importPath: 'useCustomHookOptions.ts',
+          name: 'useCustomHookOptions',
+        },
+      },
+    },
+    {
       name: 'clientGetImportPath',
       input: '../../mocks/petStore.yaml',
       path: '/pet/findByTags',
@@ -158,6 +170,7 @@ describe('queryGenerator operation', async () => {
       },
       suspense: false,
       infinite: false,
+      customOptions: undefined,
       output: {
         path: '.',
       },

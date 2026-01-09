@@ -5,6 +5,7 @@
 
 import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus.ts'
@@ -62,10 +63,15 @@ export function useFindPetsByStatusHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
+  const customOptions = useCustomHookOptions({
+    hookName: 'useFindPetsByStatusHook',
+    operationId: 'findPetsByStatus',
+  })
 
   const query = useQuery(
     {
       ...findPetsByStatusQueryOptionsHook(params, config),
+      ...customOptions,
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

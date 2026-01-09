@@ -5,6 +5,7 @@
 
 import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/GetPetById.ts'
@@ -65,10 +66,15 @@ export function useGetPetByIdSuspenseHook<TData = GetPetByIdQueryResponse, TQuer
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? getPetByIdSuspenseQueryKey({ pet_id })
+  const customOptions = useCustomHookOptions({
+    hookName: 'useGetPetByIdSuspenseHook',
+    operationId: 'get_pet_by_id',
+  })
 
   const query = useSuspenseQuery(
     {
       ...getPetByIdSuspenseQueryOptionsHook({ pet_id }, config),
+      ...customOptions,
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

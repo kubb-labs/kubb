@@ -5,6 +5,7 @@
 
 import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../models/LoginUser.ts'
@@ -49,10 +50,15 @@ export function useLoginUserSuspenseHook<TData = LoginUserQueryResponse, TQueryK
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? loginUserSuspenseQueryKey(params)
+  const customOptions = useCustomHookOptions({
+    hookName: 'useLoginUserSuspenseHook',
+    operationId: 'loginUser',
+  })
 
   const query = useSuspenseQuery(
     {
       ...loginUserSuspenseQueryOptionsHook(params, config),
+      ...customOptions,
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

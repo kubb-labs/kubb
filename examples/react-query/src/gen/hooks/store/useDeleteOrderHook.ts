@@ -5,6 +5,7 @@
 
 import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../models/DeleteOrder.ts'
@@ -73,6 +74,15 @@ export function useDeleteOrderHook<TContext>(
     { orderId: DeleteOrderPathParams['orderId'] },
     TContext
   >
+  const customOptions = useCustomHookOptions({
+    hookName: 'useDeleteOrderHook',
+    operationId: 'deleteOrder',
+  }) as UseMutationOptions<
+    DeleteOrderMutationResponse,
+    ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
+    { orderId: DeleteOrderPathParams['orderId'] },
+    TContext
+  >
 
   return useMutation<
     DeleteOrderMutationResponse,
@@ -82,6 +92,7 @@ export function useDeleteOrderHook<TContext>(
   >(
     {
       ...baseOptions,
+      ...customOptions,
       mutationKey,
       ...mutationOptions,
     },

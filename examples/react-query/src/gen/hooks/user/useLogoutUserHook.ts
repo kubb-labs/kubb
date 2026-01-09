@@ -5,6 +5,7 @@
 
 import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { LogoutUserQueryResponse } from '../../models/LogoutUser.ts'
@@ -48,10 +49,15 @@ export function useLogoutUserHook<TData = LogoutUserQueryResponse, TQueryData = 
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
+  const customOptions = useCustomHookOptions({
+    hookName: 'useLogoutUserHook',
+    operationId: 'logoutUser',
+  })
 
   const query = useQuery(
     {
       ...logoutUserQueryOptionsHook(config),
+      ...customOptions,
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

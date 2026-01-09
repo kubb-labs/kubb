@@ -118,6 +118,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
         {!shouldUseClientPlugin && (
           <File.Import name={['buildFormData']} root={mutation.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
         )}
+        {options.customOptions && <File.Import name={[options.customOptions.name]} path={options.customOptions.importPath} />}
         <File.Import
           name={[
             type.schemas.request?.name,
@@ -182,6 +183,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
               paramsCasing={options.paramsCasing}
               pathParamsType={options.pathParamsType}
               mutationKeyName={mutationKey.name}
+              customOptions={options.customOptions}
             />
           </>
         )}

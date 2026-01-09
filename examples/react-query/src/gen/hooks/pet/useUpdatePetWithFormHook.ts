@@ -5,6 +5,7 @@
 
 import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type {
@@ -76,10 +77,15 @@ export function useUpdatePetWithFormHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
   const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(pet_id, params)
+  const customOptions = useCustomHookOptions({
+    hookName: 'useUpdatePetWithFormHook',
+    operationId: 'updatePetWithForm',
+  })
 
   const query = useQuery(
     {
       ...updatePetWithFormQueryOptionsHook(pet_id, params, config),
+      ...customOptions,
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

@@ -20,6 +20,7 @@ type Props = {
   dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
   paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
   pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
+  customOptions: PluginReactQuery['resolvedOptions']['customOptions']
 }
 
 type GetParamsProps = {
@@ -78,6 +79,7 @@ export function Mutation({
   typeSchemas,
   operation,
   mutationKeyName,
+  customOptions,
 }: Props): KubbNode {
   const mutationKeyParams = MutationKey.getParams({
     pathParamsType,
@@ -140,9 +142,10 @@ export function Mutation({
         const mutationKey = mutationOptions.mutationKey ?? ${mutationKeyName}(${mutationKeyParams.toCall()})
 
         const baseOptions = ${mutationOptions} as UseMutationOptions<${generics}>
+        ${customOptions ? `const customOptions = ${customOptions.name}({ hookName: '${name}', operationId: '${operation.getOperationId()}' }) as UseMutationOptions<${generics}>` : ''}
 
         return useMutation<${generics}>({
-          ...baseOptions,
+          ...baseOptions,${customOptions ? '\n...customOptions,' : ''}
           mutationKey,
           ...mutationOptions,
         }, queryClient) as ${returnType}

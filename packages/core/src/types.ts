@@ -123,6 +123,13 @@ export type Config<TInput = Input> = {
      * @default 'simple'
      */
     defaultBanner?: 'simple' | 'full' | false
+    /**
+     * Whether to override existing external files if they already exist.
+     * When setting the option in the global configuration, all plugins inherit the same behavior by default.
+     * However, all plugins also have an `output.override` option, which can be used to override the behavior for a specific plugin.
+     * @default false
+     */
+    override?: boolean
   }
   /**
    * An array of Kubb plugins that will be used in the generation.
@@ -330,6 +337,11 @@ export type Output<TOptions> = {
    * Add a footer text in the beginning of every file
    */
   footer?: string | ((options: TOptions) => string)
+  /**
+   * Whether to override existing external files if they already exist.
+   * @default false
+   */
+  override?: boolean
 }
 
 type GroupContext = {

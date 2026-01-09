@@ -89,6 +89,9 @@ Create `handlers.ts` file with all handlers grouped by methods.
 | Required: | `false`   |
 |  Default: | `false`   |
 
+#### output.override
+<!--@include: ../core/outputOverride.md-->
+
 ### contentType
 <!--@include: ../core/contentType.md-->
 
