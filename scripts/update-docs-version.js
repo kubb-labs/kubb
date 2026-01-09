@@ -29,8 +29,9 @@ try {
   const docsConfigContent = readFileSync(docsConfigPath, 'utf8')
 
   // Replace "v$version" or any existing version like "v4.14.1" with the actual version
-  // This regex matches "v" followed by $version OR semantic version numbers
-  const updatedContent = docsConfigContent.replace(/"v(\$version|\d+\.\d+\.\d+[^"]*)"/g, `"v${version}"`)
+  // This regex matches "v" followed by either $version placeholder OR a semantic version
+  // (e.g., "v4.14.1", "v4.14.1-beta.1", "v4.14.1+build.123")
+  const updatedContent = docsConfigContent.replace(/"v(\$version|\d+\.\d+\.\d+(?:-[^\s"]+)?(?:\+[^\s"]+)?)"/g, `"v${version}"`)
 
   // Only write if content changed
   if (updatedContent !== docsConfigContent) {
