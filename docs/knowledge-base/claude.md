@@ -7,7 +7,7 @@ outline: deep
 
 # Setup Claude with Kubb <a href="/plugins/plugin-mcp"><Badge type="info" text="@kubb/plugin-mcp" /></a>
 
-![Claude](/screenshots/claude.png)
+![Claude](../public/screenshots/claude.png)
 
 [Kubb](https://kubb.dev), [Claude](https://claude.ai), and [MCP (Model Context Provider)](https://modelcontextprotocol.io) work together to streamline API interactions with conversational AI.
 
@@ -230,7 +230,7 @@ startServer()
 Before you can get started, you need to let [Claude](https://claude.ai) know where your [MCP](https://modelcontextprotocol.io) server config file is located(`src/mcp/mcp.json`).
 For that you need to open `Claude desktop` and go to `settings`.
 
-![Claude setup 1](/screenshots/claude-setup1.png)
+![Claude setup 1](../public/screenshots/claude-setup1.png)
 
 This will open the settings panel. From there, go to the `developer` section and click on `edit config`.
 A window will then appear showing the location of the JSON file that contains all the [MCP](https://modelcontextprotocol.io) servers.
@@ -240,7 +240,7 @@ A window will then appear showing the location of the JSON file that contains al
 > - Mac: `~/Library/Application Support/Claude/claude_desktop_config.json`
 > - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
-![Claude setup 2](/screenshots/claude-setup2.png)
+![Claude setup 2](../public/screenshots/claude-setup2.png)
 
 You can now copy the content of `src/mcp/mcp.json` to make [Claude](https://claude.ai) aware of your [MCP](https://modelcontextprotocol.io) server.
 
@@ -279,11 +279,11 @@ First of all, stop [Claude](https://claude.ai) and reopen the desktop applicatio
 
 After that, you can validate if your [MCP](https://modelcontextprotocol.io) server is connected and working by clicking on the following button.
 
-![Claude](/screenshots/claude-setup3.png)
+![Claude](../public/screenshots/claude-setup3.png)
 
 This will open the following view where you could see our generated [MCP](https://modelcontextprotocol.io) server.
 
-![Claude](/screenshots/claude-setup4.png)
+![Claude](../public/screenshots/claude-setup4.png)
 
 
 ## Start using your MCP server

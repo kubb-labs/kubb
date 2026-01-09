@@ -289,7 +289,7 @@ export type Animal =
 ### contentType
 <!--@include: ../core/contentType.md-->
 
-### oasClass <img src="/icons/experimental.svg"/>
+### oasClass <img src="../../public/icons/experimental.svg"/>
 Override some behaviour of the Oas class instance, see `@kubb/oas`.
 
 |           |                                |
@@ -298,7 +298,7 @@ Override some behaviour of the Oas class instance, see `@kubb/oas`.
 | Required: | `false`                        |
 
 
-### generators <img src="/icons/experimental.svg"/>
+### generators <img src="../../public/icons/experimental.svg"/>
 Define some generators to create files based on the operation and/or schema. All plugin are using generators to create files based on the OperationGenerator and SchemaGenerators. An empty array will result in no schema's being generated, in v2 of Kubb we used `output: false`.
 
 See [Generators](/knowledge-base/generators) for more information on how to use generators.

@@ -91,7 +91,7 @@ yarn run generate
 > [!NOTE]
 > **Using ESM**: If using `import` statements, add `"type": "module"` to `package.json`, or use `.mjs` extension for the config file.
 
-![CLI in action](/screenshots/cli.gif)
+![CLI in action](../public/screenshots/cli.gif)
 
 
 ## Programmatic Usage (Node.js API)

@@ -10,7 +10,7 @@ outline: deep
 The Kubb CLI allows you to generate files based on the `kubb.config.ts` configuration file.
 The CLI displays progress updates showing plugin execution status, file counts, and timing information throughout the generation process.
 
-![React-DevTools](/screenshots/cli.gif)
+![React-DevTools](../public/screenshots/cli.gif)
 
 ## Installation
 
@@ -129,7 +129,7 @@ Plugin Timings:
 > [!TIP]
 > Debug mode creates detailed log files in the `.kubb` directory:
 > - `.kubb/kubb-{name}-{timestamp}.log` - Contains all debug messages with timestamps
-> 
+>
 > After each generation completes, the CLI will display the exact location of the debug log file.
 
 Debug mode provides comprehensive logging including:

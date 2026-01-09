@@ -130,7 +130,7 @@ Return the name of a group based on the group name, this will be used for the fi
 ### override
 <!--@include: ../core/override.md-->
 
-### generators <img src="/icons/experimental.svg"/>
+### generators <img src="../../public/icons/experimental.svg"/>
 <!--@include: ../core/generators.md-->
 
 |           |                               |

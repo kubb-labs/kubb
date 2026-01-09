@@ -246,7 +246,7 @@ When using a string you need to use `JSON.stringify`.
 ### override
 <!--@include: ../core/override.md-->
 
-### generators <img src="/icons/experimental.svg"/>
+### generators <img src="../../public/icons/experimental.svg"/>
 <!--@include: ../core/generators.md-->
 
 |           |                               |

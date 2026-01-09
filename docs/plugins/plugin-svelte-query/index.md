@@ -192,7 +192,7 @@ export default defineConfig({
 
 For a GET operation with tags `["user"]` and path parameter `username`, this generates:
 ```typescript
-export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams["username"] }) => 
+export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams["username"] }) =>
   ["user", username] as const
 ```
 
@@ -219,7 +219,7 @@ export default defineConfig({
 
 This prepends a version to the default queryKey:
 ```typescript
-export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => 
+export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) =>
   ["v5", { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 ```
 
@@ -255,17 +255,17 @@ export default defineConfig({
     pluginSvelteQuery({
       queryKey: ({ operation, schemas }) => {
         const keys = [JSON.stringify(operation.getOperationId())]
-        
+
         // Add path parameter values (without quotes, so they reference the variables)
         if (schemas.pathParams?.keys) {
           keys.push(...schemas.pathParams.keys)
         }
-        
+
         // Add query params conditionally (the string gets embedded as code)
         if (schemas.queryParams?.name) {
           keys.push('...(params ? [params] : [])')
         }
-        
+
         return keys
       },
     }),
@@ -376,7 +376,7 @@ When using a string you need to use `JSON.stringify`.
 ### override
 <!--@include: ../core/override.md-->
 
-### generators <img src="/icons/experimental.svg"/>
+### generators <img src="../../public/icons/experimental.svg"/>
 <!--@include: ../core/generators.md-->
 
 |           |                                       |

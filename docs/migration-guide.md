@@ -33,7 +33,7 @@ See [output.barrelType](/getting-started/configure#output-barreltype).
 |---------:|:----------|
 | Left: v3 | Right: v2 |
 
-![React-DevTools](/screenshots/cli-speed.gif)
+![React-DevTools](./public/screenshots/cli-speed.gif)
 The CLI and core have been revamped for improved speed and in v3 it will also display more relevant information.
 - Progressbar for the execution of plugins.
 - Progressbar for the writing of files.

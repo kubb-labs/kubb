@@ -241,7 +241,7 @@ The use of Seed is intended to allow for consistent values in a test.
 ### override
 <!--@include: ../core/override.md-->
 
-### generators <img src="/icons/experimental.svg"/>
+### generators <img src="../../public/icons/experimental.svg"/>
 <!--@include: ../core/generators.md-->
 
 |           |                                 |

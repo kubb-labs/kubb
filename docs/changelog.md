@@ -2038,7 +2038,7 @@ Update of internal libraries.
 
   Create an [MCP](https://modelcontextprotocol.io) server based on your OpenAPI file and interact with an AI like Claude.
 
-![Claude interaction](/screenshots/claude-interaction.gif)
+![Claude interaction](./public/screenshots/claude-interaction.gif)
 
 ## 3.9.5
 

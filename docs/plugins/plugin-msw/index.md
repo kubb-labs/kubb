@@ -142,7 +142,7 @@ Which parser should be used before returning the data to the `Response` of MSW.
 ### override
 <!--@include: ../core/override.md-->
 
-### generators <img src="/icons/experimental.svg"/>
+### generators <img src="../../public/icons/experimental.svg"/>
 <!--@include: ../core/generators.md-->
 
 |           |                               |

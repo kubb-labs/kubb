@@ -311,21 +311,6 @@ const examplesSidebar = [
   },
 ]
 
-const blogSidebar = [
-  {
-    text: 'Introducing Fabric',
-    link: '/blog/fabric/',
-  },
-  {
-    text: 'Release of Kubb 4.0',
-    link: '/blog/v4/',
-  },
-  {
-    text: 'Release of Kubb 3.0',
-    link: '/blog/v3/',
-  },
-]
-
 const tutorialsSidebar = [
   {
     text: 'Basic',
@@ -603,10 +588,6 @@ export default defineConfig({
                 link: '/contributors/',
               },
               {
-                text: 'Blog',
-                link: '/blog/fabric/',
-              },
-              {
                 text: 'About Kubb',
                 link: '/about/',
               },
@@ -637,7 +618,6 @@ export default defineConfig({
       '/changelog': mainSidebar,
       '/knowledge-base': knowledgeBaseSidebar,
       '/examples': examplesSidebar,
-      '/blog': blogSidebar,
       '/tutorials': tutorialsSidebar,
     },
     socialLinks: [

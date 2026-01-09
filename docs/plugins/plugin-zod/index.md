@@ -341,7 +341,7 @@ z.array(z.string()).min(1).max(10)
 
 <!--@include: ../core/override.md-->
 
-### generators <img src="/icons/experimental.svg"/>
+### generators <img src="../../public/icons/experimental.svg"/>
 
 <!--@include: ../core/generators.md-->
 
