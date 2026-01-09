@@ -6,7 +6,7 @@ title: Kubb
 titleTemplate: The ultimate toolkit for working with APIs
 
 hero:
-  text: The ultimate toolkit for working with APIs
+  name: API Code Generation
   tagline: OpenAPI to TypeScript, React-Query, Zod, Faker.js, MCP(with Claude), MSW and Axios.
   image:
     src: /logo.png
