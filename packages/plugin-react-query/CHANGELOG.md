@@ -1,5 +1,21 @@
 # @kubb/plugin-react-query
 
+## 4.15.0
+
+### Minor Changes
+
+- [#2185](https://github.com/kubb-labs/kubb/pull/2185) [`4990f00`](https://github.com/kubb-labs/kubb/commit/4990f00c90367a5f1550ad4d54e76343a9c4d625) Thanks [@JoaoBrlt](https://github.com/JoaoBrlt)! - Add support for custom TanStack Query hook options.
+
+### Patch Changes
+
+- Updated dependencies [[`4990f00`](https://github.com/kubb-labs/kubb/commit/4990f00c90367a5f1550ad4d54e76343a9c4d625)]:
+  - @kubb/core@4.15.0
+  - @kubb/plugin-oas@4.15.0
+  - @kubb/oas@4.15.0
+  - @kubb/plugin-client@4.15.0
+  - @kubb/plugin-ts@4.15.0
+  - @kubb/plugin-zod@4.15.0
+
 ## 4.14.1
 
 ### Patch Changes
