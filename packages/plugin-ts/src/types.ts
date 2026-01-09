@@ -76,6 +76,13 @@ export type Options = {
    * @default 'questionToken'
    */
   optionalType?: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
+  /**
+   * Choose between `Array<string>` or `string[]` for array types.
+   * - `generic`: Array<Type>
+   * - `array`: Type[]
+   * @default 'array'
+   */
+  arrayType?: 'generic' | 'array'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -113,6 +120,7 @@ type ResolvedOptions = {
   unknownType: NonNullable<Options['unknownType']>
   emptySchemaType: NonNullable<Options['emptySchemaType']>
   optionalType: NonNullable<Options['optionalType']>
+  arrayType: NonNullable<Options['arrayType']>
   transformers: NonNullable<Options['transformers']>
   syntaxType: NonNullable<Options['syntaxType']>
   mapper: Record<string, any>

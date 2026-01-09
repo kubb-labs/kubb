@@ -10,7 +10,7 @@ export type FindPetsByStatusPathParams = {
 /**
  * @description successful operation
  */
-export type FindPetsByStatus200 = Pet[]
+export type FindPetsByStatus200 = Array<Pet>
 
 /**
  * @description Invalid status value

@@ -333,95 +333,6 @@ const tutorialsSidebar = [
   },
 ]
 
-const documentationMenu = [
-  {
-    text: 'Getting Started',
-    link: '/getting-started/at-glance/',
-  },
-  {
-    text: 'Helpers',
-    items: [
-      {
-        text: '@kubb/cli',
-        link: '/helpers/cli/',
-      },
-    ],
-  },
-  {
-    text: 'Plugins',
-    items: [
-      {
-        text: '@kubb/core',
-        link: '/plugins/core/',
-      },
-      {
-        text: '@kubb/plugin-oas',
-        link: '/plugins/plugin-oas/',
-      },
-      {
-        text: '@kubb/plugin-cypress',
-        link: '/plugins/plugin-cypress/',
-      },
-      {
-        text: '@kubb/plugin-mcp',
-        link: '/plugins/plugin-mcp/',
-      },
-      {
-        text: '@kubb/plugin-client',
-        link: '/plugins/plugin-client/',
-      },
-      {
-        text: '@kubb/plugin-ts',
-        link: '/plugins/plugin-ts/',
-      },
-      {
-        text: '@kubb/plugin-zod',
-        link: '/plugins/plugin-zod/',
-      },
-      {
-        text: '@kubb/plugin-react-query',
-        link: '/plugins/plugin-react-query/',
-      },
-      {
-        text: '@kubb/plugin-vue-query',
-        link: '/plugins/plugin-vue-query/',
-      },
-      {
-        text: '@kubb/plugin-solid-query',
-        link: '/plugins/plugin-solid-query/',
-      },
-      {
-        text: '@kubb/plugin-svelte-query',
-        link: '/plugins/plugin-svelte-query/',
-      },
-      {
-        text: '@kubb/plugin-swr',
-        link: '/plugins/plugin-swr/',
-      },
-      {
-        text: '@kubb/plugin-faker',
-        link: '/plugins/plugin-faker/',
-      },
-      {
-        text: '@kubb/plugin-msw',
-        link: '/plugins/plugin-msw/',
-      },
-      {
-        text: '@kubb/plugin-redoc',
-        link: '/plugins/plugin-redoc/',
-      },
-    ],
-  },
-  {
-    text: 'Build tools',
-    items: [
-      {
-        text: 'unplugin-kubb',
-        link: '/builders/unplugin/',
-      },
-    ],
-  },
-]
 
 // https://vitepress.dev/knowledge-base/site-config
 export default defineConfig({
@@ -429,7 +340,7 @@ export default defineConfig({
   title: 'Kubb',
   description: title,
   buildEnd: async (siteConfig) => {
-    await buildEndGenerateOpenGraphImages(siteConfig)
+    await buildEndGenerateOpenGraphImages(siteConfig as any)
   },
   head: [
     ['meta', { property: 'og:title', content: `Kubb: ${title}` }],
@@ -534,7 +445,95 @@ export default defineConfig({
     nav: [
       {
         text: 'Docs',
-        items: [...(documentationMenu as any)],
+        items:[
+          {
+            text: 'Getting Started',
+            link: '/getting-started/at-glance/',
+          },
+          {
+            text: 'Helpers',
+            items: [
+              {
+                text: '@kubb/cli',
+                link: '/helpers/cli/',
+              },
+            ],
+          },
+          {
+            text: 'Plugins',
+            items: [
+              {
+                text: '@kubb/core',
+                link: '/plugins/core/',
+              },
+              {
+                text: '@kubb/plugin-oas',
+                link: '/plugins/plugin-oas/',
+              },
+              {
+                text: '@kubb/plugin-cypress',
+                link: '/plugins/plugin-cypress/',
+              },
+              {
+                text: '@kubb/plugin-mcp',
+                link: '/plugins/plugin-mcp/',
+              },
+              {
+                text: '@kubb/plugin-client',
+                link: '/plugins/plugin-client/',
+              },
+              {
+                text: '@kubb/plugin-ts',
+                link: '/plugins/plugin-ts/',
+              },
+              {
+                text: '@kubb/plugin-zod',
+                link: '/plugins/plugin-zod/',
+              },
+              {
+                text: '@kubb/plugin-react-query',
+                link: '/plugins/plugin-react-query/',
+              },
+              {
+                text: '@kubb/plugin-vue-query',
+                link: '/plugins/plugin-vue-query/',
+              },
+              {
+                text: '@kubb/plugin-solid-query',
+                link: '/plugins/plugin-solid-query/',
+              },
+              {
+                text: '@kubb/plugin-svelte-query',
+                link: '/plugins/plugin-svelte-query/',
+              },
+              {
+                text: '@kubb/plugin-swr',
+                link: '/plugins/plugin-swr/',
+              },
+              {
+                text: '@kubb/plugin-faker',
+                link: '/plugins/plugin-faker/',
+              },
+              {
+                text: '@kubb/plugin-msw',
+                link: '/plugins/plugin-msw/',
+              },
+              {
+                text: '@kubb/plugin-redoc',
+                link: '/plugins/plugin-redoc/',
+              },
+            ],
+          },
+          {
+            text: 'Build tools',
+            items: [
+              {
+                text: 'unplugin-kubb',
+                link: '/builders/unplugin/',
+              },
+            ],
+          },
+        ]
       },
       {
         text: 'Knowledge base',

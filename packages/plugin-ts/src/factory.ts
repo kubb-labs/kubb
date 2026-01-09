@@ -96,16 +96,29 @@ export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Arra
   return node
 }
 
-export function createArrayDeclaration({ nodes }: { nodes: Array<ts.TypeNode> }): ts.TypeNode | null {
+export function createArrayDeclaration({ nodes, arrayType = 'array' }: { nodes: Array<ts.TypeNode>; arrayType?: 'array' | 'generic' }): ts.TypeNode | null {
   if (!nodes.length) {
     return factory.createTupleTypeNode([])
   }
 
   if (nodes.length === 1) {
-    return factory.createArrayTypeNode(nodes.at(0)!)
+    const node = nodes[0]
+    if (!node) {
+      return null
+    }
+    if (arrayType === 'generic') {
+      return factory.createTypeReferenceNode(factory.createIdentifier('Array'), [node])
+    }
+    return factory.createArrayTypeNode(node)
   }
 
-  return factory.createExpressionWithTypeArguments(factory.createIdentifier('Array'), [factory.createUnionTypeNode(nodes)])
+  // For union types (multiple nodes), respect arrayType preference
+  const unionType = factory.createUnionTypeNode(nodes)
+  if (arrayType === 'generic') {
+    return factory.createTypeReferenceNode(factory.createIdentifier('Array'), [unionType])
+  }
+  // For array syntax with unions, we need parentheses: (string | number)[]
+  return factory.createArrayTypeNode(factory.createParenthesizedType(unionType))
 }
 
 /**
@@ -639,6 +652,7 @@ export const createNumericLiteral = factory.createNumericLiteral
 export const createStringLiteral = factory.createStringLiteral
 
 export const createArrayTypeNode = factory.createArrayTypeNode
+export const createParenthesizedType = factory.createParenthesizedType
 
 export const createLiteralTypeNode = factory.createLiteralTypeNode
 export const createNull = factory.createNull

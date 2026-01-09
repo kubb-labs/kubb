@@ -5,7 +5,7 @@ export type FindPetsByTagsQueryParams = {
    * @description Tags to filter by
    * @type array | undefined
    */
-  tags?: string[]
+  tags?: Array<string>
   /**
    * @description to request with required page number or pagination
    * @type string | undefined
@@ -37,7 +37,7 @@ export type FindPetsByTagsHeaderParams = {
 /**
  * @description successful operation
  */
-export type FindPetsByTags200 = Pet[]
+export type FindPetsByTags200 = Array<Pet>
 
 /**
  * @description Invalid tag value

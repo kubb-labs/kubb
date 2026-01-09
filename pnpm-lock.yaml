@@ -75,8 +75,8 @@ importers:
         specifier: ^0.0.6
         version: 0.0.6(magicast@0.5.1)
       knip:
-        specifier: ^5.80.0
-        version: 5.80.0(@types/node@20.19.27)(typescript@5.9.3)
+        specifier: ^5.80.2
+        version: 5.80.2(@types/node@20.19.27)(typescript@5.9.3)
       prettier:
         specifier: ^3.7.4
         version: 3.7.4
@@ -1004,8 +1004,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@redocly/openapi-core':
-        specifier: ^2.14.3
-        version: 2.14.3(ajv@8.17.1)
+        specifier: ^2.14.4
+        version: 2.14.4(ajv@8.17.1)
       json-schema-to-ts:
         specifier: ^3.1.1
         version: 3.1.1
@@ -1013,11 +1013,11 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       oas:
-        specifier: ^28.8.0
-        version: 28.8.0
+        specifier: ^28.8.2
+        version: 28.8.2
       oas-normalize:
-        specifier: ^15.6.0
-        version: 15.6.0(encoding@0.1.13)
+        specifier: ^15.7.0
+        version: 15.7.0(encoding@0.1.13)
       openapi-types:
         specifier: ^12.1.3
         version: 12.1.3
@@ -2589,8 +2589,8 @@ packages:
   '@readme/http-status-codes@7.2.0':
     resolution: {integrity: sha512-/dBh9qw3QhJYqlGwt2I+KUP/lQ6nytdCx3aq+GpMUhibLHF3O7fwoowNcTwlbnwtyJ+TJYTIIrp3oVUlRNx3fA==}
 
-  '@readme/openapi-parser@5.4.0':
-    resolution: {integrity: sha512-B02OhOTyNE62CadM06jaeXdDe2ujXNfeZVp66jS5ZWDB0kQbBYN9RtyxlLBZxgIc7nnw+DmVOaCiu/hoO5xYUw==}
+  '@readme/openapi-parser@5.5.0':
+    resolution: {integrity: sha512-uY9+3ouf6NWd/ck5PzlhcRwvRFLDd9ajRsMzZPp/iqdReGgPR7m8xEXtCYbLTGXJZcrDgYyNsHUL7e87Wsh+ew==}
     engines: {node: '>=20'}
     peerDependencies:
       openapi-types: '>=7'
@@ -2609,8 +2609,8 @@ packages:
   '@redocly/config@0.41.1':
     resolution: {integrity: sha512-LcMCzFbP/sqkCLSG3YswmeScP4fM5SjDCQizwa+psZ0PhYrKOMF7azZ6ZBkWs115uv5RfOk+jYAWLdKkZGGGXg==}
 
-  '@redocly/openapi-core@2.14.3':
-    resolution: {integrity: sha512-h3K19wflV6w+5uFnlo+tDjihSBe+yZvFvnxPxasC8tC78qu7YQOX+hITXYsdaS+ZZ1nxvYvLYiHHmbIplA41VA==}
+  '@redocly/openapi-core@2.14.4':
+    resolution: {integrity: sha512-FqYf8pBXrZlbhjgcqEpgWrYk3E5j04I4nx0Pn2rMMlDe9S8N9T6axemJGHC6HvrzVJrTWLsUIsV6ndpBICnR2g==}
     engines: {node: '>=22.12.0 || >=20.19.0 <21.0.0', npm: '>=10'}
 
   '@resvg/resvg-wasm@2.6.2':
@@ -5553,8 +5553,8 @@ packages:
     resolution: {integrity: sha512-dhG34DXATL5hSxJbIexCft8FChFXtmskoZYnoPWjXQuebWYCNkVeV3KkGegCK9CP1oswI/vQibS2GY7Em/sJJA==}
     engines: {node: '>= 8'}
 
-  knip@5.80.0:
-    resolution: {integrity: sha512-K/Ga2f/SHEUXXriVdaw2GfeIUJ5muwdqusHGkCtaG/1qeMmQJiuwZj9KnPxaDbnYPAu8RWjYYh8Nyb+qlJ3d8A==}
+  knip@5.80.2:
+    resolution: {integrity: sha512-Yt7iF8Uzl7pp3mGA6yvum6PZBcbGhjasZYuqIwcIAX1jsIhGRUAK0icP0qrB6FSPBI3BpIeMHl7n9meCLO6ovg==}
     engines: {node: '>=18.18.0'}
     hasBin: true
     peerDependencies:
@@ -6083,8 +6083,8 @@ packages:
   oas-linter@3.2.2:
     resolution: {integrity: sha512-KEGjPDVoU5K6swgo9hJVA/qYGlwfbFx+Kg2QB/kd7rzV5N8N5Mg6PlsoCMohVnQmo+pzJap/F610qTodKzecGQ==}
 
-  oas-normalize@15.6.0:
-    resolution: {integrity: sha512-oV/5K3s8rwer32oxTAETvvVwn58iuSft7v99ZpwH0DYGn/E9P4YanHgxO617NkZrJBJhQdmpxiu6j5AF1k8xGQ==}
+  oas-normalize@15.7.0:
+    resolution: {integrity: sha512-heFV/yRsDO+51JCKdO4zneNbHOhuED3QKZ0XKQH4815GhyDqVUFZCI+j8uObAGdGQgxsW52JR0P5zeo2sP9PUQ==}
     engines: {node: '>=20'}
 
   oas-resolver@2.5.6:
@@ -6097,8 +6097,8 @@ packages:
   oas-validator@5.0.8:
     resolution: {integrity: sha512-cu20/HE5N5HKqVygs3dt94eYJfBi0TsZvPVXDhbXQHiEityDN+RROTleefoKRKKJ9dFAF2JBkDHgvWj0sjKGmw==}
 
-  oas@28.8.0:
-    resolution: {integrity: sha512-TVR/Cz2y6h+40sDCYM6zNaYsuxVq8QOabEJo4vDf1y+UIEx/Hm6t3JVU/cIddpvBDhy0bqv847tMrrgAJdFikw==}
+  oas@28.8.2:
+    resolution: {integrity: sha512-Dg7R3t4mHoTiuwhBLagiGavowMIKknGDG96kzNfl6bOAv4iNvS1HEJ5vNGyfPna0nG6CyLDpsvvqOP8dHvWkIg==}
     engines: {node: '>=20'}
 
   object-assign@4.1.1:
@@ -9222,7 +9222,7 @@ snapshots:
 
   '@readme/http-status-codes@7.2.0': {}
 
-  '@readme/openapi-parser@5.4.0(openapi-types@12.1.3)':
+  '@readme/openapi-parser@5.5.0(openapi-types@12.1.3)':
     dependencies:
       '@apidevtools/json-schema-ref-parser': 14.2.1(@types/json-schema@7.0.15)
       '@readme/better-ajv-errors': 2.4.0(ajv@8.17.1)
@@ -9254,7 +9254,7 @@ snapshots:
     dependencies:
       json-schema-to-ts: 2.7.2
 
-  '@redocly/openapi-core@2.14.3(ajv@8.17.1)':
+  '@redocly/openapi-core@2.14.4(ajv@8.17.1)':
     dependencies:
       '@redocly/ajv': 8.17.1
       '@redocly/config': 0.41.1
@@ -12454,7 +12454,7 @@ snapshots:
 
   klona@2.0.6: {}
 
-  knip@5.80.0(@types/node@20.19.27)(typescript@5.9.3):
+  knip@5.80.2(@types/node@20.19.27)(typescript@5.9.3):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
       '@types/node': 20.19.27
@@ -13221,9 +13221,9 @@ snapshots:
       should: 13.2.3
       yaml: 1.10.2
 
-  oas-normalize@15.6.0(encoding@0.1.13):
+  oas-normalize@15.7.0(encoding@0.1.13):
     dependencies:
-      '@readme/openapi-parser': 5.4.0(openapi-types@12.1.3)
+      '@readme/openapi-parser': 5.5.0(openapi-types@12.1.3)
       '@readme/postman-to-openapi': 4.1.0
       js-yaml: 4.1.1
       openapi-types: 12.1.3
@@ -13252,9 +13252,9 @@ snapshots:
       should: 13.2.3
       yaml: 1.10.2
 
-  oas@28.8.0:
+  oas@28.8.2:
     dependencies:
-      '@readme/openapi-parser': 5.4.0(openapi-types@12.1.3)
+      '@readme/openapi-parser': 5.5.0(openapi-types@12.1.3)
       '@types/json-schema': 7.0.15
       json-schema-merge-allof: 0.8.1
       jsonpath-plus: 10.3.0

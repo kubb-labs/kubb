@@ -7,8 +7,6 @@ outline: deep
 
 <script setup>
 
-import { version } from '../../packages/core/package.json'
-
 </script>
 
 # Quick Start
@@ -21,7 +19,7 @@ import { version } from '../../packages/core/package.json'
 > [!NOTE]
 > Node.js 20 is required. Earlier versions are not supported.
 
-## Installation <Badge type="tip" :text="version" />
+## Installation
 
 Install the core packages:
 

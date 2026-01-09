@@ -3,6 +3,13 @@ import type { Schema, SchemaKeywordMapper, SchemaMapper, SchemaTree } from './Sc
 import { schemaKeywords } from './SchemaMapper.ts'
 
 /**
+ * Helper type to create a SchemaTree with a specific current schema type
+ */
+type SchemaTreeWithKeyword<K extends keyof SchemaKeywordMapper> = Omit<SchemaTree, 'current'> & {
+  current: SchemaKeywordMapper[K]
+}
+
+/**
  * Handler context with parse method available via `this`
  */
 export type HandlerContext<TOutput, TOptions> = {
@@ -12,8 +19,13 @@ export type HandlerContext<TOutput, TOptions> = {
 /**
  * Handler function type for custom keyword processing
  * Handlers can access the parse function via `this.parse`
+ * The tree.current is typed based on the keyword K
  */
-export type KeywordHandler<TOutput, TOptions> = (this: HandlerContext<TOutput, TOptions>, tree: SchemaTree, options: TOptions) => TOutput | null | undefined
+export type KeywordHandler<TOutput, TOptions, K extends keyof SchemaKeywordMapper = keyof SchemaKeywordMapper> = (
+  this: HandlerContext<TOutput, TOptions>,
+  tree: SchemaTreeWithKeyword<K>,
+  options: TOptions,
+) => TOutput | null | undefined
 
 /**
  * Configuration for createParser
@@ -51,7 +63,7 @@ export type CreateParserConfig<TOutput, TOptions> = {
    * - default/describe/optional/nullable: Handle modifiers
    */
   handlers: Partial<{
-    [K in keyof SchemaKeywordMapper]: KeywordHandler<TOutput, TOptions>
+    [K in keyof SchemaKeywordMapper]: KeywordHandler<TOutput, TOptions, K>
   }>
 }
 
@@ -65,6 +77,11 @@ export type CreateParserConfig<TOutput, TOptions> = {
  *
  * The generated parser is recursive and can handle nested schemas.
  *
+ * **Type Safety**: Each handler receives a `tree` parameter where `tree.current` is automatically
+ * typed as the specific schema keyword type (e.g., `SchemaKeywordMapper['ref']` for the `ref` handler).
+ * This means you can access `tree.current.args` with full type safety without needing `isKeyword` checks,
+ * though such checks can still be used as runtime guards if desired.
+ *
  * @template TOutput - The output type (e.g., string for Zod/Faker, ts.TypeNode for TypeScript)
  * @template TOptions - The parser options type
  * @param config - Configuration object containing mapper and handlers
@@ -76,16 +93,23 @@ export type CreateParserConfig<TOutput, TOptions> = {
  * const parse = createParser({
  *   mapper: zodKeywordMapper,
  *   handlers: {
+ *     // tree.current is typed as SchemaKeywordMapper['union']
  *     union(tree, options) {
- *       const items = tree.current.args
+ *       const items = tree.current.args // args is correctly typed as Schema[]
  *         .map(it => this.parse({ ...tree, current: it }, options))
  *         .filter(Boolean)
  *       return `z.union([${items.join(', ')}])`
  *     },
+ *     // tree.current is typed as SchemaKeywordMapper['string']
  *     string(tree, options) {
  *       const minSchema = findSchemaKeyword(tree.siblings, 'min')
  *       const maxSchema = findSchemaKeyword(tree.siblings, 'max')
  *       return zodKeywordMapper.string(false, minSchema?.args, maxSchema?.args)
+ *     },
+ *     // tree.current is typed as SchemaKeywordMapper['ref']
+ *     ref(tree, options) {
+ *       // No need for isKeyword check - tree.current.args is already properly typed
+ *       return `Ref: ${tree.current.args.name}`
  *     }
  *   }
  * })
@@ -104,7 +128,9 @@ export function createParser<TOutput, TOptions extends Record<string, any>>(
     if (handler) {
       // Create context object with parse method accessible via `this`
       const context: HandlerContext<TOutput, TOptions> = { parse }
-      return handler.call(context, tree, options)
+      // We need to cast tree here because TypeScript can't statically verify
+      // that the handler type matches the current keyword at runtime
+      return handler.call(context, tree as any, options)
     }
 
     // Fall back to simple mapper lookup

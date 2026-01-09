@@ -22,12 +22,22 @@ exports[`codegen > should create JSDoc 1`] = `
 `;
 
 exports[`codegen > should create array declaration 1`] = `
-"Array<string | number>
+"(string | number)[]
 "
 `;
 
 exports[`codegen > should create array declaration 2`] = `
+"Array<string | number>
+"
+`;
+
+exports[`codegen > should create array declaration 3`] = `
 "string[]
+"
+`;
+
+exports[`codegen > should create array declaration 4`] = `
+"Array<string>
 "
 `;
 

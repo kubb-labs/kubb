@@ -1,5 +1,15 @@
 # @kubb/mcp
 
+## 4.14.1
+
+### Patch Changes
+
+- Updated dependencies [[`f66a49e`](https://github.com/kubb-labs/kubb/commit/f66a49e1a44726a1e8887df59ce531474deec7db)]:
+  - @kubb/plugin-ts@4.14.1
+  - @kubb/plugin-react-query@4.14.1
+  - @kubb/core@4.14.1
+  - @kubb/plugin-oas@4.14.1
+
 ## 4.14.0
 
 ### Patch Changes

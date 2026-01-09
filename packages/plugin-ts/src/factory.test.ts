@@ -40,6 +40,7 @@ describe('codegen', () => {
   })
 
   it('should create array declaration', () => {
+    // Default arrayType: 'array' - generates (string | number)[]
     expect(
       print(
         createArrayDeclaration({
@@ -48,10 +49,31 @@ describe('codegen', () => {
       ),
     ).toMatchSnapshot()
 
+    // arrayType: 'generic' - generates Array<string | number>
+    expect(
+      print(
+        createArrayDeclaration({
+          nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)],
+          arrayType: 'generic',
+        })!,
+      ),
+    ).toMatchSnapshot()
+
+    // Single node with default arrayType: 'array' - generates string[]
     expect(
       print(
         createArrayDeclaration({
           nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)],
+        })!,
+      ),
+    ).toMatchSnapshot()
+
+    // Single node with arrayType: 'generic' - generates Array<string>
+    expect(
+      print(
+        createArrayDeclaration({
+          nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)],
+          arrayType: 'generic',
         })!,
       ),
     ).toMatchSnapshot()

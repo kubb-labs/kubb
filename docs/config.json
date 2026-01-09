@@ -1,0 +1,345 @@
+{
+  "$schema": "https://raw.githubusercontent.com/kubb-labs/kubb.dev/main/schemas/config/schema.json",
+  "sidebars": [
+    {
+      "name": "default",
+      "value": [
+        {
+          "text": "Getting started",
+          "collapsed": false,
+          "items": [
+            {
+              "text": "At Glance",
+              "link": "/getting-started/at-glance/"
+            },
+            {
+              "text": "Ecosystem",
+              "link": "/getting-started/ecosystem/"
+            },
+            {
+              "text": "Quick Start",
+              "link": "/getting-started/quick-start/"
+            },
+            {
+              "text": "Configure",
+              "link": "/getting-started/configure/"
+            },
+            {
+              "text": "Troubleshooting",
+              "link": "/getting-started/troubleshooting/"
+            }
+          ]
+        },
+        {
+          "text": "Helpers",
+          "collapsed": false,
+          "items": [
+            {
+              "text": "@kubb/cli",
+              "link": "/helpers/cli/"
+            }
+          ]
+        },
+        {
+          "text": "Plugins",
+          "collapsed": false,
+          "items": [
+            {
+              "text": "@kubb/core",
+              "collapsed": true,
+              "link": "/plugins/core/"
+            },
+            {
+              "text": "@kubb/plugin-oas",
+              "link": "/plugins/plugin-oas/",
+              "collapsed": true,
+              "items": [
+                {
+                  "text": "Hooks",
+                  "link": "/plugins/plugin-oas/hooks/"
+                }
+              ]
+            },
+            {
+              "text": "@kubb/plugin-cypress <span class=\"new\">new in 3.7.0</span>",
+              "link": "/plugins/plugin-cypress/"
+            },
+            {
+              "text": "@kubb/plugin-mcp <span class=\"new\">new in 3.9.0</span>",
+              "link": "/plugins/plugin-mcp/"
+            },
+            {
+              "text": "@kubb/plugin-client",
+              "link": "/plugins/plugin-client/",
+              "collapsed": true
+            },
+            {
+              "text": "@kubb/plugin-ts",
+              "link": "/plugins/plugin-ts/"
+            },
+            {
+              "text": "@kubb/plugin-zod",
+              "link": "/plugins/plugin-zod/"
+            },
+            {
+              "text": "@kubb/plugin-react-query",
+              "link": "/plugins/plugin-react-query/"
+            },
+            {
+              "text": "@kubb/plugin-vue-query",
+              "link": "/plugins/plugin-vue-query/"
+            },
+            {
+              "text": "@kubb/plugin-solid-query",
+              "link": "/plugins/plugin-solid-query/"
+            },
+            {
+              "text": "@kubb/plugin-svelte-query",
+              "link": "/plugins/plugin-svelte-query/"
+            },
+            {
+              "text": "@kubb/plugin-swr",
+              "link": "/plugins/plugin-swr/"
+            },
+            {
+              "text": "@kubb/plugin-faker",
+              "link": "/plugins/plugin-faker/"
+            },
+            {
+              "text": "@kubb/plugin-msw",
+              "link": "/plugins/plugin-msw/"
+            },
+            {
+              "text": "@kubb/plugin-redoc",
+              "link": "/plugins/plugin-redoc/"
+            }
+          ]
+        },
+        {
+          "text": "Build tools",
+          "collapsed": false,
+          "items": [
+            {
+              "text": "unplugin-kubb",
+              "collapsed": false,
+              "link": "/builders/unplugin/"
+            }
+          ]
+        },
+        {
+          "text": "Migration guide",
+          "link": "/migration-guide/"
+        },
+        {
+          "text": "Changelog",
+          "link": "/changelog/"
+        }
+      ]
+    },
+    {
+      "name": "knowledgeBase",
+      "value": [
+        {
+          "text": "etting Started",
+          "items": [
+            {
+              "text": "Best Practices",
+              "link": "/knowledge-base/best-practices/"
+            }
+          ]
+        },
+        {
+          "text": "Configuration",
+          "items": [
+            {
+              "text": "Custom HTTP client",
+              "link": "/knowledge-base/fetch/"
+            },
+            {
+              "text": "Oas",
+              "link": "/knowledge-base/oas/"
+            },
+            {
+              "text": "Use of your own baseUrl",
+              "link": "/knowledge-base/base-url/"
+            },
+            {
+              "text": "Filter and sort",
+              "link": "/knowledge-base/filter-and-sort/"
+            },
+            {
+              "text": "Multipart FormData",
+              "link": "/knowledge-base/multipart-form-data"
+            }
+          ]
+        },
+        {
+          "text": "Development",
+          "items": [
+            {
+              "text": "Debugging Kubb",
+              "link": "/knowledge-base/debugging/"
+            },
+            {
+              "text": "Generators",
+              "link": "/knowledge-base/generators/"
+            },
+            {
+              "text": "Kubb Plugins",
+              "link": "/knowledge-base/plugins/"
+            }
+          ]
+        },
+        {
+          "text": "Integrations",
+          "items": [
+            {
+              "text": "Setup Claude with Kubb",
+              "link": "/knowledge-base/claude/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "examples",
+      "value": [
+        {
+          "text": "Getting Started",
+          "items": [
+            {
+              "text": "Simple",
+              "link": "/examples/simple/"
+            },
+            {
+              "text": "TypeScript",
+              "link": "/examples/typescript/"
+            }
+          ]
+        },
+        {
+          "text": "API Clients",
+          "items": [
+            {
+              "text": "Axios Client",
+              "link": "/examples/client/"
+            },
+            {
+              "text": "Fetch Client",
+              "link": "/examples/fetch/"
+            },
+            {
+              "text": "Cypress <span class=\"new\">new in 3.7.0</span>",
+              "link": "/examples/cypress/"
+            }
+          ]
+        },
+        {
+          "text": "Data Fetching Hooks",
+          "items": [
+            {
+              "text": "Tanstack Query",
+              "collapsed": false,
+              "items": [
+                {
+                  "text": "React Query",
+                  "link": "/examples/tanstack-query/react-query/"
+                },
+                {
+                  "text": "Vue Query",
+                  "link": "/examples/tanstack-query/vue-query/"
+                },
+                {
+                  "text": "Svelte Query",
+                  "link": "/examples/tanstack-query/svelte-query/"
+                },
+                {
+                  "text": "Solid Query",
+                  "link": "/examples/tanstack-query/solid-query/"
+                }
+              ]
+            },
+            {
+              "text": "SWR",
+              "link": "/examples/swr/"
+            }
+          ]
+        },
+        {
+          "text": "Validation & Mocking",
+          "items": [
+            {
+              "text": "Zod Schemas",
+              "link": "/examples/zod/"
+            },
+            {
+              "text": "Faker Data",
+              "link": "/examples/faker/"
+            },
+            {
+              "text": "MSW Mocks",
+              "link": "/examples/msw/"
+            }
+          ]
+        },
+        {
+          "text": "AI & Extensions",
+          "items": [
+            {
+              "text": "MCP (Claude) <span class=\"new\">new in 3.9.0</span>",
+              "link": "/examples/mcp/"
+            }
+          ]
+        },
+        {
+          "text": "Advanced",
+          "items": [
+            {
+              "text": "Custom Generators <span class=\"new\">new</span>",
+              "link": "/examples/generators/"
+            },
+            {
+              "text": "Advanced Configuration",
+              "link": "/examples/advanced/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "blog",
+      "value": [
+        {
+          "text": "Introducing Fabric",
+          "link": "/blog/fabric/"
+        },
+        {
+          "text": "Release of Kubb 4.0",
+          "link": "/blog/v4/"
+        },
+        {
+          "text": "Release of Kubb 3.0",
+          "link": "/blog/v3/"
+        }
+      ]
+    },
+    {
+      "name": "tutorials",
+      "value": {
+        "text": "Basic",
+        "link": "/tutorials/basic/"
+      }
+    }
+  ],
+  "sidebar": {
+    "/getting-started": "default",
+    "/plugins": "default",
+    "/helpers": "default",
+    "/build": "default",
+    "/changelog": "default",
+    "/knowledge-base": "knowledgeBase",
+    "/examples": "examples",
+    "/blog": "blog",
+    "/tutorials": "tutorials"
+  }
+}

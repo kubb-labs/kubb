@@ -5,7 +5,7 @@ outline: deep
 
 # Changelog
 
-## Unreleased
+## 4.14.1
 
 ### 🚀 Performance Improvements
 
@@ -27,7 +27,7 @@ These optimizations provide:
 - **8-12%** faster schema generation
 - **3-5%** reduction from schema caching
 - **Overall: 18-27% faster code generation**
-:::
+  :::
 
 #### [`@kubb/core`](/core/)
 
@@ -39,12 +39,6 @@ These optimizations provide:
 ::: info Compatibility
 All changes are backward compatible with no breaking changes to APIs or plugin behavior.
 :::
-
----
-
-## 4.14.0
-
-### ✨ Features
 
 #### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
 
@@ -97,6 +91,31 @@ All notable changes to Kubb are documented here. Each version is organized with 
 
 > [!TIP]
 > Use the outline navigation (right sidebar) to quickly jump to specific versions.
+
+
+## 4.14.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+Added `arrayType` option to switch between `Array<Type>` and `Type[]` syntax for array types.
+
+::: code-group
+
+```typescript [array (default)]
+type Pet = {
+  tags: string[]
+}
+```
+
+```typescript [generic]
+type Pet = {
+  tags: Array<string>
+}
+```
+
+:::
 
 ## 4.13.1
 
