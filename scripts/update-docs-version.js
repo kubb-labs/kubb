@@ -28,13 +28,17 @@ try {
   const docsConfigPath = join(__dirname, '..', 'docs', 'config.json')
   const docsConfigContent = readFileSync(docsConfigPath, 'utf8')
 
-  // Replace "v$version" with the actual version (e.g., "v4.14.1")
-  const updatedContent = docsConfigContent.replace(/"v\$version"/g, `"v${version}"`)
+  // Replace "v$version" or any existing version like "v4.14.1" with the actual version
+  // This regex matches "v" followed by $version OR semantic version numbers
+  const updatedContent = docsConfigContent.replace(/"v(\$version|\d+\.\d+\.\d+[^"]*)"/g, `"v${version}"`)
 
-  // Write back to docs/config.json
-  writeFileSync(docsConfigPath, updatedContent, 'utf8')
-
-  console.log(`✓ Updated docs/config.json with version v${version}`)
+  // Only write if content changed
+  if (updatedContent !== docsConfigContent) {
+    writeFileSync(docsConfigPath, updatedContent, 'utf8')
+    console.log(`✓ Updated docs/config.json with version v${version}`)
+  } else {
+    console.log(`✓ docs/config.json already has version v${version}`)
+  }
 } catch (error) {
   console.error('Error updating docs version:', error.message)
   process.exit(1)
