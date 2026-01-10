@@ -122,7 +122,7 @@
         },
         {
           "text": "Examples",
-          "collapsed": false,
+          "collapsed": true,
           "items": [
             {
               "text": "Getting Started",
@@ -228,7 +228,7 @@
         },
         {
           "text": "Tutorials",
-          "collapsed": false,
+          "collapsed": true,
           "items": [
             {
               "text": "Basic",
