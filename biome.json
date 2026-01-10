@@ -24,7 +24,6 @@
       "!**/.github",
       "!**/.codesandbox",
       "!**/.devcontainer",
-      "!**/docs/.vitepress",
       "!**/ceviz-report.htm",
       "!.nx"
     ]

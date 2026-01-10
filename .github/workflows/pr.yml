@@ -42,24 +42,6 @@ jobs:
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
-  docs:
-    name: Build Docs
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]'
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 2
-
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@main
-
-      - name: Build Docs
-        working-directory: ./docs
-        run: pnpm build
-
   typecheck:
     name: Typecheck
     timeout-minutes: 15
