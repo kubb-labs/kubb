@@ -173,9 +173,216 @@
           ]
         },
         {
+          "text": "Examples",
+          "collapsed": true,
+          "items": [
+            {
+              "text": "Getting Started",
+              "items": [
+                {
+                  "text": "Simple",
+                  "link": "/examples/simple",
+                  "activeMatch": "^/examples/simple/?$"
+                },
+                {
+                  "text": "TypeScript",
+                  "link": "/examples/typescript",
+                  "activeMatch": "^/examples/typescript/?$"
+                }
+              ]
+            },
+            {
+              "text": "API Clients",
+              "items": [
+                {
+                  "text": "Axios Client",
+                  "link": "/examples/client",
+                  "activeMatch": "^/examples/client/?$"
+                },
+                {
+                  "text": "Fetch Client",
+                  "link": "/examples/fetch",
+                  "activeMatch": "^/examples/fetch/?$"
+                },
+                {
+                  "text": "Cypress <span class=\"new\">new in 3.7.0</span>",
+                  "link": "/examples/cypress",
+                  "activeMatch": "^/examples/cypress/?$"
+                }
+              ]
+            },
+            {
+              "text": "Data Fetching Hooks",
+              "items": [
+                {
+                  "text": "Tanstack Query",
+                  "items": [
+                    {
+                      "text": "React Query",
+                      "link": "/examples/tanstack-query/react-query",
+                      "activeMatch": "^/examples/tanstack-query/react-query/?$"
+                    },
+                    {
+                      "text": "Vue Query",
+                      "link": "/examples/tanstack-query/vue-query",
+                      "activeMatch": "^/examples/tanstack-query/vue-query/?$"
+                    },
+                    {
+                      "text": "Svelte Query",
+                      "link": "/examples/tanstack-query/svelte-query",
+                      "activeMatch": "^/examples/tanstack-query/svelte-query/?$"
+                    },
+                    {
+                      "text": "Solid Query",
+                      "link": "/examples/tanstack-query/solid-query",
+                      "activeMatch": "^/examples/tanstack-query/solid-query/?$"
+                    }
+                  ]
+                },
+                {
+                  "text": "SWR",
+                  "link": "/examples/swr",
+                  "activeMatch": "^/examples/swr/?$"
+                }
+              ]
+            },
+            {
+              "text": "Validation & Mocking",
+              "items": [
+                {
+                  "text": "Zod Schemas",
+                  "link": "/examples/zod",
+                  "activeMatch": "^/examples/zod/?$"
+                },
+                {
+                  "text": "Faker Data",
+                  "link": "/examples/faker",
+                  "activeMatch": "^/examples/faker/?$"
+                },
+                {
+                  "text": "MSW Mocks",
+                  "link": "/examples/msw",
+                  "activeMatch": "^/examples/msw/?$"
+                }
+              ]
+            },
+            {
+              "text": "AI & Extensions",
+              "items": [
+                {
+                  "text": "MCP (Claude) <span class=\"new\">new in 3.9.0</span>",
+                  "link": "/examples/mcp",
+                  "activeMatch": "^/examples/mcp/?$"
+                }
+              ]
+            },
+            {
+              "text": "Advanced",
+              "items": [
+                {
+                  "text": "Custom Generators <span class=\"new\">new</span>",
+                  "link": "/examples/generators",
+                  "activeMatch": "^/examples/generators/?$"
+                },
+                {
+                  "text": "Advanced Configuration",
+                  "link": "/examples/advanced",
+                  "activeMatch": "^/examples/advanced/?$"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "Tutorials",
+          "collapsed": true,
+          "items": [
+            {
+              "text": "Basic",
+              "link": "/tutorials/basic",
+              "activeMatch": "^/tutorials/basic/?$"
+            }
+          ]
+        },
+        {
           "text": "Playground",
           "link": "/playground",
           "activeMatch": "^/playground/?$"
+        }
+      ]
+    },
+    {
+      "name": "knowledgeBase",
+      "value": [
+        {
+          "text": "Getting Started",
+          "items": [
+            {
+              "text": "Best Practices",
+              "link": "/knowledge-base/best-practices",
+              "activeMatch": "^/knowledge-base/best-practices/?$"
+            }
+          ]
+        },
+        {
+          "text": "Configuration",
+          "items": [
+            {
+              "text": "Custom HTTP client",
+              "link": "/knowledge-base/fetch",
+              "activeMatch": "^/knowledge-base/fetch/?$"
+            },
+            {
+              "text": "Oas",
+              "link": "/knowledge-base/oas",
+              "activeMatch": "^/knowledge-base/oas/?$"
+            },
+            {
+              "text": "Use of your own baseUrl",
+              "link": "/knowledge-base/base-url",
+              "activeMatch": "^/knowledge-base/base-url/?$"
+            },
+            {
+              "text": "Filter and sort",
+              "link": "/knowledge-base/filter-and-sort",
+              "activeMatch": "^/knowledge-base/filter-and-sort/?$"
+            },
+            {
+              "text": "Multipart FormData",
+              "link": "/knowledge-base/multipart-form-data",
+              "activeMatch": "^/knowledge-base/multipart-form-data/?$"
+            }
+          ]
+        },
+        {
+          "text": "Development",
+          "items": [
+            {
+              "text": "Debugging Kubb",
+              "link": "/knowledge-base/debugging",
+              "activeMatch": "^/knowledge-base/debugging/?$"
+            },
+            {
+              "text": "Generators",
+              "link": "/knowledge-base/generators",
+              "activeMatch": "^/knowledge-base/generators/?$"
+            },
+            {
+              "text": "Kubb Plugins",
+              "link": "/knowledge-base/plugins",
+              "activeMatch": "^/knowledge-base/plugins/?$"
+            }
+          ]
+        },
+        {
+          "text": "Integrations",
+          "items": [
+            {
+              "text": "Setup Claude with Kubb",
+              "link": "/knowledge-base/claude",
+              "activeMatch": "^/knowledge-base/claude/?$"
+            }
+          ]
         }
       ]
     }
