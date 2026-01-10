@@ -56,10 +56,6 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
 
-      - name: Build Docs
-        working-directory: ./docs
-        run: pnpm build
-
   typecheck:
     name: Typecheck
     timeout-minutes: 15

@@ -1,6 +1,5 @@
 packages:
   - packages/*
-  - docs
   - examples/*
   - tests/**
 

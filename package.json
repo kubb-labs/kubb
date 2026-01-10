@@ -13,7 +13,6 @@
 	"workspaces": {
 		"packages": [
 			"packages/*",
-			"docs",
 			"examples/*",
 			"tests/*"
 		]
