@@ -5,6 +5,33 @@
       "name": "default",
       "value": [
         {
+          "text": "Menu",
+          "items": [
+            {
+              "text": "Home",
+              "link": "/"
+            },
+            {
+              "text": "Github",
+              "link": "https://github.com/kubb-labs/kubb",
+              "target": "_blank"
+            },
+            {
+              "text": "Releases",
+              "link": "https://github.com/kubb-labs/kubb/releases",
+              "target": "_blank"
+            },
+            {
+              "text": "Changelog",
+              "link": "/changelog/"
+            },
+            {
+              "text": "Migration guide",
+              "link": "/migration-guide/"
+            }
+          ]
+        },
+        {
           "text": "Getting started",
           "collapsed": false,
           "items": [
@@ -27,24 +54,6 @@
             {
               "text": "Troubleshooting",
               "link": "/getting-started/troubleshooting/"
-            }
-          ]
-        },
-        {
-          "text": "Latest version",
-          "items": [
-            {
-              "text": "Changelog",
-              "link": "/changelog/"
-            },
-            {
-              "text": "Releases",
-              "link": "https://github.com/kubb-labs/kubb/releases",
-              "target": "_blank"
-            },
-            {
-              "text": "Migration guide",
-              "link": "/migration-guide/"
             }
           ]
         },
