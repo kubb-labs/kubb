@@ -397,6 +397,7 @@
     "/migration-guide": "default",
     "/tutorials": "default",
     "/playground": "default",
+    "/ecosystem": "default",
     "/knowledge-base": "knowledgeBase"
   }
 }
