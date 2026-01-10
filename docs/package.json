@@ -51,7 +51,7 @@
     "@nolebase/vitepress-plugin-highlight-targeted-heading": "^2.18.2",
     "@nolebase/vitepress-plugin-og-image": "^2.18.2",
     "@types/node": "catalog:",
-    "@types/react": "^19.2.7",
+    "@types/react": "^19.2.8",
     "cross-env": "^7.0.3",
     "react": "^19.2.3",
     "unplugin-kubb": "workspace:^",

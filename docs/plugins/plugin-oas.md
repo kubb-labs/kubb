@@ -58,7 +58,7 @@ Define what needs to be exported, here you can also disable the export of barrel
 | Required: | `false`                         |
 |  Default: | `'named'`                       |
 
-<!--@include: ../core/barrelTypes.md-->
+<!--@include: ./core/barrelTypes.md-->
 
 #### output.banner
 Add a banner text in the beginning of every file.
@@ -77,10 +77,10 @@ Add a footer text at the end of every file.
 | Required: | `false` |
 
 #### output.override
-<!--@include: ../core/outputOverride.md-->
+<!--@include: ./core/outputOverride.md-->
 
 ### group
-<!--@include: ../core/group.md-->
+<!--@include: ./core/group.md-->
 
 #### group.type
 Define a type where to group the files on.
@@ -90,7 +90,7 @@ Define a type where to group the files on.
 |     Type: | `'tag'` |
 | Required: | `true`  |
 
-<!--@include: ../core/groupTypes.md-->
+<!--@include: ./core/groupTypes.md-->
 
 #### group.name
 
@@ -287,9 +287,9 @@ export type Animal =
 :::
 
 ### contentType
-<!--@include: ../core/contentType.md-->
+<!--@include: ./core/contentType.md-->
 
-### oasClass <img src="../../public/icons/experimental.svg"/>
+### oasClass <img src="../public/icons/experimental.svg"/>
 Override some behaviour of the Oas class instance, see `@kubb/oas`.
 
 |           |                                |
@@ -298,7 +298,7 @@ Override some behaviour of the Oas class instance, see `@kubb/oas`.
 | Required: | `false`                        |
 
 
-### generators <img src="../../public/icons/experimental.svg"/>
+### generators <img src="../public/icons/experimental.svg"/>
 Define some generators to create files based on the operation and/or schema. All plugin are using generators to create files based on the OperationGenerator and SchemaGenerators. An empty array will result in no schema's being generated, in v2 of Kubb we used `output: false`.
 
 See [Generators](/knowledge-base/generators) for more information on how to use generators.

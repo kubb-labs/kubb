@@ -76,7 +76,7 @@
 		"tsdown": "catalog:",
 		"turbo": "^2.7.3",
 		"typescript": "catalog:",
-		"vite-tsconfig-paths": "^6.0.3",
+		"vite-tsconfig-paths": "^6.0.4",
 		"vitest": "^4.0.16"
 	},
 	"packageManager": "pnpm@10.24.0",
