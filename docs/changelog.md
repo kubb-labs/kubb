@@ -99,6 +99,10 @@ The generated `HookOptions` type ensures your custom hook implementation is type
 > [!NOTE]
 > This feature is available for `@kubb/plugin-react-query` in v4.15.0. Similar support for other query plugins (Vue Query, Solid Query, Svelte Query, SWR) may be added in future releases.
 
+---
+
+## 4.15.1
+
 ### 🐛 Bug Fixes
 
 #### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
