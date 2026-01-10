@@ -1,0 +1,50 @@
+openapi: 3.0.3
+info:
+  title: Test Mixed QueryParams
+  version: 1.0.0
+paths:
+  /artifacts:
+    get:
+      operationId: findArtifacts
+      parameters:
+        - name: include
+          in: query
+          schema:
+            type: string
+            enum:
+              - author
+              - tags
+        - name: fields
+          in: query
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: object
+            properties:
+              number:
+                type: integer
+              size:
+                type: integer
+        - name: additionalParams
+          in: query
+          style: form
+          explode: true
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object

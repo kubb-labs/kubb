@@ -605,6 +605,15 @@ describe('typeGenerator operation', async () => {
         enumType: 'enum',
       },
     },
+    {
+      name: 'findArtifacts with mixed query params',
+      input: '../../mocks/mixedQueryParams.yaml',
+      path: '/artifacts',
+      method: 'get',
+      options: {
+        enumType: 'asConst',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
