@@ -323,6 +323,7 @@
     "/build": "default",
     "/changelog": "default",
     "/examples": "default",
+    "/migration-guide": "default",
     "/tutorials": "default",
     "/playground": "default",
     "/knowledge-base": "knowledgeBase"
