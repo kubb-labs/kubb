@@ -136,6 +136,24 @@ describe('queryGenerator operation', async () => {
         paramsCasing: 'camelcase',
       },
     },
+    {
+      name: 'findByStatusAllOptional',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByStatus',
+      method: 'get',
+      options: {
+        paramsType: 'object',
+      },
+    },
+    {
+      name: 'findByStatusAllOptionalInline',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByStatus',
+      method: 'get',
+      options: {
+        paramsType: 'inline',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

@@ -38,6 +38,16 @@ describe('suspenseQueryGenerator operation', async () => {
         },
       },
     },
+    {
+      name: 'findSuspenseByStatusAllOptional',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByStatus',
+      method: 'get',
+      options: {
+        paramsType: 'object',
+        suspense: {},
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

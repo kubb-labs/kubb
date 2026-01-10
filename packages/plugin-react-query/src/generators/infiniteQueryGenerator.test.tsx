@@ -86,6 +86,19 @@ describe('infiniteQueryGenerator operation', async () => {
         },
       },
     },
+    {
+      name: 'findInfiniteByStatusAllOptional',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByStatus',
+      method: 'get',
+      options: {
+        paramsType: 'object',
+        infinite: {
+          queryParam: 'status',
+          initialPageParam: 'available',
+        },
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
