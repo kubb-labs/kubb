@@ -86,7 +86,7 @@ const mainSidebar = [
       },
       {
         text: 'Ecosystem',
-        link: '/getting-started/ecosystem/',
+        link: '/ecosystem/',
       },
       {
         text: 'Quick Start',

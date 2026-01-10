@@ -28,6 +28,11 @@
               "activeMatch": "^/changelog/?$"
             },
             {
+              "text": "Ecosystem",
+              "link": "/ecosystem",
+              "activeMatch": "^/ecosystem/?$"
+            },
+            {
               "text": "Migration guide",
               "link": "/migration-guide",
               "activeMatch": "^/migration-guide/?$"
@@ -42,11 +47,6 @@
               "text": "At Glance",
               "link": "/getting-started/at-glance",
               "activeMatch": "^/getting-started/at-glance/?$"
-            },
-            {
-              "text": "Ecosystem",
-              "link": "/getting-started/ecosystem",
-              "activeMatch": "^/getting-started/ecosystem/?$"
             },
             {
               "text": "Quick Start",
