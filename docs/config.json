@@ -31,24 +31,9 @@
           ]
         },
         {
-          "text": "Helpers",
-          "collapsed": false,
-          "items": [
-            {
-              "text": "@kubb/cli",
-              "link": "/helpers/cli/"
-            }
-          ]
-        },
-        {
           "text": "Plugins",
           "collapsed": false,
           "items": [
-            {
-              "text": "@kubb/core",
-              "collapsed": true,
-              "link": "/plugins/core/"
-            },
             {
               "text": "@kubb/plugin-oas",
               "link": "/plugins/plugin-oas/",
@@ -120,11 +105,140 @@
           "collapsed": false,
           "items": [
             {
+              "text": "@kubb/core",
+              "collapsed": true,
+              "link": "/plugins/core/"
+            },
+            {
+              "text": "@kubb/cli",
+              "link": "/helpers/cli/"
+            },
+            {
               "text": "unplugin-kubb",
               "collapsed": false,
               "link": "/builders/unplugin/"
             }
           ]
+        },
+        {
+          "text": "Examples",
+          "collapsed": true,
+          "items": [
+            {
+              "text": "Getting Started",
+              "items": [
+                {
+                  "text": "Simple",
+                  "link": "/examples/simple/"
+                },
+                {
+                  "text": "TypeScript",
+                  "link": "/examples/typescript/"
+                }
+              ]
+            },
+            {
+              "text": "API Clients",
+              "items": [
+                {
+                  "text": "Axios Client",
+                  "link": "/examples/client/"
+                },
+                {
+                  "text": "Fetch Client",
+                  "link": "/examples/fetch/"
+                },
+                {
+                  "text": "Cypress <span class=\"new\">new in 3.7.0</span>",
+                  "link": "/examples/cypress/"
+                }
+              ]
+            },
+            {
+              "text": "Data Fetching Hooks",
+              "items": [
+                {
+                  "text": "Tanstack Query",
+                  "collapsed": false,
+                  "items": [
+                    {
+                      "text": "React Query",
+                      "link": "/examples/tanstack-query/react-query/"
+                    },
+                    {
+                      "text": "Vue Query",
+                      "link": "/examples/tanstack-query/vue-query/"
+                    },
+                    {
+                      "text": "Svelte Query",
+                      "link": "/examples/tanstack-query/svelte-query/"
+                    },
+                    {
+                      "text": "Solid Query",
+                      "link": "/examples/tanstack-query/solid-query/"
+                    }
+                  ]
+                },
+                {
+                  "text": "SWR",
+                  "link": "/examples/swr/"
+                }
+              ]
+            },
+            {
+              "text": "Validation & Mocking",
+              "items": [
+                {
+                  "text": "Zod Schemas",
+                  "link": "/examples/zod/"
+                },
+                {
+                  "text": "Faker Data",
+                  "link": "/examples/faker/"
+                },
+                {
+                  "text": "MSW Mocks",
+                  "link": "/examples/msw/"
+                }
+              ]
+            },
+            {
+              "text": "AI & Extensions",
+              "items": [
+                {
+                  "text": "MCP (Claude) <span class=\"new\">new in 3.9.0</span>",
+                  "link": "/examples/mcp/"
+                }
+              ]
+            },
+            {
+              "text": "Advanced",
+              "items": [
+                {
+                  "text": "Custom Generators <span class=\"new\">new</span>",
+                  "link": "/examples/generators/"
+                },
+                {
+                  "text": "Advanced Configuration",
+                  "link": "/examples/advanced/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "Tutorials",
+          "collapsed": true,
+          "items": [
+            {
+              "text": "Basic",
+              "link": "/tutorials/basic/"
+            }
+          ]
+        },
+        {
+          "text": "Playground",
+          "link": "/playground/"
         },
         {
           "text": "Migration guide",
@@ -200,118 +314,6 @@
           ]
         }
       ]
-    },
-    {
-      "name": "examples",
-      "value": [
-        {
-          "text": "Getting Started",
-          "items": [
-            {
-              "text": "Simple",
-              "link": "/examples/simple/"
-            },
-            {
-              "text": "TypeScript",
-              "link": "/examples/typescript/"
-            }
-          ]
-        },
-        {
-          "text": "API Clients",
-          "items": [
-            {
-              "text": "Axios Client",
-              "link": "/examples/client/"
-            },
-            {
-              "text": "Fetch Client",
-              "link": "/examples/fetch/"
-            },
-            {
-              "text": "Cypress <span class=\"new\">new in 3.7.0</span>",
-              "link": "/examples/cypress/"
-            }
-          ]
-        },
-        {
-          "text": "Data Fetching Hooks",
-          "items": [
-            {
-              "text": "Tanstack Query",
-              "collapsed": false,
-              "items": [
-                {
-                  "text": "React Query",
-                  "link": "/examples/tanstack-query/react-query/"
-                },
-                {
-                  "text": "Vue Query",
-                  "link": "/examples/tanstack-query/vue-query/"
-                },
-                {
-                  "text": "Svelte Query",
-                  "link": "/examples/tanstack-query/svelte-query/"
-                },
-                {
-                  "text": "Solid Query",
-                  "link": "/examples/tanstack-query/solid-query/"
-                }
-              ]
-            },
-            {
-              "text": "SWR",
-              "link": "/examples/swr/"
-            }
-          ]
-        },
-        {
-          "text": "Validation & Mocking",
-          "items": [
-            {
-              "text": "Zod Schemas",
-              "link": "/examples/zod/"
-            },
-            {
-              "text": "Faker Data",
-              "link": "/examples/faker/"
-            },
-            {
-              "text": "MSW Mocks",
-              "link": "/examples/msw/"
-            }
-          ]
-        },
-        {
-          "text": "AI & Extensions",
-          "items": [
-            {
-              "text": "MCP (Claude) <span class=\"new\">new in 3.9.0</span>",
-              "link": "/examples/mcp/"
-            }
-          ]
-        },
-        {
-          "text": "Advanced",
-          "items": [
-            {
-              "text": "Custom Generators <span class=\"new\">new</span>",
-              "link": "/examples/generators/"
-            },
-            {
-              "text": "Advanced Configuration",
-              "link": "/examples/advanced/"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "tutorials",
-      "value": {
-        "text": "Basic",
-        "link": "/tutorials/basic/"
-      }
     }
   ],
   "sidebar": {
@@ -320,8 +322,9 @@
     "/helpers": "default",
     "/build": "default",
     "/changelog": "default",
-    "/knowledge-base": "knowledgeBase",
-    "/examples": "examples",
-    "/tutorials": "tutorials"
+    "/examples": "default",
+    "/tutorials": "default",
+    "/playground": "default",
+    "/knowledge-base": "knowledgeBase"
   }
 }
