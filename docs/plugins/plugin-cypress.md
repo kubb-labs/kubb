@@ -62,7 +62,7 @@ Define what needs to be exported, here you can also disable the export of barrel
 | Required: | `false`                         |
 |  Default: | `'named'`                       |
 
-<!--@include: ../core/barrelTypes.md-->
+<!--@include: ./core/barrelTypes.md-->
 
 #### output.banner
 Add a banner text in the beginning of every file.
@@ -81,25 +81,25 @@ Add a footer text at the end of every file.
 | Required: | `false`                               |
 
 #### output.override
-<!--@include: ../core/outputOverride.md-->
+<!--@include: ./core/outputOverride.md-->
 
 ### contentType
-<!--@include: ../core/contentType.md-->
+<!--@include: ./core/contentType.md-->
 
 ### paramsType
-<!--@include: ../plugin-client/paramsType.md-->
+<!--@include: ./plugin-client/paramsType.md-->
 
 ### paramsCasing
-<!--@include: ../plugin-client/paramsCasing.md-->
+<!--@include: ./plugin-client/paramsCasing.md-->
 
 ### pathParamsType
-<!--@include: ../plugin-client/pathParamsType.md-->
+<!--@include: ./plugin-client/pathParamsType.md-->
 
 ### baseURL
-<!--@include: ../plugin-client/baseURL.md-->
+<!--@include: ./plugin-client/baseURL.md-->
 
 ### group
-<!--@include: ../core/group.md-->
+<!--@include: ./core/group.md-->
 
 #### group.type
 Define a type where to group the files on.
@@ -109,7 +109,7 @@ Define a type where to group the files on.
 |     Type: | `'tag'` |
 | Required: | `true`  |
 
-<!--@include: ../core/groupTypes.md-->
+<!--@include: ./core/groupTypes.md-->
 
 #### group.name
 
@@ -122,16 +122,16 @@ Return the name of a group based on the group name, this will be used for the fi
 |  Default: | `(ctx) => '${ctx.group}Requests'`   |
 
 ### include
-<!--@include: ../core/include.md-->
+<!--@include: ./core/include.md-->
 
 ### exclude
-<!--@include: ../core/exclude.md-->
+<!--@include: ./core/exclude.md-->
 
 ### override
-<!--@include: ../core/override.md-->
+<!--@include: ./core/override.md-->
 
-### generators <img src="../../public/icons/experimental.svg"/>
-<!--@include: ../core/generators.md-->
+### generators <img src="../public/icons/experimental.svg"/>
+<!--@include: ./core/generators.md-->
 
 |           |                               |
 |----------:|:------------------------------|
@@ -140,7 +140,7 @@ Return the name of a group based on the group name, this will be used for the fi
 
 
 ### transformers
-<!--@include: ../core/transformers.md-->
+<!--@include: ./core/transformers.md-->
 
 #### transformers.name
 Customize the names based on the type that is provided by the plugin.

@@ -3,14 +3,14 @@ import { NolebaseHighlightTargetedHeading } from '@nolebase/vitepress-plugin-hig
 import TwoslashFloatingVue from '@shikijs/vitepress-twoslash/client'
 import type { EnhanceAppContext, Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
-// @ts-expect-error cannot find import
+
 import CopyOrDownloadAsMarkdownButtons from 'vitepress-plugin-llms/vitepress-components/CopyOrDownloadAsMarkdownButtons.vue'
 import { h } from 'vue'
 
 import '@nolebase/vitepress-plugin-highlight-targeted-heading/client/style.css'
 import '@nolebase/vitepress-plugin-enhanced-readabilities/client/style.css'
 
-// @ts-expect-error
+
 import HomePage from './HomePage.vue'
 
 import '@shikijs/vitepress-twoslash/style.css'
