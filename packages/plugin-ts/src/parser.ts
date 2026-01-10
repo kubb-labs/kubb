@@ -332,19 +332,26 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
       let additionalProperties: any
 
       if (current.args?.additionalProperties?.length) {
-        additionalProperties = current.args.additionalProperties
+        let additionalPropertiesType = current.args.additionalProperties
           .map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options))
           .filter(Boolean)
           .at(0) as ts.TypeNode
 
         const isNullable = current.args?.additionalProperties.some((schema) => isKeyword(schema, schemaKeywords.nullable))
         if (isNullable) {
-          additionalProperties = factory.createUnionDeclaration({
-            nodes: [additionalProperties, factory.keywordTypeNodes.null],
+          additionalPropertiesType = factory.createUnionDeclaration({
+            nodes: [additionalPropertiesType, factory.keywordTypeNodes.null],
           }) as ts.TypeNode
         }
 
-        additionalProperties = factory.createIndexSignature(additionalProperties)
+        // When there are typed properties alongside additionalProperties, use 'unknown' type
+        // for the index signature to avoid TS2411 errors (index signature type conflicts with property types).
+        // This occurs commonly in QueryParams where some params are typed (enums, objects) and
+        // others are dynamic (additionalProperties with explode=true).
+        const hasTypedProperties = properties.length > 0
+        const indexSignatureType = hasTypedProperties ? factory.keywordTypeNodes.unknown : additionalPropertiesType
+
+        additionalProperties = factory.createIndexSignature(indexSignatureType)
       }
 
       let patternProperties: ts.TypeNode | ts.IndexSignatureDeclaration | undefined
