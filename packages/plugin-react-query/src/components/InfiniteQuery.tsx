@@ -83,35 +83,52 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, page
     })
   }
 
+  const pathParamsChildren = getPathParams(typeSchemas.pathParams, {
+    typed: true,
+    casing: paramsCasing,
+  })
+
+  const pathParamsParam = typeSchemas.pathParams?.name
+    ? {
+        mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+        children: pathParamsChildren,
+        optional: isOptional(typeSchemas.pathParams?.schema),
+      }
+    : undefined
+
+  const dataParam = typeSchemas.request?.name
+    ? {
+        type: typeSchemas.request?.name,
+        optional: isOptional(typeSchemas.request?.schema),
+      }
+    : undefined
+
+  const paramsParam = typeSchemas.queryParams?.name
+    ? {
+        type: typeSchemas.queryParams?.name,
+        optional: isOptional(typeSchemas.queryParams?.schema),
+      }
+    : undefined
+
+  const headersParam = typeSchemas.headerParams?.name
+    ? {
+        type: typeSchemas.headerParams?.name,
+        optional: isOptional(typeSchemas.headerParams?.schema),
+      }
+    : undefined
+
+  // Check if all params are optional
+  const allParamsOptional =
+    (!dataParam || dataParam.optional) &&
+    (!paramsParam || paramsParam.optional) &&
+    (!headersParam || headersParam.optional) &&
+    (!pathParamsParam || (pathParamsParam.optional && Object.values(pathParamsChildren).every((child) => !child || child.optional)))
+
   return FunctionParams.factory({
-    pathParams: typeSchemas.pathParams?.name
-      ? {
-          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, {
-            typed: true,
-            casing: paramsCasing,
-          }),
-          optional: isOptional(typeSchemas.pathParams?.schema),
-        }
-      : undefined,
-    data: typeSchemas.request?.name
-      ? {
-          type: typeSchemas.request?.name,
-          optional: isOptional(typeSchemas.request?.schema),
-        }
-      : undefined,
-    params: typeSchemas.queryParams?.name
-      ? {
-          type: typeSchemas.queryParams?.name,
-          optional: isOptional(typeSchemas.queryParams?.schema),
-        }
-      : undefined,
-    headers: typeSchemas.headerParams?.name
-      ? {
-          type: typeSchemas.headerParams?.name,
-          optional: isOptional(typeSchemas.headerParams?.schema),
-        }
-      : undefined,
+    pathParams: pathParamsParam,
+    data: dataParam ? { ...dataParam, default: allParamsOptional ? '{}' : undefined } : undefined,
+    params: paramsParam ? { ...paramsParam, default: allParamsOptional ? '{}' : undefined } : undefined,
+    headers: headersParam ? { ...headersParam, default: allParamsOptional ? '{}' : undefined } : undefined,
     options: {
       type: `
 {

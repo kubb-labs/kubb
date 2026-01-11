@@ -68,6 +68,14 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
 
   const pathParamsChildren = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
   
+  const pathParamsParam = typeSchemas.pathParams?.name
+    ? {
+        mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+        children: pathParamsChildren,
+        optional: isOptional(typeSchemas.pathParams?.schema),
+      }
+    : undefined
+
   const dataParam = typeSchemas.request?.name
     ? {
         type: typeSchemas.request?.name,
@@ -94,19 +102,13 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
     (!dataParam || dataParam.optional) &&
     (!paramsParam || paramsParam.optional) &&
     (!headersParam || headersParam.optional) &&
-    Object.values(pathParamsChildren).every((child) => !child || child.optional)
+    (!pathParamsParam || (pathParamsParam.optional && Object.values(pathParamsChildren).every((child) => !child || child.optional)))
 
   return FunctionParams.factory({
-    pathParams: typeSchemas.pathParams?.name
-      ? {
-          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: pathParamsChildren,
-          optional: isOptional(typeSchemas.pathParams?.schema),
-        }
-      : undefined,
+    pathParams: pathParamsParam,
     data: dataParam ? { ...dataParam, default: allParamsOptional ? '{}' : undefined } : undefined,
-    params: paramsParam,
-    headers: headersParam,
+    params: paramsParam ? { ...paramsParam, default: allParamsOptional ? '{}' : undefined } : undefined,
+    headers: headersParam ? { ...headersParam, default: allParamsOptional ? '{}' : undefined } : undefined,
     config: {
       type: typeSchemas.request?.name
         ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`

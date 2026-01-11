@@ -25,6 +25,13 @@ type GetParamsProps = {
 function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps) {
   const pathParamsChildren = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
 
+  const pathParamsParam = typeSchemas.pathParams?.name
+    ? {
+        mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+        children: pathParamsChildren,
+      }
+    : undefined
+
   const dataParam = typeSchemas.request?.name
     ? {
         type: typeSchemas.request?.name,
@@ -41,16 +48,13 @@ function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps
 
   // Check if all params are optional
   const allParamsOptional =
-    (!dataParam || dataParam.optional) && (!paramsParam || paramsParam.optional) && Object.values(pathParamsChildren).every((child) => !child || child.optional)
+    (!dataParam || dataParam.optional) && 
+    (!paramsParam || paramsParam.optional) && 
+    Object.values(pathParamsChildren).every((child) => !child || child.optional)
 
   return FunctionParams.factory({
-    pathParams: typeSchemas.pathParams?.name
-      ? {
-          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: pathParamsChildren,
-        }
-      : undefined,
-    data: dataParam,
+    pathParams: pathParamsParam,
+    data: dataParam ? { ...dataParam, default: allParamsOptional ? '{}' : undefined } : undefined,
     params: paramsParam ? { ...paramsParam, default: allParamsOptional ? '{}' : undefined } : undefined,
   })
 }
