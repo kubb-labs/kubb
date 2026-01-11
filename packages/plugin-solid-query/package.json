@@ -89,7 +89,7 @@
     "remeda": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.9.3"
+    "@kubb/react-fabric": "0.9.4"
   },
   "engines": {
     "node": ">=20"
