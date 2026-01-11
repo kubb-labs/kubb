@@ -31,6 +31,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       data: {
         mode: 'object',
         children: {
+          // TODO this should add optional when needed, does not work
           ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
           data: typeSchemas.request?.name
             ? {
