@@ -52,7 +52,7 @@ export function useFindPetsByStatus<
   TQueryData = FindPetsByStatusQueryResponse,
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
 >(
-  { params }: { params?: FindPetsByStatusQueryParams },
+  { params }: { params?: FindPetsByStatusQueryParams } = {},
   options: {
     query?: Partial<QueryObserverOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient

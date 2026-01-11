@@ -51,7 +51,7 @@ export function findPetsByStatusSuspenseQueryOptions(
  * {@link /pet/findByStatus}
  */
 export function useFindPetsByStatusSuspense<TData = FindPetsByStatusQueryResponse, TQueryKey extends QueryKey = FindPetsByStatusSuspenseQueryKey>(
-  { params }: { params?: FindPetsByStatusQueryParams },
+  { params }: { params?: FindPetsByStatusQueryParams } = {},
   options: {
     query?: Partial<UseSuspenseQueryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, TData, TQueryKey>> & {
       client?: QueryClient

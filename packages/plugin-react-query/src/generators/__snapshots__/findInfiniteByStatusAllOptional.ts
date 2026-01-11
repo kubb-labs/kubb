@@ -71,7 +71,7 @@ export function useFindPetsByStatusInfinite<
   TQueryKey extends QueryKey = FindPetsByStatusInfiniteQueryKey,
   TPageParam = NonNullable<FindPetsByStatusQueryParams['status']>,
 >(
-  { params }: { params?: FindPetsByStatusQueryParams },
+  { params }: { params?: FindPetsByStatusQueryParams } = {},
   options: {
     query?: Partial<InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }
