@@ -40,10 +40,8 @@ function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps
     : undefined
 
   // Check if all params are optional
-  const allParamsOptional = 
-    (!dataParam || dataParam.optional) && 
-    (!paramsParam || paramsParam.optional) && 
-    Object.values(pathParamsChildren).every((child) => !child || child.optional)
+  const allParamsOptional =
+    (!dataParam || dataParam.optional) && (!paramsParam || paramsParam.optional) && Object.values(pathParamsChildren).every((child) => !child || child.optional)
 
   return FunctionParams.factory({
     pathParams: typeSchemas.pathParams?.name
