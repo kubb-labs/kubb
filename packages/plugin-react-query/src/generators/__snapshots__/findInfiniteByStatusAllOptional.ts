@@ -17,7 +17,7 @@ export type FindPetsByStatusInfiniteQueryKey = ReturnType<typeof findPetsByStatu
  * {@link /pet/findByStatus}
  */
 export async function findPetsByStatusInfinite(
-  { params }: { params?: FindPetsByStatusQueryParams },
+  { params }: { params?: FindPetsByStatusQueryParams } = {},
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config

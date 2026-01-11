@@ -41,30 +41,37 @@ type GetParamsProps = {
 
 function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable }: GetParamsProps) {
   if (paramsType === 'object') {
+    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
+    const children = {
+      ...pathParams,
+      data: typeSchemas.request?.name
+        ? {
+            type: typeSchemas.request?.name,
+            optional: isOptional(typeSchemas.request?.schema),
+          }
+        : undefined,
+      params: typeSchemas.queryParams?.name
+        ? {
+            type: typeSchemas.queryParams?.name,
+            optional: isOptional(typeSchemas.queryParams?.schema),
+          }
+        : undefined,
+      headers: typeSchemas.headerParams?.name
+        ? {
+            type: typeSchemas.headerParams?.name,
+            optional: isOptional(typeSchemas.headerParams?.schema),
+          }
+        : undefined,
+    }
+
+    // Check if all children are optional or undefined
+    const allChildrenOptional = Object.values(children).every((child) => !child || child.optional)
+
     return FunctionParams.factory({
       data: {
         mode: 'object',
-        children: {
-          ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          data: typeSchemas.request?.name
-            ? {
-                type: typeSchemas.request?.name,
-                optional: isOptional(typeSchemas.request?.schema),
-              }
-            : undefined,
-          params: typeSchemas.queryParams?.name
-            ? {
-                type: typeSchemas.queryParams?.name,
-                optional: isOptional(typeSchemas.queryParams?.schema),
-              }
-            : undefined,
-          headers: typeSchemas.headerParams?.name
-            ? {
-                type: typeSchemas.headerParams?.name,
-                optional: isOptional(typeSchemas.headerParams?.schema),
-              }
-            : undefined,
-        },
+        children,
+        default: allChildrenOptional ? '{}' : undefined,
       },
       config: isConfigurable
         ? {

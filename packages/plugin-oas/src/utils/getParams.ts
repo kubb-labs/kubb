@@ -28,7 +28,6 @@ export function getASTParams(
     const data: FunctionParamsAST = {
       name,
       enabled: !!name,
-      // TODO this should add optional when needed, does not work
       required: isParam ? schema.required : true,
       type: typed ? `${operationSchema.name}["${name}"]` : undefined,
     }
@@ -56,7 +55,6 @@ export function getPathParams(
       acc[name] = {
         default: curr.default,
         type: curr.type,
-        // TODO this should add optional when needed, does not work
         optional: !curr.required,
       }
     }
