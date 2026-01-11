@@ -84,30 +84,39 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
     })
   }
 
+  const pathParamsOptional = typeSchemas.pathParams?.name ? isOptional(typeSchemas.pathParams?.schema) : false
+  const dataOptional = typeSchemas.request?.name ? isOptional(typeSchemas.request?.schema) : false
+  const paramsOptional = typeSchemas.queryParams?.name ? isOptional(typeSchemas.queryParams?.schema) : false
+  const headersOptional = typeSchemas.headerParams?.name ? isOptional(typeSchemas.headerParams?.schema) : false
+
   return FunctionParams.factory({
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
           children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          optional: isOptional(typeSchemas.pathParams?.schema),
+          optional: pathParamsOptional,
+          default: pathParamsOptional ? '{}' : undefined,
         }
       : undefined,
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
-          optional: isOptional(typeSchemas.request?.schema),
+          optional: dataOptional,
+          default: dataOptional ? '{}' : undefined,
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
           type: typeSchemas.queryParams?.name,
-          optional: isOptional(typeSchemas.queryParams?.schema),
+          optional: paramsOptional,
+          default: paramsOptional ? '{}' : undefined,
         }
       : undefined,
     headers: typeSchemas.headerParams?.name
       ? {
           type: typeSchemas.headerParams?.name,
-          optional: isOptional(typeSchemas.headerParams?.schema),
+          optional: headersOptional,
+          default: headersOptional ? '{}' : undefined,
         }
       : undefined,
     config: isConfigurable
