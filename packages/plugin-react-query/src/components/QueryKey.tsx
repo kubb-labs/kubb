@@ -31,31 +31,29 @@ function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps
         children: pathParamsChildren,
       }
     : undefined
+  const dataOptional = typeSchemas.request?.name ? isOptional(typeSchemas.request?.schema) : false
+  const paramsOptional = typeSchemas.queryParams?.name ? isOptional(typeSchemas.queryParams?.schema) : false
 
   const dataParam = typeSchemas.request?.name
     ? {
         type: typeSchemas.request?.name,
-        optional: isOptional(typeSchemas.request?.schema),
+        optional: dataOptional,
+        default: dataOptional ? '{}' : undefined,
       }
     : undefined
 
   const paramsParam = typeSchemas.queryParams?.name
     ? {
         type: typeSchemas.queryParams?.name,
-        optional: isOptional(typeSchemas.queryParams?.schema),
+        optional: paramsOptional,
+        default: paramsOptional ? '{}' : undefined,
       }
     : undefined
 
-  // Check if all params are optional
-  const allParamsOptional =
-    (!dataParam || dataParam.optional) && 
-    (!paramsParam || paramsParam.optional) && 
-    Object.values(pathParamsChildren).every((child) => !child || child.optional)
-
   return FunctionParams.factory({
     pathParams: pathParamsParam,
-    data: dataParam ? { ...dataParam, default: allParamsOptional ? '{}' : undefined } : undefined,
-    params: paramsParam ? { ...paramsParam, default: allParamsOptional ? '{}' : undefined } : undefined,
+    data: dataParam,
+    params: paramsParam,
   })
 }
 

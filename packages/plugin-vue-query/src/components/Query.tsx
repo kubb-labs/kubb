@@ -99,48 +99,49 @@ function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, t
       }
     },
   })
+  const pathParamsOptional = typeSchemas.pathParams?.name ? isOptional(typeSchemas.pathParams?.schema) : false
+  const dataOptional = typeSchemas.request?.name ? isOptional(typeSchemas.request?.schema) : false
+  const paramsOptional = typeSchemas.queryParams?.name ? isOptional(typeSchemas.queryParams?.schema) : false
+  const headersOptional = typeSchemas.headerParams?.name ? isOptional(typeSchemas.headerParams?.schema) : false
 
   const pathParamsParam = typeSchemas.pathParams?.name
     ? {
         mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
         children: pathParamsChildren,
-        optional: isOptional(typeSchemas.pathParams?.schema),
+        optional: pathParamsOptional,
+        default: pathParamsOptional ? '{}' : undefined,
       }
     : undefined
 
   const dataParam = typeSchemas.request?.name
     ? {
         type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
-        optional: isOptional(typeSchemas.request?.schema),
+        optional: dataOptional,
+        default: dataOptional ? '{}' : undefined,
       }
     : undefined
 
   const paramsParam = typeSchemas.queryParams?.name
     ? {
         type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
-        optional: isOptional(typeSchemas.queryParams?.schema),
+        optional: paramsOptional,
+        default: paramsOptional ? '{}' : undefined,
       }
     : undefined
 
   const headersParam = typeSchemas.headerParams?.name
     ? {
         type: `MaybeRefOrGetter<${typeSchemas.headerParams?.name}>`,
-        optional: isOptional(typeSchemas.headerParams?.schema),
+        optional: headersOptional,
+        default: headersOptional ? '{}' : undefined,
       }
     : undefined
 
-  // Check if all params are optional
-  const allParamsOptional =
-    (!dataParam || dataParam.optional) &&
-    (!paramsParam || paramsParam.optional) &&
-    (!headersParam || headersParam.optional) &&
-    (!pathParamsParam || (pathParamsParam.optional && Object.values(pathParamsChildren).every((child) => !child || child.optional)))
-
   return FunctionParams.factory({
     pathParams: pathParamsParam,
-    data: dataParam ? { ...dataParam, default: allParamsOptional ? '{}' : undefined } : undefined,
-    params: paramsParam ? { ...paramsParam, default: allParamsOptional ? '{}' : undefined } : undefined,
-    headers: headersParam ? { ...headersParam, default: allParamsOptional ? '{}' : undefined } : undefined,
+    data: dataParam,
+    params: paramsParam,
+    headers: headersParam,
     options: {
       type: `
 {
