@@ -67,10 +67,10 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
   }
 
   const pathParamsChildren = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
-  
+
   const pathParamsParam = typeSchemas.pathParams?.name
     ? {
-        mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+        mode: pathParamsType === 'object' ? 'object' as const : 'inlineSpread' as const,
         children: pathParamsChildren,
         optional: isOptional(typeSchemas.pathParams?.schema),
       }
@@ -111,6 +111,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       type: typeSchemas.request?.name
         ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
         : 'Partial<RequestConfig> & { client?: typeof fetch }',
+        optional: true,
       default: '{}',
     },
   })
