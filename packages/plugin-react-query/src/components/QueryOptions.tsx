@@ -35,30 +35,30 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       data: typeSchemas.request?.name
         ? {
             type: typeSchemas.request?.name,
-            optional: isOptional(typeSchemas.request?.schema),
+            default: isOptional(typeSchemas.request?.schema) ? '{}' : undefined,
           }
         : undefined,
       params: typeSchemas.queryParams?.name
         ? {
             type: typeSchemas.queryParams?.name,
-            optional: isOptional(typeSchemas.queryParams?.schema),
+            default: isOptional(typeSchemas.queryParams?.schema) ? '{}' : undefined,
           }
         : undefined,
       headers: typeSchemas.headerParams?.name
         ? {
             type: typeSchemas.headerParams?.name,
-            optional: isOptional(typeSchemas.headerParams?.schema),
+            default: isOptional(typeSchemas.headerParams?.schema) ? '{}' : undefined,
           }
         : undefined,
     }
 
-    const dataOptional = Object.values(children).every((child) => !child || child.optional)
+    const allChildrenHaveDefaults = Object.values(children).every((child) => !child || child.default !== undefined)
 
     return FunctionParams.factory({
       data: {
         mode: 'object',
         children,
-        default: dataOptional ? '{}' : undefined,
+        default: allChildrenHaveDefaults ? '{}' : undefined,
       },
       config: {
         type: typeSchemas.request?.name
@@ -77,7 +77,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
             typed: true,
             casing: paramsCasing,
           }),
-          optional: isOptional(typeSchemas.pathParams?.schema),
+          default: isOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
         }
       : undefined,
     data: typeSchemas.request?.name

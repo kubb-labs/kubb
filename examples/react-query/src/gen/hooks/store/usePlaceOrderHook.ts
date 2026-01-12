@@ -20,7 +20,7 @@ export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
  * {@link /store/order}
  */
 export async function placeOrderHook(
-  data?: PlaceOrderMutationRequest,
+  data: PlaceOrderMutationRequest = {},
   config: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
     client?: typeof fetch
   } = {},

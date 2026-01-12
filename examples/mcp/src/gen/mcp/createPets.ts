@@ -17,12 +17,12 @@ export async function createPetsHandler({
   uuid,
   data,
   headers,
-  params,
+  params = {},
 }: {
   uuid: CreatePetsPathParams['uuid']
   data: CreatePetsMutationRequest
   headers: CreatePetsHeaderParams
-  params?: CreatePetsQueryParams
+  params: CreatePetsQueryParams
 }): Promise<Promise<CallToolResult>> {
   const requestData = data
 

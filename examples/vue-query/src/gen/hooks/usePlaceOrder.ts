@@ -19,7 +19,10 @@ export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
  * @summary Place an order for a pet
  * {@link /store/order}
  */
-export async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch } = {}) {
+export async function placeOrder(
+  data: PlaceOrderMutationRequest = {},
+  config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch } = {},
+) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data

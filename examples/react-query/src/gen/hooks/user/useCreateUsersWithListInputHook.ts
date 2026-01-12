@@ -20,7 +20,7 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
  * {@link /user/createWithList}
  */
 export async function createUsersWithListInputHook(
-  data?: CreateUsersWithListInputMutationRequest,
+  data: CreateUsersWithListInputMutationRequest = {},
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
     client?: typeof fetch
   } = {},

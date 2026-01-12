@@ -30,8 +30,8 @@ export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
  */
 export async function uploadFile(
   petId: UploadFilePathParams['petId'],
-  data?: UploadFileMutationRequest,
-  params?: UploadFileQueryParams,
+  data: UploadFileMutationRequest = {},
+  params: UploadFileQueryParams = {},
   config: Partial<RequestConfig<UploadFileMutationRequest>> & {
     client?: typeof fetch
   } = {},

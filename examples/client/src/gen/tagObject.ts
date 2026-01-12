@@ -37,7 +37,7 @@ getInventory.queryParams = {} as never
  * {@link /store/order}
  */
 export async function placeOrder(
-  data?: PlaceOrderMutationRequest,
+  data: PlaceOrderMutationRequest = {},
   config: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
     client?: typeof fetch
   } = {},
@@ -69,7 +69,7 @@ placeOrder.queryParams = {} as never
  * {@link /store/order}
  */
 export async function placeOrderPatch(
-  data?: PlaceOrderPatchMutationRequest,
+  data: PlaceOrderPatchMutationRequest = {},
   config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
     client?: typeof fetch
   } = {},

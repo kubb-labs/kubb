@@ -19,7 +19,7 @@ export function getFindPetsByTagsUrl() {
  * {@link /pet/findByTags}
  */
 export async function findPetsByTags(
-  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
+  { headers, params = {} }: { headers: FindPetsByTagsHeaderParams; params: FindPetsByTagsQueryParams },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config

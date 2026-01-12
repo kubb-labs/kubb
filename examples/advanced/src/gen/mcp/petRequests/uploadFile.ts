@@ -14,12 +14,12 @@ import type {
  */
 export async function uploadFileHandler({
   petId,
-  data,
-  params,
+  data = {},
+  params = {},
 }: {
   petId: UploadFilePathParams['petId']
-  data?: UploadFileMutationRequest
-  params?: UploadFileQueryParams
+  data: UploadFileMutationRequest
+  params: UploadFileQueryParams
 }): Promise<Promise<CallToolResult>> {
   const requestData = data
 

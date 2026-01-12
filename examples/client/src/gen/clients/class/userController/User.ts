@@ -35,7 +35,7 @@ export class User {
    * {@link /user}
    */
   async createUser(
-    data?: CreateUserMutationRequest,
+    data: CreateUserMutationRequest = {},
     config: Partial<RequestConfig<CreateUserMutationRequest>> & {
       client?: typeof fetch
     } = {},
@@ -57,7 +57,7 @@ export class User {
    * {@link /user/createWithList}
    */
   async createUsersWithListInput(
-    data?: CreateUsersWithListInputMutationRequest,
+    data: CreateUsersWithListInputMutationRequest = {},
     config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
       client?: typeof fetch
     } = {},
@@ -77,7 +77,7 @@ export class User {
    * @summary Logs user into the system
    * {@link /user/login}
    */
-  async loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async loginUser(params: LoginUserQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
       method: 'GET',
@@ -119,7 +119,7 @@ export class User {
    */
   async updateUser(
     { username }: { username: UpdateUserPathParams['username'] },
-    data?: UpdateUserMutationRequest,
+    data: UpdateUserMutationRequest = {},
     config: Partial<RequestConfig<UpdateUserMutationRequest>> & {
       client?: typeof fetch
     } = {},

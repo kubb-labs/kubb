@@ -21,7 +21,7 @@ export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
  */
 export async function updateUser(
   { username }: { username: UpdateUserPathParams['username'] },
-  data?: UpdateUserMutationRequest,
+  data: UpdateUserMutationRequest = {},
   config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config

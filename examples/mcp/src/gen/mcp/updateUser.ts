@@ -10,10 +10,10 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  */
 export async function updateUserHandler({
   username,
-  data,
+  data = {},
 }: {
   username: UpdateUserPathParams['username']
-  data?: UpdateUserMutationRequest
+  data: UpdateUserMutationRequest
 }): Promise<Promise<CallToolResult>> {
   const requestData = data
 

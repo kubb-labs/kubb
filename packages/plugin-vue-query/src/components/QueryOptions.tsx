@@ -44,19 +44,19 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
           data: typeSchemas.request?.name
             ? {
                 type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
-                optional: isOptional(typeSchemas.request?.schema),
+                default: isOptional(typeSchemas.request?.schema) ? '{}' : undefined,
               }
             : undefined,
           params: typeSchemas.queryParams?.name
             ? {
                 type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
-                optional: isOptional(typeSchemas.queryParams?.schema),
+                default: isOptional(typeSchemas.queryParams?.schema) ? '{}' : undefined,
               }
             : undefined,
           headers: typeSchemas.headerParams?.name
             ? {
                 type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
-                optional: isOptional(typeSchemas.headerParams?.schema),
+                default: isOptional(typeSchemas.headerParams?.schema) ? '{}' : undefined,
               }
             : undefined,
         },
@@ -72,8 +72,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
 
   return FunctionParams.factory({
     pathParams: {
-      mode: pathParamsType === 'object' ? ('object' as const) : ('inlineSpread' as const),
-      optional: isOptional(typeSchemas.pathParams?.schema),
+      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+      default: isOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
       children: getPathParams(typeSchemas.pathParams, {
         typed: true,
         casing: paramsCasing,
@@ -88,19 +88,19 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
     data: typeSchemas.request?.name
       ? {
           type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
-          optional: isOptional(typeSchemas.request?.schema),
+          default: isOptional(typeSchemas.request?.schema) ? '{}' : undefined,
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
           type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
-          optional: isOptional(typeSchemas.queryParams?.schema),
+          default: isOptional(typeSchemas.queryParams?.schema) ? '{}' : undefined,
         }
       : undefined,
     headers: typeSchemas.headerParams?.name
       ? {
           type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
-          optional: isOptional(typeSchemas.headerParams?.schema),
+          default: isOptional(typeSchemas.headerParams?.schema) ? '{}' : undefined,
         }
       : undefined,
     config: {

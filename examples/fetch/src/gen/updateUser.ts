@@ -22,7 +22,7 @@ function getUpdateUserUrl(username: UpdateUserPathParams['username']) {
  */
 export async function updateUser(
   username: UpdateUserPathParams['username'],
-  data?: UpdateUserMutationRequest,
+  data: UpdateUserMutationRequest = {},
   config: Partial<RequestConfig<UpdateUserMutationRequest>> & {
     client?: typeof fetch
   } = {},

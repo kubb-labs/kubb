@@ -901,8 +901,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@redocly/openapi-core':
-        specifier: ^2.14.4
-        version: 2.14.4(ajv@8.17.1)
+        specifier: ^2.14.5
+        version: 2.14.5
       json-schema-to-ts:
         specifier: ^3.1.1
         version: 3.1.1
@@ -2324,11 +2324,11 @@ packages:
   '@redocly/ajv@8.17.1':
     resolution: {integrity: sha512-EDtsGZS964mf9zAUXAl9Ew16eYbeyAFWhsPr0fX6oaJxgd8rApYlPBf0joyhnUHz88WxrigyFtTaqqzXNzPgqw==}
 
-  '@redocly/config@0.41.1':
-    resolution: {integrity: sha512-LcMCzFbP/sqkCLSG3YswmeScP4fM5SjDCQizwa+psZ0PhYrKOMF7azZ6ZBkWs115uv5RfOk+jYAWLdKkZGGGXg==}
+  '@redocly/config@0.41.2':
+    resolution: {integrity: sha512-G6muhdTKcEV2TECBFzuT905p4a27OgUtwBqRVnMx1JebO6i8zlm6bPB2H3fD1Hl+MiUpk7Jx2kwGmLVgpz5nIg==}
 
-  '@redocly/openapi-core@2.14.4':
-    resolution: {integrity: sha512-FqYf8pBXrZlbhjgcqEpgWrYk3E5j04I4nx0Pn2rMMlDe9S8N9T6axemJGHC6HvrzVJrTWLsUIsV6ndpBICnR2g==}
+  '@redocly/openapi-core@2.14.5':
+    resolution: {integrity: sha512-MQQR+RCG0V+jZV6msgKv1CNi/+TZUXmjMAAuTEktaTOYIsQWTCV9GYSD/2n94eMDZwxI4olr05OPzOZo9z0EMg==}
     engines: {node: '>=22.12.0 || >=20.19.0 <21.0.0', npm: '>=10'}
 
   '@rolldown/binding-android-arm64@1.0.0-beta.57':
@@ -7221,23 +7221,22 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
-  '@redocly/config@0.41.1':
+  '@redocly/config@0.41.2':
     dependencies:
       json-schema-to-ts: 2.7.2
 
-  '@redocly/openapi-core@2.14.4(ajv@8.17.1)':
+  '@redocly/openapi-core@2.14.5':
     dependencies:
       '@redocly/ajv': 8.17.1
-      '@redocly/config': 0.41.1
-      ajv-formats: 3.0.1(ajv@8.17.1)
+      '@redocly/config': 0.41.2
+      ajv: '@redocly/ajv@8.17.1'
+      ajv-formats: 3.0.1(@redocly/ajv@8.17.1)
       colorette: 1.4.0
       js-levenshtein: 1.1.6
       js-yaml: 4.1.1
       picomatch: 4.0.3
       pluralize: 8.0.0
       yaml-ast-parser: 0.0.43
-    transitivePeerDependencies:
-      - ajv
 
   '@rolldown/binding-android-arm64@1.0.0-beta.57':
     optional: true
@@ -7870,6 +7869,10 @@ snapshots:
   ajv-formats@2.1.1(ajv@8.17.1):
     optionalDependencies:
       ajv: 8.17.1
+
+  ajv-formats@3.0.1(@redocly/ajv@8.17.1):
+    optionalDependencies:
+      ajv: '@redocly/ajv@8.17.1'
 
   ajv-formats@3.0.1(ajv@8.17.1):
     optionalDependencies:

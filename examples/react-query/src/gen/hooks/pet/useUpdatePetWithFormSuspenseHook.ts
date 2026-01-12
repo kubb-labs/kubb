@@ -15,7 +15,7 @@ import type {
   UpdatePetWithFormQueryParams,
 } from '../../models/UpdatePetWithForm.ts'
 
-export const updatePetWithFormSuspenseQueryKey = (pet_id: UpdatePetWithFormPathParams['pet_id'], params?: UpdatePetWithFormQueryParams) =>
+export const updatePetWithFormSuspenseQueryKey = (pet_id: UpdatePetWithFormPathParams['pet_id'], params: UpdatePetWithFormQueryParams = {}) =>
   ['v5', { url: '/pet/:pet_id', params: { pet_id: pet_id } }, ...(params ? [params] : [])] as const
 
 export type UpdatePetWithFormSuspenseQueryKey = ReturnType<typeof updatePetWithFormSuspenseQueryKey>
@@ -26,7 +26,7 @@ export type UpdatePetWithFormSuspenseQueryKey = ReturnType<typeof updatePetWithF
  */
 export async function updatePetWithFormSuspenseHook(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
-  params?: UpdatePetWithFormQueryParams,
+  params: UpdatePetWithFormQueryParams = {},
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -47,7 +47,7 @@ export function updatePetWithFormSuspenseQueryOptionsHook(
 ) {
   const queryKey = updatePetWithFormSuspenseQueryKey(pet_id, params)
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
-    enabled: !!pet_id,
+    enabled: !!(pet_id && params),
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -62,7 +62,7 @@ export function updatePetWithFormSuspenseQueryOptionsHook(
  */
 export function useUpdatePetWithFormSuspenseHook<TData = UpdatePetWithFormMutationResponse, TQueryKey extends QueryKey = UpdatePetWithFormSuspenseQueryKey>(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
-  params?: UpdatePetWithFormQueryParams,
+  params: UpdatePetWithFormQueryParams = {},
   options: {
     query?: Partial<UseSuspenseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryKey>> & {
       client?: QueryClient

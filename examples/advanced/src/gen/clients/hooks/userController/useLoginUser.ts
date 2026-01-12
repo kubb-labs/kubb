@@ -5,13 +5,14 @@ import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../../models/ts/userController/LoginUser.ts'
 import { loginUser } from '../../axios/userService/loginUser.ts'
 
-export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+export const loginUserQueryKey = (params: LoginUserQueryParams = {}) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 
-export function loginUserQueryOptions({ params }: { params?: LoginUserQueryParams } = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function loginUserQueryOptions({ params = {} }: { params: LoginUserQueryParams } = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = loginUserQueryKey(params)
   return queryOptions<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>, ResponseConfig<LoginUserQueryResponse>, typeof queryKey>({
+    enabled: !!params,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -29,7 +30,7 @@ export function useLoginUser<
   TQueryData = ResponseConfig<LoginUserQueryResponse>,
   TQueryKey extends QueryKey = LoginUserQueryKey,
 >(
-  { params }: { params?: LoginUserQueryParams } = {},
+  { params = {} }: { params: LoginUserQueryParams } = {},
   options: {
     query?: Partial<QueryObserverOptions<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient

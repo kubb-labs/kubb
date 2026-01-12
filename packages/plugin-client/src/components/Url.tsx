@@ -45,9 +45,9 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
   return FunctionParams.factory({
     pathParams: typeSchemas.pathParams?.name
       ? {
-          mode: pathParamsType === 'object' ? ('object' as const) : ('inlineSpread' as const),
+          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
           children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          optional: isOptional(typeSchemas.pathParams?.schema),
+          default: isOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
         }
       : undefined,
   })

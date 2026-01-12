@@ -10,7 +10,8 @@ import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.
 import { fetch } from '../../.kubb/fetch.ts'
 import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
 
-export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTagsQueryParams) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsSuspenseQueryKey = (params: FindPetsByTagsQueryParams = {}) =>
+  ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSuspenseQueryKey>
 
@@ -19,7 +20,7 @@ export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSus
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTagsSuspenseHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findPetsByTagsSuspenseHook(params: FindPetsByTagsQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
@@ -42,6 +43,7 @@ export function findPetsByTagsSuspenseQueryOptionsHook(
     ResponseConfig<FindPetsByTagsQueryResponse>,
     typeof queryKey
   >({
+    enabled: !!params,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -56,7 +58,7 @@ export function findPetsByTagsSuspenseQueryOptionsHook(
  * {@link /pet/findByTags}
  */
 export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByTagsQueryResponse>, TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey>(
-  params?: FindPetsByTagsQueryParams,
+  params: FindPetsByTagsQueryParams = {},
   options: {
     query?: Partial<UseSuspenseQueryOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryKey>> & {
       client?: QueryClient

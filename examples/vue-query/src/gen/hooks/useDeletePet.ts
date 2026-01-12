@@ -21,7 +21,7 @@ export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
  */
 export async function deletePet(
   { petId }: { petId: DeletePetPathParams['petId'] },
-  headers?: DeletePetHeaderParams,
+  headers: DeletePetHeaderParams = {},
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config

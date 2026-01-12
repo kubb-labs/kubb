@@ -26,7 +26,7 @@ function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
 export async function uploadFile(
   { petId }: { petId: UploadFilePathParams['petId'] },
   data: UploadFileMutationRequest,
-  params?: UploadFileQueryParams,
+  params: UploadFileQueryParams = {},
   config: Partial<RequestConfig<UploadFileMutationRequest>> & {
     client?: typeof fetch
   } = {},

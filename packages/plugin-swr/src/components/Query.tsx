@@ -42,31 +42,31 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       data: typeSchemas.request?.name
         ? {
             type: typeSchemas.request?.name,
-            optional: isOptional(typeSchemas.request?.schema),
+            default: isOptional(typeSchemas.request?.schema) ? '{}' : undefined,
           }
         : undefined,
       params: typeSchemas.queryParams?.name
         ? {
             type: typeSchemas.queryParams?.name,
-            optional: isOptional(typeSchemas.queryParams?.schema),
+            default: isOptional(typeSchemas.queryParams?.schema) ? '{}' : undefined,
           }
         : undefined,
       headers: typeSchemas.headerParams?.name
         ? {
             type: typeSchemas.headerParams?.name,
-            optional: isOptional(typeSchemas.headerParams?.schema),
+            default: isOptional(typeSchemas.headerParams?.schema) ? '{}' : undefined,
           }
         : undefined,
     }
 
-    // Check if all children are optional or undefined
-    const allChildrenOptional = Object.values(children).every((child) => !child || child.optional)
+    // Check if all children have defaults or are undefined
+    const allChildrenHaveDefaults = Object.values(children).every((child) => !child || child.default !== undefined)
 
     return FunctionParams.factory({
       data: {
         mode: 'object',
         children,
-        default: allChildrenOptional ? '{}' : undefined,
+        default: allChildrenHaveDefaults ? '{}' : undefined,
       },
       options: {
         type: `
@@ -88,44 +88,32 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
   const paramsOptional = typeSchemas.queryParams?.name ? isOptional(typeSchemas.queryParams?.schema) : false
   const headersOptional = typeSchemas.headerParams?.name ? isOptional(typeSchemas.headerParams?.schema) : false
 
-  const pathParamsParam = typeSchemas.pathParams?.name
-    ? {
-        mode: pathParamsType === 'object' ? ('object' as const) : ('inlineSpread' as const),
-        children: pathParamsChildren,
-        optional: pathParamsOptional,
-        default: pathParamsOptional ? '{}' : undefined,
-      }
-    : undefined
-
-  const dataParam = typeSchemas.request?.name
-    ? {
-        type: typeSchemas.request?.name,
-        optional: dataOptional,
-        default: dataOptional ? '{}' : undefined,
-      }
-    : undefined
-
-  const paramsParam = typeSchemas.queryParams?.name
-    ? {
-        type: typeSchemas.queryParams?.name,
-        optional: paramsOptional,
-        default: paramsOptional ? '{}' : undefined,
-      }
-    : undefined
-
-  const headersParam = typeSchemas.headerParams?.name
-    ? {
-        type: typeSchemas.headerParams?.name,
-        optional: headersOptional,
-        default: headersOptional ? '{}' : undefined,
-      }
-    : undefined
-
   return FunctionParams.factory({
-    pathParams: pathParamsParam,
-    data: dataParam,
-    params: paramsParam,
-    headers: headersParam,
+    pathParams: typeSchemas.pathParams?.name
+      ? {
+          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+          children: pathParamsChildren,
+          default: pathParamsOptional ? '{}' : undefined,
+        }
+      : undefined,
+    data: typeSchemas.request?.name
+      ? {
+          type: typeSchemas.request?.name,
+          default: dataOptional ? '{}' : undefined,
+        }
+      : undefined,
+    params: typeSchemas.queryParams?.name
+      ? {
+          type: typeSchemas.queryParams?.name,
+          default: paramsOptional ? '{}' : undefined,
+        }
+      : undefined,
+    headers: typeSchemas.headerParams?.name
+      ? {
+          type: typeSchemas.headerParams?.name,
+          default: headersOptional ? '{}' : undefined,
+        }
+      : undefined,
     options: {
       type: `
 {

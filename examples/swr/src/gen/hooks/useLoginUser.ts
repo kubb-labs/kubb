@@ -8,7 +8,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
 import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser.ts'
 
-export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+export const loginUserQueryKey = (params: LoginUserQueryParams = {}) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 
@@ -16,14 +16,14 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
  * @summary Logs user into the system
  * {@link /user/login}
  */
-export async function loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function loginUser(params: LoginUserQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...requestConfig })
   return res.data
 }
 
-export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function loginUserQueryOptions(params: LoginUserQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   return {
     fetcher: async () => {
       return loginUser(params, config)
@@ -36,7 +36,7 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
  * {@link /user/login}
  */
 export function useLoginUser(
-  params?: LoginUserQueryParams,
+  params: LoginUserQueryParams = {},
   options: {
     query?: Parameters<typeof useSWR<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }

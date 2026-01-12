@@ -14,10 +14,10 @@ import type {
  */
 export async function updatePetWithFormHandler({
   petId,
-  params,
+  params = {},
 }: {
   petId: UpdatePetWithFormPathParams['petId']
-  params?: UpdatePetWithFormQueryParams
+  params: UpdatePetWithFormQueryParams
 }): Promise<Promise<CallToolResult>> {
   const res = await fetch<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',

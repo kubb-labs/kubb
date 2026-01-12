@@ -9,12 +9,12 @@ import type {
 } from '../../../models/ts/petController/FindPetsByTags.ts'
 import { findPetsByTags } from '../../axios/petService/findPetsByTags.ts'
 
-export const findPetsByTagsQueryKeySWR = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKeySWR = (params: FindPetsByTagsQueryParams = {}) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsQueryKeySWR = ReturnType<typeof findPetsByTagsQueryKeySWR>
 
 export function findPetsByTagsQueryOptionsSWR(
-  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
+  { headers, params = {} }: { headers: FindPetsByTagsHeaderParams; params: FindPetsByTagsQueryParams },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   return {
@@ -30,7 +30,7 @@ export function findPetsByTagsQueryOptionsSWR(
  * {@link /pet/findByTags}
  */
 export function useFindPetsByTagsSWR(
-  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
+  { headers, params = {} }: { headers: FindPetsByTagsHeaderParams; params: FindPetsByTagsQueryParams },
   options: {
     query?: Parameters<typeof useSWR<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }

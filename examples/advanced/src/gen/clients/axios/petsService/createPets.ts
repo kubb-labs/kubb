@@ -23,8 +23,8 @@ export async function createPets(
     uuid,
     data,
     headers,
-    params,
-  }: { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
+    params = {},
+  }: { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params: CreatePetsQueryParams },
   config: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config

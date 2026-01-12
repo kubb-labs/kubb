@@ -21,7 +21,7 @@ function getPlaceOrderUrl() {
  * {@link /store/order}
  */
 export async function placeOrder(
-  data?: PlaceOrderMutationRequest,
+  data: PlaceOrderMutationRequest = {},
   config: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
     client?: typeof fetch
   } = {},
