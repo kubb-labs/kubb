@@ -27,7 +27,7 @@ function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps
 
   const pathParamsParam = typeSchemas.pathParams?.name
     ? {
-        mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+        mode: pathParamsType === 'object' ? ('object' as const) : ('inlineSpread' as const),
         children: pathParamsChildren,
       }
     : undefined

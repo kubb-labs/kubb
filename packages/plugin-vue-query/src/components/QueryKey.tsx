@@ -25,7 +25,7 @@ type GetParamsProps = {
 function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps) {
   return FunctionParams.factory({
     pathParams: {
-      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+      mode: pathParamsType === 'object' ? ('object' as const) : ('inlineSpread' as const),
       children: getPathParams(typeSchemas.pathParams, {
         typed: true,
         casing: paramsCasing,

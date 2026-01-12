@@ -94,7 +94,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, page
 
   const pathParamsParam = typeSchemas.pathParams?.name
     ? {
-        mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+        mode: pathParamsType === 'object' ? ('object' as const) : ('inlineSpread' as const),
         children: pathParamsChildren,
         optional: pathParamsOptional,
         default: pathParamsOptional ? '{}' : undefined,
