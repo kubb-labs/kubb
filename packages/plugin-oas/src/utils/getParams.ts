@@ -1,7 +1,6 @@
 import { camelCase, isValidVarName } from '@kubb/core/transformers'
 import type { FunctionParamsAST } from '@kubb/core/utils'
 import type { OasTypes } from '@kubb/oas'
-import { isParameterObject } from '@kubb/oas'
 import type { Params } from '@kubb/react-fabric/types'
 import type { OperationSchema } from '../types.ts'
 /**
@@ -23,12 +22,13 @@ export function getASTParams(
     return []
   }
 
-  return Object.entries(operationSchema.schema.properties).map(([name, schema]: [string, OasTypes.SchemaObject]) => {
-    const isParam = isParameterObject(schema)
+  const requiredFields = Array.isArray(operationSchema.schema.required) ? operationSchema.schema.required : []
+
+  return Object.entries(operationSchema.schema.properties).map(([name]: [string, OasTypes.SchemaObject]) => {
     const data: FunctionParamsAST = {
       name,
       enabled: !!name,
-      required: isParam ? schema.required : true,
+      required: requiredFields.includes(name),
       type: typed ? `${operationSchema.name}["${name}"]` : undefined,
     }
 
