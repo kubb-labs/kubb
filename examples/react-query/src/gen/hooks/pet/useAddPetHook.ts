@@ -38,13 +38,13 @@ export async function addPetHook(
   return res.data
 }
 
-export function addPetMutationOptionsHook(
+export function addPetMutationOptionsHook<TContext = unknown>(
   config: Partial<RequestConfig<AddPetMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
   const mutationKey = addPetMutationKey()
-  return mutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, typeof mutationKey>({
+  return mutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>({
     mutationKey,
     mutationFn: async ({ data }) => {
       return addPetHook(data, config)

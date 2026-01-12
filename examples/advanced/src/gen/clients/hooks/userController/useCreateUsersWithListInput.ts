@@ -12,7 +12,7 @@ export const createUsersWithListInputMutationKey = () => [{ url: '/user/createWi
 
 export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersWithListInputMutationKey>
 
-export function createUsersWithListInputMutationOptions(
+export function createUsersWithListInputMutationOptions<TContext = unknown>(
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch } = {},
 ) {
   const mutationKey = createUsersWithListInputMutationKey()
@@ -20,7 +20,7 @@ export function createUsersWithListInputMutationOptions(
     ResponseConfig<CreateUsersWithListInputMutationResponse>,
     ResponseErrorConfig<Error>,
     { data?: CreateUsersWithListInputMutationRequest },
-    typeof mutationKey
+    TContext
   >({
     mutationKey,
     mutationFn: async ({ data }) => {

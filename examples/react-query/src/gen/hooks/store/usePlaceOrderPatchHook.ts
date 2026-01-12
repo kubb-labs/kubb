@@ -38,18 +38,13 @@ export async function placeOrderPatchHook(
   return res.data
 }
 
-export function placeOrderPatchMutationOptionsHook(
+export function placeOrderPatchMutationOptionsHook<TContext = unknown>(
   config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
   const mutationKey = placeOrderPatchMutationKey()
-  return mutationOptions<
-    PlaceOrderPatchMutationResponse,
-    ResponseErrorConfig<PlaceOrderPatch405>,
-    { data?: PlaceOrderPatchMutationRequest },
-    typeof mutationKey
-  >({
+  return mutationOptions<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>({
     mutationKey,
     mutationFn: async ({ data }) => {
       return placeOrderPatchHook(data, config)

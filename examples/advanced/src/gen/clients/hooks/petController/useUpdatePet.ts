@@ -15,13 +15,13 @@ export const updatePetMutationKey = () => [{ url: '/pet' }] as const
 
 export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
 
-export function updatePetMutationOptions(config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch } = {}) {
+export function updatePetMutationOptions<TContext = unknown>(config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch } = {}) {
   const mutationKey = updatePetMutationKey()
   return mutationOptions<
     ResponseConfig<UpdatePetMutationResponse>,
     ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
     { data: UpdatePetMutationRequest },
-    typeof mutationKey
+    TContext
   >({
     mutationKey,
     mutationFn: async ({ data }) => {

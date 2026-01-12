@@ -15,13 +15,13 @@ export const createPetsMutationKey = () => [{ url: '/pets/:uuid' }] as const
 
 export type CreatePetsMutationKey = ReturnType<typeof createPetsMutationKey>
 
-export function createPetsMutationOptions(config: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof fetch } = {}) {
+export function createPetsMutationOptions<TContext = unknown>(config: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof fetch } = {}) {
   const mutationKey = createPetsMutationKey()
   return mutationOptions<
     ResponseConfig<CreatePetsMutationResponse>,
     ResponseErrorConfig<Error>,
     { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
-    typeof mutationKey
+    TContext
   >({
     mutationKey,
     mutationFn: async ({ uuid, data, headers, params }) => {

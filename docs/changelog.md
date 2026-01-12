@@ -5,102 +5,6 @@ outline: deep
 
 # Changelog
 
-## 4.15.0
-
-### ✨ Features
-
-#### [`@kubb/plugin-react-query`](/plugins/plugin-react-query/)
-
-**Custom TanStack Query hook options support**
-
-Added support for custom TanStack Query hook options through the new `customOptions` configuration. This allows you to inject custom behavior into generated hooks such as query invalidation, custom error handling, or any other TanStack Query options you need to customize globally.
-
-**Key features:**
-- **Type-safe customization**: Generates a `HookOptions` type for full type safety when implementing custom hook options
-- **Per-hook customization**: Customize options for individual hooks based on `hookName` or `operationId`
-- **Flexible integration**: Use any custom logic in your hook (access query client, implement error handling, etc.)
-
-::: code-group
-
-```typescript [Configuration]
-// kubb.config.ts
-import { defineConfig } from '@kubb/core'
-import { pluginReactQuery } from '@kubb/plugin-react-query'
-
-export default defineConfig({
-  plugins: [
-    pluginReactQuery({
-      customOptions: {
-        importPath: './hooks/useCustomHookOptions.ts',
-        name: 'useCustomHookOptions', // optional, defaults to 'useCustomHookOptions'
-      },
-    }),
-  ],
-})
-```
-
-```typescript [Custom Hook Implementation]
-// hooks/useCustomHookOptions.ts
-import { useQueryClient } from '@tanstack/react-query'
-import type { HookOptions } from './gen/HookOptions' // Generated type
-
-export function useCustomHookOptions<T extends keyof HookOptions>({ 
-  hookName, 
-  operationId 
-}: { 
-  hookName: T
-  operationId: string
-}): HookOptions[T] {
-  const queryClient = useQueryClient()
-  
-  // Example: Invalidate related queries on mutation
-  const customOptions = {
-    useFindPetById: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['pets'] })
-      },
-    },
-    // ... more custom options for other hooks
-  }
-  
-  return customOptions[hookName] ?? {}
-}
-```
-
-```typescript [Generated Usage]
-// Generated hook will automatically use custom options
-export function useFindPetById(petId: string, options?: QueryOptions) {
-  const customOptions = useCustomHookOptions({ 
-    hookName: 'useFindPetById', 
-    operationId: 'findPetById' 
-  })
-  
-  return useQuery({
-    ...findPetByIdQueryOptions(petId),
-    ...customOptions, // Custom options are applied here
-    ...options,
-  })
-}
-```
-
-:::
-
-**Use cases:**
-- Automatically invalidate related queries on mutations
-- Implement global error handling for specific operations
-- Add retry logic based on operation type
-- Inject analytics or logging into query lifecycle
-- Configure staleTime/cacheTime per operation category
-
-::: tip Type Safety
-The generated `HookOptions` type ensures your custom hook implementation is type-safe and includes all generated hooks (queries, mutations, suspense queries, and infinite queries).
-:::
-
-> [!NOTE]
-> This feature is available for `@kubb/plugin-react-query` in v4.15.0. Similar support for other query plugins (Vue Query, Solid Query, Svelte Query, SWR) may be added in future releases.
-
----
-
 ## 4.15.1
 
 ### 🐛 Bug Fixes
@@ -145,6 +49,102 @@ export type QueryParams = {
 - No breaking changes - backward compatible
 - Only affects types with both typed properties and `additionalProperties`
 - Types with only `additionalProperties` remain unchanged
+
+---
+
+## 4.15.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-react-query`](/plugins/plugin-react-query/)
+
+**Custom TanStack Query hook options support**
+
+Added support for custom TanStack Query hook options through the new `customOptions` configuration. This allows you to inject custom behavior into generated hooks such as query invalidation, custom error handling, or any other TanStack Query options you need to customize globally.
+
+**Key features:**
+- **Type-safe customization**: Generates a `HookOptions` type for full type safety when implementing custom hook options
+- **Per-hook customization**: Customize options for individual hooks based on `hookName` or `operationId`
+- **Flexible integration**: Use any custom logic in your hook (access query client, implement error handling, etc.)
+
+::: code-group
+
+```typescript [Configuration]
+// kubb.config.ts
+import { defineConfig } from '@kubb/core'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
+
+export default defineConfig({
+  plugins: [
+    pluginReactQuery({
+      customOptions: {
+        importPath: './hooks/useCustomHookOptions.ts',
+        name: 'useCustomHookOptions', // optional, defaults to 'useCustomHookOptions'
+      },
+    }),
+  ],
+})
+```
+
+```typescript [Custom Hook Implementation]
+// hooks/useCustomHookOptions.ts
+import { useQueryClient } from '@tanstack/react-query'
+import type { HookOptions } from './gen/HookOptions' // Generated type
+
+export function useCustomHookOptions<T extends keyof HookOptions>({
+  hookName,
+  operationId
+}: {
+  hookName: T
+  operationId: string
+}): HookOptions[T] {
+  const queryClient = useQueryClient()
+
+  // Example: Invalidate related queries on mutation
+  const customOptions = {
+    useFindPetById: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['pets'] })
+      },
+    },
+    // ... more custom options for other hooks
+  }
+
+  return customOptions[hookName] ?? {}
+}
+```
+
+```typescript [Generated Usage]
+// Generated hook will automatically use custom options
+export function useFindPetById(petId: string, options?: QueryOptions) {
+  const customOptions = useCustomHookOptions({
+    hookName: 'useFindPetById',
+    operationId: 'findPetById'
+  })
+
+  return useQuery({
+    ...findPetByIdQueryOptions(petId),
+    ...customOptions, // Custom options are applied here
+    ...options,
+  })
+}
+```
+
+:::
+
+**Use cases:**
+- Automatically invalidate related queries on mutations
+- Implement global error handling for specific operations
+- Add retry logic based on operation type
+- Inject analytics or logging into query lifecycle
+- Configure staleTime/cacheTime per operation category
+
+::: tip Type Safety
+The generated `HookOptions` type ensures your custom hook implementation is type-safe and includes all generated hooks (queries, mutations, suspense queries, and infinite queries).
+:::
+
+> [!NOTE]
+> This feature is available for `@kubb/plugin-react-query` in v4.15.0. Similar support for other query plugins (Vue Query, Solid Query, Svelte Query, SWR) may be added in future releases.
 
 ---
 

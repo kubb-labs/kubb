@@ -38,7 +38,7 @@ export async function updatePetHook(
   return res.data
 }
 
-export function updatePetMutationOptionsHook(
+export function updatePetMutationOptionsHook<TContext = unknown>(
   config: Partial<RequestConfig<UpdatePetMutationRequest>> & {
     client?: typeof fetch
   } = {},
@@ -48,7 +48,7 @@ export function updatePetMutationOptionsHook(
     UpdatePetMutationResponse,
     ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
     { data: UpdatePetMutationRequest },
-    typeof mutationKey
+    TContext
   >({
     mutationKey,
     mutationFn: async ({ data }) => {

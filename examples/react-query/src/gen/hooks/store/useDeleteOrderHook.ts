@@ -33,13 +33,13 @@ export async function deleteOrderHook(
   return res.data
 }
 
-export function deleteOrderMutationOptionsHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function deleteOrderMutationOptionsHook<TContext = unknown>(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const mutationKey = deleteOrderMutationKey()
   return mutationOptions<
     DeleteOrderMutationResponse,
     ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>,
     { orderId: DeleteOrderPathParams['orderId'] },
-    typeof mutationKey
+    TContext
   >({
     mutationKey,
     mutationFn: async ({ orderId }) => {

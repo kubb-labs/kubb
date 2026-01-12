@@ -14,13 +14,13 @@ export const uploadFileMutationKey = () => [{ url: '/pet/:petId/uploadImage' }] 
 
 export type UploadFileMutationKey = ReturnType<typeof uploadFileMutationKey>
 
-export function uploadFileMutationOptions(config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch } = {}) {
+export function uploadFileMutationOptions<TContext = unknown>(config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch } = {}) {
   const mutationKey = uploadFileMutationKey()
   return mutationOptions<
     ResponseConfig<UploadFileMutationResponse>,
     ResponseErrorConfig<Error>,
     { petId: UploadFilePathParams['petId']; data?: UploadFileMutationRequest; params?: UploadFileQueryParams },
-    typeof mutationKey
+    TContext
   >({
     mutationKey,
     mutationFn: async ({ petId, data, params }) => {
