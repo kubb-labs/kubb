@@ -1,6 +1,6 @@
 import { URLPath } from '@kubb/core/utils'
 
-import { isOptional, type Operation } from '@kubb/oas'
+import { isAllOptional, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
@@ -47,31 +47,31 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
       data: typeSchemas.request?.name
         ? {
             type: typeSchemas.request?.name,
-            default: isOptional(typeSchemas.request?.schema) ? '{}' : undefined,
+            optional: isOptional(typeSchemas.request?.schema),
           }
         : undefined,
       params: typeSchemas.queryParams?.name
         ? {
             type: typeSchemas.queryParams?.name,
-            default: isOptional(typeSchemas.queryParams?.schema) ? '{}' : undefined,
+            optional: isOptional(typeSchemas.queryParams?.schema),
           }
         : undefined,
       headers: typeSchemas.headerParams?.name
         ? {
             type: typeSchemas.headerParams?.name,
-            default: isOptional(typeSchemas.headerParams?.schema) ? '{}' : undefined,
+            optional: isOptional(typeSchemas.headerParams?.schema),
           }
         : undefined,
     }
 
-    // Check if all children have defaults or are undefined
-    const allChildrenHaveDefaults = Object.values(children).every((child) => !child || child.default !== undefined)
+    // Check if all children are optional or undefined
+    const allChildrenAreOptional = Object.values(children).every((child) => !child || child.optional)
 
     return FunctionParams.factory({
       data: {
         mode: 'object',
         children,
-        default: allChildrenHaveDefaults ? '{}' : undefined,
+        default: allChildrenAreOptional ? '{}' : undefined,
       },
       config: isConfigurable
         ? {
@@ -84,7 +84,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
     })
   }
 
-  const pathParamsOptional = typeSchemas.pathParams?.name ? isOptional(typeSchemas.pathParams?.schema) : false
+  const pathParamsOptional = typeSchemas.pathParams?.name ? isAllOptional(typeSchemas.pathParams?.schema) : false
   const dataOptional = typeSchemas.request?.name ? isOptional(typeSchemas.request?.schema) : false
   const paramsOptional = typeSchemas.queryParams?.name ? isOptional(typeSchemas.queryParams?.schema) : false
   const headersOptional = typeSchemas.headerParams?.name ? isOptional(typeSchemas.headerParams?.schema) : false
@@ -100,19 +100,19 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
-          default: dataOptional ? '{}' : undefined,
+          optional: dataOptional,
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
           type: typeSchemas.queryParams?.name,
-          default: paramsOptional ? '{}' : undefined,
+          optional: paramsOptional,
         }
       : undefined,
     headers: typeSchemas.headerParams?.name
       ? {
           type: typeSchemas.headerParams?.name,
-          default: headersOptional ? '{}' : undefined,
+          optional: headersOptional,
         }
       : undefined,
     config: isConfigurable
