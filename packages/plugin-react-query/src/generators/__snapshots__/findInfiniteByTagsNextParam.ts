@@ -7,7 +7,7 @@ import type { InfiniteData, QueryKey, QueryClient, InfiniteQueryObserverOptions,
 import { fetch } from './test/.kubb/fetch'
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
 
-export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsInfiniteQueryKey = (params: FindPetsByTagsQueryParams = {}) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
 
@@ -46,6 +46,7 @@ export function findPetsByTagsInfiniteQueryOptions(
     typeof queryKey,
     NonNullable<FindPetsByTagsQueryParams['pageSize']>
   >({
+    enabled: !!params,
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
       config.signal = signal

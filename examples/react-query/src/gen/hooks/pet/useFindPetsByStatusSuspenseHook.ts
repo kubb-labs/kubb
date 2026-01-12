@@ -20,7 +20,7 @@ export type FindPetsByStatusSuspenseQueryKey = ReturnType<typeof findPetsByStatu
  * @summary Finds Pets by status
  * {@link /pet/findByStatus}
  */
-export async function findPetsByStatusSuspenseHook(params: FindPetsByStatusQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findPetsByStatusSuspenseHook(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
@@ -33,7 +33,7 @@ export async function findPetsByStatusSuspenseHook(params: FindPetsByStatusQuery
 }
 
 export function findPetsByStatusSuspenseQueryOptionsHook(
-  params: FindPetsByStatusQueryParams = {},
+  params?: FindPetsByStatusQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByStatusSuspenseQueryKey(params)
@@ -53,7 +53,7 @@ export function findPetsByStatusSuspenseQueryOptionsHook(
  * {@link /pet/findByStatus}
  */
 export function useFindPetsByStatusSuspenseHook<TData = FindPetsByStatusQueryResponse, TQueryKey extends QueryKey = FindPetsByStatusSuspenseQueryKey>(
-  params: FindPetsByStatusQueryParams = {},
+  params?: FindPetsByStatusQueryParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, TData, TQueryKey>> & {
       client?: QueryClient

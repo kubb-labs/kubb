@@ -1,4 +1,4 @@
-import { isOptional, type Operation } from '@kubb/oas'
+import { isAllOptional, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
@@ -51,31 +51,31 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       data: typeSchemas.request?.name
         ? {
             type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
-            default: isOptional(typeSchemas.request?.schema) ? '{}' : undefined,
+            optional: isOptional(typeSchemas.request?.schema),
           }
         : undefined,
       params: typeSchemas.queryParams?.name
         ? {
             type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
-            default: isOptional(typeSchemas.queryParams?.schema) ? '{}' : undefined,
+            optional: isOptional(typeSchemas.queryParams?.schema),
           }
         : undefined,
       headers: typeSchemas.headerParams?.name
         ? {
             type: `MaybeRefOrGetter<${typeSchemas.headerParams?.name}>`,
-            default: isOptional(typeSchemas.headerParams?.schema) ? '{}' : undefined,
+            optional: isOptional(typeSchemas.headerParams?.schema),
           }
         : undefined,
     }
 
-    // Check if all children have defaults or are undefined
-    const allChildrenHaveDefaults = Object.values(children).every((child) => !child || child.default !== undefined)
+    // Check if all children are optional or undefined
+    const allChildrenAreOptional = Object.values(children).every((child) => !child || child.optional)
 
     return FunctionParams.factory({
       data: {
         mode: 'object',
         children,
-        default: allChildrenHaveDefaults ? '{}' : undefined,
+        default: allChildrenAreOptional ? '{}' : undefined,
       },
       options: {
         type: `
@@ -89,45 +89,39 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
     })
   }
 
-  const pathParamsChildren = getPathParams(typeSchemas.pathParams, {
-    typed: true,
-    casing: paramsCasing,
-    override(item) {
-      return {
-        ...item,
-        type: `MaybeRefOrGetter<${item.type}>`,
-      }
-    },
-  })
-  const pathParamsOptional = typeSchemas.pathParams?.name ? isOptional(typeSchemas.pathParams?.schema) : false
-  const dataOptional = typeSchemas.request?.name ? isOptional(typeSchemas.request?.schema) : false
-  const paramsOptional = typeSchemas.queryParams?.name ? isOptional(typeSchemas.queryParams?.schema) : false
-  const headersOptional = typeSchemas.headerParams?.name ? isOptional(typeSchemas.headerParams?.schema) : false
-
   return FunctionParams.factory({
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: pathParamsChildren,
-          default: pathParamsOptional ? '{}' : undefined,
+          children: getPathParams(typeSchemas.pathParams, {
+            typed: true,
+            casing: paramsCasing,
+            override(item) {
+              return {
+                ...item,
+                type: `MaybeRefOrGetter<${item.type}>`,
+              }
+            },
+          }),
+          default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
         }
       : undefined,
     data: typeSchemas.request?.name
       ? {
           type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
-          default: dataOptional ? '{}' : undefined,
+          optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
           type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
-          default: paramsOptional ? '{}' : undefined,
+          optional: isOptional(typeSchemas.queryParams?.schema),
         }
       : undefined,
     headers: typeSchemas.headerParams?.name
       ? {
           type: `MaybeRefOrGetter<${typeSchemas.headerParams?.name}>`,
-          default: headersOptional ? '{}' : undefined,
+          optional: isOptional(typeSchemas.headerParams?.schema),
         }
       : undefined,
     options: {

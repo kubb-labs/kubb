@@ -7,7 +7,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import { fetch } from './test/.kubb/fetch'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params: FindPetsByTagsQueryParams = {}) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 
@@ -35,11 +35,12 @@ export async function findPetsByTags(
 
 export function findPetsByTagsQueryOptions(
   headers: FindPetsByTagsHeaderParams,
-  params: FindPetsByTagsQueryParams = {},
+  params?: FindPetsByTagsQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey>({
+    enabled: !!params,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

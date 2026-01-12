@@ -26,7 +26,7 @@ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQuery
  */
 export async function updatePetWithFormHook(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
-  params: UpdatePetWithFormQueryParams = {},
+  params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -42,7 +42,7 @@ export async function updatePetWithFormHook(
 
 export function updatePetWithFormQueryOptionsHook(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
-  params: UpdatePetWithFormQueryParams = {},
+  params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(pet_id, params)
@@ -66,7 +66,7 @@ export function useUpdatePetWithFormHook<
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
 >(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
-  params: UpdatePetWithFormQueryParams = {},
+  params?: UpdatePetWithFormQueryParams,
   options: {
     query?: Partial<QueryObserverOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient

@@ -40,13 +40,13 @@ function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps
     data: typeSchemas.request?.name
       ? {
           type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
-          default: isOptional(typeSchemas.request?.schema) ? '{}' : undefined,
+          optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
           type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
-          default: isOptional(typeSchemas.queryParams?.schema) ? '{}' : undefined,
+          optional: isOptional(typeSchemas.queryParams?.schema),
         }
       : undefined,
   })

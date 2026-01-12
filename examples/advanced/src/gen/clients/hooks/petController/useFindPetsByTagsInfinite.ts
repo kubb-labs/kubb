@@ -15,7 +15,7 @@ export const findPetsByTagsInfiniteQueryKey = (params: FindPetsByTagsQueryParams
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
 
 export function findPetsByTagsInfiniteQueryOptions(
-  { headers, params = {} }: { headers: FindPetsByTagsHeaderParams; params: FindPetsByTagsQueryParams },
+  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
@@ -55,7 +55,7 @@ export function useFindPetsByTagsInfinite<
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
   TPageParam = NonNullable<FindPetsByTagsQueryParams['pageSize']>,
 >(
-  { headers, params = {} }: { headers: FindPetsByTagsHeaderParams; params: FindPetsByTagsQueryParams },
+  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   options: {
     query?: Partial<InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }

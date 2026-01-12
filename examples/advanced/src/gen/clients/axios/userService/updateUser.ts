@@ -14,7 +14,7 @@ export function getUpdateUserUrl({ username }: { username: UpdateUserPathParams[
  * {@link /user/:username}
  */
 export async function updateUser(
-  { username, data = {} }: { username: UpdateUserPathParams['username']; data: UpdateUserMutationRequest },
+  { username, data }: { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
   config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config

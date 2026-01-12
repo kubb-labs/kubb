@@ -31,13 +31,13 @@ function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
-          default: isOptional(typeSchemas.request?.schema) ? '{}' : undefined,
+          optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
           type: typeSchemas.queryParams?.name,
-          default: isOptional(typeSchemas.queryParams?.schema) ? '{}' : undefined,
+          optional: isOptional(typeSchemas.queryParams?.schema),
         }
       : undefined,
   })

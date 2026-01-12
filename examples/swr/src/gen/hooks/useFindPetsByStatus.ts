@@ -8,7 +8,7 @@ import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
 import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus.ts'
 
-export const findPetsByStatusQueryKey = (params: FindPetsByStatusQueryParams = {}) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
+export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
 
@@ -17,7 +17,7 @@ export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKe
  * @summary Finds Pets by status
  * {@link /pet/findByStatus}
  */
-export async function findPetsByStatus(params: FindPetsByStatusQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
@@ -29,7 +29,7 @@ export async function findPetsByStatus(params: FindPetsByStatusQueryParams = {},
   return res.data
 }
 
-export function findPetsByStatusQueryOptions(params: FindPetsByStatusQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   return {
     fetcher: async () => {
       return findPetsByStatus(params, config)
@@ -43,7 +43,7 @@ export function findPetsByStatusQueryOptions(params: FindPetsByStatusQueryParams
  * {@link /pet/findByStatus}
  */
 export function useFindPetsByStatus(
-  params: FindPetsByStatusQueryParams = {},
+  params?: FindPetsByStatusQueryParams,
   options: {
     query?: Parameters<typeof useSWR<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }

@@ -30,7 +30,7 @@ export type PlaceOrderPatchMutationKey = ReturnType<typeof placeOrderPatchMutati
  * {@link /store/order}
  */
 export async function placeOrderPatch(
-  data: PlaceOrderPatchMutationRequest = {},
+  data?: PlaceOrderPatchMutationRequest,
   config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
     client?: typeof fetch
   } = {},

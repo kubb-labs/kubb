@@ -10,10 +10,10 @@ import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, De
  */
 export async function deletePetHandler({
   petId,
-  headers = {},
+  headers,
 }: {
   petId: DeletePetPathParams['petId']
-  headers: DeletePetHeaderParams
+  headers?: DeletePetHeaderParams
 }): Promise<Promise<CallToolResult>> {
   const res = await fetch<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',

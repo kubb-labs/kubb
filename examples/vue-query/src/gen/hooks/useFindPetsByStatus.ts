@@ -11,7 +11,7 @@ import type { MaybeRefOrGetter } from 'vue'
 import { toValue } from 'vue'
 import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus.ts'
 
-export const findPetsByStatusQueryKey = (params: MaybeRefOrGetter<FindPetsByStatusQueryParams> = {}) =>
+export const findPetsByStatusQueryKey = (params?: MaybeRefOrGetter<FindPetsByStatusQueryParams>) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
@@ -21,7 +21,7 @@ export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKe
  * @summary Finds Pets by status
  * {@link /pet/findByStatus}
  */
-export async function findPetsByStatus(params: FindPetsByStatusQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
@@ -34,12 +34,11 @@ export async function findPetsByStatus(params: FindPetsByStatusQueryParams = {},
 }
 
 export function findPetsByStatusQueryOptions(
-  params: MaybeRefOrGetter<FindPetsByStatusQueryParams> = {},
+  params?: MaybeRefOrGetter<FindPetsByStatusQueryParams>,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByStatusQueryKey(params)
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
-    enabled: !!params,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -58,7 +57,7 @@ export function useFindPetsByStatus<
   TQueryData = FindPetsByStatusQueryResponse,
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
 >(
-  params: MaybeRefOrGetter<FindPetsByStatusQueryParams> = {},
+  params?: MaybeRefOrGetter<FindPetsByStatusQueryParams>,
   options: {
     query?: Partial<UseQueryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient

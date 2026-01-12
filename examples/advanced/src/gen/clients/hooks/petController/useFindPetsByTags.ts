@@ -15,7 +15,7 @@ export const findPetsByTagsQueryKey = (params: FindPetsByTagsQueryParams = {}) =
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 
 export function findPetsByTagsQueryOptions(
-  { headers, params = {} }: { headers: FindPetsByTagsHeaderParams; params: FindPetsByTagsQueryParams },
+  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByTagsQueryKey(params)
@@ -44,7 +44,7 @@ export function useFindPetsByTags<
   TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(
-  { headers, params = {} }: { headers: FindPetsByTagsHeaderParams; params: FindPetsByTagsQueryParams },
+  { headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams },
   options: {
     query?: Partial<QueryObserverOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient

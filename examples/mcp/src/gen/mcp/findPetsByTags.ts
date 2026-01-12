@@ -10,10 +10,10 @@ import type { FindPetsByTags400, FindPetsByTagsHeaderParams, FindPetsByTagsQuery
  */
 export async function findPetsByTagsHandler({
   headers,
-  params = {},
+  params,
 }: {
   headers: FindPetsByTagsHeaderParams
-  params: FindPetsByTagsQueryParams
+  params?: FindPetsByTagsQueryParams
 }): Promise<Promise<CallToolResult>> {
   const res = await fetch<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',

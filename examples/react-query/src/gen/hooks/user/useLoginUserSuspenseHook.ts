@@ -18,14 +18,14 @@ export type LoginUserSuspenseQueryKey = ReturnType<typeof loginUserSuspenseQuery
  * @summary Logs user into the system
  * {@link /user/login}
  */
-export async function loginUserSuspenseHook(params: LoginUserQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function loginUserSuspenseHook(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({ method: 'GET', url: '/user/login', params, ...requestConfig })
   return res.data
 }
 
-export function loginUserSuspenseQueryOptionsHook(params: LoginUserQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function loginUserSuspenseQueryOptionsHook(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = loginUserSuspenseQueryKey(params)
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     enabled: !!params,
@@ -42,7 +42,7 @@ export function loginUserSuspenseQueryOptionsHook(params: LoginUserQueryParams =
  * {@link /user/login}
  */
 export function useLoginUserSuspenseHook<TData = LoginUserQueryResponse, TQueryKey extends QueryKey = LoginUserSuspenseQueryKey>(
-  params: LoginUserQueryParams = {},
+  params?: LoginUserQueryParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, TData, TQueryKey>> & { client?: QueryClient }
     client?: Partial<RequestConfig> & { client?: typeof fetch }

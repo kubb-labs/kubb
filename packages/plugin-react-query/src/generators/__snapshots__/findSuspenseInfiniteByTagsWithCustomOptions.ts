@@ -8,7 +8,8 @@ import { fetch } from './test/.kubb/fetch'
 import { infiniteQueryOptions, useSuspenseInfiniteQuery } from '@tanstack/react-query'
 import { useCustomHookOptions } from 'useCustomHookOptions.ts'
 
-export const findPetsByTagsSuspenseInfiniteQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsSuspenseInfiniteQueryKey = (params: FindPetsByTagsQueryParams = {}) =>
+  [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsSuspenseInfiniteQueryKey = ReturnType<typeof findPetsByTagsSuspenseInfiniteQueryKey>
 
@@ -47,6 +48,7 @@ export function findPetsByTagsSuspenseInfiniteQueryOptions(
     typeof queryKey,
     NonNullable<FindPetsByTagsQueryParams['pageSize']>
   >({
+    enabled: !!params,
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
       config.signal = signal

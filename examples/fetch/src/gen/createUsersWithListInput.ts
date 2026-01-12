@@ -21,7 +21,7 @@ function getCreateUsersWithListInputUrl() {
  * {@link /user/createWithList}
  */
 export async function createUsersWithListInput(
-  data: CreateUsersWithListInputMutationRequest = {},
+  data?: CreateUsersWithListInputMutationRequest,
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
     client?: typeof fetch
   } = {},

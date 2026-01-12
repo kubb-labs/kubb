@@ -88,7 +88,7 @@ export class Pet {
    * @summary Finds Pets by status
    * {@link /pet/findByStatus}
    */
-  async findPetsByStatus(params: FindPetsByStatusQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async findPetsByStatus(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
       method: 'GET',
@@ -104,7 +104,7 @@ export class Pet {
    * @summary Finds Pets by tags
    * {@link /pet/findByTags}
    */
-  async findPetsByTags(params: FindPetsByTagsQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  async findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
     const { client: request = this.#client, ...requestConfig } = config
     const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
       method: 'GET',
@@ -136,7 +136,7 @@ export class Pet {
    */
   async updatePetWithForm(
     { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
-    params: UpdatePetWithFormQueryParams = {},
+    params?: UpdatePetWithFormQueryParams,
     config: Partial<RequestConfig> & { client?: typeof fetch } = {},
   ) {
     const { client: request = this.#client, ...requestConfig } = config
@@ -156,7 +156,7 @@ export class Pet {
    */
   async deletePet(
     { petId }: { petId: DeletePetPathParams['petId'] },
-    headers: DeletePetHeaderParams = {},
+    headers?: DeletePetHeaderParams,
     config: Partial<RequestConfig> & { client?: typeof fetch } = {},
   ) {
     const { client: request = this.#client, ...requestConfig } = config
@@ -176,7 +176,7 @@ export class Pet {
   async uploadFile(
     { petId }: { petId: UploadFilePathParams['petId'] },
     data: UploadFileMutationRequest,
-    params: UploadFileQueryParams = {},
+    params?: UploadFileQueryParams,
     config: Partial<RequestConfig<UploadFileMutationRequest>> & {
       client?: typeof fetch
     } = {},

@@ -8,7 +8,7 @@ import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationRespon
  * @summary Place an order for a pet
  * {@link /store/order}
  */
-export async function placeOrderHandler({ data = {} }: { data: PlaceOrderMutationRequest } = {}): Promise<Promise<CallToolResult>> {
+export async function placeOrderHandler({ data }: { data?: PlaceOrderMutationRequest } = {}): Promise<Promise<CallToolResult>> {
   const requestData = data
 
   const res = await fetch<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({

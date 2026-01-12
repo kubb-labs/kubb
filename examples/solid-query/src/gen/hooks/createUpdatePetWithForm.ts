@@ -14,7 +14,7 @@ import type {
   UpdatePetWithFormQueryParams,
 } from '../models/UpdatePetWithForm.ts'
 
-export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params: UpdatePetWithFormQueryParams = {}) =>
+export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
   [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
@@ -25,7 +25,7 @@ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQuery
  */
 export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
-  params: UpdatePetWithFormQueryParams = {},
+  params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -41,12 +41,12 @@ export async function updatePetWithForm(
 
 export function updatePetWithFormQueryOptions(
   petId: UpdatePetWithFormPathParams['petId'],
-  params: UpdatePetWithFormQueryParams = {},
+  params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, params)
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
-    enabled: !!(petId && params),
+    enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -65,7 +65,7 @@ export function createUpdatePetWithForm<
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
 >(
   petId: UpdatePetWithFormPathParams['petId'],
-  params: UpdatePetWithFormQueryParams = {},
+  params?: UpdatePetWithFormQueryParams,
   options: {
     query?: Partial<UseBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient

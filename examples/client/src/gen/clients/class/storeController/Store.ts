@@ -36,7 +36,7 @@ export class Store {
    * {@link /store/order}
    */
   async placeOrder(
-    data: PlaceOrderMutationRequest = {},
+    data?: PlaceOrderMutationRequest,
     config: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
       client?: typeof fetch
     } = {},
@@ -58,7 +58,7 @@ export class Store {
    * {@link /store/order}
    */
   async placeOrderPatch(
-    data: PlaceOrderPatchMutationRequest = {},
+    data?: PlaceOrderPatchMutationRequest,
     config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
       client?: typeof fetch
     } = {},

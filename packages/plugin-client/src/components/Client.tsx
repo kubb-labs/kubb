@@ -42,6 +42,7 @@ type GetParamsProps = {
 function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable }: GetParamsProps) {
   if (paramsType === 'object') {
     const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
+
     const children = {
       ...pathParams,
       data: typeSchemas.request?.name
@@ -84,35 +85,30 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
     })
   }
 
-  const pathParamsOptional = typeSchemas.pathParams?.name ? isAllOptional(typeSchemas.pathParams?.schema) : false
-  const dataOptional = typeSchemas.request?.name ? isOptional(typeSchemas.request?.schema) : false
-  const paramsOptional = typeSchemas.queryParams?.name ? isOptional(typeSchemas.queryParams?.schema) : false
-  const headersOptional = typeSchemas.headerParams?.name ? isOptional(typeSchemas.headerParams?.schema) : false
-
   return FunctionParams.factory({
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
           children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          default: pathParamsOptional ? '{}' : undefined,
+          default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
         }
       : undefined,
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
-          optional: dataOptional,
+          optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
           type: typeSchemas.queryParams?.name,
-          optional: paramsOptional,
+          optional: isOptional(typeSchemas.queryParams?.schema),
         }
       : undefined,
     headers: typeSchemas.headerParams?.name
       ? {
           type: typeSchemas.headerParams?.name,
-          optional: headersOptional,
+          optional: isOptional(typeSchemas.headerParams?.schema),
         }
       : undefined,
     config: isConfigurable

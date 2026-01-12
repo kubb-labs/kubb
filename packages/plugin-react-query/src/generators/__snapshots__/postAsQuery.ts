@@ -9,8 +9,8 @@ import { queryOptions, useQuery } from 'custom-query'
 
 export const updatePetWithFormQueryKey = (
   petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
-  params?: UpdatePetWithFormQueryParams,
+  data: UpdatePetWithFormMutationRequest = {},
+  params: UpdatePetWithFormQueryParams = {},
 ) => [{ url: '/pet/:pet_id', params: { pet_id: pet_id } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
@@ -41,13 +41,13 @@ export async function updatePetWithForm(
 
 export function updatePetWithFormQueryOptions(
   petId: UpdatePetWithFormPathParams['petId'],
-  data: UpdatePetWithFormMutationRequest = {},
-  params: UpdatePetWithFormQueryParams = {},
+  data?: UpdatePetWithFormMutationRequest,
+  params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, data, params)
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
-    enabled: !!petId,
+    enabled: !!(petId && data && params),
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

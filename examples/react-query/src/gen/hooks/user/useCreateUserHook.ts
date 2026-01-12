@@ -20,7 +20,7 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  * {@link /user}
  */
 export async function createUserHook(
-  data: CreateUserMutationRequest = {},
+  data?: CreateUserMutationRequest,
   config: Partial<RequestConfig<CreateUserMutationRequest>> & {
     client?: typeof fetch
   } = {},

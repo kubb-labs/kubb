@@ -20,7 +20,7 @@ import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../.kub
 import { fetch } from '../.kubb/fetch.ts'
 import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/FindPetsByTags.ts'
 
-export const findPetsByTagsQueryKey = (params: FindPetsByTagsQueryParams = {}) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 
@@ -29,7 +29,7 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTags(params: FindPetsByTagsQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findPetsByTags(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
@@ -41,7 +41,7 @@ export async function findPetsByTags(params: FindPetsByTagsQueryParams = {}, con
   return res
 }
 
-export function findPetsByTagsQueryOptions(params: FindPetsByTagsQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions<
     ResponseConfig<FindPetsByTagsQueryResponse>,
@@ -49,7 +49,6 @@ export function findPetsByTagsQueryOptions(params: FindPetsByTagsQueryParams = {
     ResponseConfig<FindPetsByTagsQueryResponse>,
     typeof queryKey
   >({
-    enabled: !!params,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
@@ -68,7 +67,7 @@ export function createFindPetsByTags<
   TQueryData = ResponseConfig<FindPetsByTagsQueryResponse>,
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(
-  params: FindPetsByTagsQueryParams = {},
+  params?: FindPetsByTagsQueryParams,
   options: {
     query?: Partial<
       CreateBaseQueryOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>
