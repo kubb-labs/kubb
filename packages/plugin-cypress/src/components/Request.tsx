@@ -57,7 +57,6 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       },
       options: {
         type: 'Partial<Cypress.RequestOptions>',
-        optional: true,
         default: '{}',
       },
     })
@@ -91,7 +90,6 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       : undefined,
     options: {
       type: 'Partial<Cypress.RequestOptions>',
-      optional: true,
       default: '{}',
     },
   })

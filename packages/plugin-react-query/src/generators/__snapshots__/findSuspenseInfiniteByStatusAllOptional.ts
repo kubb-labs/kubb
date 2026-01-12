@@ -7,7 +7,7 @@ import type { InfiniteData, QueryKey, QueryClient, UseSuspenseInfiniteQueryOptio
 import { fetch } from './test/.kubb/fetch'
 import { infiniteQueryOptions, useSuspenseInfiniteQuery } from '@tanstack/react-query'
 
-export const findPetsByStatusSuspenseInfiniteQueryKey = (params?: FindPetsByStatusQueryParams = {}) =>
+export const findPetsByStatusSuspenseInfiniteQueryKey = (params?: FindPetsByStatusQueryParams) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByStatusSuspenseInfiniteQueryKey = ReturnType<typeof findPetsByStatusSuspenseInfiniteQueryKey>
@@ -33,7 +33,7 @@ export async function findPetsByStatusSuspenseInfinite(
 }
 
 export function findPetsByStatusSuspenseInfiniteQueryOptions(
-  { params }: { params?: FindPetsByStatusQueryParams } = {},
+  { params }: { params?: FindPetsByStatusQueryParams },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByStatusSuspenseInfiniteQueryKey(params)

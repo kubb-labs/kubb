@@ -1,34 +1,42 @@
-import { isOptional } from '@kubb/oas'
-import { Client } from '@kubb/plugin-client/components'
-import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
-import type { PluginReactQuery } from '../types.ts'
-import { QueryKey } from './QueryKey.tsx'
+import { isOptional } from "@kubb/oas";
+import { Client } from "@kubb/plugin-client/components";
+import type { OperationSchemas } from "@kubb/plugin-oas";
+import { getPathParams } from "@kubb/plugin-oas/utils";
+import { File, Function, FunctionParams } from "@kubb/react-fabric";
+import type { KubbNode } from "@kubb/react-fabric/types";
+import type { PluginReactQuery } from "../types.ts";
+import { QueryKey } from "./QueryKey.tsx";
 
 type Props = {
-  name: string
-  clientName: string
-  queryKeyName: string
-  typeSchemas: OperationSchemas
-  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
-  paramsType: PluginReactQuery['resolvedOptions']['paramsType']
-  pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
-  dataReturnType: PluginReactQuery['resolvedOptions']['client']['dataReturnType']
-}
+  name: string;
+  clientName: string;
+  queryKeyName: string;
+  typeSchemas: OperationSchemas;
+  paramsCasing: PluginReactQuery["resolvedOptions"]["paramsCasing"];
+  paramsType: PluginReactQuery["resolvedOptions"]["paramsType"];
+  pathParamsType: PluginReactQuery["resolvedOptions"]["pathParamsType"];
+  dataReturnType: PluginReactQuery["resolvedOptions"]["client"]["dataReturnType"];
+};
 
 type GetParamsProps = {
-  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
-  paramsType: PluginReactQuery['resolvedOptions']['paramsType']
-  pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
-  typeSchemas: OperationSchemas
-}
+  paramsCasing: PluginReactQuery["resolvedOptions"]["paramsCasing"];
+  paramsType: PluginReactQuery["resolvedOptions"]["paramsType"];
+  pathParamsType: PluginReactQuery["resolvedOptions"]["pathParamsType"];
+  typeSchemas: OperationSchemas;
+};
 
-function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
-  if (paramsType === 'object') {
+function getParams({
+  paramsType,
+  paramsCasing,
+  pathParamsType,
+  typeSchemas,
+}: GetParamsProps) {
+  if (paramsType === "object") {
     const children = {
-      ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+      ...getPathParams(typeSchemas.pathParams, {
+        typed: true,
+        casing: paramsCasing,
+      }),
       data: typeSchemas.request?.name
         ? {
             type: typeSchemas.request?.name,
@@ -47,80 +55,114 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
             optional: isOptional(typeSchemas.headerParams?.schema),
           }
         : undefined,
-    }
+    };
 
-    const allChildrenOptional = Object.values(children).every((child) => !child || child.optional)
+    const allChildrenOptional = Object.values(children).every(
+      (child) => !child || child.optional,
+    );
 
     return FunctionParams.factory({
       data: {
-        mode: 'object',
+        mode: "object",
         children,
-        default: allChildrenOptional ? '{}' : undefined,
+        default: allChildrenOptional ? "{}" : undefined,
       },
       config: {
         type: typeSchemas.request?.name
           ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
-          : 'Partial<RequestConfig> & { client?: typeof fetch }',
-        default: '{}',
+          : "Partial<RequestConfig> & { client?: typeof fetch }",
+        optional: true,
+        default: "{}",
       },
-    })
+    });
   }
 
-  const pathParamsChildren = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
+  const pathParamsChildren = getPathParams(typeSchemas.pathParams, {
+    typed: true,
+    casing: paramsCasing,
+  });
 
   const pathParamsParam = typeSchemas.pathParams?.name
     ? {
-        mode: pathParamsType === 'object' ? 'object' as const : 'inlineSpread' as const,
+        mode:
+          pathParamsType === "object"
+            ? ("object" as const)
+            : ("inlineSpread" as const),
         children: pathParamsChildren,
         optional: isOptional(typeSchemas.pathParams?.schema),
       }
-    : undefined
+    : undefined;
 
   const dataParam = typeSchemas.request?.name
     ? {
         type: typeSchemas.request?.name,
         optional: isOptional(typeSchemas.request?.schema),
       }
-    : undefined
-  const dataOptional = typeSchemas.request?.name ? isOptional(typeSchemas.request?.schema) : false
-  const paramsOptional = typeSchemas.queryParams?.name ? isOptional(typeSchemas.queryParams?.schema) : false
-  const headersOptional = typeSchemas.headerParams?.name ? isOptional(typeSchemas.headerParams?.schema) : false
+    : undefined;
+  const dataOptional = typeSchemas.request?.name
+    ? isOptional(typeSchemas.request?.schema)
+    : false;
+  const paramsOptional = typeSchemas.queryParams?.name
+    ? isOptional(typeSchemas.queryParams?.schema)
+    : false;
+  const headersOptional = typeSchemas.headerParams?.name
+    ? isOptional(typeSchemas.headerParams?.schema)
+    : false;
 
   const paramsParam = typeSchemas.queryParams?.name
     ? {
         type: typeSchemas.queryParams?.name,
         optional: paramsOptional,
-        default: paramsOptional ? '{}' : undefined,
+        default: paramsOptional ? "{}" : undefined,
       }
-    : undefined
+    : undefined;
 
   const headersParam = typeSchemas.headerParams?.name
     ? {
         type: typeSchemas.headerParams?.name,
         optional: headersOptional,
-        default: headersOptional ? '{}' : undefined,
+        default: headersOptional ? "{}" : undefined,
       }
-    : undefined
+    : undefined;
 
   return FunctionParams.factory({
     pathParams: pathParamsParam,
-    data: dataParam ? { ...dataParam, default: dataOptional ? '{}' : undefined } : undefined,
+    data: dataParam
+      ? { ...dataParam, default: dataOptional ? "{}" : undefined }
+      : undefined,
     params: paramsParam,
     headers: headersParam,
     config: {
       type: typeSchemas.request?.name
         ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
-        : 'Partial<RequestConfig> & { client?: typeof fetch }',
-        optional: true,
-      default: '{}',
+        : "Partial<RequestConfig> & { client?: typeof fetch }",
+      default: "{}",
     },
-  })
+  });
 }
 
-export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, paramsCasing, paramsType, pathParamsType, queryKeyName }: Props): KubbNode {
-  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
-  const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
-  const TError = typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'
+export function QueryOptions({
+  name,
+  clientName,
+  dataReturnType,
+  typeSchemas,
+  paramsCasing,
+  paramsType,
+  pathParamsType,
+  queryKeyName,
+}: Props): KubbNode {
+  const params = getParams({
+    paramsType,
+    paramsCasing,
+    pathParamsType,
+    typeSchemas,
+  });
+  const TData =
+    dataReturnType === "data"
+      ? typeSchemas.response.name
+      : `ResponseConfig<${typeSchemas.response.name}>`;
+  const TError =
+    typeSchemas.errors?.map((item) => item.name).join(" | ") || "Error";
 
   const clientParams = Client.getParams({
     typeSchemas,
@@ -128,19 +170,19 @@ export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, pa
     paramsType,
     pathParamsType,
     isConfigurable: true,
-  })
+  });
   const queryKeyParams = QueryKey.getParams({
     pathParamsType,
     typeSchemas,
     paramsCasing,
-  })
+  });
 
   const enabled = Object.entries(queryKeyParams.flatParams)
     .map(([key, item]) => (item && !item.optional ? key : undefined))
     .filter(Boolean)
-    .join('&& ')
+    .join("&& ");
 
-  const enabledText = enabled ? `enabled: !!(${enabled}),` : ''
+  const enabledText = enabled ? `enabled: !!(${enabled}),` : "";
 
   return (
     <File.Source name={name} isExportable isIndexable>
@@ -158,7 +200,7 @@ export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, pa
 `}
       </Function>
     </File.Source>
-  )
+  );
 }
 
-QueryOptions.getParams = getParams
+QueryOptions.getParams = getParams;
