@@ -7,7 +7,7 @@ import type { FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from 
 
 export function findPetsByStatus(
   params?: FindPetsByStatusQueryParams,
-  options?: Partial<Cypress.RequestOptions>,
+  options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<FindPetsByStatusQueryResponse> {
   return cy
     .request<FindPetsByStatusQueryResponse>({

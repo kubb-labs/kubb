@@ -33,7 +33,7 @@ export async function findPetsByStatusSuspense(
 
 export function findPetsByStatusSuspenseQueryOptions(
   { params }: { params?: FindPetsByStatusQueryParams } = {},
-  config?: Partial<RequestConfig> & { client?: typeof fetch },
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByStatusSuspenseQueryKey(params)
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({

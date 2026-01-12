@@ -8,7 +8,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
  * @summary Create user
  * {@link /user}
  */
-export async function createUserHandler({ data }: { data?: CreateUserMutationRequest }): Promise<Promise<CallToolResult>> {
+export async function createUserHandler({ data }: { data?: CreateUserMutationRequest } = {}): Promise<Promise<CallToolResult>> {
   const requestData = data
 
   const res = await fetch<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({

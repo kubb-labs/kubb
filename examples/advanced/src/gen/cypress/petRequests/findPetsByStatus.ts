@@ -2,7 +2,7 @@ import type { FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '
 
 export function findPetsByStatus(
   stepId: FindPetsByStatusPathParams['step_id'],
-  options?: Partial<Cypress.RequestOptions>,
+  options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<FindPetsByStatusQueryResponse> {
   return cy
     .request<FindPetsByStatusQueryResponse>({

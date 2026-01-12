@@ -5,7 +5,7 @@
 
 import type { GetInventoryQueryResponse } from '../../models/GetInventory.ts'
 
-export function getInventory(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<GetInventoryQueryResponse> {
+export function getInventory(options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<GetInventoryQueryResponse> {
   return cy
     .request<GetInventoryQueryResponse>({
       method: 'get',

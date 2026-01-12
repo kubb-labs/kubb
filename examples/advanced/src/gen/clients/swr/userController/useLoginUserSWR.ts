@@ -21,7 +21,7 @@ export function loginUserQueryOptionsSWR({ params }: { params?: LoginUserQueryPa
  * {@link /user/login}
  */
 export function useLoginUserSWR(
-  { params }: { params?: LoginUserQueryParams },
+  { params }: { params?: LoginUserQueryParams } = {},
   options: {
     query?: Parameters<typeof useSWR<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>>>[2]
     client?: Partial<RequestConfig> & { client?: typeof fetch }

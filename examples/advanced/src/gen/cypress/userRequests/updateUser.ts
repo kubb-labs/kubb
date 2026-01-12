@@ -3,7 +3,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
 export function updateUser(
   username: UpdateUserPathParams['username'],
   data?: UpdateUserMutationRequest,
-  options?: Partial<Cypress.RequestOptions>,
+  options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<UpdateUserMutationResponse> {
   return cy
     .request<UpdateUserMutationResponse>({

@@ -11,7 +11,7 @@ import type {
  * @summary Creates list of users with given input array
  * {@link /user/createWithList}
  */
-export async function createUsersWithListInputHandler({ data }: { data?: CreateUsersWithListInputMutationRequest }): Promise<Promise<CallToolResult>> {
+export async function createUsersWithListInputHandler({ data }: { data?: CreateUsersWithListInputMutationRequest } = {}): Promise<Promise<CallToolResult>> {
   const requestData = data
 
   const res = await fetch<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({

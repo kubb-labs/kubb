@@ -33,7 +33,7 @@ export async function findPetsByStatus(
 
 export function findPetsByStatusQueryOptions(
   { params }: { params?: FindPetsByStatusQueryParams } = {},
-  config?: Partial<RequestConfig> & { client?: typeof fetch },
+  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByStatusQueryKey(params)
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({

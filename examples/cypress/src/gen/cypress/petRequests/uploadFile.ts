@@ -9,7 +9,7 @@ export function uploadFile(
   petId: UploadFilePathParams['petId'],
   data?: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
-  options?: Partial<Cypress.RequestOptions>,
+  options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<UploadFileMutationResponse> {
   return cy
     .request<UploadFileMutationResponse>({

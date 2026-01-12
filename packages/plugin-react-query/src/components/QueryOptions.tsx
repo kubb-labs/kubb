@@ -64,7 +64,6 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
         type: typeSchemas.request?.name
           ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
           : 'Partial<RequestConfig> & { client?: typeof fetch }',
-        optional: true,
         default: '{}',
       },
     })

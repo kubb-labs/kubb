@@ -1,6 +1,6 @@
 import type { AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/petController/AddPet.ts'
 
-export function addPet(data: AddPetMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<AddPetMutationResponse> {
+export function addPet(data: AddPetMutationRequest, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<AddPetMutationResponse> {
   return cy
     .request<AddPetMutationResponse>({
       method: 'post',
