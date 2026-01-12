@@ -35,7 +35,7 @@ export async function findPetsByTagsSuspense(
 
 export function findPetsByTagsSuspenseQueryOptions(
   headers: FindPetsByTagsHeaderParams,
-  params?: FindPetsByTagsQueryParams,
+  params: FindPetsByTagsQueryParams = {},
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)

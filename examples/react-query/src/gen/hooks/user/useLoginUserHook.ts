@@ -25,7 +25,7 @@ export async function loginUserHook(params?: LoginUserQueryParams, config: Parti
   return res.data
 }
 
-export function loginUserQueryOptionsHook(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function loginUserQueryOptionsHook(params: LoginUserQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = loginUserQueryKey(params)
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,

@@ -9,13 +9,13 @@ export const deletePetMutationKey = () => [{ url: '/pet/:petId:search' }] as con
 
 export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 
-export function deletePetMutationOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function deletePetMutationOptions<TContext = unknown>(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const mutationKey = deletePetMutationKey()
   return mutationOptions<
     ResponseConfig<DeletePetMutationResponse>,
     ResponseErrorConfig<DeletePet400>,
     { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
-    typeof mutationKey
+    TContext
   >({
     mutationKey,
     mutationFn: async ({ petId, headers }) => {

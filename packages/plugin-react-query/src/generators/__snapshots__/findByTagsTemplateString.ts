@@ -36,7 +36,7 @@ export async function findPetsByTags(
 
 export function findPetsByTagsQueryOptions(
   headers: FindPetsByTagsHeaderParams,
-  params?: FindPetsByTagsQueryParams,
+  params: FindPetsByTagsQueryParams = {},
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByTagsQueryKey(params)

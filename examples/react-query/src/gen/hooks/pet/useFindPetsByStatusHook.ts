@@ -31,7 +31,7 @@ export async function findPetsByStatusHook(params?: FindPetsByStatusQueryParams,
   return res.data
 }
 
-export function findPetsByStatusQueryOptionsHook(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function findPetsByStatusQueryOptionsHook(params: FindPetsByStatusQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = findPetsByStatusQueryKey(params)
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
     queryKey,

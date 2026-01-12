@@ -42,7 +42,7 @@ export async function updatePetWithFormHook(
 
 export function updatePetWithFormQueryOptionsHook(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
-  params?: UpdatePetWithFormQueryParams,
+  params: UpdatePetWithFormQueryParams = {},
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(pet_id, params)

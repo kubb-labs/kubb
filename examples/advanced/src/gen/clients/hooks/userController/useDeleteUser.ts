@@ -9,13 +9,13 @@ export const deleteUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type DeleteUserMutationKey = ReturnType<typeof deleteUserMutationKey>
 
-export function deleteUserMutationOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function deleteUserMutationOptions<TContext = unknown>(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const mutationKey = deleteUserMutationKey()
   return mutationOptions<
     ResponseConfig<DeleteUserMutationResponse>,
     ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
     { username: DeleteUserPathParams['username'] },
-    typeof mutationKey
+    TContext
   >({
     mutationKey,
     mutationFn: async ({ username }) => {

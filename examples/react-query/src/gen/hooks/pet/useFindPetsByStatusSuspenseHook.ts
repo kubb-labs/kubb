@@ -33,7 +33,7 @@ export async function findPetsByStatusSuspenseHook(params?: FindPetsByStatusQuer
 }
 
 export function findPetsByStatusSuspenseQueryOptionsHook(
-  params?: FindPetsByStatusQueryParams,
+  params: FindPetsByStatusQueryParams = {},
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = findPetsByStatusSuspenseQueryKey(params)

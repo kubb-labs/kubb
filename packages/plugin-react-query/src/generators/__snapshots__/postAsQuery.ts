@@ -41,8 +41,8 @@ export async function updatePetWithForm(
 
 export function updatePetWithFormQueryOptions(
   petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
-  params?: UpdatePetWithFormQueryParams,
+  data: UpdatePetWithFormMutationRequest = {},
+  params: UpdatePetWithFormQueryParams = {},
   config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormQueryKey(petId, data, params)

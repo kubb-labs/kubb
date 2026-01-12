@@ -33,13 +33,13 @@ export async function deleteUserHook(
   return res.data
 }
 
-export function deleteUserMutationOptionsHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function deleteUserMutationOptionsHook<TContext = unknown>(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const mutationKey = deleteUserMutationKey()
   return mutationOptions<
     DeleteUserMutationResponse,
     ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
     { username: DeleteUserPathParams['username'] },
-    typeof mutationKey
+    TContext
   >({
     mutationKey,
     mutationFn: async ({ username }) => {

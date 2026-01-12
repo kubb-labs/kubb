@@ -31,7 +31,7 @@ export async function findPetsByTagsHook(params?: FindPetsByTagsQueryParams, con
   return res
 }
 
-export function findPetsByTagsQueryOptionsHook(params?: FindPetsByTagsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function findPetsByTagsQueryOptionsHook(params: FindPetsByTagsQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions<
     ResponseConfig<FindPetsByTagsQueryResponse>,

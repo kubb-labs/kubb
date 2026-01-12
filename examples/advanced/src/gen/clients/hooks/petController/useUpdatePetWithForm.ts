@@ -14,13 +14,13 @@ export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId:search' }
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
 
-export function updatePetWithFormMutationOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function updatePetWithFormMutationOptions<TContext = unknown>(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const mutationKey = updatePetWithFormMutationKey()
   return mutationOptions<
     ResponseConfig<UpdatePetWithFormMutationResponse>,
     ResponseErrorConfig<UpdatePetWithForm405>,
     { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
-    typeof mutationKey
+    TContext
   >({
     mutationKey,
     mutationFn: async ({ petId, params }) => {

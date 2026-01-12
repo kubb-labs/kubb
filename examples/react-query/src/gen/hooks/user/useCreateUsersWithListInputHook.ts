@@ -38,18 +38,13 @@ export async function createUsersWithListInputHook(
   return res.data
 }
 
-export function createUsersWithListInputMutationOptionsHook(
+export function createUsersWithListInputMutationOptionsHook<TContext = unknown>(
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
   const mutationKey = createUsersWithListInputMutationKey()
-  return mutationOptions<
-    CreateUsersWithListInputMutationResponse,
-    ResponseErrorConfig<Error>,
-    { data?: CreateUsersWithListInputMutationRequest },
-    typeof mutationKey
-  >({
+  return mutationOptions<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }, TContext>({
     mutationKey,
     mutationFn: async ({ data }) => {
       return createUsersWithListInputHook(data, config)

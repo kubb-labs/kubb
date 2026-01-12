@@ -38,13 +38,13 @@ export async function createUserHook(
   return res.data
 }
 
-export function createUserMutationOptionsHook(
+export function createUserMutationOptionsHook<TContext = unknown>(
   config: Partial<RequestConfig<CreateUserMutationRequest>> & {
     client?: typeof fetch
   } = {},
 ) {
   const mutationKey = createUserMutationKey()
-  return mutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, typeof mutationKey>({
+  return mutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>({
     mutationKey,
     mutationFn: async ({ data }) => {
       return createUserHook(data, config)

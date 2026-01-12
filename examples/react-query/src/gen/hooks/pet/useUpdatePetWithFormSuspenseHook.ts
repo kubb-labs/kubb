@@ -42,7 +42,7 @@ export async function updatePetWithFormSuspenseHook(
 
 export function updatePetWithFormSuspenseQueryOptionsHook(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
-  params?: UpdatePetWithFormQueryParams,
+  params: UpdatePetWithFormQueryParams = {},
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = updatePetWithFormSuspenseQueryKey(pet_id, params)

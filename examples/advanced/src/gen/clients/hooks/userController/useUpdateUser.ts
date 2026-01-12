@@ -9,13 +9,13 @@ export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 
 export type UpdateUserMutationKey = ReturnType<typeof updateUserMutationKey>
 
-export function updateUserMutationOptions(config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch } = {}) {
+export function updateUserMutationOptions<TContext = unknown>(config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch } = {}) {
   const mutationKey = updateUserMutationKey()
   return mutationOptions<
     ResponseConfig<UpdateUserMutationResponse>,
     ResponseErrorConfig<Error>,
     { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
-    typeof mutationKey
+    TContext
   >({
     mutationKey,
     mutationFn: async ({ username, data }) => {

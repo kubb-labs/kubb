@@ -25,7 +25,7 @@ export async function loginUserSuspenseHook(params?: LoginUserQueryParams, confi
   return res.data
 }
 
-export function loginUserSuspenseQueryOptionsHook(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function loginUserSuspenseQueryOptionsHook(params: LoginUserQueryParams = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = loginUserSuspenseQueryKey(params)
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,

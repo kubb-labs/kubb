@@ -44,7 +44,7 @@ export async function uploadFileHook(
   return res.data
 }
 
-export function uploadFileMutationOptionsHook(
+export function uploadFileMutationOptionsHook<TContext = unknown>(
   config: Partial<RequestConfig<UploadFileMutationRequest>> & {
     client?: typeof fetch
   } = {},
@@ -58,7 +58,7 @@ export function uploadFileMutationOptionsHook(
       data?: UploadFileMutationRequest
       params?: UploadFileQueryParams
     },
-    typeof mutationKey
+    TContext
   >({
     mutationKey,
     mutationFn: async ({ petId, data, params }) => {

@@ -9,9 +9,9 @@ export const addPetMutationKey = () => [{ url: '/pet' }] as const
 
 export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
 
-export function addPetMutationOptions(config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}) {
+export function addPetMutationOptions<TContext = unknown>(config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch } = {}) {
   const mutationKey = addPetMutationKey()
-  return mutationOptions<ResponseConfig<AddPetMutationResponse>, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, typeof mutationKey>({
+  return mutationOptions<ResponseConfig<AddPetMutationResponse>, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>({
     mutationKey,
     mutationFn: async ({ data }) => {
       return addPet({ data }, config)

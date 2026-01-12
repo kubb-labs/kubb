@@ -9,9 +9,9 @@ export const createUserMutationKey = () => [{ url: '/user' }] as const
 
 export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
 
-export function createUserMutationOptions(config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {}) {
+export function createUserMutationOptions<TContext = unknown>(config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {}) {
   const mutationKey = createUserMutationKey()
-  return mutationOptions<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, typeof mutationKey>({
+  return mutationOptions<ResponseConfig<CreateUserMutationResponse>, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>({
     mutationKey,
     mutationFn: async ({ data }) => {
       return createUser({ data }, config)

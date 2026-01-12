@@ -9,9 +9,9 @@ export const addFilesMutationKey = () => [{ url: '/pet/files' }] as const
 
 export type AddFilesMutationKey = ReturnType<typeof addFilesMutationKey>
 
-export function addFilesMutationOptions(config: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: typeof fetch } = {}) {
+export function addFilesMutationOptions<TContext = unknown>(config: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: typeof fetch } = {}) {
   const mutationKey = addFilesMutationKey()
-  return mutationOptions<ResponseConfig<AddFilesMutationResponse>, ResponseErrorConfig<AddFiles405>, { data: AddFilesMutationRequest }, typeof mutationKey>({
+  return mutationOptions<ResponseConfig<AddFilesMutationResponse>, ResponseErrorConfig<AddFiles405>, { data: AddFilesMutationRequest }, TContext>({
     mutationKey,
     mutationFn: async ({ data }) => {
       return addFiles({ data }, config)
