@@ -36,13 +36,15 @@ export async function updatePetWithForm(
   return updatePetWithFormMutationResponse.parse(res.data)
 }
 
-export function updatePetWithFormMutationOptions(config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {}) {
+export function updatePetWithFormMutationOptions<TContext = unknown>(
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
+) {
   const mutationKey = updatePetWithFormMutationKey()
   return mutationOptions<
     UpdatePetWithFormMutationResponse,
     ResponseErrorConfig<UpdatePetWithForm405>,
     { petId: UpdatePetWithFormPathParams['petId']; data?: UpdatePetWithFormMutationRequest; params?: UpdatePetWithFormQueryParams },
-    typeof mutationKey
+    TContext
   >({
     mutationKey,
     mutationFn: async ({ petId, data, params }) => {

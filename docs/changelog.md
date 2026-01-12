@@ -101,6 +101,53 @@ The generated `HookOptions` type ensures your custom hook implementation is type
 
 ---
 
+## 4.15.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Fixed TS2411 error in QueryParams with mixed property types**
+
+Fixed TypeScript compilation errors (TS2411) that occurred when generated QueryParams types combined typed properties (enums, objects) with dynamic parameters from `additionalProperties` (when using `style: form` with `explode: true`).
+
+**Root Cause:**
+
+The parser always used the specific `additionalProperties` type for index signatures, creating `[key: string]: string` that conflicts with non-string typed properties.
+
+**Solution:**
+
+When typed properties and `additionalProperties` coexist, use `[key: string]: unknown` for the index signature. This preserves type safety while avoiding conflicts.
+
+::: code-group
+
+```typescript [Before (TS2411 Error)]
+export type QueryParams = {
+  include?: 'author' | 'tags';    // ❌ TS2411: not assignable to string
+  page?: { number?: number };      // ❌ TS2411: not assignable to string
+  sort?: string;
+  [key: string]: string;           // 💥 Conflicts with typed properties
+};
+```
+
+```typescript [After (Fixed)]
+export type QueryParams = {
+  include?: 'author' | 'tags';     // ✅ Compatible with unknown
+  page?: { number?: number };      // ✅ Compatible with unknown
+  sort?: string;
+  [key: string]: unknown;          // ✅ No conflicts
+};
+```
+
+:::
+
+**Impact:**
+- No breaking changes - backward compatible
+- Only affects types with both typed properties and `additionalProperties`
+- Types with only `additionalProperties` remain unchanged
+
+---
+
 ## 4.14.1
 
 ### 🚀 Performance Improvements
