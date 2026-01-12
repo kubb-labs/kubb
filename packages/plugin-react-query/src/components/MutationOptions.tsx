@@ -95,10 +95,10 @@ export function MutationOptions({ name, clientName, dataReturnType, typeSchemas,
 
   return (
     <File.Source name={name} isExportable isIndexable>
-      <Function name={name} export params={params.toConstructor()}>
+      <Function name={name} export params={params.toConstructor()} generics={['TContext = unknown']}>
         {`
       const mutationKey = ${mutationKeyName}(${mutationKeyParams.toCall()})
-      return mutationOptions<${TData}, ResponseErrorConfig<${TError}>, ${TRequest ? `{${TRequest}}` : 'void'}, typeof mutationKey>({
+      return mutationOptions<${TData}, ResponseErrorConfig<${TError}>, ${TRequest ? `{${TRequest}}` : 'void'}, TContext>({
         mutationKey,
         mutationFn: async(${dataParams.toConstructor()}) => {
           return ${clientName}(${clientParams.toCall()})
