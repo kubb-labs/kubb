@@ -61,9 +61,6 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
-    "@kubb/plugin-react-query": "workspace:*",
-    "@kubb/plugin-ts": "workspace:*",
     "@kubb/react-fabric": "catalog:",
     "@modelcontextprotocol/sdk": "^1.25.2",
     "jiti": "^2.6.1",

@@ -876,15 +876,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../plugin-oas
-      '@kubb/plugin-react-query':
-        specifier: workspace:*
-        version: link:../plugin-react-query
-      '@kubb/plugin-ts':
-        specifier: workspace:*
-        version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.9.5
