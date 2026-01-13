@@ -32,7 +32,7 @@ function getCustomHookOptions({ queryClient }: { queryClient: QueryClient }): Pa
   }
 }
 
-export function useCustomHookOptions<T extends keyof HookOptions>({ hookName, operationId }: { hookName: T; operationId: string }): HookOptions[T] {
+export function useCustomHookOptions<T extends keyof HookOptions>({ hookName }: { hookName: T; operationId: string }): HookOptions[T] {
   const queryClient = useQueryClient()
   const customOptions = getCustomHookOptions({ queryClient })
   return customOptions[hookName] ?? {}
