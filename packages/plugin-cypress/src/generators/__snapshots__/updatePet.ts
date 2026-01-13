@@ -6,7 +6,7 @@
 export function updatePet(
   petId: UpdatePetPathParams['petId'],
   data: UpdatePetMutationRequest,
-  options?: Partial<Cypress.RequestOptions>,
+  options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<UpdatePetMutationResponse> {
   return cy
     .request<UpdatePetMutationResponse>({

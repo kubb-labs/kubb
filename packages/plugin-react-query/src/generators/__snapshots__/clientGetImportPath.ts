@@ -7,7 +7,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import type { RequestConfig, ResponseErrorConfig } from 'axios'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params: FindPetsByTagsQueryParams = {}) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 

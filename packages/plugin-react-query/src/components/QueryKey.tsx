@@ -24,20 +24,22 @@ type GetParamsProps = {
 
 function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps) {
   return FunctionParams.factory({
-    pathParams: {
-      mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-      children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-    },
+    pathParams: typeSchemas.pathParams?.name
+      ? {
+          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+        }
+      : undefined,
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
-          optional: isOptional(typeSchemas.request?.schema),
+          default: isOptional(typeSchemas.request?.schema) ? '{}' : undefined,
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
           type: typeSchemas.queryParams?.name,
-          optional: isOptional(typeSchemas.queryParams?.schema),
+          default: isOptional(typeSchemas.queryParams?.schema) ? '{}' : undefined,
         }
       : undefined,
   })

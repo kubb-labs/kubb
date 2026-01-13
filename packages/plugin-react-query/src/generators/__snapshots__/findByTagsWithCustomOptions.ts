@@ -8,7 +8,7 @@ import { fetch } from './test/.kubb/fetch'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 import { useCustomHookOptions } from 'useCustomHookOptions.ts'
 
-export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params: FindPetsByTagsQueryParams = {}) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 

@@ -15,7 +15,7 @@ import type {
   UpdatePetWithFormQueryParams,
 } from '../../models/UpdatePetWithForm.ts'
 
-export const updatePetWithFormQueryKey = (pet_id: UpdatePetWithFormPathParams['pet_id'], params?: UpdatePetWithFormQueryParams) =>
+export const updatePetWithFormQueryKey = (pet_id: UpdatePetWithFormPathParams['pet_id'], params: UpdatePetWithFormQueryParams = {}) =>
   ['v5', { url: '/pet/:pet_id', params: { pet_id: pet_id } }, ...(params ? [params] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>

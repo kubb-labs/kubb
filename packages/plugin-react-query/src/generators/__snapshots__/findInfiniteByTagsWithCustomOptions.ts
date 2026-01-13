@@ -8,7 +8,7 @@ import { fetch } from './test/.kubb/fetch'
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
 import { useCustomHookOptions } from 'useCustomHookOptions.ts'
 
-export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsInfiniteQueryKey = (params: FindPetsByTagsQueryParams = {}) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
 

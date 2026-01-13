@@ -9,8 +9,8 @@ import { queryOptions, useQuery } from 'custom-query'
 
 export const updatePetWithFormQueryKey = (
   petId: UpdatePetWithFormPathParams['petId'],
-  data?: UpdatePetWithFormMutationRequest,
-  params?: UpdatePetWithFormQueryParams,
+  data: UpdatePetWithFormMutationRequest = {},
+  params: UpdatePetWithFormQueryParams = {},
 ) => [{ url: '/pet/:pet_id', params: { pet_id: pet_id } }, ...(params ? [params] : []), ...(data ? [data] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>

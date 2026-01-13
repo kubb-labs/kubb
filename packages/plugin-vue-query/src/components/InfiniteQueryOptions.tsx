@@ -1,5 +1,5 @@
 import { getNestedAccessor } from '@kubb/core/utils'
-import { isOptional } from '@kubb/oas'
+import { isAllOptional, isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
@@ -33,39 +33,45 @@ type GetParamsProps = {
 
 function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
   if (paramsType === 'object') {
+    const children = {
+      ...getPathParams(typeSchemas.pathParams, {
+        typed: true,
+        casing: paramsCasing,
+        override(item) {
+          return {
+            ...item,
+            type: `MaybeRefOrGetter<${item.type}>`,
+          }
+        },
+      }),
+      data: typeSchemas.request?.name
+        ? {
+            type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
+            optional: isOptional(typeSchemas.request?.schema),
+          }
+        : undefined,
+      params: typeSchemas.queryParams?.name
+        ? {
+            type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
+            optional: isOptional(typeSchemas.queryParams?.schema),
+          }
+        : undefined,
+      headers: typeSchemas.headerParams?.name
+        ? {
+            type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
+            optional: isOptional(typeSchemas.headerParams?.schema),
+          }
+        : undefined,
+    }
+
+    // Check if all children are optional or undefined
+    const allChildrenAreOptional = Object.values(children).every((child) => !child || child.optional)
+
     return FunctionParams.factory({
       data: {
         mode: 'object',
-        children: {
-          ...getPathParams(typeSchemas.pathParams, {
-            typed: true,
-            casing: paramsCasing,
-            override(item) {
-              return {
-                ...item,
-                type: `MaybeRefOrGetter<${item.type}>`,
-              }
-            },
-          }),
-          data: typeSchemas.request?.name
-            ? {
-                type: `MaybeRefOrGetter<${typeSchemas.request?.name}>`,
-                optional: isOptional(typeSchemas.request?.schema),
-              }
-            : undefined,
-          params: typeSchemas.queryParams?.name
-            ? {
-                type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
-                optional: isOptional(typeSchemas.queryParams?.schema),
-              }
-            : undefined,
-          headers: typeSchemas.headerParams?.name
-            ? {
-                type: `MaybeRefOrGetter<${typeSchemas.queryParams?.name}>`,
-                optional: isOptional(typeSchemas.headerParams?.schema),
-              }
-            : undefined,
-        },
+        children,
+        default: allChildrenAreOptional ? '{}' : undefined,
       },
       config: {
         type: typeSchemas.request?.name
@@ -79,7 +85,6 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
   return FunctionParams.factory({
     pathParams: {
       mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-      optional: isOptional(typeSchemas.pathParams?.schema),
       children: getPathParams(typeSchemas.pathParams, {
         typed: true,
         casing: paramsCasing,
@@ -90,6 +95,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
           }
         },
       }),
+      default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
     },
     data: typeSchemas.request?.name
       ? {
@@ -202,9 +208,13 @@ export function InfiniteQueryOptions({
       : ''
 
   const enabled = Object.entries(queryKeyParams.flatParams)
-    .map(([key, item]) => (item && !item.optional ? `${key}` : undefined))
+    .map(([key, item]) => {
+      // Only include if the parameter exists and is NOT optional
+      // This ensures we only check required parameters
+      return item && !item.optional && !item.default ? key : undefined
+    })
     .filter(Boolean)
-    .join(' && ')
+    .join('&& ')
 
   const enabledText = enabled ? `enabled: !!(${enabled}),` : ''
 

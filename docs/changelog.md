@@ -5,6 +5,14 @@ outline: deep
 
 # Changelog
 
+## 4.15.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-react-query`](/plugins/plugin-react-query/)
+
+No empty object should be passed if all parameters are optional
+
 ## 4.15.1
 
 ### 🐛 Bug Fixes

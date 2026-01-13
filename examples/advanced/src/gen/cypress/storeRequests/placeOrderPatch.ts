@@ -2,7 +2,7 @@ import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } 
 
 export function placeOrderPatch(
   data?: PlaceOrderPatchMutationRequest,
-  options?: Partial<Cypress.RequestOptions>,
+  options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<PlaceOrderPatchMutationResponse> {
   return cy
     .request<PlaceOrderPatchMutationResponse>({

@@ -7,7 +7,7 @@ import type { GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../mo
 
 export function getOrderById(
   orderId: GetOrderByIdPathParams['orderId'],
-  options?: Partial<Cypress.RequestOptions>,
+  options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<GetOrderByIdQueryResponse> {
   return cy
     .request<GetOrderByIdQueryResponse>({

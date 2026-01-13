@@ -5,7 +5,7 @@
 
 import type { OptionsFindPetsByStatusMutationResponse } from '../../models/OptionsFindPetsByStatus.ts'
 
-export function optionsFindPetsByStatus(options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<OptionsFindPetsByStatusMutationResponse> {
+export function optionsFindPetsByStatus(options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<OptionsFindPetsByStatusMutationResponse> {
   return cy
     .request<OptionsFindPetsByStatusMutationResponse>({
       method: 'options',

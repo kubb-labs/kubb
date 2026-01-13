@@ -127,6 +127,26 @@ describe('clientGenerator operation', async () => {
         baseURL: 'https://petstore3.swagger.io/api/v3',
       },
     },
+    {
+      name: 'findByStatusAllOptional',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByStatus',
+      method: 'get',
+      options: {
+        paramsType: 'object',
+        pathParamsType: 'object',
+      },
+    },
+    {
+      name: 'findByStatusAllOptionalInline',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByStatus',
+      method: 'get',
+      options: {
+        paramsType: 'inline',
+        pathParamsType: 'inline',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

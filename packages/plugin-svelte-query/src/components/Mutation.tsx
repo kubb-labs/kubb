@@ -33,9 +33,10 @@ type GetParamsProps = {
 function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
 
   const mutationParams = FunctionParams.factory({
-    ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+    ...pathParams,
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,

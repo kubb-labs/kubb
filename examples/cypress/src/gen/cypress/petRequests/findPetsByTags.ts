@@ -5,7 +5,10 @@
 
 import type { FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
 
-export function findPetsByTags(params?: FindPetsByTagsQueryParams, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<FindPetsByTagsQueryResponse> {
+export function findPetsByTags(
+  params?: FindPetsByTagsQueryParams,
+  options: Partial<Cypress.RequestOptions> = {},
+): Cypress.Chainable<FindPetsByTagsQueryResponse> {
   return cy
     .request<FindPetsByTagsQueryResponse>({
       method: 'get',

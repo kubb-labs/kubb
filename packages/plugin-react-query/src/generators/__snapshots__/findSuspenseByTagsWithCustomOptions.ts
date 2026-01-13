@@ -8,7 +8,7 @@ import { fetch } from './test/.kubb/fetch'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { useCustomHookOptions } from 'useCustomHookOptions.ts'
 
-export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsSuspenseQueryKey = (params: FindPetsByTagsQueryParams = {}) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSuspenseQueryKey>
 

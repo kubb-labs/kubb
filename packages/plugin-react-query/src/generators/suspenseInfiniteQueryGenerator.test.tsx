@@ -62,6 +62,20 @@ describe('suspenseInfiniteQueryGenerator operation', async () => {
         },
       },
     },
+    {
+      name: 'findSuspenseInfiniteByStatusAllOptional',
+      input: '../../mocks/petStore.yaml',
+      path: '/pet/findByStatus',
+      method: 'get',
+      options: {
+        paramsType: 'object',
+        suspense: {},
+        infinite: {
+          queryParam: 'status',
+          initialPageParam: 'available',
+        },
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

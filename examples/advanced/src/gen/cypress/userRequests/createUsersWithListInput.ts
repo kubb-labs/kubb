@@ -5,7 +5,7 @@ import type {
 
 export function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
-  options?: Partial<Cypress.RequestOptions>,
+  options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<CreateUsersWithListInputMutationResponse> {
   return cy
     .request<CreateUsersWithListInputMutationResponse>({

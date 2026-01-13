@@ -76,6 +76,35 @@ export function isRequired(schema?: SchemaObject): boolean {
   return Array.isArray(schema.required) ? !!schema.required?.length : !!schema.required
 }
 
+// Helper to determine if a schema (and its composed children) has no required fields
+// This prefers structural optionality over top-level optional flag
+type JSONSchemaLike =
+  | {
+      required?: readonly string[]
+      allOf?: readonly unknown[]
+      anyOf?: readonly unknown[]
+      oneOf?: readonly unknown[]
+    }
+  | undefined
+
+//TODO make isAllOptional more like isOptional with better typings
+export function isAllOptional(schema: unknown): boolean {
+  // If completely absent, consider it optional in context of defaults
+  if (!schema) return true
+  // If the entire schema itself is optional, it's safe to default
+  if (isOptional(schema)) return true
+
+  const s = schema as JSONSchemaLike
+  const hasRequired = Array.isArray(s?.required) && s?.required.length > 0
+  if (hasRequired) return false
+
+  const groups = [s?.allOf, s?.anyOf, s?.oneOf].filter((g): g is readonly unknown[] => Array.isArray(g))
+  if (groups.length === 0) return true
+
+  // Be conservative: only when all composed parts are all-optional we treat it as all-optional
+  return groups.every((arr) => arr.every((child) => isAllOptional(child)))
+}
+
 export function isOptional(schema?: SchemaObject): boolean {
   return !isRequired(schema)
 }

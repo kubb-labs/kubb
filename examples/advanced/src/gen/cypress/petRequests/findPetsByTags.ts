@@ -3,7 +3,7 @@ import type { FindPetsByTagsHeaderParams, FindPetsByTagsQueryParams, FindPetsByT
 export function findPetsByTags(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
-  options?: Partial<Cypress.RequestOptions>,
+  options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<FindPetsByTagsQueryResponse> {
   return cy
     .request<FindPetsByTagsQueryResponse>({

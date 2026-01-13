@@ -2,7 +2,7 @@ import type { GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../
 
 export function getUserByName(
   username: GetUserByNamePathParams['username'],
-  options?: Partial<Cypress.RequestOptions>,
+  options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<GetUserByNameQueryResponse> {
   return cy
     .request<GetUserByNameQueryResponse>({

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export function createPets(data: CreatePetsMutationRequest, options?: Partial<Cypress.RequestOptions>): Cypress.Chainable<CreatePetsMutationResponse> {
+export function createPets(data: CreatePetsMutationRequest, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<CreatePetsMutationResponse> {
   return cy
     .request<CreatePetsMutationResponse>({
       method: 'post',

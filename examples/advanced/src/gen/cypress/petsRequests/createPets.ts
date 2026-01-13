@@ -11,7 +11,7 @@ export function createPets(
   data: CreatePetsMutationRequest,
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,
-  options?: Partial<Cypress.RequestOptions>,
+  options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<CreatePetsMutationResponse> {
   return cy
     .request<CreatePetsMutationResponse>({

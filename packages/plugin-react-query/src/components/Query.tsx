@@ -1,4 +1,4 @@
-import { isOptional, type Operation } from '@kubb/oas'
+import { isAllOptional, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
@@ -37,30 +37,38 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   if (paramsType === 'object') {
+    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
+
+    const children = {
+      ...pathParams,
+      data: typeSchemas.request?.name
+        ? {
+            type: typeSchemas.request?.name,
+            optional: isOptional(typeSchemas.request?.schema),
+          }
+        : undefined,
+      params: typeSchemas.queryParams?.name
+        ? {
+            type: typeSchemas.queryParams?.name,
+            optional: isOptional(typeSchemas.queryParams?.schema),
+          }
+        : undefined,
+      headers: typeSchemas.headerParams?.name
+        ? {
+            type: typeSchemas.headerParams?.name,
+            optional: isOptional(typeSchemas.headerParams?.schema),
+          }
+        : undefined,
+    }
+
+    // Check if all children are optional or undefined
+    const allChildrenAreOptional = Object.values(children).every((child) => !child || child.optional)
+
     return FunctionParams.factory({
       data: {
         mode: 'object',
-        children: {
-          ...getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          data: typeSchemas.request?.name
-            ? {
-                type: typeSchemas.request?.name,
-                optional: isOptional(typeSchemas.request?.schema),
-              }
-            : undefined,
-          params: typeSchemas.queryParams?.name
-            ? {
-                type: typeSchemas.queryParams?.name,
-                optional: isOptional(typeSchemas.queryParams?.schema),
-              }
-            : undefined,
-          headers: typeSchemas.headerParams?.name
-            ? {
-                type: typeSchemas.headerParams?.name,
-                optional: isOptional(typeSchemas.headerParams?.schema),
-              }
-            : undefined,
-        },
+        children,
+        default: allChildrenAreOptional ? '{}' : undefined,
       },
       options: {
         type: `
@@ -79,7 +87,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, dataReturnType, t
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
           children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          optional: isOptional(typeSchemas.pathParams?.schema),
+          default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
         }
       : undefined,
     data: typeSchemas.request?.name
