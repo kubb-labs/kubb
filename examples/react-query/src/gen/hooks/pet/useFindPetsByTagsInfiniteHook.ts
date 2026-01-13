@@ -41,7 +41,6 @@ export function findPetsByTagsInfiniteQueryOptionsHook(params?: FindPetsByTagsQu
     typeof queryKey,
     NonNullable<FindPetsByTagsQueryParams['pageSize']>
   >({
-    enabled: !!params,
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
       config.signal = signal

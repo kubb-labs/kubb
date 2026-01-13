@@ -37,7 +37,6 @@ export function findPetsByStatusQueryOptions(
 ) {
   const queryKey = findPetsByStatusQueryKey(params)
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
-    enabled: !!params,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

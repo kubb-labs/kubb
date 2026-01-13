@@ -137,9 +137,13 @@ export function QueryOptions({ name, clientName, dataReturnType, typeSchemas, pa
   })
 
   const enabled = Object.entries(queryKeyParams.flatParams)
-    .map(([key, item]) => (item && !item.optional ? `${key}` : undefined))
+    .map(([key, item]) => {
+      // Only include if the parameter exists and is NOT optional
+      // This ensures we only check required parameters
+      return item && !item.optional && !item.default ? key : undefined
+    })
     .filter(Boolean)
-    .join(' && ')
+    .join('&& ')
 
   const enabledText = enabled ? `enabled: !!(${enabled}),` : ''
 

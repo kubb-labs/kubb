@@ -12,7 +12,6 @@ export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 export function loginUserQueryOptions({ params }: { params?: LoginUserQueryParams } = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = loginUserQueryKey(params)
   return queryOptions<ResponseConfig<LoginUserQueryResponse>, ResponseErrorConfig<LoginUser400>, ResponseConfig<LoginUserQueryResponse>, typeof queryKey>({
-    enabled: !!params,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

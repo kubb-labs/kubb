@@ -44,7 +44,6 @@ export function findPetsByStatusSuspenseInfiniteQueryOptions(
     typeof queryKey,
     NonNullable<FindPetsByStatusQueryParams['status']>
   >({
-    enabled: !!params,
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
       config.signal = signal

@@ -38,7 +38,6 @@ export function findPetsByTagsQueryOptions(
 ) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey>({
-    enabled: !!params,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

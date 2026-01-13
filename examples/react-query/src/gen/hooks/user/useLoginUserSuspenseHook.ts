@@ -28,7 +28,6 @@ export async function loginUserSuspenseHook(params?: LoginUserQueryParams, confi
 export function loginUserSuspenseQueryOptionsHook(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const queryKey = loginUserSuspenseQueryKey(params)
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
-    enabled: !!params,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal

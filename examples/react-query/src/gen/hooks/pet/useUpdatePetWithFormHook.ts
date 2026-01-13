@@ -47,7 +47,7 @@ export function updatePetWithFormQueryOptionsHook(
 ) {
   const queryKey = updatePetWithFormQueryKey(pet_id, params)
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
-    enabled: !!(pet_id && params),
+    enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
