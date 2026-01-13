@@ -4,12 +4,12 @@ packages:
   - tests/**
 
 catalog:
-  "@types/node": ^20.19.28
+  "@types/node": ^20.19.29
   "@kubb/fabric-core": 0.9.5
   "@kubb/react-fabric": 0.9.5
   "@size-limit/file": ^11.2.0
   "size-limit": ^11.2.0
   p-limit: ^7.2.0
-  remeda: ^2.33.1
+  remeda: ^2.33.2
   tsdown: ^0.18.4
   typescript: ^5.9.3
