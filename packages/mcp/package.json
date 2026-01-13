@@ -31,7 +31,6 @@
   "bin": {
     "kubb-mcp": "bin/kubb-mcp.cjs"
   },
-
   "files": [
     "src",
     "dist",
