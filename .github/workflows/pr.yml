@@ -212,6 +212,7 @@ jobs:
 
       - name: Publish preview packages
         run: pnpx pkg-pr-new publish --pnpm --owner=stijnvanhulle --repo=https://github.com/kubb-labs/kubb.git './packages/*' --template './examples/*'
+
   dependency-diff:
     name: Dependency Diff
     timeout-minutes: 10
