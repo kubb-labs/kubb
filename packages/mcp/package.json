@@ -71,8 +71,9 @@
     "@kubb/plugin-react-query": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/react-fabric": "catalog:",
-    "@modelcontextprotocol/sdk": "1.21.1",
-    "zod": "^3.25.76"
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "jiti": "^2.6.1",
+    "zod": "^4.3.5"
   },
   "peerDependencies": {
     "@kubb/react-fabric": "0.9.5"
