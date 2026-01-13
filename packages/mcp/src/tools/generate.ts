@@ -17,7 +17,7 @@ interface NotificationHandler {
  * Sends real-time notifications of build progress and events.
  */
 export async function generate(schema: z.infer<typeof generateSchema>, handler: NotificationHandler): Promise<CallToolResult> {
-  const { config: configPath, input, output, logLevel, watch } = schema
+  const { config: configPath, input, output, logLevel } = schema
 
   try {
     const events = new AsyncEventEmitter<KubbEvents>()
@@ -96,7 +96,7 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
         throw new Error('Array type in kubb.config.ts is not supported in this tool. Please provide a single configuration object.')
       }
 
-      userConfig = await resolveUserConfig(userConfig, { configPath, logLevel, watch })
+      userConfig = await resolveUserConfig(userConfig, { configPath, logLevel })
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       await notify(NotifyTypes.CONFIG_ERROR, errorMessage)

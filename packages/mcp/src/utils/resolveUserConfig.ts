@@ -4,7 +4,6 @@ import { isPromise } from '@kubb/core/utils'
 export type ResolveUserConfigOptions = {
   configPath?: string
   logLevel?: string
-  watch?: boolean
 }
 
 /**
@@ -14,7 +13,7 @@ export async function resolveUserConfig(userConfig: UserConfig, options: Resolve
   let kubbUserConfig = Promise.resolve(userConfig) as Promise<UserConfig>
 
   if (typeof userConfig === 'function') {
-    const possiblePromise = (userConfig as any)({ logLevel: options.logLevel, watch: options.watch, config: options.configPath } as CLIOptions)
+    const possiblePromise = (userConfig as any)({ logLevel: options.logLevel, config: options.configPath } as CLIOptions)
     if (isPromise(possiblePromise)) {
       kubbUserConfig = possiblePromise
     } else {
