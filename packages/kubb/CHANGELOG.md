@@ -1,5 +1,13 @@
 # kubb
 
+## 3.0.183
+
+### Patch Changes
+
+- Updated dependencies [[`f263a20`](https://github.com/kubb-labs/kubb/commit/f263a20f1f31707092e2aca8058875e979b8517e)]:
+  - @kubb/core@4.16.0
+  - @kubb/cli@4.16.0
+
 ## 3.0.182
 
 ### Patch Changes
