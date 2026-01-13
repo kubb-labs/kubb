@@ -28,6 +28,7 @@
 - Convert Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 to TypeScript, Zod, React-Query, ...
 - Plugin ecosystem to extend beyond the default plugins we provide.
 - CLI support with progress bar and detailed logs.
+- Model Context Protocol (MCP) server for AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible tools.
 - Debug tools with React DevTools.
 - Generates barrel files (index.ts).
 - And so much more ...

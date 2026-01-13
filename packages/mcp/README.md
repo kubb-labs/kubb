@@ -1,36 +1,55 @@
 # @kubb/mcp
 
-Model Context Protocol (MCP) server for Kubb - an OpenAPI code generator.
+Model Context Protocol (MCP) server for Kubb.
 
 ## Overview
 
-This package provides an MCP server that exposes Kubb's build functionality through the Model Context Protocol, allowing AI assistants and other MCP clients to generate code from OpenAPI specifications.
+This package provides an MCP server that exposes Kubb's code generation functionality through the [Model Context Protocol](https://modelcontextprotocol.io), allowing AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible clients to generate code from OpenAPI specifications using natural language.
+
+The server acts as a bridge between MCP clients (like [Claude Desktop](https://claude.ai/download)) and Kubb's build system, enabling conversational code generation workflows.
 
 ## Features
 
-- **Build Tool**: Generate TypeScript types, API clients, and more from OpenAPI specs using your kubb.config.ts
+- **Generate Tool**: Generate TypeScript types, API clients, and more from OpenAPI specs using your `kubb.config.ts`
 - **Real-time Progress Notifications**: Stream build events and progress updates to the MCP client
+- **Watch Mode Support**: Enable watch mode for continuous regeneration on file changes
 - Uses `@kubb/core` build functionality directly
 - Lightweight and focused on code generation
 
 ## Installation
 
-```bash
-npm install @kubb/mcp
+Install as a dev dependency:
+
+```bash [npm]
+npm install --save-dev @kubb/mcp
 ```
+
+> [!IMPORTANT]
+> You also need to install `@kubb/cli` to use the `kubb mcp` command.
 
 ## Usage
 
-### As an MCP Server
+### Start the MCP Server
 
-Start the server:
+Start the server using the Kubb CLI:
 
 ```bash
 npx kubb mcp
 ```
 
-Or add to your MCP client configuration (e.g., Claude Desktop):
+Or run it directly as a standalone package:
 
+```bash
+npx @kubb/mcp
+```
+
+This starts an MCP server that communicates via stdio (standard input/output), making it compatible with MCP clients.
+
+### Configure MCP Client
+
+Add to your MCP client configuration (e.g., [Claude Desktop](https://claude.ai/download)'s `claude_desktop_config.json`):
+
+**Option 1: Using Kubb CLI (recommended):**
 ```json
 {
   "mcpServers": {
@@ -42,56 +61,69 @@ Or add to your MCP client configuration (e.g., Claude Desktop):
 }
 ```
 
-### Available Tools
+**Option 2: Using standalone bin:**
+```json
+{
+  "mcpServers": {
+    "kubb": {
+      "command": "npx",
+      "args": ["@kubb/mcp"]
+    }
+  }
+}
+```
 
-#### `build`
-
-Build OpenAPI spec using Kubb configuration.
-
-**Parameters:**
-- `config` (optional): Path to kubb.config.ts file or inline JSON config string
-- `input` (optional): Path to OpenAPI/Swagger spec file (overrides config)
-- `output` (optional): Output directory path (overrides config)
-
-**Example:**
+For project-specific configurations, you can specify the working directory:
 
 ```json
 {
+  "mcpServers": {
+    "kubb-petstore": {
+      "command": "npx",
+      "args": ["@kubb/mcp"],
+      "cwd": "/path/to/your/project"
+    }
+  }
+}
+```
+
+### Available Tools
+
+#### `generate`
+
+Generate code from OpenAPI/Swagger specifications using Kubb configuration.
+
+**Parameters:**
+- `config` (string, optional): Path to kubb.config.ts file. If not provided, looks for kubb.config.ts in current directory
+- `input` (string, optional): Path to OpenAPI/Swagger spec file (overrides config file setting)
+- `output` (string, optional): Output directory path (overrides config file setting)
+- `watch` (boolean, optional): Enable watch mode for continuous regeneration on file changes (default: false)
+- `logLevel` (enum, optional): Control logging verbosity - `'silent'`, `'error'`, `'warn'`, `'info'`, `'verbose'`, `'debug'` (default: 'info')
+
+**Examples:**
+
+Using default config file:
+```json
+{
+  "config": "./kubb.config.ts"
+}
+```
+
+Overriding input and output:
+```json
+{
   "config": "./kubb.config.ts",
-  "input": "./petstore.yaml",
+  "input": "./specs/petstore.yaml",
   "output": "./src/generated"
 }
 ```
 
-### Real-time Notifications
-
-The build tool streams real-time progress notifications to the MCP client via the `kubb/progress` notification method. This enables live feedback during code generation.
-
-**Notification Types:**
-
-- `CONFIG_LOADED` - Configuration file loaded
-- `CONFIG_READY` - Configuration validated and ready
-- `SETUP_START` / `SETUP_END` - Kubb initialization phase
-- `BUILD_START` / `BUILD_END` - Build phase
-- `PLUGIN_START` / `PLUGIN_END` - Individual plugin execution with duration
-- `FILES_START` / `FILES_END` - File processing phase
-- `FILE_UPDATE` - Individual file being processed
-- `GENERATION_START` / `GENERATION_END` - Overall generation lifecycle
-- `INFO` - Informational messages
-- `SUCCESS` - Success messages
-- `WARN` - Warning messages
-- `ERROR` - Error messages with stack trace
-- `BUILD_SUCCESS` - Final success notification with file count
-- `BUILD_FAILED` - Build failure notification with error details
-- `FATAL_ERROR` - Unexpected fatal error
-
-**Notification Payload Example:**
-
+With watch mode and verbose logging:
 ```json
 {
-  "type": "FILE_UPDATE",
-  "message": "Processing file: src/generated/client.ts",
-  "timestamp": "2024-01-13T10:30:45.123Z"
+  "config": "./kubb.config.ts",
+  "watch": true,
+  "logLevel": "verbose"
 }
 ```
 

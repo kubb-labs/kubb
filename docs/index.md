@@ -7,7 +7,7 @@ titleTemplate: The ultimate toolkit for working with APIs
 
 hero:
   name: The ultimate toolkit for working with APIs.
-  tagline: OpenAPI to TypeScript, React-Query, Zod, Faker.js, MCP(with Claude), MSW and Axios.
+  tagline: OpenAPI to TypeScript, React-Query, Zod, Faker.js, MCP (Claude, Cursor), MSW and Axios.
   image:
     src: ./logo.png
     alt: Kubbb
@@ -50,6 +50,13 @@ features:
     title: MCP <span class="new">new in 3.10.0</span>
     details: Use MCP to unlock intelligent, conversational access to your API.
     link: /plugins/plugin-mcp/
+    linkText: Learn more
+  - icon:
+      dark: ./feature/mcp-dark.svg
+      light: ./feature/mcp-light.svg
+    title: MCP <span class="new">new in 3.16.0</span>
+    details: Generate code via <a href="https://claude.ai">Claude</a>, <a href="https://cursor.sh">Cursor</a>, and other MCP clients using natural language.
+    link: /helpers/mcp/
     linkText: Learn more
   - icon:
       src: ./feature/cypress.svg

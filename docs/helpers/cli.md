@@ -207,7 +207,37 @@ kubb generate --input
 ```
 
 ## `kubb mcp`
-Start a MCP server to make Kubb work together with a LLM like Claude.
+Start a [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server to enable AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible tools to interact with Kubb through natural language.
+
+The MCP server exposes Kubb's code generation functionality through the Model Context Protocol, allowing AI assistants to generate code from OpenAPI specifications using conversational commands.
 
 > [!IMPORTANT]
-> `@kubb/mcp` should be installed
+> `@kubb/mcp` should be installed to use this command.
+
+::: code-group
+```shell [bun]
+bun add -d @kubb/mcp
+```
+
+```shell [pnpm]
+pnpm add -D @kubb/mcp
+```
+
+```shell [npm]
+npm install --save-dev @kubb/mcp
+```
+
+```shell [yarn]
+yarn add -D @kubb/mcp
+```
+:::
+
+### Usage
+
+```shell [node]
+npx kubb mcp
+```
+
+This starts an MCP server that communicates via stdio (standard input/output), making it compatible with MCP clients like [Claude Desktop](https://claude.ai/download), [Cursor](https://cursor.sh), and other MCP-compatible tools.
+
+For more information about configuring MCP for Kubb, see [using Kubb MCP](./mcp.md).

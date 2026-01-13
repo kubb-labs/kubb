@@ -5,6 +5,20 @@ outline: deep
 
 # Changelog
 
+## 4.16.0
+
+### ✨ Features
+
+#### MCP Support
+
+Kubb now includes support for the Model Context Protocol (MCP), enabling AI assistants and tools to interact with your OpenAPI specifications programmatically.
+
+> [!NOTE]
+> The Kubb MCP server allows AI assistants like Claude Desktop to read, analyze, and generate code from OpenAPI specifications using the standardized MCP interface.
+
+> [!TIP]
+> To use the Kubb MCP server, install `@kubb/mcp` and run `npx @kubb/mcp` or `kubb mcp`
+
 ## 4.15.2
 
 ### 🐛 Bug Fixes
