@@ -679,6 +679,30 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  examples/valibot:
+    dependencies:
+      '@kubb/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../../packages/plugin-oas
+      '@kubb/plugin-ts':
+        specifier: workspace:*
+        version: link:../../packages/plugin-ts
+      '@kubb/plugin-valibot':
+        specifier: workspace:*
+        version: link:../../packages/plugin-valibot
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      valibot:
+        specifier: ^1.2.0
+        version: 1.2.0(typescript@5.9.3)
+
   examples/vue-query:
     dependencies:
       '@kubb/cli':
@@ -1199,6 +1223,28 @@ importers:
       typescript:
         specifier: 5.9.3
         version: 5.9.3
+
+  packages/plugin-valibot:
+    dependencies:
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
+      '@kubb/plugin-ts':
+        specifier: workspace:*
+        version: link:../plugin-ts
+      '@kubb/react-fabric':
+        specifier: 'catalog:'
+        version: 0.5.4
+    devDependencies:
+      valibot:
+        specifier: ^1.2.0
+        version: 1.2.0(typescript@5.9.3)
 
   packages/plugin-vue-query:
     dependencies:
@@ -5875,6 +5921,14 @@ packages:
 
   v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
+
+  valibot@1.2.0:
+    resolution: {integrity: sha512-mm1rxUsmOxzrwnX5arGS+U4T25RdvpPjPN4yR0u9pUBov9+zGVtO84tif1eY4r6zWxVxu3KzIyknJy3rxfRZZg==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   validate.io-array@1.0.6:
     resolution: {integrity: sha512-DeOy7CnPEziggrOO5CZhVKJw6S3Yi7e9e65R1Nl/RTN1vTQKnzjfvks0/8kQ40FP/dsjRAOd4hxmJ7uLa6vxkg==}
@@ -11097,6 +11151,10 @@ snapshots:
   uuid@8.3.2: {}
 
   v8-compile-cache-lib@3.0.1: {}
+
+  valibot@1.2.0(typescript@5.9.3):
+    optionalDependencies:
+      typescript: 5.9.3
 
   validate.io-array@1.0.6: {}
 
