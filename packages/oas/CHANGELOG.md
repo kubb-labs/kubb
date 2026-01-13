@@ -1,5 +1,62 @@
 # @kubb/oas
 
+## 4.15.2
+
+### Patch Changes
+
+- [#2301](https://github.com/kubb-labs/kubb/pull/2301) [`dfcc4fc`](https://github.com/kubb-labs/kubb/commit/dfcc4fcaf80e31fad6e10d886fdf87b79fc2817d) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Standardize optional parameter handling across all query plugins and improve structural optionality detection.
+
+  **Key improvements:**
+  1. **Fixed `getASTParams` required field detection** - Now correctly checks parent schema's `required` array instead of calling `isOptional` on individual property schemas.
+  2. **Added `isAllOptional` utility** - Recursively checks if a schema has no required fields, including composed schemas (allOf, anyOf, oneOf). Used for pathParams structural optionality detection.
+  3. **Unified parameter optionality pattern** - All query plugins now use consistent approach:
+     - Object-mode: Uses `optional` field with `allChildrenAreOptional` check
+     - Non-object mode: Inlined optionality checks directly in parameter definitions
+     - pathParams: Uses `isAllOptional` for complex schema compositions
+
+  **Before:**
+
+  ```typescript
+  // Separate const variables
+  const pathParamsOptional = typeSchemas.pathParams?.name ? isOptional(...) : false
+  const dataOptional = typeSchemas.request?.name ? isOptional(...) : false
+
+  return FunctionParams.factory({
+    pathParams: { ..., optional: pathParamsOptional },
+    data: { ..., optional: dataOptional },
+  })
+  ```
+
+  **After:**
+
+  ```typescript
+  // Inlined checks with proper structural detection
+  return FunctionParams.factory({
+    pathParams: typeSchemas.pathParams?.name
+      ? {
+          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+          children: getPathParams(...),
+          default: (typeSchemas.pathParams?.name
+            ? isAllOptional(typeSchemas.pathParams?.schema)
+            : false) ? '{}' : undefined,
+        }
+      : undefined,
+    data: typeSchemas.request?.name
+      ? {
+          type: typeSchemas.request?.name,
+          optional: typeSchemas.request?.name
+            ? isOptional(typeSchemas.request?.schema)
+            : false,
+        }
+      : undefined,
+  })
+  ```
+
+  This ensures consistent behavior across all plugins and better handling of complex OpenAPI schema compositions.
+
+- Updated dependencies []:
+  - @kubb/core@4.15.2
+
 ## 4.15.1
 
 ### Patch Changes
