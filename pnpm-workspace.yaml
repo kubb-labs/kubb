@@ -5,8 +5,8 @@ packages:
 
 catalog:
   "@types/node": ^20.19.29
-  "@kubb/fabric-core": 0.9.5
-  "@kubb/react-fabric": 0.9.5
+  "@kubb/fabric-core": 0.0.0-canary-20260113205926
+  "@kubb/react-fabric": 0.0.0-canary-20260113205926
   "@size-limit/file": ^11.2.0
   "size-limit": ^11.2.0
   p-limit: ^7.2.0

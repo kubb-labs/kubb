@@ -34,7 +34,7 @@
 		"lint": "biome lint ./packages",
 		"lint:case": "npx case-police --ignore **/plugin-client/** --fix",
 		"lint:ci": "biome lint ./packages",
-		"lint:fix": "biome lint --write --unsafe ./packages && npx manypkg fix && pnpm run lint:case",
+		"lint:fix": "biome lint --write --unsafe ./packages && manypkg fix && pnpm run lint:case",
 		"knip": "knip",
 		"knip:production": "knip --production",
 		"release": "changeset publish",
@@ -59,6 +59,7 @@
 		"@changesets/cli": "^2.29.8",
 		"@kubb/fabric-core": "catalog:",
 		"@kubb/react-fabric": "catalog:",
+		"@manypkg/cli": "^0.25.1",
 		"@size-limit/file": "catalog:",
 		"@types/node": "catalog:",
 		"@vitest/coverage-v8": "^4.0.17",
@@ -85,7 +86,11 @@
 	"pnpm": {
 		"onlyBuiltDependencies": [
 			"esbuild"
-		]
+		],
+		"overrides": {
+			"@kubb/fabric-core": "0.0.0-canary-20260113205926",
+			"@kubb/react-fabric": "0.0.0-canary-20260113205926"
+		}
 	},
 	"namespace": "@kubb"
 }
