@@ -54,7 +54,7 @@ features:
   - icon:
       dark: ./feature/mcp-dark.svg
       light: ./feature/mcp-light.svg
-    title: MCP helper <span class="new">new in 3.16.0</span>
+    title: @kubb/mcp <span class="new">new in 3.16.0</span>
     details: Generate code via <a href="https://claude.ai">Claude</a>, <a href="https://cursor.sh">Cursor</a>, and other MCP clients using natural language.
     link: /helpers/mcp/
     linkText: Learn more
