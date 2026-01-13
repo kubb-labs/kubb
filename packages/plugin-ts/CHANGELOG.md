@@ -1,5 +1,36 @@
 # @kubb/plugin-ts
 
+## 4.15.1
+
+### Patch Changes
+
+- [#2294](https://github.com/kubb-labs/kubb/pull/2294) [`349a274`](https://github.com/kubb-labs/kubb/commit/349a274390adef38404be4fea5b54376f8d1dc40) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix TS2411 error in generated QueryParams types by using `unknown` type for index signatures when typed properties coexist with `additionalProperties`. This resolves TypeScript compilation errors that occur when query parameters combine typed params (enums, objects) with dynamic params from `explode: true` and `style: form`.
+
+  **Before:**
+
+  ```typescript
+  export type QueryParams = {
+    include?: "author" | "tags"; // TS2411: not assignable to string
+    page?: { number?: number }; // TS2411: not assignable to string
+    [key: string]: string;
+  };
+  ```
+
+  **After:**
+
+  ```typescript
+  export type QueryParams = {
+    include?: "author" | "tags";
+    page?: { number?: number };
+    [key: string]: unknown; // All properties compatible
+  };
+  ```
+
+- Updated dependencies []:
+  - @kubb/core@4.15.1
+  - @kubb/oas@4.15.1
+  - @kubb/plugin-oas@4.15.1
+
 ## 4.15.0
 
 ### Patch Changes

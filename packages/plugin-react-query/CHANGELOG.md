@@ -1,5 +1,19 @@
 # @kubb/plugin-react-query
 
+## 4.15.1
+
+### Patch Changes
+
+- [#2302](https://github.com/kubb-labs/kubb/pull/2302) [`01f095f`](https://github.com/kubb-labs/kubb/commit/01f095f226907b61dff96578f187e487979cc6bf) Thanks [@EricPierlotIdmog](https://github.com/EricPierlotIdmog)! - Add TContext generic to mutationOptions for proper onMutate context typing
+
+- Updated dependencies [[`349a274`](https://github.com/kubb-labs/kubb/commit/349a274390adef38404be4fea5b54376f8d1dc40)]:
+  - @kubb/plugin-ts@4.15.1
+  - @kubb/plugin-client@4.15.1
+  - @kubb/plugin-zod@4.15.1
+  - @kubb/core@4.15.1
+  - @kubb/oas@4.15.1
+  - @kubb/plugin-oas@4.15.1
+
 ## 4.15.0
 
 ### Minor Changes
