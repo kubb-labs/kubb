@@ -1,5 +1,11 @@
 # @kubb/core
 
+## 4.16.0
+
+### Minor Changes
+
+- [#2306](https://github.com/kubb-labs/kubb/pull/2306) [`f263a20`](https://github.com/kubb-labs/kubb/commit/f263a20f1f31707092e2aca8058875e979b8517e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for Kubb MCP with `npx @kubb/mcp` or `kubb mcp`
+
 ## 4.15.2
 
 ## 4.15.1
