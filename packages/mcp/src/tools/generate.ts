@@ -36,51 +36,51 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
     }
 
     // Capture events for output and send notifications
-    events.on('info', (message: string) => {
-      notify(NotifyTypes.INFO, message)
+    events.on('info', async (message: string) => {
+      await notify(NotifyTypes.INFO, message)
     })
 
-    events.on('success', (message: string) => {
-      notify(NotifyTypes.SUCCESS, message)
+    events.on('success', async (message: string) => {
+      await notify(NotifyTypes.SUCCESS, message)
     })
 
-    events.on('error', (error: Error) => {
-      notify(NotifyTypes.ERROR, error.message, { stack: error.stack })
+    events.on('error', async (error: Error) => {
+      await notify(NotifyTypes.ERROR, error.message, { stack: error.stack })
     })
 
-    events.on('warn', (message: string) => {
-      notify(NotifyTypes.WARN, message)
+    events.on('warn', async (message: string) => {
+      await notify(NotifyTypes.WARN, message)
     })
 
     // Plugin lifecycle events
-    events.on('plugin:start', ({ name }: { name: string }) => {
-      notify(NotifyTypes.PLUGIN_START, `Plugin starting: ${name}`)
+    events.on('plugin:start', async ({ name }: { name: string }) => {
+      await notify(NotifyTypes.PLUGIN_START, `Plugin starting: ${name}`)
     })
 
-    events.on('plugin:end', ({ name, duration }: { name: string; duration?: number }) => {
-      notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${name}`, { duration })
+    events.on('plugin:end', async ({ name, duration }: { name: string; duration?: number }) => {
+      await notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${name}`, { duration })
     })
 
     // File processing events
-    events.on('files:processing:start', () => {
-      notify(NotifyTypes.FILES_START, 'Starting file processing')
+    events.on('files:processing:start', async () => {
+      await notify(NotifyTypes.FILES_START, 'Starting file processing')
     })
 
-    events.on('file:processing:update', ({ file }: { file: { name: string } }) => {
-      notify(NotifyTypes.FILE_UPDATE, `Processing file: ${file.name}`)
+    events.on('file:processing:update', async ({ file }: { file: { name: string } }) => {
+      await notify(NotifyTypes.FILE_UPDATE, `Processing file: ${file.name}`)
     })
 
-    events.on('files:processing:end', () => {
-      notify(NotifyTypes.FILES_END, 'File processing complete')
+    events.on('files:processing:end', async () => {
+      await notify(NotifyTypes.FILES_END, 'File processing complete')
     })
 
     // Generation events
-    events.on('generation:start', () => {
-      notify(NotifyTypes.GENERATION_START, 'Generation started')
+    events.on('generation:start', async () => {
+      await notify(NotifyTypes.GENERATION_START, 'Generation started')
     })
 
-    events.on('generation:end', () => {
-      notify(NotifyTypes.GENERATION_END, 'Generation ended')
+    events.on('generation:end', async () => {
+      await notify(NotifyTypes.GENERATION_END, 'Generation ended')
     })
 
     // Load and process configuration

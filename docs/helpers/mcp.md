@@ -139,7 +139,7 @@ Once configured, you can interact with Kubb through natural language:
 > - Plugin execution
 > - File generation progress
 > - Final file count
-> -
+
 ## Available Tools
 
 The MCP server exposes the following tools to AI assistants:
