@@ -23,25 +23,18 @@
       "require": "./dist/index.cjs",
       "import": "./dist/index.js"
     },
-    "./server": {
-      "require": "./dist/server.cjs",
-      "import": "./dist/server.js"
-    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.cts",
-  "typesVersions": {
-    "*": {
-      "server": [
-        "./dist/server.d.ts"
-      ]
-    }
+  "bin": {
+    "kubb-mcp": "bin/kubb-mcp.cjs"
   },
   "files": [
     "src",
     "dist",
+    "bin",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
@@ -55,7 +48,7 @@
   "scripts": {
     "build": "tsdown && size-limit",
     "start:mcp": "bun --watch ./src/server.ts",
-    "debug:mcp": "npx -y @modelcontextprotocol/inspector node ./dist/server.js",
+    "debug:mcp": "npx -y @modelcontextprotocol/inspector node ./bin/kubb-mcp.cjs",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --fix --unsafe .",
@@ -67,12 +60,10 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
-    "@kubb/plugin-react-query": "workspace:*",
-    "@kubb/plugin-ts": "workspace:*",
     "@kubb/react-fabric": "catalog:",
-    "@modelcontextprotocol/sdk": "1.21.1",
-    "zod": "^3.25.76"
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "jiti": "^2.6.1",
+    "zod": "^4.3.5"
   },
   "peerDependencies": {
     "@kubb/react-fabric": "0.9.5"

@@ -166,6 +166,11 @@
               "activeMatch": "^/helpers/cli/?$"
             },
             {
+              "text": "@kubb/mcp <span class=\"new\">new in 4.16.0</span>",
+              "link": "/helpers/mcp",
+              "activeMatch": "^/helpers/mcp/?$"
+            },
+            {
               "text": "unplugin-kubb",
               "link": "/builders/unplugin",
               "activeMatch": "^/builders/unplugin/?$"

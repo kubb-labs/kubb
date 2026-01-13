@@ -36,11 +36,11 @@ const command = defineCommand({
       console.error(`Import of '@kubb/mcp' is required to start the MCP server`)
     }
 
-    const { startServer } = mod
+    const { run } = mod
     try {
       console.log('⏳ Starting MCP server...')
       console.warn(pc.yellow('This feature is still under development — use with caution'))
-      await startServer()
+      await run()
     } catch (error) {
       console.error((error as Error)?.message)
     }
