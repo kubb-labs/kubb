@@ -6,6 +6,12 @@ settings:
 
 catalogs:
   default:
+    '@kubb/fabric-core':
+      specifier: 0.10.0
+      version: 0.10.0
+    '@kubb/react-fabric':
+      specifier: 0.10.0
+      version: 0.10.0
     '@size-limit/file':
       specifier: ^11.2.0
       version: 11.2.0
@@ -28,10 +34,6 @@ catalogs:
       specifier: ^5.9.3
       version: 5.9.3
 
-overrides:
-  '@kubb/fabric-core': 0.0.0-canary-20260113205926
-  '@kubb/react-fabric': 0.0.0-canary-20260113205926
-
 importers:
 
   .:
@@ -46,11 +48,11 @@ importers:
         specifier: ^2.29.8
         version: 2.29.8(@types/node@20.19.29)
       '@kubb/fabric-core':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       '@manypkg/cli':
         specifier: ^0.25.1
         version: 0.25.1
@@ -151,8 +153,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: ~0.10.0
+        version: 0.10.0
       '@modelcontextprotocol/sdk':
         specifier: 1.21.1
         version: 1.21.1
@@ -224,8 +226,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: ~0.10.0
+        version: 0.10.0
       axios:
         specifier: ^1.13.2
         version: 1.13.2
@@ -292,8 +294,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: ~0.10.0
+        version: 0.10.0
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
@@ -348,8 +350,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: ~0.10.0
+        version: 0.10.0
       axios:
         specifier: ^1.13.2
         version: 1.13.2
@@ -462,8 +464,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: ~0.10.0
+        version: 0.10.0
       '@tanstack/react-query':
         specifier: ^5.90.16
         version: 5.90.16(react@19.2.3)
@@ -823,8 +825,8 @@ importers:
   packages/core:
     dependencies:
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       camelcase:
         specifier: ^8.0.0
         version: 8.0.0
@@ -875,8 +877,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       '@modelcontextprotocol/sdk':
         specifier: ^1.25.2
         version: 1.25.2(hono@4.11.4)(zod@4.3.5)
@@ -942,8 +944,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
     devDependencies:
       axios:
         specifier: ^1.13.2
@@ -964,8 +966,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
 
   packages/plugin-faker:
     dependencies:
@@ -982,8 +984,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
 
   packages/plugin-mcp:
     dependencies:
@@ -1006,8 +1008,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
 
   packages/plugin-msw:
     dependencies:
@@ -1027,8 +1029,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
 
   packages/plugin-oas:
     dependencies:
@@ -1039,8 +1041,8 @@ importers:
         specifier: workspace:*
         version: link:../oas
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       p-limit:
         specifier: 'catalog:'
         version: 7.2.0
@@ -1069,8 +1071,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       remeda:
         specifier: 'catalog:'
         version: 2.33.2
@@ -1087,8 +1089,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-oas
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
@@ -1114,8 +1116,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       remeda:
         specifier: 'catalog:'
         version: 2.33.2
@@ -1141,8 +1143,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       remeda:
         specifier: 'catalog:'
         version: 2.33.2
@@ -1168,8 +1170,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       remeda:
         specifier: 'catalog:'
         version: 2.33.2
@@ -1180,8 +1182,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@kubb/fabric-core':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1189,8 +1191,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-oas
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       natural-orderby:
         specifier: ^5.0.0
         version: 5.0.0
@@ -1222,8 +1224,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       remeda:
         specifier: 'catalog:'
         version: 2.33.2
@@ -1243,8 +1245,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
     devDependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.4.0
@@ -1323,8 +1325,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@kubb/react-fabric':
-        specifier: 0.0.0-canary-20260113205926
-        version: 0.0.0-canary-20260113205926
+        specifier: 'catalog:'
+        version: 0.10.0
       '@tanstack/react-query':
         specifier: ^5.90.16
         version: 5.90.16(react@18.3.1)
@@ -1889,12 +1891,12 @@ packages:
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
 
-  '@kubb/fabric-core@0.0.0-canary-20260113205926':
-    resolution: {integrity: sha512-10PMFxYMrUdrJA0qXyIUmnjVz/PKY4khrgFue71OWNkA6Z60XxD/uGgdu1KVj5AM7tenhkqZ+ljeGkby7CBjDw==}
+  '@kubb/fabric-core@0.10.0':
+    resolution: {integrity: sha512-eIHhuWYC2OmbXYKsywYCQLZ5eeAdBhf/rK3vTDuqvT44DLTe22aPxMGeNC/3+qJW78R50vM7D8BhYnUpzkI6Fg==}
     engines: {node: '>=20'}
 
-  '@kubb/react-fabric@0.0.0-canary-20260113205926':
-    resolution: {integrity: sha512-kslKMCewyUM+SCs93cqyhlPu27CHlRIPqC5PMeAQ5cgxk3a6CHyZZXDwxQdB+u/4ne3TpSTzHpKEiY91qQBPCA==}
+  '@kubb/react-fabric@0.10.0':
+    resolution: {integrity: sha512-xkOyhMYeyvTcoeEXqmOelVJEsSe3bd1xCgHa+Dsvj433rxvDeTU7eQNIXcJGbUba0CJMIwp+zSS2PF/CmTs9mA==}
     engines: {node: '>=20'}
 
   '@manypkg/cli@0.25.1':
@@ -6813,7 +6815,7 @@ snapshots:
     dependencies:
       jsep: 1.4.0
 
-  '@kubb/fabric-core@0.0.0-canary-20260113205926':
+  '@kubb/fabric-core@0.10.0':
     dependencies:
       '@clack/prompts': 1.0.0-alpha.8
       fs-extra: 11.3.3
@@ -6827,9 +6829,9 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@kubb/react-fabric@0.0.0-canary-20260113205926':
+  '@kubb/react-fabric@0.10.0':
     dependencies:
-      '@kubb/fabric-core': 0.0.0-canary-20260113205926
+      '@kubb/fabric-core': 0.10.0
       dedent: 1.7.1
       execa: 9.6.1
       indent-string: 5.0.0

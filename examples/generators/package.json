@@ -23,7 +23,7 @@
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "~0.0.0-canary-20260113205926",
+    "@kubb/react-fabric": "~0.10.0",
     "axios": "^1.13.2"
   },
   "devDependencies": {

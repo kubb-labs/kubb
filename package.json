@@ -86,11 +86,7 @@
 	"pnpm": {
 		"onlyBuiltDependencies": [
 			"esbuild"
-		],
-		"overrides": {
-			"@kubb/fabric-core": "0.0.0-canary-20260113205926",
-			"@kubb/react-fabric": "0.0.0-canary-20260113205926"
-		}
+		]
 	},
 	"namespace": "@kubb"
 }

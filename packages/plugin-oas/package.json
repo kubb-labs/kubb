@@ -97,7 +97,7 @@
     "remeda": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.0.0-canary-20260113205926"
+    "@kubb/react-fabric": "0.10.0"
   },
   "engines": {
     "node": ">=20"
