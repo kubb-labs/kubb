@@ -99,27 +99,6 @@ Add to `claude_desktop_config.json` (location varies by OS):
 }
 ```
 
-**For project-specific configurations:**
-
-If you have multiple projects with different Kubb configurations, specify the working directory:
-
-```json
-{
-  "mcpServers": {
-    "kubb-petstore": {
-      "command": "npx",
-      "args": ["@kubb/mcp"],
-      "cwd": "/path/to/your/petstore-project"
-    },
-    "kubb-api": {
-      "command": "npx",
-      "args": ["@kubb/mcp"],
-      "cwd": "/path/to/your/api-project"
-    }
-  }
-}
-```
-
 ### 3. Create a kubb.config.ts
 
 Ensure you have a `kubb.config.ts` file in your project:
@@ -151,7 +130,7 @@ Once configured, you can interact with Kubb through natural language:
 
 **Example conversation with Claude:**
 
-> **You:** "Use Kubb to generate code from my OpenAPI specification."
+> **You:** "Use Kubb to generate code from my OpenAPI specification in examples/cypress of my project"
 >
 > **Claude:** *Uses the Kubb MCP server to run the generate command*
 >
@@ -173,7 +152,7 @@ Generate code from OpenAPI/Swagger specifications using Kubb configuration.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `config` | string | No | `./kubb.config.ts` | Path to kubb.config.ts file |
+| `config` | string | No | `kubb.config.ts` | Path to kubb.config.ts file |
 | `input` | string | No | - | Path to OpenAPI/Swagger spec file (overrides config) |
 | `output` | string | No | - | Output directory path (overrides config) |
 | `watch` | boolean | No | `false` | Enable watch mode for continuous regeneration |

@@ -4,6 +4,7 @@ export const generateSchema = z.object({
   config: z
     .string()
     .optional()
+    .default('kubb.config.ts')
     .describe('Path to kubb.config.ts file. If not provided, will look for kubb.config.ts in current directory'),
   input: z.string().optional().describe('Path to OpenAPI/Swagger spec file (overrides config)'),
   output: z.string().optional().describe('Output directory path (overrides config)'),
