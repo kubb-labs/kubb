@@ -12,7 +12,6 @@ The server acts as a bridge between MCP clients (like [Claude Desktop](https://c
 
 - **Generate Tool**: Generate TypeScript types, API clients, and more from OpenAPI specs using your `kubb.config.ts`
 - **Real-time Progress Notifications**: Stream build events and progress updates to the MCP client
-- **Watch Mode Support**: Enable watch mode for continuous regeneration on file changes
 - Uses `@kubb/core` build functionality directly
 - Lightweight and focused on code generation
 
@@ -97,7 +96,6 @@ Generate code from OpenAPI/Swagger specifications using Kubb configuration.
 - `config` (string, optional): Path to kubb.config.ts file. If not provided, looks for kubb.config.ts in current directory
 - `input` (string, optional): Path to OpenAPI/Swagger spec file (overrides config file setting)
 - `output` (string, optional): Output directory path (overrides config file setting)
-- `watch` (boolean, optional): Enable watch mode for continuous regeneration on file changes (default: false)
 - `logLevel` (enum, optional): Control logging verbosity - `'silent'`, `'error'`, `'warn'`, `'info'`, `'verbose'`, `'debug'` (default: 'info')
 
 **Examples:**
@@ -118,11 +116,10 @@ Overriding input and output:
 }
 ```
 
-With watch mode and verbose logging:
+With verbose logging:
 ```json
 {
   "config": "./kubb.config.ts",
-  "watch": true,
   "logLevel": "verbose"
 }
 ```

@@ -155,7 +155,6 @@ Generate code from OpenAPI/Swagger specifications using Kubb configuration.
 | `config` | string | No | `kubb.config.ts` | Path to kubb.config.ts file |
 | `input` | string | No | - | Path to OpenAPI/Swagger spec file (overrides config) |
 | `output` | string | No | - | Output directory path (overrides config) |
-| `watch` | boolean | No | `false` | Enable watch mode for continuous regeneration |
 | `logLevel` | enum | No | `'info'` | Log level: `'silent'`, `'error'`, `'warn'`, `'info'`, `'verbose'`, `'debug'` |
 
 
