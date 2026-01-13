@@ -13,7 +13,7 @@ const jiti = createJiti(import.meta.url, {
  * Load the user configuration from the specified path or current directory
  */
 export async function loadUserConfig(configPath: string | undefined, { notify }: { notify: NotifyFunction }): Promise<{ userConfig: Config; cwd: string }> {
-  let userConfig: Config
+  let userConfig: Config | undefined
   let cwd: string
 
   if (configPath) {
@@ -29,17 +29,27 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
       throw new Error(`Failed to load config: ${error instanceof Error ? error.message : String(error)}`)
     }
   } else {
-    // Look for kubb.config.ts in current directory
+    // Look for kubb.config in current directory with various extensions
     cwd = process.cwd()
+    const configFileNames = ['kubb.config.ts', 'kubb.config.js', 'kubb.config.cjs']
 
-    try {
-      userConfig = await jiti.import(path.resolve(process.cwd(), 'kubb.config.ts'), { default: true })
-      await notify(NotifyTypes.CONFIG_LOADED, 'Loaded kubb.config.ts from current directory')
-    } catch {
+    for (const configFileName of configFileNames) {
+      try {
+        const configFilePath = path.resolve(process.cwd(), configFileName)
+        userConfig = await jiti.import(configFilePath, { default: true })
+        await notify(NotifyTypes.CONFIG_LOADED, `Loaded ${configFileName} from current directory`)
+        break
+      } catch {
+        // Continue trying next config file
+      }
+    }
+
+    if (!userConfig) {
       await notify(NotifyTypes.CONFIG_ERROR, 'No config file found')
-      throw new Error('No config file found. Please provide a config path or create kubb.config.ts')
+
+      throw new Error(`No config file found. Please provide a config path or create one of: ${configFileNames.join(', ')}`)
     }
   }
 
-  return { userConfig, cwd }
+  return { userConfig: userConfig!, cwd }
 }

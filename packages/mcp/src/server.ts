@@ -20,7 +20,7 @@ export async function startServer() {
 
     // Build tool - runs Kubb build using @kubb/core
     // Wrapped to pass notification handler for real-time progress updates
-    server.tool('generate', 'Generate OpenAPI spec helpers using Kubb configuration from kubb.config.ts', generateSchema.shape, async (args) => {
+    server.tool('generate', 'Generate OpenAPI spec helpers using Kubb configuration', generateSchema.shape, async (args) => {
       // Create notification handler that sends events back to the client
       const notificationHandler = {
         sendNotification: async (method: string, params: any) => {
