@@ -26,3 +26,19 @@ export function pascalCase(text: string, { isFile, prefix = '', suffix = '' }: O
 
   return _camelcase(`${prefix} ${text} ${suffix}`, { pascalCase: true, preserveConsecutiveUppercase: true }).replace(/[^a-zA-Z0-9]/g, '')
 }
+
+export function snakeCase(text: string, { prefix = '', suffix = '' }: Omit<Options, 'isFile'> = {}): string {
+  const processed = `${prefix} ${text} ${suffix}`.trim()
+  // Convert to lowercase and replace non-alphanumeric characters with underscores
+  return processed
+    .replace(/([a-z])([A-Z])/g, '$1_$2') // camelCase to snake_case
+    .replace(/[\s\-\.]+/g, '_') // spaces, hyphens, dots to underscores
+    .replace(/[^a-zA-Z0-9_]/g, '') // remove other special chars
+    .toLowerCase()
+    .replace(/_+/g, '_') // collapse multiple underscores
+    .replace(/^_|_$/g, '') // trim underscores from start and end
+}
+
+export function screamingSnakeCase(text: string, { prefix = '', suffix = '' }: Omit<Options, 'isFile'> = {}): string {
+  return snakeCase(text, { prefix, suffix }).toUpperCase()
+}

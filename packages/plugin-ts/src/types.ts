@@ -44,6 +44,16 @@ export type Options = {
    */
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   /**
+   * Choose the casing for enum key names.
+   * - `'screamingSnakeCase'`: ENUM_VALUE
+   * - `'snakeCase'`: enum_value
+   * - `'pascalCase'`: EnumValue
+   * - `'camelCase'`: enumValue
+   * - `'none'`: Uses the enum value as-is
+   * @default 'none'
+   */
+  enumKeyCasing?: 'screamingSnakeCase' | 'snakeCase' | 'pascalCase' | 'camelCase' | 'none'
+  /**
    * Switch between type or interface for creating TypeScript types
    * @default 'type'
    */
@@ -115,6 +125,7 @@ type ResolvedOptions = {
   group: Options['group']
   override: NonNullable<Options['override']>
   enumType: NonNullable<Options['enumType']>
+  enumKeyCasing: NonNullable<Options['enumKeyCasing']>
   enumSuffix: NonNullable<Options['enumSuffix']>
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
