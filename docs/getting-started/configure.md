@@ -208,9 +208,10 @@ Code formatter to use on generated files.
 | Required: | `false`                                     |
 |  Default: | `'prettier'`                                |
 
-- `'auto'` - Automatically detect and use available formatter (checks for biome, then prettier)
+- `'auto'` - Automatically detect and use available formatter (checks for biome, oxfmt then prettier)
 - `'prettier'` - Format with [Prettier](https://prettier.io/) (default, included since v3.17.1)
 - `'biome'` - Format with [Biome](https://biomejs.dev/)
+- `'oxfmt'` - Format with [Oxfmt](https://oxc.rs/docs/guide/usage/formatter)
 - `false` - Skip formatting
 
 > [!NOTE]

@@ -7,6 +7,7 @@ import pc from 'picocolors'
 import { detectFormatter } from '../utils/detectFormatter.ts'
 import { detectLinter } from '../utils/detectLinter.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
+import { formatters } from '../utils/formatters.ts'
 
 type GenerateProps = {
   input?: string
@@ -96,92 +97,43 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
   if (config.output.format) {
     await events.emit('format:start')
 
-    // Detect formatter if set to 'auto'
     let formatter = config.output.format
     if (formatter === 'auto') {
       const detectedFormatter = await detectFormatter()
       if (!detectedFormatter) {
-        await events.emit('warn', 'No formatter found (biome or prettier). Skipping formatting.')
+        await events.emit('warn', 'No formatter found (biome, prettier, or oxfmt). Skipping formatting.')
       } else {
         formatter = detectedFormatter
         await events.emit('info', `Auto-detected formatter: ${pc.dim(formatter)}`)
       }
     }
 
-    // Only proceed with formatting if we have a valid formatter
-    if (formatter && formatter !== 'auto') {
-      await events.emit(
-        'info',
-        [
-          `Formatting with ${pc.dim(formatter as string)}`,
-          logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
-        ]
-          .filter(Boolean)
-          .join(' '),
-      )
+    if (formatter && formatter !== 'auto' && formatter in formatters) {
+      const formatterConfig = formatters[formatter as keyof typeof formatters]
+      const outputPath = path.resolve(config.root, config.output.path)
 
-      if (formatter === 'prettier') {
-        try {
-          const hookId = createHash('sha256').update([config.name, formatter].filter(Boolean).join('-')).digest('hex')
-          await events.emit('hook:start', {
-            id: hookId,
-            command: 'prettier',
-            args: ['--ignore-unknown', '--write', path.resolve(config.root, config.output.path)],
-          })
+      try {
+        const hookId = createHash('sha256').update([config.name, formatter].filter(Boolean).join('-')).digest('hex')
+        await events.emit('hook:start', {
+          id: hookId,
+          command: formatterConfig.command,
+          args: formatterConfig.args(outputPath),
+        })
 
-          await events.onOnce('hook:end', async ({ success, error }) => {
-            if (!success) {
-              throw error
-            }
+        await events.onOnce('hook:end', async ({ success, error }) => {
+          if (!success) throw error
 
-            await events.emit(
-              'success',
-              [
-                `Formatting with ${pc.dim(formatter as string)}`,
-                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
-                'successfully',
-              ]
-                .filter(Boolean)
-                .join(' '),
-            )
-          })
-        } catch (caughtError) {
-          await events.emit('error', caughtError as Error)
-        }
-
-        await events.emit('success', `Formatted with ${formatter}`)
-      }
-
-      if (formatter === 'biome') {
-        try {
-          const hookId = createHash('sha256').update([config.name, formatter].filter(Boolean).join('-')).digest('hex')
-          await events.emit('hook:start', {
-            id: hookId,
-            command: 'biome',
-            args: ['format', '--write', path.resolve(config.root, config.output.path)],
-          })
-
-          await events.onOnce('hook:end', async ({ success, error }) => {
-            if (!success) {
-              throw error
-            }
-
-            await events.emit(
-              'success',
-              [
-                `Formatting with ${pc.dim(formatter as string)}`,
-                logLevel >= LogLevel.info ? `on ${pc.dim(path.resolve(config.root, config.output.path))}` : undefined,
-                'successfully',
-              ]
-                .filter(Boolean)
-                .join(' '),
-            )
-          })
-        } catch (caughtError) {
-          const error = new Error('Biome not found')
-          error.cause = caughtError
-          await events.emit('error', error)
-        }
+          await events.emit(
+            'success',
+            [`Formatting with ${pc.dim(formatter)}`, logLevel >= LogLevel.info ? `on ${pc.dim(outputPath)}` : undefined, 'successfully']
+              .filter(Boolean)
+              .join(' '),
+          )
+        })
+      } catch (caughtError) {
+        const error = new Error(formatterConfig.errorMessage)
+        error.cause = caughtError
+        await events.emit('error', error)
       }
     }
 

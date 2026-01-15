@@ -285,7 +285,8 @@ Added `'auto'` option for both `output.format` and `output.lint` configurations.
 
 When `format: 'auto'` is set, Kubb checks for formatters in this order:
 1. **biome** (first choice)
-2. **prettier** (second choice)
+2. **oxfmt** (second choice)
+3. **prettier** (third choice)
 
 ::: code-group
 
@@ -304,7 +305,7 @@ export default defineConfig({
   input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
-    format: 'auto', // Automatically detects biome or prettier
+    format: 'auto', // Automatically detects biome or oxfmt or prettier
   },
 })
 ```
