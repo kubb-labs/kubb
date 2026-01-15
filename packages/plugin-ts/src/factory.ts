@@ -420,10 +420,7 @@ export function createExportDeclaration({
 /**
  * Apply casing transformation to enum keys
  */
-function applyEnumKeyCasing(
-  key: string,
-  casing: 'screamingSnakeCase' | 'snakeCase' | 'pascalCase' | 'camelCase' | 'none' = 'none',
-): string {
+function applyEnumKeyCasing(key: string, casing: 'screamingSnakeCase' | 'snakeCase' | 'pascalCase' | 'camelCase' | 'none' = 'none'): string {
   if (casing === 'none') {
     return key
   }
@@ -524,12 +521,12 @@ export function createEnumDeclaration({
 
             if (isNumber(Number.parseInt(key.toString(), 10))) {
               const casingKey = applyEnumKeyCasing(`${typeName}_${key}`, enumKeyCasing)
-              return factory.createEnumMember(factory.createStringLiteral(casingKey), initializer)
+              return factory.createEnumMember(propertyName(casingKey), initializer)
             }
 
             if (key) {
               const casingKey = applyEnumKeyCasing(key.toString(), enumKeyCasing)
-              return factory.createEnumMember(factory.createStringLiteral(casingKey), initializer)
+              return factory.createEnumMember(propertyName(casingKey), initializer)
             }
 
             return undefined
@@ -575,7 +572,7 @@ export function createEnumDeclaration({
 
                     if (key) {
                       const casingKey = applyEnumKeyCasing(key.toString(), enumKeyCasing)
-                      return factory.createPropertyAssignment(factory.createStringLiteral(casingKey), initializer)
+                      return factory.createPropertyAssignment(propertyName(casingKey), initializer)
                     }
 
                     return undefined

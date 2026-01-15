@@ -32,7 +32,7 @@ export function snakeCase(text: string, { prefix = '', suffix = '' }: Omit<Optio
   // Convert to lowercase and replace non-alphanumeric characters with underscores
   return processed
     .replace(/([a-z])([A-Z])/g, '$1_$2') // camelCase to snake_case
-    .replace(/[\s\-\.]+/g, '_') // spaces, hyphens, dots to underscores
+    .replace(/[\s\-.]+/g, '_') // spaces, hyphens, dots to underscores
     .replace(/[^a-zA-Z0-9_]/g, '') // remove other special chars
     .toLowerCase()
     .replace(/_+/g, '_') // collapse multiple underscores
