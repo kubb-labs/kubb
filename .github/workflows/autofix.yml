@@ -36,4 +36,4 @@ jobs:
       - name: Apply fixes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'ci: apply linting and formating'
+          commit_message: 'ci: apply linting and formatting'
