@@ -25,6 +25,7 @@ export class BarrelManager {
         path: join(treeNode.parent?.data.path, 'index.ts') as KubbFile.Path,
         baseName: 'index.ts',
         exports: [],
+        imports: [],
         sources: [],
       }
       const previousBarrelFile = cachedFiles.get(barrelFile.path)

@@ -23,6 +23,8 @@ describe('getBarrelFiles', () => {
             isIndexable: true,
           },
         ],
+        imports: [],
+        exports: [],
       },
       {
         path: 'src/sub/index.ts',
@@ -37,6 +39,7 @@ describe('getBarrelFiles', () => {
             value: '',
           },
         ],
+        imports: [],
         exports: [
           {
             name: ['hello'],
@@ -59,6 +62,8 @@ describe('getBarrelFiles', () => {
             isIndexable: true,
           },
         ],
+        imports: [],
+        exports: [],
       },
       {
         path: 'src/sub/world.ts',
@@ -71,6 +76,8 @@ describe('getBarrelFiles', () => {
             isIndexable: true,
           },
         ],
+        imports: [],
+        exports: [],
       },
     ]
 

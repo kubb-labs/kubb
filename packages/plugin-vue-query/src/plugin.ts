@@ -178,6 +178,8 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
               isIndexable: false,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 

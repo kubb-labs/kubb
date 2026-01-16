@@ -36,6 +36,8 @@ export const pluginRedoc = definePlugin<PluginRedoc>((options) => {
             value: pageHTML,
           },
         ],
+        imports: [],
+        exports: [],
       })
     },
   }

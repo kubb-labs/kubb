@@ -152,6 +152,8 @@ export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
               isIndexable: true,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 
@@ -167,6 +169,8 @@ export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
               isIndexable: false,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 

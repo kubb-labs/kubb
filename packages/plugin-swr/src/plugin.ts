@@ -167,6 +167,8 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
               isIndexable: false,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 
