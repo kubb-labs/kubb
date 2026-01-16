@@ -107,8 +107,12 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       if (resolvedPropertyCasing === 'none') {
         try {
           const clientPlugin = this.pluginManager.getPluginByKey(['plugin-client'])
-          if (clientPlugin && 'paramsCasing' in clientPlugin.options && clientPlugin.options.paramsCasing === 'camelcase') {
-            resolvedPropertyCasing = 'camelCase'
+          // Check if plugin has paramsCasing option set to 'camelcase'
+          if (clientPlugin && typeof clientPlugin.options === 'object' && clientPlugin.options !== null) {
+            const options = clientPlugin.options as Record<string, unknown>
+            if (options.paramsCasing === 'camelcase') {
+              resolvedPropertyCasing = 'camelCase'
+            }
           }
         } catch {
           // plugin-client not found, keep default
