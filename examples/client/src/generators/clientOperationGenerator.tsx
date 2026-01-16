@@ -37,6 +37,8 @@ export const clientOperationGenerator = createGenerator<PluginClient>({
         `,
           },
         ],
+        imports: [],
+        exports: [],
       },
     ]
   },
