@@ -1,16 +1,16 @@
 import { execaCommand } from 'execa'
 
-type Formatter = 'biome' | 'prettier'
+type Formatter = 'biome' | 'prettier' | 'oxfmt'
 
 /**
  * Check if a formatter command is available in the system.
  *
- * @param formatter - The formatter to check ('biome' or 'prettier')
+ * @param formatter - The formatter to check ('biome', 'prettier', or 'oxfmt')
  * @returns Promise that resolves to true if the formatter is available, false otherwise
  *
  * @remarks
  * This function checks availability by running `<formatter> --version` command.
- * All supported formatters (biome, prettier) implement the --version flag.
+ * All supported formatters (biome, prettier, oxfmt) implement the --version flag.
  */
 async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
   try {
@@ -28,7 +28,7 @@ async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
  * @returns Promise that resolves to the first available formatter or undefined if none are found
  *
  * @remarks
- * Checks in order of preference: biome, prettier.
+ * Checks in order of preference: biome, oxfmt, prettier.
  * Uses the `--version` flag to detect if each formatter command is available.
  * This is a reliable method as all supported formatters implement this flag.
  *
@@ -43,7 +43,7 @@ async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
  * ```
  */
 export async function detectFormatter(): Promise<Formatter | undefined> {
-  const formatters: Formatter[] = ['biome', 'prettier']
+  const formatters: Formatter[] = ['biome', 'oxfmt', 'prettier']
 
   for (const formatter of formatters) {
     if (await isFormatterAvailable(formatter)) {

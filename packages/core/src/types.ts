@@ -93,7 +93,7 @@ export type Config<TInput = Input> = {
      * - 'biome': Uses Biome for code formatting.
      *
      */
-    format?: 'auto' | 'prettier' | 'biome' | false
+    format?: 'auto' | 'prettier' | 'biome' | 'oxfmt' | false
     /**
      * Specifies the linter that should be used to analyze the code.
      * The accepted values indicate different linting tools.
