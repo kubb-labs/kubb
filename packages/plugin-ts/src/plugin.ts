@@ -21,7 +21,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     unknownType = 'any',
     optionalType = 'questionToken',
     arrayType = 'array',
-    propertyCasing = 'none',
+    paramsCasing,
     emptySchemaType = unknownType,
     syntaxType = 'type',
     transformers = {},
@@ -41,7 +41,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       dateType,
       optionalType,
       arrayType,
-      propertyCasing,
+      paramsCasing,
       enumType,
       enumKeyCasing,
       enumSuffix,
@@ -102,16 +102,16 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       const mode = getMode(path.resolve(root, output.path))
       const oas = await this.getOas()
 
-      // Check if plugin-client exists and use its paramsCasing if propertyCasing is not explicitly set
-      let resolvedPropertyCasing = propertyCasing
-      if (resolvedPropertyCasing === 'none') {
+      // Check if plugin-client exists and use its paramsCasing if not explicitly set
+      let resolvedParamsCasing = paramsCasing
+      if (!resolvedParamsCasing) {
         try {
           const clientPlugin = this.pluginManager.getPluginByKey(['plugin-client'])
           // Check if plugin has paramsCasing option set to 'camelcase'
           if (clientPlugin && typeof clientPlugin.options === 'object' && clientPlugin.options !== null) {
             const options = clientPlugin.options as Record<string, unknown>
             if (options.paramsCasing === 'camelcase') {
-              resolvedPropertyCasing = 'camelCase'
+              resolvedParamsCasing = 'camelcase'
             }
           }
         } catch {
@@ -119,8 +119,8 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
         }
       }
 
-      // Update the plugin options with resolved property casing
-      this.plugin.options.propertyCasing = resolvedPropertyCasing
+      // Update the plugin options with resolved params casing
+      this.plugin.options.paramsCasing = resolvedParamsCasing
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         fabric: this.fabric,

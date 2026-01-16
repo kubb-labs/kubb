@@ -159,9 +159,9 @@ type ParserOptions = {
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   /**
-   * @default `'none'`
+   * @default undefined
    */
-  propertyCasing: 'camelCase' | 'none'
+  paramsCasing?: 'camelcase'
   mapper?: Record<string, ts.PropertySignature>
 }
 
@@ -258,7 +258,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
           let mappedName = nameSchema?.args || name
 
           // Apply property casing transformation
-          if (options.propertyCasing === 'camelCase') {
+          if (options.paramsCasing === 'camelcase') {
             mappedName = transformers.camelCase(mappedName)
           }
 

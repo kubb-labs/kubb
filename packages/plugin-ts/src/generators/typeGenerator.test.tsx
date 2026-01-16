@@ -530,7 +530,7 @@ describe('typeGenerator schema', async () => {
       unknownType: 'any',
       optionalType: 'questionToken',
       arrayType: 'array',
-      propertyCasing: 'none',
+      paramsCasing: undefined,
       override: [],
       mapper: {},
       syntaxType: 'type',
@@ -667,12 +667,12 @@ describe('typeGenerator operation', async () => {
       },
     },
     {
-      name: 'performActionTesting with snake_case params and propertyCasing camelCase',
+      name: 'performActionTesting with snake_case params and paramsCasing camelcase',
       input: '../../mocks/snakeCaseParams.yaml',
       path: '/test/{test_id}',
       method: 'post',
       options: {
-        propertyCasing: 'camelCase',
+        paramsCasing: 'camelcase',
       },
     },
   ] as const satisfies Array<{
@@ -693,7 +693,7 @@ describe('typeGenerator operation', async () => {
       dateType: 'string',
       optionalType: 'questionToken',
       arrayType: 'array',
-      propertyCasing: 'none',
+      paramsCasing: undefined,
       transformers: {},
       unknownType: 'any',
       syntaxType: 'type',

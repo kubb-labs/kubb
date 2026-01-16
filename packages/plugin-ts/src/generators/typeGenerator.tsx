@@ -314,7 +314,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   Operation({ operation, generator, plugin }) {
     const {
       options,
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, propertyCasing, unknownType },
+      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, paramsCasing, unknownType },
     } = plugin
 
     const mode = useMode()
@@ -370,7 +370,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
             enumKeyCasing={enumKeyCasing}
             optionalType={optionalType}
             arrayType={arrayType}
-            propertyCasing={propertyCasing}
+            paramsCasing={paramsCasing}
             keysToOmit={keysToOmit}
             syntaxType={syntaxType}
           />
@@ -412,7 +412,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   },
   Schema({ schema, plugin }) {
     const {
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, propertyCasing, output },
+      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, paramsCasing, output },
     } = plugin
     const mode = useMode()
 
@@ -458,7 +458,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
           enumKeyCasing={enumKeyCasing}
           optionalType={optionalType}
           arrayType={arrayType}
-          propertyCasing={propertyCasing}
+          paramsCasing={paramsCasing}
           syntaxType={syntaxType}
         />
       </File>

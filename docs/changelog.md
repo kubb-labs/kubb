@@ -13,9 +13,9 @@ outline: deep
 
 **Property name casing for TypeScript types**
 
-Added a new `propertyCasing` option to `@kubb/plugin-ts` that allows you to control how property names are cased in generated TypeScript types. This is especially useful when your OpenAPI spec uses `snake_case` naming but you want `camelCase` properties in your TypeScript code.
+Added `paramsCasing` option to `@kubb/plugin-ts` that controls how property names are cased in generated TypeScript types. This is especially useful when your OpenAPI spec uses `snake_case` naming but you want `camelCase` properties in your TypeScript code.
 
-When using `@kubb/plugin-client` with `paramsCasing: 'camelcase'`, the `propertyCasing` option will be automatically set to `'camelCase'` to ensure consistency between client function signatures and type definitions.
+When using `@kubb/plugin-client` with `paramsCasing: 'camelcase'`, the `paramsCasing` option in `@kubb/plugin-ts` will be automatically set to `'camelcase'` to ensure consistency between client function signatures and type definitions.
 
 ::: code-group
 
@@ -28,10 +28,10 @@ import { pluginTs } from '@kubb/plugin-ts'
 export default defineConfig({
   plugins: [
     pluginTs({
-      propertyCasing: 'camelCase', // Explicitly set (optional if using plugin-client)
+      paramsCasing: 'camelcase', // Explicitly set (optional if using plugin-client)
     }),
     pluginClient({
-      paramsCasing: 'camelcase', // This will auto-enable propertyCasing: 'camelCase' in plugin-ts
+      paramsCasing: 'camelcase', // This will auto-enable paramsCasing: 'camelcase' in plugin-ts
     }),
   ],
 })
@@ -45,7 +45,7 @@ export type QueryParams = {
 ```
 
 ```typescript [After]
-// Generated with propertyCasing: 'camelCase'
+// Generated with paramsCasing: 'camelcase'
 export type QueryParams = {
   secondaryTestingParam?: number
 }
