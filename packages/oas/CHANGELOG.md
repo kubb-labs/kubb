@@ -1,5 +1,12 @@
 # @kubb/oas
 
+## 4.17.0
+
+### Patch Changes
+
+- Updated dependencies [[`18d1a2b`](https://github.com/kubb-labs/kubb/commit/18d1a2b46eb519cdfe9eaa8ef9f4507688975f78)]:
+  - @kubb/core@4.17.0
+
 ## 4.16.0
 
 ### Patch Changes
