@@ -184,6 +184,8 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
               isIndexable: true,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 
@@ -199,6 +201,8 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
               isIndexable: false,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 

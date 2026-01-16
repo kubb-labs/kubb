@@ -16,6 +16,8 @@ describe('build', () => {
     path: 'hello/world.json',
     baseName: 'world.json',
     sources: [{ value: `{ "hello": "world" }` }],
+    imports: [],
+    exports: [],
   }
   const plugin = definePlugin(() => {
     return {
@@ -307,6 +309,8 @@ describe('build', () => {
           name: 'excluded',
         },
       ],
+      imports: [],
+      exports: [],
       meta: { pluginKey: ['excludedPlugin'] },
     }
 

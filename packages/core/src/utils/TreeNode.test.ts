@@ -10,18 +10,24 @@ describe('TreeNode', () => {
       baseName: 'test.ts',
       sources: [],
       meta: {},
+      imports: [],
+      exports: [],
     },
     {
       path: 'src/sub/hello.ts',
       baseName: 'hello.ts',
       sources: [],
       meta: {},
+      imports: [],
+      exports: [],
     },
     {
       path: 'src/sub/world.ts',
       baseName: 'world.ts',
       sources: [],
       meta: {},
+      imports: [],
+      exports: [],
     },
   ]
   const tree = TreeNode.build(files, 'src/')
@@ -278,6 +284,8 @@ describe('TreeNode', () => {
         baseName: 'data.json',
         sources: [],
         meta: {},
+        imports: [],
+        exports: [],
       },
     ]
     const treeWithJson = TreeNode.build(filesWithJson, 'src/')

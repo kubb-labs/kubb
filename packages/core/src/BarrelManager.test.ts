@@ -16,6 +16,8 @@ describe('BarrelManager', () => {
             isIndexable: true,
           },
         ],
+        imports: [],
+        exports: [],
       },
       {
         path: 'src/sub/hello.ts',
@@ -28,6 +30,8 @@ describe('BarrelManager', () => {
             isIndexable: true,
           },
         ],
+        imports: [],
+        exports: [],
       },
       {
         path: 'src/sub/world.ts',
@@ -40,6 +44,8 @@ describe('BarrelManager', () => {
             isIndexable: true,
           },
         ],
+        imports: [],
+        exports: [],
       },
     ]
     const barrelManager = new BarrelManager()
@@ -64,6 +70,8 @@ describe('BarrelManager', () => {
             isIndexable: true,
           },
         ],
+        imports: [],
+        exports: [],
       },
       {
         path: 'src/sub/hello.ts',
@@ -76,6 +84,8 @@ describe('BarrelManager', () => {
             isIndexable: true,
           },
         ],
+        imports: [],
+        exports: [],
       },
       {
         path: 'src/sub/world.ts',
@@ -88,6 +98,8 @@ describe('BarrelManager', () => {
             isIndexable: true,
           },
         ],
+        imports: [],
+        exports: [],
       },
       {
         path: 'src/sub/index.ts',
@@ -106,6 +118,8 @@ describe('BarrelManager', () => {
             isIndexable: true,
           },
         ],
+        imports: [],
+        exports: [],
       },
     ]
     const barrelManager = new BarrelManager()
