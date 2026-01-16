@@ -93,6 +93,13 @@ export type Options = {
    * @default 'array'
    */
   arrayType?: 'generic' | 'array'
+  /**
+   * Choose the casing for property names in types.
+   * - `'camelCase'`: Converts property names to camelCase (e.g., `secondary_testing_param` becomes `secondaryTestingParam`)
+   * - `'none'`: Uses property names as-is from the OpenAPI spec
+   * @default 'none'
+   */
+  propertyCasing?: 'camelCase' | 'none'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -132,6 +139,7 @@ type ResolvedOptions = {
   emptySchemaType: NonNullable<Options['emptySchemaType']>
   optionalType: NonNullable<Options['optionalType']>
   arrayType: NonNullable<Options['arrayType']>
+  propertyCasing: NonNullable<Options['propertyCasing']>
   transformers: NonNullable<Options['transformers']>
   syntaxType: NonNullable<Options['syntaxType']>
   mapper: Record<string, any>

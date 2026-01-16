@@ -16,6 +16,7 @@ type Props = {
   tree: Array<Schema>
   optionalType: PluginTs['resolvedOptions']['optionalType']
   arrayType: PluginTs['resolvedOptions']['arrayType']
+  propertyCasing: PluginTs['resolvedOptions']['propertyCasing']
   enumType: PluginTs['resolvedOptions']['enumType']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
   mapper: PluginTs['resolvedOptions']['mapper']
@@ -32,6 +33,7 @@ export function Type({
   schema,
   optionalType,
   arrayType,
+  propertyCasing,
   syntaxType,
   enumType,
   enumKeyCasing,
@@ -55,6 +57,7 @@ export function Type({
           {
             optionalType,
             arrayType,
+            propertyCasing,
             enumType,
             mapper,
           },
