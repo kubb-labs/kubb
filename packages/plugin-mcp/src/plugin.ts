@@ -113,6 +113,8 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
               isIndexable: true,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 
@@ -128,6 +130,8 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
               isIndexable: false,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 

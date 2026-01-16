@@ -37,6 +37,8 @@ export const example1 = createGenerator<PluginOas>({
         `,
           },
         ],
+        imports: [],
+        exports: [],
       },
     ]
   },

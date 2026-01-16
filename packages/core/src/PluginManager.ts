@@ -142,6 +142,8 @@ export class PluginManager {
         pluginKey,
       },
       sources: [],
+      imports: [],
+      exports: [],
     }
   }
 

@@ -10,11 +10,11 @@
         "isIndexable": true
       }
     ],
+    "imports": [],
+    "exports": [],
     "id": "81188fa6e8155e286766a6f3ca74e3eaf1e65e4aca7c0c2788e588b32c591288",
     "name": "test",
     "extname": ".ts",
-    "imports": [],
-    "exports": [],
     "meta": {}
   },
   {
@@ -31,6 +31,7 @@
         "path": "./test.ts"
       }
     ],
+    "imports": [],
     "sources": [
       {
         "name": "test",
@@ -54,7 +55,6 @@
     "id": "a2a171449d862fe29692ce031981047d7ab755ae7f84c707aef80701b3ea0c80",
     "name": "index",
     "extname": ".ts",
-    "imports": [],
     "meta": {}
   },
   {
@@ -68,11 +68,11 @@
         "isIndexable": true
       }
     ],
+    "imports": [],
+    "exports": [],
     "id": "9e2eb758d04ed285d5eb44154f8ce82fafc1a45f3454ec50e776a6ad2923bdbc",
     "name": "hello",
     "extname": ".ts",
-    "imports": [],
-    "exports": [],
     "meta": {}
   },
   {
@@ -86,11 +86,11 @@
         "isIndexable": true
       }
     ],
+    "imports": [],
+    "exports": [],
     "id": "8875e1f9f216417bf0cd05cf4a1a49f430094b0700574b1db6e4e2406feeb850",
     "name": "world",
     "extname": ".ts",
-    "imports": [],
-    "exports": [],
     "meta": {}
   },
   {
@@ -106,6 +106,7 @@
         "value": ""
       }
     ],
+    "imports": [],
     "exports": [
       {
         "path": "./hello.ts"
@@ -129,7 +130,6 @@
     "id": "00d9bb747968e55db50fa82465b2f0678d957e9befeaff84a70e431486a8a132",
     "name": "index",
     "extname": ".ts",
-    "imports": [],
     "meta": {}
   }
 ]

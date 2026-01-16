@@ -10,18 +10,24 @@ describe('TreeNode', () => {
       baseName: 'test.ts',
       sources: [],
       meta: {},
+      imports: [],
+      exports: [],
     },
     {
       path: 'src/sub/hello.ts',
       baseName: 'hello.ts',
       sources: [],
       meta: {},
+      imports: [],
+      exports: [],
     },
     {
       path: 'src/sub/world.ts',
       baseName: 'world.ts',
       sources: [],
       meta: {},
+      imports: [],
+      exports: [],
     },
   ]
   const tree = TreeNode.build(files, 'src/')
@@ -39,6 +45,8 @@ describe('TreeNode', () => {
             "data": {
               "file": {
                 "baseName": "test.ts",
+                "exports": [],
+                "imports": [],
                 "meta": {},
                 "path": "src/test.ts",
                 "sources": [],
@@ -56,6 +64,8 @@ describe('TreeNode', () => {
                 "data": {
                   "file": {
                     "baseName": "hello.ts",
+                    "exports": [],
+                    "imports": [],
                     "meta": {},
                     "path": "src/sub/hello.ts",
                     "sources": [],
@@ -71,6 +81,8 @@ describe('TreeNode', () => {
                 "data": {
                   "file": {
                     "baseName": "world.ts",
+                    "exports": [],
+                    "imports": [],
                     "meta": {},
                     "path": "src/sub/world.ts",
                     "sources": [],
@@ -108,6 +120,8 @@ describe('TreeNode', () => {
             "data": {
               "file": {
                 "baseName": "test.ts",
+                "exports": [],
+                "imports": [],
                 "meta": {},
                 "path": "src/test.ts",
                 "sources": [],
@@ -125,6 +139,8 @@ describe('TreeNode', () => {
                 "data": {
                   "file": {
                     "baseName": "hello.ts",
+                    "exports": [],
+                    "imports": [],
                     "meta": {},
                     "path": "src/sub/hello.ts",
                     "sources": [],
@@ -140,6 +156,8 @@ describe('TreeNode', () => {
                 "data": {
                   "file": {
                     "baseName": "world.ts",
+                    "exports": [],
+                    "imports": [],
                     "meta": {},
                     "path": "src/sub/world.ts",
                     "sources": [],
@@ -278,6 +296,8 @@ describe('TreeNode', () => {
         baseName: 'data.json',
         sources: [],
         meta: {},
+        imports: [],
+        exports: [],
       },
     ]
     const treeWithJson = TreeNode.build(filesWithJson, 'src/')

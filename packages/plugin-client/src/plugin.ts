@@ -125,6 +125,8 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
               isIndexable: true,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 
@@ -139,6 +141,8 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
             isIndexable: false,
           },
         ],
+        imports: [],
+        exports: [],
       })
 
       const operationGenerator = new OperationGenerator(

@@ -152,6 +152,8 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
               isIndexable: true,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 
@@ -167,6 +169,8 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
               isIndexable: false,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 

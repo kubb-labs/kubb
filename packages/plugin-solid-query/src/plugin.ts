@@ -152,6 +152,8 @@ export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
               isIndexable: true,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 
@@ -167,6 +169,8 @@ export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
               isIndexable: false,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 

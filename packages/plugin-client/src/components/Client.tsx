@@ -206,33 +206,37 @@ export function Client({
   )
 
   return (
-    <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
-      <Function
-        name={name}
-        async
-        export={isExportable}
-        params={params.toConstructor()}
-        JSDoc={{
-          comments: getComments(operation),
-        }}
-        returnType={returnType}
-      >
-        {isConfigurable ? 'const { client: request = fetch, ...requestConfig } = config' : ''}
-        <br />
-        <br />
-        {parser === 'zod' && zodSchemas?.request?.name
-          ? `const requestData = ${zodSchemas.request.name}.parse(data)`
-          : typeSchemas?.request?.name && 'const requestData = data'}
-        <br />
-        {isFormData && typeSchemas?.request?.name && 'const formData = buildFormData(requestData)'}
-        <br />
-        {isConfigurable
-          ? `const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`
-          : `const res = await fetch<${generics.join(', ')}>(${clientParams.toCall()})`}
-        <br />
-        {childrenElement}
-      </Function>
-    </File.Source>
+    <>
+      <br />
+
+      <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
+        <Function
+          name={name}
+          async
+          export={isExportable}
+          params={params.toConstructor()}
+          JSDoc={{
+            comments: getComments(operation),
+          }}
+          returnType={returnType}
+        >
+          {isConfigurable ? 'const { client: request = fetch, ...requestConfig } = config' : ''}
+          <br />
+          <br />
+          {parser === 'zod' && zodSchemas?.request?.name
+            ? `const requestData = ${zodSchemas.request.name}.parse(data)`
+            : typeSchemas?.request?.name && 'const requestData = data'}
+          <br />
+          {isFormData && typeSchemas?.request?.name && 'const formData = buildFormData(requestData)'}
+          <br />
+          {isConfigurable
+            ? `const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`
+            : `const res = await fetch<${generics.join(', ')}>(${clientParams.toCall()})`}
+          <br />
+          {childrenElement}
+        </Function>
+      </File.Source>
+    </>
   )
 }
 

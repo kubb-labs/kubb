@@ -126,6 +126,8 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
               value: resolveModuleSource('@kubb/plugin-zod/templates/ToZod').source,
             },
           ],
+          imports: [],
+          exports: [],
         })
       }
 

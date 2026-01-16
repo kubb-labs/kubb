@@ -305,6 +305,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           })
           .filter(Boolean),
         sources: [],
+        imports: [],
         meta: {},
       }
 
