@@ -1,5 +1,57 @@
 # @kubb/core
 
+## 4.17.0
+
+### Minor Changes
+
+- [#2316](https://github.com/kubb-labs/kubb/pull/2316) [`18d1a2b`](https://github.com/kubb-labs/kubb/commit/18d1a2b46eb519cdfe9eaa8ef9f4507688975f78) Thanks [@EricPierlotIdmog](https://github.com/EricPierlotIdmog)! - Add oxfmt as a new formatter option
+
+- [#2315](https://github.com/kubb-labs/kubb/pull/2315) [`e6da3a1`](https://github.com/kubb-labs/kubb/commit/e6da3a18b75a1391b28637e10893d575782b8edb) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add `enumKeyCasing` option to control enum key name casing
+
+  Generated enums now support configurable key casing through the new `enumKeyCasing` option in `@kubb/plugin-ts`. This allows transforming enum keys into conventional casing formats instead of using raw values.
+
+  **New transformers in @kubb/core:**
+  - `screamingSnakeCase`: Converts to SCREAMING_SNAKE_CASE
+  - `snakeCase`: Converts to snake_case
+
+  **New option in @kubb/plugin-ts:**
+  - `enumKeyCasing`: Choose from `'screamingSnakeCase'` | `'snakeCase'` | `'pascalCase'` | `'camelCase'` | `'none'` (default: `'none'`)
+
+  **Example:**
+
+  ```typescript
+  // kubb.config.ts
+  export default {
+    plugins: [
+      pluginTs({
+        enumKeyCasing: "screamingSnakeCase",
+      }),
+    ],
+  };
+  ```
+
+  Before:
+
+  ```typescript
+  export const enumStringEnum = {
+    "created at": "created at",
+    "FILE.UPLOADED": "FILE.UPLOADED",
+  } as const;
+  ```
+
+  After:
+
+  ```typescript
+  export const enumStringEnum = {
+    CREATED_AT: "created at",
+    FILE_UPLOADED: "FILE.UPLOADED",
+  } as const;
+  ```
+
+  **Additional improvements:**
+  - Enum member keys now use identifiers without quotes when the key is a valid JavaScript identifier, making the output cleaner and more idiomatic
+  - Default value is `'none'` to preserve backward compatibility
+
 ## 4.16.0
 
 ### Minor Changes
