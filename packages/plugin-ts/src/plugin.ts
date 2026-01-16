@@ -102,6 +102,22 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       const mode = getMode(path.resolve(root, output.path))
       const oas = await this.getOas()
 
+      // Check if plugin-client exists and use its paramsCasing if propertyCasing is not explicitly set
+      let resolvedPropertyCasing = propertyCasing
+      if (resolvedPropertyCasing === 'none') {
+        try {
+          const clientPlugin = this.pluginManager.getPluginByKey(['plugin-client'])
+          if (clientPlugin && 'paramsCasing' in clientPlugin.options && clientPlugin.options.paramsCasing === 'camelcase') {
+            resolvedPropertyCasing = 'camelCase'
+          }
+        } catch {
+          // plugin-client not found, keep default
+        }
+      }
+
+      // Update the plugin options with resolved property casing
+      this.plugin.options.propertyCasing = resolvedPropertyCasing
+
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,

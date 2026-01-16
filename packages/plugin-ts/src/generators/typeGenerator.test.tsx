@@ -666,6 +666,15 @@ describe('typeGenerator operation', async () => {
         enumType: 'asConst',
       },
     },
+    {
+      name: 'performActionTesting with snake_case params and propertyCasing camelCase',
+      input: '../../mocks/snakeCaseParams.yaml',
+      path: '/test/{test_id}',
+      method: 'post',
+      options: {
+        propertyCasing: 'camelCase',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
