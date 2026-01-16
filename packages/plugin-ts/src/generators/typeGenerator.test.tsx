@@ -299,6 +299,56 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
+      name: 'EnumNamesScreamingSnakeCase',
+      input: '../../mocks/enums.yaml',
+      path: 'enumNames.Type',
+      options: {
+        enumType: 'enum',
+        enumKeyCasing: 'screamingSnakeCase',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'EnumNamesSnakeCase',
+      input: '../../mocks/enums.yaml',
+      path: 'enumNames.Type',
+      options: {
+        enumType: 'enum',
+        enumKeyCasing: 'snakeCase',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'EnumNamesPascalCase',
+      input: '../../mocks/enums.yaml',
+      path: 'enumNames.Type',
+      options: {
+        enumType: 'enum',
+        enumKeyCasing: 'pascalCase',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'EnumNamesCamelCase',
+      input: '../../mocks/enums.yaml',
+      path: 'enumNames.Type',
+      options: {
+        enumType: 'enum',
+        enumKeyCasing: 'camelCase',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'EnumStringScreamingSnakeCase',
+      input: '../../mocks/enums.yaml',
+      path: 'enum.String',
+      options: {
+        enumType: 'asConst',
+        enumKeyCasing: 'screamingSnakeCase',
+        optionalType: 'questionToken',
+      },
+    },
+    {
       name: 'Body_upload_file_api_assets_post',
       input: '../../mocks/typeAssertions.yaml',
       path: 'Body_upload_file_api_assets_post',
@@ -473,6 +523,7 @@ describe('typeGenerator schema', async () => {
 
     const options: PluginTs['resolvedOptions'] = {
       enumType: 'asConst',
+      enumKeyCasing: 'none',
       enumSuffix: 'enum',
       dateType: 'string',
       transformers: {},
@@ -627,6 +678,7 @@ describe('typeGenerator operation', async () => {
 
     const options: PluginTs['resolvedOptions'] = {
       enumType: 'asConst',
+      enumKeyCasing: 'none',
       enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',

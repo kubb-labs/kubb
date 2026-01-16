@@ -6,9 +6,9 @@
 import type { Pet } from "./Pet.ts";
 
 export const findPetsByStatusQueryParamsStatusEnum = {
-    "available": "available",
-    "pending": "pending",
-    "sold": "sold"
+    available: "available",
+    pending: "pending",
+    sold: "sold"
 } as const;
 
 export type FindPetsByStatusQueryParamsStatusEnumKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum];

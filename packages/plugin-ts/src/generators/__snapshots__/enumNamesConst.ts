@@ -4,8 +4,8 @@
  */
 
 export const enum EnumNamesTypeEnum {
-  'Pending' = 0,
-  'Received' = 1,
+  Pending = 0,
+  Received = 1,
 }
 
 export type enumNamesType = EnumNamesTypeEnum

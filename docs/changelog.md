@@ -5,6 +5,69 @@ outline: deep
 
 # Changelog
 
+## 4.17.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/) and [`@kubb/core`](/core/)
+
+**Configurable enum key casing**
+
+Added a new `enumKeyCasing` option to `@kubb/plugin-ts` that allows you to control how enum key names are generated. This improves code readability and allows you to use conventional dot-notation syntax instead of bracket notation when accessing enum values.
+
+**New transformers in `@kubb/core`:**
+- `screamingSnakeCase`: Converts to SCREAMING_SNAKE_CASE
+- `snakeCase`: Converts to snake_case
+
+**New option in `@kubb/plugin-ts`:**
+
+The `enumKeyCasing` option supports the following values:
+- `'screamingSnakeCase'`: ENUM_VALUE (recommended for TypeScript enums)
+- `'snakeCase'`: enum_value
+- `'pascalCase'`: EnumValue
+- `'camelCase'`: enumValue
+- `'none'`: Uses the enum value as-is (default, preserves backward compatibility)
+
+::: code-group
+
+```typescript [Configuration]
+// kubb.config.ts
+export default {
+  plugins: [
+    pluginTs({
+      enumType: 'enum',
+      enumKeyCasing: 'screamingSnakeCase',
+    }),
+  ],
+}
+```
+
+```typescript [Before]
+export const enumStringEnum = {
+  'created at': 'created at',
+  'FILE.UPLOADED': 'FILE.UPLOADED',
+} as const
+
+// Usage requires bracket syntax
+const value = enumStringEnum['created at']
+```
+
+```typescript [After]
+export const enumStringEnum = {
+  CREATED_AT: 'created at',
+  FILE_UPLOADED: 'FILE.UPLOADED',
+} as const
+
+// Usage with clean dot-notation syntax
+const value = enumStringEnum.CREATED_AT
+```
+
+:::
+
+**Additional improvements:**
+- Enum member keys now use identifiers without quotes when the key is a valid JavaScript identifier, making the output cleaner and more idiomatic
+- Default value is `'none'` to preserve existing behavior and ensure backward compatibility
+
 ## 4.16.0
 
 ### ✨ Features

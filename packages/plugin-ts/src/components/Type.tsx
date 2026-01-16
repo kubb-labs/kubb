@@ -17,13 +17,27 @@ type Props = {
   optionalType: PluginTs['resolvedOptions']['optionalType']
   arrayType: PluginTs['resolvedOptions']['arrayType']
   enumType: PluginTs['resolvedOptions']['enumType']
+  enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
   mapper: PluginTs['resolvedOptions']['mapper']
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
   description?: string
   keysToOmit?: string[]
 }
 
-export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, arrayType, syntaxType, enumType, mapper, description }: Props): KubbNode {
+export function Type({
+  name,
+  typedName,
+  tree,
+  keysToOmit,
+  schema,
+  optionalType,
+  arrayType,
+  syntaxType,
+  enumType,
+  enumKeyCasing,
+  mapper,
+  description,
+}: Props): KubbNode {
   const typeNodes: ts.Node[] = []
 
   if (!tree.length) {
@@ -131,6 +145,7 @@ export function Type({ name, typedName, tree, keysToOmit, schema, optionalType, 
         .map((item) => (item.value === undefined ? undefined : [transformers.trimQuotes(item.name?.toString()), item.value]))
         .filter(Boolean) as unknown as Array<[string, string]>,
       type: enumType,
+      enumKeyCasing,
     })
 
     return {

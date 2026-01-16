@@ -43,9 +43,9 @@ exports[`codegen > should create array declaration 4`] = `
 
 exports[`codegen > should create enum declaration 1`] = `
 "export enum Hello {
-  'hello' = 'world',
-  'end' = 2050,
-  'survive' = true,
+  hello = 'world',
+  end = 2050,
+  survive = true,
 }
 "
 `;
@@ -81,9 +81,9 @@ type Hello = (typeof Hello)[keyof typeof Hello]
 
 exports[`codegen > should create enum declaration 5`] = `
 "export const enum Hello {
-  'hello' = 'world',
-  'end' = 2050,
-  'survive' = true,
+  hello = 'world',
+  end = 2050,
+  survive = true,
 }
 "
 `;
@@ -95,9 +95,9 @@ exports[`codegen > should create enum declaration 6`] = `
 
 exports[`codegen > should create enum declaration 7`] = `
 "export enum Hello {
-  'Hello_1' = 'world',
-  'Hello_2' = 2050,
-  'Hello_3' = true,
+  Hello_1 = 'world',
+  Hello_2 = 2050,
+  Hello_3 = true,
 }
 "
 `;

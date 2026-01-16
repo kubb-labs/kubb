@@ -4,8 +4,8 @@
  */
 
 export enum EnumNamesTypeEnum {
-  Pending = 0,
-  Received = 1,
+  PENDING = 0,
+  RECEIVED = 1,
 }
 
 export type enumNamesType = EnumNamesTypeEnum

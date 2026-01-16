@@ -1,3 +1,4 @@
+import transformers from '@kubb/core/transformers'
 import { orderBy } from 'natural-orderby'
 import { isNumber } from 'remeda'
 import ts from 'typescript'
@@ -416,11 +417,34 @@ export function createExportDeclaration({
   )
 }
 
+/**
+ * Apply casing transformation to enum keys
+ */
+function applyEnumKeyCasing(key: string, casing: 'screamingSnakeCase' | 'snakeCase' | 'pascalCase' | 'camelCase' | 'none' = 'none'): string {
+  if (casing === 'none') {
+    return key
+  }
+  if (casing === 'screamingSnakeCase') {
+    return transformers.screamingSnakeCase(key)
+  }
+  if (casing === 'snakeCase') {
+    return transformers.snakeCase(key)
+  }
+  if (casing === 'pascalCase') {
+    return transformers.pascalCase(key)
+  }
+  if (casing === 'camelCase') {
+    return transformers.camelCase(key)
+  }
+  return key
+}
+
 export function createEnumDeclaration({
   type = 'enum',
   name,
   typeName,
   enums,
+  enumKeyCasing = 'none',
 }: {
   /**
    * Choose to use `enum`, `asConst`, `asPascalConst`, `constEnum`, or `literal` for enums.
@@ -441,6 +465,11 @@ export function createEnumDeclaration({
    */
   typeName: string
   enums: [key: string | number, value: string | number | boolean][]
+  /**
+   * Choose the casing for enum key names.
+   * @default 'none'
+   */
+  enumKeyCasing?: 'screamingSnakeCase' | 'snakeCase' | 'pascalCase' | 'camelCase' | 'none'
 }): [name: ts.Node | undefined, type: ts.Node] {
   if (type === 'literal' || type === 'inlineLiteral') {
     return [
@@ -491,11 +520,13 @@ export function createEnumDeclaration({
             }
 
             if (isNumber(Number.parseInt(key.toString(), 10))) {
-              return factory.createEnumMember(factory.createStringLiteral(`${typeName}_${key}`), initializer)
+              const casingKey = applyEnumKeyCasing(`${typeName}_${key}`, enumKeyCasing)
+              return factory.createEnumMember(propertyName(casingKey), initializer)
             }
 
             if (key) {
-              return factory.createEnumMember(factory.createStringLiteral(`${key}`), initializer)
+              const casingKey = applyEnumKeyCasing(key.toString(), enumKeyCasing)
+              return factory.createEnumMember(propertyName(casingKey), initializer)
             }
 
             return undefined
@@ -540,7 +571,8 @@ export function createEnumDeclaration({
                     }
 
                     if (key) {
-                      return factory.createPropertyAssignment(factory.createStringLiteral(`${key}`), initializer)
+                      const casingKey = applyEnumKeyCasing(key.toString(), enumKeyCasing)
+                      return factory.createPropertyAssignment(propertyName(casingKey), initializer)
                     }
 
                     return undefined
