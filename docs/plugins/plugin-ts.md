@@ -342,6 +342,36 @@ type Pet = {
 ```
 :::
 
+### propertyCasing
+
+Choose the casing for property names in types. When set to `'camelCase'`, property names from the OpenAPI spec will be converted to camelCase in the generated TypeScript types.
+
+> [!TIP]
+> When using `@kubb/plugin-client` with `paramsCasing: 'camelcase'`, this option will be automatically set to `'camelCase'` to ensure consistency between the client and type definitions.
+
+|           |                          |
+|----------:|:-------------------------|
+|     Type: | `'camelCase' \| 'none'`  |
+| Required: | `false`                  |
+|  Default: | `'none'`                 |
+
+::: code-group
+
+```typescript ['none']
+// OpenAPI spec has: secondary_testing_param
+type QueryParams = {
+  secondary_testing_param?: number
+}
+```
+
+```typescript ['camelCase']
+// OpenAPI spec has: secondary_testing_param
+type QueryParams = {
+  secondaryTestingParam?: number
+}
+```
+:::
+
 ### include
 <!--@include: ./core/include.md-->
 
