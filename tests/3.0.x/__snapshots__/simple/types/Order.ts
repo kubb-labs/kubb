@@ -5,9 +5,9 @@
 
 
 export const orderStatusEnum = {
-    "placed": "placed",
-    "approved": "approved",
-    "delivered": "delivered"
+    placed: "placed",
+    approved: "approved",
+    delivered: "delivered"
 } as const;
 
 export type OrderStatusEnumKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum];

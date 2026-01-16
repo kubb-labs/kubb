@@ -7,9 +7,9 @@ import type { Category } from "./Category.ts";
 import type { Tag } from "./Tag.ts";
 
 export const addPetRequestStatusEnum = {
-    "available": "available",
-    "pending": "pending",
-    "sold": "sold"
+    available: "available",
+    pending: "pending",
+    sold: "sold"
 } as const;
 
 export type AddPetRequestStatusEnumKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum];

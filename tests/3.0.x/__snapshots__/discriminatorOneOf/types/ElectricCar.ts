@@ -6,7 +6,7 @@
 import type { Vehicle } from "./Vehicle.ts";
 
 export const electricCarTypeEnum = {
-    "ElectricCar": "ElectricCar"
+    ElectricCar: "ElectricCar"
 } as const;
 
 export type ElectricCarTypeEnumKey = (typeof electricCarTypeEnum)[keyof typeof electricCarTypeEnum];
