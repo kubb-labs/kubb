@@ -45,6 +45,8 @@ describe('TreeNode', () => {
             "data": {
               "file": {
                 "baseName": "test.ts",
+                "exports": [],
+                "imports": [],
                 "meta": {},
                 "path": "src/test.ts",
                 "sources": [],
@@ -62,6 +64,8 @@ describe('TreeNode', () => {
                 "data": {
                   "file": {
                     "baseName": "hello.ts",
+                    "exports": [],
+                    "imports": [],
                     "meta": {},
                     "path": "src/sub/hello.ts",
                     "sources": [],
@@ -77,6 +81,8 @@ describe('TreeNode', () => {
                 "data": {
                   "file": {
                     "baseName": "world.ts",
+                    "exports": [],
+                    "imports": [],
                     "meta": {},
                     "path": "src/sub/world.ts",
                     "sources": [],
@@ -114,6 +120,8 @@ describe('TreeNode', () => {
             "data": {
               "file": {
                 "baseName": "test.ts",
+                "exports": [],
+                "imports": [],
                 "meta": {},
                 "path": "src/test.ts",
                 "sources": [],
@@ -131,6 +139,8 @@ describe('TreeNode', () => {
                 "data": {
                   "file": {
                     "baseName": "hello.ts",
+                    "exports": [],
+                    "imports": [],
                     "meta": {},
                     "path": "src/sub/hello.ts",
                     "sources": [],
@@ -146,6 +156,8 @@ describe('TreeNode', () => {
                 "data": {
                   "file": {
                     "baseName": "world.ts",
+                    "exports": [],
+                    "imports": [],
                     "meta": {},
                     "path": "src/sub/world.ts",
                     "sources": [],

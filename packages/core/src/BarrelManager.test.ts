@@ -166,6 +166,7 @@ describe('BarrelManager', () => {
               "path": "./sub/index.ts",
             },
           ],
+          "imports": [],
           "path": "src/index.ts",
           "sources": [
             {
@@ -223,6 +224,7 @@ describe('BarrelManager', () => {
               "path": "./world.ts",
             },
           ],
+          "imports": [],
           "path": "src/sub/index.ts",
           "sources": [
             {
