@@ -67,7 +67,7 @@ export function getPathParams(
  * Get a mapping of camelCase parameter names to their original names
  * Used for mapping function parameters to backend parameter names
  */
-export function getPathParamsMapping(
+export function getParamsMapping(
   operationSchema: OperationSchema | undefined,
   options: {
     casing?: 'camelcase'
@@ -94,3 +94,8 @@ export function getPathParamsMapping(
   
   return Object.keys(mapping).length > 0 ? mapping : undefined
 }
+
+/**
+ * @deprecated Use getParamsMapping instead
+ */
+export const getPathParamsMapping = getParamsMapping

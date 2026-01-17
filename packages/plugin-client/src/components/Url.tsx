@@ -2,7 +2,7 @@ import { URLPath } from '@kubb/core/utils'
 
 import { isAllOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getPathParams, getPathParamsMapping } from '@kubb/plugin-oas/utils'
+import { getPathParams, getParamsMapping } from '@kubb/plugin-oas/utils'
 import { Const, File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
@@ -68,7 +68,7 @@ export function Url({
 }: Props): KubbNode {
   const path = new URLPath(operation.path)
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
-  const pathParamsMapping = paramsCasing ? getPathParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
+  const pathParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
 
   return (
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>

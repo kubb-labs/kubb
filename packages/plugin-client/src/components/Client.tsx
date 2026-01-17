@@ -2,7 +2,7 @@ import { URLPath } from '@kubb/core/utils'
 
 import { isAllOptional, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getComments, getPathParams, getPathParamsMapping } from '@kubb/plugin-oas/utils'
+import { getComments, getPathParams, getParamsMapping } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
@@ -158,6 +158,11 @@ export function Client({
     pathParamsType,
     typeSchemas,
   })
+  
+  // Generate parameter mappings when paramsCasing is used
+  const pathParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
+  const queryParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.queryParams, { casing: paramsCasing }) : undefined
+  
   const clientParams = FunctionParams.factory({
     config: {
       mode: 'object',
@@ -174,7 +179,11 @@ export function Client({
                 value: `\`${baseURL}\``,
               }
             : undefined,
-        params: typeSchemas.queryParams?.name ? {} : undefined,
+        params: typeSchemas.queryParams?.name 
+          ? queryParamsMapping 
+            ? { value: 'mappedParams' }
+            : {}
+          : undefined,
         data: typeSchemas.request?.name
           ? {
               value: isFormData ? 'formData as FormData' : 'requestData',
@@ -205,9 +214,6 @@ export function Client({
     </>
   )
 
-  // Generate parameter mapping when paramsCasing is used
-  const pathParamsMapping = paramsCasing ? getPathParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
-
   return (
     <>
       <br />
@@ -230,6 +236,15 @@ export function Client({
             Object.entries(pathParamsMapping).map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`).join('\n')}
           {pathParamsMapping && (
             <>
+              <br />
+              <br />
+            </>
+          )}
+          {queryParamsMapping && typeSchemas.queryParams?.name && (
+            <>
+              {`const mappedParams = params ? { ${Object.entries(queryParamsMapping)
+                .map(([originalName, camelCaseName]) => `"${originalName}": params.${camelCaseName}`)
+                .join(', ')} } : undefined`}
               <br />
               <br />
             </>
