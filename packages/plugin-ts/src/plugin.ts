@@ -21,6 +21,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     unknownType = 'any',
     optionalType = 'questionToken',
     arrayType = 'array',
+    paramsCasing,
     emptySchemaType = unknownType,
     syntaxType = 'type',
     transformers = {},
@@ -40,6 +41,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       dateType,
       optionalType,
       arrayType,
+      paramsCasing,
       enumType,
       enumKeyCasing,
       enumSuffix,
@@ -99,6 +101,26 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
       const oas = await this.getOas()
+
+      // Check if plugin-client exists and use its paramsCasing if not explicitly set
+      let resolvedParamsCasing = paramsCasing
+      if (!resolvedParamsCasing) {
+        try {
+          const clientPlugin = this.pluginManager.getPluginByKey(['plugin-client'])
+          // Check if plugin has paramsCasing option set to 'camelcase'
+          if (clientPlugin && typeof clientPlugin.options === 'object' && clientPlugin.options !== null) {
+            const options = clientPlugin.options as Record<string, unknown>
+            if (options.paramsCasing === 'camelcase') {
+              resolvedParamsCasing = 'camelcase'
+            }
+          }
+        } catch {
+          // plugin-client not found, keep default
+        }
+      }
+
+      // Update the plugin options with resolved params casing
+      this.plugin.options.paramsCasing = resolvedParamsCasing
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         fabric: this.fabric,

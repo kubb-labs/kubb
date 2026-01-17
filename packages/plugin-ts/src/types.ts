@@ -93,6 +93,12 @@ export type Options = {
    * @default 'array'
    */
   arrayType?: 'generic' | 'array'
+  /**
+   * How to style your params, by default no casing is applied.
+   * - `'camelcase'`: Converts property names to camelCase (e.g., `secondary_testing_param` becomes `secondaryTestingParam`)
+   * @default undefined
+   */
+  paramsCasing?: 'camelcase'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -132,6 +138,7 @@ type ResolvedOptions = {
   emptySchemaType: NonNullable<Options['emptySchemaType']>
   optionalType: NonNullable<Options['optionalType']>
   arrayType: NonNullable<Options['arrayType']>
+  paramsCasing: Options['paramsCasing']
   transformers: NonNullable<Options['transformers']>
   syntaxType: NonNullable<Options['syntaxType']>
   mapper: Record<string, any>
