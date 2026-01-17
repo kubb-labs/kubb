@@ -62,3 +62,35 @@ export function getPathParams(
     return acc
   }, {} as Params)
 }
+
+/**
+ * Get a mapping of camelCase parameter names to their original names
+ * Used for mapping function parameters to backend parameter names
+ */
+export function getPathParamsMapping(
+  operationSchema: OperationSchema | undefined,
+  options: {
+    casing?: 'camelcase'
+  } = {},
+): Record<string, string> | undefined {
+  if (!operationSchema || !operationSchema.schema.properties) {
+    return undefined
+  }
+
+  const mapping: Record<string, string> = {}
+  
+  Object.entries(operationSchema.schema.properties).forEach(([originalName]) => {
+    let camelCaseName = isValidVarName(originalName) ? originalName : camelCase(originalName)
+    
+    if (options.casing === 'camelcase') {
+      camelCaseName = camelCase(camelCaseName)
+    }
+    
+    // Only add mapping if the names differ
+    if (camelCaseName !== originalName) {
+      mapping[originalName] = camelCaseName
+    }
+  })
+  
+  return Object.keys(mapping).length > 0 ? mapping : undefined
+}

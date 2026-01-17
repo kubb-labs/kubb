@@ -2,7 +2,7 @@ import { URLPath } from '@kubb/core/utils'
 
 import { isAllOptional, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
+import { getComments, getPathParams, getPathParamsMapping } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
@@ -140,7 +140,7 @@ export function Client({
   children,
   isConfigurable = true,
 }: Props): KubbNode {
-  const path = new URLPath(operation.path, { casing: paramsCasing })
+  const path = new URLPath(operation.path)
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
   const headers = [
@@ -205,6 +205,9 @@ export function Client({
     </>
   )
 
+  // Generate parameter mapping when paramsCasing is used
+  const pathParamsMapping = paramsCasing ? getPathParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
+
   return (
     <>
       <br />
@@ -223,6 +226,14 @@ export function Client({
           {isConfigurable ? 'const { client: request = fetch, ...requestConfig } = config' : ''}
           <br />
           <br />
+          {pathParamsMapping &&
+            Object.entries(pathParamsMapping).map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`).join('\n')}
+          {pathParamsMapping && (
+            <>
+              <br />
+              <br />
+            </>
+          )}
           {parser === 'zod' && zodSchemas?.request?.name
             ? `const requestData = ${zodSchemas.request.name}.parse(data)`
             : typeSchemas?.request?.name && 'const requestData = data'}
