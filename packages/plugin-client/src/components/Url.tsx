@@ -2,7 +2,7 @@ import { URLPath } from '@kubb/core/utils'
 
 import { isAllOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getPathParams, getParamsMapping } from '@kubb/plugin-oas/utils'
+import { getParamsMapping, getPathParams } from '@kubb/plugin-oas/utils'
 import { Const, File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
@@ -74,7 +74,9 @@ export function Url({
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
       <Function name={name} export={isExportable} params={params.toConstructor()}>
         {pathParamsMapping &&
-          Object.entries(pathParamsMapping).map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`).join('\n')}
+          Object.entries(pathParamsMapping)
+            .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
+            .join('\n')}
         {pathParamsMapping && <br />}
         <Const name={'res'}>{`{ method: '${operation.method.toUpperCase()}', url: ${path.toTemplateString({ prefix: baseURL })} as const }`}</Const>
         <br />

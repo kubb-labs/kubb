@@ -78,20 +78,20 @@ export function getParamsMapping(
   }
 
   const mapping: Record<string, string> = {}
-  
+
   Object.entries(operationSchema.schema.properties).forEach(([originalName]) => {
     let camelCaseName = isValidVarName(originalName) ? originalName : camelCase(originalName)
-    
+
     if (options.casing === 'camelcase') {
       camelCaseName = camelCase(camelCaseName)
     }
-    
+
     // Only add mapping if the names differ
     if (camelCaseName !== originalName) {
       mapping[originalName] = camelCaseName
     }
   })
-  
+
   return Object.keys(mapping).length > 0 ? mapping : undefined
 }
 
