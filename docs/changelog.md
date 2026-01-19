@@ -5,6 +5,38 @@ outline: deep
 
 # Changelog
 
+## 4.17.3
+
+### 📦 Dependencies
+
+#### All Packages
+
+**Updated tsdown to 0.19.0 with keepNames option**
+
+Updated tsdown bundler from 0.18.4 to 0.19.0 and added `keepNames: true` in `outputOptions` for all packages. This preserves function and class names in bundled output, which fixes React DevTools component inspection and improves the debugging experience.
+
+**Technical context:**
+
+Without `keepNames`, the bundler mangles function names during minification. React DevTools relies on preserved names to map fiber nodes to components and display their props/state. Setting `keepNames: true` within `outputOptions` ensures:
+
+- Component names remain intact in build output
+- DevTools can properly identify and inspect components
+- Sourcemaps reference correct original function names
+
+**Configuration structure:**
+
+```typescript
+export default defineConfig({
+  // ... other config
+  outputOptions: {
+    keepNames: true,
+  },
+})
+```
+
+**Affected packages:**
+- All 20 packages using tsdown for bundling
+
 ## 4.17.2
 
 ### 🐛 Bug Fixes
