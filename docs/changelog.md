@@ -5,6 +5,14 @@ outline: deep
 
 # Changelog
 
+## 4.17.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+Update packages
+
 ## 4.17.0
 
 ### ✨ Features
