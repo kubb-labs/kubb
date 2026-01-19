@@ -41,7 +41,10 @@ function getDefaultValue(schema?: SchemaObject): string | undefined {
 
   // For union types (anyOf/oneOf), check if any variant could accept an empty object
   if (schema.anyOf || schema.oneOf) {
-    const variants = (schema.anyOf || schema.oneOf) as unknown[]
+    const variants = schema.anyOf || schema.oneOf
+    if (!Array.isArray(variants)) {
+      return undefined
+    }
     // Only provide default if at least one variant has all-optional fields
     const hasEmptyObjectVariant = variants.some((variant) => isAllOptional(variant))
     if (!hasEmptyObjectVariant) {
@@ -49,8 +52,14 @@ function getDefaultValue(schema?: SchemaObject): string | undefined {
     }
   }
 
-  // Default for object types with optional fields
-  return '{}'
+  // For object types (or schemas with properties), use empty object as default
+  // This is safe because we already checked isOptional above
+  if (schema.type === 'object' || schema.properties || (!schema.type && (schema.anyOf || schema.oneOf))) {
+    return '{}'
+  }
+
+  // For other types (primitives like string, number, boolean), no default
+  return undefined
 }
 
 function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps) {
