@@ -154,6 +154,18 @@ describe('queryGenerator operation', async () => {
         paramsType: 'inline',
       },
     },
+    {
+      name: 'createUsersWithListInputAsQuery',
+      input: '../../mocks/petStore.yaml',
+      path: '/user/createWithList',
+      method: 'post',
+      options: {
+        query: {
+          importPath: '@tanstack/react-query',
+          methods: ['post'],
+        },
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
