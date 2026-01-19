@@ -55,7 +55,7 @@ function getDefaultValue(schema?: SchemaObject): string | undefined {
   if (isAllOptional(schema)) {
     return '{}'
   }
-  
+
   return undefined
 }
 
