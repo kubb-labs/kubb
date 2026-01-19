@@ -68,6 +68,14 @@ const value = enumStringEnum.CREATED_AT
 - Enum member keys now use identifiers without quotes when the key is a valid JavaScript identifier, making the output cleaner and more idiomatic
 - Default value is `'none'` to preserve existing behavior and ensure backward compatibility
 
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Removed incorrect enumSuffix warning**
+
+Fixed an issue where setting `enumSuffix: ''` in plugin configuration would trigger a misleading warning message `ℹ EnumSuffix set to an empty string does not work`. The feature actually works correctly - empty string suffixes are fully supported and tested. The incorrect warning has been removed.
+
 ## 4.16.0
 
 ### ✨ Features
