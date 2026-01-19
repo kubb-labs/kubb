@@ -1,4 +1,4 @@
-import { isAllOptional, isOptional, type Operation } from '@kubb/oas'
+import { getDefaultValue, isAllOptional, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'

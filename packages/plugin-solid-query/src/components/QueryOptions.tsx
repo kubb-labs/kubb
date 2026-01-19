@@ -1,4 +1,4 @@
-import { isAllOptional, isOptional } from '@kubb/oas'
+import { getDefaultValue, isAllOptional, isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'

@@ -109,6 +109,51 @@ export function isOptional(schema?: SchemaObject): boolean {
   return !isRequired(schema)
 }
 
+/**
+ * Determines the appropriate default value for a schema parameter.
+ * - For array types: returns '[]'
+ * - For union types (anyOf/oneOf):
+ *   - If at least one variant has all-optional fields: returns '{}'
+ *   - Otherwise: returns undefined (no default)
+ * - For object types with optional fields: returns '{}'
+ * - For primitive types (string, number, boolean): returns undefined (no default)
+ * - For required types: returns undefined (no default)
+ */
+export function getDefaultValue(schema?: SchemaObject): string | undefined {
+  if (!schema || !isOptional(schema)) {
+    return undefined
+  }
+
+  // For array types, use empty array as default
+  if (schema.type === 'array') {
+    return '[]'
+  }
+
+  // For union types (anyOf/oneOf), check if any variant could accept an empty object
+  if (schema.anyOf || schema.oneOf) {
+    const variants = schema.anyOf || schema.oneOf
+    if (!Array.isArray(variants)) {
+      return undefined
+    }
+    // Only provide default if at least one variant has all-optional fields
+    const hasEmptyObjectVariant = variants.some((variant) => isAllOptional(variant))
+    if (!hasEmptyObjectVariant) {
+      return undefined
+    }
+    // At least one variant accepts empty object
+    return '{}'
+  }
+
+  // For object types (or schemas with properties), use empty object as default
+  // This is safe because we already checked isOptional above
+  if (schema.type === 'object' || schema.properties) {
+    return '{}'
+  }
+
+  // For other types (primitives like string, number, boolean), no default
+  return undefined
+}
+
 export async function parse(
   pathOrApi: string | Document,
   { oasClass = Oas, canBundle = true, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
