@@ -1,5 +1,5 @@
 import { URLPath } from '@kubb/core/utils'
-import { isOptional, type Operation } from '@kubb/oas'
+import { isAllOptional, isOptional, type Operation, type SchemaObject } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams, Type } from '@kubb/react-fabric'
@@ -22,6 +22,37 @@ type GetParamsProps = {
   typeSchemas: OperationSchemas
 }
 
+/**
+ * Determines the appropriate default value for a schema parameter.
+ * - For array types: returns '[]'
+ * - For union types (anyOf/oneOf) where no variant has all-optional fields: returns undefined (no default)
+ * - For object types with optional fields: returns '{}'
+ * - For required types: returns undefined (no default)
+ */
+function getDefaultValue(schema?: SchemaObject): string | undefined {
+  if (!schema || !isOptional(schema)) {
+    return undefined
+  }
+
+  // For array types, use empty array as default
+  if (schema.type === 'array') {
+    return '[]'
+  }
+
+  // For union types (anyOf/oneOf), check if any variant could accept an empty object
+  if (schema.anyOf || schema.oneOf) {
+    const variants = (schema.anyOf || schema.oneOf) as unknown[]
+    // Only provide default if at least one variant has all-optional fields
+    const hasEmptyObjectVariant = variants.some((variant) => isAllOptional(variant))
+    if (!hasEmptyObjectVariant) {
+      return undefined
+    }
+  }
+
+  // Default for object types with optional fields
+  return '{}'
+}
+
 function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps) {
   return FunctionParams.factory({
     pathParams: typeSchemas.pathParams?.name
@@ -33,13 +64,13 @@ function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
-          default: isOptional(typeSchemas.request?.schema) ? '{}' : undefined,
+          default: getDefaultValue(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
           type: typeSchemas.queryParams?.name,
-          default: isOptional(typeSchemas.queryParams?.schema) ? '{}' : undefined,
+          default: getDefaultValue(typeSchemas.queryParams?.schema),
         }
       : undefined,
   })
