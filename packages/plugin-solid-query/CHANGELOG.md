@@ -1,5 +1,33 @@
 # @kubb/plugin-solid-query
 
+## 4.17.2
+
+### Patch Changes
+
+- [#2325](https://github.com/kubb-labs/kubb/pull/2325) [`6e15459`](https://github.com/kubb-labs/kubb/commit/6e154590905c6f626abbab35aa506054cccdf5b9) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fixed QueryKey and client function default values for array and union request body types. Previously, generated functions incorrectly used `= {}` as the default value for all optional parameters, causing TypeScript error TS2322 when the schema type was an array or a union with required fields. Now uses type-aware defaults: `[]` for arrays, `{}` for objects, and no default for unions without all-optional variants.
+
+  Added shared `getDefaultValue()` utility function to `@kubb/oas` to determine appropriate default values based on schema type, eliminating code duplication across plugins.
+
+- Updated dependencies [[`6e15459`](https://github.com/kubb-labs/kubb/commit/6e154590905c6f626abbab35aa506054cccdf5b9)]:
+  - @kubb/oas@4.17.2
+  - @kubb/plugin-client@4.17.2
+  - @kubb/plugin-oas@4.17.2
+  - @kubb/plugin-ts@4.17.2
+  - @kubb/plugin-zod@4.17.2
+  - @kubb/core@4.17.2
+
+## 4.17.1
+
+### Patch Changes
+
+- Updated dependencies [[`6d7c8c0`](https://github.com/kubb-labs/kubb/commit/6d7c8c0a21bb88ca4df8637bec5bb017350a8b68)]:
+  - @kubb/plugin-oas@4.17.1
+  - @kubb/plugin-client@4.17.1
+  - @kubb/plugin-ts@4.17.1
+  - @kubb/plugin-zod@4.17.1
+  - @kubb/core@4.17.1
+  - @kubb/oas@4.17.1
+
 ## 4.17.0
 
 ### Patch Changes

@@ -2,6 +2,7 @@ export { findSchemaDefinition, matchesMimeType } from 'oas/utils'
 export { Oas } from './Oas.ts'
 export * from './types.ts'
 export {
+  getDefaultValue,
   isAllOptional,
   isDiscriminator,
   isNullable,
