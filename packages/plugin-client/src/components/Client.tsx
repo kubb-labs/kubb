@@ -1,6 +1,6 @@
 import { URLPath } from '@kubb/core/utils'
 
-import { isAllOptional, isOptional, type Operation } from '@kubb/oas'
+import { getDefaultValue, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
@@ -90,7 +90,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
           children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
+          default: getDefaultValue(typeSchemas.pathParams?.schema),
         }
       : undefined,
     data: typeSchemas.request?.name

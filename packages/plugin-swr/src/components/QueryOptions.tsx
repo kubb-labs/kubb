@@ -1,4 +1,4 @@
-import { isAllOptional, isOptional } from '@kubb/oas'
+import { getDefaultValue, isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
@@ -65,7 +65,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
           children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
+          default: getDefaultValue(typeSchemas.pathParams?.schema),
         }
       : undefined,
     data: typeSchemas.request?.name
