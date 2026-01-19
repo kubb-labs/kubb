@@ -1,5 +1,7 @@
 # @kubb/core
 
+## 4.17.1
+
 ## 4.17.0
 
 ### Minor Changes
