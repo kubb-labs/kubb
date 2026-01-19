@@ -5,6 +5,63 @@ outline: deep
 
 # Changelog
 
+## 4.17.2
+
+### 🐛 Bug Fixes
+
+#### Multiple Plugins
+
+**Fixed QueryKey default values for array and union request body types**
+
+Fixed an issue where QueryKey functions and client functions incorrectly assigned `= {}` as the default parameter value for all optional request body parameters, causing TypeScript error TS2322 when the schema type was an array or a discriminated union with required fields.
+
+**Affected plugins:**
+- [`@kubb/plugin-react-query`](/plugins/plugin-react-query/)
+- [`@kubb/plugin-solid-query`](/plugins/plugin-solid-query/)
+- [`@kubb/plugin-vue-query`](/plugins/plugin-vue-query/)
+- [`@kubb/plugin-svelte-query`](/plugins/plugin-svelte-query/)
+- [`@kubb/plugin-swr`](/plugins/plugin-swr/)
+- [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Changes:**
+- Array types now correctly use `= []` as default
+- Union types (anyOf/oneOf) with required fields now have no default value
+- Union types with all-optional variants use `= {}`
+- Object types with optional fields continue to use `= {}`
+
+**Code improvements:**
+- Added shared `getDefaultValue()` utility function to [`@kubb/oas`](/core/oas/) for determining appropriate default values based on schema type
+- Eliminated 515 lines of duplicated code across all affected plugins
+- Single source of truth ensures consistent behavior
+
+::: code-group
+
+```typescript [Before]
+// Array type - incorrect default
+export const getUsersByIdsQueryKey = (
+  data: string[] = {},  // ❌ TS2322 error
+) => [{ url: '/users/batch' }, ...(data ? [data] : [])] as const
+
+// Union type with required fields - incorrect default
+export const filterItemsQueryKey = (
+  data: FilterByCategory | FilterByTag = {},  // ❌ TS2322 error
+) => [{ url: '/items/filter' }, ...(data ? [data] : [])] as const
+```
+
+```typescript [After]
+// Array type - correct default
+export const getUsersByIdsQueryKey = (
+  data: string[] = [],  // ✅ Correct!
+) => [{ url: '/users/batch' }, ...(data ? [data] : [])] as const
+
+// Union type with required fields - no default
+export const filterItemsQueryKey = (
+  data: FilterByCategory | FilterByTag,  // ✅ Correct!
+) => [{ url: '/items/filter' }, ...(data ? [data] : [])] as const
+```
+
+:::
+
 ## 4.17.1
 
 ### 🐛 Bug Fixes
