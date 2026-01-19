@@ -14,4 +14,7 @@ export default defineConfig({
   exports: true,
   external: ['@types/react'],
   fixedExtension: false,
+  outputOptions: {
+    keepNames: true,
+  },
 })

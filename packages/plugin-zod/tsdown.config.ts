@@ -13,4 +13,7 @@ export default defineConfig({
   shims: true,
   exports: false,
   fixedExtension: false,
+  outputOptions: {
+    keepNames: true,
+  },
 })

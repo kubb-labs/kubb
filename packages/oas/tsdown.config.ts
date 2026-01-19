@@ -12,4 +12,7 @@ export default defineConfig({
   exports: true,
   noExternal: [/whatwg-url/],
   fixedExtension: false,
+  outputOptions: {
+    keepNames: true,
+  },
 })

@@ -17,4 +17,7 @@ export default defineConfig({
   noExternal: [/p-limit/],
   external: ['@types/react'],
   fixedExtension: false,
+  outputOptions: {
+    keepNames: true,
+  },
 })
