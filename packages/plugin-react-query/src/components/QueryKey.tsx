@@ -25,8 +25,11 @@ type GetParamsProps = {
 /**
  * Determines the appropriate default value for a schema parameter.
  * - For array types: returns '[]'
- * - For union types (anyOf/oneOf) where no variant has all-optional fields: returns undefined (no default)
+ * - For union types (anyOf/oneOf):
+ *   - If at least one variant has all-optional fields: returns '{}'
+ *   - Otherwise: returns undefined (no default)
  * - For object types with optional fields: returns '{}'
+ * - For primitive types (string, number, boolean): returns undefined (no default)
  * - For required types: returns undefined (no default)
  */
 function getDefaultValue(schema?: SchemaObject): string | undefined {
@@ -50,11 +53,13 @@ function getDefaultValue(schema?: SchemaObject): string | undefined {
     if (!hasEmptyObjectVariant) {
       return undefined
     }
+    // At least one variant accepts empty object
+    return '{}'
   }
 
   // For object types (or schemas with properties), use empty object as default
   // This is safe because we already checked isOptional above
-  if (schema.type === 'object' || schema.properties || (!schema.type && (schema.anyOf || schema.oneOf))) {
+  if (schema.type === 'object' || schema.properties) {
     return '{}'
   }
 
