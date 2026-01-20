@@ -1,5 +1,11 @@
 # unplugin-kubb
 
+## 4.0.2
+
+### Patch Changes
+
+- [#2330](https://github.com/kubb-labs/kubb/pull/2330) [`25f657a`](https://github.com/kubb-labs/kubb/commit/25f657a0076277a24932c2b977db252bd9108d77) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated tsdown from 0.18.4 to 0.19.0 and added `keepNames: true` in `outputOptions` for all packages. This preserves function and class names in bundled output, fixing React DevTools component inspection and improving debugging experience.
+
 ## 4.0.1
 
 ### Patch Changes
