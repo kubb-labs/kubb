@@ -126,7 +126,7 @@ const fakerKeywordMapper = {
     if (items.length === 1) {
       return items[0]!
     }
-    
+
     // If multiple items, spread them together
     // This handles both object literals and multiple refs to objects
     return `{...${items.join(', ...')}}`
