@@ -180,6 +180,7 @@ export function joinItems(items: string[]): string {
 
 type ParserOptions = {
   typeName?: string
+  rootTypeName?: string
   regexGenerator?: 'faker' | 'randexp'
   canOverride?: boolean
   dateParser?: Options['dateParser']
@@ -271,6 +272,17 @@ export const parse = createParser<string, ParserOptions>({
 
       if (!current.args?.name) {
         throw new Error(`Name not defined for keyword ${current.keyword}`)
+      }
+
+      // Check if this is a self-referencing type (prevents infinite recursion)
+      // The rootTypeName is the function name being generated (e.g., "createNode")
+      // The current.args.name is the ref function name (e.g., "createNode")
+      const isSelfReferencing = options.rootTypeName && current.args.name === options.rootTypeName
+
+      if (isSelfReferencing) {
+        // For self-referencing types, return undefined to prevent infinite recursion
+        // This will result in empty arrays/objects by default
+        return 'undefined'
       }
 
       if (options.canOverride) {
