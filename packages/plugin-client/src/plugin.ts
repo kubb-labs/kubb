@@ -5,9 +5,9 @@ import { resolveModuleSource } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { classClientGenerator, operationsGenerator } from './generators'
-import { staticClassClientGenerator } from './generators/staticClassClientGenerator.tsx'
 import { clientGenerator } from './generators/clientGenerator.tsx'
 import { groupedClientGenerator } from './generators/groupedClientGenerator.tsx'
+import { staticClassClientGenerator } from './generators/staticClassClientGenerator.tsx'
 import type { PluginClient } from './types.ts'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
@@ -38,11 +38,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
   const resolvedImportPath = importPath ?? (!bundle ? `@kubb/plugin-client/clients/${client}` : undefined)
 
   const defaultGenerators = [
-    clientType === 'staticClass'
-      ? staticClassClientGenerator
-      : clientType === 'class'
-        ? classClientGenerator
-        : clientGenerator,
+    clientType === 'staticClass' ? staticClassClientGenerator : clientType === 'class' ? classClientGenerator : clientGenerator,
     group && clientType === 'function' ? groupedClientGenerator : undefined,
     operations ? operationsGenerator : undefined,
   ].filter(Boolean)
