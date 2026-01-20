@@ -633,6 +633,50 @@ const basic: Array<{ name: string; schema: Schema }> = [
       },
     },
   },
+  {
+    name: 'andRefEnum',
+    schema: {
+      keyword: schemaKeywords.and,
+      args: [
+        {
+          keyword: schemaKeywords.ref,
+          args: {
+            $ref: '#/components/schemas/IssueCategory',
+            name: 'createIssueCategory',
+            path: './createIssueCategory.ts',
+            isImportable: true,
+          },
+        },
+      ],
+    },
+  },
+  {
+    name: 'objectWithNullableEnumRef',
+    schema: {
+      keyword: schemaKeywords.object,
+      args: {
+        properties: {
+          category: [
+            {
+              keyword: schemaKeywords.and,
+              args: [
+                {
+                  keyword: schemaKeywords.ref,
+                  args: {
+                    $ref: '#/components/schemas/IssueCategory',
+                    name: 'createIssueCategory',
+                    path: './createIssueCategory.ts',
+                    isImportable: true,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        additionalProperties: [],
+      },
+    },
+  },
 ]
 
 const full: Array<{ name: string; schema: Schema[] }> = [
