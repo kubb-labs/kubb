@@ -121,10 +121,15 @@ const fakerKeywordMapper = {
   uuid: () => 'faker.string.uuid()',
   url: () => 'faker.internet.url()',
   and: (items: string[] = []) => {
+    // Handle empty array case
+    if (items.length === 0) {
+      return '{}'
+    }
+
     // If only one item, return it as-is (no need to spread)
     // This fixes the issue with single refs to primitives like enums
     if (items.length === 1) {
-      return items[0]!
+      return items[0] ?? '{}'
     }
 
     // If multiple items, spread them together
