@@ -95,6 +95,18 @@ describe('fakerGenerator schema', async () => {
       input: '../../mocks/petStore.yaml',
       options: {},
     },
+    {
+      name: 'Node',
+      path: 'Node',
+      input: '../../mocks/selfReferencing.yaml',
+      options: {},
+    },
+    {
+      name: 'TreeNode',
+      path: 'TreeNode',
+      input: '../../mocks/selfReferencing.yaml',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string

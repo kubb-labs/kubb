@@ -25,6 +25,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
           { name, schema, parent: undefined, current: schema, siblings },
           {
             typeName,
+            rootTypeName: name,
             regexGenerator,
             mapper,
             canOverride,
