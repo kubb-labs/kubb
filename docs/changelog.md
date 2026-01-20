@@ -6,6 +6,55 @@ outline: deep
 # Changelog
 
 
+## 4.18.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
+
+**Fixed incorrect spreading of factory functions in `allOf` schemas with single refs**
+
+When using `allOf` with a single reference to a primitive type (e.g., enum), the generated factory code was incorrectly spreading the result. This has been fixed so that single refs in `allOf` are no longer spread, while multiple refs continue to be spread correctly.
+
+::: code-group
+
+```typescript [Before]
+// Generated factory for enum type
+export function createIssueCategory() {
+  faker.seed([100])
+  return faker.helpers.arrayElement(['close out', 'something needed', 'safety', 'progress'])
+}
+
+// Parent object incorrectly spreading the enum factory
+export function createTestObject() {
+  return {
+    category: { ...createIssueCategory() }, // ❌ Spreading a string value!
+  }
+}
+```
+
+```typescript [After]
+// Generated factory for enum type (unchanged)
+export function createIssueCategory() {
+  faker.seed([100])
+  return faker.helpers.arrayElement(['close out', 'something needed', 'safety', 'progress'])
+}
+
+// Parent object correctly using the enum factory
+export function createTestObject() {
+  return {
+    category: createIssueCategory(), // ✅ No spreading!
+  }
+}
+```
+
+:::
+
+> [!NOTE]
+> This fix resolves the issue reported in [#1767](https://github.com/kubb-labs/kubb/issues/1767) where nullable enum types were being incorrectly spread.
+
+---
+
 ## 4.18.1
 
 ### 🐛 Bug Fixes
