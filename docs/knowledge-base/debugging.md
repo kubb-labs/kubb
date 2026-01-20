@@ -39,9 +39,9 @@ npm install --save-dev @kubb/react-fabric
 ```shell [yarn]
 yarn add -D @kubb/react-fabric
 ```
+:::
 
 ### Update `kubb.config.ts`
-:::
 
 ```typescript{1}
 import { openDevtools } from '@kubb/react-fabric' // [!code ++]
