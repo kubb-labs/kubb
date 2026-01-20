@@ -43,7 +43,7 @@ yarn add -D @kubb/react-fabric
 ### Update `kubb.config.ts`
 :::
 
-```typescript{1} twoslash
+```typescript{1}
 import { openDevtools } from '@kubb/react-fabric' // [!code ++]
 
 import { defineConfig } from '@kubb/core'
