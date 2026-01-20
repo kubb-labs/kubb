@@ -1,5 +1,17 @@
 # @kubb/plugin-faker
 
+## 4.18.1
+
+### Patch Changes
+
+- [#2337](https://github.com/kubb-labs/kubb/pull/2337) [`cf739b2`](https://github.com/kubb-labs/kubb/commit/cf739b203a1006c81f31c06119bc4bd0dbbdac86) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix self-referencing type infinite recursion. Detect when a type references itself and return undefined instead of making recursive calls, preventing stack overflow errors.
+
+- Updated dependencies []:
+  - @kubb/core@4.18.1
+  - @kubb/oas@4.18.1
+  - @kubb/plugin-oas@4.18.1
+  - @kubb/plugin-ts@4.18.1
+
 ## 4.18.0
 
 ### Minor Changes
