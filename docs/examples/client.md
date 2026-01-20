@@ -16,3 +16,20 @@ aside: false
   allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
   sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 />
+
+## Static Class Client Example
+
+You can now generate clients with static methods:
+
+```typescript
+import { Pet } from './gen/clients/Pet'
+
+// Get a pet by ID
+const pet = await Pet.getPetById({ petId: 1 })
+
+// Add a new pet
+const newPet = await Pet.addPet({
+  name: 'Fluffy',
+  status: 'available'
+})
+```

@@ -5,6 +5,34 @@ outline: deep
 
 # Changelog
 
+
+## 4.18.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Static class client generation**
+
+Added support for generating API clients as classes with static methods using `clientType: 'staticClass'`. This allows you to call API methods directly on the class without instantiating it:
+
+::: code-group
+```typescript [Before]
+const client = new Pet()
+await client.getPetById({ petId: 1 })
+```
+
+```typescript [After]
+await Pet.getPetById({ petId: 1 })
+```
+:::
+
+To enable, set `clientType: 'staticClass'` in your `pluginClient` options. See the plugin-client documentation for details and usage notes.
+
+> [!NOTE]
+> This feature implements [#2326](https://github.com/kubb-labs/kubb/issues/2326).
+
+---
 ## 4.17.0
 
 ### ✨ Features
