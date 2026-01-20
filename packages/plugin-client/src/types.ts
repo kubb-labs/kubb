@@ -96,9 +96,10 @@ export type Options = {
    * How to generate the client code
    * - 'function' will generate standalone functions for each operation.
    * - 'class' will generate a class with methods for each operation.
+   * - 'staticClass' will generate a class with static methods for each operation.
    * @default 'function'
    */
-  clientType?: 'function' | 'class'
+  clientType?: 'function' | 'class' | 'staticClass'
   /**
    * Bundle the selected client into the generated `.kubb` directory.
    * When disabled the generated clients will import the shared runtime from `@kubb/plugin-client/clients/*`.
