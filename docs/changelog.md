@@ -6,6 +6,48 @@ outline: deep
 # Changelog
 
 
+## 4.18.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
+
+**Fixed infinite recursion for self-referencing types**
+
+Fixed a critical issue where self-referencing types (e.g., `Node` with `children: Node[]`) caused infinite recursion and "Maximum call stack size exceeded" errors. The plugin now detects self-references and safely returns `undefined` instead of making recursive calls.
+
+::: code-group
+
+```typescript [Before]
+// Self-referencing type caused infinite recursion
+export function node(data?: Partial<Node>): Node {
+  return {
+    ...{ id: faker.string.alpha(), children: faker.helpers.multiple(() => node()) }, // ❌ Stack overflow!
+    ...(data || {}),
+  }
+}
+```
+
+```typescript [After]
+// Safe handling of self-references
+export function node(data?: Partial<Node>): Node {
+  return {
+    ...{ id: faker.string.alpha(), children: faker.helpers.multiple(() => undefined) }, // ✅ Safe!
+    ...(data || {}),
+  }
+}
+
+// Users can still override with actual data:
+const myNode = node({ children: [{ id: 'child1' }] })
+```
+
+:::
+
+> [!NOTE]
+> This fix implements the solution proposed in [#ISSUE_NUMBER](https://github.com/kubb-labs/kubb/issues/ISSUE_NUMBER).
+
+---
+
 ## 4.18.0
 
 ### ✨ Features
