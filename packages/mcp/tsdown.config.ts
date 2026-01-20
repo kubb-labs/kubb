@@ -12,4 +12,7 @@ export default defineConfig({
   exports: true,
   noExternal: [/p-limit/, /find-up/, /natural-orderby/, /camelcase/],
   fixedExtension: false,
+  outputOptions: {
+    keepNames: true,
+  },
 })

@@ -85,6 +85,13 @@ describe('mutationGenerator operation', async () => {
         pathParamsType: 'object',
       },
     },
+    {
+      name: 'createUsersWithListInput',
+      input: '../../mocks/petStore.yaml',
+      path: '/user/createWithList',
+      method: 'post',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string

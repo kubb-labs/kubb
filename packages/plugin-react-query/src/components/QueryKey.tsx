@@ -1,5 +1,5 @@
 import { URLPath } from '@kubb/core/utils'
-import { isOptional, type Operation } from '@kubb/oas'
+import { getDefaultValue, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams, Type } from '@kubb/react-fabric'
@@ -33,13 +33,13 @@ function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
-          default: isOptional(typeSchemas.request?.schema) ? '{}' : undefined,
+          default: getDefaultValue(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
       ? {
           type: typeSchemas.queryParams?.name,
-          default: isOptional(typeSchemas.queryParams?.schema) ? '{}' : undefined,
+          default: getDefaultValue(typeSchemas.queryParams?.schema),
         }
       : undefined,
   })

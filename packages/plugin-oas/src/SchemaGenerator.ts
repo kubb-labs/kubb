@@ -888,10 +888,6 @@ export class SchemaGenerator<
         return this.parse({ schema: normalizedSchema, name, parentName })
       }
 
-      if (options.enumSuffix === '') {
-        this.context.events?.emit('info', 'EnumSuffix set to an empty string does not work')
-      }
-
       // Removed verbose enum parsing debug log - too noisy for hundreds of enums
 
       const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.options.usedEnumNames || {})

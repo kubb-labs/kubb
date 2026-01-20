@@ -1,5 +1,5 @@
 import { getNestedAccessor } from '@kubb/core/utils'
-import { isAllOptional, isOptional } from '@kubb/oas'
+import { getDefaultValue, isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
@@ -95,7 +95,7 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
           }
         },
       }),
-      default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
+      default: getDefaultValue(typeSchemas.pathParams?.schema),
     },
     data: typeSchemas.request?.name
       ? {

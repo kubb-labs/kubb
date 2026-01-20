@@ -1,4 +1,4 @@
-import { isAllOptional, isOptional, type Operation } from '@kubb/oas'
+import { getDefaultValue, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
@@ -103,7 +103,7 @@ function getParams({ paramsCasing, paramsType, pathParamsType, dataReturnType, t
               }
             },
           }),
-          default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
+          default: getDefaultValue(typeSchemas.pathParams?.schema),
         }
       : undefined,
     data: typeSchemas.request?.name

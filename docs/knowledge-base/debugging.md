@@ -14,7 +14,7 @@ Kubb supports React DevTools out-of-the-box. To enable integration with React De
 ![React-DevTools](/screenshots/react-devtools.png)
 
 > [!NOTE]
-> Kubb will already run `npx react-devtools` as part of the `@kubb/react-fabric/devtools` import.
+> Kubb will already run `npx react-devtools` as part of the `@kubb/react-fabric` import.
 
 ### Installation
 Before you can use the React DevTools, install the React package.
@@ -43,23 +43,28 @@ yarn add -D @kubb/react-fabric
 ### Update `kubb.config.ts`
 :::
 
-```typescript{1} twoslash
-import '@kubb/react-fabric/devtools' // [!code ++]
+```typescript{1}
+import { openDevtools } from '@kubb/react-fabric' // [!code ++]
+
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    pluginOas(),
-    pluginTs(),
-  ],
+export default defineConfig(() => {
+  openDevtools() // [!code ++]
+
+  return {
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    },
+    plugins: [
+      pluginOas(),
+      pluginTs(),
+    ],
+  }
 })
 ```
 
