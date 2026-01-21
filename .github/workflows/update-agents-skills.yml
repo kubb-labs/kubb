@@ -9,6 +9,10 @@ on:
       - ".skills/**"
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   build-agents-md:
     runs-on: ubuntu-latest
@@ -20,3 +24,10 @@ jobs:
           repo-root: .
           skills-dir: .skills
           agents-path: AGENTS.md
+      - uses: peter-evans/create-pull-request@v7
+        if: steps.build.outputs.changed == 'true'
+        with:
+          branch: chore/update-agents
+          title: "Update AGENTS.md"
+          commit-message: "chore(agents): update AGENTS.md"
+          body: "Automated update of AGENTS.md from skills."
