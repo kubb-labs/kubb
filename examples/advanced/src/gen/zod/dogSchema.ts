@@ -1,7 +1,7 @@
-import type { Dog } from '../models/ts/Dog.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import { imageSchema } from './imageSchema.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { Dog } from '../models/ts/Dog.ts'
+import { imageSchema } from './imageSchema.ts'
 
 export const dogSchema = z.object({
   type: z.string().min(1),
