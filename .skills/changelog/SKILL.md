@@ -127,11 +127,9 @@ const petType = {
 
 ## Related Skills
 
-For changelog, use these skills:
-
 | Skill                                                      | Use For             |
 |------------------------------------------------------------|---------------------|
-| **[../documentation/SKILL.md](../documentation/SKILL.md)** | Documentation style |
+| **[../documentation/SKILL.md](../documentation/SKILL.md)** | Documentation style | Adding documentation for changelog entries |
 
 
 ## Checklist

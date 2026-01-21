@@ -100,15 +100,6 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 - **Sizing**: Keep file sizes reasonable
 - **Naming**: Use descriptive names: `plugin-react-query-example.png`
 
-## Related Skills
-
-For changelog, use these skills:
-
-| Skill                                   | Use For           |
-|-----------------------------------------|-------------------|
-| **[../changelog/SKILL.md](../changelog/SKILL.md)** | Update changelogs |
-
-
 ## Checklist
 
 - [ ] Active voice (85%+)

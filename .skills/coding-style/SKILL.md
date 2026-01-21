@@ -115,8 +115,6 @@ Follow these steps when creating a PR:
 
 ## Related Skills
 
-For changelog, use these skills:
-
 | Skill                                   | Use For             |
 |-----------------------------------------|---------------------|
 | **[../changelog/SKILL.md](../changelog/SKILL.md)** | Update changelogs, **Mandatory for all PRs that include code changes** |
