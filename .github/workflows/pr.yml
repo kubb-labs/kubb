@@ -237,6 +237,7 @@ jobs:
     name: Update generated examples
     timeout-minutes: 20
     runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
     needs: build
     permissions:
       contents: write
