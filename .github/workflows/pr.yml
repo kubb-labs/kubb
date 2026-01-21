@@ -232,7 +232,6 @@ jobs:
           size-threshold: -1
 
   # This job automatically updates generated example files when package code changes
-  # It will not trigger on its own commits due to paths-ignore: ["examples/**"]
   update-examples:
     name: Update generated examples
     timeout-minutes: 20
@@ -241,11 +240,11 @@ jobs:
     needs: build
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - name: Check out code
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.head_ref || github.ref }}
           fetch-depth: 0
 
       - name: Setup Tools
@@ -260,18 +259,33 @@ jobs:
           key: build-${{ github.sha }}
 
       - name: Generate examples
+        id: generate
         run: pnpm run generate
 
-      - name: Commit generated files
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [[ -n $(git status --porcelain examples/) ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in examples/"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in examples/"
+          fi
+
+      - name: Create Pull Request with generated files
+        if: steps.check_changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
         with:
-          commit_message: "chore(examples): update generated files"
-          file_pattern: "examples/"
-          commit_user_name: github-actions[bot]
-          commit_user_email: github-actions[bot]@users.noreply.github.com
-          skip_dirty_check: false
-          skip_fetch: true
-          skip_checkout: true
+          base: ${{ github.head_ref || github.ref_name }}
+          branch: chore/update-generated-examples
+          delete-branch: true
+          title: "chore: update generated examples"
+          commit-message: "chore(examples): update generated files"
+          body: |
+            Automated update of generated example files from `pnpm generate`.
+            
+            This PR was automatically created to keep example generated files in sync.
 
   e2e:
     name: Build and test on ${{ matrix.os }}
