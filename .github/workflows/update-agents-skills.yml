@@ -28,6 +28,7 @@ jobs:
         if: steps.build.outputs.changed == 'true'
         with:
           branch: chore/update-agents
+          delete-branch: true
           title: "Update AGENTS.md"
           commit-message: "chore(agents): update AGENTS.md"
           body: "Automated update of AGENTS.md from skills."
