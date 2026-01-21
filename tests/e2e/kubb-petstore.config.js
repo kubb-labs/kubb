@@ -1,5 +1,3 @@
-// import '@kubb/react-fabric/devtools' // enable/disable devtools
-
 import { defineConfig } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import { pluginClient } from '@kubb/plugin-client'

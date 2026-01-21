@@ -120,7 +120,22 @@ const fakerKeywordMapper = {
   },
   uuid: () => 'faker.string.uuid()',
   url: () => 'faker.internet.url()',
-  and: (items: string[] = []) => `{...${items.join(', ...')}}`,
+  and: (items: string[] = []) => {
+    // Handle empty array case
+    if (items.length === 0) {
+      return '{}'
+    }
+
+    // If only one item, return it as-is (no need to spread)
+    // This fixes the issue with single refs to primitives like enums
+    if (items.length === 1) {
+      return items[0] ?? '{}'
+    }
+
+    // If multiple items, spread them together
+    // This handles both object literals and multiple refs to objects
+    return `{...${items.join(', ...')}}`
+  },
   object: () => 'object',
   ref: () => 'ref',
   matches: (value = '', regexGenerator: 'faker' | 'randexp' = 'faker') => {
@@ -180,6 +195,7 @@ export function joinItems(items: string[]): string {
 
 type ParserOptions = {
   typeName?: string
+  rootTypeName?: string
   regexGenerator?: 'faker' | 'randexp'
   canOverride?: boolean
   dateParser?: Options['dateParser']
@@ -271,6 +287,17 @@ export const parse = createParser<string, ParserOptions>({
 
       if (!current.args?.name) {
         throw new Error(`Name not defined for keyword ${current.keyword}`)
+      }
+
+      // Check if this is a self-referencing type (prevents infinite recursion)
+      // The rootTypeName is the function name being generated (e.g., "createNode")
+      // The current.args.name is the ref function name (e.g., "createNode")
+      const isSelfReferencing = options.rootTypeName && current.args.name === options.rootTypeName
+
+      if (isSelfReferencing) {
+        // For self-referencing types, return undefined to prevent infinite recursion
+        // This will result in empty arrays/objects by default
+        return 'undefined as any'
       }
 
       if (options.canOverride) {

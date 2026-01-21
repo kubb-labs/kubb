@@ -1,5 +1,3 @@
-// import '@kubb/react-fabric/devtools' // enable/disable devtools
-
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { example1 } from './src/generators/example1'

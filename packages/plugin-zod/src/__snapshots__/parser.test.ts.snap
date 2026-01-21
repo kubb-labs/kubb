@@ -16,6 +16,10 @@ exports[`zod parse > 'and' v4 1`] = `
     }))"
 `;
 
+exports[`zod parse > 'andRefEnum' 1`] = `"z.lazy(() => createIssueCategory)"`;
+
+exports[`zod parse > 'andRefEnum' v4 1`] = `"z.lazy(() => createIssueCategory)"`;
+
 exports[`zod parse > 'any' 1`] = `"z.any()"`;
 
 exports[`zod parse > 'any' v4 1`] = `"z.any()"`;
@@ -263,6 +267,20 @@ exports[`zod parse > 'objectOptional' v4 1`] = `
 "z.object({
     "firstName": z.optional(z.string().min(2)),
 "address": z.nullable(z.string().describe("Your address"))
+    })"
+`;
+
+exports[`zod parse > 'objectWithNullableEnumRef' 1`] = `
+"z.object({
+    "category": z.lazy(() => createIssueCategory)
+    })"
+`;
+
+exports[`zod parse > 'objectWithNullableEnumRef' v4 1`] = `
+"z.object({
+    get "category"(){
+                return createIssueCategory
+              }
     })"
 `;
 

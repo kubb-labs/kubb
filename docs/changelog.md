@@ -5,6 +5,126 @@ outline: deep
 
 # Changelog
 
+
+## 4.18.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
+
+**Fixed incorrect spreading of factory functions in `allOf` schemas with single refs**
+
+When using `allOf` with a single reference to a primitive type (e.g., enum), the generated factory code was incorrectly spreading the result. This has been fixed so that single refs in `allOf` are no longer spread, while multiple refs continue to be spread correctly.
+
+::: code-group
+
+```typescript [Before]
+// Generated factory for enum type
+export function createIssueCategory() {
+  faker.seed([100])
+  return faker.helpers.arrayElement(['close out', 'something needed', 'safety', 'progress'])
+}
+
+// Parent object incorrectly spreading the enum factory
+export function createTestObject() {
+  return {
+    category: { ...createIssueCategory() }, // ❌ Spreading a string value!
+  }
+}
+```
+
+```typescript [After]
+// Generated factory for enum type (unchanged)
+export function createIssueCategory() {
+  faker.seed([100])
+  return faker.helpers.arrayElement(['close out', 'something needed', 'safety', 'progress'])
+}
+
+// Parent object correctly using the enum factory
+export function createTestObject() {
+  return {
+    category: createIssueCategory(), // ✅ No spreading!
+  }
+}
+```
+
+:::
+
+> [!NOTE]
+> This fix resolves the issue reported in [#1767](https://github.com/kubb-labs/kubb/issues/1767) where nullable enum types were being incorrectly spread.
+
+---
+
+## 4.18.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
+
+**Fixed infinite recursion for self-referencing types**
+
+Fixed a critical issue where self-referencing types (e.g., `Node` with `children: Node[]`) caused infinite recursion and "Maximum call stack size exceeded" errors. The plugin now detects self-references and safely returns `undefined` instead of making recursive calls.
+
+::: code-group
+
+```typescript [Before]
+// Self-referencing type caused infinite recursion
+export function node(data?: Partial<Node>): Node {
+  return {
+    ...{ id: faker.string.alpha(), children: faker.helpers.multiple(() => node()) }, // ❌ Stack overflow!
+    ...(data || {}),
+  }
+}
+```
+
+```typescript [After]
+// Safe handling of self-references
+export function node(data?: Partial<Node>): Node {
+  return {
+    ...{ id: faker.string.alpha(), children: faker.helpers.multiple(() => undefined) }, // ✅ Safe!
+    ...(data || {}),
+  }
+}
+
+// Users can still override with actual data:
+const myNode = node({ children: [{ id: 'child1' }] })
+```
+
+:::
+
+> [!NOTE]
+> This fix implements the solution proposed in [#ISSUE_NUMBER](https://github.com/kubb-labs/kubb/issues/ISSUE_NUMBER).
+
+---
+
+## 4.18.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Static class client generation**
+
+Added support for generating API clients as classes with static methods using `clientType: 'staticClass'`. This allows you to call API methods directly on the class without instantiating it:
+
+::: code-group
+```typescript [Before]
+const client = new Pet()
+await client.getPetById({ petId: 1 })
+```
+
+```typescript [After]
+await Pet.getPetById({ petId: 1 })
+```
+:::
+
+To enable, set `clientType: 'staticClass'` in your `pluginClient` options. See the plugin-client documentation for details and usage notes.
+
+> [!NOTE]
+> This feature implements [#2326](https://github.com/kubb-labs/kubb/issues/2326).
+
+---
+
 ## 4.17.2
 
 ### 🐛 Bug Fixes
@@ -69,6 +189,7 @@ export const filterItemsQueryKey = (
 #### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
 
 Update packages
+
 
 ## 4.17.0
 

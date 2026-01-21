@@ -1,5 +1,33 @@
 # @kubb/plugin-faker
 
+## 4.18.1
+
+### Patch Changes
+
+- [#2337](https://github.com/kubb-labs/kubb/pull/2337) [`cf739b2`](https://github.com/kubb-labs/kubb/commit/cf739b203a1006c81f31c06119bc4bd0dbbdac86) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix self-referencing type infinite recursion. Detect when a type references itself and return undefined instead of making recursive calls, preventing stack overflow errors.
+
+- Updated dependencies []:
+  - @kubb/core@4.18.1
+  - @kubb/oas@4.18.1
+  - @kubb/plugin-oas@4.18.1
+  - @kubb/plugin-ts@4.18.1
+
+## 4.18.0
+
+### Minor Changes
+
+- [#2333](https://github.com/kubb-labs/kubb/pull/2333) [`ec5893e`](https://github.com/kubb-labs/kubb/commit/ec5893e056c67df2035f72492f54d1affc8f67b6) Thanks [@sebastianvitterso](https://github.com/sebastianvitterso)! - Add support for `staticClient` clients, with static methods (removing the need to instantiate the client before use)
+
+### Patch Changes
+
+- [#2330](https://github.com/kubb-labs/kubb/pull/2330) [`25f657a`](https://github.com/kubb-labs/kubb/commit/25f657a0076277a24932c2b977db252bd9108d77) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated tsdown from 0.18.4 to 0.19.0 and added `keepNames: true` in `outputOptions` for all packages. This preserves function and class names in bundled output, fixing React DevTools component inspection and improving debugging experience.
+
+- Updated dependencies [[`ec5893e`](https://github.com/kubb-labs/kubb/commit/ec5893e056c67df2035f72492f54d1affc8f67b6), [`25f657a`](https://github.com/kubb-labs/kubb/commit/25f657a0076277a24932c2b977db252bd9108d77)]:
+  - @kubb/plugin-oas@4.18.0
+  - @kubb/plugin-ts@4.18.0
+  - @kubb/core@4.18.0
+  - @kubb/oas@4.18.0
+
 ## 4.17.2
 
 ### Patch Changes

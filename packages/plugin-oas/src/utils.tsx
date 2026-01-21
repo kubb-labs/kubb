@@ -25,13 +25,11 @@ export async function buildOperations<TOptions extends PluginFactoryOptions>(
   const { pluginManager, oas, mode } = generator.context
 
   const fabricChild = createReactFabric()
-  await fabricChild.render(() => {
-    return (
-      <App meta={{ pluginManager, plugin, mode, oas }}>
-        <Component config={config} operations={operations} generator={generator} plugin={plugin} />
-      </App>
-    )
-  })
+  await fabricChild.render(
+    <App meta={{ pluginManager, plugin, mode, oas }}>
+      <Component config={config} operations={operations} generator={generator} plugin={plugin} />
+    </App>,
+  )
 
   await fabric.context.fileManager.upsert(...fabricChild.files)
 }
@@ -55,13 +53,11 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
   const { pluginManager, oas, mode } = generator.context
 
   const fabricChild = createReactFabric()
-  await fabricChild.render(() => {
-    return (
-      <App meta={{ pluginManager, plugin, mode, oas }}>
-        <Component config={config} operation={operation} plugin={plugin} generator={generator} />
-      </App>
-    )
-  })
+  await fabricChild.render(
+    <App meta={{ pluginManager, plugin, mode, oas }}>
+      <Component config={config} operation={operation} plugin={plugin} generator={generator} />
+    </App>,
+  )
 
   await fabric.context.fileManager.upsert(...fabricChild.files)
 }
@@ -89,13 +85,11 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
   const { pluginManager, oas, mode } = generator.context
 
   const fabricChild = createReactFabric()
-  await fabricChild.render(() => {
-    return (
-      <App meta={{ pluginManager, plugin, mode, oas }}>
-        <Component config={config} schema={schema} plugin={plugin} generator={generator} />
-      </App>
-    )
-  })
+  await fabricChild.render(
+    <App meta={{ pluginManager, plugin, mode, oas }}>
+      <Component config={config} schema={schema} plugin={plugin} generator={generator} />
+    </App>,
+  )
 
   await fabric.context.fileManager.upsert(...fabricChild.files)
 }

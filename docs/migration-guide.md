@@ -7,7 +7,23 @@ outline: deep
 
 # Migrating to Kubb v3
 
+
 ## New Features
+
+### Static Class Client
+
+You can now generate API clients as classes with static methods using `clientType: 'staticClass'` in `@kubb/plugin-client`. This allows you to call API methods directly on the class without instantiating it:
+
+```typescript
+// Before
+const client = new Pet()
+await client.getPetById({ petId: 1 })
+
+// After
+await Pet.getPetById({ petId: 1 })
+```
+
+See the plugin-client documentation for details and usage notes.
 
 ### Generators
 
@@ -30,7 +46,7 @@ See [output.barrelType](/getting-started/configure#output-barreltype).
 
 ### Rewrite of the CLI
 |          |           |
-|---------:|:----------|
+| -------: | :-------- |
 | Left: v3 | Right: v2 |
 
 ![React-DevTools](./public/screenshots/cli-speed.gif)
@@ -77,7 +93,7 @@ We will discontinue support for (Tanstack-Query](https://tanstack.com/query/late
 Additionally, each framework will now be packaged separately instead of being included in a single package that contains code for all frameworks.
 
 |  Framework | Packages                      |
-|-----------:|:------------------------------|
+| ---------: | :---------------------------- |
 |  `'react'` | `'@kubb/plugin-react-query'`  |
 |  `'solid'` | `'@kubb/plugin-solid-query'`  |
 | `'svelte'` | `'@kubb/plugin-svelte-query'` |
