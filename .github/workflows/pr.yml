@@ -232,6 +232,7 @@ jobs:
           size-threshold: -1
 
   # This job automatically updates generated example files when package code changes
+  # It creates a new PR targeting the source branch with the generated updates
   update-examples:
     name: Update generated examples
     timeout-minutes: 20
