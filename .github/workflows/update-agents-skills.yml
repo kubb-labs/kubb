@@ -19,6 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Generate skills block
+        id: build
         uses: dave1010/skills-to-agents@v1
         with:
           repo-root: .
@@ -27,6 +28,7 @@ jobs:
       - uses: peter-evans/create-pull-request@v7
         if: steps.build.outputs.changed == 'true'
         with:
+          base: ${{ github.head_ref || github.ref_name }}
           branch: chore/update-agents
           delete-branch: true
           title: "Update AGENTS.md"
