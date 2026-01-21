@@ -6,20 +6,20 @@
 import { faker } from '@faker-js/faker'
 import type { DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models/DeletePet.ts'
 
-export function createDeletePetPathParams(data?: Partial<DeletePetPathParams>): DeletePetPathParams {
+export function createDeletePetPathParams(data?: Partial<DeletePetPathParams>) {
   faker.seed([220])
   return {
     ...{ petId: faker.number.int() },
     ...(data || {}),
-  }
+  } as DeletePetPathParams
 }
 
-export function createDeletePetHeaderParams(data?: Partial<DeletePetHeaderParams>): DeletePetHeaderParams {
+export function createDeletePetHeaderParams(data?: Partial<DeletePetHeaderParams>) {
   faker.seed([220])
   return {
     ...{ api_key: faker.string.alpha() },
     ...(data || {}),
-  }
+  } as DeletePetHeaderParams
 }
 
 /**
@@ -30,7 +30,7 @@ export function createDeletePet400() {
   return undefined
 }
 
-export function createDeletePetMutationResponse(_data?: Partial<DeletePetMutationResponse>): DeletePetMutationResponse {
+export function createDeletePetMutationResponse(_data?: Partial<DeletePetMutationResponse>) {
   faker.seed([220])
-  return undefined
+  return undefined as DeletePetMutationResponse
 }

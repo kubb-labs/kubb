@@ -9,15 +9,15 @@ import type { GetInventory200, GetInventoryQueryResponse } from '../../models/Ge
 /**
  * @description successful operation
  */
-export function createGetInventory200(data?: Partial<GetInventory200>): GetInventory200 {
+export function createGetInventory200(data?: Partial<GetInventory200>) {
   faker.seed([220])
   return {
     ...{},
     ...(data || {}),
-  }
+  } as GetInventory200
 }
 
-export function createGetInventoryQueryResponse(data?: Partial<GetInventoryQueryResponse>): GetInventoryQueryResponse {
+export function createGetInventoryQueryResponse(data?: Partial<GetInventoryQueryResponse>) {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([createGetInventory200()])
+  return data || (faker.helpers.arrayElement<any>([createGetInventory200()]) as GetInventoryQueryResponse)
 }

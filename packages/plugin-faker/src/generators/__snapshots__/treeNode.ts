@@ -4,9 +4,9 @@
  */
 import { faker } from '@faker-js/faker'
 
-export function treeNode(data?: Partial<TreeNode>): TreeNode {
+export function treeNode(data?: Partial<TreeNode>) {
   return {
     ...{ value: faker.string.alpha(), left: undefined, right: undefined },
     ...(data || {}),
-  }
+  } as TreeNode
 }

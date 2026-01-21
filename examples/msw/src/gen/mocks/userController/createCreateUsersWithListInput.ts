@@ -23,14 +23,12 @@ export function createCreateUsersWithListInputError() {
   return undefined
 }
 
-export function createCreateUsersWithListInputMutationRequest(data?: CreateUsersWithListInputMutationRequest): CreateUsersWithListInputMutationRequest {
+export function createCreateUsersWithListInputMutationRequest(data?: CreateUsersWithListInputMutationRequest) {
   faker.seed([220])
-  return [...faker.helpers.multiple(() => createUser()), ...(data || [])]
+  return [...faker.helpers.multiple(() => createUser()), ...(data || [])] as CreateUsersWithListInputMutationRequest
 }
 
-export function createCreateUsersWithListInputMutationResponse(
-  data?: Partial<CreateUsersWithListInputMutationResponse>,
-): CreateUsersWithListInputMutationResponse {
+export function createCreateUsersWithListInputMutationResponse(data?: Partial<CreateUsersWithListInputMutationResponse>) {
   faker.seed([220])
-  return data || faker.helpers.arrayElement<any>([createCreateUsersWithListInput200()])
+  return data || (faker.helpers.arrayElement<any>([createCreateUsersWithListInput200()]) as CreateUsersWithListInputMutationResponse)
 }

@@ -6,9 +6,9 @@
 import { faker } from '@faker-js/faker'
 import type { Tag } from '../models/Tag.ts'
 
-export function createTag(data?: Partial<Tag>): Tag {
+export function createTag(data?: Partial<Tag>) {
   return {
     ...{ id: faker.number.int(), name: faker.string.alpha() },
     ...(data || {}),
-  }
+  } as Tag
 }

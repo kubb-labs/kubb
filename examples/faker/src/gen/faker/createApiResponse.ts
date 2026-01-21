@@ -6,7 +6,7 @@
 import { faker } from '@faker-js/faker'
 import type { ApiResponse } from '../models/ApiResponse.ts'
 
-export function createApiResponse(data?: Partial<ApiResponse>): ApiResponse {
+export function createApiResponse(data?: Partial<ApiResponse>) {
   return {
     ...{
       code: faker.number.int(),
@@ -14,5 +14,5 @@ export function createApiResponse(data?: Partial<ApiResponse>): ApiResponse {
       message: faker.string.alpha({ casing: 'lower' }),
     },
     ...(data || {}),
-  }
+  } as ApiResponse
 }

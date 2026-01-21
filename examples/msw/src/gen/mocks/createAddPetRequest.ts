@@ -8,7 +8,7 @@ import type { AddPetRequest } from '../models/AddPetRequest.ts'
 import { createCategory } from './createCategory.ts'
 import { createTag } from './createTag.ts'
 
-export function createAddPetRequest(data?: Partial<AddPetRequest>): AddPetRequest {
+export function createAddPetRequest(data?: Partial<AddPetRequest>) {
   faker.seed([220])
   return {
     ...{
@@ -20,5 +20,5 @@ export function createAddPetRequest(data?: Partial<AddPetRequest>): AddPetReques
       status: faker.helpers.arrayElement<NonNullable<AddPetRequest>['status']>(['available', 'pending', 'sold']),
     },
     ...(data || {}),
-  }
+  } as AddPetRequest
 }

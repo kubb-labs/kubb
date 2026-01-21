@@ -20,6 +20,6 @@ export function createAddFilesMutationRequestFaker() {
   return createPetFaker()
 }
 
-export function createAddFilesMutationResponseFaker(data?: Partial<AddFilesMutationResponse>): AddFilesMutationResponse {
-  return data || faker.helpers.arrayElement<any>([createAddFiles200Faker()])
+export function createAddFilesMutationResponseFaker(data?: Partial<AddFilesMutationResponse>) {
+  return data || (faker.helpers.arrayElement<any>([createAddFiles200Faker()]) as AddFilesMutationResponse)
 }

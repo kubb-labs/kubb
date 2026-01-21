@@ -7,7 +7,7 @@ import { faker } from '@faker-js/faker'
 import type { Customer } from '../models/Customer.ts'
 import { createAddress } from './createAddress.ts'
 
-export function createCustomer(data?: Partial<Customer>): Customer {
+export function createCustomer(data?: Partial<Customer>) {
   return {
     ...{
       id: faker.number.int(),
@@ -15,5 +15,5 @@ export function createCustomer(data?: Partial<Customer>): Customer {
       address: faker.helpers.multiple(() => createAddress()),
     },
     ...(data || {}),
-  }
+  } as Customer
 }

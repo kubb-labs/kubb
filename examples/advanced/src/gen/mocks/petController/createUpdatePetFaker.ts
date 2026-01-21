@@ -12,11 +12,11 @@ export function createUpdatePet200Faker() {
 /**
  * @description accepted operation
  */
-export function createUpdatePet202Faker(data?: Partial<UpdatePet202>): UpdatePet202 {
+export function createUpdatePet202Faker(data?: Partial<UpdatePet202>) {
   return {
     ...{ id: faker.number.int() },
     ...(data || {}),
-  }
+  } as UpdatePet202
 }
 
 /**
@@ -47,6 +47,6 @@ export function createUpdatePetMutationRequestFaker() {
   return createPetFaker()
 }
 
-export function createUpdatePetMutationResponseFaker(data?: Partial<UpdatePetMutationResponse>): UpdatePetMutationResponse {
-  return data || faker.helpers.arrayElement<any>([createUpdatePet200Faker(), createUpdatePet202Faker()])
+export function createUpdatePetMutationResponseFaker(data?: Partial<UpdatePetMutationResponse>) {
+  return data || (faker.helpers.arrayElement<any>([createUpdatePet200Faker(), createUpdatePet202Faker()]) as UpdatePetMutationResponse)
 }

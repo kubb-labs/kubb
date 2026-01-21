@@ -4,11 +4,11 @@
  */
 import { faker } from '@faker-js/faker'
 
-export function showPetByIdPathParams(data?: Partial<ShowPetByIdPathParams>): ShowPetByIdPathParams {
+export function showPetByIdPathParams(data?: Partial<ShowPetByIdPathParams>) {
   return {
     ...{ petId: faker.string.alpha(), testId: faker.string.alpha() },
     ...(data || {}),
-  }
+  } as ShowPetByIdPathParams
 }
 
 /**
@@ -25,6 +25,6 @@ export function showPetByIdError() {
   return error()
 }
 
-export function showPetByIdQueryResponse(data?: Partial<ShowPetByIdQueryResponse>): ShowPetByIdQueryResponse {
-  return data || faker.helpers.arrayElement<any>([showPetById200()])
+export function showPetByIdQueryResponse(data?: Partial<ShowPetByIdQueryResponse>) {
+  return data || (faker.helpers.arrayElement<any>([showPetById200()]) as ShowPetByIdQueryResponse)
 }

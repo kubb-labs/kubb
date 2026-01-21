@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import type { Order } from '../models/ts/Order.ts'
 
-export function createOrderFaker(data?: Partial<Order>): Order {
+export function createOrderFaker(data?: Partial<Order>) {
   return {
     ...{
       id: faker.number.int({ min: 3, max: 100 }),
@@ -15,5 +15,5 @@ export function createOrderFaker(data?: Partial<Order>): Order {
       complete: faker.datatype.boolean(),
     },
     ...(data || {}),
-  }
+  } as Order
 }

@@ -7,6 +7,6 @@ import { faker } from '@faker-js/faker'
 import type { UserArray } from '../models/UserArray.ts'
 import { createUser } from './createUser.ts'
 
-export function createUserArray(data?: UserArray): UserArray {
-  return [...faker.helpers.multiple(() => createUser()), ...(data || [])]
+export function createUserArray(data?: UserArray) {
+  return [...faker.helpers.multiple(() => createUser()), ...(data || [])] as UserArray
 }

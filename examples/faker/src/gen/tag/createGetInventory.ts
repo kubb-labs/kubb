@@ -9,13 +9,13 @@ import type { GetInventory200, GetInventoryQueryResponse } from '../models/GetIn
 /**
  * @description successful operation
  */
-export function createGetInventory200(data?: Partial<GetInventory200>): GetInventory200 {
+export function createGetInventory200(data?: Partial<GetInventory200>) {
   return {
     ...{},
     ...(data || {}),
-  }
+  } as GetInventory200
 }
 
-export function createGetInventoryQueryResponse(data?: Partial<GetInventoryQueryResponse>): GetInventoryQueryResponse {
-  return data || faker.helpers.arrayElement<any>([createGetInventory200()])
+export function createGetInventoryQueryResponse(data?: Partial<GetInventoryQueryResponse>) {
+  return data || (faker.helpers.arrayElement<any>([createGetInventory200()]) as GetInventoryQueryResponse)
 }

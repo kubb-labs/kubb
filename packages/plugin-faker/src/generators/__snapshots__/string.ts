@@ -4,6 +4,6 @@
  */
 import { faker } from '@faker-js/faker'
 
-export function string(data?: string): string {
-  return data ?? faker.string.alpha()
+export function string(data?: string) {
+  return data ?? (faker.string.alpha() as string)
 }

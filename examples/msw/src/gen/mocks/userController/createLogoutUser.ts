@@ -14,7 +14,7 @@ export function createLogoutUserError() {
   return undefined
 }
 
-export function createLogoutUserQueryResponse(_data?: Partial<LogoutUserQueryResponse>): LogoutUserQueryResponse {
+export function createLogoutUserQueryResponse(_data?: Partial<LogoutUserQueryResponse>) {
   faker.seed([220])
-  return undefined
+  return undefined as LogoutUserQueryResponse
 }

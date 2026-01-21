@@ -53,9 +53,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
 }`
   }
 
-  if (canOverride && isTuple) {
-    fakerTextWithOverride = `data || ${fakerText}`
-  }
+  if (canOverride && isTuple) fakerTextWithOverride = `data || ${fakerText}`
 
   if (canOverride && isArray) {
     fakerTextWithOverride = `[
@@ -64,23 +62,17 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
     ]`
   }
 
-  if (canOverride && isSimpleString) {
-    fakerTextWithOverride = 'data ?? faker.string.alpha()'
-  }
+  if (canOverride && isSimpleString) fakerTextWithOverride = 'data ?? faker.string.alpha()'
 
-  if (canOverride && isSimpleInt) {
-    fakerTextWithOverride = 'data ?? faker.number.int()'
-  }
+  if (canOverride && isSimpleInt) fakerTextWithOverride = 'data ?? faker.number.int()'
 
-  if (canOverride && isSimpleFloat) {
-    fakerTextWithOverride = 'data ?? faker.number.float()'
-  }
+  if (canOverride && isSimpleFloat) fakerTextWithOverride = 'data ?? faker.number.float()'
 
   let type = `Partial<${typeName}>`
 
   if (isArray) type = typeName
-  else if (isSimpleString) type = name
-  else if (isSimpleInt || isSimpleFloat) type = 'number'
+  if (isSimpleString) type = name
+  if (isSimpleInt || isSimpleFloat) type = 'number'
 
   const params = FunctionParams.factory({
     data: {
@@ -101,11 +93,10 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
         name={name}
         JSDoc={{ comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean) }}
         params={canOverride ? params.toConstructor() : undefined}
-        returnType={returnType}
       >
         {seed ? `faker.seed(${JSON.stringify(seed)})` : undefined}
         <br />
-        {`return ${fakerTextWithOverride}`}
+        {returnType ? `return ${fakerTextWithOverride} as ${returnType}` : `return ${fakerTextWithOverride}`}
       </Function>
     </File.Source>
   )

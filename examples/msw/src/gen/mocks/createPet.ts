@@ -8,7 +8,7 @@ import type { Pet } from '../models/Pet.ts'
 import { createCategory } from './createCategory.ts'
 import { createTag } from './createTag.ts'
 
-export function createPet(data?: Partial<Pet>): Pet {
+export function createPet(data?: Partial<Pet>) {
   faker.seed([220])
   return {
     ...{
@@ -20,5 +20,5 @@ export function createPet(data?: Partial<Pet>): Pet {
       status: faker.helpers.arrayElement<NonNullable<Pet>['status']>(['available', 'pending', 'sold']),
     },
     ...(data || {}),
-  }
+  } as Pet
 }

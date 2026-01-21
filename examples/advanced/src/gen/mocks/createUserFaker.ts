@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import type { User } from '../models/ts/User.ts'
 import { createTagTagFaker } from './tag/createTagFaker.ts'
 
-export function createUserFaker(data?: Partial<User>): User {
+export function createUserFaker(data?: Partial<User>) {
   return {
     ...{
       id: faker.number.int(),
@@ -17,5 +17,5 @@ export function createUserFaker(data?: Partial<User>): User {
       userStatus: faker.number.int(),
     },
     ...(data || {}),
-  }
+  } as User
 }

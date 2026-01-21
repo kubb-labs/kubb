@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker'
 import type { Category } from '../models/ts/Category.ts'
 
-export function createCategoryFaker(data?: Partial<Category>): Category {
+export function createCategoryFaker(data?: Partial<Category>) {
   return {
     ...{ id: faker.number.int(), name: faker.string.alpha() },
     ...(data || {}),
-  }
+  } as Category
 }
