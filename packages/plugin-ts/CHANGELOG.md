@@ -1,5 +1,18 @@
 # @kubb/plugin-ts
 
+## 4.18.3
+
+### Patch Changes
+
+- [#2346](https://github.com/kubb-labs/kubb/pull/2346) [`5bff082`](https://github.com/kubb-labs/kubb/commit/5bff08211fb72476a6b8ffc703430ae4c6603ba5) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix export of type alias for `asPascalConst` enums
+
+  When using `enumType: 'asPascalConst'`, the generated type alias is now properly exported. This allows consuming code to import and use the type.
+
+- Updated dependencies []:
+  - @kubb/core@4.18.3
+  - @kubb/oas@4.18.3
+  - @kubb/plugin-oas@4.18.3
+
 ## 4.18.2
 
 ### Patch Changes
