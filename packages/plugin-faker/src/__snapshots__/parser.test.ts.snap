@@ -2,6 +2,8 @@
 
 exports[`faker parse > 'and' 1`] = `"{...{"street": faker.string.alpha()}, ...{"city": faker.string.alpha()}}"`;
 
+exports[`faker parse > 'andRefEnum' 1`] = `"createIssueCategory()"`;
+
 exports[`faker parse > 'any' 1`] = `"undefined"`;
 
 exports[`faker parse > 'array' 1`] = `"faker.helpers.multiple(() => (faker.helpers.arrayElement<any>([faker.number.float(), faker.string.alpha()])))"`;
@@ -67,6 +69,8 @@ exports[`faker parse > 'objectEnum' 1`] = `"{"version": faker.helpers.arrayEleme
 exports[`faker parse > 'objectObjectEnum' 1`] = `"{"prop1": {"prop2": faker.helpers.arrayElement<NonNullable<NonNullable<Pet>["prop1"]>["prop2"]>(["A", "B"])}}"`;
 
 exports[`faker parse > 'objectOptional' 1`] = `"{"firstName": faker.string.alpha({ length: 2 }),"address": faker.string.alpha()}"`;
+
+exports[`faker parse > 'objectWithNullableEnumRef' 1`] = `"{"category": createIssueCategory()}"`;
 
 exports[`faker parse > 'primitiveDate' 1`] = `"faker.date.anytime()"`;
 

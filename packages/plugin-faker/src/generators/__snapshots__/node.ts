@@ -6,7 +6,7 @@ import { faker } from '@faker-js/faker'
 
 export function node(data?: Partial<Node>): Node {
   return {
-    ...{ id: faker.string.alpha(), children: faker.helpers.multiple(() => undefined) },
+    ...{ id: faker.string.alpha(), children: faker.helpers.multiple(() => undefined as any) },
     ...(data || {}),
   }
 }

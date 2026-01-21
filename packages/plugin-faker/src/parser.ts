@@ -120,7 +120,22 @@ const fakerKeywordMapper = {
   },
   uuid: () => 'faker.string.uuid()',
   url: () => 'faker.internet.url()',
-  and: (items: string[] = []) => `{...${items.join(', ...')}}`,
+  and: (items: string[] = []) => {
+    // Handle empty array case
+    if (items.length === 0) {
+      return '{}'
+    }
+
+    // If only one item, return it as-is (no need to spread)
+    // This fixes the issue with single refs to primitives like enums
+    if (items.length === 1) {
+      return items[0] ?? '{}'
+    }
+
+    // If multiple items, spread them together
+    // This handles both object literals and multiple refs to objects
+    return `{...${items.join(', ...')}}`
+  },
   object: () => 'object',
   ref: () => 'ref',
   matches: (value = '', regexGenerator: 'faker' | 'randexp' = 'faker') => {
@@ -282,7 +297,7 @@ export const parse = createParser<string, ParserOptions>({
       if (isSelfReferencing) {
         // For self-referencing types, return undefined to prevent infinite recursion
         // This will result in empty arrays/objects by default
-        return 'undefined'
+        return 'undefined as any'
       }
 
       if (options.canOverride) {
