@@ -235,7 +235,7 @@ jobs:
     name: Update generated examples
     timeout-minutes: 20
     runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]'
+    if: github.actor != 'github-actions[bot]' && github.head_ref != 'chore/update-generated-examples'
     needs: build
     permissions:
       contents: write
@@ -258,9 +258,22 @@ jobs:
           key: build-${{ github.sha }}
 
       - name: Generate examples
+        id: generate
         run: pnpm run generate
 
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [[ -n $(git status --porcelain examples/) ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in examples/"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in examples/"
+          fi
+
       - name: Create Pull Request with generated files
+        if: steps.check_changes.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           base: ${{ github.head_ref || github.ref_name }}
