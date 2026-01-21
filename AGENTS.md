@@ -99,115 +99,6 @@ pnpm run upgrade && pnpm i   # Upgrade dependencies
 - **Before committing**: Run `pnpm format && pnpm lint:fix`, `pnpm typecheck`, and `pnpm test`
 - **Before committing**: Run `pnpm generate` and `pnpm typecheck:examples` in a separate commit
 
-### Changelog and documentation
-
-**Required for every PR with code changes:**
-- Always create a changeset using `pnpm changeset` to specify the version bump (major/minor/patch) for affected packages
-- Always update `docs/changelog.md` with the new version entry describing the changes
-- **Update docs in the same PR as code changes** (unless it's a docs-only PR)
-
-**Changelog format guidelines:**
-
-When updating `docs/changelog.md`, follow this structure:
-
-```markdown
-## X.Y.Z
-
-### ✨ Features (or 🐛 Bug Fixes, 🚀 Breaking Changes, 📦 Dependencies)
-
-#### [`plugin-name`](/plugins/plugin-name/)
-
-Description of the change.
-
-::: code-group
-```typescript [Before]
-// Old code example
-```
-
-```typescript [After]
-// New code example
-```
-:::
-```
-
-**Category prefixes:**
-- ✨ **Features** - New functionality and enhancements
-- 🐛 **Bug Fixes** - Bug fixes and corrections
-- 🚀 **Breaking Changes** - Changes that may require code updates
-- 📦 **Dependencies** - Package updates and dependency changes
-
-**Best practices:**
-- Use `##` for version headings (not `#`)
-- Use `###` for change type sections
-- Use `####` for individual plugin names
-- Group related plugin changes under single sections when applicable
-- Add code examples using VitePress code groups for before/after comparisons
-- Use VitePress callouts (`::: warning`, `::: tip`, `::: info`) for important notes
-- Include links to plugins using `[`plugin-name`](/plugins/plugin-name/)`
-
-**Update docs when:**
-- Adding a new plugin or feature
-- Changing plugin options or behavior
-- Fixing bugs that affect user-facing behavior
-- Adding new examples or tutorials
-- Updating API signatures or types
-- When fixing bugs: update relevant docs if the fix changes behavior, add notes if it affects user workflow, update examples if they were incorrect
-
-### Review checklist for agent-created PRs
-
-- [ ] Does CI pass? (unit tests, linters, typechecks)
-- [ ] Is the change small and well-scoped?
-- [ ] Are there any secrets, tokens, or sensitive data accidentally added?
-- [ ] Are dependency updates pinned to safe versions and tested?
-- [ ] Documentation: is content accurate and matches repository conventions?
-- [ ] If AI-assisted: check for hallucinated facts, incorrect code assumptions, or missing context
-- [ ] Factual accuracy: verify all information is correct
-- [ ] Consistency: follow existing code and documentation patterns
-- [ ] Completeness: all features and options are documented
-
-### Security and secrets
-
-- **Never commit secrets or credentials**
-- If an agent PR contains secrets, immediately close the PR and rotate exposed secrets
-- Use repository secrets and Actions masked variables for CI
-
-### When to approve and merge
-
-- Approve only when review checklist is satisfied
-- Prefer squash merging small, single-purpose agent PRs
-- For larger updates, consider staged roll-out or incremental approach
-
-## Architecture instructions
-
-### Plugin system overview
-
-Kubb uses a plugin-based architecture where plugins generate code from OpenAPI specifications. The system is inspired by Rollup, Unplugin, and Snowpack.
-
-**Key concepts:**
-- **PluginManager**: Orchestrates plugin execution and manages file generation lifecycle
-- **Plugins**: Define generators, resolve paths/names, and hook into lifecycle events
-- **Generators**: Functions or React components that generate code files
-- **Components**: React components (using `@kubb/react-fabric`) that render code templates
-- **Options**: Plugin configuration that gets resolved and validated
-
-### Plugin structure
-
-Plugins follow this structure:
-
-```typescript
-export const definePlugin = createPlugin<PluginOptions>((options) => {
-  return {
-    name: pluginName,
-    options,
-    pre: [], // Plugins that must run before this one
-    post: [], // Plugins that run after this one
-    resolvePath(baseName, mode, options) { /* ... */ },
-    resolveName(name, type) { /* ... */ },
-    async install() { /* ... */ },
-  }
-})
-```
-
 ### Components
 
 Components are React components (using `@kubb/react-fabric`) that generate code templates. They use JSX syntax to declaratively create files.
@@ -403,3 +294,12 @@ const name = getName(operation, { type: 'function', prefix: 'use' })
 const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 // Returns: { request, response, pathParams, queryParams, headerParams, errors }
 ```
+
+<skills>
+
+## Skills
+
+You have new skills. If any skill might be relevant then you MUST read it.
+
+- [changelog](.skills/changelog/SKILL.md) - Automatically creates user-facing changelogs from git commits by analyzing commit history, categorizing changes, and transforming technical commits into clear, customer-friendly release notes. Turns hours of manual changelog writing into minutes of automated generation.
+</skills>
