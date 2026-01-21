@@ -231,6 +231,63 @@ jobs:
           duplicate-threshold: 5
           size-threshold: -1
 
+  # This job automatically updates generated example files when package code changes
+  # It creates a new PR targeting the source branch with the generated updates
+  update-examples:
+    name: Update generated examples
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    needs: build
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
+
+      - name: Restore build artifacts
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            packages/*/dist
+            packages/*/node_modules/.cache
+          key: build-${{ github.sha }}
+
+      - name: Generate examples
+        id: generate
+        run: pnpm run generate
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [[ -n $(git status --porcelain examples/) ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in examples/"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in examples/"
+          fi
+
+      - name: Create Pull Request with generated files
+        if: steps.check_changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          base: ${{ github.head_ref || github.ref_name }}
+          branch: chore/update-generated-examples-${{ github.event.number }}
+          delete-branch: true
+          title: "chore: update generated examples"
+          commit-message: "chore(examples): update generated files"
+          body: |
+            Automated update of generated example files from `pnpm generate`.
+            
+            This PR was automatically created to keep example generated files in sync.
+
   e2e:
     name: Build and test on ${{ matrix.os }}
     timeout-minutes: 30
