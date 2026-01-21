@@ -75,7 +75,7 @@ exports[`codegen > should create enum declaration 4`] = `
   end: 2050,
   survive: true,
 } as const
-type Hello = (typeof Hello)[keyof typeof Hello]
+export type Hello = (typeof Hello)[keyof typeof Hello]
 "
 `;
 

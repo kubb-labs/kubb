@@ -174,8 +174,8 @@ export function Type({
               <File.Source
                 name={typeName}
                 isIndexable
-                isExportable={['enum', 'asConst', 'constEnum', 'literal', undefined].includes(enumType)}
-                isTypeOnly={['asConst', 'literal', undefined].includes(enumType)}
+                isExportable={['enum', 'asConst', 'asPascalConst', 'constEnum', 'literal', undefined].includes(enumType)}
+                isTypeOnly={['asConst', 'asPascalConst', 'literal', undefined].includes(enumType)}
               >
                 {safePrint(typeNode)}
               </File.Source>
