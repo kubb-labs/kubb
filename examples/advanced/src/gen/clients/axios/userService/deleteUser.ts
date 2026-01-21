@@ -1,6 +1,6 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
+import fetch from '../../../../axios-client.ts'
+import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser.ts'
 import { deleteUserMutationResponseSchema } from '../../../zod/userController/deleteUserSchema.ts'
 
 export function getDeleteUserUrl({ username }: { username: DeleteUserPathParams['username'] }) {

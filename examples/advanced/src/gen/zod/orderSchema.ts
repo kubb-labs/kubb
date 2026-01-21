@@ -1,6 +1,6 @@
-import type { Order } from '../models/ts/Order.ts'
-import type { ToZod } from '../.kubb/ToZod.ts'
 import { z } from 'zod'
+import type { ToZod } from '../.kubb/ToZod.ts'
+import type { Order } from '../models/ts/Order.ts'
 
 export const orderSchema = z.object({
   id: z.optional(z.number().int().min(3).max(100)),
