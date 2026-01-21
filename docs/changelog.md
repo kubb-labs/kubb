@@ -10,6 +10,36 @@ outline: deep
 
 ### 🐛 Bug Fixes
 
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Fixed missing export for `asPascalConst` enum type aliases**
+
+When using `enumType: 'asPascalConst'`, the generated type alias was not exported, preventing consuming code from importing the type. TypeScript allows values and types with identical names to coexist in separate namespaces, so both can be safely exported.
+
+::: code-group
+
+```typescript [Before]
+// Generated enum const
+export const PetType = {
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
+type PetType = (typeof PetType)[keyof typeof PetType] // ❌ Not exported!
+```
+
+```typescript [After]
+// Generated enum const
+export const PetType = {
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
+export type PetType = (typeof PetType)[keyof typeof PetType] // ✅ Now exported!
+```
+
+:::
+
+---
+
 #### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
 
 **Fixed incorrect spreading of factory functions in `allOf` schemas with single refs**
