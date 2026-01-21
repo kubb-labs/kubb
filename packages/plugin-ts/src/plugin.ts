@@ -102,30 +102,8 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       const mode = getMode(path.resolve(root, output.path))
       const oas = await this.getOas()
 
-      // Check if any client plugin exists and use its paramsCasing if not explicitly set
-      let resolvedParamsCasing = paramsCasing
-      if (!resolvedParamsCasing) {
-        // Check all plugins in the pluginManager for paramsCasing
-        const allPlugins = this.pluginManager.plugins
-        for (const plugin of allPlugins) {
-          if (plugin.options && typeof plugin.options === 'object') {
-            const options = plugin.options as Record<string, unknown>
-            // Check for paramsCasing in plugin-client
-            if (plugin.name === 'plugin-client' && options.paramsCasing === 'camelcase') {
-              resolvedParamsCasing = 'camelcase'
-              break
-            }
-            // plugin-mcp always uses camelcase internally (hardcoded in mcpGenerator.tsx line 82)
-            if (plugin.name === 'plugin-mcp') {
-              resolvedParamsCasing = 'camelcase'
-              break
-            }
-          }
-        }
-      }
-
-      // Update the plugin options with resolved params casing
-      this.plugin.options.paramsCasing = resolvedParamsCasing
+      // Use explicitly configured paramsCasing only
+      this.plugin.options.paramsCasing = paramsCasing
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         fabric: this.fabric,

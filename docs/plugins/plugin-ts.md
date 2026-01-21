@@ -347,7 +347,7 @@ type Pet = {
 How to style your params, by default no casing is applied. When set to `'camelcase'`, property names from the OpenAPI spec will be converted to camelCase in the generated TypeScript types.
 
 > [!TIP]
-> When using `@kubb/plugin-client` with `paramsCasing: 'camelcase'`, this option will be automatically set to `'camelcase'` to ensure consistency between the client and type definitions.
+> When using `@kubb/plugin-client` or `@kubb/plugin-mcp` with `paramsCasing: 'camelcase'`, you should also set this option to `'camelcase'` to ensure consistency between the client and type definitions.
 
 |           |               |
 |----------:|:--------------|
