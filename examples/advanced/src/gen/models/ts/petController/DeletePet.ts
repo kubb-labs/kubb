@@ -10,7 +10,7 @@ export type DeletePetHeaderParams = {
   /**
    * @type string | undefined
    */
-  api_key?: string
+  apiKey?: string
 }
 
 /**

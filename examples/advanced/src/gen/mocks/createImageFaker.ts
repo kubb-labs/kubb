@@ -1,6 +1,6 @@
-import { faker } from '@faker-js/faker'
 import type { Image } from '../models/ts/Image.ts'
+import { faker } from '@faker-js/faker'
 
-export function createImageFaker(_data?: Partial<Image>): Image {
+export function createImageFaker(data?: Partial<Image>): Image {
   return faker.string.alpha()
 }
