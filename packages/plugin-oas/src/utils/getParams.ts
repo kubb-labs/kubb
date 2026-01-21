@@ -46,9 +46,13 @@ export function getPathParams(
 ) {
   return getASTParams(operationSchema, options).reduce((acc, curr) => {
     if (curr.name && curr.enabled) {
-      let name = isValidVarName(curr.name) ? curr.name : camelCase(curr.name)
+      let name = curr.name
 
+      // Only transform to camelCase if explicitly requested
       if (options.casing === 'camelcase') {
+        name = camelCase(name)
+      } else if (!isValidVarName(name)) {
+        // If not valid variable name and casing not set, still need to make it valid
         name = camelCase(name)
       }
 
@@ -80,15 +84,19 @@ export function getParamsMapping(
   const mapping: Record<string, string> = {}
 
   Object.entries(operationSchema.schema.properties).forEach(([originalName]) => {
-    let camelCaseName = isValidVarName(originalName) ? originalName : camelCase(originalName)
+    let transformedName = originalName
 
+    // Only transform to camelCase if explicitly requested
     if (options.casing === 'camelcase') {
-      camelCaseName = camelCase(camelCaseName)
+      transformedName = camelCase(originalName)
+    } else if (!isValidVarName(originalName)) {
+      // If not valid variable name and casing not set, still need to make it valid
+      transformedName = camelCase(originalName)
     }
 
     // Only add mapping if the names differ
-    if (camelCaseName !== originalName) {
-      mapping[originalName] = camelCaseName
+    if (transformedName !== originalName) {
+      mapping[originalName] = transformedName
     }
   })
 
