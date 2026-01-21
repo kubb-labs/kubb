@@ -1,0 +1,22 @@
+name: Sync AGENTS.md from Skills
+
+on:
+  push:
+    paths:
+      - ".skills/**"
+  pull_request:
+    paths:
+      - ".skills/**"
+  workflow_dispatch:
+
+jobs:
+  build-agents-md:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate skills block
+        uses: dave1010/skills-to-agents@v1
+        with:
+          repo-root: .
+          skills-dir: .skills
+          agents-path: AGENTS.md
