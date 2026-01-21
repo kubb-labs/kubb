@@ -3,7 +3,7 @@ import type { AddPetRequest } from '../models/ts/AddPetRequest.ts'
 import { createCategoryFaker } from './createCategoryFaker.ts'
 import { createTagTagFaker } from './tag/createTagFaker.ts'
 
-export function createAddPetRequestFaker(data?: Partial<AddPetRequest>) {
+export function createAddPetRequestFaker(data?: Partial<AddPetRequest>): AddPetRequest {
   return {
     ...{
       id: faker.number.int(),
@@ -14,5 +14,5 @@ export function createAddPetRequestFaker(data?: Partial<AddPetRequest>) {
       status: faker.helpers.arrayElement<any>(['working', 'idle']),
     },
     ...(data || {}),
-  } as AddPetRequest
+  }
 }

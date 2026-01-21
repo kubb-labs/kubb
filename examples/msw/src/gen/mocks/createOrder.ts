@@ -6,7 +6,7 @@
 import { faker } from '@faker-js/faker'
 import type { Order } from '../models/Order.ts'
 
-export function createOrder(data?: Partial<Order>) {
+export function createOrder(data?: Partial<Order>): Order {
   faker.seed([220])
   return {
     ...{
@@ -19,5 +19,5 @@ export function createOrder(data?: Partial<Order>) {
       complete: faker.datatype.boolean(),
     },
     ...(data || {}),
-  } as Order
+  }
 }

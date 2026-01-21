@@ -6,20 +6,20 @@
 import { faker } from '@faker-js/faker'
 import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../models/UpdatePetWithForm.ts'
 
-export function createUpdatePetWithFormPathParams(data?: Partial<UpdatePetWithFormPathParams>) {
+export function createUpdatePetWithFormPathParams(data?: Partial<UpdatePetWithFormPathParams>): UpdatePetWithFormPathParams {
   faker.seed([220])
   return {
     ...{ petId: faker.number.int() },
     ...(data || {}),
-  } as UpdatePetWithFormPathParams
+  }
 }
 
-export function createUpdatePetWithFormQueryParams(data?: Partial<UpdatePetWithFormQueryParams>) {
+export function createUpdatePetWithFormQueryParams(data?: Partial<UpdatePetWithFormQueryParams>): UpdatePetWithFormQueryParams {
   faker.seed([220])
   return {
     ...{ name: faker.string.alpha(), status: faker.string.alpha() },
     ...(data || {}),
-  } as UpdatePetWithFormQueryParams
+  }
 }
 
 /**
@@ -30,7 +30,7 @@ export function createUpdatePetWithForm405() {
   return undefined
 }
 
-export function createUpdatePetWithFormMutationResponse(_data?: Partial<UpdatePetWithFormMutationResponse>) {
+export function createUpdatePetWithFormMutationResponse(_data?: Partial<UpdatePetWithFormMutationResponse>): UpdatePetWithFormMutationResponse {
   faker.seed([220])
-  return undefined as UpdatePetWithFormMutationResponse
+  return undefined
 }

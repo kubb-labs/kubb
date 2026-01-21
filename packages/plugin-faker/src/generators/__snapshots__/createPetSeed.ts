@@ -20,15 +20,15 @@ export function createPetsError() {
   return error()
 }
 
-export function createPetsMutationRequest(data?: Partial<CreatePetsMutationRequest>) {
+export function createPetsMutationRequest(data?: Partial<CreatePetsMutationRequest>): CreatePetsMutationRequest {
   faker.seed([222])
   return {
     ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
     ...(data || {}),
-  } as CreatePetsMutationRequest
+  }
 }
 
-export function createPetsMutationResponse(data?: Partial<CreatePetsMutationResponse>) {
+export function createPetsMutationResponse(data?: Partial<CreatePetsMutationResponse>): CreatePetsMutationResponse {
   faker.seed([222])
-  return data || (faker.helpers.arrayElement<any>([createPets201()]) as CreatePetsMutationResponse)
+  return data || faker.helpers.arrayElement<any>([createPets201()])
 }

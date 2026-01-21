@@ -6,7 +6,7 @@
 import { faker } from '@faker-js/faker'
 import type { User } from '../models/User.ts'
 
-export function createUser(data?: Partial<User>) {
+export function createUser(data?: Partial<User>): User {
   return {
     ...{
       id: faker.number.int(),
@@ -20,5 +20,5 @@ export function createUser(data?: Partial<User>) {
       nationalityCode: faker.helpers.fromRegExp('^[A-Z]{2}$'),
     },
     ...(data || {}),
-  } as User
+  }
 }

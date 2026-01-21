@@ -6,7 +6,7 @@
 import { faker } from '@faker-js/faker'
 import type { ApiResponse } from '../models/ApiResponse.ts'
 
-export function createApiResponse(data?: Partial<ApiResponse>) {
+export function createApiResponse(data?: Partial<ApiResponse>): ApiResponse {
   faker.seed([220])
   return {
     ...{
@@ -15,5 +15,5 @@ export function createApiResponse(data?: Partial<ApiResponse>) {
       message: faker.string.alpha(),
     },
     ...(data || {}),
-  } as ApiResponse
+  }
 }

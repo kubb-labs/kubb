@@ -6,7 +6,7 @@
 import { faker } from '@faker-js/faker'
 import type { Address } from '../models/Address.ts'
 
-export function createAddress(data?: Partial<Address>) {
+export function createAddress(data?: Partial<Address>): Address {
   return {
     ...{
       street: faker.string.alpha(),
@@ -16,5 +16,5 @@ export function createAddress(data?: Partial<Address>) {
       identifier: [faker.number.int(), faker.string.alpha(), faker.helpers.arrayElement<any>(['NW', 'NE', 'SW', 'SE'])],
     },
     ...(data || {}),
-  } as Address
+  }
 }

@@ -10,12 +10,14 @@ import { createPet } from '../createPet.ts'
 /**
  * @description successful operation
  */
-export function createOptionsFindPetsByStatus200(data?: OptionsFindPetsByStatus200) {
+export function createOptionsFindPetsByStatus200(data?: OptionsFindPetsByStatus200): OptionsFindPetsByStatus200 {
   faker.seed([220])
-  return [...faker.helpers.multiple(() => createPet()), ...(data || [])] as OptionsFindPetsByStatus200
+  return [...faker.helpers.multiple(() => createPet()), ...(data || [])]
 }
 
-export function createOptionsFindPetsByStatusMutationResponse(data?: Partial<OptionsFindPetsByStatusMutationResponse>) {
+export function createOptionsFindPetsByStatusMutationResponse(
+  data?: Partial<OptionsFindPetsByStatusMutationResponse>,
+): OptionsFindPetsByStatusMutationResponse {
   faker.seed([220])
-  return data || (faker.helpers.arrayElement<any>([createOptionsFindPetsByStatus200()]) as OptionsFindPetsByStatusMutationResponse)
+  return data || faker.helpers.arrayElement<any>([createOptionsFindPetsByStatus200()])
 }

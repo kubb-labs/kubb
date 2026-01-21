@@ -297,7 +297,7 @@ export const parse = createParser<string, ParserOptions>({
       if (isSelfReferencing) {
         // For self-referencing types, return undefined to prevent infinite recursion
         // This will result in empty arrays/objects by default
-        return 'undefined'
+        return 'undefined as any'
       }
 
       if (options.canOverride) {

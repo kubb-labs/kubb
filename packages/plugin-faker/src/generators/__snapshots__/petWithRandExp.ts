@@ -5,7 +5,7 @@
 import RandExp from 'randexp'
 import { faker } from '@faker-js/faker'
 
-export function pet(data?: Partial<Pet>) {
+export function pet(data?: Partial<Pet>): Pet {
   return {
     ...{
       id: faker.number.int(),
@@ -17,5 +17,5 @@ export function pet(data?: Partial<Pet>) {
       info: { animal: faker.helpers.arrayElement<NonNullable<NonNullable<Pet>['info']>['animal']>(['dog', 'cat', 'ant']) },
     },
     ...(data || {}),
-  } as Pet
+  }
 }

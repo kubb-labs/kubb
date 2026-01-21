@@ -93,10 +93,11 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
         name={name}
         JSDoc={{ comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean) }}
         params={canOverride ? params.toConstructor() : undefined}
+        returnType={returnType}
       >
         {seed ? `faker.seed(${JSON.stringify(seed)})` : undefined}
         <br />
-        {returnType ? `return ${fakerTextWithOverride} as ${returnType}` : `return ${fakerTextWithOverride}`}
+        {`return ${fakerTextWithOverride}`}
       </Function>
     </File.Source>
   )

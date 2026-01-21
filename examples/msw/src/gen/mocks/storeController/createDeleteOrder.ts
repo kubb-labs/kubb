@@ -6,12 +6,12 @@
 import { faker } from '@faker-js/faker'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../models/DeleteOrder.ts'
 
-export function createDeleteOrderPathParams(data?: Partial<DeleteOrderPathParams>) {
+export function createDeleteOrderPathParams(data?: Partial<DeleteOrderPathParams>): DeleteOrderPathParams {
   faker.seed([220])
   return {
     ...{ orderId: faker.number.int() },
     ...(data || {}),
-  } as DeleteOrderPathParams
+  }
 }
 
 /**
@@ -30,7 +30,7 @@ export function createDeleteOrder404() {
   return undefined
 }
 
-export function createDeleteOrderMutationResponse(_data?: Partial<DeleteOrderMutationResponse>) {
+export function createDeleteOrderMutationResponse(_data?: Partial<DeleteOrderMutationResponse>): DeleteOrderMutationResponse {
   faker.seed([220])
-  return undefined as DeleteOrderMutationResponse
+  return undefined
 }

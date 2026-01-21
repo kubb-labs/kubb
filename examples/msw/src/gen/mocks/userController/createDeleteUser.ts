@@ -6,12 +6,12 @@
 import { faker } from '@faker-js/faker'
 import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/DeleteUser.ts'
 
-export function createDeleteUserPathParams(data?: Partial<DeleteUserPathParams>) {
+export function createDeleteUserPathParams(data?: Partial<DeleteUserPathParams>): DeleteUserPathParams {
   faker.seed([220])
   return {
     ...{ username: faker.string.alpha() },
     ...(data || {}),
-  } as DeleteUserPathParams
+  }
 }
 
 /**
@@ -30,7 +30,7 @@ export function createDeleteUser404() {
   return undefined
 }
 
-export function createDeleteUserMutationResponse(_data?: Partial<DeleteUserMutationResponse>) {
+export function createDeleteUserMutationResponse(_data?: Partial<DeleteUserMutationResponse>): DeleteUserMutationResponse {
   faker.seed([220])
-  return undefined as DeleteUserMutationResponse
+  return undefined
 }

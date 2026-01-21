@@ -4,21 +4,21 @@
  */
 import { faker } from '@faker-js/faker'
 
-export function listPetsQueryParams(data?: Partial<ListPetsQueryParams>) {
+export function listPetsQueryParams(data?: Partial<ListPetsQueryParams>): ListPetsQueryParams {
   return {
     ...{ limit: faker.string.alpha() },
     ...(data || {}),
-  } as ListPetsQueryParams
+  }
 }
 
 /**
  * @description A paged array of pets
  */
-export function listPets200(data?: Partial<ListPets200>) {
+export function listPets200(data?: Partial<ListPets200>): ListPets200 {
   return {
     ...{ ...pagination(), ...pets() },
     ...(data || {}),
-  } as ListPets200
+  }
 }
 
 /**
@@ -28,6 +28,6 @@ export function listPetsError() {
   return error()
 }
 
-export function listPetsQueryResponse(data?: Partial<ListPetsQueryResponse>) {
-  return data || (faker.helpers.arrayElement<any>([listPets200()]) as ListPetsQueryResponse)
+export function listPetsQueryResponse(data?: Partial<ListPetsQueryResponse>): ListPetsQueryResponse {
+  return data || faker.helpers.arrayElement<any>([listPets200()])
 }
