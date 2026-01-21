@@ -1,5 +1,33 @@
 # @kubb/plugin-faker
 
+## 4.18.2
+
+### Patch Changes
+
+- [#2339](https://github.com/kubb-labs/kubb/pull/2339) [`b76b413`](https://github.com/kubb-labs/kubb/commit/b76b4135ffa6f3e79d3d5b082e458000784c6b7e) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix incorrect spreading of factory functions in `allOf` schemas with single refs
+
+  When using `allOf` with a single reference to a primitive type (e.g., enum), the generated factory code was incorrectly spreading the result like `{ ...createIssueCategory() }`. This has been fixed so that single refs in `allOf` are no longer spread, while multiple refs continue to be spread correctly.
+
+  **Before:**
+
+  ```typescript
+  // Generated code (incorrect)
+  category: { ...createIssueCategory() }
+  ```
+
+  **After:**
+
+  ```typescript
+  // Generated code (correct)
+  category: createIssueCategory();
+  ```
+
+- Updated dependencies []:
+  - @kubb/core@4.18.2
+  - @kubb/oas@4.18.2
+  - @kubb/plugin-oas@4.18.2
+  - @kubb/plugin-ts@4.18.2
+
 ## 4.18.1
 
 ### Patch Changes
