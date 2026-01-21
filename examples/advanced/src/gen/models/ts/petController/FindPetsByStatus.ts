@@ -4,7 +4,7 @@ export type FindPetsByStatusPathParams = {
   /**
    * @type string
    */
-  step_id: string
+  stepId: string
 }
 
 /**

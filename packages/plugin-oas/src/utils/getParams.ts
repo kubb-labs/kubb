@@ -46,9 +46,13 @@ export function getPathParams(
 ) {
   return getASTParams(operationSchema, options).reduce((acc, curr) => {
     if (curr.name && curr.enabled) {
-      let name = isValidVarName(curr.name) ? curr.name : camelCase(curr.name)
+      let name = curr.name
 
+      // Only transform to camelCase if explicitly requested
       if (options.casing === 'camelcase') {
+        name = camelCase(name)
+      } else if (!isValidVarName(name)) {
+        // If not valid variable name and casing not set, still need to make it valid
         name = camelCase(name)
       }
 
@@ -62,3 +66,44 @@ export function getPathParams(
     return acc
   }, {} as Params)
 }
+
+/**
+ * Get a mapping of camelCase parameter names to their original names
+ * Used for mapping function parameters to backend parameter names
+ */
+export function getParamsMapping(
+  operationSchema: OperationSchema | undefined,
+  options: {
+    casing?: 'camelcase'
+  } = {},
+): Record<string, string> | undefined {
+  if (!operationSchema || !operationSchema.schema.properties) {
+    return undefined
+  }
+
+  const mapping: Record<string, string> = {}
+
+  Object.entries(operationSchema.schema.properties).forEach(([originalName]) => {
+    let transformedName = originalName
+
+    // Only transform to camelCase if explicitly requested
+    if (options.casing === 'camelcase') {
+      transformedName = camelCase(originalName)
+    } else if (!isValidVarName(originalName)) {
+      // If not valid variable name and casing not set, still need to make it valid
+      transformedName = camelCase(originalName)
+    }
+
+    // Only add mapping if the names differ
+    if (transformedName !== originalName) {
+      mapping[originalName] = transformedName
+    }
+  })
+
+  return Object.keys(mapping).length > 0 ? mapping : undefined
+}
+
+/**
+ * @deprecated Use getParamsMapping instead
+ */
+export const getPathParamsMapping = getParamsMapping

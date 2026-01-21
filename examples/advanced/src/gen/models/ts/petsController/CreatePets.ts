@@ -18,7 +18,7 @@ export type CreatePetsQueryParams = {
   /**
    * @type boolean | undefined
    */
-  bool_param?: CreatePetsQueryParamsBoolParamEnumKey
+  boolParam?: CreatePetsQueryParamsBoolParamEnumKey
   /**
    * @description Offset *\/
    * @type integer | undefined
@@ -39,7 +39,7 @@ export type CreatePetsHeaderParams = {
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumKey
+  xEXAMPLE: CreatePetsHeaderParamsXEXAMPLEEnumKey
 }
 
 /**

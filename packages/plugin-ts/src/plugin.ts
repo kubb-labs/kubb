@@ -21,6 +21,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     unknownType = 'any',
     optionalType = 'questionToken',
     arrayType = 'array',
+    paramsCasing,
     emptySchemaType = unknownType,
     syntaxType = 'type',
     transformers = {},
@@ -40,6 +41,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       dateType,
       optionalType,
       arrayType,
+      paramsCasing,
       enumType,
       enumKeyCasing,
       enumSuffix,
@@ -99,6 +101,9 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
       const oas = await this.getOas()
+
+      // Use explicitly configured paramsCasing only
+      this.plugin.options.paramsCasing = paramsCasing
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         fabric: this.fabric,

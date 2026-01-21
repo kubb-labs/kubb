@@ -2,7 +2,7 @@ import { URLPath } from '@kubb/core/utils'
 
 import { getDefaultValue, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
+import { getComments, getParamsMapping, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { KubbNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
@@ -140,7 +140,7 @@ export function Client({
   children,
   isConfigurable = true,
 }: Props): KubbNode {
-  const path = new URLPath(operation.path, { casing: paramsCasing })
+  const path = new URLPath(operation.path)
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
   const headers = [
@@ -158,6 +158,11 @@ export function Client({
     pathParamsType,
     typeSchemas,
   })
+
+  // Generate parameter mappings when paramsCasing is used
+  const pathParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
+  const queryParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.queryParams, { casing: paramsCasing }) : undefined
+
   const clientParams = FunctionParams.factory({
     config: {
       mode: 'object',
@@ -174,7 +179,7 @@ export function Client({
                 value: `\`${baseURL}\``,
               }
             : undefined,
-        params: typeSchemas.queryParams?.name ? {} : undefined,
+        params: typeSchemas.queryParams?.name ? (queryParamsMapping ? { value: 'mappedParams' } : {}) : undefined,
         data: typeSchemas.request?.name
           ? {
               value: isFormData ? 'formData as FormData' : 'requestData',
@@ -223,6 +228,25 @@ export function Client({
           {isConfigurable ? 'const { client: request = fetch, ...requestConfig } = config' : ''}
           <br />
           <br />
+          {pathParamsMapping &&
+            Object.entries(pathParamsMapping)
+              .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
+              .join('\n')}
+          {pathParamsMapping && (
+            <>
+              <br />
+              <br />
+            </>
+          )}
+          {queryParamsMapping && typeSchemas.queryParams?.name && (
+            <>
+              {`const mappedParams = params ? { ${Object.entries(queryParamsMapping)
+                .map(([originalName, camelCaseName]) => `"${originalName}": params.${camelCaseName}`)
+                .join(', ')} } : undefined`}
+              <br />
+              <br />
+            </>
+          )}
           {parser === 'zod' && zodSchemas?.request?.name
             ? `const requestData = ${zodSchemas.request.name}.parse(data)`
             : typeSchemas?.request?.name && 'const requestData = data'}
