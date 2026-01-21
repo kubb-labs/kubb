@@ -231,11 +231,12 @@ jobs:
           duplicate-threshold: 5
           size-threshold: -1
 
+  # This job automatically updates generated example files when package code changes
+  # It will not trigger on its own commits due to paths-ignore: ["examples/**"]
   update-examples:
     name: Update generated examples
     timeout-minutes: 20
     runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]'
     needs: build
     permissions:
       contents: write
