@@ -5,30 +5,59 @@ This document provides essential information for AI coding assistants (Cursor, G
 
 ## Folder structure
 
+Expanded overview focused on plugins and where to find their docs and source code.
+
 ```
 docs/
 ├── migration-guide.md    # Updated after major releases
 ├── changelog.md          # Updated with every PR (via changeset)
-├── getting-started/      # Getting started guides
+├── getting-started/      # Getting started guides (quick-start, configure, troubleshooting)
 ├── blog/                 # Blog posts (after major releases)
-├── helpers/              # Extra packages (CLI, OAS core)
+├── helpers/              # Extra packages (CLI guides, OAS core helpers)
 ├── knowledge-base/       # Feature deep-dives and how-tos
 │   ├── debugging.md
 │   ├── fetch.md
 │   ├── multipart-form-data.md
 │   └── ...
-├── plugins/              # Plugin documentation
-│   ├── core/             # Shared plugin options
-│   └── plugin-*/         # Individual plugin docs
+├── plugins/              # Plugin documentation (mirrors layout in `packages/`)
+│   ├── core/             # Shared plugin options, patterns, and architecture docs
+│   ├── plugin-client/    # Docs for the client plugin (usage, options, examples)
+│   ├── plugin-oas/       # Docs for the OAS plugin: generators, components, examples
+│   ├── plugin-ts/        # Docs for TypeScript output plugin
+│   └── plugin-*/         # Individual plugin docs (one folder per plugin)
 ├── tutorials/            # Step-by-step tutorials
-├── examples/             # Playground and examples
+├── examples/             # Playground and examples used in docs
 └── builders/             # Builder integrations (unplugin, etc.)
 ```
+
+Repository-level layout with focus on plugin packages and their source layout:
+
+```
+packages/
+├── core/                 # Core utilities and shared runtime
+├── kubb/                 # Core kubb package (CLI, config, manager)
+├── plugin-oas/           # OAS plugin source
+│   ├── src/
+│   │   ├── components/   # React-fabric components used by generators
+│   │   ├── generators/   # React-based and function-based generators
+│   │   ├── hooks/        # Plugin-specific hooks and helpers
+│   │   └── index.ts
+│   └── tests/            # Unit tests for the plugin
+├── plugin-ts/            # TypeScript output plugin
+├── plugin-client/        # Client generator plugin
+├── plugin-*/             # Other plugins (same convention: src/components, src/generators, tests)
+└── unplugin-kubb/        # Unplugin integration
+```
+
+Notes:
+- The `docs/plugins/*` folders contain user-facing documentation for each plugin and usually mirror the `packages/plugin-*/` source layout (options, examples, and usage).
+- Plugin source convention: `packages/plugin-*/src/components/` holds React-fabric components, `src/generators/` holds generator implementations, and `src/*.test.ts` or `src/tests/` contains tests.
+- When adding a new plugin, add both a `packages/plugin-name/` package and a corresponding `docs/plugins/plugin-name/` docs folder (see `docs/plugins/*` for examples).
 
 ## Repository facts
 
 - **Monorepo**: Managed by pnpm workspaces and Turborepo
-- **Module system**: ESM-only (`type: "module"` across repo)
+- **Module system**: ESM-only (`type: "module" across repo)
 - **Node version**: 20
 - **Versioning**: Changesets for versioning and publishing
 - **CI/CD**: GitHub Actions
@@ -341,12 +370,3 @@ export default defineConfig({
 3. Each step should be runnable and verifiable
 4. Include complete code samples
 5. Link from getting-started or README
-
-<skills>
-
-## Skills
-
-You have new skills. If any skill might be relevant then you MUST read it.
-
-- [changelog](.skills/changelog/SKILL.md) - Automatically creates user-facing changelogs from git commits by analyzing commit history, categorizing changes, and transforming technical commits into clear, customer-friendly release notes. Turns hours of manual changelog writing into minutes of automated generation.
-</skills>
