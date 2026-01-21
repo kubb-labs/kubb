@@ -48,7 +48,6 @@ pnpm changeset
 | Minor (feature) | New features that don't break existing functionality |
 | Patch (fix) | Bug fixes and minor improvements |
 
-
 ## Changelog Format
 
 The changelog follows a specific structure in `docs/changelog.md`.
@@ -67,7 +66,8 @@ Change type:
 | 🚀 Breaking Changes | Changes that may require code updates |
 | 📦 Dependencies | Package updates and dependency changes |
 
-Example:
+
+**Example:**
 
 ## 2.5.0
 
@@ -89,13 +89,58 @@ export type Pet = PetDog | PetCat
 ```
 :::
 
-## Format compatibility
+## Changelog Style
 
-This skill produces changelog content compatible with the Kubb docs format:
+### Documenting Bug Fixes
 
-- Include VitePress frontmatter when writing full pages.
-- Use `::: code-group` for grouped examples.
-- Add file-path labels on code blocks where appropriate.
+When fixing bugs that affect user-facing behavior:
+
+1. **Update relevant documentation**
+  - Fix incorrect examples
+  - Clarify ambiguous descriptions
+  - Update troubleshooting guide if applicable
+
+2. **Add to changelog** (via `pnpm changeset`)
+  - Explain what was broken
+  - Show correct usage
+  - Link to relevant docs
+
+3. **Consider migration notes**
+  - If fix changes expected behavior
+  - Add to migration guide with before/after examples
+
+**Example:**
+
+## Fixed incorrect enum type output
+
+**Issue**: `enumType: 'asConst'` generated invalid TypeScript
+
+**Fixed**: Now correctly generates:
+
+```typescript
+const petType = {
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
+```
+
+
+## Related Skills
+
+For changelog, use these skills:
+
+| Skill                                                      | Use For             |
+|------------------------------------------------------------|---------------------|
+| **[../documentation/SKILL.md](../documentation/SKILL.md)** | Documentation style |
+
+
+## Checklist
+
+- [ ] All code changes have corresponding documentation updates
+- [ ] Frontmatter is complete and correct
+- [ ] Changeset updated via `pnpm changeset` (for code changes)
+- [ ] Changelog added or updated in `docs/changelog.md`
+
 
 ## Resources
 

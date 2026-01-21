@@ -2,6 +2,29 @@
 
 This document provides essential information for AI coding assistants (Cursor, GitHub Copilot) working on the Kubb codebase.
 
+
+## Folder structure
+
+```
+docs/
+├── migration-guide.md    # Updated after major releases
+├── changelog.md          # Updated with every PR (via changeset)
+├── getting-started/      # Getting started guides
+├── blog/                 # Blog posts (after major releases)
+├── helpers/              # Extra packages (CLI, OAS core)
+├── knowledge-base/       # Feature deep-dives and how-tos
+│   ├── debugging.md
+│   ├── fetch.md
+│   ├── multipart-form-data.md
+│   └── ...
+├── plugins/              # Plugin documentation
+│   ├── core/             # Shared plugin options
+│   └── plugin-*/         # Individual plugin docs
+├── tutorials/            # Step-by-step tutorials
+├── examples/             # Playground and examples
+└── builders/             # Builder integrations (unplugin, etc.)
+```
+
 ## Repository facts
 
 - **Monorepo**: Managed by pnpm workspaces and Turborepo
@@ -37,67 +60,13 @@ pnpm run upgrade && pnpm i   # Upgrade dependencies
 - Fix all test and type errors until suite is green
 - After moving files or changing imports: `pnpm lint && pnpm typecheck`
 - Always add or update tests for code changes
-- **For docs changes**: Preview locally with `pnpm start` in `docs/` folder before committing
-
-## Code style
-
-- **Quotes**: Single quotes, no semicolons (see `biome.json`)
-- **Patterns**: Prefer functional patterns
-- **Ternary operators**: Keep ternary operators to one level deep for readability. For nested conditions, use if/else statements or extract to a helper function.
-  ```typescript
-  // ❌ Avoid - nested ternary
-  const style = pathParameters.style || (inKey === 'query' ? 'form' : inKey === 'path' ? 'simple' : 'simple')
-
-  // ✅ Correct - use helper function
-  const getDefaultStyle = (location: string): string => {
-    if (location === 'query') return 'form'
-    if (location === 'path') return 'simple'
-    return 'simple'
-  }
-  const style = pathParameters.style || getDefaultStyle(inKey)
-  ```
-
-**TypeScript conventions:**
-- Module resolution: `"bundler"`; ESM only
-- **Strict typing**: NEVER use `any` type or `as any` casts. Always use proper types, generics, or unknown/never when appropriate.
-- Files: `.ts` for libraries, `.tsx` for React components, `.vue` for Vue components
-- DTS output managed by `tsdown`
-- **Import best practices**: Always use proper import statements at the module level instead of inline type imports (e.g., use `import type { Operation } from '@kubb/oas'` at the top rather than `import('@kubb/oas').Operation` inline). This improves code readability and follows TypeScript best practices.
-- **Type definitions**: Define types at the root level of the file, not inside functions. This improves reusability, makes types easier to find, and follows TypeScript best practices for better type inference and documentation.
-- **Function syntax in objects**: Use function syntax (not arrow functions) in object methods to enable use of `this` keyword. Example:
-  ```typescript
-  // ✅ Correct - function syntax
-  const handlers = {
-    enum(tree, options) {
-      // Can use this.someMethod() if needed
-    }
-  }
-
-  // ❌ Avoid - arrow function syntax
-  const handlers = {
-    enum: (tree, options) => {
-      // Cannot use this keyword
-    }
-  }
-  ```
-
-**Naming conventions:**
-- File/directory names: `camelCase`
-- Variables/functions: `camelCase`
-- Types/Interfaces: `PascalCase`
-- React components: `PascalCase`
-
-**Exports**: Packages use `"exports"` map and `typesVersions` as needed, keep public API stable
-
-**Testing**: Test files named `*.test.ts` or `*.test.tsx` in `src` folders
 
 ## PR instructions
 
 ### General
 
 - **Title format**: `[<plugin-name>] <Title>`
-- **Before committing**: Run `pnpm format && pnpm lint:fix`, `pnpm typecheck`, and `pnpm test`
-- **Before committing**: Run `pnpm generate` and `pnpm typecheck:examples` in a separate commit
+- **Before committing**: Run `pnpm format && pnpm lint:fix`, `pnpm typecheck`, `pnpm typecheck:examples` and `pnpm test`
 
 ### Components
 
@@ -294,6 +263,84 @@ const name = getName(operation, { type: 'function', prefix: 'use' })
 const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 // Returns: { request, response, pathParams, queryParams, headerParams, errors }
 ```
+
+## Documentation
+
+**Scope**: Documentation in the `docs/` folder (Markdown/MDX with VitePress)
+**Goal**: Create clear, concise, practical documentation optimized for developer experience
+
+Deep-dives into specific topics:
+- Start with concrete use case or problem
+- Explain how it works
+- Provide working examples
+- Link to related plugins/concepts
+
+### Code examples
+
+**Structure**: Place examples at the bottom of each page, after all options are documented.
+
+**Always include:**
+- All required imports
+- Minimal but complete configuration
+- Standard example file: `petStore.yaml`
+- All prerequisite plugins (e.g., `pluginOas()`)
+
+**Example structure:**
+
+```typescript [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    pluginOas(),
+    pluginTs({
+      // Show the relevant options being documented
+      output: { path: 'models' },
+      enumType: 'asConst',
+    }),
+  ],
+})
+```
+
+**Guidelines:**
+- Use `twoslash` annotation for TypeScript: enables type checking
+- Show only relevant options, omit unrelated configuration
+- Include expected output when helpful (for CLI commands, generated code samples)
+
+### New Plugin
+1. Create `docs/plugins/plugin-name/index.md`
+2. Use existing plugin docs as template
+3. Include: installation, all options, working examples
+4. Update `docs/config.json` to include it in the sidebar
+5. Link from relevant getting-started or knowledge-base pages
+
+### New Option
+1. Add to existing plugin doc in the Options section
+2. Follow the standard option format
+3. Update examples if the new option is commonly used
+4. Note any dependencies or prerequisites
+
+### New Concept/Feature
+1. Add to `docs/knowledge-base/` if it's a deep-dive
+2. Add to `docs/getting-started/` if it's foundational
+3. Use clear section headers (What, Why, How)
+4. Include complete working examples
+5. Link from related docs
+
+### New Tutorial
+1. Create in `docs/tutorials/`
+2. Step-by-step format with clear objectives
+3. Each step should be runnable and verifiable
+4. Include complete code samples
+5. Link from getting-started or README
 
 <skills>
 
