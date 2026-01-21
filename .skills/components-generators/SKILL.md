@@ -43,4 +43,4 @@ export function Query({ name }: Props): KubbNode {
 
 | Skill                                                      | Use For                                       |
 |------------------------------------------------------------|-----------------------------------------------|
-| **[../plugin-architecture/SKILL.md](../documentation/SKILL.md)** | For lifecycle and plugin registration details |
+| **[../plugin-architecture/SKILL.md](../plugin-architecture/SKILL.md)** | For lifecycle and plugin registration details |

@@ -42,4 +42,4 @@ export const definePlugin = createPlugin<PluginOptions>((options) => ({
 
 | Skill                                                              | Use For                                       |
 |--------------------------------------------------------------------|-----------------------------------------------|
-| **[../components-generators/SKILL.md](../documentation/SKILL.md)** | Guidance for writing `@kubb/react-fabric` components and generators |
+| **[../components-generators/SKILL.md](../components-generators/SKILL.md)** | Guidance for writing `@kubb/react-fabric` components and generators |
