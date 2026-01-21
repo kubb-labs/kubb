@@ -24,13 +24,15 @@ export async function createPetsHandler({
   headers: CreatePetsHeaderParams
   params?: CreatePetsQueryParams
 }): Promise<Promise<CallToolResult>> {
+  const mappedParams = params ? { bool_param: params.boolParam } : undefined
+
   const requestData = data
 
   const res = await fetch<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
     url: `/pets/${uuid}`,
     baseURL: 'https://petstore.swagger.io/v2',
-    params,
+    params: mappedParams,
     data: requestData,
     headers: { ...headers },
   })
