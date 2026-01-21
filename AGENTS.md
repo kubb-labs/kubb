@@ -403,3 +403,12 @@ const name = getName(operation, { type: 'function', prefix: 'use' })
 const schemas = getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' })
 // Returns: { request, response, pathParams, queryParams, headerParams, errors }
 ```
+
+<skills>
+
+## Skills
+
+You have new skills. If any skill might be relevant then you MUST read it.
+
+- [changelog](.skills/changelog/SKILL.md) - Automatically creates user-facing changelogs from git commits by analyzing commit history, categorizing changes, and transforming technical commits into clear, customer-friendly release notes. Turns hours of manual changelog writing into minutes of automated generation.
+</skills>
