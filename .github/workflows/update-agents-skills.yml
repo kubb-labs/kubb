@@ -29,7 +29,7 @@ jobs:
         if: steps.build.outputs.changed == 'true'
         with:
           base: ${{ github.head_ref || github.ref_name }}
-          branch: chore/update-agents
+          branch: chore/update-agents-${{ github.event.number }}
           delete-branch: true
           title: "Update AGENTS.md"
           commit-message: "chore(agents): update AGENTS.md"
