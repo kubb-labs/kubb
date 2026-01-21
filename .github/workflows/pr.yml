@@ -245,7 +245,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
@@ -278,7 +278,7 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           base: ${{ github.head_ref || github.ref_name }}
-          branch: chore/update-generated-examples
+          branch: chore/update-generated-examples-${{ github.event.number }}
           delete-branch: true
           title: "chore: update generated examples"
           commit-message: "chore(examples): update generated files"
