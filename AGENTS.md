@@ -2,7 +2,6 @@
 
 This repository contains Kubb — a plugin-based code-generation toolkit for generating client code from OpenAPI specs.
 
-Core facts (essentials for every task):
 
 ## Folder structure
 
@@ -13,7 +12,6 @@ docs/
 ├── migration-guide.md    # Updated after major releases
 ├── changelog.md          # Updated with every PR (via changeset)
 ├── getting-started/      # Getting started guides (quick-start, configure, troubleshooting)
-├── blog/                 # Blog posts (after major releases)
 ├── helpers/              # Extra packages (CLI guides, OAS core helpers)
 ├── knowledge-base/       # Feature deep-dives and how-tos
 │   ├── debugging.md
@@ -81,6 +79,4 @@ pnpm changeset              # Create changelog entry
 pnpm run upgrade && pnpm i   # Upgrade dependencies
 ```
 
-
 This file is intentionally minimal. Agents and contributors should consult the repository's skills for detailed guidance:
-
