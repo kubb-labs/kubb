@@ -4,11 +4,11 @@ import * as clack from '@clack/prompts'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
-import { default as gradientString } from 'gradient-string'
 import pc from 'picocolors'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 import { getSummary } from '../utils/getSummary.ts'
 import { ClackWritable } from '../utils/Writables.ts'
+import { getMascotFace } from '../utils/mascotFace.ts'
 
 /**
  * Clack adapter for local TTY environments
@@ -188,7 +188,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('lifecycle:start', (version) => {
-      console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(`Kubb ${version} 🧩`))
+      console.log(`\n${getMascotFace(version)}\n`)
       reset()
     })
 
