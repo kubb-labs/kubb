@@ -1,16 +1,16 @@
-import { useState, useCallback, useRef, useLayoutEffect } from 'react'
-import { Box, Newline, Text, useApp } from 'ink'
-import { Header } from './components/Header.tsx'
-import { type LoggerContext, LogLevel } from '@kubb/core'
-import { getSummary } from '../../utils/getSummary.ts'
-import { formatMsWithColor } from '../../utils/formatMsWithColor.ts'
-import { execa } from 'execa'
 import { Writable } from 'node:stream'
+import { type LoggerContext, LogLevel } from '@kubb/core'
+import { execa } from 'execa'
+import { Box, Newline, Text, useApp } from 'ink'
 import pc from 'picocolors'
+import { useCallback, useLayoutEffect, useRef, useState } from 'react'
+import { formatMsWithColor } from '../../utils/formatMsWithColor.ts'
+import { getSummary } from '../../utils/getSummary.ts'
+import { Header } from './components/Header.tsx'
 
 type Props = {
   context: LoggerContext
-  logLevel: LogLevel
+  logLevel: (typeof LogLevel)[keyof typeof LogLevel]
 }
 
 type ProgressState = {
@@ -45,7 +45,7 @@ export const InkLogger = ({ context, logLevel }: Props) => {
   const logIdRef = useRef(0)
 
   const addLog = useCallback((msg: string) => {
-    setLogs(prev => [...prev, { id: logIdRef.current++, text: msg }])
+    setLogs((prev) => [...prev, { id: logIdRef.current++, text: msg }])
   }, [])
 
   useLayoutEffect(() => {
@@ -68,7 +68,9 @@ export const InkLogger = ({ context, logLevel }: Props) => {
       addLog(`${pc.red('✗')} ${error.message}`)
       if (logLevel >= LogLevel.debug && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
-        frames.forEach(frame => addLog(pc.dim(frame.trim())))
+        frames.forEach((frame) => {
+          addLog(pc.dim(frame.trim()))
+        })
       }
     }
 
@@ -98,13 +100,13 @@ export const InkLogger = ({ context, logLevel }: Props) => {
       setProgress({
         current: 0,
         total: files.length,
-        message: `Writing ${files.length} files`
+        message: `Writing ${files.length} files`,
       })
       setSpinnerMessage(undefined)
     }
 
-    const onFileUpdate = ({ file }: any) => {
-      setProgress(prev => prev ? { ...prev, current: prev.current + 1 } : undefined)
+    const onFileUpdate = () => {
+      setProgress((prev) => (prev ? { ...prev, current: prev.current + 1 } : undefined))
     }
 
     const onFilesEnd = () => {
@@ -170,9 +172,9 @@ export const InkLogger = ({ context, logLevel }: Props) => {
       setHasError(status !== 'success')
       setSpinnerMessage(undefined)
 
-      setTimeout(()=>{
+      setTimeout(() => {
         exit()
-      },0)
+      }, 0)
     }
 
     context.on('info', onInfo)
@@ -191,36 +193,26 @@ export const InkLogger = ({ context, logLevel }: Props) => {
     context.on('generation:end', () => {
       // exit()
     })
-
-    return () => {
-      context.removeListener('info', onInfo)
-      context.removeListener('success', onSuccess)
-      context.removeListener('warn', onWarn)
-      context.removeListener('error', onError)
-      context.removeListener('generation:start', onGenerationStart)
-      context.removeListener('plugin:start', onPluginStart)
-      context.removeListener('plugin:end', onPluginEnd)
-      context.removeListener('files:processing:start', onFilesStart)
-      context.removeListener('file:processing:update', onFileUpdate)
-      context.removeListener('files:processing:end', onFilesEnd)
-      context.removeListener('hook:start', onHookStart)
-      context.removeListener('hook:end', onHookEnd)
-      context.removeListener('generation:summary', onGenerationSummary)
-    }
-
   }, [context, logLevel, addLog, exit])
 
   return (
     <Box flexDirection="column" padding={1}>
-        <Header projectName={projectName} spinnerMessage={spinnerMessage} progress={progress} />
-        <Box>
-          {logs.map((log)=> <Text key={log.id}>{log.text}<Newline/></Text>)}
-        </Box>
-        {summary && (
-          <Box marginTop={1} flexDirection="column" borderStyle="round" borderColor={hasError ? 'red' : 'green'} paddingX={1}>
-            {summary.map((line, i) => <Text key={i}>{line}</Text>)}
-          </Box>
-        )}
+      <Header projectName={projectName} spinnerMessage={spinnerMessage} progress={progress} />
+      <Box>
+        {logs.map((log) => (
+          <Text key={log.id}>
+            {log.text}
+            <Newline />
+          </Text>
+        ))}
       </Box>
+      {summary && (
+        <Box marginTop={1} flexDirection="column" borderStyle="round" borderColor={hasError ? 'red' : 'green'} paddingX={1}>
+          {summary.map((line, i) => (
+            <Text key={i}>{line}</Text>
+          ))}
+        </Box>
+      )}
+    </Box>
   )
 }
