@@ -174,7 +174,7 @@ importers:
         specifier: ^5.92.8
         version: 5.92.8(vue@3.5.27(typescript@5.9.3))
       '@types/react':
-        specifier: ^19.2.9
+        specifier: ^19.2.8
         version: 19.2.9
       axios:
         specifier: ^1.13.2
