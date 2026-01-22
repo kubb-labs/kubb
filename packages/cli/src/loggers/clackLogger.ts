@@ -195,7 +195,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       )
     })
 
-    context.on('lifecycle:start', async (version) => {
+    context.on('lifecycle:start', (version) => {
       // Display Kubb logo as ASCII art with orange gradient
       console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(KUBB_ASCII_ART))
       console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(`v${version} 🧩\n`))

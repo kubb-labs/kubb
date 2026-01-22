@@ -145,7 +145,7 @@ export const githubActionsLogger = defineLogger({
       }
     })
 
-    context.on('lifecycle:start', async (version) => {
+    context.on('lifecycle:start', (version) => {
       // Display Kubb logo as ASCII art
       console.log(KUBB_ASCII_ART)
       console.log(pc.yellow(`v${version} 🧩\n`))
