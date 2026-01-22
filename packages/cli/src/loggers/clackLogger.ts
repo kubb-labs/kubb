@@ -5,11 +5,18 @@ import { defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import { default as gradientString } from 'gradient-string'
-import { render } from 'oh-my-logo'
 import pc from 'picocolors'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 import { getSummary } from '../utils/getSummary.ts'
 import { ClackWritable } from '../utils/Writables.ts'
+
+const KUBB_ASCII_ART = `
+ _  ___   _ ____  ____  
+| |/ / | | | __ )| __ ) 
+| ' /| | | |  _ \\|  _ \\ 
+| . \\| |_| | |_) | |_) |
+|_|\\_\\\\___/|____/|____/ 
+`
 
 /**
  * Clack adapter for local TTY environments
@@ -190,12 +197,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
     context.on('lifecycle:start', async (version) => {
       // Display Kubb logo as ASCII art with orange gradient
-      const logo = await render('KUBB', {
-        palette: ['#F58517', '#F5A217', '#F55A17'],
-        font: 'Block',
-        direction: 'vertical',
-      })
-      console.log(logo)
+      console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(KUBB_ASCII_ART))
       console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(`v${version} 🧩\n`))
       reset()
     })

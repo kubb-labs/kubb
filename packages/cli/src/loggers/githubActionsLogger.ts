@@ -1,9 +1,16 @@
 import { type Config, defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
-import { render } from 'oh-my-logo'
 import pc from 'picocolors'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
+
+const KUBB_ASCII_ART = `
+ _  ___   _ ____  ____  
+| |/ / | | | __ )| __ ) 
+| ' /| | | |  _ \\|  _ \\ 
+| . \\| |_| | |_) | |_) |
+|_|\\_\\\\___/|____/|____/ 
+`
 
 /**
  * GitHub Actions adapter for CI environments
@@ -139,13 +146,8 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('lifecycle:start', async (version) => {
-      // Display Kubb logo as ASCII art with orange gradient
-      const logo = await render('KUBB', {
-        palette: ['#F58517', '#F5A217', '#F55A17'],
-        font: 'Block',
-        direction: 'vertical',
-      })
-      console.log(logo)
+      // Display Kubb logo as ASCII art
+      console.log(KUBB_ASCII_ART)
       console.log(pc.yellow(`v${version} 🧩\n`))
       reset()
     })
