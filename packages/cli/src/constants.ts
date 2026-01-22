@@ -1,11 +1,19 @@
 /**
- * Kubb ASCII art logo displayed at CLI startup
+ * Kubb ASCII art mascot displayed at CLI startup
+ * Represents the friendly Kubb toolbox character
  * Uses standard ASCII characters for maximum compatibility
  */
 export const KUBB_ASCII_ART = `
- _  ___   _ ____  ____  
-| |/ / | | | __ )| __ ) 
-| ' /| | | |  _ \\|  _ \\ 
-| . \\| |_| | |_) | |_) |
-|_|\\_\\___/|____/|____/ 
+      ___________
+     /  _______  \\
+    |  |       |  |
+    |  | ^   ^ |  |
+    |  |   o   |  |
+    |  | \\_U_/ |  |
+    |__|_______|__|
+   /  |         |  \\
+  🔨 |  KUBB   | 💼
+     |_________|
+       |  |  |
+      _|  |  |_
 `
