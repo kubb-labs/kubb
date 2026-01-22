@@ -3,32 +3,39 @@ import { default as gradientString } from 'gradient-string'
 import pc from 'picocolors'
 import { hex } from './ansiColors.ts'
 
+
+// Custom Color Palette for "Wooden" Depth
+const colors = {
+  lid: hex('#F55A17'), // Dark Wood
+  woodTop: hex('#F5A217'), // Bright Orange (Light source)
+  woodMid: hex('#F58517'), // Main Orange
+  woodBase: hex('#B45309'), // Shadow Orange
+  eye: hex('#FFFFFF'), // Deep Slate
+  highlight: hex('#adadc6'), // Eye shine
+  blush: hex('#FDA4AF'), // Soft Rose
+}
+
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
 /**
  * Generates the Kubb mascot face welcome message
  * @param version - The version string to display
  * @returns Formatted mascot face string
  */
-export function getIntro({ title, description, version }: { title: string; description: string; version: string }): string {
-  // Custom Color Palette for "Wooden" Depth
-  const colors = {
-    lid: hex('#F55A17'), // Dark Wood
-    woodTop: hex('#F5A217'), // Bright Orange (Light source)
-    woodMid: hex('#F58517'), // Main Orange
-    woodBase: hex('#B45309'), // Shadow Orange
-    eye: hex('#adadc6'), // Deep Slate
-    highlight: hex('#FFFFFF'), // Eye shine
-    blush: hex('#FDA4AF'), // Soft Rose
-  }
-
+export function getIntro({ title, description, version, areEyesOpen }: { title: string; description: string; version: string; areEyesOpen: boolean }): string {
   // Use gradient-string for the KUBB version text
   const kubbVersion = gradientString(['#F58517', '#F5A217', '#F55A17'])(`KUBB v${version}`)
+
+  const eyeTop = areEyesOpen ? colors.eye('█▀█') : colors.eye('───')
+  const eyeBottom = areEyesOpen ? colors.eye('▀▀▀') : colors.eye('───')
 
   return `
    ${colors.lid('▄▄▄▄▄▄▄▄▄▄▄▄▄')}
   ${colors.woodTop('█             █')}
   ${colors.woodTop('█  ')}${colors.highlight('▄▄')}${colors.woodTop('     ')}${colors.highlight('▄▄')}${colors.woodTop('  █')}  ${kubbVersion}
-  ${colors.woodMid('█ ')}${colors.eye('█▀█')}${colors.woodMid('     ')}${colors.eye('█▀█')}${colors.woodMid(' █')}  ${pc.gray(title)}
-  ${colors.woodMid('█ ')}${colors.eye('▀▀▀')}${colors.woodMid('  ')}${colors.blush('◡')}${colors.woodMid('  ')}${colors.eye('▀▀▀')}${colors.woodMid(' █')}  ${pc.dim('────────────────────────')}
+  ${colors.woodMid('█ ')}${eyeTop}${colors.woodMid('     ')}${eyeTop}${colors.woodMid(' █')}  ${pc.gray(title)}
+  ${colors.woodMid('█ ')}${eyeBottom}${colors.woodMid('  ')}${colors.blush('◡')}${colors.woodMid('  ')}${eyeBottom}${colors.woodMid(' █')}  ${pc.dim('────────────────────────')}
   ${colors.woodBase('█             █')}  ${pc.yellow('➜')} ${pc.white(description)}
    ${colors.woodBase('▀▀▀▀▀▀▀▀▀▀▀▀▀')}
 `
@@ -54,40 +61,11 @@ export async function animateIntro({
 }): Promise<void> {
   // Only animate on interactive TTY and when not running in CI
   if (!process.stdout.isTTY || process.env.CI) {
-    // Nothing to do in non-interactive environments
-    process.stdout.write(`\n${getIntro({ title, description, version })}\n`)
-    return
+    return undefined
   }
 
-  const colors = {
-    lid: hex('#F55A17'),
-    woodTop: hex('#F5A217'),
-    woodMid: hex('#F58517'),
-    woodBase: hex('#B45309'),
-    eye: hex('#adadc6'),
-    highlight: hex('#FFFFFF'),
-    blush: hex('#FDA4AF'),
-  }
-
-  const kubbVersion = gradientString(['#F58517', '#F5A217', '#F55A17'])(`KUBB v${version}`)
-
-  function frame(open = true) {
-    const eyeTop = open ? colors.eye('█▀█') : colors.eye('───')
-    const eyeBottom = open ? colors.eye('▀▀▀') : colors.eye('───')
-
-    return [
-      `  ${colors.lid('▄▄▄▄▄▄▄▄▄▄▄▄▄')}`,
-      ` ${colors.woodTop('█             █')}`,
-      ` ${colors.woodTop('█  ')}${colors.highlight('▄▄')}${colors.woodTop('     ')}${colors.highlight('▄▄')}${colors.woodTop('  █')}  ${kubbVersion}`,
-      ` ${colors.woodMid('█ ')}${eyeTop}${colors.woodMid('     ')}${eyeTop}${colors.woodMid(' █')}  ${pc.gray(title)}`,
-      ` ${colors.woodMid('█ ')}${eyeBottom}${colors.woodMid('  ')}${colors.blush('◡')}${colors.woodMid('  ')}${eyeBottom}${colors.woodMid(' █')}  ${pc.dim('────────────────────────')}`,
-      ` ${colors.woodBase('█             █')}  ${pc.yellow('➜')} ${pc.white(description)}`,
-      `  ${colors.woodBase('▀▀▀▀▀▀▀▀▀▀▀▀▀')}`,
-    ].join('\n')
-  }
 
   // Helper sleep
-  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
   // Hide cursor
   // Backup original writers and console methods so we can suppress other logs while animating
@@ -95,7 +73,7 @@ export async function animateIntro({
   const origConsoleInfo = console.info
   const origConsoleWarn = console.warn
   const origConsoleError = console.error
-  const origConsoleDebug = (console as any).debug
+  const origConsoleDebug = console.debug
 
   // Hide cursor using original writer
   process.stdout.write('\x1b[?25l')
@@ -106,10 +84,10 @@ export async function animateIntro({
     console.info = () => {}
     console.warn = () => {}
     console.error = () => {}
-    ;(console as any).debug = () => {}
+    console.debug = () => {}
 
     // Print initial open frame using original writer (no leading newline)
-    const openFrame = frame(true)
+    const openFrame = getIntro({ title, description, version, areEyesOpen: true })
     process.stdout.write(`${openFrame}\n`)
 
     const lines = openFrame.split('\n').length
@@ -130,13 +108,13 @@ export async function animateIntro({
       // blink closed
       await sleep(interval)
 
-      renderFrame(frame(false))
+      renderFrame(getIntro({ title, description, version, areEyesOpen: false }))
 
       // short pause while closed
       await sleep(Math.round(interval * 0.9))
 
       // open again
-      renderFrame(frame(true))
+      renderFrame(getIntro({ title, description, version, areEyesOpen: false }))
     }
 
     // leave the final (open) frame on screen
@@ -148,6 +126,6 @@ export async function animateIntro({
     console.info = origConsoleInfo
     console.warn = origConsoleWarn
     console.error = origConsoleError
-    ;(console as any).debug = origConsoleDebug
+    console.debug = origConsoleDebug
   }
 }
