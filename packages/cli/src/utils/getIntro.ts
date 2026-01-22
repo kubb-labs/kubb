@@ -40,7 +40,7 @@ export function getIntro({title, description, version}:{ title: string; descript
  * This prints a short sequence of frames, hiding the cursor while animating.
  * If stdout is not a TTY or running in CI, the function resolves immediately.
  */
-export async function animateIntro({title, description, version, blinks = 5, interval = 200}:{ title: string; description:string; version: string; blinks?: number; interval?: number}): Promise<void> {
+export async function animateIntro({title, description, version, blinks = 5, interval = 500}:{ title: string; description:string; version: string; blinks?: number; interval?: number}): Promise<void> {
   // Only animate on interactive TTY and when not running in CI
   if (!process.stdout.isTTY || process.env.CI) {
     // Nothing to do in non-interactive environments
@@ -142,3 +142,4 @@ export async function animateIntro({title, description, version, blinks = 5, int
     ;(console as any).debug = origConsoleDebug
   }
 }
+
