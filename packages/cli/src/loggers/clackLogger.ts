@@ -8,7 +8,7 @@ import pc from 'picocolors'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 import { getSummary } from '../utils/getSummary.ts'
 import { ClackWritable } from '../utils/Writables.ts'
-import { getIntro } from '../utils/getIntro.ts'
+import { getIntro, animateIntro } from '../utils/getIntro.ts'
 
 /**
  * Clack adapter for local TTY environments
@@ -187,8 +187,21 @@ Run \`npm install -g @kubb/cli\` to update`,
       )
     })
 
-    context.on('lifecycle:start', (version) => {
-      console.log(`\n${getIntro({title: 'The ultimate toolkit for working with APIs', description: 'Ready to start', version})}\n`)
+    context.on('lifecycle:start', async (version) => {
+      const props = { title: 'The ultimate toolkit for working with APIs', description: 'Ready to start', version }
+
+      // Prefer animated intro for interactive TTYs
+      if (process.stdout.isTTY && !process.env.CI) {
+        try {
+          await animateIntro(props)
+        } catch (err) {
+          // If animation fails for any reason, fall back to static intro
+          console.log(`\n${getIntro(props)}\n`)
+        }
+      } else {
+        console.log(`\n${getIntro(props)}\n`)
+      }
+
       reset()
     })
 
