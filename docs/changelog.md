@@ -6,6 +6,18 @@ outline: deep
 # Changelog
 
 
+## 4.18.3
+
+### ✨ Features
+
+#### [`@kubb/cli`](/helpers/cli/)
+
+**Added Kubb mascot logo to CLI welcome message**
+
+The CLI now displays an improved welcome message featuring the Kubb mascot character with colorful gradients and a cleaner layout. This provides a more engaging and branded experience when using the Kubb CLI.
+
+---
+
 ## 4.18.2
 
 ### 🐛 Bug Fixes
