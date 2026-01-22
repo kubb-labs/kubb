@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod/mini'
+import { z } from "zod/mini";
 
 export const tagSchema = z.object({
   id: z.optional(z.int()),
   name: z.optional(z.string()),
-})
+});

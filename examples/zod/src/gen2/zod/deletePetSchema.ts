@@ -3,21 +3,21 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod/mini'
+import { z } from "zod/mini";
 
 export const deletePetPathParamsSchema = z.object({
   petId: z.int(),
-})
+});
 
 export const deletePetHeaderParamsSchema = z.optional(
   z.object({
     api_key: z.optional(z.string()),
   }),
-)
+);
 
 /**
  * @description Invalid pet value
  */
-export const deletePet400Schema = z.any()
+export const deletePet400Schema = z.any();
 
-export const deletePetMutationResponseSchema = z.any()
+export const deletePetMutationResponseSchema = z.any();

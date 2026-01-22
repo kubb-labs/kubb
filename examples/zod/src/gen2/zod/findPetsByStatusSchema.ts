@@ -3,21 +3,23 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod/mini'
-import { petSchema } from './petSchema.ts'
+import { petSchema } from "./petSchema.ts";
+import { z } from "zod/mini";
 
 export const findPetsByStatusQueryParamsSchema = z.object({
-  status: z.enum(['available', 'pending', 'sold']),
-})
+  status: z.enum(["available", "pending", "sold"]),
+});
 
 /**
  * @description successful operation
  */
-export const findPetsByStatus200Schema = z.array(z.lazy(() => petSchema))
+export const findPetsByStatus200Schema = z.array(z.lazy(() => petSchema));
 
 /**
  * @description Invalid status value
  */
-export const findPetsByStatus400Schema = z.any()
+export const findPetsByStatus400Schema = z.any();
 
-export const findPetsByStatusQueryResponseSchema = z.lazy(() => findPetsByStatus200Schema)
+export const findPetsByStatusQueryResponseSchema = z.lazy(
+  () => findPetsByStatus200Schema,
+);

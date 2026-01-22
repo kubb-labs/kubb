@@ -3,22 +3,22 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod/mini'
-import { petNotFoundSchema } from './petNotFoundSchema.ts'
+import { petNotFoundSchema } from "./petNotFoundSchema.ts";
+import { z } from "zod/mini";
 
 export const getThingsQueryParamsSchema = z.object({
   limit: z.int().check(z.minimum(1), z.maximum(100)),
   skip: z.int().check(z.minimum(0)),
-})
+});
 
 /**
  * @description Null response
  */
-export const getThings201Schema = z.any()
+export const getThings201Schema = z.any();
 
 /**
  * @description unexpected error
  */
-export const getThingsErrorSchema = z.lazy(() => petNotFoundSchema)
+export const getThingsErrorSchema = z.lazy(() => petNotFoundSchema);
 
-export const getThingsQueryResponseSchema = z.lazy(() => getThings201Schema)
+export const getThingsQueryResponseSchema = z.lazy(() => getThings201Schema);

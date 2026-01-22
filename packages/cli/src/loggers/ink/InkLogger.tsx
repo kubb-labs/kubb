@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useLayoutEffect } from 'react'
+import { useState, useCallback, useRef, useLayoutEffect } from 'react'
 import { Box, Newline, Text, useApp } from 'ink'
 import { Header } from './components/Header.tsx'
 import { type LoggerContext, LogLevel } from '@kubb/core'
@@ -49,17 +49,17 @@ export const InkLogger = ({ context, logLevel }: Props) => {
   }, [])
 
   useLayoutEffect(() => {
-    const onInfo = (message: string, info = '') => {
+    const onInfo = (_message: string, _info = '') => {
       // if (logLevel > LogLevel.silent) {
       //    addLog(`${pc.blue('ℹ')} ${message} ${pc.dim(info)}`)
       // }
     }
-    const onSuccess = (message: string, info = '') => {
+    const onSuccess = (_message: string, _info = '') => {
       // if (logLevel > LogLevel.silent) {
       //    addLog(`${pc.green('✓')} ${message} ${pc.dim(info)}`)
       // }
     }
-    const onWarn = (message: string, info = '') => {
+    const onWarn = (_message: string, _info = '') => {
       // if (logLevel >= LogLevel.warn) {
       //    addLog(`${pc.yellow('⚠')} ${message} ${pc.dim(info)}`)
       // }
@@ -211,9 +211,7 @@ export const InkLogger = ({ context, logLevel }: Props) => {
   }, [context, logLevel, addLog, exit])
 
   return (
-    <>
-
-      <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" padding={1}>
         <Header projectName={projectName} spinnerMessage={spinnerMessage} progress={progress} />
         <Box>
           {logs.map((log)=> <Text key={log.id}>{log.text}<Newline/></Text>)}
@@ -224,6 +222,5 @@ export const InkLogger = ({ context, logLevel }: Props) => {
           </Box>
         )}
       </Box>
-    </>
   )
 }

@@ -175,7 +175,7 @@ importers:
         version: 5.92.8(vue@3.5.27(typescript@5.9.3))
       '@types/react':
         specifier: ^19.2.8
-        version: 19.2.8
+        version: 19.2.9
       axios:
         specifier: ^1.13.2
         version: 1.13.2
@@ -907,8 +907,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@redocly/openapi-core':
-        specifier: ^2.14.6
-        version: 2.14.6
+        specifier: ^2.14.7
+        version: 2.14.7
       jsonpointer:
         specifier: ^5.0.1
         version: 5.0.1
@@ -2350,14 +2350,14 @@ packages:
     resolution: {integrity: sha512-VvV2Hzjskz01m8doSn7Ypt6cSZzgjnypVqXy1ipThbyYD6SGiM74VSePXykOODj/43Y2m6zeYedPk/ZLts/HvQ==}
     engines: {node: '>=14'}
 
-  '@redocly/ajv@8.17.1':
-    resolution: {integrity: sha512-EDtsGZS964mf9zAUXAl9Ew16eYbeyAFWhsPr0fX6oaJxgd8rApYlPBf0joyhnUHz88WxrigyFtTaqqzXNzPgqw==}
+  '@redocly/ajv@8.17.2':
+    resolution: {integrity: sha512-rcbDZOfXAgGEJeJ30aWCVVJvxV9ooevb/m1/SFblO2qHs4cqTk178gx7T/vdslf57EA4lTofrwsq5K8rxK9g+g==}
 
   '@redocly/config@0.41.2':
     resolution: {integrity: sha512-G6muhdTKcEV2TECBFzuT905p4a27OgUtwBqRVnMx1JebO6i8zlm6bPB2H3fD1Hl+MiUpk7Jx2kwGmLVgpz5nIg==}
 
-  '@redocly/openapi-core@2.14.6':
-    resolution: {integrity: sha512-MqGRrYWtGS2M44Ax7R8yfLNDKdvypZfBHsanI05YP+1gvkEhLEfaG9DNi2l3ddzfsO44vcPWpD9E5q2HGQN1aw==}
+  '@redocly/openapi-core@2.14.7':
+    resolution: {integrity: sha512-urtiy9H09gecAqpHa5dRG739UBMFrpEZ8zG29FB4LKJNIfhQRSR+8XWzoXSTuGL5zRBSzJx6WvpOCwT6GMKXcg==}
     engines: {node: '>=22.12.0 || >=20.19.0 <21.0.0', npm: '>=10'}
 
   '@rolldown/binding-android-arm64@1.0.0-beta.59':
@@ -2970,9 +2970,6 @@ packages:
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
     peerDependencies:
       '@types/react': ^19.2.0
-
-  '@types/react@19.2.8':
-    resolution: {integrity: sha512-3MbSL37jEchWZz2p2mjntRZtPt837ij10ApxKfgmXCTuHWagYg7iA5bqPw6C8BMPfwidlvfPI/fxOc42HLhcyg==}
 
   '@types/react@19.2.9':
     resolution: {integrity: sha512-Lpo8kgb/igvMIPeNV2rsYKTgaORYdO1XGVZ4Qz3akwOj0ySGYMPlQWa8BaLn0G63D1aSaAQ5ldR06wCpChQCjA==}
@@ -7617,7 +7614,7 @@ snapshots:
       marked: 4.3.0
       mustache: 4.2.0
 
-  '@redocly/ajv@8.17.1':
+  '@redocly/ajv@8.17.2':
     dependencies:
       fast-deep-equal: 3.1.3
       fast-uri: 3.1.0
@@ -7628,12 +7625,12 @@ snapshots:
     dependencies:
       json-schema-to-ts: 2.7.2
 
-  '@redocly/openapi-core@2.14.6':
+  '@redocly/openapi-core@2.14.7':
     dependencies:
-      '@redocly/ajv': 8.17.1
+      '@redocly/ajv': 8.17.2
       '@redocly/config': 0.41.2
-      ajv: '@redocly/ajv@8.17.1'
-      ajv-formats: 3.0.1(@redocly/ajv@8.17.1)
+      ajv: '@redocly/ajv@8.17.2'
+      ajv-formats: 3.0.1(@redocly/ajv@8.17.2)
       colorette: 1.4.0
       js-levenshtein: 1.1.6
       js-yaml: 4.1.1
@@ -8087,10 +8084,6 @@ snapshots:
     dependencies:
       '@types/react': 19.2.9
 
-  '@types/react@19.2.8':
-    dependencies:
-      csstype: 3.2.3
-
   '@types/react@19.2.9':
     dependencies:
       csstype: 3.2.3
@@ -8395,9 +8388,9 @@ snapshots:
     optionalDependencies:
       ajv: 8.17.1
 
-  ajv-formats@3.0.1(@redocly/ajv@8.17.1):
+  ajv-formats@3.0.1(@redocly/ajv@8.17.2):
     optionalDependencies:
-      ajv: '@redocly/ajv@8.17.1'
+      ajv: '@redocly/ajv@8.17.2'
 
   ajv-formats@3.0.1(ajv@8.17.1):
     optionalDependencies:

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod/mini'
+import { z } from "zod/mini";
 
 export const userSchema = z.object({
   id: z.optional(z.int()),
@@ -14,4 +14,4 @@ export const userSchema = z.object({
   password: z.optional(z.string()),
   phone: z.optional(z.string()),
   userStatus: z.optional(z.int()),
-})
+});

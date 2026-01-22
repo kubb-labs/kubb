@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Box, Text } from 'ink'
 import { version } from '../../../../package.json'
 import { getIntro } from '../../../utils/getIntro.ts'
