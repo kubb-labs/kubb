@@ -21,31 +21,3 @@ export function hex(color: string): (text: string) => string {
 
   return (text: string) => `\x1b[38;2;${safeR};${safeG};${safeB}m${text}\x1b[0m`
 }
-
-/**
- * Dim text
- */
-export function dim(text: string): string {
-  return `\x1b[2m${text}\x1b[0m`
-}
-
-/**
- * White text
- */
-export function white(text: string): string {
-  return `\x1b[37m${text}\x1b[0m`
-}
-
-/**
- * Gray text
- */
-export function gray(text: string): string {
-  return `\x1b[90m${text}\x1b[0m`
-}
-
-/**
- * Yellow text
- */
-export function yellow(text: string): string {
-  return `\x1b[33m${text}\x1b[0m`
-}

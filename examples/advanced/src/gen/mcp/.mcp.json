@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "Swagger Petstore - OpenAPI 3.0": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["tsx", "/home/runner/work/kubb/kubb/examples/advanced/src/gen/mcp/server.ts"]
-    }
-  }
-}
