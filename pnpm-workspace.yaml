@@ -11,5 +11,5 @@ catalog:
   "size-limit": ^11.2.0
   p-limit: ^7.2.0
   remeda: ^2.33.4
-  tsdown: ^0.19.0
+  tsdown: ^0.20.1
   typescript: ^5.9.3
