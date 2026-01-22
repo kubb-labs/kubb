@@ -6,9 +6,9 @@ import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import pc from 'picocolors'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
+import { animateIntro, getIntro } from '../utils/getIntro.ts'
 import { getSummary } from '../utils/getSummary.ts'
 import { ClackWritable } from '../utils/Writables.ts'
-import { getIntro, animateIntro } from '../utils/getIntro.ts'
 
 /**
  * Clack adapter for local TTY environments
@@ -194,7 +194,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       if (process.stdout.isTTY && !process.env.CI) {
         try {
           await animateIntro(props)
-        } catch (err) {
+        } catch (_err) {
           // If animation fails for any reason, fall back to static intro
           console.log(`\n${getIntro(props)}\n`)
         }
