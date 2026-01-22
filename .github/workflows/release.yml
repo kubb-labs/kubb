@@ -96,7 +96,7 @@ jobs:
             const corePackage = publishedPackages.find(pkg => pkg.name === '@kubb/core');
             const version = corePackage?.version || '';
             const versionSlug = version.replace(/\./g, '-');
-            const docsUrl = version ? `https://www.kubb.dev/changelog#_${versionSlug}` : 'https://www.kubb.dev/changelog';
+            const docsUrl = version ? `https://www.kubb.dev/kubb/changelog#_${versionSlug}` : 'https://www.kubb.dev/kubb/changelog';
 
             fetch(process.env.DISCORD_WEBHOOK_URL, {
               method: 'POST',
