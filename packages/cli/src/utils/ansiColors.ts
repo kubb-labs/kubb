@@ -10,12 +10,16 @@
  */
 export function hex(color: string): (text: string) => string {
   const cleanHex = color.replace('#', '')
-  // Default to white if invalid hex
-  const r = Number.parseInt(cleanHex.slice(0, 2), 16) || 255
-  const g = Number.parseInt(cleanHex.slice(2, 4), 16) || 255
-  const b = Number.parseInt(cleanHex.slice(4, 6), 16) || 255
+  const r = Number.parseInt(cleanHex.slice(0, 2), 16)
+  const g = Number.parseInt(cleanHex.slice(2, 4), 16)
+  const b = Number.parseInt(cleanHex.slice(4, 6), 16)
 
-  return (text: string) => `\x1b[38;2;${r};${g};${b}m${text}\x1b[0m`
+  // Default to white (255) if parsing fails (NaN)
+  const safeR = Number.isNaN(r) ? 255 : r
+  const safeG = Number.isNaN(g) ? 255 : g
+  const safeB = Number.isNaN(b) ? 255 : b
+
+  return (text: string) => `\x1b[38;2;${safeR};${safeG};${safeB}m${text}\x1b[0m`
 }
 
 /**
