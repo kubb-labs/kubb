@@ -1,4 +1,5 @@
-import { boldWhite, dim, gray, hex, white, yellow } from './ansiColors.ts'
+import { default as gradientString } from 'gradient-string'
+import { dim, gray, hex, white, yellow } from './ansiColors.ts'
 
 /**
  * Generates the Kubb mascot face welcome message
@@ -17,10 +18,13 @@ export function getMascotFace(version: string): string {
     blush: hex('#FDA4AF'), // Soft Rose
   }
 
+  // Use gradient-string for the KUBB version text
+  const kubbVersion = gradientString(['#F58517', '#F5A217', '#F55A17'])(`KUBB v${version}`)
+
   return `
    ${colors.lid('█████████████')}
   ${colors.woodTop('█             █')}
-  ${colors.woodTop('█  ')}${colors.highlight('██')}${colors.woodTop('     ')}${colors.highlight('██')}${colors.woodTop('  █')}  ${boldWhite('KUBB')} ${dim(`v${version}`)}
+  ${colors.woodTop('█  ')}${colors.highlight('██')}${colors.woodTop('     ')}${colors.highlight('██')}${colors.woodTop('  █')}  ${kubbVersion}
   ${colors.woodMid('█ ')}${colors.eye('███')}${colors.woodMid('     ')}${colors.eye('███')}${colors.woodMid(' █')}  ${gray('The wood-powered toolkit')}
   ${colors.woodMid('█ ')}${colors.eye('███')}${colors.woodMid('  ')}${colors.blush('●')}${colors.woodMid('  ')}${colors.eye('███')}${colors.woodMid(' █')}  ${dim('────────────────────────')}
   ${colors.woodBase('█             █')}  ${yellow('▸')} ${white('Ready to generate.')}

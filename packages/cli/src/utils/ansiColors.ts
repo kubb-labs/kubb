@@ -5,23 +5,17 @@
 
 /**
  * Convert hex color to ANSI 24-bit true color escape sequence
- * @param hex - Hex color code (with or without #)
+ * @param color - Hex color code (with or without #), e.g., '#FF5500' or 'FF5500'
  * @returns Function that wraps text with the color
  */
 export function hex(color: string): (text: string) => string {
   const cleanHex = color.replace('#', '')
-  const r = Number.parseInt(cleanHex.slice(0, 2), 16)
-  const g = Number.parseInt(cleanHex.slice(2, 4), 16)
-  const b = Number.parseInt(cleanHex.slice(4, 6), 16)
+  // Default to white if invalid hex
+  const r = Number.parseInt(cleanHex.slice(0, 2), 16) || 255
+  const g = Number.parseInt(cleanHex.slice(2, 4), 16) || 255
+  const b = Number.parseInt(cleanHex.slice(4, 6), 16) || 255
 
   return (text: string) => `\x1b[38;2;${r};${g};${b}m${text}\x1b[0m`
-}
-
-/**
- * Bold text
- */
-export function bold(text: string): string {
-  return `\x1b[1m${text}\x1b[0m`
 }
 
 /**
@@ -50,11 +44,4 @@ export function gray(text: string): string {
  */
 export function yellow(text: string): string {
   return `\x1b[33m${text}\x1b[0m`
-}
-
-/**
- * Combine bold and white
- */
-export function boldWhite(text: string): string {
-  return `\x1b[1;37m${text}\x1b[0m`
 }

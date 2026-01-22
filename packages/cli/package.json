@@ -67,6 +67,7 @@
     "citty": "^0.1.6",
     "cosmiconfig": "^9.0.0",
     "execa": "^9.6.1",
+    "gradient-string": "^3.0.0",
     "jiti": "^2.6.1",
     "latest-version": "^9.0.0",
     "picocolors": "^1.1.1",
