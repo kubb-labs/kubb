@@ -3,40 +3,36 @@
  * Do not edit manually.
  */
 
-import { z } from "../../zod.ts";
-import { petSchema } from "./petSchema.gen.ts";
+import { z } from '../../zod.ts'
+import { petSchema } from './petSchema.gen.ts'
 
 export const getPetByIdPathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe("ID of pet to return"),
-});
+  petId: z.coerce.number().int().describe('ID of pet to return'),
+})
 
-export type GetPetByIdPathParamsSchema = z.infer<
-  typeof getPetByIdPathParamsSchema
->;
+export type GetPetByIdPathParamsSchema = z.infer<typeof getPetByIdPathParamsSchema>
 
 /**
  * @description successful operation
  */
-export const getPetById200Schema = z.lazy(() => petSchema);
+export const getPetById200Schema = z.lazy(() => petSchema)
 
-export type GetPetById200Schema = z.infer<typeof getPetById200Schema>;
+export type GetPetById200Schema = z.infer<typeof getPetById200Schema>
 
 /**
  * @description Invalid ID supplied
  */
-export const getPetById400Schema = z.any();
+export const getPetById400Schema = z.any()
 
-export type GetPetById400Schema = z.infer<typeof getPetById400Schema>;
+export type GetPetById400Schema = z.infer<typeof getPetById400Schema>
 
 /**
  * @description Pet not found
  */
-export const getPetById404Schema = z.any();
+export const getPetById404Schema = z.any()
 
-export type GetPetById404Schema = z.infer<typeof getPetById404Schema>;
+export type GetPetById404Schema = z.infer<typeof getPetById404Schema>
 
-export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema);
+export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema)
 
-export type GetPetByIdQueryResponseSchema = z.infer<
-  typeof getPetByIdQueryResponseSchema
->;
+export type GetPetByIdQueryResponseSchema = z.infer<typeof getPetByIdQueryResponseSchema>

@@ -1,10 +1,10 @@
 import type { Logger, LoggerContext, LoggerOptions } from '@kubb/core'
 import { LogLevel } from '@kubb/core'
 import { clackLogger } from './clackLogger.ts'
-import { inkLogger } from './ink/index.ts'
 import { canUseTTY, isGitHubActions } from './envDetection.ts'
 import { fileSystemLogger } from './fileSystemLogger.ts'
 import { githubActionsLogger } from './githubActionsLogger.ts'
+import { inkLogger } from './ink/index.ts'
 import { plainLogger } from './plainLogger.ts'
 import type { LoggerType } from './types.ts'
 

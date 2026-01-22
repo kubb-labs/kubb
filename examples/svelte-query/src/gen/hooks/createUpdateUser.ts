@@ -14,11 +14,11 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
 import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
-import { fetch } from '../.kubb/fetch.ts'
 import { createMutation } from '@tanstack/svelte-query'
+import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import { fetch } from '../.kubb/fetch.ts'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser.ts'
 
 export const updateUserMutationKey = () => [{ url: '/user/:username' }] as const
 

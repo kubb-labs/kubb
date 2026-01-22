@@ -1,7 +1,7 @@
-import fetch from '../../client.js'
-import type { ResponseErrorConfig } from '../../client.js'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/ts/CreateUser.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
+import type { ResponseErrorConfig } from '../../client.js'
+import fetch from '../../client.js'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/ts/CreateUser.js'
 
 /**
  * @description This can only be done by the logged in user.

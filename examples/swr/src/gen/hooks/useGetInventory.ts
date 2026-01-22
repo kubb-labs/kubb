@@ -3,10 +3,10 @@
  * Do not edit manually.
  */
 
+import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import useSWR from 'swr'
 import type { GetInventoryQueryResponse } from '../models/GetInventory.ts'
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 

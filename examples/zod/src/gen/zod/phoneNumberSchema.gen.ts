@@ -3,10 +3,8 @@
  * Do not edit manually.
  */
 
-import { z } from "../../zod.ts";
+import { z } from '../../zod.ts'
 
-export const phoneNumberSchema = z
-  .string()
-  .regex(/^(\+\d{1,3}[-\s]?)?\(?(?:\d{1,4})\)?[-\s]?\d{1,4}[-\s]?\d{1,9}$/);
+export const phoneNumberSchema = z.string().regex(/^(\+\d{1,3}[-\s]?)?\(?(?:\d{1,4})\)?[-\s]?\d{1,4}[-\s]?\d{1,9}$/)
 
-export type PhoneNumberSchema = z.infer<typeof phoneNumberSchema>;
+export type PhoneNumberSchema = z.infer<typeof phoneNumberSchema>

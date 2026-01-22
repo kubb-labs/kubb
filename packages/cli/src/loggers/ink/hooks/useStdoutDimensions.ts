@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
 import { useStdout } from 'ink'
+import { useEffect, useState } from 'react'
 
 export const useStdoutDimensions = () => {
   const { stdout } = useStdout()

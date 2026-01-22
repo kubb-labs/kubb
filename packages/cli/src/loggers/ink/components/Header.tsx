@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
 import { Box, Text } from 'ink'
+import { useEffect, useState } from 'react'
 import { version } from '../../../../package.json'
 import { getIntro } from '../../../utils/getIntro.ts'
 
@@ -35,17 +35,16 @@ export const Header = ({ projectName, spinnerMessage, progress }: Props) => {
 
   return (
     <Box flexDirection="column">
-        <Text>{intro}</Text>
-        {progress && (
-            <Box flexDirection="column" paddingLeft={2}>
-                <Text>{progress.message}</Text>
-                <Text color="green">
-                    {'█'.repeat(Math.floor((progress.current / progress.total) * 40))}
-                    {'░'.repeat(40 - Math.floor((progress.current / progress.total) * 40))}
-                    {' '}{Math.floor((progress.current / progress.total) * 100)}%
-                </Text>
-            </Box>
-        )}
+      <Text>{intro}</Text>
+      {progress && (
+        <Box flexDirection="column" paddingLeft={2}>
+          <Text>{progress.message}</Text>
+          <Text color="green">
+            {'█'.repeat(Math.floor((progress.current / progress.total) * 40))}
+            {'░'.repeat(40 - Math.floor((progress.current / progress.total) * 40))} {Math.floor((progress.current / progress.total) * 100)}%
+          </Text>
+        </Box>
+      )}
     </Box>
   )
 }
