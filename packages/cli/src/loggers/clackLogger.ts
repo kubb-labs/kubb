@@ -188,7 +188,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('lifecycle:start', async (version) => {
-      console.log(`\n${getIntro( { title: 'The ultimate toolkit for working with APIs', description: 'Ready to start', version, areEyesOpen: true })}\n`)
+      console.log(`\n${getIntro({ title: 'The ultimate toolkit for working with APIs', description: 'Ready to start', version, areEyesOpen: true })}\n`)
 
       reset()
     })

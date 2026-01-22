@@ -3,7 +3,6 @@ import { default as gradientString } from 'gradient-string'
 import pc from 'picocolors'
 import { hex } from './ansiColors.ts'
 
-
 // Custom Color Palette for "Wooden" Depth
 const colors = {
   lid: hex('#F55A17'), // Dark Wood
@@ -14,7 +13,6 @@ const colors = {
   highlight: hex('#adadc6'), // Eye shine
   blush: hex('#FDA4AF'), // Soft Rose
 }
-
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -63,7 +61,6 @@ export async function animateIntro({
   if (!process.stdout.isTTY || process.env.CI) {
     return undefined
   }
-
 
   // Helper sleep
 
