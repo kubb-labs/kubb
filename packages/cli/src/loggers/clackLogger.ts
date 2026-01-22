@@ -5,6 +5,7 @@ import { defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import { default as gradientString } from 'gradient-string'
+import { render } from 'oh-my-logo'
 import pc from 'picocolors'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 import { getSummary } from '../utils/getSummary.ts'
@@ -187,8 +188,15 @@ Run \`npm install -g @kubb/cli\` to update`,
       )
     })
 
-    context.on('lifecycle:start', (version) => {
-      console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(`Kubb ${version} 🧩`))
+    context.on('lifecycle:start', async (version) => {
+      // Display Kubb mascot pixel art with orange gradient
+      const logo = await render('KUBB', {
+        palette: ['#F58517', '#F5A217', '#F55A17'],
+        font: 'Block',
+        direction: 'vertical',
+      })
+      console.log(logo)
+      console.log(gradientString(['#F58517', '#F5A217', '#F55A17'])(`v${version} 🧩\n`))
       reset()
     })
 

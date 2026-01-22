@@ -2,6 +2,7 @@ import { relative } from 'node:path'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
+import { render } from 'oh-my-logo'
 import { getSummary } from '../utils/getSummary.ts'
 
 /**
@@ -83,8 +84,15 @@ export const plainLogger = defineLogger({
       }
     })
 
-    context.on('lifecycle:start', () => {
-      console.log('Kubb CLI 🧩')
+    context.on('lifecycle:start', async (version) => {
+      // Display Kubb mascot pixel art with orange gradient
+      const logo = await render('KUBB', {
+        palette: ['#F58517', '#F5A217', '#F55A17'],
+        font: 'Block',
+        direction: 'vertical',
+      })
+      console.log(logo)
+      console.log(`v${version} 🧩\n`)
     })
 
     context.on('config:start', () => {
