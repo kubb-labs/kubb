@@ -1,22 +1,22 @@
-import { default as gradientString } from 'gradient-string'
-import { hex,} from './ansiColors.ts'
-import pc from "picocolors";
 import process from 'node:process'
+import { default as gradientString } from 'gradient-string'
+import pc from 'picocolors'
+import { hex } from './ansiColors.ts'
 
 /**
  * Generates the Kubb mascot face welcome message
  * @param version - The version string to display
  * @returns Formatted mascot face string
  */
-export function getIntro({title, description, version}:{ title: string; description:string; version: string}): string {
+export function getIntro({ title, description, version }: { title: string; description: string; version: string }): string {
   // Custom Color Palette for "Wooden" Depth
   const colors = {
     lid: hex('#F55A17'), // Dark Wood
     woodTop: hex('#F5A217'), // Bright Orange (Light source)
     woodMid: hex('#F58517'), // Main Orange
     woodBase: hex('#B45309'), // Shadow Orange
-    eye: hex('#adadc6'),       // Deep Slate
-    highlight: hex('#FFFFFF'),  // Eye shine
+    eye: hex('#adadc6'), // Deep Slate
+    highlight: hex('#FFFFFF'), // Eye shine
     blush: hex('#FDA4AF'), // Soft Rose
   }
 
@@ -31,8 +31,7 @@ export function getIntro({title, description, version}:{ title: string; descript
   ${colors.woodMid('█ ')}${colors.eye('▀▀▀')}${colors.woodMid('  ')}${colors.blush('◡')}${colors.woodMid('  ')}${colors.eye('▀▀▀')}${colors.woodMid(' █')}  ${pc.dim('────────────────────────')}
   ${colors.woodBase('█             █')}  ${pc.yellow('➜')} ${pc.white(description)}
    ${colors.woodBase('▀▀▀▀▀▀▀▀▀▀▀▀▀')}
-`;
-
+`
 }
 
 /**
@@ -40,11 +39,23 @@ export function getIntro({title, description, version}:{ title: string; descript
  * This prints a short sequence of frames, hiding the cursor while animating.
  * If stdout is not a TTY or running in CI, the function resolves immediately.
  */
-export async function animateIntro({title, description, version, blinks = 5, interval = 500}:{ title: string; description:string; version: string; blinks?: number; interval?: number}): Promise<void> {
+export async function animateIntro({
+  title,
+  description,
+  version,
+  blinks = 5,
+  interval = 500,
+}: {
+  title: string
+  description: string
+  version: string
+  blinks?: number
+  interval?: number
+}): Promise<void> {
   // Only animate on interactive TTY and when not running in CI
   if (!process.stdout.isTTY || process.env.CI) {
     // Nothing to do in non-interactive environments
-    process.stdout.write(`\n${getIntro({title, description, version})}\n`)
+    process.stdout.write(`\n${getIntro({ title, description, version })}\n`)
     return
   }
 
@@ -97,7 +108,6 @@ export async function animateIntro({title, description, version, blinks = 5, int
     console.error = () => {}
     ;(console as any).debug = () => {}
 
-
     // Print initial open frame using original writer (no leading newline)
     const openFrame = frame(true)
     process.stdout.write(`${openFrame}\n`)
@@ -134,7 +144,6 @@ export async function animateIntro({title, description, version, blinks = 5, int
     // Show cursor again (use original writer)
     process.stdout.write('\x1b[?25h')
 
-
     console.log = origConsoleLog
     console.info = origConsoleInfo
     console.warn = origConsoleWarn
@@ -142,4 +151,3 @@ export async function animateIntro({title, description, version, blinks = 5, int
     ;(console as any).debug = origConsoleDebug
   }
 }
-
