@@ -2,15 +2,8 @@ import { relative } from 'node:path'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
+import { KUBB_ASCII_ART } from '../constants.ts'
 import { getSummary } from '../utils/getSummary.ts'
-
-const KUBB_ASCII_ART = `
- _  ___   _ ____  ____  
-| |/ / | | | __ )| __ ) 
-| ' /| | | |  _ \\|  _ \\ 
-| . \\| |_| | |_) | |_) |
-|_|\\_\\\\___/|____/|____/ 
-`
 
 /**
  * Plain console adapter for non-TTY environments

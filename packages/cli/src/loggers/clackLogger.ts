@@ -6,17 +6,10 @@ import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import { default as gradientString } from 'gradient-string'
 import pc from 'picocolors'
+import { KUBB_ASCII_ART } from '../constants.ts'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 import { getSummary } from '../utils/getSummary.ts'
 import { ClackWritable } from '../utils/Writables.ts'
-
-const KUBB_ASCII_ART = `
- _  ___   _ ____  ____  
-| |/ / | | | __ )| __ ) 
-| ' /| | | |  _ \\|  _ \\ 
-| . \\| |_| | |_) | |_) |
-|_|\\_\\\\___/|____/|____/ 
-`
 
 /**
  * Clack adapter for local TTY environments

@@ -2,15 +2,8 @@ import { type Config, defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { execa } from 'execa'
 import pc from 'picocolors'
+import { KUBB_ASCII_ART } from '../constants.ts'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
-
-const KUBB_ASCII_ART = `
- _  ___   _ ____  ____  
-| |/ / | | | __ )| __ ) 
-| ' /| | | |  _ \\|  _ \\ 
-| . \\| |_| | |_) | |_) |
-|_|\\_\\\\___/|____/|____/ 
-`
 
 /**
  * GitHub Actions adapter for CI environments
