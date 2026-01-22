@@ -1,10 +1,8 @@
-import { Writable } from 'node:stream'
 import { type LoggerContext, LogLevel } from '@kubb/core'
-import { execa } from 'execa'
-import { Box, Newline, Text, useApp } from 'ink'
-import pc from 'picocolors'
-import { useCallback, useLayoutEffect, useRef, useState } from 'react'
-import { formatMsWithColor } from '../../utils/formatMsWithColor.ts'
+
+import { Box, Text, useApp } from 'ink'
+
+import { useLayoutEffect, useRef, useState } from 'react'
 import { getSummary } from '../../utils/getSummary.ts'
 import { Header } from './components/Header.tsx'
 
@@ -13,152 +11,19 @@ type Props = {
   logLevel: (typeof LogLevel)[keyof typeof LogLevel]
 }
 
-type ProgressState = {
-  current: number
-  total: number
-  message: string
-}
-
-class LogWritable extends Writable {
-  constructor(private addLog: (msg: string) => void) {
-    super()
-  }
-  _write(chunk: any, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
-    this.addLog(`${pc.dim(chunk?.toString().trim())}`)
-    callback()
-  }
-}
-
 export const InkLogger = ({ context, logLevel }: Props) => {
   const { exit } = useApp()
 
-  const [logs, setLogs] = useState<{ id: number; text: string }[]>([])
-  const [spinnerMessage, setSpinnerMessage] = useState<string | undefined>()
-  const [progress, setProgress] = useState<ProgressState | undefined>()
-  const [projectName, setProjectName] = useState<string | undefined>()
+  const [projectName, _setProjectName] = useState<string | undefined>()
   const [summary, setSummary] = useState<string[] | undefined>()
   const [hasError, setHasError] = useState(false)
 
   // Ref to keep track of current props/state in async callbacks if needed
   const logLevelRef = useRef(logLevel)
   logLevelRef.current = logLevel
-  const logIdRef = useRef(0)
-
-  const addLog = useCallback((msg: string) => {
-    setLogs((prev) => [...prev, { id: logIdRef.current++, text: msg }])
-  }, [])
 
   useLayoutEffect(() => {
-    const onInfo = (_message: string, _info = '') => {
-      // if (logLevel > LogLevel.silent) {
-      //    addLog(`${pc.blue('ℹ')} ${message} ${pc.dim(info)}`)
-      // }
-    }
-    const onSuccess = (_message: string, _info = '') => {
-      // if (logLevel > LogLevel.silent) {
-      //    addLog(`${pc.green('✓')} ${message} ${pc.dim(info)}`)
-      // }
-    }
-    const onWarn = (_message: string, _info = '') => {
-      // if (logLevel >= LogLevel.warn) {
-      //    addLog(`${pc.yellow('⚠')} ${message} ${pc.dim(info)}`)
-      // }
-    }
-    const onError = (error: Error) => {
-      addLog(`${pc.red('✗')} ${error.message}`)
-      if (logLevel >= LogLevel.debug && error.stack) {
-        const frames = error.stack.split('\n').slice(1, 4)
-        frames.forEach((frame) => {
-          addLog(pc.dim(frame.trim()))
-        })
-      }
-    }
-
-    const onGenerationStart = (config: any) => {
-      setProjectName(config.name)
-      setSpinnerMessage('Starting generation...')
-      setLogs([]) // Clear logs on start
-      setSummary(undefined)
-      setHasError(false)
-      logIdRef.current = 0
-    }
-
-    const onPluginStart = (plugin: any) => {
-      setSpinnerMessage(`Generating ${plugin.name}...`)
-    }
-
-    const onPluginEnd = (plugin: any, { success, duration }: any) => {
-      const durationStr = formatMsWithColor(duration)
-      if (success) {
-        addLog(`${pc.green('✓')} Generated ${plugin.name} ${pc.dim(durationStr)}`)
-      } else {
-        addLog(`${pc.red('✗')} Failed ${plugin.name} ${pc.dim(durationStr)}`)
-      }
-    }
-
-    const onFilesStart = (files: any[]) => {
-      setProgress({
-        current: 0,
-        total: files.length,
-        message: `Writing ${files.length} files`,
-      })
-      setSpinnerMessage(undefined)
-    }
-
-    const onFileUpdate = () => {
-      setProgress((prev) => (prev ? { ...prev, current: prev.current + 1 } : undefined))
-    }
-
-    const onFilesEnd = () => {
-      setProgress(undefined)
-      addLog(`${pc.green('✓')} Files written`)
-    }
-
-    const onHookStart = async ({ id, command, args }: any) => {
-      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
-      addLog(`${pc.dim('Hook')} ${commandWithArgs} started`)
-
-      if (!id) return
-
-      const writable = new LogWritable(addLog)
-
-      try {
-        const result = await execa(command, args, {
-          detached: true,
-          stdout: ['pipe', writable],
-          stripFinalNewline: true,
-        })
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [result.stdout],
-        })
-
-        await context.emit('hook:end', { command, args, id, success: true, error: null })
-      } catch (err: any) {
-        const error = new Error('Hook execute failed')
-        error.cause = err
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [err.stdout],
-        })
-
-        await context.emit('hook:end', { command, args, id, success: true, error })
-        await context.emit('error', error)
-      }
-    }
-
-    const onHookEnd = ({ command, args, success }: any) => {
-      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
-      if (success) {
-        addLog(`${pc.green('✓')} Hook ${commandWithArgs} completed`)
-      } else {
-        addLog(`${pc.red('✗')} Hook ${commandWithArgs} failed`)
-      }
-    }
-
-    const onGenerationSummary = (config: any, { pluginTimings, status, hrStart, failedPlugins, filesCreated }: any) => {
+    context.on('generation:summary', (config: any, { pluginTimings, status, hrStart, failedPlugins, filesCreated }: any) => {
       const summaryLines = getSummary({
         failedPlugins,
         filesCreated,
@@ -170,44 +35,18 @@ export const InkLogger = ({ context, logLevel }: Props) => {
 
       setSummary(summaryLines)
       setHasError(status !== 'success')
-      setSpinnerMessage(undefined)
 
       setTimeout(() => {
         exit()
       }, 0)
-    }
-
-    context.on('info', onInfo)
-    context.on('success', onSuccess)
-    context.on('warn', onWarn)
-    context.on('error', onError)
-    context.on('generation:start', onGenerationStart)
-    context.on('plugin:start', onPluginStart)
-    context.on('plugin:end', onPluginEnd)
-    context.on('files:processing:start', onFilesStart)
-    context.on('file:processing:update', onFileUpdate)
-    context.on('files:processing:end', onFilesEnd)
-    context.on('hook:start', onHookStart)
-    context.on('hook:end', onHookEnd)
-    context.on('generation:summary', onGenerationSummary)
-    context.on('generation:end', () => {
-      // exit()
     })
-  }, [context, logLevel, addLog, exit])
+  }, [context, exit])
 
   return (
     <Box flexDirection="column" padding={1}>
-      <Header projectName={projectName} spinnerMessage={spinnerMessage} progress={progress} />
-      <Box>
-        {logs.map((log) => (
-          <Text key={log.id}>
-            {log.text}
-            <Newline />
-          </Text>
-        ))}
-      </Box>
+      <Header projectName={projectName} />
       {summary && (
-        <Box marginTop={1} flexDirection="column" borderStyle="round" borderColor={hasError ? 'red' : 'green'} paddingX={1}>
+        <Box width={50} flexDirection="column" borderStyle="round" borderColor={hasError ? 'red' : 'green'} paddingX={2} paddingY={1}>
           {summary.map((line, i) => (
             <Text key={i}>{line}</Text>
           ))}
