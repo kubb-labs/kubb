@@ -189,7 +189,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('lifecycle:start', async (version) => {
-      // Display Kubb mascot pixel art with orange gradient
+      // Display Kubb logo as ASCII art with orange gradient
       const logo = await render('KUBB', {
         palette: ['#F58517', '#F5A217', '#F55A17'],
         font: 'Block',
