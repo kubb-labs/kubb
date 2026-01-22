@@ -1,7 +1,7 @@
-import { z } from 'zod'
+import type { GetPetByIdPathParams, GetPetById200, GetPetById400, GetPetById404, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById.ts'
 import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { GetPetById200, GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById.ts'
 import { petSchema } from '../petSchema.ts'
+import { z } from 'zod'
 
 export const getPetByIdPathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet to return'),

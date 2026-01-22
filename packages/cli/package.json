@@ -68,9 +68,12 @@
     "cosmiconfig": "^9.0.0",
     "execa": "^9.6.1",
     "gradient-string": "^3.0.0",
+    "ink": "^6.6.0",
+    "ink-spinner": "^5.0.0",
     "jiti": "^2.6.1",
     "latest-version": "^9.0.0",
     "picocolors": "^1.1.1",
+    "react": "^19.2.3",
     "seedrandom": "^3.0.5",
     "semver": "^7.7.3",
     "string-argv": "^0.3.2"
@@ -78,6 +81,7 @@
   "devDependencies": {
     "@kubb/mcp": "workspace:*",
     "@kubb/oas": "workspace:*",
+    "@types/react": "^19.2.9",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.7.1",
     "source-map-support": "^0.5.21"

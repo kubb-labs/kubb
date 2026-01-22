@@ -1,1 +1,1 @@
-export type LoggerType = 'clack' | 'github-actions' | 'plain'
+export type LoggerType = 'clack' | 'github-actions' | 'plain' | 'ink'

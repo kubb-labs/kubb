@@ -1,6 +1,7 @@
 import type { Logger, LoggerContext, LoggerOptions } from '@kubb/core'
 import { LogLevel } from '@kubb/core'
 import { clackLogger } from './clackLogger.ts'
+import { inkLogger } from './ink/index.ts'
 import { canUseTTY, isGitHubActions } from './envDetection.ts'
 import { fileSystemLogger } from './fileSystemLogger.ts'
 import { githubActionsLogger } from './githubActionsLogger.ts'
@@ -12,7 +13,7 @@ export function detectLogger(): LoggerType {
     return 'github-actions'
   }
   if (canUseTTY()) {
-    return 'clack'
+    return 'ink'
   }
   return 'plain'
 }
@@ -21,6 +22,7 @@ const logMapper = {
   clack: clackLogger,
   plain: plainLogger,
   'github-actions': githubActionsLogger,
+  ink: inkLogger,
 } as const satisfies Record<LoggerType, Logger>
 
 export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOptions): Promise<void> {
