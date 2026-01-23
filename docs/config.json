@@ -376,7 +376,7 @@
               "text": "Generators",
               "link": "/guide/generators",
               "activeMatch": "^/guide/generators/?$"
-            },
+            }
           ]
         },
         {
