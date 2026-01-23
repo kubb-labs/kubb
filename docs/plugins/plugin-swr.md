@@ -181,10 +181,12 @@ When using a string you need to use `JSON.stringify`.
 ### mutation
 
 #### mutation.methods
+
 |           |                     |
 |----------:|:--------------------|
 |     Type: | `Array<HttpMethod>` |
 | Required: | `false`             |
+|  Default: | `['post', 'put', 'delete']` |
 
 
 #### mutation.importPath

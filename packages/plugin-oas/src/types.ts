@@ -46,13 +46,13 @@ export type Options = {
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
    * @example
-   * - `0` will return `http://petstore.swagger.io/api`
-   * - `1` will return `http://localhost:3000`
+   * - `0` returns `http://petstore.swagger.io/api`
+   * - `1` returns `http://localhost:3000`
    */
   serverIndex?: number
   /**
    * Define which contentType should be used.
-   * By default, the first JSON valid mediaType will be used
+   * By default, uses the first valid JSON media type.
    */
   contentType?: contentType
   /**

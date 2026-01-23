@@ -12,7 +12,7 @@ export type Options = {
   output?: Output<Oas>
   /**
    * Define which contentType should be used.
-   * By default, the first JSON valid mediaType will be used
+   * By default, the first JSON valid mediaType is used
    */
   contentType?: contentType
   /**
@@ -38,12 +38,12 @@ export type Options = {
   dateType?: 'string' | 'date'
   /**
    * Which parser should be used when dateType is set to 'string'.
-   * - Schema with format 'date' will use ISO date format (YYYY-MM-DD)
-   *   - `'dayjs'` will use `dayjs(faker.date.anytime()).format("YYYY-MM-DD")`.
-   *   - `undefined` will use `faker.date.anytime().toString()`
-   * - Schema with format 'time' will use ISO time format (HH:mm:ss[.SSSSSS])
-   *   - `'dayjs'` will use `dayjs(faker.date.anytime()).format("HH:mm:ss")`.
-   *   - `undefined` will use `faker.date.anytime().toString()`
+   * - Schema with format 'date' uses ISO date format (YYYY-MM-DD)
+   *   - `'dayjs'` uses `dayjs(faker.date.anytime()).format("YYYY-MM-DD")`.
+   *   - `undefined` uses `faker.date.anytime().toString()`
+   * - Schema with format 'time' uses ISO time format (HH:mm:ss[.SSSSSS])
+   *   - `'dayjs'` uses `dayjs(faker.date.anytime()).format("HH:mm:ss")`.
+   *   - `undefined` uses `faker.date.anytime().toString()`
    * * @default 'faker'
    */
   dateParser?: 'faker' | 'dayjs' | 'moment' | (string & {})
@@ -60,8 +60,8 @@ export type Options = {
   /**
    * Choose which generator to use when using Regexp.
    *
-   * `'faker'` will use `faker.helpers.fromRegExp(new RegExp(/test/))`
-   * `'randexp'` will use `new RandExp(/test/).gen()`
+   * `'faker'` uses `faker.helpers.fromRegExp(new RegExp(/test/))`
+   * `'randexp'` uses `new RandExp(/test/).gen()`
    * @default 'faker'
    */
   regexGenerator?: 'faker' | 'randexp'

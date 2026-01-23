@@ -10,7 +10,7 @@ export type Options = {
   output?: Output<Oas>
   /**
    * Define which contentType should be used.
-   * By default, the first JSON valid mediaType will be used
+   * By default, the first JSON valid mediaType is used
    */
   contentType?: contentType
   /**
@@ -31,9 +31,9 @@ export type Options = {
   override?: Array<Override<ResolvedOptions>>
   /**
    * Path to Zod
-   * It will be used as `import { z } from '${importPath}'`.
-   * It allows both relative and absolute path.
-   * the path will be applied as is, so relative path should be based on the file being generated.
+   * It used as `import { z } from '${importPath}'`.
+   * Accepts relative and absolute paths.
+   * Path is used as-is; relative paths are based on the generated file location.
    * @default 'zod'
    */
   importPath?: string
@@ -102,7 +102,7 @@ export type Options = {
   /**
    * Use Zod Mini's functional API for better tree-shaking support.
    * When enabled, generates functional syntax (e.g., `z.optional(z.string())`) instead of chainable methods (e.g., `z.string().optional()`).
-   * Requires Zod v4 or later. When `mini: true`, `version` will be set to '4' and `importPath` will default to 'zod/mini'.
+   * Requires Zod v4 or later. When `mini: true`, `version` is set to '4' and `importPath` will default to 'zod/mini'.
    * @default false
    */
   mini?: boolean

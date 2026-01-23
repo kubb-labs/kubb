@@ -98,12 +98,15 @@ Add a footer comment at the end of every generated file.
 
 #### group.type
 
-Specify the property to group files by.
+Specify the property to group files by. Required when `group` is defined.
 
 |           |         |
 |----------:|:--------|
 |     Type: | `'tag'` |
-| Required: | `true`  |
+| Required: | `true*` |
+
+> [!NOTE]
+> `Required: true*` means this is required only when the `group` option is used. The `group` option itself is optional.
 
 <!--@include: ./core/groupTypes.md-->
 
@@ -332,6 +335,10 @@ z.array(z.string()).min(1).max(10)
 ```
 
 :::
+
+### include
+
+<!--@include: ./core/include.md-->
 
 ### exclude
 

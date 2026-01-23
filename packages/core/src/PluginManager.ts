@@ -258,7 +258,7 @@ export class PluginManager {
   }
 
   /**
-   * First non-null result stops and will return it's value.
+   * Returns the first non-null result.
    */
   async hookFirst<H extends PluginLifecycleHooks>({
     hookName,
@@ -299,7 +299,7 @@ export class PluginManager {
   }
 
   /**
-   * First non-null result stops and will return it's value.
+   * Returns the first non-null result.
    */
   hookFirstSync<H extends PluginLifecycleHooks>({
     hookName,
@@ -335,7 +335,7 @@ export class PluginManager {
   }
 
   /**
-   * Run all plugins in parallel(order will be based on `this.plugin` and if `pre` or `post` is set).
+   * Runs all plugins in parallel based on `this.plugin` order and `pre`/`post` settings.
    */
   async hookParallel<H extends PluginLifecycleHooks, TOutput = void>({
     hookName,

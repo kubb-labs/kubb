@@ -12,7 +12,7 @@ export type Options = {
   output?: Output<Oas>
   /**
    * Define which contentType should be used.
-   * By default, the first JSON valid mediaType will be used
+   * By default, uses the first valid JSON media type.
    */
   contentType?: contentType
   /**
@@ -40,7 +40,7 @@ export type Options = {
    * - `literal`: literal union type
    * - `inlineLiteral`: inline enum values directly into the type (default in v5)
    * @default 'asConst'
-   * @note In Kubb v5, `inlineLiteral` will become the default.
+   * @note In Kubb v5, `inlineLiteral` becomes the default.
    */
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   /**

@@ -12,7 +12,7 @@ export type Options = {
   output?: Output<Oas>
   /**
    * Define which contentType should be used.
-   * By default, the first JSON valid mediaType will be used
+   * By default, the first JSON valid mediaType is used
    */
   contentType?: contentType
   /**
@@ -38,15 +38,15 @@ export type Options = {
   operations?: boolean
   /**
    * Export urls that are used by operation x
-   * `export` will make them part of your barrel file
-   * false will not make them exportable
+   * `export` makes them part of your barrel file
+   * false does not make them exportable
    * @example getGetPetByIdUrl
    */
   urlType?: 'export' | false
   /**
-   * Path to the client import path that will be used to do the API calls.
-   * It will be used as `import client from '${client.importPath}'`.
-   * It allows both relative and absolute path but be aware that we will not change the path.
+   * Client import path for API calls.
+   * Used as `import client from '${client.importPath}'`.
+   * Accepts relative and absolute paths; path changes are not performed.
    */
   importPath?: string
   /**
@@ -54,41 +54,41 @@ export type Options = {
    */
   baseURL?: string
   /**
-   * ReturnType that will be used when calling the client.
-   * - 'data' will return ResponseConfig[data].
-   * - 'full' will return ResponseConfig.
+   * ReturnType that is used when calling the client.
+   * - 'data' returns ResponseConfig[data].
+   * - 'full' returns ResponseConfig.
    * @default 'data'
    */
   dataReturnType?: 'data' | 'full'
   /**
    * How to style your params, by default no casing is applied
-   * - 'camelcase' will use camelcase for the params names
+   * - 'camelcase' uses camelcase for the params names
    */
   paramsCasing?: 'camelcase'
   /**
    * How to pass your params
-   * - 'object' will return the params and pathParams as an object.
-   * - 'inline' will return the params as comma separated params.
+   * - 'object' returns the params and pathParams as an object.
+   * - 'inline' returns the params as comma separated params.
    * @default 'inline'
    */
   paramsType?: 'object' | 'inline'
   /**
    * How to pass your pathParams.
-   * - 'object' will return the pathParams as an object.
-   * - 'inline' will return the pathParams as comma separated params.
+   * - 'object' returns the pathParams as an object.
+   * - 'inline' returns the pathParams as comma separated params.
    * @default 'inline'
    */
   pathParamsType?: 'object' | 'inline'
   /**
    * Which parser can be used before returning the data
-   * - 'zod' will use `@kubb/plugin-zod` to parse the data.
+   * - 'zod' uses `@kubb/plugin-zod` to parse the data.
    * @default 'client'
    */
   parser?: 'client' | 'zod'
   /**
    * Which client should be used to do the HTTP calls
-   * - 'axios' will use `@kubb/plugin-client/templates/axios` to fetch data.
-   * - 'fetch' will use `@kubb/plugin-client/templates/fetch` to fetch data.
+   * - 'axios' uses `@kubb/plugin-client/templates/axios` to fetch data.
+   * - 'fetch' uses `@kubb/plugin-client/templates/fetch` to fetch data.
    * @default 'axios'
    */
   client?: 'axios' | 'fetch'
@@ -104,7 +104,7 @@ export type Options = {
    * Bundle the selected client into the generated `.kubb` directory.
    * When disabled the generated clients will import the shared runtime from `@kubb/plugin-client/clients/*`.
    * @default false
-   * In version 5 of Kubb this will be by default true
+   * In version 5 of Kubb this is by default true
    */
   bundle?: boolean
   transformers?: {

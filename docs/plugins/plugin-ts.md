@@ -88,12 +88,15 @@ Add a footer text at the end of every file.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Specify the property to group files by.
+Specify the property to group files by. Required when `group` is defined.
 
 |           |         |
 |----------:|:--------|
 |     Type: | `'tag'` |
-| Required: | `true`  |
+| Required: | `true*` |
+
+> [!NOTE]
+> `Required: true*` means this is required only when the `group` option is used. The `group` option itself is optional.
 
 <!--@include: ./core/groupTypes.md-->
 
@@ -175,6 +178,22 @@ Set a suffix for the generated enums.
 |     Type: | `string` |
 | Required: | `false`  |
 |  Default: | `'enum'` |
+
+### enumKeyCasing
+
+Choose the casing for enum key names.
+
+|           |                                                      |
+|----------:|:-----------------------------------------------------|
+|     Type: | `'screamingSnakeCase' \| 'snakeCase' \| 'pascalCase' \| 'camelCase' \| 'none'` |
+| Required: | `false`                                              |
+|  Default: | `'none'`                                             |
+
+- `'screamingSnakeCase'`: `ENUM_VALUE`
+- `'snakeCase'`: `enum_value`
+- `'pascalCase'`: `EnumValue`
+- `'camelCase'`: `enumValue`
+- `'none'`: Uses the enum value as-is
 
 ### dateType
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
@@ -340,6 +359,31 @@ type Pet = {
   tags: Array<string>
 }
 ```
+:::
+
+### mapper
+
+Map specific schema properties to custom TypeScript property signatures. Use the [TypeScript AST viewer](https://ts-ast-viewer.com) to generate the factory code.
+
+|           |                                        |
+|----------:|:---------------------------------------|
+|     Type: | `Record<string, ts.PropertySignature>` |
+| Required: | `false`                                |
+
+> [!TIP]
+> Use [ts-ast-viewer.com](https://ts-ast-viewer.com) to generate factory code for custom property signatures.
+
+### UNSTABLE_NAMING
+
+Enable unstable naming conventions for v5 compatibility (beta feature).
+
+|           |          |
+|----------:|:---------|
+|     Type: | `boolean` |
+| Required: | `false`  |
+
+::: warning
+This is an unstable/experimental feature that may change in future versions.
 :::
 
 ### include
