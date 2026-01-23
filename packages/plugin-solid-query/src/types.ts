@@ -104,7 +104,7 @@ export type Options = {
   pathParamsType?: PluginClient['options']['pathParamsType']
   queryKey?: QueryKey
   /**
-   * Override some useQuery behaviours.
+   * Override some useQuery behaviors.
    */
   query?: Partial<Query> | false
   /**
@@ -113,7 +113,7 @@ export type Options = {
    */
   mutationKey?: MutationKey
   /**
-   * Override some useMutation behaviours.
+   * Override some useMutation behaviors.
    */
   mutation?: Partial<Mutation> | false
   parser?: PluginClient['options']['parser']

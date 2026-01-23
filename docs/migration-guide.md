@@ -138,7 +138,7 @@ We will discontinue support for (MSW](https://mswjs.io/) v1 in favour of using v
 ### Output
 - `output.banner`: Add some code in the beginning of every file
 - `output.footer`: Add some code in the end of every file
-- `output.exportType`: Behaviour stayed the same, we renamed the option to `output.barrelType` and simplified the values.
+- `output.exportType`: Behavior stayed the same, we renamed the option to `output.barrelType` and simplified the values.
 ```typescript [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
 import { pluginOas } from "@kubb/plugin-oas"

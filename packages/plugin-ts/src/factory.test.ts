@@ -25,7 +25,7 @@ const formatTS = (elements: ts.Node | (ts.Node | undefined)[]) => {
   return format(print(...[elements].flat().filter(Boolean)))
 }
 
-describe('codegen', () => {
+describe('Code Generation', () => {
   const node = factory.createVariableStatement(
     undefined,
     factory.createVariableDeclarationList(
@@ -324,7 +324,7 @@ describe('codegen', () => {
           typeName: 'Hello',
           enums: [
             ['FILE.UPLOADED', 'FILE.UPLOADED'],
-            ['FILE.PREVIEWE', 'FILE.PREVIEWE'],
+            ['FILE.PREVIEW', 'FILE.PREVIEW'],
           ],
         }),
       ),

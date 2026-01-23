@@ -246,7 +246,7 @@ Supports dot notation (e.g. 'pagination.prev.id') or array path (e.g. ['paginati
 
 ### query
 
-Override some useQuery behaviours. <br/>
+Override some useQuery behaviors. <br/>
 To disable the creation of hooks pass `false`, this will result in only creating `queryOptions`.
 
 
@@ -420,7 +420,7 @@ When set, a suspenseQuery hook will be added. This will only work for v5 and rea
 
 ### mutation
 
-Override some useMutation behaviours. <br/>
+Override some useMutation behaviors. <br/>
 To disable queries pass `false`.
 
 |           |            |

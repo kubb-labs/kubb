@@ -797,7 +797,7 @@
 
 ### Patch Changes
 
-- [#1953](https://github.com/kubb-labs/kubb/pull/1953) [`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - update peerdeps @kubb/react
+- [#1953](https://github.com/kubb-labs/kubb/pull/1953) [`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - update PeerDependencies @kubb/react
 
 - Updated dependencies [[`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92)]:
   - @kubb/plugin-oas@4.3.1
@@ -3956,7 +3956,7 @@
 
 ### Patch Changes
 
-- [#676](https://github.com/kubb-labs/kubb/pull/676) [`d729470`](https://github.com/kubb-labs/kubb/commit/d729470b74121eef6776649654921ce61b35da51) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - feat: use of Query and Mutation omponent for swagger-faker
+- [#676](https://github.com/kubb-labs/kubb/pull/676) [`d729470`](https://github.com/kubb-labs/kubb/commit/d729470b74121eef6776649654921ce61b35da51) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - feat: use of Query and Mutation component for swagger-faker
 
 - [#676](https://github.com/kubb-labs/kubb/pull/676) [`d729470`](https://github.com/kubb-labs/kubb/commit/d729470b74121eef6776649654921ce61b35da51) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - mapper and transformers.schema to override default fakerParser
 

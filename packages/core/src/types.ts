@@ -175,7 +175,7 @@ export type PluginFactoryOptions<
 > = {
   name: TName
   /**
-   * Same behaviour like what has been done with `QueryKey` in `@tanstack/react-query`
+   * Same behavior like what has been done with `QueryKey` in `@tanstack/react-query`
    */
   key: PluginKey<TName | string>
   options: TOptions

@@ -294,7 +294,7 @@ Override file extensions in generated imports/exports. Useful for ESM compatibil
 |  Default: | `{ '.ts': '.ts' }`                           |
 
 > [!TIP]
-> Use `{ '.ts': '.js' }` for ESM compatibility when transpiling TypeScript to JavaScript.
+> Use `{ '.ts': '.js' }` for ESM compatibility when converting TypeScript to JavaScript.
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'

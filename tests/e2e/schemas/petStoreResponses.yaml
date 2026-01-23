@@ -1,7 +1,7 @@
 info:
   license:
     name: MIT
-  title: Swagger Petstore
+  title: Swagger PetStore
   version: 1.0.0
 openapi: '3.0.0'
 components:

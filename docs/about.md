@@ -9,7 +9,7 @@ title: About
 
 ## Introduction
 
-`Kubb`'s name is based on the popular Swedisch game [Kubb](https://en.wikipedia.org/wiki/Kubb).
+`Kubb`'s name is based on the popular Swedish game [Kubb](https://en.wikipedia.org/wiki/Kubb).
 
 <blockquote>
  Kubb (pronounced [kubː] in Swedish and Gutnish) is a lawn game where the objective is to knock over wooden blocks (kubbar) by throwing wooden batons (kastpinnar) at them. Kubb can be described as a combination of bowling and horseshoes.
