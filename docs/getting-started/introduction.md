@@ -1,11 +1,11 @@
 ---
 layout: doc
 
-title: At Glance
+title: Introduction
 outline: deep
 ---
 
-# At Glance
+# Introduction
 
 Kubb generates TypeScript code from OpenAPI/Swagger specifications.
 
@@ -54,9 +54,9 @@ This eliminates manual API client maintenance and reduces type mismatches betwee
 
 
 ## Sponsoring
-Kubb is open source and build by the community, help us building Kubb by [sponsoring](https://github.com/sponsors/stijnvanhulle) us.
+Kubb is open source and built by the community. Help us build Kubb by [sponsoring](https://github.com/sponsors/stijnvanhulle) us.
 
 ## Our Community
 Come and chat with us on [Discord](https://discord.gg/shfBFeczrm)!
 
-We're always looking for some contributions.
+We're always looking for contributions.

@@ -44,9 +44,14 @@
           "collapsed": false,
           "items": [
             {
-              "text": "At Glance",
-              "link": "/getting-started/at-glance",
-              "activeMatch": "^/getting-started/at-glance/?$"
+              "text": "Introduction",
+              "link": "/getting-started/introduction",
+              "activeMatch": "^/getting-started/introduction/?$"
+            },
+            {
+              "text": "Installation",
+              "link": "/getting-started/installation",
+              "activeMatch": "^/getting-started/installation/?$"
             },
             {
               "text": "Quick Start",

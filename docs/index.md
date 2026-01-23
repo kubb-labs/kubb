@@ -9,12 +9,12 @@ hero:
   name: The ultimate toolkit for working with APIs.
   tagline: OpenAPI to TypeScript, React-Query, Zod, Faker.js, MCP (Claude, Cursor), MSW and Axios.
   image:
-    src: ./logo.png
+    src: ./kubb.png
     alt: Kubb
   actions:
     - theme: brand
       text: Get Started
-      link: /getting-started/at-glance/
+      link: /getting-started/introduction/
     - theme: alt
       text: Playground
       link: /playground
