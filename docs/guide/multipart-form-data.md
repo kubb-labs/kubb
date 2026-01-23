@@ -237,6 +237,6 @@ If you need to customize how objects are serialized, you can pre-process them be
 
 ## Related Documentation
 
-- [Custom HTTP Client](/knowledge-base/fetch)
+- [Custom HTTP Client](/guide/fetch)
 - [Plugin Client](/plugins/plugin-client)
-- [File Manager](/knowledge-base/fileManager)
+- [File Manager](/guide/fileManager)

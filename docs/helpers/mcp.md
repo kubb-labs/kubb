@@ -224,7 +224,7 @@ npm install --save-dev @kubb/cli
 ## Links
 
 - [CLI Documentation](/helpers/cli#kubb-mcp) - Command-line options
-- [Claude Setup Guide](/knowledge-base/claude) - Detailed [Claude](https://claude.ai) integration
+- [Claude Setup Guide](/guide/claude) - Detailed [Claude](https://claude.ai) integration
 - [Plugin Documentation](/plugins/core) - Available Kubb plugins
 - [Model Context Protocol](https://modelcontextprotocol.io) - Official MCP documentation
 - [Claude Desktop](https://claude.ai/download) - Download Claude Desktop app

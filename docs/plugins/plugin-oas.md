@@ -168,7 +168,7 @@ Kubb provides comprehensive support for OpenAPI discriminators in both **OpenAPI
 - Const and enum values
 - Mixed types and edge cases
 
-See [Discriminators](/knowledge-base/oas#discriminators) in the knowledge base for detailed examples and supported patterns.
+See [Discriminators](/guide/oas#discriminators) in the knowledge base for detailed examples and supported patterns.
 
 |           |                          |
 |----------:|:-------------------------|
@@ -301,7 +301,7 @@ Override some behavior of the Oas class instance, see `@kubb/oas`.
 ### generators <img src="../public/icons/experimental.svg"/>
 Define some generators to create files based on the operation and/or schema. All plugin are using generators to create files based on the OperationGenerator and SchemaGenerators. An empty array will result in no schema's being generated, in v2 of Kubb we used `output: false`.
 
-See [Generators](/knowledge-base/generators) for more information on how to use generators.
+See [Generators](/guide/generators) for more information on how to use generators.
 
 ::: info
 
@@ -351,4 +351,4 @@ export default defineConfig({
 ## Links
 
 - [Oas](https://github.com/readmeio/oas)
-- [OpenAPI Discriminators](/knowledge-base/oas#discriminators)
+- [OpenAPI Discriminators](/guide/oas#discriminators)

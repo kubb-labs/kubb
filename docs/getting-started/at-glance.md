@@ -33,7 +33,7 @@ Extend Kubb with custom plugins to integrate other libraries or generate additio
 - **OpenAPI 2.0, 3.0, 3.1** - All major OpenAPI versions supported
 - **Plugin system** - Extend with custom generators or use community plugins
 - **CLI with progress tracking** - Monitor generation with progress bars and detailed logs
-- **Debug mode** - Inspect generation with [React DevTools](/knowledge-base/debugging)
+- **Debug mode** - Inspect generation with [React DevTools](/guide/debugging)
 - **Barrel files** - Automatic `index.ts` generation for clean imports
 - **Type-safe** - Full TypeScript support with strict type checking
 - **Fast** - Parallel processing for large API specifications
@@ -48,7 +48,7 @@ Extend Kubb with custom plugins to integrate other libraries or generate additio
 
 - Generate types, hooks, validators, and mocks in one command
 - Maintain consistency across your codebase
-- Extend with [custom plugins](/knowledge-base/plugins/) for specific needs
+- Extend with [custom plugins](/guide/plugins/) for specific needs
 
 This eliminates manual API client maintenance and reduces type mismatches between frontend and backend.
 

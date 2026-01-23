@@ -285,4 +285,4 @@ Yes, you can use:
 2. **Transformers**: Modify names and paths
 3. **Override**: Override generation for specific operations/schemas
 
-See [Generators](/knowledge-base/generators/) for more details.
+See [Generators](/guide/generators/) for more details.

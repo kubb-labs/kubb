@@ -874,7 +874,7 @@ All discriminator patterns from OpenAPI 3.0 and 3.1 specifications are now suppo
 
 **Documentation:**
 
-See [Discriminators](/knowledge-base/oas#discriminators) in the knowledge base for comprehensive examples and patterns.
+See [Discriminators](/guide/oas#discriminators) in the knowledge base for comprehensive examples and patterns.
 
 ## 4.12.10
 

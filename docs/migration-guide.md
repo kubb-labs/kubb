@@ -30,7 +30,7 @@ See the plugin-client documentation for details and usage notes.
 > [!TIP]
 > Generators are a replacements of `templates`
 
-See [Generators](/knowledge-base/generators).
+See [Generators](/guide/generators).
 
 ### kubb.config.ts
 2 extra options have been added to the output:
@@ -334,7 +334,7 @@ We used `openapi-format` before to already filter out some Operations or Paths b
 - `experimentalFilter`
 - `experimentalSort`
 
-See [Filter And Sort](/knowledge-base/filter-and-sort).
+See [Filter And Sort](/guide/filter-and-sort).
 
 ### @kubb/plugin-client
 - `client.importPath` becomes `importPath`
