@@ -221,7 +221,7 @@ npm install --save-dev @kubb/cli
 
 **Solution:** This depends on the MCP client. [Claude Desktop](https://claude.ai/download) may buffer or summarize notifications. The generation is still happening—check the final result.
 
-## Links
+## See Also
 
 - [CLI Documentation](/helpers/cli#kubb-mcp) - Command-line options
 - [Claude Setup Guide](/guide/claude) - Detailed [Claude](https://claude.ai) integration

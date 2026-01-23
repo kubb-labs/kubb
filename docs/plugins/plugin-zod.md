@@ -436,6 +436,6 @@ export default defineConfig({
 });
 ```
 
-## Links
+## See Also
 
 - [Zod](https://zod.dev/)

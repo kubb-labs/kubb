@@ -307,6 +307,6 @@ export default defineConfig({
 })
 ```
 
-## Links
+## See Also
 
 - [SWR](https://swr.vercel.app/)

@@ -249,6 +249,6 @@ export default defineConfig({
 })
 ```
 
-## Links
+## See Also
 
 - [Axios](https://axios-http.com/docs/intro)
