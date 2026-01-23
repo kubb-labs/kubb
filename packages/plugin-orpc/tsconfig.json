@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@kubb/react-fabric",
+    "types": ["bun-types", "../../reset.d.ts"]
+  },
+  "include": ["src/**/*", "mocks/**/*", "./package.json", "./tsdown.config.ts", "./vitest.config.ts"]
+}
