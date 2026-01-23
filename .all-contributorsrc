@@ -428,6 +428,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "ATholin",
+      "name": "Alexander Sjöcrona Tholin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/33940473?v=4",
+      "profile": "http://atholin.se",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
