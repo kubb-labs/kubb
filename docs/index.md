@@ -10,7 +10,7 @@ hero:
   tagline: OpenAPI to TypeScript, React-Query, Zod, Faker.js, MCP (Claude, Cursor), MSW and Axios.
   image:
     src: ./logo.png
-    alt: Kubbb
+    alt: Kubb
   actions:
     - theme: brand
       text: Get Started

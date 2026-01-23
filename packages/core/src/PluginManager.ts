@@ -337,13 +337,13 @@ export class PluginManager {
   /**
    * Run all plugins in parallel(order will be based on `this.plugin` and if `pre` or `post` is set).
    */
-  async hookParallel<H extends PluginLifecycleHooks, TOuput = void>({
+  async hookParallel<H extends PluginLifecycleHooks, TOutput = void>({
     hookName,
     parameters,
   }: {
     hookName: H
     parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined
-  }): Promise<Awaited<TOuput>[]> {
+  }): Promise<Awaited<TOutput>[]> {
     const plugins = this.#getSortedPlugins(hookName)
     this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
@@ -354,7 +354,7 @@ export class PluginManager {
           hookName,
           parameters,
           plugin,
-        }) as Promise<TOuput>
+        }) as Promise<TOutput>
     })
 
     const results = await this.#promiseManager.run('parallel', promises, {
@@ -384,7 +384,7 @@ export class PluginManager {
         acc.push(result.value)
       }
       return acc
-    }, [] as Awaited<TOuput>[])
+    }, [] as Awaited<TOutput>[])
   }
 
   /**
@@ -567,7 +567,7 @@ export class PluginManager {
    * Run a sync plugin hook and return the result.
    * @param hookName Name of the plugin hook. Must be in `PluginHooks`.
    * @param args Arguments passed to the plugin hook.
-   * @param plugin The acutal plugin
+   * @param plugin The actual plugin
    * @param replaceContext When passed, the plugin context can be overridden.
    */
   #executeSync<H extends PluginLifecycleHooks>({

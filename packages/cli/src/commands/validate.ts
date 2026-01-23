@@ -45,7 +45,7 @@ const command = defineCommand({
       const { parse } = mod
       try {
         const oas = await parse(args.input)
-        await oas.valdiate()
+        await oas.validate()
 
         console.log('✅ Validation success')
       } catch (error) {

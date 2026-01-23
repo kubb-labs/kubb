@@ -36,7 +36,7 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
 
     try {
       if (validate) {
-        await oas.valdiate()
+        await oas.validate()
       }
     } catch (er) {
       const caughtError = er as Error

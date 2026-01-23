@@ -13,7 +13,7 @@ describe('utils', () => {
     const documents = [
       `openapi: 3.0.0
 info:
-  title: Swagger Petstore
+  title: Swagger PetStore
   version: 1.0.0
 components:
   schemas:
@@ -53,7 +53,7 @@ components:
     const oas = await parse(
       `openapi: 3.0.0
 info:
-  title: Swagger Petstore
+  title: Swagger PetStore
   version: 1.0.0
 components:
   schemas:
@@ -68,7 +68,7 @@ components:
 `,
       { canBundle: false },
     )
-    expect(oas.api?.info.title).toBe('Swagger Petstore')
+    expect(oas.api?.info.title).toBe('Swagger PetStore')
   })
 })
 
@@ -79,7 +79,7 @@ describe('parseFromConfig', () => {
   const yamlPetStoreString = `
 openapi: 3.0.0
 info:
-  title: Swagger Petstore
+  title: Swagger PetStore
   version: 1.0.0
 paths:
   /users/{userId}:
@@ -125,14 +125,14 @@ components:
     const oas = await parse(petStoreV3)
 
     expect(oas).toBeDefined()
-    expect(oas.api?.info.title).toBe('Swagger Petstore - OpenAPI 3.0')
+    expect(oas.api?.info.title).toBe('Swagger PetStore - OpenAPI 3.0')
   })
 
   test('check if oas and title is defined based on a Swagger(v2) file', async () => {
     const oas = await parse(petStoreV2)
 
     expect(oas).toBeDefined()
-    expect(oas.api?.info.title).toBe('Swagger Petstore')
+    expect(oas.api?.info.title).toBe('Swagger PetStore')
   })
 
   test('check if oas and title is defined based on a Swagger(v3) JSON import', async () => {
@@ -146,7 +146,7 @@ components:
     } as Config)
 
     expect(oas).toBeDefined()
-    expect(oas.api?.info.title).toBe('Swagger Petstore')
+    expect(oas.api?.info.title).toBe('Swagger PetStore')
   })
 
   test('check if oas and title is defined based on a Swagger(v3) JSON string', async () => {
@@ -158,7 +158,7 @@ components:
     } as Config)
 
     expect(oas).toBeDefined()
-    expect(oas.api?.info.title).toBe('Swagger Petstore')
+    expect(oas.api?.info.title).toBe('Swagger PetStore')
   })
 
   test('check if oas and title is defined based on a Swagger(v3) JSON object', async () => {
@@ -170,7 +170,7 @@ components:
     } as Config)
 
     expect(oas).toBeDefined()
-    expect(oas.api?.info.title).toBe('Swagger Petstore')
+    expect(oas.api?.info.title).toBe('Swagger PetStore')
   })
 
   test('check if oas and title is defined based on a Swagger(v3) YAML', async () => {
@@ -182,6 +182,6 @@ components:
     } as Config)
 
     expect(oas).toBeDefined()
-    expect(oas.api?.info.title).toBe('Swagger Petstore')
+    expect(oas.api?.info.title).toBe('Swagger PetStore')
   })
 })

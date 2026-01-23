@@ -52,7 +52,7 @@ import { updatePetWithFormHandler } from './updatePetWithForm.js'
 import { updateUserHandler } from './updateUser.js'
 
 export const server = new McpServer({
-  name: 'Swagger Petstore - OpenAPI 3.0',
+  name: 'Swagger PetStore - OpenAPI 3.0',
   version: '3.0.3',
 })
 

@@ -275,7 +275,7 @@ export default defineConfig({
 
 ### query
 
-Override some useQuery behaviours. <br/>
+Override some useQuery behaviors. <br/>
 To disable the creation of hooks pass `false`, this will result in only creating `queryOptions`.
 
 |           |         |
@@ -315,7 +315,7 @@ the path will be applied as is, so relative path should be based on the file bei
 
 ### mutation
 
-Override some useMutation behaviours. <br/>
+Override some useMutation behaviors. <br/>
 To disable queries pass `false`.
 
 |           |            |

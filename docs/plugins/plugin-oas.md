@@ -290,7 +290,7 @@ export type Animal =
 <!--@include: ./core/contentType.md-->
 
 ### oasClass <img src="../public/icons/experimental.svg"/>
-Override some behaviour of the Oas class instance, see `@kubb/oas`.
+Override some behavior of the Oas class instance, see `@kubb/oas`.
 
 |           |                                |
 |----------:|:-------------------------------|

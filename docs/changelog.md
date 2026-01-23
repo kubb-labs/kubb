@@ -1875,9 +1875,9 @@ Add Fabric support for improved code generation.
 
 ### 📦 Dependencies
 
-- **[`react`](/helpers/react/)** - Update peerdeps
+- **[`react`](/helpers/react/)** - Update PeerDependencies
 
-  Update peerdeps `@kubb/react`.
+  Update PeerDependencies `@kubb/react`.
 
 ## 4.3.0
 
@@ -2874,7 +2874,7 @@ pluginTs({
 ## 3.3.0
 
 - [`plugin-client`](/plugins/plugin-client): `client` to use `fetch` or `axios` as HTTP client
-- [`plugin-zod`](/plugins/plugin-zod): Use Regular expression literal instead of RegExp-contructor
+- [`plugin-zod`](/plugins/plugin-zod): Use Regular expression literal instead of RegExp-constructor
 - [`plugin-ts`](/plugins/plugin-ts): Switch between the use of type or interface when creating types
 
 ## 3.2.0

@@ -330,24 +330,24 @@ export class Oas extends BaseOas {
 
       // Since no media type was supplied we need to find either the first JSON-like media type that
       // we've got, or the first available of anything else if no JSON-like media types are present.
-      let availablecontentType: string | undefined
+      let availableContentType: string | undefined
       const contentTypes = Object.keys(responseBody.content)
       contentTypes.forEach((mt: string) => {
-        if (!availablecontentType && matchesMimeType.json(mt)) {
-          availablecontentType = mt
+        if (!availableContentType && matchesMimeType.json(mt)) {
+          availableContentType = mt
         }
       })
 
-      if (!availablecontentType) {
+      if (!availableContentType) {
         contentTypes.forEach((mt: string) => {
-          if (!availablecontentType) {
-            availablecontentType = mt
+          if (!availableContentType) {
+            availableContentType = mt
           }
         })
       }
 
-      if (availablecontentType) {
-        return [availablecontentType, responseBody.content[availablecontentType]!, ...(responseBody.description ? [responseBody.description] : [])]
+      if (availableContentType) {
+        return [availableContentType, responseBody.content[availableContentType]!, ...(responseBody.description ? [responseBody.description] : [])]
       }
 
       return false
@@ -479,7 +479,7 @@ export class Oas extends BaseOas {
     )
   }
 
-  async valdiate() {
+  async validate() {
     const OASNormalize = await import('oas-normalize').then((m) => m.default)
     const oasNormalize = new OASNormalize(this.api, {
       enablePaths: true,

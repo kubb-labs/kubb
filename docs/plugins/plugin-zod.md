@@ -130,7 +130,7 @@ Return the name of a group based on the group name, this will be used for the fi
 Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
 
 > [!IMPORTANT]
-> We rely on [`tozod`](https://github.com/colinhacks/tozod) from the creator of Zod to create a schema based on a type.
+> We rely on [`ToZod`](https://github.com/colinhacks/tozod) from the creator of Zod to create a schema based on a type.
 > Kubb contains its own version to those kind of conversions.
 
 |           |           |
@@ -152,7 +152,7 @@ Return Zod generated schema as type with z.infer.
 ### dateType
 
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.<br/>
-See [datetimes](https://zod.dev/?id=datetimes).
+See [DateTimes](https://zod.dev/?id=datetimes).
 
 |           |                                                                  |
 | --------: | :--------------------------------------------------------------- |

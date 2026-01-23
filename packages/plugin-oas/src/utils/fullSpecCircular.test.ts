@@ -121,12 +121,12 @@ describe('Full Spec Circular Discriminator References', () => {
             allOf: [
               { $ref: '#/components/schemas/PaymentAccountDetailsResponse' },
               {
-                required: ['address', 'iban', 'payment_instrument_id', 'swift_code', 'type'],
+                required: ['address', 'IBAN', 'payment_instrument_id', 'swift_code', 'type'],
                 properties: {
                   type: { $ref: '#/components/schemas/PaymentDetailsTypeResponse' },
                   payment_instrument_id: { type: 'string' },
                   swift_code: { type: 'string' },
-                  iban: { type: 'string' },
+                  IBAN: { type: 'string' },
                   beneficiary_bank_name: { type: 'string', nullable: true },
                   address: { $ref: '#/components/schemas/Address' },
                 },
