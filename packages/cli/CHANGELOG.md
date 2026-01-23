@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 4.18.4
+
+### Patch Changes
+
+- [`38dc28c`](https://github.com/kubb-labs/kubb/commit/38dc28cf7ca403d8ad1342bfecdd4d519cca7c7d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add CLI Kubb logo
+
+- Updated dependencies []:
+  - @kubb/core@4.18.4
+
 ## 4.18.3
 
 ### Patch Changes
