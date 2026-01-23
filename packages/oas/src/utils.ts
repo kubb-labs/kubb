@@ -33,13 +33,28 @@ export function isParameterObject(obj: ParameterObject | SchemaObject): obj is P
 }
 
 /**
- * Determines if a schema is nullable, considering both the standard `nullable` property and the legacy `x-nullable` extension.
+ * Determines if a schema is nullable, considering:
+ * - OpenAPI 3.0 `nullable` / `x-nullable`
+ * - OpenAPI 3.1 JSON Schema `type: ['null', ...]` or `type: 'null'`
  *
  * @param schema - The schema object to check.
  * @returns `true` if the schema is marked as nullable; otherwise, `false`.
  */
 export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): boolean {
-  return schema?.nullable ?? schema?.['x-nullable'] ?? false
+  const explicitNullable = schema?.nullable ?? schema?.['x-nullable']
+  if (explicitNullable === true) {
+    return true
+  }
+
+  const schemaType = schema?.type
+  if (schemaType === 'null') {
+    return true
+  }
+  if (Array.isArray(schemaType)) {
+    return schemaType.includes('null')
+  }
+
+  return false
 }
 
 /**

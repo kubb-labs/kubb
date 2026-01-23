@@ -333,7 +333,7 @@ export class SchemaGenerator<
         const propertySchema = properties[propertyName] as SchemaObject
 
         const isRequired = Array.isArray(required) ? required?.includes(propertyName) : !!required
-        const nullable = propertySchema.nullable ?? propertySchema['x-nullable'] ?? false
+        const nullable = isNullable(propertySchema)
 
         validationFunctions.push(...this.parse({ schema: propertySchema, name: propertyName, parentName: name }))
 
@@ -698,11 +698,6 @@ export class SchemaGenerator<
     if (schemaObject.type && Array.isArray(schemaObject.type)) {
       // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
       const items = schemaObject.type.filter((value) => value !== 'null') as Array<OpenAPIV3.NonArraySchemaObjectType>
-      const hasNull = (schemaObject.type as string[]).includes('null')
-
-      if (hasNull && !nullable) {
-        baseItems.push({ keyword: schemaKeywords.nullable })
-      }
 
       if (items.length > 1) {
         const parsedItems = [
