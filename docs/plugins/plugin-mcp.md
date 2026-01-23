@@ -20,7 +20,7 @@ graph TD
 ```
 
 > [!TIP]
-> We provided a page in how you could set up Claude, see [Setup Claude with Kubb](/knowledge-base/claude).
+> We provided a page in how you could set up Claude, see [Setup Claude with Kubb](/guide/claude).
 
 ## Installation
 

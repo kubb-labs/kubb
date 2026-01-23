@@ -10,7 +10,7 @@ outline: deep
 In Kubb, there are multiple ways to specify a baseURL. This can be done with a custom client, using the serverIndex of your Swagger/OpenAPI spec file or using the `baseURL` config.
 
 ## Use of custom client
-When [defining your own client](/knowledge-base/fetch), you can also set a baseURL that will be used in every HTTP call.
+When [defining your own client](/guide/fetch), you can also set a baseURL that will be used in every HTTP call.
 
 ::: code-group
 ```typescript [client.ts]

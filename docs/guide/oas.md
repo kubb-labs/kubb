@@ -151,7 +151,7 @@ pluginOas({
 
 For advanced filtering and sorting of your OpenAPI specification, you can use [openapi-format](https://www.npmjs.com/package/openapi-format) before passing it to Kubb.
 
-See [Filter and Sort](/knowledge-base/filter-and-sort/) for more details on filtering operations.
+See [Filter and Sort](/guide/filter-and-sort/) for more details on filtering operations.
 
 ### Working with Large OpenAPI Specifications
 
@@ -221,7 +221,7 @@ paths:
       operationId: getPetById
 ```
 
-See [Best Practices](/knowledge-base/best-practices/) for how to leverage tags in your Kubb configuration.
+See [Best Practices](/guide/best-practices/) for how to leverage tags in your Kubb configuration.
 
 ### Creating OpenAPI Specifications
 

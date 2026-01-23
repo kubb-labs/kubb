@@ -44,9 +44,14 @@
           "collapsed": false,
           "items": [
             {
-              "text": "At Glance",
-              "link": "/getting-started/at-glance",
-              "activeMatch": "^/getting-started/at-glance/?$"
+              "text": "Introduction",
+              "link": "/getting-started/introduction",
+              "activeMatch": "^/getting-started/introduction/?$"
+            },
+            {
+              "text": "Installation",
+              "link": "/getting-started/installation",
+              "activeMatch": "^/getting-started/installation/?$"
             },
             {
               "text": "Quick Start",
@@ -317,15 +322,15 @@
       ]
     },
     {
-      "name": "knowledgeBase",
+      "name": "guide",
       "value": [
         {
           "text": "Getting Started",
           "items": [
             {
               "text": "Best Practices",
-              "link": "/knowledge-base/best-practices",
-              "activeMatch": "^/knowledge-base/best-practices/?$"
+              "link": "/guide/best-practices",
+              "activeMatch": "^/guide/best-practices/?$"
             }
           ]
         },
@@ -334,28 +339,28 @@
           "items": [
             {
               "text": "Custom HTTP client",
-              "link": "/knowledge-base/fetch",
-              "activeMatch": "^/knowledge-base/fetch/?$"
+              "link": "/guide/fetch",
+              "activeMatch": "^/guide/fetch/?$"
             },
             {
               "text": "Oas",
-              "link": "/knowledge-base/oas",
-              "activeMatch": "^/knowledge-base/oas/?$"
+              "link": "/guide/oas",
+              "activeMatch": "^/guide/oas/?$"
             },
             {
               "text": "Use of your own baseUrl",
-              "link": "/knowledge-base/base-url",
-              "activeMatch": "^/knowledge-base/base-url/?$"
+              "link": "/guide/base-url",
+              "activeMatch": "^/guide/base-url/?$"
             },
             {
               "text": "Filter and sort",
-              "link": "/knowledge-base/filter-and-sort",
-              "activeMatch": "^/knowledge-base/filter-and-sort/?$"
+              "link": "/guide/filter-and-sort",
+              "activeMatch": "^/guide/filter-and-sort/?$"
             },
             {
               "text": "Multipart FormData",
-              "link": "/knowledge-base/multipart-form-data",
-              "activeMatch": "^/knowledge-base/multipart-form-data/?$"
+              "link": "/guide/multipart-form-data",
+              "activeMatch": "^/guide/multipart-form-data/?$"
             }
           ]
         },
@@ -364,18 +369,18 @@
           "items": [
             {
               "text": "Debugging Kubb",
-              "link": "/knowledge-base/debugging",
-              "activeMatch": "^/knowledge-base/debugging/?$"
+              "link": "/guide/debugging",
+              "activeMatch": "^/guide/debugging/?$"
             },
             {
               "text": "Generators",
-              "link": "/knowledge-base/generators",
-              "activeMatch": "^/knowledge-base/generators/?$"
+              "link": "/guide/generators",
+              "activeMatch": "^/guide/generators/?$"
             },
             {
               "text": "Kubb Plugins",
-              "link": "/knowledge-base/plugins",
-              "activeMatch": "^/knowledge-base/plugins/?$"
+              "link": "/guide/plugins",
+              "activeMatch": "^/guide/plugins/?$"
             }
           ]
         },
@@ -384,8 +389,8 @@
           "items": [
             {
               "text": "Setup Claude with Kubb",
-              "link": "/knowledge-base/claude",
-              "activeMatch": "^/knowledge-base/claude/?$"
+              "link": "/guide/claude",
+              "activeMatch": "^/guide/claude/?$"
             }
           ]
         }
@@ -403,6 +408,6 @@
     "/tutorials": "default",
     "/playground": "default",
     "/ecosystem": "default",
-    "/knowledge-base": "knowledgeBase"
+    "/guide": "guide"
   }
 }

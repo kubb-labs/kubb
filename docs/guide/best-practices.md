@@ -10,7 +10,7 @@ outline: deep
 This guide covers recommended practices for using Kubb effectively in your projects, from small APIs to large-scale applications.
 
 ::: tip
-For best practices on structuring your OpenAPI specification itself, see [OpenAPI/Swagger Best Practices](/knowledge-base/oas/#best-practices).
+For best practices on structuring your OpenAPI specification itself, see [OpenAPI/Swagger Best Practices](/guide/oas/#best-practices).
 :::
 
 ## How to Scale
@@ -391,7 +391,7 @@ While Kubb is powerful, it's not always the right choice:
 
 Kubb requires a valid OpenAPI/Swagger file. If you're working with a REST API that doesn't have one, you'll need to create one first.
 
-See [Creating OpenAPI Specifications](/knowledge-base/oas/#creating-openapi-specifications) for tools and approaches to generate specs from existing APIs or code.
+See [Creating OpenAPI Specifications](/guide/oas/#creating-openapi-specifications) for tools and approaches to generate specs from existing APIs or code.
 
 > [!NOTE]
 > **Alternative**: Consider [tRPC](https://trpc.io/) for end-to-end type safety without OpenAPI.
@@ -642,6 +642,6 @@ export function setupAuth(token: string) {
 
 - [Troubleshooting](/getting-started/troubleshooting/) - Common issues and solutions
 - [Configure](/getting-started/configure/) - Configuration options
-- [Filter and Sort](/knowledge-base/filter-and-sort/) - Advanced filtering
-- [Debugging](/knowledge-base/debugging/) - Debug Kubb generation
-- [Custom Generators](/knowledge-base/generators/) - Create custom output
+- [Filter and Sort](/guide/filter-and-sort/) - Advanced filtering
+- [Debugging](/guide/debugging/) - Debug Kubb generation
+- [Custom Generators](/guide/generators/) - Create custom output

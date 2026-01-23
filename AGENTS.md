@@ -13,7 +13,7 @@ docs/
 ├── changelog.md             # Updated with every PR (via changeset)
 ├── getting-started/         # Installation, quick-start, configuration
 ├── helpers/                 # Extra packages (CLI guides, OAS core helpers)
-├── knowledge-base/          # Feature deep-dives and how-tos
+├── guide/                   # Feature deep-dives and how-tos
 ├── plugins/                 # Plugin documentation (mirrors `packages/`)
 ├── tutorials/               # Step-by-step tutorials
 ├── examples/                # Playground and examples

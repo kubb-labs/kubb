@@ -152,7 +152,7 @@ Alias for `kubb generate --log-level debug`
 kubb --debug
 ```
 
-See the [Debugging Guide](/knowledge-base/debugging) for more details on using debug mode.
+See the [Debugging Guide](/guide/debugging) for more details on using debug mode.
 
 #### --watch (-w)
 

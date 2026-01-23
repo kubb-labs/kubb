@@ -46,7 +46,7 @@ export default defineConfig({
 ```
 
 > [!TIP]
-> Learn more about defining a custom client [here](/knowledge-base/base-url#use-of-custom-client).
+> Learn more about defining a custom client [here](/guide/base-url#use-of-custom-client).
 
 |           |                                         |
 |----------:|:----------------------------------------|

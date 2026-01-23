@@ -23,8 +23,8 @@
     "schemas/**",
     "docs/examples/**",
     "docs/playground.md",
-    "docs/knowledge-base/fetch.md",
-    "docs/knowledge-base/base-url.md",
+    "docs/guide/fetch.md",
+    "docs/guide/base-url.md",
     "docs/ecosystem.md",
     "docs/about.md"
   ],
