@@ -682,7 +682,7 @@ exports[`SchemaGenerator core > combineObjects 1`] = `
           "$ref": "#/components/schemas/EventBase",
           "isImportable": true,
           "name": "EventBase",
-          "path": "/Users/stijnvanhullem/Git/external/kubb/examples/typescript/src/gen/models.ts",
+          "path": "./typescript/src/gen/models.ts",
         },
         "keyword": "ref",
       },
