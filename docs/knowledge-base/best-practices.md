@@ -394,7 +394,7 @@ Kubb requires a valid OpenAPI/Swagger file. If you're working with a REST API th
 See [Creating OpenAPI Specifications](/knowledge-base/oas/#creating-openapi-specifications) for tools and approaches to generate specs from existing APIs or code.
 
 > [!NOTE]
-> **Alternative**: Consider [tRPC](https://trpc.io/) for end-to-end typesafety without OpenAPI.
+> **Alternative**: Consider [tRPC](https://trpc.io/) for end-to-end type safety without OpenAPI.
 
 **2. Your API Changes Constantly**
 

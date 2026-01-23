@@ -68,7 +68,7 @@ export type Options = {
    */
   discriminator?: 'strict' | 'inherit'
   /**
-   * Override some behaviour of the Oas class instance, see '@kubb/oas'
+   * Override some behavior of the Oas class instance, see '@kubb/oas'
    */
   oasClass?: typeof Oas
   /**

@@ -15,7 +15,7 @@ From the repository root:
 
 ```bash
 # Run all benchmarks
-pnpm perf:bench
+pnpm test:bench
 
 # Run specific benchmark file
 pnpm vitest bench --config ./configs/vitest.bench.config.ts tests/performance/main.bench.ts
@@ -89,7 +89,7 @@ describe('My Benchmark Suite', () => {
 })
 ```
 
-3. Run with `pnpm perf:bench`
+3. Run with `pnpm test:bench`
 
 ## Notes
 

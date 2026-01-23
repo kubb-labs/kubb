@@ -20,7 +20,7 @@ describe('getPackageJSON', () => {
 
     expect(version?.startsWith('catalog')).toBeTruthy()
 
-    const versionRegex = await packageManager.getVersion('typesc')
+    const versionRegex = await packageManager.getVersion('type')
 
     expect(versionRegex?.startsWith('catalog:')).toBeTruthy()
   })
@@ -32,8 +32,8 @@ describe('getPackageJSON', () => {
   })
 
   test('normalizeDirectory', () => {
-    expect(packageManager.normalizeDirectory('/user/nzakas/foo')).toBe('/user/nzakas/foo/')
-    expect(packageManager.normalizeDirectory('/user/nzakas/foo/')).toBe('/user/nzakas/foo/')
+    expect(packageManager.normalizeDirectory('/user/test/foo')).toBe('/user/test/foo/')
+    expect(packageManager.normalizeDirectory('/user/test/foo/')).toBe('/user/test/foo/')
   })
   test('it should find mocks/noop.js file with default cwd and ESM', async () => {
     packageManager.workspace = __dirname

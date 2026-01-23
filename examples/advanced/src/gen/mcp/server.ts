@@ -40,7 +40,7 @@ import { logoutUserHandler } from './userRequests/logoutUser.ts'
 import { updateUserHandler } from './userRequests/updateUser.ts'
 
 export const server = new McpServer({
-  name: 'Swagger Petstore - OpenAPI 3.0',
+  name: 'Swagger PetStore - OpenAPI 3.0',
   version: '3.0.3',
 })
 

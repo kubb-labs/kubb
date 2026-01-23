@@ -60,7 +60,7 @@ body:
         - Only once
   - type: textarea
     attributes:
-      label: What is the expected behaviour?
+      label: What is the expected behavior?
       description: If possible, please provide text instead of a screenshot.
   - type: textarea
     attributes:
