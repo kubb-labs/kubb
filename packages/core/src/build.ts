@@ -53,7 +53,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       `  • Plugins: ${userConfig.plugins?.length || 0}`,
       'Output Settings:',
       `  • Write: ${userConfig.output?.write !== false ? 'enabled' : 'disabled'}`,
-      `  • Formater: ${userConfig.output?.format || 'none'}`,
+      `  • Formatter: ${userConfig.output?.format || 'none'}`,
       `  • Linter: ${userConfig.output?.lint || 'none'}`,
       'Environment:',
       Object.entries(diagnosticInfo)

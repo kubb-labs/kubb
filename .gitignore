@@ -57,4 +57,3 @@ hello
 #docs/api/**
 packages/ui/static/**
 .nx
-ceviz-report.html

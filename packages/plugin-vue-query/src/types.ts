@@ -136,12 +136,12 @@ export type Options = {
   infinite?: Partial<Infinite> | false
   queryKey?: QueryKey
   /**
-   * Override some useQuery behaviours.
+   * Override some useQuery behaviors.
    */
   query?: Partial<Query> | false
   mutationKey?: MutationKey
   /**
-   * Override some useMutation behaviours.
+   * Override some useMutation behaviors.
    */
   mutation?: Mutation | false
   /**

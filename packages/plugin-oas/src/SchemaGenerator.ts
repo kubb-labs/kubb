@@ -50,7 +50,7 @@ export type SchemaGeneratorOptions = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
     /**
-     * Receive schema and name(propertName) and return FakerMeta array
+     * Receive schema and name(propertyName) and return FakerMeta array
      * TODO TODO add docs
      * @beta
      */
@@ -1036,7 +1036,7 @@ export class SchemaGenerator<
     }
 
     if (version === '3.1' && 'const' in schemaObject) {
-      // const keyword takes precendence over the actual type.
+      // const keyword takes precedence over the actual type.
 
       if (schemaObject['const'] === null) {
         return [{ keyword: schemaKeywords.null }]
@@ -1193,7 +1193,7 @@ export class SchemaGenerator<
     if (schemaObject.properties || schemaObject.additionalProperties || 'patternProperties' in schemaObject) {
       if (isDiscriminator(schemaObject)) {
         // override schema to set type to be based on discriminator mapping, use of enum to convert type string to type 'mapping1' | 'mapping2'
-        const schemaObjectOverriden = Object.keys(schemaObject.properties || {}).reduce((acc, propertyName) => {
+        const schemaObjectOverridden = Object.keys(schemaObject.properties || {}).reduce((acc, propertyName) => {
           if (acc.properties?.[propertyName] && propertyName === schemaObject.discriminator.propertyName) {
             return {
               ...acc,
@@ -1210,7 +1210,7 @@ export class SchemaGenerator<
           return acc
         }, schemaObject || {}) as SchemaObject
 
-        return [...this.#parseProperties(name, schemaObjectOverriden), ...baseItems]
+        return [...this.#parseProperties(name, schemaObjectOverridden), ...baseItems]
       }
 
       return [...this.#parseProperties(name, schemaObject), ...baseItems]

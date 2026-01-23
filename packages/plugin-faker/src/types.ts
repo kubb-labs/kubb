@@ -77,7 +77,7 @@ export type Options = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
     /**
-     * Receive schema and baseName(propertName) and return FakerMeta array
+     * Receive schema and baseName(propertyName) and return FakerMeta array
      * TODO TODO add docs
      * @beta
      */

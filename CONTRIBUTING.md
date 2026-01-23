@@ -35,9 +35,19 @@ This project includes several code quality tools to help maintain code standards
 - **Linting**: Run `pnpm run lint` to check code style (uses Biome)
 - **Formatting**: Run `pnpm run format` to auto-format code
 - **Type checking**: Run `pnpm run typecheck` to verify TypeScript types
+- **Spell checking**: Run `pnpm run lint:spell` to check spelling in `.ts` and `.md` files (uses CSpell)
 - **Testing**: Run `pnpm run test` to run the test suite
-- **Performance benchmarks**: Run `pnpm run perf:bench` to run performance benchmarks
-- **Unused code detection**: Run `pnpm run knip` to detect unused exports, dependencies, and files
+- **Performance benchmarks**: Run `pnpm run test:bench` to run performance benchmarks
+
+#### Spell Checking
+
+This project uses [CSpell](https://cspell.org/) to catch spelling errors in code and documentation. The configuration is in `cspell.json` and uses American English.
+
+If you encounter a spelling error:
+- For typos: Fix the spelling in your code
+- For technical terms, library names, or contributor names: Add them to the `words` array in `cspell.json`
+
+Common technical terms, framework names, and contributor names are already in the dictionary.
 
 #### Performance Testing
 
@@ -45,7 +55,7 @@ Performance benchmarks are located in `tests/performance/` and test the code gen
 
 To run benchmarks:
 ```bash
-pnpm run perf:bench
+pnpm run test:bench
 ```
 
 When making changes that might affect generation performance (e.g., changes to core build process, plugin generators, or file processing), consider running the benchmarks before and after your changes to verify there are no significant regressions.

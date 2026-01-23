@@ -1,9 +1,9 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.",
+    "description": "This is a sample server PetStore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.",
     "version": "1.0.6",
-    "title": "Swagger Petstore",
+    "title": "Swagger PetStore",
     "termsOfService": "http://swagger.io/terms/",
     "contact": {
       "email": "apiteam@swagger.io"
@@ -26,7 +26,7 @@
     },
     {
       "name": "store",
-      "description": "Access to Petstore orders"
+      "description": "Access to PetStore orders"
     },
     {
       "name": "user",

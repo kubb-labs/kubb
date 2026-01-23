@@ -2,7 +2,7 @@ import path from 'node:path'
 import type { Config, Plugin } from '@kubb/core'
 import { formatHrtime } from '@kubb/core/utils'
 import pc from 'picocolors'
-import { randomCliColour } from './randomColour.ts'
+import { randomCliColor } from './randomColor.ts'
 
 type SummaryProps = {
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
@@ -24,7 +24,7 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
       status === 'success'
         ? `${pc.green(`${successCount} successful`)}, ${pluginsCount} total`
         : `${pc.green(`${successCount} successful`)}, ${pc.red(`${failedPlugins.size} failed`)}, ${pluginsCount} total`,
-    pluginsFailed: status === 'failed' ? [...failedPlugins]?.map(({ plugin }) => randomCliColour(plugin.name))?.join(', ') : undefined,
+    pluginsFailed: status === 'failed' ? [...failedPlugins]?.map(({ plugin }) => randomCliColor(plugin.name))?.join(', ') : undefined,
     filesCreated: filesCreated,
     time: pc.green(duration),
     output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
