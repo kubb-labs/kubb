@@ -7,14 +7,14 @@ outline: deep
 
 # PluginManager <Badge type="info" text="@kubb/core" />
 
-The `PluginManager` instance contains the building blocks for executing plugins(in a specific order). This contains a queue system, the `FileManager`, `resolvePath` that will be used to retrieve a path needed for plugin x and also `resolveName` to retrieve a name that can be used for a function/file/type.
+The `PluginManager` instance contains the building blocks for executing plugins in a specific order. The instance includes a queue system, the `FileManager`, `resolvePath` to retrieve a path needed for plugin x, and `resolveName` to retrieve a name that can be used for a function, file, or type.
 
 > [!TIP]
 > Here we also create the core plugin with the link(see `this.`) to the `PluginManager`.
 
 ### pluginManager.plugins
 
-An array of plugins with the [lifecycle](/reference/pluginManager/lifecycle) hooks included. This also adds the core plugin. Behind the scene, we also convert the API prop from a function to an object.
+An array of plugins with the lifecycle hooks included. This also adds the core plugin. Behind the scenes, the API prop is converted from a function to an object.
 
 - **Type:** `KubbPluginWithLifeCycle` <br/>
 
@@ -26,7 +26,7 @@ Instance of the [FileManager](/reference/filemManager).
 
 ### pluginManager.events
 
-The `PluginManager` triggers some events when a plugin will be executed(`execute`), when a plugin has been executed (`executed`) and when something goes wrong (`error`).
+The `PluginManager` triggers events when a plugin executes (`execute`), when a plugin has completed (`executed`), and when an error occurs (`error`).
 
 ```typescript [Events]
 type Events = {
@@ -59,23 +59,23 @@ Array of all executed plugins.
 
 ### pluginManager.resolvePath
 
-Every plugin can set `resolvePath` and when you then call `pluginManager.resolvePath` it will try to find the first resolvePath(based on the plugins array) and use that return value as the path. <br/>
+Every plugin can set `resolvePath`. When you call `pluginManager.resolvePath`, it finds the first resolvePath based on the plugins array and uses that return value as the path.
 
-It is also possible to set `pluginKey` as an option. If that's the case it will try to find the plugin with that `pluginKey` and use the return value of that specific plugin as the path.
+You can set `pluginKey` as an option. If provided, it finds the plugin with that `pluginKey` and uses the return value of that specific plugin as the path.
 
 - **Type:** `(params: ResolvePathParams): KubbFile.OptionalPath` <br/>
 
 ### pluginManager.resolveName
 
-Every plugin can set `resolveName` and when you then call `pluginManager.resolveName` it will try to find the first resolveName(based on the plugins array) and use that return value as the name(function, file or type). <br/>
+Every plugin can set `resolveName`. When you call `pluginManager.resolveName`, it finds the first resolveName based on the plugins array and uses that return value as the name for a function, file, or type.
 
-It is also possible to set `pluginKey` as an option. If that's the case it will try to find the plugin with that `pluginKey` and use the return value of that specific plugin as the name.
+You can set `pluginKey` as an option. If provided, it finds the plugin with that `pluginKey` and uses the return value of that specific plugin as the name.
 
 - **Type:** `(params: ResolveNameParams): string` <br/>
 
 ### pluginManager.on
 
-Instead of calling `pluginManager.events.on` you can use `pluginManager.on`. This one also has better types.
+Instead of calling `pluginManager.events.on`, you can use `pluginManager.on`. This method also has better types.
 
 - **Type:** `(eventName: keyof Events, handler: (...eventArg: any) => void` <br/>
 
@@ -97,12 +97,12 @@ First non-null result stops and will return its value.
 
 ### pluginManager.hookParallel
 
-Run all plugins in parallel(order will be based on `this.plugin` and if `pre` or `post` is set).
+Run all plugins in parallel. Order is based on `this.plugin` and whether `pre` or `post` is set.
 
 ### pluginManager.hookReduceArg0
 
-Chain all plugins, `reduce` can be passed through to handle every returned value. The return value of the first plugin will be used as the first parameter for the plugin after that.
+Chain all plugins using `reduce` to handle every returned value. The return value of the first plugin is used as the first parameter for the plugin after that.
 
-### pluginManager.hookParallel
+### pluginManager.hookSequential
 
-Run all plugins in sequential(order will be based on `this.plugin` and if `pre` or `post` is set).
+Run all plugins sequentially. Order is based on `this.plugin` and whether `pre` or `post` is set.

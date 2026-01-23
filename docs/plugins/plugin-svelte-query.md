@@ -7,7 +7,7 @@ outline: deep
 
 # @kubb/plugin-svelte-query
 
-Create primitives based on an operation.
+Generate SvelteQuery hooks from your OpenAPI schema.
 
 ## Installation
 
@@ -38,7 +38,7 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that will contain the generated code.
+Path to the output folder or file that contains the generated code.
 
 > [!TIP]
 > if `output.path` is a file, `group` cannot be used.
@@ -51,7 +51,7 @@ Path to the output folder or file that will contain the generated code.
 
 #### output.barrelType
 
-Define what needs to be exported, here you can also disable the export of barrel files.
+Specify what to export and optionally disable barrel file generation.
 
 > [!TIP]
 > Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
@@ -65,7 +65,7 @@ Define what needs to be exported, here you can also disable the export of barrel
 <!--@include: ./core/barrelTypes.md-->
 
 #### output.banner
-Add a banner text in the beginning of every file.
+Add a banner comment at the top of every generated file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
@@ -73,7 +73,7 @@ Add a banner text in the beginning of every file.
 | Required: | `false`                               |
 
 #### output.footer
-Add a footer text at the end of every file.
+Add a footer comment at the end of every generated file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
@@ -90,7 +90,7 @@ Add a footer text at the end of every file.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Define a type where to group the files on.
+Specify the property to group files by.
 
 |           |         |
 |----------:|:--------|

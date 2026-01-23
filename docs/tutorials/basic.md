@@ -7,9 +7,9 @@ outline: deep
 
 # Basic tutorial
 
-This tutorial will describe how you can set up Kubb and use the [`@kubb/plugin-ts`](/plugins/plugin-ts/) plugin to generate types based on the `petStore.yaml` file.
+This tutorial describes how to set up Kubb and use the [`@kubb/plugin-ts`](/plugins/plugin-ts/) plugin to generate types based on the `petStore.yaml` file.
 
-The setup will contain from the beginning the following folder structure:
+The setup contains the following folder structure:
 
 ```
 .
@@ -23,11 +23,11 @@ The setup will contain from the beginning the following folder structure:
 
 Set up your `kubb.config.ts` file based on the [Quick start](/guide/quick-start).
 
-We will add the plugins [`@kubb/plugin-oas`](/plugins/plugin-oas/) and [`@kubb/plugin-ts`](/plugins/plugin-ts/)(which is dependent on the [`@kubb/plugin-oas`](/plugins/plugin-oas/) plugin). Together these two plugins will generate the TypeScript types.
+Add the plugins [`@kubb/plugin-oas`](/plugins/plugin-oas/) and [`@kubb/plugin-ts`](/plugins/plugin-ts/) (which depends on [`@kubb/plugin-oas`](/plugins/plugin-oas/)). These two plugins generate the TypeScript types.
 
-Next to that, we will also set `generators` to empty array for the [`@kubb/plugin-oas`](/plugins/plugin-oas) plugin because we do not need the plugin to generate the JSON schemas for us.
+Set `generators` to an empty array for the [`@kubb/plugin-oas`](/plugins/plugin-oas) plugin since you don't need the plugin to generate JSON schemas.
 
-- For the [`@kubb/plugin-ts`](/plugins/plugin-ts/) plugin, we will set the `output` to the `models` folder.
+- For the [`@kubb/plugin-ts`](/plugins/plugin-ts/) plugin, set `output` to the `models` folder.
 
 ::: code-group
 
@@ -66,7 +66,7 @@ export default defineConfig(() => {
 
 :::
 
-This will result in the following folder structure when Kubb has been executed
+This creates the following folder structure after Kubb executes:
 
 ```
 .
@@ -81,9 +81,9 @@ This will result in the following folder structure when Kubb has been executed
 
 ## Step two
 
-Update your `package.json` and install `Kubb`, see the [installation](/getting-started/configure/).
+Update your `package.json` and install Kubb. See [installation instructions](/getting-started/configure/).
 
-Your `package.json` will look like this:
+Your `package.json` looks like this:
 
 ::: code-group
 
@@ -130,6 +130,6 @@ yarn run generate
 
 ## Step four
 
-Drink a 🍺 and watch Kubb generate your files.
+Kubb generates your files. Below is an example of the generation process:
 
 <img src="../public/kubb-generate.gif" style="{ display: 'inline' }" alt="Kubb generation" />

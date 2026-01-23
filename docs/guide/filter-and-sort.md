@@ -5,12 +5,12 @@ title: Filter and sort
 outline: deep
 ---
 
-# How to filter or sort an OpenAPI file.
+# Filter and sort OpenAPI files
 
 > [!TIP]
-> In previous versions of Kubb we used `openapi-format` internally but with v3 this has been removed.
+> Previous Kubb versions used `openapi-format` internally, but v3 removed this.
 
-We recommend using [openapi-format](https://github.com/thim81/openapi-format) to filter out some operations or paths. Ordering fields, format the casing(PascalCase, camelcase) of component elements and so much more.
+Use [openapi-format](https://github.com/thim81/openapi-format) to filter operations and paths. The tool orders fields, formats casing (PascalCase, camelcase) of component elements, and more.
 
 
 ## See Also

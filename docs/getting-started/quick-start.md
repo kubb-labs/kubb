@@ -41,7 +41,7 @@ yarn add -D @kubb/cli @kubb/core
 ```
 :::
 
-These provide the CLI and core functionality. Add plugins as needed (see [plugin documentation](/plugins/)).
+These provide the CLI and core functionality. Add plugins as needed.
 
 ## Basic Setup
 
@@ -185,5 +185,4 @@ export default defineConfig([
 ## Next Steps
 
 - [Configure Kubb](/getting-started/configure/) - Full configuration reference
-- [Plugin Documentation](/plugins/) - Explore available plugins
 - [Examples](https://github.com/kubb-labs/kubb/tree/main/examples) - Complete working examples

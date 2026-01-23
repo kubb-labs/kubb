@@ -10,14 +10,14 @@ outline: deep
 In Kubb, generators are functions that allow developers to hook into the framework’s file generation process to create, modify, or extend code automatically.
 Generators are central to Kubb’s workflow, enabling the automated generation of code such as API clients, React-Query hooks, TypeScript types, or other files based on specific input(Swagger and OpenAPI specifications).
 
-Let's say you want to add some extra code after a generated client with [`@kubb/plugin-client`](/plugins/plugin-client#generators), to make that happen you can either:
-- Use the option [`footer`](/plugins/plugin-client/#output-footer)
+To add extra code after a generated client with [`@kubb/plugin-client`](/plugins/plugin-client#generators), you can either:
+- Use the [`footer`](/plugins/plugin-client/#output-footer) option
 - Override the default generator of `@kubb/plugin-client`
 
 > [!TIP]
 > Every plugin has the `generators` option but for the most basic generation you can use [`plugin-oas`](/plugins/plugin-oas#generators).
 
-Generators can be used with our [React](/helpers/react/) renderer or define your own renderer and return an array of KubbFiles.
+Generators can be used with the [React](/helpers/react/) renderer or you can define your own renderer and return an array of KubbFiles.
 
 
 ## createGenerator
@@ -74,8 +74,8 @@ The following properties will be accessible when `operations` is being called:
 
 
 ### operation
-This **function** will be called with one operation based on your Swagger/OpenAPI file.
-`operation` is almost the same as [operations](#operations) with one minor difference is that `operation` will be called x amount(based on the operations array).
+
+This function is called with one operation from your OpenAPI file. `operation` is almost the same as [operations](#operations), with one difference: `operation` is called x times based on the operations array.
 
 |           |                                                                               |
 |----------:|:------------------------------------------------------------------------------|
@@ -93,7 +93,8 @@ The following properties will be accessible when `operation` is being called:
 
 
 ### schema
-This **function** will be called with one schema and that for x times(based on your Swagger/OpenAPI file).
+
+This function is called with one schema, executed x times based on your OpenAPI file.
 
 |           |          |
 |----------:|:---------|
@@ -143,12 +144,14 @@ export type Generator = {
 ### Operations
 Same as [operations](#operations) with one difference is that the return type is a `KubbNode` instead of `Promise<KubbFile.File>`.
 
-### Operations
-Same as [operation](#operation) with one difference is that the return type is a `KubbNode` instead of `Promise<KubbFile.File>`.
+### Operation
+
+Same as [operation](#operation), with one difference: the return type is a `KubbNode` instead of `Promise<KubbFile.File>`.
 
 
 ### Schema
-Same as [schema](#schema) with one difference is that the return type is a `KubbNode` instead of `Promise<KubbFile.File>`.
+
+Same as [schema](#schema), with one difference: the return type is a `KubbNode` instead of `Promise<KubbFile.File>`.
 
 
 ## Examples

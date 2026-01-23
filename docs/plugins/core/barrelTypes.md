@@ -1,12 +1,17 @@
 ::: code-group
-```typescript [all]
+
+```typescript [all - kubb.config.ts]
 export * from "./gen/petService.ts"
 ```
-```typescript [named]
+
+```typescript [named - kubb.config.ts]
 export { PetService } from "./gen/petService.ts"
 ```
-```typescript [propagate]
+
+```typescript [propagate - kubb.config.ts]
 ```
-```typescript [false]
+
+```typescript [false - kubb.config.ts]
 ```
+
 :::

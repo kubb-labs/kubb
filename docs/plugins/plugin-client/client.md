@@ -1,4 +1,4 @@
-Which client should be used to do the HTTP calls
+Client used for HTTP calls.
 
 |           |                      |
 |----------:|:---------------------|
@@ -7,5 +7,5 @@ Which client should be used to do the HTTP calls
 |  Default: | `'axios'`            |
 
 
-- `'axios'` will use `@kubb/plugin-client/templates/axios` to fetch data.
-- `'fetch'` will use `@kubb/plugin-client/templates/fetch` to fetch data.
+- `'axios'` uses `@kubb/plugin-client/templates/axios` to fetch data.
+- `'fetch'` uses `@kubb/plugin-client/templates/fetch` to fetch data.

@@ -1,4 +1,4 @@
-ReturnType that will be used when calling the client.
+Return type used when calling the client.
 
 |           |                    |
 |----------:|:-------------------|
@@ -7,8 +7,8 @@ ReturnType that will be used when calling the client.
 |  Default: | `'data'`           |
 
 
-- `'data'` will return ResponseConfig[data].
-- `'full'` will return ResponseConfig.
+- `'data'` returns ResponseConfig[data].
+- `'full'` returns ResponseConfig.
 
 ::: code-group
 ```typescript ['data']
