@@ -302,6 +302,6 @@ export default defineConfig({
   ],
 })
 ```
-## Links
+## See Also
 
 - [Faker](https://fakerjs.dev/)

@@ -182,6 +182,6 @@ export default defineConfig({
 :::
 
 
-## Links
+## See Also
 
 - [Vite](https://vitejs.dev/)

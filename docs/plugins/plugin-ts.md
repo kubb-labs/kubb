@@ -418,7 +418,7 @@ export default defineConfig({
 })
 ```
 
-## Links
+## See Also
 
 - [TypeScript](https://www.typescriptlang.org/)
 - [TypeScript Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API)

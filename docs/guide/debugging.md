@@ -133,7 +133,7 @@ export const customLogger = defineLogger({
 
 See the [KubbEvents](/api/core/events) API documentation for a complete list of available events.
 
-## Links
+## See Also
 
 - [React DevTools](https://react.dev/learn/react-developer-tools)
 - [Node debugging](https://www.youtube.com/watch?v=i9hOCvBDMMg)
