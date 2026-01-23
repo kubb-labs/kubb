@@ -1094,7 +1094,7 @@ importers:
         version: 0.12.4
     devDependencies:
       '@orpc/contract':
-        specifier: ^1.4.3
+        specifier: ^1.13.4
         version: 1.13.4
       zod:
         specifier: ^3.25.76
