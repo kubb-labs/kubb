@@ -348,7 +348,7 @@ export default defineConfig({
 })
 ```
 
-## Links
+## See Also
 
 - [Oas](https://github.com/readmeio/oas)
 - [OpenAPI Discriminators](/guide/oas#discriminators)

@@ -540,6 +540,6 @@ export default defineConfig({
 })
 ```
 
-## Links
+## See Also
 
 - [Tanstack Query](https://tanstack.com/query)

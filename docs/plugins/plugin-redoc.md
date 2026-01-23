@@ -68,6 +68,6 @@ export default defineConfig({
 })
 ```
 
-## Links
+## See Also
 
 - [https://redocly.com/](https://redocly.com/)

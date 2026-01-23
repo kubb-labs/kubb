@@ -292,7 +292,7 @@ The [MCP](https://modelcontextprotocol.io) server will attach that to the tool `
 
 ![Claude interaction](/screenshots/claude-interaction.gif)
 
-## Links
+## See Also
 
 - [MCP setup](https://modelcontextprotocol.io)
 - [Claude](https://claude.ai)

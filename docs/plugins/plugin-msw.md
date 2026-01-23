@@ -200,6 +200,6 @@ export default defineConfig({
   ],
 })
 ```
-## Links
+## See Also
 
 - [MSW](https://mswjs.io/)

@@ -13,6 +13,6 @@ outline: deep
 We recommend using [openapi-format](https://github.com/thim81/openapi-format) to filter out some operations or paths. Ordering fields, format the casing(PascalCase, camelcase) of component elements and so much more.
 
 
-## Links
+## See Also
 
 - [openapi-format](https://github.com/thim81/openapi-format)

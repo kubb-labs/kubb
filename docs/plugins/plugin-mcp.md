@@ -204,7 +204,7 @@ export default defineConfig({
   ],
 })
 ```
-## Links
+## See Also
 
 - [MCP](https://modelcontextprotocol.io/)
 - [Claude](https://claude.ai)

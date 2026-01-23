@@ -187,6 +187,6 @@ export default defineConfig({
   ],
 })
 ```
-## Links
+## See Also
 
 - [Cypress](https://docs.cypress.io/)

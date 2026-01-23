@@ -376,11 +376,6 @@
               "text": "Generators",
               "link": "/guide/generators",
               "activeMatch": "^/guide/generators/?$"
-            },
-            {
-              "text": "Kubb Plugins",
-              "link": "/guide/plugins",
-              "activeMatch": "^/guide/plugins/?$"
             }
           ]
         },
