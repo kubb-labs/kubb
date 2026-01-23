@@ -36,11 +36,13 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 | -------------------------------------------------------------------- | ----------------------------------------------- |
 | **[references/writing-style.md](references/writing-style.md)**       | Voice, tone, sentence structure                 |
 | **[references/content-patterns.md](references/content-patterns.md)** | Blog frontmatter, structure, component patterns |
+| **[references/config-json.md](references/config-json.md)**           | Navigation and sidebar configuration schema     |
 
 **Load based on context:**
 
 - Writing prose → [references/writing-style.md](references/writing-style.md)
 - Blog structure and patterns → [references/content-patterns.md](references/content-patterns.md)
+- Adding navigation or sections → [references/config-json.md](references/config-json.md)
 
 ## Quick Reference
 
@@ -100,6 +102,23 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 - **Sizing**: Keep file sizes reasonable
 - **Naming**: Use descriptive names: `plugin-react-query-example.png`
 
+## Configuration (config.json)
+
+The `docs/config.json` file defines navigation and sidebar structure using the Kubb.dev schema.
+
+- **Schema**: `https://kubb.dev/schemas/config/schema.json`
+- **Required**: `sidebars` (array), `sidebar` (route mapping)
+- **Optional**: `nav` (navigation), `$schema` (validation)
+- **Link format**: Use absolute paths with trailing slash: `/getting-started/introduction/`
+- **Route mapping**: `/getting-started` maps to `gettingStarted` sidebar name
+
+When adding new sections:
+1. Define sidebar in `sidebars` array with unique `name`
+2. Add navigation items to `nav` array
+3. Map route prefix to sidebar name in `sidebar` object
+
+See [references/config-json.md](references/config-json.md) for complete schema reference.
+
 ## Checklist
 
 - [ ] Active voice (85%+)
@@ -111,3 +130,4 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 - [ ] Test that all code groups display properly
 - [ ] Validate frontmatter syntax
 - [ ] Edge cases and limitations documented
+- [ ] Update `config.json` when adding new pages/sections
