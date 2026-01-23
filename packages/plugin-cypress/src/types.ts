@@ -28,7 +28,7 @@ export type Options = {
    */
   paramsCasing?: 'camelcase'
   /**
-   * How to pass your params
+   * How to pass your params.
    * - 'object' returns the params and pathParams as an object.
    * - 'inline' returns the params as comma separated params.
    * @default 'inline'
@@ -37,7 +37,7 @@ export type Options = {
   /**
    * How to pass your pathParams.
    * - 'object' returns the pathParams as an object.
-   * - 'inline': returns the pathParams as comma separated params.
+   * - 'inline' returns the pathParams as comma separated params.
    * @default 'inline'
    */
   pathParamsType?: 'object' | 'inline'

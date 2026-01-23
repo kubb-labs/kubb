@@ -32,36 +32,40 @@ export type Options = {
    */
   override?: Array<Override<ResolvedOptions>>
   /**
-   * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
+   * Choose to use date or datetime as JavaScript Date instead of string.
+   * - 'string' represents dates as string values.
+   * - 'date' represents dates as JavaScript Date objects.
    * @default 'string'
    */
   dateType?: 'string' | 'date'
   /**
-   * Which parser should be used when dateType is set to 'string'.
-   * - Schema with format 'date' uses ISO date format (YYYY-MM-DD)
-   *   - `'dayjs'` uses `dayjs(faker.date.anytime()).format("YYYY-MM-DD")`.
-   *   - `undefined` uses `faker.date.anytime().toString()`
-   * - Schema with format 'time' uses ISO time format (HH:mm:ss[.SSSSSS])
-   *   - `'dayjs'` uses `dayjs(faker.date.anytime()).format("HH:mm:ss")`.
-   *   - `undefined` uses `faker.date.anytime().toString()`
-   * * @default 'faker'
+   * Which parser should be used when dateType is set to string.
+   * - 'faker' uses faker's built-in date formatting methods.
+   * - 'dayjs' uses dayjs for date formatting with custom patterns.
+   * - 'moment' uses moment for date formatting with custom patterns.
+   * @default 'faker'
    */
   dateParser?: 'faker' | 'dayjs' | 'moment' | (string & {})
   /**
-   * Which type to use when the Swagger/OpenAPI file is not providing more information
+   * Which type to use when the Swagger/OpenAPI file is not providing more information.
+   * - 'any' allows any value.
+   * - 'unknown' requires type narrowing before use.
+   * - 'void' represents no value.
    * @default 'any'
    */
   unknownType?: 'any' | 'unknown' | 'void'
   /**
-   * Which type to use for empty schema values
+   * Which type to use for empty schema values.
+   * - 'any' allows any value.
+   * - 'unknown' requires type narrowing before use.
+   * - 'void' represents no value.
    * @default `unknownType`
    */
   emptySchemaType?: 'any' | 'unknown' | 'void'
   /**
    * Choose which generator to use when using Regexp.
-   *
-   * `'faker'` uses `faker.helpers.fromRegExp(new RegExp(/test/))`
-   * `'randexp'` uses `new RandExp(/test/).gen()`
+   * - 'faker' uses faker.helpers.fromRegExp for generating values from regex patterns.
+   * - 'randexp' uses RandExp library for generating values from regex patterns.
    * @default 'faker'
    */
   regexGenerator?: 'faker' | 'randexp'

@@ -37,9 +37,10 @@ export type Options = {
    */
   operations?: boolean
   /**
-   * Export urls that are used by operation x
-   * `export` makes them part of your barrel file
-   * false does not make them exportable
+   * Export urls that are used by operation x.
+   * - 'export' makes them part of your barrel file.
+   * - false does not make them exportable.
+   * @default false
    * @example getGetPetByIdUrl
    */
   urlType?: 'export' | false
@@ -66,7 +67,7 @@ export type Options = {
    */
   paramsCasing?: 'camelcase'
   /**
-   * How to pass your params
+   * How to pass your params.
    * - 'object' returns the params and pathParams as an object.
    * - 'inline' returns the params as comma separated params.
    * @default 'inline'
@@ -80,23 +81,24 @@ export type Options = {
    */
   pathParamsType?: 'object' | 'inline'
   /**
-   * Which parser can be used before returning the data
-   * - 'zod' uses `@kubb/plugin-zod` to parse the data.
+   * Which parser can be used before returning the data.
+   * - 'client' returns the data as-is from the client.
+   * - 'zod' uses @kubb/plugin-zod to parse the data.
    * @default 'client'
    */
   parser?: 'client' | 'zod'
   /**
-   * Which client should be used to do the HTTP calls
-   * - 'axios' uses `@kubb/plugin-client/templates/axios` to fetch data.
-   * - 'fetch' uses `@kubb/plugin-client/templates/fetch` to fetch data.
+   * Which client should be used to do the HTTP calls.
+   * - 'axios' uses axios client for HTTP requests.
+   * - 'fetch' uses native fetch API for HTTP requests.
    * @default 'axios'
    */
   client?: 'axios' | 'fetch'
   /**
-   * How to generate the client code
-   * - 'function' will generate standalone functions for each operation.
-   * - 'class' will generate a class with methods for each operation.
-   * - 'staticClass' will generate a class with static methods for each operation.
+   * How to generate the client code.
+   * - 'function' generates standalone functions for each operation.
+   * - 'class' generates a class with methods for each operation.
+   * - 'staticClass' generates a class with static methods for each operation.
    * @default 'function'
    */
   clientType?: 'function' | 'class' | 'staticClass'

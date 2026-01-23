@@ -39,18 +39,29 @@ export type Options = {
   importPath?: string
 
   /**
-   * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
-   * False will fallback on a simple z.string() format
-   * @default 'string' 'stringOffset' will become the default in Kubb v3
+   * Choose to use date or datetime as JavaScript Date instead of string.
+   * - false falls back to a simple z.string() format.
+   * - 'string' uses z.string().datetime() for datetime validation.
+   * - 'stringOffset' uses z.string().datetime({ offset: true }) for datetime with timezone offset validation.
+   * - 'stringLocal' uses z.string().datetime({ local: true }) for local datetime validation.
+   * - 'date' uses z.date() for JavaScript Date objects.
+   * @default 'string'
+   * @note 'stringOffset' will become the default in Kubb v3.
    */
   dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   /**
-   * Which type to use when the Swagger/OpenAPI file is not providing more information
+   * Which type to use when the Swagger/OpenAPI file is not providing more information.
+   * - 'any' allows any value.
+   * - 'unknown' requires type narrowing before use.
+   * - 'void' represents no value.
    * @default 'any'
    */
   unknownType?: 'any' | 'unknown' | 'void'
   /**
-   * Which type to use for empty schema values
+   * Which type to use for empty schema values.
+   * - 'any' allows any value.
+   * - 'unknown' requires type narrowing before use.
+   * - 'void' represents no value.
    * @default `unknownType`
    */
   emptySchemaType?: 'any' | 'unknown' | 'void'
@@ -95,8 +106,10 @@ export type Options = {
     ) => Schema[] | undefined
   }
   /**
-   * Which version of Zod should be used
-   * @default '3
+   * Which version of Zod should be used.
+   * - '3' uses Zod v3.x syntax and features.
+   * - '4' uses Zod v4.x syntax and features.
+   * @default '3'
    */
   version?: '3' | '4'
   /**

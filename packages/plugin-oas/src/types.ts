@@ -57,13 +57,9 @@ export type Options = {
   contentType?: contentType
   /**
    * Defines how the discriminator value should be interpreted during processing.
-   *
+   * - 'strict' uses the oneOf schemas as defined, without modification.
+   * - 'inherit' replaces the oneOf schema with the schema referenced by discriminator.mapping[key].
    * @default 'strict'
-   *
-   * @example
-   * - `inherit`: Replaces the `oneOf` schema with the schema referenced by `discriminator.mapping[key]`.
-   * - `strict`: Uses the `oneOf` schemas as defined, without modification.
-   *
    * @see https://github.com/kubb-labs/kubb/issues/1736
    */
   discriminator?: 'strict' | 'inherit'
