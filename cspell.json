@@ -19,6 +19,8 @@
     "examples/**/src/gen3/**",
     "examples/**/kubb-gen/**",
     "tests/**/gen/**",
+    "tests/e2e/schemas/**",
+    "schemas/**",
     "docs/examples/**",
     "docs/playground.md",
     "docs/knowledge-base/fetch.md",

@@ -155,6 +155,11 @@ jobs:
           key: build-${{ github.sha }}
       - name: Spell Check
         uses: streetsidesoftware/cspell-action@v8
+        with:
+         files: |
+           **/*.{ts,md}
+         suggestions: 'true'
+         config: 'cspell.json'
 
   benchmarks:
     name: Performance benchmarks (Vitest)
