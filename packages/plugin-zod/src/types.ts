@@ -10,7 +10,7 @@ export type Options = {
   output?: Output<Oas>
   /**
    * Define which contentType should be used.
-   * By default, the first JSON valid mediaType will be used
+   * By default, the first JSON valid mediaType is used
    */
   contentType?: contentType
   /**
@@ -31,26 +31,37 @@ export type Options = {
   override?: Array<Override<ResolvedOptions>>
   /**
    * Path to Zod
-   * It will be used as `import { z } from '${importPath}'`.
-   * It allows both relative and absolute path.
-   * the path will be applied as is, so relative path should be based on the file being generated.
+   * It used as `import { z } from '${importPath}'`.
+   * Accepts relative and absolute paths.
+   * Path is used as-is; relative paths are based on the generated file location.
    * @default 'zod'
    */
   importPath?: string
 
   /**
-   * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
-   * False will fallback on a simple z.string() format
-   * @default 'string' 'stringOffset' will become the default in Kubb v3
+   * Choose to use date or datetime as JavaScript Date instead of string.
+   * - false falls back to a simple z.string() format.
+   * - 'string' uses z.string().datetime() for datetime validation.
+   * - 'stringOffset' uses z.string().datetime({ offset: true }) for datetime with timezone offset validation.
+   * - 'stringLocal' uses z.string().datetime({ local: true }) for local datetime validation.
+   * - 'date' uses z.date() for JavaScript Date objects.
+   * @default 'string'
+   * @note 'stringOffset' will become the default in Kubb v3.
    */
   dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   /**
-   * Which type to use when the Swagger/OpenAPI file is not providing more information
+   * Which type to use when the Swagger/OpenAPI file is not providing more information.
+   * - 'any' allows any value.
+   * - 'unknown' requires type narrowing before use.
+   * - 'void' represents no value.
    * @default 'any'
    */
   unknownType?: 'any' | 'unknown' | 'void'
   /**
-   * Which type to use for empty schema values
+   * Which type to use for empty schema values.
+   * - 'any' allows any value.
+   * - 'unknown' requires type narrowing before use.
+   * - 'void' represents no value.
    * @default `unknownType`
    */
   emptySchemaType?: 'any' | 'unknown' | 'void'
@@ -95,14 +106,16 @@ export type Options = {
     ) => Schema[] | undefined
   }
   /**
-   * Which version of Zod should be used
-   * @default '3
+   * Which version of Zod should be used.
+   * - '3' uses Zod v3.x syntax and features.
+   * - '4' uses Zod v4.x syntax and features.
+   * @default '3'
    */
   version?: '3' | '4'
   /**
    * Use Zod Mini's functional API for better tree-shaking support.
    * When enabled, generates functional syntax (e.g., `z.optional(z.string())`) instead of chainable methods (e.g., `z.string().optional()`).
-   * Requires Zod v4 or later. When `mini: true`, `version` will be set to '4' and `importPath` will default to 'zod/mini'.
+   * Requires Zod v4 or later. When `mini: true`, `version` is set to '4' and `importPath` will default to 'zod/mini'.
    * @default false
    */
   mini?: boolean

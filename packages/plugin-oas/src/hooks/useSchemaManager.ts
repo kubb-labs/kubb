@@ -31,7 +31,7 @@ type UseSchemaManagerResult = {
 }
 
 /**
- * `useSchemaManager` will return some helper functions that can be used to get the schema file, get the schema name.
+ * `useSchemaManager` returns helper functions to get the schema file and schema name.
  */
 export function useSchemaManager(): UseSchemaManagerResult {
   const plugin = usePlugin()

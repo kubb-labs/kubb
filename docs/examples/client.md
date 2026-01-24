@@ -19,9 +19,9 @@ aside: false
 
 ## Static Class Client Example
 
-You can now generate clients with static methods:
+Generate clients with static methods:
 
-```typescript
+```typescript title="src/example.ts"
 import { Pet } from './gen/clients/Pet'
 
 // Get a pet by ID

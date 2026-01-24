@@ -44,13 +44,9 @@ Extend Kubb with custom plugins to integrate other libraries or generate additio
 
 **Solution**: Contract-first development with OpenAPI specifications and code generation.
 
-**Kubb's approach**: Most code generators focus on a single output (types *or* React Query hooks). Kubb uses a plugin system to generate multiple outputs from one OpenAPI spec:
+**Kubb's approach**: Kubb uses a plugin system to generate multiple outputs from one OpenAPI spec. Generate types, hooks, validators, and mocks in one command. This eliminates manual API client maintenance and reduces type mismatches between frontend and backend.
 
-- Generate types, hooks, validators, and mocks in one command
-- Maintain consistency across your codebase
-- Extend with [custom plugins](/guide/plugins/) for specific needs
-
-This eliminates manual API client maintenance and reduces type mismatches between frontend and backend.
+Extend with custom plugins for specific needs.
 
 
 ## Sponsoring

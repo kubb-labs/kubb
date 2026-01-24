@@ -91,7 +91,7 @@ export class FunctionParams {
     }
 
     if (!name) {
-      // when name is not se we will use TypeScript generics
+      // when name is not se we uses TypeScript generics
       acc.push(`${type}${rest.default ? ` = ${rest.default}` : ''}`)
 
       return acc

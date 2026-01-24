@@ -6,12 +6,12 @@ outline: deep
 ---
 
 # Use of Fetch <a href="/plugins/plugin-client"><Badge type="info" text="@kubb/plugin-client" /></a>
-By default, `@kubb/plugin-client` uses the import client from `@kubb/plugin-client/templates/axios` as its client, which is based on the Axios instance interface for making API calls.
+By default, `@kubb/plugin-client` uses the Axios client from `@kubb/plugin-client/templates/axios`, which is based on the Axios instance interface.
 
-However, there are cases where you might want to customize the client. For example, you might prefer to use [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch) or [Ky](https://github.com/sindresorhus/ky).
+In some cases, you may want a custom client. For example, use [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch) or [Ky](https://github.com/sindresorhus/ky).
 
-## Create a `kubb.config.ts` with the following config
-`importPath` can be a relative, import alias, or an import to another library(default `@kubb/plugin-client/templates/axios` will be used).
+## Create `kubb.config.ts`
+Set `importPath` to a relative path, import alias, or library (default: `@kubb/plugin-client/templates/axios`).
 
 See [plugins/plugin-client](/plugins/plugin-client/#client).
 ```typescript twoslash
@@ -50,13 +50,13 @@ export default defineConfig(() => {
 
 ```
 
-## Add `client.ts` with the following config
-In the background, every POST, PUT, GET, PATCH, and DELETE request will utilize the **importPath** and invoke the default export of that file with a configuration shaped by `RequestConfig`, which is modeled after the AxiosRequest interface/config.
+## Add `client.ts`
+Every POST, PUT, GET, PATCH, and DELETE request uses the **importPath** and invokes the default export with a configuration shaped by `RequestConfig`, modeled after the AxiosRequest interface/config.
 
 > [!IMPORTANT]
-> The client should always return an object in the shape of `ResponseConfig`, even if you change the  `dataReturnType` with  `dataReturnType: 'data'`.
+> The client must return an object in the shape of `ResponseConfig`, even if you change `dataReturnType` with `dataReturnType: 'data'`.
 
-```typescript client.ts
+```typescript [client.ts]
 export type RequestConfig<TData = unknown> = {
   url?: string
   method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE'
@@ -91,8 +91,8 @@ export const client = async <TData, TError = unknown, TVariables = unknown>(conf
 }
 ```
 
-## View the generated code
-```typescript
+## View generated code
+```typescript [src/gen/models.ts]
 import client from '../client.ts'
 import type { ResponseConfig } from '../client.ts'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from './models.ts'

@@ -12,7 +12,7 @@ export type Options = {
   output?: Output<Oas>
   /**
    * Define which contentType should be used.
-   * By default, the first JSON valid mediaType will be used
+   * By default, the first JSON valid mediaType is used
    */
   contentType?: contentType
   baseURL?: string
@@ -44,9 +44,9 @@ export type Options = {
    */
   handlers?: boolean
   /**
-   * Which parser should be used before returning the data to the `Response` of MSW.
-   *  - `'faker'` will use `@kubb/plugin-faker` to generate the data for the response
-   *  - `'data'` will use your custom data to generate the data for the response
+   * Which parser should be used before returning the data to the Response of MSW.
+   * - 'data' uses your custom data to generate the data for the response.
+   * - 'faker' uses @kubb/plugin-faker to generate the data for the response.
    * @default 'data'
    */
   parser?: 'data' | 'faker'

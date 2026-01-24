@@ -7,29 +7,29 @@ outline: deep
 
 # Multipart Form Data with Arrays <a href="/plugins/plugin-client"><Badge type="info" text="@kubb/plugin-client" /></a>
 
-Kubb automatically handles `multipart/form-data` requests, including proper support for arrays, files, and complex data types.
+Kubb handles `multipart/form-data` requests with support for arrays, files, and complex data types.
 
 ## Overview
 
-When your OpenAPI specification defines an endpoint with `multipart/form-data` content type, Kubb generates code that uses the `buildFormData` utility function to properly serialize your request data into FormData format.
+When your OpenAPI specification defines an endpoint with `multipart/form-data` content type, Kubb generates code that uses the `buildFormData` utility to serialize request data into FormData format.
 
 ## Features
 
-The `buildFormData` utility provides:
+The `buildFormData` utility:
 
-- **Array Support**: Properly iterates over array elements and appends each value
-- **File Handling**: Automatically detects and handles `Blob` and `File` objects
+- **Array Support**: Iterates over array elements and appends each value
+- **File Handling**: Detects and handles `Blob` and `File` objects
 - **Date Handling**: Converts `Date` objects to ISO strings
 - **Type Safety**: Handles primitives (strings, numbers, booleans) and complex objects
-- **Null/Undefined Filtering**: Automatically filters out `null` and `undefined` values from arrays
+- **Null/Undefined Filtering**: Filters out `null` and `undefined` values from arrays
 
 ## How It Works
 
 ### Generated Code
 
-When you have an endpoint that accepts `multipart/form-data`, Kubb generates code like this:
+For endpoints that accept `multipart/form-data`, Kubb generates code like this:
 
-```typescript
+```typescript [src/gen/uploadFile.ts]
 import { buildFormData } from './.kubb/config'
 
 export async function uploadFile(data: UploadFileRequest) {
@@ -46,9 +46,9 @@ export async function uploadFile(data: UploadFileRequest) {
 
 ### The buildFormData Utility
 
-The `buildFormData` function is automatically generated in `.kubb/config.ts` and handles various data types:
+The `buildFormData` function generates in `.kubb/config.ts` and handles various data types:
 
-```typescript
+```typescript [.kubb/config.ts]
 export function buildFormData<T = unknown>(data: T): FormData {
   const formData = new FormData()
 
@@ -101,7 +101,7 @@ export function buildFormData<T = unknown>(data: T): FormData {
 
 ### Uploading Files with Metadata
 
-```typescript
+```typescript [src/main.ts]
 import { uploadFile } from './gen/uploadFile'
 
 // Upload a single file with metadata
@@ -117,7 +117,7 @@ await uploadFile({
 
 ### Uploading Multiple Files
 
-```typescript
+```typescript [src/main.ts]
 import { uploadFiles } from './gen/uploadFiles'
 
 const files = [
@@ -133,7 +133,7 @@ await uploadFiles({
 
 ### Complex Data with Arrays
 
-```typescript
+```typescript [src/main.ts]
 import { createPost } from './gen/createPost'
 
 await createPost({
@@ -153,30 +153,30 @@ await createPost({
 ## Data Type Handling
 
 ### Primitives
-- **Strings**: Appended as-is
-- **Numbers**: Converted to string
-- **Booleans**: Converted to string ("true" or "false")
+- **Strings**: Append as-is
+- **Numbers**: Convert to string
+- **Booleans**: Convert to string ("true" or "false")
 
 ### Special Types
-- **Blob/File**: Appended directly to FormData
-- **Date**: Converted to ISO string format
-- **Objects**: Wrapped in a Blob with `Content-Type: application/json` to ensure proper server-side parsing. This prevents 415 (Unsupported Media Type) errors that can occur when JSON data is sent without the correct content type in multipart requests.
+- **Blob/File**: Append directly to FormData
+- **Date**: Convert to ISO string format
+- **Objects**: Wrap in a Blob with `Content-Type: application/json` to enable proper server-side parsing. This prevents 415 (Unsupported Media Type) errors that occur when sending JSON data without the correct content type in multipart requests.
 
 ### Arrays
-- Each array element is appended individually with the same key
-- `null` and `undefined` elements are automatically filtered out
-- Nested arrays and objects within arrays are handled recursively
+- Each array element appends individually with the same key
+- `null` and `undefined` elements filter automatically
+- Nested arrays and objects within arrays process recursively
 
 ### Null/Undefined Values
-- Top-level `null` or `undefined` values are skipped
-- Array elements that are `null` or `undefined` are filtered out
+- Top-level `null` or `undefined` values skip
+- Array elements that are `null` or `undefined` filter out
 - This prevents "null" or "undefined" string literals in FormData
 
 ## OpenAPI Schema Example
 
 Here's an example OpenAPI specification that generates multipart/form-data handling:
 
-```yaml
+```yaml [openapi.yaml]
 paths:
   /upload:
     post:
@@ -219,21 +219,21 @@ paths:
 
 ### Arrays Not Working
 
-If arrays aren't being sent correctly, ensure you're using a recent version of Kubb (4.5.14+) which includes the array support fixes.
+If arrays do not send correctly, use Kubb version 4.5.14 or later, which includes array support fixes.
 
 ### Files Not Uploading
 
-Make sure you're passing actual `File` or `Blob` objects, not file paths or base64 strings.
+Pass actual `File` or `Blob` objects, not file paths or base64 strings.
 
 ### Date Format Issues
 
-Dates are automatically converted to ISO strings. If your server expects a different format, you may need to pre-process the date before passing it to the generated function.
+Dates convert automatically to ISO strings. If your server expects a different format, pre-process the date before passing it to the generated function.
 
 ### JSON Object Content-Type
 
-When sending JSON objects in multipart form data, Kubb automatically wraps them in a `Blob` with `Content-Type: application/json`. This ensures that web servers can correctly parse the JSON data. Without the proper content type, many servers will return a 415 (Unsupported Media Type) error.
+When sending JSON objects in multipart form data, Kubb wraps them in a `Blob` with `Content-Type: application/json`. This ensures servers can parse the JSON data correctly. Without the proper content type, many servers return a 415 (Unsupported Media Type) error.
 
-If you need to customize how objects are serialized, you can pre-process them before passing to the generated function, or provide your own implementation of `buildFormData`.
+To customize object serialization, pre-process objects before passing to the generated function, or provide your own `buildFormData` implementation.
 
 ## Related Documentation
 

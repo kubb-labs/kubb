@@ -77,15 +77,7 @@
             {
               "text": "@kubb/plugin-oas",
               "link": "/plugins/plugin-oas",
-              "activeMatch": "^/plugins/plugin-oas/?$",
-              "collapsed": true,
-              "items": [
-                {
-                  "text": "Hooks",
-                  "link": "/plugins/plugin-oas/hooks",
-                  "activeMatch": "^/plugins/plugin-oas/hooks/?$"
-                }
-              ]
+              "activeMatch": "^/plugins/plugin-oas/?$"
             },
             {
               "text": "@kubb/plugin-cypress <span class=\"new\">new in 3.7.0</span>",

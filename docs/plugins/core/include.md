@@ -1,4 +1,4 @@
-Array containing include parameters to include tags/operations/methods/paths.
+Array containing include parameters to include tags, operations, methods, paths, or content types.
 
 |           |                  |
 |----------:|:-----------------|

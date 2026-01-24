@@ -1,10 +1,9 @@
-Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
+Array containing exclude parameters to exclude or skip tags, operations, methods, paths, or content types.
 
 |           |                  |
 |----------:|:-----------------|
 |     Type: | `Array<Exclude>` |
 | Required: | `false`          |
-
 
 ```typescript [Exclude]
 export type Exclude = {

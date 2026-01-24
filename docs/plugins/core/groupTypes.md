@@ -1,1 +1,1 @@
-- `'tag'`: Use of operation.getTags().at(0)?.name
+- `'tag'`: Uses the first tag from `operation.getTags().at(0)?.name`

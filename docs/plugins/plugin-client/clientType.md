@@ -1,4 +1,4 @@
-How to generate the client code
+Defines the client code generation style.
 
 |           |                                          |
 |----------:|:-----------------------------------------|
@@ -7,9 +7,9 @@ How to generate the client code
 |  Default: | `'function'`                             |
 
 
-* `'function'` will generate standalone functions for each operation.
-* `'class'` will generate a class with instance methods for each operation.
-* `'staticClass'` will generate a class with static methods for each operation. This allows usage like `Pet.getPetById(...)` without instantiating the class.
+* `'function'` generates standalone functions for each operation.
+* `'class'` generates a class with instance methods for each operation.
+* `'staticClass'` generates a class with static methods for each operation. Use this style to call methods like `Pet.getPetById(...)` without instantiating the class.
 
 ::: warning
 When using `clientType: 'class'` or `clientType: 'staticClass'`, these are not compatible with query plugins like `@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-solid-query`, `@kubb/plugin-svelte-query`, or `@kubb/plugin-swr`. These plugins are designed to work with function-based clients. If you need to use both class-based or static-class clients and query hooks, configure separate `pluginClient` instances: one with `clientType: 'class'` or `clientType: 'staticClass'` for your needs, and another with `clientType: 'function'` (or omit it for the default) that the query plugins will reference.
@@ -110,7 +110,7 @@ const newPet = await Pet.addPet({
 ```
 :::
 
-- `'class'` will generate a class with methods for each operation.
+- `'class'` generates a class with methods for each operation.
 
 ::: warning
 When using `clientType: 'class'`, it is not compatible with query plugins like `@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-solid-query`, `@kubb/plugin-svelte-query`, or `@kubb/plugin-swr`. These plugins are designed to work with function-based clients. If you need to use both class-based clients and query hooks, configure separate `pluginClient` instances: one with `clientType: 'class'` for your class-based needs, and another with `clientType: 'function'` (or omit it for the default) that the query plugins will reference.

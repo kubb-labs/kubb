@@ -1,4 +1,4 @@
-Path to the client that will be used to do the API calls. Supports both relative and absolute paths.
+Path to the client used for API calls. Supports both relative and absolute paths.
 
 #### When to use `importPath`
 
@@ -15,7 +15,7 @@ When `importPath` is not specified:
 
 #### Import structure
 
-Generated code will import:
+Generated code imports:
 - Client as default import
 - Types as named type imports
 
