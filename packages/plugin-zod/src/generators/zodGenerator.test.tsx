@@ -271,6 +271,12 @@ describe('zodGenerator schema', async () => {
       path: 'ExclusiveNumbers',
       options: {},
     },
+    {
+      name: 'unionWithReadOnly',
+      input: '../../mocks/unionWithReadOnly.yaml',
+      path: 'Item',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -386,6 +392,20 @@ describe('zodGenerator operation', async () => {
       input: '../../mocks/queryRequiredDefault.yaml',
       method: 'get',
       path: '/thing',
+      options: {},
+    },
+    {
+      name: 'createItem-unionWithReadOnly',
+      input: '../../mocks/unionWithReadOnly.yaml',
+      method: 'post',
+      path: '/items',
+      options: {},
+    },
+    {
+      name: 'updateItem-unionWithReadOnly',
+      input: '../../mocks/unionWithReadOnly.yaml',
+      method: 'put',
+      path: '/items',
       options: {},
     },
   ] as const satisfies Array<{

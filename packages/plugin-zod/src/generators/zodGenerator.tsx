@@ -40,7 +40,27 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       .flat()
       .filter(Boolean)
 
-    const mapOperationSchema = ({ name, schema: schemaObject, description, keysToOmit, ...options }: OperationSchemaType) => {
+    const mapOperationSchema = ({ name, schema: schemaOriginal, description, keysToOmit: keysToOmitOriginal, ...options }: OperationSchemaType) => {
+      let schemaObject = schemaOriginal
+      let keysToOmit = keysToOmitOriginal
+
+      if ((schemaOriginal.anyOf || schemaOriginal.oneOf) && keysToOmitOriginal && keysToOmitOriginal.length > 0) {
+        schemaObject = structuredClone(schemaOriginal)
+
+        // Remove $ref so the schema parser generates inline schema instead of a reference
+        delete schemaObject.$ref
+
+        for (const key of keysToOmitOriginal) {
+          delete schemaObject.properties?.[key]
+        }
+
+        if (Array.isArray(schemaObject.required)) {
+          schemaObject.required = schemaObject.required.filter((key) => !keysToOmitOriginal.includes(key))
+        }
+
+        keysToOmit = undefined
+      }
+
       const hasProperties = Object.keys(schemaObject || {}).length > 0
       const hasDefaults = Object.values(schemaObject.properties || {}).some((prop) => prop && Object.hasOwn(prop, 'default'))
 
