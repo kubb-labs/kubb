@@ -7,7 +7,7 @@ outline: deep
 
 # @kubb/plugin-ts
 
-With the TypeScript plugin you can create [TypeScript](https://www.typescriptlang.org/) types.
+Generate TypeScript types from your OpenAPI schema.
 
 ## Installation
 ::: code-group
@@ -36,7 +36,7 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that will contain the generated code.
+Path to the output folder or file that contains the generated code.
 
 > [!TIP]
 > if `output.path` is a file, `group` cannot be used.
@@ -49,7 +49,7 @@ Path to the output folder or file that will contain the generated code.
 
 #### output.barrelType
 
-Define what needs to be exported, here you can also disable the export of barrel files.
+Specify what to export and optionally disable barrel file generation.
 
 > [!TIP]
 > Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
@@ -63,7 +63,7 @@ Define what needs to be exported, here you can also disable the export of barrel
 <!--@include: ./core/barrelTypes.md-->
 
 #### output.banner
-Add a banner text in the beginning of every file.
+Add a banner comment at the top of every generated file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
@@ -88,12 +88,15 @@ Add a footer text at the end of every file.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Define a type where to group the files on.
+Specify the property to group files by. Required when `group` is defined.
 
 |           |         |
 |----------:|:--------|
 |     Type: | `'tag'` |
-| Required: | `true`  |
+| Required: | `true*` |
+
+> [!NOTE]
+> `Required: true*` means this is required only when the `group` option is used. The `group` option itself is optional.
 
 <!--@include: ./core/groupTypes.md-->
 
@@ -175,6 +178,22 @@ Set a suffix for the generated enums.
 |     Type: | `string` |
 | Required: | `false`  |
 |  Default: | `'enum'` |
+
+### enumKeyCasing
+
+Choose the casing for enum key names.
+
+|           |                                                      |
+|----------:|:-----------------------------------------------------|
+|     Type: | `'screamingSnakeCase' \| 'snakeCase' \| 'pascalCase' \| 'camelCase' \| 'none'` |
+| Required: | `false`                                              |
+|  Default: | `'none'`                                             |
+
+- `'screamingSnakeCase'`: `ENUM_VALUE`
+- `'snakeCase'`: `enum_value`
+- `'pascalCase'`: `EnumValue`
+- `'camelCase'`: `enumValue`
+- `'none'`: Uses the enum value as-is
 
 ### dateType
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
@@ -340,6 +359,31 @@ type Pet = {
   tags: Array<string>
 }
 ```
+:::
+
+### mapper
+
+Map specific schema properties to custom TypeScript property signatures. Use the [TypeScript AST viewer](https://ts-ast-viewer.com) to generate the factory code.
+
+|           |                                        |
+|----------:|:---------------------------------------|
+|     Type: | `Record<string, ts.PropertySignature>` |
+| Required: | `false`                                |
+
+> [!TIP]
+> Use [ts-ast-viewer.com](https://ts-ast-viewer.com) to generate factory code for custom property signatures.
+
+### UNSTABLE_NAMING
+
+Enable unstable naming conventions for v5 compatibility (beta feature).
+
+|           |          |
+|----------:|:---------|
+|     Type: | `boolean` |
+| Required: | `false`  |
+
+::: warning
+This is an unstable/experimental feature that may change in future versions.
 :::
 
 ### include

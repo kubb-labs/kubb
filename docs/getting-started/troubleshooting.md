@@ -66,11 +66,11 @@ yarn install
 
 **Solution**: Ensure your config file exists in the project root with one of these names:
 - `kubb.config.ts` - TypeScript (recommended)
-- `kubb.config.js` - JavaScript (requires `"type": "module"` in package.json)
+- `kubb.config.js` - JavaScript (requires `"type": "module"` in `package.json`)
 - `kubb.config.mjs` - ESM JavaScript
 - `kubb.config.cjs` - CommonJS JavaScript
 
-You can also specify a custom config path:
+Specify a custom config path:
 
 ```shell
 kubb generate --config ./configs/kubb.config.ts
@@ -192,7 +192,7 @@ pluginTs({
 
 **Error**: `JavaScript heap out of memory`
 
-**Solution**: Increase Node.js memory limit (4096 = 4GB, adjust based on available system memory):
+**Solution**: Increase Node.js memory limit. Adjust the value based on available system memory (4096 = 4GB):
 
 ```shell
 NODE_OPTIONS="--max-old-space-size=4096" kubb generate
@@ -247,7 +247,7 @@ Enable debug mode to get detailed logs:
 kubb generate --debug
 ```
 
-This creates log files in the `.kubb` directory (e.g., `.kubb/kubb-{name}-{timestamp}.log`). The CLI will display the exact location of each debug log file after generation completes.
+This creates log files in the `.kubb` directory (e.g., `.kubb/kubb-{name}-{timestamp}.log`). The CLI displays the exact location of each debug log file after generation completes.
 
 ## Getting Help
 

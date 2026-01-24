@@ -61,8 +61,8 @@ export type SchemaKeywordMapper = {
        */
       path: KubbFile.Path
       /**
-       * When true `File.Import` will be used.
-       * When false a reference will be used inside the current file.
+       * When true `File.Import` is used.
+       * When false a reference is used inside the current file.
        */
       isImportable: boolean
     }
@@ -168,7 +168,7 @@ export type SchemaTree = {
   current: Schema
   siblings: Schema[]
   /**
-   * this will be equal to the key of a property(object)
+   * this is equal to the key of a property(object)
    */
   name?: string
 }

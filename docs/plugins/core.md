@@ -6,7 +6,8 @@ outline: deep
 ---
 
 # @kubb/core
-The core contains the building blocks for all plugins.
+
+The core module provides the building blocks for all plugins.
 
 ## Installation
 
@@ -51,5 +52,5 @@ const { error, files, pluginManager } = await build({
 console.log(files)
 ```
 
-Start the build process based on a defined config(see [UserConfig](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/config.ts) type).
-This will trigger the different plugins and their created lifecycle methods.
+Start the build process using a defined config (see [UserConfig](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/config.ts) type).
+This triggers the plugins and their lifecycle methods.

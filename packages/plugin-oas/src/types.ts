@@ -46,24 +46,20 @@ export type Options = {
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
    * @example
-   * - `0` will return `http://petstore.swagger.io/api`
-   * - `1` will return `http://localhost:3000`
+   * - `0` returns `http://petstore.swagger.io/api`
+   * - `1` returns `http://localhost:3000`
    */
   serverIndex?: number
   /**
    * Define which contentType should be used.
-   * By default, the first JSON valid mediaType will be used
+   * By default, uses the first valid JSON media type.
    */
   contentType?: contentType
   /**
    * Defines how the discriminator value should be interpreted during processing.
-   *
+   * - 'strict' uses the oneOf schemas as defined, without modification.
+   * - 'inherit' replaces the oneOf schema with the schema referenced by discriminator.mapping[key].
    * @default 'strict'
-   *
-   * @example
-   * - `inherit`: Replaces the `oneOf` schema with the schema referenced by `discriminator.mapping[key]`.
-   * - `strict`: Uses the `oneOf` schemas as defined, without modification.
-   *
    * @see https://github.com/kubb-labs/kubb/issues/1736
    */
   discriminator?: 'strict' | 'inherit'

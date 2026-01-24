@@ -1,4 +1,4 @@
-How to style your params, by default no casing is applied.
+Casing style for parameter names. No casing is applied by default.
 
 |           |                |
 |----------:|:---------------|
@@ -6,7 +6,7 @@ How to style your params, by default no casing is applied.
 | Required: | `false`        |
 |  Default: | ``             |
 
-- `'camelcase'` will use camelcase for the params names
+- `'camelcase'` uses camelCase for parameter names
 
 ::: code-group
 ```typescript ['camelcase']

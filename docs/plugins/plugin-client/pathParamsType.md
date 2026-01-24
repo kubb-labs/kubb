@@ -1,4 +1,4 @@
-How to pass your pathParams.
+Defines how pathParams are passed to generated functions.
 
 |           |                        |
 |----------:|:-----------------------|
@@ -7,8 +7,8 @@ How to pass your pathParams.
 |  Default: | `'inline'`                |
 
 
-- `'object'` will return the pathParams as an object.
-- `'inline'` will return the pathParams as comma separated params.
+- `'object'` returns pathParams as an object.
+- `'inline'` returns pathParams as comma-separated params.
 
 ::: code-group
 ```typescript ['object']

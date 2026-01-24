@@ -155,7 +155,7 @@ type ParserOptions = {
    * - `literal`: literal union type
    * - `inlineLiteral`: inline enum values directly into the type (default in v5)
    * @default `'asConst'`
-   * @note In Kubb v5, `inlineLiteral` will become the default.
+   * @note In Kubb v5, `inlineLiteral` becomes the default.
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   mapper?: Record<string, ts.PropertySignature>

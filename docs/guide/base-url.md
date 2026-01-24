@@ -7,10 +7,10 @@ outline: deep
 
 # Use of your own baseURL <a href="/plugins/plugin-client"><Badge type="info" text="@kubb/plugin-client" /></a>
 
-In Kubb, there are multiple ways to specify a baseURL. This can be done with a custom client, using the serverIndex of your Swagger/OpenAPI spec file or using the `baseURL` config.
+In Kubb, there are multiple ways to specify a baseURL. Set it with a custom client, using the serverIndex of your Swagger/OpenAPI spec file, or using the `baseURL` config.
 
-## Use of custom client
-When [defining your own client](/guide/fetch), you can also set a baseURL that will be used in every HTTP call.
+## Use custom client
+When [defining your own client](/guide/fetch), set a baseURL that applies to every HTTP call.
 
 ::: code-group
 ```typescript [client.ts]
@@ -80,8 +80,8 @@ export default defineConfig({
 ```
 :::
 
-## Use of serverIndex
-Reuse the server URL that has been set as part of your Swagger/OpenAPI spec file, for that you can define [which index](/plugins/plugin-oas/#serverindex) that should be used.
+## Use serverIndex
+Reuse the server URL from your Swagger/OpenAPI spec file by defining [which index](/plugins/plugin-oas/#serverindex) to use.
 
 :::code-group
 ```yaml [OpenAPI]
@@ -119,8 +119,8 @@ export default defineConfig({
 ```
 :::
 
-## Use of baseURL
-Set the baseURL that should be used in your config.
+## Use baseURL
+Set the baseURL in your config.
 
 :::code-group
 ```typescript twoslash [kubb.config.ts]

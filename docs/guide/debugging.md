@@ -9,18 +9,18 @@ outline: deep
 
 ## React DevTools
 
-Kubb supports React DevTools out-of-the-box. To enable integration with React DevTools, import the devtools package in your `kubb.config.ts` config file.
+Kubb supports React DevTools out of the box. Enable integration by importing the devtools package in your `kubb.config.ts` file.
 
 ![React-DevTools](/screenshots/react-devtools.png)
 
 > [!NOTE]
-> Kubb will already run `npx react-devtools` as part of the `@kubb/react-fabric` import.
+> Kubb runs `npx react-devtools` as part of the `@kubb/react-fabric` import.
 
 ### Installation
-Before you can use the React DevTools, install the React package.
+Before using React DevTools, install the React package.
 
 > [!IMPORTANT]
-> Minimal Kubb version of `v3.0.0-alpha.11`.
+> Requires Kubb version `v3.0.0-alpha.11` or higher.
 
 ::: code-group
 
@@ -43,7 +43,7 @@ yarn add -D @kubb/react-fabric
 
 ### Update `kubb.config.ts`
 
-```typescript{1}
+```typescript [kubb.config.ts]
 import { openDevtools } from '@kubb/react-fabric' // [!code ++]
 
 import { defineConfig } from '@kubb/core'
@@ -68,28 +68,29 @@ export default defineConfig(() => {
 })
 ```
 
-After it starts up, you should see the component tree of your CLI. You can even inspect all components.
-> [!NOTE]
-> Kubb will already filter out some internal components like:
->
-> `KubbApp`, `KubbRoot`, `KubbErrorBoundary`, `kubb-text`, `kubb-file`, `kubb-source`, `kubb-import` and `kubb-export`.
+After startup, the component tree displays. Inspect all components.
 
-The internal components `kubb-text`, `kubb-file`, `kubb-source`, `kubb-import`, and `kubb-export` are utilized to convert the React tree into a file that accurately includes the necessary imports, exports, and source code.
+> [!NOTE]
+> Kubb filters out internal components:
+>
+> `KubbApp`, `KubbRoot`, `KubbErrorBoundary`, `kubb-text`, `kubb-file`, `kubb-source`, `kubb-import`, and `kubb-export`.
+
+The system uses the internal components `kubb-text`, `kubb-file`, `kubb-source`, `kubb-import`, and `kubb-export` to convert the React tree into a file with proper imports, exports, and source code.
 
 > [!IMPORTANT]
-> You must manually quit your CLI via `Ctrl+C` after you're done testing.
+> Quit your CLI manually via `Ctrl+C` after testing.
 
 ![React-DevTools](/screenshots/react-devtools.gif)
 
 ## Node debugging
 
-Because Kubb is a cli tool you need to use `NODE_OPTIONS='--inspect-brk' kubb`.
+Use `NODE_OPTIONS='--inspect-brk' kubb` because Kubb is a CLI tool.
 
-`--inspect-brk` will make sure the debugger already stops so you can set and use breakpoints.
+`--inspect-brk` stops the debugger immediately so you set breakpoints.
 
 ## Event-driven logging
 
-Kubb uses an event-driven architecture for logging and progress tracking. The CLI supports multiple logger implementations that adapt to different environments:
+Kubb uses event-driven architecture for logging and progress tracking. The CLI supports multiple logger implementations that adapt to different environments:
 
 ### Logger types
 
@@ -98,13 +99,13 @@ Kubb uses an event-driven architecture for logging and progress tracking. The CL
 - **Plain Logger** - Simple text output for basic terminals
 - **File System Logger** - Writes logs to files
 
-The logger is automatically selected based on the environment, or you can implement custom loggers using the `defineLogger` API.
+The system selects the logger automatically based on the environment, or use the `defineLogger` API for custom loggers.
 
 ### Custom logger implementation
 
-You can create custom loggers by listening to `KubbEvents`:
+Create custom loggers by listening to `KubbEvents`:
 
-```typescript
+```typescript [kubb.logger.ts]
 import { defineLogger, LogLevel } from '@kubb/core'
 
 export const customLogger = defineLogger({

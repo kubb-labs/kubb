@@ -7,10 +7,11 @@ outline: deep
 
 # @kubb/mcp
 
-The `@kubb/mcp` package provides a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes Kubb's code generation functionality to AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible clients.
-This enables conversational code generation workflows where you can ask an AI to generate TypeScript types, API clients, and more from your OpenAPI specifications using natural language.
+The `@kubb/mcp` package provides a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes Kubb's code generation to AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible clients.
 
-The MCP server acts as a bridge between MCP clients (like [Claude Desktop](https://claude.ai/download)) and Kubb's build system, allowing AI assistants to generate code from OpenAPI specs using your `kubb.config.ts`.
+Use this to integrate conversational code generation workflows. Ask an AI to generate TypeScript types, API clients, and more from OpenAPI specifications using natural language.
+
+The MCP server acts as a bridge between MCP clients (like [Claude Desktop](https://claude.ai/download)) and Kubb's build system.
 
 ## Installation
 
@@ -58,7 +59,7 @@ Or run it directly as a standalone package:
 npx @kubb/mcp
 ```
 
-This starts an MCP server that communicates via stdio (standard input/output), making it compatible with MCP clients.
+This starts an MCP server that communicates via stdio (standard input/output). MCP clients can connect to this server.
 
 > [!TIP]
 > The server runs in the foreground and waits for requests from MCP clients. Leave it running while you interact with your AI assistant.
@@ -152,37 +153,37 @@ Generate code from OpenAPI/Swagger specifications using Kubb configuration.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `config` | string | No | `kubb.config.ts` | Path to kubb.config.ts file |
-| `input` | string | No | - | Path to OpenAPI/Swagger spec file (overrides config) |
-| `output` | string | No | - | Output directory path (overrides config) |
-| `logLevel` | enum | No | `'info'` | Log level: `'silent'`, `'error'`, `'warn'`, `'info'`, `'verbose'`, `'debug'` |
+| `config` | string | No | `kubb.config.ts` | Path to the kubb.config.ts file |
+| `input` | string | No | — | Path to the OpenAPI/Swagger spec file (overrides config) |
+| `output` | string | No | — | Output directory path (overrides config) |
+| `logLevel` | enum | No | `info` | Log level: `silent`, `error`, `warn`, `info`, `verbose`, `debug` |
 
 
 ## Use Cases
 
 ### Generate Initial Code
 
-When starting a new project or adding API integration:
+Use this when starting a new project or adding API integration:
 
-> **You:** "I have a Swagger file called petstore.yaml. Can you generate TypeScript types for it?"
+> **You:** "I have a Swagger file at petstore.yaml. Generate TypeScript types from it."
 >
-> **AI:** Uses the generate tool to create types from your OpenAPI spec
+> **AI:** Uses the generate tool to create types from the OpenAPI spec
 
 ### Regenerate After Spec Changes
 
-When your OpenAPI specification changes:
+Use this when the OpenAPI specification changes:
 
-> **You:** "The API spec was updated. Please regenerate the client code."
+> **You:** "The API spec was updated. Regenerate the client code."
 >
-> **AI:** Runs generate again to update your generated code
+> **AI:** Runs generate again to update the generated code
 
 ### Debug Generation Issues
 
-When troubleshooting:
+Use this when troubleshooting:
 
-> **You:** "The code generation seems slow. Can you run it with verbose logging?"
+> **You:** "Code generation seems slow. Run it with verbose logging."
 >
-> **AI:** Runs generate with `logLevel: "verbose"` to show plugin timing
+> **AI:** Runs generate with `logLevel: verbose` to show plugin timing
 
 
 ## Troubleshooting
@@ -201,25 +202,25 @@ npm install --save-dev @kubb/cli
 **Issue:** [Claude](https://claude.ai) doesn't show Kubb as available
 
 **Solution:**
-1. Check that `claude_desktop_config.json` is in the correct location
+1. Verify `claude_desktop_config.json` is in the correct location
 2. Restart [Claude Desktop](https://claude.ai/download) after modifying the config
-3. Verify the server starts without errors using `npx kubb mcp`
+3. Confirm the server starts without errors using `npx kubb mcp`
 
 ### Generation Fails
 
 **Issue:** AI reports generation errors
 
 **Solution:**
-1. Check that `kubb.config.ts` exists and is valid
-2. Ensure the OpenAPI spec path is correct
-3. Run with debug logging: ask the AI to use `logLevel: "debug"`
+1. Verify `kubb.config.ts` exists and is valid
+2. Confirm the OpenAPI spec path is correct
+3. Run with debug logging: ask the AI to use `logLevel: debug`
 4. Check the `.kubb` directory for detailed log files
 
 ### No Progress Updates
 
 **Issue:** AI doesn't show real-time progress
 
-**Solution:** This depends on the MCP client. [Claude Desktop](https://claude.ai/download) may buffer or summarize notifications. The generation is still happening—check the final result.
+**Solution:** This depends on the MCP client. [Claude Desktop](https://claude.ai/download) may buffer or summarize notifications. The generation continues in the background—check the final result.
 
 ## See Also
 

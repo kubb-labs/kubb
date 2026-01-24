@@ -498,7 +498,7 @@ export class SchemaGenerator<
     }
 
     // If the discriminator property is an extension property (starts with x-),
-    // it's metadata and not an actual schema property, so we can't add constraints for it.
+    // its metadata and not an actual schema property, so we can't add constraints for it.
     // In this case, return the union as-is without adding discriminator constraints.
     if (discriminator.propertyName.startsWith('x-')) {
       return schema
@@ -763,7 +763,7 @@ export class SchemaGenerator<
         keyword: schemaKeywords.union,
         args: (schemaObject.oneOf || schemaObject.anyOf)!
           .map((item) => {
-            // first item, this will be ref
+            // first item, this is ref
             return item && this.parse({ schema: item as SchemaObject, name, parentName })[0]
           })
           .filter(Boolean),

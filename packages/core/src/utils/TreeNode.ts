@@ -198,14 +198,14 @@ export function buildDirectoryTree(files: Array<KubbFile.File>, rootFolder = '')
 
       if (!existingNode) {
         if (index === parts.length - 1) {
-          // If it's the last part, it's a file
+          // If its the last part, its a file
           existingNode = {
             name: part,
             file,
             path: currentPath,
           } as DirectoryTree
         } else {
-          // Otherwise, it's a folder
+          // Otherwise, its a folder
           existingNode = {
             name: part,
             path: currentPath,
@@ -215,7 +215,7 @@ export function buildDirectoryTree(files: Array<KubbFile.File>, rootFolder = '')
         currentLevel.push(existingNode)
       }
 
-      // Move to the next level if it's a folder
+      // Move to the next level if its a folder
       if (!existingNode.file) {
         currentLevel = existingNode.children
       }
