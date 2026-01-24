@@ -1,0 +1,90 @@
+---
+openapi: 3.0.1
+info:
+  title: Union with ReadOnly Properties
+  version: 1.0.0
+servers:
+  - url: http://localhost/
+paths:
+  "/items":
+    post:
+      operationId: createItem
+      summary: Create an item
+      requestBody:
+        description: Item to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Item"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+    put:
+      operationId: updateItem
+      summary: Update an item
+      requestBody:
+        description: Item to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Item"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+components:
+  schemas:
+    Item:
+      type: object
+      required:
+        - name
+        - type
+      oneOf:
+        - $ref: "#/components/schemas/ItemTypeA"
+        - $ref: "#/components/schemas/ItemTypeB"
+      discriminator:
+        propertyName: type
+        mapping:
+          typeA: "#/components/schemas/ItemTypeA"
+          typeB: "#/components/schemas/ItemTypeB"
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        type:
+          type: string
+          enum:
+            - typeA
+            - typeB
+          readOnly: true
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+    ItemTypeA:
+      type: object
+      properties:
+        type:
+          type: string
+          readOnly: true
+        fieldA:
+          type: string
+    ItemTypeB:
+      type: object
+      properties:
+        type:
+          type: string
+          readOnly: true
+        fieldB:
+          type: number
