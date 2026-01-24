@@ -98,4 +98,23 @@ export default defineConfig([
       }),
     ],
   },
+  {
+    name: 'zod-union',
+    root: '.',
+    input: {
+      path: './unionWithReadOnly.yaml',
+    },
+    output: {
+      path: './src/gen3',
+      clean: true,
+    },
+    plugins: [
+      pluginOas({ generators: [] }),
+      pluginZod({
+        output: {
+          path: './zod',
+        },
+      }),
+    ],
+  },
 ])
