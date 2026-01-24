@@ -4,6 +4,9 @@
  */
 
 import { z } from 'zod'
+import { categorySchema } from './categorySchema.ts'
+import { catSchema } from './catSchema.ts'
+import { dogSchema } from './dogSchema.ts'
 import { petSchema } from './petSchema.ts'
 
 /**
@@ -29,6 +32,31 @@ export const updatePet405Schema = z.any()
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetMutationRequestSchema = z.lazy(() => petSchema).schema.omit({ type: true, tags: true })
+export const updatePetMutationRequestSchema = z.union([
+  z
+    .lazy(() => dogSchema)
+    .and(
+      z.object({
+        id: z.optional(z.number().int()),
+        name: z.string(),
+        category: z.optional(z.lazy(() => categorySchema)),
+        photoUrls: z.array(z.string()),
+        status: z.optional(z.enum(['available', 'pending', 'sold']).describe('pet status in the store')),
+        type: z.literal('dog'),
+      }),
+    ),
+  z
+    .lazy(() => catSchema)
+    .and(
+      z.object({
+        id: z.optional(z.number().int()),
+        name: z.string(),
+        category: z.optional(z.lazy(() => categorySchema)),
+        photoUrls: z.array(z.string()),
+        status: z.optional(z.enum(['available', 'pending', 'sold']).describe('pet status in the store')),
+        type: z.literal('cat'),
+      }),
+    ),
+])
 
 export const updatePetMutationResponseSchema = z.lazy(() => updatePet200Schema)
