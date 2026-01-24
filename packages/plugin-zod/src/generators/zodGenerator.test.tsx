@@ -260,6 +260,12 @@ describe('zodGenerator schema', async () => {
       options: {},
     },
     {
+      name: 'Nullable',
+      input: '../../mocks/nullable-v3_1_0.yaml',
+      path: 'Nullable',
+      options: {},
+    },
+    {
       name: 'ExclusiveNumbers',
       input: '../../mocks/exclusiveNumbers-v3_1_0.yaml',
       path: 'ExclusiveNumbers',
