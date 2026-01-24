@@ -1,5 +1,14 @@
 # @kubb/oas
 
+## 4.18.5
+
+### Patch Changes
+
+- [#2362](https://github.com/kubb-labs/kubb/pull/2362) [`ea23bb4`](https://github.com/kubb-labs/kubb/commit/ea23bb4a2f5a121dd1192b05f0f4cf4207093dc5) Thanks [@ATholin](https://github.com/ATholin)! - Improves zod handling of nullable schemas in OpenAPI 3.1 by recognizing type: null variants that previously only worked in some cases.
+
+- Updated dependencies []:
+  - @kubb/core@4.18.5
+
 ## 4.18.4
 
 ### Patch Changes
