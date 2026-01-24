@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { petSchema } from './petSchema.ts'
 import { z } from 'zod'
+import { petSchema } from './petSchema.ts'
 
 /**
  * @description Successful operation

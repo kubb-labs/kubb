@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
+import { z } from 'zod'
 import { categorySchema } from './categorySchema.ts'
 import { catSchema } from './catSchema.ts'
 import { dogSchema } from './dogSchema.ts'
 import { tagSchema } from './tagSchema.ts'
-import { z } from 'zod'
 
 export const petSchema = z.union([
   z

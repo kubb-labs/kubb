@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { orderSchema } from './orderSchema.ts'
 import { z } from 'zod'
+import { orderSchema } from './orderSchema.ts'
 
 /**
  * @description successful operation

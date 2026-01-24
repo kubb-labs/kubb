@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { getUserByNamePathParamsSchema, getUserByName200Schema } from '../zod/getUserByNameSchema.ts'
 import { z } from 'zod'
+import { getUserByName200Schema, getUserByNamePathParamsSchema } from '../zod/getUserByNameSchema.ts'
+import { base } from './base.ts'
 
 export const getUserByNameContract = base
   .route({

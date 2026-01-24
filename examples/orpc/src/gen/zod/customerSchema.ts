@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { addressSchema } from './addressSchema.ts'
 import { z } from 'zod'
+import { addressSchema } from './addressSchema.ts'
 
 export const customerSchema = z.object({
   id: z.optional(z.number().int()),

@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { deleteOrderPathParamsSchema, deleteOrderMutationResponseSchema } from '../zod/deleteOrderSchema.ts'
 import { z } from 'zod'
+import { deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema } from '../zod/deleteOrderSchema.ts'
+import { base } from './base.ts'
 
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors

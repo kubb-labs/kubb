@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { uploadFileMutationRequestSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema, uploadFile200Schema } from '../zod/uploadFileSchema.ts'
 import { z } from 'zod'
+import { uploadFile200Schema, uploadFileMutationRequestSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from '../zod/uploadFileSchema.ts'
+import { base } from './base.ts'
 
 export const uploadFileContract = base
   .route({

@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { findPetsByTagsQueryParamsSchema, findPetsByTags200Schema } from '../zod/findPetsByTagsSchema.ts'
 import { z } from 'zod'
+import { findPetsByTags200Schema, findPetsByTagsQueryParamsSchema } from '../zod/findPetsByTagsSchema.ts'
+import { base } from './base.ts'
 
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.

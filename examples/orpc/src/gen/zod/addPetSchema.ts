@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
+import { z } from 'zod'
 import { addPetRequestSchema } from './addPetRequestSchema.ts'
 import { petSchema } from './petSchema.ts'
-import { z } from 'zod'
 
 /**
  * @description Successful operation

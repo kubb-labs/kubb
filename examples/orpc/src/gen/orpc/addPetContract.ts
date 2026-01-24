@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { addPetMutationRequestSchema, addPet200Schema } from '../zod/addPetSchema.ts'
 import { z } from 'zod'
+import { addPet200Schema, addPetMutationRequestSchema } from '../zod/addPetSchema.ts'
+import { base } from './base.ts'
 
 /**
  * @description Add a new pet to the store

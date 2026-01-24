@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { placeOrderMutationRequestSchema, placeOrder200Schema } from '../zod/placeOrderSchema.ts'
 import { z } from 'zod'
+import { placeOrder200Schema, placeOrderMutationRequestSchema } from '../zod/placeOrderSchema.ts'
+import { base } from './base.ts'
 
 /**
  * @description Place a new order in the store

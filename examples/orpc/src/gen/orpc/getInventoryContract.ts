@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
 import { getInventory200Schema } from '../zod/getInventorySchema.ts'
+import { base } from './base.ts'
 
 /**
  * @description Returns a map of status codes to quantities

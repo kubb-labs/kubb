@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { findPetsByStatusQueryParamsSchema, findPetsByStatus200Schema } from '../zod/findPetsByStatusSchema.ts'
 import { z } from 'zod'
+import { findPetsByStatus200Schema, findPetsByStatusQueryParamsSchema } from '../zod/findPetsByStatusSchema.ts'
+import { base } from './base.ts'
 
 /**
  * @description Multiple status values can be provided with comma separated strings

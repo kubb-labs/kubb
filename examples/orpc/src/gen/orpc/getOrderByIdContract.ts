@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { getOrderByIdPathParamsSchema, getOrderById200Schema } from '../zod/getOrderByIdSchema.ts'
 import { z } from 'zod'
+import { getOrderById200Schema, getOrderByIdPathParamsSchema } from '../zod/getOrderByIdSchema.ts'
+import { base } from './base.ts'
 
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.

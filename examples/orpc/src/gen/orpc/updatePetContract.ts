@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { updatePetMutationRequestSchema, updatePet200Schema } from '../zod/updatePetSchema.ts'
 import { z } from 'zod'
+import { updatePet200Schema, updatePetMutationRequestSchema } from '../zod/updatePetSchema.ts'
+import { base } from './base.ts'
 
 /**
  * @description Update an existing pet by Id

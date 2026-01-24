@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { customerSchema } from './customerSchema.ts'
 import { z } from 'zod'
+import { customerSchema } from './customerSchema.ts'
 
 export const unhappyCustomerSchema = z
   .lazy(() => customerSchema)

@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { deletePetPathParamsSchema, deletePetHeaderParamsSchema, deletePet200Schema } from '../zod/deletePetSchema.ts'
 import { z } from 'zod'
+import { deletePet200Schema, deletePetHeaderParamsSchema, deletePetPathParamsSchema } from '../zod/deletePetSchema.ts'
+import { base } from './base.ts'
 
 /**
  * @description delete a pet

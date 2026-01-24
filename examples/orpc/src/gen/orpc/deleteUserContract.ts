@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { deleteUserPathParamsSchema, deleteUserMutationResponseSchema } from '../zod/deleteUserSchema.ts'
 import { z } from 'zod'
+import { deleteUserMutationResponseSchema, deleteUserPathParamsSchema } from '../zod/deleteUserSchema.ts'
+import { base } from './base.ts'
 
 /**
  * @description This can only be done by the logged in user.

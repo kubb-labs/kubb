@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { apiResponseSchema } from './apiResponseSchema.ts'
 import { z } from 'zod'
+import { apiResponseSchema } from './apiResponseSchema.ts'
 
 export const uploadFilePathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet to update'),

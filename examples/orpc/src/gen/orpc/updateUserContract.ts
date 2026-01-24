@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { updateUserMutationRequestSchema, updateUserPathParamsSchema, updateUserMutationResponseSchema } from '../zod/updateUserSchema.ts'
 import { z } from 'zod'
+import { updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from '../zod/updateUserSchema.ts'
+import { base } from './base.ts'
 
 /**
  * @description This can only be done by the logged in user.

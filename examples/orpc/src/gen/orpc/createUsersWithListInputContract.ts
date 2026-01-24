@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { createUsersWithListInputMutationRequestSchema, createUsersWithListInput200Schema } from '../zod/createUsersWithListInputSchema.ts'
 import { z } from 'zod'
+import { createUsersWithListInput200Schema, createUsersWithListInputMutationRequestSchema } from '../zod/createUsersWithListInputSchema.ts'
+import { base } from './base.ts'
 
 /**
  * @description Creates list of users with given input array

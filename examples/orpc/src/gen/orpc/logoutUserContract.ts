@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
 import { logoutUserQueryResponseSchema } from '../zod/logoutUserSchema.ts'
+import { base } from './base.ts'
 
 export const logoutUserContract = base
   .route({

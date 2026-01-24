@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { userSchema } from './userSchema.ts'
 import { z } from 'zod'
+import { userSchema } from './userSchema.ts'
 
 export const userArraySchema = z.array(z.lazy(() => userSchema))

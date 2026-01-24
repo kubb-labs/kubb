@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { base } from './base.ts'
-import { getPetByIdPathParamsSchema, getPetById200Schema } from '../zod/getPetByIdSchema.ts'
 import { z } from 'zod'
+import { getPetById200Schema, getPetByIdPathParamsSchema } from '../zod/getPetByIdSchema.ts'
+import { base } from './base.ts'
 
 /**
  * @description Returns a single pet
