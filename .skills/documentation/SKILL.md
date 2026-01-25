@@ -12,6 +12,7 @@ This skill provides comprehensive guidelines for AI coding assistants working on
 - Adding a new plugin, feature, or option
 - Changing plugin behavior or API signatures
 - Fixing bugs that affect code generation
+- Writing or updating functionalities/component/composable documentation
 
 ## What It Does
 
@@ -32,19 +33,17 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 
 ## Available References
 
-| Reference                                                            | Purpose                                         |
-| -------------------------------------------------------------------- | ----------------------------------------------- |
-| **[references/writing-style.md](references/writing-style.md)**       | Voice, tone, sentence structure                 |
-| **[references/content-patterns.md](references/content-patterns.md)** | Blog frontmatter, structure, component patterns |
-| **[references/config-json.md](references/config-json.md)**           | Navigation and sidebar configuration schema     |
+| Reference                                                              | Purpose                                         |
+| ---------------------------------------------------------------------- | ----------------------------------------------- |
+| **[documentation/references/writing-style.md](documentation/references/writing-style.md)**         | Voice, tone, sentence structure                 |
+| **[documentation/references/content-patterns.md](documentation/references/content-patterns.md)**   | Usage patterns, props structure, component patterns |
+| **[documentation/references/config-json.md](documentation/references/config-json.md)**             | Navigation and sidebar configuration schema     |
 
 **Load based on context:**
 
-- Writing prose → [references/writing-style.md](references/writing-style.md)
-- Blog structure and patterns → [references/content-patterns.md](references/content-patterns.md)
-- Adding navigation or sections → [references/config-json.md](references/config-json.md)
-
-## Quick Reference
+- Writing prose → [documentation/references/writing-style.md](documentation/references/writing-style.md)
+- Props, options, usage patterns → [documentation/references/content-patterns.md](documentation/references/content-patterns.md)
+- Adding navigation or sections → [documentation/references/config-json.md](documentation/references/config-json.md)
 
 ## Language and Tone
 
@@ -117,7 +116,7 @@ When adding new sections:
 2. Add navigation items to `nav` array
 3. Map route prefix to sidebar name in `sidebar` object
 
-See [references/config-json.md](references/config-json.md) for complete schema reference.
+See [./references/config-json.md](./references/config-json.md) for complete schema reference.
 
 ## Checklist
 
@@ -131,3 +130,9 @@ See [references/config-json.md](references/config-json.md) for complete schema r
 - [ ] Validate frontmatter syntax
 - [ ] Edge cases and limitations documented
 - [ ] Update `config.json` when adding new pages/sections
+- [ ] Usage section: minimal snippet with `::: code-group` and output
+- [ ] Examples section: realistic scenarios with meaningful names
+- [ ] Props/Options: correct table format (right-aligned labels, left-aligned values)
+- [ ] Props/Options: Type and Required always present, Default only if applicable
+- [ ] For functionalities/hooks/composables: include "When to Use" section with bullet points
+- [ ] Cross-references to related documentation (minimum 2-3 links)

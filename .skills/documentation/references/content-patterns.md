@@ -121,6 +121,41 @@ Use the right component for the right purpose:
 | Danger           | `> [!CAUTION]`                       | Destructive operations     |
 | Package managers | `::: code-group` and ends with `:::` | `bun`, `pnpm`, `npm`, `yarn` variants     |
 
+## Usage Section
+- **Minimal, generic snippet** showing basic syntax
+- Shows core functionality only
+- Uses placeholder/simple values
+- Always includes `::: code-group` with input and output
+- First example users see - keep it simple
+
+## Examples Section
+- **Realistic, concrete snippets** showing real-world scenarios
+- Demonstrates actual use cases
+- Uses meaningful variable names and realistic data
+- Multiple examples for different scenarios
+
+## Props/Options/Parameters Structure
+
+All props, options, and parameters must use this exact table format:
+
+### propName
+
+[One-sentence description of what this prop/option does]
+
+|           |          |
+|----------:|:---------|
+|     Type: | `string` |
+| Required: | `true`   |
+|  Default: | `value`  |  // Only if a default exists
+
+**Table rules:**
+- **Required rows**:
+  - `Type:` - Always present, show the TypeScript type
+  - `Required:` - Always present, use `true` or `false`
+- **Optional rows**:
+  - `Default:` - Only include if a default value exists
+  - Do not include Default row if there's no default
+
 
 ## Prefer table Pattern
 

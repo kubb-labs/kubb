@@ -105,7 +105,7 @@
     "@kubb/react-fabric": "catalog:"
   },
   "devDependencies": {
-    "axios": "^1.13.2"
+    "axios": "^1.13.3"
   },
   "peerDependencies": {
     "@kubb/react-fabric": "0.12.4",
