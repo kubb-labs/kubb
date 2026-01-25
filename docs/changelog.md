@@ -6,6 +6,32 @@ outline: deep
 # Changelog
 
 
+## 4.18.5
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+
+**Improved nullable schema handling in OpenAPI 3.1**
+
+Improved handling of nullable schemas in OpenAPI 3.1 by properly recognizing `type: null` variants. Previously, some nullable schema patterns were not correctly identified, causing incorrect Zod schema generation.
+
+> [!NOTE]
+> This fix implements the solution from [#2362](https://github.com/kubb-labs/kubb/pull/2362).
+
+---
+
+#### [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+
+**Fixed incorrect omit usage on z.union schemas**
+
+Fixed an issue where `.omit()` was being applied to `z.union()` schemas, which is not valid in Zod. The plugin now correctly avoids using omit on union types.
+
+> [!NOTE]
+> This fix implements the solution from [#2368](https://github.com/kubb-labs/kubb/pull/2368).
+
+---
+
 ## 4.18.4
 
 ### ✨ Features
