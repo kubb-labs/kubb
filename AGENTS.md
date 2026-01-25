@@ -77,18 +77,6 @@ pnpm changeset               # Create changelog entry
 pnpm run upgrade && pnpm i   # Upgrade dependencies
 ```
 
-## Skills
-
-Use the skills in `.skills/` for detailed guidance:
-
-- **[changelog](.skills/changelog/SKILL.md)** - Generate changelogs from commits
-- **[coding-style](.skills/coding-style/SKILL.md)** - Code style and testing guidelines
-- **[components-generators](.skills/components-generators/SKILL.md)** - React-fabric components and generators
-- **[documentation](.skills/documentation/SKILL.md)** - Writing style and content patterns
-- **[plugin-architecture](.skills/plugin-architecture/SKILL.md)** - Plugin lifecycle and utilities
-- **[pr](.skills/pr/SKILL.md)** - PR preparation and changesets
-- **[testing](.skills/testing/SKILL.md)** - Test suite and CI guidance
-
 <skills>
 
 ## Skills
