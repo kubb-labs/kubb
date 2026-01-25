@@ -297,11 +297,11 @@
         },
         {
           "text": "Tutorials",
-          "collapsed": true,
+          "collapsed": false,
           "items": [
             {
               "text": "Basic",
-              "link": "/tutorials/basic",
+              "link": "/tutorials/getting-started",
               "activeMatch": "^/tutorials/basic/?$"
             }
           ]
