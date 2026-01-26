@@ -7,19 +7,37 @@ import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { TreeNode } from './utils/TreeNode.ts'
 import { getUniqueName } from './utils/uniqueName.ts'
 
-type BarrelManagerOptions = {}
+type BarrelManagerOptions = {
+  /**
+   * Optional: Track used export names across all barrel files
+   * If not provided, each barrel file will have its own namespace
+   * Similar to usedEnumNames in SchemaGenerator
+   */
+  usedNames?: Record<string, number>
+  /**
+   * Scope of unique name tracking
+   * - 'global': usedNames is shared across all barrel files (requires usedNames to be provided)
+   * - 'perBarrel': each barrel file has its own usedNames namespace (default)
+   */
+  scope?: 'global' | 'perBarrel'
+}
 
 export class BarrelManager {
-  constructor(_options: BarrelManagerOptions = {}) {
+  #globalUsedNames?: Record<string, number>
+  #scope: 'global' | 'perBarrel'
+  
+  constructor(options: BarrelManagerOptions = {}) {
+    this.#globalUsedNames = options.usedNames
+    this.#scope = options.scope || 'perBarrel'
     return this
   }
 
   getFiles({ files: generatedFiles, root }: { files: KubbFile.File[]; root?: string; meta?: FileMetaBase | undefined }): Array<KubbFile.File> {
     const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
-    // Track used export names per barrel file to generate unique names with numeric suffixes
+    // Track used names per barrel file (unless using global scope)
     const usedNamesPerBarrel = new Map<KubbFile.Path, Record<string, number>>()
     // Track what sources have been processed (by path + original name) to avoid duplicates from TreeNode
-    const processedSourcesPerBarrel = new Map<KubbFile.Path, Set<string>>()
+    const processedSources = new Set<string>()
 
     TreeNode.build(generatedFiles, root)?.forEach((treeNode) => {
       if (!treeNode || !treeNode.children || !treeNode.parent?.data.path) {
@@ -35,20 +53,15 @@ export class BarrelManager {
       }
       const previousBarrelFile = cachedFiles.get(barrelFile.path)
       
-      // Get or initialize the used names tracker for this barrel file
-      let usedNames = usedNamesPerBarrel.get(barrelFile.path)
-      if (!usedNames) {
-        usedNames = {}
-        usedNamesPerBarrel.set(barrelFile.path, usedNames)
-      }
-      
-      // Get or initialize the processed sources tracker
-      let processedSources = processedSourcesPerBarrel.get(barrelFile.path)
-      if (!processedSources) {
-        processedSources = new Set()
-        processedSourcesPerBarrel.set(barrelFile.path, processedSources)
-      }
-      
+      // Get or create usedNames for this barrel file
+      const usedNames = this.#scope === 'global' && this.#globalUsedNames
+        ? this.#globalUsedNames
+        : (usedNamesPerBarrel.get(barrelFile.path) || (() => {
+            const names = {}
+            usedNamesPerBarrel.set(barrelFile.path, names)
+            return names
+          })())
+
       const leaves = treeNode.leaves
 
       leaves.forEach((item) => {

@@ -36,7 +36,10 @@ export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type
     return []
   }
 
-  const barrelManager = new BarrelManager({})
+  // Track used names across all barrel files to prevent duplicates
+  // Similar to usedEnumNames in plugin-ts
+  const usedNames: Record<string, number> = {}
+  const barrelManager = new BarrelManager({ usedNames })
 
   const pathToBuildFrom = join(root, output.path)
 
