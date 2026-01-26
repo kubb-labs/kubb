@@ -13,7 +13,6 @@ import { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import { formatMs, getElapsedMs } from './utils/formatHrtime.ts'
 import { URLPath } from './utils/URLPath.ts'
-import { getUniqueName } from './utils/uniqueName.ts'
 
 type BuildOptions = {
   config: UserConfig
@@ -272,9 +271,6 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         pluginKeyMap.set(JSON.stringify(plugin.key), plugin)
       }
 
-      // Track used export names to generate unique names with numeric suffixes for duplicates
-      const usedExportNames: Record<string, number> = {}
-
       const rootFile: KubbFile.File = {
         path: rootPath,
         baseName: 'index.ts',
@@ -299,11 +295,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
                   return undefined
                 }
 
-                // Generate unique name with numeric suffix if duplicate exists
-                const uniqueName = source.name ? getUniqueName(source.name, usedExportNames) : undefined
-
                 return {
-                  name: config.output.barrelType === 'all' ? undefined : uniqueName ? [uniqueName] : undefined,
+                  name: config.output.barrelType === 'all' ? undefined : [source.name],
                   path: getRelativePath(rootPath, file.path),
                   isTypeOnly: config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
                 } as KubbFile.Export

@@ -36,7 +36,7 @@ export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type
     return []
   }
 
-  const barrelManager = new BarrelManager()
+  const barrelManager = new BarrelManager({})
 
   const pathToBuildFrom = join(root, output.path)
 

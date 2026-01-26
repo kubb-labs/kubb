@@ -154,14 +154,14 @@ describe('BarrelManager', () => {
             {
               "isTypeOnly": undefined,
               "name": [
-                "world2",
+                "world",
               ],
               "path": "./sub/index.ts",
             },
             {
               "isTypeOnly": undefined,
               "name": [
-                "hello2",
+                "hello",
               ],
               "path": "./sub/index.ts",
             },
@@ -194,14 +194,14 @@ describe('BarrelManager', () => {
               "isExportable": false,
               "isIndexable": false,
               "isTypeOnly": undefined,
-              "name": "world2",
+              "name": "world",
               "value": "",
             },
             {
               "isExportable": false,
               "isIndexable": false,
               "isTypeOnly": undefined,
-              "name": "hello2",
+              "name": "hello",
               "value": "",
             },
           ],
@@ -223,20 +223,6 @@ describe('BarrelManager', () => {
               ],
               "path": "./world.ts",
             },
-            {
-              "isTypeOnly": undefined,
-              "name": [
-                "world2",
-              ],
-              "path": "./index.ts",
-            },
-            {
-              "isTypeOnly": undefined,
-              "name": [
-                "hello2",
-              ],
-              "path": "./index.ts",
-            },
           ],
           "imports": [],
           "path": "src/sub/index.ts",
@@ -255,92 +241,9 @@ describe('BarrelManager', () => {
               "name": "world",
               "value": "",
             },
-            {
-              "isExportable": false,
-              "isIndexable": false,
-              "isTypeOnly": undefined,
-              "name": "world2",
-              "value": "",
-            },
-            {
-              "isExportable": false,
-              "isIndexable": false,
-              "isTypeOnly": undefined,
-              "name": "hello2",
-              "value": "",
-            },
           ],
         },
       ]
     `)
-  })
-
-  test('generates unique names with numeric suffixes for duplicate identifiers', () => {
-    const files: KubbFile.File[] = [
-      {
-        path: 'src/models/user-type.ts',
-        baseName: 'user-type.ts',
-        sources: [
-          {
-            name: 'User',
-            value: 'export type User = { id: string };',
-            isExportable: true,
-            isIndexable: true,
-          },
-        ],
-        imports: [],
-        exports: [],
-      },
-      {
-        path: 'src/models/user-schema.ts',
-        baseName: 'user-schema.ts',
-        sources: [
-          {
-            name: 'User',
-            value: 'export const User = z.object({ id: z.string() });',
-            isExportable: true,
-            isIndexable: true,
-          },
-        ],
-        imports: [],
-        exports: [],
-      },
-      {
-        path: 'src/models/user-mock.ts',
-        baseName: 'user-mock.ts',
-        sources: [
-          {
-            name: 'User',
-            value: 'export const User = () => ({ id: faker.string.uuid() });',
-            isExportable: true,
-            isIndexable: true,
-          },
-        ],
-        imports: [],
-        exports: [],
-      },
-    ]
-    const barrelManager = new BarrelManager()
-    const barrelFiles = barrelManager.getFiles({ files, root: 'src/models' }) || []
-
-    // Verify that we have one barrel file
-    expect(barrelFiles).toHaveLength(1)
-
-    const rootIndex = barrelFiles[0]
-    expect(rootIndex).toBeDefined()
-    
-    // All three User exports should be preserved with unique names
-    expect(rootIndex?.sources).toHaveLength(3)
-    expect(rootIndex?.exports).toHaveLength(3)
-
-    // First occurrence keeps original name, subsequent get numeric suffixes
-    expect(rootIndex?.exports?.[0]?.name).toEqual(['User'])
-    expect(rootIndex?.exports?.[0]?.path).toBe('./user-type.ts')
-    
-    expect(rootIndex?.exports?.[1]?.name).toEqual(['User2'])
-    expect(rootIndex?.exports?.[1]?.path).toBe('./user-schema.ts')
-    
-    expect(rootIndex?.exports?.[2]?.name).toEqual(['User3'])
-    expect(rootIndex?.exports?.[2]?.path).toBe('./user-mock.ts')
   })
 })
