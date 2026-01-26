@@ -5,6 +5,7 @@ import { getRelativePath } from './fs/index.ts'
 
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { TreeNode } from './utils/TreeNode.ts'
+import { getUniqueName } from './utils/uniqueName.ts'
 
 type BarrelManagerOptions = {}
 
@@ -15,6 +16,10 @@ export class BarrelManager {
 
   getFiles({ files: generatedFiles, root }: { files: KubbFile.File[]; root?: string; meta?: FileMetaBase | undefined }): Array<KubbFile.File> {
     const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
+    // Track used export names per barrel file to generate unique names with numeric suffixes
+    const usedNamesPerBarrel = new Map<KubbFile.Path, Record<string, number>>()
+    // Track what sources have been processed (by path + original name) to avoid duplicates from TreeNode
+    const processedSourcesPerBarrel = new Map<KubbFile.Path, Set<string>>()
 
     TreeNode.build(generatedFiles, root)?.forEach((treeNode) => {
       if (!treeNode || !treeNode.children || !treeNode.parent?.data.path) {
@@ -29,6 +34,21 @@ export class BarrelManager {
         sources: [],
       }
       const previousBarrelFile = cachedFiles.get(barrelFile.path)
+      
+      // Get or initialize the used names tracker for this barrel file
+      let usedNames = usedNamesPerBarrel.get(barrelFile.path)
+      if (!usedNames) {
+        usedNames = {}
+        usedNamesPerBarrel.set(barrelFile.path, usedNames)
+      }
+      
+      // Get or initialize the processed sources tracker
+      let processedSources = processedSourcesPerBarrel.get(barrelFile.path)
+      if (!processedSources) {
+        processedSources = new Set()
+        processedSourcesPerBarrel.set(barrelFile.path, processedSources)
+      }
+      
       const leaves = treeNode.leaves
 
       leaves.forEach((item) => {
@@ -40,16 +60,6 @@ export class BarrelManager {
 
         sources.forEach((source) => {
           if (!item.data.file?.path || !source.isIndexable || !source.name) {
-            return undefined
-          }
-          const alreadyContainInPreviousBarrelFile = previousBarrelFile?.sources.some(
-            (item) => item.name === source.name && item.isTypeOnly === source.isTypeOnly,
-          )
-          const alreadyContainInCurrentBarrelFile = barrelFile.sources.some(
-            (item) => item.name === source.name && item.isTypeOnly === source.isTypeOnly,
-          )
-
-          if (alreadyContainInPreviousBarrelFile || alreadyContainInCurrentBarrelFile) {
             return undefined
           }
 
@@ -86,28 +96,78 @@ export class BarrelManager {
       })
 
       if (previousBarrelFile) {
-        // Deduplicate sources by name and isTypeOnly
-        const existingSourceKeys = new Set(
-          previousBarrelFile.sources.map((s) => `${s.name}:${s.isTypeOnly}`),
-        )
-        const newSources = barrelFile.sources.filter(
-          (source) => !existingSourceKeys.has(`${source.name}:${source.isTypeOnly}`),
-        )
-        previousBarrelFile.sources.push(...newSources)
+        // When merging, use getUniqueName to avoid duplicate identifiers
+        // Generate unique names with numeric suffixes for duplicates
+        barrelFile.sources.forEach((newSource, index) => {
+          const correspondingExport = barrelFile.exports?.[index]
+          
+          // Create a unique key for this source: path + original name
+          // This allows the same file to export multiple things with different names
+          const sourceKey = `${correspondingExport?.path}:${newSource.name}`
+          
+          // Skip if we've already processed this exact source
+          if (processedSources.has(sourceKey)) {
+            return
+          }
+          
+          // Skip if name is undefined
+          if (!newSource.name) {
+            return
+          }
+          
+          // Mark as processed
+          processedSources.add(sourceKey)
+          
+          const uniqueName = getUniqueName(newSource.name, usedNames)
+          
+          // Update source name
+          previousBarrelFile.sources.push({
+            ...newSource,
+            name: uniqueName,
+          })
 
-        // Deduplicate exports by name, path, and isTypeOnly
-        const existingExportKeys = new Set(
-          (previousBarrelFile.exports || []).map((e) => {
-            const nameKey = Array.isArray(e.name) ? e.name.join(',') : e.name || ''
-            return `${nameKey}:${e.path}:${e.isTypeOnly}`
-          }),
-        )
-        const newExports = (barrelFile.exports || []).filter((exp) => {
-          const nameKey = Array.isArray(exp.name) ? exp.name.join(',') : exp.name || ''
-          return !existingExportKeys.has(`${nameKey}:${exp.path}:${exp.isTypeOnly}`)
+          // Update corresponding export name to match
+          if (correspondingExport) {
+            previousBarrelFile.exports?.push({
+              ...correspondingExport,
+              name: [uniqueName],
+            })
+          }
         })
-        previousBarrelFile.exports?.push(...newExports)
       } else {
+        // First time seeing this barrel file - still need to apply getUniqueName
+        // to handle duplicates within this initial set
+        barrelFile.sources = barrelFile.sources.map((source, index) => {
+          // Skip if name is undefined
+          if (!source.name) {
+            return source
+          }
+          
+          const uniqueName = getUniqueName(source.name, usedNames)
+          
+          // Mark as processed
+          const correspondingExport = barrelFile.exports?.[index]
+          const sourceKey = `${correspondingExport?.path}:${source.name}`
+          processedSources.add(sourceKey)
+          
+          return {
+            ...source,
+            name: uniqueName,
+          }
+        })
+
+        barrelFile.exports = barrelFile.exports?.map((exp, index) => {
+          // Use the same unique name that was generated for the corresponding source
+          const correspondingSource = barrelFile.sources[index]
+          if (correspondingSource && correspondingSource.name) {
+            return {
+              ...exp,
+              name: [correspondingSource.name],
+            }
+          }
+          return exp
+        })
+
         cachedFiles.set(barrelFile.path, barrelFile)
       }
     })

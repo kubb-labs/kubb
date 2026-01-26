@@ -13,6 +13,7 @@ import { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import { formatMs, getElapsedMs } from './utils/formatHrtime.ts'
 import { URLPath } from './utils/URLPath.ts'
+import { getUniqueName } from './utils/uniqueName.ts'
 
 type BuildOptions = {
   config: UserConfig
@@ -271,52 +272,45 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         pluginKeyMap.set(JSON.stringify(plugin.key), plugin)
       }
 
-      // Collect all exports and deduplicate by name+path+isTypeOnly
-      const allExports = barrelFiles
-        .flatMap((file) => {
-          const containsOnlyTypes = file.sources?.every((source) => source.isTypeOnly)
-
-          return file.sources
-            ?.map((source) => {
-              if (!file.path || !source.isIndexable) {
-                return undefined
-              }
-
-              // validate of the file is coming from plugin x, needs pluginKey on every file TODO update typing
-              const meta = file.meta as any
-              const plugin = meta?.pluginKey ? pluginKeyMap.get(JSON.stringify(meta.pluginKey)) : undefined
-              const pluginOptions = plugin?.options as {
-                output?: Output<any>
-              }
-
-              if (!pluginOptions || pluginOptions?.output?.barrelType === false) {
-                return undefined
-              }
-
-              return {
-                name: config.output.barrelType === 'all' ? undefined : [source.name],
-                path: getRelativePath(rootPath, file.path),
-                isTypeOnly: config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
-              } as KubbFile.Export
-            })
-            .filter(Boolean)
-        })
-        .filter(Boolean)
-
-      // Deduplicate exports by creating a unique key for each export
-      const exportMap = new Map<string, KubbFile.Export>()
-      for (const exp of allExports) {
-        const nameKey = Array.isArray(exp.name) ? exp.name.join(',') : exp.name || ''
-        const key = `${nameKey}:${exp.path}:${exp.isTypeOnly}`
-        if (!exportMap.has(key)) {
-          exportMap.set(key, exp)
-        }
-      }
+      // Track used export names to generate unique names with numeric suffixes for duplicates
+      const usedExportNames: Record<string, number> = {}
 
       const rootFile: KubbFile.File = {
         path: rootPath,
         baseName: 'index.ts',
-        exports: Array.from(exportMap.values()),
+        exports: barrelFiles
+          .flatMap((file) => {
+            const containsOnlyTypes = file.sources?.every((source) => source.isTypeOnly)
+
+            return file.sources
+              ?.map((source) => {
+                if (!file.path || !source.isIndexable) {
+                  return undefined
+                }
+
+                // validate of the file is coming from plugin x, needs pluginKey on every file TODO update typing
+                const meta = file.meta as any
+                const plugin = meta?.pluginKey ? pluginKeyMap.get(JSON.stringify(meta.pluginKey)) : undefined
+                const pluginOptions = plugin?.options as {
+                  output?: Output<any>
+                }
+
+                if (!pluginOptions || pluginOptions?.output?.barrelType === false) {
+                  return undefined
+                }
+
+                // Generate unique name with numeric suffix if duplicate exists
+                const uniqueName = source.name ? getUniqueName(source.name, usedExportNames) : undefined
+
+                return {
+                  name: config.output.barrelType === 'all' ? undefined : uniqueName ? [uniqueName] : undefined,
+                  path: getRelativePath(rootPath, file.path),
+                  isTypeOnly: config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
+                } as KubbFile.Export
+              })
+              .filter(Boolean)
+          })
+          .filter(Boolean),
         sources: [],
         imports: [],
         meta: {},
