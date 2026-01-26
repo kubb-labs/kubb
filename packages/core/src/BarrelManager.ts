@@ -97,11 +97,15 @@ export class BarrelManager {
 
         // Deduplicate exports by name, path, and isTypeOnly
         const existingExportKeys = new Set(
-          (previousBarrelFile.exports || []).map((e) => `${e.name?.join(',')}:${e.path}:${e.isTypeOnly}`),
+          (previousBarrelFile.exports || []).map((e) => {
+            const nameKey = Array.isArray(e.name) ? e.name.join(',') : e.name || ''
+            return `${nameKey}:${e.path}:${e.isTypeOnly}`
+          }),
         )
-        const newExports = (barrelFile.exports || []).filter(
-          (exp) => !existingExportKeys.has(`${exp.name?.join(',')}:${exp.path}:${exp.isTypeOnly}`),
-        )
+        const newExports = (barrelFile.exports || []).filter((exp) => {
+          const nameKey = Array.isArray(exp.name) ? exp.name.join(',') : exp.name || ''
+          return !existingExportKeys.has(`${nameKey}:${exp.path}:${exp.isTypeOnly}`)
+        })
         previousBarrelFile.exports?.push(...newExports)
       } else {
         cachedFiles.set(barrelFile.path, barrelFile)

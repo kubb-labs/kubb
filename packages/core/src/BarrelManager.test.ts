@@ -257,11 +257,12 @@ describe('BarrelManager', () => {
     expect(barrelFiles).toHaveLength(1)
 
     const rootIndex = barrelFiles[0]
-    expect(rootIndex.sources).toHaveLength(1) // Only one "User" source
-    expect(rootIndex.exports).toHaveLength(1) // Only one "User" export
+    expect(rootIndex).toBeDefined()
+    expect(rootIndex?.sources).toHaveLength(1) // Only one "User" source
+    expect(rootIndex?.exports).toHaveLength(1) // Only one "User" export
 
     // The first occurrence should win
-    expect(rootIndex.exports?.[0]?.name).toEqual(['User'])
-    expect(rootIndex.exports?.[0]?.path).toBe('./user.ts')
+    expect(rootIndex?.exports?.[0]?.name).toEqual(['User'])
+    expect(rootIndex?.exports?.[0]?.path).toBe('./user.ts')
   })
 })

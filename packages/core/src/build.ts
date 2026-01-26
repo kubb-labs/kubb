@@ -306,7 +306,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       // Deduplicate exports by creating a unique key for each export
       const exportMap = new Map<string, KubbFile.Export>()
       for (const exp of allExports) {
-        const key = `${exp.name?.join(',')}:${exp.path}:${exp.isTypeOnly}`
+        const nameKey = Array.isArray(exp.name) ? exp.name.join(',') : exp.name || ''
+        const key = `${nameKey}:${exp.path}:${exp.isTypeOnly}`
         if (!exportMap.has(key)) {
           exportMap.set(key, exp)
         }
