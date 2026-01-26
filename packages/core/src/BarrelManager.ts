@@ -7,35 +7,19 @@ import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { TreeNode } from './utils/TreeNode.ts'
 import { getUniqueName } from './utils/uniqueName.ts'
 
-type BarrelManagerOptions = {
-  /**
-   * Optional: Track used export names across all barrel files
-   * If not provided, each barrel file will have its own namespace
-   * Similar to usedEnumNames in SchemaGenerator
-   */
-  usedNames?: Record<string, number>
-  /**
-   * Scope of unique name tracking
-   * - 'global': usedNames is shared across all barrel files (requires usedNames to be provided)
-   * - 'perBarrel': each barrel file has its own usedNames namespace (default)
-   */
-  scope?: 'global' | 'perBarrel'
-}
+type BarrelManagerOptions = {}
 
 export class BarrelManager {
-  #globalUsedNames?: Record<string, number>
-  #scope: 'global' | 'perBarrel'
+  // Keep track of already used export names per barrel file
+  // Similar to #usedAliasNames in SchemaGenerator
+  #usedNamesPerBarrel: Map<KubbFile.Path, Record<string, number>> = new Map()
   
-  constructor(options: BarrelManagerOptions = {}) {
-    this.#globalUsedNames = options.usedNames
-    this.#scope = options.scope || 'perBarrel'
+  constructor(_options: BarrelManagerOptions = {}) {
     return this
   }
 
   getFiles({ files: generatedFiles, root }: { files: KubbFile.File[]; root?: string; meta?: FileMetaBase | undefined }): Array<KubbFile.File> {
     const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
-    // Track used names per barrel file (unless using global scope)
-    const usedNamesPerBarrel = new Map<KubbFile.Path, Record<string, number>>()
     // Track what sources have been processed (by path + original name) to avoid duplicates from TreeNode
     const processedSources = new Set<string>()
 
@@ -53,14 +37,12 @@ export class BarrelManager {
       }
       const previousBarrelFile = cachedFiles.get(barrelFile.path)
       
-      // Get or create usedNames for this barrel file
-      const usedNames = this.#scope === 'global' && this.#globalUsedNames
-        ? this.#globalUsedNames
-        : (usedNamesPerBarrel.get(barrelFile.path) || (() => {
-            const names = {}
-            usedNamesPerBarrel.set(barrelFile.path, names)
-            return names
-          })())
+      // Get or create usedNames for this barrel file (persisted in instance variable)
+      let usedNames = this.#usedNamesPerBarrel.get(barrelFile.path)
+      if (!usedNames) {
+        usedNames = {}
+        this.#usedNamesPerBarrel.set(barrelFile.path, usedNames)
+      }
 
       const leaves = treeNode.leaves
 
