@@ -101,17 +101,17 @@ export class BarrelManager {
         barrelFile.sources.forEach((newSource, index) => {
           const correspondingExport = barrelFile.exports?.[index]
           
-          // Create a unique key for this source: path + original name
-          // This allows the same file to export multiple things with different names
-          const sourceKey = `${correspondingExport?.path}:${newSource.name}`
-          
-          // Skip if we've already processed this exact source
-          if (processedSources.has(sourceKey)) {
+          // Skip if no corresponding export or if name is undefined
+          if (!correspondingExport || !newSource.name) {
             return
           }
           
-          // Skip if name is undefined
-          if (!newSource.name) {
+          // Create a unique key for this source: path + original name
+          // This allows the same file to export multiple things with different names
+          const sourceKey = `${correspondingExport.path}:${newSource.name}`
+          
+          // Skip if we've already processed this exact source
+          if (processedSources.has(sourceKey)) {
             return
           }
           
@@ -138,16 +138,17 @@ export class BarrelManager {
         // First time seeing this barrel file - still need to apply getUniqueName
         // to handle duplicates within this initial set
         barrelFile.sources = barrelFile.sources.map((source, index) => {
-          // Skip if name is undefined
-          if (!source.name) {
+          const correspondingExport = barrelFile.exports?.[index]
+          
+          // Skip processing if name is undefined or no corresponding export
+          if (!source.name || !correspondingExport) {
             return source
           }
           
           const uniqueName = getUniqueName(source.name, usedNames)
           
           // Mark as processed
-          const correspondingExport = barrelFile.exports?.[index]
-          const sourceKey = `${correspondingExport?.path}:${source.name}`
+          const sourceKey = `${correspondingExport.path}:${source.name}`
           processedSources.add(sourceKey)
           
           return {
