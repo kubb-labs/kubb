@@ -45,8 +45,11 @@ export class BarrelManager {
           const alreadyContainInPreviousBarrelFile = previousBarrelFile?.sources.some(
             (item) => item.name === source.name && item.isTypeOnly === source.isTypeOnly,
           )
+          const alreadyContainInCurrentBarrelFile = barrelFile.sources.some(
+            (item) => item.name === source.name && item.isTypeOnly === source.isTypeOnly,
+          )
 
-          if (alreadyContainInPreviousBarrelFile) {
+          if (alreadyContainInPreviousBarrelFile || alreadyContainInCurrentBarrelFile) {
             return undefined
           }
 
@@ -83,8 +86,23 @@ export class BarrelManager {
       })
 
       if (previousBarrelFile) {
-        previousBarrelFile.sources.push(...barrelFile.sources)
-        previousBarrelFile.exports?.push(...(barrelFile.exports || []))
+        // Deduplicate sources by name and isTypeOnly
+        const existingSourceKeys = new Set(
+          previousBarrelFile.sources.map((s) => `${s.name}:${s.isTypeOnly}`),
+        )
+        const newSources = barrelFile.sources.filter(
+          (source) => !existingSourceKeys.has(`${source.name}:${source.isTypeOnly}`),
+        )
+        previousBarrelFile.sources.push(...newSources)
+
+        // Deduplicate exports by name, path, and isTypeOnly
+        const existingExportKeys = new Set(
+          (previousBarrelFile.exports || []).map((e) => `${e.name?.join(',')}:${e.path}:${e.isTypeOnly}`),
+        )
+        const newExports = (barrelFile.exports || []).filter(
+          (exp) => !existingExportKeys.has(`${exp.name?.join(',')}:${exp.path}:${exp.isTypeOnly}`),
+        )
+        previousBarrelFile.exports?.push(...newExports)
       } else {
         cachedFiles.set(barrelFile.path, barrelFile)
       }
