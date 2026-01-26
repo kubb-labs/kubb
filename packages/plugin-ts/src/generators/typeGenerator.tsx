@@ -328,7 +328,10 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
     const file = getFile(operation)
     const schemas = getSchemas(operation)
-    const schemaGenerator = new SchemaGenerator(options, {
+    
+    // Use shared SchemaGenerator from context if available, otherwise create a new one
+    // The shared instance ensures #usedAliasNames is consistent across all operations
+    const schemaGenerator = generator.context.schemaGenerator || new SchemaGenerator(options, {
       fabric: generator.context.fabric,
       oas,
       events: generator.context.events,

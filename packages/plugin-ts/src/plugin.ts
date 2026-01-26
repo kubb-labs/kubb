@@ -128,6 +128,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
         override,
         mode,
         UNSTABLE_NAMING,
+        schemaGenerator, // Pass the shared SchemaGenerator instance
       })
 
       const operationFiles = await operationGenerator.build(...generators)
