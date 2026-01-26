@@ -27,10 +27,6 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   plugin: Plugin<TPluginOptions>
   mode: KubbFile.Mode
   UNSTABLE_NAMING?: true
-  /**
-   * Shared SchemaGenerator instance to ensure unique alias names across all schemas
-   */
-  schemaGenerator?: any // Will be typed properly by the plugin that provides it
 }
 
 export class OperationGenerator<
