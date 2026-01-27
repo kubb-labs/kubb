@@ -17,10 +17,10 @@ type GetSchemasProps = {
   includes?: Mode[]
   /**
    * Whether to resolve name collisions with suffixes.
-   * If not provided, uses oas.options.resolveNameCollisions
+   * If not provided, uses oas.options.collisionDetection
    * @default false (from oas.options or fallback)
    */
-  resolveNameCollisions?: boolean
+  collisionDetection?: boolean
 }
 
 /**
@@ -36,11 +36,11 @@ export function getSchemas({
   oas,
   contentType,
   includes = ['schemas', 'requestBodies', 'responses'],
-  resolveNameCollisions,
+  collisionDetection,
 }: GetSchemasProps): GetSchemasResult {
   return oas.getSchemas({
     contentType,
     includes,
-    resolveNameCollisions,
+    collisionDetection,
   })
 }

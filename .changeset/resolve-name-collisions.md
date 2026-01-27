@@ -3,9 +3,9 @@
 '@kubb/plugin-oas': minor
 ---
 
-Add `resolveNameCollisions` option to intelligently handle schema name collisions
+Add `collisionDetection` option to intelligently handle schema name collisions
 
-Added a new opt-in `resolveNameCollisions` option that prevents duplicate files and naming conflicts when OpenAPI specs contain schemas with the same name (case-insensitive) across different components.
+Added a new opt-in `collisionDetection` option that prevents duplicate files and naming conflicts when OpenAPI specs contain schemas with the same name (case-insensitive) across different components.
 
 **Features:**
 - **Cross-component collisions**: Automatically adds semantic suffixes (`Schema`, `Response`, `Request`) when schemas from different components share names
@@ -19,7 +19,7 @@ Added a new opt-in `resolveNameCollisions` option that prevents duplicate files 
 export default defineConfig({
   plugins: [
     pluginOas({
-      resolveNameCollisions: true,  // Enable collision detection
+      collisionDetection: true,  // Enable collision detection
     }),
   ],
 })
@@ -41,7 +41,7 @@ components:
 - May generate: `Order.ts` (duplicate), `OrderSchema.ts`, `OrderRequest.ts`
 - Potential import errors and duplicate files
 
-**After** (with `resolveNameCollisions: true`):
+**After** (with `collisionDetection: true`):
 - Generates: `OrderSchema.ts`, `OrderRequest.ts`
 - Types: `OrderSchema`, `OrderRequest`
 - Operation imports correctly reference `OrderSchema`
@@ -54,8 +54,8 @@ components:
     variant: { ... }  # Different casing
 ```
 
-**After** (with `resolveNameCollisions: true`):
+**After** (with `collisionDetection: true`):
 - Generates: `Variant.ts`, `Variant2.ts`
 - Preserves original spec order for deterministic behavior
 
-This change stores the option in the Oas instance (`oas.options.resolveNameCollisions`), making it accessible throughout the generation pipeline without passing it through multiple layers.
+This change stores the option in the Oas instance (`oas.options.collisionDetection`), making it accessible throughout the generation pipeline without passing it through multiple layers.

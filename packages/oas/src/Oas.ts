@@ -12,7 +12,7 @@ type OasOptions = {
    * Resolve name collisions when schemas from different components share the same name (case-insensitive).
    * @default false
    */
-  resolveNameCollisions?: boolean
+  collisionDetection?: boolean
 }
 
 type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies'
@@ -709,7 +709,7 @@ export class Oas extends BaseOas {
 
   /**
    * Legacy resolution strategy - no collision detection, just use original names.
-   * This preserves backward compatibility when resolveNameCollisions is false.
+   * This preserves backward compatibility when collisionDetection is false.
    */
   #legacyResolve(schemasWithMeta: SchemaWithMetadata[]): { schemas: Record<string, SchemaObject>; nameMapping: Map<string, string> } {
     const schemas: Record<string, SchemaObject> = {}
@@ -730,13 +730,13 @@ export class Oas extends BaseOas {
    * Get schemas from OpenAPI components (schemas, responses, requestBodies).
    * Returns schemas in dependency order along with name mapping for collision resolution.
    */
-  getSchemas(options: { contentType?: contentType; includes?: Array<'schemas' | 'responses' | 'requestBodies'>; resolveNameCollisions?: boolean } = {}): {
+  getSchemas(options: { contentType?: contentType; includes?: Array<'schemas' | 'responses' | 'requestBodies'>; collisionDetection?: boolean } = {}): {
     schemas: Record<string, SchemaObject>
     nameMapping: Map<string, string>
   } {
     const contentType = options.contentType ?? this.#options.contentType
     const includes = options.includes ?? ['schemas', 'requestBodies', 'responses']
-    const shouldResolveCollisions = options.resolveNameCollisions ?? this.#options.resolveNameCollisions ?? false
+    const shouldResolveCollisions = options.collisionDetection ?? this.#options.collisionDetection ?? false
 
     const components = this.getDefinition().components
     const schemasWithMeta: SchemaWithMetadata[] = []

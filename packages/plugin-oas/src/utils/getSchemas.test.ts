@@ -12,7 +12,7 @@ describe('getSchemas', () => {
   it('should return schemas from components.schemas', async () => {
     const oas = await parse(path.resolve(__dirname, '../../mocks/petStore.yaml'))
 
-    const { schemas: result } = getSchemas({ oas, resolveNameCollisions: true })
+    const { schemas: result } = getSchemas({ oas, collisionDetection: true })
     expect(result).toMatchSnapshot()
   })
 
@@ -75,7 +75,7 @@ describe('getSchemas', () => {
       },
     } as unknown as OasTypes.OASDocument)
 
-    const { schemas: result } = getSchemas({ oas, resolveNameCollisions: true })
+    const { schemas: result } = getSchemas({ oas, collisionDetection: true })
     const keys = Object.keys(result)
     expect(keys).toEqual(['Person', 'User'])
 
@@ -101,7 +101,7 @@ describe('getSchemas', () => {
       },
     } as unknown as OasTypes.OASDocument)
 
-    const { schemas: result } = getSchemas({ oas, resolveNameCollisions: true })
+    const { schemas: result } = getSchemas({ oas, collisionDetection: true })
     const keys = Object.keys(result)
     expect(keys.sort()).toEqual(['A', 'B'])
 
@@ -147,7 +147,7 @@ describe('getSchemas', () => {
       openapi: '3.0.0',
       components: {},
     } as unknown as OasTypes.OASDocument)
-    const { schemas: result } = getSchemas({ oas, resolveNameCollisions: true })
+    const { schemas: result } = getSchemas({ oas, collisionDetection: true })
 
     expect(result).toEqual({})
   })
@@ -170,7 +170,7 @@ describe('getSchemas', () => {
         },
       } as unknown as OasTypes.OASDocument)
 
-      const { schemas: result } = getSchemas({ oas, resolveNameCollisions: true })
+      const { schemas: result } = getSchemas({ oas, collisionDetection: true })
       const keys = Object.keys(result)
 
       // First occurrence keeps original name, second gets numeric suffix
@@ -181,7 +181,7 @@ describe('getSchemas', () => {
       expect(result.variant2!.properties).toHaveProperty('label')
     })
 
-    it('should NOT resolve collisions when resolveNameCollisions is false (legacy mode)', async () => {
+    it('should NOT resolve collisions when collisionDetection is false (legacy mode)', async () => {
       const oas = await parse({
         openapi: '3.0.0',
         components: {
@@ -198,7 +198,7 @@ describe('getSchemas', () => {
         },
       } as unknown as OasTypes.OASDocument)
 
-      const { schemas: result } = getSchemas({ oas, resolveNameCollisions: false })
+      const { schemas: result } = getSchemas({ oas, collisionDetection: false })
       const keys = Object.keys(result)
 
       // Legacy mode: both use original names (last one wins or both exist)
@@ -232,7 +232,7 @@ describe('getSchemas', () => {
         },
       } as unknown as OasTypes.OASDocument)
 
-      const { schemas: result } = getSchemas({ oas, resolveNameCollisions: true })
+      const { schemas: result } = getSchemas({ oas, collisionDetection: true })
       const keys = Object.keys(result).sort()
 
       expect(keys).toEqual(['ProductResponse', 'ProductSchema'])
@@ -267,7 +267,7 @@ describe('getSchemas', () => {
         },
       } as unknown as OasTypes.OASDocument)
 
-      const { schemas: result } = getSchemas({ oas, resolveNameCollisions: true })
+      const { schemas: result } = getSchemas({ oas, collisionDetection: true })
       const keys = Object.keys(result).sort()
 
       expect(keys).toEqual(['OrderRequest', 'OrderSchema'])
@@ -312,7 +312,7 @@ describe('getSchemas', () => {
         },
       } as unknown as OasTypes.OASDocument)
 
-      const { schemas: result } = getSchemas({ oas, resolveNameCollisions: true })
+      const { schemas: result } = getSchemas({ oas, collisionDetection: true })
       const keys = Object.keys(result).sort()
 
       expect(keys).toEqual(['UserRequest', 'UserResponse', 'UserSchema'])
@@ -342,7 +342,7 @@ describe('getSchemas', () => {
         },
       } as unknown as OasTypes.OASDocument)
 
-      const { schemas: result } = getSchemas({ oas, resolveNameCollisions: true })
+      const { schemas: result } = getSchemas({ oas, collisionDetection: true })
       const keys = Object.keys(result)
 
       // "user" and "User" both normalize to "User" in PascalCase
@@ -372,7 +372,7 @@ describe('getSchemas', () => {
         },
       } as unknown as OasTypes.OASDocument)
 
-      const { schemas: result } = getSchemas({ oas, resolveNameCollisions: true })
+      const { schemas: result } = getSchemas({ oas, collisionDetection: true })
       const keys = Object.keys(result).sort()
 
       // "item" → "Item", "ITEM" → "ITEM" (different PascalCase results, no collision)
@@ -398,7 +398,7 @@ describe('getSchemas', () => {
         },
       } as unknown as OasTypes.OASDocument)
 
-      const { schemas: result } = getSchemas({ oas, resolveNameCollisions: true })
+      const { schemas: result } = getSchemas({ oas, collisionDetection: true })
       const keys = Object.keys(result).sort()
 
       expect(keys).toEqual(['Product', 'User'])
@@ -425,7 +425,7 @@ describe('getSchemas', () => {
         },
       } as unknown as OasTypes.OASDocument)
 
-      const { schemas: result } = getSchemas({ oas, resolveNameCollisions: true })
+      const { schemas: result } = getSchemas({ oas, collisionDetection: true })
 
       // Only schema should be present since response has no content
       expect(Object.keys(result)).toEqual(['Error'])
@@ -444,7 +444,7 @@ describe('getSchemas', () => {
         },
       } as unknown as OasTypes.OASDocument)
 
-      const { schemas: result } = getSchemas({ oas, resolveNameCollisions: true })
+      const { schemas: result } = getSchemas({ oas, collisionDetection: true })
       const keys = Object.keys(result)
 
       // Preserves original order from spec, not alphabetical

@@ -82,19 +82,19 @@ export type Options = {
    *
    * **Cross-component collision example:**
    * If you have "Order" in both schemas and requestBodies:
-   * - With `resolveNameCollisions: true`: Generates `OrderSchema.ts`, `OrderRequest.ts`
-   * - With `resolveNameCollisions: false`: May generate duplicate `Order.ts` files
+   * - With `collisionDetection: true`: Generates `OrderSchema.ts`, `OrderRequest.ts`
+   * - With `collisionDetection: false`: May generate duplicate `Order.ts` files
    *
    * **Same-component collision example:**
    * If you have "Variant" and "variant" in schemas:
-   * - With `resolveNameCollisions: true`: Generates `Variant.ts`, `Variant2.ts`
-   * - With `resolveNameCollisions: false`: May overwrite or create duplicates
+   * - With `collisionDetection: true`: Generates `Variant.ts`, `Variant2.ts`
+   * - With `collisionDetection: false`: May overwrite or create duplicates
    *
    * @default false
    * @see https://github.com/kubb-labs/kubb/issues/1999
    * @note this will be the default in Kubb v5
    */
-  resolveNameCollisions?: boolean
+  collisionDetection?: boolean
 }
 
 /**

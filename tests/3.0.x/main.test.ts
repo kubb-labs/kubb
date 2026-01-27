@@ -151,7 +151,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         pluginOas({
           validate: false,
           generators: [],
-          resolveNameCollisions: true,
+          collisionDetection: true,
         }),
         pluginTs({
           output: {
