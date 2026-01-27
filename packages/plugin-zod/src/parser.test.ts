@@ -323,6 +323,84 @@ describe('zod parse', () => {
       )
       expect(text).toBe('z.int().check(z.minimum(0, { exclusive: true }), z.maximum(100, { exclusive: true }))')
     })
+
+    test('object with nullish property should use functional wrapper z.nullish() in mini mode', () => {
+      const schema = {
+        keyword: schemaKeywords.object,
+        args: {
+          properties: {
+            email: [
+              { keyword: schemaKeywords.string, args: undefined },
+              { keyword: schemaKeywords.nullish, args: undefined },
+            ],
+          },
+        },
+      }
+      const text = parserZod.parse(
+        {
+          name: 'test',
+          schema: {},
+          parent: undefined,
+          current: schema,
+          siblings: [schema],
+        },
+        { version: '4', mini: true },
+      )
+      expect(text).toContain('z.nullish(z.string())')
+      expect(text).not.toContain('.nullish()')
+    })
+
+    test('object with optional property should use functional wrapper z.optional() in mini mode', () => {
+      const schema = {
+        keyword: schemaKeywords.object,
+        args: {
+          properties: {
+            name: [
+              { keyword: schemaKeywords.string, args: undefined },
+              { keyword: schemaKeywords.optional, args: undefined },
+            ],
+          },
+        },
+      }
+      const text = parserZod.parse(
+        {
+          name: 'test',
+          schema: {},
+          parent: undefined,
+          current: schema,
+          siblings: [schema],
+        },
+        { version: '4', mini: true },
+      )
+      expect(text).toContain('z.optional(z.string())')
+      expect(text).not.toContain('.optional()')
+    })
+
+    test('object with nullable property should use functional wrapper z.nullable() in mini mode', () => {
+      const schema = {
+        keyword: schemaKeywords.object,
+        args: {
+          properties: {
+            age: [
+              { keyword: schemaKeywords.number, args: undefined },
+              { keyword: schemaKeywords.nullable, args: undefined },
+            ],
+          },
+        },
+      }
+      const text = parserZod.parse(
+        {
+          name: 'test',
+          schema: {},
+          parent: undefined,
+          current: schema,
+          siblings: [schema],
+        },
+        { version: '4', mini: true },
+      )
+      expect(text).toContain('z.nullable(z.number())')
+      expect(text).not.toContain('.nullable()')
+    })
   })
 
   describe('pattern with length constraints', () => {

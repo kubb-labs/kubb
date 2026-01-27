@@ -681,7 +681,7 @@ export const parse = createParser<string, ParserOptions>({
 
           // both optional and nullable
           if (isNullish) {
-            return `"${propertyName}": ${objectValue}${zodKeywordMapper.nullish()}`
+            return `"${propertyName}": ${zodKeywordMapper.nullish(objectValue)}`
           }
 
           // undefined
