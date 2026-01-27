@@ -6,7 +6,7 @@ outline: deep
 # Changelog
 
 
-## 4.18.6
+## 4.19.0
 
 ### ✨ Features
 
