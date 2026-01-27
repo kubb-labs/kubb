@@ -32,12 +32,7 @@ type GetSchemasProps = {
  *
  * @deprecated Use oas.getSchemas() instead
  */
-export function getSchemas({
-  oas,
-  contentType,
-  includes = ['schemas', 'requestBodies', 'responses'],
-  collisionDetection,
-}: GetSchemasProps): GetSchemasResult {
+export function getSchemas({ oas, contentType, includes = ['schemas', 'requestBodies', 'responses'], collisionDetection }: GetSchemasProps): GetSchemasResult {
   return oas.getSchemas({
     contentType,
     includes,
