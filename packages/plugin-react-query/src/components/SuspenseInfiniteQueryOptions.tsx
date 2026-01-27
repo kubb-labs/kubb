@@ -4,7 +4,7 @@ import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { Infinite, PluginReactQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 
@@ -127,7 +127,7 @@ export function SuspenseInfiniteQueryOptions({
   pathParamsType,
   queryParam,
   queryKeyName,
-}: Props): KubbNode {
+}: Props): FabricReactNode {
   const queryFnDataType = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const errorType = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
   const isInitialPageParamDefined = initialPageParam !== undefined && initialPageParam !== null

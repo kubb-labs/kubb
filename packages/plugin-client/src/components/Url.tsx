@@ -4,7 +4,7 @@ import { getDefaultValue, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
 import { Const, File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
 
 type Props = {
@@ -65,7 +65,7 @@ export function Url({
   paramsCasing,
   pathParamsType,
   operation,
-}: Props): KubbNode {
+}: Props): FabricReactNode {
   const path = new URLPath(operation.path, { casing: paramsCasing })
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
 

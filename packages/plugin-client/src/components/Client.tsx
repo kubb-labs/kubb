@@ -4,7 +4,7 @@ import { getDefaultValue, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
 import { Url } from './Url.tsx'
 
@@ -28,7 +28,7 @@ type Props = {
   typeSchemas: OperationSchemas
   zodSchemas: OperationSchemas | undefined
   operation: Operation
-  children?: KubbNode
+  children?: FabricReactNode
 }
 
 type GetParamsProps = {
@@ -139,7 +139,7 @@ export function Client({
   urlName,
   children,
   isConfigurable = true,
-}: Props): KubbNode {
+}: Props): FabricReactNode {
   const path = new URLPath(operation.path, { casing: paramsCasing })
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'

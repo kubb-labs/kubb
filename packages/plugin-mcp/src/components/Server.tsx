@@ -4,7 +4,7 @@ import { isNullable, isReference } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams, isOptional } from '@kubb/plugin-oas/utils'
 import { Const, File, FunctionParams } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 
 type Props = {
   name: string
@@ -90,7 +90,7 @@ function getParams({ schemas }: GetParamsProps) {
   })
 }
 
-export function Server({ name, serverName, serverVersion, operations }: Props): KubbNode {
+export function Server({ name, serverName, serverVersion, operations }: Props): FabricReactNode {
   return (
     <File.Source name={name} isExportable isIndexable>
       <Const name={'server'} export>

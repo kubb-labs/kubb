@@ -22,7 +22,7 @@ This skill helps agents answer questions about authoring components and generato
 
 ```tsx
 import { File, Function } from '@kubb/react-fabric'
-export function Query({ name }: Props): KubbNode {
+export function Query({ name }: Props): FabricReactNode {
   return (
     <File.Source name={name} isExportable isIndexable>
       <Function name={name} export>
