@@ -1,17 +1,30 @@
+import { pascalCase } from '@kubb/core/transformers'
 import jsonpointer from 'jsonpointer'
 import BaseOas from 'oas'
-
 import { matchesMimeType } from 'oas/utils'
 import type { contentType, DiscriminatorObject, Document, MediaTypeObject, Operation, ReferenceObject, ResponseObject, SchemaObject } from './types.ts'
 import { isDiscriminator, isReference, STRUCTURAL_KEYS } from './utils.ts'
 
-type Options = {
+type OasOptions = {
   contentType?: contentType
   discriminator?: 'strict' | 'inherit'
+  /**
+   * Resolve name collisions when schemas from different components share the same name (case-insensitive).
+   * @default false
+   */
+  resolveNameCollisions?: boolean
+}
+
+type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies'
+
+type SchemaWithMetadata = {
+  schema: SchemaObject
+  source: SchemaSourceMode
+  originalName: string
 }
 
 export class Oas extends BaseOas {
-  #options: Options = {
+  #options: OasOptions = {
     discriminator: 'strict',
   }
   document: Document
@@ -22,7 +35,7 @@ export class Oas extends BaseOas {
     this.document = document
   }
 
-  setOptions(options: Options) {
+  setOptions(options: OasOptions) {
     this.#options = {
       ...this.#options,
       ...options,
@@ -33,7 +46,7 @@ export class Oas extends BaseOas {
     }
   }
 
-  get options(): Options {
+  get options(): OasOptions {
     return this.#options
   }
 
@@ -526,5 +539,244 @@ export class Oas extends BaseOas {
     }
 
     return merged
+  }
+
+  /**
+   * Sort schemas topologically so referenced schemas appear first.
+   */
+  sortSchemas(schemas: Record<string, SchemaObject>): Record<string, SchemaObject> {
+    const deps = new Map<string, string[]>()
+
+    for (const [name, schema] of Object.entries(schemas)) {
+      deps.set(name, Array.from(this.#collectRefs(schema)))
+    }
+
+    const sorted: string[] = []
+    const visited = new Set<string>()
+
+    function visit(name: string, stack = new Set<string>()) {
+      if (visited.has(name)) {
+        return
+      }
+      if (stack.has(name)) {
+        return
+      } // circular refs, ignore
+      stack.add(name)
+      const children = deps.get(name) || []
+      for (const child of children) {
+        if (deps.has(child)) {
+          visit(child, stack)
+        }
+      }
+      stack.delete(name)
+      visited.add(name)
+      sorted.push(name)
+    }
+
+    for (const name of Object.keys(schemas)) {
+      visit(name)
+    }
+
+    const sortedSchemas: Record<string, SchemaObject> = {}
+    for (const name of sorted) {
+      sortedSchemas[name] = schemas[name]!
+    }
+    return sortedSchemas
+  }
+
+  /**
+   * Get semantic suffix for a schema source.
+   */
+  #getSemanticSuffix(source: SchemaSourceMode): string {
+    switch (source) {
+      case 'schemas':
+        return 'Schema'
+      case 'responses':
+        return 'Response'
+      case 'requestBodies':
+        return 'Request'
+    }
+  }
+
+  #collectRefs(schema: unknown, refs = new Set<string>()): Set<string> {
+    if (Array.isArray(schema)) {
+      for (const item of schema) {
+        this.#collectRefs(item, refs)
+      }
+      return refs
+    }
+
+    if (schema && typeof schema === 'object') {
+      for (const [key, value] of Object.entries(schema)) {
+        if (key === '$ref' && typeof value === 'string') {
+          const match = value.match(/^#\/components\/schemas\/(.+)$/)
+          if (match) {
+            refs.add(match[1]!)
+          }
+        } else {
+          this.#collectRefs(value, refs)
+        }
+      }
+    }
+
+    return refs
+  }
+
+  /**
+   * Resolve name collisions by applying suffixes based on collision type.
+   *
+   * Strategy:
+   * - Same-component collisions (e.g., "Variant" + "variant" both in schemas): numeric suffixes (Variant, Variant2)
+   * - Cross-component collisions (e.g., "Pet" in schemas + "Pet" in requestBodies): semantic suffixes (PetSchema, PetRequest)
+   */
+  #resolveCollisions(schemasWithMeta: SchemaWithMetadata[]): { schemas: Record<string, SchemaObject>; nameMapping: Map<string, string> } {
+    const schemas: Record<string, SchemaObject> = {}
+    const nameMapping = new Map<string, string>()
+    const normalizedNames = new Map<string, SchemaWithMetadata[]>()
+
+    // Group schemas by normalized (PascalCase) name for collision detection
+    for (const item of schemasWithMeta) {
+      const normalized = pascalCase(item.originalName)
+      if (!normalizedNames.has(normalized)) {
+        normalizedNames.set(normalized, [])
+      }
+      normalizedNames.get(normalized)!.push(item)
+    }
+
+    // Process each collision group
+    for (const [, items] of normalizedNames) {
+      if (items.length === 1) {
+        // No collision, use original name
+        const item = items[0]!
+        schemas[item.originalName] = item.schema
+        // Map using full $ref path: #/components/{source}/{originalName}
+        const refPath = `#/components/${item.source}/${item.originalName}`
+        nameMapping.set(refPath, item.originalName)
+        continue
+      }
+
+      // Multiple schemas normalize to same name - resolve collision
+      const sources = new Set(items.map((item) => item.source))
+
+      if (sources.size === 1) {
+        // Same-component collision: add numeric suffixes
+        // Preserve original order from OpenAPI spec for deterministic behavior
+        items.forEach((item, index) => {
+          const suffix = index === 0 ? '' : (index + 1).toString()
+          const uniqueName = item.originalName + suffix
+          schemas[uniqueName] = item.schema
+          // Map using full $ref path: #/components/{source}/{originalName}
+          const refPath = `#/components/${item.source}/${item.originalName}`
+          nameMapping.set(refPath, uniqueName)
+        })
+      } else {
+        // Cross-component collision: add semantic suffixes
+        // Preserve original order from OpenAPI spec for deterministic behavior
+        items.forEach((item) => {
+          const suffix = this.#getSemanticSuffix(item.source)
+          const uniqueName = item.originalName + suffix
+          schemas[uniqueName] = item.schema
+          // Map using full $ref path: #/components/{source}/{originalName}
+          const refPath = `#/components/${item.source}/${item.originalName}`
+          nameMapping.set(refPath, uniqueName)
+        })
+      }
+    }
+
+    return { schemas, nameMapping }
+  }
+
+  /**
+   * Extract schema from content object (used by responses and requestBodies).
+   * Returns null if the schema is just a $ref (not a unique type definition).
+   */
+  #extractSchemaFromContent(content: Record<string, unknown> | undefined, preferredContentType?: contentType): SchemaObject | null {
+    if (!content) {
+      return null
+    }
+    const firstContentType = Object.keys(content)[0] || 'application/json'
+    const targetContentType = preferredContentType || firstContentType
+    const contentSchema = content[targetContentType] as { schema?: SchemaObject } | undefined
+    const schema = contentSchema?.schema
+
+    // Skip schemas that are just references - they don't define unique types
+    if (schema && '$ref' in schema) {
+      return null
+    }
+
+    return schema || null
+  }
+
+  /**
+   * Legacy resolution strategy - no collision detection, just use original names.
+   * This preserves backward compatibility when resolveNameCollisions is false.
+   */
+  #legacyResolve(schemasWithMeta: SchemaWithMetadata[]): { schemas: Record<string, SchemaObject>; nameMapping: Map<string, string> } {
+    const schemas: Record<string, SchemaObject> = {}
+    const nameMapping = new Map<string, string>()
+
+    // Simply use original names without collision detection
+    for (const item of schemasWithMeta) {
+      schemas[item.originalName] = item.schema
+      // Map using full $ref path for consistency
+      const refPath = `#/components/${item.source}/${item.originalName}`
+      nameMapping.set(refPath, item.originalName)
+    }
+
+    return { schemas, nameMapping }
+  }
+
+  /**
+   * Get schemas from OpenAPI components (schemas, responses, requestBodies).
+   * Returns schemas in dependency order along with name mapping for collision resolution.
+   */
+  getSchemas(options: { contentType?: contentType; includes?: Array<'schemas' | 'responses' | 'requestBodies'>; resolveNameCollisions?: boolean } = {}): {
+    schemas: Record<string, SchemaObject>
+    nameMapping: Map<string, string>
+  } {
+    const contentType = options.contentType ?? this.#options.contentType
+    const includes = options.includes ?? ['schemas', 'requestBodies', 'responses']
+    const shouldResolveCollisions = options.resolveNameCollisions ?? this.#options.resolveNameCollisions ?? false
+
+    const components = this.getDefinition().components
+    const schemasWithMeta: SchemaWithMetadata[] = []
+
+    // Collect schemas from components
+    if (includes.includes('schemas')) {
+      const componentSchemas = (components?.schemas as Record<string, SchemaObject>) || {}
+      for (const [name, schema] of Object.entries(componentSchemas)) {
+        schemasWithMeta.push({ schema, source: 'schemas', originalName: name })
+      }
+    }
+
+    if (includes.includes('responses')) {
+      const responses = components?.responses || {}
+      for (const [name, response] of Object.entries(responses)) {
+        const responseObject = response as ResponseObject
+        const schema = this.#extractSchemaFromContent(responseObject.content, contentType)
+        if (schema) {
+          schemasWithMeta.push({ schema, source: 'responses', originalName: name })
+        }
+      }
+    }
+
+    if (includes.includes('requestBodies')) {
+      const requestBodies = components?.requestBodies || {}
+      for (const [name, request] of Object.entries(requestBodies)) {
+        const requestObject = request as { content?: Record<string, unknown> }
+        const schema = this.#extractSchemaFromContent(requestObject.content, contentType)
+        if (schema) {
+          schemasWithMeta.push({ schema, source: 'requestBodies', originalName: name })
+        }
+      }
+    }
+
+    // Apply collision resolution only if enabled
+    const { schemas, nameMapping } = shouldResolveCollisions ? this.#resolveCollisions(schemasWithMeta) : this.#legacyResolve(schemasWithMeta)
+
+    return {
+      schemas: this.sortSchemas(schemas),
+      nameMapping,
+    }
   }
 }

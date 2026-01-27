@@ -12,7 +12,6 @@ import type { Generator } from './generators/types.ts'
 import { isKeyword, type Schema, type SchemaKeywordMapper, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
-import { getSchemas } from './utils/getSchemas.ts'
 import { buildSchema } from './utils.tsx'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
@@ -94,7 +93,7 @@ export class SchemaGenerator<
     }
 
     const { oas, contentType, include } = this.context
-    const { nameMapping } = getSchemas({ oas, contentType, includes: include })
+    const { nameMapping } = oas.getSchemas({ contentType, includes: include })
     this.#schemaNameMapping = nameMapping
     this.#nameMappingInitialized = true
   }
@@ -1271,7 +1270,7 @@ export class SchemaGenerator<
 
     // Initialize the name mapping if not already done
     if (!this.#nameMappingInitialized) {
-      const { schemas, nameMapping } = getSchemas({ oas, contentType, includes: include })
+      const { schemas, nameMapping } = oas.getSchemas({ contentType, includes: include })
       this.#schemaNameMapping = nameMapping
       this.#nameMappingInitialized = true
       const schemaEntries = Object.entries(schemas)
@@ -1285,7 +1284,7 @@ export class SchemaGenerator<
       return this.#doBuild(schemas, generators)
     }
     // If already initialized, just get the schemas (without mapping)
-    const { schemas } = getSchemas({ oas, contentType, includes: include })
+    const { schemas } = oas.getSchemas({ contentType, includes: include })
     return this.#doBuild(schemas, generators)
   }
 
