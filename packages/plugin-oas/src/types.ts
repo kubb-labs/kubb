@@ -71,6 +71,30 @@ export type Options = {
    * Define some generators next to the JSON generation
    */
   generators?: Array<Generator<PluginOas>>
+  /**
+   * Resolve name collisions when schemas from different components share the same name (case-insensitive).
+   *
+   * When enabled, Kubb automatically detects and resolves collisions using intelligent suffixes:
+   * - Cross-component collisions: Adds semantic suffixes based on the component type (Schema/Response/Request)
+   * - Same-component collisions: Adds numeric suffixes (2, 3, ...) for case-insensitive duplicates
+   *
+   * When disabled (legacy behavior), collisions may result in duplicate files or overwrite issues.
+   *
+   * **Cross-component collision example:**
+   * If you have "Order" in both schemas and requestBodies:
+   * - With `collisionDetection: true`: Generates `OrderSchema.ts`, `OrderRequest.ts`
+   * - With `collisionDetection: false`: May generate duplicate `Order.ts` files
+   *
+   * **Same-component collision example:**
+   * If you have "Variant" and "variant" in schemas:
+   * - With `collisionDetection: true`: Generates `Variant.ts`, `Variant2.ts`
+   * - With `collisionDetection: false`: May overwrite or create duplicates
+   *
+   * @default false
+   * @see https://github.com/kubb-labs/kubb/issues/1999
+   * @note this will be the default in Kubb v5
+   */
+  collisionDetection?: boolean
 }
 
 /**

@@ -3,7 +3,7 @@ import { BaseGenerator, type FileMetaBase } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { type AsyncEventEmitter, getUniqueName } from '@kubb/core/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import type { contentType, Oas, OpenAPIV3, SchemaObject } from '@kubb/oas'
+import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference } from '@kubb/oas'
 import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
@@ -12,7 +12,6 @@ import type { Generator } from './generators/types.ts'
 import { isKeyword, type Schema, type SchemaKeywordMapper, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
-import { getSchemas } from './utils/getSchemas.ts'
 import { buildSchema } from './utils.tsx'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
@@ -74,12 +73,30 @@ export class SchemaGenerator<
   // Collect the types of all referenced schemas, so we can export them later
   refs: Refs = {}
 
-  // Keep track of already used type aliases
-  #usedAliasNames: Record<string, number> = {}
+  // Map from original component paths to resolved schema names (after collision resolution)
+  // e.g., { '#/components/schemas/Order': 'OrderSchema', '#/components/responses/Product': 'ProductResponse' }
+  #schemaNameMapping: Map<string, string> = new Map()
+
+  // Flag to track if nameMapping has been initialized
+  #nameMappingInitialized = false
 
   // Cache for parsed schemas to avoid redundant parsing
   // Using WeakMap for automatic garbage collection when schemas are no longer referenced
   #parseCache: Map<string, Schema[]> = new Map()
+
+  /**
+   * Ensure the name mapping is initialized (lazy initialization)
+   */
+  #ensureNameMapping() {
+    if (this.#nameMappingInitialized) {
+      return
+    }
+
+    const { oas, contentType, include } = this.context
+    const { nameMapping } = oas.getSchemas({ contentType, includes: include })
+    this.#schemaNameMapping = nameMapping
+    this.#nameMappingInitialized = true
+  }
 
   /**
    * Creates a type node from a given schema.
@@ -453,15 +470,21 @@ export class SchemaGenerator<
       ]
     }
 
-    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
+    // Ensure name mapping is initialized before resolving names
+    this.#ensureNameMapping()
+
+    const originalName = $ref.replace(/.+\//, '')
+    // Use the full $ref path to look up the collision-resolved name
+    const resolvedName = this.#schemaNameMapping.get($ref) || originalName
+
     const propertyName = this.context.pluginManager.resolveName({
-      name: originalName,
+      name: resolvedName,
       pluginKey: this.context.plugin.key,
       type: 'function',
     })
 
     const fileName = this.context.pluginManager.resolveName({
-      name: originalName,
+      name: resolvedName,
       pluginKey: this.context.plugin.key,
       type: 'file',
     })
@@ -473,7 +496,7 @@ export class SchemaGenerator<
 
     this.refs[$ref] = {
       propertyName,
-      originalName,
+      originalName: resolvedName,
       path: file.path,
     }
 
@@ -1244,13 +1267,29 @@ export class SchemaGenerator<
 
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
-    const schemas = getSchemas({ oas, contentType, includes: include })
-    const schemaEntries = Object.entries(schemas)
 
-    this.context.events?.emit('debug', {
-      date: new Date(),
-      logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
-    })
+    // Initialize the name mapping if not already done
+    if (!this.#nameMappingInitialized) {
+      const { schemas, nameMapping } = oas.getSchemas({ contentType, includes: include })
+      this.#schemaNameMapping = nameMapping
+      this.#nameMappingInitialized = true
+      const schemaEntries = Object.entries(schemas)
+
+      this.context.events?.emit('debug', {
+        date: new Date(),
+        logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
+      })
+
+      // Continue with build using the schemas
+      return this.#doBuild(schemas, generators)
+    }
+    // If already initialized, just get the schemas (without mapping)
+    const { schemas } = oas.getSchemas({ contentType, includes: include })
+    return this.#doBuild(schemas, generators)
+  }
+
+  async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+    const schemaEntries = Object.entries(schemas)
 
     // Increased parallelism for better performance
     // - generatorLimit increased from 1 to 3 to allow parallel generator processing

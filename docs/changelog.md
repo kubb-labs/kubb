@@ -6,6 +6,89 @@ outline: deep
 # Changelog
 
 
+## 4.18.6
+
+### ✨ Features
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Added `collisionDetection` option to prevent schema name conflicts**
+
+New opt-in `collisionDetection` option intelligently handles name collisions when OpenAPI specs contain schemas with the same name (case-insensitive) across different components.
+
+```typescript
+// kubb.config.ts
+export default defineConfig({
+  plugins: [
+    pluginOas({
+      collisionDetection: true,  // Enable collision detection
+    }),
+  ],
+})
+```
+
+**How it works:**
+
+**Cross-component collisions** add semantic suffixes:
+
+::: code-group
+
+```yaml [OpenAPI Spec]
+components:
+  schemas:
+    Order:
+      type: object
+      properties:
+        id: { type: string }
+
+  requestBodies:
+    Order:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              items: { type: array }
+```
+
+```typescript [Generated with collisionDetection: true]
+// ✅ No conflicts - semantic suffixes added
+export type OrderSchema = { id: string }
+export type OrderRequest = { items: unknown[] }
+```
+
+```typescript [Generated with collisionDetection: false]
+// ❌ May cause duplicate files or overwrite issues
+export type Order = { id: string }
+export type Order = { items: unknown[] }  // Collision!
+```
+
+:::
+
+**Same-component collisions** add numeric suffixes:
+
+::: code-group
+
+```yaml [OpenAPI Spec]
+components:
+  schemas:
+    Variant: { type: string, enum: [A, B] }
+    variant: { type: string, enum: [X, Y] }
+```
+
+```typescript [Generated]
+// ✅ Deterministic numeric suffixes
+export type Variant = 'A' | 'B'
+export type Variant2 = 'X' | 'Y'
+```
+
+:::
+
+> [!NOTE]
+> This option is disabled by default to preserve backward compatibility. It will become the default in Kubb v5.
+
+---
+
 ## 4.18.5
 
 ### 🐛 Bug Fixes

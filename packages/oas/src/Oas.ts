@@ -1,17 +1,31 @@
 import jsonpointer from 'jsonpointer'
 import BaseOas from 'oas'
-
 import { matchesMimeType } from 'oas/utils'
 import type { contentType, DiscriminatorObject, Document, MediaTypeObject, Operation, ReferenceObject, ResponseObject, SchemaObject } from './types.ts'
-import { isDiscriminator, isReference, STRUCTURAL_KEYS } from './utils.ts'
+import {
+  extractSchemaFromContent,
+  flattenSchema,
+  isDiscriminator,
+  isReference,
+  legacyResolve,
+  resolveCollisions,
+  type SchemaWithMetadata,
+  sortSchemas,
+  validate,
+} from './utils.ts'
 
-type Options = {
+type OasOptions = {
   contentType?: contentType
   discriminator?: 'strict' | 'inherit'
+  /**
+   * Resolve name collisions when schemas from different components share the same name (case-insensitive).
+   * @default false
+   */
+  collisionDetection?: boolean
 }
 
 export class Oas extends BaseOas {
-  #options: Options = {
+  #options: OasOptions = {
     discriminator: 'strict',
   }
   document: Document
@@ -22,7 +36,7 @@ export class Oas extends BaseOas {
     this.document = document
   }
 
-  setOptions(options: Options) {
+  setOptions(options: OasOptions) {
     this.#options = {
       ...this.#options,
       ...options,
@@ -33,7 +47,7 @@ export class Oas extends BaseOas {
     }
   }
 
-  get options(): Options {
+  get options(): OasOptions {
     return this.#options
   }
 
@@ -480,51 +494,64 @@ export class Oas extends BaseOas {
   }
 
   async validate() {
-    const OASNormalize = await import('oas-normalize').then((m) => m.default)
-    const oasNormalize = new OASNormalize(this.api, {
-      enablePaths: true,
-      colorizeErrors: true,
-    })
-
-    return oasNormalize.validate({
-      parser: {
-        validate: {
-          errors: {
-            colorize: true,
-          },
-        },
-      },
-    })
+    return validate(this.api)
   }
 
   flattenSchema(schema: SchemaObject | null): SchemaObject | null {
-    if (!schema?.allOf || schema.allOf.length === 0) {
-      return schema || null
+    return flattenSchema(schema)
+  }
+
+  /**
+   * Get schemas from OpenAPI components (schemas, responses, requestBodies).
+   * Returns schemas in dependency order along with name mapping for collision resolution.
+   */
+  getSchemas(options: { contentType?: contentType; includes?: Array<'schemas' | 'responses' | 'requestBodies'>; collisionDetection?: boolean } = {}): {
+    schemas: Record<string, SchemaObject>
+    nameMapping: Map<string, string>
+  } {
+    const contentType = options.contentType ?? this.#options.contentType
+    const includes = options.includes ?? ['schemas', 'requestBodies', 'responses']
+    const shouldResolveCollisions = options.collisionDetection ?? this.#options.collisionDetection ?? false
+
+    const components = this.getDefinition().components
+    const schemasWithMeta: SchemaWithMetadata[] = []
+
+    // Collect schemas from components
+    if (includes.includes('schemas')) {
+      const componentSchemas = (components?.schemas as Record<string, SchemaObject>) || {}
+      for (const [name, schema] of Object.entries(componentSchemas)) {
+        schemasWithMeta.push({ schema, source: 'schemas', originalName: name })
+      }
     }
 
-    // Never touch ref-based or structural composition
-    if (schema.allOf.some((item) => isReference(item))) {
-      return schema
-    }
-
-    const isPlainFragment = (item: SchemaObject) => !Object.keys(item).some((key) => STRUCTURAL_KEYS.has(key))
-
-    // Only flatten keyword-only fragments
-    if (!schema.allOf.every((item) => isPlainFragment(item as SchemaObject))) {
-      return schema
-    }
-
-    const merged: SchemaObject = { ...schema }
-    delete merged.allOf
-
-    for (const fragment of schema.allOf as SchemaObject[]) {
-      for (const [key, value] of Object.entries(fragment)) {
-        if (merged[key as keyof typeof merged] === undefined) {
-          merged[key as keyof typeof merged] = value
+    if (includes.includes('responses')) {
+      const responses = components?.responses || {}
+      for (const [name, response] of Object.entries(responses)) {
+        const responseObject = response as ResponseObject
+        const schema = extractSchemaFromContent(responseObject.content, contentType)
+        if (schema) {
+          schemasWithMeta.push({ schema, source: 'responses', originalName: name })
         }
       }
     }
 
-    return merged
+    if (includes.includes('requestBodies')) {
+      const requestBodies = components?.requestBodies || {}
+      for (const [name, request] of Object.entries(requestBodies)) {
+        const requestObject = request as { content?: Record<string, unknown> }
+        const schema = extractSchemaFromContent(requestObject.content, contentType)
+        if (schema) {
+          schemasWithMeta.push({ schema, source: 'requestBodies', originalName: name })
+        }
+      }
+    }
+
+    // Apply collision resolution only if enabled
+    const { schemas, nameMapping } = shouldResolveCollisions ? resolveCollisions(schemasWithMeta) : legacyResolve(schemasWithMeta)
+
+    return {
+      schemas: sortSchemas(schemas),
+      nameMapping,
+    }
   }
 }
