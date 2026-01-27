@@ -1,5 +1,17 @@
 # @kubb/plugin-vue-query
 
+## 4.19.2
+
+### Patch Changes
+
+- Updated dependencies [[`d91549b`](https://github.com/kubb-labs/kubb/commit/d91549b906e0c8e37e1e06795e13daeaa9562682)]:
+  - @kubb/plugin-zod@4.19.2
+  - @kubb/plugin-client@4.19.2
+  - @kubb/core@4.19.2
+  - @kubb/oas@4.19.2
+  - @kubb/plugin-oas@4.19.2
+  - @kubb/plugin-ts@4.19.2
+
 ## 4.19.1
 
 ### Patch Changes
