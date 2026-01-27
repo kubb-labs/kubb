@@ -34,6 +34,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
     contentType,
   } = options
 
+  // @deprecated Will be removed in v5 when collisionDetection defaults to true
   const usedEnumNames = {}
 
   return {

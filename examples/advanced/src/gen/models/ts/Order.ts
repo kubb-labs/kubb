@@ -1,3 +1,11 @@
+export const orderParamsStatusEnum = {
+  placed: 'placed',
+  approved: 'approved',
+  delivered: 'delivered',
+} as const
+
+export type OrderParamsStatusEnumKey = (typeof orderParamsStatusEnum)[keyof typeof orderParamsStatusEnum]
+
 export const orderOrderTypeEnum = {
   foo: 'foo',
   bar: 'bar',
@@ -31,6 +39,20 @@ export type Order = {
    * @type integer | undefined, int64
    */
   petId?: number
+  /**
+   * @type object | undefined
+   */
+  params?: {
+    /**
+     * @description Order Status
+     * @type string
+     */
+    status: OrderParamsStatusEnumKey
+    /**
+     * @type string
+     */
+    type: string
+  }
   /**
    * @type integer | undefined, int32
    */

@@ -3,6 +3,14 @@
  * Do not edit manually.
  */
 
+export const paramsStatusEnum = {
+  placed: 'placed',
+  approved: 'approved',
+  delivered: 'delivered',
+} as const
+
+export type ParamsStatusEnumKey = (typeof paramsStatusEnum)[keyof typeof paramsStatusEnum]
+
 export const orderHttpStatusEnum = {
   '200': 200,
   '400': 400,
@@ -20,6 +28,20 @@ export type Order = {
    * @type integer | undefined, int64
    */
   petId?: number
+  /**
+   * @type object | undefined
+   */
+  params?: {
+    /**
+     * @description Order Status
+     * @type string
+     */
+    status: ParamsStatusEnumKey
+    /**
+     * @type string
+     */
+    type: string
+  }
   /**
    * @type integer | undefined, int32
    */
@@ -66,11 +88,33 @@ export type Address = {
   zip?: string
 }
 
+export const paramsStatusEnum2 = {
+  placed: 'placed',
+  approved: 'approved',
+  delivered: 'delivered',
+} as const
+
+export type ParamsStatusEnum2Key = (typeof paramsStatusEnum2)[keyof typeof paramsStatusEnum2]
+
 export type Customer = {
   /**
    * @type integer | undefined, int64
    */
   id?: number
+  /**
+   * @type object | undefined
+   */
+  params?: {
+    /**
+     * @description Order Status
+     * @type string
+     */
+    status: ParamsStatusEnum2Key
+    /**
+     * @type string
+     */
+    type: string
+  }
   /**
    * @type string | undefined
    */

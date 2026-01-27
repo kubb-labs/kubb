@@ -162,6 +162,32 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       ],
     },
   },
+  {
+    name: 'duplicateEnum',
+    config: {
+      root: __dirname,
+      input: {
+        path: '../../schemas/3.0.x/duplicateEnum.yaml',
+      },
+      output: {
+        path: './gen',
+        barrelType: false,
+      },
+      plugins: [
+        pluginOas({
+          validate: false,
+          generators: [],
+          collisionDetection: true,
+        }),
+        pluginTs({
+          output: {
+            path: './types',
+            barrelType: false,
+          },
+        }),
+      ],
+    },
+  },
 ]
 
 describe(`Main OpenAPI ${version}`, () => {

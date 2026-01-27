@@ -3,6 +3,8 @@
  * Do not edit manually.
  */
 
+export type ParamsStatusEnum = 'placed' | 'approved' | 'delivered'
+
 export type OrderHttpStatusEnum = 200 | 400 | 500
 
 export type Order = {
@@ -14,6 +16,20 @@ export type Order = {
    * @type integer | undefined, int64
    */
   petId?: number
+  /**
+   * @type object | undefined
+   */
+  params?: {
+    /**
+     * @description Order Status
+     * @type string
+     */
+    status: ParamsStatusEnum
+    /**
+     * @type string
+     */
+    type: string
+  }
   /**
    * @type integer | undefined, int32
    */
@@ -60,11 +76,27 @@ export type Address = {
   zip?: string
 }
 
+export type ParamsStatusEnum2 = 'placed' | 'approved' | 'delivered'
+
 export type Customer = {
   /**
    * @type integer | undefined, int64
    */
   id?: number
+  /**
+   * @type object | undefined
+   */
+  params?: {
+    /**
+     * @description Order Status
+     * @type string
+     */
+    status: ParamsStatusEnum2
+    /**
+     * @type string
+     */
+    type: string
+  }
   /**
    * @type string | undefined
    */

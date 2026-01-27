@@ -1,0 +1,75 @@
+openapi: 3.0.3
+info:
+  title: Kubb Duplicate Enum Bug Reproduction
+  version: v1
+  description: |
+    Minimal reproduction case for duplicate enum generation bug.
+    When two schemas define identical inline enums, Kubb generates
+    the same enum name in both files, causing export collisions.
+
+paths:
+  /notifications:
+    get:
+      operationId: getNotifications
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: '#/components/schemas/NotificationTypeA'
+                    - $ref: '#/components/schemas/NotificationTypeB'
+
+components:
+  schemas:
+    # Two separate schemas that both define the same inline enum
+    # This causes Kubb to generate duplicate `paramsChannelEnum` exports
+
+    NotificationTypeA:
+      type: object
+      properties:
+        type:
+          type: string
+        params:
+          type: object
+          properties:
+            # This inline enum will generate `paramsChannelEnum`
+            channel:
+              type: string
+              enum:
+                - public
+                - collaborators
+            messageA:
+              type: string
+          required:
+            - channel
+            - messageA
+      required:
+        - type
+        - params
+
+    NotificationTypeB:
+      type: object
+      properties:
+        type:
+          type: string
+        params:
+          type: object
+          properties:
+            # Same inline enum values - generates duplicate `paramsChannelEnum`
+            channel:
+              type: string
+              enum:
+                - public
+                - collaborators
+            messageB:
+              type: string
+          required:
+            - channel
+            - messageB
+      required:
+        - type
+        - params
