@@ -4,6 +4,19 @@
       "type": "object",
       "properties": {
         "id": { "type": "integer", "format": "int64", "example": 100000 },
+        "params": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "Order Status",
+              "example": "approved",
+              "enum": ["placed", "approved", "delivered"]
+            },
+            "type": { "type": "string" }
+          },
+          "required": ["status", "type"]
+        },
         "username": { "type": "string", "example": "fehguy" },
         "address": {
           "type": "array",

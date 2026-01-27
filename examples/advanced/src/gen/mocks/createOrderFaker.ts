@@ -6,6 +6,7 @@ export function createOrderFaker(data?: Partial<Order>): Order {
     ...{
       id: faker.number.int({ min: 3, max: 100 }),
       petId: faker.number.int(),
+      params: { status: faker.helpers.arrayElement<any>(['working', 'idle']), type: faker.string.alpha() },
       quantity: faker.number.int(),
       orderType: faker.helpers.arrayElement<NonNullable<Order>['orderType']>(['foo', 'bar']),
       type: faker.string.alpha(),

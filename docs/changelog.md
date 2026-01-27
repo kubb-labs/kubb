@@ -6,6 +6,96 @@ outline: deep
 # Changelog
 
 
+## 4.19.1
+
+### ✨ Features
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Enhanced `collisionDetection` to prevent nested enum name collisions**
+
+The `collisionDetection` option now prevents duplicate enum names when multiple schemas define identical inline enums in nested properties.
+
+When enabled, Kubb tracks the root schema name throughout the parsing chain and includes it in enum naming for nested properties, ensuring unique enum names across different schemas.
+
+::: code-group
+
+```yaml [OpenAPI Spec]
+components:
+  schemas:
+    NotificationTypeA:
+      properties:
+        params:
+          type: object
+          properties:
+            channel:
+              type: string
+              enum:
+                - public
+                - collaborators
+
+    NotificationTypeB:
+      properties:
+        params:
+          type: object
+          properties:
+            channel:
+              type: string
+              enum:
+                - public
+                - collaborators
+```
+
+```typescript [Without collisionDetection (default)]
+// ❌ Both files export the same enum - collision!
+// NotificationTypeA.ts
+export const paramsChannelEnum = {
+  public: "public",
+  collaborators: "collaborators"
+} as const
+
+// NotificationTypeB.ts
+export const paramsChannelEnum = {  // Duplicate!
+  public: "public",
+  collaborators: "collaborators"
+} as const
+```
+
+```typescript [With collisionDetection: true]
+// ✅ Unique enum names - no collision
+// NotificationTypeA.ts
+export const notificationTypeAParamsChannelEnum = {
+  public: "public",
+  collaborators: "collaborators"
+} as const
+
+// NotificationTypeB.ts
+export const notificationTypeBParamsChannelEnum = {
+  public: "public",
+  collaborators: "collaborators"
+} as const
+```
+
+:::
+
+**How to enable:**
+
+```typescript
+// kubb.config.ts
+export default defineConfig({
+  plugins: [
+    pluginOas({
+      collisionDetection: true,  // Recommended - prevents all collision types
+    }),
+  ],
+})
+```
+
+> [!TIP]
+> This enhancement is backward compatible and only activates when `collisionDetection: true`. It's recommended to enable this option to prepare for Kubb v5, where it will be the default.
+
+---
+
 ## 4.19.0
 
 ### ✨ Features

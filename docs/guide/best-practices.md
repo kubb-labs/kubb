@@ -583,6 +583,43 @@ Run once to generate all APIs:
 kubb generate
 ```
 
+### Recommended Configuration Options
+
+**Enable Collision Detection**
+
+For production applications, it's highly recommended to enable `collisionDetection` to prevent naming conflicts:
+
+```typescript [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  input: {
+    path: './openapi.yaml',
+  },
+  output: {
+    path: './src/gen',
+    clean: true,
+  },
+  plugins: [
+    pluginOas({
+      collisionDetection: true, // ✅ Recommended - prevents name collisions
+    }),
+    pluginTs(),
+  ],
+})
+```
+
+::: tip Why Enable collisionDetection?
+- **Prevents cross-component collisions**: Automatically adds suffixes like `OrderSchema` vs `OrderRequest`
+- **Handles case-sensitivity**: Distinguishes between `Variant` and `variant` schemas
+- **Avoids enum duplicates**: Prevents nested enum name conflicts across different schemas
+- **Future-proof**: Will be the default in Kubb v5
+
+See [collisionDetection](/plugins/plugin-oas#collisiondetection) for more details.
+:::
+
 ### Extending Generated Types
 
 Sometimes you need to add properties to generated types:

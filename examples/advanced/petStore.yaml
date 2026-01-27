@@ -749,6 +749,23 @@ components:
           type: integer
           format: int64
           example: 198772
+
+        params:
+          type: object
+          properties:
+            status:
+              type: string
+              description: Order Status
+              example: approved
+              enum:
+                - placed
+                - approved
+                - delivered
+            type:
+              type: string
+          required:
+            - status
+            - type
         quantity:
           type: integer
           format: int32
@@ -798,6 +815,22 @@ components:
         username:
           type: string
           example: fehguy
+        params:
+          type: object
+          properties:
+            status:
+              type: string
+              description: Order Status
+              example: approved
+              enum:
+                - placed
+                - approved
+                - delivered
+            type:
+              type: string
+          required:
+            - status
+            - type
         address:
           type: array
           xml:
