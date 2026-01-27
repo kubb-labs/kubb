@@ -1,5 +1,6 @@
 import path from 'node:path'
 import type { Config } from '@kubb/core'
+import { pascalCase } from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
 import yaml from '@stoplight/yaml'
 import type { ParameterObject, SchemaObject } from 'oas/types'
@@ -9,7 +10,7 @@ import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject, mergeDeep } from 'remeda'
 import swagger2openapi from 'swagger2openapi'
 import { Oas } from './Oas.ts'
-import type { Document } from './types.ts'
+import type { contentType, Document } from './types.ts'
 
 export const STRUCTURAL_KEYS = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'])
 
@@ -36,9 +37,6 @@ export function isParameterObject(obj: ParameterObject | SchemaObject): obj is P
  * Determines if a schema is nullable, considering:
  * - OpenAPI 3.0 `nullable` / `x-nullable`
  * - OpenAPI 3.1 JSON Schema `type: ['null', ...]` or `type: 'null'`
- *
- * @param schema - The schema object to check.
- * @returns `true` if the schema is marked as nullable; otherwise, `false`.
  */
 export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): boolean {
   const explicitNullable = schema?.nullable ?? schema?.['x-nullable']
@@ -59,8 +57,6 @@ export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): 
 
 /**
  * Determines if the given object is an OpenAPI ReferenceObject.
- *
- * @returns True if {@link obj} is a ReferenceObject; otherwise, false.
  */
 export function isReference(obj?: any): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
   return !!obj && isRef(obj)
@@ -68,8 +64,6 @@ export function isReference(obj?: any): obj is OpenAPIV3.ReferenceObject | OpenA
 
 /**
  * Determines if the given object is a SchemaObject with a discriminator property of type DiscriminatorObject.
- *
- * @returns True if {@link obj} is a SchemaObject containing a non-string {@link discriminator} property.
  */
 export function isDiscriminator(obj?: any): obj is SchemaObject & { discriminator: OpenAPIV3.DiscriminatorObject } {
   return !!obj && obj?.['discriminator'] && typeof obj.discriminator !== 'string'
@@ -79,9 +73,6 @@ export function isDiscriminator(obj?: any): obj is SchemaObject & { discriminato
  * Determines whether a schema is required.
  *
  * Returns true if the schema has a non-empty {@link SchemaObject.required} array or a truthy {@link SchemaObject.required} property.
- *
- * @param schema - The schema object to check.
- * @returns True if the schema is required; otherwise, false.
  */
 export function isRequired(schema?: SchemaObject): boolean {
   if (!schema) {
@@ -256,4 +247,261 @@ export function parseFromConfig(config: Config, oasClass: typeof Oas = Oas): Pro
   }
 
   return parse(path.resolve(config.root, config.input.path), { oasClass })
+}
+
+/**
+ * Flatten allOf schemas by merging keyword-only fragments.
+ * Only flattens schemas where allOf items don't contain structural keys or $refs.
+ */
+export function flattenSchema(schema: SchemaObject | null): SchemaObject | null {
+  if (!schema?.allOf || schema.allOf.length === 0) {
+    return schema || null
+  }
+
+  // Never touch ref-based or structural composition
+  if (schema.allOf.some((item) => isRef(item))) {
+    return schema
+  }
+
+  const isPlainFragment = (item: SchemaObject) => !Object.keys(item).some((key) => STRUCTURAL_KEYS.has(key))
+
+  // Only flatten keyword-only fragments
+  if (!schema.allOf.every((item) => isPlainFragment(item as SchemaObject))) {
+    return schema
+  }
+
+  const merged: SchemaObject = { ...schema }
+  delete merged.allOf
+
+  for (const fragment of schema.allOf as SchemaObject[]) {
+    for (const [key, value] of Object.entries(fragment)) {
+      if (merged[key as keyof typeof merged] === undefined) {
+        merged[key as keyof typeof merged] = value
+      }
+    }
+  }
+
+  return merged
+}
+
+/**
+ * Validate an OpenAPI document using oas-normalize.
+ */
+export async function validate(document: Document) {
+  const oasNormalize = new OASNormalize(document, {
+    enablePaths: true,
+    colorizeErrors: true,
+  })
+
+  return oasNormalize.validate({
+    parser: {
+      validate: {
+        errors: {
+          colorize: true,
+        },
+      },
+    },
+  })
+}
+
+type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies'
+
+export type SchemaWithMetadata = {
+  schema: SchemaObject
+  source: SchemaSourceMode
+  originalName: string
+}
+
+type GetSchemasResult = {
+  schemas: Record<string, SchemaObject>
+  nameMapping: Map<string, string>
+}
+
+/**
+ * Collect all schema $ref dependencies recursively.
+ */
+export function collectRefs(schema: unknown, refs = new Set<string>()): Set<string> {
+  if (Array.isArray(schema)) {
+    for (const item of schema) {
+      collectRefs(item, refs)
+    }
+    return refs
+  }
+
+  if (schema && typeof schema === 'object') {
+    for (const [key, value] of Object.entries(schema)) {
+      if (key === '$ref' && typeof value === 'string') {
+        const match = value.match(/^#\/components\/schemas\/(.+)$/)
+        if (match) {
+          refs.add(match[1]!)
+        }
+      } else {
+        collectRefs(value, refs)
+      }
+    }
+  }
+
+  return refs
+}
+
+/**
+ * Sort schemas topologically so referenced schemas appear first.
+ */
+export function sortSchemas(schemas: Record<string, SchemaObject>): Record<string, SchemaObject> {
+  const deps = new Map<string, string[]>()
+
+  for (const [name, schema] of Object.entries(schemas)) {
+    deps.set(name, Array.from(collectRefs(schema)))
+  }
+
+  const sorted: string[] = []
+  const visited = new Set<string>()
+
+  function visit(name: string, stack = new Set<string>()) {
+    if (visited.has(name)) {
+      return
+    }
+    if (stack.has(name)) {
+      return
+    } // circular refs, ignore
+    stack.add(name)
+    const children = deps.get(name) || []
+    for (const child of children) {
+      if (deps.has(child)) {
+        visit(child, stack)
+      }
+    }
+    stack.delete(name)
+    visited.add(name)
+    sorted.push(name)
+  }
+
+  for (const name of Object.keys(schemas)) {
+    visit(name)
+  }
+
+  const sortedSchemas: Record<string, SchemaObject> = {}
+  for (const name of sorted) {
+    sortedSchemas[name] = schemas[name]!
+  }
+  return sortedSchemas
+}
+
+/**
+ * Extract schema from content object (used by responses and requestBodies).
+ * Returns null if the schema is just a $ref (not a unique type definition).
+ */
+export function extractSchemaFromContent(content: Record<string, unknown> | undefined, preferredContentType?: contentType): SchemaObject | null {
+  if (!content) {
+    return null
+  }
+  const firstContentType = Object.keys(content)[0] || 'application/json'
+  const targetContentType = preferredContentType || firstContentType
+  const contentSchema = content[targetContentType] as { schema?: SchemaObject } | undefined
+  const schema = contentSchema?.schema
+
+  // Skip schemas that are just references - they don't define unique types
+  if (schema && '$ref' in schema) {
+    return null
+  }
+
+  return schema || null
+}
+
+/**
+ * Get semantic suffix for a schema source.
+ */
+export function getSemanticSuffix(source: SchemaSourceMode): string {
+  switch (source) {
+    case 'schemas':
+      return 'Schema'
+    case 'responses':
+      return 'Response'
+    case 'requestBodies':
+      return 'Request'
+  }
+}
+
+/**
+ * Legacy resolution strategy - no collision detection, just use original names.
+ * This preserves backward compatibility when collisionDetection is false.
+ * @deprecated
+ */
+export function legacyResolve(schemasWithMeta: SchemaWithMetadata[]): GetSchemasResult {
+  const schemas: Record<string, SchemaObject> = {}
+  const nameMapping = new Map<string, string>()
+
+  // Simply use original names without collision detection
+  for (const item of schemasWithMeta) {
+    schemas[item.originalName] = item.schema
+    // Map using full $ref path for consistency
+    const refPath = `#/components/${item.source}/${item.originalName}`
+    nameMapping.set(refPath, item.originalName)
+  }
+
+  return { schemas, nameMapping }
+}
+
+/**
+ * Resolve name collisions by applying suffixes based on collision type.
+ *
+ * Strategy:
+ * - Same-component collisions (e.g., "Variant" + "variant" both in schemas): numeric suffixes (Variant, Variant2)
+ * - Cross-component collisions (e.g., "Pet" in schemas + "Pet" in requestBodies): semantic suffixes (PetSchema, PetRequest)
+ */
+export function resolveCollisions(schemasWithMeta: SchemaWithMetadata[]): GetSchemasResult {
+  const schemas: Record<string, SchemaObject> = {}
+  const nameMapping = new Map<string, string>()
+  const normalizedNames = new Map<string, SchemaWithMetadata[]>()
+
+  // Group schemas by normalized (PascalCase) name for collision detection
+  for (const item of schemasWithMeta) {
+    const normalized = pascalCase(item.originalName)
+    if (!normalizedNames.has(normalized)) {
+      normalizedNames.set(normalized, [])
+    }
+    normalizedNames.get(normalized)!.push(item)
+  }
+
+  // Process each collision group
+  for (const [, items] of normalizedNames) {
+    if (items.length === 1) {
+      // No collision, use original name
+      const item = items[0]!
+      schemas[item.originalName] = item.schema
+      // Map using full $ref path: #/components/{source}/{originalName}
+      const refPath = `#/components/${item.source}/${item.originalName}`
+      nameMapping.set(refPath, item.originalName)
+      continue
+    }
+
+    // Multiple schemas normalize to same name - resolve collision
+    const sources = new Set(items.map((item) => item.source))
+
+    if (sources.size === 1) {
+      // Same-component collision: add numeric suffixes
+      // Preserve original order from OpenAPI spec for deterministic behavior
+      items.forEach((item, index) => {
+        const suffix = index === 0 ? '' : (index + 1).toString()
+        const uniqueName = item.originalName + suffix
+        schemas[uniqueName] = item.schema
+        // Map using full $ref path: #/components/{source}/{originalName}
+        const refPath = `#/components/${item.source}/${item.originalName}`
+        nameMapping.set(refPath, uniqueName)
+      })
+    } else {
+      // Cross-component collision: add semantic suffixes
+      // Preserve original order from OpenAPI spec for deterministic behavior
+      items.forEach((item) => {
+        const suffix = getSemanticSuffix(item.source)
+        const uniqueName = item.originalName + suffix
+        schemas[uniqueName] = item.schema
+        // Map using full $ref path: #/components/{source}/{originalName}
+        const refPath = `#/components/${item.source}/${item.originalName}`
+        nameMapping.set(refPath, uniqueName)
+      })
+    }
+  }
+
+  return { schemas, nameMapping }
 }

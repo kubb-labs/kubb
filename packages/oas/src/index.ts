@@ -14,4 +14,5 @@ export {
   merge,
   parse,
   parseFromConfig,
+  validate,
 } from './utils.ts'
