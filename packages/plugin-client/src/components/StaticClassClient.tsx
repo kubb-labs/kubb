@@ -3,7 +3,7 @@ import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments } from '@kubb/plugin-oas/utils'
 import { File, FunctionParams } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
 import { Client } from './Client.tsx'
 
@@ -23,7 +23,7 @@ type Props = {
   paramsType: PluginClient['resolvedOptions']['pathParamsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   parser: PluginClient['resolvedOptions']['parser'] | undefined
-  children?: KubbNode
+  children?: FabricReactNode
 }
 
 type GenerateMethodProps = {
@@ -196,7 +196,7 @@ export function StaticClassClient({
   paramsCasing,
   pathParamsType,
   children,
-}: Props): KubbNode {
+}: Props): FabricReactNode {
   const methods = operations.map(({ operation, name: methodName, typeSchemas, zodSchemas }) =>
     generateMethod({
       operation,

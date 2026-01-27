@@ -4,7 +4,7 @@ import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { Infinite, PluginVueQuery } from '../types.ts'
 import { QueryKey } from './QueryKey.tsx'
 
@@ -138,7 +138,7 @@ export function InfiniteQueryOptions({
   pathParamsType,
   queryParam,
   queryKeyName,
-}: Props): KubbNode {
+}: Props): FabricReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 

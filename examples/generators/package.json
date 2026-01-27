@@ -23,11 +23,11 @@
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "0.12.4",
+    "@kubb/react-fabric": "0.12.6",
     "axios": "^1.13.3"
   },
   "devDependencies": {
-    "@types/react": "^19.2.9",
+    "@types/react": "^19.2.10",
     "react": "^19.2.4",
     "typescript": "^5.9.3"
   },

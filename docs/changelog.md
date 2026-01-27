@@ -5,6 +5,13 @@ outline: deep
 
 # Changelog
 
+## 4.19.2
+
+### 📦 Dependencies
+
+Update Fabric packages.
+
+---
 
 ## 4.19.1
 

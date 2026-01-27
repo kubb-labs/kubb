@@ -4,7 +4,7 @@ import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File, Fragment } from '@kubb/react-fabric'
+import { File } from '@kubb/react-fabric'
 import { Faker } from '../components'
 import type { PluginFaker } from '../types'
 
@@ -63,7 +63,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       )
 
       return (
-        <Fragment>
+        <>
           {canOverride && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
           {imports.map((imp) => (
             <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} />
@@ -79,7 +79,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
             seed={seed}
             canOverride={canOverride}
           />
-        </Fragment>
+        </>
       )
     }
 

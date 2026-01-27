@@ -5,7 +5,7 @@ import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File, Fragment } from '@kubb/react-fabric'
+import { File } from '@kubb/react-fabric'
 import { Zod } from '../components'
 import type { PluginZod } from '../types'
 
@@ -100,7 +100,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       }
 
       return (
-        <Fragment>
+        <>
           {typed && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
           {typed && version === '3' && <File.Import name={['ToZod']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')} />}
           {imports.map((imp) => (
@@ -121,7 +121,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
             emptySchemaType={plugin.options.emptySchemaType}
             mini={mini}
           />
-        </Fragment>
+        </>
       )
     }
 

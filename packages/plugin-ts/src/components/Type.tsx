@@ -3,7 +3,7 @@ import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { SchemaObject } from '@kubb/oas'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { File } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type ts from 'typescript'
 import * as factory from '../factory.ts'
 import { parse, typeKeywordMapper } from '../parser.ts'
@@ -37,7 +37,7 @@ export function Type({
   enumKeyCasing,
   mapper,
   description,
-}: Props): KubbNode {
+}: Props): FabricReactNode {
   const typeNodes: ts.Node[] = []
 
   if (!tree.length) {

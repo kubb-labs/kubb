@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import type { Schema } from '@kubb/plugin-oas'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 import * as parserFaker from '../parser.ts'
 import type { PluginFaker } from '../types.ts'
 
@@ -17,7 +17,7 @@ type Props = {
   canOverride: boolean
 }
 
-export function Faker({ tree, description, name, typeName, seed, regexGenerator, canOverride, mapper, dateParser }: Props): KubbNode {
+export function Faker({ tree, description, name, typeName, seed, regexGenerator, canOverride, mapper, dateParser }: Props): FabricReactNode {
   const fakerText = parserFaker.joinItems(
     tree
       .map((schema, _index, siblings) =>

@@ -134,24 +134,24 @@ export type Generator = GeneratorOptions
 ```typescript [ReactGeneratorOptions]
 export type Generator = {
   name: string
-  Operations?: (this: ReactGeneratorOptions, props: OperationsProps) => KubbNode
-  Operation?: (this: ReactGeneratorOptions, props: OperationProps) => KubbNode
-  Schema?: (this: ReactGeneratorOptions, props: SchemaProps) => KubbNode
+  Operations?: (this: ReactGeneratorOptions, props: OperationsProps) => FabricReactNode
+  Operation?: (this: ReactGeneratorOptions, props: OperationProps) => FabricReactNode
+  Schema?: (this: ReactGeneratorOptions, props: SchemaProps) => FabricReactNode
 }
 ```
 :::
 
 ### Operations
-Same as [operations](#operations) with one difference is that the return type is a `KubbNode` instead of `Promise<KubbFile.File>`.
+Same as [operations](#operations) with one difference is that the return type is a `FabricReactNode` instead of `Promise<KubbFile.File>`.
 
 ### Operation
 
-Same as [operation](#operation), with one difference: the return type is a `KubbNode` instead of `Promise<KubbFile.File>`.
+Same as [operation](#operation), with one difference: the return type is a `FabricReactNode` instead of `Promise<KubbFile.File>`.
 
 
 ### Schema
 
-Same as [schema](#schema), with one difference: the return type is a `KubbNode` instead of `Promise<KubbFile.File>`.
+Same as [schema](#schema), with one difference: the return type is a `FabricReactNode` instead of `Promise<KubbFile.File>`.
 
 
 ## Examples
