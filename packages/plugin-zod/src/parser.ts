@@ -680,8 +680,12 @@ export const parse = createParser<string, ParserOptions>({
           }
 
           // both optional and nullable
-          if (isNullish) {
+          if (isNullish && options.mini) {
             return `"${propertyName}": ${zodKeywordMapper.nullish(objectValue)}`
+          }
+
+          if (isNullish && !options.mini) {
+            return `"${propertyName}": ${objectValue}${zodKeywordMapper.nullish()}`
           }
 
           // undefined
