@@ -136,6 +136,31 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       ],
     },
   },
+  {
+    name: 'caseSensitivity',
+    config: {
+      root: __dirname,
+      input: {
+        path: '../../schemas/3.0.x/caseSensitivity.yaml',
+      },
+      output: {
+        path: './gen',
+        barrelType: false,
+      },
+      plugins: [
+        pluginOas({
+          validate: false,
+          generators: [],
+        }),
+        pluginTs({
+          output: {
+            path: './types',
+            barrelType: false,
+          },
+        }),
+      ],
+    },
+  },
 ]
 
 describe(`Main OpenAPI ${version}`, () => {
