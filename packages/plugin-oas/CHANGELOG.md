@@ -1,5 +1,152 @@
 # @kubb/swagger
 
+## 4.19.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.19.2
+  - @kubb/oas@4.19.2
+
+## 4.19.1
+
+### Patch Changes
+
+- [#2381](https://github.com/kubb-labs/kubb/pull/2381) [`996f3b2`](https://github.com/kubb-labs/kubb/commit/996f3b26d8c2167c3e77b734275c204e6c1b159c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Enhanced `collisionDetection` to prevent nested enum name collisions across different schemas
+
+  When `collisionDetection: true` is enabled, Kubb now prevents duplicate enum names that occur when multiple schemas define identical inline enums in nested properties.
+
+  **New behavior:**
+  - Tracks root schema name throughout parsing chain
+  - Includes root schema name in enum naming for nested properties
+  - Only applies when `collisionDetection: true` (backward compatible)
+
+  **Example:**
+
+  ```yaml
+  components:
+    schemas:
+      NotificationTypeA:
+        properties:
+          params:
+            properties:
+              channel:
+                type: string
+                enum: [public, collaborators]
+
+      NotificationTypeB:
+        properties:
+          params:
+            properties:
+              channel:
+                type: string
+                enum: [public, collaborators]
+  ```
+
+  **Before** (without this fix):
+
+  ```typescript
+  // Both files export the same enum name - collision!
+  export const paramsChannelEnum = { ... }
+  ```
+
+  **After** (with `collisionDetection: true`):
+
+  ```typescript
+  // NotificationTypeA.ts
+  export const notificationTypeAParamsChannelEnum = { ... }
+
+  // NotificationTypeB.ts
+  export const notificationTypeBParamsChannelEnum = { ... }
+  ```
+
+  **Deprecated:**
+  - Marked `usedEnumNames` as deprecated - will be removed in v5 when `collisionDetection` defaults to `true`
+  - The rootName-based approach eliminates the need for numeric suffix fallbacks
+
+  **Migration:**
+  Enable `collisionDetection: true` in your configuration to benefit from this enhancement and prepare for v5:
+
+  ```typescript
+  pluginOas({
+    collisionDetection: true, // Recommended - prevents all collision types
+  });
+  ```
+
+- Updated dependencies []:
+  - @kubb/core@4.19.1
+  - @kubb/oas@4.19.1
+
+## 4.19.0
+
+### Minor Changes
+
+- [#2378](https://github.com/kubb-labs/kubb/pull/2378) [`f5f2dc1`](https://github.com/kubb-labs/kubb/commit/f5f2dc162556c9c1c05d97e29cb28cf79830885a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add `collisionDetection` option to intelligently handle schema name collisions
+
+  Added a new opt-in `collisionDetection` option that prevents duplicate files and naming conflicts when OpenAPI specs contain schemas with the same name (case-insensitive) across different components.
+
+  **Features:**
+  - **Cross-component collisions**: Automatically adds semantic suffixes (`Schema`, `Response`, `Request`) when schemas from different components share names
+  - **Same-component collisions**: Adds numeric suffixes (2, 3, ...) for case-insensitive duplicates within the same component
+  - **Smart detection**: Skips requestBodies/responses that only contain `$ref` (not inline schemas) to avoid unnecessary collisions
+  - **Non-breaking**: Disabled by default, preserving existing behavior for all users
+
+  **Usage:**
+
+  ```typescript
+  // kubb.config.ts
+  export default defineConfig({
+    plugins: [
+      pluginOas({
+        collisionDetection: true, // Enable collision detection
+      }),
+    ],
+  });
+  ```
+
+  **Example - Cross-component collision:**
+
+  ```yaml
+  components:
+    schemas:
+      Order: { ... }
+    requestBodies:
+      Order:
+        content:
+          application/json:
+            schema: { type: object, ... } # Inline schema
+  ```
+
+  **Before** (with collisions disabled):
+  - May generate: `Order.ts` (duplicate), `OrderSchema.ts`, `OrderRequest.ts`
+  - Potential import errors and duplicate files
+
+  **After** (with `collisionDetection: true`):
+  - Generates: `OrderSchema.ts`, `OrderRequest.ts`
+  - Types: `OrderSchema`, `OrderRequest`
+  - Operation imports correctly reference `OrderSchema`
+
+  **Example - Same-component collision:**
+
+  ```yaml
+  components:
+    schemas:
+      Variant: { ... }
+      variant: { ... } # Different casing
+  ```
+
+  **After** (with `collisionDetection: true`):
+  - Generates: `Variant.ts`, `Variant2.ts`
+  - Preserves original spec order for deterministic behavior
+
+  This change stores the option in the Oas instance (`oas.options.collisionDetection`), making it accessible throughout the generation pipeline without passing it through multiple layers.
+
+### Patch Changes
+
+- Updated dependencies [[`f5f2dc1`](https://github.com/kubb-labs/kubb/commit/f5f2dc162556c9c1c05d97e29cb28cf79830885a)]:
+  - @kubb/oas@4.19.0
+  - @kubb/core@4.19.0
+
 ## 4.18.5
 
 ### Patch Changes

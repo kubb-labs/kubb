@@ -1,0 +1,109 @@
+openapi: 3.0.3
+info:
+  title: Case Sensitivity Test
+  version: 1.0.0
+  description: Test spec for case-sensitive schema name collisions
+paths:
+  /variants:
+    get:
+      operationId: getVariants
+      responses:
+        '200':
+          description: Get variants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Variant'
+  /products:
+    get:
+      operationId: getProducts
+      responses:
+        '200':
+          $ref: '#/components/responses/Product'
+  /orders:
+    post:
+      operationId: createOrder
+      requestBody:
+        $ref: '#/components/requestBodies/Order'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+components:
+  schemas:
+    # Case collision: Variant vs variant
+    Variant:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [uppercase]
+    variant:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        category:
+          type: string
+          enum: [lowercase]
+    # Cross-component collision: Product schema vs Product response
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+    # Cross-component collision: Order schema vs Order requestBody
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        customerId:
+          type: string
+        items:
+          type: array
+          items:
+            type: string
+  responses:
+    # This should collide with schemas/Product
+    Product:
+      description: Product response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              productId:
+                type: string
+              productName:
+                type: string
+              stock:
+                type: integer
+  requestBodies:
+    # This should collide with schemas/Order
+    Order:
+      description: Order request body
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+              productIds:
+                type: array
+                items:
+                  type: string

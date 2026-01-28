@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-redoc",
-  "version": "4.18.5",
+  "version": "4.19.2",
   "description": "Beautiful docs with Redoc",
   "keywords": [
     "typescript",
@@ -64,7 +64,7 @@
     "handlebars": "^4.7.8"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.12.4"
+    "@kubb/react-fabric": "0.12.6"
   },
   "engines": {
     "node": ">=20"

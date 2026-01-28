@@ -1,5 +1,96 @@
 # @kubb/plugin-faker
 
+## 4.19.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.19.2
+  - @kubb/oas@4.19.2
+  - @kubb/plugin-oas@4.19.2
+  - @kubb/plugin-ts@4.19.2
+
+## 4.19.1
+
+### Patch Changes
+
+- [#2381](https://github.com/kubb-labs/kubb/pull/2381) [`996f3b2`](https://github.com/kubb-labs/kubb/commit/996f3b26d8c2167c3e77b734275c204e6c1b159c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Enhanced `collisionDetection` to prevent nested enum name collisions across different schemas
+
+  When `collisionDetection: true` is enabled, Kubb now prevents duplicate enum names that occur when multiple schemas define identical inline enums in nested properties.
+
+  **New behavior:**
+  - Tracks root schema name throughout parsing chain
+  - Includes root schema name in enum naming for nested properties
+  - Only applies when `collisionDetection: true` (backward compatible)
+
+  **Example:**
+
+  ```yaml
+  components:
+    schemas:
+      NotificationTypeA:
+        properties:
+          params:
+            properties:
+              channel:
+                type: string
+                enum: [public, collaborators]
+
+      NotificationTypeB:
+        properties:
+          params:
+            properties:
+              channel:
+                type: string
+                enum: [public, collaborators]
+  ```
+
+  **Before** (without this fix):
+
+  ```typescript
+  // Both files export the same enum name - collision!
+  export const paramsChannelEnum = { ... }
+  ```
+
+  **After** (with `collisionDetection: true`):
+
+  ```typescript
+  // NotificationTypeA.ts
+  export const notificationTypeAParamsChannelEnum = { ... }
+
+  // NotificationTypeB.ts
+  export const notificationTypeBParamsChannelEnum = { ... }
+  ```
+
+  **Deprecated:**
+  - Marked `usedEnumNames` as deprecated - will be removed in v5 when `collisionDetection` defaults to `true`
+  - The rootName-based approach eliminates the need for numeric suffix fallbacks
+
+  **Migration:**
+  Enable `collisionDetection: true` in your configuration to benefit from this enhancement and prepare for v5:
+
+  ```typescript
+  pluginOas({
+    collisionDetection: true, // Recommended - prevents all collision types
+  });
+  ```
+
+- Updated dependencies [[`996f3b2`](https://github.com/kubb-labs/kubb/commit/996f3b26d8c2167c3e77b734275c204e6c1b159c)]:
+  - @kubb/plugin-oas@4.19.1
+  - @kubb/plugin-ts@4.19.1
+  - @kubb/core@4.19.1
+  - @kubb/oas@4.19.1
+
+## 4.19.0
+
+### Patch Changes
+
+- Updated dependencies [[`f5f2dc1`](https://github.com/kubb-labs/kubb/commit/f5f2dc162556c9c1c05d97e29cb28cf79830885a)]:
+  - @kubb/oas@4.19.0
+  - @kubb/plugin-oas@4.19.0
+  - @kubb/plugin-ts@4.19.0
+  - @kubb/core@4.19.0
+
 ## 4.18.5
 
 ### Patch Changes

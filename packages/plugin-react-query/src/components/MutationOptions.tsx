@@ -3,7 +3,7 @@ import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
-import type { KubbNode, Params } from '@kubb/react-fabric/types'
+import type { FabricReactNode, Params } from '@kubb/react-fabric/types'
 import type { PluginReactQuery } from '../types.ts'
 import { MutationKey } from './MutationKey.tsx'
 
@@ -33,7 +33,16 @@ function getParams({ typeSchemas }: GetParamsProps) {
   })
 }
 
-export function MutationOptions({ name, clientName, dataReturnType, typeSchemas, paramsCasing, paramsType, pathParamsType, mutationKeyName }: Props): KubbNode {
+export function MutationOptions({
+  name,
+  clientName,
+  dataReturnType,
+  typeSchemas,
+  paramsCasing,
+  paramsType,
+  pathParamsType,
+  mutationKeyName,
+}: Props): FabricReactNode {
   const params = getParams({ typeSchemas })
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'

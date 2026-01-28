@@ -3,7 +3,7 @@ import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams, Type } from '@kubb/react-fabric'
-import type { KubbNode, Params } from '@kubb/react-fabric/types'
+import type { FabricReactNode, Params } from '@kubb/react-fabric/types'
 import type { PluginSwr } from '../types.ts'
 import { MutationKey } from './MutationKey.tsx'
 
@@ -140,7 +140,7 @@ export function Mutation({
   typeSchemas,
   operation,
   paramsToTrigger = false,
-}: Props): KubbNode {
+}: Props): FabricReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 

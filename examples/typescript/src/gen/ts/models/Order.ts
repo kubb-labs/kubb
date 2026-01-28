@@ -3,6 +3,14 @@
  * Do not edit manually.
  */
 
+export const paramsStatusEnum = {
+  placed: 'placed',
+  approved: 'approved',
+  delivered: 'delivered',
+} as const
+
+export type ParamsStatusEnumKey = (typeof paramsStatusEnum)[keyof typeof paramsStatusEnum]
+
 export const orderHttpStatusEnum = {
   '200': 200,
   '400': 400,
@@ -20,6 +28,20 @@ export type Order = {
    * @type integer | undefined, int64
    */
   petId?: number
+  /**
+   * @type object | undefined
+   */
+  params?: {
+    /**
+     * @description Order Status
+     * @type string
+     */
+    status: ParamsStatusEnumKey
+    /**
+     * @type string
+     */
+    type: string
+  }
   /**
    * @type integer | undefined, int32
    */

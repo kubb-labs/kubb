@@ -291,6 +291,44 @@ export type Animal =
 
 :::
 
+### collisionDetection
+
+Resolve name collisions when schemas from different components share the same name (case-insensitive).
+
+When enabled, Kubb automatically detects and resolves collisions using intelligent suffixes:
+- **Cross-component collisions**: Adds semantic suffixes based on the component type (Schema/Response/Request)
+- **Same-component collisions**: Adds numeric suffixes (2, 3, ...) for case-insensitive duplicates
+- **Nested enum collisions**: Includes root schema name in enum names to prevent duplicates across schemas
+
+> [!NOTE]
+> This will be the default behavior in Kubb v5.
+
+|           |           |
+|----------:|:----------|
+|     Type: | `boolean` |
+| Required: | `false`   |
+|  Default: | `false`   |
+
+#### Examples
+
+**Cross-component collision:**
+
+If you have "Order" in both schemas and requestBodies:
+- With `collisionDetection: true`: Generates `OrderSchema.ts`, `OrderRequest.ts`
+- With `collisionDetection: false`: May generate duplicate `Order.ts` files
+
+**Same-component collision:**
+
+If you have "Variant" and "variant" in schemas:
+- With `collisionDetection: true`: Generates `Variant.ts`, `Variant2.ts`
+- With `collisionDetection: false`: May overwrite or create duplicates
+
+**Nested enum collision:**
+
+If you have "params.channel" enum in both "NotificationTypeA" and "NotificationTypeB":
+- With `collisionDetection: true`: Generates `notificationTypeAParamsChannelEnum`, `notificationTypeBParamsChannelEnum`
+- With `collisionDetection: false`: Generates duplicate `paramsChannelEnum` in both files
+
 ### contentType
 <!--@include: ./core/contentType.md-->
 
@@ -348,6 +386,7 @@ export default defineConfig({
       },
       serverIndex: 0,
       contentType: 'application/json',
+      collisionDetection: true, // Recommended - prevents name collisions
     }),
   ],
 })

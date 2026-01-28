@@ -1,14 +1,14 @@
 import { URLPath } from '@kubb/core/utils'
 import type { HttpMethod, Operation } from '@kubb/oas'
 import { Const, File } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 
 type OperationsProps = {
   name: string
   operations: Array<Operation>
 }
 
-export function Operations({ name, operations }: OperationsProps): KubbNode {
+export function Operations({ name, operations }: OperationsProps): FabricReactNode {
   const operationsObject: Record<string, { path: string; method: HttpMethod }> = {}
 
   operations.forEach((operation) => {

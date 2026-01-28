@@ -34,6 +34,7 @@ export default defineConfig({
     pluginOas({
       validate: true,
       discriminator: 'strict',
+      collisionDetection: true,
     }),
     pluginRedoc(),
     pluginTs({
