@@ -216,6 +216,13 @@ describe('fakerGenerator operation', async () => {
       },
     },
     {
+      name: 'updatePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'put',
+      options: {},
+    },
+    {
       name: 'deletePet',
       input: '../../mocks/petStore.yaml',
       path: '/pets/{petId}',
