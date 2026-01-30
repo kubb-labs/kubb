@@ -1,6 +1,6 @@
 ---
 name: documentation
-description: Use when writing blog posts or documentation markdown files - provides writing style guide (active voice, present tense) and content structure patterns. Overrides brevity rules for proper grammar.
+description: Use when writing blog posts or documentation markdown files - provides writing style guide (active voice, present tense), content structure patterns, and SEO optimization. Overrides brevity rules for proper grammar.
 ---
 
 # Documentation Skill
@@ -13,10 +13,13 @@ This skill provides comprehensive guidelines for AI coding assistants working on
 - Changing plugin behavior or API signatures
 - Fixing bugs that affect code generation
 - Writing or updating functionalities/component/composable documentation
+- Optimizing documentation for search engines
 
 ## What It Does
 
-- Create clear, concise, practical documentation optimized for developer experience.
+- Create clear, concise, practical documentation optimized for developer experience
+- Optimize content for search engines and developer intent
+- Structure content for maximum scannability and engagement
 
 ## Writing Standard
 
@@ -33,17 +36,19 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 
 ## Available References
 
-| Reference                                                              | Purpose                                         |
-| ---------------------------------------------------------------------- | ----------------------------------------------- |
-| **[documentation/references/writing-style.md](documentation/references/writing-style.md)**         | Voice, tone, sentence structure                 |
-| **[documentation/references/content-patterns.md](documentation/references/content-patterns.md)**   | Usage patterns, props structure, component patterns |
-| **[documentation/references/config-json.md](documentation/references/config-json.md)**             | Navigation and sidebar configuration schema     |
+| Reference                                                                                              | Purpose                                         |
+|--------------------------------------------------------------------------------------------------------| ----------------------------------------------- |
+| **[../documentation/references/writing-style.md](./../documentation/references/writing-style.md)**     | Voice, tone, sentence structure                 |
+| **[../documentation/references/content-patterns.md](../documentation/references/content-patterns.md)** | Usage patterns, props structure, component patterns |
+| **[../documentation/references/config-json.md](../documentation/references/config-json.md)**           | Navigation and sidebar configuration schema     |
+| **[../documentation/references/seo-optimization.md](../documentation/references/seo-optimization.md)** | SEO best practices, titles, descriptions, keywords, FAQs |
 
 **Load based on context:**
 
-- Writing prose → [documentation/references/writing-style.md](documentation/references/writing-style.md)
-- Props, options, usage patterns → [documentation/references/content-patterns.md](documentation/references/content-patterns.md)
-- Adding navigation or sections → [documentation/references/config-json.md](documentation/references/config-json.md)
+- Writing prose → [../documentation/references/writing-style.md](../documentation/references/writing-style.md)
+- Props, options, usage patterns → [../documentation/references/content-patterns.md](../documentation/references/content-patterns.md)
+- Adding navigation or sections → [../documentation/references/config-json.md](../documentation/references/config-json.md)
+- Optimizing for search → [../documentation/references/seo-optimization.md](../documentation/references/seo-optimization.md)
 
 ## Language and Tone
 
@@ -122,17 +127,7 @@ See [./references/config-json.md](./references/config-json.md) for complete sche
 
 - [ ] Active voice (85%+)
 - [ ] Present tense
-- [ ] 2-4 sentences per paragraph
+- [ ] 2-3 sentences per paragraph
 - [ ] Explanation before code
-- [ ] File path labels on code blocks
-- [ ] Check if the links work
-- [ ] Test that all code groups display properly
 - [ ] Validate frontmatter syntax
-- [ ] Edge cases and limitations documented
 - [ ] Update `config.json` when adding new pages/sections
-- [ ] Usage section: minimal snippet with `::: code-group` and output
-- [ ] Examples section: realistic scenarios with meaningful names
-- [ ] Props/Options: correct table format (right-aligned labels, left-aligned values)
-- [ ] Props/Options: Type and Required always present, Default only if applicable
-- [ ] For functionalities/hooks/composables: include "When to Use" section with bullet points
-- [ ] Cross-references to related documentation (minimum 2-3 links)
