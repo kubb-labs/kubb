@@ -42,12 +42,68 @@ kubb --config kubb.config.ts
 USAGE kubb generate
 
 COMMANDS
+  init        Initialize a new Kubb project with interactive setup
   generate    [input] Generate files based on a 'kubb.config.ts' file
   validate    Validate a Swagger/OpenAPI file
   mcp         Start the server to enable the MCP client to interact with the LLM.
 
 Use kubb <command> --help for more information about a command.
 ```
+
+## `kubb init`
+
+Initialize a new Kubb project with an interactive setup wizard. This command helps you quickly scaffold a Kubb project by:
+
+1. Creating a `package.json` if one doesn't exist
+2. Detecting your package manager (`npm`, `pnpm`, `yarn`, or `bun`)
+3. Prompting for your OpenAPI specification path
+4. Asking for the output directory
+5. Letting you select which Kubb plugins to use
+6. Installing the selected packages
+7. Generating a `kubb.config.ts` file with your configuration
+
+> [!TIP]
+> This is the recommended way to start a new Kubb project!
+
+### Usage
+
+```shell [node]
+npx kubb init
+```
+
+The interactive wizard will guide you through the setup process:
+
+```mdx
+┌  Kubb Init
+│
+◇  Where is your OpenAPI specification located?
+│  ./openapi.yaml
+│
+◇  Where should the generated files be output?
+│  ./src/gen
+│
+◆  Select plugins to use:
+│  ◼ OpenAPI Parser (Required)
+│  ◼ TypeScript (Recommended)
+│  ◻ Client (Fetch/Axios)
+│  ◻ React Query / TanStack Query
+│  ◻ Zod Schemas
+│  └ More...
+│
+◇  Installing packages with pnpm...
+│
+◇  Creating kubb.config.ts...
+│
+└  ✓ All set!
+
+Next steps:
+  1. Make sure your OpenAPI spec is at: ./openapi.yaml
+  2. Run: npx kubb generate
+  3. Find generated files in: ./src/gen
+```
+
+> [!NOTE]
+> The init command automatically selects `@kubb/plugin-oas` and `@kubb/plugin-ts` as recommended defaults.
 
 ## `kubb generate`
 Generate files based on a `kubb.config.ts` file

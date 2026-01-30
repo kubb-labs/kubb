@@ -9,6 +9,28 @@ outline: deep
 
 Kubb generates TypeScript code from OpenAPI/Swagger specifications.
 
+## Quick Start
+
+Get started with Kubb in seconds:
+
+```bash
+npx kubb init
+```
+
+The interactive setup wizard will guide you through:
+1. Creating a `package.json` (if needed)
+2. Selecting your OpenAPI specification
+3. Choosing which plugins to use
+4. Installing packages and generating configuration
+
+Then run:
+
+```bash
+npx kubb generate
+```
+
+That's it! Your type-safe API client code is ready. [Learn more →](/getting-started/quick-start)
+
 ## What It Generates
 
 Transform your OpenAPI spec into:

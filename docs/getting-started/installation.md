@@ -9,7 +9,29 @@ outline: deep
 
 Install Kubb in your project using your preferred package manager.
 
-## Core Packages
+## Quick Install (Recommended)
+
+The easiest way to get started is using the interactive `init` command:
+
+```bash
+npx kubb init
+```
+
+This will:
+- Detect or create a `package.json`
+- Prompt for your OpenAPI specification path
+- Ask which plugins you want to use
+- Install all necessary packages automatically
+- Generate a `kubb.config.ts` file
+
+> [!TIP]
+> Skip the manual installation steps below and let `kubb init` set everything up for you!
+
+## Manual Installation
+
+If you prefer to install packages manually:
+
+### Core Packages
 
 ::: code-group
 

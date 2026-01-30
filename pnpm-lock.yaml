@@ -113,12 +113,6 @@ importers:
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@kubb/plugin-client':
-        specifier: workspace:*
-        version: link:../../packages/plugin-client
       '@kubb/plugin-cypress':
         specifier: workspace:*
         version: link:../../packages/plugin-cypress
@@ -131,9 +125,6 @@ importers:
       '@kubb/plugin-msw':
         specifier: workspace:*
         version: link:../../packages/plugin-msw
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../../packages/plugin-oas
       '@kubb/plugin-react-query':
         specifier: workspace:*
         version: link:../../packages/plugin-react-query
@@ -143,9 +134,6 @@ importers:
       '@kubb/plugin-swr':
         specifier: workspace:*
         version: link:../../packages/plugin-swr
-      '@kubb/plugin-ts':
-        specifier: workspace:*
-        version: link:../../packages/plugin-ts
       '@kubb/plugin-zod':
         specifier: workspace:*
         version: link:../../packages/plugin-zod
@@ -201,6 +189,18 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
     devDependencies:
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@kubb/plugin-client':
+        specifier: workspace:*
+        version: link:../../packages/plugin-client
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../../packages/plugin-oas
+      '@kubb/plugin-ts':
+        specifier: workspace:*
+        version: link:../../packages/plugin-ts
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
