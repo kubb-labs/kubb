@@ -66,7 +66,7 @@
     "zod": "^4.3.6"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.12.6"
+    "@kubb/react-fabric": "0.12.7"
   },
   "engines": {
     "node": ">=20"

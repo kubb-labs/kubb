@@ -7,11 +7,11 @@ settings:
 catalogs:
   default:
     '@kubb/fabric-core':
-      specifier: 0.12.6
-      version: 0.12.6
+      specifier: 0.12.7
+      version: 0.12.7
     '@kubb/react-fabric':
-      specifier: 0.12.6
-      version: 0.12.6
+      specifier: 0.12.7
+      version: 0.12.7
     '@size-limit/file':
       specifier: ^11.2.0
       version: 11.2.0
@@ -49,10 +49,10 @@ importers:
         version: 2.29.8(@types/node@20.19.30)
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       '@manypkg/cli':
         specifier: ^0.25.1
         version: 0.25.1
@@ -150,8 +150,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@kubb/react-fabric':
-        specifier: 0.12.6
-        version: 0.12.6
+        specifier: 0.12.7
+        version: 0.12.7
       '@modelcontextprotocol/sdk':
         specifier: 1.21.1
         version: 1.21.1
@@ -223,8 +223,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.12.6
-        version: 0.12.6
+        specifier: 0.12.7
+        version: 0.12.7
       axios:
         specifier: ^1.13.4
         version: 1.13.4
@@ -291,8 +291,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.12.6
-        version: 0.12.6
+        specifier: 0.12.7
+        version: 0.12.7
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
@@ -347,8 +347,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.12.6
-        version: 0.12.6
+        specifier: 0.12.7
+        version: 0.12.7
       axios:
         specifier: ^1.13.4
         version: 1.13.4
@@ -461,8 +461,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.12.6
-        version: 0.12.6
+        specifier: 0.12.7
+        version: 0.12.7
       '@tanstack/react-query':
         specifier: ^5.90.20
         version: 5.90.20(react@19.2.4)
@@ -764,8 +764,8 @@ importers:
   packages/cli:
     dependencies:
       '@clack/prompts':
-        specifier: 1.0.0-alpha.9
-        version: 1.0.0-alpha.9
+        specifier: ^1.0.0
+        version: 1.0.0
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -823,7 +823,7 @@ importers:
     dependencies:
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       camelcase:
         specifier: ^8.0.0
         version: 8.0.0
@@ -875,7 +875,7 @@ importers:
         version: link:../core
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       '@modelcontextprotocol/sdk':
         specifier: ^1.25.3
         version: 1.25.3(hono@4.11.4)(zod@4.3.6)
@@ -939,7 +939,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
     devDependencies:
       axios:
         specifier: ^1.13.4
@@ -961,7 +961,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
 
   packages/plugin-faker:
     dependencies:
@@ -979,7 +979,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
 
   packages/plugin-mcp:
     dependencies:
@@ -1003,7 +1003,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
 
   packages/plugin-msw:
     dependencies:
@@ -1024,7 +1024,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
 
   packages/plugin-oas:
     dependencies:
@@ -1036,7 +1036,7 @@ importers:
         version: link:../oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       p-limit:
         specifier: 'catalog:'
         version: 7.2.0
@@ -1066,7 +1066,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       remeda:
         specifier: 'catalog:'
         version: 2.33.4
@@ -1084,7 +1084,7 @@ importers:
         version: link:../plugin-oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
@@ -1111,7 +1111,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       remeda:
         specifier: 'catalog:'
         version: 2.33.4
@@ -1138,7 +1138,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       remeda:
         specifier: 'catalog:'
         version: 2.33.4
@@ -1165,7 +1165,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       remeda:
         specifier: 'catalog:'
         version: 2.33.4
@@ -1177,7 +1177,7 @@ importers:
         version: link:../core
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1186,7 +1186,7 @@ importers:
         version: link:../plugin-oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       natural-orderby:
         specifier: ^5.0.0
         version: 5.0.0
@@ -1219,7 +1219,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       remeda:
         specifier: 'catalog:'
         version: 2.33.4
@@ -1240,7 +1240,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
     devDependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.4.0
@@ -1320,7 +1320,7 @@ importers:
         version: link:../../packages/plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.6
+        version: 0.12.7
       '@tanstack/react-query':
         specifier: ^5.90.20
         version: 5.90.20(react@18.3.1)
@@ -1592,11 +1592,11 @@ packages:
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
 
-  '@clack/core@1.0.0-alpha.7':
-    resolution: {integrity: sha512-3vdh6Ar09D14rVxJZIm3VQJkU+ZOKKT5I5cC0cOVazy70CNyYYjiwRj9unwalhESndgxx6bGc/m6Hhs4EKF5XQ==}
+  '@clack/core@1.0.0':
+    resolution: {integrity: sha512-Orf9Ltr5NeiEuVJS8Rk2XTw3IxNC2Bic3ash7GgYeA8LJ/zmSNpSQ/m5UAhe03lA6KFgklzZ5KTHs4OAMA/SAQ==}
 
-  '@clack/prompts@1.0.0-alpha.9':
-    resolution: {integrity: sha512-sKs0UjiHFWvry4SiRfBi5Qnj0C/6AYx8aKkFPZQSuUZXgAram25ZDmhQmP7vj1aFyLpfHWtLQjWvOvcat0TOLg==}
+  '@clack/prompts@1.0.0':
+    resolution: {integrity: sha512-rWPXg9UaCFqErJVQ+MecOaWsozjaxol4yjnmYcGNipAWzdaWa2x+VJmKfGq7L0APwBohQOYdHC+9RO4qRXej+A==}
 
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -2111,12 +2111,12 @@ packages:
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
 
-  '@kubb/fabric-core@0.12.6':
-    resolution: {integrity: sha512-vcp2kIWb1WNzRKN0SIuDa7i5qLuWyPz80WhMorQIe4/vRCdRS+wusYF4++bRZd0gy7ADLeXcxu4x/gWfDXz0zg==}
+  '@kubb/fabric-core@0.12.7':
+    resolution: {integrity: sha512-lVLJKXiKoaQUGUIfJS+h/xPIZCZOuAMVuT87CrH4QpXWVAdQRb1fAf1cZtJBS98y1IzRUeMS3uZJlBRmKc1fNg==}
     engines: {node: '>=20'}
 
-  '@kubb/react-fabric@0.12.6':
-    resolution: {integrity: sha512-WoRiBDy4+r0dYlQAj1G2RkKR4LyqhAUoeLnK9iA887gnWThPxAXsYhTmQDmFNjoBZKUXt6lFr95XDIFWyBKqlg==}
+  '@kubb/react-fabric@0.12.7':
+    resolution: {integrity: sha512-odWDlTzGeFL5onxIdTN7LYaN+q3ckFrQQ+zXT9TAnkXEieDBSRFev5uR0hWQRnd+fJLPC1GgQH/xhT5zwGLa6w==}
     engines: {node: '>=20'}
 
   '@manypkg/cli@0.25.1':
@@ -6735,14 +6735,14 @@ snapshots:
       human-id: 4.1.2
       prettier: 2.8.8
 
-  '@clack/core@1.0.0-alpha.7':
+  '@clack/core@1.0.0':
     dependencies:
       picocolors: 1.1.1
       sisteransi: 1.0.5
 
-  '@clack/prompts@1.0.0-alpha.9':
+  '@clack/prompts@1.0.0':
     dependencies:
-      '@clack/core': 1.0.0-alpha.7
+      '@clack/core': 1.0.0
       picocolors: 1.1.1
       sisteransi: 1.0.5
 
@@ -7217,9 +7217,9 @@ snapshots:
     dependencies:
       jsep: 1.4.0
 
-  '@kubb/fabric-core@0.12.6':
+  '@kubb/fabric-core@0.12.7':
     dependencies:
-      '@clack/prompts': 1.0.0-alpha.9
+      '@clack/prompts': 1.0.0
       fs-extra: 11.3.3
       natural-orderby: 5.0.0
       p-limit: 7.2.0
@@ -7233,9 +7233,9 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@kubb/react-fabric@0.12.6':
+  '@kubb/react-fabric@0.12.7':
     dependencies:
-      '@kubb/fabric-core': 0.12.6
+      '@kubb/fabric-core': 0.12.7
       execa: 9.6.1
       natural-orderby: 5.0.0
       react-devtools-core: 6.1.5
