@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-svelte-query
+title: Kubb Svelte Query Plugin - TanStack Query for Svelte
+description: Generate Svelte Query stores from OpenAPI specifications with @kubb/plugin-svelte-query for type-safe data fetching in Svelte.
 outline: deep
 ---
 

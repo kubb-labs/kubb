@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: Migrating to Kubb v3
+title: Kubb Migration Guide - Upgrade to Latest Version
+description: Migrate to the latest Kubb version. Breaking changes, upgrade steps, and migration guides for major version updates.
 outline: deep
 ---
 

@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-msw
+title: Kubb MSW Plugin - Generate Mock Service Worker Handlers
+description: Generate MSW (Mock Service Worker) handlers from OpenAPI specs with @kubb/plugin-msw for API mocking in tests and development.
 outline: deep
 ---
 

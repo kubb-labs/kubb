@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/cli
+title: Kubb CLI Reference - Command Line Interface Guide
+description: Complete Kubb CLI reference. Learn all commands, options, and flags for generating TypeScript code from OpenAPI specs.
 outline: deep
 ---
 

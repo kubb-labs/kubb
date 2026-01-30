@@ -1,27 +1,47 @@
 ---
 layout: doc
 
-title: Configure
+title: Kubb Configuration Guide - kubb.config.ts Reference
+description: Complete Kubb configuration reference. Learn how to configure input/output, plugins, formatting, and advanced options in kubb.config.ts.
 outline: deep
 ---
 
-# Configure
-Kubb can be configured with a configuration file (preferably with `kubb.config.ts`), for that we are using [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) to load the config.
+# Kubb Configuration Guide
 
-## Usage
+**Configure Kubb using `kubb.config.ts` to control code generation behavior.** This comprehensive guide covers all configuration options for customizing how Kubb generates TypeScript code from your OpenAPI specifications.
 
-When you use Kubb’s CLI, it will automatically read the configuration file from the root directory of your project and process it in the following order:
-- `kubb.config.ts`
-- `kubb.config.js`
-- `kubb.config.mjs`
-- `kubb.config.cjs`
-- A `.kubbrc` file written in JavaScript
+## What is a Configuration File?
 
-We recommend using the `.ts` format for the configuration file and importing the `defineConfig` utility function from `@kubb/core`.
-This helper provides type hints and autocompletion to help you avoid configuration errors.
+The Kubb configuration file (`kubb.config.ts`) defines:
+- **Input source** - Path to your OpenAPI/Swagger specification
+- **Output settings** - Where generated files are saved and how they're formatted
+- **Plugins** - Which code generators to use (TypeScript, React Query, Zod, etc.)
+- **Generation options** - Custom transformers, formatters, and advanced settings
+
+Kubb uses [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) to automatically discover configuration files in your project root.
+
+## Configuration File Discovery
+
+**Kubb automatically searches for config files in this order:**
+1. `kubb.config.ts` (recommended - TypeScript with type safety)
+2. `kubb.config.js` (JavaScript ES modules)
+3. `kubb.config.mjs` (JavaScript ES modules explicit)
+4. `kubb.config.cjs` (CommonJS format)
+5. `.kubbrc` (JavaScript format)
+
+**Alternative locations:**
+- `configs/kubb.config.ts` (in a configs directory)
+- `.config/kubb.config.ts` (in a .config directory)
+
+**Why use TypeScript configuration?**
+- Full type checking catches errors before runtime
+- IntelliSense autocomplete in VS Code and other editors
+- Inline documentation for all options
+- Easier refactoring and maintenance
 
 > [!TIP]
-> You can also use `configs/kubb.config.ts` or `.config/kubb.config.ts` instead of `kubb.config.ts` in the root of your project.
+> Use TypeScript (`kubb.config.ts`) for the best developer experience with type safety and autocomplete.
+
 
 ## defineConfig
 

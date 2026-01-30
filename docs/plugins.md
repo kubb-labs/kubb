@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: Plugins
+title: Kubb Plugins - Complete Plugin Directory
+description: Explore all Kubb plugins for OpenAPI code generation: TypeScript, React Query, Zod, MSW, SWR, and more. Choose the right plugins for your project.
 outline: deep
 ---
 

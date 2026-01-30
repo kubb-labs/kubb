@@ -1,37 +1,57 @@
 ---
 layout: doc
 
-title: Installation
+title: Install Kubb OpenAPI Code Generator - Setup Guide
+description: Install Kubb in your TypeScript project. Quick interactive setup with npx kubb init or manual installation guide for all package managers.
 outline: deep
 ---
 
-# Installation
+# Install Kubb OpenAPI Code Generator
 
-Install Kubb in your project using your preferred package manager.
+Install Kubb to start generating type-safe TypeScript code from your OpenAPI/Swagger specifications. Choose between automatic interactive setup or manual installation.
+
+## Why Install Kubb?
+
+Kubb transforms OpenAPI specifications into production-ready TypeScript code including:
+- Type-safe API clients
+- React Query/SWR/TanStack Query hooks
+- Zod validation schemas
+- MSW mock handlers
+- And more through plugins
+
+**Who should install Kubb?** Frontend developers using TypeScript with OpenAPI-documented REST APIs.
 
 ## Quick Install (Recommended)
 
-The easiest way to get started is using the interactive `init` command:
+**The fastest way to install and configure Kubb** is using the interactive `init` command:
 
 ```bash
 npx kubb init
 ```
 
-This will:
-- Detect or create a `package.json`
-- Prompt for your OpenAPI specification path
-- Ask which plugins you want to use
-- Install all necessary packages automatically
-- Generate a `kubb.config.ts` file
+This single command handles the entire setup:
+- Detects or creates your `package.json`
+- Prompts for your OpenAPI/Swagger specification path
+- Asks which plugins you want to install
+- Automatically installs all necessary npm packages
+- Generates a configured `kubb.config.ts` file
+
+**Why use `kubb init`?**
+- Zero configuration required
+- Avoids version mismatch errors
+- Sets up recommended defaults
+- Takes less than 60 seconds
 
 > [!TIP]
-> Skip the manual installation steps below and let `kubb init` set everything up for you!
+> The `kubb init` command is the recommended installation method. Skip manual steps and let Kubb set everything up correctly.
 
 ## Manual Installation
 
-If you prefer to install packages manually:
+If you prefer manual control over package installation:
 
-### Core Packages
+### Install Core Packages
+
+Install the Kubb CLI and core library as development dependencies:
 
 ::: code-group
 
@@ -53,13 +73,13 @@ yarn add -D @kubb/cli @kubb/core
 
 :::
 
-## Plugins
+## Install Kubb Plugins
 
-Kubb uses a plugin-based architecture. Install the plugins you need for your use case:
+Kubb uses plugins to generate different code artifacts. Install only the plugins you need for your project.
 
-### TypeScript Types
+### TypeScript Types Plugin
 
-Generate TypeScript types from your OpenAPI specification:
+Generate TypeScript interfaces and types from your OpenAPI schemas:
 
 ::: code-group
 
@@ -81,9 +101,9 @@ yarn add -D @kubb/plugin-ts
 
 :::
 
-### HTTP Clients
+### HTTP Client Plugin
 
-Generate HTTP client code with Axios, Fetch, or custom implementations:
+Generate type-safe HTTP client code with Axios, Fetch, or custom implementations:
 
 ::: code-group
 
@@ -105,9 +125,9 @@ yarn add -D @kubb/plugin-client
 
 :::
 
-### Data Fetching Hooks
+### Data Fetching Library Plugins
 
-Generate hooks for popular data fetching libraries:
+Generate hooks for React Query, SWR, Vue Query, Solid Query, or Svelte Query:
 
 ::: code-group
 
@@ -181,7 +201,9 @@ yarn add -D @kubb/plugin-svelte-query
 
 :::
 
-### Validation & Mocking
+### Validation & Mocking Plugins
+
+Install plugins for runtime validation and mock data generation:
 
 ::: code-group
 
@@ -233,15 +255,32 @@ yarn add -D @kubb/plugin-msw
 
 ## System Requirements
 
-Kubb requires Node.js 20 or higher.
+**Node.js version:** Kubb requires Node.js 20 or higher.
 
 |           |         |
 |----------:|:--------|
 |  Node.js: | `>= 20` |
 
+**Why Node.js 20?**
+Kubb uses modern JavaScript features available in Node.js 20+. Earlier versions are not supported.
+
+**Check your Node.js version:**
+```bash
+node --version
+```
+
+**Upgrade Node.js** (if needed):
+```bash
+# Using nvm (recommended)
+nvm install 20
+nvm use 20
+```
+
 ## TypeScript Configuration
 
-Kubb is written in TypeScript and provides full type definitions. You should configure your TypeScript project with `module: "ESNext"` or `module: "NodeNext"` since Kubb prefers ESM.
+**Kubb is written in TypeScript and provides full type definitions.** Configure your TypeScript project for compatibility with Kubb's ESM modules.
+
+**Recommended `tsconfig.json` settings:**
 
 ```json [tsconfig.json]
 {
@@ -253,32 +292,59 @@ Kubb is written in TypeScript and provides full type definitions. You should con
   }
 }
 ```
+
+**Why these settings?**
+- `"module": "ESNext"` - Kubb uses ESM modules
+- `"moduleResolution": "bundler"` - Modern module resolution for bundlers
+- `"target": "ES2022"` - Modern JavaScript target for Node.js 20+
 ## Verify Installation
 
-Check that Kubb is installed correctly:
+Confirm Kubb is installed correctly by checking the version:
 
 ```bash
 npx kubb --version
 ```
 
-You should see the installed version number displayed.
+**Expected output:** Version number (e.g., `3.0.0`)
+
+If you see an error, check that:
+- Node.js version is 20 or higher (`node --version`)
+- Kubb packages are installed (`npm list @kubb/cli`)
+- You're in the correct project directory
 
 ## Next Steps
 
 <div class="vp-doc">
   <div class="vp-card-container">
     <a href="/getting-started/quick-start" class="vp-card">
-      <h3>Quick Start</h3>
-      <p>Generate your first code from OpenAPI</p>
+      <h3>Quick Start Guide</h3>
+      <p>Generate your first code from an OpenAPI specification</p>
     </a>
     <a href="/getting-started/configure" class="vp-card">
-      <h3>Configure</h3>
-      <p>Set up your configuration file</p>
+      <h3>Configuration</h3>
+      <p>Learn how to configure Kubb for your project</p>
     </a>
     <a href="/plugins/plugin-oas" class="vp-card">
-      <h3>Plugins</h3>
-      <p>Explore available plugins</p>
+      <h3>Explore Plugins</h3>
+      <p>View available plugins and their features</p>
     </a>
   </div>
 </div>
+
+## Frequently Asked Questions
+
+**Q: Can I use Kubb with Yarn/Bun instead of npm?**
+Yes, Kubb works with all package managers (npm, pnpm, yarn, bun). Use your preferred package manager for installation.
+
+**Q: Do I need to install all plugins?**
+No, install only the plugins you need. For example, if you only need TypeScript types, install `@kubb/plugin-ts` only.
+
+**Q: Can I install Kubb globally?**
+While possible, we recommend installing Kubb as a dev dependency in each project to ensure version consistency.
+
+**Q: What if I get peer dependency warnings?**
+Peer dependency warnings are usually safe to ignore. Kubb will work correctly as long as core packages are installed.
+
+**Q: How do I update Kubb?**
+Run your package manager's update command (e.g., `npm update @kubb/cli @kubb/core`) to get the latest version.
 

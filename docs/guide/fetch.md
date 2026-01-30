@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: Custom HTTP client
+title: Kubb Fetch Client Guide - Native Fetch API
+description: Use Kubb's Fetch client for native browser API calls. Configuration, TypeScript types, and request/response handling.
 outline: deep
 ---
 

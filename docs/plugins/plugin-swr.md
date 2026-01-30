@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-swr
+title: Kubb SWR Plugin - Generate SWR Hooks
+description: Generate SWR hooks from OpenAPI specs with @kubb/plugin-swr for stale-while-revalidate data fetching in React.
 outline: deep
 ---
 

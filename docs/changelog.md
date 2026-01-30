@@ -1,5 +1,6 @@
 ---
-title: Changelog
+title: Kubb Changelog - Release Notes & Updates
+description: Kubb changelog with release notes, bug fixes, new features, and breaking changes for all versions.
 outline: deep
 ---
 

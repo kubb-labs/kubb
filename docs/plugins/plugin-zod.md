@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-zod
+title: Kubb Zod Plugin - Generate Zod Schemas
+description: Generate Zod validation schemas from OpenAPI specifications with @kubb/plugin-zod. Runtime type validation with Zod v4 support.
 outline: deep
 ---
 

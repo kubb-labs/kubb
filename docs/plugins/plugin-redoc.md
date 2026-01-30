@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-redoc
+title: Kubb ReDoc Plugin - Generate API Documentation
+description: Generate beautiful API documentation with ReDoc from OpenAPI specs using @kubb/plugin-redoc.
 outline: deep
 ---
 

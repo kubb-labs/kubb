@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-ts
+title: Kubb TypeScript Plugin - Generate TypeScript Types
+description: Generate TypeScript types and interfaces from OpenAPI schemas with @kubb/plugin-ts. Type-safe API integration for TypeScript projects.
 outline: deep
 ---
 

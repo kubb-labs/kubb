@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: FileManager
+title: Kubb File Manager - Control Generated Files
+description: Manage generated files with Kubb's file manager: custom paths, naming conventions, and file organization strategies.
 outline: deep
 ---
 

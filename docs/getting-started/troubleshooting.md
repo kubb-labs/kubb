@@ -1,13 +1,21 @@
 ---
 layout: doc
 
-title: Troubleshooting
+title: Kubb Troubleshooting Guide - Fix Common Issues
+description: Solve common Kubb issues including installation errors, configuration problems, generation failures, and runtime errors. Debug mode guide included.
 outline: deep
 ---
 
-# Troubleshooting
+# Kubb Troubleshooting Guide
 
-This guide covers common issues you might encounter when using Kubb and how to resolve them.
+**Solve common Kubb issues quickly** with this comprehensive troubleshooting guide. Find solutions for installation problems, configuration errors, generation failures, and runtime issues.
+
+## How to Use This Guide
+
+1. **Identify your issue** - Find the category that matches your problem
+2. **Try the solution** - Follow the recommended fix
+3. **Enable debug mode** - If the issue persists, use debug mode for detailed logs
+4. **Get help** - Join Discord or create a GitHub issue if you're still stuck
 
 ## Installation Issues
 

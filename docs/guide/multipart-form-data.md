@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: Multipart Form Data with Arrays
+title: Kubb Multipart Form Data - File Upload Support
+description: Handle file uploads and multipart/form-data with Kubb-generated API clients. TypeScript support for FormData.
 outline: deep
 ---
 
