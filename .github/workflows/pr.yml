@@ -132,7 +132,7 @@ jobs:
         run: pnpm run lint
 
   spellcheck:
-    name: Linting
+    name: Spell Check
     timeout-minutes: 15
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
