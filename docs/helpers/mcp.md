@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/mcp
+title: Kubb MCP Helper - Model Context Protocol Integration
+description: Integrate Kubb with Model Context Protocol (MCP). Generate MCP servers from OpenAPI specifications for AI assistants.
 outline: deep
 ---
 

@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: Filter and sort
+title: Filter and Sort OpenAPI Operations in Kubb
+description: Filter OpenAPI operations by tag, path, or method. Sort generated code for better organization with Kubb.
 outline: deep
 ---
 

@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: Generators
+title: Kubb Custom Generators - Extend Code Generation
+description: Create custom generators in Kubb. Extend code generation with custom templates and transformation logic.
 outline: deep
 ---
 

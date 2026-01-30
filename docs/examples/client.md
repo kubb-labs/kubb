@@ -1,5 +1,6 @@
 ---
-title: Client PetStore
+title: Kubb Client Example - API Client Generation
+description: Generate type-safe API clients with Kubb. Example showing Axios and Fetch client code generation.
 aside: false
 ---
 

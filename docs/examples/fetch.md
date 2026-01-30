@@ -1,5 +1,6 @@
 ---
-title: Fetch PetStore
+title: Kubb Fetch Example - Native Fetch Client
+description: Generate Fetch API clients with Kubb. Example using native browser fetch for OpenAPI endpoints.
 aside: false
 ---
 

@@ -75,6 +75,11 @@
           "collapsed": false,
           "items": [
             {
+              "text": "Overview",
+              "link": "/plugins",
+              "activeMatch": "^/plugins/?$"
+            },
+            {
               "text": "@kubb/plugin-oas",
               "link": "/plugins/plugin-oas",
               "activeMatch": "^/plugins/plugin-oas/?$"

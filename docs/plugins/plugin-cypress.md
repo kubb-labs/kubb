@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-cypress
+title: Kubb Cypress Plugin - Generate Cypress Commands
+description: Generate Cypress test commands from OpenAPI specifications with @kubb/plugin-cypress for end-to-end API testing.
 outline: deep
 ---
 

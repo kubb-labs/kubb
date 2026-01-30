@@ -1,5 +1,6 @@
 ---
-title: TypeScript PetStore
+title: Kubb TypeScript Example - Type Generation
+description: Generate TypeScript types from OpenAPI with Kubb. Complete example showing interface and schema generation.
 aside: false
 ---
 

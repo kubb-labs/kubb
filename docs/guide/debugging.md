@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: Debugging Kubb
+title: Debug Kubb Code Generation - Troubleshooting Guide
+description: Debug Kubb with React DevTools and debug mode. Inspect code generation, find issues, and optimize performance.
 outline: deep
 ---
 

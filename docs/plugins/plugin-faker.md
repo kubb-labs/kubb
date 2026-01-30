@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-faker
+title: Kubb Faker Plugin - Generate Mock Data
+description: Generate Faker.js mock data generators from OpenAPI schemas with @kubb/plugin-faker for testing and development.
 outline: deep
 ---
 

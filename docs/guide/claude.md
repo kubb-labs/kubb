@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: Setup Claude with Kubb
+title: Use Kubb with Claude AI - AI Integration Guide
+description: Integrate Kubb with Claude AI for enhanced code generation. AI-powered OpenAPI analysis and code suggestions.
 outline: deep
 ---
 

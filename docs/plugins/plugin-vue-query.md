@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-vue-query
+title: Kubb Vue Query Plugin - TanStack Query for Vue
+description: Generate Vue Query composables from OpenAPI specifications with @kubb/plugin-vue-query for type-safe data fetching in Vue.js.
 outline: deep
 ---
 

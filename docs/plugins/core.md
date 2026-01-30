@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/core
+title: Kubb Core Plugin - Base Plugin Configuration
+description: Configure Kubb's core plugin options with transformers, generators, barrel files, and advanced code generation settings.
 outline: deep
 ---
 
