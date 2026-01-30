@@ -19,7 +19,36 @@ outline: deep
 > [!NOTE]
 > Node.js 20 is required. Earlier versions are not supported.
 
-## Installation
+## Quick Setup (Recommended)
+
+The fastest way to get started with Kubb is using the interactive `init` command:
+
+```shell
+npx kubb init
+```
+
+This will:
+1. Detect or create a `package.json`
+2. Ask for your OpenAPI spec path
+3. Prompt for output directory
+4. Let you select plugins to install
+5. Install packages automatically
+6. Generate `kubb.config.ts` for you
+
+Once complete, just run:
+
+```shell
+npx kubb generate
+```
+
+> [!TIP]
+> The `init` command is the easiest way to scaffold a new Kubb project!
+
+## Manual Setup
+
+If you prefer to set up manually:
+
+### Installation
 
 Install the core packages:
 
@@ -43,7 +72,7 @@ yarn add -D @kubb/cli @kubb/core
 
 These provide the CLI and core functionality. Add plugins as needed.
 
-## Basic Setup
+### Basic Setup
 
 **1. Create a configuration file** - `kubb.config.ts` in your project root:
 
