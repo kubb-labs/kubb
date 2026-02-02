@@ -1,4 +1,4 @@
-import type { PluginFactoryOptions } from '@kubb/core'
+import type { Config, PluginFactoryOptions } from '@kubb/core'
 import type { Resolution, Resolver, ResolverContext } from './types.ts'
 
 /**
@@ -34,7 +34,11 @@ export function mergeResolvers(customResolvers: Array<Resolver<any>> | undefined
  * Executes resolvers and returns first matching resolution (string-based output keys)
  * Resolvers are executed in order until one matches (or all are tried)
  */
-export function executeResolvers<TOutputKeys extends string>(resolvers: Array<Resolver<TOutputKeys>>, ctx: ResolverContext): Resolution<TOutputKeys> | null
+export function executeResolvers<TOutputKeys extends string>(
+  resolvers: Array<Resolver<TOutputKeys>>,
+  ctx: ResolverContext,
+  config: Config,
+): Resolution<TOutputKeys> | null
 /**
  * Executes resolvers and returns first matching resolution (PluginFactoryOptions-based)
  * Resolvers are executed in order until one matches (or all are tried)
@@ -42,14 +46,15 @@ export function executeResolvers<TOutputKeys extends string>(resolvers: Array<Re
 export function executeResolvers<TOptions extends PluginFactoryOptions>(
   resolvers: Array<Resolver<TOptions['outputKeys']>>,
   ctx: ResolverContext,
+  config: Config,
 ): Resolution<TOptions['outputKeys']> | null
-export function executeResolvers(resolvers: Array<Resolver<any>>, ctx: ResolverContext): Resolution<any> | null {
+export function executeResolvers(resolvers: Array<Resolver<any>>, ctx: ResolverContext, config: Config): Resolution<any> | null {
   for (const resolver of resolvers) {
     // Skip if matcher exists and returns false
     if (resolver.match && !resolver.match(ctx)) {
       continue
     }
-    return resolver.resolve(ctx)
+    return resolver.resolve(ctx, config)
   }
   return null
 }

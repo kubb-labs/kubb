@@ -20,6 +20,9 @@ type UseSchemaManagerResult = {
     params?: {
       pluginKey?: Plugin['key']
       mode?: KubbFile.Mode
+      /**
+       * @deprecated
+       */
       extname?: KubbFile.Extname
       group?: {
         tag?: string

@@ -1,3 +1,5 @@
+import type { Config, Plugin } from '@kubb/core'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, SchemaObject } from '@kubb/oas'
 
 /**
@@ -24,7 +26,7 @@ export interface Output {
  */
 export interface Resolution<TOutputKeys extends string = string> {
   /** Default file for outputs that don't specify their own */
-  file: FileDescriptor
+  file: KubbFile.File<{ pluginKey: Plugin['key'] }>
   /** Named outputs with typesafe keys */
   outputs: Record<TOutputKeys, Output>
 }
@@ -49,7 +51,7 @@ export interface Resolver<TOutputKeys extends string = string> {
   /** Optional matcher - if returns false, resolver is skipped */
   match?: (ctx: ResolverContext) => boolean
   /** Resolution function */
-  resolve: (ctx: ResolverContext) => Resolution<TOutputKeys>
+  resolve: (ctx: ResolverContext, config: Config) => Resolution<TOutputKeys>
 }
 
 /**

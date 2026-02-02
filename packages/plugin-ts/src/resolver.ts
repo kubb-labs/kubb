@@ -1,6 +1,8 @@
+import { resolve } from 'node:path'
 import type { Group } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
-import { createResolver, type ResolverContext } from '@kubb/plugin-oas'
+import { createResolver } from '@kubb/plugin-oas'
+import { pluginTsName } from './plugin.ts'
 import type { TsOutputKeys } from './resolverTypes.ts'
 
 export type TsResolverOptions = {
@@ -27,25 +29,33 @@ export function createTsResolver(options: TsResolverOptions = {}) {
 
   return createResolver<TsOutputKeys>({
     name: 'default-ts',
-    resolve: (ctx: ResolverContext) => {
+    resolve: (ctx, config) => {
+      const root = resolve(config.root, config.output.path)
+
       // Handle schema resolution
       if (ctx.schema) {
-        const name = pascalCase(ctx.schema.name)
-        const baseName = `${name}.ts`
+        const baseName = `${pascalCase(ctx.schema.name, { isFile: true })}.ts` as const
 
         const resolveName = (suffix: string) => {
-          const resolved = `${name}${suffix}`
+          const resolved = `${pascalCase(ctx.schema!.name)}${suffix}`
           return transformName ? transformName(resolved, 'type') : resolved
         }
 
+        const filePath = resolve(root, outputPath, baseName)
+
         return {
-          file: { baseName, path: `${outputPath}/${baseName}` },
+          file: {
+            path: filePath,
+            baseName,
+            sources: [],
+            imports: [],
+            exports: [],
+            meta: {
+              pluginKey: [pluginTsName],
+            },
+          },
           outputs: {
-            pathParams: { name: resolveName('PathParams') },
-            queryParams: { name: resolveName('QueryParams') },
-            headerParams: { name: resolveName('HeaderParams') },
-            request: { name: resolveName('Request') },
-            response: { name: resolveName('') },
+            schema: { name: resolveName('') },
           },
         }
       }
@@ -61,7 +71,7 @@ export function createTsResolver(options: TsResolverOptions = {}) {
       const path = ctx.operation.path
 
       // Apply group logic
-      let basePath = outputPath
+      let basePath = resolve(root, outputPath)
       if (group && (path || tag)) {
         const groupValue = group.type === 'path' ? path : tag
         if (groupValue) {
@@ -70,13 +80,15 @@ export function createTsResolver(options: TsResolverOptions = {}) {
             : group.type === 'path'
               ? (groupValue.split('/')[1] ?? groupValue)
               : `${camelCase(groupValue)}Controller`
-          basePath = `${outputPath}/${groupName}`
+          basePath = resolve(basePath, groupName)
         }
       }
 
       const name = pascalCase(operationId)
       const fileName = transformName ? transformName(name, 'file') : name
-      const baseName = `${fileName}.ts`
+      const baseName = `${fileName}.ts` as const
+
+      const filePath = resolve(basePath, baseName)
 
       const resolveName = (suffix: string) => {
         const resolved = `${name}${suffix}`
@@ -84,7 +96,16 @@ export function createTsResolver(options: TsResolverOptions = {}) {
       }
 
       return {
-        file: { baseName, path: `${basePath}/${baseName}` },
+        file: {
+          path: filePath,
+          baseName,
+          sources: [],
+          imports: [],
+          exports: [],
+          meta: {
+            pluginKey: [pluginTsName],
+          },
+        },
         outputs: {
           pathParams: { name: resolveName('PathParams') },
           queryParams: { name: resolveName('QueryParams') },

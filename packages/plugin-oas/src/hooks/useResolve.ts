@@ -10,6 +10,7 @@ import type { FileDescriptor, Resolution, Resolver, ResolverContext } from '../r
 export function useResolve<TOutputKeys extends string = string>(ctx: ResolverContext, pluginKey?: Plugin['key']): Resolution<TOutputKeys> | null {
   const pluginManager = usePluginManager()
   const currentPlugin = usePlugin()
+  const config = pluginManager.config
 
   const targetPluginKey = pluginKey ?? currentPlugin.key
   const targetPlugin = pluginManager.getPluginByKey(targetPluginKey)
@@ -27,7 +28,7 @@ export function useResolve<TOutputKeys extends string = string>(ctx: ResolverCon
     return null
   }
 
-  return executeResolvers(resolvers, ctx)
+  return executeResolvers(resolvers, ctx, config)
 }
 
 /**

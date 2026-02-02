@@ -3,17 +3,9 @@ import { useMode, usePluginManager } from '@kubb/core/hooks'
 import transformers from '@kubb/core/transformers'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
-import {
-  executeResolvers,
-  isKeyword,
-  type OperationSchemas,
-  type OperationSchema as OperationSchemaType,
-  type Resolver,
-  SchemaGenerator,
-  schemaKeywords,
-} from '@kubb/plugin-oas'
+import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager, useResolve, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
 import ts from 'typescript'
@@ -21,6 +13,7 @@ import { Type } from '../components'
 import * as factory from '../factory.ts'
 import { createUrlTemplateType, getUnknownType, keywordTypeNodes } from '../factory.ts'
 import { pluginTsName } from '../plugin.ts'
+import type { TsOutputKeys } from '../resolverTypes.ts'
 import type { PluginTs } from '../types'
 
 function printCombinedSchema({ name, schemas, pluginManager }: { name: string; schemas: OperationSchemas; pluginManager: PluginManager }): string {
@@ -324,7 +317,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       options,
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType },
     } = plugin
-    const resolvers = plugin.resolvers as Array<Resolver<PluginTs['outputKeys']>> | undefined
 
     const mode = useMode()
     const pluginManager = usePluginManager()
@@ -333,16 +325,12 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const { getSchemas, getFile, getName, getGroup } = useOperationManager(generator)
     const schemaManager = useSchemaManager()
 
-    // Try to use the resolver system (returns null if no resolvers match)
-    const resolved = resolvers?.length ? executeResolvers<PluginTs>(resolvers, { operation }) : null
+    // Try to use the resolver system with useResolve hook
+    const resolved = useResolve<TsOutputKeys>({ operation })
 
-    // Get the base operation name (for use in combined schema naming)
-    const operationName = getName(operation, { type: 'type', pluginKey: [pluginTsName] })
-
-    // Use resolver outputs if available, otherwise fall back to legacy getName
-    const name = resolved?.outputs.response.name ?? operationName
-
-    const file = getFile(operation)
+    // Use resolver outputs if available, otherwise fall back to legacy getName/getFile
+    const name = resolved?.outputs.response.name ?? getName(operation, { type: 'type', pluginKey: [pluginTsName] })
+    const file = resolved?.file ?? getFile(operation)
     const schemas = getSchemas(operation)
     const schemaGenerator = new SchemaGenerator(options, {
       fabric: generator.context.fabric,
@@ -363,6 +351,8 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       const imports = schemaManager.getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 
+      // Use schema manager for individual operation schemas
+      // The resolver is only used for the main operation file, not individual schemas within it
       const type = {
         name: schemaManager.getName(name, { type: 'type' }),
         typedName: schemaManager.getName(name, { type: 'type' }),
@@ -393,16 +383,18 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       )
     }
 
-    const responseName = schemaManager.getName(schemas.response.name, {
-      type: 'type',
-    })
-    const combinedSchemaName = operation.method === 'get' ? `${operationName}Query` : `${operationName}Mutation`
+    const responseName =
+      resolved?.outputs.response.name ??
+      schemaManager.getName(schemas.response.name, {
+        type: 'type',
+      })
+    const combinedSchemaName = operation.method === 'get' ? `${name}Query` : `${name}Mutation`
 
     return (
       <File
-        baseName={file.baseName}
+        baseName={file.baseName as `${string}.${string}`}
         path={file.path}
-        meta={file.meta}
+        meta={'meta' in file ? (file.meta as object) : undefined}
         banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
@@ -429,7 +421,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const {
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
     } = plugin
-    const resolvers = plugin.resolvers as Array<Resolver<PluginTs['outputKeys']>> | undefined
     const mode = useMode()
 
     const oas = useOas()
@@ -439,11 +430,9 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const imports = getImports(schema.tree)
     const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
 
-    // Try to use the resolver system (returns null if no resolvers match)
-    const resolved = resolvers?.length ? executeResolvers<PluginTs>(resolvers, { schema: { name: schema.name, value: schema.value } }) : null
-
-    // Use resolver outputs if available, otherwise fall back to legacy getName
-    let typedName = resolved?.outputs.response.name ?? getName(schema.name, { type: 'type' })
+    // Schemas (components) do NOT use the resolver - only operations do
+    // Use legacy getName/getFile for component schemas
+    let typedName = getName(schema.name, { type: 'type' })
 
     if (enumType === 'asConst' && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
       typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
@@ -457,9 +446,9 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
     return (
       <File
-        baseName={type.file.baseName}
+        baseName={type.file.baseName as `${string}.${string}`}
         path={type.file.path}
-        meta={type.file.meta}
+        meta={'meta' in type.file ? (type.file.meta as object) : undefined}
         banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
