@@ -1,5 +1,5 @@
 export function trim(text: string): string {
-  return text.replaceAll(/\n/g, '').trim()
+  return text.trim()
 }
 
 export function trimQuotes(text: string): string {

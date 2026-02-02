@@ -20,6 +20,19 @@ describe('buildJSDoc', () => {
     expect(result).toBe('/**\n   * first comment\n   * second comment\n   */\n  ')
   })
 
+  it('should build JSDoc with multi-line description', () => {
+    const result = buildJSDoc(['@description First line of description', 'Second line of description', 'Third line of description', '@summary summary'])
+    expect(result).toBe(
+      '/**\n' +
+        '   * @description First line of description\n' +
+        '   * Second line of description\n' +
+        '   * Third line of description\n' +
+        '   * @summary summary\n' +
+        '   */\n' +
+        '  ',
+    )
+  })
+
   it('should use custom indent', () => {
     const result = buildJSDoc(['test'], { indent: ' * ' })
     expect(result).toBe('/**\n * test\n   */\n  ')
