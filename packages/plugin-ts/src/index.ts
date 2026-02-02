@@ -1,5 +1,5 @@
 export { pluginTs, pluginTsName } from './plugin.ts'
 export type { TsResolverOptions } from './resolver.ts'
-export { createTsResolver, defaultTsResolver } from './resolver.ts'
+export { createTsResolver } from './resolver.ts'
 export type { TsOutputKeys } from './resolverTypes.ts'
 export type { PluginTs } from './types.ts'
