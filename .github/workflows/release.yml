@@ -113,25 +113,3 @@ jobs:
             .catch((err) => {
               console.error('Error sending discord notification', err)
             })
-
-  comment:
-    name: Comment on related issues and pull requests
-    if: needs.release.outputs.published == 'true'
-    needs: [release]
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write # enable commenting on released issues
-      pull-requests: write # enable commenting on released pull requests
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      # IMPORTANT: if you make changes here, also make them in release-comment-manual.yml
-      - name: Comment on related issues and pull requests
-        uses: remix-run/release-comment-action@v0.5.1
-        with:
-          DIRECTORY_TO_CHECK: "./packages"
-          PACKAGE_NAME: "@kubb/core"
-          ISSUE_LABELS_TO_KEEP_OPEN: "🗺 Roadmap"
