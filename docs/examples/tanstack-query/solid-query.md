@@ -1,5 +1,6 @@
 ---
-title: Solid-Query PetStore
+title: TanStack Solid Query Example with Kubb
+description: Generate TanStack Query primitives for Solid with Kubb. Reactive data fetching for Solid.js.
 aside: false
 ---
 

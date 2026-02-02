@@ -1,5 +1,6 @@
 ---
-title: Vue-Query PetStore
+title: TanStack Vue Query Example with Kubb
+description: Generate TanStack Query composables for Vue with Kubb. Type-safe data fetching for Vue.js.
 aside: false
 ---
 

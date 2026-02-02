@@ -1,5 +1,6 @@
 ---
-title: Advanced PetStore
+title: Advanced Kubb Examples - Complex Configurations
+description: Advanced Kubb examples with custom generators, transformers, and multi-plugin setups for complex OpenAPI specifications.
 aside: false
 ---
 

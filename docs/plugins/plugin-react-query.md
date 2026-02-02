@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-react-query
+title: Kubb React Query Plugin - TanStack Query Hooks
+description: Generate React Query hooks (useQuery, useMutation) from OpenAPI specs with @kubb/plugin-react-query for type-safe data fetching.
 outline: deep
 ---
 

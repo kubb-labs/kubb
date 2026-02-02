@@ -2,7 +2,8 @@
 layout: page
 sidebar: false
 
-title: Playground
+title: Kubb Playground - Try OpenAPI Code Generation Online
+description: Test Kubb's OpenAPI code generation in your browser. Experiment with plugins and see generated TypeScript code instantly.
 ---
 
 <iframe

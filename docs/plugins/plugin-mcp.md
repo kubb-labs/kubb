@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-mcp
+title: Kubb MCP Plugin - Model Context Protocol Server
+description: Generate Model Context Protocol servers from OpenAPI specs with @kubb/plugin-mcp for AI assistant integration.
 outline: deep
 ---
 

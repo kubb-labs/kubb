@@ -1,5 +1,6 @@
 ---
-title: Zod PetStore
+title: Kubb Zod Example - Schema Validation
+description: Generate Zod validation schemas from OpenAPI with Kubb. Runtime type validation example.
 aside: false
 ---
 

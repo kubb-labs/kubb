@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-client
+title: Kubb Client Plugin - Generate API Clients
+description: Generate type-safe HTTP clients with Axios, Fetch, or custom implementations using @kubb/plugin-client for OpenAPI endpoints.
 outline: deep
 ---
 

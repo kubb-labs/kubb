@@ -1,6 +1,7 @@
 ---
 layout: doc
-title: Getting Started with Kubb
+title: Kubb Tutorial - Complete Getting Started Guide
+description: Step-by-step Kubb tutorial. Learn to generate TypeScript types, API clients, and React Query hooks from OpenAPI specifications.
 outline: deep
 ---
 

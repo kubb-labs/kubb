@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-oas
+title: Kubb OAS Plugin - OpenAPI Specification Parser
+description: Parse and validate OpenAPI specifications with @kubb/plugin-oas. Required foundation for all Kubb code generation plugins.
 outline: deep
 ---
 

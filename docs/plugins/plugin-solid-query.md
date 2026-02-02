@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-solid-query
+title: Kubb Solid Query Plugin - TanStack Query for Solid
+description: Generate Solid Query primitives from OpenAPI specs with @kubb/plugin-solid-query for reactive data fetching in Solid.js.
 outline: deep
 ---
 

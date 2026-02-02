@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: OpenAPI/Swagger
+title: OpenAPI Specification Guide for Kubb
+description: OpenAPI/Swagger best practices for Kubb code generation. Schema design, operation IDs, and specification tips.
 outline: deep
 ---
 

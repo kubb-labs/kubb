@@ -1,5 +1,39 @@
 # @kubb/cli
 
+## 4.20.0
+
+### Minor Changes
+
+- [#2396](https://github.com/kubb-labs/kubb/pull/2396) [`b5c4fd9`](https://github.com/kubb-labs/kubb/commit/b5c4fd94711b1657cdffe9a629229cd0f708a4b1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add new `init` command for interactive project setup
+
+  The CLI now includes a new `kubb init` command that provides an interactive setup wizard to quickly scaffold a Kubb project:
+  - **Interactive prompts**: Uses `@clack/prompts` for a beautiful CLI experience
+  - **Package manager detection**: Automatically detects `npm`, `pnpm`, `yarn`, or `bun`
+  - **Plugin selection**: Multi-select from all 13 available Kubb plugins
+  - **Automatic installation**: Installs selected packages with the detected package manager
+  - **Config generation**: Creates `kubb.config.ts` with sensible defaults
+  - **File protection**: Asks before overwriting existing configuration
+
+  Usage:
+
+  ```bash
+  npx kubb init
+  ```
+
+  The command will guide you through:
+  1. Creating a `package.json` (if needed)
+  2. Selecting your OpenAPI specification path
+  3. Choosing which plugins to install
+  4. Installing packages automatically
+  5. Generating `kubb.config.ts`
+
+  This is now the recommended way to start a new Kubb project!
+
+### Patch Changes
+
+- Updated dependencies [[`d3acf9e`](https://github.com/kubb-labs/kubb/commit/d3acf9eb2b018595fadcc06380ef8419d8bbea8f)]:
+  - @kubb/core@4.20.0
+
 ## 4.19.2
 
 ### Patch Changes

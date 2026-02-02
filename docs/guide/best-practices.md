@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: Best Practices
+title: Kubb Best Practices - Production Tips & Guidelines
+description: Code organization, CI/CD integration, performance optimization, and team workflows.
 outline: deep
 ---
 

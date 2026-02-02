@@ -23,6 +23,28 @@
 
 <br />
 
+## Quick Start
+
+Get started with Kubb in seconds:
+
+```bash
+npx kubb init
+```
+
+The interactive setup will:
+- Create a `package.json` (if needed)
+- Guide you through plugin selection
+- Install packages automatically
+- Generate `kubb.config.ts`
+
+Then generate your code:
+
+```bash
+npx kubb generate
+```
+
+See the [documentation](https://kubb.dev) for detailed usage and advanced features.
+
 ## Features
 - Works with Node.js 20+.
 - Convert Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 to TypeScript, Zod, React-Query, ...

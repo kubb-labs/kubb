@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: PluginManager
+title: Kubb Plugin Manager - Plugin System Guide
+description: Understand Kubb's plugin system. Create custom plugins, plugin lifecycle, and plugin dependencies.
 outline: deep
 ---
 
