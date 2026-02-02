@@ -11,6 +11,10 @@ export function getComments(operation: Operation): string[] {
     operation.isDeprecated() && '@deprecated',
   ]
     .filter(Boolean)
-    .map((text) => transformers.trim(text))
+    .flatMap((text) => {
+      // Split by newlines to preserve line breaks in JSDoc
+      // Trim each line individually
+      return transformers.trim(text).split(/\r?\n/).map((line) => line.trim())
+    })
     .filter(Boolean)
 }
