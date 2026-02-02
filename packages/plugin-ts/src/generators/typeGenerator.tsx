@@ -3,7 +3,16 @@ import { useMode, usePluginManager } from '@kubb/core/hooks'
 import transformers from '@kubb/core/transformers'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
-import { executeResolvers, isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, type Resolver, type ResolverContext, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import {
+  executeResolvers,
+  isKeyword,
+  type OperationSchemas,
+  type OperationSchema as OperationSchemaType,
+  type Resolver,
+  type ResolverContext,
+  SchemaGenerator,
+  schemaKeywords,
+} from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'

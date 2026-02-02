@@ -3,7 +3,7 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 
 import type { contentType, HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
 import type { Generator } from './generators/types.ts'
-import type { Resolution, Resolver as ResolverDefinition, ResolverContext } from './resolvers/types.ts'
+import type { Resolution, ResolverContext, Resolver as ResolverDefinition } from './resolvers/types.ts'
 
 type GetOasOptions = {
   validate?: boolean

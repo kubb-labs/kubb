@@ -8,6 +8,9 @@ export { createParser, findSchemaKeyword } from './createParser.ts'
 export type { OperationMethodResult } from './OperationGenerator.ts'
 export { OperationGenerator } from './OperationGenerator.ts'
 export { pluginOas, pluginOasName } from './plugin.ts'
+export type { FileDescriptor, Output, Resolution, Resolver, ResolverConfig, ResolverContext } from './resolvers/index.ts'
+// Resolver exports
+export { createResolver, executeResolvers, mergeResolvers } from './resolvers/index.ts'
 export type {
   GetSchemaGeneratorOptions,
   SchemaGeneratorBuildOptions,
@@ -26,10 +29,6 @@ export type {
 export { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 export type * from './types.ts'
 export { buildOperation, buildOperations, buildSchema } from './utils.tsx'
-
-// Resolver exports
-export { createResolver, executeResolvers, mergeResolvers } from './resolvers/index.ts'
-export type { FileDescriptor, Output, Resolution, Resolver, ResolverConfig, ResolverContext } from './resolvers/index.ts'
 
 /**
  * @deprecated use `import { createGenerator } from '@kubb/plugin-oas/generators'`

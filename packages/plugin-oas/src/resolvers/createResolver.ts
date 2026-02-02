@@ -4,9 +4,7 @@ import type { Resolution, Resolver, ResolverContext } from './types.ts'
  * Creates a typed resolver
  * @typeParam TOutputKeys - String literal union of output keys
  */
-export function createResolver<TOutputKeys extends string>(
-  resolver: Resolver<TOutputKeys>,
-): Resolver<TOutputKeys> {
+export function createResolver<TOutputKeys extends string>(resolver: Resolver<TOutputKeys>): Resolver<TOutputKeys> {
   return resolver
 }
 
@@ -27,10 +25,7 @@ export function mergeResolvers<TOutputKeys extends string>(
  * Resolvers are executed in order until one matches (or all are tried)
  * @typeParam TOutputKeys - String literal union of output keys
  */
-export function executeResolvers<TOutputKeys extends string>(
-  resolvers: Array<Resolver<TOutputKeys>>,
-  ctx: ResolverContext,
-): Resolution<TOutputKeys> | null {
+export function executeResolvers<TOutputKeys extends string>(resolvers: Array<Resolver<TOutputKeys>>, ctx: ResolverContext): Resolution<TOutputKeys> | null {
   for (const resolver of resolvers) {
     // Skip if matcher exists and returns false
     if (resolver.match && !resolver.match(ctx)) {

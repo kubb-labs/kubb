@@ -63,7 +63,7 @@ export function createTsResolver(options: TsResolverOptions = {}) {
           const groupName = group.name
             ? group.name({ group: groupValue })
             : group.type === 'path'
-              ? groupValue.split('/')[1] ?? groupValue
+              ? (groupValue.split('/')[1] ?? groupValue)
               : `${camelCase(groupValue)}Controller`
           basePath = `${outputPath}/${groupName}`
         }
