@@ -68,10 +68,7 @@ export function useSchemaResolve<TOptions extends PluginFactoryOptions = PluginF
 /**
  * Get the file for a specific output (uses output file if set, else resolution default)
  */
-export function getOutputFile<TOptions extends PluginFactoryOptions>(
-  resolution: Resolution<TOptions>,
-  outputKey: TOptions['outputKeys'],
-): FileDescriptor {
+export function getOutputFile<TOptions extends PluginFactoryOptions>(resolution: Resolution<TOptions>, outputKey: TOptions['outputKeys']): FileDescriptor {
   const output = resolution.outputs[outputKey]
   return output?.file ?? resolution.file
 }

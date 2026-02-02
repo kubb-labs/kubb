@@ -8,7 +8,7 @@ import { parseFromConfig } from '@kubb/oas'
 import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { executeOperationResolvers, executeSchemaResolvers } from './resolvers/createResolver.ts'
-import type { OperationResolverContext, Resolution, Resolver, ResolverContext, SchemaResolverContext } from './resolvers/types.ts'
+import type { Resolution, Resolver, ResolverContext } from './resolvers/types.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { PluginOas } from './types.ts'
 
@@ -95,10 +95,7 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
         /**
          * Resolve names/files using the resolver system
          */
-        resolve<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(
-          ctx: ResolverContext,
-          pluginKey?: Plugin['key'],
-        ): Resolution<TOptions> | null {
+        resolve<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(ctx: ResolverContext, pluginKey?: Plugin['key']): Resolution<TOptions> | null {
           const targetPluginKey = pluginKey ?? currentPlugin.key
           const targetPlugin = pluginManager.getPluginByKey(targetPluginKey)
 

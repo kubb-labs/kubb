@@ -376,20 +376,34 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       override: options.override,
     })
 
+    // Helper to determine which output key a schema corresponds to
+    const getSchemaOutputKey = (schemaItem: OperationSchemaType): keyof PluginTs['outputKeys'] | null => {
+      if (schemaItem === schemas.pathParams) return 'pathParams'
+      if (schemaItem === schemas.queryParams) return 'queryParams'
+      if (schemaItem === schemas.headerParams) return 'headerParams'
+      if (schemaItem === schemas.request) return 'request'
+      if (schemas.responses?.includes(schemaItem)) return 'response'
+      if (schemaItem === schemas.response) return 'response'
+      return null
+    }
+
     const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response]
       .flat()
       .filter(Boolean)
 
-    const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType) => {
+    const mapOperationSchema = (schemaItem: OperationSchemaType) => {
+      const { name, schema, description, keysToOmit, ...options } = schemaItem
       const tree = schemaGenerator.parse({ schema, name, parentName: null })
       const imports = schemaManager.getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 
-      // Use schema manager for individual operation schemas
-      // The resolver is only used for the main operation file, not individual schemas within it
+      // Try to use resolver output name for this schema
+      const outputKey = getSchemaOutputKey(schemaItem)
+      const resolvedName = outputKey && resolved?.outputs[outputKey]?.name
+
       const type = {
-        name: schemaManager.getName(name, { type: 'type' }),
-        typedName: schemaManager.getName(name, { type: 'type' }),
+        name: resolvedName ?? schemaManager.getName(name, { type: 'type' }),
+        typedName: resolvedName ?? schemaManager.getName(name, { type: 'type' }),
         file: schemaManager.getFile(options.operationName || name, { group }),
       }
 
@@ -461,10 +475,10 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const pluginManager = usePluginManager()
 
     const { getName, getImports, getFile } = useSchemaManager()
-    
+
     // Try to use the resolver system for component schemas
     const resolved = useSchemaResolve<PluginTs>({ schema })
-    
+
     const imports = getImports(schema.tree)
     const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
 

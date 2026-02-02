@@ -28,9 +28,8 @@ export function createTsResolver(options: TsResolverOptions = {}) {
 
   return createResolver<PluginTs>({
     name: 'default-ts',
-    operation: (ctx) => {
-      const root = resolve(ctx.config.root, ctx.config.output.path)
-      const operation = ctx.operation
+    operation: ({ config, operation }) => {
+      const root = resolve(config.root, config.output.path)
 
       const operationId = operation.getOperationId()
       const tags = operation.getTags()
@@ -74,11 +73,10 @@ export function createTsResolver(options: TsResolverOptions = {}) {
         },
       }
     },
-    schema: (ctx) => {
-      const root = resolve(ctx.config.root, ctx.config.output.path)
-      const schemaName = ctx.schema.name
+    schema: ({ config, schema }) => {
+      const root = resolve(config.root, config.output.path)
 
-      const name = pascalCase(schemaName)
+      const name = pascalCase(schema.name)
       const fileName = transformName ? transformName(name, 'file') : name
       const baseName = `${fileName}.ts`
 
