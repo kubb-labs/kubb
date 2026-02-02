@@ -1,5 +1,38 @@
 # @kubb/plugin-mcp
 
+## 4.20.1
+
+### Patch Changes
+
+- [#2402](https://github.com/kubb-labs/kubb/pull/2402) [`5c50613`](https://github.com/kubb-labs/kubb/commit/5c50613504f05d1f5484dea4969182ecc7961cfb) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix: Preserve line breaks in JSDoc descriptions from OpenAPI schemas
+
+  Line breaks (`\r\n`, `\n`) in OpenAPI schema descriptions were being stripped from generated JSDoc comments, collapsing multi-line documentation into single lines without whitespace separation. This fix preserves the line breaks so that multi-line descriptions are properly formatted in the generated code.
+
+  **Before:**
+
+  ```typescript
+  /**
+   * @description Creates a pet in the store.This is an arbitrary description...
+   */
+  ```
+
+  **After:**
+
+  ```typescript
+  /**
+   * @description Creates a pet in the store.
+   * This is an arbitrary description...
+   */
+  ```
+
+- Updated dependencies [[`5c50613`](https://github.com/kubb-labs/kubb/commit/5c50613504f05d1f5484dea4969182ecc7961cfb)]:
+  - @kubb/core@4.20.1
+  - @kubb/plugin-oas@4.20.1
+  - @kubb/oas@4.20.1
+  - @kubb/plugin-client@4.20.1
+  - @kubb/plugin-ts@4.20.1
+  - @kubb/plugin-zod@4.20.1
+
 ## 4.20.0
 
 ### Patch Changes
