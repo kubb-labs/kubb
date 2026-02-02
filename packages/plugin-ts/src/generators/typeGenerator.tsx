@@ -5,7 +5,8 @@ import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useOperationManager, useOperationResolve, useSchemaManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager, useOperationResolve, useSchemaManager, useSchemaResolve } from '@kubb/plugin-oas/hooks'
+import type { Resolution } from '@kubb/plugin-oas/resolvers'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
 import ts from 'typescript'
@@ -15,17 +16,29 @@ import { createUrlTemplateType, getUnknownType, keywordTypeNodes } from '../fact
 import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types'
 
-function printCombinedSchema({ name, schemas, pluginManager }: { name: string; schemas: OperationSchemas; pluginManager: PluginManager }): string {
+function printCombinedSchema({
+  name,
+  schemas,
+  resolved,
+  pluginManager,
+}: {
+  name: string
+  schemas: OperationSchemas
+  resolved: Resolution<PluginTs> | null
+  pluginManager: PluginManager
+}): string {
   const properties: Record<string, ts.TypeNode> = {}
 
   if (schemas.response) {
     properties['response'] = factory.createUnionDeclaration({
       nodes: schemas.responses.map((res) => {
-        const identifier = pluginManager.resolveName({
-          name: res.name,
-          pluginKey: [pluginTsName],
-          type: 'function',
-        })
+        const identifier =
+          resolved?.outputs.response.name ??
+          pluginManager.resolveName({
+            name: res.name,
+            pluginKey: [pluginTsName],
+            type: 'function',
+          })
 
         return factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
       }),
@@ -33,38 +46,46 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
   }
 
   if (schemas.request) {
-    const identifier = pluginManager.resolveName({
-      name: schemas.request.name,
-      pluginKey: [pluginTsName],
-      type: 'function',
-    })
+    const identifier =
+      resolved?.outputs.request.name ??
+      pluginManager.resolveName({
+        name: schemas.request.name,
+        pluginKey: [pluginTsName],
+        type: 'function',
+      })
     properties['request'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
 
   if (schemas.pathParams) {
-    const identifier = pluginManager.resolveName({
-      name: schemas.pathParams.name,
-      pluginKey: [pluginTsName],
-      type: 'function',
-    })
+    const identifier =
+      resolved?.outputs.pathParams.name ??
+      pluginManager.resolveName({
+        name: schemas.pathParams.name,
+        pluginKey: [pluginTsName],
+        type: 'function',
+      })
     properties['pathParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
 
   if (schemas.queryParams) {
-    const identifier = pluginManager.resolveName({
-      name: schemas.queryParams.name,
-      pluginKey: [pluginTsName],
-      type: 'function',
-    })
+    const identifier =
+      resolved?.outputs.queryParams.name ??
+      pluginManager.resolveName({
+        name: schemas.queryParams.name,
+        pluginKey: [pluginTsName],
+        type: 'function',
+      })
     properties['queryParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
 
   if (schemas.headerParams) {
-    const identifier = pluginManager.resolveName({
-      name: schemas.headerParams.name,
-      pluginKey: [pluginTsName],
-      type: 'function',
-    })
+    const identifier =
+      resolved?.outputs.headerParams.name ??
+      pluginManager.resolveName({
+        name: schemas.headerParams.name,
+        pluginKey: [pluginTsName],
+        type: 'function',
+      })
     properties['headerParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
   }
 
@@ -109,11 +130,13 @@ function printRequestSchema({
   baseName,
   operation,
   schemas,
+  resolved,
   pluginManager,
 }: {
   baseName: string
   operation: Operation
   schemas: OperationSchemas
+  resolved: Resolution<PluginTs> | null
   pluginManager: PluginManager
 }): string {
   const name = pluginManager.resolveName({
@@ -128,11 +151,13 @@ function printRequestSchema({
   const dataRequestProperties: ts.PropertySignature[] = []
 
   if (schemas.request) {
-    const identifier = pluginManager.resolveName({
-      name: schemas.request.name,
-      pluginKey: [pluginTsName],
-      type: 'type',
-    })
+    const identifier =
+      resolved?.outputs.request.name ??
+      pluginManager.resolveName({
+        name: schemas.request.name,
+        pluginKey: [pluginTsName],
+        type: 'type',
+      })
     dataRequestProperties.push(
       factory.createPropertySignature({
         name: 'data',
@@ -152,11 +177,13 @@ function printRequestSchema({
 
   // Add pathParams property
   if (schemas.pathParams) {
-    const identifier = pluginManager.resolveName({
-      name: schemas.pathParams.name,
-      pluginKey: [pluginTsName],
-      type: 'type',
-    })
+    const identifier =
+      resolved?.outputs.pathParams.name ??
+      pluginManager.resolveName({
+        name: schemas.pathParams.name,
+        pluginKey: [pluginTsName],
+        type: 'type',
+      })
     dataRequestProperties.push(
       factory.createPropertySignature({
         name: 'pathParams',
@@ -175,11 +202,13 @@ function printRequestSchema({
 
   // Add queryParams property
   if (schemas.queryParams) {
-    const identifier = pluginManager.resolveName({
-      name: schemas.queryParams.name,
-      pluginKey: [pluginTsName],
-      type: 'type',
-    })
+    const identifier =
+      resolved?.outputs.queryParams.name ??
+      pluginManager.resolveName({
+        name: schemas.queryParams.name,
+        pluginKey: [pluginTsName],
+        type: 'type',
+      })
     dataRequestProperties.push(
       factory.createPropertySignature({
         name: 'queryParams',
@@ -199,11 +228,13 @@ function printRequestSchema({
 
   // Add headerParams property
   if (schemas.headerParams) {
-    const identifier = pluginManager.resolveName({
-      name: schemas.headerParams.name,
-      pluginKey: [pluginTsName],
-      type: 'type',
-    })
+    const identifier =
+      resolved?.outputs.headerParams.name ??
+      pluginManager.resolveName({
+        name: schemas.headerParams.name,
+        pluginKey: [pluginTsName],
+        type: 'type',
+      })
     dataRequestProperties.push(
       factory.createPropertySignature({
         name: 'headerParams',
@@ -243,11 +274,13 @@ function printRequestSchema({
 function printResponseSchema({
   baseName,
   schemas,
+  resolved,
   pluginManager,
   unknownType,
 }: {
   baseName: string
   schemas: OperationSchemas
+  resolved: Resolution<PluginTs> | null
   pluginManager: PluginManager
   unknownType: PluginTs['resolvedOptions']['unknownType']
 }): string {
@@ -262,11 +295,13 @@ function printResponseSchema({
   // Generate Responses type (mapping status codes to response types)
   if (schemas.responses && schemas.responses.length > 0) {
     const responsesProperties: ts.PropertySignature[] = schemas.responses.map((res) => {
-      const identifier = pluginManager.resolveName({
-        name: res.name,
-        pluginKey: [pluginTsName],
-        type: 'type',
-      })
+      const identifier =
+        resolved?.outputs.response.name ??
+        pluginManager.resolveName({
+          name: res.name,
+          pluginKey: [pluginTsName],
+          type: 'type',
+        })
 
       return factory.createPropertySignature({
         name: res.statusCode?.toString() ?? 'default',
@@ -402,15 +437,15 @@ export const typeGenerator = createReactGenerator<PluginTs>({
         {generator.context.UNSTABLE_NAMING ? (
           <>
             <File.Source name={`${name}Request`} isExportable isIndexable isTypeOnly>
-              {printRequestSchema({ baseName: name, operation, schemas, pluginManager })}
+              {printRequestSchema({ baseName: name, operation, schemas, resolved, pluginManager })}
             </File.Source>
             <File.Source name={responseName} isExportable isIndexable isTypeOnly>
-              {printResponseSchema({ baseName: name, schemas, pluginManager, unknownType })}
+              {printResponseSchema({ baseName: name, schemas, resolved, pluginManager, unknownType })}
             </File.Source>
           </>
         ) : (
           <File.Source name={combinedSchemaName} isExportable isIndexable isTypeOnly>
-            {printCombinedSchema({ name: combinedSchemaName, schemas, pluginManager })}
+            {printCombinedSchema({ name: combinedSchemaName, schemas, resolved, pluginManager })}
           </File.Source>
         )}
       </File>
@@ -426,21 +461,24 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const pluginManager = usePluginManager()
 
     const { getName, getImports, getFile } = useSchemaManager()
+    
+    // Try to use the resolver system for component schemas
+    const resolved = useSchemaResolve<PluginTs>({ schema })
+    
     const imports = getImports(schema.tree)
     const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
 
-    // Schemas (components) do NOT use the resolver - only operations do
-    // Use legacy getName/getFile for component schemas
-    let typedName = getName(schema.name, { type: 'type' })
+    // Use resolver outputs if available, otherwise fall back to legacy getName/getFile
+    let typedName = resolved?.outputs.schema.name ?? getName(schema.name, { type: 'type' })
 
     if (enumType === 'asConst' && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
       typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
     }
 
     const type = {
-      name: getName(schema.name, { type: 'function' }),
+      name: resolved?.outputs.schema.name ?? getName(schema.name, { type: 'function' }),
       typedName,
-      file: getFile(schema.name),
+      file: resolved?.file ?? getFile(schema.name),
     }
 
     return (
