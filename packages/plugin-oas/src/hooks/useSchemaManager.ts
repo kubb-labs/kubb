@@ -32,6 +32,23 @@ type UseSchemaManagerResult = {
 
 /**
  * `useSchemaManager` returns helper functions to get the schema file and schema name.
+ *
+ * @deprecated This hook is deprecated and will be removed in v5.
+ * Use `useResolveSchema` from `@kubb/plugin-oas/hooks` instead for a typesafe resolver pattern.
+ *
+ * @example
+ * ```tsx
+ * // Old pattern (deprecated):
+ * const { getName, getFile } = useSchemaManager()
+ * const name = getName(schemaName, { type: 'type' })
+ *
+ * // New pattern (recommended):
+ * import { useResolveSchema, getOutputFile } from '@kubb/plugin-oas/hooks'
+ * import type { TsOutputKeys } from '@kubb/plugin-ts'
+ *
+ * const ts = useResolveSchema<TsOutputKeys>(oas, schema, [pluginTsName])
+ * const typeName = ts.outputs.response.name
+ * ```
  */
 export function useSchemaManager(): UseSchemaManagerResult {
   const plugin = usePlugin()

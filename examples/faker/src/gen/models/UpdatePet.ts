@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { Pet } from './Pet.ts'
+import type { pet } from './Pet.ts'
 
 /**
  * @description Successful operation
  */
-export type UpdatePet200 = Pet
+export type UpdatePet200 = pet
 
 /**
  * @description Invalid ID supplied
@@ -28,12 +28,12 @@ export type UpdatePet405 = any
 /**
  * @description Update an existent pet in the store
  */
-export type UpdatePetMutationRequest = Pet
+export type UpdatePetMutationRequest = pet
 
-export type UpdatePetMutationResponse = UpdatePet200
+export type UpdatePetMutationResponse = updatePet200
 
 export type UpdatePetMutation = {
-  Response: UpdatePet200
-  Request: UpdatePetMutationRequest
-  Errors: UpdatePet400 | UpdatePet404 | UpdatePet405
+  Response: updatePet200
+  Request: updatePetMutationRequest
+  Errors: updatePet400 | updatePet404 | updatePet405
 }

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { Pet } from './Pet.ts'
+import type { pet } from './Pet.ts'
 
 export type GetPetByIdPathParams = {
   /**
@@ -16,7 +16,7 @@ export type GetPetByIdPathParams = {
 /**
  * @description successful operation
  */
-export type GetPetById200 = Pet
+export type GetPetById200 = pet
 
 /**
  * @description Invalid ID supplied
@@ -28,10 +28,10 @@ export type GetPetById400 = any
  */
 export type GetPetById404 = any
 
-export type GetPetByIdQueryResponse = GetPetById200
+export type GetPetByIdQueryResponse = getPetById200
 
 export type GetPetByIdQuery = {
-  Response: GetPetById200
-  PathParams: GetPetByIdPathParams
-  Errors: GetPetById400 | GetPetById404
+  Response: getPetById200
+  PathParams: getPetByIdPathParams
+  Errors: getPetById400 | getPetById404
 }

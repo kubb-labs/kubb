@@ -5,6 +5,20 @@ import type { Generator as _Generator } from './generators/types.ts'
 
 export type { CreateParserConfig, KeywordHandler } from './createParser.ts'
 export { createParser, findSchemaKeyword } from './createParser.ts'
+
+// Resolver exports
+export type {
+  FileDescriptor,
+  Output,
+  Resolution,
+  ResolverContext,
+  Resolver,
+  ResolverConfig,
+} from './resolvers/index.ts'
+export { createResolver, mergeResolvers, executeResolvers, buildResolverContext } from './resolvers/index.ts'
+
+// Re-export resolver registration from hooks for convenience
+export { registerDefaultResolvers, getDefaultResolvers, hasDefaultResolver } from './hooks/useResolve.ts'
 export type { OperationMethodResult } from './OperationGenerator.ts'
 export { OperationGenerator } from './OperationGenerator.ts'
 export { pluginOas, pluginOasName } from './plugin.ts'

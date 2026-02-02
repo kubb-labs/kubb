@@ -26,10 +26,10 @@ export type LoginUser200 = string
  */
 export type LoginUser400 = any
 
-export type LoginUserQueryResponse = LoginUser200
+export type LoginUserQueryResponse = loginUser200
 
 export type LoginUserQuery = {
-  Response: LoginUser200
-  QueryParams: LoginUserQueryParams
-  Errors: LoginUser400
+  Response: loginUser200
+  QueryParams: loginUserQueryParams
+  Errors: loginUser400
 }

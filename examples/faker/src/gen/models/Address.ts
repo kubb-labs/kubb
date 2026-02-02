@@ -12,7 +12,7 @@ export const addressIdentifierEnum = {
 
 export type AddressIdentifierEnumKey = (typeof addressIdentifierEnum)[keyof typeof addressIdentifierEnum]
 
-export type Address = {
+export type address = {
   /**
    * @type string | undefined
    */

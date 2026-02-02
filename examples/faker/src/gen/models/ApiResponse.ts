@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type ApiResponse = {
+export type apiResponse = {
   /**
    * @type integer | undefined, int32
    */

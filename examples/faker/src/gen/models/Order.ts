@@ -11,7 +11,7 @@ export const orderStatusEnum = {
 
 export type OrderStatusEnumKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
-export type Order = {
+export type order = {
   /**
    * @type integer | undefined, int64
    */

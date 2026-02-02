@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type User = {
+export type user = {
   /**
    * @type integer | undefined, int64
    */

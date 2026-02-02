@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, UseMutationOptions } from '@tanstack/solid-query'
-import { useMutation } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet.ts'
+import type { UseMutationOptions, QueryClient } from '@tanstack/solid-query'
 import { fetch } from '../.kubb/fetch.ts'
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/AddPet.ts'
+import { useMutation } from '@tanstack/solid-query'
 
 export const addPetMutationKey = () => [{ url: '/pet' }] as const
 

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { ApiResponse } from './ApiResponse.ts'
+import type { apiResponse } from './ApiResponse.ts'
 
 export type UploadFilePathParams = {
   /**
@@ -24,16 +24,16 @@ export type UploadFileQueryParams = {
 /**
  * @description successful operation
  */
-export type UploadFile200 = ApiResponse
+export type UploadFile200 = apiResponse
 
 export type UploadFileMutationRequest = Blob
 
-export type UploadFileMutationResponse = UploadFile200
+export type UploadFileMutationResponse = uploadFile200
 
 export type UploadFileMutation = {
-  Response: UploadFile200
-  Request: UploadFileMutationRequest
-  PathParams: UploadFilePathParams
-  QueryParams: UploadFileQueryParams
+  Response: uploadFile200
+  Request: uploadFileMutationRequest
+  PathParams: uploadFilePathParams
+  QueryParams: uploadFileQueryParams
   Errors: any
 }

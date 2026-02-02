@@ -3,22 +3,22 @@
  * Do not edit manually.
  */
 
-import type { User } from './User.ts'
+import type { user } from './User.ts'
 
 /**
  * @description successful operation
  */
-export type CreateUserError = User
+export type CreateUserError = user
 
 /**
  * @description Created user object
  */
-export type CreateUserMutationRequest = User
+export type CreateUserMutationRequest = user
 
 export type CreateUserMutationResponse = any
 
 export type CreateUserMutation = {
   Response: any
-  Request: CreateUserMutationRequest
+  Request: createUserMutationRequest
   Errors: any
 }

@@ -3,26 +3,26 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod/mini'
-import { petSchema } from './petSchema.ts'
+import { petSchema } from "./petSchema.ts";
+import { z } from "zod/mini";
 
 export const getPetByIdPathParamsSchema = z.object({
   petId: z.int(),
-})
+});
 
 /**
  * @description successful operation
  */
-export const getPetById200Schema = z.lazy(() => petSchema)
+export const getPetById200Schema = z.lazy(() => petSchema);
 
 /**
  * @description Invalid ID supplied
  */
-export const getPetById400Schema = z.any()
+export const getPetById400Schema = z.any();
 
 /**
  * @description Pet not found
  */
-export const getPetById404Schema = z.any()
+export const getPetById404Schema = z.any();
 
-export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema)
+export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema);

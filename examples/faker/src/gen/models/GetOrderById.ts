@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { Order } from './Order.ts'
+import type { order } from './Order.ts'
 
 export type GetOrderByIdPathParams = {
   /**
@@ -16,7 +16,7 @@ export type GetOrderByIdPathParams = {
 /**
  * @description successful operation
  */
-export type GetOrderById200 = Order
+export type GetOrderById200 = order
 
 /**
  * @description Invalid ID supplied
@@ -28,10 +28,10 @@ export type GetOrderById400 = any
  */
 export type GetOrderById404 = any
 
-export type GetOrderByIdQueryResponse = GetOrderById200
+export type GetOrderByIdQueryResponse = getOrderById200
 
 export type GetOrderByIdQuery = {
-  Response: GetOrderById200
-  PathParams: GetOrderByIdPathParams
-  Errors: GetOrderById400 | GetOrderById404
+  Response: getOrderById200
+  PathParams: getOrderByIdPathParams
+  Errors: getOrderById400 | getOrderById404
 }

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type Item = {
+export type item = {
   /**
    * @minLength 3
    * @maxLength 25

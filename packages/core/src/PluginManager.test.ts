@@ -2,6 +2,7 @@ import { createFabric } from '@kubb/react-fabric'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { definePlugin } from './definePlugin.ts'
 import { PluginManager } from './PluginManager.ts'
+import { registerNameResolver, registerPathResolver } from './ResolverRegistry.ts'
 import type { Config, KubbEvents, Plugin } from './types.ts'
 import { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
 
@@ -14,6 +15,19 @@ describe('PluginManager', () => {
     install: vi.fn(),
     resolvePath: vi.fn(),
   } as const
+
+  // Register resolvers for test plugins
+  registerNameResolver('pluginA', (name) => `pluginA${name}`)
+  registerNameResolver('pluginB', (name) => `pluginB${name}`)
+  registerPathResolver('pluginA', (baseName, _mode, _options, ctx) => {
+    pluginAMocks.resolvePath()
+    return `${ctx.root}/pluginA/gen/${baseName}`
+  })
+  registerPathResolver('pluginB', (baseName, _mode, _options, ctx) => {
+    pluginBMocks.resolvePath()
+    return `${ctx.root}/pluginB/gen/${baseName}`
+  })
+
   const pluginA = definePlugin(() => {
     return {
       name: 'pluginA',
@@ -23,11 +37,6 @@ describe('PluginManager', () => {
       key: ['pluginA'],
       install() {
         pluginAMocks.install()
-      },
-      resolvePath() {
-        pluginAMocks.resolvePath()
-
-        return 'pluginA/gen'
       },
     }
   })
@@ -41,14 +50,6 @@ describe('PluginManager', () => {
       install() {
         pluginBMocks.install()
       },
-      resolvePath() {
-        pluginBMocks.resolvePath()
-
-        return 'pluginB/gen'
-      },
-      resolveName() {
-        return 'pluginBName'
-      },
     }
   })
 
@@ -60,14 +61,6 @@ describe('PluginManager', () => {
       key: ['pluginB', 2],
       install() {
         pluginBMocks.install()
-      },
-      resolvePath() {
-        pluginBMocks.resolvePath()
-
-        return 'pluginBBis/gen'
-      },
-      resolveName() {
-        return 'pluginBBisName'
       },
     }
   })
@@ -98,132 +91,110 @@ describe('PluginManager', () => {
   })
 
   test('hookFirst', async () => {
-    const { result, plugin } = await pluginManager.hookFirst({
-      hookName: 'resolvePath',
-      parameters: ['path.ts'],
+    pluginAMocks.install.mockReset()
+    pluginBMocks.install.mockReset()
+
+    // hookFirst runs until a plugin returns a non-nullish value
+    // Since install() returns void, it runs through all plugins
+    const { plugin } = await pluginManager.hookFirst({
+      hookName: 'install',
+      parameters: [{ config, events: new AsyncEventEmitter<KubbEvents>() }] as any,
     })
 
-    expect(plugin.name).toBe('pluginA')
-    expect(result).toBe('pluginA/gen')
-
-    expect(pluginAMocks.resolvePath).toHaveBeenCalled()
-    expect(pluginBMocks.resolvePath).not.toHaveBeenCalled()
+    // All plugins are called since install returns void
+    expect(plugin).toBeDefined()
+    expect(pluginAMocks.install).toHaveBeenCalled()
+    expect(pluginBMocks.install).toHaveBeenCalled()
   })
 
   test('hookFirstSync', () => {
-    const { result, plugin } = pluginManager.hookFirstSync({
-      hookName: 'resolvePath',
-      parameters: ['path.ts'],
+    pluginAMocks.install.mockReset()
+    pluginBMocks.install.mockReset()
+
+    // hookFirstSync runs until a plugin returns a non-nullish value
+    // Since install() returns void, it runs through all plugins
+    const { plugin } = pluginManager.hookFirstSync({
+      hookName: 'install',
+      parameters: [{ config, events: new AsyncEventEmitter<KubbEvents>() }] as any,
     })
 
-    expect(plugin.name).toBe('pluginA')
-    expect(result).toBe('pluginA/gen')
-
-    expect(pluginAMocks.resolvePath).toHaveBeenCalled()
-
-    expect(pluginBMocks.resolvePath).not.toHaveBeenCalled()
+    // All plugins are called since install returns void
+    expect(plugin).toBeDefined()
+    expect(pluginAMocks.install).toHaveBeenCalled()
+    expect(pluginBMocks.install).toHaveBeenCalled()
   })
 
   test('hookParallel', async () => {
+    pluginAMocks.install.mockReset()
+    pluginBMocks.install.mockReset()
+
     await pluginManager.hookParallel({
-      hookName: 'resolvePath',
-      parameters: ['path.ts'],
+      hookName: 'install',
+      parameters: [{ config, events: new AsyncEventEmitter<KubbEvents>() }] as any,
     })
 
-    expect(pluginAMocks.resolvePath).toHaveBeenCalled()
-    expect(pluginBMocks.resolvePath).toHaveBeenCalled()
+    expect(pluginAMocks.install).toHaveBeenCalled()
+    expect(pluginBMocks.install).toHaveBeenCalled()
   })
 
   test('resolvePath without `pluginKey`', () => {
-    const path = pluginManager.resolvePath({
+    const resolvedPath = pluginManager.resolvePath({
       baseName: 'baseName.ts',
     })
 
-    expect(path).toBe('pluginA/gen')
+    // Uses the first plugin's registered resolver
+    expect(resolvedPath).toContain('pluginA/gen/baseName.ts')
+    expect(pluginAMocks.resolvePath).toHaveBeenCalled()
   })
   test('resolvePath with `pluginKey`', () => {
-    const path = pluginManager.resolvePath({
+    pluginBMocks.resolvePath.mockReset()
+    const resolvedPath = pluginManager.resolvePath({
       baseName: 'fileNameB.ts',
       pluginKey: ['pluginB', 1],
     })
 
-    expect(path).toBe('pluginB/gen')
+    // Uses the resolver registered for pluginB
+    expect(resolvedPath).toContain('pluginB/gen/fileNameB.ts')
+    expect(pluginBMocks.resolvePath).toHaveBeenCalled()
   })
 
-  test('resolvePath with `pluginKey` that will run on first `pluginB` variant', () => {
-    try {
-      pluginManager.resolvePath({
-        baseName: 'fileNameB.ts',
-        pluginKey: ['pluginB'],
-      })
-    } catch (error) {
-      expect(error).toBeDefined()
-    }
+  test('resolvePath with `pluginKey` partial match', () => {
+    pluginBMocks.resolvePath.mockReset()
+    const resolvedPath = pluginManager.resolvePath({
+      baseName: 'fileNameB.ts',
+      pluginKey: ['pluginB'],
+    })
+
+    // Uses the first pluginB match
+    expect(resolvedPath).toContain('pluginB/gen/fileNameB.ts')
   })
 
   test('resolveName without `pluginKey`', () => {
     const name = pluginManager.resolveName({
-      name: 'name',
+      name: 'Name',
     })
 
-    // pluginA does not have `resolveName` so taking the first plugin that returns a name
-    expect(name).toBe('pluginBName')
+    // Uses the first plugin's registered resolver
+    expect(name).toBe('pluginAName')
   })
   test('resolveName with `pluginKey`', () => {
-    const hooksFirstSyncMock = vi.fn(pluginManager.hookFirstSync)
-    const hookForPluginSyncMock = vi.fn(pluginManager.hookForPluginSync)
-
-    pluginManager.hookFirstSync = hooksFirstSyncMock as any
-    pluginManager.hookForPluginSync = hookForPluginSyncMock as any
-
     const name = pluginManager.resolveName({
-      name: 'nameB',
+      name: 'Name',
       pluginKey: ['pluginB', '1'],
     })
 
+    // Uses the resolver registered for pluginB
     expect(name).toBe('pluginBName')
-    expect(hookForPluginSyncMock).toHaveBeenCalled()
   })
 
-  test('hookForPlugin', async () => {
+  test('hookForPlugin with install', async () => {
     await pluginManager.hookForPlugin({
       pluginKey: ['pluginB'],
-      hookName: 'resolvePath',
-      parameters: ['path.ts'],
+      hookName: 'install',
+      parameters: [{ config, events: new AsyncEventEmitter<KubbEvents>() }] as any,
     })
 
-    expect(pluginAMocks.resolvePath).toHaveBeenCalled()
-    expect(pluginBMocks.resolvePath).toHaveBeenCalled()
-  })
-
-  test('hookForPluginSync should work with non-function hooks', () => {
-    const staticPlugin = definePlugin(() => {
-      return {
-        name: 'staticPlugin',
-        options: undefined as any,
-        context: undefined as never,
-        key: ['staticPlugin'],
-        resolvePath: 'static/path' as any,
-      }
-    })
-
-    const staticConfig = {
-      ...config,
-      plugins: [staticPlugin({})] as Plugin[],
-    } satisfies Config
-
-    const staticPluginManager = new PluginManager(staticConfig, {
-      fabric: createFabric(),
-      events: new AsyncEventEmitter<KubbEvents>(),
-    })
-
-    const paths = staticPluginManager.hookForPluginSync({
-      pluginKey: ['staticPlugin'],
-      hookName: 'resolvePath',
-      parameters: ['path.ts'],
-    })
-
-    expect(paths).toEqual(['static/path'])
+    expect(pluginBMocks.install).toHaveBeenCalled()
   })
 
   it('should handle plugin hook errors gracefully', async () => {

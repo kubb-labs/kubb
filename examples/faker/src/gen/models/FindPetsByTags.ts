@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { Pet } from './Pet.ts'
+import type { pet } from './Pet.ts'
 
 export type FindPetsByTagsQueryParams = {
   /**
@@ -16,17 +16,17 @@ export type FindPetsByTagsQueryParams = {
 /**
  * @description successful operation
  */
-export type FindPetsByTags200 = Pet[]
+export type FindPetsByTags200 = pet[]
 
 /**
  * @description Invalid tag value
  */
 export type FindPetsByTags400 = any
 
-export type FindPetsByTagsQueryResponse = FindPetsByTags200
+export type FindPetsByTagsQueryResponse = findPetsByTags200
 
 export type FindPetsByTagsQuery = {
-  Response: FindPetsByTags200
-  QueryParams: FindPetsByTagsQueryParams
-  Errors: FindPetsByTags400
+  Response: findPetsByTags200
+  QueryParams: findPetsByTagsQueryParams
+  Errors: findPetsByTags400
 }

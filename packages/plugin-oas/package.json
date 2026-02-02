@@ -40,6 +40,10 @@
       "require": "./dist/mocks.cjs",
       "import": "./dist/mocks.js"
     },
+    "./resolvers": {
+      "require": "./dist/resolvers.cjs",
+      "import": "./dist/resolvers.js"
+    },
     "./utils": {
       "require": "./dist/utils.cjs",
       "import": "./dist/utils.js"
@@ -62,6 +66,9 @@
       ],
       "generators": [
         "./dist/generators.d.ts"
+      ],
+      "resolvers": [
+        "./dist/resolvers.d.ts"
       ]
     }
   },

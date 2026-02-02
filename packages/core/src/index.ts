@@ -9,3 +9,21 @@ export { PromiseManager } from './PromiseManager.ts'
 export * from './types.ts'
 export type { FileMetaBase } from './utils/getBarrelFiles.ts'
 export { getBarrelFiles } from './utils/getBarrelFiles.ts'
+
+// Resolver registry exports
+export {
+  registerNameResolver,
+  registerPathResolver,
+  getNameResolver,
+  getPathResolver,
+  hasNameResolver,
+  hasPathResolver,
+  defaultNameResolver,
+  defaultPathResolver,
+  resolveNameWithRegistry,
+  resolvePathWithRegistry,
+  type NameResolver,
+  type PathResolver,
+  type PathResolverOptions,
+  type PathResolverContext,
+} from './ResolverRegistry.ts'

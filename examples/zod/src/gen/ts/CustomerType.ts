@@ -3,19 +3,19 @@
  * Do not edit manually.
  */
 
-import type { AddressType } from './AddressType.ts'
+import type { AddressType } from "./AddressType.ts";
 
 export type CustomerType = {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: number;
   /**
    * @type string | undefined
    */
-  username?: string
+  username?: string;
   /**
    * @type array | undefined
    */
-  address?: AddressType[]
-}
+  address?: AddressType[];
+};

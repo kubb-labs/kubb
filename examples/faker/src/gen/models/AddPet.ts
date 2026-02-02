@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { Pet } from './Pet.ts'
+import type { pet } from './Pet.ts'
 
 /**
  * @description Successful operation
  */
-export type AddPet200 = Pet
+export type AddPet200 = pet
 
 /**
  * @description Invalid input
@@ -18,12 +18,12 @@ export type AddPet405 = any
 /**
  * @description Create a new pet in the store
  */
-export type AddPetMutationRequest = Pet
+export type AddPetMutationRequest = pet
 
-export type AddPetMutationResponse = AddPet200
+export type AddPetMutationResponse = addPet200
 
 export type AddPetMutation = {
-  Response: AddPet200
-  Request: AddPetMutationRequest
-  Errors: AddPet405
+  Response: addPet200
+  Request: addPetMutationRequest
+  Errors: addPet405
 }

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type Category = {
+export type category = {
   /**
    * @type integer | undefined, int64
    */

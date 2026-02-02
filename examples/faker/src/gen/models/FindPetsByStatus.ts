@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { Pet } from './Pet.ts'
+import type { pet } from './Pet.ts'
 
 export const findPetsByStatusQueryParamsStatusEnum = {
   available: 'available',
@@ -25,17 +25,17 @@ export type FindPetsByStatusQueryParams = {
 /**
  * @description successful operation
  */
-export type FindPetsByStatus200 = Pet[]
+export type FindPetsByStatus200 = pet[]
 
 /**
  * @description Invalid status value
  */
 export type FindPetsByStatus400 = any
 
-export type FindPetsByStatusQueryResponse = FindPetsByStatus200
+export type FindPetsByStatusQueryResponse = findPetsByStatus200
 
 export type FindPetsByStatusQuery = {
-  Response: FindPetsByStatus200
-  QueryParams: FindPetsByStatusQueryParams
-  Errors: FindPetsByStatus400
+  Response: findPetsByStatus200
+  QueryParams: findPetsByStatusQueryParams
+  Errors: findPetsByStatus400
 }

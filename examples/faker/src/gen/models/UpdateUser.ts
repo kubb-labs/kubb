@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { User } from './User.ts'
+import type { user } from './User.ts'
 
 export type UpdateUserPathParams = {
   /**
@@ -21,13 +21,13 @@ export type UpdateUserError = any
 /**
  * @description Update an existent user in the store
  */
-export type UpdateUserMutationRequest = User
+export type UpdateUserMutationRequest = user
 
 export type UpdateUserMutationResponse = any
 
 export type UpdateUserMutation = {
   Response: any
-  Request: UpdateUserMutationRequest
-  PathParams: UpdateUserPathParams
+  Request: updateUserMutationRequest
+  PathParams: updateUserPathParams
   Errors: any
 }

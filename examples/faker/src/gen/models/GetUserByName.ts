@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { User } from './User.ts'
+import type { user } from './User.ts'
 
 export type GetUserByNamePathParams = {
   /**
@@ -16,7 +16,7 @@ export type GetUserByNamePathParams = {
 /**
  * @description successful operation
  */
-export type GetUserByName200 = User
+export type GetUserByName200 = user
 
 /**
  * @description Invalid username supplied
@@ -28,10 +28,10 @@ export type GetUserByName400 = any
  */
 export type GetUserByName404 = any
 
-export type GetUserByNameQueryResponse = GetUserByName200
+export type GetUserByNameQueryResponse = getUserByName200
 
 export type GetUserByNameQuery = {
-  Response: GetUserByName200
-  PathParams: GetUserByNamePathParams
-  Errors: GetUserByName400 | GetUserByName404
+  Response: getUserByName200
+  PathParams: getUserByNamePathParams
+  Errors: getUserByName400 | getUserByName404
 }

@@ -1,14 +1,61 @@
 import path from 'node:path'
-import { definePlugin, type Group, getBarrelFiles, getMode, PackageManager } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode, PackageManager, registerNameResolver, registerPathResolver } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
-import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator, pluginOasName, SchemaGenerator, registerDefaultResolvers } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { operationsGenerator } from './generators'
 import { zodGenerator } from './generators/zodGenerator.tsx'
+import { defaultZodResolvers } from './resolver.ts'
 import type { PluginZod } from './types.ts'
 
 export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
+
+// Register default resolvers for this plugin
+registerDefaultResolvers(pluginZodName, defaultZodResolvers)
+
+// Register name resolver with core
+registerNameResolver(pluginZodName, (name, type) => {
+  let resolvedName = camelCase(name, {
+    suffix: type ? 'schema' : undefined,
+    isFile: type === 'file',
+  })
+
+  if (type === 'type') {
+    resolvedName = pascalCase(resolvedName)
+  }
+
+  return resolvedName
+})
+
+// Register path resolver with core
+registerPathResolver(pluginZodName, (baseName, mode, options, ctx) => {
+  if (mode === 'single') {
+    return path.resolve(ctx.root, ctx.outputPath)
+  }
+
+  if (ctx.group && (options?.group?.path || options?.group?.tag)) {
+    const groupName: Group['name'] = ctx.group?.name
+      ? ctx.group.name
+      : (groupCtx) => {
+          if (ctx.group?.type === 'path') {
+            return `${groupCtx.group.split('/')[1]}`
+          }
+          return `${camelCase(groupCtx.group)}Controller`
+        }
+
+    return path.resolve(
+      ctx.root,
+      ctx.outputPath,
+      groupName({
+        group: ctx.group.type === 'path' ? options!.group!.path! : options!.group!.tag!,
+      }),
+      baseName
+    )
+  }
+
+  return path.resolve(ctx.root, ctx.outputPath, baseName)
+})
 
 export const pluginZod = definePlugin<PluginZod>((options) => {
   const {
@@ -61,56 +108,6 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
       usedEnumNames,
     },
     pre: [pluginOasName, typed ? pluginTsName : undefined].filter(Boolean),
-    resolvePath(baseName, pathMode, options) {
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = pathMode ?? getMode(path.resolve(root, output.path))
-
-      if (mode === 'single') {
-        /**
-         * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
-         * Other plugins then need to call addOrAppend instead of just add from the fileManager class
-         */
-        return path.resolve(root, output.path)
-      }
-
-      if (group && (options?.group?.path || options?.group?.tag)) {
-        const groupName: Group['name'] = group?.name
-          ? group.name
-          : (ctx) => {
-              if (group?.type === 'path') {
-                return `${ctx.group.split('/')[1]}`
-              }
-              return `${camelCase(ctx.group)}Controller`
-            }
-
-        return path.resolve(
-          root,
-          output.path,
-          groupName({
-            group: group.type === 'path' ? options.group.path! : options.group.tag!,
-          }),
-          baseName,
-        )
-      }
-
-      return path.resolve(root, output.path, baseName)
-    },
-    resolveName(name, type) {
-      let resolvedName = camelCase(name, {
-        suffix: type ? 'schema' : undefined,
-        isFile: type === 'file',
-      })
-
-      if (type === 'type') {
-        resolvedName = pascalCase(resolvedName)
-      }
-
-      if (type) {
-        return transformers?.name?.(resolvedName, type) || resolvedName
-      }
-
-      return resolvedName
-    },
     async install() {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))

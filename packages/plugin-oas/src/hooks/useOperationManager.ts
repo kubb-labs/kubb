@@ -61,6 +61,27 @@ type UseOperationManagerResult = {
 
 /**
  * `useOperationManager` returns helper functions to get the operation file and operation name.
+ *
+ * @deprecated This hook is deprecated and will be removed in v5.
+ * Use `useResolve` from `@kubb/plugin-oas/hooks` instead for a typesafe resolver pattern.
+ *
+ * @example
+ * ```tsx
+ * // Old pattern (deprecated):
+ * const { getName, getFile, getSchemas } = useOperationManager(generator)
+ * const type = {
+ *   file: getFile(operation, { pluginKey: [pluginTsName] }),
+ *   schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+ * }
+ *
+ * // New pattern (recommended):
+ * import { useResolve, getOutputFile } from '@kubb/plugin-oas/hooks'
+ * import type { TsOutputKeys } from '@kubb/plugin-ts'
+ *
+ * const ts = useResolve<TsOutputKeys>(ctx, [pluginTsName])
+ * const responseType = ts.outputs.response.name
+ * const typeFile = getOutputFile(ts, 'response')
+ * ```
  */
 export function useOperationManager<TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions>(
   generator: Omit<OperationGenerator<TPluginOptions>, 'build'>,

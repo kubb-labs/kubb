@@ -3,6 +3,6 @@
  * Do not edit manually.
  */
 
-import type { User } from './User.ts'
+import type { user } from './User.ts'
 
-export type UserArray = User[]
+export type userArray = user[]

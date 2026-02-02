@@ -4,11 +4,13 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import { ValidationPluginError } from './errors.ts'
 import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
+import { resolveNameWithRegistry, resolvePathWithRegistry } from './ResolverRegistry.ts'
 import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { trim } from './transformers/trim.ts'
 import type {
   Config,
   GetPluginFactoryOptions,
+  Group,
   KubbEvents,
   Plugin,
   PluginContext,
@@ -73,7 +75,7 @@ export class PluginManager {
     this.config = config
     this.options = options
     this.#promiseManager = new PromiseManager({
-      nullCheck: (state: SafeParseResult<'resolveName'> | null) => !!state?.result,
+      nullCheck: (state: SafeParseResult<'install'> | null) => !!state?.result,
     })
     ;[...(config.plugins || [])].forEach((plugin) => {
       const parsedPlugin = this.#parse(plugin as UserPlugin)
@@ -149,45 +151,49 @@ export class PluginManager {
 
   resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): KubbFile.Path => {
     const root = path.resolve(this.config.root, this.config.output.path)
-    const defaultPath = path.resolve(root, params.baseName)
 
-    if (params.pluginKey) {
-      const paths = this.hookForPluginSync({
-        pluginKey: params.pluginKey,
-        hookName: 'resolvePath',
-        parameters: [params.baseName, params.mode, params.options as object],
-      })
-
-      return paths?.at(0) || defaultPath
+    // Get the plugin to find its output path and group settings
+    const plugin = params.pluginKey ? this.getPluginByKey(params.pluginKey) : this.plugins[0]
+    
+    if (!plugin) {
+      return path.resolve(root, params.baseName)
     }
 
-    const firstResult = this.hookFirstSync({
-      hookName: 'resolvePath',
-      parameters: [params.baseName, params.mode, params.options as object],
-    })
+    const pluginOutput = (plugin.options as { output?: { path?: string } })?.output?.path ?? ''
+    const pluginGroup = (plugin.options as { group?: Group })?.group
+    const outputPath = path.resolve(root, pluginOutput)
+    const mode = params.mode ?? getMode(outputPath)
 
-    return firstResult?.result || defaultPath
+    return resolvePathWithRegistry(
+      plugin.name,
+      params.baseName,
+      mode,
+      params.options as { group?: { tag?: string; path?: string } },
+      {
+        root,
+        outputPath: pluginOutput,
+        group: pluginGroup,
+      }
+    )
   }
-  //TODO refactor by using the order of plugins and the cache of the fileManager instead of guessing and recreating the name/path
+
   resolveName = (params: ResolveNameParams): string => {
-    if (params.pluginKey) {
-      const names = this.hookForPluginSync({
-        pluginKey: params.pluginKey,
-        hookName: 'resolveName',
-        parameters: [trim(params.name), params.type],
-      })
-
-      const uniqueNames = new Set(names)
-
-      return transformReservedWord([...uniqueNames].at(0) || params.name)
+    // Get the plugin to use its resolver
+    const plugin = params.pluginKey ? this.getPluginByKey(params.pluginKey) : this.plugins[0]
+    
+    if (!plugin) {
+      return transformReservedWord(trim(params.name))
     }
 
-    const name = this.hookFirstSync({
-      hookName: 'resolveName',
-      parameters: [trim(params.name), params.type],
-    }).result
-
-    return transformReservedWord(name)
+    let resolvedName = resolveNameWithRegistry(plugin.name, trim(params.name), params.type)
+    
+    // Apply user-provided transformers from plugin options if available
+    const transformers = (plugin.options as { transformers?: { name?: (name: string, type?: string) => string } })?.transformers
+    if (params.type && transformers?.name) {
+      resolvedName = transformers.name(resolvedName, params.type) || resolvedName
+    }
+    
+    return transformReservedWord(resolvedName)
   }
 
   /**
@@ -442,12 +448,20 @@ export class PluginManager {
 
   getPluginByKey(pluginKey: Plugin['key']): Plugin | undefined {
     const plugins = [...this.#plugins]
-    const [searchPluginName] = pluginKey
+    const [searchPluginName, searchIdentifier] = pluginKey
 
     return plugins.find((item) => {
-      const [name] = item.key
+      const [name, identifier] = item.key
 
-      return name === searchPluginName
+      if (name !== searchPluginName) {
+        return false
+      }
+
+      if (searchIdentifier === undefined) {
+        return true
+      }
+
+      return identifier?.toString() === searchIdentifier.toString()
     })
   }
 
