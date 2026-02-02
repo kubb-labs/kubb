@@ -9,7 +9,6 @@ import {
   type OperationSchemas,
   type OperationSchema as OperationSchemaType,
   type Resolver,
-  type ResolverContext,
   SchemaGenerator,
   schemaKeywords,
 } from '@kubb/plugin-oas'
@@ -440,13 +439,8 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const imports = getImports(schema.tree)
     const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
 
-    // Create resolver context for the schema
-    const resolverCtx: ResolverContext = {
-      schema: { name: schema.name, value: schema.value },
-    }
-
     // Try to use the resolver system (returns null if no resolvers match)
-    const resolved = resolvers?.length ? executeResolvers<PluginTs>(resolvers, resolverCtx) : null
+    const resolved = resolvers?.length ? executeResolvers<PluginTs>(resolvers, { schema: { name: schema.name, value: schema.value } }) : null
 
     // Use resolver outputs if available, otherwise fall back to legacy getName
     let typedName = resolved?.outputs.response.name ?? getName(schema.name, { type: 'type' })

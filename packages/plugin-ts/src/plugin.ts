@@ -42,9 +42,6 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     transformName: transformers?.name,
   })
 
-  // Merge user resolvers with default (user resolvers have priority)
-  const mergedResolvers = mergeResolvers(resolvers, [defaultResolver])
-
   return {
     name: pluginTsName,
     options: {
@@ -64,7 +61,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       mapper,
       usedEnumNames,
     },
-    resolvers: mergedResolvers,
+    resolvers: mergeResolvers(resolvers, [defaultResolver]),
     pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)

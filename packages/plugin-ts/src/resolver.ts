@@ -96,8 +96,3 @@ export function createTsResolver(options: TsResolverOptions = {}) {
     },
   })
 }
-
-/**
- * Default TypeScript resolver with standard options
- */
-export const defaultTsResolver = createTsResolver()
