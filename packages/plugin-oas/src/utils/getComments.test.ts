@@ -56,7 +56,7 @@ describe('getComments', () => {
         isDeprecated() {
           return false
         },
-      } as Operation),
+      } as unknown as Operation),
     ).toStrictEqual(['@description First line', 'Second line'])
   })
 
@@ -73,7 +73,7 @@ describe('getComments', () => {
         isDeprecated() {
           return false
         },
-      } as Operation),
+      } as unknown as Operation),
     ).toStrictEqual(['@summary First line of summary', 'Second line of summary'])
   })
 })
