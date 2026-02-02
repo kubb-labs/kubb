@@ -6,6 +6,36 @@ outline: deep
 
 # Changelog
 
+## Unreleased
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/core`](/core/), [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Preserve line breaks in JSDoc descriptions**
+
+Line breaks (`\r\n`, `\n`) in OpenAPI schema descriptions are now properly preserved in generated JSDoc comments. Previously, multi-line descriptions were being collapsed into single lines without whitespace separation.
+
+**Before:**
+```typescript
+/**
+ * @description Creates a pet in the store.This is an arbitrary description with lots of formatting from the real world.- We like to make lists
+ */
+```
+
+**After:**
+```typescript
+/**
+ * @description Creates a pet in the store.
+ * This is an arbitrary description with lots of formatting from the real world.
+ * - We like to make lists
+ */
+```
+
+This restores the v3.18.3 behavior and ensures multi-line documentation is properly formatted in generated code.
+
+---
+
 ## 4.20.0
 
 ### ✨ Features
