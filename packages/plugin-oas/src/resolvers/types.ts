@@ -1,4 +1,4 @@
-import type { Operation, Oas, SchemaObject } from '@kubb/oas'
+import type { Oas, Operation, SchemaObject } from '@kubb/oas'
 
 /**
  * File location descriptor

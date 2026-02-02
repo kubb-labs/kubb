@@ -1,7 +1,7 @@
-import fetch from '../../client.js'
-import type { ResponseErrorConfig } from '../../client.js'
-import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/ts/GetOrderById.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
+import type { ResponseErrorConfig } from '../../client.js'
+import fetch from '../../client.js'
+import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/ts/GetOrderById.js'
 
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.

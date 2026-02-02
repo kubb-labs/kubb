@@ -1,3 +1,2 @@
-export type { FileDescriptor, Output, Resolution, ResolverContext, Resolver, ResolverConfig } from './types.ts'
-
-export { createResolver, mergeResolvers, executeResolvers, buildResolverContext } from './createResolver.ts'
+export { buildResolverContext, createResolver, executeResolvers, mergeResolvers } from './createResolver.ts'
+export type { FileDescriptor, Output, Resolution, Resolver, ResolverConfig, ResolverContext } from './types.ts'

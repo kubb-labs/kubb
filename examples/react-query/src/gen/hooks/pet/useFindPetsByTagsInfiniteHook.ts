@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../.kubb/fetch.ts'
-import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../../models/FindPetsByTags.ts'
-import type { InfiniteData, QueryKey, QueryClient, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
-import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
-import { fetch } from '../../.kubb/fetch.ts'
+import type { InfiniteData, InfiniteQueryObserverOptions, QueryClient, QueryKey, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
+import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
+import { fetch } from '../../.kubb/fetch.ts'
+import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
 
 export const findPetsByTagsInfiniteQueryKey = (params: FindPetsByTagsQueryParams = {}) =>
   ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const

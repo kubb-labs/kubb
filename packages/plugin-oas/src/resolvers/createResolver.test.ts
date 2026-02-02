@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createResolver, executeResolvers, mergeResolvers, buildResolverContext } from './createResolver.ts'
+import { buildResolverContext, createResolver, executeResolvers, mergeResolvers } from './createResolver.ts'
 import type { ResolverContext } from './types.ts'
 
 type TestOutputKeys = 'hook' | 'type'

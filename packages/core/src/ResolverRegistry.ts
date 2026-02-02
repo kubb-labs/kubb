@@ -30,12 +30,7 @@ export type PathResolverContext = {
 /**
  * Resolver function type for path resolution
  */
-export type PathResolver = (
-  baseName: string,
-  mode: KubbFile.Mode | undefined,
-  options: PathResolverOptions | undefined,
-  ctx: PathResolverContext
-) => string
+export type PathResolver = (baseName: string, mode: KubbFile.Mode | undefined, options: PathResolverOptions | undefined, ctx: PathResolverContext) => string
 
 /**
  * Registry of name resolvers by plugin name
@@ -126,7 +121,7 @@ export const defaultPathResolver: PathResolver = (baseName, mode, options, ctx) 
       groupName({
         group: ctx.group.type === 'path' ? options.group!.path! : options.group!.tag!,
       }),
-      baseName
+      baseName,
     )
   }
 
@@ -136,11 +131,7 @@ export const defaultPathResolver: PathResolver = (baseName, mode, options, ctx) 
 /**
  * Resolve a name using the registered resolver or default
  */
-export function resolveNameWithRegistry(
-  pluginName: string,
-  name: string,
-  type?: ResolveNameParams['type']
-): string {
+export function resolveNameWithRegistry(pluginName: string, name: string, type?: ResolveNameParams['type']): string {
   const resolver = getNameResolver(pluginName)
   if (resolver) {
     return resolver(name, type)
@@ -156,7 +147,7 @@ export function resolvePathWithRegistry(
   baseName: string,
   mode: KubbFile.Mode | undefined,
   options: PathResolverOptions | undefined,
-  ctx: PathResolverContext
+  ctx: PathResolverContext,
 ): string {
   const resolver = getPathResolver(pluginName)
   if (resolver) {

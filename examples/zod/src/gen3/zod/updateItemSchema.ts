@@ -3,15 +3,15 @@
  * Do not edit manually.
  */
 
-import { itemSchema } from "./itemSchema.ts";
-import { itemTypeASchema } from "./itemTypeASchema.ts";
-import { itemTypeBSchema } from "./itemTypeBSchema.ts";
-import { z } from "zod/v4";
+import { z } from 'zod/v4'
+import { itemSchema } from './itemSchema.ts'
+import { itemTypeASchema } from './itemTypeASchema.ts'
+import { itemTypeBSchema } from './itemTypeBSchema.ts'
 
 /**
  * @description Success
  */
-export const updateItem200Schema = z.lazy(() => itemSchema);
+export const updateItem200Schema = z.lazy(() => itemSchema)
 
 /**
  * @description Item to update
@@ -22,7 +22,7 @@ export const updateItemMutationRequestSchema = z.union([
     .and(
       z.object({
         name: z.string(),
-        type: z.literal("typeA"),
+        type: z.literal('typeA'),
       }),
     ),
   z
@@ -30,11 +30,9 @@ export const updateItemMutationRequestSchema = z.union([
     .and(
       z.object({
         name: z.string(),
-        type: z.literal("typeB"),
+        type: z.literal('typeB'),
       }),
     ),
-]);
+])
 
-export const updateItemMutationResponseSchema = z.lazy(
-  () => updateItem200Schema,
-);
+export const updateItemMutationResponseSchema = z.lazy(() => updateItem200Schema)

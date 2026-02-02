@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import { z } from "../../zod.ts";
+import { z } from '../../zod.ts'
 
 /**
  * @description List of user object
  */
-export const userArraySchema = z.any().describe("List of user object");
+export const userArraySchema = z.any().describe('List of user object')
 
-export type UserArraySchema = z.infer<typeof userArraySchema>;
+export type UserArraySchema = z.infer<typeof userArraySchema>

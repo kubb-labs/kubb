@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { FindPetsByTagsQueryParams, FindPetsByTags200, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
-import { createPet } from '../createPet.ts'
 import { faker } from '@faker-js/faker'
+import type { FindPetsByTags200, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
+import { createPet } from '../createPet.ts'
 
 export function createFindPetsByTagsQueryParams(data?: Partial<FindPetsByTagsQueryParams>): FindPetsByTagsQueryParams {
   faker.seed([220])

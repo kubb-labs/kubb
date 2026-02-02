@@ -1,8 +1,8 @@
 import type { Plugin } from '@kubb/core'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import type { Oas, Operation, SchemaObject } from '@kubb/oas'
-import type { FileDescriptor, Resolution, ResolverContext, Resolver } from '../resolvers/types.ts'
 import { buildResolverContext, executeResolvers, mergeResolvers } from '../resolvers/createResolver.ts'
+import type { FileDescriptor, Resolution, Resolver, ResolverContext } from '../resolvers/types.ts'
 
 /**
  * Registry of default resolvers by plugin name
@@ -14,10 +14,7 @@ const defaultResolverRegistry = new Map<string, Array<Resolver<string>>>()
  * Register default resolvers for a plugin
  * Called by plugins during initialization
  */
-export function registerDefaultResolvers<TOutputKeys extends string>(
-  pluginName: string,
-  resolvers: Array<Resolver<TOutputKeys>>
-): void {
+export function registerDefaultResolvers<TOutputKeys extends string>(pluginName: string, resolvers: Array<Resolver<TOutputKeys>>): void {
   defaultResolverRegistry.set(pluginName, resolvers as Array<Resolver<string>>)
 }
 
@@ -54,10 +51,7 @@ export function hasDefaultResolver(pluginName: string): boolean {
  * const typeName = ts.outputs.response.name
  * ```
  */
-export function useResolve<TOutputKeys extends string = string>(
-  ctx: ResolverContext,
-  pluginKey?: Plugin['key']
-): Resolution<TOutputKeys> {
+export function useResolve<TOutputKeys extends string = string>(ctx: ResolverContext, pluginKey?: Plugin['key']): Resolution<TOutputKeys> {
   const pluginManager = usePluginManager()
   const currentPlugin = usePlugin()
 
@@ -81,8 +75,8 @@ export function useResolve<TOutputKeys extends string = string>(
   if (allResolvers.length === 0) {
     throw new Error(
       `No resolvers configured for plugin ${targetPlugin.name}. ` +
-        `Either add resolvers to the plugin options or ensure the plugin registers default resolvers. ` +
-        `Note: For plugins that haven't migrated to the resolver pattern yet, use useOperationManager instead.`
+        'Either add resolvers to the plugin options or ensure the plugin registers default resolvers. ' +
+        `Note: For plugins that haven't migrated to the resolver pattern yet, use useOperationManager instead.`,
     )
   }
 
@@ -93,7 +87,7 @@ export function useResolve<TOutputKeys extends string = string>(
     // No resolver matched the context
     throw new Error(
       `No resolver matched for ${ctx.operationId ?? ctx.schema?.name ?? 'unknown'} in plugin ${targetPlugin.name}. ` +
-        `Check that your resolvers have appropriate match conditions or a default resolver without a match function.`
+        'Check that your resolvers have appropriate match conditions or a default resolver without a match function.',
     )
   }
 
@@ -103,11 +97,7 @@ export function useResolve<TOutputKeys extends string = string>(
 /**
  * Convenience hook that builds ResolverContext from an operation and resolves
  */
-export function useResolveOperation<TOutputKeys extends string = string>(
-  oas: Oas,
-  operation: Operation,
-  pluginKey?: Plugin['key']
-): Resolution<TOutputKeys> {
+export function useResolveOperation<TOutputKeys extends string = string>(oas: Oas, operation: Operation, pluginKey?: Plugin['key']): Resolution<TOutputKeys> {
   const ctx = buildResolverContext(oas, operation)
   return useResolve<TOutputKeys>(ctx, pluginKey)
 }
@@ -118,7 +108,7 @@ export function useResolveOperation<TOutputKeys extends string = string>(
 export function useResolveSchema<TOutputKeys extends string = string>(
   oas: Oas,
   schema: { name: string; value: SchemaObject },
-  pluginKey?: Plugin['key']
+  pluginKey?: Plugin['key'],
 ): Resolution<TOutputKeys> {
   const ctx = buildResolverContext(oas, undefined, schema)
   return useResolve<TOutputKeys>(ctx, pluginKey)
@@ -135,10 +125,7 @@ export function useResolveSchema<TOutputKeys extends string = string>(
  * // responseFile.path contains the file path for the response type
  * ```
  */
-export function getOutputFile<TOutputKeys extends string>(
-  resolution: Resolution<TOutputKeys>,
-  outputKey: TOutputKeys
-): FileDescriptor {
+export function getOutputFile<TOutputKeys extends string>(resolution: Resolution<TOutputKeys>, outputKey: TOutputKeys): FileDescriptor {
   const output = resolution.outputs[outputKey]
   if (!output) {
     throw new Error(`Output key "${outputKey}" not found in resolution`)

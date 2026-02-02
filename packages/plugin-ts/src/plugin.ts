@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode, registerNameResolver, registerPathResolver } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
-import { OperationGenerator, pluginOasName, SchemaGenerator, registerDefaultResolvers } from '@kubb/plugin-oas'
+import { OperationGenerator, pluginOasName, registerDefaultResolvers, SchemaGenerator } from '@kubb/plugin-oas'
 import { typeGenerator } from './generators'
 import { defaultTsResolvers } from './resolver.ts'
 import type { PluginTs } from './types.ts'
@@ -38,7 +38,7 @@ registerPathResolver(pluginTsName, (baseName, mode, options, ctx) => {
       groupName({
         group: ctx.group.type === 'path' ? options!.group!.path! : options!.group!.tag!,
       }),
-      baseName
+      baseName,
     )
   }
 

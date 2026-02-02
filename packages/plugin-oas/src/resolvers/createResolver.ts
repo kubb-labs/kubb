@@ -1,4 +1,4 @@
-import type { Resolver, ResolverContext, Resolution } from './types.ts'
+import type { Resolution, Resolver, ResolverContext } from './types.ts'
 
 /**
  * Creates a typed resolver
@@ -22,9 +22,7 @@ import type { Resolver, ResolverContext, Resolution } from './types.ts'
  * })
  * ```
  */
-export function createResolver<TOutputKeys extends string>(
-  resolver: Resolver<TOutputKeys>
-): Resolver<TOutputKeys> {
+export function createResolver<TOutputKeys extends string>(resolver: Resolver<TOutputKeys>): Resolver<TOutputKeys> {
   return resolver
 }
 
@@ -36,7 +34,7 @@ export function createResolver<TOutputKeys extends string>(
  */
 export function mergeResolvers<TOutputKeys extends string>(
   customResolvers: Array<Resolver<TOutputKeys>> | undefined,
-  defaultResolvers: Array<Resolver<TOutputKeys>>
+  defaultResolvers: Array<Resolver<TOutputKeys>>,
 ): Array<Resolver<TOutputKeys>> {
   return [...(customResolvers ?? []), ...defaultResolvers]
 }
@@ -48,10 +46,7 @@ export function mergeResolvers<TOutputKeys extends string>(
  * @typeParam TOutputKeys - String literal union of output keys
  * @returns Resolution from the first matching resolver, or null if none match
  */
-export function executeResolvers<TOutputKeys extends string>(
-  resolvers: Array<Resolver<TOutputKeys>>,
-  ctx: ResolverContext
-): Resolution<TOutputKeys> | null {
+export function executeResolvers<TOutputKeys extends string>(resolvers: Array<Resolver<TOutputKeys>>, ctx: ResolverContext): Resolution<TOutputKeys> | null {
   for (const resolver of resolvers) {
     // If resolver has a match function and it returns false, skip this resolver
     if (resolver.match && !resolver.match(ctx)) {
@@ -71,7 +66,7 @@ export function executeResolvers<TOutputKeys extends string>(
 export function buildResolverContext(
   oas: import('@kubb/oas').Oas,
   operation?: import('@kubb/oas').Operation,
-  schema?: { name: string; value: import('@kubb/oas').SchemaObject }
+  schema?: { name: string; value: import('@kubb/oas').SchemaObject },
 ): ResolverContext {
   if (operation) {
     return {

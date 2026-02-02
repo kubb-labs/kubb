@@ -1,4 +1,4 @@
-import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../models/ts/userController/LoginUser.ts'
+import type { LoginUserQueryParams, LoginUserQueryResponse } from '../../models/ts/userController/LoginUser.ts'
 
 export function loginUser(params?: LoginUserQueryParams, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<LoginUserQueryResponse> {
   return cy

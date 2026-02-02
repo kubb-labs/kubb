@@ -3,15 +3,15 @@
  * Do not edit manually.
  */
 
-import { z } from "../../zod.ts";
-import { addressSchema } from "./addressSchema.gen.ts";
+import { z } from '../../zod.ts'
+import { addressSchema } from './addressSchema.gen.ts'
 
 export const customerSchema = z.object({
   id: z.optional(z.int()),
   username: z.optional(z.string()),
   get address() {
-    return z.array(addressSchema).optional();
+    return z.array(addressSchema).optional()
   },
-});
+})
 
-export type CustomerSchema = z.infer<typeof customerSchema>;
+export type CustomerSchema = z.infer<typeof customerSchema>

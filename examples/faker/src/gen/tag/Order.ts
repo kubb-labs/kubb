@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { Order } from '../models/Order.ts'
 import { faker } from '@faker-js/faker'
+import type { Order } from '../models/Order.ts'
 
 export function order(data?: Partial<Order>): Order {
   return {

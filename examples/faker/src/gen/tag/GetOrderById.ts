@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
+import { faker } from '@faker-js/faker'
 import type { GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById.ts'
 import { order } from './Order.ts'
-import { faker } from '@faker-js/faker'
 
 export function getOrderByIdPathParams(data?: Partial<GetOrderByIdPathParams>): GetOrderByIdPathParams {
   return {

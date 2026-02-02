@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode, registerNameResolver, registerPathResolver } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
-import { OperationGenerator, pluginOasName, SchemaGenerator, registerDefaultResolvers } from '@kubb/plugin-oas'
+import { OperationGenerator, pluginOasName, registerDefaultResolvers, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { fakerGenerator } from './generators/fakerGenerator.tsx'
 import { defaultFakerResolvers } from './resolver.ts'
@@ -42,7 +42,7 @@ registerPathResolver(pluginFakerName, (baseName, mode, options, ctx) => {
       groupName({
         group: ctx.group.type === 'path' ? options!.group!.path! : options!.group!.tag!,
       }),
-      baseName
+      baseName,
     )
   }
 

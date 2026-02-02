@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { DeleteOrderPathParams, DeleteOrderMutationResponse } from '../models/DeleteOrder.ts'
 import { faker } from '@faker-js/faker'
+import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../models/DeleteOrder.ts'
 
 export function deleteOrderPathParams(data?: Partial<DeleteOrderPathParams>): DeleteOrderPathParams {
   return {
@@ -27,6 +27,6 @@ export function deleteOrder404() {
   return undefined
 }
 
-export function deleteOrderMutationResponse(data?: Partial<DeleteOrderMutationResponse>): DeleteOrderMutationResponse {
+export function deleteOrderMutationResponse(_data?: Partial<DeleteOrderMutationResponse>): DeleteOrderMutationResponse {
   return undefined
 }

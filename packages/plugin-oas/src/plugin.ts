@@ -38,7 +38,7 @@ registerPathResolver(pluginOasName, (baseName, mode, options, ctx) => {
       groupName({
         group: ctx.group.type === 'path' ? options!.group!.path! : options!.group!.tag!,
       }),
-      baseName
+      baseName,
     )
   }
 

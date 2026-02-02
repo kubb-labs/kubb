@@ -2,7 +2,7 @@ import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode, PackageManager, registerNameResolver, registerPathResolver } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { resolveModuleSource } from '@kubb/core/utils'
-import { OperationGenerator, pluginOasName, SchemaGenerator, registerDefaultResolvers } from '@kubb/plugin-oas'
+import { OperationGenerator, pluginOasName, registerDefaultResolvers, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { operationsGenerator } from './generators'
 import { zodGenerator } from './generators/zodGenerator.tsx'
@@ -50,7 +50,7 @@ registerPathResolver(pluginZodName, (baseName, mode, options, ctx) => {
       groupName({
         group: ctx.group.type === 'path' ? options!.group!.path! : options!.group!.tag!,
       }),
-      baseName
+      baseName,
     )
   }
 

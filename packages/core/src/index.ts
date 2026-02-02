@@ -6,24 +6,23 @@ export { definePlugin } from './definePlugin.ts'
 export { PackageManager } from './PackageManager.ts'
 export { getMode, PluginManager } from './PluginManager.ts'
 export { PromiseManager } from './PromiseManager.ts'
-export * from './types.ts'
-export type { FileMetaBase } from './utils/getBarrelFiles.ts'
-export { getBarrelFiles } from './utils/getBarrelFiles.ts'
-
 // Resolver registry exports
 export {
-  registerNameResolver,
-  registerPathResolver,
+  defaultNameResolver,
+  defaultPathResolver,
   getNameResolver,
   getPathResolver,
   hasNameResolver,
   hasPathResolver,
-  defaultNameResolver,
-  defaultPathResolver,
-  resolveNameWithRegistry,
-  resolvePathWithRegistry,
   type NameResolver,
   type PathResolver,
-  type PathResolverOptions,
   type PathResolverContext,
+  type PathResolverOptions,
+  registerNameResolver,
+  registerPathResolver,
+  resolveNameWithRegistry,
+  resolvePathWithRegistry,
 } from './ResolverRegistry.ts'
+export * from './types.ts'
+export type { FileMetaBase } from './utils/getBarrelFiles.ts'
+export { getBarrelFiles } from './utils/getBarrelFiles.ts'

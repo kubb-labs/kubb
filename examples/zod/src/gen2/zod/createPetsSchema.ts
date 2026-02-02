@@ -3,38 +3,36 @@
  * Do not edit manually.
  */
 
-import { petNotFoundSchema } from "./petNotFoundSchema.ts";
-import { z } from "zod/mini";
+import { z } from 'zod/mini'
+import { petNotFoundSchema } from './petNotFoundSchema.ts'
 
 export const createPetsPathParamsSchema = z.object({
   uuid: z.string(),
-});
+})
 
 export const createPetsQueryParamsSchema = z.optional(
   z.object({
     offset: z.optional(z.int()),
   }),
-);
+)
 
 export const createPetsHeaderParamsSchema = z.object({
-  "X-EXAMPLE": z.enum(["ONE", "TWO", "THREE"]),
-});
+  'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']),
+})
 
 /**
  * @description Null response
  */
-export const createPets201Schema = z.any();
+export const createPets201Schema = z.any()
 
 /**
  * @description unexpected error
  */
-export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema);
+export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema)
 
 export const createPetsMutationRequestSchema = z.object({
   name: z.string(),
   tag: z.string(),
-});
+})
 
-export const createPetsMutationResponseSchema = z.lazy(
-  () => createPets201Schema,
-);
+export const createPetsMutationResponseSchema = z.lazy(() => createPets201Schema)

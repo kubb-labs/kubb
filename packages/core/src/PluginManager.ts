@@ -154,7 +154,7 @@ export class PluginManager {
 
     // Get the plugin to find its output path and group settings
     const plugin = params.pluginKey ? this.getPluginByKey(params.pluginKey) : this.plugins[0]
-    
+
     if (!plugin) {
       return path.resolve(root, params.baseName)
     }
@@ -164,35 +164,29 @@ export class PluginManager {
     const outputPath = path.resolve(root, pluginOutput)
     const mode = params.mode ?? getMode(outputPath)
 
-    return resolvePathWithRegistry(
-      plugin.name,
-      params.baseName,
-      mode,
-      params.options as { group?: { tag?: string; path?: string } },
-      {
-        root,
-        outputPath: pluginOutput,
-        group: pluginGroup,
-      }
-    )
+    return resolvePathWithRegistry(plugin.name, params.baseName, mode, params.options as { group?: { tag?: string; path?: string } }, {
+      root,
+      outputPath: pluginOutput,
+      group: pluginGroup,
+    })
   }
 
   resolveName = (params: ResolveNameParams): string => {
     // Get the plugin to use its resolver
     const plugin = params.pluginKey ? this.getPluginByKey(params.pluginKey) : this.plugins[0]
-    
+
     if (!plugin) {
       return transformReservedWord(trim(params.name))
     }
 
     let resolvedName = resolveNameWithRegistry(plugin.name, trim(params.name), params.type)
-    
+
     // Apply user-provided transformers from plugin options if available
     const transformers = (plugin.options as { transformers?: { name?: (name: string, type?: string) => string } })?.transformers
     if (params.type && transformers?.name) {
       resolvedName = transformers.name(resolvedName, params.type) || resolvedName
     }
-    
+
     return transformReservedWord(resolvedName)
   }
 

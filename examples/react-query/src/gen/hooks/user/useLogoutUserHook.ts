@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
-import type { LogoutUserQueryResponse } from '../../models/LogoutUser.ts'
-import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
-import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
-import { fetch } from '../../.kubb/fetch.ts'
+import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
+import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
+import { fetch } from '../../.kubb/fetch.ts'
+import type { LogoutUserQueryResponse } from '../../models/LogoutUser.ts'
 
 export const logoutUserQueryKey = () => ['v5', { url: '/user/logout' }] as const
 

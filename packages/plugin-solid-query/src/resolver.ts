@@ -1,5 +1,5 @@
+import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { createResolver, type ResolverContext } from '@kubb/plugin-oas'
-import { pascalCase, camelCase } from '@kubb/core/transformers'
 import type { SolidQueryOutputKeys } from './resolverTypes.ts'
 
 /**

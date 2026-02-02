@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet.ts'
-import type { UseMutationOptions, QueryClient } from '@tanstack/solid-query'
-import { fetch } from '../.kubb/fetch.ts'
+import type { QueryClient, UseMutationOptions } from '@tanstack/solid-query'
 import { useMutation } from '@tanstack/solid-query'
+import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import { fetch } from '../.kubb/fetch.ts'
+import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../models/UpdatePet.ts'
 
 export const updatePetMutationKey = () => [{ url: '/pet' }] as const
 
