@@ -5,7 +5,7 @@ import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useOperationManager, useResolve, useSchemaManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager, useOperationResolve, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
 import ts from 'typescript'
@@ -13,7 +13,6 @@ import { Type } from '../components'
 import * as factory from '../factory.ts'
 import { createUrlTemplateType, getUnknownType, keywordTypeNodes } from '../factory.ts'
 import { pluginTsName } from '../plugin.ts'
-import type { TsOutputKeys } from '../resolverTypes.ts'
 import type { PluginTs } from '../types'
 
 function printCombinedSchema({ name, schemas, pluginManager }: { name: string; schemas: OperationSchemas; pluginManager: PluginManager }): string {
@@ -325,8 +324,8 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const { getSchemas, getFile, getName, getGroup } = useOperationManager(generator)
     const schemaManager = useSchemaManager()
 
-    // Try to use the resolver system with useResolve hook
-    const resolved = useResolve<TsOutputKeys>({ operation })
+    // Try to use the resolver system with useOperationResolve hook
+    const resolved = useOperationResolve<PluginTs>({ operation })
 
     // Use resolver outputs if available, otherwise fall back to legacy getName/getFile
     const name = resolved?.outputs.response.name ?? getName(operation, { type: 'type', pluginKey: [pluginTsName] })

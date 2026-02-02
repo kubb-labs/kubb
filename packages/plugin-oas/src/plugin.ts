@@ -7,8 +7,8 @@ import type { Oas } from '@kubb/oas'
 import { parseFromConfig } from '@kubb/oas'
 import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
-import { executeResolvers } from './resolvers/createResolver.ts'
-import type { Resolution, Resolver, ResolverContext } from './resolvers/types.ts'
+import { executeOperationResolvers, executeSchemaResolvers } from './resolvers/createResolver.ts'
+import type { OperationResolverContext, Resolution, Resolver, ResolverContext, SchemaResolverContext } from './resolvers/types.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { PluginOas } from './types.ts'
 
@@ -95,7 +95,10 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
         /**
          * Resolve names/files using the resolver system
          */
-        resolve<TOutputKeys extends string = string>(ctx: ResolverContext, pluginKey?: Plugin['key']): Resolution<TOutputKeys> | null {
+        resolve<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(
+          ctx: ResolverContext,
+          pluginKey?: Plugin['key'],
+        ): Resolution<TOptions> | null {
           const targetPluginKey = pluginKey ?? currentPlugin.key
           const targetPlugin = pluginManager.getPluginByKey(targetPluginKey)
 
@@ -104,19 +107,27 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
           }
 
           // Get resolvers from plugin options
-          const pluginOptions = targetPlugin.options as { resolvers?: Array<Resolver<string>> } | undefined
-          const resolvers = (pluginOptions?.resolvers ?? []) as Array<Resolver<TOutputKeys>>
+          const pluginOptions = targetPlugin.options as { resolvers?: Array<Resolver<PluginFactoryOptions>> } | undefined
+          const resolvers = (pluginOptions?.resolvers ?? []) as Array<Resolver<TOptions>>
 
           if (resolvers.length === 0) {
             return null
           }
 
-          return executeResolvers(resolvers, ctx)
+          // Legacy support: execute based on what's in the context
+          if (ctx.operation) {
+            return executeOperationResolvers(resolvers, { operation: ctx.operation, config })
+          }
+          if (ctx.schema) {
+            return executeSchemaResolvers(resolvers, { schema: ctx.schema, config })
+          }
+
+          return null
         },
         /**
          * Get resolvers configured for a plugin
          */
-        getResolvers<TOutputKeys extends string = string>(pluginKey?: Plugin['key']): Array<Resolver<TOutputKeys>> {
+        getResolvers<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginKey?: Plugin['key']): Array<Resolver<TOptions>> {
           const targetPluginKey = pluginKey ?? currentPlugin.key
           const targetPlugin = pluginManager.getPluginByKey(targetPluginKey)
 
@@ -125,8 +136,8 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
           }
 
           // Get resolvers from plugin options
-          const pluginOptions = targetPlugin.options as { resolvers?: Array<Resolver<string>> } | undefined
-          return (pluginOptions?.resolvers ?? []) as Array<Resolver<TOutputKeys>>
+          const pluginOptions = targetPlugin.options as { resolvers?: Array<Resolver<PluginFactoryOptions>> } | undefined
+          return (pluginOptions?.resolvers ?? []) as Array<Resolver<TOptions>>
         },
       }
     },

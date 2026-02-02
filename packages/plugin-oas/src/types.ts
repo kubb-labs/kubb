@@ -16,12 +16,12 @@ type ResolverHelpers = {
    * @param ctx - The resolver context (operation or schema)
    * @param pluginKey - Optional plugin key to query another plugin's resolvers
    */
-  resolve<TOutputKeys extends string = string>(ctx: ResolverContext, pluginKey?: Plugin['key']): Resolution<TOutputKeys> | null
+  resolve<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(ctx: ResolverContext, pluginKey?: Plugin['key']): Resolution<TOptions> | null
   /**
    * Get the resolvers configured for a specific plugin
    * @param pluginKey - Optional plugin key (defaults to current plugin)
    */
-  getResolvers<TOutputKeys extends string = string>(pluginKey?: Plugin['key']): Array<ResolverDefinition<TOutputKeys>>
+  getResolvers<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginKey?: Plugin['key']): Array<ResolverDefinition<TOptions>>
 }
 
 type Context = {

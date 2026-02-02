@@ -1,60 +1,70 @@
-import type { Config, PluginFactoryOptions } from '@kubb/core'
-import type { Resolution, Resolver, ResolverContext } from './types.ts'
+import type { PluginFactoryOptions } from '@kubb/core'
+import type { OperationResolverContext, Resolution, Resolver, SchemaResolverContext } from './types.ts'
 
-/**
- * Creates a typed resolver
- * @typeParam TOutputKeys - String literal union of output keys
- */
-export function createResolver<TOutputKeys extends string>(resolver: Resolver<TOutputKeys>): Resolver<TOutputKeys> {
-  return resolver
+type UserResolver<TOptions extends PluginFactoryOptions> = {
+  name: string
+  operation?: (props: OperationResolverContext) => Resolution<TOptions> | null
+  schema?: (props: SchemaResolverContext) => Resolution<TOptions> | null
 }
 
 /**
- * Merges custom resolvers with defaults (string-based output keys)
- * Custom resolvers have higher priority (come first in array)
- * @typeParam TOutputKeys - String literal union of output keys
+ * Creates a typed resolver with operation and schema handlers
+ * @typeParam TOptions - PluginFactoryOptions containing outputKeys
  */
-export function mergeResolvers<TOutputKeys extends string>(
-  customResolvers: Array<Resolver<TOutputKeys>> | undefined,
-  defaultResolvers: Array<Resolver<TOutputKeys>>,
-): Array<Resolver<TOutputKeys>>
+export function createResolver<TOptions extends PluginFactoryOptions>(resolver: UserResolver<TOptions>): Resolver<TOptions> {
+  return {
+    operation() {
+      return null
+    },
+    schema() {
+      return null
+    },
+    ...resolver,
+  }
+}
+
 /**
- * Merges custom resolvers with defaults (PluginFactoryOptions-based)
+ * Merges custom resolvers with defaults
  * Custom resolvers have higher priority (come first in array)
+ * @typeParam TOptions - PluginFactoryOptions containing outputKeys
  */
 export function mergeResolvers<TOptions extends PluginFactoryOptions>(
-  customResolvers: Array<Resolver<TOptions['outputKeys']>> | undefined,
-  defaultResolvers: Array<Resolver<TOptions['outputKeys']>>,
-): Array<Resolver<TOptions['outputKeys']>>
-export function mergeResolvers(customResolvers: Array<Resolver<any>> | undefined, defaultResolvers: Array<Resolver<any>>): Array<Resolver<any>> {
+  customResolvers: Array<Resolver<TOptions>> | undefined,
+  defaultResolvers: Array<Resolver<TOptions>>,
+): Array<Resolver<TOptions>> {
   return [...(customResolvers ?? []), ...defaultResolvers]
 }
 
 /**
- * Executes resolvers and returns first matching resolution (string-based output keys)
- * Resolvers are executed in order until one matches (or all are tried)
+ * Executes operation resolvers and returns first matching resolution
+ * @typeParam TOptions - PluginFactoryOptions containing outputKeys
  */
-export function executeResolvers<TOutputKeys extends string>(
-  resolvers: Array<Resolver<TOutputKeys>>,
-  ctx: ResolverContext,
-  config: Config,
-): Resolution<TOutputKeys> | null
-/**
- * Executes resolvers and returns first matching resolution (PluginFactoryOptions-based)
- * Resolvers are executed in order until one matches (or all are tried)
- */
-export function executeResolvers<TOptions extends PluginFactoryOptions>(
-  resolvers: Array<Resolver<TOptions['outputKeys']>>,
-  ctx: ResolverContext,
-  config: Config,
-): Resolution<TOptions['outputKeys']> | null
-export function executeResolvers(resolvers: Array<Resolver<any>>, ctx: ResolverContext, config: Config): Resolution<any> | null {
+export function executeOperationResolvers<TOptions extends PluginFactoryOptions>(
+  resolvers: Array<Resolver<TOptions>>,
+  props: OperationResolverContext,
+): Resolution<TOptions> | null {
   for (const resolver of resolvers) {
-    // Skip if matcher exists and returns false
-    if (resolver.match && !resolver.match(ctx)) {
-      continue
+    const result = resolver.operation(props)
+    if (result) {
+      return result
     }
-    return resolver.resolve(ctx, config)
+  }
+  return null
+}
+
+/**
+ * Executes schema resolvers and returns first matching resolution
+ * @typeParam TOptions - PluginFactoryOptions containing outputKeys
+ */
+export function executeSchemaResolvers<TOptions extends PluginFactoryOptions>(
+  resolvers: Array<Resolver<TOptions>>,
+  props: SchemaResolverContext,
+): Resolution<TOptions> | null {
+  for (const resolver of resolvers) {
+    const result = resolver.schema(props)
+    if (result) {
+      return result
+    }
   }
   return null
 }

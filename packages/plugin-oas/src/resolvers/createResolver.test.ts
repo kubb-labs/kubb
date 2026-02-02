@@ -1,7 +1,8 @@
+import type { Config, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { describe, expect, it } from 'vitest'
-import { createResolver, executeResolvers, mergeResolvers } from './createResolver.ts'
-import type { ResolverContext } from './types.ts'
+import { createResolver, executeOperationResolvers, executeSchemaResolvers, mergeResolvers } from './createResolver.ts'
+import type { OperationResolverContext, SchemaResolverContext } from './types.ts'
 
 // Mock data
 const mockOperation = {
@@ -16,11 +17,19 @@ const mockSchema: { name: string; value: SchemaObject } = {
   value: { type: 'object' },
 }
 
+const mockConfig = {
+  root: '.',
+  output: { path: 'src/gen' },
+} as Config
+
+// Define a test options type
+type TestOptions = PluginFactoryOptions<'test-plugin', any, any, any, any, 'response' | 'request'>
+
 describe('createResolver', () => {
-  it('should create a resolver with the given configuration', () => {
-    const resolver = createResolver<'response' | 'request'>({
+  it('should create a resolver with operation handler', () => {
+    const resolver = createResolver<TestOptions>({
       name: 'test-resolver',
-      resolve: () => ({
+      operation: () => ({
         file: { baseName: 'test.ts', path: 'types/test.ts' },
         outputs: {
           response: { name: 'TestResponse' },
@@ -30,44 +39,26 @@ describe('createResolver', () => {
     })
 
     expect(resolver.name).toBe('test-resolver')
-    expect(typeof resolver.resolve).toBe('function')
-  })
-
-  it('should support optional match function', () => {
-    const resolver = createResolver<'response'>({
-      name: 'matched-resolver',
-      match: (ctx) => ctx.operation?.getOperationId() === 'getPetById',
-      resolve: () => ({
-        file: { baseName: 'pet.ts', path: 'types/pet.ts' },
-        outputs: {
-          response: { name: 'PetResponse' },
-        },
-      }),
-    })
-
-    expect(resolver.match).toBeDefined()
-    expect(resolver.match?.({ operation: mockOperation })).toBe(true)
-    expect(
-      resolver.match?.({
-        operation: { ...mockOperation, getOperationId: () => 'other' } as unknown as Operation,
-      }),
-    ).toBe(false)
+    expect(resolver.type).toBe('core')
+    expect(typeof resolver.operation).toBe('function')
   })
 })
 
 describe('mergeResolvers', () => {
   it('should merge custom resolvers with defaults (custom first)', () => {
-    const customResolver = createResolver<'response'>({
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+
+    const customResolver = createResolver<ResponseOptions>({
       name: 'custom',
-      resolve: () => ({
+      operation: () => ({
         file: { baseName: 'custom.ts', path: 'custom.ts' },
         outputs: { response: { name: 'Custom' } },
       }),
     })
 
-    const defaultResolver = createResolver<'response'>({
+    const defaultResolver = createResolver<ResponseOptions>({
       name: 'default',
-      resolve: () => ({
+      operation: () => ({
         file: { baseName: 'default.ts', path: 'default.ts' },
         outputs: { response: { name: 'Default' } },
       }),
@@ -81,9 +72,11 @@ describe('mergeResolvers', () => {
   })
 
   it('should handle undefined custom resolvers', () => {
-    const defaultResolver = createResolver<'response'>({
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+
+    const defaultResolver = createResolver<ResponseOptions>({
       name: 'default',
-      resolve: () => ({
+      operation: () => ({
         file: { baseName: 'default.ts', path: 'default.ts' },
         outputs: { response: { name: 'Default' } },
       }),
@@ -96,93 +89,134 @@ describe('mergeResolvers', () => {
   })
 })
 
-describe('executeResolvers', () => {
-  it('should execute resolvers until one matches', () => {
-    const ctx: ResolverContext = {
+describe('executeOperationResolvers', () => {
+  it('should execute first resolver with operation handler', () => {
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+
+    const ctx: OperationResolverContext = {
       operation: mockOperation,
+      config: mockConfig,
     }
 
-    const resolver1 = createResolver<'response'>({
-      name: 'no-match',
-      match: () => false,
-      resolve: () => ({
-        file: { baseName: 'no-match.ts', path: 'no-match.ts' },
-        outputs: { response: { name: 'NoMatch' } },
+    const resolver1 = createResolver<ResponseOptions>({
+      name: 'no-handler',
+      schema: () => ({
+        file: { baseName: 'schema.ts', path: 'schema.ts' },
+        outputs: { response: { name: 'Schema' } },
       }),
     })
 
-    const resolver2 = createResolver<'response'>({
-      name: 'match',
-      match: () => true,
-      resolve: () => ({
-        file: { baseName: 'match.ts', path: 'match.ts' },
-        outputs: { response: { name: 'Match' } },
+    const resolver2 = createResolver<ResponseOptions>({
+      name: 'with-handler',
+      operation: () => ({
+        file: { baseName: 'operation.ts', path: 'operation.ts' },
+        outputs: { response: { name: 'Operation' } },
       }),
     })
 
-    const result = executeResolvers([resolver1, resolver2], ctx)
+    const result = executeOperationResolvers([resolver1, resolver2], ctx)
 
     expect(result).not.toBeNull()
-    expect(result?.outputs.response.name).toBe('Match')
+    expect(result?.outputs.response.name).toBe('Operation')
   })
 
   it('should execute first resolver if no match function defined', () => {
-    const ctx: ResolverContext = {
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+
+    const ctx: OperationResolverContext = {
       operation: mockOperation,
+      config: mockConfig,
     }
 
-    const resolver = createResolver<'response'>({
+    const resolver = createResolver<ResponseOptions>({
       name: 'always-match',
-      resolve: () => ({
+      operation: () => ({
         file: { baseName: 'always.ts', path: 'always.ts' },
         outputs: { response: { name: 'Always' } },
       }),
     })
 
-    const result = executeResolvers([resolver], ctx)
+    const result = executeOperationResolvers([resolver], ctx)
 
     expect(result).not.toBeNull()
     expect(result?.outputs.response.name).toBe('Always')
   })
 
-  it('should return null if no resolver matches', () => {
-    const ctx: ResolverContext = {
+  it('should return null if no resolver has operation handler', () => {
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+
+    const ctx: OperationResolverContext = {
       operation: mockOperation,
+      config: mockConfig,
     }
 
-    const resolver = createResolver<'response'>({
-      name: 'no-match',
-      match: () => false,
-      resolve: () => ({
+    const resolver = createResolver<ResponseOptions>({
+      name: 'schema-only',
+      schema: () => ({
         file: { baseName: 'test.ts', path: 'test.ts' },
         outputs: { response: { name: 'Test' } },
       }),
     })
 
-    const result = executeResolvers([resolver], ctx)
+    const result = executeOperationResolvers([resolver], ctx)
 
     expect(result).toBeNull()
   })
 
   it('should return null for empty resolvers array', () => {
-    const ctx: ResolverContext = {}
+    const ctx: OperationResolverContext = {
+      operation: mockOperation,
+      config: mockConfig,
+    }
 
-    const result = executeResolvers([], ctx)
+    const result = executeOperationResolvers([], ctx)
 
     expect(result).toBeNull()
   })
 
-  it('should provide correct context to resolver', () => {
-    const ctx: ResolverContext = {
+  it('should skip resolvers without operation handler', () => {
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+
+    const ctx: OperationResolverContext = {
       operation: mockOperation,
-      schema: mockSchema,
+      config: mockConfig,
     }
 
-    const capturedContexts: ResolverContext[] = []
+    const resolver1 = createResolver<ResponseOptions>({
+      name: 'schema-only',
+      schema: () => ({
+        file: { baseName: 'schema.ts', path: 'schema.ts' },
+        outputs: { response: { name: 'Schema' } },
+      }),
+    })
 
-    const resolver = createResolver<'response'>({
+    const resolver2 = createResolver<ResponseOptions>({
+      name: 'operation-handler',
+      operation: () => ({
+        file: { baseName: 'operation.ts', path: 'operation.ts' },
+        outputs: { response: { name: 'Operation' } },
+      }),
+    })
+
+    const result = executeOperationResolvers([resolver1, resolver2], ctx)
+
+    expect(result).not.toBeNull()
+    expect(result?.outputs.response.name).toBe('Operation')
+  })
+
+  it('should provide correct context to resolver', () => {
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+
+    const ctx: OperationResolverContext = {
+      operation: mockOperation,
+      config: mockConfig,
+    }
+
+    const capturedContexts: OperationResolverContext[] = []
+
+    const resolver = createResolver<ResponseOptions>({
       name: 'capture-ctx',
-      resolve: (receivedCtx) => {
+      operation: (receivedCtx) => {
         capturedContexts.push(receivedCtx)
         return {
           file: { baseName: 'test.ts', path: 'test.ts' },
@@ -191,15 +225,69 @@ describe('executeResolvers', () => {
       },
     })
 
-    executeResolvers([resolver], ctx)
+    executeOperationResolvers([resolver], ctx)
 
     expect(capturedContexts).toHaveLength(1)
     const capturedCtx = capturedContexts[0]!
     expect(capturedCtx.operation).toBe(mockOperation)
-    expect(capturedCtx.operation?.getOperationId()).toBe('getPetById')
-    expect(capturedCtx.operation?.getTags()).toEqual([{ name: 'pet' }])
-    expect(capturedCtx.operation?.path).toBe('/pets/{petId}')
-    expect(capturedCtx.operation?.method).toBe('get')
-    expect(capturedCtx.schema).toEqual(mockSchema)
+    expect(capturedCtx.operation.getOperationId()).toBe('getPetById')
+    expect(capturedCtx.operation.getTags()).toEqual([{ name: 'pet' }])
+    expect(capturedCtx.operation.path).toBe('/pets/{petId}')
+    expect(capturedCtx.operation.method).toBe('get')
+    expect(capturedCtx.config).toBe(mockConfig)
+  })
+})
+
+describe('executeSchemaResolvers', () => {
+  it('should execute schema resolvers', () => {
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+
+    const ctx: SchemaResolverContext = {
+      schema: mockSchema,
+      config: mockConfig,
+    }
+
+    const resolver = createResolver<ResponseOptions>({
+      name: 'schema-resolver',
+      schema: () => ({
+        file: { baseName: 'Pet.ts', path: 'types/Pet.ts' },
+        outputs: { response: { name: 'Pet' } },
+      }),
+    })
+
+    const result = executeSchemaResolvers([resolver], ctx)
+
+    expect(result).not.toBeNull()
+    expect(result?.outputs.response.name).toBe('Pet')
+  })
+
+  it('should skip resolvers without schema handler', () => {
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+
+    const ctx: SchemaResolverContext = {
+      schema: mockSchema,
+      config: mockConfig,
+    }
+
+    const resolver1 = createResolver<ResponseOptions>({
+      name: 'operation-only',
+      operation: () => ({
+        file: { baseName: 'operation.ts', path: 'operation.ts' },
+        outputs: { response: { name: 'Operation' } },
+      }),
+    })
+
+    const resolver2 = createResolver<ResponseOptions>({
+      name: 'schema-handler',
+      schema: () => ({
+        file: { baseName: 'schema.ts', path: 'schema.ts' },
+        outputs: { response: { name: 'Schema' } },
+      }),
+    })
+
+    const result = executeSchemaResolvers([resolver1, resolver2], ctx)
+
+    expect(result).not.toBeNull()
+    expect(result?.outputs.response.name).toBe('Schema')
   })
 })
