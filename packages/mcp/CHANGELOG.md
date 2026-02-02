@@ -1,5 +1,12 @@
 # @kubb/mcp
 
+## 4.20.1
+
+### Patch Changes
+
+- Updated dependencies [[`5c50613`](https://github.com/kubb-labs/kubb/commit/5c50613504f05d1f5484dea4969182ecc7961cfb)]:
+  - @kubb/core@4.20.1
+
 ## 4.20.0
 
 ### Patch Changes
