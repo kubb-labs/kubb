@@ -33,14 +33,19 @@ export function createTsResolver(options: TsResolverOptions = {}) {
         const name = pascalCase(ctx.schema.name)
         const baseName = `${name}.ts`
 
+        const resolveName = (suffix: string) => {
+          const resolved = `${name}${suffix}`
+          return transformName ? transformName(resolved, 'type') : resolved
+        }
+
         return {
           file: { baseName, path: `${outputPath}/${baseName}` },
           outputs: {
-            pathParams: { name: `${name}PathParams` },
-            queryParams: { name: `${name}QueryParams` },
-            headerParams: { name: `${name}HeaderParams` },
-            request: { name: `${name}Request` },
-            response: { name },
+            pathParams: { name: resolveName('PathParams') },
+            queryParams: { name: resolveName('QueryParams') },
+            headerParams: { name: resolveName('HeaderParams') },
+            request: { name: resolveName('Request') },
+            response: { name: resolveName('') },
           },
         }
       }

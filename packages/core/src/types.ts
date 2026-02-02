@@ -170,6 +170,10 @@ export type PluginFactoryOptions<
    * When calling `resolvePath` you can specify better types.
    */
   TResolvePathOptions extends object = object,
+  /**
+   * Output keys for resolver system (e.g., 'pathParams' | 'queryParams' | 'response')
+   */
+  TOutputKeys extends string = string,
 > = {
   name: TName
   /**
@@ -180,6 +184,7 @@ export type PluginFactoryOptions<
   resolvedOptions: TResolvedOptions
   context: TContext
   resolvePathOptions: TResolvePathOptions
+  outputKeys: TOutputKeys
 }
 
 export type PluginKey<TName> = [name: TName, identifier?: string | number]

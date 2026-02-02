@@ -154,4 +154,4 @@ type ResolvedOptions = {
   mapper: Record<string, any>
 }
 
-export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, TsOutputKeys>

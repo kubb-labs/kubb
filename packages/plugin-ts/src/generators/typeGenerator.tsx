@@ -22,7 +22,6 @@ import { Type } from '../components'
 import * as factory from '../factory.ts'
 import { createUrlTemplateType, getUnknownType, keywordTypeNodes } from '../factory.ts'
 import { pluginTsName } from '../plugin.ts'
-import type { TsOutputKeys } from '../resolverTypes.ts'
 import type { PluginTs } from '../types'
 
 function printCombinedSchema({ name, schemas, pluginManager }: { name: string; schemas: OperationSchemas; pluginManager: PluginManager }): string {
@@ -326,7 +325,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       options,
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType },
     } = plugin
-    const resolvers = plugin.resolvers as Array<Resolver<TsOutputKeys>> | undefined
+    const resolvers = plugin.resolvers as Array<Resolver<PluginTs['outputKeys']>> | undefined
 
     const mode = useMode()
     const pluginManager = usePluginManager()
@@ -335,14 +334,14 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const { getSchemas, getFile, getName, getGroup } = useOperationManager(generator)
     const schemaManager = useSchemaManager()
 
-    // Create resolver context for the operation
-    const resolverCtx: ResolverContext = { operation }
-
     // Try to use the resolver system (returns null if no resolvers match)
-    const resolved = resolvers?.length ? executeResolvers<TsOutputKeys>(resolvers, resolverCtx) : null
+    const resolved = resolvers?.length ? executeResolvers<PluginTs>(resolvers, { operation }) : null
+
+    // Get the base operation name (for use in combined schema naming)
+    const operationName = getName(operation, { type: 'type', pluginKey: [pluginTsName] })
 
     // Use resolver outputs if available, otherwise fall back to legacy getName
-    const name = resolved?.outputs.response.name ?? getName(operation, { type: 'type', pluginKey: [pluginTsName] })
+    const name = resolved?.outputs.response.name ?? operationName
 
     const file = getFile(operation)
     const schemas = getSchemas(operation)
@@ -398,7 +397,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const responseName = schemaManager.getName(schemas.response.name, {
       type: 'type',
     })
-    const combinedSchemaName = operation.method === 'get' ? `${name}Query` : `${name}Mutation`
+    const combinedSchemaName = operation.method === 'get' ? `${operationName}Query` : `${operationName}Mutation`
 
     return (
       <File
@@ -431,7 +430,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const {
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
     } = plugin
-    const resolvers = plugin.resolvers as Array<Resolver<TsOutputKeys>> | undefined
+    const resolvers = plugin.resolvers as Array<Resolver<PluginTs['outputKeys']>> | undefined
     const mode = useMode()
 
     const oas = useOas()
@@ -447,7 +446,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     }
 
     // Try to use the resolver system (returns null if no resolvers match)
-    const resolved = resolvers?.length ? executeResolvers<TsOutputKeys>(resolvers, resolverCtx) : null
+    const resolved = resolvers?.length ? executeResolvers<PluginTs>(resolvers, resolverCtx) : null
 
     // Use resolver outputs if available, otherwise fall back to legacy getName
     let typedName = resolved?.outputs.response.name ?? getName(schema.name, { type: 'type' })
