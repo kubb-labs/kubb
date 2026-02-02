@@ -3,7 +3,7 @@ import { useMode, usePluginManager } from '@kubb/core/hooks'
 import transformers from '@kubb/core/transformers'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
-import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { executeResolvers, isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, type Resolver, type ResolverContext, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -13,6 +13,7 @@ import { Type } from '../components'
 import * as factory from '../factory.ts'
 import { createUrlTemplateType, getUnknownType, keywordTypeNodes } from '../factory.ts'
 import { pluginTsName } from '../plugin.ts'
+import type { TsOutputKeys } from '../resolverTypes.ts'
 import type { PluginTs } from '../types'
 
 function printCombinedSchema({ name, schemas, pluginManager }: { name: string; schemas: OperationSchemas; pluginManager: PluginManager }): string {
@@ -316,6 +317,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       options,
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType },
     } = plugin
+    const resolvers = plugin.resolvers as Array<Resolver<TsOutputKeys>> | undefined
 
     const mode = useMode()
     const pluginManager = usePluginManager()
@@ -324,7 +326,14 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const { getSchemas, getFile, getName, getGroup } = useOperationManager(generator)
     const schemaManager = useSchemaManager()
 
-    const name = getName(operation, { type: 'type', pluginKey: [pluginTsName] })
+    // Create resolver context for the operation
+    const resolverCtx: ResolverContext = { operation }
+
+    // Try to use the resolver system (returns null if no resolvers match)
+    const resolved = resolvers?.length ? executeResolvers<TsOutputKeys>(resolvers, resolverCtx) : null
+
+    // Use resolver outputs if available, otherwise fall back to legacy getName
+    const name = resolved?.outputs.response.name ?? getName(operation, { type: 'type', pluginKey: [pluginTsName] })
 
     const file = getFile(operation)
     const schemas = getSchemas(operation)
@@ -413,6 +422,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const {
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
     } = plugin
+    const resolvers = plugin.resolvers as Array<Resolver<TsOutputKeys>> | undefined
     const mode = useMode()
 
     const oas = useOas()
@@ -422,7 +432,16 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const imports = getImports(schema.tree)
     const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
 
-    let typedName = getName(schema.name, { type: 'type' })
+    // Create resolver context for the schema
+    const resolverCtx: ResolverContext = {
+      schema: { name: schema.name, value: schema.value },
+    }
+
+    // Try to use the resolver system (returns null if no resolvers match)
+    const resolved = resolvers?.length ? executeResolvers<TsOutputKeys>(resolvers, resolverCtx) : null
+
+    // Use resolver outputs if available, otherwise fall back to legacy getName
+    let typedName = resolved?.outputs.response.name ?? getName(schema.name, { type: 'type' })
 
     if (enumType === 'asConst' && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
       typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)

@@ -1,8 +1,9 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { contentType, Oas } from '@kubb/oas'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Include, Override, Resolver, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
 import type ts from 'typescript'
+import type { TsOutputKeys } from './resolverTypes.ts'
 
 export type Options = {
   /**
@@ -128,6 +129,12 @@ export type Options = {
    * Unstable naming for v5
    */
   UNSTABLE_NAMING?: true
+  /**
+   * Custom resolvers for name/path resolution.
+   * Resolvers are executed in order; first matching resolver wins.
+   * Custom resolvers have higher priority than the default resolver.
+   */
+  resolvers?: Array<Resolver<TsOutputKeys>>
 }
 
 type ResolvedOptions = {

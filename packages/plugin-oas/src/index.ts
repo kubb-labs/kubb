@@ -27,6 +27,10 @@ export { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 export type * from './types.ts'
 export { buildOperation, buildOperations, buildSchema } from './utils.tsx'
 
+// Resolver exports
+export { createResolver, executeResolvers, mergeResolvers } from './resolvers/index.ts'
+export type { FileDescriptor, Output, Resolution, Resolver, ResolverConfig, ResolverContext } from './resolvers/index.ts'
+
 /**
  * @deprecated use `import { createGenerator } from '@kubb/plugin-oas/generators'`
  */

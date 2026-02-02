@@ -237,6 +237,12 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */
   options: TOptions['resolvedOptions']
+  /**
+   * Custom resolvers for name/path resolution.
+   * Resolvers are executed in order; first matching resolver wins.
+   * @see `@kubb/plugin-oas` for resolver types and utilities.
+   */
+  resolvers?: Array<unknown>
 
   install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
