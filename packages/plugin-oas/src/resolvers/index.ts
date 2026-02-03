@@ -5,6 +5,5 @@ export type {
   Resolution,
   Resolver,
   ResolverConfig,
-  ResolverContext,
   SchemaResolverContext,
 } from './types.ts'

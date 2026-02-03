@@ -3,12 +3,10 @@
  * Do not edit manually.
  */
 
-export enum EnumNamesTypeEnum {
-  Pending = 0,
-  Received = 1,
-}
+export type EnumNamesTypeEnum = 0 | 1
 
 export type EnumNamesType = EnumNamesTypeEnum
+esType = EnumNamesTypeEnum
 eEnum
 umNamesTypeEnum)[keyof typeof EnumNamesTypeEnum]
 

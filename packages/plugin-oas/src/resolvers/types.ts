@@ -43,17 +43,7 @@ export interface SchemaResolverContext {
 }
 
 /**
- * @deprecated Use OperationResolverContext or SchemaResolverContext instead
- * Legacy context type for backwards compatibility
- */
-export type ResolverContext = {
-  operation?: Operation
-  schema?: { name: string; value: SchemaObject }
-}
-
-/**
  * Resolver configuration for a plugin
- * @typeParam TOptions - PluginFactoryOptions containing outputKeys
  */
 export interface ResolverConfig<TOptions extends PluginFactoryOptions = PluginFactoryOptions> {
   /** Array of resolvers, executed in order until one matches */
@@ -62,7 +52,6 @@ export interface ResolverConfig<TOptions extends PluginFactoryOptions = PluginFa
 
 /**
  * Core resolver interface
- * @typeParam TOptions - PluginFactoryOptions containing outputKeys
  */
 export interface Resolver<TOptions extends PluginFactoryOptions = PluginFactoryOptions> {
   /** Unique name for this resolver */
