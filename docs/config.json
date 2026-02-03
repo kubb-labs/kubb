@@ -373,6 +373,11 @@
               "text": "Generators",
               "link": "/guide/generators",
               "activeMatch": "^/guide/generators/?$"
+            },
+            {
+              "text": "Resolvers <span class=\"new\">new</span>",
+              "link": "/guide/resolvers",
+              "activeMatch": "^/guide/resolvers/?$"
             }
           ]
         },

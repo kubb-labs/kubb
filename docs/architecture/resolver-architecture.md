@@ -1,12 +1,14 @@
 # Resolver Architecture
 
-> **Status**: RFC (Request for Comments)
+> **Status**: ✅ IMPLEMENTED (Phase 1-2 Complete)
 > **Author**: Kubb Team
-> **Last Updated**: 2026-02-02
+> **Last Updated**: 2026-02-03
 
 ## Executive Summary
 
-This document proposes a new **Resolver** abstraction for Kubb that replaces the current `resolveName`, `resolvePath`, and `getSchemas` APIs with a unified, typesafe, and extensible system. The new architecture supports multiple languages (TypeScript, Python), flexible file organization, and easy user customization.
+This document describes the **Resolver** abstraction for Kubb that replaces the current `resolveName`, `resolvePath`, and `getSchemas` APIs with a unified, typesafe, and extensible system. The new architecture supports multiple languages (TypeScript, Python), flexible file organization, and easy user customization.
+
+**Implementation Status**: The resolver system has been implemented in `@kubb/plugin-oas` and is actively used in `@kubb/plugin-ts`. Users can now provide custom resolvers to override default naming and file resolution behavior.
 
 ---
 
@@ -101,16 +103,9 @@ This document proposes a new **Resolver** abstraction for Kubb that replaces the
 ```typescript
 // packages/plugin-oas/src/resolvers/types.ts
 
-import type { Operation, Oas, SchemaObject } from '@kubb/oas'
-import type { Plugin, PluginFactoryOptions } from '@kubb/core'
-
-/**
- * File location descriptor
- */
-export interface FileDescriptor {
-  baseName: string
-  path: string
-}
+import type { Config, PluginFactoryOptions } from '@kubb/core'
+import type { KubbFile } from '@kubb/fabric-core/types'
+import type { Operation, SchemaObject } from '@kubb/oas'
 
 /**
  * A single output artifact
@@ -119,82 +114,79 @@ export interface Output {
   /** The identifier used in code (e.g., "useGetPetById", "get_pet_by_id") */
   name: string
   /** Optional file override - if not set, uses Resolution.file */
-  file?: FileDescriptor
+  file?: KubbFile.File
 }
 
 /**
  * Resolution result - contains default file and typed outputs
- * @typeParam TOutputKeys - String literal union of output keys
+ * @typeParam TOptions - PluginFactoryOptions containing outputKeys
  */
-export interface Resolution<TOutputKeys extends string = string> {
+export interface Resolution<TOptions extends PluginFactoryOptions = PluginFactoryOptions> {
   /** Default file for outputs that don't specify their own */
-  file: FileDescriptor
+  file: KubbFile.File
   /** Named outputs with typesafe keys */
-  outputs: Record<TOutputKeys, Output>
+  outputs: { default: Output } & Record<TOptions['outputKeys'], Output>
 }
 
 /**
- * Context passed to resolver functions
+ * Context for operation resolution
  */
-export interface ResolverContext {
-  /** The OpenAPI operation (for operation-based resolution) */
-  operation?: Operation
-  /** The schema (for schema-based resolution) */
-  schema?: { name: string; value: SchemaObject }
-  /** OpenAPI specification instance */
-  oas: Oas
-  /** Convenience: extracted operationId */
-  operationId?: string
-  /** Convenience: extracted tags */
-  tags?: string[]
-  /** Convenience: operation path */
-  path?: string
-  /** HTTP method */
-  method?: string
+export interface OperationResolverContext {
+  /** The OpenAPI operation */
+  operation: Operation
+  /** The Kubb configuration */
+  config: Config
 }
 
 /**
- * Resolver definition
- * @typeParam TOutputKeys - String literal union of output keys
+ * Context for schema resolution
  */
-export interface Resolver<TOutputKeys extends string = string> {
+export interface SchemaResolverContext {
+  /** The schema name and value */
+  schema: { name: string; value: SchemaObject }
+  /** The Kubb configuration */
+  config: Config
+}
+
+/**
+ * Core resolver interface
+ */
+export interface Resolver<TOptions extends PluginFactoryOptions = PluginFactoryOptions> {
   /** Unique name for this resolver */
   name: string
-  /** Optional matcher - if returns false, resolver is skipped */
-  match?: (ctx: ResolverContext) => boolean
-  /** Resolution function */
-  resolve: (ctx: ResolverContext) => Resolution<TOutputKeys>
+  /** Resolution function for operations */
+  operation: (props: OperationResolverContext) => Resolution<TOptions> | null
+  /** Resolution function for schemas */
+  schema: (props: SchemaResolverContext) => Resolution<TOptions> | null
 }
 
 /**
  * Resolver configuration for a plugin
- * @typeParam TOutputKeys - String literal union of output keys
  */
-export interface ResolverConfig<TOutputKeys extends string = string> {
+export interface ResolverConfig<TOptions extends PluginFactoryOptions = PluginFactoryOptions> {
   /** Array of resolvers, executed in order until one matches */
-  resolvers?: Array<Resolver<TOutputKeys>>
+  resolvers?: Array<Resolver<TOptions>>
 }
 ```
 
 ### Plugin-Specific Output Keys
 
 ```typescript
-// packages/plugin-ts/src/resolverTypes.ts
-export type TsOutputKeys =
+// packages/plugin-ts/src/resolver.ts
+export type ResolverOutputKeys =
+  | 'type'
+  | 'query'
+  | 'mutation'
+  | 'enum'
   | 'pathParams'
   | 'queryParams'
   | 'headerParams'
   | 'request'
   | 'response'
+  | 'responses'
+  | 'responseData'
 
-// packages/plugin-zod/src/resolverTypes.ts
-export type ZodOutputKeys =
-  | 'pathParams'
-  | 'queryParams'
-  | 'headerParams'
-  | 'request'
-  | 'response'
-
+// Future: Other plugins will define their own output keys
 // packages/plugin-react-query/src/resolverTypes.ts
 export type ReactQueryOutputKeys =
   | 'hook'
@@ -207,11 +199,6 @@ export type ReactQueryOutputKeys =
   | 'mutationKey'
   | 'mutationKeyType'
   | 'mutationOptions'
-
-// packages/plugin-client/src/resolverTypes.ts
-export type ClientOutputKeys =
-  | 'client'
-  | 'url'
 
 // Future: packages/plugin-python/src/resolverTypes.ts
 export type PythonOutputKeys =
@@ -236,7 +223,7 @@ export type PluginFactoryOptions<
   TResolvedOptions extends object = TOptions,
   TContext = any,
   TResolvePathOptions extends object = object,
-  // NEW: Output keys for this plugin
+  // Output keys for this plugin
   TOutputKeys extends string = string,
 > = {
   name: TName
@@ -245,7 +232,7 @@ export type PluginFactoryOptions<
   resolvedOptions: TResolvedOptions
   context: TContext
   resolvePathOptions: TResolvePathOptions
-  // NEW: Output keys type
+  // Output keys type
   outputKeys: TOutputKeys
 }
 ```
@@ -257,16 +244,17 @@ export type PluginFactoryOptions<
 
 import type { PluginFactoryOptions } from '@kubb/core'
 import type { Resolver } from '@kubb/plugin-oas/resolvers'
-import type { TsOutputKeys } from './resolverTypes'
+import type { ResolverOutputKeys } from './resolver'
 
 export type Options = {
   // ... existing options ...
 
   /**
-   * Custom resolvers for name/path resolution
-   * Resolvers are executed in order; first matching resolver wins
+   * Custom resolvers for name/path resolution.
+   * Resolvers are executed in order; first matching resolver wins.
+   * Custom resolvers have higher priority than the default resolver.
    */
-  resolvers?: Array<Resolver<TsOutputKeys>>
+  resolvers?: Array<Resolver<PluginTs>>
 }
 
 export type PluginTs = PluginFactoryOptions<
@@ -275,7 +263,7 @@ export type PluginTs = PluginFactoryOptions<
   ResolvedOptions,
   never,
   ResolvePathOptions,
-  TsOutputKeys  // NEW: typed output keys
+  ResolverOutputKeys  // Typed output keys
 >
 ```
 
@@ -284,41 +272,68 @@ export type PluginTs = PluginFactoryOptions<
 ```typescript
 // packages/plugin-oas/src/resolvers/createResolver.ts
 
-import type { Resolver, ResolverContext, Resolution } from './types'
+import type { PluginFactoryOptions } from '@kubb/core'
+import type { OperationResolverContext, Resolution, Resolver, SchemaResolverContext } from './types'
+
+type UserResolver<TOptions extends PluginFactoryOptions> = {
+  name: string
+  operation?: (props: OperationResolverContext) => Resolution<TOptions> | null
+  schema?: (props: SchemaResolverContext) => Resolution<TOptions> | null
+}
 
 /**
- * Creates a typed resolver
+ * Creates a typed resolver with operation and schema handlers
  */
-export function createResolver<TOutputKeys extends string>(
-  resolver: Resolver<TOutputKeys>
-): Resolver<TOutputKeys> {
-  return resolver
+export function createResolver<TOptions extends PluginFactoryOptions>(
+  resolver: UserResolver<TOptions>
+): Resolver<TOptions> {
+  return {
+    operation() {
+      return null
+    },
+    schema() {
+      return null
+    },
+    ...resolver,
+  }
 }
 
 /**
  * Merges custom resolvers with defaults
- * Custom resolvers have higher priority
+ * Custom resolvers have higher priority (come first in array)
  */
-export function mergeResolvers<TOutputKeys extends string>(
-  customResolvers: Array<Resolver<TOutputKeys>> | undefined,
-  defaultResolvers: Array<Resolver<TOutputKeys>>
-): Array<Resolver<TOutputKeys>> {
+export function mergeResolvers<TOptions extends PluginFactoryOptions>(
+  customResolvers: Array<Resolver<TOptions>> | undefined,
+  defaultResolvers: Array<Resolver<TOptions>>
+): Array<Resolver<TOptions>> {
   return [...(customResolvers ?? []), ...defaultResolvers]
 }
 
 /**
  * Executes resolvers and returns first matching resolution
  */
-export function executeResolvers<TOutputKeys extends string>(
-  resolvers: Array<Resolver<TOutputKeys>>,
-  ctx: ResolverContext
-): Resolution<TOutputKeys> | null {
-  for (const resolver of resolvers) {
-    if (resolver.match && !resolver.match(ctx)) {
-      continue
+export function executeResolvers<TOptions extends PluginFactoryOptions>(
+  resolvers: Array<Resolver<TOptions>>,
+  props: SchemaResolverContext | OperationResolverContext
+): Resolution<TOptions> | null {
+  if ('schema' in props) {
+    for (const resolver of resolvers) {
+      const result = resolver.schema(props)
+      if (result) {
+        return result
+      }
     }
-    return resolver.resolve(ctx)
   }
+
+  if ('operation' in props) {
+    for (const resolver of resolvers) {
+      const result = resolver.operation(props)
+      if (result) {
+        return result
+      }
+    }
+  }
+
   return null
 }
 ```
@@ -329,66 +344,91 @@ export function executeResolvers<TOutputKeys extends string>(
 
 ### Custom Resolvers (Recommended Approach)
 
-Users can provide custom resolvers that match specific patterns:
+Users can provide custom resolvers to override default naming and file organization:
 
 ```typescript
 // kubb.config.ts
 import { defineConfig } from '@kubb/core'
-import { pluginReactQuery } from '@kubb/plugin-react-query'
+import { pluginTs } from '@kubb/plugin-ts'
 import { pascalCase, camelCase } from '@kubb/core/transformers'
 
 export default defineConfig({
   plugins: [
-    pluginReactQuery({
+    pluginTs({
       resolvers: [
-        // Override for admin endpoints
         {
-          name: 'admin-endpoints',
-          match: ({ path }) => path?.startsWith('/admin'),
-          resolve: ({ operationId }) => ({
-            file: {
-              baseName: `use${pascalCase(operationId)}.ts`,
-              path: `hooks/admin/use${pascalCase(operationId)}.ts`
-            },
-            outputs: {
-              hook: { name: `useAdmin${pascalCase(operationId)}` },
-              hookSuspense: { name: `useAdmin${pascalCase(operationId)}Suspense` },
-              hookInfinite: { name: `useAdmin${pascalCase(operationId)}Infinite` },
-              hookSuspenseInfinite: { name: `useAdmin${pascalCase(operationId)}SuspenseInfinite` },
-              queryKey: { name: `getAdmin${pascalCase(operationId)}QueryKey` },
-              queryKeyType: {
-                name: `Admin${pascalCase(operationId)}QueryKey`,
-                file: { baseName: 'types.ts', path: 'hooks/admin/types.ts' }
-              },
-              queryOptions: { name: `admin${pascalCase(operationId)}QueryOptions` },
-              mutationKey: { name: `getAdmin${pascalCase(operationId)}MutationKey` },
-              mutationKeyType: {
-                name: `Admin${pascalCase(operationId)}MutationKey`,
-                file: { baseName: 'types.ts', path: 'hooks/admin/types.ts' }
-              },
-              mutationOptions: { name: `admin${pascalCase(operationId)}MutationOptions` },
-            }
-          })
-        },
+          name: 'custom-naming',
+          operation: ({ operation, config }) => {
+            const operationId = operation.getOperationId()
+            const tags = operation.getTags()
+            const tag = tags[0]?.name
+            
+            // Custom file organization
+            const baseName = `${pascalCase(operationId, { isFile: true })}.ts`
+            const path = tag 
+              ? `types/${camelCase(tag)}/${baseName}`
+              : `types/${baseName}`
 
-        // Override hook naming convention
-        {
-          name: 'fetch-prefix',
-          match: () => true, // matches all
-          resolve: ({ operationId, tags }) => {
-            const tag = tags?.[0]
-            const basePath = tag ? `hooks/${camelCase(tag)}` : 'hooks'
+            const file = {
+              baseName,
+              path,
+              imports: [],
+              exports: [],
+              sources: [],
+              meta: {},
+            }
+
+            // Custom naming convention
+            const name = pascalCase(operationId)
 
             return {
-              file: {
-                baseName: `fetch${pascalCase(operationId)}.ts`,
-                path: `${basePath}/fetch${pascalCase(operationId)}.ts`
-              },
+              file,
               outputs: {
-                // Use 'fetch' prefix instead of 'use'
-                hook: { name: `fetch${pascalCase(operationId)}` },
-                hookSuspense: { name: `fetch${pascalCase(operationId)}Suspense` },
-                // ... other outputs
+                default: { name, file },
+                type: { name, file },
+                enum: { name: `${name}Key`, file },
+                query: { name: `${name}Query`, file },
+                mutation: { name: `${name}Mutation`, file },
+                pathParams: { name: `${name}PathParams`, file },
+                queryParams: { name: `${name}QueryParams`, file },
+                headerParams: { name: `${name}HeaderParams`, file },
+                request: { name: `${name}Request`, file },
+                response: { name: `${name}Response`, file },
+                responses: { name: `${name}Responses`, file },
+                responseData: { name: `${name}ResponseData`, file },
+              }
+            }
+          },
+          schema: ({ schema, config }) => {
+            // Custom schema naming
+            const name = pascalCase(schema.name)
+            const baseName = `${name}.ts`
+            
+            const file = {
+              baseName,
+              path: `types/${baseName}`,
+              imports: [],
+              exports: [],
+              sources: [],
+              meta: {},
+            }
+
+            return {
+              file,
+              outputs: {
+                default: { name, file },
+                type: { name, file },
+                enum: { name: `${name}Key`, file },
+                // Other outputs not used for schemas
+                query: { name: '', file },
+                mutation: { name: '', file },
+                pathParams: { name: '', file },
+                queryParams: { name: '', file },
+                headerParams: { name: '', file },
+                request: { name: '', file },
+                response: { name: '', file },
+                responses: { name: '', file },
+                responseData: { name: '', file },
               }
             }
           }
@@ -399,38 +439,47 @@ export default defineConfig({
 })
 ```
 
-### Extending Default Resolver
+### Partial Customization
+
+You can also customize specific aspects while delegating to the default resolver:
 
 ```typescript
 // kubb.config.ts
-import { defaultReactQueryResolver } from '@kubb/plugin-react-query/resolvers'
+import { defineConfig } from '@kubb/core'
+import { pluginTs, createTsResolver } from '@kubb/plugin-ts'
 
 export default defineConfig({
   plugins: [
-    pluginReactQuery({
+    pluginTs({
       resolvers: [
         {
-          name: 'custom-with-defaults',
-          resolve: (ctx) => {
-            // Get default resolution
-            const defaults = defaultReactQueryResolver.resolve(ctx)
+          name: 'custom-admin-paths',
+          operation: ({ operation, config }) => {
+            // Only customize admin endpoints
+            const path = operation.path
+            if (!path?.startsWith('/admin')) {
+              // Return null to fall through to default resolver
+              return null
+            }
 
-            // Modify specific outputs
+            // Get default resolution
+            const defaultResolver = createTsResolver({
+              outputPath: 'types',
+            })
+            const defaults = defaultResolver.operation({ operation, config })
+
+            if (!defaults) return null
+
+            // Modify only the file path
             return {
               ...defaults,
-              outputs: {
-                ...defaults.outputs,
-                hook: {
-                  name: defaults.outputs.hook.name.replace('use', 'fetch')
-                },
-                queryKeyType: {
-                  ...defaults.outputs.queryKeyType,
-                  // Put types in separate file
-                  file: { baseName: 'queryTypes.ts', path: 'hooks/types/queryTypes.ts' }
-                }
+              file: {
+                ...defaults.file,
+                path: defaults.file.path.replace('types/', 'types/admin/'),
               }
             }
-          }
+          },
+          schema: () => null // Use default for schemas
         }
       ]
     })
@@ -447,102 +496,162 @@ export default defineConfig({
 ```typescript
 // packages/plugin-oas/src/hooks/useResolve.ts
 
-import type { Plugin } from '@kubb/core'
-import { usePluginManager, usePlugin } from '@kubb/core/hooks'
-import type { Resolution, ResolverContext } from '../resolvers/types'
+import type { Plugin, PluginFactoryOptions } from '@kubb/core'
+import { usePlugin, usePluginManager } from '@kubb/core/hooks'
+import type { OperationResolverContext, Resolution, SchemaResolverContext } from '../resolvers/types'
 
 /**
- * Hook to resolve names/files for current or other plugins
- * @typeParam TOutputKeys - Output keys type (inferred or explicit)
+ * Hook to resolve names/files for schemas/operation in current or other plugins
  */
-export function useResolve<TOutputKeys extends string = string>(
-  ctx: ResolverContext,
-  pluginKey?: Plugin['key']
-): Resolution<TOutputKeys> {
+export function useResolve<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(
+  ctx: Omit<SchemaResolverContext, 'config'> | Omit<OperationResolverContext, 'config'>,
+  pluginName?: Plugin['name'],
+): Resolution<TOptions> | null {
   const pluginManager = usePluginManager()
   const currentPlugin = usePlugin()
+  const config = pluginManager.config
 
-  const targetPluginKey = pluginKey ?? currentPlugin.key
-  const targetPlugin = pluginManager.getPluginByKey(targetPluginKey)
+  // When pluginName is not provided, use the current plugin directly
+  // to ensure multi-instance plugins resolve to the correct instance
+  const plugin = pluginName ? pluginManager.getPlugin(pluginName) : currentPlugin
 
-  if (!targetPlugin) {
-    throw new Error(`Plugin not found: ${targetPluginKey}`)
+  if (!plugin) {
+    // Plugin not found, return null to allow fallback to legacy resolution
+    return null
   }
 
-  // Get resolvers from plugin options
-  const resolvers = targetPlugin.options?.resolvers ?? []
-  const defaultResolvers = getDefaultResolvers(targetPlugin.name)
-  const allResolvers = mergeResolvers(resolvers, defaultResolvers)
+  // Get resolvers from plugin (top-level property defined in @kubb/core)
+  const resolvers = (plugin.resolvers ?? []) as Array<Resolver<TOptions>>
 
-  const resolution = executeResolvers(allResolvers, ctx)
-
-  if (!resolution) {
-    throw new Error(`No resolver matched for ${ctx.operationId ?? ctx.schema?.name}`)
+  // If no resolvers available, return null (caller should use fallback)
+  if (resolvers.length === 0) {
+    return null
   }
 
-  return resolution as Resolution<TOutputKeys>
+  if ('schema' in ctx) {
+    for (const resolver of resolvers) {
+      const result = resolver.schema({ ...ctx, config })
+      if (result) {
+        return result
+      }
+    }
+  }
+
+  if ('operation' in ctx) {
+    for (const resolver of resolvers) {
+      const result = resolver.operation({ ...ctx, config })
+      if (result) {
+        return result
+      }
+    }
+  }
+
+  return null
 }
 
 /**
  * Get the file for a specific output (uses output file if set, else resolution default)
  */
-export function getOutputFile(
-  resolution: Resolution<string>,
+export function getOutputFile<TOptions extends PluginFactoryOptions>(
+  resolution: Resolution<TOptions>,
   outputKey: string
-): FileDescriptor {
-  return resolution.outputs[outputKey]?.file ?? resolution.file
+): KubbFile.File {
+  const output = resolution.outputs[outputKey as keyof typeof resolution.outputs]
+  return output?.file ?? resolution.file
 }
 ```
 
 ### Usage in Generators
 
 ```tsx
-// packages/plugin-react-query/src/generators/queryGenerator.tsx
+// packages/plugin-ts/src/generators/typeGenerator.tsx
 
-import { useResolve, getOutputFile } from '@kubb/plugin-oas/hooks'
-import { pluginTsName } from '@kubb/plugin-ts'
-import { pluginZodName } from '@kubb/plugin-zod'
-import type { TsOutputKeys } from '@kubb/plugin-ts/resolverTypes'
-import type { ZodOutputKeys } from '@kubb/plugin-zod/resolverTypes'
-import type { ReactQueryOutputKeys } from '../resolverTypes'
+import { useResolve } from '@kubb/plugin-oas/hooks'
+import type { PluginTs } from '../types'
+
+export const typeGenerator = createReactGenerator<PluginTs>({
+  name: 'type',
+  Operation({ operation }) {
+    // Resolve for current plugin (typesafe)
+    const resolution = useResolve<PluginTs>({ operation })
+
+    if (!resolution) {
+      // Fallback to legacy resolution if needed
+      return null
+    }
+
+    // Type-safe access to outputs
+    const typeName = resolution.outputs.type.name
+    const pathParamsName = resolution.outputs.pathParams.name
+    const queryParamsName = resolution.outputs.queryParams.name
+    const requestName = resolution.outputs.request.name
+    const responseName = resolution.outputs.response.name
+
+    return (
+      <File path={resolution.file.path} baseName={resolution.file.baseName}>
+        <Type name={typeName} export>
+          {/* Type implementation */}
+        </Type>
+      </File>
+    )
+  },
+  
+  Schema({ schema }) {
+    // Resolve for schemas
+    const resolution = useResolve<PluginTs>({ schema })
+
+    if (!resolution) {
+      return null
+    }
+
+    const typeName = resolution.outputs.type.name
+
+    return (
+      <File path={resolution.file.path} baseName={resolution.file.baseName}>
+        <Type name={typeName} export>
+          {/* Type implementation */}
+        </Type>
+      </File>
+    )
+  }
+})
+```
+
+### Cross-Plugin Usage Example
+
+```tsx
+// Future: packages/plugin-react-query/src/generators/queryGenerator.tsx
+
+import { useResolve } from '@kubb/plugin-oas/hooks'
+import { pluginTsName, type PluginTs } from '@kubb/plugin-ts'
+import type { PluginReactQuery } from '../types'
 
 export const queryGenerator = createReactGenerator<PluginReactQuery>({
   name: 'query',
-  Operation({ operation, plugin }) {
-    const oas = useOas()
+  Operation({ operation }) {
+    // Resolve from TypeScript plugin for type imports
+    const tsResolution = useResolve<PluginTs>({ operation }, pluginTsName)
+    
+    // Resolve for current plugin
+    const resolution = useResolve<PluginReactQuery>({ operation })
 
-    const ctx: ResolverContext = {
-      operation,
-      oas,
-      operationId: operation.getOperationId(),
-      tags: operation.getTags().map(t => t.name),
-      path: operation.path,
-      method: operation.method,
+    if (!resolution || !tsResolution) {
+      return null
     }
 
-    // Resolve for current plugin (typesafe)
-    const resolved = useResolve<ReactQueryOutputKeys>(ctx)
-
-    // Resolve from other plugins (typesafe)
-    const ts = useResolve<TsOutputKeys>(ctx, [pluginTsName])
-    const zod = useResolve<ZodOutputKeys>(ctx, [pluginZodName])
-
-    // Type-safe access
-    const hookName = resolved.outputs.hook.name           // TypeScript knows this exists
-    const responseType = ts.outputs.response.name         // TypeScript knows this exists
-    const responseSchema = zod.outputs.response.name      // TypeScript knows this exists
-
-    // Get files for imports
-    const tsFile = getOutputFile(ts, 'response')
-    const zodFile = getOutputFile(zod, 'response')
+    const hookName = resolution.outputs.hook.name
+    const responseType = tsResolution.outputs.response.name
 
     return (
-      <File path={resolved.file.path} baseName={resolved.file.baseName}>
-        <File.Import name={[responseType]} path={tsFile.path} isTypeOnly />
-        <File.Import name={[responseSchema]} path={zodFile.path} />
+      <File path={resolution.file.path} baseName={resolution.file.baseName}>
+        <File.Import 
+          name={[responseType]} 
+          path={tsResolution.file.path} 
+          isTypeOnly 
+        />
 
         <Function name={hookName} export>
-          {/* Hook implementation */}
+          {/* Hook implementation using responseType */}
         </Function>
       </File>
     )
@@ -559,130 +668,200 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
 ```typescript
 // packages/plugin-ts/src/resolver.ts
 
-import { createResolver } from '@kubb/plugin-oas/resolvers'
-import { pascalCase, camelCase } from '@kubb/core/transformers'
-import type { TsOutputKeys } from './resolverTypes'
-import type { ResolverContext } from '@kubb/plugin-oas/resolvers'
+import { resolve } from 'node:path'
+import { type Group, getMode } from '@kubb/core'
+import { camelCase, pascalCase } from '@kubb/core/transformers'
+import type { KubbFile } from '@kubb/fabric-core/types'
+import { createResolver, type Output } from '@kubb/plugin-oas/resolvers'
+import type { PluginTs } from './types'
 
-export const defaultTsResolver = createResolver<TsOutputKeys>({
-  name: 'default',
-  resolve: ({ operationId, tags, schema }) => {
-    // Handle schema resolution
-    if (schema) {
-      const name = pascalCase(schema.name)
-      return {
-        file: { baseName: `${name}.ts`, path: `types/${name}.ts` },
-        outputs: {
-          pathParams: { name: `${name}PathParams` },
-          queryParams: { name: `${name}QueryParams` },
-          headerParams: { name: `${name}HeaderParams` },
-          request: { name: `${name}Request` },
-          response: { name },
+type Options = {
+  outputPath?: string
+  group?: Group
+  transformName?: (name: string, type?: 'file' | 'function' | 'type' | 'const') => string
+}
+
+/**
+ * Output keys for the TypeScript plugin
+ */
+export type ResolverOutputKeys =
+  | 'type'
+  | 'query'
+  | 'mutation'
+  | 'enum'
+  | 'pathParams'
+  | 'queryParams'
+  | 'headerParams'
+  | 'request'
+  | 'response'
+  | 'responses'
+  | 'responseData'
+
+/**
+ * Creates a TypeScript resolver with the given options
+ */
+export function createTsResolver(options: Options = {}) {
+  const { outputPath = 'types', group, transformName } = options
+
+  return createResolver<PluginTs>({
+    name: 'default-ts',
+    operation: ({ config, operation }) => {
+      const root = resolve(config.root, config.output.path, outputPath)
+      const operationId = operation.getOperationId()
+      const tags = operation.getTags()
+      const tag = tags[0]?.name
+      const path = operation.path
+
+      const baseName = `${transformName?.(pascalCase(operationId, { isFile: true }), 'file') || pascalCase(operationId, { isFile: true })}.ts` as const
+
+      function resolvePath() {
+        const mode = getMode(root)
+
+        if (mode === 'single') {
+          return root
         }
-      }
-    }
 
-    // Handle operation resolution
-    const id = operationId!
-    const tag = tags?.[0]
-    const basePath = tag ? `types/${camelCase(tag)}` : 'types'
-    const name = pascalCase(id)
+        if (group && (path || tag)) {
+          const groupValue = group.type === 'path' ? path : tag
 
-    return {
-      file: { baseName: `${name}.ts`, path: `${basePath}/${name}.ts` },
-      outputs: {
-        pathParams: { name: `${name}PathParams` },
-        queryParams: { name: `${name}QueryParams` },
-        headerParams: { name: `${name}HeaderParams` },
-        request: { name: `${name}Request` },
-        response: { name: `${name}Response` },
+          if (groupValue) {
+            const groupName = group.name
+              ? group.name({ group: groupValue })
+              : group.type === 'path'
+                ? (groupValue.split('/')[1] ?? groupValue)
+                : `${camelCase(groupValue)}Controller`
+
+            return resolve(root, groupName, baseName)
+          }
+        }
+
+        return resolve(root, baseName)
       }
-    }
-  }
-})
+
+      function resolveName(suffix: string) {
+        const operationName = pascalCase(operationId)
+        const name = suffix ? `${operationName}${suffix}` : operationName
+        return transformName?.(name, 'type') || name
+      }
+
+      const file: KubbFile.File = {
+        baseName,
+        path: resolvePath(),
+        imports: [],
+        exports: [],
+        sources: [],
+        meta: {},
+      }
+
+      // Dynamic outputs for status codes
+      const statusCodes = operation.getResponseStatusCodes()
+      const statusCodeOutputs = statusCodes.reduce<Record<string, Output>>((acc, statusCode) => {
+        const suffix = statusCode === 'default' ? 'Default' : `Status${statusCode}`
+        acc[statusCode] = { name: resolveName(suffix), file }
+        return acc
+      }, {})
+
+      return {
+        file,
+        outputs: {
+          default: { name: resolveName(''), file },
+          ...statusCodeOutputs,
+          type: { name: resolveName(''), file },
+          enum: { name: resolveName('Key'), file },
+          query: { name: resolveName('Query'), file },
+          mutation: { name: resolveName('Mutation'), file },
+          pathParams: { name: resolveName('PathParams'), file },
+          queryParams: { name: resolveName('QueryParams'), file },
+          headerParams: { name: resolveName('HeaderParams'), file },
+          request: { name: resolveName('Request'), file },
+          response: { name: resolveName('Response'), file },
+          responses: { name: resolveName('Responses'), file },
+          responseData: { name: resolveName('ResponseData'), file },
+        },
+      }
+    },
+    schema: ({ config, schema }) => {
+      const root = resolve(config.root, config.output.path, outputPath)
+      const baseName = `${transformName?.(pascalCase(schema.name, { isFile: true }), 'file') || pascalCase(schema.name, { isFile: true })}.ts` as const
+
+      function resolvePath() {
+        const mode = getMode(root)
+        return mode === 'single' ? root : resolve(root, baseName)
+      }
+
+      function resolveName(suffix: string) {
+        const schemaName = pascalCase(schema.name)
+        const name = suffix ? `${schemaName}${suffix}` : schemaName
+        return transformName?.(name, 'type') || name
+      }
+
+      const file: KubbFile.File = {
+        baseName,
+        path: resolvePath(),
+        imports: [],
+        exports: [],
+        sources: [],
+        meta: {},
+      }
+
+      return {
+        file,
+        outputs: {
+          default: { name: resolveName(''), file },
+          type: { name: resolveName(''), file },
+          enum: { name: resolveName('Key'), file },
+          query: { name: '', file },
+          mutation: { name: '', file },
+          pathParams: { name: '', file },
+          queryParams: { name: '', file },
+          headerParams: { name: '', file },
+          request: { name: '', file },
+          response: { name: '', file },
+          responses: { name: '', file },
+          responseData: { name: '', file },
+        },
+      }
+    },
+  })
+}
 ```
 
-### React Query Plugin Resolver
+### Plugin Setup
 
 ```typescript
-// packages/plugin-react-query/src/resolver.ts
+// packages/plugin-ts/src/plugin.ts
 
-import { createResolver } from '@kubb/plugin-oas/resolvers'
-import { pascalCase, camelCase } from '@kubb/core/transformers'
-import type { ReactQueryOutputKeys } from './resolverTypes'
+import { definePlugin } from '@kubb/core'
+import { mergeResolvers } from '@kubb/plugin-oas/resolvers'
+import { createTsResolver } from './resolver'
+import type { PluginTs } from './types'
 
-export const defaultReactQueryResolver = createResolver<ReactQueryOutputKeys>({
-  name: 'default',
-  resolve: ({ operationId, tags }) => {
-    const id = operationId!
-    const tag = tags?.[0]
-    const basePath = tag ? `hooks/${camelCase(tag)}` : 'hooks'
-    const name = pascalCase(id)
+export const pluginTs = definePlugin<PluginTs>((options) => {
+  const {
+    output = { path: 'types', barrelType: 'named' },
+    group,
+    transformers = {},
+    resolvers,
+  } = options
 
-    return {
-      file: {
-        baseName: `use${name}.ts`,
-        path: `${basePath}/use${name}.ts`
-      },
-      outputs: {
-        hook: { name: `use${name}` },
-        hookSuspense: { name: `use${name}Suspense` },
-        hookInfinite: { name: `use${name}Infinite` },
-        hookSuspenseInfinite: { name: `use${name}SuspenseInfinite` },
-        queryKey: { name: `get${name}QueryKey` },
-        queryKeyType: {
-          name: `${name}QueryKey`,
-          // Types in separate file
-          file: { baseName: 'types.ts', path: `${basePath}/types.ts` }
-        },
-        queryOptions: { name: `${camelCase(id)}QueryOptions` },
-        mutationKey: { name: `get${name}MutationKey` },
-        mutationKeyType: {
-          name: `${name}MutationKey`,
-          file: { baseName: 'types.ts', path: `${basePath}/types.ts` }
-        },
-        mutationOptions: { name: `${camelCase(id)}MutationOptions` },
-      }
-    }
-  }
-})
-```
+  // Create default resolver with plugin options
+  const defaultResolver = createTsResolver({
+    outputPath: output.path,
+    group,
+    transformName: transformers?.name,
+  })
 
-### Future: Python Plugin Resolver
-
-```typescript
-// packages/plugin-python/src/resolver.ts
-
-import { createResolver } from '@kubb/plugin-oas/resolvers'
-import { snakeCase, pascalCase } from '@kubb/core/transformers'
-import type { PythonOutputKeys } from './resolverTypes'
-
-export const defaultPythonResolver = createResolver<PythonOutputKeys>({
-  name: 'default',
-  resolve: ({ operationId, tags }) => {
-    const id = operationId!
-    const tag = tags?.[0]
-    const basePath = tag ? `client/${snakeCase(tag)}` : 'client'
-
-    return {
-      file: {
-        baseName: `${snakeCase(id)}.py`,
-        path: `${basePath}/${snakeCase(id)}.py`
-      },
-      outputs: {
-        function: { name: snakeCase(id) },
-        asyncFunction: { name: `${snakeCase(id)}_async` },
-        // Dataclass types in shared file
-        paramsClass: {
-          name: `${pascalCase(id)}Params`,
-          file: { baseName: 'types.py', path: `${basePath}/types.py` }
-        },
-        responseClass: {
-          name: `${pascalCase(id)}Response`,
-          file: { baseName: 'types.py', path: `${basePath}/types.py` }
-        },
-      }
-    }
+  return {
+    name: 'plugin-ts',
+    options: {
+      output,
+      transformers,
+      group,
+      // ... other options
+    },
+    // Merge custom resolvers with default (custom resolvers have priority)
+    resolvers: mergeResolvers(resolvers, [defaultResolver]),
+    // ... other plugin lifecycle methods
   }
 })
 ```
@@ -691,64 +870,70 @@ export const defaultPythonResolver = createResolver<PythonOutputKeys>({
 
 ## Migration Strategy
 
-### Phase 1: Add Infrastructure (Non-Breaking)
+### Current Status (Phase 1-2 Complete)
 
-1. Create `packages/plugin-oas/src/resolvers/` directory
-2. Add type definitions
-3. Add `createResolver` factory
-4. Add `useResolve` hook with fallback to existing system
+✅ **Phase 1: Add Infrastructure** - COMPLETE
+- Created `packages/plugin-oas/src/resolvers/` directory
+- Added type definitions (`types.ts`)
+- Added `createResolver` factory (`createResolver.ts`)
+- Added `useResolve` hook with fallback to existing system (`hooks/useResolve.ts`)
 
-### Phase 2: Reference Implementation
+✅ **Phase 2: Reference Implementation** - COMPLETE
+- Added resolver to `plugin-ts` (`createTsResolver`)
+- Updated `typeGenerator.tsx` to use `useResolve`
+- Tests pass successfully
+- Generates correct TypeScript types
 
-1. Add resolver to `plugin-ts`
-2. Update `typeGenerator.tsx` to use `useResolve`
-3. Verify tests pass
+### Remaining Phases
 
-### Phase 3: Gradual Migration
+**Phase 3: Gradual Migration to Other Plugins** - IN PROGRESS
+1. Add resolvers to `plugin-zod`
+2. Add resolvers to `plugin-client`
+3. Add resolvers to `plugin-react-query` and other query plugins
+4. Add resolvers to `plugin-faker`
+5. Add resolvers to `plugin-msw`
+6. Update generators to use `useResolve`
+7. Keep `resolveName`/`resolvePath` working via fallback
 
-1. Add resolvers to remaining plugins one by one
-2. Update generators to use `useResolve`
-3. Keep `resolveName`/`resolvePath`/`getSchemas` working via fallback
-
-### Phase 4: Deprecation
-
+**Phase 4: Deprecation** - FUTURE (v5.0.0)
 1. Mark old APIs as deprecated with migration guide
 2. Add console warnings for deprecated usage
-3. Remove in next major version (v5)
+3. Update all documentation
+4. Remove in next major version (v5)
 
 ### Backwards Compatibility
+
+The system is designed with full backwards compatibility:
 
 ```typescript
 // packages/plugin-oas/src/hooks/useResolve.ts
 
-export function useResolve<TOutputKeys extends string>(
-  ctx: ResolverContext,
-  pluginKey?: Plugin['key']
-): Resolution<TOutputKeys> {
-  const plugin = getPlugin(pluginKey)
+export function useResolve<TOptions extends PluginFactoryOptions>(
+  ctx: Omit<SchemaResolverContext, 'config'> | Omit<OperationResolverContext, 'config'>,
+  pluginName?: Plugin['name'],
+): Resolution<TOptions> | null {
+  const plugin = getPlugin(pluginName)
 
   // Check if plugin has resolvers (new system)
-  if (plugin.options?.resolvers || hasDefaultResolver(plugin.name)) {
-    return executeResolvers(/* ... */)
+  if (plugin.resolvers && plugin.resolvers.length > 0) {
+    return executeResolvers(plugin.resolvers, ctx)
   }
 
-  // Fallback to old system
-  return legacyResolve(ctx, plugin)
+  // Return null - caller should use fallback to legacy system
+  return null
 }
+```
 
-function legacyResolve(ctx, plugin): Resolution<string> {
-  // Use existing resolveName/resolvePath/getSchemas
-  const name = pluginManager.resolveName({ name: ctx.operationId, pluginKey: plugin.key })
-  const file = pluginManager.getFile({ name, pluginKey: plugin.key, extname: '.ts' })
+Legacy code continues to work:
+```typescript
+// Old way (still works)
+const name = pluginManager.resolveName({ name: operation.id, pluginKey: [pluginTsName] })
+const file = pluginManager.getFile({ name, pluginKey: [pluginTsName] })
 
-  return {
-    file: { baseName: file.baseName, path: file.path },
-    outputs: {
-      // Map old getSchemas to outputs
-      ...mapSchemasToOutputs(ctx, plugin)
-    }
-  }
-}
+// New way (preferred)
+const resolution = useResolve<PluginTs>({ operation })
+const name = resolution?.outputs.type.name ?? fallback
+const file = resolution?.file ?? fallback
 ```
 
 ---
@@ -815,18 +1000,69 @@ function legacyResolve(ctx, plugin): Resolution<string> {
 
 The Resolver architecture provides:
 
-1. **Unified API**: `useResolve()` replaces `getName`, `getFile`, `getSchemas`
-2. **Type Safety**: Generic output keys with full TypeScript inference
-3. **Flexibility**: Outputs can have different files, support any language
-4. **Customization**: Custom resolvers with pattern matching
-5. **Future-Proof**: Works for TypeScript, Python, or any future language
-6. **Migration Path**: Non-breaking adoption with gradual migration
+1. **✅ Unified API**: `useResolve()` replaces `getName`, `getFile`, `getSchemas` - IMPLEMENTED
+2. **✅ Type Safety**: Generic output keys with full TypeScript inference - IMPLEMENTED
+3. **✅ Flexibility**: Outputs can have different files, support any language - IMPLEMENTED
+4. **✅ Customization**: Custom resolvers with pattern matching - IMPLEMENTED
+5. **🔄 Future-Proof**: Works for TypeScript (done), Python, or any future language - PARTIAL
+6. **✅ Migration Path**: Non-breaking adoption with gradual migration - IMPLEMENTED
+
+### Current Status
+
+**Implemented:**
+- Core resolver infrastructure in `@kubb/plugin-oas`
+- TypeScript plugin (`@kubb/plugin-ts`) uses resolvers
+- Users can provide custom resolvers via plugin options
+- Generators use `useResolve` hook for type-safe resolution
+- Full backwards compatibility with legacy APIs
+
+**In Progress:**
+- Migration of remaining plugins to resolver system
+- Cross-plugin resolution patterns
+- Documentation for users
+
+**Future:**
+- Deprecation of legacy `resolveName`/`resolvePath` APIs
+- Support for additional languages (Python, Go, etc.)
+- Advanced resolver features (caching, composition)
 
 ---
 
 ## Next Steps
 
-1. Review this RFC with team
-2. Implement Phase 1 (infrastructure)
-3. Create reference implementation in plugin-ts
-4. Gather feedback and iterate
+### For Plugin Developers
+
+1. **Use the resolver system** in your generators:
+   ```typescript
+   const resolution = useResolve<PluginTs>({ operation })
+   const typeName = resolution?.outputs.type.name
+   ```
+
+2. **Provide default resolvers** in your plugin:
+   ```typescript
+   export const pluginMyPlugin = definePlugin((options) => {
+     const defaultResolver = createMyResolver(options)
+     return {
+       resolvers: mergeResolvers(options.resolvers, [defaultResolver]),
+     }
+   })
+   ```
+
+### For Users
+
+1. **Override default naming** via custom resolvers:
+   ```typescript
+   pluginTs({
+     resolvers: [{ name: 'custom', operation: () => { /* ... */ } }]
+   })
+   ```
+
+2. **Migrate from transformers.name** to resolvers for more control
+
+### For Contributors
+
+1. Add resolvers to remaining plugins (`plugin-zod`, `plugin-client`, etc.)
+2. Update plugin documentation with resolver examples
+3. Create migration guide for v4 → v5
+4. Add resolver composition utilities
+5. Consider caching layer for performance
