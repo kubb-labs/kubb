@@ -1,8 +1,6 @@
 import type { FileMetaBase, Plugin, ResolveNameParams } from '@kubb/core'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { SchemaGenerator } from '../SchemaGenerator.ts'
-import { type Schema, schemaKeywords } from '../SchemaMapper'
 
 type FileMeta = FileMetaBase & {
   pluginKey: Plugin['key']
@@ -30,7 +28,6 @@ type UseSchemaManagerResult = {
       }
     },
   ) => KubbFile.File<FileMeta>
-  getImports: (tree: Array<Schema>) => Array<KubbFile.Import>
 }
 
 /**
@@ -68,26 +65,8 @@ export function useSchemaManager(): UseSchemaManagerResult {
     }
   }
 
-  const getImports: UseSchemaManagerResult['getImports'] = (tree) => {
-    const refs = SchemaGenerator.deepSearch(tree, schemaKeywords.ref)
-
-    return refs
-      ?.map((item) => {
-        if (!item.args.path || !item.args.isImportable) {
-          return undefined
-        }
-
-        return {
-          name: [item.args.name],
-          path: item.args.path,
-        }
-      })
-      .filter(Boolean)
-  }
-
   return {
     getName,
     getFile,
-    getImports,
   }
 }

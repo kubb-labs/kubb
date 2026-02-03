@@ -3,7 +3,7 @@ import { useMode, usePluginManager } from '@kubb/core/hooks'
 import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
+import { getBanner, getFooter, getImports } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File } from '@kubb/react-fabric'
 import { Zod } from '../components'
@@ -77,7 +77,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
         ...schemaGenerator.parse({ schema: schemaObject, name, parentName: null }),
         optional ? { keyword: schemaKeywords.optional } : undefined,
       ].filter(Boolean)
-      const imports = schemaManager.getImports(tree)
+      const imports = getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 
       const coercion = name.includes('Params') ? { numbers: true, strings: false, dates: true } : globalCoercion
@@ -139,7 +139,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     )
   },
   Schema({ config, schema, plugin }) {
-    const { getName, getFile, getImports } = useSchemaManager()
+    const { getName, getFile } = useSchemaManager()
     const {
       options: { output, emptySchemaType, coercion, inferred, typed, mapper, importPath, wrapOutput, version, mini },
     } = plugin
