@@ -98,14 +98,11 @@ export function createTsResolver(options: Options = {}) {
       }
 
       const statusCodes = operation.getResponseStatusCodes()
-      const statusCodeOutputs = statusCodes.reduce<Record<string, Output>>(
-        (acc: Record<string, Output>, statusCode: string) => {
-          const suffix = statusCode === 'default' ? 'Default' : `Status${statusCode}`
-          acc[statusCode] = { name: resolveName(suffix), file }
-          return acc
-        },
-        {},
-      )
+      const statusCodeOutputs = statusCodes.reduce<Record<string, Output>>((acc: Record<string, Output>, statusCode: string) => {
+        const suffix = statusCode === 'default' ? 'Default' : `Status${statusCode}`
+        acc[statusCode] = { name: resolveName(suffix), file }
+        return acc
+      }, {})
 
       return {
         file,
