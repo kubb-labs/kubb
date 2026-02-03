@@ -3,6 +3,18 @@
  * Do not edit manually.
  */
 
-export type EnumArrayEnum = 'NW' | 'NE' | 'SW' | 'SE'
+export const enumArrayIdentifierEnum = {
+  NW: 'NW',
+  NE: 'NE',
+  SW: 'SW',
+  SE: 'SE',
+} as const
 
-export type EnumArray = EnumArrayEnum[]
+export type EnumArrayIdentifierEnumKey = (typeof enumArrayIdentifierEnum)[keyof typeof enumArrayIdentifierEnum]
+
+export type EnumArray = {
+  /**
+   * @type array | undefined
+   */
+  identifier?: [number, string, EnumArrayIdentifierEnumKey, ...unknown[]]
+}

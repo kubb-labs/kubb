@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { type Group, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import { createResolver } from '@kubb/plugin-oas/resolvers'
 import type { PluginTs } from './types.ts'
 
@@ -25,7 +26,18 @@ type Options = {
  * Output keys for the TypeScript plugin
  * Defines the available named outputs for operation/schema resolution
  */
-export type ResolverOutputKeys = 'type' | 'enum' | 'pathParams' | 'queryParams' | 'headerParams' | 'request' | 'response'
+export type ResolverOutputKeys =
+  | 'type'
+  | 'query'
+  | 'mutation'
+  | 'enum'
+  | 'pathParams'
+  | 'queryParams'
+  | 'headerParams'
+  | 'request'
+  | 'response'
+  | 'responses'
+  | 'responseData'
 
 /**
  * Creates a TypeScript resolver with the given options
@@ -76,23 +88,30 @@ export function createTsResolver(options: Options = {}) {
         return transformName?.(name, 'type') || name
       }
 
+      const file: KubbFile.File = {
+        baseName,
+        path: resolvePath(),
+        imports: [],
+        exports: [],
+        sources: [],
+        meta: {},
+      }
+
       return {
-        file: {
-          baseName,
-          path: resolvePath(),
-          imports: [],
-          exports: [],
-          sources: [],
-          meta: {},
-        },
+        file,
         outputs: {
-          type: { name: '' },
-          enum: { name: '' },
-          pathParams: { name: resolveName('PathParams') },
-          queryParams: { name: resolveName('QueryParams') },
-          headerParams: { name: resolveName('HeaderParams') },
-          request: { name: resolveName('Request') },
-          response: { name: resolveName('Response') },
+          // TODO add generated output based on all available statusCode
+          type: { name: resolveName(''), file },
+          enum: { name: resolveName('Key'), file },
+          query: { name: resolveName('Query'), file },
+          mutation: { name: resolveName('Mutation'), file },
+          pathParams: { name: resolveName('PathParams'), file },
+          queryParams: { name: resolveName('QueryParams'), file },
+          headerParams: { name: resolveName('HeaderParams'), file },
+          request: { name: resolveName('Request'), file },
+          response: { name: resolveName('Response'), file },
+          responses: { name: resolveName('Responses'), file },
+          responseData: { name: resolveName('ResponseData'), file },
         },
       }
     },
@@ -114,27 +133,31 @@ export function createTsResolver(options: Options = {}) {
         return transformName?.(name, 'type') || name
       }
 
+      const file: KubbFile.File = {
+        baseName,
+        path: resolvePath(),
+        imports: [],
+        exports: [],
+        sources: [],
+        meta: {},
+      }
+
       return {
-        file: {
-          baseName,
-          path: resolvePath(),
-          imports: [],
-          exports: [],
-          sources: [],
-          meta: {},
-        },
+        file,
         outputs: {
-          type: {
-            name: resolveName(''),
-          },
-          enum: {
-            name: resolveName('Key'),
-          },
-          pathParams: { name: '' },
-          queryParams: { name: '' },
-          headerParams: { name: '' },
-          request: { name: '' },
-          response: { name: '' },
+          // TODO add generated output based on all available statusCode
+
+          type: { name: resolveName(''), file },
+          enum: { name: resolveName('Key'), file },
+          query: { name: '', file },
+          mutation: { name: '', file },
+          pathParams: { name: '', file },
+          queryParams: { name: '', file },
+          headerParams: { name: '', file },
+          request: { name: '', file },
+          response: { name: '', file },
+          responses: { name: '', file },
+          responseData: { name: '', file },
         },
       }
     },

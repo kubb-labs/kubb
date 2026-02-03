@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-export enum EnumNamesTypeEnum {
-  pending = 0,
-  received = 1,
+export type EnumNamesType = 0 | 1
+PENDING = 0,
+  RECEIVED = 1,
 }
 
 export type EnumNamesType = EnumNamesTypeEnum
