@@ -10,6 +10,8 @@ This document describes the **Resolver** abstraction for Kubb that replaces the 
 
 **Implementation Status**: The resolver system has been implemented in `@kubb/plugin-oas` and is actively used in `@kubb/plugin-ts`. Users can now provide custom resolvers to override default naming and file resolution behavior.
 
+**Goal**: Provide a unified, type-safe resolver system that enables users to override default naming and file organization with complete control over operation-level resolution, schema-level resolution, and cross-plugin resolution.
+
 ---
 
 ## Table of Contents
@@ -18,12 +20,16 @@ This document describes the **Resolver** abstraction for Kubb that replaces the 
 2. [Design Goals](#design-goals)
 3. [Core Concepts](#core-concepts)
 4. [Type Definitions](#type-definitions)
-5. [Plugin Integration](#plugin-integration)
-6. [User Customization](#user-customization)
-7. [Cross-Plugin Resolution](#cross-plugin-resolution)
-8. [Implementation Examples](#implementation-examples)
-9. [Migration Strategy](#migration-strategy)
-10. [Appendix: Perspective Reviews](#appendix-perspective-reviews)
+5. [Implementation Overview](#implementation-overview)
+6. [Technical Architecture](#technical-architecture)
+7. [Plugin Integration](#plugin-integration)
+8. [User Customization](#user-customization)
+9. [Cross-Plugin Resolution](#cross-plugin-resolution)
+10. [Implementation Status](#implementation-status)
+11. [Benefits](#benefits)
+12. [Migration from Legacy APIs](#migration-from-legacy-apis)
+13. [Future Enhancements](#future-enhancements)
+14. [Appendix: Perspective Reviews](#appendix-perspective-reviews)
 
 ---
 
@@ -487,6 +493,97 @@ export default defineConfig({
 })
 ```
 
+### Conditional Customization
+
+```typescript
+// Only customize specific paths
+pluginTs({
+  resolvers: [
+    {
+      name: 'admin-customization',
+      operation: ({ operation, config }) => {
+        // Only apply to admin endpoints
+        if (!operation.path.startsWith('/admin')) {
+          return null // Fall through to default resolver
+        }
+
+        // Custom logic for admin endpoints
+        const operationId = operation.getOperationId()
+        const name = `Admin${pascalCase(operationId)}`
+        
+        const file = {
+          baseName: `${name}.ts`,
+          path: `${config.root}/${config.output.path}/types/admin/${name}.ts`,
+          imports: [],
+          exports: [],
+          sources: [],
+          meta: {},
+        }
+
+        return {
+          file,
+          outputs: {
+            default: { name, file },
+            type: { name, file },
+            enum: { name: `${name}Enum`, file },
+            query: { name: `${name}Query`, file },
+            mutation: { name: `${name}Mutation`, file },
+            pathParams: { name: `${name}Path`, file },
+            queryParams: { name: `${name}Query`, file },
+            headerParams: { name: `${name}Headers`, file },
+            request: { name: `${name}Req`, file },
+            response: { name: `${name}Res`, file },
+            responses: { name: `${name}Responses`, file },
+            responseData: { name: `${name}Data`, file },
+          }
+        }
+      },
+      schema: () => null
+    }
+  ]
+})
+```
+
+### Using createTsResolver for Partial Customization
+
+```typescript
+import { pluginTs, createTsResolver } from '@kubb/plugin-ts'
+
+pluginTs({
+  resolvers: [
+    {
+      name: 'partial-custom',
+      operation: ({ operation, config }) => {
+        // Get default resolution
+        const defaultResolver = createTsResolver({
+          outputPath: 'types',
+        })
+        const defaults = defaultResolver.operation({ operation, config })
+
+        if (!defaults) return null
+
+        // Only change the request/response naming
+        return {
+          ...defaults,
+          outputs: {
+            ...defaults.outputs,
+            request: {
+              name: defaults.outputs.request.name.replace('Request', 'Req'),
+              file: defaults.file
+            },
+            response: {
+              name: defaults.outputs.response.name.replace('Response', 'Res'),
+              file: defaults.file
+            }
+          }
+        }
+      },
+      schema: () => null
+    }
+  ]
+})
+```
+
 ---
 
 ## Cross-Plugin Resolution
@@ -868,38 +965,156 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
 
 ---
 
-## Migration Strategy
+## Implementation Status
 
-### Current Status (Phase 1-2 Complete)
+### ✅ Phase 1: Infrastructure (COMPLETE)
+- [x] Created `packages/plugin-oas/src/resolvers/` directory
+- [x] Added type definitions (`types.ts`)
+- [x] Added `createResolver` factory (`createResolver.ts`)
+- [x] Added `mergeResolvers` and `executeResolvers` utilities
+- [x] Added `useResolve` hook (`hooks/useResolve.ts`)
+- [x] Full TypeScript type safety with generics
 
-✅ **Phase 1: Add Infrastructure** - COMPLETE
-- Created `packages/plugin-oas/src/resolvers/` directory
-- Added type definitions (`types.ts`)
-- Added `createResolver` factory (`createResolver.ts`)
-- Added `useResolve` hook with fallback to existing system (`hooks/useResolve.ts`)
+### ✅ Phase 2: TypeScript Plugin (COMPLETE)
+- [x] Created `createTsResolver` function
+- [x] Defined `ResolverOutputKeys` type
+- [x] Implemented `operation` handler with grouping support
+- [x] Implemented `schema` handler
+- [x] Integrated resolver in plugin setup
+- [x] Updated `typeGenerator.tsx` to use `useResolve`
+- [x] Updated plugin types to include `resolvers` option
+- [x] All tests passing (138 tests in plugin-ts)
 
-✅ **Phase 2: Reference Implementation** - COMPLETE
-- Added resolver to `plugin-ts` (`createTsResolver`)
-- Updated `typeGenerator.tsx` to use `useResolve`
-- Tests pass successfully
-- Generates correct TypeScript types
+### 🔄 Phase 3: Other Plugins (PLANNED)
+- [ ] Add resolver to `plugin-zod`
+- [ ] Add resolver to `plugin-client`
+- [ ] Add resolver to `plugin-react-query`
+- [ ] Add resolver to `plugin-vue-query`
+- [ ] Add resolver to `plugin-solid-query`
+- [ ] Add resolver to `plugin-svelte-query`
+- [ ] Add resolver to `plugin-swr`
+- [ ] Add resolver to `plugin-faker`
+- [ ] Add resolver to `plugin-msw`
 
-### Remaining Phases
+### 📝 Phase 4: Documentation (IN PROGRESS)
+- [x] Architecture documentation (`resolver-architecture.md`)
+- [ ] User guide in `docs/guide/` directory
+- [ ] Update plugin-ts documentation with resolver examples
+- [ ] Add resolver examples to other plugin docs
+- [ ] Update migration guide
 
-**Phase 3: Gradual Migration to Other Plugins** - IN PROGRESS
-1. Add resolvers to `plugin-zod`
-2. Add resolvers to `plugin-client`
-3. Add resolvers to `plugin-react-query` and other query plugins
-4. Add resolvers to `plugin-faker`
-5. Add resolvers to `plugin-msw`
-6. Update generators to use `useResolve`
-7. Keep `resolveName`/`resolvePath` working via fallback
+### 🔮 Phase 5: Deprecation (FUTURE - v5.0.0)
+- [ ] Mark `resolveName` as deprecated
+- [ ] Mark `resolvePath` as deprecated
+- [ ] Add console warnings for deprecated usage
+- [ ] Update all documentation
+- [ ] Plan removal for v5.0.0
 
-**Phase 4: Deprecation** - FUTURE (v5.0.0)
-1. Mark old APIs as deprecated with migration guide
-2. Add console warnings for deprecated usage
-3. Update all documentation
-4. Remove in next major version (v5)
+---
+
+## Benefits
+
+### For Users
+
+1. **Complete Control**: Override any aspect of naming or file organization
+2. **Type Safety**: TypeScript autocomplete for all output keys
+3. **Conditional Logic**: Apply different rules based on operation path, tags, or other criteria
+4. **Incremental Adoption**: Custom resolvers coexist with default resolver
+5. **No Breaking Changes**: Existing configs continue to work
+
+### For Plugin Developers
+
+1. **Single Source of Truth**: One resolver provides all names
+2. **Reduced Boilerplate**: No need to implement `resolveName`/`resolvePath` separately
+3. **Type Safety**: Compiler ensures all output keys are provided
+4. **Testability**: Easy to unit test resolver logic
+5. **Composability**: Resolvers can build on other resolvers
+
+### For the Kubb Ecosystem
+
+1. **Consistency**: All plugins use the same resolver pattern
+2. **Extensibility**: Easy to add new output types
+3. **Future-Proof**: Supports any language or framework
+4. **Performance**: Single resolver execution vs. multiple function calls
+5. **Documentation**: Self-documenting through TypeScript types
+
+---
+
+## Migration from Legacy APIs
+
+### Before (Using transformers.name)
+
+```typescript
+pluginTs({
+  transformers: {
+    name: (name, type) => {
+      if (type === 'type') {
+        return `I${name}` // Add "I" prefix to types
+      }
+      return name
+    }
+  }
+})
+```
+
+**Limitations**:
+- Only affects names, not file paths
+- Single callback for all operations and schemas
+- No access to operation context (path, tags, etc.)
+- Can't specify different files for different outputs
+
+### After (Using Resolvers)
+
+```typescript
+pluginTs({
+  resolvers: [
+    {
+      name: 'interface-prefix',
+      operation: ({ operation, config }) => {
+        const defaultResolver = createTsResolver({ outputPath: 'types' })
+        const defaults = defaultResolver.operation({ operation, config })
+        
+        if (!defaults) return null
+
+        // Add "I" prefix to all type names
+        return {
+          ...defaults,
+          outputs: Object.entries(defaults.outputs).reduce((acc, [key, value]) => {
+            acc[key] = {
+              ...value,
+              name: `I${value.name}`
+            }
+            return acc
+          }, {})
+        }
+      },
+      schema: ({ schema, config }) => {
+        const defaultResolver = createTsResolver({ outputPath: 'types' })
+        const defaults = defaultResolver.schema({ schema, config })
+        
+        if (!defaults) return null
+
+        return {
+          ...defaults,
+          outputs: {
+            ...defaults.outputs,
+            type: {
+              ...defaults.outputs.type,
+              name: `I${defaults.outputs.type.name}`
+            }
+          }
+        }
+      }
+    }
+  ]
+})
+```
+
+**Benefits**:
+- Full control over names AND file paths
+- Access to operation/schema context
+- Can specify different files for different outputs
+- Can apply different logic per operation/schema
 
 ### Backwards Compatibility
 
@@ -935,6 +1150,46 @@ const resolution = useResolve<PluginTs>({ operation })
 const name = resolution?.outputs.type.name ?? fallback
 const file = resolution?.file ?? fallback
 ```
+
+---
+
+## Future Enhancements
+
+### Planned Features
+
+1. **Resolver Composition**: Combine multiple resolvers easily
+   ```typescript
+   const myResolver = composeResolvers(
+     prefixResolver('I'),
+     groupByTagResolver(),
+     customPathResolver()
+   )
+   ```
+
+2. **Resolver Helpers**: Pre-built resolvers for common patterns
+   ```typescript
+   import { prefixResolver, suffixResolver, groupByTagResolver } from '@kubb/plugin-oas/resolvers'
+   
+   pluginTs({
+     resolvers: [
+       prefixResolver('I'),
+       suffixResolver('DTO'),
+       groupByTagResolver()
+     ]
+   })
+   ```
+
+3. **Caching**: Optional caching layer for performance
+   ```typescript
+   const cachedResolver = withCache(myResolver)
+   ```
+
+4. **Debug Mode**: Detailed logging for resolver execution
+   ```typescript
+   pluginTs({
+     resolvers: [withDebug(myResolver)]
+   })
+   ```
 
 ---
 
