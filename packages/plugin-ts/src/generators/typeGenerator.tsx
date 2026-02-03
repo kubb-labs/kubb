@@ -5,7 +5,7 @@ import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useOperationManager, useResolve, useSchemaManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager, useResolve } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter, getImports } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
 import ts from 'typescript'
@@ -318,11 +318,15 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     } = plugin
 
     const mode = useMode()
-    const pluginManager = usePluginManager()
-
     const oas = useOas()
+    const pluginManager = usePluginManager()
+    const resolution = useResolve<PluginTs>({ operation })
+
+    if (!resolution) {
+      return null
+    }
+
     const { getSchemas, getFile, getName } = useOperationManager(generator)
-    const schemaManager = useSchemaManager()
 
     const name = getName(operation, {
       type: 'type',
@@ -392,9 +396,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       )
     }
 
-    const responseName = schemaManager.getName(schemas.response.name, {
-      type: 'type',
-    })
     const combinedSchemaName = operation.method === 'get' ? `${name}Query` : `${name}Mutation`
 
     return (
@@ -413,7 +414,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
         {generator.context.UNSTABLE_NAMING ? (
           <>
-            <File.Source name={`${name}Request`} isExportable isIndexable isTypeOnly>
+            <File.Source name={resolution.outputs.request.name} isExportable isIndexable isTypeOnly>
               {printRequestSchema({
                 baseName: name,
                 operation,
@@ -421,7 +422,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
                 pluginManager,
               })}
             </File.Source>
-            <File.Source name={responseName} isExportable isIndexable isTypeOnly>
+            <File.Source name={resolution.outputs.response.name} isExportable isIndexable isTypeOnly>
               {printResponseSchema({
                 baseName: name,
                 schemas,
@@ -448,7 +449,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     } = plugin
     const mode = useMode()
     const oas = useOas()
-
     const resolution = useResolve<PluginTs>({ schema })
 
     if (!resolution) {
