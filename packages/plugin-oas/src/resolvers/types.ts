@@ -19,7 +19,7 @@ export interface Resolution<TOptions extends PluginFactoryOptions = PluginFactor
   /** Default file for outputs that don't specify their own */
   file: KubbFile.File
   /** Named outputs with typesafe keys */
-  outputs: Record<TOptions['outputKeys'], Output>
+  outputs: { default: Output } & Record<TOptions['outputKeys'], Output>
 }
 
 /**

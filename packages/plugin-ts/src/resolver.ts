@@ -100,6 +100,8 @@ export function createTsResolver(options: Options = {}) {
       return {
         file,
         outputs: {
+          default: { name: resolveName(''), file },
+
           // TODO add generated output based on all available statusCode
           type: { name: resolveName(''), file },
           enum: { name: resolveName('Key'), file },
@@ -145,6 +147,7 @@ export function createTsResolver(options: Options = {}) {
       return {
         file,
         outputs: {
+          default: { name: resolveName(''), file },
           // TODO add generated output based on all available statusCode
 
           type: { name: resolveName(''), file },
