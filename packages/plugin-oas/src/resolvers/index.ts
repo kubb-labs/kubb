@@ -1,6 +1,5 @@
 export { createResolver, executeResolvers, mergeResolvers } from './createResolver.ts'
 export type {
-  FileDescriptor,
   OperationResolverContext,
   Output,
   Resolution,

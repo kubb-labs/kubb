@@ -5,7 +5,7 @@ import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
+import { useOas, useOperationManager, useResolve, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter, getImports } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
 import ts from 'typescript'
@@ -409,46 +409,45 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       </File>
     )
   },
-  Schema({ schema, plugin }) {
+  Schema({ schema, plugin, config }) {
     const {
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
     } = plugin
     const mode = useMode()
-
     const oas = useOas()
-    const pluginManager = usePluginManager()
 
-    const { getName, getFile } = useSchemaManager()
+    const resolution = useResolve<PluginTs>({ schema }, pluginTsName)
+
+    if (!resolution) {
+      return null
+    }
+
     const imports = getImports(schema.tree)
     const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
 
-    let typedName = getName(schema.name, { type: 'type' })
+    let typedName = resolution.outputs.type.name
 
     if (enumType === 'asConst' && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
       typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
     }
 
-    const type = {
-      name: getName(schema.name, { type: 'function' }),
-      typedName,
-      file: getFile(schema.name),
-    }
-
     return (
       <File
-        baseName={type.file.baseName}
-        path={type.file.path}
-        meta={type.file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
+        baseName={resolution.file.baseName}
+        path={resolution.file.path}
+        meta={{
+          pluginKey: plugin.key,
+        }}
+        banner={getBanner({ oas, output, config })}
         footer={getFooter({ oas, output })}
       >
         {mode === 'split' &&
           imports.map((imp) => (
-            <File.Import key={[schema.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
+            <File.Import key={[schema.name, imp.path, imp.isTypeOnly].join('-')} root={resolution.file.path} path={imp.path} name={imp.name} isTypeOnly />
           ))}
         <Type
-          name={type.name}
-          typedName={type.typedName}
+          name={resolution.outputs.type.name}
+          typedName={typedName}
           description={schema.value.description}
           tree={schema.tree}
           schema={schema.value}

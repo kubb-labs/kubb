@@ -1,14 +1,6 @@
 import type { Config, PluginFactoryOptions } from '@kubb/core'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, SchemaObject } from '@kubb/oas'
-
-/**
- * File location descriptor
- */
-export interface FileDescriptor {
-  baseName: string
-  path: string
-}
-
 /**
  * A single output artifact
  */
@@ -16,7 +8,7 @@ export interface Output {
   /** The identifier used in code (e.g., "useGetPetById", "get_pet_by_id") */
   name: string
   /** Optional file override - if not set, uses Resolution.file */
-  file?: FileDescriptor
+  file?: KubbFile.File
 }
 
 /**
@@ -25,7 +17,7 @@ export interface Output {
  */
 export interface Resolution<TOptions extends PluginFactoryOptions = PluginFactoryOptions> {
   /** Default file for outputs that don't specify their own */
-  file: FileDescriptor
+  file: KubbFile.File
   /** Named outputs with typesafe keys */
   outputs: Record<TOptions['outputKeys'], Output>
 }
