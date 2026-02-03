@@ -1,7 +1,7 @@
 import type { Config, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { describe, expect, it } from 'vitest'
-import { createResolver, executeOperationResolvers, executeSchemaResolvers, mergeResolvers } from './createResolver.ts'
+import { createResolver, executeResolvers, mergeResolvers } from './createResolver.ts'
 import type { OperationResolverContext, SchemaResolverContext } from './types.ts'
 
 // Mock data
@@ -88,7 +88,7 @@ describe('mergeResolvers', () => {
   })
 })
 
-describe('executeOperationResolvers', () => {
+describe('executeResolvers', () => {
   it('should execute first resolver with operation handler', () => {
     type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
 
@@ -113,7 +113,7 @@ describe('executeOperationResolvers', () => {
       }),
     })
 
-    const result = executeOperationResolvers([resolver1, resolver2], ctx)
+    const result = executeResolvers([resolver1, resolver2], ctx)
 
     expect(result).not.toBeNull()
     expect(result?.outputs.response.name).toBe('Operation')
@@ -135,7 +135,7 @@ describe('executeOperationResolvers', () => {
       }),
     })
 
-    const result = executeOperationResolvers([resolver], ctx)
+    const result = executeResolvers([resolver], ctx)
 
     expect(result).not.toBeNull()
     expect(result?.outputs.response.name).toBe('Always')
@@ -157,7 +157,7 @@ describe('executeOperationResolvers', () => {
       }),
     })
 
-    const result = executeOperationResolvers([resolver], ctx)
+    const result = executeResolvers([resolver], ctx)
 
     expect(result).toBeNull()
   })
@@ -168,7 +168,7 @@ describe('executeOperationResolvers', () => {
       config: mockConfig,
     }
 
-    const result = executeOperationResolvers([], ctx)
+    const result = executeResolvers([], ctx)
 
     expect(result).toBeNull()
   })
@@ -197,7 +197,7 @@ describe('executeOperationResolvers', () => {
       }),
     })
 
-    const result = executeOperationResolvers([resolver1, resolver2], ctx)
+    const result = executeResolvers([resolver1, resolver2], ctx)
 
     expect(result).not.toBeNull()
     expect(result?.outputs.response.name).toBe('Operation')
@@ -224,7 +224,7 @@ describe('executeOperationResolvers', () => {
       },
     })
 
-    executeOperationResolvers([resolver], ctx)
+    executeResolvers([resolver], ctx)
 
     expect(capturedContexts).toHaveLength(1)
     const capturedCtx = capturedContexts[0]!
@@ -254,7 +254,7 @@ describe('executeSchemaResolvers', () => {
       }),
     })
 
-    const result = executeSchemaResolvers([resolver], ctx)
+    const result = executeResolvers([resolver], ctx)
 
     expect(result).not.toBeNull()
     expect(result?.outputs.response.name).toBe('Pet')
@@ -284,7 +284,7 @@ describe('executeSchemaResolvers', () => {
       }),
     })
 
-    const result = executeSchemaResolvers([resolver1, resolver2], ctx)
+    const result = executeResolvers([resolver1, resolver2], ctx)
 
     expect(result).not.toBeNull()
     expect(result?.outputs.response.name).toBe('Schema')

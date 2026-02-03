@@ -440,6 +440,9 @@ export class PluginManager {
       })
   }
 
+  /**
+   * @deprecated use getPlugin
+   */
   getPluginByKey(pluginKey: Plugin['key']): Plugin | undefined {
     const plugins = [...this.#plugins]
     const [searchPluginName] = pluginKey
@@ -448,6 +451,14 @@ export class PluginManager {
       const [name] = item.key
 
       return name === searchPluginName
+    })
+  }
+
+  getPlugin(pluginName: Plugin['name']): Plugin | undefined {
+    const plugins = [...this.#plugins]
+
+    return plugins.find((item) => {
+      return item.name === pluginName
     })
   }
 

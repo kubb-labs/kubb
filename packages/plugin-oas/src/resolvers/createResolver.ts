@@ -9,7 +9,6 @@ type UserResolver<TOptions extends PluginFactoryOptions> = {
 
 /**
  * Creates a typed resolver with operation and schema handlers
- * @typeParam TOptions - PluginFactoryOptions containing outputKeys
  */
 export function createResolver<TOptions extends PluginFactoryOptions>(resolver: UserResolver<TOptions>): Resolver<TOptions> {
   return {
@@ -26,7 +25,6 @@ export function createResolver<TOptions extends PluginFactoryOptions>(resolver: 
 /**
  * Merges custom resolvers with defaults
  * Custom resolvers have higher priority (come first in array)
- * @typeParam TOptions - PluginFactoryOptions containing outputKeys
  */
 export function mergeResolvers<TOptions extends PluginFactoryOptions>(
   customResolvers: Array<Resolver<TOptions>> | undefined,
@@ -36,35 +34,29 @@ export function mergeResolvers<TOptions extends PluginFactoryOptions>(
 }
 
 /**
- * Executes operation resolvers and returns first matching resolution
- * @typeParam TOptions - PluginFactoryOptions containing outputKeys
+ * Executes resolvers and returns first matching resolution
  */
-export function executeOperationResolvers<TOptions extends PluginFactoryOptions>(
+export function executeResolvers<TOptions extends PluginFactoryOptions>(
   resolvers: Array<Resolver<TOptions>>,
-  props: OperationResolverContext,
+  props: SchemaResolverContext | OperationResolverContext,
 ): Resolution<TOptions> | null {
-  for (const resolver of resolvers) {
-    const result = resolver.operation(props)
-    if (result) {
-      return result
+  if ('schema' in props) {
+    for (const resolver of resolvers) {
+      const result = resolver.schema(props)
+      if (result) {
+        return result
+      }
     }
   }
-  return null
-}
 
-/**
- * Executes schema resolvers and returns first matching resolution
- * @typeParam TOptions - PluginFactoryOptions containing outputKeys
- */
-export function executeSchemaResolvers<TOptions extends PluginFactoryOptions>(
-  resolvers: Array<Resolver<TOptions>>,
-  props: SchemaResolverContext,
-): Resolution<TOptions> | null {
-  for (const resolver of resolvers) {
-    const result = resolver.schema(props)
-    if (result) {
-      return result
+  if ('operation' in props) {
+    for (const resolver of resolvers) {
+      const result = resolver.operation(props)
+      if (result) {
+        return result
+      }
     }
   }
+
   return null
 }

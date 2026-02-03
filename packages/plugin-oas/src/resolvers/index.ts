@@ -1,4 +1,4 @@
-export { createResolver, executeOperationResolvers, executeSchemaResolvers, mergeResolvers } from './createResolver.ts'
+export { createResolver, executeResolvers, mergeResolvers } from './createResolver.ts'
 export type {
   FileDescriptor,
   OperationResolverContext,
