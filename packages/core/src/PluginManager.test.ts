@@ -325,4 +325,42 @@ describe('PluginManager', () => {
 
     expect(plugins).toEqual([])
   })
+
+  test('should emit warning when multiple instances of the same plugin are used', () => {
+    const warnSpy = vi.fn()
+    const events = new AsyncEventEmitter<KubbEvents>()
+    events.on('warn', warnSpy)
+
+    const duplicatePlugin = definePlugin(() => {
+      return {
+        name: 'duplicatePlugin',
+        options: undefined as any,
+        context: undefined as never,
+        key: ['duplicatePlugin'],
+      }
+    })
+
+    const duplicateConfig = {
+      ...config,
+      plugins: [duplicatePlugin({}), duplicatePlugin({}), duplicatePlugin({})] as Plugin[],
+    } satisfies Config
+
+    new PluginManager(duplicateConfig, {
+      fabric: createFabric(),
+      events,
+    })
+
+    // Should emit warning for the 2nd and 3rd instances
+    expect(warnSpy).toHaveBeenCalledTimes(2)
+    expect(warnSpy).toHaveBeenNthCalledWith(
+      1,
+      'Multiple instances of plugin "duplicatePlugin" detected. This behavior is deprecated and will be removed in v5.',
+      'Plugin key: [duplicatePlugin, 2]',
+    )
+    expect(warnSpy).toHaveBeenNthCalledWith(
+      2,
+      'Multiple instances of plugin "duplicatePlugin" detected. This behavior is deprecated and will be removed in v5.',
+      'Plugin key: [duplicatePlugin, 3]',
+    )
+  })
 })
