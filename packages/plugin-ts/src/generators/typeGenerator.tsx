@@ -324,7 +324,10 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const { getSchemas, getFile, getName } = useOperationManager(generator)
     const schemaManager = useSchemaManager()
 
-    const name = getName(operation, { type: 'type', pluginKey: [pluginTsName] })
+    const name = getName(operation, {
+      type: 'type',
+      pluginKey: [pluginTsName],
+    })
 
     const file = getFile(operation)
     const schemas = getSchemas(operation)
@@ -399,7 +402,11 @@ export const typeGenerator = createReactGenerator<PluginTs>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
+        banner={getBanner({
+          oas,
+          output: plugin.options.output,
+          config: pluginManager.config,
+        })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         {operationSchemas.map(mapOperationSchema)}
@@ -407,15 +414,29 @@ export const typeGenerator = createReactGenerator<PluginTs>({
         {generator.context.UNSTABLE_NAMING ? (
           <>
             <File.Source name={`${name}Request`} isExportable isIndexable isTypeOnly>
-              {printRequestSchema({ baseName: name, operation, schemas, pluginManager })}
+              {printRequestSchema({
+                baseName: name,
+                operation,
+                schemas,
+                pluginManager,
+              })}
             </File.Source>
             <File.Source name={responseName} isExportable isIndexable isTypeOnly>
-              {printResponseSchema({ baseName: name, schemas, pluginManager, unknownType })}
+              {printResponseSchema({
+                baseName: name,
+                schemas,
+                pluginManager,
+                unknownType,
+              })}
             </File.Source>
           </>
         ) : (
           <File.Source name={combinedSchemaName} isExportable isIndexable isTypeOnly>
-            {printCombinedSchema({ name: combinedSchemaName, schemas, pluginManager })}
+            {printCombinedSchema({
+              name: combinedSchemaName,
+              schemas,
+              pluginManager,
+            })}
           </File.Source>
         )}
       </File>
