@@ -25,7 +25,7 @@ export default defineConfig([
           path: './ts',
         },
         transformers: {
-          name: (name, _type) => {
+          name: (name) => {
             return `${name}Type`
           },
         },

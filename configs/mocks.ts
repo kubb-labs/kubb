@@ -65,6 +65,12 @@ export const createMockedPluginManager = (name?: string) =>
         meta: { pluginKey },
       }
     },
+    getPlugin(pluginName: Plugin['name']): Plugin | undefined {
+      return {
+        name: pluginName,
+        resolvers: [],
+      } as unknown as Plugin
+    },
   }) as PluginManager
 
 export const mockedPluginManager = createMockedPluginManager('')

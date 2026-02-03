@@ -1,8 +1,19 @@
 import type { Config, PluginFactoryOptions } from '@kubb/core'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { describe, expect, it } from 'vitest'
 import { createResolver, executeResolvers, mergeResolvers } from './createResolver.ts'
 import type { OperationResolverContext, SchemaResolverContext } from './types.ts'
+
+// Helper to create a minimal file object for tests
+const createFile = (baseName: KubbFile.File['baseName'], path: string): KubbFile.File => ({
+  baseName,
+  path,
+  imports: [],
+  exports: [],
+  sources: [],
+  meta: {},
+})
 
 // Mock data
 const mockOperation = {
@@ -30,7 +41,7 @@ describe('createResolver', () => {
     const resolver = createResolver<TestOptions>({
       name: 'test-resolver',
       operation: () => ({
-        file: { baseName: 'test.ts', path: 'types/test.ts' },
+        file: createFile('test.ts', 'types/test.ts'),
         outputs: {
           response: { name: 'TestResponse' },
           request: { name: 'TestRequest' },
@@ -50,7 +61,7 @@ describe('mergeResolvers', () => {
     const customResolver = createResolver<ResponseOptions>({
       name: 'custom',
       operation: () => ({
-        file: { baseName: 'custom.ts', path: 'custom.ts' },
+        file: createFile('custom.ts', 'custom.ts'),
         outputs: { response: { name: 'Custom' } },
       }),
     })
@@ -58,7 +69,7 @@ describe('mergeResolvers', () => {
     const defaultResolver = createResolver<ResponseOptions>({
       name: 'default',
       operation: () => ({
-        file: { baseName: 'default.ts', path: 'default.ts' },
+        file: createFile('default.ts', 'default.ts'),
         outputs: { response: { name: 'Default' } },
       }),
     })
@@ -76,7 +87,7 @@ describe('mergeResolvers', () => {
     const defaultResolver = createResolver<ResponseOptions>({
       name: 'default',
       operation: () => ({
-        file: { baseName: 'default.ts', path: 'default.ts' },
+        file: createFile('default.ts', 'default.ts'),
         outputs: { response: { name: 'Default' } },
       }),
     })
@@ -100,7 +111,7 @@ describe('executeResolvers', () => {
     const resolver1 = createResolver<ResponseOptions>({
       name: 'no-handler',
       schema: () => ({
-        file: { baseName: 'schema.ts', path: 'schema.ts' },
+        file: createFile('schema.ts', 'schema.ts'),
         outputs: { response: { name: 'Schema' } },
       }),
     })
@@ -108,7 +119,7 @@ describe('executeResolvers', () => {
     const resolver2 = createResolver<ResponseOptions>({
       name: 'with-handler',
       operation: () => ({
-        file: { baseName: 'operation.ts', path: 'operation.ts' },
+        file: createFile('operation.ts', 'operation.ts'),
         outputs: { response: { name: 'Operation' } },
       }),
     })
@@ -130,7 +141,7 @@ describe('executeResolvers', () => {
     const resolver = createResolver<ResponseOptions>({
       name: 'always-match',
       operation: () => ({
-        file: { baseName: 'always.ts', path: 'always.ts' },
+        file: createFile('always.ts', 'always.ts'),
         outputs: { response: { name: 'Always' } },
       }),
     })
@@ -152,7 +163,7 @@ describe('executeResolvers', () => {
     const resolver = createResolver<ResponseOptions>({
       name: 'schema-only',
       schema: () => ({
-        file: { baseName: 'test.ts', path: 'test.ts' },
+        file: createFile('test.ts', 'test.ts'),
         outputs: { response: { name: 'Test' } },
       }),
     })
@@ -184,7 +195,7 @@ describe('executeResolvers', () => {
     const resolver1 = createResolver<ResponseOptions>({
       name: 'schema-only',
       schema: () => ({
-        file: { baseName: 'schema.ts', path: 'schema.ts' },
+        file: createFile('schema.ts', 'schema.ts'),
         outputs: { response: { name: 'Schema' } },
       }),
     })
@@ -192,7 +203,7 @@ describe('executeResolvers', () => {
     const resolver2 = createResolver<ResponseOptions>({
       name: 'operation-handler',
       operation: () => ({
-        file: { baseName: 'operation.ts', path: 'operation.ts' },
+        file: createFile('operation.ts', 'operation.ts'),
         outputs: { response: { name: 'Operation' } },
       }),
     })
@@ -218,7 +229,7 @@ describe('executeResolvers', () => {
       operation: (receivedCtx) => {
         capturedContexts.push(receivedCtx)
         return {
-          file: { baseName: 'test.ts', path: 'test.ts' },
+          file: createFile('test.ts', 'test.ts'),
           outputs: { response: { name: 'Test' } },
         }
       },
@@ -249,7 +260,7 @@ describe('executeSchemaResolvers', () => {
     const resolver = createResolver<ResponseOptions>({
       name: 'schema-resolver',
       schema: () => ({
-        file: { baseName: 'Pet.ts', path: 'types/Pet.ts' },
+        file: createFile('Pet.ts', 'types/Pet.ts'),
         outputs: { response: { name: 'Pet' } },
       }),
     })
@@ -271,7 +282,7 @@ describe('executeSchemaResolvers', () => {
     const resolver1 = createResolver<ResponseOptions>({
       name: 'operation-only',
       operation: () => ({
-        file: { baseName: 'operation.ts', path: 'operation.ts' },
+        file: createFile('operation.ts', 'operation.ts'),
         outputs: { response: { name: 'Operation' } },
       }),
     })
@@ -279,7 +290,7 @@ describe('executeSchemaResolvers', () => {
     const resolver2 = createResolver<ResponseOptions>({
       name: 'schema-handler',
       schema: () => ({
-        file: { baseName: 'schema.ts', path: 'schema.ts' },
+        file: createFile('schema.ts', 'schema.ts'),
         outputs: { response: { name: 'Schema' } },
       }),
     })

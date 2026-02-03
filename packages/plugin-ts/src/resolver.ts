@@ -1,7 +1,6 @@
 import { resolve } from 'node:path'
 import { type Group, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
-import type { KubbFile } from '@kubb/fabric-core/types'
 import { createResolver } from '@kubb/plugin-oas/resolvers'
 import type { PluginTs } from './types.ts'
 
@@ -38,9 +37,7 @@ export function createTsResolver(options: TsResolverOptions = {}) {
       const tag = tags[0]?.name
       const path = operation.path
 
-      const baseName = transformName
-        ? (transformName(`${pascalCase(operationId, { isFile: true })}.ts`, 'file') as KubbFile.File['baseName'])
-        : (`${pascalCase(operationId, { isFile: true })}.ts` as const)
+      const baseName = `${transformName?.(pascalCase(operationId, { isFile: true }), 'file') || pascalCase(operationId, { isFile: true })}.ts` as const
 
       function resolvePath() {
         const mode = getMode(root)
@@ -70,7 +67,7 @@ export function createTsResolver(options: TsResolverOptions = {}) {
         const operationName = pascalCase(operationId)
 
         const name = suffix ? `${operationName}${suffix}` : operationName
-        return transformName ? transformName(name, 'type') : name
+        return transformName?.(name, 'type') || name
       }
 
       return {
@@ -96,9 +93,7 @@ export function createTsResolver(options: TsResolverOptions = {}) {
     schema: ({ config, schema }) => {
       const root = resolve(config.root, config.output.path, outputPath)
 
-      const baseName = transformName
-        ? (transformName(`${pascalCase(schema.name, { isFile: true })}.ts`, 'file') as KubbFile.File['baseName'])
-        : (`${pascalCase(schema.name, { isFile: true })}.ts` as const)
+      const baseName = `${transformName?.(pascalCase(schema.name, { isFile: true }), 'file') || pascalCase(schema.name, { isFile: true })}.ts` as const
 
       function resolvePath() {
         const mode = getMode(root)
@@ -110,7 +105,7 @@ export function createTsResolver(options: TsResolverOptions = {}) {
         const schemaName = pascalCase(schema.name)
 
         const name = suffix ? `${schemaName}${suffix}` : schemaName
-        return transformName ? transformName(name, 'type') : name
+        return transformName?.(name, 'type') || name
       }
 
       return {
