@@ -413,6 +413,9 @@ This is an unstable/experimental feature that may change in future versions.
 #### transformers.name
 Customize the names based on the type that is provided by the plugin.
 
+> [!NOTE]
+> For more advanced customization, consider using [resolvers](#resolvers) instead.
+
 |           |                                                                               |
 |----------:|:------------------------------------------------------------------------------|
 |     Type: | `(name: string, type?: ResolveType) => string` |
@@ -421,6 +424,104 @@ Customize the names based on the type that is provided by the plugin.
 
 ```typescript
 type ResolveType = 'file' | 'function' | 'type' | 'const'
+```
+
+### resolvers <Badge type="tip" text="New in v4.16+" />
+
+Custom resolvers for name and path resolution. Resolvers provide full control over how names and file paths are generated.
+
+|           |                                 |
+|----------:|:--------------------------------|
+|     Type: | `Array<Resolver<PluginTs>>`     |
+| Required: | `false`                         |
+
+::: tip
+See the [Resolvers Guide](/guide/resolvers) for detailed documentation and examples.
+:::
+
+#### Basic Example
+
+```typescript
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pascalCase } from '@kubb/core/transformers'
+
+export default defineConfig({
+  plugins: [
+    pluginTs({
+      resolvers: [
+        {
+          name: 'custom-naming',
+          operation: ({ operation, config }) => {
+            const operationId = operation.getOperationId()
+            const name = pascalCase(operationId)
+            
+            const file = {
+              baseName: `${name}.ts`,
+              path: `${config.root}/${config.output.path}/types/${name}.ts`,
+              imports: [],
+              exports: [],
+              sources: [],
+              meta: {},
+            }
+
+            return {
+              file,
+              outputs: {
+                default: { name, file },
+                type: { name, file },
+                pathParams: { name: `${name}PathParams`, file },
+                queryParams: { name: `${name}QueryParams`, file },
+                request: { name: `${name}Request`, file },
+                response: { name: `${name}Response`, file },
+                // ... other outputs
+              }
+            }
+          },
+          schema: () => null // Use default for schemas
+        }
+      ]
+    })
+  ]
+})
+```
+
+#### Using the Default Resolver
+
+```typescript
+import { pluginTs, createTsResolver } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  plugins: [
+    pluginTs({
+      resolvers: [
+        {
+          name: 'custom-suffix',
+          operation: ({ operation, config }) => {
+            // Get default resolution
+            const defaultResolver = createTsResolver({ outputPath: 'types' })
+            const defaults = defaultResolver.operation({ operation, config })
+
+            if (!defaults) return null
+
+            // Modify only specific outputs
+            return {
+              ...defaults,
+              outputs: {
+                ...defaults.outputs,
+                response: {
+                  ...defaults.outputs.response,
+                  name: `${defaults.outputs.response.name}DTO`
+                }
+              }
+            }
+          },
+          schema: () => null
+        }
+      ]
+    })
+  ]
+})
 ```
 
 ## Example
@@ -465,5 +566,6 @@ export default defineConfig({
 
 ## See Also
 
+- [Resolvers Guide](/guide/resolvers) - Learn how to customize naming and file organization
 - [TypeScript](https://www.typescriptlang.org/)
 - [TypeScript Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API)
