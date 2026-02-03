@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type bodyUploadFileApiAssetsPost = {
+export type BodyUploadFileApiAssetsPost = {
   /**
    * @type string, binary
    */

@@ -3,4 +3,4 @@
  * Do not edit manually.
  */
 
-export type plainEmail = string
+export type PlainEmail = string

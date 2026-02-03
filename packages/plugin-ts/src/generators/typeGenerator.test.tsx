@@ -573,7 +573,7 @@ describe('typeGenerator schema', async () => {
         value: schema,
       },
       {
-        config: { root: '.', output: { path: 'test' } } as Config,
+        config: { root: 'path', output: { path: '.' } } as Config,
         fabric,
         generator,
         Component: typeGenerator.Schema,
@@ -710,7 +710,6 @@ describe('typeGenerator operation', async () => {
       oas,
       include: undefined,
       pluginManager: mockedPluginManager,
-
       plugin,
       contentType: undefined,
       override: undefined,
@@ -719,7 +718,7 @@ describe('typeGenerator operation', async () => {
     })
     const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {
-      config: { root: '.', output: { path: 'test' } } as Config,
+      config: { root: 'path', output: { path: '.' } } as Config,
       fabric,
       generator,
       Component: typeGenerator.Operation,

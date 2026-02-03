@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type stringValueConst = {
+export type StringValueConst = {
   /**
    * @type string
    */

@@ -10,11 +10,3 @@ export type Vehicle = car & {
    */
   type: 'car'
 }
-cleTypeEnumKey = (typeof vehicleTypeEnum)[keyof typeof vehicleTypeEnum]
-
-export type Vehicle = car & {
-  /**
-   * @type string
-   */
-  type: VehicleTypeEnumKey
-}

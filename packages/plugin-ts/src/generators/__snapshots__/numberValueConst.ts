@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type numberValueConst = {
+export type NumberValueConst = {
   /**
    * @type number
    */

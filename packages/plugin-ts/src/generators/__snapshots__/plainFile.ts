@@ -3,4 +3,4 @@
  * Do not edit manually.
  */
 
-export type plainFile = Blob
+export type PlainFile = Blob

@@ -3,4 +3,4 @@
  * Do not edit manually.
  */
 
-export type plainUuid = string
+export type PlainUuid = string

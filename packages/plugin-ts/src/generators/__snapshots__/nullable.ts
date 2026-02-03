@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type nullable = {
+export type Nullable = {
   /**
    * @type string
    */

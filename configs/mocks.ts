@@ -98,7 +98,20 @@ export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.F
 
     processed.set(file.path, code)
 
-    const snapshotPath = path.join('__snapshots__', ...(pre ? [pre] : []), file.path)
+    // Strip absolute path prefix if present, keeping relative structure
+    let relativePath = file.path
+    if (path.isAbsolute(file.path)) {
+      // Find where the relative path starts (after any absolute prefix)
+      // Look for common patterns like '/path/', '/test/', '/types/' etc.
+      const match = file.path.match(/\/(path|test|types|gen|src)\/(.+)$/)
+      if (match && match[2]) {
+        relativePath = match[2]
+      } else {
+        // Fallback to just using the basename
+        relativePath = file.baseName
+      }
+    }
+    const snapshotPath = path.join('__snapshots__', ...(pre ? [pre] : []), relativePath)
     await expect(code).toMatchFileSnapshot(snapshotPath)
   }
 

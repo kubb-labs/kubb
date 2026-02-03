@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export type pets = {
+export type Pets = {
   /**
    * @type integer, int64
    */
