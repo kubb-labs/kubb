@@ -3,4 +3,4 @@
  * Do not edit manually.
  */
 
-export type PlainDate = string
+export type PlainDate = Date
