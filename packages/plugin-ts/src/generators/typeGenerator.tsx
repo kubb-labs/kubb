@@ -321,7 +321,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const pluginManager = usePluginManager()
 
     const oas = useOas()
-    const { getSchemas, getFile, getName, getGroup } = useOperationManager(generator)
+    const { getSchemas, getFile, getName } = useOperationManager(generator)
     const schemaManager = useSchemaManager()
 
     const name = getName(operation, { type: 'type', pluginKey: [pluginTsName] })
@@ -342,15 +342,30 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       .flat()
       .filter(Boolean)
 
-    const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType) => {
+    const mapOperationSchema = ({ name, schema, description, keysToOmit }: OperationSchemaType) => {
       const tree = schemaGenerator.parse({ schema, name, parentName: null })
-      const imports = getImports(tree)
-      const group = options.operation ? getGroup(options.operation) : undefined
 
-      const type = {
-        name: schemaManager.getName(name, { type: 'type' }),
-        typedName: schemaManager.getName(name, { type: 'type' }),
-        file: schemaManager.getFile(options.operationName || name, { group }),
+      const resolution = useResolve<PluginTs>(
+        {
+          schema: {
+            name,
+            value: schema,
+          },
+        },
+        pluginTsName,
+      )
+
+      if (!resolution) {
+        return null
+      }
+
+      const imports = getImports(tree)
+
+      let typedName = resolution.outputs.type.name
+      const schemaFromTree = tree.find((item) => item.keyword === schemaKeywords.schema)
+
+      if (enumType === 'asConst' && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
+        typedName = resolution.outputs.enum.name //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
       }
 
       return (
@@ -360,8 +375,8 @@ export const typeGenerator = createReactGenerator<PluginTs>({
               <File.Import key={[name, imp.name, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />
             ))}
           <Type
-            name={type.name}
-            typedName={type.typedName}
+            name={resolution.outputs.type.name}
+            typedName={typedName}
             description={description}
             tree={tree}
             schema={schema}
