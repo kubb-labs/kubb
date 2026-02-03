@@ -3,31 +3,15 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 
 import type { contentType, HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
 import type { Generator } from './generators/types.ts'
-import type { Resolution, ResolverContext, Resolver as ResolverDefinition } from './resolvers/types.ts'
 
 type GetOasOptions = {
   validate?: boolean
 }
 
-type ResolverHelpers = {
-  /**
-   * Resolve names/files for the current or another plugin using the resolver system.
-   * Returns null if no resolvers are configured or if no resolver matches.
-   * @param ctx - The resolver context (operation or schema)
-   * @param pluginKey - Optional plugin key to query another plugin's resolvers
-   */
-  resolve<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(ctx: ResolverContext, pluginKey?: Plugin['key']): Resolution<TOptions> | null
-  /**
-   * Get the resolvers configured for a specific plugin
-   * @param pluginKey - Optional plugin key (defaults to current plugin)
-   */
-  getResolvers<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginKey?: Plugin['key']): Array<ResolverDefinition<TOptions>>
-}
-
 type Context = {
   getOas(options?: GetOasOptions): Promise<Oas>
   getBaseURL(): Promise<string | undefined>
-} & ResolverHelpers
+}
 
 declare global {
   namespace Kubb {

@@ -1,5 +1,4 @@
 import path from 'node:path'
-import type { Plugin } from '@kubb/core'
 import { type Config, definePlugin, type Group, getMode, type KubbEvents } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
@@ -7,8 +6,6 @@ import type { Oas } from '@kubb/oas'
 import { parseFromConfig } from '@kubb/oas'
 import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
-import { executeOperationResolvers, executeSchemaResolvers } from './resolvers/createResolver.ts'
-import type { Resolution, Resolver, ResolverContext } from './resolvers/types.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { PluginOas } from './types.ts'
 
@@ -71,8 +68,6 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
     inject() {
       const config = this.config
       const events = this.events
-      const pluginManager = this.pluginManager
-      const currentPlugin = this.plugin
 
       let oas: Oas
 
@@ -91,50 +86,6 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
           }
 
           return undefined
-        },
-        /**
-         * Resolve names/files using the resolver system
-         */
-        resolve<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(ctx: ResolverContext, pluginKey?: Plugin['key']): Resolution<TOptions> | null {
-          const targetPluginKey = pluginKey ?? currentPlugin.key
-          const targetPlugin = pluginManager.getPluginByKey(targetPluginKey)
-
-          if (!targetPlugin) {
-            return null
-          }
-
-          // Get resolvers from plugin options
-          const pluginOptions = targetPlugin.options as { resolvers?: Array<Resolver<PluginFactoryOptions>> } | undefined
-          const resolvers = (pluginOptions?.resolvers ?? []) as Array<Resolver<TOptions>>
-
-          if (resolvers.length === 0) {
-            return null
-          }
-
-          // Legacy support: execute based on what's in the context
-          if (ctx.operation) {
-            return executeOperationResolvers(resolvers, { operation: ctx.operation, config })
-          }
-          if (ctx.schema) {
-            return executeSchemaResolvers(resolvers, { schema: ctx.schema, config })
-          }
-
-          return null
-        },
-        /**
-         * Get resolvers configured for a plugin
-         */
-        getResolvers<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginKey?: Plugin['key']): Array<Resolver<TOptions>> {
-          const targetPluginKey = pluginKey ?? currentPlugin.key
-          const targetPlugin = pluginManager.getPluginByKey(targetPluginKey)
-
-          if (!targetPlugin) {
-            return []
-          }
-
-          // Get resolvers from plugin options
-          const pluginOptions = targetPlugin.options as { resolvers?: Array<Resolver<PluginFactoryOptions>> } | undefined
-          return (pluginOptions?.resolvers ?? []) as Array<Resolver<TOptions>>
         },
       }
     },

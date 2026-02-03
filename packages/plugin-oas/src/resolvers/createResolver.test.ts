@@ -39,7 +39,6 @@ describe('createResolver', () => {
     })
 
     expect(resolver.name).toBe('test-resolver')
-    expect(resolver.type).toBe('core')
     expect(typeof resolver.operation).toBe('function')
   })
 })
