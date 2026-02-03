@@ -9,6 +9,7 @@ import { createReactFabric } from '@kubb/react-fabric'
 import ts, { factory } from 'typescript'
 import { describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
+import { createTsResolver } from '../resolver.ts'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
 
@@ -540,7 +541,10 @@ describe('typeGenerator schema', async () => {
       group: undefined,
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginTs>
+    const plugin = {
+      options,
+      resolvers: [createTsResolver({ outputPath: options.output.path })],
+    } as Plugin<PluginTs>
     const fabric = createReactFabric()
 
     const mockedPluginManager = createMockedPluginManager(props.name)
@@ -695,7 +699,10 @@ describe('typeGenerator operation', async () => {
       emptySchemaType: 'unknown',
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginTs>
+    const plugin = {
+      options,
+      resolvers: [createTsResolver({ outputPath: options.output.path })],
+    } as Plugin<PluginTs>
     const fabric = createReactFabric()
     const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {

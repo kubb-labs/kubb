@@ -345,15 +345,12 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const mapOperationSchema = ({ name, schema, description, keysToOmit }: OperationSchemaType) => {
       const tree = schemaGenerator.parse({ schema, name, parentName: null })
 
-      const resolution = useResolve<PluginTs>(
-        {
-          schema: {
-            name,
-            value: schema,
-          },
+      const resolution = useResolve<PluginTs>({
+        schema: {
+          name,
+          value: schema,
         },
-        pluginTsName,
-      )
+      })
 
       if (!resolution) {
         return null
@@ -431,7 +428,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const mode = useMode()
     const oas = useOas()
 
-    const resolution = useResolve<PluginTs>({ schema }, pluginTsName)
+    const resolution = useResolve<PluginTs>({ schema })
 
     if (!resolution) {
       return null
