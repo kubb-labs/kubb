@@ -4,7 +4,7 @@ import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugi
 import type { Generator } from '@kubb/plugin-oas/generators'
 import type { Resolver } from '@kubb/plugin-oas/resolvers'
 import type ts from 'typescript'
-import type { TsOutputKeys } from './resolverTypes.ts'
+import type { ResolverOutputKeys } from './resolver.ts'
 
 export type Options = {
   /**
@@ -155,4 +155,4 @@ type ResolvedOptions = {
   mapper: Record<string, any>
 }
 
-export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, TsOutputKeys>
+export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverOutputKeys>

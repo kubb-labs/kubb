@@ -4,7 +4,7 @@ import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { createResolver } from '@kubb/plugin-oas/resolvers'
 import type { PluginTs } from './types.ts'
 
-export type TsResolverOptions = {
+type Options = {
   /**
    * Output path for types
    * @default 'types'
@@ -22,9 +22,15 @@ export type TsResolverOptions = {
 }
 
 /**
+ * Output keys for the TypeScript plugin
+ * Defines the available named outputs for operation/schema resolution
+ */
+export type ResolverOutputKeys = 'type' | 'enum' | 'pathParams' | 'queryParams' | 'headerParams' | 'request' | 'response'
+
+/**
  * Creates a TypeScript resolver with the given options
  */
-export function createTsResolver(options: TsResolverOptions = {}) {
+export function createTsResolver(options: Options = {}) {
   const { outputPath = 'types', group, transformName } = options
 
   return createResolver<PluginTs>({
