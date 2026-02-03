@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import { type Group, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { createResolver } from '@kubb/plugin-oas/resolvers'
+import { createResolver, type Output } from '@kubb/plugin-oas/resolvers'
 import type { PluginTs } from './types.ts'
 
 type Options = {
@@ -97,12 +97,21 @@ export function createTsResolver(options: Options = {}) {
         meta: {},
       }
 
+      const statusCodes = operation.getResponseStatusCodes()
+      const statusCodeOutputs = statusCodes.reduce<Record<string, Output>>(
+        (acc: Record<string, Output>, statusCode: string) => {
+          const suffix = statusCode === 'default' ? 'Default' : `Status${statusCode}`
+          acc[statusCode] = { name: resolveName(suffix), file }
+          return acc
+        },
+        {},
+      )
+
       return {
         file,
         outputs: {
           default: { name: resolveName(''), file },
-
-          // TODO add generated output based on all available statusCode
+          ...statusCodeOutputs,
           type: { name: resolveName(''), file },
           enum: { name: resolveName('Key'), file },
           query: { name: resolveName('Query'), file },
@@ -148,8 +157,6 @@ export function createTsResolver(options: Options = {}) {
         file,
         outputs: {
           default: { name: resolveName(''), file },
-          // TODO add generated output based on all available statusCode
-
           type: { name: resolveName(''), file },
           enum: { name: resolveName('Key'), file },
           query: { name: '', file },
