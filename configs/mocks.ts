@@ -104,7 +104,7 @@ export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.F
       // Find where the relative path starts (after any absolute prefix)
       // Look for common patterns like '/path/', '/test/', '/types/' etc.
       const match = file.path.match(/\/(path|test|types|gen|src)\/(.+)$/)
-      if (match && match[2]) {
+      if (match?.[2]) {
         relativePath = match[2]
       } else {
         // Fallback to just using the basename
