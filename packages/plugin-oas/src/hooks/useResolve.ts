@@ -13,7 +13,9 @@ export function useResolve<TOptions extends PluginFactoryOptions = PluginFactory
   const currentPlugin = usePlugin()
   const config = pluginManager.config
 
-  const plugin = pluginManager.getPlugin(pluginName ?? currentPlugin.name)
+  // When pluginName is not provided, use the current plugin directly
+  // to ensure multi-instance plugins resolve to the correct instance
+  const plugin = pluginName ? pluginManager.getPlugin(pluginName) : currentPlugin
 
   if (!plugin) {
     // Plugin not found, return null to allow fallback to legacy resolution

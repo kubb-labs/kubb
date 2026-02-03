@@ -3,7 +3,6 @@ import { type Group, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { createResolver } from '@kubb/plugin-oas/resolvers'
-import { pluginTsName } from './plugin.ts'
 import type { PluginTs } from './types.ts'
 
 export type TsResolverOptions = {
@@ -32,49 +31,60 @@ export function createTsResolver(options: TsResolverOptions = {}) {
   return createResolver<PluginTs>({
     name: 'default-ts',
     operation: ({ config, operation }) => {
-      const root = resolve(config.root, config.output.path)
+      const root = resolve(config.root, config.output.path, outputPath)
 
       const operationId = operation.getOperationId()
       const tags = operation.getTags()
       const tag = tags[0]?.name
       const path = operation.path
 
-      // Apply group logic
-      let basePath = outputPath
-      if (group && (path || tag)) {
-        const groupValue = group.type === 'path' ? path : tag
-        if (groupValue) {
-          const groupName = group.name
-            ? group.name({ group: groupValue })
-            : group.type === 'path'
-              ? (groupValue.split('/')[1] ?? groupValue)
-              : `${camelCase(groupValue)}Controller`
-          basePath = resolve(outputPath, groupName)
+      const baseName = transformName
+        ? (transformName(`${pascalCase(operationId, { isFile: true })}.ts`, 'file') as KubbFile.File['baseName'])
+        : (`${pascalCase(operationId, { isFile: true })}.ts` as const)
+
+      function resolvePath() {
+        const mode = getMode(root)
+
+        if (mode === 'single') {
+          return root
         }
+
+        if (group && (path || tag)) {
+          const groupValue = group.type === 'path' ? path : tag
+
+          if (groupValue) {
+            const groupName = group.name
+              ? group.name({ group: groupValue })
+              : group.type === 'path'
+                ? (groupValue.split('/')[1] ?? groupValue)
+                : `${camelCase(groupValue)}Controller`
+
+            return resolve(root, groupName, baseName)
+          }
+        }
+
+        return resolve(root, baseName)
       }
 
-      const name = pascalCase(operationId)
-      const fileName = transformName ? transformName(name, 'file') : name
-      const baseName = `${fileName}.ts`
+      function resolveName(suffix: string) {
+        const operationName = pascalCase(operationId)
 
-      const filePath = resolve(root, basePath, baseName)
-
-      const resolveName = (suffix: string) => {
-        const resolved = `${name}${suffix}`
-        return transformName ? transformName(resolved, 'type') : resolved
+        const name = suffix ? `${operationName}${suffix}` : operationName
+        return transformName ? transformName(name, 'type') : name
       }
 
       return {
         file: {
           baseName,
-          path: filePath,
+          path: resolvePath(),
           imports: [],
           exports: [],
           sources: [],
           meta: {},
         },
         outputs: {
-          type: { name: resolveName('') },
+          type: { name: '' },
+          enum: { name: '' },
           pathParams: { name: resolveName('PathParams') },
           queryParams: { name: resolveName('QueryParams') },
           headerParams: { name: resolveName('HeaderParams') },
@@ -85,26 +95,39 @@ export function createTsResolver(options: TsResolverOptions = {}) {
     },
     schema: ({ config, schema }) => {
       const root = resolve(config.root, config.output.path, outputPath)
-      const mode = getMode(root)
 
-      const baseName = `${pascalCase(schema.name, { isFile: true })}.ts` as const
-      const schemaName = pascalCase(schema.name)
+      const baseName = transformName
+        ? (transformName(`${pascalCase(schema.name, { isFile: true })}.ts`, 'file') as KubbFile.File['baseName'])
+        : (`${pascalCase(schema.name, { isFile: true })}.ts` as const)
+
+      function resolvePath() {
+        const mode = getMode(root)
+
+        return mode === 'single' ? root : resolve(root, baseName)
+      }
+
+      function resolveName(suffix: string) {
+        const schemaName = pascalCase(schema.name)
+
+        const name = suffix ? `${schemaName}${suffix}` : schemaName
+        return transformName ? transformName(name, 'type') : name
+      }
 
       return {
         file: {
-          baseName: transformName ? (transformName(baseName, 'file') as KubbFile.File['baseName']) : baseName,
-          path: mode === 'single' ? root : resolve(root, baseName),
+          baseName,
+          path: resolvePath(),
           imports: [],
           exports: [],
           sources: [],
-          meta: {
-            // name: schemaName,
-            // pluginKey: [pluginTsName],
-          },
+          meta: {},
         },
         outputs: {
           type: {
-            name: transformName ? transformName(schemaName, 'type') : schemaName,
+            name: resolveName(''),
+          },
+          enum: {
+            name: resolveName('Key'),
           },
           pathParams: { name: '' },
           queryParams: { name: '' },

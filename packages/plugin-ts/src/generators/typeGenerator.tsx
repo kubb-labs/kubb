@@ -428,7 +428,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     let typedName = resolution.outputs.type.name
 
     if (enumType === 'asConst' && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
-      typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
+      typedName = resolution.outputs.enum.name //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
     }
 
     return (
