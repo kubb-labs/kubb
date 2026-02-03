@@ -645,6 +645,16 @@ export class PluginManager {
 
     setUniqueName(plugin.name, usedPluginNames)
 
+    // Emit warning if this is a duplicate plugin (will be removed in v5)
+    const usageCount = usedPluginNames[plugin.name]
+    if (usageCount && usageCount > 1) {
+      this.events.emit(
+        'warn',
+        `Multiple instances of plugin "${plugin.name}" detected. This behavior is deprecated and will be removed in v5.`,
+        `Plugin key: [${plugin.name}, ${usageCount}]`,
+      )
+    }
+
     return {
       install() {},
       ...plugin,

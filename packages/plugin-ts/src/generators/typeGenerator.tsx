@@ -6,7 +6,7 @@ import type { Operation } from '@kubb/oas'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
+import { getBanner, getFooter, getImports } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
 import ts from 'typescript'
 import { Type } from '../components'
@@ -344,7 +344,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
     const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType) => {
       const tree = schemaGenerator.parse({ schema, name, parentName: null })
-      const imports = schemaManager.getImports(tree)
+      const imports = getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 
       const type = {
@@ -418,7 +418,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const oas = useOas()
     const pluginManager = usePluginManager()
 
-    const { getName, getImports, getFile } = useSchemaManager()
+    const { getName, getFile } = useSchemaManager()
     const imports = getImports(schema.tree)
     const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
 
