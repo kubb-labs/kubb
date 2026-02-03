@@ -43,6 +43,7 @@ describe('createResolver', () => {
       operation: () => ({
         file: createFile('test.ts', 'types/test.ts'),
         outputs: {
+          default: { name: 'Test' },
           response: { name: 'TestResponse' },
           request: { name: 'TestRequest' },
         },
@@ -62,7 +63,7 @@ describe('mergeResolvers', () => {
       name: 'custom',
       operation: () => ({
         file: createFile('custom.ts', 'custom.ts'),
-        outputs: { response: { name: 'Custom' } },
+        outputs: { default: { name: 'Custom' }, response: { name: 'Custom' } },
       }),
     })
 
@@ -70,7 +71,7 @@ describe('mergeResolvers', () => {
       name: 'default',
       operation: () => ({
         file: createFile('default.ts', 'default.ts'),
-        outputs: { response: { name: 'Default' } },
+        outputs: { default: { name: 'Default' }, response: { name: 'Default' } },
       }),
     })
 
@@ -88,7 +89,7 @@ describe('mergeResolvers', () => {
       name: 'default',
       operation: () => ({
         file: createFile('default.ts', 'default.ts'),
-        outputs: { response: { name: 'Default' } },
+        outputs: { default: { name: 'Default' }, response: { name: 'Default' } },
       }),
     })
 
@@ -112,7 +113,7 @@ describe('executeResolvers', () => {
       name: 'no-handler',
       schema: () => ({
         file: createFile('schema.ts', 'schema.ts'),
-        outputs: { response: { name: 'Schema' } },
+        outputs: { default: { name: 'Schema' }, response: { name: 'Schema' } },
       }),
     })
 
@@ -120,7 +121,7 @@ describe('executeResolvers', () => {
       name: 'with-handler',
       operation: () => ({
         file: createFile('operation.ts', 'operation.ts'),
-        outputs: { response: { name: 'Operation' } },
+        outputs: { default: { name: 'Operation' }, response: { name: 'Operation' } },
       }),
     })
 
@@ -142,7 +143,7 @@ describe('executeResolvers', () => {
       name: 'always-match',
       operation: () => ({
         file: createFile('always.ts', 'always.ts'),
-        outputs: { response: { name: 'Always' } },
+        outputs: { default: { name: 'Always' }, response: { name: 'Always' } },
       }),
     })
 
@@ -164,7 +165,7 @@ describe('executeResolvers', () => {
       name: 'schema-only',
       schema: () => ({
         file: createFile('test.ts', 'test.ts'),
-        outputs: { response: { name: 'Test' } },
+        outputs: { default: { name: 'Test' }, response: { name: 'Test' } },
       }),
     })
 
@@ -196,7 +197,7 @@ describe('executeResolvers', () => {
       name: 'schema-only',
       schema: () => ({
         file: createFile('schema.ts', 'schema.ts'),
-        outputs: { response: { name: 'Schema' } },
+        outputs: { default: { name: 'Schema' }, response: { name: 'Schema' } },
       }),
     })
 
@@ -204,7 +205,7 @@ describe('executeResolvers', () => {
       name: 'operation-handler',
       operation: () => ({
         file: createFile('operation.ts', 'operation.ts'),
-        outputs: { response: { name: 'Operation' } },
+        outputs: { default: { name: 'Operation' }, response: { name: 'Operation' } },
       }),
     })
 
@@ -230,7 +231,7 @@ describe('executeResolvers', () => {
         capturedContexts.push(receivedCtx)
         return {
           file: createFile('test.ts', 'test.ts'),
-          outputs: { response: { name: 'Test' } },
+          outputs: { default: { name: 'Test' }, response: { name: 'Test' } },
         }
       },
     })
@@ -261,7 +262,7 @@ describe('executeSchemaResolvers', () => {
       name: 'schema-resolver',
       schema: () => ({
         file: createFile('Pet.ts', 'types/Pet.ts'),
-        outputs: { response: { name: 'Pet' } },
+        outputs: { default: { name: 'Pet' }, response: { name: 'Pet' } },
       }),
     })
 
@@ -283,7 +284,7 @@ describe('executeSchemaResolvers', () => {
       name: 'operation-only',
       operation: () => ({
         file: createFile('operation.ts', 'operation.ts'),
-        outputs: { response: { name: 'Operation' } },
+        outputs: { default: { name: 'Operation' }, response: { name: 'Operation' } },
       }),
     })
 
@@ -291,7 +292,7 @@ describe('executeSchemaResolvers', () => {
       name: 'schema-handler',
       schema: () => ({
         file: createFile('schema.ts', 'schema.ts'),
-        outputs: { response: { name: 'Schema' } },
+        outputs: { default: { name: 'Schema' }, response: { name: 'Schema' } },
       }),
     })
 
