@@ -53,7 +53,7 @@ describe('operationsGenerator operations', async () => {
     }
     const plugin = { options } as Plugin<PluginClient>
     const fabric = createReactFabric()
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,

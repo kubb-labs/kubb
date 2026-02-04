@@ -546,7 +546,7 @@ describe('typeGenerator schema', async () => {
     } as Plugin<PluginTs>
     const fabric = createReactFabric()
 
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name, plugin })
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
@@ -571,7 +571,12 @@ describe('typeGenerator schema', async () => {
         value: schema,
       },
       {
-        config: { root: 'path', output: { path: '.' } } as Config,
+        config: {
+          root: path.resolve(__dirname, '__snapshots__'),
+          output: {
+            path: '.',
+          },
+        } as Config,
         fabric,
         generator,
         Component: typeGenerator.Schema,
@@ -701,8 +706,9 @@ describe('typeGenerator operation', async () => {
       options,
       resolvers: [createTsResolver({ outputPath: options.output.path })],
     } as Plugin<PluginTs>
+
     const fabric = createReactFabric()
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name, plugin })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -716,7 +722,12 @@ describe('typeGenerator operation', async () => {
     })
     const operation = oas.operation(props.path, props.method)
     await buildOperation(operation, {
-      config: { root: 'path', output: { path: '.' } } as Config,
+      config: {
+        root: path.resolve(__dirname, '__snapshots__'),
+        output: {
+          path: '.',
+        },
+      } as Config,
       fabric,
       generator,
       Component: typeGenerator.Operation,

@@ -315,7 +315,7 @@ describe('zodGenerator schema', async () => {
     }
     const plugin = { options } as Plugin<PluginZod>
     const fabric = createReactFabric()
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
@@ -447,7 +447,7 @@ describe('zodGenerator operation', async () => {
     }
     const plugin = { options } as Plugin<PluginZod>
     const fabric = createReactFabric()
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -519,7 +519,7 @@ describe('zodGenerator operation', async () => {
       }
       const plugin = { options } as Plugin<PluginZod>
       const fabric = createReactFabric()
-      const mockedPluginManager = createMockedPluginManager(props.name)
+      const mockedPluginManager = createMockedPluginManager({ name: props.name })
       const generator = new OperationGenerator(options, {
         fabric,
         oas,
@@ -613,7 +613,7 @@ describe('zodGenerator operation', async () => {
       }
       const plugin = { options } as Plugin<PluginZod>
       const fabric = createReactFabric()
-      const mockedPluginManager = createMockedPluginManager(entry.name)
+      const mockedPluginManager = createMockedPluginManager({ name: entry.name })
       const generator = new OperationGenerator(options, {
         fabric,
         oas,
@@ -695,7 +695,7 @@ describe('zodGenerator operation', async () => {
       }
       const plugin = { options } as Plugin<PluginZod>
       const fabric = createReactFabric()
-      const mockedPluginManager = createMockedPluginManager(entry.name)
+      const mockedPluginManager = createMockedPluginManager({ name: entry.name })
       const generator = new OperationGenerator(options, {
         fabric,
         oas,
