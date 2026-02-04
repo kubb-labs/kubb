@@ -6,8 +6,13 @@
     "openapi",
     "swagger",
     "oas",
+    "openapi-v3",
     "api-specification",
     "schema",
+    "schema-parser",
+    "utilities",
+    "helpers",
+    "rest-api",
     "typescript",
     "codegen",
     "kubb"

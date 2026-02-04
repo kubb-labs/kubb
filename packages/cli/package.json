@@ -5,11 +5,15 @@
   "keywords": [
     "cli",
     "command-line",
+    "command-line-tool",
+    "terminal",
     "typescript",
     "openapi",
     "swagger",
+    "oas",
     "code-generator",
     "codegen",
+    "sdk-generator",
     "plugins",
     "kubb"
   ],

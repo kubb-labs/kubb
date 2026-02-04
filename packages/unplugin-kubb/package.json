@@ -1,20 +1,24 @@
 {
 	"name": "unplugin-kubb",
 	"version": "4.0.2",
-	"description": "Unplugin for Kubb",
+	"description": "Universal build plugin for Kubb, integrating OpenAPI code generation into Vite, Webpack, Rollup, esbuild, Rspack, Nuxt, and Astro build processes.",
 	"keywords": [
 		"unplugin",
 		"vite",
 		"webpack",
 		"rollup",
-		"transform",
-		"astro",
-		"kubb",
-		"swagger",
-		"OpenAPI",
+		"esbuild",
 		"rspack",
 		"nuxt",
-		"esbuild"
+		"astro",
+		"build-tool",
+		"bundler",
+		"transform",
+		"openapi",
+		"swagger",
+		"code-generator",
+		"typescript",
+		"kubb"
 	],
 	"repository": {
 		"type": "git",
