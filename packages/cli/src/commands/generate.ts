@@ -2,7 +2,7 @@ import path from 'node:path'
 import * as process from 'node:process'
 import * as clack from '@clack/prompts'
 import { isInputPath, type KubbEvents, LogLevel, PromiseManager } from '@kubb/core'
-import { AsyncEventEmitter } from '@kubb/core/utils'
+import { AsyncEventEmitter, executeIfOnline } from '@kubb/core/utils'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import getLatestVersion from 'latest-version'
@@ -94,11 +94,13 @@ const command = defineCommand({
 
     await setupLogger(events, { logLevel })
 
-    const latestVersion = await getLatestVersion('@kubb/cli')
+    await executeIfOnline(async () => {
+      const latestVersion = await getLatestVersion('@kubb/cli')
 
-    if (lt(version, latestVersion)) {
-      await events.emit('version:new', version, latestVersion)
-    }
+      if (lt(version, latestVersion)) {
+        await events.emit('version:new', version, latestVersion)
+      }
+    })
 
     try {
       await events.emit('lifecycle:start', version)
