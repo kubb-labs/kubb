@@ -1,11 +1,11 @@
 import * as z from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
   CreateUsersWithListInput200,
   CreateUsersWithListInputError,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../models/ts/userController/CreateUsersWithListInput.ts'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import { userSchema } from '../userSchema.ts'
 
 /**

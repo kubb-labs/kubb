@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod/v4'
+import { z } from "zod/v4";
 
 export const itemTypeBSchema = z.object({
   type: z.optional(z.string()),
   fieldB: z.optional(z.number()),
-})
+});

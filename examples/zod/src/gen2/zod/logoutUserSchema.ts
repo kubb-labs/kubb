@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod/mini'
+import * as z from "zod/mini";
 
 /**
  * @description successful operation
  */
-export const logoutUserErrorSchema = z.any()
+export const logoutUserErrorSchema = z.any();
 
-export const logoutUserQueryResponseSchema = z.any()
+export const logoutUserQueryResponseSchema = z.any();

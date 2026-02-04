@@ -1,14 +1,14 @@
 import * as z from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
-  CreatePets201,
-  CreatePetsError,
-  CreatePetsHeaderParams,
-  CreatePetsMutationRequest,
-  CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsHeaderParams,
+  CreatePets201,
+  CreatePetsError,
+  CreatePetsMutationRequest,
+  CreatePetsMutationResponse,
 } from '../../models/ts/petsController/CreatePets.ts'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import { petNotFoundSchema } from '../petNotFoundSchema.ts'
 
 export const createPetsPathParamsSchema = z.object({

@@ -1,7 +1,7 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
+import type { ResponseErrorConfig } from '../../client.js'
 import type { GetInventoryQueryResponse } from '../models/ts/GetInventory.js'
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**
  * @description Returns a map of status codes to quantities

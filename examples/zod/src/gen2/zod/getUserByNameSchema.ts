@@ -3,26 +3,28 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod/mini'
-import { userSchema } from './userSchema.ts'
+import * as z from "zod/mini";
+import { userSchema } from "./userSchema.ts";
 
 export const getUserByNamePathParamsSchema = z.object({
   username: z.string(),
-})
+});
 
 /**
  * @description successful operation
  */
-export const getUserByName200Schema = z.lazy(() => userSchema)
+export const getUserByName200Schema = z.lazy(() => userSchema);
 
 /**
  * @description Invalid username supplied
  */
-export const getUserByName400Schema = z.any()
+export const getUserByName400Schema = z.any();
 
 /**
  * @description User not found
  */
-export const getUserByName404Schema = z.any()
+export const getUserByName404Schema = z.any();
 
-export const getUserByNameQueryResponseSchema = z.lazy(() => getUserByName200Schema)
+export const getUserByNameQueryResponseSchema = z.lazy(
+  () => getUserByName200Schema,
+);

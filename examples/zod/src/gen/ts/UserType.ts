@@ -7,34 +7,34 @@ export type UserType = {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: number;
   /**
    * @type string | undefined
    */
-  username?: string
+  username?: string;
   /**
    * @type string | undefined
    */
-  firstName?: string
+  firstName?: string;
   /**
    * @type string | undefined
    */
-  lastName?: string
+  lastName?: string;
   /**
    * @type string | undefined
    */
-  email?: string
+  email?: string;
   /**
    * @type string | undefined
    */
-  password?: string
+  password?: string;
   /**
    * @type string | undefined
    */
-  phone?: string
+  phone?: string;
   /**
    * @description User Status
    * @type integer | undefined, int32
    */
-  userStatus?: number
-}
+  userStatus?: number;
+};

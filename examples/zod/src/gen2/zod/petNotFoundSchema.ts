@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod/mini'
+import * as z from "zod/mini";
 
 export const petNotFoundSchema = z.object({
   code: z.optional(z.int()),
   message: z.optional(z.string()),
-})
+});

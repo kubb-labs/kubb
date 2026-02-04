@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, UseMutationOptions } from '@tanstack/solid-query'
-import { useMutation } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
-import { fetch } from '../.kubb/fetch.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
+import type { UseMutationOptions, QueryClient } from '@tanstack/solid-query'
+import { fetch } from '../.kubb/fetch.ts'
+import { useMutation } from '@tanstack/solid-query'
 
 export const createUserMutationKey = () => [{ url: '/user' }] as const
 

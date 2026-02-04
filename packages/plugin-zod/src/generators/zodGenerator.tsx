@@ -125,6 +125,8 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       )
     }
 
+    const isZodImport = plugin.options.importPath === 'zod' || plugin.options.importPath === 'zod/mini'
+
     return (
       <File
         baseName={file.baseName}
@@ -133,7 +135,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
         banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
-        <File.Import name={'z'} path={plugin.options.importPath} isNameSpace />
+        <File.Import name={isZodImport ? 'z' : ['z']} path={plugin.options.importPath} isNameSpace={isZodImport} />
         {operationSchemas.map(mapOperationSchema)}
       </File>
     )
@@ -159,6 +161,8 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       file: getFile(schema.name, { pluginKey: [pluginTsName] }),
     }
 
+    const isZodImport = importPath === 'zod' || importPath === 'zod/mini'
+
     return (
       <File
         baseName={zod.file.baseName}
@@ -167,7 +171,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
         banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
-        <File.Import name={'z'} path={importPath} isNameSpace />
+        <File.Import name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
         {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
         {typed && version === '3' && (
           <File.Import name={['ToZod']} root={zod.file.path} path={path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')} />

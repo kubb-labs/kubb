@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import * as z from '../../zod.ts'
+import { z } from "../../zod.ts";
 
 export const userSchema = z.object({
   id: z.optional(z.int()),
@@ -13,7 +13,7 @@ export const userSchema = z.object({
   email: z.optional(z.string()),
   password: z.optional(z.string()),
   phone: z.optional(z.string()),
-  userStatus: z.optional(z.int().describe('User Status')),
-})
+  userStatus: z.optional(z.int().describe("User Status")),
+});
 
-export type UserSchema = z.infer<typeof userSchema>
+export type UserSchema = z.infer<typeof userSchema>;

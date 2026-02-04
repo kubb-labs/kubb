@@ -31,6 +31,8 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
       })
       .filter(Boolean)
 
+    const isZodImport = importPath === 'zod' || importPath === 'zod/mini'
+
     return (
       <File
         baseName={file.baseName}
@@ -39,7 +41,7 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
         banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
-        <File.Import isTypeOnly name={'z'} path={importPath} isNameSpace />
+        <File.Import isTypeOnly name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
         {imports}
         <Operations name={name} operations={transformedOperations} />
       </File>

@@ -3,11 +3,11 @@
  * Do not edit manually.
  */
 
-import * as z from '../../zod.ts'
+import { z } from "../../zod.ts";
 
 export const petNotFoundSchema = z.object({
   code: z.optional(z.int()),
   message: z.optional(z.string()),
-})
+});
 
-export type PetNotFoundSchema = z.infer<typeof petNotFoundSchema>
+export type PetNotFoundSchema = z.infer<typeof petNotFoundSchema>;

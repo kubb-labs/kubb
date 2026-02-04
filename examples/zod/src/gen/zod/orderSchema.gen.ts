@@ -3,17 +3,32 @@
  * Do not edit manually.
  */
 
-import * as z from '../../zod.ts'
+import { z } from "../../zod.ts";
 
 export const orderSchema = z.object({
   id: z.optional(z.int()),
   petId: z.optional(z.int()),
   quantity: z.optional(z.int()),
   shipDate: z.optional(z.iso.datetime()),
-  status: z.optional(z.enum(['placed', 'approved', 'delivered']).describe('Order Status')),
-  http_status: z.optional(z.union([z.literal(200), z.literal(400)]).describe('HTTP Status')),
-  value: z.optional(z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(3.5), z.literal(4)]).describe('Price')),
+  status: z.optional(
+    z.enum(["placed", "approved", "delivered"]).describe("Order Status"),
+  ),
+  http_status: z.optional(
+    z.union([z.literal(200), z.literal(400)]).describe("HTTP Status"),
+  ),
+  value: z.optional(
+    z
+      .union([
+        z.literal(0),
+        z.literal(1),
+        z.literal(2),
+        z.literal(3),
+        z.literal(3.5),
+        z.literal(4),
+      ])
+      .describe("Price"),
+  ),
   complete: z.optional(z.boolean()),
-})
+});
 
-export type OrderSchema = z.infer<typeof orderSchema>
+export type OrderSchema = z.infer<typeof orderSchema>;

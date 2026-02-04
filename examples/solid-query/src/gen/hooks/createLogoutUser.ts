@@ -3,10 +3,10 @@
  * Do not edit manually.
  */
 
-import { queryOptions } from '@tanstack/solid-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
-import { fetch } from '../.kubb/fetch.ts'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
+import { fetch } from '../.kubb/fetch.ts'
+import { queryOptions } from '@tanstack/solid-query'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 
