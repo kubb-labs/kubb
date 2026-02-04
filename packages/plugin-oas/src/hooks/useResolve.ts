@@ -1,12 +1,6 @@
 import type { Plugin, PluginFactoryOptions } from '@kubb/core'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
-import type {
-  OperationResolverContext,
-  OperationResolution,
-  Resolver,
-  SchemaResolverContext,
-  SchemaResolution,
-} from '../resolvers/types.ts'
+import type { OperationResolution, OperationResolverContext, Resolver, SchemaResolution, SchemaResolverContext } from '../resolvers/types.ts'
 
 /**
  * Hook to resolve names/files for operations
