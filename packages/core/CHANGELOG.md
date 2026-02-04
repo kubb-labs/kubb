@@ -1,5 +1,11 @@
 # @kubb/core
 
+## 4.20.2
+
+### Patch Changes
+
+- [`6006dc3`](https://github.com/kubb-labs/kubb/commit/6006dc335d62dd9c1254bd31ecc90a5ccb70a116) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fixed version check to work offline by gracefully handling network errors. Added `isOnline()` and `executeIfOnline()` helpers in `@kubb/core/utils` to detect internet connectivity.
+
 ## 4.20.1
 
 ### Patch Changes
