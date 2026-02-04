@@ -1,6 +1,7 @@
 import type { Config, PluginFactoryOptions } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, SchemaObject } from '@kubb/oas'
+
 /**
  * A single output artifact
  */
@@ -12,15 +13,39 @@ export interface Output {
 }
 
 /**
- * Resolution result - contains default file and typed outputs
- * @typeParam TOptions - PluginFactoryOptions containing outputKeys
+ * Extract operation output keys from TOutputKeys
  */
-export interface Resolution<TOptions extends PluginFactoryOptions = PluginFactoryOptions> {
+type ExtractOperationKeys<TOutputKeys> = TOutputKeys extends { operation: infer TOperation } ? TOperation : TOutputKeys
+
+/**
+ * Extract schema output keys from TOutputKeys
+ */
+type ExtractSchemaKeys<TOutputKeys> = TOutputKeys extends { schema: infer TSchema } ? TSchema : TOutputKeys
+
+/**
+ * Resolution result for operations - contains default file and typed outputs
+ */
+export interface OperationResolution<TOptions extends PluginFactoryOptions = PluginFactoryOptions> {
   /** Default file for outputs that don't specify their own */
   file: KubbFile.File
   /** Named outputs with typesafe keys */
-  outputs: { default: Output } & Record<TOptions['outputKeys'], Output>
+  outputs: { default: Output } & Record<ExtractOperationKeys<TOptions['outputKeys']> & string, Output>
 }
+
+/**
+ * Resolution result for schemas - contains default file and typed outputs
+ */
+export interface SchemaResolution<TOptions extends PluginFactoryOptions = PluginFactoryOptions> {
+  /** Default file for outputs that don't specify their own */
+  file: KubbFile.File
+  /** Named outputs with typesafe keys */
+  outputs: { default: Output } & Record<ExtractSchemaKeys<TOptions['outputKeys']> & string, Output>
+}
+
+/**
+ * Resolution result - contains default file and typed outputs
+ */
+export type Resolution<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = OperationResolution<TOptions> | SchemaResolution<TOptions>
 
 /**
  * Context for operation resolution
@@ -57,7 +82,7 @@ export interface Resolver<TOptions extends PluginFactoryOptions = PluginFactoryO
   /** Unique name for this resolver */
   name: string
   /** Resolution function for operations */
-  operation: (props: OperationResolverContext) => Resolution<TOptions> | null
+  operation: (props: OperationResolverContext) => OperationResolution<TOptions> | null
   /** Resolution function for schemas */
-  schema: (props: SchemaResolverContext) => Resolution<TOptions> | null
+  schema: (props: SchemaResolverContext) => SchemaResolution<TOptions> | null
 }

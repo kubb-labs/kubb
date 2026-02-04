@@ -1,10 +1,9 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { contentType, Oas } from '@kubb/oas'
+import type { contentType, HttpStatus, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
 import type { Resolver } from '@kubb/plugin-oas/resolvers'
 import type ts from 'typescript'
-import type { ResolverOutputKeys } from './resolver.ts'
 
 export type Options = {
   /**
@@ -155,4 +154,13 @@ type ResolvedOptions = {
   mapper: Record<string, any>
 }
 
-export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverOutputKeys>
+/**
+ * Complete output keys configuration for the TypeScript plugin
+ * Defines separate output keys for operations and schemas
+ */
+export type PluginTsOutputKeys = {
+  operation: 'query' | 'mutation' | 'pathParams' | 'queryParams' | 'headerParams' | 'request' | 'response' | 'responses' | 'responseData' | HttpStatus
+  schema: 'type' | 'enum'
+}
+
+export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, PluginTsOutputKeys>

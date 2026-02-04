@@ -6,7 +6,7 @@ import type { Operation } from '@kubb/oas'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useResolve } from '@kubb/plugin-oas/hooks'
-import type { Resolution } from '@kubb/plugin-oas/resolvers'
+import type { OperationResolution } from '@kubb/plugin-oas/resolvers'
 import { getBanner, getFooter, getImports } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
 import ts from 'typescript'
@@ -109,7 +109,15 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
   return safePrint(namespaceNode)
 }
 
-function printRequestSchema({ resolution, operation, schemas }: { resolution: Resolution<PluginTs>; operation: Operation; schemas: OperationSchemas }): string {
+function printRequestSchema({
+  resolution,
+  operation,
+  schemas,
+}: {
+  resolution: OperationResolution<PluginTs>
+  operation: Operation
+  schemas: OperationSchemas
+}): string {
   const results: string[] = []
 
   // Generate DataRequest type
@@ -213,7 +221,7 @@ function printResponseSchema({
   schemas,
   unknownType,
 }: {
-  resolution: Resolution<PluginTs>
+  resolution: OperationResolution<PluginTs>
   schemas: OperationSchemas
   unknownType: PluginTs['resolvedOptions']['unknownType']
 }): string {

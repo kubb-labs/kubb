@@ -23,23 +23,6 @@ type Options = {
 }
 
 /**
- * Output keys for the TypeScript plugin
- * Defines the available named outputs for operation/schema resolution
- */
-export type ResolverOutputKeys =
-  | 'type'
-  | 'query'
-  | 'mutation'
-  | 'enum'
-  | 'pathParams'
-  | 'queryParams'
-  | 'headerParams'
-  | 'request'
-  | 'response'
-  | 'responses'
-  | 'responseData'
-
-/**
  * Creates a TypeScript resolver with the given options
  */
 export function createTsResolver(options: Options = {}) {
@@ -47,7 +30,7 @@ export function createTsResolver(options: Options = {}) {
 
   return createResolver<PluginTs>({
     name: 'default-ts',
-    operation: ({ config, operation }) => {
+    operation: ({ operation, config }) => {
       const root = resolve(config.root, config.output.path, outputPath)
 
       const operationId = operation.getOperationId()
@@ -109,8 +92,6 @@ export function createTsResolver(options: Options = {}) {
         outputs: {
           default: { name: resolveName(''), file },
           ...statusCodeOutputs,
-          type: { name: resolveName(''), file },
-          enum: { name: resolveName('Key'), file },
           query: { name: resolveName('Query'), file },
           mutation: { name: resolveName('Mutation'), file },
           pathParams: { name: resolveName('PathParams'), file },
@@ -123,7 +104,7 @@ export function createTsResolver(options: Options = {}) {
         },
       }
     },
-    schema: ({ config, schema }) => {
+    schema: ({ schema, config }) => {
       const root = resolve(config.root, config.output.path, outputPath)
 
       const baseName = `${transformName?.(pascalCase(schema.name, { isFile: true }), 'file') || pascalCase(schema.name, { isFile: true })}.ts` as const
@@ -156,15 +137,6 @@ export function createTsResolver(options: Options = {}) {
           default: { name: resolveName(''), file },
           type: { name: resolveName(''), file },
           enum: { name: resolveName('Key'), file },
-          query: { name: '', file },
-          mutation: { name: '', file },
-          pathParams: { name: '', file },
-          queryParams: { name: '', file },
-          headerParams: { name: '', file },
-          request: { name: '', file },
-          response: { name: '', file },
-          responses: { name: '', file },
-          responseData: { name: '', file },
         },
       }
     },

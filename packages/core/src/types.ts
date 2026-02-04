@@ -171,9 +171,10 @@ export type PluginFactoryOptions<
    */
   TResolvePathOptions extends object = object,
   /**
-   * Output keys for resolver system (e.g., 'pathParams' | 'queryParams' | 'response')
+   * Output keys for resolver system
+   * Must be an object with 'operation' and 'schema' keys for different output keys per context
    */
-  TOutputKeys extends string = string,
+  TOutputKeys extends { operation: string; schema: string } = { operation: string; schema: string },
 > = {
   name: TName
   /**

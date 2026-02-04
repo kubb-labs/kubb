@@ -1,14 +1,36 @@
 import type { Plugin, PluginFactoryOptions } from '@kubb/core'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
-import type { OperationResolverContext, Resolution, Resolver, SchemaResolverContext } from '../resolvers/types.ts'
+import type {
+  OperationResolverContext,
+  OperationResolution,
+  Resolver,
+  SchemaResolverContext,
+  SchemaResolution,
+} from '../resolvers/types.ts'
 
 /**
- * Hook to resolve names/files for schemas/operation in current or other plugins
+ * Hook to resolve names/files for operations
+ */
+export function useResolve<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(
+  ctx: Omit<OperationResolverContext, 'config'>,
+  pluginName?: Plugin['name'],
+): OperationResolution<TOptions> | null
+
+/**
+ * Hook to resolve names/files for schemas
+ */
+export function useResolve<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(
+  ctx: Omit<SchemaResolverContext, 'config'>,
+  pluginName?: Plugin['name'],
+): SchemaResolution<TOptions> | null
+
+/**
+ * Hook to resolve names/files for schemas/operations in current or other plugins
  */
 export function useResolve<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(
   ctx: Omit<SchemaResolverContext, 'config'> | Omit<OperationResolverContext, 'config'>,
   pluginName?: Plugin['name'],
-): Resolution<TOptions> | null {
+): OperationResolution<TOptions> | SchemaResolution<TOptions> | null {
   const pluginManager = usePluginManager()
   const currentPlugin = usePlugin()
   const config = pluginManager.config

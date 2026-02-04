@@ -34,7 +34,14 @@ const mockConfig = {
 } as Config
 
 // Define a test options type
-type TestOptions = PluginFactoryOptions<'test-plugin', any, any, any, any, 'response' | 'request'>
+type TestOptions = PluginFactoryOptions<
+  'test-plugin',
+  any,
+  any,
+  any,
+  any,
+  { operation: 'response' | 'request'; schema: 'type' }
+>
 
 describe('createResolver', () => {
   it('should create a resolver with operation handler', () => {
@@ -57,7 +64,7 @@ describe('createResolver', () => {
 
 describe('mergeResolvers', () => {
   it('should merge custom resolvers with defaults (custom first)', () => {
-    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, { operation: 'response'; schema: 'type' }>
 
     const customResolver = createResolver<ResponseOptions>({
       name: 'custom',
@@ -83,7 +90,7 @@ describe('mergeResolvers', () => {
   })
 
   it('should handle undefined custom resolvers', () => {
-    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, { operation: 'response'; schema: 'type' }>
 
     const defaultResolver = createResolver<ResponseOptions>({
       name: 'default',
@@ -102,7 +109,7 @@ describe('mergeResolvers', () => {
 
 describe('executeResolvers', () => {
   it('should execute first resolver with operation handler', () => {
-    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, { operation: 'response'; schema: 'type' }>
 
     const ctx: OperationResolverContext = {
       operation: mockOperation,
@@ -113,7 +120,7 @@ describe('executeResolvers', () => {
       name: 'no-handler',
       schema: () => ({
         file: createFile('schema.ts', 'schema.ts'),
-        outputs: { default: { name: 'Schema' }, response: { name: 'Schema' } },
+        outputs: { default: { name: 'Schema' }, type: { name: 'Schema' } },
       }),
     })
 
@@ -132,7 +139,7 @@ describe('executeResolvers', () => {
   })
 
   it('should execute first resolver if no match function defined', () => {
-    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, { operation: 'response'; schema: 'type' }>
 
     const ctx: OperationResolverContext = {
       operation: mockOperation,
@@ -154,7 +161,7 @@ describe('executeResolvers', () => {
   })
 
   it('should return null if no resolver has operation handler', () => {
-    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, { operation: 'response'; schema: 'type' }>
 
     const ctx: OperationResolverContext = {
       operation: mockOperation,
@@ -165,7 +172,7 @@ describe('executeResolvers', () => {
       name: 'schema-only',
       schema: () => ({
         file: createFile('test.ts', 'test.ts'),
-        outputs: { default: { name: 'Test' }, response: { name: 'Test' } },
+        outputs: { default: { name: 'Test' }, type: { name: 'Test' } },
       }),
     })
 
@@ -186,7 +193,7 @@ describe('executeResolvers', () => {
   })
 
   it('should skip resolvers without operation handler', () => {
-    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, { operation: 'response'; schema: 'type' }>
 
     const ctx: OperationResolverContext = {
       operation: mockOperation,
@@ -197,7 +204,7 @@ describe('executeResolvers', () => {
       name: 'schema-only',
       schema: () => ({
         file: createFile('schema.ts', 'schema.ts'),
-        outputs: { default: { name: 'Schema' }, response: { name: 'Schema' } },
+        outputs: { default: { name: 'Schema' }, type: { name: 'Schema' } },
       }),
     })
 
@@ -216,7 +223,7 @@ describe('executeResolvers', () => {
   })
 
   it('should provide correct context to resolver', () => {
-    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, { operation: 'response'; schema: 'type' }>
 
     const ctx: OperationResolverContext = {
       operation: mockOperation,
@@ -251,7 +258,7 @@ describe('executeResolvers', () => {
 
 describe('executeSchemaResolvers', () => {
   it('should execute schema resolvers', () => {
-    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, { operation: 'response'; schema: 'type' }>
 
     const ctx: SchemaResolverContext = {
       schema: mockSchema,
@@ -262,18 +269,18 @@ describe('executeSchemaResolvers', () => {
       name: 'schema-resolver',
       schema: () => ({
         file: createFile('Pet.ts', 'types/Pet.ts'),
-        outputs: { default: { name: 'Pet' }, response: { name: 'Pet' } },
+        outputs: { default: { name: 'Pet' }, type: { name: 'Pet' } },
       }),
     })
 
     const result = executeResolvers([resolver], ctx)
 
     expect(result).not.toBeNull()
-    expect(result?.outputs.response.name).toBe('Pet')
+    expect((result as any)?.outputs.type.name).toBe('Pet')
   })
 
   it('should skip resolvers without schema handler', () => {
-    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, 'response'>
+    type ResponseOptions = PluginFactoryOptions<'test', any, any, any, any, { operation: 'response'; schema: 'type' }>
 
     const ctx: SchemaResolverContext = {
       schema: mockSchema,
@@ -292,13 +299,13 @@ describe('executeSchemaResolvers', () => {
       name: 'schema-handler',
       schema: () => ({
         file: createFile('schema.ts', 'schema.ts'),
-        outputs: { default: { name: 'Schema' }, response: { name: 'Schema' } },
+        outputs: { default: { name: 'Schema' }, type: { name: 'Schema' } },
       }),
     })
 
     const result = executeResolvers([resolver1, resolver2], ctx)
 
     expect(result).not.toBeNull()
-    expect(result?.outputs.response.name).toBe('Schema')
+    expect((result as any)?.outputs.type.name).toBe('Schema')
   })
 })

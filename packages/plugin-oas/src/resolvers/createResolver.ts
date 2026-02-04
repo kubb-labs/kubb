@@ -1,10 +1,10 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type { OperationResolverContext, Resolution, Resolver, SchemaResolverContext } from './types.ts'
+import type { OperationResolverContext, OperationResolution, Resolver, SchemaResolverContext, SchemaResolution } from './types.ts'
 
 type UserResolver<TOptions extends PluginFactoryOptions> = {
   name: string
-  operation?: (props: OperationResolverContext) => Resolution<TOptions> | null
-  schema?: (props: SchemaResolverContext) => Resolution<TOptions> | null
+  operation?: (props: OperationResolverContext) => OperationResolution<TOptions> | null
+  schema?: (props: SchemaResolverContext) => SchemaResolution<TOptions> | null
 }
 
 /**
@@ -38,8 +38,16 @@ export function mergeResolvers<TOptions extends PluginFactoryOptions>(
  */
 export function executeResolvers<TOptions extends PluginFactoryOptions>(
   resolvers: Array<Resolver<TOptions>>,
+  props: SchemaResolverContext,
+): SchemaResolution<TOptions> | null
+export function executeResolvers<TOptions extends PluginFactoryOptions>(
+  resolvers: Array<Resolver<TOptions>>,
+  props: OperationResolverContext,
+): OperationResolution<TOptions> | null
+export function executeResolvers<TOptions extends PluginFactoryOptions>(
+  resolvers: Array<Resolver<TOptions>>,
   props: SchemaResolverContext | OperationResolverContext,
-): Resolution<TOptions> | null {
+): OperationResolution<TOptions> | SchemaResolution<TOptions> | null {
   if ('schema' in props) {
     for (const resolver of resolvers) {
       const result = resolver.schema(props)
