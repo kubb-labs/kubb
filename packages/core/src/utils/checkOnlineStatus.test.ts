@@ -77,7 +77,7 @@ describe('checkOnlineStatus', () => {
       const result = await executeIfOnline(mockFn)
 
       expect(mockFn).not.toHaveBeenCalled()
-      expect(result).toBeUndefined()
+      expect(result).toBeNull()
     })
 
     it('should return undefined if function throws when online', async () => {
@@ -87,7 +87,7 @@ describe('checkOnlineStatus', () => {
       const result = await executeIfOnline(mockFn)
 
       expect(mockFn).toHaveBeenCalled()
-      expect(result).toBeUndefined()
+      expect(result).toBeNull()
     })
   })
 })
