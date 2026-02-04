@@ -6,10 +6,15 @@
     "typescript",
     "plugins",
     "plugin-system",
+    "plugin-framework",
     "code-generator",
     "codegen",
+    "ast",
+    "file-system",
     "openapi",
     "swagger",
+    "oas",
+    "core-library",
     "kubb"
   ],
   "repository": {

@@ -5,9 +5,13 @@
   "keywords": [
     "typescript",
     "types",
+    "type-generation",
     "interfaces",
+    "type-definitions",
+    "type-safe",
     "openapi",
     "swagger",
+    "oas",
     "code-generator",
     "codegen",
     "plugins",
