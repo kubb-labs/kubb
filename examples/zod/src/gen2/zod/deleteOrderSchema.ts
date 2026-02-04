@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import z from 'zod/mini'
+import * as z from 'zod/mini'
 
 export const deleteOrderPathParamsSchema = z.object({
   orderId: z.int(),

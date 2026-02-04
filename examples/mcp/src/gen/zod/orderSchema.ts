@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import z from 'zod'
+import * as z from 'zod'
 
 export const orderSchema = z.object({
   id: z.optional(z.number().int().min(3).max(100)),

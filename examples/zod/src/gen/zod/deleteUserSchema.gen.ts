@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import z from '../../zod.ts'
+import * as z from '../../zod.ts'
 
 export const deleteUserPathParamsSchema = z.object({
   username: z.string().describe('The name that needs to be deleted'),

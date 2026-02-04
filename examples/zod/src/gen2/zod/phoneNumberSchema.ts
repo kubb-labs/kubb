@@ -3,6 +3,6 @@
  * Do not edit manually.
  */
 
-import z from 'zod/mini'
+import * as z from 'zod/mini'
 
 export const phoneNumberSchema = z.string().check(z.regex(/^(\+\d{1,3}[-\s]?)?\(?(?:\d{1,4})\)?[-\s]?\d{1,4}[-\s]?\d{1,9}$/))

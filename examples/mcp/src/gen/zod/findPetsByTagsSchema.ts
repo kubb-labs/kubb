@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import z from 'zod'
+import * as z from 'zod'
 import { petSchema } from './petSchema.js'
 
 export const findPetsByTagsQueryParamsSchema = z

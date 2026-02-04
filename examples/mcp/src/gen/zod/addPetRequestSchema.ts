@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import z from 'zod'
+import * as z from 'zod'
 import { categorySchema } from './categorySchema.js'
 import { tagTagSchema } from './tag/tagSchema.js'
 

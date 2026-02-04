@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import z from 'zod/v4'
+import * as z from 'zod/v4'
 
 export const itemTypeASchema = z.object({
   type: z.optional(z.string()),

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import z from '../../zod.ts'
+import * as z from '../../zod.ts'
 
 export const apiResponseSchema = z.object({
   code: z.optional(z.int()),

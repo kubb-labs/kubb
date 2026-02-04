@@ -1,4 +1,4 @@
-import z from 'zod'
+import * as z from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
   CreatePets201,

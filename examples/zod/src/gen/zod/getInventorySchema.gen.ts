@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import z from '../../zod.ts'
+import * as z from '../../zod.ts'
 
 /**
  * @description successful operation

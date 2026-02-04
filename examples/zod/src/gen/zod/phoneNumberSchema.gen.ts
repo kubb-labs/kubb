@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import z from '../../zod.ts'
+import * as z from '../../zod.ts'
 
 export const phoneNumberSchema = z.string().regex(/^(\+\d{1,3}[-\s]?)?\(?(?:\d{1,4})\)?[-\s]?\d{1,4}[-\s]?\d{1,9}$/)
 
