@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod/mini'
+import z from 'zod/mini'
 import { categorySchema } from './categorySchema.ts'
 import { tagSchema } from './tagSchema.ts'
 

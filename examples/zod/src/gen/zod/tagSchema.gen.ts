@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from '../../zod.ts'
+import z from '../../zod.ts'
 
 export const tagSchema = z.object({
   id: z.optional(z.int()),

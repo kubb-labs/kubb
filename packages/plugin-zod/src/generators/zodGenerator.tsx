@@ -133,7 +133,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
         banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
-        <File.Import name={['z']} path={plugin.options.importPath} />
+        <File.Import name={'z'} path={plugin.options.importPath} isNameSpace />
         {operationSchemas.map(mapOperationSchema)}
       </File>
     )
@@ -167,7 +167,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
         banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
-        <File.Import name={['z']} path={importPath} />
+        <File.Import name={'z'} path={importPath} isNameSpace />
         {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
         {typed && version === '3' && (
           <File.Import name={['ToZod']} root={zod.file.path} path={path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')} />

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from '../../zod.ts'
+import z from '../../zod.ts'
 import { orderSchema } from './orderSchema.gen.ts'
 
 export const getOrderByIdPathParamsSchema = z.object({

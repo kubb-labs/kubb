@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod'
+import z from 'zod'
 
 export const loginUserQueryParamsSchema = z
   .object({

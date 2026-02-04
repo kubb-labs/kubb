@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod/mini'
+import z from 'zod/mini'
 
 /**
  * @description List of user object

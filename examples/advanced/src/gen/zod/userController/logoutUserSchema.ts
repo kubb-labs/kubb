@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import z from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
 import type { LogoutUserError, LogoutUserQueryResponse } from '../../models/ts/userController/LogoutUser.ts'
 

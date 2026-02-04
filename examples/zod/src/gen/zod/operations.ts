@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { z } from '../../zod.ts'
+import type z from '../../zod.ts'
 import { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './addPetSchema.gen.ts'
 import {
   createPets201Schema,

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod/v4'
+import z from 'zod/v4'
 import { itemTypeASchema } from './itemTypeASchema.ts'
 import { itemTypeBSchema } from './itemTypeBSchema.ts'
 

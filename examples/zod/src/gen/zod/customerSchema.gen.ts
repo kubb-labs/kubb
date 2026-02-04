@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from '../../zod.ts'
+import z from '../../zod.ts'
 import { addressSchema } from './addressSchema.gen.ts'
 
 export const customerSchema = z.object({

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import z from 'zod'
 import type { ToZod } from '../.kubb/ToZod.ts'
 import type { Animal } from '../models/ts/Animal.ts'
 import { catSchema } from './catSchema.ts'

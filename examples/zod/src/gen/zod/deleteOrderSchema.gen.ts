@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from '../../zod.ts'
+import z from '../../zod.ts'
 
 export const deleteOrderPathParamsSchema = z.object({
   orderId: z.coerce.number().int().describe('ID of the order that needs to be deleted'),

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod/mini'
+import z from 'zod/mini'
 import { phoneNumberSchema } from './phoneNumberSchema.ts'
 
 export const phoneWithMaxLengthSchema = z.lazy(() => phoneNumberSchema).check(z.maxLength(15))

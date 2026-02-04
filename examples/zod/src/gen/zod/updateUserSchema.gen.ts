@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from '../../zod.ts'
+import z from '../../zod.ts'
 import { userSchema } from './userSchema.gen.ts'
 
 export const updateUserPathParamsSchema = z.object({

@@ -3,7 +3,7 @@
  * Adapted based on https://github.com/colinhacks/zod/issues/372
  */
 
-import type { z } from 'zod'
+import type * as z from 'zod'
 
 type IsAny<T> = [any extends T ? 'true' : 'false'] extends ['true'] ? true : false
 type NonOptional<T> = T extends undefined ? never : T

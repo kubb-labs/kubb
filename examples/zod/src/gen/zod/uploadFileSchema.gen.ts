@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from '../../zod.ts'
+import z from '../../zod.ts'
 import { apiResponseSchema } from './apiResponseSchema.gen.ts'
 
 export const uploadFilePathParamsSchema = z.object({

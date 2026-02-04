@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from '../../zod.ts'
+import z from '../../zod.ts'
 import { addPetRequestSchema } from './addPetRequestSchema.gen.ts'
 import { petSchema } from './petSchema.gen.ts'
 
