@@ -3,11 +3,9 @@
  * Do not edit manually.
  */
 
-import { z } from "../../zod.ts";
-import { phoneNumberSchema } from "./phoneNumberSchema.gen.ts";
+import { z } from '../../zod.ts'
+import { phoneNumberSchema } from './phoneNumberSchema.gen.ts'
 
-export const phoneWithMaxLengthSchema = z
-  .lazy(() => phoneNumberSchema)
-  .and(z.string().max(15));
+export const phoneWithMaxLengthSchema = z.lazy(() => phoneNumberSchema).and(z.string().max(15))
 
-export type PhoneWithMaxLengthSchema = z.infer<typeof phoneWithMaxLengthSchema>;
+export type PhoneWithMaxLengthSchema = z.infer<typeof phoneWithMaxLengthSchema>

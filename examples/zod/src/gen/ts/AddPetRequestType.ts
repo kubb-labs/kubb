@@ -3,42 +3,41 @@
  * Do not edit manually.
  */
 
-import type { CategoryType } from "./CategoryType.ts";
-import type { TagType } from "./TagType.ts";
+import type { CategoryType } from './CategoryType.ts'
+import type { TagType } from './TagType.ts'
 
 export const addPetRequestStatusEnum = {
-  available: "available",
-  pending: "pending",
-  sold: "sold",
-} as const;
+  available: 'available',
+  pending: 'pending',
+  sold: 'sold',
+} as const
 
-export type AddPetRequestStatusEnumTypeKey =
-  (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum];
+export type AddPetRequestStatusEnumTypeKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
 
 export type AddPetRequestType = {
   /**
    * @type integer | undefined, int64
    */
-  id?: number;
+  id?: number
   /**
    * @type string
    */
-  name: string;
+  name: string
   /**
    * @type object | undefined
    */
-  category?: CategoryType;
+  category?: CategoryType
   /**
    * @type array
    */
-  photoUrls: string[];
+  photoUrls: string[]
   /**
    * @type array | undefined
    */
-  tags?: TagType[];
+  tags?: TagType[]
   /**
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: AddPetRequestStatusEnumTypeKey;
-};
+  status?: AddPetRequestStatusEnumTypeKey
+}

@@ -3,26 +3,24 @@
  * Do not edit manually.
  */
 
-import * as z from "zod/mini";
-import { apiResponseSchema } from "./apiResponseSchema.ts";
+import * as z from 'zod/mini'
+import { apiResponseSchema } from './apiResponseSchema.ts'
 
 export const uploadFilePathParamsSchema = z.object({
   petId: z.int(),
-});
+})
 
 export const uploadFileQueryParamsSchema = z.optional(
   z.object({
     additionalMetadata: z.optional(z.string()),
   }),
-);
+)
 
 /**
  * @description successful operation
  */
-export const uploadFile200Schema = z.lazy(() => apiResponseSchema);
+export const uploadFile200Schema = z.lazy(() => apiResponseSchema)
 
-export const uploadFileMutationRequestSchema = z.instanceof(File);
+export const uploadFileMutationRequestSchema = z.instanceof(File)
 
-export const uploadFileMutationResponseSchema = z.lazy(
-  () => uploadFile200Schema,
-);
+export const uploadFileMutationResponseSchema = z.lazy(() => uploadFile200Schema)

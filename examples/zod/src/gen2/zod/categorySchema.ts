@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import * as z from "zod/mini";
+import * as z from 'zod/mini'
 
 export const categorySchema = z.object({
   id: z.optional(z.int()),
   name: z.optional(z.string()),
   get parent() {
-    return z.optional(categorySchema);
+    return z.optional(categorySchema)
   },
-});
+})

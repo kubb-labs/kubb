@@ -1,6 +1,6 @@
 import * as z from 'zod'
-import type { LoginUserQueryParams, LoginUser200, LoginUser400, LoginUserQueryResponse } from '../../models/ts/userController/LoginUser.ts'
 import type { ToZod } from '../../.kubb/ToZod.ts'
+import type { LoginUser200, LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../models/ts/userController/LoginUser.ts'
 
 export const loginUserQueryParamsSchema = z
   .object({

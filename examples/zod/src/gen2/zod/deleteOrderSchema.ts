@@ -3,20 +3,20 @@
  * Do not edit manually.
  */
 
-import * as z from "zod/mini";
+import * as z from 'zod/mini'
 
 export const deleteOrderPathParamsSchema = z.object({
   orderId: z.int(),
-});
+})
 
 /**
  * @description Invalid ID supplied
  */
-export const deleteOrder400Schema = z.any();
+export const deleteOrder400Schema = z.any()
 
 /**
  * @description Order not found
  */
-export const deleteOrder404Schema = z.any();
+export const deleteOrder404Schema = z.any()
 
-export const deleteOrderMutationResponseSchema = z.any();
+export const deleteOrderMutationResponseSchema = z.any()

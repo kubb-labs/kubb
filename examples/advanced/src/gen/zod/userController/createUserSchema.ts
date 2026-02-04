@@ -1,6 +1,6 @@
 import * as z from 'zod'
-import type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/ts/userController/CreateUser.ts'
 import type { ToZod } from '../../.kubb/ToZod.ts'
+import type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/ts/userController/CreateUser.ts'
 import { userSchema } from '../userSchema.ts'
 
 /**

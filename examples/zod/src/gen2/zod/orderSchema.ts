@@ -3,24 +3,15 @@
  * Do not edit manually.
  */
 
-import * as z from "zod/mini";
+import * as z from 'zod/mini'
 
 export const orderSchema = z.object({
   id: z.optional(z.int()),
   petId: z.optional(z.int()),
   quantity: z.optional(z.int()),
   shipDate: z.optional(z.string()),
-  status: z.optional(z.enum(["placed", "approved", "delivered"])),
+  status: z.optional(z.enum(['placed', 'approved', 'delivered'])),
   http_status: z.optional(z.union([z.literal(200), z.literal(400)])),
-  value: z.optional(
-    z.union([
-      z.literal(0),
-      z.literal(1),
-      z.literal(2),
-      z.literal(3),
-      z.literal(3.5),
-      z.literal(4),
-    ]),
-  ),
+  value: z.optional(z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(3.5), z.literal(4)])),
   complete: z.optional(z.boolean()),
-});
+})

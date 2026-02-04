@@ -1,13 +1,13 @@
-import fetch from '../../client.js'
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
+import fetch from '../../client.js'
 import type {
+  CreatePetsHeaderParams,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsHeaderParams,
 } from '../models/ts/CreatePets.js'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**
  * @summary Create a pet
