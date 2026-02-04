@@ -34,14 +34,7 @@ const mockConfig = {
 } as Config
 
 // Define a test options type
-type TestOptions = PluginFactoryOptions<
-  'test-plugin',
-  any,
-  any,
-  any,
-  any,
-  { operation: 'response' | 'request'; schema: 'type' }
->
+type TestOptions = PluginFactoryOptions<'test-plugin', any, any, any, any, { operation: 'response' | 'request'; schema: 'type' }>
 
 describe('createResolver', () => {
   it('should create a resolver with operation handler', () => {

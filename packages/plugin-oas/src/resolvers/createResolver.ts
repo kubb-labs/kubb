@@ -1,5 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type { OperationResolverContext, OperationResolution, Resolver, SchemaResolverContext, SchemaResolution } from './types.ts'
+import type { OperationResolution, OperationResolverContext, Resolver, SchemaResolution, SchemaResolverContext } from './types.ts'
 
 type UserResolver<TOptions extends PluginFactoryOptions> = {
   name: string
