@@ -6,6 +6,16 @@ outline: deep
 
 # Changelog
 
+## 4.20.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/cli`](/helpers/cli/), [`@kubb/core`](/core/)
+
+**Fixed offline support - version check no longer blocks code generation**
+
+---
+
 ## 4.20.1
 
 ### 🐛 Bug Fixes

@@ -1,6 +1,7 @@
 export { AsyncEventEmitter } from './AsyncEventEmitter.ts'
 export { buildJSDoc } from './buildJSDoc.ts'
 export { Cache } from './Cache.ts'
+export { executeIfOnline, isOnline } from './checkOnlineStatus.ts'
 export type { FunctionParamsAST } from './FunctionParams.ts'
 export { FunctionParams } from './FunctionParams.ts'
 export { formatHrtime, formatMs, getElapsedMs } from './formatHrtime.ts'
