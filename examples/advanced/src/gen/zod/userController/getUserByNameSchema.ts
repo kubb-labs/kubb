@@ -1,12 +1,12 @@
 import * as z from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
+  GetUserByNamePathParams,
   GetUserByName200,
   GetUserByName400,
   GetUserByName404,
-  GetUserByNamePathParams,
   GetUserByNameQueryResponse,
 } from '../../models/ts/userController/GetUserByName.ts'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import { userSchema } from '../userSchema.ts'
 
 export const getUserByNamePathParamsSchema = z.object({

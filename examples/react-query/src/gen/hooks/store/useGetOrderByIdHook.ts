@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
-import { queryOptions, useQuery } from '@tanstack/react-query'
-import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
+import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../../models/GetOrderById.ts'
+import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../models/GetOrderById.ts'
+import { queryOptions, useQuery } from '@tanstack/react-query'
 
 export const getOrderByIdQueryKey = ({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }) =>
   ['v5', { url: '/store/order/:orderId', params: { orderId: orderId } }] as const

@@ -7,13 +7,13 @@ export type CategoryType = {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: number;
   /**
    * @type string | undefined
    */
-  name?: string
+  name?: string;
   /**
    * @type object | undefined
    */
-  parent?: CategoryType
-}
+  parent?: CategoryType;
+};

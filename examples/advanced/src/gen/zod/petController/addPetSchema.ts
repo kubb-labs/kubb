@@ -1,6 +1,6 @@
 import * as z from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/petController/AddPet.ts'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import { addPetRequestSchema } from '../addPetRequestSchema.ts'
 import { petSchema } from '../petSchema.ts'
 
