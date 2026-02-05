@@ -1,4 +1,3 @@
-import { camelCase } from '@kubb/core/transformers'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { isNullable, isReference } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
@@ -64,7 +63,7 @@ function getParams({ schemas }: GetParamsProps) {
 
           return {
             ...acc,
-            [camelCase(key)]: param,
+            [key]: param,
           }
         }, {}),
         data: schemas.request?.name

@@ -79,7 +79,7 @@ export const mcpGenerator = createReactGenerator<PluginMcp>({
           zodSchemas={undefined}
           dataReturnType={options.client.dataReturnType || 'data'}
           paramsType={'object'}
-          paramsCasing={'camelcase'}
+          paramsCasing={undefined}
           pathParamsType={'object'}
           parser={'client'}
         >

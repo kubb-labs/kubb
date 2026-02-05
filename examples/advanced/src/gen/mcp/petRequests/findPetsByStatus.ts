@@ -8,9 +8,7 @@ import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQ
  * @summary Finds Pets by status
  * {@link /pet/findByStatus/:step_id}
  */
-export async function findPetsByStatusHandler({ stepId }: { stepId: FindPetsByStatusPathParams['step_id'] }): Promise<Promise<CallToolResult>> {
-  const step_id = stepId
-
+export async function findPetsByStatusHandler({ step_id }: { step_id: FindPetsByStatusPathParams['step_id'] }): Promise<Promise<CallToolResult>> {
   const res = await fetch<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({
     method: 'GET',
     url: `/pet/findByStatus/${step_id}`,

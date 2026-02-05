@@ -158,10 +158,6 @@ type ParserOptions = {
    * @note In Kubb v5, `inlineLiteral` becomes the default.
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
-  /**
-   * @default undefined
-   */
-  paramsCasing?: 'camelcase'
   mapper?: Record<string, ts.PropertySignature>
 }
 
@@ -255,12 +251,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
         })
         .map(([name, schemas]) => {
           const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
-          let mappedName = nameSchema?.args || name
-
-          // Apply property casing transformation
-          if (options.paramsCasing === 'camelcase') {
-            mappedName = transformers.camelCase(mappedName)
-          }
+          const mappedName = nameSchema?.args || name
 
           // custom mapper(pluginOptions)
           // Use Object.hasOwn to avoid matching inherited properties like 'toString', 'valueOf', etc.

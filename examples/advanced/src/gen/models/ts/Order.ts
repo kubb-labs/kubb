@@ -79,7 +79,7 @@ export type Order = {
    * @description HTTP Status
    * @type number | undefined
    */
-  httpStatus?: OrderHttpStatusEnumKey
+  http_status?: OrderHttpStatusEnumKey
   /**
    * @type boolean | undefined
    */

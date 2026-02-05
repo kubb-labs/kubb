@@ -48,7 +48,6 @@ export default defineConfig({
       enumType: 'asConst',
       enumSuffix: 'enum',
       dateType: 'string',
-      paramsCasing: 'camelcase', // Matches plugin-mcp's camelCase params
       override: [
         {
           type: 'operationId',
