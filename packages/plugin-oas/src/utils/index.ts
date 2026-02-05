@@ -7,9 +7,9 @@ export {
   getParamsMapping,
   getPathParams,
 } from './getParams.ts'
+export { getSchemaFactory } from './getSchemaFactory.ts'
+export { getSchemas } from './getSchemas.ts'
 export {
   applyParamsCasing,
   isParameterSchema,
 } from './paramsCasing.ts'
-export { getSchemaFactory } from './getSchemaFactory.ts'
-export { getSchemas } from './getSchemas.ts'
