@@ -107,8 +107,3 @@ export function getParamsMapping(
 
   return Object.keys(mapping).length > 0 ? mapping : undefined
 }
-
-/**
- * @deprecated Use getParamsMapping instead
- */
-export const getPathParamsMapping = getParamsMapping

@@ -6,7 +6,10 @@ export { getImports } from './getImports.ts'
 export {
   getParamsMapping,
   getPathParams,
-  getPathParamsMapping,
 } from './getParams.ts'
+export {
+  applyParamsCasing,
+  isParameterSchema,
+} from './paramsCasing.ts'
 export { getSchemaFactory } from './getSchemaFactory.ts'
 export { getSchemas } from './getSchemas.ts'

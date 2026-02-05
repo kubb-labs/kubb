@@ -1,12 +1,12 @@
 import type { PluginManager } from '@kubb/core'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
-import transformers, { isValidVarName } from '@kubb/core/transformers'
+import transformers from '@kubb/core/transformers'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
-import type { Operation, SchemaObject } from '@kubb/oas'
+import type { Operation } from '@kubb/oas'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter, getImports } from '@kubb/plugin-oas/utils'
+import { applyParamsCasing, getBanner, getFooter, getImports, isParameterSchema } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
 import ts from 'typescript'
 import { Type } from '../components'
@@ -14,64 +14,6 @@ import * as factory from '../factory.ts'
 import { createUrlTemplateType, getUnknownType, keywordTypeNodes } from '../factory.ts'
 import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types'
-
-/**
- * Apply casing transformation to schema properties
- * Only transforms property names, not nested schemas
- */
-function applyParamsCasing(schema: SchemaObject, casing: 'camelcase' | undefined): SchemaObject {
-  if (!casing || !schema.properties) {
-    return schema
-  }
-
-  const transformedProperties: Record<string, any> = {}
-  const transformedRequired: string[] = []
-
-  // Transform property names
-  Object.entries(schema.properties).forEach(([originalName, propertySchema]) => {
-    let transformedName = originalName
-
-    if (casing === 'camelcase') {
-      transformedName = transformers.camelCase(originalName)
-    } else if (!isValidVarName(originalName)) {
-      // If not valid variable name, make it valid
-      transformedName = transformers.camelCase(originalName)
-    }
-
-    transformedProperties[transformedName] = propertySchema
-  })
-
-  // Transform required field names
-  if (Array.isArray(schema.required)) {
-    schema.required.forEach((originalName) => {
-      let transformedName = originalName
-
-      if (casing === 'camelcase') {
-        transformedName = transformers.camelCase(originalName)
-      } else if (!isValidVarName(originalName)) {
-        transformedName = transformers.camelCase(originalName)
-      }
-
-      transformedRequired.push(transformedName)
-    })
-  }
-
-  // Return a new schema with transformed properties and required fields
-  return {
-    ...schema,
-    properties: transformedProperties,
-    ...(transformedRequired.length > 0 && { required: transformedRequired }),
-  } as SchemaObject
-}
-
-/**
- * Check if this schema is a parameter schema (pathParams, queryParams, or headerParams)
- * Only these should be transformed, not response
- */
-function isParameterSchema(schemaName: string): boolean {
-  const lowerName = schemaName.toLowerCase()
-  return lowerName.includes('pathparams') || lowerName.includes('queryparams') || lowerName.includes('headerparams')
-}
 
 function printCombinedSchema({ name, schemas, pluginManager }: { name: string; schemas: OperationSchemas; pluginManager: PluginManager }): string {
   const properties: Record<string, ts.TypeNode> = {}
