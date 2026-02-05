@@ -18,7 +18,7 @@ Added `paramsCasing` option to transform API parameter names to camelCase across
 - [`@kubb/plugin-ts`](/plugins/plugin-ts/) - Transforms TypeScript type property names
 - [`@kubb/plugin-client`](/plugins/plugin-client/) - Transforms function parameters with automatic mapping
 - [`@kubb/plugin-react-query`](/plugins/plugin-react-query/) - Transforms React Query hook parameters
-- [`@kubb/plugin-swr`](/plugins/plugin-swr/) - Transforms SWR hook parameters  
+- [`@kubb/plugin-swr`](/plugins/plugin-swr/) - Transforms SWR hook parameters
 - [`@kubb/plugin-solid-query`](/plugins/plugin-solid-query/) - Transforms Solid Query hook parameters
 - [`@kubb/plugin-svelte-query`](/plugins/plugin-svelte-query/) - Transforms Svelte Query hook parameters
 - [`@kubb/plugin-vue-query`](/plugins/plugin-vue-query/) - Transforms Vue Query hook parameters
@@ -87,6 +87,16 @@ export async function findPet(
 - 📖 [Parameter Casing Guide](/guide/parameter-casing) - Comprehensive documentation
 - 🔧 [Plugin TypeScript](/plugins/plugin-ts#paramscasing) - Configuration reference
 - 🔧 [Plugin Client](/plugins/plugin-client#paramscasing) - Client-specific docs
+
+---
+
+## 4.20.4
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Fix `asPascalConst` enum const values not exported in barrel files**
 
 ---
 
@@ -629,49 +639,7 @@ Update packages
 
 ### ✨ Features
 
-#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
-
-**Property name casing for TypeScript types**
-
-Added `paramsCasing` option to `@kubb/plugin-ts` that controls how property names are cased in generated TypeScript types. This is especially useful when your OpenAPI spec uses `snake_case` naming but you want `camelCase` properties in your TypeScript code.
-
-When using `@kubb/plugin-client` or `@kubb/plugin-mcp` with `paramsCasing: 'camelcase'`, you should also set `paramsCasing: 'camelcase'` in `@kubb/plugin-ts` to ensure consistency between client function signatures and type definitions.
-
-::: code-group
-
-```typescript [Configuration]
-// kubb.config.ts
-import { defineConfig } from '@kubb/core'
-import { pluginClient } from '@kubb/plugin-client'
-import { pluginTs } from '@kubb/plugin-ts'
-
-export default defineConfig({
-  plugins: [
-    pluginTs({
-      paramsCasing: 'camelcase', // Set this to match plugin-client
-    }),
-    pluginClient({
-      paramsCasing: 'camelcase',
-    }),
-  ],
-})
-```
-
-```typescript [Before]
-// OpenAPI spec: secondary_testing_param
-export type QueryParams = {
-  secondary_testing_param?: number
-}
-```
-
-```typescript [After]
-// Generated with paramsCasing: 'camelcase'
-export type QueryParams = {
-  secondaryTestingParam?: number
-}
-```
-
-:::
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/) and [`@kubb/core`](/core/)
 
 **Configurable enum key casing**
 

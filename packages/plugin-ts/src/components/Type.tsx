@@ -166,7 +166,7 @@ export function Type({
         enums.map(({ name, nameNode, typeName, typeNode }) => (
           <>
             {nameNode && (
-              <File.Source name={name} isExportable isIndexable>
+              <File.Source name={name} isExportable isIndexable isTypeOnly={false}>
                 {safePrint(nameNode)}
               </File.Source>
             )}

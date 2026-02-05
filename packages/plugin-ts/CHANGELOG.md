@@ -1,5 +1,27 @@
 # @kubb/plugin-ts
 
+## 4.20.5
+
+### Patch Changes
+
+- [#2427](https://github.com/kubb-labs/kubb/pull/2427) [`f2bab83`](https://github.com/kubb-labs/kubb/commit/f2bab8381871b7c73e3b1bcdd29ddc5fd24fe2e6) Thanks [@icholy](https://github.com/icholy)! - Externalize @kubb/core in tsdown configs to prevent duplicate type declarations across packages, fixing TypeScript type incompatibility errors when using custom generators with pluginClient.
+
+- Updated dependencies [[`f2bab83`](https://github.com/kubb-labs/kubb/commit/f2bab8381871b7c73e3b1bcdd29ddc5fd24fe2e6)]:
+  - @kubb/oas@4.20.5
+  - @kubb/plugin-oas@4.20.5
+  - @kubb/core@4.20.5
+
+## 4.20.4
+
+### Patch Changes
+
+- [`fb12978`](https://github.com/kubb-labs/kubb/commit/fb12978c20634f3f849e62fbcae409000a6f90de) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix asPascalConst enum const values not exported in barrel files
+
+- Updated dependencies []:
+  - @kubb/core@4.20.4
+  - @kubb/oas@4.20.4
+  - @kubb/plugin-oas@4.20.4
+
 ## 4.20.3
 
 ### Patch Changes
