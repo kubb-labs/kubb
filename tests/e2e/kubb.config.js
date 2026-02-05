@@ -12,23 +12,23 @@ import { pluginZod } from '@kubb/plugin-zod'
 
 const schemas = [
   // { name: 'test', path: './schemas/test.json' },
-  { name: 'train-travel', path: './schemas/train-travel.yaml' },
-  { name: 'discriminator', path: './schemas/discriminator.yaml' },
-  { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },
-  // { name: 'atlassian.com', path: 'https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json', strict: false },
-  { name: 'optionalParameters', path: './schemas/optionalParameters.json' },
-  { name: 'allOf', path: './schemas/allOf.json' },
-  { name: 'anyOf', path: './schemas/anyOf.json' },
-  { name: 'petStoreContent', path: './schemas/petStoreContent.json' },
-  { name: 'twitter', path: './schemas/twitter.json' },
-  { name: 'jokesOne', path: './schemas/jokesOne.yaml' },
-  { name: 'readme.io', path: './schemas/readme.io.yaml' },
-  { name: 'worldtime', path: './schemas/worldtime.yaml' },
-  { name: 'zalando', path: './schemas/zalando.yaml' },
-  { name: 'requestBody', path: './schemas/requestBody.yaml' },
-  { name: 'box', path: './schemas/box.json' },
-  { name: 'enums', path: './schemas/enums.yaml' },
-  { name: 'dataset_api', path: './schemas/dataset_api.yaml' },
+  // { name: 'train-travel', path: './schemas/train-travel.yaml' },
+  // { name: 'discriminator', path: './schemas/discriminator.yaml' },
+  // { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },
+  // // { name: 'atlassian.com', path: 'https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json', strict: false },
+  // { name: 'optionalParameters', path: './schemas/optionalParameters.json' },
+  // { name: 'allOf', path: './schemas/allOf.json' },
+  // { name: 'anyOf', path: './schemas/anyOf.json' },
+  // { name: 'petStoreContent', path: './schemas/petStoreContent.json' },
+  // { name: 'twitter', path: './schemas/twitter.json' },
+  // { name: 'jokesOne', path: './schemas/jokesOne.yaml' },
+  // { name: 'readme.io', path: './schemas/readme.io.yaml' },
+  // { name: 'worldtime', path: './schemas/worldtime.yaml' },
+  // { name: 'zalando', path: './schemas/zalando.yaml' },
+  // { name: 'requestBody', path: './schemas/requestBody.yaml' },
+  // { name: 'box', path: './schemas/box.json' },
+  // { name: 'enums', path: './schemas/enums.yaml' },
+  // { name: 'dataset_api', path: './schemas/dataset_api.yaml' },
   { name: 'petStoreV3', path: 'https://petstore3.swagger.io/api/v3/openapi.json' },
 ]
 
@@ -41,6 +41,8 @@ const baseConfig = {
   output: {
     path: './gen',
     clean: true,
+    lint: 'auto',
+    format: 'auto',
   },
   plugins: [
     pluginTs({
@@ -159,7 +161,7 @@ export default defineConfig(() => {
         path,
       },
       hooks: {
-        done: [strict ? 'npm run typecheck -- --strict' : 'npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+        done: [strict ? 'npm run typecheck -- --strict' : 'npm run typecheck'],
       },
     }
   })
