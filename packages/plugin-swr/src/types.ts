@@ -88,7 +88,7 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
-  client?: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle'>
+  client?: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle' | 'paramsCasing'>
   queryKey?: QueryKey
   query?: Query | false
   mutationKey?: MutationKey
@@ -137,7 +137,7 @@ type ResolvedOptions = {
   query: NonNullable<Required<Query>> | false
   mutationKey: MutationKey | undefined
   mutation: (Required<Pick<Mutation, 'methods' | 'importPath'>> & Pick<Mutation, 'paramsToTrigger'>) | false
-
+  paramsCasing: Options['paramsCasing']
   paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   group: Options['group']

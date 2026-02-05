@@ -1,6 +1,6 @@
 import * as z from 'zod'
-import type { Cat } from '../models/ts/Cat.ts'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { Cat } from '../models/ts/Cat.ts'
 
 export const catSchema = z.object({
   type: z.string().min(1),

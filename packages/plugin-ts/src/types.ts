@@ -152,6 +152,7 @@ type ResolvedOptions = {
   transformers: NonNullable<Options['transformers']>
   syntaxType: NonNullable<Options['syntaxType']>
   mapper: Record<string, any>
+  paramsCasing: Options['paramsCasing']
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions>

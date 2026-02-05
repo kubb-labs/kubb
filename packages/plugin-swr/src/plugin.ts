@@ -46,6 +46,7 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
         clientType: client?.clientType ?? 'function',
         importPath: clientImportPath,
         dataReturnType: client?.dataReturnType ?? 'data',
+        paramsCasing,
       },
       queryKey,
       query:

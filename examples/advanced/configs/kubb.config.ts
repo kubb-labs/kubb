@@ -106,7 +106,6 @@ export default defineConfig({
       client: {
         dataReturnType: 'full',
         importPath: '../../../../axios-client.ts',
-        paramsCasing: 'camelcase',
       },
       query: {
         importPath: '../../../../tanstack-query-hook',
@@ -132,7 +131,6 @@ export default defineConfig({
         importPath: '../../../../axios-client.ts',
         dataReturnType: 'full',
         baseURL: 'https://petstore3.swagger.io/api/v3',
-        paramsCasing: 'camelcase',
       },
       paramsType: 'object',
       pathParamsType: 'object',

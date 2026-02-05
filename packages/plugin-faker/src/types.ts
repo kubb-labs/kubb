@@ -112,5 +112,6 @@ type ResolvedOptions = {
   seed: NonNullable<Options['seed']> | undefined
   mapper: NonNullable<Options['mapper']>
   regexGenerator: NonNullable<Options['regexGenerator']>
+  paramsCasing: Options['paramsCasing']
 }
 export type PluginFaker = PluginFactoryOptions<'plugin-faker', Options, ResolvedOptions, never, ResolvePathOptions>

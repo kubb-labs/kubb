@@ -98,7 +98,7 @@ export type Options = {
    * Group the @tanstack/query hooks based on the provided name.
    */
   group?: Group
-  client?: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle'>
+  client?: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle' | 'paramsCasing'>
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
@@ -166,7 +166,7 @@ type ResolvedOptions = {
   group: Options['group']
   client: NonNullable<PluginVueQuery['options']['client']>
   parser: Required<NonNullable<Options['parser']>>
-
+  paramsCasing: Options['paramsCasing']
   paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   /**

@@ -1,6 +1,6 @@
-import fetch from '../../../../axios-client.ts'
 import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
+import fetch from '../../../../axios-client.ts'
+import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../../models/ts/userController/LoginUser.ts'
 import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema.ts'
 
 export function getLoginUserUrl() {

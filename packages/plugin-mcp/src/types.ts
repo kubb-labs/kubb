@@ -16,7 +16,7 @@ export type Options = {
    * By default, the first JSON valid mediaType is used
    */
   contentType?: contentType
-  client?: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle'>
+  client?: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle' | 'paramsCasing'>
   /**
    * Transform parameter names to a specific casing format.
    * When set to 'camelcase', parameter names in path, query, and header params will be transformed to camelCase.
@@ -56,6 +56,7 @@ type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
   client: NonNullable<PluginMcp['options']['client']>
+  paramsCasing: Options['paramsCasing']
 }
 
 export type PluginMcp = PluginFactoryOptions<'plugin-mcp', Options, ResolvedOptions, never, ResolvePathOptions>

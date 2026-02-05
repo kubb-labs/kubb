@@ -77,6 +77,7 @@ type ResolvedOptions = {
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   paramsType: NonNullable<Options['paramsType']>
+  paramsCasing: Options['paramsCasing']
 }
 
 export type PluginCypress = PluginFactoryOptions<'plugin-cypress', Options, ResolvedOptions, never, ResolvePathOptions>
