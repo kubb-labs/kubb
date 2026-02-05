@@ -383,6 +383,58 @@ type Pet = {
 
 :::
 
+### paramsCasing
+
+Transform parameter names to a specific casing format for path, query, and header parameters.
+
+> [!IMPORTANT]
+> When enabled, this option transforms property names in `PathParams`, `QueryParams`, and `HeaderParams` types to the specified casing. Response and request body types are **not** affected.
+>
+> All plugins that reference parameters (like `@kubb/plugin-client`, `@kubb/plugin-react-query`, `@kubb/plugin-swr`, `@kubb/plugin-faker`, `@kubb/plugin-mcp`) should use the same `paramsCasing` setting to ensure type compatibility.
+
+|           |              |
+| --------: | :----------- |
+|     Type: | `'camelcase'` |
+| Required: | `false`      |
+|  Default: | `undefined`  |
+
+::: code-group
+
+```typescript [Original API]
+// OpenAPI spec has: step_id, X-Custom-Header, bool_param
+
+// Without paramsCasing
+type FindPetsByStatusPathParams = {
+  step_id: string;
+};
+
+type FindPetsByStatusQueryParams = {
+  bool_param?: boolean;
+};
+
+type FindPetsByStatusHeaderParams = {
+  "X-Custom-Header"?: string;
+};
+```
+
+```typescript [With paramsCasing: 'camelcase']
+// Properties are transformed to camelCase
+
+type FindPetsByStatusPathParams = {
+  stepId: string;  // ✓ camelCase
+};
+
+type FindPetsByStatusQueryParams = {
+  boolParam?: boolean;  // ✓ camelCase
+};
+
+type FindPetsByStatusHeaderParams = {
+  xCustomHeader?: string;  // ✓ camelCase
+};
+```
+
+:::
+
 ### include
 
 <!--@include: ./core/include.md-->
@@ -456,6 +508,7 @@ export default defineConfig({
       dateType: "date",
       unknownType: "unknown",
       optionalType: "questionTokenAndUndefined",
+      paramsCasing: "camelcase", // Transform param names to camelCase
     }),
   ],
 });

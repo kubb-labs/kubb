@@ -124,6 +124,58 @@ Return the name of a group based on the group name, this will be used for the fi
 |  Default: | `(ctx) => '${ctx.group}Requests'`   |
 
 
+### paramsCasing
+
+Transform parameter names to a specific casing format for path, query, and header parameters in generated MCP handlers.
+
+> [!IMPORTANT]
+> When using `paramsCasing`, ensure that `@kubb/plugin-ts` also has the same `paramsCasing` setting. This option automatically maps transformed parameter names back to their original API names in HTTP requests.
+
+|           |                |
+|----------:|:---------------|
+|     Type: | `'camelcase'`  |
+| Required: | `false`        |
+|  Default: | `undefined`    |
+
+- `'camelcase'` transforms parameter names to camelCase
+
+::: code-group
+```typescript [With paramsCasing: 'camelcase']
+// Handler uses camelCase parameters
+export async function findPetsByStatusHandler({ 
+  stepId  // ✓ camelCase
+}: { 
+  stepId: FindPetsByStatusPathParams['stepId'] 
+}): Promise<Promise<CallToolResult>> {
+  // Automatically maps back to original name
+  const step_id = stepId
+  
+  const res = await fetch({
+    method: 'GET',
+    url: `/pet/findByStatus/${step_id}`,  // Uses original API name
+    ...
+  })
+  ...
+}
+```
+
+```typescript [Without paramsCasing]
+// Handler uses original API naming
+export async function findPetsByStatusHandler({ 
+  step_id  // Original naming
+}: { 
+  step_id: FindPetsByStatusPathParams['step_id'] 
+}): Promise<Promise<CallToolResult>> {
+  const res = await fetch({
+    method: 'GET',
+    url: `/pet/findByStatus/${step_id}`,
+    ...
+  })
+  ...
+}
+```
+:::
+
 ### client
 
 #### client.importPath
