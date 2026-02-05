@@ -169,7 +169,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
 <!-- Badges -->
 
 [npm-version-src]: https://img.shields.io/npm/v/@kubb/core?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmjs.com/package/@kubb/core
+[npm-version-href]: https://npmx.dev/package/@kubb/core
 [npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/core?flat&colorA=18181B&colorB=f58517
 [npm-downloads-href]: https://npmjs.com/package/@kubb/core
 [license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
