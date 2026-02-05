@@ -75,6 +75,13 @@ export type Options = {
    * The use of Seed is intended to allow for consistent values in a test.
    */
   seed?: number | number[]
+  /**
+   * Transform parameter names to a specific casing format.
+   * When set to 'camelcase', parameter names in path, query, and header params will be transformed to camelCase.
+   * This should match the paramsCasing setting used in @kubb/plugin-ts.
+   * @default undefined
+   */
+  paramsCasing?: 'camelcase'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -105,5 +112,6 @@ type ResolvedOptions = {
   seed: NonNullable<Options['seed']> | undefined
   mapper: NonNullable<Options['mapper']>
   regexGenerator: NonNullable<Options['regexGenerator']>
+  paramsCasing: Options['paramsCasing']
 }
 export type PluginFaker = PluginFactoryOptions<'plugin-faker', Options, ResolvedOptions, never, ResolvePathOptions>

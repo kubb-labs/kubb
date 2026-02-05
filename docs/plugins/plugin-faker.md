@@ -201,6 +201,46 @@ Which type to use for empty schema values.
 | Required: | `false`                        |
 |  Default: | `unknownType`                  |
 
+### paramsCasing
+
+Transform parameter names to a specific casing format for path, query, and header parameters in generated mock data.
+
+> [!IMPORTANT]
+> When using `paramsCasing`, ensure that `@kubb/plugin-ts` also has the same `paramsCasing` setting. This option transforms property names in mock objects to match the TypeScript types.
+
+|           |                |
+|----------:|:---------------|
+|     Type: | `'camelcase'`  |
+| Required: | `false`        |
+|  Default: | `undefined`    |
+
+- `'camelcase'` transforms parameter names to camelCase
+
+::: code-group
+```typescript [With paramsCasing: 'camelcase']
+// Mock data uses camelCase property names
+export function createFindPetsByStatusPathParamsFaker(
+  data?: Partial<FindPetsByStatusPathParams>
+): FindPetsByStatusPathParams {
+  return {
+    ...{ stepId: faker.string.alpha() },  // ✓ camelCase
+    ...(data || {}),
+  }
+}
+```
+
+```typescript [Without paramsCasing]
+// Mock data uses original API naming
+export function createFindPetsByStatusPathParamsFaker(
+  data?: Partial<FindPetsByStatusPathParams>
+): FindPetsByStatusPathParams {
+  return {
+    ...{ step_id: faker.string.alpha() },  // Original naming
+    ...(data || {}),
+  }
+}
+```
+:::
 
 ### regexGenerator
 

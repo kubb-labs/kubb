@@ -10,7 +10,7 @@ export function createDeletePetPathParamsFaker(data?: Partial<DeletePetPathParam
 
 export function createDeletePetHeaderParamsFaker(data?: Partial<DeletePetHeaderParams>): DeletePetHeaderParams {
   return {
-    ...{ api_key: faker.string.alpha() },
+    ...{ apiKey: faker.string.alpha() },
     ...(data || {}),
   }
 }

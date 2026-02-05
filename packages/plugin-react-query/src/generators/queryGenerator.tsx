@@ -151,7 +151,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
             zodSchemas={zod.schemas}
             dataReturnType={options.client.dataReturnType || 'data'}
             paramsType={options.paramsType}
-            paramsCasing={options.paramsCasing}
+            paramsCasing={options.client?.paramsCasing || options.paramsCasing}
             pathParamsType={options.pathParamsType}
             parser={options.parser}
           />

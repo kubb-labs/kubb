@@ -47,6 +47,7 @@ export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
         dataReturnType: client?.dataReturnType ?? 'data',
         pathParamsType,
         importPath: clientImportPath,
+        paramsCasing,
       },
       queryKey,
       query:

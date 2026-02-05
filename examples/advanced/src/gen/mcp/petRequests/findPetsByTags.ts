@@ -20,12 +20,14 @@ export async function findPetsByTagsHandler({
   headers: FindPetsByTagsHeaderParams
   params?: FindPetsByTagsQueryParams
 }): Promise<Promise<CallToolResult>> {
+  const mappedHeaders = headers ? { 'X-EXAMPLE': headers.xEXAMPLE } : undefined
+
   const res = await fetch<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: '/pet/findByTags',
     baseURL: 'https://petstore.swagger.io/v2',
     params,
-    headers: { ...headers },
+    headers: { ...mappedHeaders },
   })
   return {
     content: [

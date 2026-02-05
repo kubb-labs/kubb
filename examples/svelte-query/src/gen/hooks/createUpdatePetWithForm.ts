@@ -25,7 +25,7 @@ import type {
   UpdatePetWithFormQueryParams,
 } from '../models/UpdatePetWithForm.ts'
 
-export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['pet_id'], params?: UpdatePetWithFormQueryParams) =>
+export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
   [{ url: '/pet/:pet_id', params: { petId: petId } }, ...(params ? [params] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
@@ -35,15 +35,17 @@ export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQuery
  * {@link /pet/:pet_id}
  */
 export async function updatePetWithForm(
-  petId: UpdatePetWithFormPathParams['pet_id'],
+  petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
+  const pet_id = petId
+
   const res = await request<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
-    url: `/pet/${petId}`,
+    url: `/pet/${pet_id}`,
     params,
     ...requestConfig,
   })
@@ -51,7 +53,7 @@ export async function updatePetWithForm(
 }
 
 export function updatePetWithFormQueryOptions(
-  petId: UpdatePetWithFormPathParams['pet_id'],
+  petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -75,7 +77,7 @@ export function createUpdatePetWithForm<
   TQueryData = UpdatePetWithFormMutationResponse,
   TQueryKey extends QueryKey = UpdatePetWithFormQueryKey,
 >(
-  petId: UpdatePetWithFormPathParams['pet_id'],
+  petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options: {
     query?: Partial<CreateBaseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryData, TQueryKey>> & {

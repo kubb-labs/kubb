@@ -38,7 +38,7 @@ export type Options = {
    * - 'asPascalConst' generates const objects with PascalCase names and as const assertion.
    * - 'constEnum' generates TypeScript const enum declarations.
    * - 'literal' generates literal union types.
-   * - 'inlineLiteral' inlines enum values directly into the type (default in v5).
+   * - 'inlineLiteral' inline enum values directly into the type (default in v5).
    * @default 'asConst'
    * @note In Kubb v5, 'inlineLiteral' becomes the default.
    */
@@ -121,6 +121,13 @@ export type Options = {
    */
   mapper?: Record<string, ts.PropertySignature>
   /**
+   * How to style your params, by default no casing is applied
+   * - 'camelcase' uses camelCase for pathParams, queryParams and headerParams property names
+   * @default undefined
+   * @note response types (data/body) are NOT affected by this option
+   */
+  paramsCasing?: 'camelcase'
+  /**
    * Define some generators next to the ts generators
    */
   generators?: Array<Generator<PluginTs>>
@@ -145,6 +152,7 @@ type ResolvedOptions = {
   transformers: NonNullable<Options['transformers']>
   syntaxType: NonNullable<Options['syntaxType']>
   mapper: Record<string, any>
+  paramsCasing: Options['paramsCasing']
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions>

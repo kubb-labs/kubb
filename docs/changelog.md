@@ -6,6 +6,90 @@ outline: deep
 
 # Changelog
 
+## 4.21.0
+
+### ✨ New Features
+
+#### Parameter Casing Support
+
+Added `paramsCasing` option to transform API parameter names to camelCase across all generated code while maintaining full API compatibility.
+
+**Affected Plugins:**
+- [`@kubb/plugin-ts`](/plugins/plugin-ts/) - Transforms TypeScript type property names
+- [`@kubb/plugin-client`](/plugins/plugin-client/) - Transforms function parameters with automatic mapping
+- [`@kubb/plugin-react-query`](/plugins/plugin-react-query/) - Transforms React Query hook parameters
+- [`@kubb/plugin-swr`](/plugins/plugin-swr/) - Transforms SWR hook parameters
+- [`@kubb/plugin-solid-query`](/plugins/plugin-solid-query/) - Transforms Solid Query hook parameters
+- [`@kubb/plugin-svelte-query`](/plugins/plugin-svelte-query/) - Transforms Svelte Query hook parameters
+- [`@kubb/plugin-vue-query`](/plugins/plugin-vue-query/) - Transforms Vue Query hook parameters
+- [`@kubb/plugin-faker`](/plugins/plugin-faker/) - Transforms mock data property names
+- [`@kubb/plugin-mcp`](/plugins/plugin-mcp/) - Transforms MCP handler parameters
+
+**Key Features:**
+- ✅ Transform path, query, and header parameter names to camelCase
+- ✅ Automatic mapping back to original API names in HTTP requests
+- ✅ Full TypeScript type safety with indexed access types
+- ✅ Request/response bodies remain unchanged
+- ✅ Works across all query plugins consistently
+
+**Configuration Example:**
+
+```typescript
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginClient } from '@kubb/plugin-client'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
+
+export default defineConfig({
+  plugins: [
+    pluginTs({
+      paramsCasing: 'camelcase',
+    }),
+    pluginClient({
+      paramsCasing: 'camelcase',
+    }),
+    pluginReactQuery({
+      paramsCasing: 'camelcase',
+      client: {
+        paramsCasing: 'camelcase',
+      },
+    }),
+  ],
+})
+```
+
+**Before:**
+
+```typescript
+// Original API has: step_id, X-Custom-Header
+export async function findPet(
+  step_id: string,
+  headers?: { 'X-Custom-Header'?: string }
+) {
+  return fetch(`/pet/${step_id}`)
+}
+```
+
+**After:**
+
+```typescript
+// With paramsCasing: 'camelcase'
+export async function findPet(
+  stepId: string,  // ✓ camelCase
+  headers?: { xCustomHeader?: string }  // ✓ camelCase
+) {
+  const step_id = stepId  // Automatically mapped
+  return fetch(`/pet/${step_id}`)  // Uses original API name
+}
+```
+
+**Learn More:**
+- 📖 [Parameter Casing Guide](/guide/parameter-casing) - Comprehensive documentation
+- 🔧 [Plugin TypeScript](/plugins/plugin-ts#paramscasing) - Configuration reference
+- 🔧 [Plugin Client](/plugins/plugin-client#paramscasing) - Client-specific docs
+
+---
+
 ## 4.20.4
 
 ### 🐛 Bug Fixes

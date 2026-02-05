@@ -69,7 +69,7 @@ server.tool('addPet', 'Add a new pet to the store', { data: addPetMutationReques
 server.tool(
   'findPetsByStatus',
   'Multiple status values can be provided with comma separated strings',
-  { stepId: findPetsByStatusPathParamsSchema.shape['step_id'] },
+  { stepId: findPetsByStatusPathParamsSchema.shape['stepId'] },
   async ({ stepId }) => {
     return findPetsByStatusHandler({ stepId })
   },

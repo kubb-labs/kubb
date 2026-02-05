@@ -21,6 +21,7 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
     transformers = {},
     generators = [mcpGenerator, serverGenerator].filter(Boolean),
     contentType,
+    paramsCasing,
     client,
   } = options
 
@@ -32,6 +33,7 @@ export const pluginMcp = definePlugin<PluginMcp>((options) => {
     options: {
       output,
       group,
+      paramsCasing,
       client: {
         client: clientName,
         clientType: client?.clientType ?? 'function',

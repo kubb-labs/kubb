@@ -15,11 +15,13 @@ export async function deletePetHandler({
   petId: DeletePetPathParams['petId']
   headers?: DeletePetHeaderParams
 }): Promise<Promise<CallToolResult>> {
+  const mappedHeaders = headers ? { api_key: headers.apiKey } : undefined
+
   const res = await fetch<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}:search`,
     baseURL: 'https://petstore.swagger.io/v2',
-    headers: { ...headers },
+    headers: { ...mappedHeaders },
   })
   return {
     content: [
