@@ -166,7 +166,7 @@ type ResolvedOptions = {
   group: Options['group']
   client: NonNullable<PluginVueQuery['options']['client']>
   parser: Required<NonNullable<Options['parser']>>
-  paramsCasing: Options['paramsCasing']
+
   paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   /**

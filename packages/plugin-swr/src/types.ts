@@ -137,7 +137,7 @@ type ResolvedOptions = {
   query: NonNullable<Required<Query>> | false
   mutationKey: MutationKey | undefined
   mutation: (Required<Pick<Mutation, 'methods' | 'importPath'>> & Pick<Mutation, 'paramsToTrigger'>) | false
-  paramsCasing: Options['paramsCasing']
+
   paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   group: Options['group']

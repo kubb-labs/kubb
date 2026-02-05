@@ -194,7 +194,7 @@ type ResolvedOptions = {
   client: NonNullable<PluginReactQuery['options']['client']>
   parser: Required<NonNullable<Options['parser']>>
   pathParamsType: NonNullable<Options['pathParamsType']>
-  paramsCasing: Options['paramsCasing']
+
   paramsType: NonNullable<Options['paramsType']>
   /**
    * Only used of infinite

@@ -134,7 +134,7 @@ type ResolvedOptions = {
   group: Options['group']
   client: NonNullable<PluginSolidQuery['options']['client']>
   parser: Required<NonNullable<Options['parser']>>
-  paramsCasing: Options['paramsCasing']
+
   paramsType: NonNullable<Options['paramsType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   queryKey: QueryKey | undefined
