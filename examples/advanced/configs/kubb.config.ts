@@ -48,6 +48,7 @@ export default defineConfig({
       enumType: 'asConst',
       enumSuffix: 'enum',
       dateType: 'string',
+      paramsCasing: 'camelcase', // make pathParams and queryParams camelCase to be in sync with client
       override: [
         {
           type: 'operationId',
@@ -112,6 +113,7 @@ export default defineConfig({
       infinite: false,
       suspense: false,
       paramsType: 'object',
+      paramsCasing: 'camelcase',
       parser: 'zod',
     }),
     pluginSwr({
@@ -132,6 +134,7 @@ export default defineConfig({
       },
       paramsType: 'object',
       pathParamsType: 'object',
+      paramsCasing: 'camelcase',
       transformers: {
         name(name, _type) {
           return `${name}SWR`
@@ -155,6 +158,7 @@ export default defineConfig({
       operations: true,
       baseURL: 'https://petstore3.swagger.io/api/v3',
       dataReturnType: 'full',
+      paramsCasing: 'camelcase',
       paramsType: 'object',
       pathParamsType: 'object',
       urlType: 'export',
@@ -180,6 +184,7 @@ export default defineConfig({
         },
       ],
       group: { type: 'tag' },
+      paramsCasing: 'camelcase',
       client: {
         baseURL: 'https://petstore.swagger.io/v2',
       },
@@ -194,6 +199,7 @@ export default defineConfig({
           pattern: 'store',
         },
       ],
+      paramsCasing: 'camelcase',
       group: { type: 'tag' },
       mapper: {
         status: `faker.helpers.arrayElement<any>(['working', 'idle'])`,

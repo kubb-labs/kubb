@@ -63,7 +63,8 @@ export type Options = {
   dataReturnType?: 'data' | 'full'
   /**
    * How to style your params, by default no casing is applied
-   * - 'camelcase' uses camelcase for the params names
+   * - 'camelcase' uses camelCase for pathParams, queryParams and headerParams names
+   * @note response types (data/body) are not affected by this option
    */
   paramsCasing?: 'camelcase'
   /**

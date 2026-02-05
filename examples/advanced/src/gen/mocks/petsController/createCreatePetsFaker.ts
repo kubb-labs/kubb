@@ -17,14 +17,14 @@ export function createCreatePetsPathParamsFaker(data?: Partial<CreatePetsPathPar
 
 export function createCreatePetsQueryParamsFaker(data?: Partial<CreatePetsQueryParams>): CreatePetsQueryParams {
   return {
-    ...{ bool_param: faker.helpers.arrayElement<NonNullable<CreatePetsQueryParams>['bool_param']>([true]), offset: faker.number.int() },
+    ...{ boolParam: faker.helpers.arrayElement<NonNullable<CreatePetsQueryParams>['boolParam']>([true]), offset: faker.number.int() },
     ...(data || {}),
   }
 }
 
 export function createCreatePetsHeaderParamsFaker(data?: Partial<CreatePetsHeaderParams>): CreatePetsHeaderParams {
   return {
-    ...{ 'X-EXAMPLE': faker.helpers.arrayElement<NonNullable<CreatePetsHeaderParams>['X-EXAMPLE']>(['ONE', 'TWO', 'THREE']) },
+    ...{ xEXAMPLE: faker.helpers.arrayElement<NonNullable<CreatePetsHeaderParams>['xEXAMPLE']>(['ONE', 'TWO', 'THREE']) },
     ...(data || {}),
   }
 }

@@ -12,9 +12,11 @@ export function getASTParams(
   operationSchema: OperationSchema | undefined,
   {
     typed = false,
+    casing,
     override,
   }: {
     typed?: boolean
+    casing?: 'camelcase'
     override?: (data: FunctionParamsAST) => FunctionParamsAST
   } = {},
 ): FunctionParamsAST[] {
@@ -25,11 +27,14 @@ export function getASTParams(
   const requiredFields = Array.isArray(operationSchema.schema.required) ? operationSchema.schema.required : []
 
   return Object.entries(operationSchema.schema.properties).map(([name]: [string, OasTypes.SchemaObject]) => {
+    // Use camelCase name for indexed access if casing is enabled
+    const accessName = casing === 'camelcase' ? camelCase(name) : name
+
     const data: FunctionParamsAST = {
       name,
       enabled: !!name,
       required: requiredFields.includes(name),
-      type: typed ? `${operationSchema.name}["${name}"]` : undefined,
+      type: typed ? `${operationSchema.name}["${accessName}"]` : undefined,
     }
 
     return override ? override(data) : data

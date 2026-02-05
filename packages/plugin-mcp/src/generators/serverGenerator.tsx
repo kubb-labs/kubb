@@ -74,7 +74,13 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
           <File.Import name={['StdioServerTransport']} path={'@modelcontextprotocol/sdk/server/stdio'} />
 
           {imports}
-          <Server name={name} serverName={oas.api.info?.title} serverVersion={oas.getVersion()} operations={operationsMapped} />
+          <Server
+            name={name}
+            serverName={oas.api.info?.title}
+            serverVersion={oas.getVersion()}
+            paramsCasing={options.paramsCasing}
+            operations={operationsMapped}
+          />
         </File>
 
         <File baseName={jsonFile.baseName} path={jsonFile.path} meta={jsonFile.meta}>

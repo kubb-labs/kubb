@@ -79,6 +79,8 @@ export function Url({
     pathParamsType,
     typeSchemas,
   })
+
+  // Generate pathParams mapping when paramsCasing is used
   const pathParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
 
   return (

@@ -534,6 +534,7 @@ describe('typeGenerator schema', async () => {
       mapper: {},
       syntaxType: 'type',
       emptySchemaType: 'unknown',
+      paramsCasing: undefined,
       output: {
         path: '.',
       },
@@ -688,6 +689,7 @@ describe('typeGenerator operation', async () => {
       syntaxType: 'type',
       override: [],
       mapper: {},
+      paramsCasing: undefined,
       output: {
         path: '.',
       },

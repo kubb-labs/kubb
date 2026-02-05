@@ -9,6 +9,7 @@ type Props = {
   name: string
   serverName: string
   serverVersion: string
+  paramsCasing?: 'camelcase'
   operations: Array<{
     tool: {
       name: string
@@ -31,11 +32,13 @@ type Props = {
 
 type GetParamsProps = {
   schemas: OperationSchemas
+  paramsCasing?: 'camelcase'
 }
 
-function getParams({ schemas }: GetParamsProps) {
+function getParams({ schemas, paramsCasing }: GetParamsProps) {
   const pathParams = getPathParams(schemas.pathParams, {
     typed: false,
+    casing: paramsCasing,
   })
 
   return FunctionParams.factory({
@@ -89,7 +92,7 @@ function getParams({ schemas }: GetParamsProps) {
   })
 }
 
-export function Server({ name, serverName, serverVersion, operations }: Props): FabricReactNode {
+export function Server({ name, serverName, serverVersion, paramsCasing, operations }: Props): FabricReactNode {
   return (
     <File.Source name={name} isExportable isIndexable>
       <Const name={'server'} export>
@@ -103,7 +106,7 @@ export function Server({ name, serverName, serverVersion, operations }: Props): 
 
       {operations
         .map(({ tool, mcp, zod }) => {
-          const paramsClient = getParams({ schemas: zod.schemas })
+          const paramsClient = getParams({ schemas: zod.schemas, paramsCasing })
 
           if (zod.schemas.request?.name || zod.schemas.headerParams?.name || zod.schemas.queryParams?.name || zod.schemas.pathParams?.name) {
             return `

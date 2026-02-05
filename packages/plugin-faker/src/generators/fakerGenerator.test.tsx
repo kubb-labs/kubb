@@ -132,6 +132,7 @@ describe('fakerGenerator schema', async () => {
       group: undefined,
       emptySchemaType: 'unknown',
       ...props.options,
+      paramsCasing: undefined,
     }
     const plugin = { options } as Plugin<PluginFaker>
     const fabric = createReactFabric()
@@ -248,6 +249,7 @@ describe('fakerGenerator operation', async () => {
       group: undefined,
       emptySchemaType: 'unknown',
       ...props.options,
+      paramsCasing: undefined,
     }
     const plugin = { options } as Plugin<PluginFaker>
     const fabric = createReactFabric()

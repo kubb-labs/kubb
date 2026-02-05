@@ -18,6 +18,13 @@ export type Options = {
   contentType?: contentType
   client?: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle'>
   /**
+   * Transform parameter names to a specific casing format.
+   * When set to 'camelcase', parameter names in path, query, and header params will be transformed to camelCase.
+   * This should match the paramsCasing setting used in @kubb/plugin-ts.
+   * @default undefined
+   */
+  paramsCasing?: 'camelcase'
+  /**
    * Group the mcp requests based on the provided name.
    */
   group?: Group
@@ -49,6 +56,7 @@ type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
   client: NonNullable<PluginMcp['options']['client']>
+  paramsCasing: Options['paramsCasing']
 }
 
 export type PluginMcp = PluginFactoryOptions<'plugin-mcp', Options, ResolvedOptions, never, ResolvePathOptions>

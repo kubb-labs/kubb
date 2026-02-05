@@ -24,12 +24,14 @@ export async function findPetsByTags(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
+  const mappedHeaders = headers ? { 'X-EXAMPLE': headers.xEXAMPLE } : undefined
+
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: getFindPetsByTagsUrl().url.toString(),
     params,
     ...requestConfig,
-    headers: { ...headers, ...requestConfig.headers },
+    headers: { ...mappedHeaders, ...requestConfig.headers },
   })
   return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
 }

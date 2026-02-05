@@ -149,9 +149,16 @@ export function Client({
   const path = new URLPath(operation.path)
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
+
+  // Generate parameter mappings when paramsCasing is used
+  // Apply to pathParams, queryParams and headerParams
+  const pathParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
+  const queryParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.queryParams, { casing: paramsCasing }) : undefined
+  const headerParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.headerParams, { casing: paramsCasing }) : undefined
+
   const headers = [
     contentType !== 'application/json' && contentType !== 'multipart/form-data' ? `'Content-Type': '${contentType}'` : undefined,
-    typeSchemas.headerParams?.name ? '...headers' : undefined,
+    typeSchemas.headerParams?.name ? (headerParamsMapping ? '...mappedHeaders' : '...headers') : undefined,
   ].filter(Boolean)
 
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
@@ -170,10 +177,6 @@ export function Client({
     pathParamsType,
     typeSchemas,
   })
-
-  // Generate parameter mappings when paramsCasing is used
-  const pathParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
-  const queryParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.queryParams, { casing: paramsCasing }) : undefined
 
   const clientParams = FunctionParams.factory({
     config: {
@@ -254,6 +257,15 @@ export function Client({
             <>
               {`const mappedParams = params ? { ${Object.entries(queryParamsMapping)
                 .map(([originalName, camelCaseName]) => `"${originalName}": params.${camelCaseName}`)
+                .join(', ')} } : undefined`}
+              <br />
+              <br />
+            </>
+          )}
+          {headerParamsMapping && typeSchemas.headerParams?.name && (
+            <>
+              {`const mappedHeaders = headers ? { ${Object.entries(headerParamsMapping)
+                .map(([originalName, camelCaseName]) => `"${originalName}": headers.${camelCaseName}`)
                 .join(', ')} } : undefined`}
               <br />
               <br />

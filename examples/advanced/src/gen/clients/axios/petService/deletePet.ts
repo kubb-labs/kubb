@@ -19,11 +19,13 @@ export async function deletePet(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
+  const mappedHeaders = headers ? { api_key: headers.apiKey } : undefined
+
   const res = await request<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: getDeletePetUrl({ petId }).url.toString(),
     ...requestConfig,
-    headers: { ...headers, ...requestConfig.headers },
+    headers: { ...mappedHeaders, ...requestConfig.headers },
   })
   return { ...res, data: deletePetMutationResponseSchema.parse(res.data) }
 }
