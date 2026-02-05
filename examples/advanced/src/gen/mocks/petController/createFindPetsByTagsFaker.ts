@@ -16,7 +16,7 @@ export function createFindPetsByTagsQueryParamsFaker(data?: Partial<FindPetsByTa
 
 export function createFindPetsByTagsHeaderParamsFaker(data?: Partial<FindPetsByTagsHeaderParams>): FindPetsByTagsHeaderParams {
   return {
-    ...{ 'X-EXAMPLE': faker.helpers.arrayElement<NonNullable<FindPetsByTagsHeaderParams>['X-EXAMPLE']>(['ONE', 'TWO', 'THREE']) },
+    ...{ xEXAMPLE: faker.helpers.arrayElement<NonNullable<FindPetsByTagsHeaderParams>['xEXAMPLE']>(['ONE', 'TWO', 'THREE']) },
     ...(data || {}),
   }
 }

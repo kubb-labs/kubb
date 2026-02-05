@@ -184,6 +184,7 @@ export default defineConfig({
         },
       ],
       group: { type: 'tag' },
+      paramsCasing: 'camelcase',
       client: {
         baseURL: 'https://petstore.swagger.io/v2',
       },
@@ -199,6 +200,7 @@ export default defineConfig({
         },
       ],
       group: { type: 'tag' },
+      paramsCasing: 'camelcase',
       mapper: {
         status: `faker.helpers.arrayElement<any>(['working', 'idle'])`,
       },
@@ -214,6 +216,7 @@ export default defineConfig({
         barrelType: false,
       },
       group: { type: 'tag' },
+      paramsCasing: 'camelcase',
     }),
     pluginMsw({
       output: {
