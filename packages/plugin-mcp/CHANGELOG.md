@@ -1,5 +1,17 @@
 # @kubb/plugin-mcp
 
+## 4.20.4
+
+### Patch Changes
+
+- Updated dependencies [[`fb12978`](https://github.com/kubb-labs/kubb/commit/fb12978c20634f3f849e62fbcae409000a6f90de)]:
+  - @kubb/plugin-ts@4.20.4
+  - @kubb/plugin-client@4.20.4
+  - @kubb/plugin-zod@4.20.4
+  - @kubb/core@4.20.4
+  - @kubb/oas@4.20.4
+  - @kubb/plugin-oas@4.20.4
+
 ## 4.20.3
 
 ### Patch Changes
