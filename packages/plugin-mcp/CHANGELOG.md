@@ -1,5 +1,65 @@
 # @kubb/plugin-mcp
 
+## 4.21.0
+
+### Minor Changes
+
+- [#2323](https://github.com/kubb-labs/kubb/pull/2323) [`f1dd5bf`](https://github.com/kubb-labs/kubb/commit/f1dd5bf3aebb73ba4c13ee48aea24284a62b2bd3) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add `paramsCasing` support to transform parameter names to camelCase across all generated code.
+
+  **New Feature: Parameter Casing**
+
+  You can now transform API parameter names (path, query, and header parameters) to developer-friendly camelCase while maintaining full compatibility with your OpenAPI specification.
+
+  **What's Changed:**
+  - Added `paramsCasing: 'camelcase'` option to transform parameter names
+  - Supported in: `@kubb/plugin-ts`, `@kubb/plugin-client`, all query plugins (`react-query`, `swr`, `solid-query`, `svelte-query`, `vue-query`), `@kubb/plugin-faker`, and `@kubb/plugin-mcp`
+  - Client plugins automatically map camelCase names back to original API parameter names in HTTP requests
+  - Only affects pathParams, queryParams, and headerParams (request/response bodies remain unchanged)
+
+  **Usage:**
+
+  ```typescript
+  import { defineConfig } from "@kubb/core";
+  import { pluginTs } from "@kubb/plugin-ts";
+  import { pluginClient } from "@kubb/plugin-client";
+
+  export default defineConfig({
+    plugins: [
+      pluginTs({
+        paramsCasing: "camelcase", // Transform types
+      }),
+      pluginClient({
+        paramsCasing: "camelcase", // Transform client code
+      }),
+    ],
+  });
+  ```
+
+  **Example:**
+
+  ```typescript
+  // Before (original API naming)
+  export async function findPet(pet_id: string) { ... }
+
+  // After (with paramsCasing: 'camelcase')
+  export async function findPet(petId: string) {
+    const pet_id = petId // Automatically mapped
+    ...
+  }
+  ```
+
+  See the [Parameter Casing guide](/guide/parameter-casing) for detailed documentation.
+
+### Patch Changes
+
+- Updated dependencies [[`f1dd5bf`](https://github.com/kubb-labs/kubb/commit/f1dd5bf3aebb73ba4c13ee48aea24284a62b2bd3)]:
+  - @kubb/plugin-ts@4.21.0
+  - @kubb/plugin-client@4.21.0
+  - @kubb/plugin-oas@4.21.0
+  - @kubb/plugin-zod@4.21.0
+  - @kubb/core@4.21.0
+  - @kubb/oas@4.21.0
+
 ## 4.20.5
 
 ### Patch Changes
