@@ -1,10 +1,10 @@
-import { faker } from '@faker-js/faker'
-import type { FindPetsByStatus200, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../../models/ts/petController/FindPetsByStatus.ts'
+import type { FindPetsByStatusPathParams, FindPetsByStatus200, FindPetsByStatusQueryResponse } from '../../models/ts/petController/FindPetsByStatus.ts'
 import { createPetFaker } from '../createPetFaker.ts'
+import { faker } from '@faker-js/faker'
 
 export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByStatusPathParams>): FindPetsByStatusPathParams {
   return {
-    ...{ stepId: faker.string.alpha() },
+    ...{ step_id: faker.string.alpha() },
     ...(data || {}),
   }
 }

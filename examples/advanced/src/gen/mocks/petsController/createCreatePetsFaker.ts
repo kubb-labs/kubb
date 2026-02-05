@@ -1,12 +1,12 @@
-import { faker } from '@faker-js/faker'
 import type {
+  CreatePetsPathParams,
+  CreatePetsQueryParams,
   CreatePetsHeaderParams,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
-  CreatePetsPathParams,
-  CreatePetsQueryParams,
 } from '../../models/ts/petsController/CreatePets.ts'
 import { createPetNotFoundFaker } from '../createPetNotFoundFaker.ts'
+import { faker } from '@faker-js/faker'
 
 export function createCreatePetsPathParamsFaker(data?: Partial<CreatePetsPathParams>): CreatePetsPathParams {
   return {
@@ -17,14 +17,14 @@ export function createCreatePetsPathParamsFaker(data?: Partial<CreatePetsPathPar
 
 export function createCreatePetsQueryParamsFaker(data?: Partial<CreatePetsQueryParams>): CreatePetsQueryParams {
   return {
-    ...{ boolParam: faker.helpers.arrayElement<NonNullable<CreatePetsQueryParams>['boolParam']>([true]), offset: faker.number.int() },
+    ...{ bool_param: faker.helpers.arrayElement<NonNullable<CreatePetsQueryParams>['bool_param']>([true]), offset: faker.number.int() },
     ...(data || {}),
   }
 }
 
 export function createCreatePetsHeaderParamsFaker(data?: Partial<CreatePetsHeaderParams>): CreatePetsHeaderParams {
   return {
-    ...{ xEXAMPLE: faker.helpers.arrayElement<NonNullable<CreatePetsHeaderParams>['xEXAMPLE']>(['ONE', 'TWO', 'THREE']) },
+    ...{ 'X-EXAMPLE': faker.helpers.arrayElement<NonNullable<CreatePetsHeaderParams>['X-EXAMPLE']>(['ONE', 'TWO', 'THREE']) },
     ...(data || {}),
   }
 }

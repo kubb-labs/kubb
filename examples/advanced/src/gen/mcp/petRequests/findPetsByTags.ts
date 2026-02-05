@@ -1,12 +1,12 @@
-import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type {
-  FindPetsByTags400,
-  FindPetsByTagsHeaderParams,
-  FindPetsByTagsQueryParams,
   FindPetsByTagsQueryResponse,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTags400,
 } from '../../models/ts/petController/FindPetsByTags.ts'
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
@@ -20,14 +20,12 @@ export async function findPetsByTagsHandler({
   headers: FindPetsByTagsHeaderParams
   params?: FindPetsByTagsQueryParams
 }): Promise<Promise<CallToolResult>> {
-  const mappedHeaders = headers ? { 'X-EXAMPLE': headers.xEXAMPLE } : undefined
-
   const res = await fetch<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: '/pet/findByTags',
     baseURL: 'https://petstore.swagger.io/v2',
     params,
-    headers: { ...mappedHeaders },
+    headers: { ...headers },
   })
   return {
     content: [
