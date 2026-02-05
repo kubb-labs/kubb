@@ -4,7 +4,7 @@ export {
   createAddFilesMutationRequestFaker,
   createAddFilesMutationResponseFaker,
 } from './createAddFilesFaker.ts'
-export { createAddPet200Faker, createAddPet405Faker, createAddPetMutationRequestFaker, createAddPetMutationResponseFaker } from './createAddPetFaker.ts'
+export { createAddPet405Faker, createAddPetErrorFaker, createAddPetMutationRequestFaker, createAddPetMutationResponseFaker } from './createAddPetFaker.ts'
 export {
   createDeletePet400Faker,
   createDeletePetHeaderParamsFaker,

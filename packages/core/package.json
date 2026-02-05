@@ -105,14 +105,14 @@
     "natural-orderby": "^5.0.0",
     "p-limit": "catalog:",
     "remeda": "catalog:",
-    "semver": "^7.7.3"
+    "semver": "^7.7.4"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/semver": "^7.7.1"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.12.9"
+    "@kubb/react-fabric": "0.12.10"
   },
   "engines": {
     "node": ">=20"

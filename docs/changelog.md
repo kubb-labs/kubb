@@ -6,6 +6,16 @@ outline: deep
 
 # Changelog
 
+## 4.20.4
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Fix `asPascalConst` enum const values not exported in barrel files**
+
+---
+
 ## 4.20.3
 
 ### 🐛 Bug Fixes

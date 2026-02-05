@@ -76,7 +76,7 @@
     "latest-version": "^9.0.0",
     "picocolors": "^1.1.1",
     "seedrandom": "^3.0.5",
-    "semver": "^7.7.3",
+    "semver": "^7.7.4",
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
